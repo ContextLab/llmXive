@@ -1,0 +1,117 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "OrbitSolution"
+description: "Schema for a fitted dynamical model of a satellite pair (Joint Fit)."
+type: "object"
+properties:
+  satellite_pair:
+    type: "array"
+    description: "Pair of satellites in the joint fit."
+    items:
+      type: "string"
+      enum:
+        - "LAGEOS-1"
+        - "LAGEOS-2"
+        - "ETALON-1"
+        - "ETALON-2"
+        - "STARLETTE"
+    minItems: 2
+    maxItems: 2
+  epoch:
+    type: "string"
+    description: "Reference epoch for the orbital elements."
+  orbital_elements:
+    type: "object"
+    description: "Keplerian orbital elements for both satellites."
+    properties:
+      satellite_1:
+        type: "object"
+        properties:
+          semi_major_axis:
+            type: "number"
+          eccentricity:
+            type: "number"
+          inclination:
+            type: "number"
+          raan:
+            type: "number"
+          arg_periapsis:
+            type: "number"
+          mean_anomaly:
+            type: "number"
+        required:
+          - semi_major_axis
+          - eccentricity
+          - inclination
+      satellite_2:
+        type: "object"
+        properties:
+          semi_major_axis:
+            type: "number"
+          eccentricity:
+            type: "number"
+          inclination:
+            type: "number"
+          raan:
+            type: "number"
+          arg_periapsis:
+            type: "number"
+          mean_anomaly:
+            type: "number"
+        required:
+          - semi_major_axis
+          - eccentricity
+          - inclination
+  non_gravitational_acceleration:
+    type: "object"
+    description: "Non-gravitational acceleration parameters for both satellites."
+    properties:
+      satellite_1:
+        type: "object"
+        properties:
+          drag_coefficient:
+            type: "number"
+          srp_coefficient:
+            type: "number"
+        required:
+          - drag_coefficient
+          - srp_coefficient
+      satellite_2:
+        type: "object"
+        properties:
+          drag_coefficient:
+            type: "number"
+          srp_coefficient:
+            type: "number"
+        required:
+          - drag_coefficient
+          - srp_coefficient
+  differential_parameter:
+    type: "number"
+    description: "Estimated differential parameter ($\\eta$ or $a_c$)."
+  covariance_matrix:
+    type: "array"
+    description: "Covariance matrix of the estimated parameters."
+    items:
+      type: "array"
+      items:
+        type: "number"
+  chi_squared:
+    type: "number"
+    description: "Chi-squared value of the fit."
+  residuals_rms:
+    type: "number"
+    description: "Root Mean Square of post-fit residuals in meters."
+  converged:
+    type: "boolean"
+    description: "Whether the solver converged."
+required:
+  - satellite_pair
+  - epoch
+  - orbital_elements
+  - non_gravitational_acceleration
+  - differential_parameter
+  - covariance_matrix
+  - chi_squared
+  - residuals_rms
+  - converged
+additionalProperties: false

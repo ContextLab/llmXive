@@ -1,2 +1,355 @@
-resolved_at: '2026-07-03T14:27:26.128868+00:00'
-datasets: []
+resolved_at: '2026-07-03T14:33:55.572026+00:00'
+datasets:
+- intent: SLR
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/vrclc/imasc_slr/resolve/main/data/train-00000-of-00012-2889c55886b1f612.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/emre/Open_SLR108_Turkish_10_hours/resolve/main/TR.zip
+    source: huggingface
+    format: zip
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/projecte-aina/openslr-slr69-ca-trimmed-denoised/resolve/main/data/train-00000-of-00002.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/emre/Open_SLR108_Turkish_10_hours/resolve/main/TR.zip
+    source: huggingface
+    status: verified
+    format: zip
+  - url: https://huggingface.co/datasets/vrclc/imasc_slr/resolve/main/data/train-00000-of-00012-2889c55886b1f612.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/projecte-aina/openslr-slr69-ca-trimmed-denoised/resolve/main/data/train-00000-of-00002.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/journal_contribution/Generative_AI-Augmented_Transcriptomic_Analysis_of_Fibrotic_Progression_in_Crohn_s_Disease/32896289
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://sussex.figshare.com/articles/dataset/Data_for_research_article_Heuristic_rules_for_co-operative_transport_in_wood_ant_nest_maintenance_/31169602
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/journal_contribution/Regulatory_T_cell_therapies_at_a_translational_crossroads_b_b_/32896283
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/On_the_Effects_of_Customized_Configurations_of_Static_Code_Analysis_Tools_A_Prospective_Cohort_Study_of_SonarQube_Cloud_-_Artifact/31842262
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/dataset/Supplementary_file_2_Determinants_of_participation_and_support_mechanisms_in_a_paralympic_sport_training_program_evidence_from_the_IDRD_program_in_Bogot_docx/32896274
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4280573
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://academic.oup.com/slr/article/doi/10.1093/slr/hmac016/6986372
+    source: zenodo
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://zenodo.org/records/15422594
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/12789745
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18862415
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21162081
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21162081
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tudatalib.ulb.tu-darmstadt.de/handle/tudatalib/4593.16
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/_p_dir_ltr_A_Systematic_Literature_Review_on_Artificial_Intelligence-Generated_Feedback_in_Second_and_Foreign_Language_Writing_Benefits_and_Challenges_p_/32894996/1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/_p_dir_ltr_A_Systematic_Literature_Review_on_Artificial_Intelligence-Generated_Feedback_in_Second_and_Foreign_Language_Writing_Benefits_and_Challenges_p_/32894996
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: LAGEOS-1
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/journal_contribution/Generative_AI-Augmented_Transcriptomic_Analysis_of_Fibrotic_Progression_in_Crohn_s_Disease/32896289
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://sussex.figshare.com/articles/dataset/Data_for_research_article_Heuristic_rules_for_co-operative_transport_in_wood_ant_nest_maintenance_/31169602
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/journal_contribution/Regulatory_T_cell_therapies_at_a_translational_crossroads_b_b_/32896283
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/On_the_Effects_of_Customized_Configurations_of_Static_Code_Analysis_Tools_A_Prospective_Cohort_Study_of_SonarQube_Cloud_-_Artifact/31842262
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/dataset/Supplementary_file_2_Determinants_of_participation_and_support_mechanisms_in_a_paralympic_sport_training_program_evidence_from_the_IDRD_program_in_Bogot_docx/32896274
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19202346
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7298683
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://link.aps.org/doi/10.1103/hj6p-bfyr
+    source: zenodo
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://zenodo.org/records/7424324
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7249041
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20774526
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20774526
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20773584
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://repositories.lib.utexas.edu/handle/2152/136662
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20679185
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: LAGEOS-2
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://frontiersin.figshare.com/articles/dataset/Table_1_Developing_an_efficient_intercrop_system_for_understory_medicinal_plant_cultivation_allelopathy-_based_screening_of_tree_species_for_Turpinia_arguta_docx/32896298
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Data_and_R_code_for_a_study_regarding_how_nutrient_enrichment_afftects_soil_biodiversity_and_ecosystem_function_/25460410
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/Generative_AI-Augmented_Transcriptomic_Analysis_of_Fibrotic_Progression_in_Crohn_s_Disease/32896289
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://sussex.figshare.com/articles/dataset/Data_for_research_article_Heuristic_rules_for_co-operative_transport_in_wood_ant_nest_maintenance_/31169602
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/journal_contribution/Regulatory_T_cell_therapies_at_a_translational_crossroads_b_b_/32896283
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19202346
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://link.aps.org/doi/10.1103/hj6p-bfyr
+    source: zenodo
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://zenodo.org/records/6406213
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6401004
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6402052
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20774526
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20774526
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20773584
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20679185
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dataservices.gfz-potsdam.de/icgem/showshort.php?id=escidoc:4656890
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: ILRS
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://frontiersin.figshare.com/articles/dataset/Table_1_Developing_an_efficient_intercrop_system_for_understory_medicinal_plant_cultivation_allelopathy-_based_screening_of_tree_species_for_Turpinia_arguta_docx/32896298
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Data_and_R_code_for_a_study_regarding_how_nutrient_enrichment_afftects_soil_biodiversity_and_ecosystem_function_/25460410
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/Generative_AI-Augmented_Transcriptomic_Analysis_of_Fibrotic_Progression_in_Crohn_s_Disease/32896289
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://sussex.figshare.com/articles/dataset/Data_for_research_article_Heuristic_rules_for_co-operative_transport_in_wood_ant_nest_maintenance_/31169602
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/journal_contribution/Regulatory_T_cell_therapies_at_a_translational_crossroads_b_b_/32896283
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8413698
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7341237
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4294767
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19196827
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6340017
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20806117
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20806117
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2601.02812
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20673231
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20673231
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: LAGEOS
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://frontiersin.figshare.com/articles/dataset/Supplementary_file_1_Perceived_barriers_and_facilitators_of_accessing_statutory_and_non-statutory_services_in_disadvantaged_communities_in_England_a_co-produced_qualitative_review_docx/32896310
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/dataset/Table_1_Developing_an_efficient_intercrop_system_for_understory_medicinal_plant_cultivation_allelopathy-_based_screening_of_tree_species_for_Turpinia_arguta_docx/32896298
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Data_and_R_code_for_a_study_regarding_how_nutrient_enrichment_afftects_soil_biodiversity_and_ecosystem_function_/25460410
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/Generative_AI-Augmented_Transcriptomic_Analysis_of_Fibrotic_Progression_in_Crohn_s_Disease/32896289
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://sussex.figshare.com/articles/dataset/Data_for_research_article_Heuristic_rules_for_co-operative_transport_in_wood_ant_nest_maintenance_/31169602
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15566135
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19202346
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15026112
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://link.aps.org/doi/10.1103/hj6p-bfyr
+    source: zenodo
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://zenodo.org/records/7249041
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20774526
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20774526
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20773584
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://repositories.lib.utexas.edu/handle/2152/136662
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20679185
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

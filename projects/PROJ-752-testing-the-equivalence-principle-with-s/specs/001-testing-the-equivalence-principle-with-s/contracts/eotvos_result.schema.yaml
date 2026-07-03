@@ -1,0 +1,94 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "EotvosResult"
+description: "Schema for the final Eötvös parameter test outcome."
+type: "object"
+properties:
+  satellite_pair:
+    type: "array"
+    description: "Pair of satellites tested."
+    items:
+      type: "string"
+      enum:
+        - "LAGEOS-1"
+        - "LAGEOS-2"
+        - "ETALON-1"
+        - "ETALON-2"
+        - "STARLETTE"
+    minItems: 2
+    maxItems: 2
+  differential_acceleration:
+    type: "number"
+    description: "Differential acceleration $a_c$ in m/s²."
+  eta:
+    type: "number"
+    description: "Eötvös parameter."
+  eta_lower_ci:
+    type: "number"
+    description: "Lower bound of 95% confidence interval."
+  eta_upper_ci:
+    type: "number"
+    description: "Upper bound of 95% confidence interval."
+  p_value:
+    type: "number"
+    description: "P-value from the statistical test (Likelihood Ratio Test)."
+  z_score:
+    type: "number"
+    description: "Z-score ($\\eta / SE_\\eta$)."
+  geopotential_model:
+    type: "string"
+    description: "Geopotential model used (e.g., GGM05C)."
+    enum:
+      - "GGM05C"
+      - "EGM2008"
+      - "GOCO06s"
+  sensitivity_data:
+    type: "array"
+    description: "Z-scores for alternative geopotential models."
+    items:
+      type: "object"
+      properties:
+        model:
+          type: "string"
+        z_score:
+          type: "number"
+      required:
+        - model
+        - z_score
+  adjusted_p_value:
+    type: "number"
+    description: "P-value after multiple-comparison correction (Bonferroni, Holm-Bonferroni, or Benjamini-Hochberg)."
+  status:
+    type: "string"
+    description: "Status of the result."
+    enum:
+      - "Significant"
+      - "Unreliable"
+      - "Constrained"
+  benchmark_comparison:
+    type: "object"
+    description: "Comparison against state-of-the-art benchmarks (e.g., Müller et al., MICROSCOPE)."
+    properties:
+      reference_source:
+        type: "string"
+      reference_value:
+        type: "number"
+      actual_ci_width:
+        type: "number"
+    required:
+      - reference_source
+      - reference_value
+      - actual_ci_width
+required:
+  - satellite_pair
+  - differential_acceleration
+  - eta
+  - eta_lower_ci
+  - eta_upper_ci
+  - p_value
+  - z_score
+  - geopotential_model
+  - sensitivity_data
+  - adjusted_p_value
+  - status
+  - benchmark_comparison
+additionalProperties: false

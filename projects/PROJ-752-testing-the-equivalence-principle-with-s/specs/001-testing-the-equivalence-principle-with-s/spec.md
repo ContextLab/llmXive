@@ -1,97 +1,119 @@
 # Feature Specification: Testing the Equivalence Principle with Satellite Laser Ranging
 
-**Feature Branch**: `001-testing-equivalence-principle`
-**Created**: 2026-06-21
-**Status**: Draft
-**Input**: User description: "Testing the Equivalence Principle with Satellite Laser Ranging physics"
+**Feature Branch**: `001-testing-equivalence-principle`  
+**Created**: 2026-06-21  
+**Status**: Draft  
+**Input**: User description: "Do geodetic satellites of differing composition (e.g., LAGEOS 1 / 2, Etalon‑1 / 2, Starlette) exhibit measurable differential accelerations that would violate the weak equivalence principle (WEP)?"
 
 ## User Scenarios & Testing
 
-### User Story 1 - Ingest and Preprocess SLR Normal Points (Priority: P1)
+### User Story 1 - Data Ingestion and Orbit Pre-processing (Priority: P1)
 
-The system must successfully download, parse, and format multi-year Satellite Laser Ranging (SLR) normal-point data for a selected set of geodetic satellites (LAGEOS-1, LAGEOS-2, Etalon-1, Etalon-2, Starlette) from the ILRS public archive.
+The researcher must be able to download multi-year Satellite Laser Ranging (SLR) normal-point series for specific geodetic satellites (LAGEOS-1, LAGEOS-2, Etalon-1, Etalon-2, Starlette) from the ILRS public archive and process them into a clean, time-aligned dataset compatible with the orbit determination engine.
 
-**Why this priority**: Without clean, time-aligned observational data, no orbit determination or physics analysis can occur. This is the foundational data layer.
+**Why this priority**: Without high-fidelity, clean observational data spanning multiple years, no dynamical modeling or parameter estimation can occur. This is the foundational input for the entire study.
 
-**Independent Test**: Can be fully tested by verifying the script downloads the specified epoch ranges, parses the ASCII/CSV normal-point files, and outputs a unified CSV with columns: `timestamp`, `satellite_id`, `range_m`, `sigma_m`, `elevation_deg`.
+**Independent Test**: Can be fully tested by executing the data ingestion pipeline and verifying that the output CSV contains ≥ 95% of the total normal points available in the ILRS archive for the requested date range, with no NaN values in the range or timestamp columns.
 
 **Acceptance Scenarios**:
 
-1. **Given** the ILRS archive contains valid normal-point files for LAGEOS-1 from 2020-01-01 to 2023-12-31, **When** the ingestion script runs, **Then** a unified CSV is generated containing exactly the expected number of rows with no parsing errors.
-2. **Given** a corrupted or incomplete file in the archive, **When** the ingestion script runs, **Then** the script logs the error, skips the specific file, and continues processing remaining valid data without crashing.
+1. **Given** the ILRS archive is accessible, **When** the script requests normal points for LAGEOS-1, **Then** the system downloads the data and outputs a CSV with at least 10,000 valid range measurements.
+2. **Given** a satellite with sparse coverage (e.g., Starlette in early years), **When** the script filters for data quality, **Then** the system excludes points with residuals > 2 cm and logs the exclusion count.
+3. **Given** the download fails for one satellite (e.g., Etalon-2), **When** the pipeline runs, **Then** the system logs a warning, proceeds with available data, and reports the specific satellite ID missing in the final summary.
 
 ---
 
-### User Story 2 - Execute CPU-Tractable Orbit Determination (Priority: P2)
+### User Story 2 - Differential Acceleration Parameter Estimation (Priority: P2)
 
-The system must perform a weighted least-squares orbit determination for each satellite using a CPU-only dynamical model (geopotential, drag, SRP, relativity) to estimate standard orbital elements and, in the alternative hypothesis model, estimate a composition-dependent acceleration parameter ($\eta$).
+The researcher must be able to run two separate weighted least-squares orbit determination fits (one for each satellite in a pair) using a high-fidelity dynamical model (geopotential, drag, SRP, relativity), and then calculate the differential acceleration term ($a_c$) and the Eötvös parameter ($\eta$) from the difference in the estimated non-gravitational accelerations.
 
-**Why this priority**: This establishes the baseline "null model" (no WEP violation) and the alternative model against which the hypothesis will be tested. It must run within the 6-hour free-tier limit.
+**Why this priority**: This is the core scientific computation. It transforms raw data into the specific parameter ($a_c$) required to test the Weak Equivalence Principle.
 
-**Independent Test**: Can be fully tested by running the orbit fit on a 1-year subset of data. **Target Metric**: Verify that the RMS of post-fit residuals is < 2.0 cm (matching expected SLR precision) and that the process completes within 45 minutes on a 2-core CPU. **Hard Constraint**: The full pipeline must complete within 6 hours on a 2-core runner.
+**Independent Test**: Can be fully tested by running the estimation script on a subset of LAGEOS data and verifying that:
+1. The solver converges (residuals < 1e-5 meters) for both satellites.
+2. The system outputs a non-null estimate for $a_c$ with a valid covariance matrix.
+3. The system explicitly calculates and outputs the Eötvös parameter $\eta$ and its 95% confidence interval, verifying that the calculation logic correctly derives $\eta$ from the difference in accelerations and that the confidence interval is derived from the propagated covariance matrix.
 
 **Acceptance Scenarios**:
 
-1. **Given** preprocessed normal points and a standard Earth gravity model (e.g., GGM05C), **When** the orbit determination module runs, **Then** it outputs a file of post-fit residuals and a state vector for each epoch with a runtime < 6 hours on a 2-core CPU.
-2. **Given** a convergence failure in the least-squares solver (e.g., due to bad initial guesses), **When** the module runs, **Then** it automatically retries with a perturbed initial state up to 3 times before flagging the specific time segment as "unconverged" in the log.
+1. **Given** a converged orbit solution for both satellites, **When** the composition-dependent term is calculated from the difference in non-gravitational accelerations, **Then** the system outputs the post-fit residual RMS for both the null model ($a_c=0$) and the alternative model, allowing the researcher to calculate the improvement.
+2. **Given** two satellites of different composition, **When** the differential acceleration is calculated, **Then** the system outputs the Eötvös parameter $\eta$ with a 95% confidence interval derived from the covariance matrix.
+3. **Given** a model that fails to converge after 100 iterations, **When** the solver retries with a relaxed tolerance, **Then** the system logs the failure and outputs the best-fit parameters found so far rather than crashing.
 
 ---
 
-### User Story 3 - Compute Eötvös Parameter and Statistical Bounds (Priority: P3)
+### User Story 3 - Statistical Validation and Robustness Analysis (Priority: P3)
 
-The system must calculate the differential acceleration between satellite pairs by estimating the Eötvös parameter ($\eta$) as a dynamic parameter in the least-squares solution, and perform an F-test (or BIC comparison) to establish a 95% confidence upper bound on WEP violation.
+The researcher must be able to compare the null model against the alternative model using an F-test or BIC, and perform a sensitivity analysis by varying the geopotential model to ensure the result is robust against model misspecification.
 
-**Why this priority**: This delivers the scientific result (the constraint on $\eta$) and determines whether the null hypothesis can be rejected, fulfilling the research goal.
+**Why this priority**: This step provides the scientific rigor required to claim a discovery or an upper bound. It ensures that the result is not an artifact of arbitrary cutoffs or unmodeled geopotential errors.
 
-**Independent Test**: Can be fully tested by injecting a synthetic "fake" WEP violation signal into the differential acceleration term with magnitude $\eta_{synth} = 10^{-10}$ and period $T=1$ year. Verify the analysis correctly detects it with a p-value < 0.05, and conversely, that it reports a null result when no signal is present.
+**Independent Test**: Can be fully tested by executing the validation script and verifying that it produces a sensitivity plot showing the variation in the Z-score ($\eta / SE_\eta$) across different geopotential models and outputs the final p-value.
 
 **Acceptance Scenarios**:
 
-1. **Given** the differential residual time series between LAGEOS-1 and Starlette, **When** the statistical analysis runs, **Then** it outputs a 95% confidence interval for $\eta$ and a p-value for the F-test comparing the null vs. alternative model.
-2. **Given** a scenario where the F-test indicates no significant improvement from the alternative model, **When** the analysis completes, **Then** the system outputs a conservative upper bound on $\eta$ (e.g., $\eta < 10^{-9}$) rather than a false positive detection.
+1. **Given** the null and alternative model fits, **When** the F-test is performed, **Then** the system outputs a p-value and flags the result as "Significant" if $p < 0.05$.
+2. **Given** a geopotential model sweep configuration, **When** the script runs, **Then** it evaluates $\eta$ using at least three distinct geopotential models (e.g., GGM05C, EGM2008, GOCO06s) and reports the variation in the Z-score.
+3. **Given** multiple satellite pairs are tested simultaneously, **When** the family-wise error is calculated, **Then** the system applies a configurable multiple-comparison correction (default: Bonferroni) and reports the adjusted p-value.
+
+---
+
+### User Story 4 - Compute Feasibility & Resource Validation (Priority: P4)
+
+The researcher must be able to validate that the entire analysis pipeline (data ingestion, orbit determination, and statistical validation) can complete within the constraints of the target compute environment (GitHub Actions free-tier).
+
+**Why this priority**: Ensures the proposed methodology is feasible within the available resources before committing to a full-scale run.
+
+**Independent Test**: Can be fully tested by running the full pipeline on a representative subset of data and verifying that the total compute time remains within a practical operational window.
+
+**Acceptance Scenarios**:
+
+1. **Given** a representative dataset (e.g., 1 year of LAGEOS data), **When** the full pipeline is executed, **Then** the system completes all steps within 6 hours.
+2. **Given** a run that exceeds 6 hours, **When** the process is monitored, **Then** the system logs a warning and reports the specific stage causing the delay.
+
+---
 
 ### Edge Cases
 
-- What happens when the ILRS archive is temporarily unavailable or rate-limited? (System retries with exponential backoff up to 5 times, then fails gracefully).
-- How does the system handle satellites with sparse data coverage (e.g., < 100 points in a year)? (The system flags these as "insufficient data" and excludes them from the differential analysis to prevent statistical noise).
-- How does the system handle collinearity between Solar Radiation Pressure (SRP) and the WEP signal if both are modeled simultaneously? (The system performs a Variance Inflation Factor (VIF) check; if VIF > 10, it reports the correlation and refrains from claiming independent significance for the SRP term. Note: Atmospheric drag is negligible for geodetic satellites like LAGEOS and is not the primary confounder).
+- What happens when the ILRS archive is temporarily offline or returns a 403 error? (System must implement exponential backoff retry up to 3 attempts, then fail gracefully with a clear error message).
+- How does the system handle a satellite with insufficient data points (< 500) to constrain the orbit? (System must skip that satellite in the differential analysis and log a specific "Insufficient Data" warning).
+- How does the system handle potential bias from unmodeled geopotential errors? (System must perform a sensitivity analysis by varying the geopotential model (e.g., GGM05C vs EGM2008); if the Z-score varies by > 20% across models, it must flag the result as "Unreliable due to geopotential uncertainty").
 
 ## Requirements
 
 ### Functional Requirements
 
-- **FR-001**: System MUST download SLR normal-point data for at least 5 distinct geodetic satellites from the ILRS public archive (See US-1).
-- **FR-002**: System MUST execute a weighted least-squares orbit determination using only CPU-tractable methods (no GPU/CUDA) and complete within 6 hours on a 2-core runner (See US-2).
-- **FR-003**: System MUST compute the Eötvös parameter $\eta$ by estimating the composition-dependent acceleration term as a dynamic parameter in the least-squares solution for pairs of satellites with distinct bulk compositions (See US-3).
-- **FR-004**: System MUST perform a statistical F-test (or BIC comparison) to evaluate the significance of the composition-dependent acceleration term against the null model (See US-3).
-- **FR-005**: System MUST output a 95% confidence upper bound on $\eta$ and a CSV of post-fit residuals for independent validation (See US-3).
-- **FR-006**: System MUST retrieve satellite mass, cross-sectional area, and specific nuclear composition metrics (Z/A ratios, neutron excess) from external catalogs. The system MUST check CelesTrak first, then the NASA NSSDC Master Catalog. If data is missing from both sources for a specific satellite ID, the system MUST log `MISSING_METADATA`, exclude that satellite from the differential analysis, and continue processing remaining satellites. (See US-1 for data ingestion scope).
+- **FR-001**: System MUST download and parse SLR normal-point series for LAGEOS-1, LAGEOS-2, Etalon-1, Etalon-2, and Starlette from the ILRS archive, filtering for quality < 2 cm. (See US-1)
+- **FR-002**: System MUST generate a high-fidelity dynamical model including geopotential (GGM05C), atmospheric drag, solar radiation pressure, and relativistic corrections for each satellite. (See US-2)
+- **FR-003**: System MUST perform two separate weighted least-squares fits (one per satellite) to estimate orbital elements and non-gravitational accelerations, then calculate the differential acceleration term $a_c$ from the difference. (See US-2)
+- **FR-004**: System MUST calculate the Eötvös parameter $\eta = |a_c| / g$ and its 95% confidence interval for each satellite pair, where $a_c$ is the differential acceleration ($|a_1 - a_2|$) and $g$ is the local gravitational acceleration at the satellite's orbital altitude. (See US-2)
+- **FR-005**: System MUST perform a sensitivity analysis by running the estimation with at least three distinct geopotential models (e.g., GGM05C, EGM2008, GOCO06s) and report the resulting Z-scores ($\eta / SE_\eta$) for each model. (See US-3)
+- **FR-006**: System MUST apply a configurable multiple-comparison correction (default: Bonferroni; options: Bonferroni, Holm-Bonferroni, Benjamini-Hochberg) when testing more than one satellite pair to control family-wise error. (See US-3)
+- **FR-007**: System MUST output a diagnostic report including the $\chi^2$ improvement, the final $\eta$ limit, and a CSV of post-fit residuals. (See US-2)
 
 ### Key Entities
 
-- **NormalPoint**: An observation record containing timestamp, range, sigma, and satellite ID.
-- **OrbitSolution**: A time-series of estimated state vectors (position, velocity) and dynamic parameters (including $\eta$ if estimated) for a specific satellite.
-- **ResidualSeries**: The difference between observed ranges and modeled ranges, used to derive acceleration anomalies.
-- **WEPResult**: A structured output containing the estimated $\eta$, its confidence interval, and the F-test statistic.
+- **NormalPoint**: Represents a single SLR observation with attributes: timestamp, range, satellite_id, station_id, quality_flag.
+- **OrbitSolution**: Represents a fitted dynamical model with attributes: orbital_elements, non_gravitational_acceleration, covariance_matrix, $\chi^2$, residuals.
+- **EotvosResult**: Represents the final test outcome with attributes: $\eta$ value, confidence_interval, p_value, sensitivity_sweep_data (Z-scores per geopotential model).
 
 ## Success Criteria
 
 ### Measurable Outcomes
 
-> Planning docs state *what* will be measured and the *source/reference* it is
-> measured against; defer specific empirical values (counts, dataset sizes,
-> measured quantities, percentages) to the implementation/research phase.
+> Planning docs state *what* will be measured and the *source/reference* it is measured against; defer specific empirical values (counts, dataset sizes, measured quantities, percentages) to the implementation/research phase.
 
-- **SC-001**: The RMS of post-fit range residuals is measured against the expected SLR precision baseline (typically < 2.0 cm) as a Target Metric to validate orbit determination quality (See US-2).
-- **SC-002**: The 95% confidence upper bound on the Eötvös parameter $\eta$ is measured against the current state-of-the-art limits from Lunar Laser Ranging (LLR) as defined by Adelberger et al. and Williams et al. to assess competitive validity (See US-3).
-- **SC-003**: The total execution time of the full analysis pipeline is measured against the GitHub Actions free-tier limit to ensure feasibility (See US-2).
-- **SC-004**: The p-value from the F-test is measured against the significance threshold $\alpha = 0.05$ to determine if the null hypothesis is rejected (See US-3).
-- **SC-005**: The Variance Inflation Factor (VIF) for correlated predictors (SRP vs. WEP term) is measured against the threshold VIF < 10 to ensure measurement validity and avoid collinearity artifacts (See US-3).
+- **SC-001**: The post-fit residual RMS of the orbit determination is measured against the pre-fit residual RMS to verify model improvement. (See US-2)
+- **SC-002**: The width of the 95% confidence interval of the Eötvös parameter $\eta$ is measured and reported to assess if it meets the target research precision at the level of high-precision numerical stability (citing current state-of-the-art benchmarks). (See US-3)
+- **SC-003**: The F-test p-value is measured against the significance threshold of a conventional level (adjusted for multiple comparisons) to determine statistical validity. (See US-3)
+- **SC-004**: The variation in the Z-score ($\eta / SE_\eta$) is measured across the geopotential model sweep to verify robustness against model misspecification. (See US-3)
+- **SC-005**: The total compute time is measured against the free-tier runner limit to verify feasibility. (See US-4)
 
 ## Assumptions
 
-- The ILRS public archive provides sufficient historical normal-point data (at least 3 years of overlap) for the selected satellites (LAGEOS-1/2, Etalon-1/2, Starlette) to perform a statistically robust differential analysis.
-- The material composition (density and bulk properties) of the selected satellites is available in public satellite catalogs (e.g., CelesTrak or NASA NSSDC) and can be reliably mapped to the ILRS data without ambiguity.
-- The "free CPU" constraint (A minimal computational configuration, comprising a few cores and several gigabytes of RAM, will be employed to evaluate the research question regarding resource efficiency. The method involves a controlled simulation study [] to determine feasibility under constrained hardware conditions.) is sufficient for the orbit determination of these specific satellites if the time span is limited to a 1-year window per satellite or if data is subsampled to a 1-day cadence for the differential analysis.
-- The dynamical models (geopotential, drag, SRP) available in the open-source `pyoorb` or `pyorbital` libraries are accurate enough that residual errors do not mimic a composition-dependent signal at a negligible level.
-- The analysis frames findings as associational constraints on $\eta$ (observational test) rather than claiming causal proof of new physics, consistent with the non-randomized nature of satellite orbits.
+- **Assumption about data availability**: The ILRS public archive contains sufficient multi-year normal-point data for LAGEOS-1, LAGEOS-2, Etalon-1, Etalon-2, and Starlette to perform a statistically significant test (minimum 500 points per satellite).
+- **Assumption about compute environment**: The analysis will run on a GitHub Actions free-tier runner (CPU, sufficient RAM) using CPU-tractable methods (scikit-learn, classical statistics) without GPU acceleration or large-model inference, with a a hard limit on the runtime per run.
+- **Assumption about dynamical models**: The GGM05C Earth gravity field model and standard atmospheric drag models (e.g., Jacchia) are sufficient to model non-compositional forces to the required precision.
+- **Assumption about statistical framing**: Since the study is observational (no random assignment of satellite composition), all findings regarding $\eta$ will be framed as associational limits or upper bounds, not causal proofs of WEP violation, unless a specific identification strategy is introduced later.
+- **Assumption about target precision**: The target research precision for the Eötvös parameter is high sensitivity levels, based on current state-of-the-art benchmarks (e.g., Müller et al.).
+- **Assumption about dataset-variable fit**: The SLR normal points and satellite metadata (mass, composition) provided by ILRS contain all necessary variables to compute the differential acceleration; if a specific composition variable is missing for a satellite, that satellite will be excluded from the differential analysis.
