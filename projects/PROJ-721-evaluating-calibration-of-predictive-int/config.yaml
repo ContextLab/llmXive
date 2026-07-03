@@ -1,0 +1,38 @@
+# Configuration for M4 calibration evaluation pipeline
+
+# Dataset settings
+dataset:
+  name: "M4"
+  source: "github"
+  owner: "M4-competition-org"
+  repo: "M4-competition"
+  release: "v1.0"
+  zip_file: "M4-Dataset.zip"
+  manifest_file: "manifest.json"
+
+# Calibration thresholds (Constitution Principle VII)
+threshold: 0.02
+
+# Nominal coverage levels for evaluation
+nominal_levels:
+  - 0.80
+  - 0.90
+
+# Adaptive Conformal Prediction settings
+aci:
+  learning_rate: 0.01
+  step_size: 10
+  initial_alpha: 0.1
+
+# Pipeline settings
+pipeline:
+  series_subset_size: 100
+  random_seed: 42
+  max_horizon: 12
+  bootstrap_resamples: 10000
+
+# Thresholds for sensitivity analysis
+sensitivity_thresholds:
+  - 0.01
+  - 0.05
+  - 0.10

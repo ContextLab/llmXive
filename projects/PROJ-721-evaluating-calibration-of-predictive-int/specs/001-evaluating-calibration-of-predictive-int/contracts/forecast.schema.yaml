@@ -1,0 +1,46 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Forecast Result Schema"
+description: "Schema for forecast outputs including prediction intervals"
+type: "object"
+properties:
+  series_id:
+    type: "string"
+    description: "Reference to the time series ID"
+  model_name:
+    type: "string"
+    enum: ["ARIMA", "ETS", "Prophet", "LightGBM"]
+    description: "Name of the forecasting model"
+  horizon:
+    type: "integer"
+    minimum: 1
+    maximum: 12
+    description: "Forecast horizon"
+  point_forecast:
+    type: "number"
+    description: "Point forecast value"
+  lower_bound_80:
+    type: "number"
+    description: "Lower bound for 80% prediction interval"
+  upper_bound_80:
+    type: "number"
+    description: "Upper bound for 80% prediction interval"
+  lower_bound_95:
+    type: "number"
+    description: "Lower bound for 95% prediction interval"
+  upper_bound_95:
+    type: "number"
+    description: "Upper bound for 95% prediction interval"
+  actual_value:
+    type: "number"
+    description: "Actual observed value for the horizon"
+required:
+  - series_id
+  - model_name
+  - horizon
+  - point_forecast
+  - lower_bound_80
+  - upper_bound_80
+  - lower_bound_95
+  - upper_bound_95
+  - actual_value
+additionalProperties: false

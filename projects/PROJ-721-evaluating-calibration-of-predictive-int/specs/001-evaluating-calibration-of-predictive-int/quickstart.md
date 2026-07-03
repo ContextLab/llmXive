@@ -2,19 +2,19 @@
 
 ## Prerequisites
 
-- Python 3.11+
-- Git
-- Sufficient RAM (minimum), 14 GB disk space.
+*   Python 3.11+
+*   Git
+*   GitHub Actions Runner (or local machine with 2+ CPU cores, 7GB RAM).
 
 ## Installation
 
-1.  **Clone the repository** (if not already done):
+1.  **Clone the repository**:
     ```bash
     git clone <repo-url>
     cd projects/PROJ-721-evaluating-calibration-of-predictive-int
     ```
 
-2.  **Create and activate a virtual environment**:
+2.  **Create and activate virtual environment**:
     ```bash
     python -m venv venv
     source venv/bin/activate  # On Windows: venv\Scripts\activate
@@ -22,65 +22,56 @@
 
 3.  **Install dependencies**:
     ```bash
-    pip install -r requirements.txt
+    pip install -r code/requirements.txt
     ```
 
-## Data Setup
-
-The pipeline will automatically download the M4 dataset.
-
-1.  **Run the download script**:
-    ```bash
-    python code/download.py
-    ```
-    *This fetches the M4 CSVs from the official GitHub repo and stores them in `data/raw/`.*
-
-2.  **Verify data integrity**:
-    Check that `data/raw/` contains the expected CSV files and that the checksum matches the recorded value in `state/`.
+4.  **Download M4 Dataset**:
+    *   The script `code/data/download.py` will automatically fetch the dataset from the official M4 GitHub repository.
+    *   It will verify the checksum against the expected value.
+    *   *Note*: Ensure you have ~500MB of free disk space.
 
 ## Running the Pipeline
 
-Execute the full evaluation pipeline on a representative subset of time series.:
-
+### Full Run (1,000 series)
 ```bash
-python code/run_pipeline.py --subset-size 1000 --output results/
+python code/main.py --subset-size 1000 --seed 42
 ```
+*   **Output**: Results in `results/` directory.
+*   **Expected Runtime**: ~4-5 hours on 2 CPU cores.
 
-### Options
-- `--subset-size`: Number of series to process (default: 1000).
-- `--models`: Comma-separated list of models to run (default: `arima,ets,prophet,lightgbm`).
-- `--horizons`: Comma-separated list of horizons (default: `1,2,3,4,5,6,7,8,9,10,11,12`).
+### Quick Test (10 series)
+```bash
+python code/main.py --subset-size 10 --seed 42
+```
+*   **Purpose**: Verify pipeline correctness and coverage calculation.
+*   **Expected Runtime**: < 10 minutes.
 
-## Expected Outputs
+## Verifying Results
 
-After completion, the following files will be generated in `results/`:
+1.  **Check Coverage Rates**:
+    *   Open `results/calibration_metrics.csv`.
+    *   Verify `deviation_80` and `deviation_95` are within the expected range (≤2% for well-calibrated models).
 
-- `coverage.csv`: Empirical coverage rates for all models, horizons, and groups.
-- `recalibration.csv`: Coverage rates after adaptive conformal prediction.
-- `plots/`: Visualizations of coverage deviations and stratified analysis.
+2.  **Check Stratification**:
+    *   Verify that `subgroup_seasonality` and `subgroup_trend` columns are populated correctly.
 
-## Validation
+3.  **Check Recalibration**:
+    *   If deviation > 2%, `results/recalibration_results.csv` should show improved coverage.
 
-To verify the pipeline ran correctly:
-
-1.  **Check coverage rates**:
+4.  **Run Contract Tests**:
     ```bash
-    python -c "import pandas as pd; df = pd.read_csv('results/coverage.csv'); print(df.groupby('model_name')['empirical_coverage_95'].mean())"
+    pytest tests/contract/
     ```
- Expected: Values should be close to (within [deferred] deviation).
-
-2.  **Run unit tests**:
-    ```bash
-    pytest tests/unit/ -v
-    ```
-
-3.  **Run contract tests**:
-    ```bash
-    pytest tests/contract/ -v
-    ```
+    *   Ensures all outputs conform to the defined schemas.
 
 ## Troubleshooting
 
-- **Model Convergence Failure**: The pipeline logs warnings for series where models fail. Check `logs/pipeline.log`.
-- **Memory Error**: Reduce `--subset-size` (e.g., `--subset-size 500`).
-- **LightGBM Slow**: Ensure `lightgbm` is installed from PyPI (CPU version) and not a GPU-specific build.
+*   **Memory Error**: Reduce `--subset-size` or increase swap space.
+*   **Model Convergence Failure**: The pipeline logs warnings and skips the series. Check `logs/pipeline.log`.
+*   **Missing Metadata**: If a series lacks `seasonality`, it is skipped. Check `logs/pipeline.log`.
+
+## Next Steps
+
+*   Review `research.md` for detailed methodology.
+*   Analyze `results/` for insights into model calibration.
+*   Extend the pipeline with additional models or datasets.

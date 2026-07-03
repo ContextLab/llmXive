@@ -1,76 +1,62 @@
-# Data Model: Evaluating Calibration of Predictive Intervals in Time Series Forecasting
+# Data Model: Evaluating Calibration of Predictive Intervals
 
-## 1. Entity Definitions
+## Overview
 
-### 1.1 TimeSeries
+This document defines the data structures used throughout the project. All data flows from the raw M4 dataset through preprocessing, modeling, and evaluation, resulting in structured CSV and JSON outputs.
+
+## Entities
+
+### TimeSeries
 Represents a single time series from the M4 dataset.
-- **id**: Unique string identifier (e.g., "M1001").
-- **frequency**: String (Yearly, Quarterly, Monthly, Weekly, Daily, Hourly).
-- **seasonality**: Boolean (True/False).
-- **values**: List of float32 (historical observations).
-- **test_values**: List of float32 (held-out test observations).
-- **trend_strength**: Float (derived variance ratio) or Null.
-- **trend_group**: String ('high', 'low', 'null').
 
-### 1.2 ForecastResult
-Represents the output of a single model for a single series.
-- **series_id**: String (FK to TimeSeries).
-- **model_name**: String (ARIMA, ETS, Prophet, LightGBM).
-- **horizon**: Integer (1-12).
-- **point_forecast**: Float.
-- **lower_bound_80**: Float.
-- **upper_bound_80**: Float.
-- **lower_bound_95**: Float.
-- **upper_bound_95**: Float.
-- **actual_value**: Float (for the specific horizon step).
-- **is_covered_80**: Boolean.
-- **is_covered_95**: Boolean.
+*   **id**: Unique identifier (string).
+*   **frequency**: Seasonal frequency (integer, e.g., 12 for monthly).
+*   **seasonality**: Binary indicator (string: "Yes", "No").
+*   **observations**: List of floats (historical data).
+*   **train_split**: Integer (index where training ends).
+*   **test_split**: Integer (index where test begins).
+*   **trend_strength**: Float (variance ratio from STL).
+*   **trend_category**: String ("High", "Low").
 
-### 1.3 CalibrationMetric
-Aggregated statistics per model, horizon, and group.
-- **model_name**: String.
-- **horizon**: Integer.
-- **group_type**: String (e.g., "seasonality", "trend").
-- **group_value**: String (e.g., "Yes", "High").
-- **nominal_coverage_80**: Float (0.80).
-- **empirical_coverage_80**: Float.
-- **deviation_80**: Float.
-- **nominal_coverage_95**: Float (0.95).
-- **empirical_coverage_95**: Float.
-- **deviation_95**: Float.
-- **interval_score_80**: Float.
-- **interval_score_95**: Float.
-- **p_value_raw**: Float.
-- **p_value_adj**: Float (BY corrected).
-- **is_significant**: Boolean.
-- **bootstrap_p_value_diff**: Float (p-value from paired bootstrap test of difference).
-- **bootstrap_ci_lower_diff**: Float (Lower bound of 95% CI for coverage difference).
-- **bootstrap_ci_upper_diff**: Float (Upper bound of 95% CI for coverage difference).
+### ForecastResult
+Represents the output of a single model for a single time series.
 
-### 1.4 RecalibrationResult
-Metrics after applying adaptive conformal prediction (per-series level).
-- **series_id**: String.
-- **model_name**: String.
-- **horizon**: Integer.
-- **original_coverage_80**: Float.
-- **recalibrated_coverage_80**: Float.
-- **improvement_80**: Float.
-- **original_coverage_95**: Float.
-- **recalibrated_coverage_95**: Float.
-- **improvement_95**: Float.
+*   **series_id**: Reference to `TimeSeries.id`.
+*   **model_name**: String ("ARIMA", "ETS", "Prophet", "LightGBM").
+*   **horizon**: Integer (1 to 12).
+*   **point_forecast**: Float.
+*   **lower_bound_80**: Float.
+*   **upper_bound_80**: Float.
+*   **lower_bound_95**: Float.
+*   **upper_bound_95**: Float.
+*   **actual_value**: Float (ground truth for the horizon).
 
-## 2. Data Flow
+### CalibrationMetric
+Aggregated statistics for a specific model, horizon, and subgroup.
 
-1.  **Ingest**: `data/raw/m4.csv` → `TimeSeries` objects (filtered to a subset).
-2.  **Preprocess**: Calculate `trend_strength` → `TimeSeries` enriched.
-3.  **Model**: `TimeSeries` + `model_name` → `ForecastResult` (loop over models, horizons).
-4.  **Evaluate**: `ForecastResult` → `CalibrationMetric` (aggregate).
-5.  **Recalibrate**: `ForecastResult` (if deviation > 2% in any subgroup) → `RecalibrationResult`.
-6.  **Output**: `CalibrationMetric`, `RecalibrationResult` → `results/coverage.csv`, `results/recalibration.csv`.
+*   **model_name**: String.
+*   **horizon**: Integer.
+*   **nominal_coverage_80**: Float (0.80).
+*   **empirical_coverage_80**: Float.
+*   **deviation_80**: Float.
+*   **nominal_coverage_95**: Float (0.95).
+*   **empirical_coverage_95**: Float.
+*   **deviation_95**: Float.
+*   **subgroup_seasonality**: String.
+*   **subgroup_trend**: String.
+*   **n_series**: Integer (count of series in subgroup).
+*   **p_value_raw**: Float.
+*   **p_value_fdr**: Float.
 
-## 3. Constraints & Validations
+## Data Flow
 
-- **TimeSeries**: `values` length must be ≥ 20 (minimum for STL + train/test split).
-- **ForecastResult**: `lower_bound` < `point_forecast` < `upper_bound`.
-- **CalibrationMetric**: `empirical_coverage` must be in [0, 1].
-- **RecalibrationResult**: `improvement` = `recalibrated` - `original`.
+1.  **Raw**: `M4-Data.zip` (CSV files) -> `data/raw/`.
+2.  **Processed**: `TimeSeries` objects -> `data/processed/time_series.jsonl`.
+3.  **Forecasts**: `ForecastResult` objects -> `results/forecasts.csv`.
+4.  **Metrics**: `CalibrationMetric` objects -> `results/calibration_metrics.csv`.
+
+## Constraints
+
+*   **Immutability**: Raw data is never modified.
+*   **Checksums**: All files in `data/` are checksummed.
+*   **Schema Validation**: All outputs must pass the YAML schema validation defined in `contracts/`.

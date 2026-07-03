@@ -1,52 +1,43 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "M4 Time Series Dataset Schema"
-description: "Schema for the processed M4 time series dataset used in the evaluation pipeline."
+title: "M4 Dataset Schema"
+description: "Schema for the processed M4 time series data"
 type: "object"
 properties:
-  series_id:
+  id:
     type: "string"
-    description: "Unique identifier for the time series (e.g., 'M1001')."
+    description: "Unique identifier for the time series"
   frequency:
-    type: "string"
-    enum:
-      - "Yearly"
-      - "Quarterly"
-      - "Monthly"
-      - "Weekly"
-      - "Daily"
-      - "Hourly"
-    description: "Frequency of the time series."
+    type: "integer"
+    description: "Seasonal frequency (e.g., 12 for monthly)"
   seasonality:
-    type: "boolean"
-    description: "Whether the series exhibits seasonality."
-  values:
+    type: "string"
+    enum: ["Yes", "No"]
+    description: "Binary indicator of seasonality"
+  observations:
     type: "array"
     items:
       type: "number"
-    description: "Historical observations (training data)."
-  test_values:
-    type: "array"
-    items:
-      type: "number"
-    description: "Held-out test observations."
+    description: "Historical observations"
+  train_split:
+    type: "integer"
+    description: "Index where training data ends"
+  test_split:
+    type: "integer"
+    description: "Index where test data begins"
   trend_strength:
-    type:
-      - "number"
-      - "null"
-    description: "Derived variance ratio of trend component (0.0 to 1.0), or null if not computable."
-  trend_group:
-    type:
-      - "string"
-      - "null"
-    enum:
-      - "high"
-      - "low"
-      - "null"
-    description: "Classification of trend strength based on threshold > 0.5."
+    type: "number"
+    description: "Variance ratio of trend component to total variance"
+  trend_category:
+    type: "string"
+    enum: ["High", "Low"]
+    description: "Classification based on trend strength threshold"
 required:
-  - "series_id"
-  - "frequency"
-  - "seasonality"
-  - "values"
-  - "test_values"
+  - id
+  - frequency
+  - seasonality
+  - observations
+  - train_split
+  - test_split
+  - trend_strength
+  - trend_category
 additionalProperties: false

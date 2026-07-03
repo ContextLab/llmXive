@@ -1,24 +1,12 @@
-- artifact_hash: 99a250f1aebd28e4613e376966b265134d7e5b274056ab93dc80bbc8be8904a9
+- artifact_hash: 5c9f3c03b17a5bba7cb817767c59ebac499444d072c723e4216e3891af852419
   artifact_path: projects/PROJ-721-evaluating-calibration-of-predictive-int/specs/001-evaluating-calibration-of-predictive-int/research.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
-  fetched_title: "GitHub - Mcompetitions/M4-methods: Data, Benchmarks, and methods\
-    \ submitted to the M4 forecasting competition \xB7 GitHub"
+  fetched_title: "M4-methods/Dataset at master \xB7 Mcompetitions/M4-methods \xB7\
+    \ GitHub"
   kind: url
-  value: https://github.com/Mcompetitions/M4-methods`
+  value: https://github.com/Mcompetitions/M4-methods/blob/master/Dataset/`
   verification_status: verified
-  verified_against_url: https://github.com/Mcompetitions/M4-methods
-  verified_at: '2026-07-01T16:34:59.122281Z'
-- artifact_hash: 715103f73049d503dde7d7acf6a3fc3971f66cf694487b25cc48984f97e3d1b2
-  artifact_path: projects/PROJ-721-evaluating-calibration-of-predictive-int/specs/001-evaluating-calibration-of-predictive-int/tasks.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: "GitHub - Mcompetitions/M4-methods: Data, Benchmarks, and methods\
-    \ submitted to the M4 forecasting competition \xB7 GitHub"
-  kind: url
-  value: https://github.com/Mcompetitions/M4-methods`
-  verification_status: verified
-  verified_against_url: https://github.com/Mcompetitions/M4-methods
-  verified_at: '2026-07-01T16:44:05.367987Z'
+  verified_against_url: https://github.com/Mcompetitions/M4-methods/tree/master/Dataset
+  verified_at: '2026-07-03T01:47:55.212190Z'
