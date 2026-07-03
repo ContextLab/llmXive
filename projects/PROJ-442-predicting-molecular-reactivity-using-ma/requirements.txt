@@ -1,0 +1,9 @@
+rdkit
+xgboost
+pandas
+scikit-learn
+pyarrow
+requests
+pyyaml
+pytest
+pydantic>=2.0

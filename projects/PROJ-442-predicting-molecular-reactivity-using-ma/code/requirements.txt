@@ -1,0 +1,10 @@
+rdkit
+xgboost
+pandas
+scikit-learn
+pyarrow
+requests
+pyyaml
+flake8
+black
+pytest

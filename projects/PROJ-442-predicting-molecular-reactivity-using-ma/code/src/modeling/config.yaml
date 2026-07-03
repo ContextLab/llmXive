@@ -1,0 +1,19 @@
+# Configuration for Molecular Reactivity Pipeline
+# T013: Define SMARTS patterns for reaction classification
+
+reaction_templates:
+  SN1: "[C:1]([O:2])>>[C:1]+[O:2]-"
+  SN2: "[C:1]([O:2])>>[C:1]=[O:2]"
+  Diels-Alder: "[C:1]=[C:2].[C:3]=[C:4]>>[C:1]1[C:3][C:4][C:2]1"
+
+model_params:
+  xgboost:
+    n_estimators: 100
+    max_depth: 6
+    learning_rate: 0.1
+
+pipeline:
+  min_samples_per_class: 1000
+  max_runtime_seconds: 1800
+  target_variable: "yield_pct"
+  fallback_target: "success_flag"

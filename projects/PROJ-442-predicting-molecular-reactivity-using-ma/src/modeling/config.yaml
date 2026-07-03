@@ -1,0 +1,13 @@
+reaction_templates:
+  SN1: "[C:1]([O:2])>>[C:1]+[O:2]-"
+  SN2: "[C:1]([O:2])>>[C:1]=[O:2]"
+  Diels-Alder: "[C:1]=[C:2].[C:3]=[C:4]>>[C:1]1[C:3][C:4][C:2]1"
+
+model_params:
+  n_estimators: 100
+  max_depth: 6
+  learning_rate: 0.1
+
+preprocessing:
+  k_features: 100
+  variance_threshold: 0.01

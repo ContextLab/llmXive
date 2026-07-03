@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-08T13:41:19.176728Z'
-current_stage: analyzed
+current_stage: in_progress
 failed_stage: null
 field: chemistry
 human_escalation_reason: null
 id: PROJ-442-predicting-molecular-reactivity-using-ma
-last_run_id: 8c32deeb-c29a-4a08-b6c7-2a084b673948
+last_run_id: 0d4b7da9-ca6c-478e-a82b-5cec13fa9de6
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-442-predicting-molecular-reactivity-using-ma/specs/001-predicting-molecular-reactivity-using-ma
 title: Predicting Molecular Reactivity Using Machine Learning and Public Reaction
   Databases
-updated_at: '2026-07-03T11:11:25.673848Z'
+updated_at: '2026-07-03T12:38:29.085668Z'

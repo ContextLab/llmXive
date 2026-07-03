@@ -20,32 +20,32 @@
 - **Mobile**: `api/src/`, `ios/src/` or `android/src/`
 - Paths shown below assume single project - adjust based on plan.md structure
 
-<!-- 
-  ============================================================================
-  IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-  
-  The /speckit-tasks command MUST replace these with actual tasks based on:
-  - User stories from spec.md (with their priorities P1, P2, P3...)
-  - Feature requirements from plan.md
-  - Entities from data-model.md
-  - Endpoints from contracts/
-  
-  Tasks MUST be organized by user story so each story can be:
-  - Implemented independently
-  - Tested independently
-  - Delivered as an MVP increment
-  
-  DO NOT keep these sample tasks in the generated tasks.md file.
-  ============================================================================
+<!--
+ ============================================================================
+ IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
+
+ The /speckit-tasks command MUST replace these with actual tasks based on:
+ - User stories from spec.md (with their priorities P1, P2, P3...)
+ - Feature requirements from plan.md
+ - Entities from data-model.md
+ - Endpoints from contracts/
+
+ Tasks MUST be organized by user story so each story can be:
+ - Implemented independently
+ - Tested independently
+ - Delivered as an MVP increment
+
+ DO NOT keep these sample tasks in the generated tasks.md file.
+ ============================================================================
 -->
 
 ## Phase 1: Setup (Shared Infrastructure)
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Execute `scripts/setup_dirs.sh` (or Python equivalent) to create `data/raw/`, `data/processed/`, `data/models/`, `src/data/`, `src/modeling/`, `src/utils/`, `tests/unit/`, `tests/integration/`, `tests/contract/`, `scripts/`
-- [ ] T002 Initialize Python 3.10 project with `rdkit`, `xgboost`, `pandas`, `scikit-learn`, `pyarrow`, `requests` dependencies in `requirements.txt`
-- [ ] T003 [P] Configure linting (flake8/black) and formatting tools
+- [X] T001 Execute `scripts/setup_dirs.sh` (or Python equivalent) to create `data/raw/`, `data/processed/`, `data/models/`, `src/data/`, `src/modeling/`, `src/utils/`, `tests/unit/`, `tests/integration/`, `tests/contract/`, `scripts/`
+- [X] T002 Initialize Python 3.10 project with `rdkit`, `xgboost`, `pandas`, `scikit-learn`, `pyarrow`, `requests` dependencies in `requirements.txt`
+- [X] T003 [P] Configure linting (flake8/black) and formatting tools
 
 ---
 
@@ -55,9 +55,9 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T005 [P] Implement centralized logging setup in `src/utils/logging.py`
-- [ ] T006 [P] Implement state management system (create `src/utils/state_manager.py` and `scripts/update_state.py`) to handle `state/projects/PROJ-442-predicting-molecular-reactivity-using-ma.yaml` updates and artifact checksums
-- [ ] T007 Create base data schemas and validation helpers in `src/data/schemas.py` (ReactionRecord, FeatureVector, ModelResult)
+- [X] T005 [P] Implement centralized logging setup in `src/utils/logging.py`
+- [X] T006 [P] Implement state management system (create `src/utils/state_manager.py` and `scripts/update_state.py`) to handle `state/projects/PROJ-442-predicting-molecular-reactivity-using-ma.yaml` updates and artifact checksums
+- [X] T007 Create base data schemas and validation helpers in `src/data/schemas.py` (ReactionRecord, FeatureVector, ModelResult)
 - [ ] T008 Setup environment configuration management (load `config.yaml` from `src/modeling/config.yaml`)
 - [ ] T009 Create `src/main.py` orchestration script to call `scripts/update_state.py` after major stages
 
@@ -80,14 +80,14 @@
 
 ### Implementation for User Story 1
 
-- [ ] T012 [US1] Implement `src/data/ingestion.py` to download USPTO-MIT subset from URL: https://zenodo.org/record/3969375 (JSONL format) and parse raw data
+- [ ] T012 [US1] Implement `src/data/ingestion.py` to Download USPTO-MIT subset from URL: https://zenodo.org/record/3969375 [UNRESOLVED-CLAIM: c_250fefd7 — status=not_enough_info] and parse raw data
 - [ ] T013c [US1] Define SMARTS patterns for SN1, SN2, and Diels-Alder in `src/modeling/config.yaml` (under `reaction_templates`) to ensure deterministic template matching. Explicit patterns: SN1 (e.g., `[C:1]([O:2])>>[C:1]+[O:2]-`), SN2 (e.g., `[C:1]([O:2])>>[C:1]=[O:2]` with backside attack logic), Diels-Alder (e.g., `[C:1]=[C:2].[C:3]=[C:4]>>[C:1]1[C:3][C:4][C:2]1`).
-- [ ] T013 [US1] Implement reaction template matching in `src/utils/chemistry.py` using patterns from `config.yaml` to classify reactions into SN1, SN2, Diels-Alder
-- [ ] T014 [US1] Implement filtering logic in `src/data/ingestion.py` to exclude non-matching rows, log malformed SMILES to error file, and strictly derive target variable: use `yield_pct` if present, otherwise fallback to `success_flag` (binary) as per Spec Assumptions (FR-004)
-- [ ] T015 [US1] Implement batch processing logic in `src/data/ingestion.py` to handle memory limits (process in chunks)
-- [ ] T016 [US1] Add logic to check sample size per class (<1,000) and log warning; explicitly physically remove those rows from the output CSV for classes with <1,000 samples to satisfy the Independent Test's distinct value requirement (FR-006)
-- [ ] T017 [US1] Save filtered dataset to `data/processed/filtered_reactions.csv` with checksum and provenance metadata
-- [ ] T018 [US1] Integrate logging and state update calls in `src/data/ingestion.py`
+- [~] T013 [US1] Implement reaction template matching in `src/utils/chemistry.py` using patterns from `config.yaml` to classify reactions into SN1, SN2, Diels-Alder
+- [~] T014 [US1] Implement filtering logic in `src/data/ingestion.py` to exclude non-matching rows, log malformed SMILES to error file, and strictly derive target variable: use `yield_pct` if present, otherwise fallback to `success_flag` (binary) as per Spec Assumptions (FR-004)
+- [~] T015 [US1] Implement batch processing logic in `src/data/ingestion.py` to handle memory limits (process in chunks)
+- [~] T016 [US1] Add logic to check sample size per class (<1,000) and log warning; explicitly physically remove those rows from the output CSV for classes with <1,000 samples to satisfy the Independent Test's distinct value requirement (FR-006)
+- [~] T017 [US1] Save filtered dataset to `data/processed/filtered_reactions.csv` with checksum and provenance metadata
+- [~] T018 [US1] Integrate logging and state update calls in `src/data/ingestion.py`
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -97,16 +97,16 @@
 
 **Goal**: Convert reactants to features (RDKit), apply dimensionality reduction, and train XGBoost on CPU within 30 mins.
 
-**Independent Test**: Can be fully tested by running the training script on a sample of reaction records and verifying that the model outputs a prediction file with a Spearman correlation coefficient > 0.5 and that the total runtime is < 30 minutes on a standard CPU.
+**Independent Test**: Can be fully tested by running the training script ona sample of reaction records and verifying that the model outputs a prediction file with a Spearman correlation coefficient > 0.5 and that the {{claim:c_fe7400a7}} (2408.08592, https://arxiv.org/abs/2408.08592).
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T019 [P] [US2] Unit test for RDKit feature extraction (MW, atom counts, topological indices) in `tests/unit/test_features.py`
-- [ ] T020 [P] [US2] Unit test for dimensionality reduction pipeline (Variance Threshold + SelectKBest) in `tests/unit/test_features.py`
+- [~] T019 [P] [US2] Unit test for RDKit feature extraction (MW, atom counts, topological indices) in `tests/unit/test_features.py`
+- [~] T020 [P] [US2] Unit test for dimensionality reduction pipeline (Variance Threshold + SelectKBest) in `tests/unit/test_features.py`
 
 ### Implementation for User Story 2
 
-- [ ] T021 [US2] Implement `src/data/preprocessing.py` to extract molecular weight, atom counts, bond types, and topological indices using RDKit
+- [~] T021 [US2] Implement `src/data/preprocessing.py` to extract molecular weight, atom counts, bond types, and topological indices using RDKit
 - [ ] T022 [US2] Implement batch processing in `src/data/preprocessing.py` to handle memory constraints during feature extraction
 - [ ] T023 [US2] Implement Variance Thresholding and SelectKBest (scoring function: `f_regression` or `mutual_info_regression`, k=100) dimensionality reduction in `src/data/preprocessing.py` to reduce feature count for regression targets
 - [ ] T024 [US2] Save feature matrix to `data/processed/feature_matrix.parquet` with checksum
@@ -164,8 +164,8 @@
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
-  - User stories can then proceed in parallel (if staffed)
-  - Or sequentially in priority order (P1 → P2 → P3)
+ - User stories can then proceed in parallel (if staffed)
+ - Or sequentially in priority order (P1 → P2 → P3)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
@@ -231,9 +231,9 @@ With multiple developers:
 
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
-   - Developer A: User Story 1
-   - Developer B: User Story 2
-   - Developer C: User Story 3
+ - Developer A: User Story 1
+ - Developer B: User Story 2
+ - Developer C: User Story 3
 3. Stories complete and integrate independently
 
 ---
