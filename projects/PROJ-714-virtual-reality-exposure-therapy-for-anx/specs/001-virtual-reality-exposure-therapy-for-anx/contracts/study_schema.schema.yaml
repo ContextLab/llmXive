@@ -1,0 +1,58 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Study Schema"
+description: "Schema for raw and filtered study data in the VR Exposure Meta-Analysis."
+type: "object"
+required:
+  - study_id
+  - n_treatment
+  - n_control
+  - mean_treatment_post
+  - mean_control_post
+  - sd_treatment_post
+  - sd_control_post
+properties:
+  study_id:
+    type: "string"
+    description: "Unique identifier for the study (e.g., DOI)."
+  title:
+    type: "string"
+    description: "Full title of the study."
+  year:
+    type: "integer"
+    minimum: 1900
+    description: "Publication year."
+  population_type:
+    type: "string"
+    description: "Anxiety subtype (e.g., GAD, PTSD)."
+  hardware_type:
+    type: "string"
+    description: "VR hardware used."
+  n_treatment:
+    type: "integer"
+    minimum: 1
+    description: "Sample size of the intervention group."
+  mean_treatment_post:
+    type: "number"
+    description: "Post-intervention mean for treatment group."
+  sd_treatment_post:
+    type: "number"
+    minimum: 0
+    description: "Post-intervention SD for treatment group."
+  n_control:
+    type: "integer"
+    minimum: 1
+    description: "Sample size of the control group."
+  mean_control_post:
+    type: "number"
+    description: "Post-intervention mean for control group."
+  sd_control_post:
+    type: "number"
+    minimum: 0
+    description: "Post-intervention SD for control group."
+  outcome_measure:
+    type: "string"
+    description: "Name of the anxiety scale used."
+  exclusion_reason:
+    type: ["string", "null"]
+    description: "Reason for exclusion if filtered out."
+additionalProperties: false

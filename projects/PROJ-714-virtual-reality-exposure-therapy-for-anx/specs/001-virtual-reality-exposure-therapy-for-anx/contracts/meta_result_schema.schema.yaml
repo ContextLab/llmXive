@@ -1,0 +1,47 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Meta Analysis Result Schema"
+description: "Schema for the final pooled meta-analysis results."
+type: "object"
+required:
+  - pooled_hedges_g
+  - se_pooled
+  - ci_lower
+  - ci_upper
+  - tau_squared
+  - i_squared
+  - k_studies
+  - publication_bias_flag
+properties:
+  pooled_hedges_g:
+    type: "number"
+    description: "Weighted average effect size."
+  se_pooled:
+    type: "number"
+    description: "Standard error of the pooled estimate."
+  ci_lower:
+    type: "number"
+    description: "Lower bound of 95% CI for pooled effect."
+  ci_upper:
+    type: "number"
+    description: "Upper bound of 95% CI for pooled effect."
+  tau_squared:
+    type: "number"
+    description: "Between-study variance."
+  i_squared:
+    type: "number"
+    description: "Heterogeneity proportion (0-100)."
+  k_studies:
+    type: "integer"
+    minimum: 0
+    description: "Number of studies included in the synthesis."
+  egger_p_value:
+    type: ["number", "null"]
+    description: "P-value from Egger's test (null if N<10)."
+  publication_bias_flag:
+    type: "string"
+    enum: ["SUSPECTED", "NONE", "UNDERPOWERED"]
+    description: "Flag indicating publication bias status."
+  sensitivity_range:
+    type: "string"
+    description: "Range of pooled effects from leave-one-out analysis."
+additionalProperties: false

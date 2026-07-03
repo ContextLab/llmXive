@@ -1,0 +1,89 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Study Schema"
+description: "Schema for raw and screened study data in the VR meta-analysis pipeline."
+type: object
+required:
+  - study_id
+  - title
+  - doi
+  - publication_year
+  - sample_size_treatment
+  - sample_size_control
+  - outcome_measure
+  - pre_mean_t
+  - pre_sd_t
+  - post_mean_t
+  - post_sd_t
+  - pre_mean_c
+  - pre_sd_c
+  - post_mean_c
+  - post_sd_c
+  - inclusion_status
+properties:
+  study_id:
+    type: string
+    description: "Unique identifier for the study (e.g., DOI or index)."
+  title:
+    type: string
+    description: "Full title of the study."
+  doi:
+    type: string
+    description: "Digital Object Identifier."
+  publication_year:
+    type: integer
+    description: "Year of publication."
+  sample_size_treatment:
+    type: integer
+    description: "Number of participants in the treatment group."
+    minimum: 1
+  sample_size_control:
+    type: integer
+    description: "Number of participants in the control group."
+    minimum: 1
+  outcome_measure:
+    type: string
+    description: "Name of the anxiety outcome measure (e.g., STAI, BAI)."
+  pre_mean_t:
+    type: number
+    description: "Pre-intervention mean for treatment group."
+  pre_sd_t:
+    type: number
+    description: "Pre-intervention standard deviation for treatment group."
+  post_mean_t:
+    type: number
+    description: "Post-intervention mean for treatment group."
+  post_sd_t:
+    type: number
+    description: "Post-intervention standard deviation for treatment group."
+  pre_mean_c:
+    type: number
+    description: "Pre-intervention mean for control group."
+  pre_sd_c:
+    type: number
+    description: "Pre-intervention standard deviation for control group."
+  post_mean_c:
+    type: number
+    description: "Post-intervention mean for control group."
+  post_sd_c:
+    type: number
+    description: "Post-intervention standard deviation for control group."
+  inclusion_status:
+    type: string
+    enum:
+      - "included"
+      - "excluded"
+    description: "Status of the study after screening."
+  exclusion_reason:
+    type: string
+    description: "Reason for exclusion if status is 'excluded'."
+    default: ""
+  anxiety_subtype:
+    type:
+      - string
+      - "null"
+    description: "Subtype of anxiety (e.g., GAD, Social, Panic) for moderator analysis."
+  hardware_type:
+    type:
+      - string
+      - "null"
+    description: "Type of VR hardware used (e.g., HMD, Desktop) for moderator analysis."

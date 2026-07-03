@@ -1,0 +1,48 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Effect Size Schema"
+description: "Schema for computed Hedges' g effect sizes with sensitivity analysis for correlation."
+type: object
+required:
+  - study_id
+  - hedges_g
+  - standard_error
+  - lower_95ci
+  - upper_95ci
+  - computation_method
+properties:
+  study_id:
+    type: string
+    description: "Reference to the study ID."
+  hedges_g:
+    type: number
+    description: "Computed Hedges' g effect size."
+  standard_error:
+    type: number
+    description: "Standard error of the effect size."
+  lower_95ci:
+    type: number
+    description: "Lower bound of the 95% confidence interval."
+  upper_95ci:
+    type: number
+    description: "Upper bound of the 95% confidence interval."
+  computation_method:
+    type: string
+    description: "Method used for computation (e.g., Hedges & Olkin, 1985)."
+    const: "Hedges & Olkin, 1985"
+  correlation_r:
+    type:
+      - number
+      - "null"
+    description: "Correlation coefficient used for change score calculation. Null if post-only or not provided."
+  sensitivity_range:
+    type:
+      - "null"
+      - object
+    description: "If correlation_r was missing, this object contains the effect size range calculated with r=0.4 and r=0.8."
+    properties:
+      low_r:
+        type: number
+        description: "Effect size calculated with r=0.4."
+      high_r:
+        type: number
+        description: "Effect size calculated with r=0.8."
