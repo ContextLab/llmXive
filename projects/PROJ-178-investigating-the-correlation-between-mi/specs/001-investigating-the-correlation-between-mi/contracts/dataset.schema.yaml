@@ -1,0 +1,51 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Processed Dataset Schema"
+description: "Schema for the processed dataset containing per-sample heteroplasmy burden, age, and metadata."
+type: object
+properties:
+  sample_id:
+    type: string
+    description: "Unique sample identifier from 1000 Genomes Project."
+  age:
+    type: integer
+    description: "Chronological age in years."
+    minimum: 0
+  sex:
+    type: string
+    description: "Biological sex."
+    enum: ["M", "F"]
+  population:
+    type: string
+    description: "Continental ancestry group."
+    enum: ["EUR", "AFR", "EAS", "SAS", "AMR"]
+  haplogroup:
+    type: string
+    description: "Mitochondrial haplogroup assigned by haplogrep2."
+  heteroplasmy_burden:
+    type: integer
+    description: "Count of mtDNA variants with VAF ≥ 1%."
+    minimum: 0
+  sequencing_depth:
+    type: number
+    description: "Average sequencing coverage depth."
+    minimum: 0
+  depth_bin:
+    type: string
+    description: "Sequencing depth bin."
+    enum: ["low", "medium", "high"]
+  pc1:
+    type: number
+    description: "Principal component 1 for ancestry."
+  pc2:
+    type: number
+    description: "Principal component 2 for ancestry."
+required:
+  - sample_id
+  - age
+  - sex
+  - population
+  - heteroplasmy_burden
+  - sequencing_depth
+  - pc1
+  - pc2
+additionalProperties: false

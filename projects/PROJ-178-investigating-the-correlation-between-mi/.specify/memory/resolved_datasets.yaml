@@ -1,0 +1,257 @@
+resolved_at: '2026-07-03T01:24:25.475656+00:00'
+datasets:
+- intent: DNA
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/simecek/Human_DNA_v0/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/simecek/Human_DNA_v0_DNABert6tokenized/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/dnaveenr/cmu_mocap/resolve/main/subject_to_details.json
+    source: huggingface
+    format: json
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 192222
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/krahets/dna_rendering_processed/resolve/main/cameras/0007_01.parquet
+    source: huggingface
+    status: wrong_format
+    reason: HTTP 401
+  - url: https://huggingface.co/datasets/dnaveenr/cmu_mocap/resolve/main/subject_to_details.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://huggingface.co/datasets/simecek/Human_DNA_v0/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/simecek/Human_DNA_v0_DNABert6tokenized/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/media/Abia_State_University_Uturu_2026_2027_Screening_Form_Part-time_Form_Is_On_sales_Now_07076040542_To_apply_call_Dr_Mrs_Rita_07076040542_for_further_assistance_/32886242
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/Wellspring_University_Evbuobanosa_Admission_Form_OPEN_2026_2027_Direct_Entry_Form_is_Out_0_7040964654_JUPEB_form_See_Requirements_Courses_How_to_ApplyThe_2026_2027_University_Admission_Form_is_now_available_for_qualified_candidates_seeking_/32886263
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/conference_contribution/WED-557_Physical_activity_for_the_management_of_paediatric_metabolic_dysfunction-associated_steatotic_liver_disease_an_international_multidisciplinary_consensus/32886257
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/Babcock_University_Ilishan-Remo_Admission_Form_OPEN_2026_2027_Direct_Entry_Form_is_Out_0_7040964654_JUPEB_form_See_Requirements_Courses_How_to_ApplyThe_2026_2027_University_Admission_Form_is_now_available_for_qualified_candidates_seeking_ad/32886251
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/book/_070_4096_4654_Redeemer_s_University_Admission_List_Open_2026-2027_Batch_1st_2nd_is_to_check_call_call_O_70409-64654-O7040964654_for_the_Four_main_quads_compose_the_center_of_the_university_and_are_arranged_from_north_to_south_The_Beckman_Q/32886239
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7433124
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.jc247v3
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/12716221
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/12716219
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.biotaxa.org/em/article/view/em.2019.22.4
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21148351
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21148351
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.gbif.org/dataset/62dbb284-ccc3-486b-a1f0-128a872da7ab
+    source: datacite
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://www.gbif.org/dataset/3aa14b02-b051-4c72-bb53-132df3e2f502
+    source: datacite
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://www.gbif.org/dataset/0cee7be4-7a49-47d6-812c-c52f435ef785
+    source: datacite
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://www.openml.org/data/get_csv/4965245/dna.csv
+    source: openml
+    status: verified
+    format: csv
+- intent: PCs
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/Patsagorn/pcshsbr-music-request/resolve/main/song-request_may23-mar24_cleaned.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/SeaLab/shapenet_pcsam/resolve/main/data/train-00000-of-00011.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/Patsagorn/pcshsbr-music-request/resolve/main/song-request_may23-mar24_cleaned.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/SeaLab/shapenet_pcsam/resolve/main/data/train-00000-of-00011.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/media/Abia_State_University_Uturu_2026_2027_Screening_Form_Part-time_Form_Is_On_sales_Now_07076040542_To_apply_call_Dr_Mrs_Rita_07076040542_for_further_assistance_/32886242
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/Wellspring_University_Evbuobanosa_Admission_Form_OPEN_2026_2027_Direct_Entry_Form_is_Out_0_7040964654_JUPEB_form_See_Requirements_Courses_How_to_ApplyThe_2026_2027_University_Admission_Form_is_now_available_for_qualified_candidates_seeking_/32886263
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/conference_contribution/WED-557_Physical_activity_for_the_management_of_paediatric_metabolic_dysfunction-associated_steatotic_liver_disease_an_international_multidisciplinary_consensus/32886257
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/Babcock_University_Ilishan-Remo_Admission_Form_OPEN_2026_2027_Direct_Entry_Form_is_Out_0_7040964654_JUPEB_form_See_Requirements_Courses_How_to_ApplyThe_2026_2027_University_Admission_Form_is_now_available_for_qualified_candidates_seeking_ad/32886251
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/book/_070_4096_4654_Redeemer_s_University_Admission_List_Open_2026-2027_Batch_1st_2nd_is_to_check_call_call_O_70409-64654-O7040964654_for_the_Four_main_quads_compose_the_center_of_the_university_and_are_arranged_from_north_to_south_The_Beckman_Q/32886239
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17352343
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19567761
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/2170152
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5096410
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19537187
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://uregina.scholaris.ca/handle/10294/16432
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://uregina.scholaris.ca/handle/10294/9016
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://uregina.scholaris.ca/handle/10294/16408
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://uregina.scholaris.ca/handle/10294/16181
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://uregina.scholaris.ca/handle/10294/8348
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: VCFs
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/dataset/spCorr_example3/32886002
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/_09036153255_Nile_University_of_Nigeria_Admission_Form_Open_2026-2027_Transfer_Form_Jupeb_Admission_form_is_still_on_sale_call_O_9036153255-09036153255_for_the_Four_main_quads_compose_the_center_of_the_university_and_are_arranged_from_north/32886269
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/Rhema_University_Obeama-Asa_-_Admission_Form_OPEN_2026_2027_Direct_Entry_Form_is_Out_0_7040964654_JUPEB_form_See_Requirements_Courses_How_to_ApplyThe_2026_2027_University_Admission_Form_is_now_available_for_qualified_candidates_seeking_admi/32886272
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/Abia_State_University_Uturu_2026_2027_Screening_Form_Part-time_Form_Is_On_sales_Now_07076040542_To_apply_call_Dr_Mrs_Rita_07076040542_for_further_assistance_/32886242
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/Wellspring_University_Evbuobanosa_Admission_Form_OPEN_2026_2027_Direct_Entry_Form_is_Out_0_7040964654_JUPEB_form_See_Requirements_Courses_How_to_ApplyThe_2026_2027_University_Admission_Form_is_now_available_for_qualified_candidates_seeking_/32886263
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/2628460
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.g7v1b
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/2632952
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10724503
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16421468
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21144969
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21144969
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21144880
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21144880
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21143555
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

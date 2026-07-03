@@ -1,0 +1,52 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Analysis Results Schema"
+description: "Schema for the output of statistical analyses (Rank-OLS, Spearman, sensitivity checks)."
+type: object
+properties:
+  result_id:
+    type: string
+    description: "Unique identifier for the analysis result."
+  model_type:
+    type: string
+    description: "Type of statistical model used."
+    enum: ["rank_ols", "spearman", "sensitivity"]
+  predictor:
+    type: string
+    description: "Predictor variable name."
+    const: "heteroplasmy_burden"
+  coefficient:
+    type: number
+    description: "Estimated coefficient or correlation coefficient."
+  p_value:
+    type: number
+    description: "Raw p-value from the statistical test."
+    minimum: 0
+    maximum: 1
+  adjusted_p_value:
+    type: number
+    description: "Benjamini-Hochberg adjusted p-value."
+    minimum: 0
+    maximum: 1
+  threshold_used:
+    type: number
+ description: "VAF threshold used for heteroplasmy burden calculation (e.g., 0.01 for [deferred])."
+    minimum: 0
+  subgroup:
+    type: string
+    description: "Ancestry subgroup or 'all' for global analysis."
+    enum: ["EUR", "AFR", "EAS", "SAS", "AMR", "all"]
+  depth_bin:
+    type: string
+    description: "Depth bin for stratified analysis."
+    enum: ["low", "medium", "high", "all"]
+required:
+  - result_id
+  - model_type
+  - predictor
+  - coefficient
+  - p_value
+  - adjusted_p_value
+  - threshold_used
+  - subgroup
+  - depth_bin
+additionalProperties: false

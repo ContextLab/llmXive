@@ -1,0 +1,51 @@
+[build-system]
+requires = ["setuptools>=45", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "mito-aging-analysis"
+version = "0.1.0"
+description = "Investigating the correlation between mitochondrial DNA variation and aging rates"
+requires-python = ">=3.11"
+dependencies = []
+
+[project.optional-dependencies]
+dev = [
+    "black>=23.0.0",
+    "flake8>=6.0.0",
+    "isort>=5.12.0",
+    "pytest>=7.0.0",
+    "pytest-cov>=4.0.0",
+]
+
+[tool.black]
+line-length = 88
+target-version = ['py311']
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
+)/
+'''
+
+[tool.isort]
+profile = "black"
+line_length = 88
+known_first_party = ["analysis", "tests", "config"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+addopts = "-v --tb=short"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["analysis*", "tests*", "config*"]
