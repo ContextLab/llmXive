@@ -1,0 +1,8 @@
+'T001 Create project directories: `src/`, `data/raw/`, `data/derived/`, `data/annotations/`, `results/`, `tests/`, `specs/`': 2
+? 'T002 Create `requirements.txt` with pinned versions: `datasets`, `transformers`,
+  `scikit-learn`, `scipy`, `pandas`, `pyyaml`, `pytest`, `numpy`'
+: 2
+T003 [P] Create virtualenv and install dependencies from `requirements.txt`: 2
+T004 [P] Configure linting (ruff) and formatting (black) tools: 2
+T005 Create `config/settings.py` for hyperparameters, paths, and random seeds: 2
+T006 Define data classes in `src/extraction/schema.py` (PullRequest, BugDetection, AlignmentResult): 2

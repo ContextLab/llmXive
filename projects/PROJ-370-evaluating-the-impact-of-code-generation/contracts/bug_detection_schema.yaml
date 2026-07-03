@@ -1,0 +1,58 @@
+# Contract: Bug Detection Schema
+# Defines the structure for bug detection results (both human baseline and LLM output).
+# Used for validation of data/derived/human_baseline.json and data/derived/llm_detections.json.
+$schema: http://json-schema.org/draft-07/schema#
+type: object
+required:
+  - pr_id
+  - file_path
+  - line_start
+  - line_end
+  - severity
+  - description
+properties:
+  pr_id:
+    type: integer
+    description: Associated Pull Request ID
+  file_path:
+    type: string
+    description: Path to the file containing the bug
+  line_start:
+    type: integer
+    description: Starting line number of the bug (1-indexed)
+  line_end:
+    type: integer
+    description: Ending line number of the bug (inclusive, 1-indexed)
+  severity:
+    type: string
+    enum: [critical, major, minor, style]
+    description: Severity level of the detected bug
+  description:
+    type: string
+    description: Human-readable description of the bug
+  is_verified:
+    type: boolean
+    description: Whether the bug is part of the triangulated ground truth (human baseline only)
+    default: false
+  verification_method:
+    type: string
+    enum: [strict_triangulation, excluded_unverified]
+    description: Method used to verify or exclude the bug (human baseline only)
+    default: null
+  source:
+    type: string
+    enum: [human, llm]
+    description: Source of the detection (human baseline or LLM inference)
+  confidence:
+    type: string
+    enum: [high, medium, low]
+    description: Confidence level of the detection (LLM output only)
+    default: null
+  llm_error_flag:
+    type: boolean
+    description: Flag indicating if this entry represents an LLM error (LLM output only)
+    default: false
+  metadata:
+    type: object
+    description: Additional metadata
+    additionalProperties: true

@@ -1,0 +1,70 @@
+# Contract: Alignment Result Schema
+# Defines the structure for aligned bug pairs between human baseline and LLM detections.
+# Used for validation of data/derived/alignment_results.json.
+$schema: http://json-schema.org/draft-07/schema#
+type: object
+required:
+  - human_bug_id
+  - llm_bug_id
+  - pr_id
+  - file_path
+  - jaccard_index
+  - similarity_score
+  - matched
+properties:
+  human_bug_id:
+    type: string
+    description: Unique identifier for the human baseline bug
+  llm_bug_id:
+    type: string
+    description: Unique identifier for the LLM detection
+  pr_id:
+    type: integer
+    description: Associated Pull Request ID
+  file_path:
+    type: string
+    description: Path to the file containing the bug
+  human_lines:
+    type: array
+    items:
+      type: integer
+    description: Set of line numbers covered by the human bug
+  llm_lines:
+    type: array
+    items:
+      type: integer
+    description: Set of line numbers covered by the LLM detection
+  jaccard_index:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: Jaccard index of line overlap between human and LLM bugs
+  similarity_score:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: Cosine similarity score between bug descriptions
+  matched:
+    type: boolean
+    description: Whether the bugs are considered a match (Jaccard >= 0.5 AND similarity >= threshold)
+  match_threshold:
+    type: number
+    description: The similarity threshold used for matching
+  human_severity:
+    type: string
+    enum: [critical, major, minor, style]
+    description: Severity of the human-verified bug
+  llm_severity:
+    type: string
+    enum: [critical, major, minor, style]
+    description: Severity of the LLM-detected bug
+  human_description:
+    type: string
+    description: Description from human baseline
+  llm_description:
+    type: string
+    description: Description from LLM output
+  metadata:
+    type: object
+    description: Additional alignment metadata
+    additionalProperties: true

@@ -1,0 +1,63 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "AnalysisMetrics Schema"
+description: "Schema for aggregated statistical analysis metrics"
+type: "object"
+required:
+  - threshold
+  - precision
+  - recall
+  - f1_score
+  - llm_only_recall
+  - mcnemar_p_value
+  - chi_square_p_value
+  - chi_square_statistic
+  - effect_size
+  - sensitivity_to_noise
+properties:
+  threshold:
+    type: "number"
+    description: "The similarity threshold used for this analysis"
+    enum:
+      - 0.8
+      - 0.85
+      - 0.9
+  precision:
+    type: "number"
+    description: "Precision of LLM detection"
+    minimum: 0.0
+    maximum: 1.0
+  recall:
+    type: "number"
+    description: "Recall of LLM detection"
+    minimum: 0.0
+    maximum: 1.0
+  f1_score:
+    type: "number"
+    description: "F1 Score of LLM detection"
+    minimum: 0.0
+    maximum: 1.0
+  llm_only_recall:
+    type: "number"
+    description: "Recall of bugs found ONLY by LLM (not by humans)"
+    minimum: 0.0
+    maximum: 1.0
+  mcnemar_p_value:
+    type: "number"
+    description: "P-value from McNemar's test"
+  chi_square_p_value:
+    type: "number"
+    description: "P-value from Chi-square test"
+  chi_square_statistic:
+    type: "number"
+    description: "Chi-square statistic"
+  effect_size:
+    type: "number"
+    description: "Effect size (e.g., Cohen's h or Phi)"
+  sensitivity_to_noise:
+    type: "object"
+    description: "Results from high-confidence vs full-set analysis"
+    properties:
+      high_confidence_p_value:
+        type: "number"
+      full_set_p_value:
+        type: "number"

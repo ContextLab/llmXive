@@ -1,0 +1,120 @@
+# Contract: PR Data Schema
+# Defines the structure for raw and derived PR data extracted from GitHub.
+# Used for validation of data/raw/*.json and data/derived/*.json files.
+$schema: http://json-schema.org/draft-07/schema#
+type: object
+required:
+  - pr_id
+  - repo_name
+  - title
+  - body
+  - state
+  - created_at
+  - updated_at
+  - author
+  - files
+  - comments
+  - linked_issue_ids
+properties:
+  pr_id:
+    type: integer
+    description: GitHub Pull Request ID
+  repo_name:
+    type: string
+    description: Repository name in format owner/repo
+  title:
+    type: string
+    description: PR title
+  body:
+    type: string
+    nullable: true
+    description: PR description body
+  state:
+    type: string
+    enum: [open, closed, merged]
+    description: Current state of the PR
+  created_at:
+    type: string
+    format: date-time
+    description: ISO 8601 timestamp of creation
+  updated_at:
+    type: string
+    format: date-time
+    description: ISO 8601 timestamp of last update
+  author:
+    type: string
+    description: GitHub username of the PR author
+  files:
+    type: array
+    items:
+      type: object
+      required:
+        - file_path
+        - patch
+        - additions
+        - deletions
+      properties:
+        file_path:
+          type: string
+          description: Path to the file in the repository
+        patch:
+          type: string
+          description: Git diff patch for the file
+        additions:
+          type: integer
+          description: Number of added lines
+        deletions:
+          type: integer
+          description: Number of deleted lines
+        blob_url:
+          type: string
+          format: uri
+          description: URL to the file blob on GitHub
+        sha:
+          type: string
+          description: SHA of the file after the commit
+  comments:
+    type: array
+    items:
+      type: object
+      required:
+        - comment_id
+        - author
+        - body
+        - created_at
+        - path
+        - line
+      properties:
+        comment_id:
+          type: integer
+          description: GitHub comment ID
+        author:
+          type: string
+          description: GitHub username
+        body:
+          type: string
+          description: Comment text
+        created_at:
+          type: string
+          format: date-time
+          description: ISO 8601 timestamp
+        path:
+          type: string
+          description: File path the comment refers to
+        line:
+          type: integer
+          nullable: true
+          description: Line number in the file (null for general comments)
+        in_reply_to:
+          type: integer
+          nullable: true
+          description: ID of the comment this is a reply to
+  linked_issue_ids:
+    type: array
+    items:
+      type: integer
+    description: List of issue IDs linked to this PR (reported, not verified)
+  metadata:
+    type: object
+    description: Additional metadata from GitHub API
+    additionalProperties: true

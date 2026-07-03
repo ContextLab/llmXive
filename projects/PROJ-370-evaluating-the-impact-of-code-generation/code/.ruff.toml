@@ -1,0 +1,25 @@
+# Explicit configuration for Ruff to ensure consistent behavior
+# This file is referenced by pyproject.toml but provided separately for IDE support
+line-length = 88
+target-version = "py39"
+select = [
+    "E",
+    "W",
+    "F",
+    "I",
+    "B",
+    "C4",
+    "UP",
+]
+ignore = [
+    "E501",
+    "B008",
+]
+exclude = [
+    ".git",
+    ".venv",
+    "venv",
+    "__pycache__",
+    "build",
+    "dist",
+]

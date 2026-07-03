@@ -1,0 +1,49 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "BugDetection Schema"
+description: "Schema for bug detections from LLM or Human sources"
+type: "object"
+required:
+  - bug_id
+  - source
+  - file_path
+  - line_start
+  - line_end
+  - severity
+  - description
+properties:
+  bug_id:
+    type: "string"
+    description: "Unique ID for the bug detection"
+  source:
+    type: "string"
+    enum:
+      - "human"
+      - "llm"
+    description: "Source of the bug detection"
+  file_path:
+    type: "string"
+    description: "Relative file path in the repository"
+  line_start:
+    type: "integer"
+    description: "Start line of the bug"
+    minimum: 1
+  line_end:
+    type: "integer"
+    description: "End line of the bug"
+    minimum: 1
+  severity:
+    type: "string"
+    enum:
+      - "critical"
+      - "major"
+      - "minor"
+      - "style"
+    description: "Severity classification of the bug"
+  description:
+    type: "string"
+    description: "Natural language description of the bug"
+  confidence:
+    type: "number"
+    description: "Optional confidence score (0.0 to 1.0)"
+    minimum: 0.0
+    maximum: 1.0

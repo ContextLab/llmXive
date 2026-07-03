@@ -1,0 +1,11 @@
+- artifact_hash: 1f6945f2633182574168a0dca6494ca7da62caa4184ed7ac5e466bd7081c0ca0
+  artifact_path: projects/PROJ-370-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: train-00000-of-00001-a3494cf8c0712e34.parquet
+  kind: url
+  value: https://huggingface.co/datasets/loubnabnl/prs-v2-sample/resolve/main/data/train-00000-of-00001-a3494cf8c0712e34.parquet`
+  verification_status: verified
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/650302ac89707f18239a7177/c9613d847b480971b6f75e2279ea0fb1fdc6c733c4c793c2a82742c346100808?response-content-disposition=inline%3B+filename*%3DUTF-8%27%27train-00000-of-00001-a3494cf8c0712e34.parquet%3B+filename%3D%22train-00000-of-00001-a3494cf8c0712e34.parquet%22%3B&user_id=public&X-Xet-Cas-Uid=public&Expires=1783089088&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjUwMzAyYWM4OTcwN2YxODIzOWE3MTc3L2M5NjEzZDg0N2I0ODA5NzFiNmY3NWUyMjc5ZWEwZmIxZmRjNmM3MzNjNGM3OTNjMmE4Mjc0MmMzNDYxMDA4MDhcXD9yZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dHJhaW4tMDAwMDAtb2YtMDAwMDEtYTM0OTRjZjhjMDcxMmUzNC5wYXJxdWV0JTNCK2ZpbGVuYW1lJTNEJTIydHJhaW4tMDAwMDAtb2YtMDAwMDEtYTM0OTRjZjhjMDcxMmUzNC5wYXJxdWV0JTIyJTNCJnVzZXJfaWQ9cHVibGljJlgtWGV0LUNhcy1VaWQ9cHVibGljIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3ODMwODkwODh9fX1dfQ__&Signature=MEYCIQDoaC3fP6dYUx0G5YZYGPooykChoTSxxN7Ru0iwCAX-NgIhAMFQ-YqDAez7jRj5-bUi-ufYh6a2%7E4rvBTAhU2gphlz%7E&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+  verified_at: '2026-07-03T13:31:28.410425Z'

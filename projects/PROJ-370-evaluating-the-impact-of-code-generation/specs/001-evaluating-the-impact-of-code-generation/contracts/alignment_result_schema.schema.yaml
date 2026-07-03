@@ -1,0 +1,43 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "AlignmentResult Schema"
+description: "Schema for the alignment between LLM and Human bug detections"
+type: "object"
+required:
+  - llm_bug_id
+  - human_bug_id
+  - match_score
+  - location_overlap
+  - is_valid_match
+  - match_type
+  - line_shift_tolerance
+properties:
+  llm_bug_id:
+    type: "string"
+    description: "ID of the LLM-detected bug"
+  human_bug_id:
+    type: "string"
+    description: "ID of the human-detected bug"
+  match_score:
+    type: "number"
+    description: "Cosine similarity of bug descriptions"
+    minimum: 0.0
+    maximum: 1.0
+  location_overlap:
+    type: "number"
+    description: "Jaccard index of line sets (with tolerance)"
+    minimum: 0.0
+    maximum: 1.0
+  is_valid_match:
+    type: "boolean"
+    description: "True if match_score >= threshold AND location_overlap >= 0.5"
+  match_type:
+    type: "string"
+    enum:
+      - "exact"
+      - "fuzzy"
+      - "none"
+    description: "Type of match found"
+  line_shift_tolerance:
+    type: "integer"
+    description: "The line shift tolerance used for this match (e.g., 5)"
+    minimum: 0

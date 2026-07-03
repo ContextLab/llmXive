@@ -1,0 +1,212 @@
+resolved_at: '2026-07-03T13:23:48.580028+00:00'
+datasets:
+- intent: PRs
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/loubnabnl/prs-v2-sample/resolve/main/data/train-00000-of-00001-a3494cf8c0712e34.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/davanstrien/authors_merged_model_prs/resolve/main/data/train-00000-of-00001-d32a63c5798549f1.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 705
+      parsed: true
+  - url: https://huggingface.co/datasets/davanstrien/authors_merged_dataset_prs/resolve/main/data/train-00000-of-00001-d5c709e857d2ca0b.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 7290
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/loubnabnl/prs-v2-sample/resolve/main/data/train-00000-of-00001-a3494cf8c0712e34.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/loubnabnl/clean_prs2/resolve/main/data/train-00000-of-00001-b48b6d01dc6d5c4a.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/davanstrien/authors_merged_model_prs/resolve/main/data/train-00000-of-00001-d32a63c5798549f1.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/davanstrien/authors_merged_dataset_prs/resolve/main/data/train-00000-of-00001-d5c709e857d2ca0b.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/susnato/python_PRs/resolve/main/data/train-00000-of-00177.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/dataset/Data_supporting_the_article_Cerrado_plant_traits_CPT_a_database_of_functional_traits_across_vegetation_types_in_a_global_biodiversity_hotspot/32895932
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/dataset/Complete_chloroplast_genome_and_phylogenetic_analysis_of_i_Amorphophallus_ochroleucus_i_Hett_V_D_Nguyen_2001_Araceae_/32896024
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Design_of_thioether-functionalized_carboxylate_linked_nickel-MOF_for_versatile_electrochemical_and_biological_application/32896051
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/dataset/Data_Sheet_1_Utilization_of_Madhuca_indica_ash_as_a_green_catalyst_for_transesterification_of_Madhuca_indica_oil_process_optimization_and_engine_analysis_docx/32896043
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Data_set/32895989
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8008235
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5546655
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7123901
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6203212
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16931148
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://fair.unifg.it//handle/11369/363317
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21159482
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21159482
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5610036
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5610036
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: F1-score
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/onepaneai/faithfulness-f1score-spl-prompt-gpt-benchmarking-old/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 98811
+      parsed: true
+  - url: https://huggingface.co/datasets/onepaneai/faithfulness-f1score-spl-prompt-benchmarking-old/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 82904
+      parsed: true
+  - url: https://huggingface.co/datasets/onepaneai/faithfulness-f1score-spl-prompt-falcon-benchmarking-old2/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 94356
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/onepaneai/faithfulness-f1score-spl-prompt-gpt-benchmarking-old/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/onepaneai/faithfulness-f1score-spl-prompt-benchmarking-old/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/onepaneai/faithfulness-f1score-spl-prompt-falcon-benchmarking-old2/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/onepaneai/faithfulness-f1score-spl-prompt-falcon-benchmarking/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/onepaneai/faithfulness-f1score-spl-prompt-gpt-benchmarking/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/dataset/Data_supporting_the_article_Cerrado_plant_traits_CPT_a_database_of_functional_traits_across_vegetation_types_in_a_global_biodiversity_hotspot/32895932
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/dataset/Complete_chloroplast_genome_and_phylogenetic_analysis_of_i_Amorphophallus_ochroleucus_i_Hett_V_D_Nguyen_2001_Araceae_/32896024
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Design_of_thioether-functionalized_carboxylate_linked_nickel-MOF_for_versatile_electrochemical_and_biological_application/32896051
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/dataset/Data_Sheet_1_Utilization_of_Madhuca_indica_ash_as_a_green_catalyst_for_transesterification_of_Madhuca_indica_oil_process_optimization_and_engine_analysis_docx/32896043
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Data_set/32895989
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/1753520
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://stp.ust.edu.ua/article/view/325888
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ijai.iaescore.com/index.php/IJAI/article/view/26268
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18063014
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6936930
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://unige.iris.cineca.it/handle/11567/945784
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21161174
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21161174
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21156628
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21156628
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
