@@ -1,0 +1,108 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Model Output
+description: Schema for the final model performance and validation metrics.
+type: object
+properties:
+  model_type:
+    type: string
+    enum:
+      - ElasticNet
+      - RandomForest
+    description: "Type of model trained"
+  cross_validation_method:
+    type: string
+    const: "Leave-One-Species-Out"
+  species_count:
+    type: integer
+    minimum: 15
+    description: "Number of species used in the analysis"
+  performance_metrics:
+    type: object
+    properties:
+      mean_r_squared:
+        type: number
+        description: "Mean R² across all CV folds"
+      mean_spearman_correlation:
+        type: number
+        description: "Mean Spearman correlation across all CV folds"
+      std_r_squared:
+        type: number
+        description: "Standard deviation of R² across folds"
+    required:
+      - mean_r_squared
+      - mean_spearman_correlation
+      - std_r_squared
+  significance_test:
+    type: object
+    properties:
+      observed_p_value:
+        type: number
+        description: "P-value from permutation test (N=10000)"
+      holm_bonferroni_adjusted_p:
+        type: number
+        description: "FWER-corrected p-value"
+      phylogenetic_null_95th_percentile:
+        type: number
+        description: "95th percentile of R² from phylogenetic null model (residual permutation)"
+      is_significant_vs_phyl_null:
+        type: boolean
+        description: "True if observed R² > 95th percentile of null"
+    required:
+      - observed_p_value
+      - holm_bonferroni_adjusted_p
+      - phylogenetic_null_95th_percentile
+      - is_significant_vs_phyl_null
+  sensitivity_analysis:
+    type: array
+    items:
+      type: object
+      properties:
+        gene_count:
+          type: integer
+        r_squared:
+          type: number
+      required:
+        - gene_count
+        - r_squared
+    description: "R² variation across different DE gene counts"
+  power_analysis_result:
+    type: object
+    properties:
+      n_species:
+        type: integer
+      is_sufficient:
+        type: boolean
+      power_estimate:
+        type: number
+      effect_size_tested:
+        type: number
+        description: "R² value used for power calculation (e.g., 0.1, 0.2, 0.3)"
+    required:
+      - n_species
+      - is_sufficient
+      - power_estimate
+      - effect_size_tested
+  timestamp:
+    type: string
+    format: date-time
+  seed:
+    type: integer
+    description: "Random seed used for reproducibility"
+  validation_mode:
+    type: string
+    enum:
+      - structural_prototype
+      - biological_validation
+    description: "Mode of validation (synthetic vs real data)"
+required:
+  - model_type
+  - cross_validation_method
+  - species_count
+  - performance_metrics
+  - significance_test
+  - sensitivity_analysis
+  - power_analysis_result
+  - timestamp
+  - seed
+  - validation_mode
+additionalProperties: false

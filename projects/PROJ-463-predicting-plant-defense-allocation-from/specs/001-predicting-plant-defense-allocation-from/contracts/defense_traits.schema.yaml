@@ -1,0 +1,61 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Defense Trait Record
+description: Schema for compiled chemical and physical defense traits for a single species.
+type: object
+properties:
+  species:
+    type: string
+    description: "Scientific name of the plant species"
+  chemical_traits:
+    type: object
+    description: "Standardized chemical defense values (Fixed list: Glucosinolates, Alkaloids, Phenolics)"
+    properties:
+      glucosinolates:
+        type: number
+        description: "Mean concentration of glucosinolates (z-scored)"
+      alkaloids:
+        type: number
+        description: "Mean concentration of alkaloids (z-scored)"
+      phenolics:
+        type: number
+        description: "Mean concentration of phenolics (z-scored)"
+    required:
+      - glucosinolates
+      - alkaloids
+      - phenolics
+  physical_traits:
+    type: object
+    description: "Standardized physical defense values (Fixed list: Trichome Density, Leaf Tensile Strength)"
+    properties:
+      trichome_density:
+        type: number
+        description: "Trichome density per mm^2 (z-scored)"
+      leaf_tensile_strength:
+        type: number
+        description: "Leaf tensile strength in MPa (z-scored)"
+    required:
+      - trichome_density
+      - leaf_tensile_strength
+  defense_allocation_index:
+    type: number
+    description: "Ratio of mean standardized chemical traits to mean standardized physical traits"
+  data_sources:
+    type: array
+    items:
+      type: string
+    description: "List of sources (e.g., 'TRY', 'Literature', 'Phenoscape', 'GBIF')"
+  source_citation:
+    type: string
+    description: "Citation for the trait data"
+  checksum:
+    type: string
+    description: "SHA256 checksum of the raw source data"
+required:
+  - species
+  - chemical_traits
+  - physical_traits
+  - defense_allocation_index
+  - data_sources
+  - source_citation
+  - checksum
+additionalProperties: false

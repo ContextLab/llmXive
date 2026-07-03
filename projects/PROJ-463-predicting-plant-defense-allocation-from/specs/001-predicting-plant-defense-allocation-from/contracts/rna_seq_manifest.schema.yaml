@@ -1,0 +1,94 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: RNA-Seq Manifest
+description: Provenance manifest for raw RNA-seq files and processing lineage.
+type: object
+properties:
+  accession_id:
+    type: string
+    description: "NCBI GEO/SRA accession ID (or 'SYNTHETIC' for generated data)"
+  species:
+    type: string
+    description: "Plant species name"
+  tissue:
+    type: string
+    enum:
+      - leaf
+      - stem
+      - root
+    description: "Tissue type sampled"
+  treatment:
+    type: string
+    enum:
+      - chewing
+      - piercing_sucking
+      - control
+    description: "Herbivore treatment type"
+  replicates:
+    type: integer
+    minimum: 2
+    description: "Number of biological replicates"
+  sequencing_platform:
+    type: string
+    description: "Sequencing platform (e.g., Illumina NovaSeq)"
+  raw_file_path:
+    type: string
+    description: "Relative path to raw FASTQ file in data/raw/"
+  raw_checksum:
+    type: string
+    description: "SHA256 checksum of the raw FASTQ file (or generation seed for synthetic)"
+  reference_genome:
+    type: string
+    description: "Reference genome assembly used for alignment"
+  reference_version:
+    type: string
+    description: "Version of the reference genome"
+  processing_log:
+    type: object
+    properties:
+      fastp_version:
+        type: string
+      hisat2_version:
+        type: string
+      featurecounts_version:
+        type: string
+      batch_correction_method:
+        type: string
+        enum:
+          - Combat-seq
+          - None
+    required:
+      - fastp_version
+      - hisat2_version
+      - featurecounts_version
+      - batch_correction_method
+  variance_reduction_metric:
+    type: number
+    description: "Coefficient of variation reduction for housekeeping genes (target >= 0.20)"
+  status:
+    type: string
+    enum:
+      - processed
+      - excluded
+      - flagged_for_review
+    description: "Processing status of the study"
+  data_source_type:
+    type: string
+    enum:
+      - real_ncbi
+      - real_try
+      - synthetic
+    description: "Origin of the data"
+required:
+  - accession_id
+  - species
+  - tissue
+  - treatment
+  - replicates
+  - raw_file_path
+  - raw_checksum
+  - reference_genome
+  - reference_version
+  - processing_log
+  - status
+  - data_source_type
+additionalProperties: false
