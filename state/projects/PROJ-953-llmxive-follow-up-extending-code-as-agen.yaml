@@ -1,0 +1,18 @@
+artifact_hashes: {}
+assigned_agent: null
+created_at: '2026-07-03T15:42:33.603239Z'
+current_stage: brainstormed
+failed_stage: null
+field: linguistics
+human_escalation_reason: null
+id: PROJ-953-llmxive-follow-up-extending-code-as-agen
+last_run_id: null
+last_run_status: null
+points_paper: {}
+points_research: {}
+revision_round: 0
+revision_spec_path: null
+speckit_paper_dir: null
+speckit_research_dir: null
+title: 'llmXive follow-up: extending "Code as Agent Harness"'
+updated_at: '2026-07-03T15:42:33.603239Z'
