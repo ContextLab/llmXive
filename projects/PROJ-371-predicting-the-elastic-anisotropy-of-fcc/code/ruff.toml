@@ -1,0 +1,27 @@
+[tool.ruff]
+# Target Python 3.9+ as per project standards
+target-version = "py39"
+line-length = 88
+extend-exclude = [
+    "__pycache__",
+    ".venv",
+    "data",
+    "output",
+    "venv",
+    ".git",
+]
+
+[tool.ruff.lint]
+# Enable pyflakes (F), pycodestyle (E, W), isort (I), and pep8-naming (N)
+select = ["E", "F", "W", "I", "N", "UP"]
+ignore = [
+    "E501", # Line too long (handled by black)
+    "N806", # Variable in function should be lowercase (strictness adjustment)
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["S101"] # Allow assertions in tests
+
+[tool.ruff.lint.isort]
+known-first-party = ["src", "tests"]
+force-sort-within-sections = true

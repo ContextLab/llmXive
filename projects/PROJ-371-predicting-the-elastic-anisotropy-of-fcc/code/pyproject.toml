@@ -1,0 +1,61 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "elastic-anisotropy-prediction"
+version = "0.1.0"
+description = "Predicting the Elastic Anisotropy of FCC Metals from Composition"
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = [
+    "pandas",
+    "scikit-learn",
+    "mendeleev",
+    "requests",
+    "pyyaml",
+    "matplotlib",
+    "python-dotenv",
+    "pytest",
+    "black",
+    "ruff",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest",
+    "pytest-cov",
+    "black",
+    "ruff",
+]
+
+[tool.black]
+line-length = 88
+target-version = ['py39']
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
+    | data
+    | output
+)/
+'''
+
+[tool.ruff]
+# Inherit settings from code/ruff.toml or define here if preferred
+# Keeping it in code/ruff.toml for separation of concerns, 
+# but pyproject.toml is the standard location for many.
+# We will rely on the file-based config for this task.
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+addopts = "-v --tb=short"

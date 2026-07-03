@@ -1,0 +1,67 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "ValidationReport Schema"
+description: "Schema for the final validation report including physical consistency and sensitivity analysis."
+type: "object"
+properties:
+  report_id:
+    type: "string"
+    description: "Unique ID for the validation report."
+  total_entries:
+    type: "integer"
+    description: "Total number of material entries in the dataset."
+  physical_violations:
+    type: "integer"
+    description: "Count of predictions where A1 is outside the range (0, 3)."
+  violation_rate:
+    type: "number"
+    description: "Ratio of physical violations to total predictions."
+  warning_triggered:
+    type: "boolean"
+    description: "True if violation_rate > 0.05."
+  coverage_count:
+    type: "integer"
+    description: "Number of unique FCC entries in the dataset."
+  coverage_threshold_met:
+    type: "boolean"
+    description: "True if coverage_count >= 50."
+  max_r2:
+    type: "number"
+    description: "Maximum R-squared achieved across all models and thresholds."
+  benchmark_met:
+    type: "boolean"
+    description: "True if max_r2 >= 0.5."
+  sensitivity_results:
+    type: "array"
+    description: "Results of the sensitivity analysis on outlier thresholds."
+    items:
+      type: "object"
+      properties:
+        threshold:
+          type: "number"
+          description: "Outlier threshold in standard deviations."
+        r2:
+          type: "number"
+          description: "R-squared achieved with this threshold."
+      required:
+        - threshold
+        - r2
+  feature_importance:
+    type: "object"
+    description: "Aggregated feature importance scores."
+  associational_statement:
+    type: "string"
+    description: "Standard disclaimer stating findings are correlational."
+required:
+  - report_id
+  - total_entries
+  - physical_violations
+  - violation_rate
+  - warning_triggered
+  - coverage_count
+  - coverage_threshold_met
+  - max_r2
+  - benchmark_met
+  - sensitivity_results
+  - feature_importance
+  - associational_statement
+additionalProperties: false

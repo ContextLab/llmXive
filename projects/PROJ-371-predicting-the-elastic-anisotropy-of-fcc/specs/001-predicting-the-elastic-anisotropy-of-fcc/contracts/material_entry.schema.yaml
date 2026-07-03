@@ -1,0 +1,50 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "MaterialEntry Schema"
+description: "Schema for the processed material data including elastic constants and compositional descriptors."
+type: "object"
+properties:
+  id:
+    type: "string"
+    description: "Unique identifier from the source API (e.g., mp-123)."
+  formula:
+    type: "string"
+    description: "Chemical formula of the material."
+  source:
+    type: "string"
+    enum:
+      - "materials_project"
+      - "aflowlib"
+    description: "Source database of the entry."
+  c11:
+    type: "number"
+    description: "Elastic constant C11 in GPa."
+  c12:
+    type: "number"
+    description: "Elastic constant C12 in GPa."
+  c44:
+    type: "number"
+    description: "Elastic constant C44 in GPa."
+  a1:
+    type: "number"
+    description: "Calculated anisotropy factor A1 = 2*C44 / (C11 - C12)."
+  atomic_radius_variance:
+    type: "number"
+    description: "Standard deviation of atomic radii of constituent elements."
+  electronegativity_std:
+    type: "number"
+    description: "Standard deviation of electronegativity of constituent elements."
+  vec:
+    type: "number"
+    description: "Valence Electron Concentration (average valence electrons per atom)."
+required:
+  - id
+  - formula
+  - source
+  - c11
+  - c12
+  - c44
+  - a1
+  - atomic_radius_variance
+  - electronegativity_std
+  - vec
+additionalProperties: false
