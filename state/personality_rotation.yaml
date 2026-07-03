@@ -1,12 +1,7 @@
-last_used: david-krakauer
-last_used_at: '2026-07-03T09:10:15.981904+00:00'
+last_used: eric-kandel
+last_used_at: '2026-07-03T10:59:28.516287+00:00'
 last_outcome: committed
 history:
-- slug: eric-kandel
-  started_at: '2026-06-22T21:49:08.642810+00:00'
-  ended_at: '2026-06-22T22:34:34.983050+00:00'
-  outcome: abstained
-  action: abstain
 - slug: freeman-dyson
   started_at: '2026-06-22T22:34:34.983050+00:00'
   ended_at: '2026-06-22T23:31:36.053728+00:00'
@@ -1218,3 +1213,10 @@ history:
   action: comment
   committed_paths:
   - projects/PROJ-230-evaluating-the-effectiveness-of-prompt-e/reviews/research/david-krakauer-simulated__2026-07-03__research.md
+- slug: eric-kandel
+  started_at: '2026-07-03T09:10:15.981904+00:00'
+  ended_at: '2026-07-03T10:59:28.516287+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-596-memory-palaces-in-llms-spatial-reasoning/reviews/research/eric-kandel-simulated__2026-07-03__research.md
