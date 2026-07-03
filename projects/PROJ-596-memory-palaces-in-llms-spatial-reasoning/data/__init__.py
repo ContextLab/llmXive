@@ -1,3 +1,3 @@
 """
-Data loading, download, and verification utilities.
+Data storage directory for raw and processed datasets.
 """

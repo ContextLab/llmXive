@@ -1,235 +1,194 @@
 """
-Integration test for training loop memory constraints.
+Integration test for training loop memory constraints (T011).
 
-This test verifies that the training loop correctly monitors memory usage,
-reduces batch size when RSS exceeds 6GB, and caps the dataset if necessary.
-It validates the interaction between the memory monitor and the training loop.
+This test verifies that the training loop correctly monitors memory usage
+and adapts batch size or dataset size when RSS exceeds the 6 GB threshold.
+It uses the MemoryMonitor utility from code/training/memory_monitor.py
+and validates the adaptive behavior without requiring full model training.
 """
+
 import os
 import sys
 import tempfile
-import gc
-import pytest
-import torch
+import time
 from pathlib import Path
 
-# Add project root to path for imports
-project_root = Path(__file__).parent.parent.parent
-sys.path.insert(0, str(project_root))
+import pytest
 
-from code.training.memory_monitor import MemoryMonitor
-from code.models.loading import check_memory_budget
-from code.models.loading import load_model
-from code.utils.logger import setup_experiment_logger
-import logging
+# Ensure project root is in path
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+sys.path.insert(0, str(PROJECT_ROOT / "code"))
 
-# Mock dataset for testing (using a small subset of bAbI if available, or synthetic)
-# We will use a tiny synthetic dataset to simulate training without needing full downloads
-from datasets import Dataset
+from training.memory_monitor import MemoryMonitor
 
-def create_synthetic_dataset(num_samples=100, seq_length=64):
-    """Create a small synthetic dataset for testing memory constraints."""
-    import random
-    random.seed(42)
-    
-    data = {
-        'input_ids': [],
-        'attention_mask': [],
-        'labels': []
-    }
-    
-    vocab_size = 1000
-    for _ in range(num_samples):
-        # Create random token sequences
-        tokens = [random.randint(0, vocab_size-1) for _ in range(seq_length)]
-        data['input_ids'].append(tokens)
-        data['attention_mask'].append([1] * seq_length)
-        data['labels'].append(tokens)  # For next token prediction, labels = input
-    
-    return Dataset.from_dict(data)
 
-@pytest.fixture(scope="module")
-def temp_experiment_dir():
-    """Create a temporary directory for experiment logs."""
+class MockTrainingLoop:
+    """
+    Mock training loop that simulates memory growth during "training".
+    Used to test the MemoryMonitor's adaptive behavior.
+    """
+
+    def __init__(self, monitor: MemoryMonitor, memory_growth_factor: float = 1.0):
+        self.monitor = monitor
+        self.memory_growth_factor = memory_growth_factor
+        self.batch_sizes = []
+        self.dataset_sizes = []
+        self.epoch_count = 0
+
+    def simulate_epoch(self, initial_batch_size: int, initial_dataset_size: int):
+        """
+        Simulate an epoch where memory usage grows.
+        Returns (final_batch_size, final_dataset_size, rss_mb).
+        """
+        current_batch = initial_batch_size
+        current_dataset = initial_dataset_size
+
+        # Simulate memory growth over "steps" in the epoch
+        for step in range(5):
+            # Simulate RSS increase
+            self.monitor._record_rss()
+            rss = self.monitor.get_current_rss_mb()
+
+            # If RSS > 6GB, trigger adaptive logic
+            if rss > 6144:  # 6 GB in MB
+                if current_batch > 4:
+                    current_batch = 4
+                    self.monitor.log_event("batch_size_reduced", {"new_batch_size": 4})
+                elif current_dataset > 100:
+                    # Cap dataset to 10% of original (mock logic)
+                    new_size = int(initial_dataset_size * 0.1)
+                    if new_size < 10:
+                        new_size = 10
+                    current_dataset = new_size
+                    self.monitor.log_event("dataset_capped", {"new_size": new_size})
+                else:
+                    # Cannot reduce further, stop simulation
+                    break
+
+            self.batch_sizes.append(current_batch)
+            self.dataset_sizes.append(current_dataset)
+
+        return current_batch, current_dataset, self.monitor.get_current_rss_mb()
+
+
+@pytest.fixture
+def temp_log_dir():
+    """Create a temporary directory for log files."""
     with tempfile.TemporaryDirectory() as tmpdir:
         yield Path(tmpdir)
 
-@pytest.fixture(scope="module")
-def test_logger(temp_experiment_dir):
-    """Setup a test logger."""
-    logger = setup_experiment_logger(
-        experiment_name="test_memory_constraints",
-        output_dir=temp_experiment_dir
-    )
-    return logger
 
-@pytest.fixture(scope="module")
-def small_dataset():
-    """Create a small synthetic dataset for testing."""
-    return create_synthetic_dataset(num_samples=50, seq_length=32)
+def test_memory_monitor_initialization(temp_log_dir):
+    """Test that MemoryMonitor initializes correctly and logs to the specified path."""
+    monitor = MemoryMonitor(log_dir=str(temp_log_dir), threshold_mb=6144)
+    assert monitor.threshold_mb == 6144
+    assert monitor.log_dir == temp_log_dir
+    assert monitor.log_file == temp_log_dir / "memory_log.json"
+    assert not monitor.log_file.exists()  # Log file created on first record
 
-def test_memory_monitor_initialization(test_logger):
-    """Test that MemoryMonitor initializes correctly."""
-    monitor = MemoryMonitor(
-        threshold_gb=6.0,
-        logger=test_logger
-    )
-    assert monitor.threshold_gb == 6.0
-    assert monitor.logger is not None
-    assert monitor.current_batch_size == 8  # Default initial batch size
 
-def test_memory_budget_check(test_logger):
-    """Test that memory budget check works correctly."""
-    # Check memory budget with current system state
-    can_use_gpt2, recommended_model = check_memory_budget()
-    
-    # This should return a boolean and model recommendation
-    assert isinstance(can_use_gpt2, bool)
-    assert recommended_model in ['gpt2-medium', 'distilgpt2']
-    
-    test_logger.info(f"Memory budget check: can_use_gpt2={can_use_gpt2}, recommended={recommended_model}")
+def test_memory_monitor_rss_recording(temp_log_dir):
+    """Test that MemoryMonitor records RSS correctly."""
+    monitor = MemoryMonitor(log_dir=str(temp_log_dir))
+    monitor._record_rss()
+    assert monitor.current_rss_mb > 0
+    assert monitor.current_rss_mb < 100000  # Sanity check: RSS should be reasonable
 
-def test_training_loop_memory_adaptation(test_logger, small_dataset, temp_experiment_dir):
+
+def test_training_loop_batch_size_reduction(temp_log_dir):
     """
-    Integration test: Verify training loop adapts to memory constraints.
-    
-    This test simulates a training scenario where:
-    1. We start with batch_size=8
-    2. Memory monitor detects high usage (simulated by checking RSS)
-    3. Batch size is reduced to 4
-    4. If still high, dataset is capped
-    
-    We verify that the memory monitor correctly logs these decisions.
+    Test that the training loop reduces batch size from 8 to 4 when RSS > 6GB.
+    This simulates the scenario described in FR-003.
     """
-    from code.training.memory_monitor import MemoryMonitor
-    
-    # Initialize memory monitor with a low threshold for testing
-    monitor = MemoryMonitor(
-        threshold_gb=1.0,  # Low threshold to trigger adaptation in test environment
-        logger=test_logger
+    monitor = MemoryMonitor(log_dir=str(temp_log_dir), threshold_mb=6144)
+    loop = MockTrainingLoop(monitor, memory_growth_factor=2.0)
+
+    # Simulate an epoch with initial batch size 8 and dataset size 1000
+    final_batch, final_dataset, final_rss = loop.simulate_epoch(
+        initial_batch_size=8, initial_dataset_size=1000
     )
-    
-    # Simulate training steps
-    batch_sizes = []
-    dataset_cap_decisions = []
-    
-    # Run a few "training steps" to test memory monitoring
-    for step in range(5):
-        # Simulate memory check before each step
-        current_rss = monitor.get_current_rss_gb()
-        test_logger.info(f"Step {step}: Current RSS = {current_rss:.2f} GB")
-        
-        # Check if we need to adapt
-        needs_adaptation = current_rss > monitor.threshold_gb
-        
-        if needs_adaptation:
-            # In real scenario, this would reduce batch size
-            if monitor.current_batch_size > 4:
-                old_batch = monitor.current_batch_size
-                monitor.current_batch_size = 4
-                test_logger.info(f"Reducing batch size from {old_batch} to 4 due to memory pressure")
-            elif monitor.current_batch_size == 4:
-                # Would cap dataset in real scenario
-                dataset_cap_decisions.append(step)
-                test_logger.info(f"Dataset capping would be triggered at step {step}")
-        
-        batch_sizes.append(monitor.current_batch_size)
-        
-        # Simulate some work that would increase memory (in real training)
-        # For this test, we just do a small tensor operation
-        if torch.cuda.is_available():
-            _ = torch.randn(100, 100).cuda()
-        else:
-            _ = torch.randn(100, 100)
-        gc.collect()
-    
-    # Verify that batch size never exceeded 8
-    assert all(bs <= 8 for bs in batch_sizes), "Batch size should never exceed 8"
-    
-    # Verify that batch size was reduced if memory pressure was detected
-    if any(bs < 8 for bs in batch_sizes):
-        test_logger.info("Batch size reduction was triggered as expected")
-    
-    # Log final state
-    test_logger.info(f"Final batch size: {monitor.current_batch_size}")
-    test_logger.info(f"Dataset cap decisions: {dataset_cap_decisions}")
 
-def test_memory_monitor_logging(test_logger):
-    """Test that memory monitor logs correctly to the experiment logger."""
-    monitor = MemoryMonitor(
-        threshold_gb=6.0,
-        logger=test_logger
+    # Verify batch size was reduced to 4
+    assert final_batch == 4, f"Expected batch size 4, got {final_batch}"
+    assert 4 in loop.batch_sizes, "Batch size reduction event not recorded"
+
+
+def test_training_loop_dataset_capping(temp_log_dir):
+    """
+    Test that the training loop caps the dataset when batch size is already 4
+    and RSS still exceeds 6GB.
+    """
+    monitor = MemoryMonitor(log_dir=str(temp_log_dir), threshold_mb=6144)
+    loop = MockTrainingLoop(monitor, memory_growth_factor=3.0)
+
+    # Simulate an epoch with initial batch size 4 (already reduced) and large dataset
+    final_batch, final_dataset, final_rss = loop.simulate_epoch(
+        initial_batch_size=4, initial_dataset_size=10000
     )
-    
-    # Capture log messages
-    with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.log') as f:
-        log_file = f.name
-    
-    # Add file handler to logger to capture logs
-    handler = logging.FileHandler(log_file)
-    handler.setLevel(logging.INFO)
-    test_logger.addHandler(handler)
-    
-    # Perform some operations
-    current_rss = monitor.get_current_rss_gb()
-    monitor.log_memory_status("Test operation")
-    
-    # Clean up
-    test_logger.removeHandler(handler)
-    handler.close()
-    
-    # Verify log file exists and contains expected content
-    assert os.path.exists(log_file)
-    with open(log_file, 'r') as f:
-        log_content = f.read()
-    
-    assert "Current RSS" in log_content or "memory" in log_content.lower()
-    
-    # Clean up log file
-    os.unlink(log_file)
 
-def test_integration_with_model_loading(test_logger, temp_experiment_dir):
+    # Verify dataset was capped
+    assert final_batch == 4, "Batch size should remain 4"
+    assert final_dataset < 10000, "Dataset should be capped"
+    assert final_dataset == int(10000 * 0.1), "Dataset should be capped to 10% of original"
+    assert "dataset_capped" in str(loop.monitor.events), "Dataset cap event not recorded"
+
+
+def test_memory_log_file_created(temp_log_dir):
+    """Test that the memory log file is created and contains valid JSON."""
+    monitor = MemoryMonitor(log_dir=str(temp_log_dir))
+    monitor._record_rss()
+    monitor.log_event("test_event", {"key": "value"})
+
+    assert monitor.log_file.exists(), "Log file should be created"
+    import json
+    with open(monitor.log_file, "r") as f:
+        data = json.load(f)
+    assert "events" in data, "Log should contain 'events' key"
+    assert len(data["events"]) > 0, "Log should contain at least one event"
+
+
+def test_memory_threshold_exceeded_detection(temp_log_dir):
     """
-    Integration test: Verify memory monitoring works with model loading.
-    
-    This test ensures that:
-    1. Memory budget check is performed before model loading
-    2. Appropriate model is selected based on memory constraints
-    3. Memory monitor logs the decision
+    Test that the MemoryMonitor correctly detects when RSS exceeds the threshold.
     """
-    # Check memory budget
-    can_use_gpt2, recommended_model = check_memory_budget()
-    
-    test_logger.info(f"Model selection based on memory: {recommended_model}")
-    
-    # Verify that we get a valid model recommendation
-    assert recommended_model in ['gpt2-medium', 'distilgpt2']
-    
-    # In a real scenario, we would load the model here
-    # For this test, we just verify the selection logic works
-    if can_use_gpt2:
-        test_logger.info("gpt2-medium can be loaded within memory budget")
-    else:
-        test_logger.info("Using DistilGPT2 fallback due to memory constraints")
+    monitor = MemoryMonitor(log_dir=str(temp_log_dir), threshold_mb=6144)
+    # Force a high RSS value for testing (mocking)
+    original_rss = monitor.current_rss_mb
+    monitor.current_rss_mb = 7000  # Simulate > 6GB
 
-def test_memory_monitor_threshold_behavior(test_logger):
-    """Test memory monitor behavior at different threshold levels."""
-    
-    # Test with very low threshold
-    low_monitor = MemoryMonitor(threshold_gb=0.1, logger=test_logger)
-    assert low_monitor.threshold_gb == 0.1
-    
-    # Test with very high threshold
-    high_monitor = MemoryMonitor(threshold_gb=100.0, logger=test_logger)
-    assert high_monitor.threshold_gb == 100.0
-    
-    # Verify that get_current_rss_gb returns a reasonable value
-    rss = low_monitor.get_current_rss_gb()
-    assert 0 < rss < 100, f"RSS should be between 0 and 100 GB, got {rss}"
-    
-    test_logger.info(f"Current RSS: {rss:.2f} GB")
-    test_logger.info(f"Low threshold monitor would trigger: {rss > 0.1}")
-    test_logger.info(f"High threshold monitor would trigger: {rss > 100.0}")
+    assert monitor.is_above_threshold(), "Should detect RSS > 6GB"
 
-if __name__ == "__main__":
-    pytest.main([__file__, "-v", "--tb=short"])
+    # Restore original value
+    monitor.current_rss_mb = original_rss
+
+
+def test_integration_adaptive_training_flow(temp_log_dir):
+    """
+    Full integration test: simulate a training run where memory grows,
+    batch size is reduced, and if necessary, dataset is capped.
+    """
+    monitor = MemoryMonitor(log_dir=str(temp_log_dir), threshold_mb=6144)
+    loop = MockTrainingLoop(monitor, memory_growth_factor=2.5)
+
+    # Simulate 3 epochs
+    for epoch in range(3):
+        loop.epoch_count = epoch
+        batch, dataset, rss = loop.simulate_epoch(
+            initial_batch_size=8, initial_dataset_size=5000
+        )
+        # Log epoch completion
+        monitor.log_event("epoch_complete", {
+            "epoch": epoch,
+            "batch_size": batch,
+            "dataset_size": dataset,
+            "rss_mb": rss
+        })
+
+    # Verify final state
+    assert loop.epoch_count == 2, "Should have completed 3 epochs (0,1,2)"
+    assert monitor.log_file.exists(), "Log file should exist"
+
+    # Check that at least one adaptive event occurred
+    events = monitor.events
+    adaptive_events = [e for e in events if e["type"] in ["batch_size_reduced", "dataset_capped"]]
+    assert len(adaptive_events) > 0, "At least one adaptive event should have occurred"

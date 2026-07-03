@@ -1,164 +1,130 @@
-# Project Contracts: Memory Palaces in LLMs
+# Contracts: Memory Palaces in LLMs – Spatial Reasoning for Enhanced Episodic Recall
 
-This document defines the functional, non-functional, and interface contracts for the
-`PROJ-596-memory-palaces-in-llms-spatial-reasoning` project. These contracts serve as
-binding agreements between system components, ensuring modularity, testability, and
-adherence to the scientific hypotheses regarding spatial reasoning in episodic recall.
+**Project ID**: PROJ-596
+**Version**: 1.0
+**Status**: Draft
+**Last Updated**: 2026-07-10
 
-## 1. Functional Contracts (FR)
+## 1. Introduction
 
-### FR-001: Coordinate Assignment
-**Requirement**: The system must assign unique 2D coordinates to episodic chunks based on
-their semantic content and insertion order.
-**Contract**:
-- **Input**: `EpisodicChunk` (text representation, semantic embedding).
-- **Output**: `MemorySlot` with assigned `(x, y)` coordinates within a defined grid.
-- **Constraint**: Coordinates must be deterministic for identical input sequences across
- random seeds, modulo the random seed initialization of the coordinate assigner.
-- **Implementation**: Enforced by `code/models/coordinate_assigner.py` using
- `CoordinateAssigner.calculate_interference_potential`.
+This document defines the formal contracts, invariants, and acceptance criteria for the **Memory Palaces in LLMs** research pipeline. These contracts serve as the binding specification between the system's components, ensuring that the implementation of spatial memory mechanisms adheres to the scientific hypotheses and engineering constraints outlined in `specs/001-memory-palaces-in-llms-spatial-reasoning/spec.md`.
 
-### FR-002: Soft-Addressed Retrieval
-**Requirement**: The model must retrieve information using soft attention over spatial
-coordinates rather than hard indexing.
-**Contract**:
-- **Input**: Query embedding, set of occupied `MemorySlot` coordinates.
-- **Output**: Weighted sum of slot contents based on cosine similarity between query
- and slot coordinates.
-- **Metric**: Retrieval accuracy must be measurable via exact-match recall against
- ground truth answers in bAbI Task 3.
-- **Implementation**: Enforced by `code/models/spatial.py` (cosine similarity calculation).
+The contracts are categorized into:
+1. **Data Integrity Contracts**: Ensuring reproducibility and correctness of input datasets.
+2. **Memory Architecture Contracts**: Defining the spatial slot structure and coordinate assignment logic.
+3. **Training & Resource Contracts**: Enforcing memory budgets and batch size adaptations.
+4. **Evaluation & Statistical Contracts**: Mandating rigorous statistical testing and metric definitions.
 
-### FR-003: Memory Budget Enforcement
-**Requirement**: The training loop must dynamically adapt to available RAM to prevent OOM.
-**Contract**:
-- **Threshold**: 6 GB RSS (Resident Set Size).
-- **Action 1**: If RSS > 6 GB, reduce batch size from 8 to 4.
-- **Action 2**: If RSS > 6 GB at batch size 4, cap the training dataset to 50% of its
- original size.
-- **Logging**: All adaptations must be logged to `artifacts/results/hyperparams_log.json`.
-- **Implementation**: Enforced by `code/training/memory_monitor.py` and
- `code/training/loop.py`.
+---
 
-### FR-004: Baseline Comparison
-**Requirement**: A standard GPT-2 Medium (quantized) baseline must be trained alongside
-the spatial variant.
-**Contract**:
-- **Fallback**: If GPT-2 Medium cannot be loaded within memory budget, `DistilGPT2`
- must be used as the fallback baseline.
-- **Interface**: Both models must expose the same training and inference interface.
-- **Implementation**: Enforced by `code/models/loading.py` and `code/models/base.py`.
+## 2. Data Integrity Contracts
 
-### FR-005: Reproducibility
-**Requirement**: Experiments must be reproducible across 5 random seeds.
-**Contract**:
-- **Seeds**: [-4, -3, -2, -1, 0] (or equivalent fixed set).
-- **Output**: `artifacts/results/recall_accuracy.json` must contain per-seed results.
-- **Implementation**: Enforced by `code/main.py` orchestration.
+These contracts ensure that the input data used for training and evaluation is authentic, unmodified, and verifiable.
 
-### FR-006: Statistical Rigor
-**Requirement**: Comparisons between spatial and baseline models must include multiple-comparison
-correction.
-**Contract**:
-- **Method**: Bonferroni or Holm-Bonferroni correction for three dataset comparisons
- (bAbI, LAMBADA, Story Cloze).
-- **Output**: `artifacts/results/statistical_summary.json` with corrected p-values.
-- **Implementation**: Enforced by `code/evaluation/stats.py`.
+### C-001: Dataset Authenticity
+**Scope**: `code/data/download.py`
+**Requirement**: The system MUST download datasets exclusively from the canonical Hugging Face Hub repositories:
+- `babi` (Task 3, `task3_10k`)
+- `lambada`
+- `story_cloze`
+**Constraint**: No synthetic, hard-coded, or placeholder data is permitted.
+**Verification**: Upon download, the system MUST compute the SHA-256 checksum of the raw dataset files and store them in `data/raw/checksums.json`. Any subsequent run must verify the local file against this checksum.
 
-### FR-007: Effect Size Reporting
-**Requirement**: Statistical tests must report effect sizes, not just p-values.
-**Contract**:
-- **Metric**: Cohen's d with 95% confidence intervals.
-- **Output**: Included in `artifacts/results/statistical_summary.json`.
-- **Implementation**: Enforced by `code/evaluation/stats.py`.
+### C-002: Data Immutability
+**Scope**: `data/raw/`
+**Requirement**: Once a dataset is downloaded and verified, the raw files in `data/raw/` MUST NOT be modified by the training or evaluation scripts. All preprocessing must occur in memory or in a separate `data/processed/` directory.
 
-## 2. Non-Functional Contracts (NFR)
+---
 
-### NFR-001: Runtime Constraint
-**Requirement**: The full pipeline (download, train, evaluate) must complete within 5 hours.
-**Contract**:
-- **Limit**: 18,000 seconds.
-- **Output**: `artifacts/results/runtime_report.json` with `within_limit` boolean.
-- **Implementation**: Enforced by `code/main.py` and `code/training/loop.py`.
+## 3. Memory Architecture Contracts
 
-### NFR-002: Data Integrity
-**Requirement**: All downloaded datasets must be verified via checksums.
-**Contract**:
-- **Action**: Compute SHA-256 for every downloaded file.
-- **Storage**: Store checksums in `data/raw/checksums.json`.
-- **Implementation**: Enforced by `code/data/download.py`.
+These contracts define the structural invariants of the "Memory Palace" mechanism, addressing the "binding problem" and the distinction between address (location) and content (data).
 
-### NFR-003: Logging Standard
-**Requirement**: All experimental metadata must be structured and machine-readable.
-**Contract**:
-- **Format**: JSON for structured logs, CSV for time-series metrics.
-- **Location**: `artifacts/results/`.
-- **Implementation**: Enforced by `code/utils/logger.py`.
+### C-003: Spatial Slot Structure
+**Scope**: `code/models/memory_slot.py`
+**Requirement**: The `MemoryGrid` MUST implement a 2D coordinate system where each slot is addressable by `(x, y)` coordinates.
+**Invariant**: The number of slots must be fixed per experiment run and defined in the configuration. No dynamic resizing of the grid is permitted during inference.
 
-## 3. Interface Contracts (IC)
+### C-004: Coordinate Assignment Logic
+**Scope**: `code/models/coordinate_assignment.py`
+**Requirement**: The `CoordinateAssigner` MUST assign a unique `(x, y)` coordinate to every `EpisodicChunk` based on a deterministic hash of the chunk's content or temporal sequence, ensuring reproducibility across seeds.
+**Constraint**: Coordinates MUST fall strictly within the bounds of the `MemoryGrid` defined in C-003.
 
-### IC-001: Data Loading Interface
-**Module**: `code/data/download.py`
-**Public API**:
-- `compute_file_checksum(file_path: Path) -> str`
-- `get_dataset_cache_paths(dataset_name: str) -> dict`
-- `download_and_verify(dataset_name: str) -> bool`
-- `main() -> None`
+### C-005: Soft-Addressed Retrieval
+**Scope**: `code/models/spatial.py`
+**Requirement**: Retrieval MUST utilize cosine similarity between the query embedding and the spatial slot embeddings.
+**Invariant**: The retrieval mechanism MUST be differentiable to allow gradient flow through the spatial addressing mechanism during fine-tuning.
 
-### IC-002: Model Loading Interface
-**Module**: `code/models/loading.py`
-**Public API**:
-- `check_memory_budget() -> Tuple[bool, int]` (returns (is_sufficient, estimated_rss_mb))
-- `load_gpt2_medium_quantized() -> torch.nn.Module`
-- `load_distilgpt2_fallback() -> torch.nn.Module`
-- `load_model(use_spatial: bool) -> torch.nn.Module`
-- `main() -> None`
+---
 
-### IC-003: Memory Monitoring Interface
-**Module**: `code/training/memory_monitor.py`
-**Public API**:
-- `MemoryMonitor` class
- - `check_and_adapt(batch_size: int, dataset_size: int) -> Tuple[int, int]`
- - `log_state() -> None`
-- `main() -> None`
+## 4. Training & Resource Contracts
 
-### IC-004: Spatial Logic Interface
-**Module**: `code/models/spatial.py`
-**Public API**:
-- `calculate_cosine_similarity(coord_a: np.ndarray, coord_b: np.ndarray) -> float`
-- `soft_addressed_retrieval(query: np.ndarray, slots: List[MemorySlot]) -> torch.Tensor`
+These contracts address the engineering constraints regarding hardware limitations and training stability, specifically responding to reviewer concerns about overhead and memory.
 
-### IC-005: Evaluation Interface
-**Module**: `code/evaluation/metrics.py`
-**Public API**:
-- `compute_exact_match_recall(predictions: List[str], ground_truth: List[str]) -> float`
-- `compute_interference_distance(spatial_slots: List[MemorySlot], baseline_slots: List[MemorySlot]) -> float`
-- `log_slot_occupancy(epoch: int, slots: List[MemorySlot]) -> None`
-- `log_coordinate_variance(epoch: int, slots: List[MemorySlot]) -> None`
+### C-006: Memory Budget Enforcement
+**Scope**: `code/training/memory_monitor.py`
+**Requirement**: The system MUST monitor Resident Set Size (RSS) in real-time.
+**Threshold**: If RSS > 6 GB:
+1. Reduce batch size to 4.
+2. If RSS remains > 6 GB at batch size 4, the system MUST cap the training dataset to a defined fraction (e.g., 50%) of its original size.
+**Logging**: All adjustments to batch size or dataset size MUST be logged to `artifacts/results/hyperparams_log.json` with a timestamp and the specific trigger (RSS value).
 
-### IC-006: Statistical Analysis Interface
-**Module**: `code/evaluation/stats.py`
-**Public API**:
-- `perform_ttest(group_a: List[float], group_b: List[float]) -> Dict[str, float]`
-- `apply_correction(p_values: List[float], method: str) -> List[float]`
-- `calculate_cohens_d(group_a: List[float], group_b: List[float]) -> Dict[str, float]`
+### C-007: Model Fallback Protocol
+**Scope**: `code/models/loading.py`
+**Requirement**: The system MUST attempt to load `gpt2-medium` with 4-bit quantization first.
+**Fallback**: If the memory budget (C-006) is exceeded even with quantization, the system MUST automatically switch to `DistilGPT2`.
+**Invariant**: The fallback mechanism MUST be transparent and recorded in the run metadata.
 
-## 4. Reviewer-Specific Contracts
+### C-008: Runtime Limit
+**Scope**: `code/main.py`
+**Requirement**: The total runtime for a full experiment (download + train + eval) across 5 seeds MUST not exceed 5 hours.
+**Action**: If a run exceeds this limit, it MUST be terminated, and the partial results must be recorded with a `status: timeout` flag.
 
-### Contract: Rosalind Franklin (Structural Correlates)
-**Requirement**: "What metric distinguishes spatial organization from arbitrary embeddings?"
-**Response**: The `interference_distance` metric (IC-005) quantifies the spatial clustering
-of semantically similar items. A lower interference distance for the spatial variant
-compared to the baseline validates the structural hypothesis.
+---
 
-### Contract: John von Neumann (Address vs. Content)
-**Requirement**: "Clear distinction between address and content."
-**Response**: The `MemorySlot` data structure (IC-004) explicitly separates `coordinates`
-(address) from `content` (tensor data). The retrieval mechanism uses coordinates for
-addressing but returns content tensors.
+## 5. Evaluation & Statistical Contracts
 
-### Contract: Eric Kandel (Biological Reality)
-**Requirement**: "Does the system account for biological reality of synapse storage?"
-**Response**: The `slot_occupancy` logging (IC-005) tracks how memory slots are filled
-over epochs, simulating synaptic consolidation. The `coordinate_variance` metric
-tracks the stability of spatial organization over time.
+These contracts ensure that the scientific claims regarding "enhanced recall" are supported by rigorous statistical evidence, addressing reviewer concerns about measurable structural correlates.
+
+### C-009: Exact-Match Recall Metric
+**Scope**: `code/evaluation/metrics.py`
+**Requirement**: The primary metric MUST be Exact-Match Recall (EMR), calculated as the ratio of correctly recalled answers to total questions.
+**Constraint**: EMR MUST be computed separately for the spatial variant and the non-spatial baseline.
+
+### C-010: Statistical Significance
+**Scope**: `code/evaluation/stats.py`
+**Requirement**: Comparisons between spatial and baseline models MUST use paired two-tailed t-tests across the 5 random seeds.
+**Normality Check**: A Shapiro-Wilk test MUST be performed. If normality is violated (p < 0.05), the system MUST fallback to the Wilcoxon signed-rank test.
+**Correction**: For comparisons across multiple datasets (bAbI, LAMBADA, Story Cloze), the system MUST apply Bonferroni or Holm-Bonferroni correction to the p-values.
+
+### C-011: Effect Size Reporting
+**Scope**: `code/evaluation/stats.py`
+**Requirement**: All significant comparisons MUST report Cohen's d with a 95% confidence interval.
+**Output**: Results MUST be stored in `artifacts/results/statistical_summary.json`.
+
+### C-012: Structural Correlate Metrics
+**Scope**: `code/evaluation/metrics.py`
+**Requirement**: The system MUST compute and report the following structural metrics to validate spatial organization:
+1. **Interference Distance**: The average Euclidean distance between slots containing semantically conflicting information.
+2. **Slot Occupancy**: The distribution of items across the grid (logarithmic binning).
+3. **Coordinate Variance**: The variance of assigned coordinates over epochs.
+**Output**: These metrics MUST be logged per epoch to `artifacts/results/` (CSV/JSON) and summarized in the final report.
+
+---
+
+## 6. Compliance & Verification
+
+To verify compliance with these contracts, the following automated checks are enforced:
+
+| Contract ID | Verification Method | Artifact |
+|:--- |:--- |:--- |
+| C-001 | Checksum validation script | `data/raw/checksums.json` |
+| C-006 | Memory monitor logs | `artifacts/results/hyperparams_log.json` |
+| C-009 | Unit test for metric calc | `tests/unit/test_metrics.py` |
+| C-010 | Integration test for stats | `tests/unit/test_stats.py` |
+| C-012 | Structural metric logger | `artifacts/results/interference_distance.json` |
+
+## 7. Revision History
+
+- **v1.0 (Draft)**: Initial draft covering data, architecture, training, and evaluation contracts.
+- **Status**: Pending approval by the scientific review board.

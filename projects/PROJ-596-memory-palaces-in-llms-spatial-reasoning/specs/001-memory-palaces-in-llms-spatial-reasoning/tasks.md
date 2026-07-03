@@ -22,7 +22,7 @@
 
 ## Phase 0: Research (Preparatory)
 
-- [ ] T004b Perform a priori power analysis for the planned random seeds. <!-- SKIPPED: non-mapping output -->
+- [X] T004b Perform a priori power analysis for the planned random seeds.
  **Output**: `docs/power_analysis_report.md` documenting required effect size, assumed variance, and justification for N=5.
 
 ## Phase 1: Setup (Shared Infrastructure)
@@ -47,13 +47,13 @@
  - LAMBADA via `datasets.load_dataset("lambada")`
  - Story Cloze Test via `datasets.load_dataset("story_cloze")`
  - Each download must compute and store a SHA‑256 checksum in `data/raw/checksums.json`.
-- [ ] T005 [P] Implement memory monitoring utility (`code/training/memory_monitor.py`) to track RSS and trigger batch‑size reduction to 4 [UNRESOLVED-CLAIM: c_a6e462be — status=not_enough_info] and, if RSS still > 6 GB, cap the training dataset to [deferred] of its original size. Must log the decision and final hyperparameters (FR‑).
+- [ ] T005 [P] Implement memory monitoring utility (`code/training/memory_monitor.py`) to track RSS and trigger batch‑size reduction to 4 and, if RSS still > 6 GB, cap the training dataset to [deferred] of its original size. Must log the decision and final hyperparameters (FR‑).
 - [X] T006 Implement model loading utilities (`code/models/loading.py`) that provide functions to load:
  - `gpt2-medium` (with 4‑bit quantization) when RAM permits,
  - `DistilGPT2` as a fallback when the memory budget is exceeded.
-- [ ] T007 [P] Implement 2‑D grid memory slot data structures (`code/models/memory_slot.py`) and EpisodicChunk schema (`code/models/episodic_chunk.py`).
+- [X] T007 [P] Implement 2‑D grid memory slot data structures (`code/models/memory_slot.py`) and EpisodicChunk schema (`code/models/episodic_chunk.py`).
 - [ ] T007b Implement coordinate assignment logic for episodic chunks (FR‑001).
-- [ ] T008 [P] Configure experiment logging and artifact storage (`code/utils/logger.py`) to write JSON/CSV to `artifacts/results/`.
+- [~] T008 [P] Configure experiment logging and artifact storage (`code/utils/logger.py`) to write JSON/CSV to `artifacts/results/`.
 - [~] T008b Create YAML schema for training run metadata: `artifacts/schemas/training_run.yaml`.
 - [~] T008c Draft quickstart guide: `docs/quickstart.md`.
 - [~] T008d Draft contracts document: `docs/contracts.md`.
@@ -103,7 +103,7 @@
 ### Implementation for User Story 2
 
 - [~] T019 [P] [US2] Implement statistical analysis module (`code/evaluation/stats.py`) with paired two‑tailed t‑tests, Shapiro‑Wilk normality check, and fallback to Wilcoxon signed‑rank test.
-- [~] T020 [US2] Implement multiple‑comparison correction (Bonferroni or Holm‑Bonferroni) for the three dataset comparisons (bAbI, LAMBADA, Story Cloze) [UNRESOLVED-CLAIM: c_f00af427 — status=not_enough_info] (FR‑006).
+- [~] T020 [US2] Implement multiple‑comparison correction (Bonferroni or Holm‑Bonferroni) for the three dataset comparisons (bAbI, LAMBADA, Story Cloze) (FR‑006).
 - [~] T021 [US2] Implement effect‑size calculation (Cohen's d) with 95 % confidence intervals (FR‑007).
 - [~] T022 [US2] Generate statistical summary report `artifacts/results/statistical_summary.json` containing p‑values, corrected p‑values, effect sizes, and confidence intervals for each dataset.
 
@@ -123,7 +123,7 @@
 
 ### Implementation for User Story 3
 
-- [ ] T024 [P] [US3] Implement interference distance metric in `code/evaluation/metrics.py`. The metric must be computed **separately** for the spatial variant and the non‑spatial baseline, and the results stored in `artifacts/results/interference_distance.json` with fields `spatial`, `baseline`, and `delta`.
+- [~] T024 [P] [US3] Implement interference distance metric in `code/evaluation/metrics.py`. The metric must be computed **separately** for the spatial variant and the non‑spatial baseline, and the results stored in `artifacts/results/interference_distance.json` with fields `spatial`, `baseline`, and `delta`.
 - [ ] T025 [P] [US3] Implement slot occupancy distribution logger in `code/evaluation/metrics.py` that records the distribution **per epoch** for each run; output to `artifacts/results/slot_occupancy_epoch_{epoch}.csv`.
 - [ ] T026 [P] [US3] Implement coordinate variance logger in `code/evaluation/metrics.py` that records variance **per epoch**; output to `artifacts/results/coordinate_variance_epoch_{epoch}.csv`.
 - [ ] T027 [US3] Extend `code/main.py` to run interference‑injection experiments after standard evaluation, log results to `artifacts/results/interference_metrics.json`, and ensure the file includes both variant results and statistical significance.

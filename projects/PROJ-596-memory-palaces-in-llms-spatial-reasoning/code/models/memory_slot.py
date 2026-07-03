@@ -1,113 +1,229 @@
 """
-2-D grid memory slot data structures for the Memory Palace architecture.
+Memory Slot Data Structures for Spatial Memory in LLMs.
 
-Implements the spatial indexing mechanism where episodic traces are deposited
-into a fixed 2D grid, mimicking the place cell organization in the hippocampus.
+Implements 2-D grid memory slots that serve as addressable locations
+for episodic traces, following the Memory Palace methodology.
 """
-
 from dataclasses import dataclass, field
-from typing import Dict, List, Optional, Any
-import torch
-import numpy as np
+from typing import Optional, Dict, Any, List
+import math
 
 
 @dataclass
 class MemorySlot:
     """
-    Represents a single slot in the 2D memory grid.
+    Represents a single addressable location in the 2-D spatial memory grid.
 
-    Each slot can hold a vector of information (embedding) and metadata about
-    occupancy and retrieval frequency.
+    Each slot holds a reference to an episodic chunk and metadata about
+    its spatial position and occupancy state.
+
+    Attributes:
+        row: Row coordinate in the 2-D grid (0-indexed).
+        col: Column coordinate in the 2-D grid (0-indexed).
+        is_occupied: Whether this slot currently holds an episodic trace.
+        occupancy_count: Number of times this slot has been written to (for decay).
+        last_access_time: Logical timestamp of last access (for eviction policies).
+        chunk_id: Optional reference to the EpisodicChunk stored here.
+        metadata: Additional slot-specific metadata.
     """
-    coordinate: tuple[int, int]
-    embedding: Optional[torch.Tensor] = None
+    row: int
+    col: int
+    is_occupied: bool = False
     occupancy_count: int = 0
-    last_accessed: int = -1
+    last_access_time: int = 0
+    chunk_id: Optional[str] = None
     metadata: Dict[str, Any] = field(default_factory=dict)
 
-    def is_occupied(self) -> bool:
-        return self.embedding is not None
+    @property
+    def coordinate(self) -> tuple:
+        """Return the (row, col) coordinate tuple."""
+        return (self.row, self.col)
 
-    def update_embedding(self, embedding: torch.Tensor) -> None:
-        """Update the embedding in this slot, accumulating if necessary."""
-        if self.embedding is None:
-            self.embedding = embedding.clone()
-        else:
-            # Simple accumulation or replacement strategy could be parameterized
-            # For now, we average to smooth the memory trace (biological consolidation)
-            self.embedding = (self.embedding + embedding) / 2.0
+    @property
+    def distance_from_origin(self) -> float:
+        """Calculate Euclidean distance from grid origin (0,0)."""
+        return math.sqrt(self.row ** 2 + self.col ** 2)
+
+    def activate(self, chunk_id: str, timestamp: int) -> None:
+        """Mark this slot as occupied and update access metadata."""
+        self.is_occupied = True
         self.occupancy_count += 1
+        self.last_access_time = timestamp
+        self.chunk_id = chunk_id
 
-    def retrieve(self) -> Optional[torch.Tensor]:
-        """Retrieve the content of this slot."""
-        return self.embedding.clone() if self.embedding is not None else None
+    def deactivate(self) -> None:
+        """Mark this slot as empty and clear chunk reference."""
+        self.is_occupied = False
+        self.chunk_id = None
 
 
 @dataclass
 class MemoryGrid:
     """
-    A 2D grid of MemorySlots acting as the spatial memory palace.
+    A 2-D grid of MemorySlot instances representing the Memory Palace.
 
-    This structure provides the "address" (coordinate) vs "content" (embedding)
-    distinction required for spatial reasoning.
+    The grid provides spatial addressing for episodic memories, with
+    methods for slot lookup, coordinate mapping, and occupancy analysis.
+
+    Attributes:
+        width: Number of columns in the grid.
+        height: Number of rows in the grid.
+        slots: 2-D list of MemorySlot instances.
+        total_slots: Total number of slots (width * height).
+        occupied_count: Current number of occupied slots.
     """
-    rows: int
-    cols: int
-    slot_dim: int
-    slots: List[MemorySlot] = field(default_factory=list)
-    occupancy_map: Optional[torch.Tensor] = None  # Binary mask of occupied slots
+    width: int
+    height: int
+    slots: List[List[MemorySlot]] = field(init=False)
+    total_slots: int = field(init=False)
+    occupied_count: int = field(init=False, default=0)
 
     def __post_init__(self):
-        self._initialize_grid()
-
-    def _initialize_grid(self) -> None:
-        """Initialize the 2D grid with empty slots."""
-        self.slots = []
-        for r in range(self.rows):
-            for c in range(self.cols):
-                self.slots.append(MemorySlot(coordinate=(r, c)))
-        
-        # Pre-allocate occupancy map for efficiency
-        self.occupancy_map = torch.zeros((self.rows, self.cols), dtype=torch.bool)
+        """Initialize the grid with empty slots."""
+        self.slots = [
+            [MemorySlot(row=r, col=c) for c in range(self.width)]
+            for r in range(self.height)
+        ]
+        self.total_slots = self.width * self.height
+        self.occupied_count = 0
 
     def get_slot(self, row: int, col: int) -> MemorySlot:
-        """Retrieve a specific slot by coordinate."""
-        if not (0 <= row < self.rows and 0 <= col < self.cols):
-            raise IndexError(f"Coordinate ({row}, {col}) out of bounds for grid {self.rows}x{self.cols}")
-        index = row * self.cols + col
-        return self.slots[index]
+        """
+        Retrieve a slot by coordinate.
 
-    def set_occupancy(self, row: int, col: int, occupied: bool) -> None:
-        """Update the occupancy map for a specific coordinate."""
-        if 0 <= row < self.rows and 0 <= col < self.cols:
-            self.occupancy_map[row, col] = occupied
+        Args:
+            row: Row index (0 to height-1).
+            col: Column index (0 to width-1).
+
+        Returns:
+            The MemorySlot at the given coordinates.
+
+        Raises:
+            IndexError: If coordinates are out of bounds.
+        """
+        if not (0 <= row < self.height and 0 <= col < self.width):
+            raise IndexError(
+                f"Coordinate ({row}, {col}) out of bounds for grid "
+                f"of size {self.height}x{self.width}"
+            )
+        return self.slots[row][col]
+
+    def get_slot_by_index(self, index: int) -> MemorySlot:
+        """
+        Retrieve a slot by flat index (row-major order).
+
+        Args:
+            index: Flat index from 0 to total_slots-1.
+
+        Returns:
+            The MemorySlot at the given index.
+
+        Raises:
+            IndexError: If index is out of bounds.
+        """
+        if not (0 <= index < self.total_slots):
+            raise IndexError(
+                f"Index {index} out of bounds for grid with "
+                f"{self.total_slots} slots"
+            )
+        row = index // self.width
+        col = index % self.width
+        return self.get_slot(row, col)
+
+    def find_nearest_empty_slot(self, start_row: int, start_col: int) -> Optional[MemorySlot]:
+        """
+        Find the nearest empty slot using spiral search from a starting point.
+
+        This implements a biologically-inspired search pattern that explores
+        nearby locations first before expanding outward.
+
+        Args:
+            start_row: Starting row coordinate.
+            start_col: Starting column coordinate.
+
+        Returns:
+            The nearest empty MemorySlot, or None if all slots are occupied.
+        """
+        # Spiral offsets: right, down, left, up (expanding outward)
+        directions = [(0, 1), (1, 0), (0, -1), (-1, 0)]
+
+        # Check the starting position first
+        if 0 <= start_row < self.height and 0 <= start_col < self.width:
+            slot = self.get_slot(start_row, start_col)
+            if not slot.is_occupied:
+                return slot
+
+        # Spiral search
+        radius = 1
+        while radius <= max(self.height, self.width):
+            # Move right along the top edge of the current radius
+            for c in range(max(0, start_col - radius), min(self.width, start_col + radius + 1)):
+                if 0 <= start_row < self.height:
+                    slot = self.get_slot(start_row, c)
+                    if not slot.is_occupied:
+                        return slot
+
+            # Move down along the right edge
+            for r in range(max(0, start_row - radius), min(self.height, start_row + radius + 1)):
+                if 0 <= start_col + radius < self.width:
+                    slot = self.get_slot(r, start_col + radius)
+                    if not slot.is_occupied:
+                        return slot
+
+            # Move left along the bottom edge
+            for c in range(min(self.width - 1, start_col + radius), max(-1, start_col - radius - 1), -1):
+                if 0 <= start_row + radius < self.height:
+                    slot = self.get_slot(start_row + radius, c)
+                    if not slot.is_occupied:
+                        return slot
+
+            # Move up along the left edge
+            for r in range(min(self.height - 1, start_row + radius), max(-1, start_row - radius - 1), -1):
+                if 0 <= start_col - radius < self.width:
+                    slot = self.get_slot(r, start_col - radius)
+                    if not slot.is_occupied:
+                        return slot
+
+            radius += 1
+
+        return None
+
+    def get_occupied_slots(self) -> List[MemorySlot]:
+        """Return a list of all occupied slots."""
+        return [
+            slot for row in self.slots for slot in row if slot.is_occupied
+        ]
 
     def get_occupancy_rate(self) -> float:
-        """Calculate the percentage of occupied slots."""
-        return float(self.occupancy_map.sum().item()) / (self.rows * self.cols)
+        """Calculate the fraction of occupied slots."""
+        if self.total_slots == 0:
+            return 0.0
+        return sum(1 for row in self.slots for slot in row if slot.is_occupied) / self.total_slots
 
-    def get_neighboring_slots(self, row: int, col: int, radius: int = 1) -> List[MemorySlot]:
-        """Retrieve all slots within a given radius of a coordinate."""
-        neighbors = []
-        for dr in range(-radius, radius + 1):
-            for dc in range(-radius, radius + 1):
-                if dr == 0 and dc == 0:
-                    continue
-                nr, nc = row + dr, col + dc
-                if 0 <= nr < self.rows and 0 <= nc < self.cols:
-                    neighbors.append(self.get_slot(nr, nc))
-        return neighbors
+    def get_occupancy_distribution(self) -> Dict[int, int]:
+        """
+        Get distribution of occupancy counts across slots.
 
-    def to_tensor(self) -> torch.Tensor:
+        Returns:
+            Dictionary mapping occupancy_count to number of slots with that count.
         """
-        Convert the grid embeddings into a single tensor for model input.
-        Shape: (rows * cols, slot_dim)
-        """
-        embeddings = []
-        for slot in self.slots:
-            if slot.embedding is not None:
-                embeddings.append(slot.embedding)
-            else:
-                # Use zero vector for empty slots
-                embeddings.append(torch.zeros(self.slot_dim))
-        return torch.stack(embeddings, dim=0)
+        distribution = {}
+        for row in self.slots:
+            for slot in row:
+                if slot.is_occupied:
+                    count = slot.occupancy_count
+                    distribution[count] = distribution.get(count, 0) + 1
+        return distribution
+
+    def clear_all(self) -> None:
+        """Reset all slots to empty state."""
+        for row in self.slots:
+            for slot in row:
+                slot.deactivate()
+        self.occupied_count = 0
+
+    def __repr__(self) -> str:
+        return (
+            f"MemoryGrid(width={self.width}, height={self.height}, "
+            f"occupied={self.occupied_count}/{self.total_slots})"
+        )

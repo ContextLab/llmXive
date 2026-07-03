@@ -1,110 +1,111 @@
 # Quickstart Guide: Memory Palaces in LLMs
 
-This guide provides a minimal end-to-end workflow for reproducing the spatial reasoning experiments described in PROJ-596. It covers environment setup, data download, training execution, and result verification.
+This guide provides a step-by-step workflow to reproduce the core experiment:
+training a spatially-organized transformer variant and a baseline on the bAbI Task 3 dataset,
+then evaluating recall accuracy across multiple random seeds.
 
 ## Prerequisites
 
 - Python 3.9+
-- 16GB+ RAM (recommended for full dataset processing)
-- 6GB+ free disk space for datasets and artifacts
-- Internet connection for initial data download
+- CUDA-enabled GPU (recommended for training)
+- 16GB+ RAM (for dataset loading and model buffering)
 
 ## 1. Environment Setup
 
-Create a virtual environment and install dependencies:
+Clone the repository and install dependencies:
 
 ```bash
-python -m venv venv
-source venv/bin/activate # On Windows: venv\Scripts\activate
+cd projects/PROJ-596-memory-palaces-in-llms-spatial-reasoning
 pip install -r requirements.txt
 ```
 
-**Note**: Ensure `torch`, `transformers`, `datasets`, `scipy`, `pandas`, `numpy`, and `pyyaml` are installed as per `requirements.txt`.
+Ensure the following directories exist:
+- `code/` (source code)
+- `data/` (raw and processed datasets)
+- `artifacts/` (results, logs, and schemas)
+- `docs/` (documentation)
 
-## 2. Data Download and Verification
+## 2. Data Download
 
-Download the three permitted datasets (bAbI Task 3, LAMBADA, Story Cloze) and verify integrity:
+Download and verify the three permitted datasets (bAbI Task 3, LAMBADA, Story Cloze):
 
 ```bash
 python code/data/download.py
 ```
 
-This script will:
-- Fetch datasets via the `datasets` library.
-- Compute SHA-256 checksums.
-- Store raw data in `data/raw/`.
-- Write checksums to `data/raw/checksums.json`.
+This script:
+- Downloads datasets via the `datasets` library.
+- Computes SHA-256 checksums.
+- Stores checksums in `data/raw/checksums.json`.
 
-**Expected Output**:
-- `data/raw/babi_task3_10k/`
-- `data/raw/lambada/`
-- `data/raw/story_cloze/`
-- `data/raw/checksums.json`
+## 3. Model Loading & Memory Configuration
 
-## 3. Run the Training Pipeline
+The system automatically selects between `gpt2-medium` (4-bit quantized) and `DistilGPT2`
+based on available RAM. Memory monitoring is handled by `code/training/memory_monitor.py`.
 
-Execute the main entry point to orchestrate the full pipeline:
+To verify memory configuration:
+
+```bash
+python code/training/memory_monitor.py --check-only
+```
+
+## 4. Training & Evaluation
+
+Run the full pipeline (download → model load → train across seeds → evaluate):
 
 ```bash
 python code/main.py
 ```
 
-The pipeline performs:
-1. **Memory Check**: Verifies RAM availability; adjusts batch size (8 → 4) or caps dataset size if RSS > 6GB.
-2. **Model Loading**: Loads `gpt2-medium` (4-bit quantized) or falls back to `DistilGPT2`.
-3. **Training**: Runs training loops across 5 random seeds (default range: -4 to 0).
-4. **Evaluation**: Computes exact-match recall and structural metrics.
-5. **Logging**: Writes results to `artifacts/results/`.
+This will:
+- Load the selected model.
+- Train on bAbI Task 3 across 5 random seeds (-4 to 0).
+- Compute exact-match recall for each seed.
+- Log results to `artifacts/results/`.
 
-**Runtime**: Approximately 4–5 hours on a standard CPU/GPU hybrid environment.
+## 5. Output Artifacts
 
-## 4. Verify Results
+After execution, the following artifacts are generated:
 
-After execution, verify that the following artifacts exist:
+- `artifacts/results/run_summary.json`: Aggregated results (seeds, accuracies, runtime).
+- `artifacts/results/recall_accuracy.json`: Per-seed recall metrics.
+- `artifacts/results/hyperparams_log.json`: Effective hyperparameters and memory decisions.
+- `artifacts/results/runtime_report.json`: Runtime validation against 5-hour limit.
 
-- `artifacts/results/run_summary.json`: Contains seeds, accuracies, effective batch size, and runtime.
-- `artifacts/results/hyperparams_log.json`: Logs hyperparameters and memory decisions.
-- `artifacts/results/recall_accuracy.json`: Per-seed exact-match recall scores.
-- `artifacts/results/statistical_summary.json`: (If US2 is run) P-values, effect sizes, and confidence intervals.
-- `artifacts/results/interference_distance.json`: (If US3 is run) Spatial vs. baseline interference metrics.
+## 6. Statistical Analysis (Post-Training)
 
-Example verification command:
+Once training completes, run statistical comparisons:
 
 ```bash
-cat artifacts/results/run_summary.json
+python code/evaluation/stats.py
 ```
 
-Expected JSON structure:
-```json
-{
- "seeds": [-4, -3, -2, -1, 0],
- "accuracies": [0.82, 0.85, 0.84, 0.83, 0.86],
- "effective_batch_size": 4,
- "runtime_seconds": 14200
-}
+This generates `artifacts/results/statistical_summary.json` with:
+- Paired t-tests / Wilcoxon fallback.
+- Multiple-comparison correction (Bonferroni/Holm).
+- Effect sizes (Cohen's d) with 95% CIs.
+
+## 7. Structural Metrics (Optional)
+
+To measure spatial organization efficacy:
+
+```bash
+python code/evaluation/metrics.py --compute-interference
 ```
 
-## 5. Troubleshooting
+Outputs:
+- `artifacts/results/interference_distance.json`
+- `artifacts/results/slot_occupancy_epoch_*.csv`
+- `artifacts/results/coordinate_variance_epoch_*.csv`
 
-### Memory Issues
-If the process fails with OOM errors:
-- Ensure no other heavy processes are running.
-- The `memory_monitor.py` utility should automatically reduce batch size to 4.
-- If RSS still exceeds 6GB, the dataset will be capped to a deferred fraction. Check `hyperparams_log.json` for details.
+## Troubleshooting
 
-### Data Download Failures
-If datasets fail to download:
-- Check internet connectivity.
-- Verify `datasets` library version compatibility.
-- Re-run `python code/data/download.py` after clearing `data/raw/`.
+- **OOM Errors**: The system automatically reduces batch size to 4 and caps dataset size if RSS > 6GB. Check `artifacts/results/hyperparams_log.json` for adjustments.
+- **Missing Checksums**: Re-run `code/data/download.py` to regenerate `data/raw/checksums.json`.
+- **Slow Training**: Ensure CUDA is enabled and `bitsandbytes` is correctly installed for 4-bit quantization.
 
-### Import Errors
-Ensure all `__init__.py` files exist in `code/`, `code/models/`, `code/training/`, and `code/evaluation/`.
+## Next Steps
 
-## 6. Next Steps
-
-- **Statistical Analysis**: Run `python code/evaluation/stats.py` to perform paired t-tests and effect-size calculations (US2).
-- **Structural Metrics**: Run interference-injection experiments via `code/evaluation/metrics.py` (US3).
-- **Visualization**: Generate plots from `artifacts/results/` using standard Python plotting libraries.
-
-For detailed API documentation, see `docs/contracts.md` and `research.md`.
+- Review `docs/contracts.md` for API guarantees.
+- Explore `specs/001-memory-palaces-in-llms-spatial-reasoning/spec.md` for user stories.
+- Read `research.md` for structural metric methodologies.

@@ -1,15 +1,6 @@
-T004b Perform a priori power analysis for the planned random seeds.: 2
-'T004b Perform a priori power analysis for the planned random seeds. <!-- SKIPPED: non-mapping output -->': 2
 ? "T005 [P] Implement memory monitoring utility (`code/training/memory_monitor.py`)\
-  \ to track RSS and trigger batch\u2011size reduction to 4 [UNRESOLVED-CLAIM: c_a6e462be\
-  \ \u2014 status=not_enough_info] and, if RSS still\u202F>\u202F6\u202FGB, cap the\
-  \ training dataset to [deferred] of its original size. Must log the decision and\
-  \ final hyperparameters (FR\u2011)."
-: 1
-? "T007 [P] Implement 2\u2011D grid memory slot data structures (`code/models/memory_slot.py`)\
-  \ and EpisodicChunk schema (`code/models/episodic_chunk.py`)."
+  \ to track RSS and trigger batch\u2011size reduction to 4 and, if RSS still\u202F\
+  >\u202F6\u202FGB, cap the training dataset to [deferred] of its original size. Must\
+  \ log the decision and final hyperparameters (FR\u2011)."
 : 1
 "T007b Implement coordinate assignment logic for episodic chunks (FR\u2011001).": 1
-? T008 [P] Configure experiment logging and artifact storage (`code/utils/logger.py`)
-  to write JSON/CSV to `artifacts/results/`.
-: 1

@@ -1,114 +1,188 @@
 """
 DistilGPT2 Fallback Wrapper.
 
-This module provides a fallback model implementation using DistilGPT2.
-It is used when memory constraints prevent loading the full GPT-2 Medium model.
+This module provides a lighter-weight fallback model (DistilGPT2) to be used
+when the GPT-2 Medium baseline exceeds memory constraints. It exposes the
+same interface as GPT2Baseline to ensure seamless switching in the training loop.
 """
-
 import torch
-import logging
-from typing import Optional, Dict, Any
-
-from transformers import AutoModelForCausalLM, AutoTokenizer
-
-logger = logging.getLogger(__name__)
-
+from transformers import AutoModelForCausalLM, AutoTokenizer, AutoConfig
+from typing import Dict, Any, List, Optional, Tuple
+import os
 
 class DistilGPT2Fallback:
     """
-    Wrapper for the DistilGPT2 model used as a memory-efficient fallback.
-
-    This class implements the same interface as GPT2MediumBaseline to ensure
-    seamless switching in the training loop.
+    Wrapper for DistilGPT2 (fallback model).
+    
+    Provides the same interface as GPT2Baseline but with reduced memory footprint
+    for environments with strict RAM constraints.
     """
-
-    def __init__(self, model_name: str = "distilgpt2"):
+    
+    def __init__(self, model_name: str = "distilgpt2", device: str = None):
         """
         Initialize the DistilGPT2 fallback model.
-
+        
         Args:
             model_name: Hugging Face model identifier.
+            device: Target device ('cuda' or 'cpu'). Defaults to auto-detection.
         """
         self.model_name = model_name
-        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        self.device = device or ("cuda" if torch.cuda.is_available() else "cpu")
         
-        logger.info(f"Loading DistilGPT2 fallback: {model_name}")
-        
-        # Load tokenizer
+        # Load tokenizer and model
         self.tokenizer = AutoTokenizer.from_pretrained(model_name)
-        if self.tokenizer.pad_token is None:
-            self.tokenizer.pad_token = self.tokenizer.eos_token
-
-        # Load model (DistilGPT2 is smaller, usually fits in memory without quantization)
         self.model = AutoModelForCausalLM.from_pretrained(
             model_name,
-            torch_dtype=torch.float16 if self.device.type == "cuda" else torch.float32,
-            device_map="auto"
+            torch_dtype=torch.float16 if self.device == "cuda" else torch.float32,
+            device_map="auto" if self.device == "cuda" else None
         )
-        self.model.eval()
+        
+        if self.device == "cpu":
+            self.model = self.model.to(self.device)
+        
+        # Ensure pad token is set
+        if self.tokenizer.pad_token is None:
+            self.tokenizer.pad_token = self.tokenizer.eos_token
+        
+        self.config = self.model.config
+        self.is_spatial = False  # Flag to distinguish from spatial variant
 
-    def forward(self, input_ids: torch.Tensor, attention_mask: Optional[torch.Tensor] = None) -> torch.Tensor:
+    def encode(self, text: str, return_tensors: str = "pt") -> Dict[str, torch.Tensor]:
         """
-        Forward pass through the model.
-
-        Args:
-            input_ids: Tensor of shape (batch_size, seq_len)
-            attention_mask: Optional tensor of shape (batch_size, seq_len)
-
-        Returns:
-            Logits tensor of shape (batch_size, seq_len, vocab_size)
-        """
-        with torch.no_grad():
-            outputs = self.model(
-                input_ids=input_ids,
-                attention_mask=attention_mask,
-                return_dict=True
-            )
-            return outputs.logits
-
-    def generate(self, input_ids: torch.Tensor, max_length: int = 50, **kwargs) -> torch.Tensor:
-        """
-        Generate text using the model.
-
-        Args:
-            input_ids: Tensor of shape (batch_size, seq_len)
-            max_length: Maximum length of generated sequence.
-
-        Returns:
-            Generated token IDs tensor of shape (batch_size, new_seq_len)
-        """
-        with torch.no_grad():
-            outputs = self.model.generate(
-                input_ids,
-                max_length=max_length,
-                pad_token_id=self.tokenizer.pad_token_id,
-                **kwargs
-            )
-            return outputs
-
-    def get_num_params(self) -> int:
-        """Return the number of parameters in the model."""
-        return sum(p.numel() for p in self.model.parameters())
-
-    def set_train(self, mode: bool = True):
-        """Set training mode."""
-        self.model.train(mode)
-
-    def get_hidden_states(self, input_ids: torch.Tensor) -> torch.Tensor:
-        """
-        Extract hidden states from the model.
+        Tokenize input text.
         
         Args:
-            input_ids: Tensor of shape (batch_size, seq_len)
+            text: Input string.
+            return_tensors: Format of returned tensors ('pt', 'tf', etc.).
+            
+        Returns:
+            Dictionary of input tensors.
+        """
+        return self.tokenizer(
+            text,
+            return_tensors=return_tensors,
+            padding=True,
+            truncation=True,
+            max_length=self.config.max_position_embeddings
+        )
+
+    def decode(self, token_ids: List[int], skip_special_tokens: bool = True) -> str:
+        """
+        Decode token IDs back to text.
+        
+        Args:
+            token_ids: List of token IDs.
+            skip_special_tokens: Whether to skip special tokens in decoding.
+            
+        Returns:
+            Decoded string.
+        """
+        return self.tokenizer.decode(token_ids, skip_special_tokens=skip_special_tokens)
+
+    def generate(
+        self,
+        input_ids: torch.Tensor,
+        attention_mask: Optional[torch.Tensor] = None,
+        max_new_tokens: int = 50,
+        temperature: float = 1.0,
+        top_k: int = 50,
+        do_sample: bool = False,
+        **kwargs
+    ) -> torch.Tensor:
+        """
+        Generate text conditioned on input tokens.
+        
+        Args:
+            input_ids: Input token IDs.
+            attention_mask: Attention mask.
+            max_new_tokens: Maximum number of tokens to generate.
+            temperature: Sampling temperature.
+            top_k: Top-k sampling parameter.
+            do_sample: Whether to use sampling.
+            
+        Returns:
+            Generated token sequence.
+        """
+        if attention_mask is None:
+            attention_mask = torch.ones_like(input_ids)
+        
+        generation_kwargs = {
+            "input_ids": input_ids,
+            "attention_mask": attention_mask,
+            "max_new_tokens": max_new_tokens,
+            "pad_token_id": self.tokenizer.pad_token_id,
+            "eos_token_id": self.tokenizer.eos_token_id,
+            **kwargs
+        }
+        
+        if do_sample:
+            generation_kwargs.update({
+                "temperature": temperature,
+                "top_k": top_k,
+                "do_sample": True
+            })
+        
+        with torch.no_grad():
+            output_ids = self.model.generate(**generation_kwargs)
+        
+        return output_ids
+
+    def forward(
+        self,
+        input_ids: torch.Tensor,
+        attention_mask: Optional[torch.Tensor] = None,
+        labels: Optional[torch.Tensor] = None,
+        **kwargs
+    ) -> Dict[str, torch.Tensor]:
+        """
+        Forward pass for training or inference.
+        
+        Args:
+            input_ids: Input token IDs.
+            attention_mask: Attention mask.
+            labels: Target labels for loss calculation.
+            
+        Returns:
+            Dictionary containing logits and loss.
+        """
+        outputs = self.model(
+            input_ids=input_ids,
+            attention_mask=attention_mask,
+            labels=labels
+        )
+        
+        result = {
+            "logits": outputs.logits,
+            "loss": outputs.loss if labels is not None else None
+        }
+        
+        return result
+
+    def get_memory_footprint(self) -> Dict[str, Any]:
+        """
+        Estimate model memory usage.
         
         Returns:
-            Hidden states tensor of shape (batch_size, seq_len, hidden_dim)
+            Dictionary with model size and estimated memory usage.
         """
-        with torch.no_grad():
-            outputs = self.model(
-                input_ids=input_ids,
-                output_hidden_states=True,
-                return_dict=True
-            )
-            # DistilGPT2 returns all hidden states; return the last one
-            return outputs.hidden_states[-1]
+        param_count = sum(p.numel() for p in self.model.parameters())
+        memory_bytes = param_count * 2  # float16 estimation
+        
+        return {
+            "param_count": param_count,
+            "estimated_memory_mb": memory_bytes / (1024 * 1024),
+            "device": self.device
+        }
+
+    def save_pretrained(self, output_dir: str):
+        """
+        Save model and tokenizer to disk.
+        
+        Args:
+            output_dir: Directory path to save artifacts.
+        """
+        self.model.save_pretrained(output_dir)
+        self.tokenizer.save_pretrained(output_dir)
+
+    def __repr__(self) -> str:
+        return f"DistilGPT2Fallback(model={self.model_name}, device={self.device})"

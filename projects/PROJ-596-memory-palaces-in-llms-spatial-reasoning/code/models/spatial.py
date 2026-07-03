@@ -1,237 +1,295 @@
 """
-Spatial memory module for soft-addressed retrieval using cosine similarity.
+Spatial memory module implementing soft-addressed retrieval via cosine similarity.
 
-Implements FR-002: Soft-addressed retrieval via cosine similarity between
-query embeddings and spatial memory slot embeddings.
+This module provides the core mathematical operations for the Memory Palace architecture,
+specifically the calculation of similarity between query vectors and memory slot coordinates
+to enable soft-addressed retrieval of episodic content.
+
+Addresses FR-002: Soft-addressed retrieval using cosine similarity.
 """
-
 import torch
-import torch.nn.functional as F
-from typing import Tuple, Optional
-import logging
+import math
+from typing import Optional, Tuple, List, Dict, Any
+from dataclasses import dataclass
 
-logger = logging.getLogger(__name__)
+from models.memory_slot import MemorySlot, MemoryGrid
+from models.episodic_chunk import EpisodicChunk
+
+
+@dataclass
+class RetrievalResult:
+    """
+    Result of a soft-addressed retrieval operation.
+    
+    Attributes:
+        retrieved_chunks: List of EpisodicChunk objects retrieved, weighted by similarity.
+        similarity_scores: Tensor of raw cosine similarity scores for each slot.
+        normalized_weights: Tensor of softmax-normalized weights used for retrieval.
+        top_k_indices: Indices of the top-k most similar slots.
+    """
+    retrieved_chunks: List[EpisodicChunk]
+    similarity_scores: torch.Tensor
+    normalized_weights: torch.Tensor
+    top_k_indices: torch.Tensor
 
 
 def compute_cosine_similarity(
     query: torch.Tensor,
     keys: torch.Tensor,
-    eps: float = 1e-8
+    epsilon: float = 1e-8
 ) -> torch.Tensor:
     """
     Compute cosine similarity between a query vector and a set of key vectors.
     
+    This implements the soft-addressing mechanism for the memory palace. The query
+    represents the current context or retrieval cue, and keys represent the spatial
+    coordinates or content embeddings of memory slots.
+    
     Args:
-        query: Query tensor of shape (hidden_dim,) or (batch_size, hidden_dim).
-        keys: Key tensor of shape (num_slots, hidden_dim) or (batch_size, num_slots, hidden_dim).
-        eps: Small epsilon value to avoid division by zero.
+        query: Query tensor of shape (d,) or (1, d).
+        keys: Key tensor of shape (n, d) where n is the number of slots.
+        epsilon: Small constant for numerical stability in division.
     
     Returns:
-        Tensor of cosine similarities. Shape depends on input:
-        - If query is (hidden_dim,) and keys is (num_slots, hidden_dim): (num_slots,)
-        - If query is (batch_size, hidden_dim) and keys is (batch_size, num_slots, hidden_dim): (batch_size, num_slots)
+        Tensor of shape (n,) containing cosine similarity scores.
     
     Raises:
-        ValueError: If input shapes are incompatible.
+        ValueError: If input dimensions are incompatible.
     """
-    # Normalize query and keys along the hidden dimension
-    query_norm = F.normalize(query, p=2, dim=-1)
-    keys_norm = F.normalize(keys, p=2, dim=-1)
+    if query.dim() == 1:
+        query = query.unsqueeze(0)
     
-    # Compute dot product to get cosine similarity
-    # For 1D query and 2D keys: (hidden_dim,) @ (num_slots, hidden_dim).T -> (num_slots,)
-    # For 2D query and 3D keys: (batch, hidden) @ (batch, num_slots, hidden).T -> (batch, num_slots)
-    similarity = torch.sum(query_norm * keys_norm, dim=-1)
+    if keys.dim() != 2:
+        raise ValueError(f"Keys must be 2D tensor, got {keys.dim()}D")
     
-    return similarity
+    if query.shape[-1] != keys.shape[-1]:
+        raise ValueError(
+            f"Query and keys dimension mismatch: {query.shape[-1]} vs {keys.shape[-1]}"
+        )
+    
+    # Normalize vectors
+    query_norm = torch.norm(query, p=2, dim=-1, keepdim=True)
+    keys_norm = torch.norm(keys, p=2, dim=-1, keepdim=True)
+    
+    query_normalized = query / (query_norm + epsilon)
+    keys_normalized = keys / (keys_norm + epsilon)
+    
+    # Compute dot product for cosine similarity
+    similarity = torch.matmul(query_normalized, keys_normalized.transpose(0, 1))
+    
+    return similarity.squeeze(0)
 
 
 def soft_addressed_retrieve(
-    query: torch.Tensor,
-    memory_slots: torch.Tensor,
+    memory_grid: MemoryGrid,
+    query_vector: torch.Tensor,
     temperature: float = 1.0,
-    top_k: Optional[int] = None
-) -> Tuple[torch.Tensor, torch.Tensor]:
+    top_k: Optional[int] = None,
+    chunk_threshold: float = 0.0
+) -> RetrievalResult:
     """
-    Perform soft-addressed retrieval from memory slots using cosine similarity.
+    Perform soft-addressed retrieval from the memory grid.
     
-    This implements the soft-attention mechanism where the query retrieves
-    information from memory slots based on cosine similarity of their embeddings.
+    This function computes the similarity between a query vector and all memory slots,
+    normalizes the similarities using softmax (with temperature), and retrieves the
+    associated episodic chunks weighted by these similarities.
     
     Args:
-        query: Query tensor of shape (hidden_dim,) or (batch_size, hidden_dim).
-        memory_slots: Memory slot tensor of shape (num_slots, hidden_dim) or 
-                     (batch_size, num_slots, hidden_dim).
-        temperature: Temperature scaling for the attention weights. Higher values
-                    make the distribution softer (more uniform).
-        top_k: If provided, only return the top_k most similar slots. If None,
-              return all slots.
+        memory_grid: The MemoryGrid containing slots with coordinates and chunks.
+        query_vector: Tensor of shape (d,) representing the retrieval cue.
+        temperature: Temperature parameter for softmax normalization. Higher values
+                    make the distribution more uniform, lower values make it sharper.
+        top_k: If provided, only consider the top-k most similar slots for retrieval.
+        chunk_threshold: Minimum absolute similarity score required to include a chunk.
+                       Chunks with similarity below this threshold are excluded.
     
     Returns:
-        Tuple of (retrieved_content, attention_weights):
-        - retrieved_content: Weighted sum of memory slots, same shape as memory_slots
-        - attention_weights: Softmax-normalized similarity scores
-    
-    Raises:
-        ValueError: If input shapes are incompatible or temperature <= 0.
+        RetrievalResult containing retrieved chunks and associated metadata.
     """
-    if temperature <= 0:
-        raise ValueError(f"Temperature must be positive, got {temperature}")
+    if not memory_grid.slots:
+        return RetrievalResult(
+            retrieved_chunks=[],
+            similarity_scores=torch.tensor([]),
+            normalized_weights=torch.tensor([]),
+            top_k_indices=torch.tensor([])
+        )
     
-    # Ensure query and memory_slots have compatible batch dimensions
-    if query.dim() == 1:
-        query = query.unsqueeze(0)  # (1, hidden_dim)
-        if memory_slots.dim() == 2:
-            memory_slots = memory_slots.unsqueeze(0)  # (1, num_slots, hidden_dim)
-        elif memory_slots.dim() != 3:
-            raise ValueError(f"Expected memory_slots to be 2D or 3D, got {memory_slots.dim()}D")
-    elif query.dim() == 2:
-        if memory_slots.dim() == 2:
-            memory_slots = memory_slots.unsqueeze(0).expand(query.size(0), -1, -1)
-        elif memory_slots.dim() != 3:
-            raise ValueError(f"Expected memory_slots to be 2D or 3D, got {memory_slots.dim()}D")
-    else:
-        raise ValueError(f"Query must be 1D or 2D, got {query.dim()}D")
+    # Extract coordinates from slots
+    coordinates = torch.stack([slot.coordinate for slot in memory_grid.slots])
     
-    batch_size, num_slots, hidden_dim = memory_slots.shape
-    
-    if query.shape[0] != batch_size:
-        raise ValueError(f"Batch dimension mismatch: query has {query.shape[0]}, memory_slots has {batch_size}")
-    
-    if query.shape[1] != hidden_dim:
-        raise ValueError(f"Hidden dimension mismatch: query has {query.shape[1]}, memory_slots has {hidden_dim}")
-    
-    # Compute cosine similarities
-    similarities = compute_cosine_similarity(query, memory_slots)  # (batch_size, num_slots)
-    
-    # Apply temperature scaling
-    scaled_similarities = similarities / temperature
-    
-    # Compute attention weights via softmax
-    attention_weights = F.softmax(scaled_similarities, dim=-1)  # (batch_size, num_slots)
+    # Compute cosine similarity
+    similarity_scores = compute_cosine_similarity(query_vector, coordinates)
     
     # Apply top-k filtering if requested
-    if top_k is not None and top_k < num_slots:
-        # Create mask for top-k
-        _, top_indices = torch.topk(scaled_similarities, k=top_k, dim=-1)  # (batch_size, top_k)
-        mask = torch.zeros_like(scaled_similarities, dtype=torch.bool)
-        mask.scatter_(dim=-1, index=top_indices, value=True)
-        attention_weights = attention_weights * mask
-        # Renormalize to ensure weights sum to 1
-        attention_weights = F.softmax(attention_weights / temperature, dim=-1)
+    if top_k is not None and top_k < len(similarity_scores):
+        _, top_k_indices = torch.topk(similarity_scores, top_k)
+        similarity_scores = similarity_scores[top_k_indices]
+    else:
+        top_k_indices = torch.arange(len(similarity_scores))
     
-    # Compute retrieved content as weighted sum of memory slots
-    retrieved_content = torch.einsum('bs,bsh->bsh', attention_weights, memory_slots)
+    # Apply threshold filtering
+    mask = similarity_scores.abs() >= chunk_threshold
+    similarity_scores = similarity_scores[mask]
+    top_k_indices = top_k_indices[mask]
     
-    # Squeeze batch dimension if original query was 1D
-    if retrieved_content.shape[0] == 1 and query.dim() == 1:
-        retrieved_content = retrieved_content.squeeze(0)
-        attention_weights = attention_weights.squeeze(0)
+    if len(similarity_scores) == 0:
+        return RetrievalResult(
+            retrieved_chunks=[],
+            similarity_scores=torch.tensor([]),
+            normalized_weights=torch.tensor([]),
+            top_k_indices=torch.tensor([])
+        )
     
-    return retrieved_content, attention_weights
+    # Normalize with softmax and temperature
+    weights = torch.softmax(similarity_scores / temperature, dim=0)
+    
+    # Retrieve associated chunks
+    retrieved_chunks = []
+    for idx in top_k_indices.tolist():
+        slot = memory_grid.slots[idx]
+        if slot.chunk is not None:
+            retrieved_chunks.append(slot.chunk)
+    
+    return RetrievalResult(
+        retrieved_chunks=retrieved_chunks,
+        similarity_scores=similarity_scores,
+        normalized_weights=weights,
+        top_k_indices=top_k_indices
+    )
 
 
-def compute_spatial_attention_loss(
-    attention_weights: torch.Tensor,
-    target_sparsity: float = 0.9,
-    entropy_weight: float = 0.1
+def weighted_chunk_aggregation(
+    retrieval_result: RetrievalResult,
+    aggregation_fn: Optional[callable] = None
 ) -> torch.Tensor:
     """
-    Compute a loss function to encourage sparse, focused attention on memory slots.
-    
-    This loss penalizes diffuse attention distributions, encouraging the model
-    to focus on a small number of relevant memory slots (similar to how human
-    memory retrieval focuses on specific locations).
+    Aggregate retrieved chunk embeddings using weighted sum.
     
     Args:
-        attention_weights: Attention weight tensor of shape (batch_size, num_slots).
-        target_sparsity: Target proportion of zero (or near-zero) weights.
-        entropy_weight: Weight for the entropy regularization term.
+        retrieval_result: Result from soft_addressed_retrieve.
+        aggregation_fn: Optional custom aggregation function. If None, uses weighted sum.
     
     Returns:
-        Scalar loss tensor.
+        Aggregated embedding tensor.
     """
-    # Sparsity loss: encourage attention to be concentrated
-    # Using L1 norm of attention weights as a sparsity measure
-    l1_norm = torch.sum(torch.abs(attention_weights), dim=-1)
-    sparsity_loss = torch.mean(torch.abs(l1_norm - 1.0))  # Attention should sum to 1
+    if not retrieval_result.retrieved_chunks:
+        return torch.tensor([])
     
-    # Entropy regularization: encourage focused (low entropy) distributions
-    # Higher entropy = more uniform (less focused)
-    epsilon = 1e-10
-    entropy = -torch.sum(attention_weights * torch.log(attention_weights + epsilon), dim=-1)
-    entropy_loss = torch.mean(entropy)
+    # Extract embeddings from chunks (assuming they have an 'embedding' attribute)
+    embeddings = []
+    weights = retrieval_result.normalized_weights
     
-    # Combined loss
-    loss = sparsity_loss + entropy_weight * entropy_loss
+    for i, chunk in enumerate(retrieval_result.retrieved_chunks):
+        if hasattr(chunk, 'embedding') and chunk.embedding is not None:
+            embeddings.append(chunk.embedding)
+    
+    if not embeddings:
+        return torch.tensor([])
+    
+    embeddings_tensor = torch.stack(embeddings)
+    
+    if aggregation_fn is None:
+        # Weighted sum
+        weights_expanded = weights.unsqueeze(1)
+        aggregated = torch.sum(embeddings_tensor * weights_expanded, dim=0)
+    else:
+        aggregated = aggregation_fn(embeddings_tensor, weights)
+    
+    return aggregated
+
+
+def spatial_attention_loss(
+    query_vector: torch.Tensor,
+    memory_grid: MemoryGrid,
+    target_slot_index: int,
+    temperature: float = 1.0
+) -> torch.Tensor:
+    """
+    Compute a loss function to encourage attention to a specific target slot.
+    
+    This loss is used during training to teach the model to direct its spatial
+    attention to the correct memory location for a given query.
+    
+    Args:
+        query_vector: Query tensor of shape (d,).
+        memory_grid: MemoryGrid containing the target slot.
+        target_slot_index: Index of the target slot that should receive highest attention.
+        temperature: Temperature for softmax normalization.
+    
+    Returns:
+        Scalar tensor representing the cross-entropy loss.
+    """
+    if target_slot_index >= len(memory_grid.slots) or target_slot_index < 0:
+        raise ValueError(f"Target slot index {target_slot_index} out of bounds")
+    
+    coordinates = torch.stack([slot.coordinate for slot in memory_grid.slots])
+    similarity_scores = compute_cosine_similarity(query_vector, coordinates)
+    
+    # Apply softmax to get attention distribution
+    attention_weights = torch.softmax(similarity_scores / temperature, dim=0)
+    
+    # Compute cross-entropy loss against one-hot target
+    target_weights = torch.zeros_like(attention_weights)
+    target_weights[target_slot_index] = 1.0
+    
+    # Avoid log(0)
+    epsilon = 1e-8
+    loss = -torch.sum(target_weights * torch.log(attention_weights + epsilon))
     
     return loss
 
 
-class SpatialMemoryRetriever(torch.nn.Module):
+def main():
     """
-    A module for soft-addressed retrieval from spatial memory slots.
+    Demonstration of spatial memory retrieval functionality.
     
-    This module wraps the soft-addressed retrieval functionality and can be
-    integrated into a larger model architecture.
+    This function creates a sample memory grid, performs soft-addressed retrieval,
+    and prints the results.
     """
+    print("Initializing spatial memory demonstration...")
     
-    def __init__(self, num_slots: int, hidden_dim: int, temperature: float = 1.0):
-        """
-        Initialize the spatial memory retriever.
-        
-        Args:
-            num_slots: Number of memory slots in the grid.
-            hidden_dim: Dimensionality of the hidden representations.
-            temperature: Initial temperature for soft attention.
-        """
-        super().__init__()
-        self.num_slots = num_slots
-        self.hidden_dim = hidden_dim
-        self.temperature = temperature
-        
-        # Initialize memory slots with small random values
-        self.memory_slots = torch.nn.Parameter(
-            torch.randn(num_slots, hidden_dim) * 0.02
-        )
+    # Create a sample memory grid
+    grid = MemoryGrid(grid_size=5)
     
-    def forward(
-        self,
-        query: torch.Tensor,
-        temperature: Optional[float] = None,
-        top_k: Optional[int] = None
-    ) -> Tuple[torch.Tensor, torch.Tensor]:
-        """
-        Perform retrieval from memory slots given a query.
-        
-        Args:
-            query: Query tensor.
-            temperature: Override default temperature if provided.
-            top_k: Optional top-k filtering.
-        
-        Returns:
-            Tuple of (retrieved_content, attention_weights).
-        """
-        temp = temperature if temperature is not None else self.temperature
-        return soft_addressed_retrieve(query, self.memory_slots, temp, top_k)
+    # Add some sample slots with coordinates
+    sample_coords = [
+        torch.tensor([1.0, 2.0, 0.5]),
+        torch.tensor([3.0, 1.0, 2.0]),
+        torch.tensor([2.0, 3.0, 1.5]),
+        torch.tensor([4.0, 4.0, 3.0]),
+        torch.tensor([0.5, 0.5, 0.5])
+    ]
     
-    def update_slots(self, new_slots: torch.Tensor):
-        """
-        Update the memory slots with new values.
-        
-        Args:
-            new_slots: New slot values of shape (num_slots, hidden_dim).
-        """
-        if new_slots.shape != self.memory_slots.shape:
-            raise ValueError(f"Shape mismatch: expected {self.memory_slots.shape}, got {new_slots.shape}")
-        with torch.no_grad():
-            self.memory_slots.copy_(new_slots)
+    for i, coord in enumerate(sample_coords):
+        # Normalize coordinate
+        coord = coord / torch.norm(coord)
+        grid.add_slot(coord, EpisodicChunk(content=f"Sample content {i}"))
     
-    def get_slot_embeddings(self) -> torch.Tensor:
-        """
-        Get the current memory slot embeddings.
-        
-        Returns:
-            Tensor of shape (num_slots, hidden_dim).
-        """
-        return self.memory_slots
+    # Create a query vector
+    query = torch.tensor([2.5, 2.5, 1.0])
+    query = query / torch.norm(query)
+    
+    # Perform retrieval
+    result = soft_addressed_retrieve(grid, query, temperature=0.5, top_k=3)
+    
+    print(f"\nQuery vector: {query.tolist()}")
+    print(f"Retrieved {len(result.retrieved_chunks)} chunks")
+    print(f"Similarity scores: {result.similarity_scores.tolist()}")
+    print(f"Normalized weights: {result.normalized_weights.tolist()}")
+    print(f"Top-k indices: {result.top_k_indices.tolist()}")
+    
+    for i, chunk in enumerate(result.retrieved_chunks):
+        print(f"  Chunk {i}: {chunk.content} (weight: {result.normalized_weights[i].item():.4f})")
+    
+    # Test weighted aggregation
+    aggregated = weighted_chunk_aggregation(result)
+    print(f"\nAggregated embedding shape: {aggregated.shape if aggregated.numel() > 0 else 'empty'}")
+    
+    # Test attention loss
+    loss = spatial_attention_loss(query, grid, target_slot_index=2)
+    print(f"Attention loss for target slot 2: {loss.item():.4f}")
+    
+    print("\nSpatial memory demonstration complete.")
+
+if __name__ == "__main__":
+    main()

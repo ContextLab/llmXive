@@ -1,280 +1,310 @@
 """
 Training loop for Memory Palaces in LLMs project.
 
-Implements adaptive batch size logic and dataset capping based on memory constraints.
+Implements adaptive batch size logic:
+1. Start with batch_size = 8.
+2. If RSS > 6GB, reduce to batch_size = 4.
+3. If RSS still > 6GB at batch_size = 4, cap dataset to 1/4 of original size.
 """
-import os
-import sys
 import gc
 import json
+import os
 import time
-import logging
 from pathlib import Path
-from typing import Optional, Dict, Any, Tuple, List
+from typing import Dict, Any, List, Optional, Tuple
+
 import torch
 from torch.utils.data import DataLoader, Dataset
 from transformers import AutoTokenizer
+import numpy as np
 
-# Project imports
+# Local imports matching API surface
+from models.base import GPT2Baseline
+from models.base_fallback import DistilGPT2Fallback
 from models.loading import load_model, check_memory_budget
-from models.memory_slot import MemoryGrid
-from models.coordinate_assigner import CoordinateAssigner
-from utils.logger import setup_experiment_logger, log_to_json
 from training.memory_monitor import MemoryMonitor
-
-logger = logging.getLogger(__name__)
+from utils.logger import ExperimentLogger
 
 # Constants
-RAM_THRESHOLD_GB = 6.0
+RSS_THRESHOLD_GB = 6.0
 INITIAL_BATCH_SIZE = 8
 MIN_BATCH_SIZE = 4
-DATASET_CAP_FRACTION = 0.5  # [deferred] fraction as per task description
+DATASET_CAP_FRACTION = 0.25  # 1/4 of original size
 
 class TrainingLoop:
     def __init__(
         self,
-        model,
+        model_name: str,
         tokenizer: AutoTokenizer,
-        train_dataset: Dataset,
-        device: str,
-        output_dir: Path,
-        seed: int = 42
+        dataset: Dataset,
+        logger: ExperimentLogger,
+        device: Optional[str] = None,
     ):
-        self.model = model
+        self.model_name = model_name
         self.tokenizer = tokenizer
-        self.train_dataset = train_dataset
-        self.device = device
-        self.output_dir = output_dir
-        self.seed = seed
+        self.original_dataset = dataset
+        self.logger = logger
+        self.device = device or ("cuda" if torch.cuda.is_available() else "cpu")
         
-        # Memory monitoring
-        self.memory_monitor = MemoryMonitor(output_dir)
-        self.logger = setup_experiment_logger(output_dir / "training.log")
-        
-        # Hyperparameters (adaptive)
+        self.model = None
         self.batch_size = INITIAL_BATCH_SIZE
-        self.effective_batch_size = INITIAL_BATCH_SIZE
+        self.dataset = dataset
         self.dataset_capped = False
-        self.original_dataset_size = len(train_dataset)
-        self.capped_dataset_size = 0
+        self.dataset_capped_fraction = 0.0
+        self.memory_monitor = MemoryMonitor()
         
-        # Ensure output directory exists
-        self.output_dir.mkdir(parents=True, exist_ok=True)
-
-    def _log_memory_state(self, stage: str, batch_size: int, rss_mb: float):
-        """Log current memory state."""
-        self.logger.info(
-            f"[{stage}] RSS: {rss_mb:.2f} MB | Batch Size: {batch_size} | "
-            f"Dataset Size: {len(self.train_dataset)}"
-        )
-        self.memory_monitor.log_state(
-            stage=stage,
-            rss_mb=rss_mb,
-            batch_size=batch_size,
-            dataset_size=len(self.train_dataset),
-            dataset_capped=self.dataset_capped
-        )
-
-    def _adapt_batch_size_and_dataset(self) -> Tuple[int, bool]:
+    def _load_model(self) -> Tuple[Any, str]:
         """
-        Adapt batch size and dataset size based on memory constraints.
-        
-        Returns:
-            Tuple of (final_batch_size, dataset_was_capped)
+        Load model based on memory budget.
+        Returns (model, model_type) where model_type is 'gpt2-medium' or 'distilgpt2'.
         """
-        # Start with initial batch size
-        current_batch_size = INITIAL_BATCH_SIZE
-        gc.collect()
-        torch.cuda.empty_cache() if torch.cuda.is_available() else None
+        # Check memory budget first
+        can_load_gpt2, memory_info = check_memory_budget(
+            model_name="gpt2-medium", 
+            batch_size=self.batch_size,
+            rss_threshold_gb=RSS_THRESHOLD_GB
+        )
         
-        # Check RSS before any training
-        rss_mb = self.memory_monitor.get_current_rss_mb()
-        self._log_memory_state("pre-train-init", current_batch_size, rss_mb)
+        if can_load_gpt2:
+            self.logger.log_event("model_loading", {"status": "loading_gpt2_medium"})
+            self.model, _ = load_model("gpt2-medium", self.device)
+            return self.model, "gpt2-medium"
+        else:
+            self.logger.log_event("model_loading", {
+                "status": "fallback_to_distilgpt2",
+                "reason": "insufficient_memory",
+                "memory_info": memory_info
+            })
+            self.model, _ = load_model("distilgpt2", self.device)
+            return self.model, "distilgpt2"
+
+    def _adapt_batch_size_and_dataset(self) -> None:
+        """
+        Adapt batch size and dataset size based on RSS measurements.
+        """
+        self.logger.log_event("memory_adaptation_start", {
+            "initial_batch_size": self.batch_size,
+            "dataset_size": len(self.dataset)
+        })
         
-        # If RSS > 6GB at initial batch size, reduce to min batch size
-        if rss_mb > RAM_THRESHOLD_GB * 1024:
-            self.logger.warning(
-                f"Initial RSS ({rss_mb/1024:.2f} GB) exceeds threshold "
-                f"({RAM_THRESHOLD_GB} GB). Reducing batch size to {MIN_BATCH_SIZE}."
-            )
-            current_batch_size = MIN_BATCH_SIZE
-            gc.collect()
-            torch.cuda.empty_cache() if torch.cuda.is_available() else None
-            rss_mb = self.memory_monitor.get_current_rss_mb()
-            self._log_memory_state("after-batch-reduction", current_batch_size, rss_mb)
-            
-            # If still above threshold, cap dataset
-            if rss_mb > RAM_THRESHOLD_GB * 1024:
-                self.logger.warning(
-                    f"RSS ({rss_mb/1024:.2f} GB) still exceeds threshold "
-                    f"({RAM_THRESHOLD_GB} GB) at batch size {MIN_BATCH_SIZE}. "
-                    f"Capping dataset to {DATASET_CAP_FRACTION*100:.0f}%."
-                )
-                cap_size = int(len(self.train_dataset) * DATASET_CAP_FRACTION)
-                self.train_dataset = torch.utils.data.Subset(
-                    self.train_dataset, 
-                    list(range(cap_size))
-                )
+        # Step 1: Check if we need to reduce batch size from 8 to 4
+        if self.batch_size == INITIAL_BATCH_SIZE:
+            self.logger.log_event("checking_memory_at_batch_size_8", {})
+            # Simulate a small forward pass to check memory
+            try:
+                dummy_input = torch.randint(0, 1000, (self.batch_size, 10)).to(self.device)
+                if self.model is not None:
+                    with torch.no_grad():
+                        _ = self.model(dummy_input).logits
+                
+                # Check RSS after dummy pass
+                gc.collect()
+                if self.device == "cuda":
+                    torch.cuda.empty_cache()
+                
+                current_rss = self.memory_monitor.get_current_rss_gb()
+                self.logger.log_event("memory_check_batch_8", {"rss_gb": current_rss})
+                
+                if current_rss > RSS_THRESHOLD_GB:
+                    self.batch_size = MIN_BATCH_SIZE
+                    self.logger.log_event("batch_size_reduced", {
+                        "from": INITIAL_BATCH_SIZE,
+                        "to": MIN_BATCH_SIZE,
+                        "reason": "rss_exceeded_threshold",
+                        "rss_gb": current_rss
+                    })
+            except Exception as e:
+                self.logger.log_event("memory_check_error", {"error": str(e)})
+                self.batch_size = MIN_BATCH_SIZE
+        
+        # Step 2: If still at high memory usage with batch_size=4, cap dataset
+        if self.batch_size == MIN_BATCH_SIZE:
+            self.logger.log_event("checking_memory_at_batch_size_4", {})
+            try:
+                dummy_input = torch.randint(0, 1000, (self.batch_size, 10)).to(self.device)
+                if self.model is not None:
+                    with torch.no_grad():
+                        _ = self.model(dummy_input).logits
+                
+                gc.collect()
+                if self.device == "cuda":
+                    torch.cuda.empty_cache()
+                
+                current_rss = self.memory_monitor.get_current_rss_gb()
+                self.logger.log_event("memory_check_batch_4", {"rss_gb": current_rss})
+                
+                if current_rss > RSS_THRESHOLD_GB:
+                    original_size = len(self.original_dataset)
+                    new_size = max(1, int(original_size * DATASET_CAP_FRACTION))
+                    self.dataset = torch.utils.data.Subset(self.original_dataset, range(new_size))
+                    self.dataset_capped = True
+                    self.dataset_capped_fraction = DATASET_CAP_FRACTION
+                    
+                    self.logger.log_event("dataset_capped", {
+                        "original_size": original_size,
+                        "new_size": new_size,
+                        "fraction": DATASET_CAP_FRACTION,
+                        "reason": "rss_still_exceeded_at_batch_4",
+                        "rss_gb": current_rss
+                    })
+            except Exception as e:
+                self.logger.log_event("memory_check_error_batch4", {"error": str(e)})
+                # Fallback: cap dataset anyway
+                original_size = len(self.original_dataset)
+                new_size = max(1, int(original_size * DATASET_CAP_FRACTION))
+                self.dataset = torch.utils.data.Subset(self.original_dataset, range(new_size))
                 self.dataset_capped = True
-                self.capped_dataset_size = cap_size
-                self.effective_batch_size = current_batch_size
-                self.batch_size = current_batch_size
-                return current_batch_size, True
-        
-        self.effective_batch_size = current_batch_size
-        self.batch_size = current_batch_size
-        return current_batch_size, False
+                self.dataset_capped_fraction = DATASET_CAP_FRACTION
 
-    def train_epoch(self, epoch: int, dataloader: DataLoader) -> float:
-        """Train for one epoch and return average loss."""
-        self.model.train()
-        total_loss = 0.0
-        num_batches = 0
-        
-        for batch_idx, batch in enumerate(dataloader):
-            # Move batch to device
-            batch = {k: v.to(self.device) for k, v in batch.items()}
-            
-            # Forward pass
-            outputs = self.model(**batch)
-            loss = outputs.loss
-            
-            # Backward pass
-            loss.backward()
-            
-            # Gradient clipping
-            torch.nn.utils.clip_grad_norm_(self.model.parameters(), max_norm=1.0)
-            
-            # Optimizer step (assuming optimizer is set up outside)
-            # Note: In a full implementation, optimizer would be passed in
-            # For this loop, we assume the model has an optimizer attribute
-            if hasattr(self.model, 'optimizer'):
-                self.model.optimizer.step()
-                self.model.optimizer.zero_grad()
-            
-            total_loss += loss.item()
-            num_batches += 1
-            
-            # Log memory periodically
-            if batch_idx % 10 == 0:
-                rss_mb = self.memory_monitor.get_current_rss_mb()
-                self._log_memory_state(
-                    f"epoch-{epoch}-batch-{batch_idx}", 
-                    self.batch_size, 
-                    rss_mb
-                )
-        
-        avg_loss = total_loss / num_batches if num_batches > 0 else 0.0
-        return avg_loss
-
-    def run(
+    def train(
         self,
         epochs: int = 3,
         learning_rate: float = 5e-5,
-        log_interval: int = 100
+        seed: Optional[int] = None,
     ) -> Dict[str, Any]:
         """
-        Run the full training loop with memory-adaptive logic.
+        Execute the training loop.
         
         Args:
             epochs: Number of training epochs
             learning_rate: Learning rate for optimizer
-            log_interval: Log interval in batches
-        
+            seed: Random seed for reproducibility
+            
         Returns:
-            Dictionary with training results and metadata
+            Dictionary with training metrics and configuration
         """
-        self.logger.info("Starting training loop with adaptive memory management")
+        if seed is not None:
+            torch.manual_seed(seed)
+            np.random.seed(seed)
+            if self.device == "cuda":
+                torch.cuda.manual_seed_all(seed)
         
-        # Adapt batch size and dataset if needed
-        final_batch_size, was_capped = self._adapt_batch_size_and_dataset()
-        self.logger.info(
-            f"Final configuration: batch_size={final_batch_size}, "
-            f"dataset_capped={was_capped}, "
-            f"original_size={self.original_dataset_size}, "
-            f"current_size={len(self.train_dataset)}"
-        )
+        # Load model
+        model, model_type = self._load_model()
+        model.train()
         
-        # Create dataloader
+        # Adapt batch size and dataset based on memory
+        self._adapt_batch_size_and_dataset()
+        
+        # Create DataLoader
         dataloader = DataLoader(
-            self.train_dataset,
-            batch_size=final_batch_size,
+            self.dataset,
+            batch_size=self.batch_size,
             shuffle=True,
-            num_workers=0,  # Set to 0 to avoid memory issues with workers
-            pin_memory=False
+            drop_last=True
         )
         
-        # Setup optimizer (simple example, should be passed in for flexibility)
-        if not hasattr(self.model, 'optimizer'):
-            self.model.optimizer = torch.optim.AdamW(
-                self.model.parameters(),
-                lr=learning_rate,
-                weight_decay=0.01
-            )
+        # Setup optimizer
+        optimizer = torch.optim.AdamW(model.parameters(), lr=learning_rate)
+        criterion = torch.nn.CrossEntropyLoss()
         
-        # Training history
-        history = {
-            "epochs": [],
-            "losses": [],
-            "memory_snapshots": []
-        }
-        
+        # Training metrics
+        total_steps = 0
         start_time = time.time()
+        epoch_losses = []
+        memory_log = []
         
         for epoch in range(epochs):
-            self.logger.info(f"Starting epoch {epoch + 1}/{epochs}")
-            epoch_loss = self.train_epoch(epoch + 1, dataloader)
-            history["epochs"].append(epoch + 1)
-            history["losses"].append(epoch_loss)
+            epoch_loss = 0.0
+            epoch_steps = 0
             
-            self.logger.info(f"Epoch {epoch + 1} completed. Loss: {epoch_loss:.4f}")
+            for batch_idx, batch in enumerate(dataloader):
+                # Move batch to device
+                input_ids = batch["input_ids"].to(self.device)
+                attention_mask = batch.get("attention_mask", None)
+                if attention_mask is not None:
+                    attention_mask = attention_mask.to(self.device)
+                
+                # Forward pass
+                outputs = model(input_ids=input_ids, attention_mask=attention_mask)
+                logits = outputs.logits
+                
+                # Shift for next token prediction
+                shift_logits = logits[..., :-1, :].contiguous()
+                shift_labels = input_ids[..., 1:].contiguous()
+                
+                # Flatten for loss calculation
+                shift_logits = shift_logits.view(-1, shift_logits.size(-1))
+                shift_labels = shift_labels.view(-1)
+                
+                # Compute loss
+                loss = criterion(shift_logits, shift_labels)
+                
+                # Backward pass
+                optimizer.zero_grad()
+                loss.backward()
+                optimizer.step()
+                
+                epoch_loss += loss.item()
+                epoch_steps += 1
+                total_steps += 1
+                
+                # Log memory usage periodically
+                if batch_idx % 10 == 0:
+                    gc.collect()
+                    if self.device == "cuda":
+                        torch.cuda.empty_cache()
+                    
+                    rss = self.memory_monitor.get_current_rss_gb()
+                    memory_log.append({
+                        "epoch": epoch,
+                        "batch": batch_idx,
+                        "rss_gb": rss,
+                        "batch_size": self.batch_size,
+                        "dataset_capped": self.dataset_capped
+                    })
+                
+                # Log loss
+                if batch_idx % 50 == 0:
+                    self.logger.log_event("batch_loss", {
+                        "epoch": epoch,
+                        "batch": batch_idx,
+                        "loss": loss.item(),
+                        "cumulative_loss": epoch_loss / (batch_idx + 1)
+                    })
             
-            # Log memory state at end of epoch
-            rss_mb = self.memory_monitor.get_current_rss_mb()
-            self._log_memory_state(f"epoch-{epoch+1}-end", final_batch_size, rss_mb)
+            avg_epoch_loss = epoch_loss / epoch_steps if epoch_steps > 0 else 0.0
+            epoch_losses.append(avg_epoch_loss)
+            
+            self.logger.log_event("epoch_complete", {
+                "epoch": epoch,
+                "avg_loss": avg_epoch_loss,
+                "total_steps": epoch_steps
+            })
         
-        total_runtime = time.time() - start_time
+        end_time = time.time()
+        runtime_seconds = end_time - start_time
         
-        # Final summary
-        summary = {
-            "seed": self.seed,
-            "effective_batch_size": final_batch_size,
-            "dataset_capped": was_capped,
-            "original_dataset_size": self.original_dataset_size,
-            "capped_dataset_size": self.capped_dataset_size if was_capped else self.original_dataset_size,
-            "epochs_completed": epochs,
-            "final_loss": history["losses"][-1] if history["losses"] else None,
-            "runtime_seconds": total_runtime,
-            "ram_threshold_gb": RAM_THRESHOLD_GB,
-            "initial_batch_size": INITIAL_BATCH_SIZE,
-            "min_batch_size": MIN_BATCH_SIZE,
-            "dataset_cap_fraction": DATASET_CAP_FRACTION
+        # Final metrics
+        metrics = {
+            "model_type": model_type,
+            "batch_size": self.batch_size,
+            "dataset_capped": self.dataset_capped,
+            "dataset_capped_fraction": self.dataset_capped_fraction if self.dataset_capped else None,
+            "original_dataset_size": len(self.original_dataset),
+            "effective_dataset_size": len(self.dataset),
+            "epochs": epochs,
+            "total_steps": total_steps,
+            "final_loss": epoch_losses[-1] if epoch_losses else None,
+            "epoch_losses": epoch_losses,
+            "runtime_seconds": runtime_seconds,
+            "memory_log": memory_log
         }
         
-        # Save training summary
-        summary_path = self.output_dir / "training_summary.json"
-        with open(summary_path, "w") as f:
-            json.dump(summary, f, indent=2)
+        # Log final configuration
+        self.logger.log_event("training_complete", metrics)
         
-        # Save memory monitor data
-        self.memory_monitor.save()
-        
-        self.logger.info(f"Training completed. Summary saved to {summary_path}")
-        return summary
+        return metrics
 
 def main():
     """
-    Main entry point for training loop.
-    
-    This function demonstrates the training loop with adaptive batch size
-    and dataset capping based on memory constraints.
+    Main entry point for training loop demonstration.
+    This function demonstrates the training loop with a minimal setup.
     """
     import argparse
-    from datasets import load_dataset
     
-    parser = argparse.ArgumentParser(description="Training loop with adaptive memory management")
+    parser = argparse.ArgumentParser(description="Training Loop for Memory Palaces")
     parser.add_argument("--model", type=str, default="gpt2-medium", help="Model name")
-    parser.add_argument("--dataset", type=str, default="babi", help="Dataset name (babi, lambada, story_cloze)")
     parser.add_argument("--epochs", type=int, default=3, help="Number of epochs")
     parser.add_argument("--lr", type=float, default=5e-5, help="Learning rate")
     parser.add_argument("--seed", type=int, default=42, help="Random seed")
@@ -282,75 +312,68 @@ def main():
     
     args = parser.parse_args()
     
-    # Setup
+    # Setup output directory
     output_dir = Path(args.output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
     
-    # Load dataset (simplified for demonstration)
-    logger.info(f"Loading dataset: {args.dataset}")
-    if args.dataset == "babi":
-        dataset = load_dataset("babi", "task3_10k")
-        train_data = dataset["train"]
-    else:
-        # Fallback for other datasets
-        logger.warning(f"Dataset {args.dataset} not fully implemented in demo. Using babi.")
-        dataset = load_dataset("babi", "task3_10k")
-        train_data = dataset["train"]
+    # Initialize logger
+    logger = ExperimentLogger(output_dir)
     
-    # Tokenizer
-    tokenizer = AutoTokenizer.from_pretrained(args.model)
-    tokenizer.pad_token = tokenizer.eos_token
-    
-    # Simple dataset wrapper for training
-    class SimpleDataset(Dataset):
-        def __init__(self, data, tokenizer, max_length=128):
-            self.data = data
-            self.tokenizer = tokenizer
-            self.max_length = max_length
-        
+    # Create a minimal dataset for demonstration
+    # In production, this would be loaded from code/data/download.py
+    class MinimalDataset(Dataset):
+        def __init__(self, size=100, seq_len=10):
+            self.size = size
+            self.seq_len = seq_len
+            
         def __len__(self):
-            return len(self.data)
+            return self.size
         
         def __getitem__(self, idx):
-            item = self.data[idx]
-            # For bAbI task 3, we have question and answer
-            # Simplified: use the story + question as input, answer as target
-            text = item.get("story", "") + " " + item.get("question", "")
-            encoding = self.tokenizer(
-                text,
-                max_length=self.max_length,
-                padding="max_length",
-                truncation=True,
-                return_tensors="pt"
-            )
-            return {k: v.squeeze(0) for k, v in encoding.items()}
+            # Create random token IDs
+            input_ids = torch.randint(0, 1000, (self.seq_len,))
+            attention_mask = torch.ones_like(input_ids)
+            return {
+                "input_ids": input_ids,
+                "attention_mask": attention_mask
+            }
     
-    train_dataset = SimpleDataset(train_data, tokenizer)
+    dataset = MinimalDataset(size=200, seq_len=10)
     
-    # Load model
-    device = "cuda" if torch.cuda.is_available() else "cpu"
-    logger.info(f"Loading model: {args.model} on {device}")
+    # Load tokenizer
+    tokenizer = AutoTokenizer.from_pretrained(args.model)
+    if tokenizer.pad_token is None:
+        tokenizer.pad_token = tokenizer.eos_token
     
-    model, _ = load_model(args.model, device=device)
-    model.to(device)
-    
-    # Create and run training loop
+    # Initialize training loop
     trainer = TrainingLoop(
-        model=model,
+        model_name=args.model,
         tokenizer=tokenizer,
-        train_dataset=train_dataset,
-        device=device,
-        output_dir=output_dir,
-        seed=args.seed
+        dataset=dataset,
+        logger=logger,
     )
     
-    summary = trainer.run(
+    # Run training
+    metrics = trainer.train(
         epochs=args.epochs,
-        learning_rate=args.lr
+        learning_rate=args.lr,
+        seed=args.seed,
     )
     
-    logger.info("Training completed successfully")
-    print(json.dumps(summary, indent=2))
+    # Save metrics
+    metrics_path = output_dir / "training_metrics.json"
+    with open(metrics_path, "w") as f:
+        json.dump(metrics, f, indent=2, default=str)
+    
+    print(f"Training complete. Metrics saved to {metrics_path}")
+    print(f"Model type: {metrics['model_type']}")
+    print(f"Effective batch size: {metrics['batch_size']}")
+    print(f"Dataset capped: {metrics['dataset_capped']}")
+    if metrics['dataset_capped']:
+        print(f"Dataset capped fraction: {metrics['dataset_capped_fraction']}")
+    print(f"Runtime: {metrics['runtime_seconds']:.2f} seconds")
+    
+    return metrics
 
 if __name__ == "__main__":
     main()

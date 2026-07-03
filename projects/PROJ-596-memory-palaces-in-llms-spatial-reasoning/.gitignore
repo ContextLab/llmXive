@@ -7,7 +7,8 @@ __pycache__/
 *.so
 
 # Distribution / packaging
-.Python
+.eggs/
+*.egg-info/
 build/
 develop-eggs/
 dist/
@@ -20,8 +21,6 @@ parts/
 sdist/
 var/
 wheels/
-*.egg-info/
-.installed.cfg
 *.egg
 
 # PyInstaller
@@ -34,12 +33,14 @@ pip-delete-this-directory.txt
 
 # Unit test / coverage reports
 htmlcov/
+.tox/
 .coverage
 .coverage.*
-cache/
+.cache
 nosetests.xml
 coverage.xml
 *.cover
+*.py,cover
 .hypothesis/
 .pytest_cache/
 
@@ -56,35 +57,38 @@ ENV/
 env.bak/
 venv.bak/
 
+# IDEs and Editors
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.project
+.settings/
+.classpath
+.cache
+.cache/
+
 # Jupyter Notebook
 .ipynb_checkpoints
 
 # pyenv
 .python-version
 
-# Cython debug symbols
-cython_debug/
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
 
-# IDEs and editors
-.idea/
-.vscode/
-*.swp
-*.swo
-*~
-
-# OS generated files
-.DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
-Thumbs.db
+# Pyre type checker
+.pyre/
 
 # Project specific
 data/raw/
 data/processed/
 artifacts/
+figures/
 logs/
 *.log
-.cache/
+.DS_Store
+Thumbs.db

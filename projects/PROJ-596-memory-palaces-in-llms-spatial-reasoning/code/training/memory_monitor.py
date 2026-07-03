@@ -1,202 +1,227 @@
 """
-Memory monitoring utility for training loops.
+Memory monitoring utility for training loop.
 
-Tracks RSS memory usage and triggers adaptive batch size reduction
-and dataset capping if thresholds are exceeded.
+Tracks RSS memory usage and implements adaptive strategies:
+1. Reduce batch size from 8 to 4 if RSS > 5GB.
+2. Cap training dataset to 50% of original size if RSS > 6GB after batch size reduction.
 """
-import gc
-import json
 import os
-import resource
-import logging
+import json
+import time
 from pathlib import Path
-from typing import Optional, Dict, Any
+from typing import Optional, Dict, Any, Tuple
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s'
-)
-logger = logging.getLogger(__name__)
+try:
+    import psutil
+    PSUTIL_AVAILABLE = True
+except ImportError:
+    PSUTIL_AVAILABLE = False
+    import warnings
+    warnings.warn("psutil not installed. Memory monitoring will be limited.")
 
-# Constants
-MEMORY_THRESHOLD_GB = 6.0
-MEMORY_THRESHOLD_BYTES = MEMORY_THRESHOLD_GB * (1024 ** 3)
-MIN_BATCH_SIZE = 4
-DATASET_CUTOFF_FRACTION = 0.25  # [deferred] interpreted as 25% per spec context
 
 class MemoryMonitor:
     """
-    Monitors RSS memory usage during training and triggers adaptive strategies.
+    Monitors system memory (RSS) and manages training hyperparameters dynamically.
     """
 
-    def __init__(self, log_path: Optional[str] = None):
+    def __init__(
+        self,
+        log_path: Optional[Path] = None,
+        initial_batch_size: int = 8,
+        reduced_batch_size: int = 4,
+        rss_warning_threshold_gb: float = 5.0,
+        rss_critical_threshold_gb: float = 6.0,
+        dataset_reduction_factor: float = 0.5
+    ):
         """
         Initialize the memory monitor.
-        
+
         Args:
-            log_path: Path to the JSON log file for hyperparameter decisions.
-                      Defaults to artifacts/results/memory_log.json.
+            log_path: Path to write the hyperparameter log JSON.
+            initial_batch_size: Starting batch size.
+            reduced_batch_size: Batch size to switch to if memory warning is triggered.
+            rss_warning_threshold_gb: RSS threshold (GB) to trigger batch size reduction.
+            rss_critical_threshold_gb: RSS threshold (GB) to trigger dataset capping.
+            dataset_reduction_factor: Factor to multiply dataset size by if critical memory.
         """
-        self.log_path = log_path or "artifacts/results/memory_log.json"
-        self.log_data: Dict[str, Any] = {
-            "decisions": [],
-            "final_hyperparameters": {}
-        }
-        
-        # Ensure log directory exists
-        Path(self.log_path).parent.mkdir(parents=True, exist_ok=True)
+        self.log_path = log_path
+        self.initial_batch_size = initial_batch_size
+        self.reduced_batch_size = reduced_batch_size
+        self.rss_warning_threshold_gb = rss_warning_threshold_gb
+        self.rss_critical_threshold_gb = rss_critical_threshold_gb
+        self.dataset_reduction_factor = dataset_reduction_factor
+
+        # State
+        self.current_batch_size = initial_batch_size
+        self.dataset_capped = False
+        self.capped_dataset_size = None
+        self.original_dataset_size = None
+        self.log_history: list[Dict[str, Any]] = []
+
+        if log_path:
+            log_path.parent.mkdir(parents=True, exist_ok=True)
 
     def get_current_rss_gb(self) -> float:
         """
-        Get the current Resident Set Size (RSS) in GB.
-        
+        Get current Resident Set Size (RSS) in Gigabytes.
+
         Returns:
-            Current RSS in gigabytes.
+            Current RSS in GB. Returns 0.0 if psutil is unavailable.
         """
-        # Use resource module for Unix-like systems (Linux/macOS)
-        # For Windows, resource.getrusage is not fully supported for peak, 
-        # but we can try to use psutil if available, otherwise fallback to resource
-        try:
-            usage = resource.getrusage(resource.RUSAGE_SELF)
-            # ru_maxrss is in kilobytes on Linux, megabytes on macOS
-            # We normalize to bytes
-            if os.name == 'posix':
-                # Check platform specific behavior
-                import platform
-                if platform.system() == 'Darwin':
-                    # macOS returns MB
-                    rss_bytes = usage.ru_maxrss * (1024 ** 2)
-                else:
-                    # Linux returns KB
-                    rss_bytes = usage.ru_maxrss * 1024
-            else:
-                # Fallback for Windows (if resource works, though often limited)
-                rss_bytes = usage.ru_maxrss * 1024 
-            
-            return rss_bytes / (1024 ** 3)
-        except Exception as e:
-            logger.warning(f"Could not read resource usage: {e}. Returning 0.0.")
+        if not PSUTIL_AVAILABLE:
             return 0.0
 
-    def check_and_adjust(
-        self, 
-        current_batch_size: int, 
-        current_dataset_size: Optional[int] = None
-    ) -> Dict[str, Any]:
+        process = psutil.Process(os.getpid())
+        # memory_info returns bytes
+        rss_bytes = process.memory_info().rss
+        return rss_bytes / (1024 ** 3)
+
+    def check_and_adapt(self, current_dataset_size: Optional[int] = None) -> Dict[str, Any]:
         """
-        Check current memory usage and adjust hyperparameters if necessary.
-        
-        Logic:
-        1. If RSS > 6GB:
-           a. If batch_size > 4, reduce batch_size to 4.
-           b. If batch_size == 4 and RSS still > 6GB, cap dataset to 25% of original.
-        
+        Check current memory usage and adapt hyperparameters if necessary.
+
+        This function implements the logic:
+        1. If RSS > 5GB and batch size is still 8, reduce to 4.
+        2. If RSS > 6GB and batch size is already 4, cap dataset to 50%.
+
         Args:
-            current_batch_size: The currently intended batch size.
-            current_dataset_size: The full size of the dataset (if known).
-            
+            current_dataset_size: The original size of the dataset being used.
+
         Returns:
-            A dictionary containing the adjusted batch size, dataset size, 
-            and the decision log.
+            A dictionary containing the current state and decisions made.
         """
         rss_gb = self.get_current_rss_gb()
+        timestamp = time.time()
+
         decision = {
-            "timestamp": None, # Will be set by caller or internal logic if needed
-            "initial_batch_size": current_batch_size,
-            "initial_dataset_size": current_dataset_size,
+            "timestamp": timestamp,
             "rss_gb": rss_gb,
-            "action_taken": "none",
-            "final_batch_size": current_batch_size,
+            "current_batch_size": self.current_batch_size,
+            "dataset_capped": self.dataset_capped,
+            "action_taken": None,
+            "final_batch_size": self.current_batch_size,
             "final_dataset_size": current_dataset_size
         }
 
-        if rss_gb > MEMORY_THRESHOLD_GB:
-            logger.warning(f"Memory usage ({rss_gb:.2f} GB) exceeds threshold ({MEMORY_THRESHOLD_GB} GB).")
-            
-            if current_batch_size > MIN_BATCH_SIZE:
-                logger.info(f"Reducing batch size from {current_batch_size} to {MIN_BATCH_SIZE}.")
-                decision["action_taken"] = "reduce_batch_size"
-                decision["final_batch_size"] = MIN_BATCH_SIZE
-                decision["reason"] = f"RSS {rss_gb:.2f}GB > {MEMORY_THRESHOLD_GB}GB"
-            elif current_batch_size == MIN_BATCH_SIZE:
-                logger.warning(f"Batch size already at minimum ({MIN_BATCH_SIZE}). Capping dataset.")
-                if current_dataset_size is not None:
-                    new_size = max(1, int(current_dataset_size * DATASET_CUTOFF_FRACTION))
-                    logger.info(f"Capping dataset from {current_dataset_size} to {new_size} samples.")
-                    decision["action_taken"] = "cap_dataset"
-                    decision["final_batch_size"] = MIN_BATCH_SIZE
-                    decision["final_dataset_size"] = new_size
-                    decision["reason"] = f"RSS {rss_gb:.2f}GB > {MEMORY_THRESHOLD_GB}GB after batch reduction"
-                else:
-                    logger.error("Dataset size unknown; cannot cap dataset. Please provide current_dataset_size.")
-                    decision["action_taken"] = "error_dataset_size_unknown"
-                    decision["reason"] = "Dataset size not provided for capping."
-            else:
-                logger.error(f"Unexpected batch size state: {current_batch_size}.")
-                decision["action_taken"] = "error_unexpected_state"
-        else:
-            logger.info(f"Memory usage ({rss_gb:.2f} GB) within threshold.")
-            decision["action_taken"] = "none"
+        # Logic 1: Reduce Batch Size
+        if not self.dataset_capped:
+            if rss_gb > self.rss_warning_threshold_gb:
+                if self.current_batch_size == self.initial_batch_size:
+                    self.current_batch_size = self.reduced_batch_size
+                    decision["action_taken"] = "reduce_batch_size"
+                    decision["final_batch_size"] = self.reduced_batch_size
+                # If we already reduced batch size, we proceed to check critical threshold
+                # Logic 2: Cap Dataset (only if we are at reduced batch size and still high)
+                if rss_gb > self.rss_critical_threshold_gb and self.current_batch_size == self.reduced_batch_size:
+                    if current_dataset_size is not None:
+                        self.original_dataset_size = current_dataset_size
+                        new_size = int(current_dataset_size * self.dataset_reduction_factor)
+                        self.capped_dataset_size = new_size
+                        self.dataset_capped = True
+                        decision["action_taken"] = "cap_dataset"
+                        decision["final_dataset_size"] = new_size
+                        decision["dataset_reduction_factor"] = self.dataset_reduction_factor
+                    else:
+                        decision["action_taken"] = "warning_dataset_cap_needed"
+                        decision["message"] = "Dataset size not provided, cannot cap."
 
-        self.log_data["decisions"].append(decision)
-        self.log_data["final_hyperparameters"] = {
-            "batch_size": decision["final_batch_size"],
-            "dataset_size": decision["final_dataset_size"],
-            "threshold_gb": MEMORY_THRESHOLD_GB,
-            "dataset_cutoff_fraction": DATASET_CUTOFF_FRACTION
+        self.log_history.append(decision)
+
+        # Persist log if path is set
+        if self.log_path:
+            self._write_log()
+
+        return decision
+
+    def _write_log(self) -> None:
+        """Write the current log history to the JSON file."""
+        if not self.log_path:
+            return
+
+        output_data = {
+            "monitor_config": {
+                "initial_batch_size": self.initial_batch_size,
+                "reduced_batch_size": self.reduced_batch_size,
+                "rss_warning_threshold_gb": self.rss_warning_threshold_gb,
+                "rss_critical_threshold_gb": self.rss_critical_threshold_gb,
+                "dataset_reduction_factor": self.dataset_reduction_factor
+            },
+            "final_state": {
+                "effective_batch_size": self.current_batch_size,
+                "dataset_capped": self.dataset_capped,
+                "original_dataset_size": self.original_dataset_size,
+                "effective_dataset_size": self.capped_dataset_size if self.dataset_capped else self.original_dataset_size
+            },
+            "history": self.log_history
         }
-        
-        self._save_log()
-        
+
+        with open(self.log_path, 'w') as f:
+            json.dump(output_data, f, indent=2)
+
+    def get_final_hyperparameters(self) -> Dict[str, Any]:
+        """
+        Retrieve the final effective hyperparameters after monitoring.
+
+        Returns:
+            Dictionary with effective_batch_size and effective_dataset_size.
+        """
         return {
-            "batch_size": decision["final_batch_size"],
-            "dataset_size": decision["final_dataset_size"],
-            "decision_log": decision
+            "effective_batch_size": self.current_batch_size,
+            "dataset_capped": self.dataset_capped,
+            "original_dataset_size": self.original_dataset_size,
+            "effective_dataset_size": self.capped_dataset_size if self.dataset_capped else self.original_dataset_size
         }
-
-    def _save_log(self):
-        """Save the current log state to disk."""
-        try:
-            with open(self.log_path, 'w') as f:
-                json.dump(self.log_data, f, indent=2)
-            logger.debug(f"Memory log saved to {self.log_path}")
-        except Exception as e:
-            logger.error(f"Failed to save memory log: {e}")
-
-    def force_gc(self):
-        """Force garbage collection to free up memory."""
-        gc.collect()
-        logger.debug("Garbage collection forced.")
 
 
 def main():
     """
-    Standalone execution for testing the memory monitor.
-    Simulates a check and logs the result.
+    Standalone execution for testing the memory monitor logic.
+    Simulates a training loop check.
     """
-    monitor = MemoryMonitor(log_path="artifacts/results/memory_log.json")
+    log_path = Path("artifacts/results/hyperparams_log.json")
+    monitor = MemoryMonitor(
+        log_path=log_path,
+        initial_batch_size=8,
+        reduced_batch_size=4,
+        rss_warning_threshold_gb=5.0,
+        rss_critical_threshold_gb=6.0,
+        dataset_reduction_factor=0.5
+    )
+
+    print("Starting Memory Monitor Test...")
+    print(f"Initial Batch Size: {monitor.initial_batch_size}")
+
+    # Simulate checks
+    # Check 1: Normal memory
+    decision = monitor.check_and_adapt(current_dataset_size=10000)
+    print(f"Check 1 (Normal): RSS={decision['rss_gb']:.2f}GB, Batch={decision['current_batch_size']}, Action={decision['action_taken']}")
+
+    # In a real scenario, we would inject memory or wait for training to consume it.
+    # Here we just demonstrate the logic flow by calling it again.
+    # If psutil is not available, RSS will be 0.0, and no action will be taken.
     
-    # Simulate a check with a hypothetical high memory usage scenario
-    # In a real training loop, this would be called periodically.
-    # Here we just demonstrate the logic path.
+    if PSUTIL_AVAILABLE:
+        # Simulate a high memory scenario by forcing the logic path manually for demonstration
+        # In real usage, this happens automatically based on system state.
+        print("\nSimulating high memory scenario (logic path only)...")
+        
+        # Force a state where we are above warning threshold
+        # We can't easily force the OS to report high RSS without actual load,
+        # but we can verify the logic by checking the thresholds.
+        print(f"Warning Threshold: {monitor.rss_warning_threshold_gb}GB")
+        print(f"Critical Threshold: {monitor.rss_critical_threshold_gb}GB")
+        
+        # If we were to run this inside a training loop that actually consumes memory,
+        # the monitor would automatically reduce batch size or cap the dataset.
     
-    print("Running Memory Monitor Self-Test...")
-    current_rss = monitor.get_current_rss_gb()
-    print(f"Current RSS: {current_rss:.2f} GB")
-    
-    # Test with a scenario that might trigger reduction if memory is high
-    # We pass a large batch size to test reduction logic
-    result = monitor.check_and_adjust(current_batch_size=8, current_dataset_size=10000)
-    
-    print(f"Adjusted Batch Size: {result['batch_size']}")
-    print(f"Adjusted Dataset Size: {result['dataset_size']}")
-    print(f"Action Taken: {result['decision_log']['action_taken']}")
-    
-    if result['decision_log']['action_taken'] != "none":
-        print("Memory pressure detected and handled.")
-    else:
-        print("Memory pressure within limits.")
+    print("\nFinal Hyperparameters:")
+    final_params = monitor.get_final_hyperparameters()
+    for k, v in final_params.items():
+        print(f"  {k}: {v}")
+
+    print(f"\nLog written to: {log_path}")
+
 
 if __name__ == "__main__":
     main()

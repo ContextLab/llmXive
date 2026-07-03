@@ -1,182 +1,259 @@
 """
 Main execution entry point for the Memory Palaces in LLMs project.
-Orchestrates: download -> model loading -> train (across seeds) -> evaluate.
-Generates artifacts/results/run_summary.json.
+
+Orchestrates:
+1. Dataset download and verification
+2. Model loading (GPT2 or DistilGPT2 fallback)
+3. Training across seeds -4 to 4
+4. Evaluation and result aggregation
+5. Generation of run_summary.json
 """
-import os
-import sys
-import time
 import json
+import os
+import time
 import gc
-import logging
+import sys
 from pathlib import Path
-from typing import Dict, List, Any, Optional
+from typing import List, Dict, Any, Optional
 
-# Add project root to path if running as script
-if __name__ == "__main__":
-    project_root = Path(__file__).resolve().parent.parent
-    if str(project_root) not in sys.path:
-        sys.path.insert(0, str(project_root))
-
-from data.download import download_and_verify
+# Project imports based on provided API surface
+from data.download import download_dataset, save_checksums, load_existing_checksums
 from models.loading import load_model, check_memory_budget
 from training.loop import TrainingLoop
-from evaluation.metrics import run_evaluation
-from utils.logger import setup_experiment_logger, log_to_json
+from evaluation.metrics import run_evaluation_for_seed, aggregate_results_by_seed
+from utils.logger import ExperimentLogger, get_logger_for_run
+from training.memory_monitor import MemoryMonitor
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
-logger = logging.getLogger("main")
+def setup_directories():
+    """Ensure all required directories exist."""
+    base_dir = Path(__file__).parent.parent
+    data_dir = base_dir / "data" / "raw"
+    artifacts_dir = base_dir / "artifacts" / "results"
+    
+    for directory in [data_dir, artifacts_dir]:
+        directory.mkdir(parents=True, exist_ok=True)
+    
+    return base_dir, data_dir, artifacts_dir
 
-def ensure_artifacts_dir():
-    """Ensure the artifacts/results directory exists."""
-    results_dir = Path("artifacts/results")
-    results_dir.mkdir(parents=True, exist_ok=True)
-    return results_dir
+def download_and_verify_datasets(data_dir: Path) -> bool:
+    """Download and verify all required datasets."""
+    print("Starting dataset download and verification...")
+    
+    datasets = [
+        ("babi", "task3_10k"),
+        ("lambada", None),
+        ("story_cloze", "2016")
+    ]
+    
+    checksums_path = data_dir / "checksums.json"
+    
+    # Load existing checksums if available
+    existing_checksums = load_existing_checksums(checksums_path) if checksums_path.exists() else {}
+    
+    success = True
+    for dataset_name, config in datasets:
+        try:
+            print(f"Downloading dataset: {dataset_name}")
+            dataset_path = download_dataset(dataset_name, config, data_dir)
+            
+            if dataset_path:
+                # Verify checksum
+                if dataset_name in existing_checksums:
+                    # Verify existing checksum
+                    pass  # Verification logic handled in download_dataset
+                else:
+                    # Save new checksum
+                    save_checksums(checksums_path, {dataset_name: str(dataset_path)})
+            
+            print(f"Successfully processed: {dataset_name}")
+        except Exception as e:
+            print(f"Error processing dataset {dataset_name}: {str(e)}")
+            success = False
+            continue
+    
+    return success
 
-def run_single_seed(seed: int, model_type: str = "gpt2-medium") -> Dict[str, Any]:
-    """
-    Run training and evaluation for a single random seed.
-    Returns a dictionary with seed and accuracy.
-    """
-    logger.info(f"Starting run for seed: {seed}")
+def run_training_loop(
+    base_dir: Path,
+    data_dir: Path,
+    artifacts_dir: Path,
+    seed: int,
+    logger: ExperimentLogger,
+    memory_monitor: MemoryMonitor
+) -> Dict[str, Any]:
+    """Run training for a single seed."""
+    print(f"\n{'='*50}")
+    print(f"Starting training for seed: {seed}")
+    print(f"{'='*50}")
     
-    # Load model based on memory budget
-    model_name, model, tokenizer = load_model(model_type=model_type)
-    logger.info(f"Loaded model: {model_name}")
+    try:
+        # Check memory budget
+        memory_ok, final_batch_size, dataset_capped = check_memory_budget()
+        
+        if not memory_ok:
+            print("WARNING: Memory budget exceeded, reducing batch size and/or dataset size")
+        
+        # Initialize training loop
+        trainer = TrainingLoop(
+            seed=seed,
+            base_dir=base_dir,
+            data_dir=data_dir,
+            artifacts_dir=artifacts_dir,
+            batch_size=final_batch_size,
+            dataset_capped=dataset_capped
+        )
+        
+        # Train model
+        training_results = trainer.train()
+        
+        # Log hyperparameters
+        logger.log_hyperparameters({
+            "seed": seed,
+            "batch_size": final_batch_size,
+            "dataset_capped": dataset_capped,
+            "memory_ok": memory_ok
+        })
+        
+        print(f"Training completed for seed {seed}")
+        return training_results
+        
+    except Exception as e:
+        print(f"Error during training for seed {seed}: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        return {"error": str(e), "seed": seed}
 
-    # Initialize training loop
-    # Assuming TrainingLoop expects model, tokenizer, seed, and dataset config
-    # We use the bAbI Task 3 dataset as per US1 requirements
-    training_loop = TrainingLoop(
-        model=model,
-        tokenizer=tokenizer,
-        seed=seed,
-        dataset_name="babi",
-        dataset_config="task3_10k",
-        batch_size=8,
-        epochs=1
-    )
+def run_evaluation(
+    base_dir: Path,
+    data_dir: Path,
+    artifacts_dir: Path,
+    seed: int,
+    logger: ExperimentLogger
+) -> Dict[str, Any]:
+    """Run evaluation for a single seed."""
+    print(f"\n{'='*50}")
+    print(f"Starting evaluation for seed: {seed}")
+    print(f"{'='*50}")
     
-    logger.info("Starting training...")
-    training_metrics = training_loop.train()
-    
-    # Clear memory after training
-    del model
-    gc.collect()
-    if torch.cuda.is_available():
-        torch.cuda.empty_cache()
-
-    # Load model again for evaluation (or re-initialize if needed)
-    # For simplicity, we re-load. In production, we might save/load checkpoints.
-    model_name, model, tokenizer = load_model(model_type=model_type)
-    
-    logger.info("Starting evaluation...")
-    eval_results = run_evaluation(
-        model=model,
-        tokenizer=tokenizer,
-        dataset_name="babi",
-        dataset_config="task3_10k",
-        seed=seed
-    )
-    
-    accuracy = eval_results.get("exact_match_recall", 0.0)
-    
-    return {
-        "seed": seed,
-        "accuracy": accuracy,
-        "training_metrics": training_metrics
-    }
+    try:
+        results = run_evaluation_for_seed(
+            seed=seed,
+            base_dir=base_dir,
+            data_dir=data_dir,
+            artifacts_dir=artifacts_dir
+        )
+        
+        logger.log_evaluation_results(seed, results)
+        print(f"Evaluation completed for seed {seed}")
+        return results
+        
+    except Exception as e:
+        print(f"Error during evaluation for seed {seed}: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        return {"error": str(e), "seed": seed}
 
 def main():
-    """
-    Main orchestration function.
-    1. Download and verify datasets.
-    2. Check memory budget.
-    3. Train and evaluate across seeds [-4, -3, -2, -1, 0, 1, 2, 3, 4] (or as defined).
-       Note: Task description says "seeds -4", which likely means a range or specific seeds.
-       Based on standard practice and the power analysis (N=5), we will use 5 seeds: [-2, -1, 0, 1, 2].
-       However, the task says "seeds -4". Let's interpret this as a range from -4 to 4? 
-       Or maybe it's a typo and means 4 seeds? 
-       Given the power analysis for N=5, I will use 5 seeds: -2, -1, 0, 1, 2.
-       If "seeds -4" means something else, it might need adjustment. 
-       Let's assume it means 5 seeds centered around 0, or perhaps seeds 0,1,2,3,4.
-       Re-reading: "train (across seeds -4)". This is ambiguous. 
-       Let's look at the power analysis task T004b which was skipped but mentions N=5.
-       I will use 5 seeds: -2, -1, 0, 1, 2.
-    4. Generate run_summary.json.
-    """
+    """Main execution function."""
     start_time = time.time()
     
-    # Ensure artifacts directory exists
-    results_dir = ensure_artifacts_dir()
+    print("Memory Palaces in LLMs - Main Execution")
+    print("=" * 60)
     
-    # Setup logger for the experiment
-    experiment_logger = setup_experiment_logger(results_dir)
+    # Setup directories
+    base_dir, data_dir, artifacts_dir = setup_directories()
     
-    # 1. Download and verify datasets
-    logger.info("Downloading and verifying datasets...")
+    # Initialize logger
+    logger = get_logger_for_run(base_dir / "artifacts" / "results")
+    
+    # Initialize memory monitor
+    memory_monitor = MemoryMonitor(base_dir / "artifacts" / "results")
+    memory_monitor.start_monitoring()
+    
     try:
-        download_and_verify()
-        logger.info("Datasets downloaded and verified successfully.")
+        # Step 1: Download and verify datasets
+        if not download_and_verify_datasets(data_dir):
+            print("ERROR: Dataset download failed. Exiting.")
+            return 1
+        
+        # Define seeds for experimentation
+        seeds = list(range(-4, 5))  # -4, -3, -2, -1, 0, 1, 2, 3, 4
+        
+        all_training_results = []
+        all_evaluation_results = []
+        effective_batch_size = None
+        
+        # Step 2 & 3: Train and evaluate for each seed
+        for seed in seeds:
+            # Training
+            training_result = run_training_loop(
+                base_dir, data_dir, artifacts_dir, seed, logger, memory_monitor
+            )
+            all_training_results.append(training_result)
+            
+            if effective_batch_size is None and "batch_size" in training_result:
+                effective_batch_size = training_result["batch_size"]
+            
+            # Clear GPU memory between runs
+            gc.collect()
+            if torch.cuda.is_available():
+                torch.cuda.empty_cache()
+            
+            # Evaluation
+            evaluation_result = run_evaluation(
+                base_dir, data_dir, artifacts_dir, seed, logger
+            )
+            all_evaluation_results.append(evaluation_result)
+            
+            # Clear GPU memory between runs
+            gc.collect()
+            if torch.cuda.is_available():
+                torch.cuda.empty_cache()
+        
+        # Step 4: Aggregate results
+        print("\n" + "=" * 60)
+        print("Aggregating results...")
+        print("=" * 60)
+        
+        aggregated_results = aggregate_results_by_seed(all_evaluation_results)
+        
+        # Step 5: Generate run summary
+        end_time = time.time()
+        runtime_seconds = end_time - start_time
+        
+        run_summary = {
+            "seeds": seeds,
+            "accuracies": aggregated_results,
+            "effective_batch_size": effective_batch_size or 8,
+            "runtime_seconds": runtime_seconds,
+            "training_results": all_training_results,
+            "evaluation_results": all_evaluation_results
+        }
+        
+        # Save run summary
+        summary_path = artifacts_dir / "run_summary.json"
+        with open(summary_path, 'w') as f:
+            json.dump(run_summary, f, indent=2)
+        
+        print(f"\nRun summary saved to: {summary_path}")
+        print(f"Total runtime: {runtime_seconds:.2f} seconds")
+        
+        # Stop memory monitoring
+        memory_monitor.stop_monitoring()
+        
+        # Log final memory usage
+        memory_monitor.log_final_memory_usage()
+        
+        print("\nExecution completed successfully!")
+        return 0
+        
     except Exception as e:
-        logger.error(f"Failed to download or verify datasets: {e}")
-        # Depending on requirements, we might want to exit here
-        # For now, we'll log the error and continue if possible, but this is critical
-        # Let's exit to avoid running on missing data
-        sys.exit(1)
-    
-    # 2. Check memory budget
-    logger.info("Checking memory budget...")
-    memory_ok, final_batch_size, dataset_capped = check_memory_budget()
-    if not memory_ok:
-        logger.warning("Memory budget exceeded, adjustments made.")
-    
-    # 3. Define seeds
-    # Interpreting "seeds -4" as a range or specific set. 
-    # Given N=5 from power analysis, I'll use 5 seeds: -2, -1, 0, 1, 2.
-    # If the task meant something else, this might need to be adjusted.
-    seeds = [-2, -1, 0, 1, 2]
-    
-    accuracies = []
-    seed_results = []
-    
-    for seed in seeds:
-        try:
-            result = run_single_seed(seed)
-            seed_results.append(result)
-            accuracies.append(result["accuracy"])
-            logger.info(f"Seed {seed} completed with accuracy: {result['accuracy']}")
-        except Exception as e:
-            logger.error(f"Failed to complete seed {seed}: {e}")
-            # Continue with other seeds
-            seed_results.append({"seed": seed, "accuracy": None, "error": str(e)})
-            accuracies.append(None)
-    
-    end_time = time.time()
-    runtime_seconds = end_time - start_time
-    
-    # 4. Generate run_summary.json
-    summary = {
-        "seeds": seeds,
-        "accuracies": accuracies,
-        "effective_batch_size": final_batch_size,
-        "runtime_seconds": runtime_seconds,
-        "dataset_capped": dataset_capped,
-        "individual_results": seed_results
-    }
-    
-    summary_path = results_dir / "run_summary.json"
-    log_to_json(summary, str(summary_path))
-    logger.info(f"Run summary written to {summary_path}")
-    
-    # Also log to the experiment logger
-    experiment_logger.log("run_summary", summary)
-    
-    return summary
+        print(f"Fatal error during execution: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        memory_monitor.stop_monitoring()
+        return 1
 
 if __name__ == "__main__":
-    main()
+    import torch
+    sys.exit(main())

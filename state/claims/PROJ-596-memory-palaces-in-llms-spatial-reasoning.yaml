@@ -1,881 +1,262 @@
-- artifact_path: projects/PROJ-596-memory-palaces-in-llms-spatial-reasoning/docs/quickstart.md
+- artifact_path: projects/PROJ-596-memory-palaces-in-llms-spatial-reasoning/docs/power_analysis_report.md
   attempts: 1
-  canonical: Training pipeline runs across 5 random seeds with default range -4 to
-    0
-  claim_id: c_49c27a31
-  context: 'The pipeline performs: ... 3. **Training**: Runs training loops across
-    5 random seeds (default range: -4 to 0).'
+  canonical: N=5 random seeds provides >= 0.80 power to detect Cohen's d >= 0.85 at
+    alpha=0.05
+  claim_id: c_424cc7ab
+  context: Conclusion of the Executive Summary section.
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
-  raw_text: 'The pipeline runs training loops across 5 random seeds (default range:
-    -4 to 0).'
+  raw_text: "A sample size of N=5 random seeds provides sufficient statistical power\
+    \ (\u2265 0.80) to detect a medium-to-large effect size (Cohen's d \u2265 0.85)\
+    \ with a significance level of \u03B1 = 0.05, assuming the expected variance in\
+    \ recall accuracy across seeds is consistent with preliminary observations in\
+    \ similar transformer fine-tuning experiments."
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-03T11:36:23Z'
-- artifact_path: projects/PROJ-596-memory-palaces-in-llms-spatial-reasoning/docs/quickstart.md
+  updated_at: '2026-07-03T12:27:32Z'
+- artifact_path: projects/PROJ-596-memory-palaces-in-llms-spatial-reasoning/docs/power_analysis_report.md
   attempts: 1
-  canonical: Runtime is approximately 4 to 5 hours on standard CPU/GPU hybrid environment
-  claim_id: c_f423a60a
-  context: "The pipeline performs: ... **Runtime**: Approximately 4\u20135 hours on\
-    \ a standard CPU/GPU hybrid environment."
+  canonical: Studies with memory modules or spatial reasoning show 10-15% absolute
+    accuracy jumps on bAbI tasks
+  claim_id: c_38f9f8a9
+  context: Section 2.2 Effect Size, Justification paragraph.
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
-  raw_text: "Runtime is approximately 4\u20135 hours on a standard CPU/GPU hybrid\
-    \ environment."
+  raw_text: In similar studies involving explicit memory modules or spatial reasoning
+    enhancements, performance jumps of 10-15% absolute accuracy are often observed
+    on structured reasoning tasks like bAbI.
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-03T11:36:40Z'
-- artifact_path: projects/PROJ-596-memory-palaces-in-llms-spatial-reasoning/docs/quickstart.md
+  updated_at: '2026-07-03T12:28:39Z'
+- artifact_path: projects/PROJ-596-memory-palaces-in-llms-spatial-reasoning/docs/power_analysis_report.md
   attempts: 1
-  canonical: Run summary JSON accuracies are 0.82, 0.85, 0.84, 0.83, 0.86
-  claim_id: c_d31d0000
-  context: 'Expected JSON structure: ... "accuracies": [0.82, 0.85, 0.84, 0.83, 0.86]
-    ...'
+  canonical: Baseline accuracy on bAbI Task 3 is typically >90% for standard fine-tuning
+  claim_id: c_5866775f
+  context: Section 2.2 Effect Size, Justification paragraph.
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
-  raw_text: The run summary JSON contains accuracies of 0.82, 0.85, 0.84, 0.83, and
-    0.86.
+  raw_text: The baseline accuracy on bAbI Task 3 is typically high (often >90% for
+    standard fine-tuning).
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-03T11:36:54Z'
-- artifact_path: projects/PROJ-596-memory-palaces-in-llms-spatial-reasoning/docs/quickstart.md
+  updated_at: '2026-07-03T12:28:57Z'
+- artifact_path: projects/PROJ-596-memory-palaces-in-llms-spatial-reasoning/docs/power_analysis_report.md
   attempts: 1
-  canonical: Example run summary JSON shows runtime of 14200 seconds
-  claim_id: c_80c0be84
-  context: 'Expected JSON structure: ... "runtime_seconds": 14200 }'
+  canonical: Preliminary runs on similar transformer architectures show 3-5% standard
+    deviation in test accuracy
+  claim_id: c_0d68c2df
+  context: Section 2.3 Variance Assumptions.
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
-  raw_text: The example run summary JSON shows a runtime of 14200 seconds.
+  raw_text: "Preliminary runs on similar transformer architectures suggest a standard\
+    \ deviation (\u03C3) in test accuracy of approximately 3-5% (0.03\u20130.05 absolute\
+    \ accuracy)."
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-03T11:37:10Z'
-- artifact_path: projects/PROJ-596-memory-palaces-in-llms-spatial-reasoning/specs/001-memory-palaces-in-llms-spatial-reasoning/tasks.md
+  updated_at: '2026-07-03T12:29:15Z'
+- artifact_path: projects/PROJ-596-memory-palaces-in-llms-spatial-reasoning/docs/power_analysis_report.md
   attempts: 1
-  canonical: power analysis justification for N=5 random seeds
-  claim_id: c_578ea1e3
-  context: 'Phase 0: Research (Preparatory) - T004b Perform a priori power analysis
-    for the planned random seeds. Output: docs/power_analysis_report.md documenting
-    required effect size, assumed variance, and justification for N=5.'
+  canonical: For effect size d=0.5 and correlation rho=0.5, required N is 12-15 seeds
+  claim_id: c_5c9778e0
+  context: Section 3 Power Calculation, Scenario A.
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
-  raw_text: Perform a priori power analysis for the planned random seeds with justification
-    for N=5.
+  raw_text: "If the true effect is smaller than anticipated (d=0.5), and assuming\
+    \ the correlation between paired runs reduces variance (\u03C1 \u2248 0.5), the\
+    \ required N increases significantly to approximately 12-15 seeds."
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-03T11:46:48Z'
-- artifact_path: projects/PROJ-596-memory-palaces-in-llms-spatial-reasoning/specs/001-memory-palaces-in-llms-spatial-reasoning/tasks.md
+  updated_at: '2026-07-03T12:29:52Z'
+- artifact_path: projects/PROJ-596-memory-palaces-in-llms-spatial-reasoning/docs/power_analysis_report.md
   attempts: 1
-  canonical: bAbI Task 3 dataset load via task3_10k
-  claim_id: c_a16388a6
-  context: 'Phase 2: Foundational - T004 [P] Implement dataset download and verification
-    script (code/data/download.py) for the three permitted datasets: bAbI Task 3 via
-    datasets.load_dataset(''babi'', ''task3_10k'').'
+  canonical: For effect size d=0.85, required N is 5 seeds
+  claim_id: c_1227f8d9
+  context: Section 3 Power Calculation, Scenario B and Sensitivity Analysis table.
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
-  raw_text: Implement dataset download and verification script for bAbI Task 3 via
-    datasets.load_dataset('babi', 'task3_10k').
+  raw_text: For a true effect size of d=0.85, the required N is approximately 5 seeds.
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-03T11:47:08Z'
-- artifact_path: projects/PROJ-596-memory-palaces-in-llms-spatial-reasoning/specs/001-memory-palaces-in-llms-spatial-reasoning/tasks.md
+  updated_at: '2026-07-03T12:30:30Z'
+- artifact_path: projects/PROJ-596-memory-palaces-in-llms-spatial-reasoning/docs/power_analysis_report.md
   attempts: 1
-  canonical: LAMBADA dataset load
-  claim_id: c_fa8cc7da
-  context: 'Phase 2: Foundational - T004 [P] Implement dataset download and verification
-    script (code/data/download.py) for the three permitted datasets: LAMBADA via datasets.load_dataset(''lambada'').'
-  evidence:
-    entailment_status: not_found
-    reason: source found but does not address entity claim
-    source_url: https://en.wikipedia.org/wiki/LAMBADA_dataset_load
-  kind: entity_fact
-  raw_text: Implement dataset download and verification script for LAMBADA via datasets.load_dataset('lambada').
-  resolved_value: null
-  resolver: resolve_entity_fact
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-03T11:47:32Z'
-- artifact_path: projects/PROJ-596-memory-palaces-in-llms-spatial-reasoning/specs/001-memory-palaces-in-llms-spatial-reasoning/tasks.md
-  attempts: 1
-  canonical: Story Cloze Test dataset load
-  claim_id: c_71d56bab
-  context: 'Phase 2: Foundational - T004 [P] Implement dataset download and verification
-    script (code/data/download.py) for the three permitted datasets: Story Cloze Test
-    via datasets.load_dataset(''story_cloze'').'
-  evidence:
-    entailment_status: not_found
-    reason: source found but does not address entity claim
-    source_url: https://en.wikipedia.org/wiki/Story_Cloze_Test_dataset_load
-  kind: entity_fact
-  raw_text: Implement dataset download and verification script for Story Cloze Test
-    via datasets.load_dataset('story_cloze').
-  resolved_value: null
-  resolver: resolve_entity_fact
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-03T11:47:52Z'
-- artifact_path: projects/PROJ-596-memory-palaces-in-llms-spatial-reasoning/specs/001-memory-palaces-in-llms-spatial-reasoning/tasks.md
-  attempts: 1
-  canonical: SHA-256 checksum storage for dataset downloads
-  claim_id: c_1c84aadc
-  context: "Phase 2: Foundational - T004 [P] ... Each download must compute and store\
-    \ a SHA\u2011256 checksum in data/raw/checksums.json."
+  canonical: For effect size d=0.70, required N is 7 seeds
+  claim_id: c_be213413
+  context: Section 3 Power Calculation, Sensitivity Analysis table.
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
-  raw_text: Each dataset download must compute and store a SHA-256 checksum in data/raw/checksums.json.
+  raw_text: For a true effect size of d=0.70, the required N is approximately 7 seeds.
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-03T11:48:07Z'
-- artifact_path: projects/PROJ-596-memory-palaces-in-llms-spatial-reasoning/specs/001-memory-palaces-in-llms-spatial-reasoning/tasks.md
+  updated_at: '2026-07-03T12:30:51Z'
+- artifact_path: projects/PROJ-596-memory-palaces-in-llms-spatial-reasoning/docs/power_analysis_report.md
   attempts: 1
-  canonical: batch-size reduction to 4 on RSS trigger
-  claim_id: c_ec25733b
-  context: "Phase 2: Foundational - T005 [P] Implement memory monitoring utility (code/training/memory_monitor.py)\
-    \ to track RSS and trigger batch\u2011size reduction to 4 and, if RSS still >\
-    \ 6 GB, cap the training dataset to [deferred] of its original size."
+  canonical: For effect size d=0.50, required N is 14 seeds
+  claim_id: c_b17fee76
+  context: Section 3 Power Calculation, Sensitivity Analysis table.
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
-  raw_text: Implement memory monitoring utility to track RSS and trigger batch-size
-    reduction to 4.
+  raw_text: For a true effect size of d=0.50, the required N is approximately 14 seeds.
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-03T11:48:37Z'
-- artifact_path: projects/PROJ-596-memory-palaces-in-llms-spatial-reasoning/specs/001-memory-palaces-in-llms-spatial-reasoning/tasks.md
+  updated_at: '2026-07-03T12:31:29Z'
+- artifact_path: projects/PROJ-596-memory-palaces-in-llms-spatial-reasoning/docs/power_analysis_report.md
   attempts: 1
-  canonical: dataset capping if RSS exceeds 6 GB
-  claim_id: c_f0a792d7
-  context: 'Phase 2: Foundational - T005 [P] ... and, if RSS still > 6 GB, cap the
-    training dataset to [deferred] of its original size.'
-  evidence:
-    candidates_found: 1
-    reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/Dataset_capping_if_RSS_exceeds_6_GB
-  kind: magnitude
-  raw_text: If RSS is greater than 6 GB, cap the training dataset.
-  resolved_value: null
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-03T11:49:07Z'
-- artifact_path: projects/PROJ-596-memory-palaces-in-llms-spatial-reasoning/specs/001-memory-palaces-in-llms-spatial-reasoning/tasks.md
-  attempts: 1
-  canonical: gpt2-medium loading with 4-bit quantization
-  claim_id: c_2ea30d18
-  context: "Phase 2: Foundational - T006 Implement model loading utilities (code/models/loading.py)\
-    \ that provide functions to load: gpt2-medium (with 4\u2011bit quantization) when\
-    \ RAM permits."
+  canonical: For effect size d=1.00, required N is 3 seeds
+  claim_id: c_c4649aca
+  context: Section 3 Power Calculation, Sensitivity Analysis table.
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
-  raw_text: Load gpt2-medium with 4-bit quantization when RAM permits.
+  raw_text: For a true effect size of d=1.00, the required N is approximately 3 seeds.
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-03T11:49:18Z'
-- artifact_path: projects/PROJ-596-memory-palaces-in-llms-spatial-reasoning/specs/001-memory-palaces-in-llms-spatial-reasoning/tasks.md
+  updated_at: '2026-07-03T12:31:50Z'
+- artifact_path: projects/PROJ-596-memory-palaces-in-llms-spatial-reasoning/docs/power_analysis_report.md
   attempts: 1
-  canonical: DistilGPT2 fallback on memory budget exceeded
-  claim_id: c_27435bed
-  context: 'Phase 2: Foundational - T006 ... DistilGPT2 as a fallback when the memory
-    budget is exceeded.'
-  evidence:
-    entailment_status: not_found
-    reason: source found but does not address entity claim
-    source_url: https://en.wikipedia.org/wiki/DistilGPT2_fallback_on_memory_budget_exceeded
-  kind: entity_fact
-  raw_text: Use DistilGPT2 as a fallback when the memory budget is exceeded.
-  resolved_value: null
-  resolver: resolve_entity_fact
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-03T11:49:33Z'
-- artifact_path: projects/PROJ-596-memory-palaces-in-llms-spatial-reasoning/specs/001-memory-palaces-in-llms-spatial-reasoning/tasks.md
-  attempts: 1
-  canonical: exact-match recall measurement across 5 random seeds on bAbI Task 3
-  claim_id: c_cdc79f45
-  context: "Phase 3: User Story 1 - Goal: ... and measure exact\u2011match recall\
-    \ across multiple seeds. Independent Test: Can be fully tested by fine\u2011tuning\
-    \ both models on bAbI task and measuring exact\u2011match recall accuracy across\
-    \ 5 random seeds."
+  canonical: Training 5 seeds of GPT-2 Medium on three datasets takes 5 hours
+  claim_id: c_f4f41680
+  context: '1. Computational Budget: Training 5 seeds of GPT-2 Medium on three datasets
+    (bAbI, LAMBADA, Story Cloze) is already at the limit of the 5-hour runtime constraint
+    per run.'
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
-  raw_text: Train on bAbI Task 3 and measure exact-match recall across 5 random seeds.
+  raw_text: Training 5 seeds of GPT-2 Medium on three datasets (bAbI, LAMBADA, Story
+    Cloze) is already at the limit of the 5-hour runtime constraint per run.
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-03T11:49:51Z'
-- artifact_path: projects/PROJ-596-memory-palaces-in-llms-spatial-reasoning/specs/001-memory-palaces-in-llms-spatial-reasoning/tasks.md
+  updated_at: '2026-07-03T12:33:49Z'
+- artifact_path: projects/PROJ-596-memory-palaces-in-llms-spatial-reasoning/docs/power_analysis_report.md
   attempts: 1
-  canonical: adaptive batch size 8 to 4
-  claim_id: c_09a45b54
-  context: "Phase 3: User Story 1 - T014 [US1] Implement training loop (code/training/loop.py)\
-    \ with adaptive batch size (8 \u2192 4) and, if RSS > 6 GB at batch size 4, cap\
-    \ the dataset to [deferred] of its size."
+  canonical: Standard deviation of GPT-2 on bAbI Task 3 is 0.05
+  claim_id: c_e6d931ad
+  context: "Assuming a standard deviation of \u03C3 \u2248 0.05 (5% accuracy fluctuation)\
+    \ for GPT-2 on bAbI Task 3: To detect a mean difference of 10% (d=2.0), power\
+    \ is high."
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
-  raw_text: Implement training loop with adaptive batch size changing from 8 to 4.
+  raw_text: "Assuming a standard deviation of \u03C3 \u2248 0.05 (5% accuracy fluctuation)\
+    \ for GPT-2 on bAbI Task 3"
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-03T11:50:13Z'
-- artifact_path: projects/PROJ-596-memory-palaces-in-llms-spatial-reasoning/specs/001-memory-palaces-in-llms-spatial-reasoning/tasks.md
+  updated_at: '2026-07-03T12:34:09Z'
+- artifact_path: projects/PROJ-596-memory-palaces-in-llms-spatial-reasoning/docs/power_analysis_report.md
   attempts: 1
-  canonical: training execution across seeds -4
-  claim_id: c_c936bc0b
-  context: "Phase 3: User Story 1 - T016 [US1] Implement main execution entry point\
-    \ (code/main.py) to orchestrate download \u2192 model loading \u2192 train (across\
-    \ seeds \u20114) \u2192 evaluate."
+  canonical: Power for medium effect size with N=5 is 17.8%
+  claim_id: c_9f106e74
+  context: '| Medium Effect | 0.5 | 17.8% | Underpowered |'
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
-  raw_text: Run training across seeds -4.
+  raw_text: For a medium effect size (d=0.5), N=5 provides power of 17.8%
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-03T11:50:29Z'
-- artifact_path: projects/PROJ-596-memory-palaces-in-llms-spatial-reasoning/specs/001-memory-palaces-in-llms-spatial-reasoning/tasks.md
+  updated_at: '2026-07-03T12:34:37Z'
+- artifact_path: projects/PROJ-596-memory-palaces-in-llms-spatial-reasoning/docs/power_analysis_report.md
   attempts: 1
-  canonical: total runtime verification within 5 hours
-  claim_id: c_2d2d6e60
-  context: "Phase 3: User Story 1 - T017c [US1] Verify total runtime \u2264 5 hours;\
-    \ write artifacts/results/runtime_report.json with runtime_seconds and a boolean\
-    \ within_limit."
-  evidence:
-    fill:
-      channel: wikipedia
-      conflicts: []
-      quote: The film's storyline draws loose inspiration from multiple real-life
-        geopolitical events and conflicts in South Asia, including the 1999 IC-814
-        hijacking, the 2001 Indian Parliament attack, the 2008 Mumbai attacks, and
-        developments linked to Pakistan's Operation Lyari. Principal photography for
-        Dhurandhar took place from July 2024 to October 2025 across multiple locations
-        in India and abroad, including the states and union territories of Punjab,
-        Maharashtra, Chandigarh, Ladakh and Himachal Pradesh, as well as Thailand.
-        The film features music composed by Shashwat Sachdev, cinematography by Vikash
-        Nowlakha, and editing by Shivkumar V. Panicker. With a runtime of 214 minutes,
-        Dhurandhar ranks as one of the longest Indian films ever produced.
-      source_id: Dhurandhar
-      url: https://en.wikipedia.org/wiki/Dhurandhar
-      value: 214 minutes
-    filled: true
-  kind: magnitude
-  raw_text: Verify total runtime is less than or equal to 5 hours.
-  resolved_value: 214 minutes
-  resolver: fill:wikipedia
-  source_hash: null
-  source_type: external
-  status: verified
-  updated_at: '2026-07-03T11:50:42Z'
-- artifact_path: projects/PROJ-596-memory-palaces-in-llms-spatial-reasoning/specs/001-memory-palaces-in-llms-spatial-reasoning/tasks.md
-  attempts: 1
-  canonical: statistical testing with t-tests, Shapiro-Wilk, and Wilcoxon fallback
-  claim_id: c_f1aa900c
-  context: "Phase 4: User Story 2 - T019 [P] [US2] Implement statistical analysis\
-    \ module (code/evaluation/stats.py) with paired two\u2011tailed t\u2011tests,\
-    \ Shapiro\u2011Wilk normality check, and fallback to Wilcoxon signed\u2011rank\
-    \ test."
-  evidence:
-    entailment_status: not_found
-    reason: source found but does not address entity claim
-    source_url: https://en.wikipedia.org/wiki/Statistical_testing_with_t-tests,_Shapiro-Wilk,_and_Wilcoxon
-  kind: entity_fact
-  raw_text: Perform paired two-tailed t-tests, Shapiro-Wilk normality check, and fallback
-    to Wilcoxon signed-rank test.
-  resolved_value: null
-  resolver: resolve_entity_fact
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-03T11:51:14Z'
-- artifact_path: projects/PROJ-596-memory-palaces-in-llms-spatial-reasoning/specs/001-memory-palaces-in-llms-spatial-reasoning/tasks.md
-  attempts: 1
-  canonical: multiple-comparison correction for three dataset comparisons
-  claim_id: c_aaa81ae0
-  context: "Phase 4: User Story 2 - T020 [US2] Implement multiple\u2011comparison\
-    \ correction (Bonferroni or Holm\u2011Bonferroni) for the three dataset comparisons\
-    \ (bAbI, LAMBADA, Story Cloze) (FR\u2011006)."
-  evidence:
-    entailment_status: not_found
-    reason: source found but does not address entity claim
-    source_url: https://en.wikipedia.org/wiki/Multiple-comparison_correction_for_three_dataset_comparisons
-  kind: entity_fact
-  raw_text: Implement multiple-comparison correction (Bonferroni or Holm-Bonferroni)
-    for the three dataset comparisons (bAbI, LAMBADA, Story Cloze).
-  resolved_value: null
-  resolver: resolve_entity_fact
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-03T11:51:31Z'
-- artifact_path: projects/PROJ-596-memory-palaces-in-llms-spatial-reasoning/specs/001-memory-palaces-in-llms-spatial-reasoning/tasks.md
-  attempts: 1
-  canonical: Cohen's d effect size with 95% confidence intervals
-  claim_id: c_ffbf60a0
-  context: "Phase 4: User Story 2 - T021 [US2] Implement effect\u2011size calculation\
-    \ (Cohen's d) with 95 % confidence intervals (FR\u2011007)."
+  canonical: Power for large effect size with N=5 is 37.2%
+  claim_id: c_159257df
+  context: '| Large Effect | 0.8 | 37.2% | Underpowered |'
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
-  raw_text: Implement effect-size calculation (Cohen's d) with 95% confidence intervals.
+  raw_text: For a large effect size (d=0.8), N=5 provides power of 37.2%
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-03T11:51:31Z'
-- artifact_path: projects/PROJ-596-memory-palaces-in-llms-spatial-reasoning/specs/001-memory-palaces-in-llms-spatial-reasoning/tasks.md
+  updated_at: '2026-07-03T12:35:08Z'
+- artifact_path: projects/PROJ-596-memory-palaces-in-llms-spatial-reasoning/docs/power_analysis_report.md
   attempts: 1
-  canonical: interference distance metric computed separately for spatial and baseline
-    variants
-  claim_id: c_564f384c
-  context: "Phase 5: User Story 3 - T024 [P] [US3] Implement interference distance\
-    \ metric in code/evaluation/metrics.py. The metric must be computed separately\
-    \ for the spatial variant and the non\u2011spatial baseline, and the results stored\
-    \ in artifacts/results/interference_distance.json with fields spatial, baseline,\
-    \ and delta."
-  evidence:
-    entailment_status: not_found
-    reason: source found but does not address entity claim
-    source_url: https://en.wikipedia.org/wiki/Interference_distance_metric_computed_separately_for_spatial
-  kind: entity_fact
-  raw_text: Compute interference distance metric separately for the spatial variant
-    and the non-spatial baseline.
-  resolved_value: null
-  resolver: resolve_entity_fact
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-03T11:51:58Z'
-- artifact_path: projects/PROJ-596-memory-palaces-in-llms-spatial-reasoning/specs/001-memory-palaces-in-llms-spatial-reasoning/tasks.md
-  attempts: 1
-  canonical: slot occupancy distribution logged per epoch
-  claim_id: c_557cf233
-  context: 'Phase 5: User Story 3 - T025 [P] [US3] Implement slot occupancy distribution
-    logger in code/evaluation/metrics.py that records the distribution per epoch for
-    each run; output to artifacts/results/slot_occupancy_epoch_{epoch}.csv.'
-  evidence:
-    entailment_status: not_found
-    reason: source found but does not address entity claim
-    source_url: https://en.wikipedia.org/wiki/Slot_occupancy_distribution_logged_per_epoch
-  kind: entity_fact
-  raw_text: Record slot occupancy distribution per epoch for each run.
-  resolved_value: null
-  resolver: resolve_entity_fact
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-03T11:52:26Z'
-- artifact_path: projects/PROJ-596-memory-palaces-in-llms-spatial-reasoning/specs/001-memory-palaces-in-llms-spatial-reasoning/tasks.md
-  attempts: 1
-  canonical: coordinate variance logged per epoch
-  claim_id: c_96124caf
-  context: 'Phase 5: User Story 3 - T026 [P] [US3] Implement coordinate variance logger
-    in code/evaluation/metrics.py that records variance per epoch; output to artifacts/results/coordinate_variance_epoch_{epoch}.csv.'
-  evidence:
-    entailment_status: not_found
-    reason: source found but does not address entity claim
-    source_url: https://en.wikipedia.org/wiki/Coordinate_variance_logged_per_epoch
-  kind: entity_fact
-  raw_text: Record coordinate variance per epoch.
-  resolved_value: null
-  resolver: resolve_entity_fact
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-03T11:53:06Z'
-- artifact_path: projects/PROJ-596-memory-palaces-in-llms-spatial-reasoning/specs/001-memory-palaces-in-llms-spatial-reasoning/tasks.md
-  attempts: 1
-  canonical: memory monitoring reduces batch size to 4
-  claim_id: c_1cdfe444
-  context: Implement memory monitoring utility to track RSS and trigger batch-size
-    reduction to 4 and, if RSS still > 6 GB, cap the training dataset...
+  canonical: Power for very large effect size with N=5 is 62.4%
+  claim_id: c_c3535266
+  context: '| Very Large Effect (Expected for Spatial) | 1.2 | 62.4% | Moderate |'
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
-  raw_text: batch-size reduction to 4
+  raw_text: For a very large effect size (d=1.2), N=5 provides power of 62.4%
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-03T11:59:52Z'
-- artifact_path: projects/PROJ-596-memory-palaces-in-llms-spatial-reasoning/specs/001-memory-palaces-in-llms-spatial-reasoning/tasks.md
+  updated_at: '2026-07-03T12:35:49Z'
+- artifact_path: projects/PROJ-596-memory-palaces-in-llms-spatial-reasoning/docs/power_analysis_report.md
   attempts: 1
-  canonical: memory threshold is 6 GB
-  claim_id: c_c067d2b3
-  context: trigger batch-size reduction to 4 and, if RSS still > 6 GB, cap the training
-    dataset...
+  canonical: 34 seeds required for 80% power at medium effect size
+  claim_id: c_83201a63
+  context: "To achieve 80% power detecting a medium effect size (d=0.5) at \u03B1\
+    =0.05: Required N: 34 seeds"
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
-  raw_text: RSS > 6 GB
+  raw_text: "To achieve 80% power detecting a medium effect size (d=0.5) at \u03B1\
+    =0.05, a required N of 34 seeds is needed"
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-03T11:59:52Z'
-- artifact_path: projects/PROJ-596-memory-palaces-in-llms-spatial-reasoning/specs/001-memory-palaces-in-llms-spatial-reasoning/tasks.md
+  updated_at: '2026-07-03T12:36:12Z'
+- artifact_path: projects/PROJ-596-memory-palaces-in-llms-spatial-reasoning/docs/power_analysis_report.md
   attempts: 1
-  canonical: gpt2-medium model uses 4-bit quantization
-  claim_id: c_42d0a3e8
-  context: 'Implement model loading utilities that provide functions to load: gpt2-medium
-    (with 4-bit quantization) when RAM permits...'
+  canonical: Power for small effect size with N=5 is 7.1%
+  claim_id: c_664705fc
+  context: '| Small Effect | 0.2 | 7.1% | Underpowered |'
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
-  raw_text: gpt2-medium (with 4-bit quantization)
+  raw_text: For a small effect size (d=0.2), N=5 provides power of 7.1%
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-03T12:00:05Z'
-- artifact_path: projects/PROJ-596-memory-palaces-in-llms-spatial-reasoning/specs/001-memory-palaces-in-llms-spatial-reasoning/tasks.md
-  attempts: 1
-  canonical: training loop uses adaptive batch size from 8 to 4
-  claim_id: c_2f5fba80
-  context: Implement training loop with adaptive batch size (8 -> 4) and, if RSS >
-    6 GB at batch size 4, cap the dataset...
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: adaptive batch size (8 -> 4)
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-03T12:00:34Z'
-- artifact_path: projects/PROJ-596-memory-palaces-in-llms-spatial-reasoning/specs/001-memory-palaces-in-llms-spatial-reasoning/tasks.md
-  attempts: 1
-  canonical: training runs across 4 random seeds
-  claim_id: c_8620ae0d
-  context: Implement main execution entry point to orchestrate download -> model loading
-    -> train (across seeds -4) -> evaluate.
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: train (across seeds -4)
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-03T12:00:49Z'
-- artifact_path: projects/PROJ-596-memory-palaces-in-llms-spatial-reasoning/specs/001-memory-palaces-in-llms-spatial-reasoning/tasks.md
-  attempts: 1
-  canonical: total runtime limit is 5 hours
-  claim_id: c_667117e1
-  context: Verify total runtime <= 5 hours; write artifacts/results/runtime_report.json
-    with runtime_seconds and a boolean within_limit.
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: runtime <= 5 hours
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-03T12:01:07Z'
-- artifact_path: projects/PROJ-596-memory-palaces-in-llms-spatial-reasoning/specs/001-memory-palaces-in-llms-spatial-reasoning/tasks.md
-  attempts: 1
-  canonical: statistical analysis covers 3 datasets
-  claim_id: c_4e7db6db
-  context: Implement multiple-comparison correction for the three dataset comparisons
-    (bAbI, LAMBADA, Story Cloze)...
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: three dataset comparisons (bAbI, LAMBADA, Story Cloze)
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-03T12:01:07Z'
-- artifact_path: projects/PROJ-596-memory-palaces-in-llms-spatial-reasoning/specs/001-memory-palaces-in-llms-spatial-reasoning/tasks.md
-  attempts: 1
-  canonical: effect size calculation uses 95 percent confidence intervals
-  claim_id: c_919ef3db
-  context: Implement effect-size calculation (Cohen's d) with 95% confidence intervals...
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: 95% confidence intervals
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-03T12:01:07Z'
-- artifact_path: projects/PROJ-596-memory-palaces-in-llms-spatial-reasoning/specs/001-memory-palaces-in-llms-spatial-reasoning/tasks.md
-  attempts: 1
-  canonical: dataset download supports 3 permitted datasets
-  claim_id: c_3707b08a
-  context: 'Implement dataset download and verification script for the three permitted
-    datasets: bAbI Task 3, LAMBADA, Story Cloze Test.'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: three permitted datasets
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-03T12:01:07Z'
-- artifact_path: projects/PROJ-596-memory-palaces-in-llms-spatial-reasoning/specs/001-memory-palaces-in-llms-spatial-reasoning/tasks.md
-  attempts: 1
-  canonical: train on babi task 3 lambada and story cloze test datasets
-  claim_id: c_58c17677
-  context: 'Implement dataset download and verification script for the three permitted
-    datasets: bAbI Task 3, LAMBADA, Story Cloze Test.'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: The project plans to train on bAbI Task 3, LAMBADA, and Story Cloze Test
-    datasets.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-03T12:07:21Z'
-- artifact_path: projects/PROJ-596-memory-palaces-in-llms-spatial-reasoning/specs/001-memory-palaces-in-llms-spatial-reasoning/tasks.md
-  attempts: 1
-  canonical: use gpt2-medium with 4-bit quantization as primary model
-  claim_id: c_2806f2d4
-  context: Implement model loading utilities that provide functions to load gpt2-medium
-    (with 4-bit quantization) when RAM permits.
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: The project plans to use gpt2-medium with 4-bit quantization as the primary
-    model.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-03T12:07:38Z'
-- artifact_path: projects/PROJ-596-memory-palaces-in-llms-spatial-reasoning/specs/001-memory-palaces-in-llms-spatial-reasoning/tasks.md
-  attempts: 1
-  canonical: use distilgpt2 as fallback model when memory budget exceeded
-  claim_id: c_e463816f
-  context: Implement model loading utilities that provide functions to load DistilGPT2
-    as a fallback when the memory budget is exceeded.
-  evidence:
-    entailment_status: not_found
-    reason: source found but does not address entity claim
-    source_url: https://en.wikipedia.org/wiki/Use_distilgpt2_as_fallback_model_when_memory_budget_exceeded
-  kind: entity_fact
-  raw_text: The project plans to use DistilGPT2 as a fallback model when memory budget
-    is exceeded.
-  resolved_value: null
-  resolver: resolve_entity_fact
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-03T12:07:58Z'
-- artifact_path: projects/PROJ-596-memory-palaces-in-llms-spatial-reasoning/specs/001-memory-palaces-in-llms-spatial-reasoning/tasks.md
-  attempts: 1
-  canonical: run experiments across 5 random seeds
-  claim_id: c_93859e51
-  context: 'Output: docs/power_analysis_report.md documenting required effect size,
-    assumed variance, and justification for N=5.'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: The project plans to run experiments across 5 random seeds.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-03T12:08:19Z'
-- artifact_path: projects/PROJ-596-memory-palaces-in-llms-spatial-reasoning/specs/001-memory-palaces-in-llms-spatial-reasoning/tasks.md
-  attempts: 1
-  canonical: trigger batch-size reduction to 4 if rss exceeds 6 gb
-  claim_id: c_9f0ecf81
-  context: Implement memory monitoring utility to track RSS and trigger batch-size
-    reduction to 4 and, if RSS still > 6 GB, cap the training dataset.
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: The project plans to trigger batch-size reduction to 4 if RSS exceeds
-    6 GB.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-03T12:08:45Z'
-- artifact_path: projects/PROJ-596-memory-palaces-in-llms-spatial-reasoning/specs/001-memory-palaces-in-llms-spatial-reasoning/tasks.md
-  attempts: 1
-  canonical: verify total runtime less than or equal to 5 hours
-  claim_id: c_e71d377b
-  context: "Verify total runtime \u2264 5 hours; write artifacts/results/runtime_report.json\
-    \ with runtime_seconds and a boolean within_limit."
-  evidence:
-    candidates_found: 1
-    reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/Verify_total_runtime_less_than_or_equal_to_5_hours
-  kind: magnitude
-  raw_text: The project plans to verify total runtime is less than or equal to 5 hours.
-  resolved_value: null
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-03T12:09:04Z'
-- artifact_path: projects/PROJ-596-memory-palaces-in-llms-spatial-reasoning/specs/001-memory-palaces-in-llms-spatial-reasoning/tasks.md
-  attempts: 1
-  canonical: perform paired two-tailed t-tests with shapiro-wilk normality check
-  claim_id: c_2cd43430
-  context: Implement statistical analysis module with paired two-tailed t-tests, Shapiro-Wilk
-    normality check, and fallback to Wilcoxon signed-rank test.
-  evidence:
-    entailment_status: not_found
-    reason: source found but does not address entity claim
-    source_url: https://en.wikipedia.org/wiki/Perform_paired_two-tailed_t-tests_with_shapiro-wilk_normalit
-  kind: entity_fact
-  raw_text: The project plans to perform paired two-tailed t-tests with Shapiro-Wilk
-    normality check.
-  resolved_value: null
-  resolver: resolve_entity_fact
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-03T12:09:28Z'
-- artifact_path: projects/PROJ-596-memory-palaces-in-llms-spatial-reasoning/specs/001-memory-palaces-in-llms-spatial-reasoning/tasks.md
-  attempts: 1
-  canonical: use bonferroni or holm-bonferroni correction for multiple comparisons
-  claim_id: c_29a572dc
-  context: Implement multiple-comparison correction (Bonferroni or Holm-Bonferroni)
-    for the three dataset comparisons.
-  evidence:
-    entailment_status: not_found
-    reason: source found but does not address entity claim
-    source_url: https://en.wikipedia.org/wiki/Use_bonferroni_or_holm-bonferroni_correction_for_multiple_co
-  kind: entity_fact
-  raw_text: The project plans to use Bonferroni or Holm-Bonferroni correction for
-    multiple comparisons.
-  resolved_value: null
-  resolver: resolve_entity_fact
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-03T12:09:53Z'
-- artifact_path: projects/PROJ-596-memory-palaces-in-llms-spatial-reasoning/specs/001-memory-palaces-in-llms-spatial-reasoning/tasks.md
-  attempts: 1
-  canonical: calculate effect size using cohen's d with 95% confidence intervals
-  claim_id: c_747d33ac
-  context: Implement effect-size calculation (Cohen's d) with 95% confidence intervals.
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: The project plans to calculate effect size using Cohen's d with 95% confidence
-    intervals.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-03T12:09:53Z'
-- artifact_path: projects/PROJ-596-memory-palaces-in-llms-spatial-reasoning/specs/001-memory-palaces-in-llms-spatial-reasoning/tasks.md
-  attempts: 1
-  canonical: Power analysis justification for sample size N=5
-  claim_id: c_1fb7ba9e
-  context: 'Phase 0: Research (Preparatory) - T004b Perform a priori power analysis
-    for the planned random seeds.'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: 'Output: docs/power_analysis_report.md documenting required effect size,
-    assumed variance, and justification for N=5.'
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-03T12:15:59Z'
-- artifact_path: projects/PROJ-596-memory-palaces-in-llms-spatial-reasoning/specs/001-memory-palaces-in-llms-spatial-reasoning/tasks.md
-  attempts: 1
-  canonical: Dataset bAbI Task 3 loaded with task3_10k configuration
-  claim_id: c_923c77e0
-  context: 'Phase 2: Foundational - T004 Implement dataset download and verification
-    script for the three permitted datasets.'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: bAbI Task 3 via datasets.load_dataset("babi", "task3_10k")
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-03T12:16:06Z'
-- artifact_path: projects/PROJ-596-memory-palaces-in-llms-spatial-reasoning/specs/001-memory-palaces-in-llms-spatial-reasoning/tasks.md
-  attempts: 1
-  canonical: Memory monitoring utility reduces batch size to 4
-  claim_id: c_a6e462be
-  context: "Phase 2: Foundational - T005 Implement memory monitoring utility to track\
-    \ RSS and trigger batch\u2011size reduction."
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: "trigger batch\u2011size reduction to 4"
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-03T12:16:13Z'
-- artifact_path: projects/PROJ-596-memory-palaces-in-llms-spatial-reasoning/specs/001-memory-palaces-in-llms-spatial-reasoning/tasks.md
-  attempts: 1
-  canonical: Training dataset capped if RSS exceeds 6 GB
-  claim_id: c_2df76cf8
-  context: "Phase 2: Foundational - T005 Implement memory monitoring utility to track\
-    \ RSS and trigger batch\u2011size reduction to 4 and, if RSS still > 6 GB, cap\
-    \ the training dataset."
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: if RSS > 6 GB, cap the training dataset
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-03T12:16:13Z'
-- artifact_path: projects/PROJ-596-memory-palaces-in-llms-spatial-reasoning/specs/001-memory-palaces-in-llms-spatial-reasoning/tasks.md
-  attempts: 1
-  canonical: gpt2-medium model loaded with 4-bit quantization
-  claim_id: c_f73f2d8f
-  context: "Phase 2: Foundational - T006 Implement model loading utilities that provide\
-    \ functions to load gpt2-medium (with 4\u2011bit quantization) when RAM permits."
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: "gpt2-medium (with 4\u2011bit quantization)"
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-03T12:16:13Z'
-- artifact_path: projects/PROJ-596-memory-palaces-in-llms-spatial-reasoning/specs/001-memory-palaces-in-llms-spatial-reasoning/tasks.md
-  attempts: 1
-  canonical: Training executed across 4 random seeds
-  claim_id: c_011cd904
-  context: "Phase 3: User Story 1 - T016 Implement main execution entry point to orchestrate\
-    \ download \u2192 model loading \u2192 train (across seeds \u20114) \u2192 evaluate."
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: train (across seeds -4)
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-03T12:16:13Z'
-- artifact_path: projects/PROJ-596-memory-palaces-in-llms-spatial-reasoning/specs/001-memory-palaces-in-llms-spatial-reasoning/tasks.md
-  attempts: 1
-  canonical: Total runtime verified to be less than or equal to 5 hours
-  claim_id: c_60705df7
-  context: "Phase 3: User Story 1 - T017c Verify total runtime \u2264 5 hours; write\
-    \ artifacts/results/runtime_report.json."
-  evidence:
-    candidates_found: 1
-    reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/Total_runtime_verified_to_be_less_than_or_equal_to_5_hours
-  kind: magnitude
-  raw_text: "Verify total runtime \u2264 5 hours"
-  resolved_value: null
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-03T12:16:30Z'
-- artifact_path: projects/PROJ-596-memory-palaces-in-llms-spatial-reasoning/specs/001-memory-palaces-in-llms-spatial-reasoning/tasks.md
-  attempts: 1
-  canonical: 'Three datasets compared: bAbI, LAMBADA, and Story Cloze'
-  claim_id: c_f00af427
-  context: "Phase 4: User Story 2 - T020 Implement multiple\u2011comparison correction\
-    \ for the three dataset comparisons."
-  evidence:
-    entailment_status: not_found
-    reason: source found but does not address entity claim
-    source_url: https://en.wikipedia.org/wiki/Three_datasets_compared:_bAbI,_LAMBADA,_and_Story_Cloze
-  kind: entity_fact
-  raw_text: three dataset comparisons (bAbI, LAMBADA, Story Cloze)
-  resolved_value: null
-  resolver: resolve_entity_fact
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-03T12:16:38Z'
-- artifact_path: projects/PROJ-596-memory-palaces-in-llms-spatial-reasoning/specs/001-memory-palaces-in-llms-spatial-reasoning/tasks.md
-  attempts: 1
-  canonical: Effect size calculation includes 95 percent confidence intervals
-  claim_id: c_f24ee8bc
-  context: "Phase 4: User Story 2 - T021 Implement effect\u2011size calculation (Cohen's\
-    \ d) with 95 % confidence intervals."
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: 95 % confidence intervals
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-03T12:16:44Z'
+  updated_at: '2026-07-03T12:36:39Z'
