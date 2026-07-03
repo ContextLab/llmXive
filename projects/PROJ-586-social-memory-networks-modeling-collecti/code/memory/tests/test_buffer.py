@@ -1,80 +1,237 @@
-"""Unit tests for the shared memory buffer implementation."""
-
+"""Tests for memory buffer module."""
 import pytest
-
 from memory.buffer import (
     MemoryAction,
+    MemoryEntry,
     MemoryBuffer,
-    get_shared_memory_buffer,
+    MemoryActionType,
+    parse_memory_action_token,
+    parse_memory_action,
+    format_action_token,
+    parse_action_from_prompt,
+    get_shared_buffer,
+    reset_shared_buffer,
     now,
 )
 
 
 def test_memory_action_dataclass():
-    """Ensure the dataclass fields are present and mutable."""
-    action = MemoryAction(action_type="test", payload=123, timestamp=1.23)
-    assert action.action_type == "test"
-    assert action.payload == 123
-    assert action.timestamp == 1.23
+    """Test MemoryAction dataclass."""
+    action = MemoryAction(
+        action_type=MemoryActionType.STORE,
+        content="test content",
+        metadata={"key": "value"}
+    )
+    assert action.action_type == MemoryActionType.STORE
+    assert action.content == "test content"
+    assert action.metadata == {"key": "value"}
+    assert action.timestamp is not None
+    action_dict = action.to_dict()
+    assert action_dict["action_type"] == MemoryActionType.STORE
+    assert action_dict["content"] == "test content"
 
-    # Mutability
-    action.payload = "changed"
-    assert action.payload == "changed"
+
+def test_memory_entry_dataclass():
+    """Test MemoryEntry dataclass."""
+    entry = MemoryEntry(
+        key="test_key",
+        value="test_value",
+        metadata={"info": "data"}
+    )
+    assert entry.key == "test_key"
+    assert entry.value == "test_value"
+    assert entry.action_type == "store"
+    assert entry.timestamp is not None
+    entry_dict = entry.to_dict()
+    assert entry_dict["key"] == "test_key"
+    assert entry_dict["value"] == "test_value"
+
+
+def test_parse_memory_action_token():
+    """Test parsing <MEMORY_ACTION> token."""
+    token = '<MEMORY_ACTION>{"action_type": "store", "content": "hello"}</MEMORY_ACTION>'
+    result = parse_memory_action_token(token)
+    assert result is not None
+    assert result["action_type"] == "store"
+    assert result["content"] == "hello"
+
+    # Test invalid JSON
+    invalid_token = '<MEMORY_ACTION>not json</MEMORY_ACTION>'
+    result = parse_memory_action_token(invalid_token)
+    assert result is None
+
+    # Test no token
+    no_token = "just plain text"
+    result = parse_memory_action_token(no_token)
+    assert result is None
+
+
+def test_parse_memory_action():
+    """Test parsing memory action from text."""
+    text = '<MEMORY_ACTION>{"action_type": "retrieve", "content": "query", "metadata": {"id": 1}}</MEMORY_ACTION>'
+    action = parse_memory_action(text)
+    assert action is not None
+    assert action.action_type == "retrieve"
+    assert action.content == "query"
+    assert action.metadata == {"id": 1}
+
+    # Test no action in text
+    no_action = "plain text"
+    action = parse_memory_action(no_action)
+    assert action is None
+
+
+def test_format_action_token():
+    """Test formatting MemoryAction as token."""
+    action = MemoryAction(
+        action_type=MemoryActionType.STORE,
+        content="data",
+        metadata={"test": True}
+    )
+    token = format_action_token(action)
+    assert token.startswith("<MEMORY_ACTION>")
+    assert token.endswith("</MEMORY_ACTION>")
+    assert "store" in token
+    assert "data" in token
+
+    # Verify round-trip
+    parsed = parse_memory_action_token(token)
+    assert parsed is not None
+    assert parsed["action_type"] == MemoryActionType.STORE
+    assert parsed["content"] == "data"
+
+
+def test_parse_action_from_prompt():
+    """Test extracting memory action from prompt."""
+    prompt = 'Please remember this: <MEMORY_ACTION>{"action_type": "store", "content": "important fact"}</MEMORY_ACTION> and continue.'
+    action = parse_action_from_prompt(prompt)
+    assert action is not None
+    assert action.action_type == "store"
+    assert action.content == "important fact"
 
 
 def test_basic_buffer_operations():
+    """Test basic MemoryBuffer operations."""
     buf = MemoryBuffer()
-    assert buf.get_all() == []  # initially empty
 
-    a1 = MemoryAction("type1", "payload1")
-    a2 = MemoryAction("type2", "<MEMORY_ACTION>")
-    buf.add(a1)
-    buf.add(a2)
+    # Test store
+    entry = buf.store("key1", "value1")
+    assert entry.key == "key1"
+    assert entry.value == "value1"
 
-    all_actions = buf.get_all()
-    assert len(all_actions) == 2
-    assert all_actions[0] == a1
-    assert all_actions[1] == a2
+    # Test retrieve
+    value = buf.retrieve("key1")
+    assert value == "value1"
 
-    # Token resolution should return the matching action
-    matches = buf.resolve_token("<MEMORY_ACTION>")
-    assert matches == [a2]
+    # Test retrieve non-existent
+    value = buf.retrieve("nonexistent")
+    assert value is None
 
-    # Reset clears the buffer
-    buf.reset()
-    assert buf.get_all() == []
+    # Test get_all
+    buf.store("key2", "value2")
+    all_entries = buf.get_all()
+    assert len(all_entries) == 2
+    assert all_entries[0].key == "key1"
+    assert all_entries[1].key == "key2"
+
+
+def test_buffer_update_delete():
+    """Test MemoryBuffer update and delete operations."""
+    buf = MemoryBuffer()
+    buf.store("key1", "original")
+
+    # Test update
+    updated = buf.update("key1", "modified")
+    assert updated is not None
+    assert updated.value == "modified"
+    assert updated.action_type == MemoryActionType.UPDATE
+
+    # Retrieve should return most recent
+    value = buf.retrieve("key1")
+    assert value == "modified"
+
+    # Test delete
+    deleted = buf.delete("key1")
+    assert deleted is True
+
+    # After delete, retrieve returns None
+    value = buf.retrieve("key1")
+    assert value is None
+
+    # Delete non-existent returns False
+    deleted = buf.delete("nonexistent")
+    assert deleted is False
+
+
+def test_buffer_search():
+    """Test MemoryBuffer search by prefix."""
+    buf = MemoryBuffer()
+    buf.store("user:1", "Alice")
+    buf.store("user:2", "Bob")
+    buf.store("task:1", "Task A")
+
+    results = buf.search("user:")
+    assert len(results) == 2
+    assert all(e.key.startswith("user:") for e in results)
+
+    results = buf.search("task:")
+    assert len(results) == 1
+    assert results[0].key == "task:1"
+
+    results = buf.search("nonexistent:")
+    assert len(results) == 0
 
 
 def test_shared_buffer_is_singleton():
-    """The shared buffer returned by ``get_shared_memory_buffer`` must be
-    the same object across multiple calls."""
-    buf1 = get_shared_memory_buffer()
-    buf2 = get_shared_memory_buffer()
+    """Test that get_shared_buffer returns the same instance."""
+    buf1 = get_shared_buffer()
+    buf2 = get_shared_buffer()
     assert buf1 is buf2
 
-    # Adding via one reference is visible via the other
-    action = MemoryAction("shared", "data")
-    buf1.add(action)
-    assert buf2.get_all() == [action]
+    # Reset and verify
+    reset_shared_buffer()
+    buf3 = get_shared_buffer()
+    assert buf3 is buf1  # Still the same object
 
-    # Clean up for other tests
-    buf1.reset()
+
+def test_buffer_thread_safety():
+    """Test that buffer operations are thread-safe."""
+    buf = MemoryBuffer()
+    import threading
+
+    def store_entries():
+        for i in range(100):
+            buf.store(f"key_{i}", f"value_{i}")
+
+    threads = [threading.Thread(target=store_entries) for _ in range(5)]
+    for t in threads:
+        t.start()
+    for t in threads:
+        t.join()
+
+    # All entries should be stored (5 threads * 100 entries)
+    all_entries = buf.get_all()
+    assert len(all_entries) == 500
 
 
 def test_fallback_attribute_no_error():
-    """Accessing an undefined attribute should not raise."""
+    """Test that unknown method calls don't raise AttributeError."""
     buf = MemoryBuffer()
-    # The call should return a callable that does nothing and returns None
-    result = buf.some_undefined_method(1, foo="bar")
+
+    # These should not raise
+    result = buf.unknown_method()
+    assert result is None
+
+    result = buf.another_unknown_call("arg1", kwarg="value")
+    assert result is None
+
+    result = buf.reset()
     assert result is None
 
 
 def test_now_helper():
-    """The ``now`` helper should return a float timestamp."""
-    ts = now()
-    assert isinstance(ts, float) and ts > 0.0
-
-# The test suite for the project imports this module via
-# ``from memory.tests.test_buffer import TestMemoryBuffer, ...``.
-# Providing the above tests ensures that the contract for the buffer is
-# satisfied without interfering with existing integration tests.
+    """Test the now() helper function."""
+    timestamp = now()
+    assert isinstance(timestamp, str)
+    assert "T" in timestamp  # ISO format contains T
+    assert "Z" in timestamp or "+" in timestamp or "-" in timestamp  # timezone info

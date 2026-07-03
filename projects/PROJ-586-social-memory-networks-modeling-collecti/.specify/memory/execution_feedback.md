@@ -8,81 +8,22 @@ The gate detected that your reported numbers are NOT real measurements: they are
 2. Run a REAL, honestly scaled-down experiment that MEASURES the actual quantity on the CPU (e.g. time a real (small) computation, count real events, compute the real statistic over real or clearly-labelled sampled INPUT data). A small REAL result beats a big fake one.
 3. If the headline quantity genuinely NEEDS a GPU (it trains/runs a transformer, a diffusion model, CUDA kernels, 8-bit quantization), do NOT fake it and do NOT cripple it onto the CPU. KEEP the real GPU code (use `device="cuda"`, the real model, 8-bit if needed) but SCALE IT DOWN to fit ONE free Kaggle GPU (~16 GB VRAM, one ~9h kernel): a small/quantized model, a few-hundred-example subset, a handful of steps. The execution stage AUTO-DETECTS the GPU requirement (the CPU run fails with a CUDA error) and re-runs your SAME run-book on Kaggle's free GPU, producing a REAL (scaled) result — that is the correct path for a GPU experiment. Do NOT add a silent CPU fallback that would run a degenerate result locally (it would never offload). Never present a simulated number as a measurement.
 
-- code/data/synthetic.py: synthetic/fake INPUT data not authorized by the spec — “…""" Synthetic data generation for social me…”
-- code/data/synthetic.py: synthetic/fake INPUT data not authorized by the spec — “…xperiments.  This module generates controlled synthetic datasets for testing the…”
-- code/data/synthetic.py: synthetic/fake INPUT data not authorized by the spec — “…IMPORTANT: This module generates CONTROLLED synthetic data for testing purpose…”
-- code/data/synthetic.py: synthetic/fake INPUT data not authorized by the spec — “…iguration for generating synthetic game data."""     num_games: int =…”
-- code/data/synthetic.py: synthetic/fake INPUT data not authorized by the spec — “…[str, Any]]:     """     Generate synthetic game data for testing th…”
-- code/data/synthetic.py: synthetic/fake INPUT data not authorized by the spec — “…ction creates structured synthetic data that mimics the format…”
-- code/data/synthetic.py: synthetic/fake INPUT data not authorized by the spec — “…Returns:         List of synthetic game records     """     random.seed(…”
-- code/data/synthetic.py: synthetic/fake INPUT data not authorized by the spec — “…00) -> None:     """     Generate all synthetic datasets needed for the…”
+- code/data/synthetic.py: synthetic/fake INPUT data not authorized by the spec — “…aders and utilities — NO synthetic data generation.  This module…”
+- code/data/synthetic.py: synthetic/fake INPUT data not authorized by the spec — “…er the fabrication gate, synthetic data generation is NOT author…”
+- code/run_limited_context_experiment.py: synthetic/fake INPUT data not authorized by the spec — “…utput_path}")          # Generate synthetic dataset for the experime…”
+- code/run_limited_context_experiment.py: synthetic/fake INPUT data not authorized by the spec — “…logger.info("Generating synthetic dataset...")     dataset_spec =…”
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 13 fabricated/simulated-result signal(s) — results are not real measurements: code/data/synthetic.py: synthetic/fake INPUT data not authorized by the spec — “…""" Synthetic data generation for social me…”; code/data/synthetic.py: synthetic/fake INPUT data not authorized by the spec — “…xperiments.  This module generates controlled synthetic datasets for testing the…”; code/data/synthetic.py: synthetic/fake INPUT data not authorized by the spec — “…IMPORTANT: This module generates CONTROLLED synthetic data for testing purpose…”; 6 command(s) failed: python code/run_experiment.py --context full --agents 5 --games 1000 (rc=1); python code/run_experiment.py --context limited --agents 5 --games 1000 (rc=1); python code/run_experiment.py --context full --agents 3,5,7 --games 800 --plot scaling (rc=1)
+**Summary**: 4 fabricated/simulated-result signal(s) — results are not real measurements: code/data/synthetic.py: synthetic/fake INPUT data not authorized by the spec — “…aders and utilities — NO synthetic data generation.  This module…”; code/data/synthetic.py: synthetic/fake INPUT data not authorized by the spec — “…er the fabrication gate, synthetic data generation is NOT author…”; code/run_limited_context_experiment.py: synthetic/fake INPUT data not authorized by the spec — “…utput_path}")          # Generate synthetic dataset for the experime…”; 1 command(s) failed: python code/run_experiment.py --context limited --agents 5 --games 1000 --thresholds 128,256,512 (rc=2)
 
 ## Failing / missing run-book commands
 
-- python code/run_experiment.py --context full --agents 5 --games 1000 -> rc=1
-    Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/run_experiment.py", line 365, in <module>
-    sys.exit(main())
-             ^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/run_experiment.py", line 347, in main
-    write_results_csv(results, output_path)
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/run_experiment.py", line 256, in write_results_csv
-    "retrieval_efficiency": f"{r.retrieval_efficiency:.6f}",
-                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-TypeError: unsupported format string passed to RetrievalMetrics.__format__
-- python code/run_experiment.py --context limited --agents 5 --games 1000 -> rc=1
-    Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/run_experiment.py", line 365, in <module>
-    sys.exit(main())
-             ^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/run_experiment.py", line 347, in main
-    write_results_csv(results, output_path)
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/run_experiment.py", line 256, in write_results_csv
-    "retrieval_efficiency": f"{r.retrieval_efficiency:.6f}",
-                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-TypeError: unsupported format string passed to RetrievalMetrics.__format__
-- python code/run_experiment.py --context full --agents 3,5,7 --games 800 --plot scaling -> rc=1
-    Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/run_experiment.py", line 365, in <module>
-    sys.exit(main())
-             ^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/run_experiment.py", line 347, in main
-    write_results_csv(results, output_path)
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/run_experiment.py", line 256, in write_results_csv
-    "retrieval_efficiency": f"{r.retrieval_efficiency:.6f}",
-                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-TypeError: unsupported format string passed to RetrievalMetrics.__format__
 - python code/run_experiment.py --context limited --agents 5 --games 1000 --thresholds 128,256,512 -> rc=2
     usage: run_experiment.py [-h] [--context {full,limited}] [--agents AGENTS]
                          [--games GAMES] [--output-dir OUTPUT_DIR]
                          [--seed SEED] [--plot {scaling,None}]
 run_experiment.py: error: unrecognized arguments: --thresholds 128,256,512
-- python code/run_experiment.py --context full --agents 5 --games 100 --seed 42 -> rc=1
-    Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/run_experiment.py", line 365, in <module>
-    sys.exit(main())
-             ^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/run_experiment.py", line 347, in main
-    write_results_csv(results, output_path)
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/run_experiment.py", line 256, in write_results_csv
-    "retrieval_efficiency": f"{r.retrieval_efficiency:.6f}",
-                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-TypeError: unsupported format string passed to RetrievalMetrics.__format__
-- python code/run_experiment.py --context full --agents 5 --games 100 --seed 42 -> rc=1
-    Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/run_experiment.py", line 365, in <module>
-    sys.exit(main())
-             ^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/run_experiment.py", line 347, in main
-    write_results_csv(results, output_path)
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/run_experiment.py", line 256, in write_results_csv
-    "retrieval_efficiency": f"{r.retrieval_efficiency:.6f}",
-                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-TypeError: unsupported format string passed to RetrievalMetrics.__format__
 
 ## ⚠ SHARED-MODULE CONTRACT — fix the DEFINITION, tolerant of ALL callers
 
@@ -97,9 +38,9 @@ One or more failures are API-CONTRACT errors on a symbol YOUR OWN code defines a
 
 Make `__getattr__` in `code/utils/logging.py` accept ALL of the above.
 
-### `compute_retrieval_efficiency` — defined in `code/t015_generate_full_results.py`; called 20 way(s):
+### `compute_retrieval_efficiency` — defined in `code/t015_generate_full_results.py`; called 22 way(s):
 
-- code/run_experiment.py: ret_eff, _ = compute_retrieval_efficiency(
+- code/run_experiment.py: ret_metrics, ret_eff = compute_retrieval_efficiency(
 - code/t015_generate_full_results.py: 1. compute_retrieval_efficiency(retrieved, total, agents)
 - code/t015_generate_full_results.py: 2. compute_retrieval_efficiency(agent_count, game_id) - legacy
 - code/t015_generate_full_results.py: 3. compute_retrieval_efficiency(retrieved=..., total=..., agents=...) - keyword
@@ -107,6 +48,8 @@ Make `__getattr__` in `code/utils/logging.py` accept ALL of the above.
 - code/metrics/retrieval.py: 1. compute_retrieval_efficiency(retrieved, total, agents) - positional
 - code/metrics/retrieval.py: 2. compute_retrieval_efficiency(retrieved=..., total=..., agents=...) - keyword
 - code/metrics/retrieval.py: 3. compute_retrieval_efficiency(agent_count, game_id) - legacy (ignored)
+- code/metrics/retrieval.py: # Handle positional args: compute_retrieval_efficiency(retrieved, total, agents)
+- code/metrics/retrieval.py: # Legacy: compute_retrieval_efficiency(agent_count, game_id)
 - code/metrics/tests/test_retrieval.py: metrics, efficiency = compute_retrieval_efficiency(10, 10, 3)
 - code/metrics/tests/test_retrieval.py: metrics, efficiency = compute_retrieval_efficiency(1, 3, 3)
 - code/metrics/tests/test_retrieval.py: metrics, efficiency = compute_retrieval_efficiency(0, 10, 3)
@@ -122,9 +65,9 @@ Make `__getattr__` in `code/utils/logging.py` accept ALL of the above.
 
 Make `compute_retrieval_efficiency` in `code/t015_generate_full_results.py` accept ALL of the above.
 
-### `compute_specialization_index` — defined in `code/t015_generate_full_results.py`; called 14 way(s):
+### `compute_specialization_index` — defined in `code/t015_generate_full_results.py`; called 18 way(s):
 
-- code/run_experiment.py: spec_idx, _ = compute_specialization_index(counts, num_agents=agent_count)
+- code/run_experiment.py: spec_metrics, spec_idx = compute_specialization_index(
 - code/t015_generate_full_results.py: 1. compute_specialization_index(agent_list) - agent_list is a list
 - code/t015_generate_full_results.py: 2. compute_specialization_index(agent_list, num_agents=N)
 - code/t015_generate_full_results.py: 3. compute_specialization_index(agent_count, game_id) - legacy
@@ -134,6 +77,10 @@ Make `compute_retrieval_efficiency` in `code/t015_generate_full_results.py` acce
 - code/metrics/specialization.py: 2. compute_specialization_index(agent_list, num_agents=N) - with explicit count
 - code/metrics/specialization.py: 3. compute_specialization_index(agents=..., num_agents=...) - keyword style
 - code/metrics/specialization.py: 4. compute_specialization_index(agent_count, game_id) - legacy (uses agent_count as list length)
+- code/metrics/specialization.py: # Handle positional: compute_specialization_index(agent_list)
+- code/metrics/specialization.py: # Handle positional: compute_specialization_index(agent_list, num_agents=N)
+- code/metrics/specialization.py: # Handle keyword: compute_specialization_index(agents=..., num_agents=...)
+- code/metrics/specialization.py: # Legacy: compute_specialization_index(agent_count, game_id)
 - code/metrics/tests/test_specialization.py: index, metrics = compute_specialization_index([])
 - code/metrics/tests/test_specialization.py: index, metrics = compute_specialization_index(game_results)
 - code/tests/unit/test_specialization.py: idx, metrics = compute_specialization_index([1, 2, 2, 3], num_agents=4)
@@ -141,7 +88,7 @@ Make `compute_retrieval_efficiency` in `code/t015_generate_full_results.py` acce
 
 Make `compute_specialization_index` in `code/t015_generate_full_results.py` accept ALL of the above.
 
-### `get_logger` — defined in `code/utils/logging.py`; called 13 way(s):
+### `get_logger` — defined in `code/utils/logging.py`; called 11 way(s):
 
 - code/run_experiment.py: logger = get_logger(__name__)
 - code/output_full_results.py: logger = get_logger(__name__)
@@ -152,18 +99,19 @@ Make `compute_specialization_index` in `code/t015_generate_full_results.py` acce
 - code/utils/tests/test_logging.py: logger2 = get_logger(name="existing_logger")
 - code/analysis/anova.py: logger = get_logger(__name__)
 - code/analysis/sensitivity.py: logger = get_logger(__name__)
-- code/memory/buffer.py: logger = get_logger(__name__)
-- code/memory/buffer.py: self._logger = get_logger(__name__)
 - code/tests/unit/test_logging.py: logger1 = get_logger(name="test1")
 - code/tests/unit/test_logging.py: logger2 = get_logger(name="test2")
 
 Make `get_logger` in `code/utils/logging.py` accept ALL of the above.
 
-### `simulate_one_game` — defined in `code/generate_full_results.py`; called 12 way(s):
+### `simulate_one_game` — defined in `code/generate_full_results.py`; called 15 way(s):
 
 - code/generate_full_results.py: 1. simulate_one_game(agent_count: int, game_id: int, context: str)
 - code/generate_full_results.py: 2. simulate_one_game(agent_list: List[int], game_id: int)
 - code/generate_full_results.py: 3. simulate_one_game(agents, game_id) - legacy positional
+- code/run_experiment.py: 1. simulate_one_game(agent_count, game_id, context) - primary
+- code/run_experiment.py: 2. simulate_one_game(agent_list, game_id) - legacy
+- code/run_experiment.py: 3. simulate_one_game(agents, game_id) - legacy positional
 - code/run_experiment.py: result = simulate_one_game(
 - code/output_full_results.py: spec_idx, ret_eff = simulate_one_game(
 - code/run_scaling_experiment.py: result = simulate_one_game(agents, game_id)
@@ -192,8 +140,7 @@ Make `simulate_one_game` in `code/generate_full_results.py` accept ALL of the ab
 
 Whichever you choose, every call site of `MemoryBuffer` across the codebase must stop raising `AttributeError`/`TypeError`.
 
-`MemoryBuffer.reset` call sites (5):
-- code/run_experiment.py: buffer.reset()
+`MemoryBuffer.reset` call sites (4):
 - code/memory/buffer.py: _shared_buffer.reset()
 - code/memory/tests/test_buffer.py: buf.reset()
 - code/memory/tests/test_buffer.py: buf1.reset()

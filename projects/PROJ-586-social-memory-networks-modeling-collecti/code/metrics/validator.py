@@ -157,6 +157,9 @@ def validate_experiment_metrics(results: List[Any], threshold: float = 0.95) -> 
         
     Returns:
         Dictionary with validation summary including SC-001 compliance status
+        
+    Raises:
+        ValueError: If pass rate falls below threshold (SC-001 requirement)
     """
     valid_records, pass_rate = validate_and_filter_records(results)
     stats = compute_metric_statistics(valid_records)
@@ -174,10 +177,12 @@ def validate_experiment_metrics(results: List[Any], threshold: float = 0.95) -> 
     }
     
     if not meets_requirement:
-        summary['warning'] = (
+        error_msg = (
             f"SC-001 requirement NOT met: {pass_rate:.2%} valid games "
             f"(required >= {threshold:.2%})"
         )
+        summary['warning'] = error_msg
+        raise ValueError(error_msg)
     else:
         summary['status'] = "SC-001 requirement satisfied"
         
