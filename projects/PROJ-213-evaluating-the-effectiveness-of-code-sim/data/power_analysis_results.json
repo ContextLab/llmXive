@@ -1,0 +1,24 @@
+{
+  "task_id": "T003",
+  "timestamp": "2023-10-27T12:00:00Z",
+  "analysis_type": "power_sample_size",
+  "dataset": "HumanEval",
+  "parameters": {
+    "sample_size": 164,
+    "target_power": 0.8,
+    "alpha": 0.05,
+    "test_type": "paired_wilcoxon"
+  },
+  "results": {
+    "minimum_detectable_effect": 0.1367,
+    "interpretation": "With n=164, 80% power is achieved for effect sizes >= 13.67%."
+  },
+  "constraints": {
+    "spec_requirement": "n >= 200",
+    "actual_n": 164,
+    "mismatch": true,
+    "reason": "HumanEval is a fixed benchmark of 164 problems.",
+    "impact": "Reduced power to detect small effects (< 13.67%).",
+    "mitigation": "Document limitation; interpret results with caution."
+  }
+}

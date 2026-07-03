@@ -3,3 +3,21 @@
   \ [UNRESOLVED-CLAIM: c_0fd320e0 \u2014 status=not_enough_info]. Document the resource\
   \ constraints (GitHub Actions GB RAM, 6h limit) as the justification for this amendment."
 : 1
+T004 [P] Create `code/update_state.py` to manage `state.yaml` and artifact hashing per Constitution Principle V: 1
+? 'T005 [P] Implement `code/download.py` to fetch CodeXGLUE prompts from HuggingFace
+  datasets, filter for security keywords (SQL, XSS, auth, injection, sanitize, password,
+  token), **select a subset of top candidates by relevance score**, and generate `data/prompts/raw_manifest.json`
+  with checksums. Justification: Resource constraints (N=30 total) require this reduction
+  from the original FR-002 scope.'
+: 1
+? 'T006 [P] Create `data/prompts/handcrafted.json` with 20 web-security prompts: **5
+  prompts each for database access, HTML rendering, authentication, and injection
+  **'
+: 1
+? T007 [P] Create `data/mappings/nist_severity_map.yaml` with explicit NIST-based
+  mapping rules (e.g., "High" -> 4, "Medium" -> 3) for severity conversion
+: 1
+? T008 [P] Implement `code/generate.py` with **120s timeout ** handling for generation
+  and CPU-only 4-bit quantization loading for StarCoder-Base, CodeGen, GPT-NeoX (model
+  loader logic)
+: 1

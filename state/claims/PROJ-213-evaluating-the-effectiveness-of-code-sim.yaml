@@ -167,3 +167,159 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-06-29T07:10:45Z'
+- artifact_path: projects/PROJ-213-evaluating-the-effectiveness-of-code-sim/specs/001-evaluating-the-effectiveness-of-code-sim/tasks.md
+  attempts: 1
+  canonical: minimum detectable effect for sample size n=164 at power greater than
+    or equal to 0.8
+  claim_id: c_e1334e7d
+  context: "Create power/sample-size justification in research.md Section 3 (FR-010:\
+    \ document minimum detectable effect forn=164 at power\u22650.8; include constraint_mismatch\
+    \ field noting spec requires n\u2265200)"
+  evidence:
+    candidates:
+    - - ''
+      - 164.0
+    - - ''
+      - 3.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Minimum_detectable_effect_for_sample_size_n%3D164_at_power_gre
+  kind: magnitude
+  raw_text: "min detectable effect for n=164 at power\u22650.8"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-07-03T04:41:58Z'
+- artifact_path: projects/PROJ-213-evaluating-the-effectiveness-of-code-sim/specs/001-evaluating-the-effectiveness-of-code-sim/tasks.md
+  attempts: 1
+  canonical: Bonferroni correction applied for 2 hypotheses
+  claim_id: c_71de08cc
+  context: Document statistical design in research.md Section 4 (Wilcoxon for pass@1
+    and latency per spec FR-005, Bonferroni for 2 hypotheses)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Bonferroni for 2 hypotheses
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T04:44:27Z'
+- artifact_path: projects/PROJ-213-evaluating-the-effectiveness-of-code-sim/specs/001-evaluating-the-effectiveness-of-code-sim/tasks.md
+  attempts: 1
+  canonical: Starcoder-1.3B 4-bit GGUF model fits within 7GB RAM limit
+  claim_id: c_cd7ee44e
+  context: 'Feasibility Check: StarCoder-1.3B 4-bit via llama.cpp on CPU fits within
+    7GB RAM limit; HumanEval (the complete problem set) can be processed within maximum
+    job duration limit'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Starcoder-1.3B 4-bit GGUF model fits within 7GB RAM limit
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T04:45:25Z'
+- artifact_path: projects/PROJ-213-evaluating-the-effectiveness-of-code-sim/specs/001-evaluating-the-effectiveness-of-code-sim/tasks.md
+  attempts: 1
+  canonical: plan.md uses 164 problems
+  claim_id: c_73c5e3dd
+  context: "Plan Amendment Flags: ... 4. plan.md uses 164 problems; spec FR-010 requires\
+    \ n\u2265200 - tasks document constraint mismatch, plan flagged for amendment"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: plan.md uses 164 problems
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T04:53:41Z'
+- artifact_path: projects/PROJ-213-evaluating-the-effectiveness-of-code-sim/specs/001-evaluating-the-effectiveness-of-code-sim/tasks.md
+  attempts: 1
+  canonical: plan.md uses McNemar's test for pass@1
+  claim_id: c_29a7d173
+  context: 'Plan Amendment Flags: 1. plan.md uses McNemar''s for pass@1 and 3 hypotheses
+    for Bonferroni; spec FR-005 requires Wilcoxon and 2 hypotheses - tasks follow
+    spec, plan flagged for amendment'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: plan.md uses McNemar's for pass@1
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T04:54:25Z'
+- artifact_path: projects/PROJ-213-evaluating-the-effectiveness-of-code-sim/specs/001-evaluating-the-effectiveness-of-code-sim/tasks.md
+  attempts: 1
+  canonical: plan.md uses 3 hypotheses for Bonferroni correction
+  claim_id: c_07ccc60f
+  context: 'Plan Amendment Flags: 1. plan.md uses McNemar''s for pass@1 and 3 hypotheses
+    for Bonferroni; spec FR-005 requires Wilcoxon and 2 hypotheses - tasks follow
+    spec, plan flagged for amendment'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: plan.md uses 3 hypotheses for Bonferroni
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T04:58:35Z'
+- artifact_path: projects/PROJ-213-evaluating-the-effectiveness-of-code-sim/specs/001-evaluating-the-effectiveness-of-code-sim/tasks.md
+  attempts: 1
+  canonical: 30-second timeout for inference
+  claim_id: c_7d30e752
+  context: 'Implement per-sample timeout enforcement in code/inference.py (FR-009:
+    30-second timeout, log failure with inference_time_ms=30000; DEPENDS ON T020)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 30-second timeout
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T04:59:28Z'
+- artifact_path: projects/PROJ-213-evaluating-the-effectiveness-of-code-sim/specs/001-evaluating-the-effectiveness-of-code-sim/tasks.md
+  attempts: 1
+  canonical: minimum 80 percent test coverage
+  claim_id: c_6817b9e8
+  context: 'Run unit tests for all modules in code/ (tests/unit/); PASS CRITERIA:
+    pytest exit code 0, minimum 80% coverage, all tests pass'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: minimum 80% coverage
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T04:59:28Z'
+- artifact_path: projects/PROJ-213-evaluating-the-effectiveness-of-code-sim/specs/001-evaluating-the-effectiveness-of-code-sim/tasks.md
+  attempts: 1
+  canonical: arxiv.org/abs/2410.12381
+  claim_id: c_bedf0b6e
+  context: "Document power analysis constraint mismatch in research.md Section 3:\
+    \ spec FR-010 requires n\u2265200 but {{claim:c_c9ee2ab8}} (2410.12381, https://arxiv.org/abs/2410.12381);\
+    \ propose mitigation (document limitation in final report, note reduced power)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: arxiv.org/abs/2410.12381
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T05:00:09Z'

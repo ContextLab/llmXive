@@ -1,0 +1,9 @@
+? "T003 [P] Create power/sample-size justification in research.md Section 3 (FR-010:\
+  \ document minimum detectable effect forn=164 at power\u22650.8; include constraint_mismatch\
+  \ field noting spec requires n\u2265200)"
+: 1
+? "T003a [P] Document power analysis constraint mismatch in research.md Section 3:\
+  \ spec FR-010 requires n\u2265200 but {{claim:c_c9ee2ab8}} (2410.12381, https://arxiv.org/abs/2410.12381\
+  \ [UNRESOLVED-CLAIM: c_bedf0b6e \u2014 status=not_enough_info]); propose mitigation\
+  \ (document limitation in final report, note reduced power)"
+: 1

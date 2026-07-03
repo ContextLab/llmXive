@@ -24,7 +24,7 @@
 
 **Purpose**: Resolve requirement conflicts and formally amend scope before implementation begins.
 
-- [X] T000a [P] **AMEND SPEC**: Update `spec.md` (FR-002, SC-005) to explicitly reflect the amended scope of N=30 prompts (10 CodeXGLUE + 20 handcrafted) [UNRESOLVED-CLAIM: c_9fca6c6d — status=not_enough_info] and N=90 snippets [UNRESOLVED-CLAIM: c_b798f99c — status=not_enough_info]. Document the resource constraints (GitHub Actions GB RAM, 6h limit) as the justification for this amendment.
+- [X] T000a [P] **AMEND SPEC**: Update `spec.md` (FR-002, SC-005) to explicitly reflect the amended scope of N=30 prompts (10 CodeXGLUE + 20 handcrafted) and N=90 snippets. Document the resource constraints (GitHub Actions GB RAM, 6h limit) as the justification for this amendment.
 - [X] T000b [P] **ALIGN PLAN**: Update `plan.md` (Summary) to reflect the N=30 scope and ensure consistency with the amended `spec.md`.
 
 ---
@@ -47,13 +47,13 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [X] T003 [P] Create `code/config.py` with pinned random seeds, path constants, and model hyperparameters (max_tokens=256, batch_size=1)
-- [~] T004 [P] Create `code/update_state.py` to manage `state.yaml` and artifact hashing per Constitution Principle V
-- [~] T005 [P] Implement `code/download.py` to fetch CodeXGLUE prompts from HuggingFace datasets, filter for security keywords (SQL, XSS, auth, injection, sanitize, password, token), **select a subset of top candidates by relevance score**, and generate `data/prompts/raw_manifest.json` with checksums. Justification: Resource constraints (N=30 total) require this reduction from the original FR-002 scope.
-- [~] T006 [P] Create `data/prompts/handcrafted.json` with 20 web-security prompts: **5 prompts each for database access, HTML rendering, authentication, and injection **
-- [~] T007 [P] Create `data/mappings/nist_severity_map.yaml` with explicit NIST-based mapping rules (e.g., "High" -> 4, "Medium" -> 3) for severity conversion
-- [~] T008 [P] Implement `code/generate.py` with **120s timeout [UNRESOLVED-CLAIM: c_4e7d0002 — status=not_enough_info]** handling for generation and CPU-only 4-bit quantization loading for StarCoder-Base, CodeGen, GPT-NeoX (model loader logic)
+- [ ] T004 [P] Create `code/update_state.py` to manage `state.yaml` and artifact hashing per Constitution Principle V
+- [ ] T005 [P] Implement `code/download.py` to fetch CodeXGLUE prompts from HuggingFace datasets, filter for security keywords (SQL, XSS, auth, injection, sanitize, password, token), **select a subset of top candidates by relevance score**, and generate `data/prompts/raw_manifest.json` with checksums. Justification: Resource constraints (N=30 total) require this reduction from the original FR-002 scope.
+- [ ] T006 [P] Create `data/prompts/handcrafted.json` with 20 web-security prompts: **5 prompts each for database access, HTML rendering, authentication, and injection **
+- [ ] T007 [P] Create `data/mappings/nist_severity_map.yaml` with explicit NIST-based mapping rules (e.g., "High" -> 4, "Medium" -> 3) for severity conversion
+- [ ] T008 [P] Implement `code/generate.py` with **120s timeout ** handling for generation and CPU-only 4-bit quantization loading for StarCoder-Base, CodeGen, GPT-NeoX (model loader logic)
 - [~] T009 [P] Implement `code/analyze.py` to orchestrate Bandit, Semgrep, and CodeQL with **A timeout per scan is established.** (scanner infrastructure setup)
-- [ ] T010 [P] Implement `code/prompts.py` to combine `raw_manifest.json` (T005) and `handcrafted.json` (T006) into a final `data/prompts/manifest.json` with source attribution and checksums. **Note**: This task is parallel-safe relative to other Phase 2 tasks but requires T005 and T006 completion.
+- [~] T010 [P] Implement `code/prompts.py` to combine `raw_manifest.json` (T005) and `handcrafted.json` (T006) into a final `data/prompts/manifest.json` with source attribution and checksums. **Note**: This task is parallel-safe relative to other Phase 2 tasks but requires T005 and T006 completion.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -69,13 +69,13 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T011 [P] [US1] Integration test for generation pipeline with timeout handling in `tests/integration/test_generate.py`
-- [ ] T012 [P] [US1] Contract test for scanner output format in `tests/contract/test_scanner_output.py`
+- [~] T011 [P] [US1] Integration test for generation pipeline with timeout handling in `tests/integration/test_generate.py`
+- [~] T012 [P] [US1] Contract test for scanner output format in `tests/contract/test_scanner_output.py`
 
 ### Implementation for User Story 1
 
-- [ ] T013 [P] [US1] Implement model loader in `code/generate.py` to load multiple models (StarCoder-Base 7B [UNRESOLVED-CLAIM: c_efb32601 — status=not_enough_info], CodeGen 2B [UNRESOLVED-CLAIM: c_110d07e4 — status=not_enough_info], GPT-NeoX 1.3B [UNRESOLVED-CLAIM: c_9cca0553 — status=not_enough_info]) with 4-bit quantization (bitsandbytes CPU-compatible)
-- [ ] T014 [US1] Implement generation loop in `code/generate.py` to process 30 prompts (N=90 snippets [UNRESOLVED-CLAIM: c_b798f99c — status=not_enough_info] total) using `data/prompts/manifest.json`, logging failures to `data/failures.log`
+- [ ] T013 [P] [US1] Implement model loader in `code/generate.py` to load multiple models (StarCoder-Base 7B, CodeGen 2B, GPT-NeoX 1.3B) with 4-bit quantization (bitsandbytes CPU-compatible)
+- [ ] T014 [US1] Implement generation loop in `code/generate.py` to process 30 prompts (N=90 snippets total) using `data/prompts/manifest.json`, logging failures to `data/failures.log`
 - [ ] T015 [US1] Implement scanner runner in `code/analyze.py` to pipe snippets through Bandit (Python), Semgrep (security rules), CodeQL (Java/JS)
 - [ ] T016 [US1] Implement severity mapping in `code/metrics.py` to convert raw scanner labels to NIST-based ordinal rank using `data/mappings/nist_severity_map.yaml`
 - [ ] T017 [US1] Implement failure logging in `code/analyze.py` for empty snippets, unsupported languages, and scanner errors per Edge Cases
@@ -99,10 +99,10 @@
 
 ### Implementation for User Story 2
 
-- [ ] T022 [US2] Implement `code/calibration.py` to perform **Manual Calibration**: **Select exactly 10 snippets per model [UNRESOLVED-CLAIM: c_dfaf35e1 — status=not_enough_info]** (N=30 total) from `raw_findings.csv` using stratified sampling. Calculate Inter-Rater Reliability (Kappa) against human expert labels and generate `data/calibration/fpr_results.csv` (FPR per scanner/model).
+- [ ] T022 [US2] Implement `code/calibration.py` to perform **Manual Calibration**: **Select exactly 10 snippets per model ** (N=30 total) from `raw_findings.csv` using stratified sampling. Calculate Inter-Rater Reliability (Kappa) against human expert labels and generate `data/calibration/fpr_results.csv` (FPR per scanner/model).
 - [ ] T023 [US2] Implement `code/calibration.py` to compute **Descriptive Stats**: Read `raw_findings.csv` and `fpr_results.csv`. **Output `data/results/descriptive_stats.csv` containing RAW vulnerability counts and V/100LOC. Include FPR results as metadata only (PROXY ONLY, NO algorithmic correction applied to counts)**. Explicitly document that statistical tests (T024/T025) consume RAW counts, not adjusted values, per FR-004b.
 - [ ] T024 [US2] Implement `code/stats.py` to run Kruskal-Wallis test on RAW V/100LOC (from T023 output) across models
-- [ ] T025 [US2] Implement `code/stats.py` to run Dunn's post-hoc with Bonferroni correction (α = 0.0167) [UNRESOLVED-CLAIM: c_fca213f1 — status=not_enough_info] if KW p < 0.05
+- [ ] T025 [US2] Implement `code/stats.py` to run Dunn's post-hoc with Bonferroni correction (α = 0.0167) if KW p < 0.05
 - [ ] T026 [US2] Implement `code/stats.py` to run Zero-Inflated Negative Binomial (ZINB) regression **ONLY IF** the zero-vulnerability percentage (calculated from T019/T023) is ≥ 20.0%. **Logic**: Calculate `zero_vuln_pct`; if `zero_vuln_pct < 20.0`, log "Condition not met (X% < 20%): ZINB skipped" and output a 'skipped' record in `data/results/statistical_summary.csv`. If met, run `statsmodels` with formula `vuln_count ~ model + offset(log(LOC))` and zero-inflation `zero_inflated ~ model`.
 - [ ] T027 [US2] Implement `code/sensitivity.py` to sweep high-severity cutoffs across a range of thresholds and report proportion of "high risk" snippets per FR-009
 - [ ] T028 [US2] Generate `data/results/statistical_summary.csv` with test name, statistic, p-value, adjusted p-value, conclusion
@@ -248,5 +248,5 @@ With multiple developers:
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
 - **CRITICAL**: All model loading MUST use 4-bit quantization on CPU only (no CUDA/bitsandbytes GPU requirements).
-- **CRITICAL**: Dataset N=30 prompts (10 CodeXGLUE + 20 handcrafted) [UNRESOLVED-CLAIM: c_9fca6c6d — status=not_enough_info] to fit 6h/7GB budget; A large number of prompts is infeasible. (amended in T000a).
+- **CRITICAL**: Dataset N=30 prompts (10 CodeXGLUE + 20 handcrafted) to fit 6h/7GB budget; A large number of prompts is infeasible. (amended in T000a).
 - **CRITICAL**: FPR data is used for descriptive reporting only (PROXY), NOT for algorithmic correction of vulnerability counts (FR-004b).
