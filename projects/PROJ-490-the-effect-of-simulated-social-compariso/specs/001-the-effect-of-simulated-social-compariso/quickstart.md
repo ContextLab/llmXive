@@ -1,67 +1,66 @@
-# Quickstart: Simulated Social Comparison on Self-Esteem in VR
+# Quickstart: The Effect of Simulated Social Comparison on Self-Esteem in Virtual Reality
 
 ## Prerequisites
 -   Python 3.11+
+-   pip
 -   Git
--   Access to GitHub Actions (for CI execution) or a local CPU environment.
 
 ## Installation
 
-1.  **Clone the repository**:
+1.  **Clone the Repository:**
     ```bash
     git clone <repo-url>
     cd projects/PROJ-490-the-effect-of-simulated-social-compariso
     ```
 
-2.  **Create a virtual environment**:
+2.  **Create Virtual Environment:**
     ```bash
     python -m venv venv
     source venv/bin/activate  # On Windows: venv\Scripts\activate
     ```
 
-3.  **Install dependencies**:
+3.  **Install Dependencies:**
     ```bash
-    pip install -r requirements.txt
+    pip install -r code/requirements.txt
     ```
-    *Note: `requirements.txt` pins versions compatible with CPU-only execution (e.g., `scikit-learn`, `statsmodels`).*
 
 ## Running the Pipeline
 
-### 1. Data Generation / Discovery
-Run the data loader script. It will attempt to find real data (and fail, triggering synthetic generation) or generate synthetic data if configured.
+### Step 1: Data Discovery / Generation
+Run the data module to attempt real data retrieval or trigger synthetic generation.
 ```bash
-python code/data_loader.py --mode synthetic --seed 42 --n 200
+python code/main.py --action download
 ```
-*Output*: `data/raw/synthetic_dataset.csv`
+*Output:* `data/raw/dataset.csv` (or synthetic equivalent) and a log indicating "Real Data" or "Synthetic Data (Pipeline Validation)".
 
-### 2. Preprocessing (MICE)
-Handle missing values and compute change scores.
+### Step 2: Preprocessing
+Clean data, handle missing values, and compute change scores.
 ```bash
-python code/preprocessing.py --input data/raw/synthetic_dataset.csv --output data/processed/cleaned_imputed.csv
+python code/main.py --action preprocess
 ```
-*Output*: `data/processed/cleaned_imputed.csv`
+*Output:* `data/processed/cleaned_data.csv` and `data/processed/exclusion_report.json`.
 
-### 3. Statistical Analysis
-Fit the regression model, validate assumptions, and run bootstraps.
+### Step 3: Analysis
+Fit the regression model, check assumptions, and run bootstrap.
 ```bash
-python code/analysis.py --input data/processed/cleaned_imputed.csv --output data/outputs/regression_results.json --bootstrap 1000
+python code/main.py --action analyze
 ```
-*Output*: `data/outputs/regression_results.json` (coefficients, p-values, diagnostics).
+*Output:* `data/results/regression_results.json`, `data/results/bootstrap_results.json`.
 
-### 4. Sensitivity Analysis
-Run threshold sweeps, power analysis, and missingness mechanism diagnostics.
+### Step 4: Validation
+Validate outputs against schemas.
 ```bash
-python code/sensitivity.py --input data/outputs/regression_results.json --output data/outputs/sensitivity_report.json
+python code/main.py --action validate
 ```
+*Output:* Console report of schema validation status.
 
 ## Verification
-To ensure the pipeline works:
-1.  Check that `data/outputs/regression_results.json` contains a `parameter_recovery_bias` close to `0` (for synthetic data with β=0.2).
-2.  Verify that `shapiro_p` > 0.05 and `breusch_pagan_p` > 0.05 in the output.
-3.  Confirm that `vif_max` < 5.
-4.  For synthetic data, ensure the `is_preliminary` flag is `false` (as power is deterministic in the synthetic path and not the success metric).
+To verify the pipeline works on your machine:
+1.  Ensure `data/results/regression_results.json` contains `interaction_beta`, `p_value`, and `assumptions`.
+2.  Check that `assumptions.vif` values are < 5 (or flagged if not).
+3.  Confirm `bootstrap_results.ci_width_variance` is < 0.01.
 
 ## Troubleshooting
--   **ImportError**: Ensure `requirements.txt` was installed in the active virtual environment.
--   **Memory Error**: Reduce `--n` in data generation or `--bootstrap` iterations. The default settings are optimized for typical RAM configurations.
--   **Missing Data**: If real data is used and missingness > 20%, the script will exclude rows per FR-002.
+-   **Missing Data Error:** If the dataset has >20% missingness in key variables, the pipeline will exclude rows and log the count. Check `data/processed/exclusion_report.json`.
+-   **Model Assumption Failure:** If Shapiro-Wilk p < 0.05, the results will be marked as "Assumptions Violated". Do not interpret significance; rely on confidence intervals.
+-   **Collinearity:** If VIF ≥ 5, the interpretation will be descriptive only.

@@ -1,0 +1,123 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Analysis Results Schema"
+description: "Schema for ANCOVA and bootstrap results."
+type: "object"
+properties:
+  model_summary:
+    type: "object"
+    properties:
+      coefficients:
+        type: "object"
+        additionalProperties:
+          type: "number"
+      p_values:
+        type: "object"
+        additionalProperties:
+          type: "number"
+      confidence_intervals:
+        type: "object"
+        additionalProperties:
+          type: "array"
+          items:
+            type: "number"
+          minItems: 2
+          maxItems: 2
+      assumptions:
+        type: "object"
+        properties:
+          shapiro_wilk_p:
+            type: "number"
+            description: "P-value from Shapiro-Wilk test (target > 0.05)."
+          breusch_pagan_p:
+            type: "number"
+            description: "P-value from Breusch-Pagan test (target > 0.05)."
+          vif:
+            type: "object"
+            additionalProperties:
+              type: "number"
+            description: "Variance Inflation Factors for each predictor."
+          visual_checks:
+            type: "object"
+            properties:
+              qq_plot_passed:
+                type: "boolean"
+              residual_plot_passed:
+                type: "boolean"
+        required:
+          - shapiro_wilk_p
+          - breusch_pagan_p
+          - vif
+      data_path:
+        type: "string"
+        enum:
+          - "Real"
+          - "Synthetic"
+      interpretation_framing:
+        type: "string"
+        enum:
+          - "Empirical Association"
+          - "Simulated Causal Effect"
+    required:
+      - coefficients
+      - p_values
+      - confidence_intervals
+      - assumptions
+      - data_path
+      - interpretation_framing
+  bootstrap_stability:
+    type: "object"
+    properties:
+      interaction_mean:
+        type: "number"
+      interaction_ci_lower:
+        type: "number"
+      interaction_ci_upper:
+        type: "number"
+      ci_width_variance:
+        type: "number"
+        description: "Variance of CI widths (target < 0.01)."
+      parameter_recovery_bias:
+        type: "number"
+        description: "Bias for synthetic data (target < 0.05)."
+    required:
+      - interaction_mean
+      - interaction_ci_lower
+      - interaction_ci_upper
+      - ci_width_variance
+  sensitivity_analysis:
+    type: "object"
+    properties:
+      threshold_stability:
+        type: "array"
+        items:
+          type: "object"
+          properties:
+            threshold:
+              type: "number"
+            significant:
+              type: "boolean"
+      imputation_sweep:
+        type: "array"
+        items:
+          type: "object"
+          properties:
+            missingness_limit:
+              type: "number"
+            bias_or_variance:
+              type: "number"
+      mnar_sensitivity:
+        type: "object"
+        properties:
+          bias_under_mnar:
+            type: "number"
+          conclusion:
+            type: "string"
+    required:
+      - threshold_stability
+      - imputation_sweep
+      - mnar_sensitivity
+required:
+  - model_summary
+  - bootstrap_stability
+  - sensitivity_analysis
+additionalProperties: false

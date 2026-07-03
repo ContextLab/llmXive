@@ -1,80 +1,112 @@
-# Research: Simulated Social Comparison on Self-Esteem in VR
+# Research: The Effect of Simulated Social Comparison on Self-Esteem in Virtual Reality
 
 ## Dataset Strategy
 
-### Real Dataset Search
-Per **FR-001** and **FR-009**, the system will query HuggingFace Datasets, OpenML, and Open Science Framework for datasets containing:
+### Verified Datasets Search
+The specification (FR-001, US-1) requires a dataset containing:
 1.  **RSES** (Rosenberg Self-Esteem Scale)
 2.  **INCOM** (Iowa-Netherlands Comparison Orientation Measure)
-3.  **Longitudinal** data (Pre/Post self-esteem scores)
-4.  **N ≥ 100** participants
+3.  **Longitudinal** (Pre/Post) self-esteem data.
+4.  **N ≥ 100** participants.
+5.  **VR Exposure** condition or proxy.
 
-**Verified Datasets Check**:
-The provided "Verified datasets" block was reviewed for relevant sources:
--   **RSES**: The provided URLs (`Rsesystem2/Avneet_Mockups...`) point to mockups/zip files, likely not structured psychological survey data with longitudinal scores.
--   **INCOM**: The provided URLs (`adult-census-income`, `nfcorpus`) are unrelated to psychological comparison measures.
--   **VR-specific**: The block explicitly states: "NO verified source found".
--   **MICE**: The provided URLs are protein/gene datasets, not psychological.
+**Search Results against Verified List:**
+The `# Verified datasets` block provided for this project contains:
+-   `AND` (cat kingdom, invoices, knights): Irrelevant.
+-   `RSES` (Avneet Mockups): These are **mockups** (UI designs), not survey data. They do not contain participant scores or longitudinal data.
+-   `INCOM` (Adult Census, Income): These are **income** datasets, not psychological comparison measures.
+-   `VR-specific`: **NO verified source found.**
+-   `MICE` (Protein, Mice): Biological data, irrelevant.
+-   `ALL` (Math, Chat): Irrelevant.
 
-**Conclusion**: No verified dataset in the provided list contains the specific combination of RSES, INCOM, and longitudinal self-esteem data with N ≥ 100.
-**Action**: The system will proceed to **Synthetic Data Generation** (FR-011) as the primary data source. This ensures the pipeline can be tested against known ground-truth parameters (interaction β = 0.2).
+**Conclusion:**
+No real-world public dataset exists in the verified list that satisfies the requirement for RSES + INCOM + Longitudinal Pre/Post + VR exposure.
+**Action:** The system MUST trigger **FR-011**: Synthetic Data Generation.
+**Ground Truth & Data Generation Process (DGP):**
+To ensure the parameter recovery test is a valid stress test and not a tautology, the synthetic generator will implement the following DGP:
+-   **N**: 200 (to ensure robustness).
+-   **Covariates**:
+    -   `pre_self_esteem`: Normal(μ=20, σ=5).
+    -   `comparison_tendency`: Normal(μ=0, σ=1).
+    -   `avatar_condition`: Binary (0=Control, 1=Idealized) OR Continuous (Uniform[0, 10] for intensity).
+-   **Error Term**: $\epsilon \sim \text{Normal}(0, \sigma=2.5)$ (Injected noise to simulate real-world variance).
+-   **Data Generation Equation (ANCOVA)**:
+    $$ \text{PostSelfEsteem} = \beta_0 + \beta_1(\text{PreSelfEsteem}) + \beta_2(\text{Condition}) + \beta_3(\text{Comparison}) + \beta_4(\text{Condition} \times \text{Comparison}) + \epsilon $$
+    -   **Ground Truth Parameters**:
+        -   $\beta_0 = 10$
+        -   $\beta_1 = 0.6$ (Stability of self-esteem)
+        -   $\beta_2$ represents the main effect of condition.
+        -   $\beta_3$ represents the main effect of comparison tendency (Main effect of comparison tendency)
+        -   $\beta_4 = 0.2$ (**Target Interaction Effect**)
+-   **Missingness Mechanism**:
+    -   **Type**: Missing At Random (MAR).
+    -   **Mechanism**: Probability of missing `post_self_esteem` is modeled as a function of `pre_self_esteem` (lower pre-scores slightly more likely to miss), ensuring MICE assumptions hold.
+ - **Rate**: Target [deferred] missingness in key variables.
+    -   **MNAR Sensitivity**: A secondary sensitivity analysis will simulate MNAR (missingness depends on the unobserved `post_self_esteem`) to test robustness.
+-   **Label**: "Pipeline Validation Only".
 
-### Synthetic Data Generation Strategy
-Since real data is unavailable, a synthetic dataset will be generated with the following properties:
--   **N**: 100 to 500 participants (configurable, default 200 to ensure power).
--   **Variables**:
-    -   `participant_id`: Unique identifier.
-    -   `avatar_condition`: Continuous variable representing exposure intensity (0.0 to 1.0). **Note**: This operationalization is a methodological choice for the synthetic path to maximize power and test linearity. It does not claim that real-world "exposure to idealized avatars" is inherently continuous. A **Non-Linearity Sensitivity Check** (quadratic term) will be added to the analysis to ensure the linear assumption does not mask theoretical threshold effects.
-    -   `comparison_tendency`: Continuous score from INCOM (simulated normal distribution).
-    -   `selfesteem_pre`: Baseline self-esteem (RSES score).
-    -   `selfesteem_post`: Post-exposure self-esteem.
-    -   `selfesteem_change`: Derived as `post - pre`.
--   **Ground Truth Model**:
-    $$ \text{Change} = \beta_0 + \beta_1(\text{Condition}) + \beta_2(\text{Tendency}) + \beta_3(\text{Condition} \times \text{Tendency}) + \epsilon $$
-    -   $\beta_1$ (Main Effect): -0.3 (Idealized avatars lower self-esteem).
-    -   $\beta_2$ (Moderator): 0.1 (High comparers generally more sensitive).
-    -   $\beta_3$ (Interaction): **0.2** (As per FR-011; high comparers suffer more).
-    -   $\epsilon$: Normal noise.
--   **Missingness**: Artificially introduce a moderate level of missingness (MCAR) to test MICE (FR-002). Additionally, simulate **MAR** (Missing At Random) and **MNAR** (Missing Not At Random) scenarios to validate the robustness of MICE under different missingness mechanisms, addressing the limitation of testing only on MCAR.
+### Data Loading Strategy
+-   **Path A (Real Data):** If a real dataset were found, load via `pandas.read_csv` or `datasets.load_dataset`.
+-   **Path B (Synthetic):** Use a deterministic generator in `code/data/download.py` with a fixed random seed (e.g., `42`).
+-   **Variable Mapping**:
+    -   `self_esteem_pre` -> `pre_score` (Covariate)
+    -   `self_esteem_post` -> `post_score` (Outcome)
+    -   `avatar_condition` -> `condition` (0/1 or continuous)
+    -   `comparison_tendency` -> `incom_score`
 
-## Statistical Analysis Plan
+## Statistical Methodology
 
-### Primary Model
-A linear regression model will be fitted using `statsmodels`:
-$$ \text{selfesteem\_change} \sim \text{avatar\_condition} + \text{comparison\_tendency} + \text{avatar\_condition}:\text{comparison\_tendency} $$
+### Primary Model (ANCOVA)
+**Correction for Mathematical Coupling:**
+To avoid the spurious correlation inherent in regressing change scores on baseline, the primary analysis will use **Analysis of Covariance (ANCOVA)**:
+$$ \text{PostSelfEsteem} = \beta_0 + \beta_1(\text{PreSelfEsteem}) + \beta_2(\text{Condition}) + \beta_3(\text{Comparison}) + \beta_4(\text{Condition} \times \text{Comparison}) + \epsilon $$
 
-### Assumption Validation (FR-004)
-1.  **Normality**: Shapiro-Wilk test on residuals. Target: $p > 0.05$.
-2.  **Homoscedasticity**: Breusch-Pagan test. Target: $p > 0.05$.
-3.  **Multicollinearity**: Variance Inflation Factor (VIF). Target: VIF < 5 for all predictors.
-
-### Missingness Mechanism Diagnostic
-To address the gap in validating MICE for real data where the mechanism is unknown:
-1.  **Little's MCAR Test**: Performed on real data to test the null hypothesis that data is Missing Completely At Random.
-2.  **Sensitivity Analysis**: If data is not MCAR, a pattern-mixture model sensitivity analysis will be conducted to assess how MNAR assumptions affect the interaction coefficient.
+**Implementation Details:**
+-   **Library**: `statsmodels.api` (OLS).
+-   **Preprocessing**:
+    1.  **Missingness**: Apply MICE (IterativeImputer) if missingness < 20% in key variables. Exclude rows with > 20% missingness (FR-013).
+    2.  **Normalization**: If `avatar_condition` is binary, ensure 0/1 coding.
+-   **Assumption Checks (FR-004)**:
+    1.  **Normality**: Shapiro-Wilk test on residuals (Target: p > 0.05) **AND** Visual Q-Q Plot inspection.
+    2.  **Homoscedasticity**: Breusch-Pagan test (Target: p > 0.05) **AND** Visual Residual vs. Fitted plot inspection.
+    3.  **Collinearity**: Variance Inflation Factor (VIF) for predictors (Target: VIF < 5). If VIF ≥ 5, report as descriptive joint effect, no independent claims.
+    4.  **Robustness**: If assumptions are violated, re-run with **Robust Standard Errors** (HC3) and report those results.
 
 ### Robustness & Sensitivity (FR-005, FR-006, FR-007)
-1.  **Bootstrap Resampling**: 1000 iterations to generate confidence intervals for the interaction term ($\beta_3$).
-2.  **Error Correction**: Bonferroni or Holm-Bonferroni correction applied if multiple hypotheses (e.g., testing main effects + interaction) are reported.
-3.  **Threshold Sweeps**: Sensitivity analysis varying p-value thresholds (0.05, 0.1) and imputation limits.
-4.  **Parameter Recovery**: For synthetic data, calculate Bias = $|\hat{\beta}_3 - 0.2|$. This is the **primary validation metric** for the synthetic path.
+1.  **Bootstrap Resampling**:
+ - **Iterations**: [deferred] (exact).
+    -   **Metric**: Stability of $\beta_4$ (interaction).
+    -   **Success**: CI width variance < 0.01.
+2.  **Multiple Testing Correction**:
+    -   Apply **Holm-Bonferroni** correction to p-values of main effects and interaction.
+3.  **Sensitivity Analysis**:
+    -   **Threshold Sweep**: Test p < 0.05 and p < 0.10.
+    -   **Parameter Recovery (Synthetic Only)**: Calculate Bias = $|\hat{\beta}_ - 0.2|$.
+        -   **Fail Condition**: Bias > 0.05 (FR-011).
+    -   **Imputation Sweep**: Test imputation limits across a range of low to moderate thresholds.
+    -   **MNAR Sensitivity**: Simulate MNAR missingness (e.g., a non-negligible proportion of high-post-score participants missing) and compare parameter recovery. If Bias > 0.10 under MNAR, flag the pipeline as sensitive to missingness mechanism.
 
-### Power Analysis & Success Criteria (SC-005)
-**CRITICAL DISTINCTION BY PATH**:
+### Construct Validity Note
+If the real data (if found) is binary (0/1) rather than continuous intensity, the interaction term tests if the *group difference* varies by comparison tendency. The plan explicitly acknowledges this as a limitation in construct validity regarding "exposure intensity" but proceeds as the best available proxy for the research question.
 
-1.  **Real Data Path (Empirical)**:
-    *   **Post-hoc Power Analysis**: **MUST** be conducted using `statsmodels.stats.power` (F-test for linear regression).
-    *   **Effect Size**: $f^2$ derived from the observed data.
-    *   **Reporting**: If Power < 0.80, results are explicitly labeled **"Preliminary"**. The "Preliminary" label indicates that the study may be underpowered to detect the effect, not that the pipeline is flawed.
+## Feasibility & Compute Constraints
+-   **Hardware**: GitHub Actions Free Tier (2 CPU, 7 GB RAM).
+-   **Constraints**:
+    -   **No GPU**: All operations must be CPU-only.
+    -   **Memory**: Synthetic data generation for N=200-500 is negligible. Bootstrap (sufficient iterations) on a small dataframe fits easily in RAM.
+    -   **Time**: Linear regression and 1,000 bootstrap iterations on N=200 will complete in < 10 minutes. Well within the specified time limit.
+-   **Library Pins**:
+    -   `pandas`, `numpy`, `scipy`, `statsmodels` (CPU compatible).
+    -   `scikit-learn` (for IterativeImputer).
+    -   `matplotlib` (for visual diagnostics).
+    -   Avoid `torch` unless strictly necessary (not needed for OLS).
 
-2.  **Synthetic Data Path (Methodological)**:
-    *   **Post-hoc Power Analysis**: **NOT PERFORMED**.
-    *   **Rationale**: Power analysis is methodologically invalid when the ground truth is known. The "success" of the synthetic path is determined by **Parameter Recovery Bias** (how close $\hat{\beta}$ is to the true $\beta=0.2$). If the pipeline cannot recover the known parameter, the sample size or method is flawed, regardless of p-values.
-    *   **Reporting**: The "Preliminary" label is **not applicable** to the synthetic path. Instead, the report will state: "Pipeline Validation: Parameter Recovery Bias = X (Target < 0.05)". If Bias > 0.05, the pipeline is flagged as **flawed**.
-    *   **Implication**: Synthetic data validates the *code and statistical engine*, not the *real-world hypothesis*.
-
-## Compute Feasibility
--   **Hardware**: CPU-only (GitHub Actions Free Tier).
--   **Memory**: Synthetic data generation and OLS regression for N=500 require < 100 MB RAM.
--   **Time**: Bootstrap (1000 iters) on N=500 takes < 5 minutes on 2 CPUs. Total pipeline < 30 mins.
--   **Libraries**: `scikit-learn`, `statsmodels`, `pandas` are CPU-optimized and do not require CUDA.
+## Risk Mitigation
+-   **Risk**: Real data found but missing `INCOM`.
+    -   **Mitigation**: Spec (FR-009) mandates synthetic generation if variables are missing.
+-   **Risk**: Model assumptions violated (e.g., non-normal residuals).
+    -   **Mitigation**: Report violation in `research.md` and `data-model.md`. Use Robust Standard Errors. Do not claim significance; report descriptive statistics and confidence intervals.
+-   **Risk**: Collinearity (VIF ≥ 5).
+    -   **Mitigation**: As per spec, frame as descriptive joint relationship, no independent causal claims.
+-   **Risk**: MNAR missingness in real data.
+    -   **Mitigation**: Sensitivity analysis (MNAR simulation) will quantify the potential bias.

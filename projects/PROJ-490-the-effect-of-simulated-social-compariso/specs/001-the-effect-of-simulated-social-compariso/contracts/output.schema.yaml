@@ -1,6 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Regression Analysis Output Schema"
-description: "Schema for the primary regression results and diagnostic metrics."
+description: "Schema for the primary ANCOVA results and diagnostic metrics."
 type: "object"
 properties:
   model_id:
@@ -11,6 +11,9 @@ properties:
     properties:
       intercept:
         type: "number"
+      pre_self_esteem:
+        type: "number"
+        description: "Beta coefficient for baseline self-esteem (covariate)."
       avatar_condition:
         type: "number"
         description: "Beta coefficient for avatar condition."
@@ -22,6 +25,7 @@ properties:
         description: "Beta coefficient for the interaction term (Condition * Tendency)."
     required:
       - intercept
+      - pre_self_esteem
       - avatar_condition
       - comparison_tendency
       - interaction
@@ -56,6 +60,9 @@ properties:
       vif_max:
         type: "number"
         description: "Maximum Variance Inflation Factor (target < 5)."
+      robust_se_used:
+        type: "boolean"
+        description: "True if Robust Standard Errors were used due to assumption violation."
       power_analysis:
         type: "object"
         properties:

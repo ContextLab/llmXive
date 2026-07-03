@@ -1,0 +1,87 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Social Comparison Dataset Schema
+description: >
+  Schema for the raw dataset containing participant data for the
+  simulated social comparison study. Includes self-esteem scores,
+  avatar conditions, and comparison tendency measures.
+type: object
+required:
+  - fields
+  - records
+properties:
+  fields:
+    type: array
+    description: List of field definitions
+    items:
+      type: object
+      required:
+        - name
+        - type
+        - description
+      properties:
+        name:
+          type: string
+          description: Column name
+        type:
+          type: string
+          enum:
+            - integer
+            - float
+            - string
+            - boolean
+            - category
+          description: Data type
+        description:
+          type: string
+          description: Field description
+        required:
+          type: boolean
+          default: false
+          description: Whether the field is mandatory
+  records:
+    type: array
+    description: List of participant records
+    items:
+      type: object
+      properties:
+        participant_id:
+          type: string
+          description: Unique identifier for the participant
+        avatar_condition:
+          type: string
+          enum:
+            - idealized
+            - realistic
+            - control
+          description: Experimental condition (avatar type shown)
+        pre_self_esteem:
+          type: number
+          description: Pre-intervention RSES score (Range 10-50)
+        post_self_esteem:
+          type: number
+          description: Post-intervention RSES score (Range 10-50)
+        comparison_tendency:
+          type: number
+          description: INCOM score indicating tendency to compare (Range 1-5)
+        age:
+          type: integer
+          minimum: 18
+          maximum: 99
+          description: Participant age
+        gender:
+          type: string
+          description: Self-reported gender
+        consent_verified:
+          type: boolean
+          description: Whether IRB consent was verified
+        data_source:
+          type: string
+          enum:
+            - real
+            - synthetic
+          description: Origin of the data record
+        source_metadata:
+          type: object
+          description: Optional metadata about the specific source (e.g., dataset URL, generation params)
+          additionalProperties: true
+additionalProperties: false

@@ -1,0 +1,213 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Analysis Output Schema
+description: >
+  Schema for the processed analysis output, including regression
+  coefficients, diagnostic metrics, and interpretation labels.
+type: object
+required:
+  - metadata
+  - model_results
+  - diagnostics
+  - interpretation
+properties:
+  metadata:
+    type: object
+    required:
+      - timestamp
+      - data_source_type
+      - n_participants
+      - n_imputed
+    properties:
+      timestamp:
+        type: string
+        format: date-time
+        description: ISO 8601 timestamp of analysis
+      data_source_type:
+        type: string
+        enum:
+          - real
+          - synthetic
+        description: Type of data used
+      n_participants:
+        type: integer
+        minimum: 0
+        description: Total number of participants analyzed
+      n_imputed:
+        type: integer
+        minimum: 0
+        description: Number of records with imputed values
+      missingness_rate:
+        type: number
+        minimum: 0
+        maximum: 1
+        description: Proportion of missing values handled
+  model_results:
+    type: object
+    required:
+      - coefficients
+      - p_values
+      - r_squared
+      - adjusted_r_squared
+    properties:
+      coefficients:
+        type: object
+        description: Regression coefficients
+        properties:
+          intercept:
+            type: number
+          avatar_condition_idealized:
+            type: number
+            description: Effect of idealized avatar vs control
+          avatar_condition_realistic:
+            type: number
+            description: Effect of realistic avatar vs control
+          comparison_tendency:
+            type: number
+            description: Main effect of comparison tendency
+          interaction_term:
+            type: number
+            description: Interaction between avatar and comparison tendency
+        additionalProperties: true
+      p_values:
+        type: object
+        description: P-values for each coefficient
+        properties:
+          avatar_condition_idealized:
+            type: number
+            minimum: 0
+            maximum: 1
+          avatar_condition_realistic:
+            type: number
+            minimum: 0
+            maximum: 1
+          comparison_tendency:
+            type: number
+            minimum: 0
+            maximum: 1
+          interaction_term:
+            type: number
+            minimum: 0
+            maximum: 1
+        additionalProperties: true
+      r_squared:
+        type: number
+        minimum: 0
+        maximum: 1
+      adjusted_r_squared:
+        type: number
+        minimum: 0
+        maximum: 1
+      confidence_intervals:
+        type: object
+        description: 95% Confidence intervals for coefficients
+        properties:
+          avatar_condition_idealized:
+            type: array
+            items:
+              type: number
+            minItems: 2
+            maxItems: 2
+          avatar_condition_realistic:
+            type: array
+            items:
+              type: number
+            minItems: 2
+            maxItems: 2
+          comparison_tendency:
+            type: array
+            items:
+              type: number
+            minItems: 2
+            maxItems: 2
+          interaction_term:
+            type: array
+            items:
+              type: number
+            minItems: 2
+            maxItems: 2
+  diagnostics:
+    type: object
+    required:
+      - normality_test
+      - homoscedasticity_test
+      - collinearity_vif
+    properties:
+      normality_test:
+        type: object
+        description: Shapiro-Wilk test results
+        properties:
+          statistic:
+            type: number
+          p_value:
+            type: number
+            minimum: 0
+            maximum: 1
+          passed:
+            type: boolean
+            description: True if p > 0.05
+      homoscedasticity_test:
+        type: object
+        description: Breusch-Pagan test results
+        properties:
+          statistic:
+            type: number
+          p_value:
+            type: number
+            minimum: 0
+            maximum: 1
+          passed:
+            type: boolean
+            description: True if p > 0.05
+      collinearity_vif:
+        type: object
+        description: Variance Inflation Factors
+        properties:
+          avatar_condition:
+            type: number
+          comparison_tendency:
+            type: number
+          interaction_term:
+            type: number
+        additionalProperties: true
+        minProperties: 3
+      high_collinearity_flag:
+        type: boolean
+        description: True if any VIF >= 5
+  interpretation:
+    type: object
+    required:
+      - label
+      - summary
+      - caution_flags
+    properties:
+      label:
+        type: string
+        enum:
+          - Empirical Association
+          - Simulated Causal Effect
+        description: Interpretation context based on data source
+      summary:
+        type: string
+        description: Human-readable summary of findings
+      caution_flags:
+        type: array
+        description: List of methodological cautions
+        items:
+          type: string
+        minItems: 0
+      sensitivity_summary:
+        type: object
+        description: Optional summary of sensitivity analysis
+        properties:
+          bootstrap_stable:
+            type: boolean
+          parameter_recovery_error:
+            type: number
+            nullable: true
+          threshold_sensitivity:
+            type: string
+            enum:
+              - stable
+              - moderate
+              - unstable
+additionalProperties: false

@@ -1,51 +1,62 @@
-# Data Model: Simulated Social Comparison on Self-Esteem in VR
+# Data Model: The Effect of Simulated Social Comparison on Self-Esteem in Virtual Reality
 
-## Overview
-This document defines the data structures used in the analysis pipeline. All data is stored in CSV/Parquet format to ensure reproducibility and compatibility with the CPU-only environment.
+## Entity Definitions
 
-## Entity: Participant
-Represents a single subject in the study (real or synthetic).
+### Dataset Entity
+The primary data source, either real (if found) or synthetic.
+-   **Type**: Tabular (CSV/Parquet/JSON).
+-   **Records**: Participants (N ≥ 100).
+-   **Key Attributes**:
+    -   `participant_id`: Unique string/integer.
+    -   `pre_self_esteem`: Float (RSES score, 0-30 or 0-40). **Used as Covariate in ANCOVA.**
+    -   `post_self_esteem`: Float (RSES score). **Outcome Variable.**
+    -   `avatar_condition`: Float (0/1 for binary, or continuous intensity).
+    -   `comparison_tendency`: Float (INCOM score).
+    -   `missingness_flag`: Boolean (if >20% missing in key vars, row excluded).
 
-### Attributes
-| Attribute | Type | Description | Constraints |
-| :--- | :--- | :--- | :--- |
-| `participant_id` | `string` | Unique identifier | Unique, not null |
-| `avatar_condition` | `float` | Exposure intensity to idealized avatars | Range [0.0, 1.0] |
-| `comparison_tendency` | `float` | INCOM score (Social Comparison Orientation) | Range [0.0, 100.0] (or normalized) |
-| `selfesteem_pre` | `float` | Rosenberg Self-Esteem Scale score (Pre) | Range [10.0, 40.0] |
-| `selfesteem_post` | `float` | Rosenberg Self-Esteem Scale score (Post) | Range [10.0, 40.0] |
-| `selfesteem_change` | `float` | Calculated as `post - pre` | Derived |
-| `missingness_flag` | `boolean` | Indicator if record had missing values imputed | False if complete |
-| `missingness_mechanism` | `string` | (Synthetic only) MCAR, MAR, or MNAR flag | Used for sensitivity analysis |
+### Regression Model Entity
+The output of the primary analysis.
+-   **Type**: Statistical Model Object (serialized to JSON/CSV).
+-   **Attributes**:
+    -   `coefficients`: Dict {var: float}. Includes `pre_self_esteem`, `avatar_condition`, `comparison_tendency`, `interaction`.
+    -   `p_values`: Dict {var: float}.
+    -   `confidence_intervals`: Dict {var: [lower, upper]}.
+    -   `assumptions`: Dict {shapiro_p: float, breusch_pagan_p: float, vif: Dict, visual_checks: Dict}.
+    -   `data_path`: String ("Real" or "Synthetic").
+    -   `interpretation_framing`: String ("Empirical Association" or "Simulated Causal Effect").
 
-### Relationships
--   One-to-One with `RegressionResult` (aggregated).
--   One-to-Many with `BootstrapSample` (if tracking individual bootstrap samples, though usually aggregated).
-
-## Entity: RegressionResult
-Aggregated statistical output from the primary analysis.
-
-### Attributes
-| Attribute | Type | Description |
-| :--- | :--- | :--- |
-| `model_id` | `string` | Unique identifier for the model run |
-| `coefficient_condition` | `float` | $\beta_1$ estimate |
-| `pval_condition` | `float` | P-value for condition |
-| `coefficient_tendency` | `float` | $\beta_2$ estimate |
-| `pval_tendency` | `float` | P-value for tendency |
-| `coefficient_interaction` | `float` | $\beta_3$ estimate |
-| `pval_interaction` | `float` | P-value for interaction |
-| `pval_interaction_corrected` | `float` | Bonferroni/Holm corrected p-value |
-| `r_squared` | `float` | Model R-squared |
-| `shapiro_p` | `float` | Normality test p-value |
-| `breusch_pagan_p` | `float` | Homoscedasticity test p-value |
-| `vif_max` | `float` | Maximum VIF among predictors |
-| `power_achieved` | `float` | Post-hoc power (Real Data Path only) |
-| `parameter_recovery_bias` | `float` | Bias for synthetic path (|beta_hat - beta_true|) |
+### Bootstrap Stability Entity
+The output of the robustness check.
+-   **Type**: Aggregated Statistics.
+-   **Attributes**:
+ - `interaction_mean`: Float (Mean of $\beta_{interaction}$ across [deferred] iters).
+    -   `interaction_ci_lower`: Float (2.5th percentile).
+    -   `interaction_ci_upper`: Float (97.5th percentile).
+    -   `ci_width_variance`: Float.
+    -   `parameter_recovery_bias`: Float (Only for synthetic).
 
 ## Data Flow
-1.  **Raw Data**: `data/raw/synthetic_dataset.csv` (or real).
-2.  **Processed Data**: `data/processed/cleaned_imputed.csv` (MICE applied, change scores computed).
-3.  **Model Output**: `data/outputs/regression_results.json` (Diagnostics + Coefficients).
-4.  **Bootstrap Output**: `data/outputs/bootstrap_stability.csv` (Distribution of $\beta_3$).
-5.  **Sensitivity Output**: `data/outputs/sensitivity_report.json` (Missingness mechanism impact).
+
+1.  **Ingestion**:
+    -   Input: Raw CSV/JSON or Synthetic Generator.
+    -   Output: `data/raw/dataset.csv`.
+    -   Checksum: SHA-256 recorded in `state/`.
+2.  **Preprocessing**:
+    -   Input: `data/raw/dataset.csv`.
+    -   Process: Missingness check -> MICE (if <20%) -> Drop (>20%) -> **No change score calculation** (ANCOVA uses pre/post directly).
+    -   Output: `data/processed/cleaned_data.csv`.
+3.  **Analysis**:
+    -   Input: `data/processed/cleaned_data.csv`.
+    -   Process: ANCOVA Regression (Post ~ Pre + Condition + Comparison + Interaction) -> Assumption Checks (Visual + Stat) -> Bootstrap.
+    -   Output: `data/results/regression_results.json`, `data/results/bootstrap_results.json`.
+4.  **Validation**:
+    -   Input: Results JSONs.
+    -   Process: Validate against `contracts/` schemas.
+    -   Output: Validation Pass/Fail report.
+
+## Assumptions & Constraints
+-   **Missing Data**: MICE is used only if missingness < 20% in key variables. Otherwise, rows are dropped (FR-013).
+-   **Variable Types**: `avatar_condition` is treated as continuous if the dataset provides intensity; otherwise binary (0/1).
+-   **Collinearity**: If VIF ≥ 5, the model output will flag "Multicollinearity Detected" and suppress independent effect claims.
+-   **Framing**: All results from synthetic data are labeled "Pipeline Validation Only".
+-   **Model Specification**: The primary model is **ANCOVA**, not change-score regression, to avoid mathematical coupling.
