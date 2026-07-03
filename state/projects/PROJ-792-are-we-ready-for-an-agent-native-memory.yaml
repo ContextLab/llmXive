@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-06-26T11:03:27.642343Z'
-current_stage: paper_ingested
+current_stage: reviewed_preprint
 failed_stage: null
 field: linguistics
 human_escalation_reason: null
 id: PROJ-792-are-we-ready-for-an-agent-native-memory
-last_run_id: c72f37dd-acc1-4361-93c1-d94f57d91633
+last_run_id: c883a017-9021-4ca7-b9f8-c63c64f53927
 last_run_status: null
 points_paper: {}
 points_research: {}

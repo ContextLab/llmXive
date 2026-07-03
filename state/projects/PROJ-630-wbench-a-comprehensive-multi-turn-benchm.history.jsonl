@@ -2,3 +2,4 @@
 {"at": "2026-06-30T08:51:32.639257+00:00", "from_stage": "paper_review", "last_run_id": "7e7d8af7-1e05-44be-8972-cd85ca69a9e1", "to_stage": "paper_ingested"}
 {"at": "2026-06-30T09:37:55.797432+00:00", "from_stage": "paper_ingested", "last_run_id": "7e7d8af7-1e05-44be-8972-cd85ca69a9e1", "to_stage": "in_progress"}
 {"at": "2026-07-01T19:23:55.094213+00:00", "from_stage": "in_progress", "last_run_id": "d9527f75-f26d-4bab-a9a1-fd5846789da3", "to_stage": "paper_ingested"}
+{"at": "2026-07-03T14:06:12.023739+00:00", "from_stage": "paper_ingested", "last_run_id": "f89b63bf-263b-4bad-8940-5e4180e7018e", "to_stage": "reviewed_preprint"}

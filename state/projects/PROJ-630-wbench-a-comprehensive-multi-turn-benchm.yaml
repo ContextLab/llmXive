@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-27T09:10:37.839831Z'
-current_stage: paper_ingested
+current_stage: reviewed_preprint
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-630-wbench-a-comprehensive-multi-turn-benchm
-last_run_id: d9527f75-f26d-4bab-a9a1-fd5846789da3
+last_run_id: f89b63bf-263b-4bad-8940-5e4180e7018e
 last_run_status: null
 points_paper: {}
 points_research: {}
