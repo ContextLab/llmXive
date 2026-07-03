@@ -1,0 +1,11 @@
+plink2
+freebayes
+bwa
+scikit-learn
+pandas
+numpy
+statsmodels
+dwgsim
+pyyaml
+requests
+scipy

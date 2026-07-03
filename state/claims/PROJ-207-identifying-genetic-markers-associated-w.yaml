@@ -1,0 +1,109 @@
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/docs/data_policy.md
+  attempts: 1
+  canonical: Data fetched from NCBI BioProject PRJNA566029
+  claim_id: c_187b9172
+  context: 'The project adheres to the following directory structure and lifecycle:
+    1. Raw (data/raw/): Contains unmodified data fetched from external sources (e.g.,
+    NCBI BioProject PRJNA566029) or generated synthetic data.'
+  evidence:
+    entailment_evidence: Data fetched from NCBI BioProject PRJNA566029
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Data_fetched_from_NCBI_BioProject_PRJNA566029
+  kind: entity_fact
+  raw_text: Contains unmodified data fetched from external sources (e.g., NCBI BioProject
+    PRJNA566029) or generated synthetic data.
+  resolved_value: Data fetched from NCBI BioProject PRJNA566029
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-03T10:30:18Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/docs/data_policy.md
+  attempts: 1
+  canonical: Dataset meets minimum threshold of n >= 80
+  claim_id: c_946e6ceb
+  context: 'FR-012 (Sample Size): Power analysis must be performed on the raw data
+    count before proceeding, ensuring the dataset meets the minimum threshold (n >=
+    80).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Power analysis must be performed on the raw data count before proceeding,
+    ensuring the dataset meets the minimum threshold (n >= 80).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T10:31:01Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/docs/pipeline_execution_guide.md
+  attempts: 1
+  canonical: GWAS data for Honeybee CCD sourced from NCBI BioProject PRJNA566029
+  claim_id: c_bfefb70c
+  context: 'Option A: Download Real Data (Recommended) Fetch data from NCBI BioProject
+    (PRJNA566029):'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/GWAS_data_for_Honeybee_CCD_sourced_from_NCBI_BioProject_PRJN
+  kind: entity_fact
+  raw_text: Fetch data from NCBI BioProject (PRJNA566029)
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T10:58:06Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/docs/pipeline_execution_guide.md
+  attempts: 1
+  canonical: GWAS pipeline requires minimum sample size of 80
+  claim_id: c_6a7fb6bd
+  context: '- **Failure**: Halts pipeline with error code `ERR_SAMPLE_SIZE_INSUFFICIENT`
+    if sample size < 80.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Pipeline halts with error code ERR_SAMPLE_SIZE_INSUFFICIENT if sample
+    size < 80
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T10:58:06Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/docs/pipeline_execution_guide.md
+  attempts: 1
+  canonical: Variant calling filters applied with QUAL greater than 30 and Depth at
+    least 10
+  claim_id: c_f7d092e8
+  context: "*Filters applied: QUAL > 30, Depth \u2265 10.*"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Variant_calling_filters_applied_with_QUAL_greater_than_30_an
+  kind: magnitude
+  raw_text: "Filters applied: QUAL > 30, Depth \u2265 10"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T10:58:38Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/docs/pipeline_execution_guide.md
+  attempts: 1
+  canonical: GWAS covariates include geographic region, sampling year, and varroa
+    mite count
+  claim_id: c_c09d70bd
+  context: '*Covariates included: Geographic region, Sampling year, Varroa mite count.*'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/GWAS_covariates_include_geographic_region,_sampling_year,_an
+  kind: entity_fact
+  raw_text: 'Covariates included: Geographic region, Sampling year, Varroa mite count'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T10:59:41Z'
