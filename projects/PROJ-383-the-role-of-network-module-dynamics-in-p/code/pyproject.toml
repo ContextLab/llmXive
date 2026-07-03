@@ -1,0 +1,48 @@
+[tool.black]
+line-length = 88
+target-version = ['py311']
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | venv
+  | _build
+  | buck-out
+  | build
+  | dist
+  | data
+)/
+'''
+
+[tool.pylint.MASTER]
+ignore-patterns = "^test_.*\\.py$"
+load-plugins = "pylint.extensions.docparams"
+
+[tool.pylint.FORMAT]
+max-line-length = 88
+
+[tool.pylint.DESIGN]
+max-args = 10
+max-locals = 20
+max-returns = 8
+max-branches = 20
+max-statements = 100
+max-attributes = 15
+max-public-methods = 25
+
+[tool.pylint.TYPECHECK]
+generated-members = "numpy.*, pandas.*, scipy.*, sklearn.*, networkx.*, leidenalg.*, nilearn.*"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = "test_*.py"
+python_functions = "test_*"
+addopts = "-v --strict-markers"
+markers =
+    "unit: Unit tests"
+    "integration: Integration tests"
+    "slow: Slow running tests"

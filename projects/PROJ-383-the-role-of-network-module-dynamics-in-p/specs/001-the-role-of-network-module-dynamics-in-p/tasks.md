@@ -20,32 +20,32 @@
 - **Mobile**: `api/src/`, `ios/src/` or `android/src/`
 - Paths shown below assume single project - adjust based on plan.md structure
 
-<!-- 
-  ============================================================================
-  IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-  
-  The /speckit-tasks command MUST replace these with actual tasks based on:
-  - User stories from spec.md (with their priorities P1, P2, P3...)
-  - Feature requirements from plan.md
-  - Entities from data-model.md
-  - Endpoints from contracts/
-  
-  Tasks MUST be organized by user story so each story can be:
-  - Implemented independently
-  - Tested independently
-  - Delivered as an MVP increment
-  
-  DO NOT keep these sample tasks in the generated tasks.md file.
-  ============================================================================
+<!--
+ ============================================================================
+ IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
+
+ The /speckit-tasks command MUST replace these with actual tasks based on:
+ - User stories from spec.md (with their priorities P1, P2, P3...)
+ - Feature requirements from plan.md
+ - Entities from data-model.md
+ - Endpoints from contracts/
+
+ Tasks MUST be organized by user story so each story can be:
+ - Implemented independently
+ - Tested independently
+ - Delivered as an MVP increment
+
+ DO NOT keep these sample tasks in the generated tasks.md file.
+ ============================================================================
 -->
 
 ## Phase 1: Setup (Shared Infrastructure)
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001a [P] Create root project directories: `code/`, `data/`, `tests/`
-- [ ] T001b [P] Initialize Python 3.11 project with dependencies (`numpy`, `pandas`, `scikit-learn`, `networkx`, `leidenalg`, `nilearn`, `psutil`, `openneuro-py`, `scipy`, `pytest`) in `code/requirements.txt`
-- [ ] T001c [P] Create `.gitignore` and configure linting (flake8/pylint) and formatting (black) tools
+- [X] T001a [P] Create root project directories: `code/`, `data/`, `tests/`
+- [X] T001b [P] Initialize Python 3.11 project with dependencies (`numpy`, `pandas`, `scikit-learn`, `networkx`, `leidenalg`, `nilearn`, `psutil`, `openneuro-py`, `scipy`, `pytest`) in `code/requirements.txt`
+- [X] T001c [P] Create `.gitignore` and configure linting (flake8/pylint) and formatting (black) tools
 
 ---
 
@@ -55,12 +55,12 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 Setup memory monitoring utility `code/utils/memory_monitor.py` using `psutil` to track peak RSS and enforce ≤7GB limit
-- [ ] T005 [P] Create configuration module `code/utils/config.py` with pinned random seeds (numpy, random, networkx, leidenalg) and window length parameters {60, 90, and additional intermediate values}
-- [ ] T006 [P] Initialize specific subdirectory structure (`data/raw_fmri`, `data/raw_behavior`, `data/processed`, `data/results`) and create checksum validation scripts. **Depends on T001a**.
-- [ ] T007 [P] Implement dataset ingestion validator `code/ingestion/validate_source.py` to verify OpenNeuro **ds** availability and abort on mismatch. **Note: Validates ds001734 as per plan.md; spec.md ds000224 reference is a known contradiction flagged for kickback.**
+- [X] T004 Setup memory monitoring utility `code/utils/memory_monitor.py` using `psutil` to track peak RSS and enforce ≤7GB limit
+- [X] T005 [P] Create configuration module `code/utils/config.py` with pinned random seeds (numpy, random, networkx, leidenalg) and window length parameters {60, 90, and additional intermediate values}
+- [X] T006 [P] Initialize specific subdirectory structure (`data/raw_fmri`, `data/raw_behavior`, `data/processed`, `data/results`) and create checksum validation scripts. **Depends on T001a**.
+- [X] T007 [P] Implement dataset ingestion validator `code/ingestion/validate_source.py` to verify OpenNeuro **ds** availability and abort on mismatch. **Note: Validates ds001734 as per plan.md; spec.md ds000224 reference is a known contradiction flagged for kickback.**
 - [ ] T008 Setup logging infrastructure to record subject exclusions and memory usage events
-- [ ] T037 [P] Create `code/preprocessing/fmriprep.conf` configuration file and `code/preprocessing/README.md` justification to satisfy Constitution Principle VI
+- [X] T037 [P] Create `code/preprocessing/fmriprep.conf` configuration file and `code/preprocessing/README.md` justification to satisfy Constitution Principle VI
 - [ ] T038 [P] Implement `code/ingestion/validate_columns.py` to verify presence of motion parameters and FD estimates in the dataset before ingestion
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -83,11 +83,11 @@
 ### Implementation for User Story 1
 
 - [ ] T011 [P] [US1] Implement `code/ingestion/download_hcp.py` to fetch rs-fMRI and n-back data for 100 subjects from OpenNeuro **ds001734**
-- [ ] T012a [US1] Implement subject exclusion logic in `code/ingestion/preprocess.py`: exclude subjects with mean FD > 0.2mm
-- [ ] T012b [US1] Implement motion scrubbing and regression in `code/ingestion/preprocess.py`: Regress out rigid-body motion parameters, their temporal derivatives, and mean FD using OLS; scrub time points with FD > 0.2mm; **output scrubbed time series to `data/processed/scrubbed_timeseries.parquet`**
-- [ ] T013 [US1] Implement data consolidation logic to merge cleaned time series and behavioral scores into `data/processed/consolidated_data.parquet`
-- [ ] T014 [US1] Add logging for subject exclusions due to missing behavioral scores or excessive motion
-- [ ] T015 [US1] Integrate `psutil` peak RSS checks into the ingestion pipeline to verify ≤7GB constraint (FR-010)
+- [~] T012a [US1] Implement subject exclusion logic in `code/ingestion/preprocess.py`: exclude subjects with mean FD > 0.2mm
+- [~] T012b [US1] Implement motion scrubbing and regression in `code/ingestion/preprocess.py`: Regress out rigid-body motion parameters, their temporal derivatives, and mean FD using OLS; scrub time points with FD > 0.2mm; **output scrubbed time series to `data/processed/scrubbed_timeseries.parquet`**
+- [~] T013 [US1] Implement data consolidation logic to merge cleaned time series and behavioral scores into `data/processed/consolidated_data.parquet`
+- [~] T014 [US1] Add logging for subject exclusions due to missing behavioral scores or excessive motion
+- [~] T015 [US1] Integrate `psutil` peak RSS checks into the ingestion pipeline to verify ≤7GB constraint (FR-010)
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -101,16 +101,16 @@
 
 ### Tests for User Story 2
 
-- [ ] T016 [P] [US2] Unit test for sliding window generation and window length validation
-- [ ] T017 [P] [US2] Unit test for flexibility score calculation (range check [0,1] and NaN check)
+- [~] T016 [P] [US2] Unit test for sliding window generation and window length validation
+- [~] T017 [P] [US2] Unit test for flexibility score calculation (range check [0,1] and NaN check)
 
 ### Implementation for User Story 2
 
-- [ ] T018 [P] [US2] Implement `code/analysis/dynamic_connectivity.py` to compute time-varying functional connectivity matrices using sliding windows (primary duration, step size)
-- [ ] T019 [US2] Implement **Multilayer Modularity Optimization (MMO)** using `leidenalg` (resolution sufficient for the analysis, 100 iterations) on **`data/processed/scrubbed_timeseries.parquet`** to identify network modules; calculate flexibility metric as probability of node switching (FR-003, FR-004)
-- [ ] T020 [US2] Handle edge cases: skip subjects if window size leaves insufficient time points; flag errors instead of crashing
-- [ ] T021 [US2] Output flexibility scores to `data/processed/flexibility_scores.parquet`
-- [ ] T022 [US2] Implement sensitivity analysis runner: repeat process for a range of window lengths, **calculate max absolute difference between p-values, assert < 0.05**, and write results to `data/results/sensitivity_analysis.json` (FR-009)
+- [~] T018 [P] [US2] Implement `code/analysis/dynamic_connectivity.py` to compute time-varying functional connectivity matrices using sliding windows (primary duration, step size)
+- [~] T019 [US2] Implement **Multilayer Modularity Optimization (MMO)** using `leidenalg` (resolution sufficient for the analysis, 100 iterations) on **`data/processed/scrubbed_timeseries.parquet`** to identify network modules; calculate flexibility metric as probability of node switching (FR-003, FR-004) <!-- ATOMIZE: requested -->
+- [~] T020 [US2] Handle edge cases: skip subjects if window size leaves insufficient time points; flag errors instead of crashing
+- [~] T021 [US2] Output flexibility scores to `data/processed/flexibility_scores.parquet`
+- [~] T022 [US2] Implement sensitivity analysis runner: repeat process for a range of window lengths, **calculate max absolute difference between p-values, assert < 0.05**, and write results to `data/results/sensitivity_analysis.json` (FR-009)
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -124,17 +124,17 @@
 
 ### Tests for User Story 3
 
-- [ ] T023 [P] [US3] Unit test for partial Spearman correlation with motion control
-- [ ] T024 [P] [US3] Unit test for permutation test logic (1,000 permutations, p-value correction)
+- [~] T023 [P] [US3] Unit test for partial Spearman correlation with motion control
+- [~] T024 [P] [US3] Unit test for permutation test logic (1,000 permutations, p-value correction)
 
 ### Implementation for User Story 3
 
-- [ ] T025 [P] [US3] Implement `code/analysis/statistics.py` for partial Spearman correlation controlling for mean FD (FR-005)
-- [ ] T026 [US3] Implement non-parametric permutation test with standard p-value correction for discrete sampling (FR-006)
-- [ ] T027 [US3] Implement sensitivity analysis logic to compare p-values across window lengths (30s, 60s, 90s) and verify stability (max diff < 0.05) (FR-009)
-- [ ] T028 [US3] Implement `code/results/generate_report.py` to generate final statistics, **including sensitivity analysis results from `data/results/sensitivity_analysis.json`**, ensuring all findings are framed as "**associational**" (exact string) and confirming motion control was applied (FR-007, FR-009)
-- [ ] T029 [US3] Generate visualizations: histogram of null distribution and sensitivity analysis plot using `matplotlib`, saving to `data/results/plots/null_dist.png` and `data/results/plots/sensitivity_plot.png`
-- [ ] T030 [US3] Save final results to `data/results/statistical_report.json` and `data/results/plots/`
+- [~] T025 [P] [US3] Implement `code/analysis/statistics.py` for partial Spearman correlation controlling for mean FD (FR-005)
+- [~] T026 [US3] Implement non-parametric permutation test with standard p-value correction for discrete sampling (FR-006)
+- [~] T027 [US3] Implement sensitivity analysis logic to compare p-values across window lengths (30s, 60s, 90s) and verify stability (max diff < 0.05) (FR-009)
+- [~] T028 [US3] Implement `code/results/generate_report.py` to generate final statistics, **including sensitivity analysis results from `data/results/sensitivity_analysis.json`**, ensuring all findings are framed as "**associational**" (exact string) and confirming motion control was applied (FR-007, FR-009)
+- [~] T029 [US3] Generate visualizations: histogram of null distribution and sensitivity analysis plot using `matplotlib`, saving to `data/results/plots/null_dist.png` and `data/results/plots/sensitivity_plot.png`
+- [~] T030 [US3] Save final results to `data/results/statistical_report.json` and `data/results/plots/`
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -144,9 +144,9 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T031 [P] Documentation updates in `docs/` including quickstart and API references
-- [ ] T032 Code cleanup and refactoring for memory efficiency
-- [ ] T033 Run full integration test suite to verify end-to-end pipeline
+- [~] T031 [P] Documentation updates in `docs/` including quickstart and API references
+- [~] T032 Code cleanup and refactoring for memory efficiency <!-- ATOMIZE: requested -->
+- [~] T033 Run full integration test suite to verify end-to-end pipeline
 - [ ] T034 [P] Add contract tests to verify data schema compliance
 - [ ] T035 Run `quickstart.md` validation to ensure reproducibility
 
@@ -159,8 +159,8 @@
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
-  - User stories can then proceed in parallel (if staffed)
-  - Or sequentially in priority order (P1 → P2 → P3)
+ - User stories can then proceed in parallel (if staffed)
+ - Or sequentially in priority order (P1 → P2 → P3)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
@@ -225,9 +225,9 @@ With multiple developers:
 
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
-   - Developer A: User Story 1 (Data Ingestion)
-   - Developer B: User Story 2 (Flexibility Metric)
-   - Developer C: User Story 3 (Statistics)
+ - Developer A: User Story 1 (Data Ingestion)
+ - Developer B: User Story 2 (Flexibility Metric)
+ - Developer C: User Story 3 (Statistics)
 3. Stories complete and integrate independently
 
 ---

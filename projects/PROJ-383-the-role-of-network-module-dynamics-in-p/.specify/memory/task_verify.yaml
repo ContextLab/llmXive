@@ -1,0 +1,9 @@
+T008 Setup logging infrastructure to record subject exclusions and memory usage events: 2
+T009 [P] [US1] Unit test for memory limit enforcement in `tests/unit/test_memory_monitor.py`: 1
+T010 [P] [US1] Integration test for data download and exclusion logic in `tests/integration/test_ingestion.py`: 1
+? T011 [P] [US1] Implement `code/ingestion/download_hcp.py` to fetch rs-fMRI and n-back
+  data for 100 subjects from OpenNeuro **ds001734**
+: 1
+? T038 [P] Implement `code/ingestion/validate_columns.py` to verify presence of motion
+  parameters and FD estimates in the dataset before ingestion
+: 1

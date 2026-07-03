@@ -1,0 +1,6 @@
+# This directory holds all data artifacts for the project.
+# Subdirectories:
+# - raw_fmri: Raw fMRI data from OpenNeuro
+# - raw_behavior: Raw behavioral data (2-back task scores)
+# - processed: Preprocessed and cleaned data
+# - results: Analysis results and reports

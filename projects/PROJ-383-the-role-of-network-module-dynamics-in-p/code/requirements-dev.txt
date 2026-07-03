@@ -1,0 +1,17 @@
+# Development dependencies
+# Core dependencies (pinned in requirements.txt)
+-r requirements.txt
+
+# Linting and Formatting
+flake8>=6.1.0
+pylint>=3.0.0
+black>=23.0.0
+isort>=5.12.0
+
+# Testing
+pytest>=7.4.0
+pytest-cov>=4.1.0
+pytest-mock>=3.11.0
+
+# Type checking (optional)
+mypy>=1.5.0

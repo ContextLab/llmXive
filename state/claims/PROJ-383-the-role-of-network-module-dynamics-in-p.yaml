@@ -1,0 +1,370 @@
+- artifact_path: projects/PROJ-383-the-role-of-network-module-dynamics-in-p/specs/001-the-role-of-network-module-dynamics-in-p/tasks.md
+  attempts: 1
+  canonical: Tasks implement OpenNeuro dataset ds001734
+  claim_id: c_befa7c52
+  context: 'Dataset Note: Tasks implement ds001734 per plan.md. spec.md references
+    ds000224; this is a known contradiction requiring spec.md update.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Tasks_implement_OpenNeuro_dataset_ds001734
+  kind: entity_fact
+  raw_text: The tasks implement ds001734 per plan.md.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T07:05:11Z'
+- artifact_path: projects/PROJ-383-the-role-of-network-module-dynamics-in-p/specs/001-the-role-of-network-module-dynamics-in-p/tasks.md
+  attempts: 1
+  canonical: spec.md references OpenNeuro dataset ds000224
+  claim_id: c_6ab462c3
+  context: 'Dataset Note: Tasks implement ds001734 per plan.md. spec.md references
+    ds000224; this is a known contradiction requiring spec.md update.'
+  evidence:
+    entailment_evidence: Spec.md references OpenNeuro dataset ds000224
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Spec.md_references_OpenNeuro_dataset_ds000224
+  kind: entity_fact
+  raw_text: spec.md references ds000224
+  resolved_value: spec.md references OpenNeuro dataset ds000224
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-03T07:05:13Z'
+- artifact_path: projects/PROJ-383-the-role-of-network-module-dynamics-in-p/specs/001-the-role-of-network-module-dynamics-in-p/tasks.md
+  attempts: 1
+  canonical: Implementation validates OpenNeuro dataset ds001734
+  claim_id: c_0c553a61
+  context: 'Note: Validates ds001734 as per plan.md; spec.md ds000224 reference is
+    a known contradiction flagged for kickback.'
+  evidence:
+    entailment_evidence: Wikipedia does not have an article with this exact name.
+    entailment_status: contradicted
+    source_url: https://en.wikipedia.org/wiki/Implementation_validates_OpenNeuro_dataset_ds001734
+  kind: entity_fact
+  raw_text: The implementation validates ds001734 as per plan.md.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-07-03T07:05:30Z'
+- artifact_path: projects/PROJ-383-the-role-of-network-module-dynamics-in-p/specs/001-the-role-of-network-module-dynamics-in-p/tasks.md
+  attempts: 1
+  canonical: Fetch rs-fMRI and n-back data for 100 subjects from OpenNeuro ds001734
+  claim_id: c_1af8abd0
+  context: Implement code/ingestion/download_hcp.py to fetch rs-fMRI and n-back data
+    for 100 subjects from OpenNeuro ds001734
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline will fetch rs-fMRI and n-back data for 100 subjects from
+    OpenNeuro ds001734.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T07:05:52Z'
+- artifact_path: projects/PROJ-383-the-role-of-network-module-dynamics-in-p/specs/001-the-role-of-network-module-dynamics-in-p/tasks.md
+  attempts: 1
+  canonical: Exclude subjects with mean FD greater than 0.2mm
+  claim_id: c_562c66f9
+  context: 'Implement subject exclusion logic in code/ingestion/preprocess.py: exclude
+    subjects with mean FD > 0.2mm'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Exclude_subjects_with_mean_FD_greater_than_0.2mm
+  kind: magnitude
+  raw_text: Subjects with mean FD > 0.2mm will be excluded.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T07:06:16Z'
+- artifact_path: projects/PROJ-383-the-role-of-network-module-dynamics-in-p/specs/001-the-role-of-network-module-dynamics-in-p/tasks.md
+  attempts: 1
+  canonical: Scrub time points with FD greater than 0.2mm
+  claim_id: c_072a1ea5
+  context: 'Implement motion scrubbing and regression in code/ingestion/preprocess.py:
+    ... scrub time points with FD > 0.2mm'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Scrub_time_points_with_FD_greater_than_0.2mm
+  kind: magnitude
+  raw_text: Time points with FD > 0.2mm will be scrubbed.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T07:06:35Z'
+- artifact_path: projects/PROJ-383-the-role-of-network-module-dynamics-in-p/specs/001-the-role-of-network-module-dynamics-in-p/tasks.md
+  attempts: 1
+  canonical: Enforce peak RSS memory limit of 7GB
+  claim_id: c_96dc05f3
+  context: "Setup memory monitoring utility code/utils/memory_monitor.py using psutil\
+    \ to track peak RSS and enforce \u22647GB limit"
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Enforce_peak_RSS_memory_limit_of_7GB
+  kind: entity_fact
+  raw_text: "The memory monitoring utility will enforce a \u22647GB limit."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T07:06:58Z'
+- artifact_path: projects/PROJ-383-the-role-of-network-module-dynamics-in-p/specs/001-the-role-of-network-module-dynamics-in-p/tasks.md
+  attempts: 1
+  canonical: Perform permutation test with 1000 permutations
+  claim_id: c_5e3e6885
+  context: Unit test for permutation test logic (1,000 permutations, p-value correction)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The permutation test will use 1,000 permutations.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T07:07:18Z'
+- artifact_path: projects/PROJ-383-the-role-of-network-module-dynamics-in-p/specs/001-the-role-of-network-module-dynamics-in-p/tasks.md
+  attempts: 1
+  canonical: Compare p-values across window lengths of 30s, 60s, and 90s
+  claim_id: c_b9d44c28
+  context: Implement sensitivity analysis logic to compare p-values across window
+    lengths (30s, 60s, 90s) and verify stability (max diff < 0.05)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Compare_p-values_across_window_lengths_of_30s,_60s,_and_90s
+  kind: entity_fact
+  raw_text: Sensitivity analysis will compare p-values across window lengths of 30s,
+    60s, and 90s.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T07:07:47Z'
+- artifact_path: projects/PROJ-383-the-role-of-network-module-dynamics-in-p/specs/001-the-role-of-network-module-dynamics-in-p/tasks.md
+  attempts: 1
+  canonical: Assert max absolute difference between p-values is less than 0.05
+  claim_id: c_c8faf317
+  context: 'Implement sensitivity analysis runner: repeat process for a range of window
+    lengths, calculate max absolute difference between p-values, assert < 0.05'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Assert_max_absolute_difference_between_p-values_is_less_than
+  kind: magnitude
+  raw_text: The sensitivity analysis will assert the max absolute difference between
+    p-values is < 0.05.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T07:08:16Z'
+- artifact_path: projects/PROJ-383-the-role-of-network-module-dynamics-in-p/specs/001-the-role-of-network-module-dynamics-in-p/tasks.md
+  attempts: 1
+  canonical: Multilayer Modularity Optimization uses 100 iterations
+  claim_id: c_b53beef3
+  context: Implement Multilayer Modularity Optimization (MMO) using leidenalg (resolution
+    sufficient for the analysis, 100 iterations) on data/processed/scrubbed_timeseries.parquet
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: MMO will use 100 iterations.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T07:09:11Z'
+- artifact_path: projects/PROJ-383-the-role-of-network-module-dynamics-in-p/specs/001-the-role-of-network-module-dynamics-in-p/tasks.md
+  attempts: 1
+  canonical: Flexibility metric is probability of node switching
+  claim_id: c_19f1eb3e
+  context: calculate flexibility metric as probability of node switching (FR-003,
+    FR-004)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Flexibility_metric_is_probability_of_node_switching
+  kind: entity_fact
+  raw_text: The flexibility metric is calculated as the probability of node switching.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T07:09:37Z'
+- artifact_path: projects/PROJ-383-the-role-of-network-module-dynamics-in-p/specs/001-the-role-of-network-module-dynamics-in-p/tasks.md
+  attempts: 1
+  canonical: Project uses Python 3.11
+  claim_id: c_115ac2e0
+  context: Initialize Python 3.11 project with dependencies (numpy, pandas, scikit-learn,
+    networkx, leidenalg, nilearn, psutil, openneuro-py, scipy, pytest) in code/requirements.txt
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Python project uses Python 3.11.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T07:10:03Z'
+- artifact_path: projects/PROJ-383-the-role-of-network-module-dynamics-in-p/specs/001-the-role-of-network-module-dynamics-in-p/tasks.md
+  attempts: 1
+  canonical: MMO using leidenalg with 100 iterations
+  claim_id: c_eac49afb
+  context: Implement Multilayer Modularity Optimization (MMO) using leidenalg (resolution
+    sufficient for the analysis, 100 iterations) on data/processed/scrubbed_timeseries.parquet
+    to identify network modules
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement Multilayer Modularity Optimization (MMO) using leidenalg with
+    100 iterations
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T07:27:28Z'
+- artifact_path: projects/PROJ-383-the-role-of-network-module-dynamics-in-p/specs/001-the-role-of-network-module-dynamics-in-p/tasks.md
+  attempts: 1
+  canonical: Non-parametric permutation test with 1000 permutations
+  claim_id: c_d7309280
+  context: Unit test for permutation test logic (1,000 permutations, p-value correction)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement non-parametric permutation test with 1,000 permutations
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T07:27:46Z'
+- artifact_path: projects/PROJ-383-the-role-of-network-module-dynamics-in-p/specs/001-the-role-of-network-module-dynamics-in-p/tasks.md
+  attempts: 1
+  canonical: Dataset ds001734 used for project
+  claim_id: c_078106ee
+  context: Validate ds001734 as per plan.md; spec.md ds000224 reference is a known
+    contradiction flagged for kickback
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Dataset_ds001734_used_for_project
+  kind: entity_fact
+  raw_text: The dataset ds001734 is used for the project
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T07:28:09Z'
+- artifact_path: projects/PROJ-383-the-role-of-network-module-dynamics-in-p/specs/001-the-role-of-network-module-dynamics-in-p/tasks.md
+  attempts: 1
+  canonical: Peak RSS limit of 7GB enforced
+  claim_id: c_4155e30c
+  context: "Setup memory monitoring utility code/utils/memory_monitor.py using psutil\
+    \ to track peak RSS and enforce \u22647GB limit"
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Peak_RSS_limit_of_7GB_enforced
+  kind: entity_fact
+  raw_text: The project enforces a peak RSS limit of 7GB
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T07:28:29Z'
+- artifact_path: projects/PROJ-383-the-role-of-network-module-dynamics-in-p/specs/001-the-role-of-network-module-dynamics-in-p/tasks.md
+  attempts: 1
+  canonical: Subjects with mean FD > 0.2mm excluded
+  claim_id: c_57a41d2b
+  context: 'Implement subject exclusion logic in code/ingestion/preprocess.py: exclude
+    subjects with mean FD > 0.2mm'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Subjects_with_mean_FD_%3E_0.2mm_excluded
+  kind: magnitude
+  raw_text: Subjects with mean FD greater than 0.2mm are excluded
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T07:29:03Z'
+- artifact_path: projects/PROJ-383-the-role-of-network-module-dynamics-in-p/specs/001-the-role-of-network-module-dynamics-in-p/tasks.md
+  attempts: 1
+  canonical: Time points with FD > 0.2mm scrubbed
+  claim_id: c_a2f7e8e8
+  context: Regress out rigid-body motion parameters, their temporal derivatives, and
+    mean FD using OLS; scrub time points with FD > 0.2mm
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Time_points_with_FD_%3E_0.2mm_scrubbed
+  kind: magnitude
+  raw_text: Time points with FD greater than 0.2mm are scrubbed
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T07:29:36Z'
+- artifact_path: projects/PROJ-383-the-role-of-network-module-dynamics-in-p/specs/001-the-role-of-network-module-dynamics-in-p/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis window lengths 30s 60s 90s
+  claim_id: c_9f8ea8b4
+  context: Implement sensitivity analysis logic to compare p-values across window
+    lengths (30s, 60s, 90s) and verify stability
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Sensitivity_analysis_window_lengths_30s_60s_90s
+  kind: entity_fact
+  raw_text: Sensitivity analysis compares window lengths of 30s, 60s, and 90s
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T07:30:08Z'
+- artifact_path: projects/PROJ-383-the-role-of-network-module-dynamics-in-p/specs/001-the-role-of-network-module-dynamics-in-p/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis max p-value diff < 0.05
+  claim_id: c_f2456762
+  context: Calculate max absolute difference between p-values, assert < 0.05, and
+    write results to data/results/sensitivity_analysis.json
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Sensitivity_analysis_max_p-value_diff_%3C_0.05
+  kind: magnitude
+  raw_text: Sensitivity analysis asserts max difference between p-values is less than
+    0.05
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T07:30:38Z'
