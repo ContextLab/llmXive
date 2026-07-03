@@ -64,18 +64,7 @@
   verification_status: verified
   verified_against_url: https://huggingface.co/api/resolve-cache/datasets/JasonXF/US3D-Enhanced/7f60acedd7f2c766cdc27a1e9e62bcc9c7d3428e/prompt.json?%2Fdatasets%2FJasonXF%2FUS3D-Enhanced%2Fresolve%2Fmain%2Fprompt.json=&etag=%22b1e79c038446025d54f94493aedb58c848fe8d2c%22
   verified_at: '2026-06-26T22:53:36.631629Z'
-- artifact_hash: e7c7221afda728f2aaac24b708a9a7d89de1ab6ea2c3515471414fbbfdc05afc
-  artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/research.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: arxiv
-  value: '2203.14669'
-  verification_status: unreachable
-  verified_against_url: null
-  verified_at: '2026-07-03T10:44:34.194987Z'
-- artifact_hash: 6f63b07bed287610ad556c3dcbe4b7a146ec4dc8d4c16c642d44e2c2fffce7c9
+- artifact_hash: 8258e90f5982eeafe5bb06f716cf410c265537308ea8f03de57bd85d6ca3cf0c
   artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -86,8 +75,8 @@
   value: https://arxiv.org/abs/2203.14669
   verification_status: verified
   verified_against_url: https://arxiv.org/abs/2203.14669
-  verified_at: '2026-07-03T11:09:07.859927Z'
-- artifact_hash: 6f63b07bed287610ad556c3dcbe4b7a146ec4dc8d4c16c642d44e2c2fffce7c9
+  verified_at: '2026-07-03T12:27:21.101083Z'
+- artifact_hash: 8258e90f5982eeafe5bb06f716cf410c265537308ea8f03de57bd85d6ca3cf0c
   artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
   cite_id: c-002
   cited_authors: []
@@ -97,8 +86,8 @@
   value: https://physics.nist.gov/cgi-bin/cuu/Value?na
   verification_status: verified
   verified_against_url: https://physics.nist.gov/cgi-bin/cuu/Value?na
-  verified_at: '2026-07-03T11:09:07.859927Z'
-- artifact_hash: 6f63b07bed287610ad556c3dcbe4b7a146ec4dc8d4c16c642d44e2c2fffce7c9
+  verified_at: '2026-07-03T12:27:21.101083Z'
+- artifact_hash: 8258e90f5982eeafe5bb06f716cf410c265537308ea8f03de57bd85d6ca3cf0c
   artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
   cite_id: c-003
   cited_authors: []
@@ -109,8 +98,8 @@
   value: https://arxiv.org/abs/2503.02686
   verification_status: verified
   verified_against_url: https://arxiv.org/abs/2503.02686
-  verified_at: '2026-07-03T11:09:07.859927Z'
-- artifact_hash: 6f63b07bed287610ad556c3dcbe4b7a146ec4dc8d4c16c642d44e2c2fffce7c9
+  verified_at: '2026-07-03T12:27:21.101083Z'
+- artifact_hash: 8258e90f5982eeafe5bb06f716cf410c265537308ea8f03de57bd85d6ca3cf0c
   artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
   cite_id: c-004
   cited_authors: []
@@ -120,8 +109,8 @@
   value: https://oeis.org/A000079
   verification_status: pending
   verified_against_url: https://oeis.org/A000079
-  verified_at: '2026-07-03T11:09:07.859927Z'
-- artifact_hash: 6f63b07bed287610ad556c3dcbe4b7a146ec4dc8d4c16c642d44e2c2fffce7c9
+  verified_at: '2026-07-03T12:27:21.101083Z'
+- artifact_hash: 8258e90f5982eeafe5bb06f716cf410c265537308ea8f03de57bd85d6ca3cf0c
   artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
   cite_id: c-005
   cited_authors: []
@@ -131,4 +120,4 @@
   value: https://arxiv.org/abs/2202.05773
   verification_status: verified
   verified_against_url: https://arxiv.org/abs/2202.05773
-  verified_at: '2026-07-03T11:09:07.859927Z'
+  verified_at: '2026-07-03T12:27:21.101083Z'

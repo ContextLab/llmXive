@@ -6713,23 +6713,6 @@
   updated_at: '2026-07-03T01:57:06Z'
 - artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
   attempts: 1
-  canonical: 3 data points limit power-law reliability
-  claim_id: c_bff1d032
-  context: T030 [US-3] Generate scaling_plot.pdf with fitted power-law curves and
-    explicit note that 3 data points limit power-law reliability in projects/PROJ-586-social-memory-networks-modeling-collecti/results/scaling_plot.pdf
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: Generate scaling_plot.pdf with fitted power-law curves and explicit note
-    that 3 data points limit power-law reliability
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-03T01:57:08Z'
-- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
-  attempts: 1
   canonical: sensitivity analysis token limits 128, 256, 512
   claim_id: c_98d93b11
   context: T022 [US-2] sensitivity analysis sweeping context-truncation token limit
@@ -6763,39 +6746,6 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-03T02:01:02Z'
-- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
-  attempts: 1
-  canonical: base Agent abstraction uses opt-125m float32 precision
-  claim_id: c_f0b01658
-  context: T005 [P] Implement base Agent abstraction using CPU-only transformers (opt-125m,
-    float32 precision) in code/agent/base_agent.py (FR-002)
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: Implement base Agent abstraction using CPU-only transformers (opt-125m,
-    float32 precision)
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-03T02:01:08Z'
-- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
-  attempts: 1
-  canonical: environment configuration seed 42 device cpu
-  claim_id: c_4a3336d5
-  context: T008 [P] Configure environment management (config.yaml with seed=42, device=cpu)
-    in code/utils/config.py
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: Configure environment management (config.yaml with seed=42, device=cpu)
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-03T02:01:17Z'
 - artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
   attempts: 1
   canonical: CLI flag parsing includes arXiv:2203.14669
@@ -7218,31 +7168,6 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-03T03:01:14Z'
-- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
-  attempts: 1
-  canonical: produce plot of specialization index and retrieval efficiency versus
-    agent count with fitted power-law exponent
-  claim_id: c_dc31f372
-  context: "Phase 5: User Story 3 - Scaling Analysis Across Agent Populations (Priority:\
-    \ P3) Goal: Investigate how the fidelity of collective remembering scales when\
-    \ the number of agents varies across different group sizes. Independent Test:\
-    \ Run the experiment for each specified agent count and produce a plot of specialization\
-    \ index and retrieval efficiency versus number of agents, along with a fitted\
-    \ power\u2011law exponent."
-  evidence:
-    entailment_status: not_found
-    reason: source found but does not address entity claim
-    source_url: https://en.wikipedia.org/wiki/Produce_plot_of_specialization_index_and_retrieval_efficienc
-  kind: entity_fact
-  raw_text: "Run the experiment for each specified agent count and produce a plot\
-    \ of specialization index and retrieval efficiency versus number of agents, along\
-    \ with a fitted power\u2011law exponent."
-  resolved_value: null
-  resolver: resolve_entity_fact
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-03T03:31:30Z'
 - artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
   attempts: 1
   canonical: sensitivity analysis sweeping context-truncation token limit over 128,
@@ -7785,24 +7710,6 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-03T05:05:47Z'
-- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
-  attempts: 7
-  canonical: at least 95 percent of games produce metrics
-  claim_id: c_44909028
-  context: "Implement validation logic for metrics (\u226595% games produce metrics,\
-    \ SC-001) in `code/metrics/validator.py`"
-  evidence:
-    candidates_found: 1
-    reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/At_least_95_percent_of_games_produce_metrics
-  kind: magnitude
-  raw_text: "\u226595% games produce metrics"
-  resolved_value: null
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-03T05:05:51Z'
 - artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
   attempts: 13
   canonical: opt-125m model with float32 precision
@@ -8518,41 +8425,6 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-03T08:42:01Z'
-- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
-  attempts: 1
-  canonical: arxiv paper 2203.14669
-  claim_id: c_33868934
-  context: Implement CLI flag parsing for --context, --agents, --dataset and {{claim:c_b7311021}}
-    (2203.14669, https://arxiv.org/abs/2203.14669) in code/run_experiment.py (FR-001)
-  evidence:
-    ok: false
-    reason: claim not found in the cited source's full text
-  kind: numeric
-  raw_text: 2203.14669, https://arxiv.org/abs/2203.14669
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-03T09:34:29Z'
-- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
-  attempts: 1
-  canonical: avogadro constant nist value
-  claim_id: c_e7007766
-  context: '{{claim:c_a5c2fb06}} (avogadro, https://physics.nist.gov/cgi-bin/cuu/Value?na)
-    in code/metrics/specialization.py (FR-004)'
-  evidence:
-    entailment_status: not_found
-    reason: source found but does not address entity claim
-    source_url: https://en.wikipedia.org/wiki/Avogadro_constant_nist_value
-  kind: entity_fact
-  raw_text: avogadro, https://physics.nist.gov/cgi-bin/cuu/Value?na
-  resolved_value: null
-  resolver: resolve_entity_fact
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-03T09:34:48Z'
 - artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
   attempts: 1
   canonical: arxiv paper 2503.02686
@@ -10690,28 +10562,6 @@
   updated_at: '2026-07-03T11:07:28Z'
 - artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
   attempts: 1
-  canonical: Plot specialization index and retrieval efficiency vs agent count with
-    fitted power-law exponent
-  claim_id: c_3fa7dea1
-  context: "Independent Test: Run the experiment for each specified agent count and\
-    \ produce a plot of specialization index and retrieval efficiency versus number\
-    \ of agents, along with a fitted power\u2011law exponent."
-  evidence:
-    entailment_status: not_found
-    reason: source found but does not address entity claim
-    source_url: https://en.wikipedia.org/wiki/Plot_specialization_index_and_retrieval_efficiency_vs_agent
-  kind: entity_fact
-  raw_text: "Run the experiment for each specified agent count and produce a plot\
-    \ of specialization index and retrieval efficiency versus number of agents, along\
-    \ with a fitted power\u2011law exponent."
-  resolved_value: null
-  resolver: resolve_entity_fact
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-03T11:07:44Z'
-- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
-  attempts: 1
   canonical: 3 data points limit power-law reliability
   claim_id: c_91c61768
   context: "T030 [US-3] Generate `scaling_plot.pdf` with fitted power\u2011law curves\
@@ -10817,3 +10667,1872 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-03T11:10:39Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: Full-context condition outputs metrics and reproducible CSV summary
+  claim_id: c_9b8bcc09
+  context: "Independent Test: Run the experiment with the *Full\u2011context* condition\
+    \ only and verify that the script outputs both metrics and a reproducible CSV\
+    \ summary."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Full-context_condition_outputs_metrics_and_reproducible_CSV
+  kind: entity_fact
+  raw_text: "Run the experiment with the Full\u2011context condition only and verify\
+    \ that the script outputs both metrics and a reproducible CSV summary."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T11:29:45Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: Base Agent abstraction uses CPU-only transformers opt-125m float32 precision
+  claim_id: c_af01b463
+  context: T005 [P] Implement base Agent abstraction using CPU-only `transformers`
+    (opt-125m, float32 precision) in `code/agent/base_agent.py` (FR-002)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement base Agent abstraction using CPU-only transformers (opt-125m,
+    float32 precision)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T11:29:59Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: Environment configuration uses seed 42 and device cpu
+  claim_id: c_35e73c8a
+  context: T008 [P] Configure environment management (config.yaml with seed=42, device=cpu)
+    in `code/utils/config.py`
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Configure environment management with seed=42, device=cpu
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T11:30:21Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: 95% of games produce metrics
+  claim_id: c_e8e4a142
+  context: "T014 [P] [US-1] Implement validation logic for metrics (\u226595% games\
+    \ produce metrics, SC-001) in `code/metrics/validator.py`"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify that 95% of games produce metrics
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T11:30:23Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 2
+  canonical: Plot specialization index and retrieval efficiency vs agent count with
+    fitted power-law exponent
+  claim_id: c_3fa7dea1
+  context: "Independent Test: Run the experiment for each specified agent count and\
+    \ produce a plot of specialization index and retrieval efficiency versus number\
+    \ of agents, along with a fitted power\u2011law exponent."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Plot_specialization_index_and_retrieval_efficiency_vs_agent
+  kind: entity_fact
+  raw_text: "Run the experiment for each specified agent count and produce a plot\
+    \ of specialization index and retrieval efficiency versus number of agents, along\
+    \ with a fitted power\u2011law exponent."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T11:30:40Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: Scaling plot notes 3 data points limit power-law reliability
+  claim_id: c_b2b2209e
+  context: "T030 [US-3] Generate `scaling_plot.pdf` with fitted power\u2011law curves\
+    \ and explicit note that 3 data points limit power\u2011law reliability in `projects/PROJ-586-social-memory-networks-modeling-collecti/results/scaling_plot.pdf`"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Generate scaling_plot.pdf with fitted power\u2011law curves and explicit\
+    \ note that 3 data points limit power\u2011law reliability"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T11:31:04Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: Quickstart.md validation commands return exit code 0
+  claim_id: c_6bfd3493
+  context: T031 [P] Run `quickstart.md` validation (execute all commands, verify exit
+    code 0 for each) in `projects/PROJ-586-social-memory-networks-modeling-collecti/code/`
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify exit code 0 for each command in quickstart.md validation
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T11:31:20Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: No 8-bit 4-bit quantization or CUDA imports in Python files
+  claim_id: c_e8aa7d86
+  context: T032 [P] Remove all 8-bit/4-bit quantization imports, verify no CUDA imports
+    in all Python files (compute feasibility)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Remove all 8-bit/4-bit quantization imports and verify no CUDA imports
+    in all Python files
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T11:31:58Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: produce plot of specialization index and retrieval efficiency versus
+    number of agents with fitted power-law exponent
+  claim_id: c_f703f042
+  context: "Independent Test: Run the experiment for each specified agent count and\
+    \ produce a plot of specialization index and retrieval efficiency versus number\
+    \ of agents, along with a fitted power\u2011law exponent."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Produce_plot_of_specialization_index_and_retrieval_efficienc
+  kind: entity_fact
+  raw_text: "Run the experiment for each specified agent count and produce a plot\
+    \ of specialization index and retrieval efficiency versus number of agents, along\
+    \ with a fitted power\u2011law exponent."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T11:33:37Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: verify script outputs metrics and reproducible CSV summary for full-context
+    condition
+  claim_id: c_1d56a482
+  context: "Independent Test: Run the experiment with the *Full\u2011context* condition\
+    \ only and verify that the script outputs both metrics and a reproducible CSV\
+    \ summary."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Verify_script_outputs_metrics_and_reproducible_CSV_summary_f
+  kind: entity_fact
+  raw_text: "Run the experiment with the *Full\u2011context* condition only and verify\
+    \ that the script outputs both metrics and a reproducible CSV summary."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T11:33:41Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: apply Bonferroni correction to all family-wise hypothesis tests and report
+    corrected alpha
+  claim_id: c_dcfa0d42
+  context: "- [X] T021 [P] [US-2] Apply Bonferroni correction to all family\u2011\
+    wise hypothesis tests and reportcorrected \u03B1 in `code/analysis/anova.py` (FR-007)"
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Apply_Bonferroni_correction_to_all_family-wise_hypothesis_te
+  kind: entity_fact
+  raw_text: "Apply Bonferroni correction to all family\u2011wise hypothesis tests\
+    \ and report corrected \u03B1"
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T11:34:18Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: generate scaling plot with fitted power-law curves noting 3 data points
+    limit reliability
+  claim_id: c_e724228f
+  context: "- [X] T030 [US-3] Generate `scaling_plot.pdf` with fitted power\u2011\
+    law curves and explicit note that 3 data points limit power\u2011law reliability\
+    \ in `projects/PROJ-586-social-memory-networks-modeling-collecti/results/scaling_plot.pdf`"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Generate `scaling_plot.pdf` with fitted power\u2011law curves and explicit\
+    \ note that 3 data points limit power\u2011law reliability"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T11:34:20Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: implement base agent abstraction using CPU-only transformers opt-125m
+    float32 precision
+  claim_id: c_d20b2bd8
+  context: '- [X] T005 [P] Implement base Agent abstraction using CPU-only `transformers`
+    (opt-125m, float32 precision) in `code/agent/base_agent.py` (FR-002)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement base Agent abstraction using CPU-only `transformers` (opt-125m,
+    float32 precision)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T11:34:22Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: implement CLI flag parsing for context agents dataset and arxiv 2203.14669
+  claim_id: c_aa0d1d65
+  context: '- [X] T011 [P] [US-1] Implement CLI flag parsing for --context, --agents,
+    --dataset and {{claim:c_b7311021}} (2203.14669, https://arxiv.org/abs/2203.14669)
+    in `code/run_experiment.py` (FR-001)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement CLI flag parsing for --context, --agents, --dataset and 2203.14669
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T11:34:26Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: implement two-way independent-samples ANOVA with factors Context and
+    Metric as single analysis
+  claim_id: c_ded5b73b
+  context: "- [X] T020 [P] [US-2] Implement two\u2011way independent\u2011samples\
+    \ ANOVA with factors Context \xD7 Metric (single ANOVA, not separate) in `code/analysis/anova.py`\
+    \ (FR-006)"
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Implement_two-way_independent-samples_ANOVA_with_factors_Con
+  kind: entity_fact
+  raw_text: "Implement two\u2011way independent\u2011samples ANOVA with factors Context\
+    \ \xD7 Metric (single ANOVA, not separate)"
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T11:34:38Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: configure environment with seed 42 and device cpu
+  claim_id: c_b031224a
+  context: '- [X] T008 [P] Configure environment management (config.yaml with seed=42,
+    device=cpu) in `code/utils/config.py`'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Configure environment management (config.yaml with seed=42, device=cpu)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T11:34:41Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 0
+  canonical: oeis sequence A000079
+  claim_id: c_6da4d0ed
+  context: '{{claim:c_6eea8bb5}} ({{claim:c_13708974}}, https://oeis.org/A000079)
+    with performance curves output in code/analysis/sensitivity.py (FR-008)'
+  evidence:
+    fill:
+      channel: oeis
+      conflicts:
+      - channel: wikipedia
+        source_id: Power of two
+        url: https://en.wikipedia.org/wiki/Power_of_two
+        value: A000079
+      quote: 1000 10715086071862673209484250490600018105614048117055336074437503883703510511249361224931983788156958581275946729175531468251871452856923140435984577574698574803934567774824230985421074605062371141877954182153046474983581941267398767559165543946077062914571196477686542167660429831652624386837205668069376
+      source_id: A000079
+      url: https://oeis.org/A000079
+      value: '10715086071862673209484250490600018105614048117055336074437503883703510511249361224931983788156958581275946729175531468251871452856923140435984577574698574803934567774824230985421074605062371141877954182153046474983581941267398767559165543946077062914571196477686542167660429831652624386837205668069376'
+    filled: true
+  kind: entity_fact
+  raw_text: https://oeis.org/A000079
+  resolved_value: '10715086071862673209484250490600018105614048117055336074437503883703510511249361224931983788156958581275946729175531468251871452856923140435984577574698574803934567774824230985421074605062371141877954182153046474983581941267398767559165543946077062914571196477686542167660429831652624386837205668069376'
+  resolver: fill:oeis
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-03T11:35:24Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 0
+  canonical: arxiv paper 2202.05773 for game counts
+  claim_id: c_df313ecb
+  context: 'Game Counts: US-1/US-2 = {{claim:c_10d5c9c0}} per condition (spec requirement);
+    US-3 = {{claim:c_7b176f6b}} (2202.05773, https://arxiv.org/abs/2202.05773)'
+  evidence:
+    ok: true
+    reason: ''
+  kind: numeric
+  raw_text: 2202.05773, https://arxiv.org/abs/2202.05773
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-03T11:35:26Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: arxiv paper 2203.14669
+  claim_id: c_33868934
+  context: Implement CLI flag parsing for --context, --agents, --dataset and {{claim:c_b7311021}}
+    (2203.14669, https://arxiv.org/abs/2203.14669) in code/run_experiment.py (FR-001)
+  evidence:
+    ok: true
+    reason: ''
+  kind: numeric
+  raw_text: 2203.14669, https://arxiv.org/abs/2203.14669
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-03T11:35:28Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 2
+  canonical: avogadro constant nist value
+  claim_id: c_e7007766
+  context: '{{claim:c_a5c2fb06}} (avogadro, https://physics.nist.gov/cgi-bin/cuu/Value?na)
+    in code/metrics/specialization.py (FR-004)'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Avogadro_constant_nist_value
+  kind: entity_fact
+  raw_text: avogadro, https://physics.nist.gov/cgi-bin/cuu/Value?na
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T11:36:09Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/research.md
+  attempts: 1
+  canonical: doubling city population requires 85% more infrastructure
+  claim_id: c_6ec34ed1
+  context: Geoffrey West highlighted the parallel between urban infrastructure scaling
+    and multi-agent memory systems. In cities, doubling population requires only ~85%
+    more infrastructure (sublinear scaling, $N^{0.85}$) due to network effects.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: In cities, doubling population requires only ~85% more infrastructure
+    (sublinear scaling, N^0.85) due to network effects.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T11:36:57Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: Environment configuration uses seed 42 and device cpu
+  claim_id: c_ae5df5aa
+  context: Foundational Phase, Task T008
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Configure environment management (config.yaml with seed=42, device=cpu)
+    in code/utils/config.py
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T11:37:26Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 0
+  canonical: Experiment implementation references arXiv 2503.02686
+  claim_id: c_9e7078a8
+  context: Implementation for User Story 2, Task T018
+  evidence:
+    ok: true
+    reason: ''
+  kind: numeric
+  raw_text: '{{claim:c_504902df}} (2503.02686, https://arxiv.org/abs/2503.02686) in
+    code/run_experiment.py'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-03T11:40:01Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: CLI flag parsing includes reference to arXiv 2203.14669
+  claim_id: c_2b926b40
+  context: Implementation for User Story 1, Task T011
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: numeric
+  raw_text: Implement CLI flag parsing for --context, --agents, --dataset and {{claim:c_b7311021}}
+    (2203.14669, https://arxiv.org/abs/2203.14669) in code/run_experiment.py
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T11:40:16Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: Specialization metric implementation references Avogadro constant from
+    NIST
+  claim_id: c_255e85f8
+  context: Implementation for User Story 1, Task T012
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: 12294 Avogadro
+      source_id: Q1090955
+      url: https://www.wikidata.org/wiki/Q1090955
+      value: '12294'
+    filled: true
+  kind: entity_fact
+  raw_text: '{{claim:c_a5c2fb06}} (avogadro, https://physics.nist.gov/cgi-bin/cuu/Value?na)
+    in code/metrics/specialization.py'
+  resolved_value: '12294'
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-03T11:40:26Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis references OEIS sequence A000079
+  claim_id: c_e81e5518
+  context: Implementation for User Story 2, Task T022
+  evidence:
+    fill:
+      channel: oeis
+      conflicts: []
+      quote: 1000 10715086071862673209484250490600018105614048117055336074437503883703510511249361224931983788156958581275946729175531468251871452856923140435984577574698574803934567774824230985421074605062371141877954182153046474983581941267398767559165543946077062914571196477686542167660429831652624386837205668069376
+      source_id: A000079
+      url: https://oeis.org/A000079
+      value: '10715086071862673209484250490600018105614048117055336074437503883703510511249361224931983788156958581275946729175531468251871452856923140435984577574698574803934567774824230985421074605062371141877954182153046474983581941267398767559165543946077062914571196477686542167660429831652624386837205668069376'
+    filled: true
+  kind: entity_fact
+  raw_text: '{{claim:c_6da4d0ed}} (OEIS A000079, https://oeis.org/A000079) with performance
+    curves output in code/analysis/sensitivity.py'
+  resolved_value: '10715086071862673209484250490600018105614048117055336074437503883703510511249361224931983788156958581275946729175531468251871452856923140435984577574698574803934567774824230985421074605062371141877954182153046474983581941267398767559165543946077062914571196477686542167660429831652624386837205668069376'
+  resolver: fill:oeis
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-03T11:40:55Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: base Agent abstraction using CPU-only opt-125m float32 precision
+  claim_id: c_a9c0751a
+  context: 'Phase 2: Implement base Agent abstraction using CPU-only transformers
+    (opt-125m, float32 precision) in code/agent/base_agent.py (FR-002)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement base Agent abstraction using CPU-only transformers (opt-125m,
+    float32 precision)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T11:41:41Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: record runtime memory disk on CI runner
+  claim_id: c_348f5eab
+  context: 'Phase 6: Run full pipeline on CI runner, record runtime/memory/disk in
+    projects/PROJ-586-social-memory-networks-modeling-collecti/results/'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Record_runtime_memory_disk_on_CI_runner
+  kind: entity_fact
+  raw_text: Run full pipeline on CI runner, record runtime/memory/disk
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T11:41:59Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: Phases 6-11 from prior draft removed
+  claim_id: c_db35fce5
+  context: 'Notes section: Reviewer Feedback: Phases 6-11 from prior draft removed
+    (not in original spec); addressed in T034'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Phases 6-11 from prior draft removed (not in original spec)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T11:42:19Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 2
+  canonical: produce plot of specialization index and retrieval efficiency versus
+    agent count with fitted power-law exponent
+  claim_id: c_dc31f372
+  context: "Phase 5: User Story 3 - Scaling Analysis Across Agent Populations (Priority:\
+    \ P3) Goal: Investigate how the fidelity of collective remembering scales when\
+    \ the number of agents varies across different group sizes. Independent Test:\
+    \ Run the experiment for each specified agent count and produce a plot of specialization\
+    \ index and retrieval efficiency versus number of agents, along with a fitted\
+    \ power\u2011law exponent."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Produce_plot_of_specialization_index_and_retrieval_efficienc
+  kind: entity_fact
+  raw_text: "Run the experiment for each specified agent count and produce a plot\
+    \ of specialization index and retrieval efficiency versus number of agents, along\
+    \ with a fitted power\u2011law exponent."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T11:43:34Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: generate scaling_plot.pdf with fitted power-law curves noting 3 data
+    points limit reliability
+  claim_id: c_82af7847
+  context: "T030 [US-3] Generate `scaling_plot.pdf` with fitted power\u2011law curves\
+    \ and explicit note that 3 data points limit power\u2011law reliability in `projects/PROJ-586-social-memory-networks-modeling-collecti/results/scaling_plot.pdf`"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Generate scaling_plot.pdf with fitted power\u2011law curves and explicit\
+    \ note that 3 data points limit power\u2011law reliability"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T11:43:36Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: implement power-law fitting for metric trends vs agent count 3, 5, 7
+  claim_id: c_0c6159f3
+  context: T028 [P] [US-3] Implement power-law fitting for metric trends vs. agent
+    count (3, 5, 7) in `code/analysis/scaling.py` (US-3)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement power-law fitting for metric trends vs. agent count (3, 5, 7)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T11:44:01Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: run experiment with full-context condition verifying metrics and reproducible
+    CSV summary
+  claim_id: c_96165703
+  context: "**Independent Test**: Run the experiment with the *Full\u2011context*\
+    \ condition only and verify that the script outputs both metrics and a reproducible\
+    \ CSV summary."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Run_experiment_with_full-context_condition_verifying_metrics
+  kind: entity_fact
+  raw_text: "Run the experiment with the *Full\u2011context* condition only and verify\
+    \ that the script outputs both metrics and a reproducible CSV summary."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T11:44:05Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: implement single two-way independent-samples ANOVA with factors Context
+    and Metric
+  claim_id: c_1060ed22
+  context: "T020 [P] [US-2] Implement two\u2011way independent\u2011samples ANOVA\
+    \ with factors Context \xD7 Metric (single ANOVA, not separate) in `code/analysis/anova.py`\
+    \ (FR-006)"
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Implement_single_two-way_independent-samples_ANOVA_with_fact
+  kind: entity_fact
+  raw_text: "Implement two\u2011way independent\u2011samples ANOVA with factors Context\
+    \ \xD7 Metric (single ANOVA, not separate)"
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T11:44:09Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: apply Bonferroni correction to all family-wise hypothesis tests and report
+    corrected alpha
+  claim_id: c_d74470ce
+  context: "T021 [P] [US-2] Apply Bonferroni correction to all family\u2011wise hypothesis\
+    \ tests and reportcorrected \u03B1 in `code/analysis/anova.py` (FR-007)"
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Apply_Bonferroni_correction_to_all_family-wise_hypothesis_te
+  kind: entity_fact
+  raw_text: "Apply Bonferroni correction to all family\u2011wise hypothesis tests\
+    \ and reportcorrected \u03B1"
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T11:44:30Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: implement base Agent abstraction using CPU-only transformers opt-125m
+    float32 precision
+  claim_id: c_25ea8db4
+  context: T005 [P] Implement base Agent abstraction using CPU-only `transformers`
+    (opt-125m, float32 precision) in `code/agent/base_agent.py` (FR-002)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement base Agent abstraction using CPU-only `transformers` (opt-125m,
+    float32 precision)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T11:44:32Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 0
+  canonical: OEIS sequence A000079 referenced for scaling analysis
+  claim_id: c_95a10bff
+  context: '{{claim:c_6eea8bb5}} ({{claim:c_13708974}}, {{claim:c_6da4d0ed}} (OEIS
+    A000079, https://oeis.org/A000079)) with performance curves output in `code/analysis/sensitivity.py`'
+  evidence:
+    fill:
+      channel: oeis
+      conflicts: []
+      quote: 1000 10715086071862673209484250490600018105614048117055336074437503883703510511249361224931983788156958581275946729175531468251871452856923140435984577574698574803934567774824230985421074605062371141877954182153046474983581941267398767559165543946077062914571196477686542167660429831652624386837205668069376
+      source_id: A000079
+      url: https://oeis.org/A000079
+      value: '10715086071862673209484250490600018105614048117055336074437503883703510511249361224931983788156958581275946729175531468251871452856923140435984577574698574803934567774824230985421074605062371141877954182153046474983581941267398767559165543946077062914571196477686542167660429831652624386837205668069376'
+    filled: true
+  kind: entity_fact
+  raw_text: OEIS A000079
+  resolved_value: '10715086071862673209484250490600018105614048117055336074437503883703510511249361224931983788156958581275946729175531468251871452856923140435984577574698574803934567774824230985421074605062371141877954182153046474983581941267398767559165543946077062914571196477686542167660429831652624386837205668069376'
+  resolver: fill:oeis
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-03T11:45:45Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: arXiv identifier 2202.05773 for game counts
+  claim_id: c_f9caac9c
+  context: US-3 = {{claim:c_7b176f6b}} (2202.05773, https://arxiv.org/abs/2202.05773)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: '2202.05773'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T11:45:56Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: arXiv identifier 2203.14669 for CLI flag parsing
+  claim_id: c_28755192
+  context: Implement CLI flag parsing for --context, --agents, --dataset and {{claim:c_b7311021}}
+    (2203.14669, https://arxiv.org/abs/2203.14669) in `code/run_experiment.py`
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: '2203.14669'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T11:46:05Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: arXiv identifier 2503.02686 for context window truncation
+  claim_id: c_9781ed05
+  context: '{{claim:c_504902df}} (2503.02686, https://arxiv.org/abs/2503.02686) in
+    `code/run_experiment.py`'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: '2503.02686'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T11:46:14Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 8
+  canonical: at least 95 percent of games produce metrics
+  claim_id: c_44909028
+  context: "Implement validation logic for metrics (\u226595% games produce metrics,\
+    \ SC-001) in `code/metrics/validator.py`"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/At_least_95_percent_of_games_produce_metrics
+  kind: magnitude
+  raw_text: "\u226595% games produce metrics"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T11:46:32Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: Output results_full.csv with specified metrics
+  claim_id: c_6a13e36c
+  context: 'Implementation for User Story 1: T015'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Output results_full.csv with game_id, specialization_index, retrieval_efficiency,
+    context_condition, agent_count to projects/PROJ-586-social-memory-networks-modeling-collecti/results/
+    for {{claim:c_10d5c9c0}}
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T11:48:35Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: 800 games per configuration for agent counts 3, 5, 7
+  claim_id: c_2aca957c
+  context: Implement game simulation for agent counts 3, 5, 7 (800 games per config
+    per spec US-3) in code/run_experiment.py
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 800 games per config
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T11:49:38Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 0
+  canonical: OEIS sequence A000079
+  claim_id: c_0c17907e
+  context: '{{claim:c_6eea8bb5}} ({{claim:c_13708974}}, {{claim:c_6da4d0ed}} ({{claim:c_95a10bff}},
+    https://oeis.org/A000079)) with performance curves output in `code/analysis/sensitivity.py`
+    (FR-008)'
+  evidence:
+    fill:
+      channel: oeis
+      conflicts:
+      - channel: wikipedia
+        source_id: Power of two
+        url: https://en.wikipedia.org/wiki/Power_of_two
+        value: A000079
+      quote: 1000 10715086071862673209484250490600018105614048117055336074437503883703510511249361224931983788156958581275946729175531468251871452856923140435984577574698574803934567774824230985421074605062371141877954182153046474983581941267398767559165543946077062914571196477686542167660429831652624386837205668069376
+      source_id: A000079
+      url: https://oeis.org/A000079
+      value: '10715086071862673209484250490600018105614048117055336074437503883703510511249361224931983788156958581275946729175531468251871452856923140435984577574698574803934567774824230985421074605062371141877954182153046474983581941267398767559165543946077062914571196477686542167660429831652624386837205668069376'
+    filled: true
+  kind: entity_fact
+  raw_text: https://oeis.org/A000079
+  resolved_value: '10715086071862673209484250490600018105614048117055336074437503883703510511249361224931983788156958581275946729175531468251871452856923140435984577574698574803934567774824230985421074605062371141877954182153046474983581941267398767559165543946077062914571196477686542167660429831652624386837205668069376'
+  resolver: fill:oeis
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-03T11:50:50Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: arXiv paper 2203.14669
+  claim_id: c_10bb2882
+  context: Implement CLI flag parsing for --context, --agents, --dataset and {{claim:c_b7311021}}
+    (2203.14669, https://arxiv.org/abs/2203.14669, https://arxiv.org/abs/2203.14669,
+    https://arxiv.org/abs/2203.14669) in `code/run_experiment.py` (FR-001)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: '2203.14669'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T11:50:55Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: Avogadro constant from NIST
+  claim_id: c_ba1a7863
+  context: '{{claim:c_a5c2fb06}} (avogadro, https://physics.nist.gov/cgi-bin/cuu/Value?na)
+    in `code/metrics/specialization.py` (FR-004)'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Avogadro_constant_from_NIST
+  kind: entity_fact
+  raw_text: avogadro, https://physics.nist.gov/cgi-bin/cuu/Value?na
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T11:50:59Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: arXiv paper 2503.02686
+  claim_id: c_10c1c501
+  context: '{{claim:c_504902df}} (2503.02686, https://arxiv.org/abs/2503.02686, https://arxiv.org/abs/2503.02686,
+    https://arxiv.org/abs/2503.02686) in `code/run_experiment.py`'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: '2503.02686'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T11:51:01Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: arXiv paper 2202.05773
+  claim_id: c_83792632
+  context: 'Game Counts: US-1/US-2 = {{claim:c_10d5c9c0}} per condition (spec requirement);
+    US-3 = {{claim:c_7b176f6b}} (2202.05773, https://arxiv.org/abs/2202.05773, https://arxiv.org/abs/2202.05773,
+    https://arxiv.org/abs/2202.05773)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: '2202.05773'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T11:51:04Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: Output results_full.csv with game_id, specialization_index, retrieval_efficiency,
+    context_condition, agent_count
+  claim_id: c_9c968c9b
+  context: Implementation for User Story 1 - T015 [US-1]
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Output_results_full.csv_with_game_id,_specialization_index,
+  kind: entity_fact
+  raw_text: Output results_full.csv with game_id, specialization_index, retrieval_efficiency,
+    context_condition, agent_count
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T11:53:25Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: Verify script outputs metrics and reproducible CSV summary for Full-context
+    condition
+  claim_id: c_20ace269
+  context: Independent Test for User Story 1
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Verify_script_outputs_metrics_and_reproducible_CSV_summary_f
+  kind: entity_fact
+  raw_text: Run the experiment with the Full-context condition only and verify that
+    the script outputs both metrics and a reproducible CSV summary
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T11:53:28Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: Produce plot of specialization index and retrieval efficiency versus
+    agent count with fitted power-law exponent
+  claim_id: c_c8963683
+  context: Independent Test for User Story 3
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Produce_plot_of_specialization_index_and_retrieval_efficienc
+  kind: entity_fact
+  raw_text: Run the experiment for each specified agent count and produce a plot of
+    specialization index and retrieval efficiency versus number of agents, along with
+    a fitted power-law exponent
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T11:53:32Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: Implement base Agent abstraction using CPU-only transformers (opt-125m,
+    float32 precision)
+  claim_id: c_13f8e47d
+  context: 'Phase 2: Foundational - T005 [P]'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement base Agent abstraction using CPU-only transformers (opt-125m,
+    float32 precision)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T11:53:34Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: Implement CLI flag parsing including arXiv 2203.14669
+  claim_id: c_895aabc1
+  context: Implementation for User Story 1 - T011 [P]
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement CLI flag parsing for --context, --agents, --dataset and arXiv
+    2203.14669
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T11:53:43Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: Implement specialization metric using Avogadro constant
+  claim_id: c_7f43fc33
+  context: Implementation for User Story 1 - T012 [P]
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Implement_specialization_metric_using_Avogadro_constant
+  kind: entity_fact
+  raw_text: Implement specialization metric using Avogadro constant
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T11:54:06Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: Apply Bonferroni correction to all family-wise hypothesis tests
+  claim_id: c_9e3a2ea4
+  context: Implementation for User Story 2 - T021 [P]
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Apply_Bonferroni_correction_to_all_family-wise_hypothesis_te
+  kind: entity_fact
+  raw_text: Apply Bonferroni correction to all family-wise hypothesis tests and report
+    corrected alpha
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T11:54:25Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: Implement power-law fitting for metric trends vs. agent count 3, 5, 7
+  claim_id: c_1267b399
+  context: Implementation for User Story 3 - T028 [P]
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement power-law fitting for metric trends vs. agent count (3, 5, 7)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T11:54:27Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: Generate scaling_plot.pdf noting 3 data points limit power-law reliability
+  claim_id: c_4b7d4994
+  context: Implementation for User Story 3 - T030 [US-3]
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate scaling_plot.pdf with fitted power-law curves and explicit note
+    that 3 data points limit power-law reliability
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T11:54:29Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: Remove 8-bit and 4-bit quantization imports and verify no CUDA imports
+  claim_id: c_2508249a
+  context: 'Phase 6: Polish & Cross-Cutting Concerns - T032 [P]'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Remove all 8-bit/4-bit quantization imports and verify no CUDA imports
+    in all Python files
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T11:54:31Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: arXiv citation 2202.05773 for game counts
+  claim_id: c_6d3bc7ec
+  context: US-3 = {{claim:c_7b176f6b}} (2202.05773, https://arxiv.org/abs/2202.05773,
+    https://arxiv.org/abs/2202.05773, https://arxiv.org/abs/2202.05773)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: '2202.05773'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T11:56:11Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: arXiv citation 2203.14669 for CLI flag parsing
+  claim_id: c_36d6cec2
+  context: T011 [P] [US-1] Implement CLI flag parsing ... and {{claim:c_b7311021}}
+    (2203.14669, https://arxiv.org/abs/2203.14669, https://arxiv.org/abs/2203.14669,
+    https://arxiv.org/abs/2203.14669) in `code/run_experiment.py`
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: '2203.14669'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T11:56:13Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: arXiv citation 2503.02686 for experiment implementation
+  claim_id: c_b9a95e28
+  context: T018 [US-2] {{claim:c_504902df}} (2503.02686, https://arxiv.org/abs/2503.02686,
+    https://arxiv.org/abs/2503.02686, https://arxiv.org/abs/2503.02686) in `code/run_experiment.py`
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: '2503.02686'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T11:56:15Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: No 8-bit or 4-bit quantization imports used
+  claim_id: c_3e279dc0
+  context: T032 [P] Remove all 8-bit/4-bit quantization imports, verify no CUDA imports
+    in all Python files (compute feasibility)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 8-bit/4-bit quantization imports removed
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T11:56:29Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: Reviewer feedback phases 6 through 11 removed from specification
+  claim_id: c_138a06d6
+  context: 'Reviewer Feedback: Phases 6-11 from prior draft removed (not in original
+    spec); addressed in T034'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Phases 6-11 from prior draft removed
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T11:56:31Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: Output results_full.csv with specific metrics to results directory
+  claim_id: c_137fd928
+  context: "Phase 3: User Story 1 - Baseline Transactive\u2011Memory Measurement.\
+    \ Implementation for User Story 1 - T015"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Output results_full.csv with game_id, specialization_index, retrieval_efficiency,
+    context_condition, agent_count to projects/PROJ-586-social-memory-networks-modeling-collecti/results/
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T11:58:59Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: Apply Bonferroni correction to family-wise hypothesis tests
+  claim_id: c_39a04b83
+  context: 'Phase 4: User Story 2. Implementation for User Story 2 - T021'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Apply_Bonferroni_correction_to_family-wise_hypothesis_tests
+  kind: entity_fact
+  raw_text: "Apply Bonferroni correction to all family\u2011wise hypothesis tests\
+    \ and report corrected \u03B1"
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T11:59:02Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: 3 data points limit power-law reliability
+  claim_id: c_1bca0c2d
+  context: 'Phase 5: User Story 3. Implementation for User Story 3 - T030'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Generate scaling_plot.pdf with fitted power\u2011law curves and explicit\
+    \ note that 3 data points limit power\u2011law reliability"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T11:59:04Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: Verify exit code 0 for all commands in quickstart.md validation
+  claim_id: c_1c78480d
+  context: 'Phase 6: Polish & Cross-Cutting Concerns - T031'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run `quickstart.md` validation (execute all commands, verify exit code
+    0 for each)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T11:59:17Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: Remove 8-bit and 4-bit quantization imports and verify no CUDA imports
+  claim_id: c_33c5b7ff
+  context: 'Phase 6: Polish & Cross-Cutting Concerns - T032'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Remove all 8-bit/4-bit quantization imports, verify no CUDA imports in
+    all Python files
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T11:59:19Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: Implement file-locking with fcntl and add conflict retry logic
+  claim_id: c_f32e529a
+  context: 'Phase 6: Polish & Cross-Cutting Concerns - T033'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Implement_file-locking_with_fcntl_and_add_conflict_retry_log
+  kind: entity_fact
+  raw_text: Implement file-locking with fcntl and add conflict retry logic
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T11:59:41Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: Use opt-125m model with float32 precision for base Agent abstraction
+  claim_id: c_1c29305f
+  context: 'Phase 2: Foundational. Implementation - T005'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement base Agent abstraction using CPU-only transformers (opt-125m,
+    float32 precision)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T11:59:43Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: Dataset loaders must use synthetic fallback only
+  claim_id: c_6fe07d59
+  context: 'Phase 2: Foundational. Implementation - T004'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Dataset_loaders_must_use_synthetic_fallback_only
+  kind: entity_fact
+  raw_text: Implement dataset loaders with synthetic fallback only
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T12:00:03Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: Implement shared external memory buffer with MEMORY_ACTION token handling
+  claim_id: c_6e60997e
+  context: 'Phase 2: Foundational. Implementation - T006'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Implement_shared_external_memory_buffer_with_MEMORY_ACTION_t
+  kind: entity_fact
+  raw_text: Implement shared external memory buffer with <MEMORY_ACTION> token handling
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T12:01:34Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: Configure environment with seed 42 and device cpu
+  claim_id: c_2ac2636a
+  context: 'Phase 2: Foundational. Implementation - T008'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Configure environment management (config.yaml with seed=42, device=cpu)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T12:01:37Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: Use single two-way ANOVA with Context and Metric factors
+  claim_id: c_17ec2e50
+  context: 'Phase 4: User Story 2. Implementation for User Story 2 - T020'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Use_single_two-way_ANOVA_with_Context_and_Metric_factors
+  kind: entity_fact
+  raw_text: "Implement two\u2011way independent\u2011samples ANOVA with factors Context\
+    \ \xD7 Metric (single ANOVA, not separate)"
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T12:01:40Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: Implement CLI flags for context, agents, and dataset
+  claim_id: c_21231f09
+  context: 'Phase 3: User Story 1. Implementation for User Story 1 - T011'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Implement_CLI_flags_for_context,_agents,_and_dataset
+  kind: entity_fact
+  raw_text: Implement CLI flag parsing for --context, --agents, --dataset
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T12:01:44Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: Fit power-law for metric trends vs agent counts 3, 5, 7
+  claim_id: c_596e6882
+  context: 'Phase 5: User Story 3. Implementation for User Story 3 - T028'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement power-law fitting for metric trends vs. agent count (3, 5, 7)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T12:01:46Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: Bonferroni correction applied to all family-wise hypothesis tests
+  claim_id: c_17cbcd54
+  context: "T021 [P] [US-2] Apply Bonferroni correction to all family\u2011wise hypothesis\
+    \ tests and report corrected \u03B1 in code/analysis/anova.py (FR-007)"
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Bonferroni_correction_applied_to_all_family-wise_hypothesis
+  kind: entity_fact
+  raw_text: "Apply Bonferroni correction to all family\u2011wise hypothesis tests\
+    \ and report corrected \u03B1"
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T12:02:53Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: Full-context condition outputs metrics and reproducible CSV summary
+  claim_id: c_9c38f62e
+  context: "Independent Test: Run the experiment with the Full\u2011context condition\
+    \ only and verify that the script outputs both metrics and a reproducible CSV\
+    \ summary."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Full-context_condition_outputs_metrics_and_reproducible_CSV
+  kind: entity_fact
+  raw_text: "Run the experiment with the Full\u2011context condition only and verify\
+    \ that the script outputs both metrics and a reproducible CSV summary"
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T12:02:57Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: Base Agent abstraction uses CPU-only opt-125m with float32 precision
+  claim_id: c_0293f32e
+  context: T005 [P] Implement base Agent abstraction using CPU-only transformers (opt-125m,
+    float32 precision) in code/base_agent.py (FR-002)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement base Agent abstraction using CPU-only transformers (opt-125m,
+    float32 precision)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T12:02:59Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 2
+  canonical: 3 data points limit power-law reliability
+  claim_id: c_bff1d032
+  context: T030 [US-3] Generate scaling_plot.pdf with fitted power-law curves and
+    explicit note that 3 data points limit power-law reliability in projects/PROJ-586-social-memory-networks-modeling-collecti/results/scaling_plot.pdf
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate scaling_plot.pdf with fitted power-law curves and explicit note
+    that 3 data points limit power-law reliability
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T12:06:04Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: Bonferroni correction applied to all family-wise hypothesis tests
+  claim_id: c_13a4d5e3
+  context: "T021 [P] [US-2] Apply Bonferroni correction to all family-wise hypothesis\
+    \ tests and report corrected \u03B1 in code/analysis/anova.py (FR-007)"
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Bonferroni_correction_applied_to_all_family-wise_hypothesis
+  kind: entity_fact
+  raw_text: "Apply Bonferroni correction to all family-wise hypothesis tests and report\
+    \ corrected \u03B1"
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T12:06:07Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 2
+  canonical: base Agent abstraction uses opt-125m float32 precision
+  claim_id: c_f0b01658
+  context: T005 [P] Implement base Agent abstraction using CPU-only transformers (opt-125m,
+    float32 precision) in code/agent/base_agent.py (FR-002)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement base Agent abstraction using CPU-only transformers (opt-125m,
+    float32 precision)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T12:06:09Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 2
+  canonical: environment configuration seed 42 device cpu
+  claim_id: c_4a3336d5
+  context: T008 [P] Configure environment management (config.yaml with seed=42, device=cpu)
+    in code/utils/config.py
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Configure environment management (config.yaml with seed=42, device=cpu)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T12:06:11Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: CLI flag parsing references arxiv 2203.14669
+  claim_id: c_4c3d2db2
+  context: T011 [P] [US-1] Implement CLI flag parsing for --context, --agents, --dataset
+    and 2203.14669 (2203.14669, https://arxiv.org/abs/2203.14669, https://arxiv.org/abs/2203.14669,
+    https://arxiv.org/abs/2203.14669) in code/run_experiment.py (FR-001)
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: numeric
+  raw_text: Implement CLI flag parsing for --context, --agents, --dataset and 2203.14669
+    (https://arxiv.org/abs/2203.14669)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T12:06:15Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: dataset loaders synthetic fallback no avogadro constant
+  claim_id: c_18756b67
+  context: T004 [P] Implement dataset loaders with synthetic fallback only (no avogadro,
+    https://physics.nist.gov/cgi-bin/cuu/Value?na) in code/data/loaders.py and code/data/synthetic.py
+    (FR-011)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Dataset_loaders_synthetic_fallback_no_avogadro_constant
+  kind: entity_fact
+  raw_text: Implement dataset loaders with synthetic fallback only (no avogadro, https://physics.nist.gov/cgi-bin/cuu/Value?na)
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T12:06:19Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: power-law fitting for agent counts 3 5 7
+  claim_id: c_bc992758
+  context: T028 [P] [US-3] Implement power-law fitting for metric trends vs. agent
+    count (3, 5, 7) in code/analysis/scaling.py (US-3)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement power-law fitting for metric trends vs. agent count (3, 5, 7)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T12:06:21Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: two-way independent-samples ANOVA Context Metric single analysis
+  claim_id: c_0af82e55
+  context: "T020 [P] [US-2] Implement two-way independent-samples ANOVA with factors\
+    \ Context \xD7 Metric (single ANOVA, not separate) in code/analysis/anova.py (FR-006)"
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Two-way_independent-samples_ANOVA_Context_Metric_single_anal
+  kind: entity_fact
+  raw_text: "Implement two-way independent-samples ANOVA with factors Context \xD7\
+    \ Metric (single ANOVA, not separate)"
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T12:06:25Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: remove 8-bit 4-bit quantization imports verify no CUDA imports
+  claim_id: c_08610688
+  context: T032 [P] Remove all 8-bit/4-bit quantization imports, verify no CUDA imports
+    in all Python files (compute feasibility)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Remove all 8-bit/4-bit quantization imports, verify no CUDA imports in
+    all Python files
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T12:06:27Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 0
+  canonical: OEIS sequence A000079
+  claim_id: c_add31f07
+  context: Implementation for User Story 2 - T022
+  evidence:
+    fill:
+      channel: oeis
+      conflicts: []
+      quote: 1000 10715086071862673209484250490600018105614048117055336074437503883703510511249361224931983788156958581275946729175531468251871452856923140435984577574698574803934567774824230985421074605062371141877954182153046474983581941267398767559165543946077062914571196477686542167660429831652624386837205668069376
+      source_id: A000079
+      url: https://oeis.org/A000079
+      value: '10715086071862673209484250490600018105614048117055336074437503883703510511249361224931983788156958581275946729175531468251871452856923140435984577574698574803934567774824230985421074605062371141877954182153046474983581941267398767559165543946077062914571196477686542167660429831652624386837205668069376'
+    filled: true
+  kind: entity_fact
+  raw_text: OEIS A000079
+  resolved_value: '10715086071862673209484250490600018105614048117055336074437503883703510511249361224931983788156958581275946729175531468251871452856923140435984577574698574803934567774824230985421074605062371141877954182153046474983581941267398767559165543946077062914571196477686542167660429831652624386837205668069376'
+  resolver: fill:oeis
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-03T12:09:19Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: 95% of games produce metrics
+  claim_id: c_e47fc0ef
+  context: Implementation for User Story 1 - T014
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement validation logic for metrics (\u226595% games produce metrics)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T12:09:26Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: opt-125m model with float32 precision
+  claim_id: c_6bffb46e
+  context: Implementation for Foundational phase - T005
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: opt-125m, float32 precision
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T12:09:42Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: seed 42 and device cpu configuration
+  claim_id: c_7d557139
+  context: Implementation for Foundational phase - T008
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: seed=42, device=cpu
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T12:11:18Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: avogadro constant value
+  claim_id: c_db0277a5
+  context: Implementation for User Story 1 - T012
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: "Lorenzo Romano Amedeo Carlo Avogadro, Count of Quaregna and Cerreto\
+        \ (, also US: , Italian: [ame\u02C8d\u025B\u02D0o avo\u02C8\u0261a\u02D0dro];\
+        \ 9 August 1776 \u2013 9 July 1856) was an Italian scientist, most noted for\
+        \ his contribution to molecular theory now known as Avogadro's law, which\
+        \ states that equal volumes of gases under the same conditions of temperature\
+        \ and pressure will contain equal numbers of molecules. In tribute to him,\
+        \ the ratio of the number of elementary entities (atoms, molecules, ions or\
+        \ other particles) in a substance to its amount of substance (the latter having\
+        \ the unit mole), 6.02214076\xD71023 mol\u22121, is known as the Avogadro\
+        \ constant.  This constant is denoted NA, and is one of the seven defining\
+        \ constants of the SI."
+      source_id: Amedeo Avogadro
+      url: https://en.wikipedia.org/wiki/Amedeo_Avogadro
+      value: "6.02214076\xD71023 mol\u22121"
+    filled: true
+  kind: entity_fact
+  raw_text: avogadro constant
+  resolved_value: "6.02214076\xD71023 mol\u22121"
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-03T12:11:31Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: arXiv paper 2203.14669
+  claim_id: c_cf8ea321
+  context: Implementation for User Story 1 - T011
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: '2203.14669'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T12:11:34Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: arXiv paper 2503.02686
+  claim_id: c_d8b7b564
+  context: Implementation for User Story 2 - T018
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: '2503.02686'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T12:11:37Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: Output results_full.csv with game_id, specialization_index, retrieval_efficiency,
+    context_condition, agent_count
+  claim_id: c_7b86087f
+  context: T015 [US-1] Output results_full.csv with game_id, specialization_index,
+    retrieval_efficiency, context_condition, agent_count to projects/PROJ-586-social-memory-networks-modeling-collecti/results/
+    for {{claim:c_10d5c9c0}}
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Output_results_full.csv_with_game_id,_specialization_index,
+  kind: entity_fact
+  raw_text: Output results_full.csv with game_id, specialization_index, retrieval_efficiency,
+    context_condition, agent_count
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T12:13:49Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: Apply Bonferroni correction to family-wise hypothesis tests
+  claim_id: c_48e993ba
+  context: "T021 [P] [US-2] Apply Bonferroni correction to all family\u2011wise hypothesis\
+    \ tests and reportcorrected \u03B1 in code/analysis/anova.py (FR-007)"
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Apply_Bonferroni_correction_to_family-wise_hypothesis_tests
+  kind: entity_fact
+  raw_text: "Apply Bonferroni correction to all family-wise hypothesis tests and report\
+    \ corrected \u03B1"
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T12:13:53Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: 3 data points limit power-law reliability in scaling plot
+  claim_id: c_23d3c624
+  context: "T030 [US-3] Generate scaling_plot.pdf with fitted power\u2011law curves\
+    \ and explicit note that 3 data points limit power\u2011law reliability in projects/PROJ-586-social-memory-networks-modeling-collecti/results/scaling_plot.pdf"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Generate scaling_plot.pdf with fitted power\u2011law curves and explicit\
+    \ note that 3 data points limit power\u2011law reliability"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T12:13:55Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: Base Agent abstraction uses opt-125m model with float32 precision
+  claim_id: c_08f5e53f
+  context: T005 [P] Implement base Agent abstraction using CPU-only transformers (opt-125m,
+    float32 precision) in code/agent/base_agent.py (FR-002)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Base Agent abstraction using CPU-only transformers (opt-125m, float32
+    precision)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T12:16:49Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: Environment configuration uses seed 42 and CPU device
+  claim_id: c_65622579
+  context: T008 [P] Configure environment management (config.yaml with seed=42, device=cpu)
+    in code/utils/config.py
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Configure environment management (config.yaml with seed=42, device=cpu)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T12:16:51Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: CLI flag parsing includes reference to arXiv 2203.14669
+  claim_id: c_5ac8115a
+  context: T011 [P] [US-1] Implement CLI flag parsing for --context, --agents, --dataset
+    and {{claim:c_b7311021}} (2203.14669, https://arxiv.org/abs/2203.14669, https://arxiv.org/abs/2203.14669,
+    https://arxiv.org/abs/2203.14669) in code/run_experiment.py (FR-001)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement CLI flag parsing for --context, --agents, --dataset and 2203.14669
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T12:16:53Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: Metrics implementation references Avogadro constant from NIST
+  claim_id: c_b98f965e
+  context: T012 [P] [US-1] {{claim:c_a5c2fb06}} (avogadro, https://physics.nist.gov/cgi-bin/cuu/Value?na)
+    in code/metrics/specialization.py (FR-004)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Metrics_implementation_references_Avogadro_constant_from_NIS
+  kind: entity_fact
+  raw_text: Implement metrics with reference to avogadro (https://physics.nist.gov/cgi-bin/cuu/Value?na)
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T12:20:47Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis references OEIS sequence A000079
+  claim_id: c_330c9093
+  context: T022 [US-2] {{claim:c_6eea8bb5}} ({{claim:c_13708974}}, {{claim:c_6da4d0ed}}
+    ({{claim:c_95a10bff}}, {{claim:c_0c17907e}} ({{claim:c_add31f07}}, https://oeis.org/A000079)))
+    with performance curves output in code/analysis/sensitivity.py (FR-008)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Sensitivity_analysis_references_OEIS_sequence_A000079
+  kind: entity_fact
+  raw_text: Implement sensitivity analysis with reference to OEIS A000079
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T12:24:34Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: CLI flag parsing includes reference to arXiv 2503.02686
+  claim_id: c_45d5e891
+  context: T018 [US-2] {{claim:c_504902df}} (2503.02686, https://arxiv.org/abs/2503.02686,
+    https://arxiv.org/abs/2503.02686, https://arxiv.org/abs/2503.02686) in code/run_experiment.py
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement CLI flag parsing with reference to arXiv 2503.02686
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T12:27:02Z'

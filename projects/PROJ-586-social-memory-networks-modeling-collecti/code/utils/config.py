@@ -10,14 +10,15 @@ on disk with the required defaults.
 from __future__ import annotations
 
 import os
+import sys
 from dataclasses import dataclass, field, asdict
 from pathlib import Path
 from typing import Any, Dict, Optional
 
+# Try to import yaml, but handle missing dependency gracefully
 try:
     import yaml
 except ImportError:
-    # Fallback if PyYAML is not installed: simple key-value parser
     yaml = None  # type: ignore
 
 
@@ -80,8 +81,11 @@ def load_config(config_path: Optional[str] = None) -> Config:
                         # Basic type conversion
                         if val.isdigit():
                             file_config[key] = int(val)
-                        elif val.replace('.', '', 1).replace('-', '', 1).isdigit():
-                            file_config[key] = float(val)
+                        elif val.replace('.', '', 1).replace('-', '', 1).replace('e', '').replace('+', '').replace('-', '').isdigit():
+                            try:
+                                file_config[key] = float(val)
+                            except ValueError:
+                                file_config[key] = val
                         elif val.lower() in ('true', 'false'):
                             file_config[key] = val.lower() == 'true'
                         elif val.startswith('[') and val.endswith(']'):
