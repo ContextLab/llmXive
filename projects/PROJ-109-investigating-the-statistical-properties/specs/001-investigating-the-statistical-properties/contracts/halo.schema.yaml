@@ -1,0 +1,65 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Halo Data Schema"
+description: "Schema for processed halo data including structural metrics and environment bins."
+type: "object"
+properties:
+  halo_id:
+    type: "integer"
+    description: "Unique identifier for the halo."
+  mass:
+    type: "number"
+    description: "Total mass of the halo in M_sun h^-1."
+  particle_count:
+    type: "integer"
+    description: "Number of particles in the halo."
+    minimum: 300
+  position:
+    type: "array"
+    items:
+      type: "number"
+    minItems: 3
+    maxItems: 3
+    description: "3D position [x, y, z] in Mpc h^-1."
+  velocity:
+    type: "array"
+    items:
+      type: "number"
+    minItems: 3
+    maxItems: 3
+    description: "3D velocity [vx, vy, vz] in km/s."
+  shape_s:
+    type: "number"
+    description: "Shape parameter c/a."
+    minimum: 0.0
+    maximum: 1.0
+  spin_lambda:
+    type: "number"
+    description: "Dimensionless spin parameter."
+    minimum: 0.0
+    maximum: 1.0
+  concentration_c:
+    type: "number"
+    description: "NFW concentration parameter."
+    minimum: 0.0
+  overdensity_delta:
+    type: "number"
+    description: "Local overdensity Delta."
+  mass_bin:
+    type: "string"
+    description: "Mass bin label (e.g., '1e10-1e11')."
+  env_bin:
+    type: "string"
+    description: "Environment bin label ('low' or 'high')."
+required:
+  - halo_id
+  - mass
+  - particle_count
+  - position
+  - velocity
+  - shape_s
+  - spin_lambda
+  - concentration_c
+  - overdensity_delta
+  - mass_bin
+  - env_bin
+additionalProperties: false

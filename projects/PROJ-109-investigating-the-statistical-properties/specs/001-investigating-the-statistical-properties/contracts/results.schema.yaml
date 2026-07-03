@@ -1,0 +1,48 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Statistical Results Schema"
+description: "Schema for hypothesis test results including p-values, effect sizes, and convergence rates."
+type: "object"
+properties:
+  test_type:
+    type: "string"
+    description: "Type of test performed."
+    enum: ["KS", "Spearman"]
+  metric:
+    type: "string"
+    description: "Metric being tested."
+    enum: ["shape", "spin", "concentration"]
+  bin_comparison:
+    type: "string"
+    description: "Comparison context."
+    enum: ["low_vs_high", "mass_correlation"]
+  p_value_raw:
+    type: "number"
+    description: "Raw p-value from the test."
+    minimum: 0.0
+    maximum: 1.0
+  p_value_corrected:
+    type: "number"
+    description: "Multiple-comparison corrected p-value."
+    minimum: 0.0
+    maximum: 1.0
+  effect_size:
+    type: "number"
+    description: "Effect size (KS statistic or Spearman rho)."
+  significance:
+    type: "boolean"
+    description: "True if p_value_corrected < 0.05."
+  convergence_rate:
+    type: "number"
+    description: "Percentage of halos with successful NFW fits (SC-004)."
+    minimum: 0.0
+    maximum: 100.0
+required:
+  - test_type
+  - metric
+  - bin_comparison
+  - p_value_raw
+  - p_value_corrected
+  - effect_size
+  - significance
+  - convergence_rate
+additionalProperties: false
