@@ -6493,23 +6493,6 @@
   updated_at: '2026-07-03T00:26:34Z'
 - artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
   attempts: 1
-  canonical: Bonferroni correction applied to all family-wise hypothesis tests
-  claim_id: c_72753cd3
-  context: Implementation for User Story 2 - T021
-  evidence:
-    entailment_status: not_found
-    reason: source found but does not address entity claim
-    source_url: https://en.wikipedia.org/wiki/Bonferroni_correction_applied_to_all_family-wise_hypothesis
-  kind: entity_fact
-  raw_text: "Apply Bonferroni correction to all family\u2011wise hypothesis tests"
-  resolved_value: null
-  resolver: resolve_entity_fact
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-03T00:27:23Z'
-- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
-  attempts: 1
   canonical: Full pipeline run on CI runner recording runtime/memory/disk
   claim_id: c_08388d78
   context: Phase 6 - Polish & Cross-Cutting Concerns - T035
@@ -8152,3 +8135,420 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-03T07:26:48Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: Sweep context truncation token limits over 128, 256, and 512
+  claim_id: c_3adc7cd0
+  context: "T022 [US-2] sensitivity analysis sweeping context\u2011truncation token\
+    \ limit over {128, 256, 512} with performance curves output in `code/analysis/sensitivity.py`\
+    \ (FR-008)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "sensitivity analysis sweeping context\u2011truncation token limit over\
+    \ {128, 256, 512}"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T08:15:29Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: Apply Bonferroni correction to family-wise hypothesis tests
+  claim_id: c_65dc5436
+  context: "T021 [P] [US-2] Apply Bonferroni correction to all family\u2011wise hypothesis\
+    \ tests and report corrected \u03B1 in `code/analysis/anova.py` (FR-007)"
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Apply_Bonferroni_correction_to_family-wise_hypothesis_tests
+  kind: entity_fact
+  raw_text: "Apply Bonferroni correction to all family\u2011wise hypothesis tests"
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T08:16:07Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: Perform single two-way ANOVA with Context and Metric factors
+  claim_id: c_3d451f19
+  context: "T020 [P] [US-2] Implement two\u2011way independent\u2011samples ANOVA\
+    \ with factors Context \xD7 Metric (single ANOVA, not separate) in `code/analysis/anova.py`\
+    \ (FR-006)"
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Perform_single_two-way_ANOVA_with_Context_and_Metric_factors
+  kind: entity_fact
+  raw_text: "Implement two\u2011way independent\u2011samples ANOVA with factors Context\
+    \ \xD7 Metric (single ANOVA, not separate)"
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T08:16:32Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: Configure environment with seed 42 and CPU device
+  claim_id: c_56b8ef04
+  context: T008 [P] Configure environment management (config.yaml with seed=42, device=cpu)
+    in `code/utils/config.py`
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Configure environment management (config.yaml with seed=42, device=cpu)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T08:16:45Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: Use opt-125m model with float32 precision on CPU
+  claim_id: c_b0c52117
+  context: T005 [P] Implement base Agent abstraction using CPU-only `transformers`
+    (opt-125m, float32 precision) in `code/agent/base_agent.py` (FR-002)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement base Agent abstraction using CPU-only `transformers` (opt-125m,
+    float32 precision)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T08:16:58Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: Record runtime, memory, and disk usage on CI runner
+  claim_id: c_b3b100af
+  context: 'T035 [P] Run full pipeline on CI runner, record runtime/memory/disk in
+    `projects/PROJ-586-social-memory-networks-modeling-collecti/results/` {{claim:c_e603cc7e}},
+    {{claim:c_61298537}} <!-- ATOMIZE: requested -->'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run full pipeline on CI runner, record runtime/memory/disk in `projects/PROJ-586-social-memory-networks-modeling-collecti/results/`
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T08:17:17Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: Update research notes with feedback from Turing, Rockmore, Kahneman,
+    Krakauer, Kandel, and West
+  claim_id: c_3d8de4e3
+  context: T034 [P] Update `research.md` with reviewer feedback integration notes
+    (Turing, Rockmore, Kahneman, Krakauer, Kandel, West)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Update_research_notes_with_feedback_from_Turing,_Rockmore,_K
+  kind: entity_fact
+  raw_text: Update `research.md` with reviewer feedback integration notes (Turing,
+    Rockmore, Kahneman, Krakauer, Kandel, West)
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T08:17:34Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: Note that 3 data points limit power-law reliability in scaling plot
+  claim_id: c_5999e071
+  context: "T030 [US-3] Generate `scaling_plot.pdf` with fitted power\u2011law curves\
+    \ and explicit note that 3 data points limit power\u2011law reliability in `projects/PROJ-586-social-memory-networks-modeling-collecti/results/scaling_plot.pdf`"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Generate `scaling_plot.pdf` with fitted power\u2011law curves and explicit\
+    \ note that 3 data points limit power\u2011law reliability"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T08:18:08Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: Full-context condition experiment outputs metrics and reproducible CSV
+    summary
+  claim_id: c_c3303397
+  context: 'Phase 3: User Story 1 - Independent Test'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Full-context_condition_experiment_outputs_metrics_and_reprod
+  kind: entity_fact
+  raw_text: Run the experiment with the Full-context condition only and verify that
+    the script outputs both metrics and a reproducible CSV summary
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T08:26:56Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: Scaling analysis produces plot of metrics versus agent count with fitted
+    power-law exponent
+  claim_id: c_31f7e254
+  context: 'Phase 5: User Story 3 - Independent Test'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Scaling_analysis_produces_plot_of_metrics_versus_agent_count
+  kind: entity_fact
+  raw_text: Run the experiment for each specified agent count and produce a plot of
+    specialization index and retrieval efficiency versus number of agents, along with
+    a fitted power-law exponent
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T08:27:15Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: scaling analysis uses agent counts 3, 5, and 7
+  claim_id: c_40f67f07
+  context: 'Goal: Investigate how the fidelity of collective remembering scales when
+    the number of agents varies across different group sizes. ... Implement game simulation
+    for agent counts 3, 5, 7'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The experiment runs with 3, 5, and 7 agents for the scaling analysis.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T08:29:05Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: scaling analysis runs 800 games per configuration
+  claim_id: c_6a9113c0
+  context: T027 [US-3] Implement game simulation for agent counts 3, 5, 7 (800 games
+    per config per spec US-3) in code/run_experiment.py
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The scaling analysis includes 800 games per configuration.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T08:29:24Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: US-3 uses 1000 games per configuration
+  claim_id: c_3a5b05a9
+  context: 'Game Counts: US-1/US-2 = {{claim:c_10d5c9c0}} per condition (spec requirement);
+    US-3 = 1000 games per configuration'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: User Story 3 uses 1000 games per configuration.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T08:29:44Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: sensitivity analysis sweeps token limits 128, 256, 512
+  claim_id: c_7a69a366
+  context: "T022 [US-2] sensitivity analysis sweeping context\u2011truncation token\
+    \ limit over {128, 256, 512} with performance curves output in code/analysis/sensitivity.py"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity analysis sweeps context-truncation token limits over 128,
+    256, and 512.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T08:30:02Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: base agent uses opt-125m float32 precision
+  claim_id: c_941efcd7
+  context: T005 [P] Implement base Agent abstraction using CPU-only transformers (opt-125m,
+    float32 precision) in code/agent/base_agent.py
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The base Agent abstraction uses opt-125m with float32 precision.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T08:30:22Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: environment config uses seed 42 device cpu
+  claim_id: c_ca79b610
+  context: T008 [P] Configure environment management (config.yaml with seed=42, device=cpu)
+    in code/utils/config.py
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The environment configuration uses seed=42 and device=cpu.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T08:30:44Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: validation requires 95% games produce metrics
+  claim_id: c_ba4839c1
+  context: "T014 [P] [US-1] Implement validation logic for metrics (\u226595% games\
+    \ produce metrics, SC-001) in code/metrics/validator.py"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Validation_requires_95%25_games_produce_metrics
+  kind: magnitude
+  raw_text: Validation logic requires at least 95% of games to produce metrics.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T08:31:14Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 2
+  canonical: Bonferroni correction applied to all family-wise hypothesis tests
+  claim_id: c_72753cd3
+  context: Implementation for User Story 2 - T021
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Bonferroni_correction_applied_to_all_family-wise_hypothesis
+  kind: entity_fact
+  raw_text: "Apply Bonferroni correction to all family\u2011wise hypothesis tests"
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T08:34:49Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: sensitivity analysis token limits 128, 256, 512
+  claim_id: c_d2ced5cd
+  context: Implementation for User Story 2 - T022
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "sensitivity analysis sweeping context\u2011truncation token limit over\
+    \ {128, 256, 512}"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T08:34:51Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: base Agent abstraction uses CPU-only opt-125m float32 precision
+  claim_id: c_44a871f9
+  context: 'Phase 2: Foundational - T005'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement base Agent abstraction using CPU-only transformers (opt-125m,
+    float32 precision)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T08:34:52Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: environment configuration seed 42 device cpu
+  claim_id: c_b85d74e8
+  context: 'Phase 2: Foundational - T008'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Configure environment management (config.yaml with seed=42, device=cpu)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T08:34:54Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: reviewer feedback includes Turing, Rockmore, Kahneman, Krakauer, Kandel,
+    West
+  claim_id: c_145edd4a
+  context: 'Phase 6: Polish & Cross-Cutting Concerns - T034'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Reviewer_feedback_includes_Turing,_Rockmore,_Kahneman,_Kraka
+  kind: entity_fact
+  raw_text: Update research.md with reviewer feedback integration notes (Turing, Rockmore,
+    Kahneman, Krakauer, Kandel, West)
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T08:34:57Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: sensitivity analysis token limits 128, 256, 512
+  claim_id: c_18958409
+  context: "Implementation for User Story 2 - T022 [US-2] sensitivity analysis sweeping\
+    \ context\u2011truncation token limit over {128, 256, 512} with performance curves\
+    \ output in code/analysis/sensitivity.py (FR-008)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "sensitivity analysis sweeping context\u2011truncation token limit over\
+    \ {128, 256, 512}"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T08:41:59Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: base Agent abstraction opt-125m float32 precision
+  claim_id: c_04543de3
+  context: 'Phase 2: Foundational - T005 [P] Implement base Agent abstraction using
+    CPU-only transformers (opt-125m, float32 precision) in code/agent/base_agent.py
+    (FR-002)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement base Agent abstraction using CPU-only transformers (opt-125m,
+    float32 precision)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T08:42:01Z'

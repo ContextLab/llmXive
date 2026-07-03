@@ -10,6 +10,7 @@ The gate detected that your reported numbers are NOT real measurements: they are
 
 - code/data/synthetic.py: synthetic/fake INPUT data not authorized by the spec — “…aders and utilities — NO synthetic data generation.  This module…”
 - code/data/synthetic.py: synthetic/fake INPUT data not authorized by the spec — “…er the fabrication gate, synthetic data generation is NOT author…”
+- code/run_experiment.py: synthetic/fake INPUT data not authorized by the spec — “…ime constraints,     and synthetic data fabrication is prohibite…”
 - code/run_limited_context_experiment.py: synthetic/fake INPUT data not authorized by the spec — “…utput_path}")          # Generate synthetic dataset for the experime…”
 - code/run_limited_context_experiment.py: synthetic/fake INPUT data not authorized by the spec — “…logger.info("Generating synthetic dataset...")     dataset_spec =…”
 
@@ -17,26 +18,119 @@ The gate detected that your reported numbers are NOT real measurements: they are
 
 These commands were NOT failing in the previous round and ARE failing now — your last edit broke previously-working code. REVERT or correct whatever change broke each one BEFORE touching anything else; do not trade one passing script for another (that oscillation is what burns the fix-round budget toward escalation):
 
-- `python code/run_experiment.py --context full --agents 3,5,7 --games 800 --plot scaling`
+- `python code/run_experiment.py --context full --agents 5 --games 100 --seed 42`
+- `python code/run_experiment.py --context full --agents 5 --games 100 --seed 42`
+- `python code/run_experiment.py --context full --agents 5 --games 1000`
+- `python code/run_experiment.py --context limited --agents 5 --games 1000`
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 4 fabricated/simulated-result signal(s) — results are not real measurements: code/data/synthetic.py: synthetic/fake INPUT data not authorized by the spec — “…aders and utilities — NO synthetic data generation.  This module…”; code/data/synthetic.py: synthetic/fake INPUT data not authorized by the spec — “…er the fabrication gate, synthetic data generation is NOT author…”; code/run_limited_context_experiment.py: synthetic/fake INPUT data not authorized by the spec — “…utput_path}")          # Generate synthetic dataset for the experime…”; 2 command(s) failed: python code/run_experiment.py --context full --agents 3,5,7 --games 800 --plot scaling (rc=2); python code/run_experiment.py --context limited --agents 5 --games 1000 --thresholds 128,256,512 (rc=2)
+**Summary**: 5 fabricated/simulated-result signal(s) — results are not real measurements: code/data/synthetic.py: synthetic/fake INPUT data not authorized by the spec — “…aders and utilities — NO synthetic data generation.  This module…”; code/data/synthetic.py: synthetic/fake INPUT data not authorized by the spec — “…er the fabrication gate, synthetic data generation is NOT author…”; code/run_experiment.py: synthetic/fake INPUT data not authorized by the spec — “…ime constraints,     and synthetic data fabrication is prohibite…”; 6 command(s) failed: python code/run_experiment.py --context full --agents 5 --games 1000 (rc=1); python code/run_experiment.py --context limited --agents 5 --games 1000 (rc=1); python code/run_experiment.py --context full --agents 3,5,7 --games 800 --plot scaling (rc=1)
 
 ## Failing / missing run-book commands
 
-- python code/run_experiment.py --context full --agents 3,5,7 --games 800 --plot scaling -> rc=2
-    usage: run_experiment.py [-h] [--context {full,limited}] [--agents AGENTS]
-                         [--games GAMES] [--output-dir OUTPUT_DIR]
-                         [--seed SEED] [--plot {scaling,None}]
-                         [--agent-counts AGENT_COUNTS]
-run_experiment.py: error: argument --agents: invalid int value: '3,5,7'
-- python code/run_experiment.py --context limited --agents 5 --games 1000 --thresholds 128,256,512 -> rc=2
-    usage: run_experiment.py [-h] [--context {full,limited}] [--agents AGENTS]
-                         [--games GAMES] [--output-dir OUTPUT_DIR]
-                         [--seed SEED] [--plot {scaling,None}]
-                         [--agent-counts AGENT_COUNTS]
-run_experiment.py: error: unrecognized arguments: --thresholds 128,256,512
+- python code/run_experiment.py --context full --agents 5 --games 1000 -> rc=1
+    or:
+                                  ^^^^^^^^^^^^^^^^
+AttributeError: module 'torch' has no attribute 'LongTensor'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/run_experiment.py", line 18, in <module>
+    from agent.base_agent import AgentConfig, BaseAgent
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/agent/__init__.py", line 5, in <module>
+    from .base_agent import AgentConfig, BaseAgent
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/agent/base_agent.py", line 17, in <module>
+    from transformers import AutoModelForCausalLM, AutoTokenizer, pipeline
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/.venv/lib/python3.11/site-packages/transformers/utils/import_utils.py", line 2350, in __getattr__
+    raise ModuleNotFoundError(
+ModuleNotFoundError: Could not import module 'AutoModelForCausalLM'. Are this object's requirements defined correctly?
+- python code/run_experiment.py --context limited --agents 5 --games 1000 -> rc=1
+    or:
+                                  ^^^^^^^^^^^^^^^^
+AttributeError: module 'torch' has no attribute 'LongTensor'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/run_experiment.py", line 18, in <module>
+    from agent.base_agent import AgentConfig, BaseAgent
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/agent/__init__.py", line 5, in <module>
+    from .base_agent import AgentConfig, BaseAgent
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/agent/base_agent.py", line 17, in <module>
+    from transformers import AutoModelForCausalLM, AutoTokenizer, pipeline
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/.venv/lib/python3.11/site-packages/transformers/utils/import_utils.py", line 2350, in __getattr__
+    raise ModuleNotFoundError(
+ModuleNotFoundError: Could not import module 'AutoModelForCausalLM'. Are this object's requirements defined correctly?
+- python code/run_experiment.py --context full --agents 3,5,7 --games 800 --plot scaling -> rc=1
+    or:
+                                  ^^^^^^^^^^^^^^^^
+AttributeError: module 'torch' has no attribute 'LongTensor'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/run_experiment.py", line 18, in <module>
+    from agent.base_agent import AgentConfig, BaseAgent
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/agent/__init__.py", line 5, in <module>
+    from .base_agent import AgentConfig, BaseAgent
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/agent/base_agent.py", line 17, in <module>
+    from transformers import AutoModelForCausalLM, AutoTokenizer, pipeline
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/.venv/lib/python3.11/site-packages/transformers/utils/import_utils.py", line 2350, in __getattr__
+    raise ModuleNotFoundError(
+ModuleNotFoundError: Could not import module 'AutoModelForCausalLM'. Are this object's requirements defined correctly?
+- python code/run_experiment.py --context limited --agents 5 --games 1000 --thresholds 128,256,512 -> rc=1
+    or:
+                                  ^^^^^^^^^^^^^^^^
+AttributeError: module 'torch' has no attribute 'LongTensor'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/run_experiment.py", line 18, in <module>
+    from agent.base_agent import AgentConfig, BaseAgent
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/agent/__init__.py", line 5, in <module>
+    from .base_agent import AgentConfig, BaseAgent
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/agent/base_agent.py", line 17, in <module>
+    from transformers import AutoModelForCausalLM, AutoTokenizer, pipeline
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/.venv/lib/python3.11/site-packages/transformers/utils/import_utils.py", line 2350, in __getattr__
+    raise ModuleNotFoundError(
+ModuleNotFoundError: Could not import module 'AutoModelForCausalLM'. Are this object's requirements defined correctly?
+- python code/run_experiment.py --context full --agents 5 --games 100 --seed 42 -> rc=1
+    or:
+                                  ^^^^^^^^^^^^^^^^
+AttributeError: module 'torch' has no attribute 'LongTensor'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/run_experiment.py", line 18, in <module>
+    from agent.base_agent import AgentConfig, BaseAgent
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/agent/__init__.py", line 5, in <module>
+    from .base_agent import AgentConfig, BaseAgent
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/agent/base_agent.py", line 17, in <module>
+    from transformers import AutoModelForCausalLM, AutoTokenizer, pipeline
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/.venv/lib/python3.11/site-packages/transformers/utils/import_utils.py", line 2350, in __getattr__
+    raise ModuleNotFoundError(
+ModuleNotFoundError: Could not import module 'AutoModelForCausalLM'. Are this object's requirements defined correctly?
+- python code/run_experiment.py --context full --agents 5 --games 100 --seed 42 -> rc=1
+    or:
+                                  ^^^^^^^^^^^^^^^^
+AttributeError: module 'torch' has no attribute 'LongTensor'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/run_experiment.py", line 18, in <module>
+    from agent.base_agent import AgentConfig, BaseAgent
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/agent/__init__.py", line 5, in <module>
+    from .base_agent import AgentConfig, BaseAgent
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/agent/base_agent.py", line 17, in <module>
+    from transformers import AutoModelForCausalLM, AutoTokenizer, pipeline
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/.venv/lib/python3.11/site-packages/transformers/utils/import_utils.py", line 2350, in __getattr__
+    raise ModuleNotFoundError(
+ModuleNotFoundError: Could not import module 'AutoModelForCausalLM'. Are this object's requirements defined correctly?
 
 ## ⚠ SHARED-MODULE CONTRACT — fix the DEFINITION, tolerant of ALL callers
 
@@ -53,7 +147,7 @@ Make `__getattr__` in `code/utils/logging.py` accept ALL of the above.
 
 ### `compute_retrieval_efficiency` — defined in `code/t015_generate_full_results.py`; called 22 way(s):
 
-- code/run_experiment.py: retrieval_metrics, ret_eff = compute_retrieval_efficiency(
+- code/run_experiment.py: retrieval_metrics, retrieval_efficiency = compute_retrieval_efficiency(
 - code/t015_generate_full_results.py: 1. compute_retrieval_efficiency(retrieved, total, agents) - positional
 - code/t015_generate_full_results.py: 2. compute_retrieval_efficiency(retrieved=..., total=..., agents=...)
 - code/t015_generate_full_results.py: 3. compute_retrieval_efficiency(agent_count, game_id) - legacy
@@ -78,9 +172,8 @@ Make `__getattr__` in `code/utils/logging.py` accept ALL of the above.
 
 Make `compute_retrieval_efficiency` in `code/t015_generate_full_results.py` accept ALL of the above.
 
-### `compute_specialization_index` — defined in `code/t015_generate_full_results.py`; called 18 way(s):
+### `compute_specialization_index` — defined in `code/t015_generate_full_results.py`; called 17 way(s):
 
-- code/run_experiment.py: specialization_metrics, spec_idx = compute_specialization_index(
 - code/t015_generate_full_results.py: 1. compute_specialization_index(agent_list) - list of agent skills
 - code/t015_generate_full_results.py: 2. compute_specialization_index(agent_list, num_agents=N)
 - code/t015_generate_full_results.py: 3. compute_specialization_index(agents=..., num_agents=...)
@@ -119,7 +212,7 @@ Make `get_logger` in `code/utils/logging.py` accept ALL of the above.
 
 ### `simulate_one_game` — defined in `code/generate_full_results.py`; called 9 way(s):
 
-- code/run_experiment.py: assignments, metrics = simulate_one_game(
+- code/run_experiment.py: _, result = simulate_one_game(
 - code/output_full_results.py: spec_idx, ret_eff = simulate_one_game(
 - code/run_scaling_experiment.py: result = simulate_one_game(agents, game_id)
 - code/t015_generate_full_results.py: 1. simulate_one_game(agent_count, game_id, context)
@@ -147,8 +240,9 @@ Make `simulate_one_game` in `code/generate_full_results.py` accept ALL of the ab
 
 Whichever you choose, every call site of `MemoryBuffer` across the codebase must stop raising `AttributeError`/`TypeError`.
 
-`MemoryBuffer.reset` call sites (3):
-- code/memory/buffer.py: buf.reset()
+`MemoryBuffer.reset` call sites (4):
+- code/run_experiment.py: buffer.reset()
+- code/memory/buffer.py: _SHARED_BUFFER.reset()
 - code/memory/tests/test_buffer.py: result = buf.reset()
 - code/tests/unit/test_memory_buffer.py: buf.reset()  # should not raise
 

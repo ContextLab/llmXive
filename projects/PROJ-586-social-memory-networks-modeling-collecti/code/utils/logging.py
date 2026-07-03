@@ -30,7 +30,14 @@ class ReproducibilityLogger:
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         self.name = args[0] if args else kwargs.get("name", "reproducibility")
         self.entries: list = []
-        self._log_path: Path = Path(get_config()["project_root"]) / "experiment.log"
+        # Determine project root from config or fallback to current working directory
+        try:
+            config = get_config()
+            project_root = Path(config.get("project_root", Path.cwd()))
+        except Exception:
+            project_root = Path.cwd()
+        
+        self._log_path: Path = project_root / "experiment.log"
         # Ensure the parent directory exists
         self._log_path.parent.mkdir(parents=True, exist_ok=True)
 

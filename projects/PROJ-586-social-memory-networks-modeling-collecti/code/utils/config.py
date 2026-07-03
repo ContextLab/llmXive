@@ -3,7 +3,8 @@ Environment management configuration.
 
 This module handles loading and saving of configuration from a YAML file,
 ensuring that default values (seed=42, device=cpu) are applied when the
-file is missing or incomplete.
+file is missing or incomplete. It also ensures the config.yaml file exists
+on disk with the required defaults.
 """
 
 from __future__ import annotations
@@ -19,6 +20,7 @@ except ImportError:
     # Fallback if PyYAML is not installed: simple key-value parser
     yaml = None  # type: ignore
 
+
 @dataclass
 class Config:
     """Global experiment configuration."""
@@ -33,6 +35,7 @@ class Config:
     num_games_limited: int = 1000
     agent_counts: list = field(default_factory=lambda: [3, 5, 7])
     context_windows: list = field(default_factory=lambda: [128, 256, 512])
+
 
 def load_config(config_path: Optional[str] = None) -> Config:
     """
@@ -57,7 +60,7 @@ def load_config(config_path: Optional[str] = None) -> Config:
 
     config_path = Path(config_path)
     defaults = asdict(Config())
-    
+
     if config_path.exists():
         if yaml is not None:
             with open(config_path, "r", encoding="utf-8") as f:
@@ -87,13 +90,14 @@ def load_config(config_path: Optional[str] = None) -> Config:
                             file_config[key] = [item.strip() for item in items if item.strip()]
                         else:
                             file_config[key] = val
-        
+
         # Merge with defaults
         merged = {**defaults, **file_config}
     else:
         merged = defaults
-    
+
     return Config(**merged)
+
 
 def save_config(config: Config, config_path: Optional[str] = None) -> None:
     """
@@ -128,9 +132,11 @@ def save_config(config: Config, config_path: Optional[str] = None) -> None:
                     val_str = str(val)
                 f.write(f"{key}: {val_str}\n")
 
+
 def ensure_config_file() -> Path:
     """
-    Ensure that a config.yaml file exists with the required defaults.
+    Ensure that a config.yaml file exists with the required defaults (seed=42, device=cpu).
+    If the file does not exist, it creates it with the default configuration.
 
     Returns
     -------
@@ -143,9 +149,10 @@ def ensure_config_file() -> Path:
         save_config(default_config, str(config_path))
     return config_path
 
+
 def get_config() -> Config:
     """
-    Get the global configuration, ensuring the config file exists.
+    Get the global configuration, ensuring the config file exists on disk first.
 
     Returns
     -------
@@ -154,3 +161,23 @@ def get_config() -> Config:
     """
     ensure_config_file()
     return load_config()
+
+
+def main() -> None:
+    """
+    CLI entry point to ensure config.yaml exists and print its contents.
+    This script writes the real config.yaml file to disk if missing.
+    """
+    config_path = ensure_config_file()
+    config = load_config(str(config_path))
+
+    print(f"Configuration loaded from: {config_path}")
+    print(f"Seed: {config.seed}")
+    print(f"Device: {config.device}")
+    print(f"Model: {config.model_name}")
+    print(f"Agent counts: {config.agent_counts}")
+    print(f"Config file verified on disk: {config_path.exists()}")
+
+
+if __name__ == "__main__":
+    main()
