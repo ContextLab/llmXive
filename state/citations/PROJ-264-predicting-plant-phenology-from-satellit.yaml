@@ -1,0 +1,44 @@
+- artifact_hash: a289330675bca68f0300e3ed6c32c957d23d3674e0bd5b44daceb7c061510a58
+  artifact_path: projects/PROJ-264-predicting-plant-phenology-from-satellit/specs/001-predicting-plant-phenology-from-satellit/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: Google Earth Engine
+  kind: url
+  value: https://earthengine.google.com/`
+  verification_status: verified
+  verified_against_url: https://earthengine.google.com/
+  verified_at: '2026-07-03T18:06:43.796902Z'
+- artifact_hash: a289330675bca68f0300e3ed6c32c957d23d3674e0bd5b44daceb7c061510a58
+  artifact_path: projects/PROJ-264-predicting-plant-phenology-from-satellit/specs/001-predicting-plant-phenology-from-satellit/research.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: National Centers for Environmental Information (NCEI)
+  kind: url
+  value: https://www.ncei.noaa.gov/`
+  verification_status: verified
+  verified_against_url: https://www.ncei.noaa.gov/
+  verified_at: '2026-07-03T18:06:43.796902Z'
+- artifact_hash: a289330675bca68f0300e3ed6c32c957d23d3674e0bd5b44daceb7c061510a58
+  artifact_path: projects/PROJ-264-predicting-plant-phenology-from-satellit/specs/001-predicting-plant-phenology-from-satellit/research.md
+  cite_id: c-003
+  cited_authors: []
+  cited_title: null
+  fetched_title: Observe with Nature&#039;s Notebook | USA National Phenology Network
+  kind: url
+  value: https://www.usanpn.org/nn/`
+  verification_status: verified
+  verified_against_url: https://www.usanpn.org/nn
+  verified_at: '2026-07-03T18:06:43.796902Z'
+- artifact_hash: a289330675bca68f0300e3ed6c32c957d23d3674e0bd5b44daceb7c061510a58
+  artifact_path: projects/PROJ-264-predicting-plant-phenology-from-satellit/specs/001-predicting-plant-phenology-from-satellit/research.md
+  cite_id: c-004
+  cited_authors: []
+  cited_title: null
+  fetched_title: mean_values_summary.csv
+  kind: url
+  value: https://huggingface.co/datasets/metinovadilet/satelite_landsat_NDWI_NDVI/resolve/main/mean_values_summary.csv`
+  verification_status: verified
+  verified_against_url: https://huggingface.co/api/resolve-cache/datasets/metinovadilet/satelite_landsat_NDWI_NDVI/7e446c96e37c3f379ed7bd16c4208e0de6cb34c8/mean_values_summary.csv?%2Fdatasets%2Fmetinovadilet%2Fsatelite_landsat_NDWI_NDVI%2Fresolve%2Fmain%2Fmean_values_summary.csv=&etag=%2251e21ed023413adc829c9871800554e030830c99%22
+  verified_at: '2026-07-03T18:06:43.796902Z'

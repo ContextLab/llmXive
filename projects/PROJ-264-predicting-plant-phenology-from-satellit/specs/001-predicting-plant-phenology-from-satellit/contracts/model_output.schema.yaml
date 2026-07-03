@@ -1,0 +1,32 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "ModelOutput Schema"
+description: "Schema for model predictions and evaluation metrics."
+type: "object"
+properties:
+  site_id:
+    type: "string"
+    description: "Unique identifier for the study site."
+  event_type:
+    type: "string"
+    enum: ["budburst", "flowering", "senescence"]
+    description: "Type of phenological event."
+  predicted_date:
+    type: "string"
+    format: "date"
+    description: "Predicted date (YYYY-MM-DD)."
+  actual_date:
+    type: "string"
+    format: "date"
+    description: "Ground truth date (if available)."
+  error_days:
+    type: "number"
+    description: "Absolute difference in days between predicted and actual."
+  model_version:
+    type: "string"
+    description: "Hash of model configuration."
+required:
+  - site_id
+  - event_type
+  - predicted_date
+  - model_version
+additionalProperties: false

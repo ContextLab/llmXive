@@ -1,0 +1,53 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "EnvironmentalTimeSeries Dataset Schema"
+description: "Schema for the aligned environmental time-series dataset used in phenology prediction. Note: gdd_cumulative is NOT a raw field; it is derived at training time."
+type: "object"
+properties:
+  site_id:
+    type: "string"
+    description: "Unique identifier for the study site."
+  date:
+    type: "string"
+    format: "date"
+    description: "10-day interval start date (YYYY-MM-DD)."
+  ndvi:
+    type: "number"
+    description: "Normalized Difference Vegetation Index."
+    minimum: -1.0
+    maximum: 1.0
+  evi:
+    type: "number"
+    description: "Enhanced Vegetation Index."
+    minimum: -1.0
+    maximum: 1.0
+  temp_mean:
+    type: "number"
+    description: "Mean temperature (°C)."
+  temp_max:
+    type: "number"
+    description: "Maximum temperature (°C)."
+  precip_total:
+    type: "number"
+    description: "Total precipitation (mm)."
+    minimum: 0.0
+  solar_rad:
+    type: "number"
+    description: "Solar radiation (MJ/m²)."
+  is_interpolated:
+    type: "boolean"
+    description: "True if value was interpolated due to missing data."
+  is_valid:
+    type: "boolean"
+    description: "True if data is valid and not excluded."
+required:
+  - site_id
+  - date
+  - ndvi
+  - evi
+  - temp_mean
+  - temp_max
+  - precip_total
+  - solar_rad
+  - is_interpolated
+  - is_valid
+additionalProperties: false
