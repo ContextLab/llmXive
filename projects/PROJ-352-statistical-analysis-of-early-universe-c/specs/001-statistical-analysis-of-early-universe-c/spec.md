@@ -48,7 +48,7 @@ As a researcher, I need to generate [deferred] Gaussian random field realization
 
 **Acceptance Scenarios**:
 
-1. **Given** the Planck power spectrum, **When** [deferred] Gaussian random field realizations are generated using `healpy` with beam smoothing (FWHM ≈ 5 arcmin) and noise (σ² = 1.1 μK² arcmin), **Then** the simulated maps preserve the input power spectrum within ≤2% RMS deviation across multipoles ℓ=2 to ℓ=200
+1. **Given** the Planck power spectrum, **When** [deferred] Gaussian random field realizations are generated using `healpy` with beam smoothing (FWHM is expected to be on the order of several arcminutes.) and noise (σ² = 1.1 μK² arcmin), **Then** the simulated maps preserve the input power spectrum within ≤2% RMS deviation across multipoles ℓ=2 to ℓ=200
 2. **Given** observed and simulated Minkowski Functional distributions, **When** a multivariate Hotelling's T-squared test is performed, **Then** p-values are computed and stored with ≥6 decimal precision
 3. **Given** the covariance structure of the three Minkowski Functionals, **When** statistical significance is assessed, **Then** the joint test accounts for correlation between functionals to maintain α ≤ 0.05 overall
 

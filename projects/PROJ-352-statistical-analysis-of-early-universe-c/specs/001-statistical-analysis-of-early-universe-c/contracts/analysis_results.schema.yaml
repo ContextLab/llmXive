@@ -1,0 +1,79 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "CMB Minkowski Functional Analysis Results"
+type: object
+required:
+  - observed_minkowski
+  - simulation_covariance
+  - hotelling_test
+properties:
+  observed_minkowski:
+    type: array
+    description: "List of observed Minkowski Functional records (one per threshold)."
+    items:
+      type: object
+      required: [threshold, area, perimeter, genus]
+      properties:
+        threshold:
+          type: number
+          description: "Standard‑deviation threshold applied to the map."
+        area:
+          type: number
+          description: "Computed area functional (six‑decimal precision)."
+        perimeter:
+          type: number
+          description: "Computed perimeter functional (six‑decimal precision)."
+        genus:
+          type: number
+          description: "Computed genus functional (six‑decimal precision)."
+  simulation_covariance:
+    type: array
+    description: "Covariance matrices for each threshold (flattened row‑major order)."
+    items:
+      type: object
+      required: [threshold, matrix]
+      properties:
+        threshold:
+          type: number
+        matrix:
+          type: array
+          description: "9‑element list representing a 3×3 covariance matrix."
+          items:
+            type: number
+  hotelling_test:
+    type: object
+    required: [t_squared, p_value, df, alpha, significant]
+    properties:
+      t_squared:
+        type: number
+        description: "Hotelling’s T² statistic (≥0)."
+      p_value:
+        type: number
+        description: "Two‑tailed p‑value with at least six decimal places."
+      df:
+        type: integer
+        description: "Degrees of freedom (should be 3 for three functionals)."
+      alpha:
+        type: number
+        description: "Significance level used for the test (0.05)."
+      significant:
+        type: boolean
+        description: "True if p_value < alpha, otherwise False."
+  runtime_summary:
+    type: object
+    description: "Optional performance diagnostics."
+    properties:
+      total_cpu_seconds:
+        type: number
+      peak_memory_gb:
+        type: number
+      simulation_count_used:
+        type: integer
+        description: "Actual number of simulations completed (may be 500 if RAM limited)."
+  version:
+    type: string
+    description: "Semantic version of the analysis pipeline that produced these results."
+    pattern: "^\\d+\\.\\d+\\.\\d+$"
+  generated_at:
+    type: string
+    format: date-time
+    description: "Timestamp of result generation (ISO‑8601)."
