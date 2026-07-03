@@ -1,0 +1,76 @@
+# Dataset Configuration for Real-World Validation (US4)
+# This file lists verified datasets from UCI and OpenML to be used in the pipeline.
+# Format: ID, Source, Expected Size (approximate rows), Description
+
+datasets:
+  - id: "uciml/iris"
+    source: "UCI Machine Learning Repository"
+    expected_size: 150
+    description: "Classic iris flower classification dataset with 4 features."
+    type: "classification"
+    
+  - id: "uciml/wine"
+    source: "UCI Machine Learning Repository"
+    expected_size: 178
+    description: "Chemical analysis of wines grown in the same region of Italy."
+    type: "classification"
+    
+  - id: "uciml/breast-cancer-wisconsin"
+    source: "UCI Machine Learning Repository"
+    expected_size: 699
+    description: "Breast cancer diagnosis data with benign/malignant labels."
+    type: "classification"
+    
+  - id: "uciml/heart-statlog"
+    source: "UCI Machine Learning Repository"
+    expected_size: 270
+    description: "Heart disease diagnosis data from the Statlog project."
+    type: "classification"
+    
+  - id: "uciml/ionosphere"
+    source: "UCI Machine Learning Repository"
+    expected_size: 351
+    description: "Radar signals from the ionosphere, binary classification."
+    type: "classification"
+    
+  - id: "uciml/credit-a"
+    source: "UCI Machine Learning Repository"
+    expected_size: 690
+    description: "Australian credit card application approval data."
+    type: "classification"
+    
+  - id: "uciml/credit-g"
+    source: "UCI Machine Learning Repository"
+    expected_size: 1000
+    description: "German credit risk assessment data."
+    type: "classification"
+    
+  - id: "uciml/hepatitis"
+    source: "UCI Machine Learning Repository"
+    expected_size: 155
+    description: "Hepatitis patient data for survival prediction."
+    type: "classification"
+    
+  - id: "uciml/horse-colic"
+    source: "UCI Machine Learning Repository"
+    expected_size: 368
+    description: "Horse colic veterinary data, missing values expected."
+    type: "classification"
+    
+  - id: "openml/d/2"
+    source: "OpenML"
+    expected_size: 1000
+    description: "Adult income prediction dataset (OpenML ID 2)."
+    type: "classification"
+    
+  - id: "openml/d/3"
+    source: "OpenML"
+    expected_size: 2000
+    description: "Vehicle classification dataset (OpenML ID 3)."
+    type: "classification"
+    
+  - id: "openml/d/11"
+    source: "OpenML"
+    expected_size: 500
+    description: "Heart disease dataset (OpenML ID 11)."
+    type: "classification"
