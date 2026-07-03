@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2409.09848",
+  "judged_at": "2026-07-03T13:02:44Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "robotic artificial intelligence algorithms for autonomous vehicle navigation robotics",
+  "rationale": "This paper satisfies criteria (d) as a foundational methodology and canonical reference for the control algorithms (PID and Pure Pursuit) that constitute the core \"navigation\" mechanisms in autonomous vehicles, and (b) as it measures the specific independent variables (control algorithms) on the user's exact domain (autonomous vehicle navigation). Although the user's query includes \"Artificial Intelligence,\" navigation control is a primary sub-field of robotic AI, and a literature review on this",
+  "relevant": true
+}

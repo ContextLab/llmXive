@@ -7,6 +7,10 @@
     "classified_at": "2026-06-25T21:35:50Z",
     "verdict": false
   },
+  "PROJ-014-robotic-artificial-intelligence-for-auto::1.6.0": {
+    "classified_at": "2026-07-03T13:02:28Z",
+    "verdict": false
+  },
   "PROJ-024-bayesian-nonparametrics-for-anomaly-dete::1.6.0": {
     "classified_at": "2026-06-24T18:40:18Z",
     "verdict": false
@@ -793,6 +797,10 @@
   },
   "PROJ-800-assessing-parcellation-sensitivity-of-hu::1.6.0": {
     "classified_at": "2026-06-29T18:45:51Z",
+    "verdict": false
+  },
+  "PROJ-883-llmxive-follow-up-extending-omniretrieva::1.6.0": {
+    "classified_at": "2026-07-03T13:03:39Z",
     "verdict": false
   },
   "PROJ-890-llmxive-follow-up-extending-orca-the-wor::1.6.0": {

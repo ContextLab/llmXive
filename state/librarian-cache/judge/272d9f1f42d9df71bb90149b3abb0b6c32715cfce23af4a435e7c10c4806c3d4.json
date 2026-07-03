@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1911.12091",
+  "judged_at": "2026-07-03T13:04:01Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"omniretrieval: unified retrieval across heterogeneous knowledge source\" linguistics",
+  "rationale": "The paper focuses on a specific cross-lingual pronoun prediction task using deep recurrent neural networks, which does not address the user's question about extending a unified retrieval framework (\"OmniRetrieval\") across heterogeneous knowledge sources. While both involve NLP, the paper lacks the retrieval mechanism, heterogeneous source integration, or the specific \"llmXive\" context required by the user's research question, failing to meet any of the inclusion criteria (a-f) for a literature r",
+  "relevant": false
+}

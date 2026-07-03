@@ -1,0 +1,30 @@
+# Linter configuration for R code (T002)
+# Based on tidyverse style guide
+linters:
+  - trailing_whitespace_linter()
+  - line_length_linter(120)
+  - object_length_linter(40)
+  - object_name_linter()
+  - commented_code_linter()
+  - duplicate_argument_linter()
+  - extra_semicolon_linter()
+  - function_left_parentheses_linter()
+  - infix_spaces_linter()
+  - nonportable_path_linter()
+  - paren_body_linter()
+  - pipe_continuation_linter()
+  - seq_linter()
+  - spaces_inside_linter()
+  - spaces_left_parentheses_linter()
+  - todo_comment_linter()
+  - undesirable_function_linter()
+  - unnecessary_concatenation_linter()
+  - unused_import_linter()
+  - which_grepl_linter()
+  - yoda_test_linter()
+exclude_files:
+  - renv/
+  - data/
+  - tests/
+exclude_tests: true
+exclude_rmd: false

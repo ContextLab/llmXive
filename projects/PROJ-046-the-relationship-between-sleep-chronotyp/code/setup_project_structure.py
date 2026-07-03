@@ -1,8 +1,12 @@
 import os
 import json
 
-def create_directories(base_path):
-    """Create the standard directory structure for the research project."""
+# Define the project root relative to this file or use current working directory
+# The task specifies the project root as `projects/PROJ-046-the-relationship-between-sleep-chronotyp/`
+PROJECT_ROOT = "projects/PROJ-046-the-relationship-between-sleep-chronotyp"
+
+def create_directories():
+    """Create the required directory structure for the project."""
     dirs = [
         "data/raw",
         "data/processed",
@@ -11,116 +15,178 @@ def create_directories(base_path):
         "code",
         "tests",
         "reports",
-        "specs"
+        "specs",
+        "figures"
     ]
+    
     for d in dirs:
-        path = os.path.join(base_path, d)
+        path = os.path.join(PROJECT_ROOT, d)
         os.makedirs(path, exist_ok=True)
-        # Create .gitkeep to ensure directories are tracked in git
-        with open(os.path.join(path, ".gitkeep"), "w") as f:
-            f.write("")
+        print(f"Created directory: {path}")
 
-def create_gitignore(base_path):
-    """Create a .gitignore file for the project."""
-    gitignore_content = """# R
+def create_gitignore():
+    """Create a .gitignore file tailored for R and data science projects."""
+    gitignore_content = """# R specific
 .Rhistory
 .Rdata
 .RData
-*.Rproj.user
-.Rproj
-renv/
-renv.lock
-# Logs
-logs/
-*.log
-# Data
-data/raw/*.csv
-data/raw/*.tsv
-data/raw/*.xlsx
-# Generated files
-data/processed/*.csv
-data/derived/*.csv
-data/derived/*.json
-data/derived/*.rds
-reports/*.html
-reports/*.pdf
-figures/
+.Rproj.user
+.Rcheck
+*.Rout
+*.Rout.save
+
+# Python specific
 __pycache__/
-*.pyc
-*.pyo
-.env
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
 venv/
+ENV/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Data specific (keeping raw data out of git)
+data/raw/*
+!data/raw/.gitkeep
+data/processed/*
+!data/processed/.gitkeep
+data/derived/*
+!data/derived/.gitkeep
+
+# Logs
+logs/*
+!logs/.gitkeep
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
 """
-    with open(os.path.join(base_path, ".gitignore"), "w") as f:
+    path = os.path.join(PROJECT_ROOT, ".gitignore")
+    with open(path, "w") as f:
         f.write(gitignore_content)
+    print(f"Created file: {path}")
 
-def create_readme(base_path):
-    """Create a README.md for the project."""
-    readme_content = """# PROJ-046: The Relationship Between Sleep Chronotype and Moral Judgement
+def create_readme():
+    """Create a README.md with project overview and setup instructions."""
+    readme_content = """# The Relationship Between Sleep Chronotype and Moral Judgement
 
-## Overview
-This project investigates the relationship between sleep chronotype (measured by MEQ and MFQ) and moral judgment.
+## Project Overview
+This project investigates the relationship between sleep chronotype (MEQ, MFQ) and moral judgment, controlling for sleep quality (PSQI) and acute sleepiness.
 
 ## Directory Structure
-- `data/raw/`: Raw, unmodified input data (user-provided)
+- `data/raw/`: Raw input data (user-provided CSVs)
 - `data/processed/`: Cleaned and preprocessed data
-- `data/derived/`: Intermediate and final analysis results
-- `code/`: R scripts for data processing and analysis
+- `data/derived/`: Analysis results, metrics, and models
+- `logs/`: Execution logs and exclusion records
+- `code/`: R and Python scripts for analysis
 - `tests/`: Unit and integration tests
-- `reports/`: Final R Markdown reports
-- `specs/`: Feature specifications and design documents
-- `logs/`: Pipeline execution logs
+- `reports/`: Final R-Markdown reports
+- `figures/`: Generated plots and charts
 
 ## Prerequisites
 - R 4.3+
-- renv
+- Python 3.9+
+- `renv` (for R dependency management)
 
 ## Setup
-1. Clone the repository.
-2. Run `Rscript code/setup_project_structure.py` (if running from Python environment) or manually ensure directories exist.
-3. Install R dependencies: `Rscript -e "renv::restore()"`
+1. Run the setup script to initialize directories:
+   ```bash
+   python code/setup_project_structure.py
+   ```
+2. Initialize R environment:
+   ```bash
+   Rscript -e "renv::init()"
+   ```
 
-## Execution
-Run the pipeline in order:
-1. `Rscript code/01_ingest.R`
-2. `Rscript code/02_classify.R`
-3. `Rscript code/02.5_aggregate_exclusions.R`
-4. `Rscript code/03_analysis.R`
-5. `Rscript code/04_report.Rmd`
+## Data Source Strategy
+**Note**: This project currently relies on user-provided merged datasets as per Plan.md. 
+The spec assumption regarding Prolific integration is flagged for plan update.
+Raw data must be placed in `data/raw/` before running analysis scripts.
 """
-    with open(os.path.join(base_path, "README.md"), "w") as f:
+    path = os.path.join(PROJECT_ROOT, "README.md")
+    with open(path, "w") as f:
         f.write(readme_content)
+    print(f"Created file: {path}")
 
-def create_requirements_txt(base_path):
-    """Create a requirements.txt for Python dependencies (if any)."""
-    # Currently minimal, but good practice for mixed environments
-    with open(os.path.join(base_path, "requirements.txt"), "w") as f:
-        f.write("# No Python dependencies required for core pipeline\n")
-        f.write("# R dependencies are managed via renv\n")
-
-def create_r_profile(base_path):
-    """Create a .Rprofile to set up the project environment."""
-    r_profile_content = """# R Profile for PROJ-046
-if (file.exists("renv.lock")) {
-  renv::load()
-}
+def create_requirements_txt():
+    """Create a requirements.txt for Python dependencies."""
+    requirements_content = """# Python dependencies for the analysis pipeline
+pandas>=2.0.0
+numpy>=1.24.0
+scipy>=1.10.0
+pytest>=7.0.0
 """
-    with open(os.path.join(base_path, ".Rprofile"), "w") as f:
-        f.write(r_profile_content)
+    path = os.path.join(PROJECT_ROOT, "requirements.txt")
+    with open(path, "w") as f:
+        f.write(requirements_content)
+    print(f"Created file: {path}")
+
+def create_r_profile():
+    """Create an .Rprofile to set up the R environment."""
+    rprofile_content = """# R profile for PROJ-046
+# Set working directory relative to project root if needed
+# options(repos = c(CRAN = "https://cran.r-project.org"))
+
+# Load renv if available
+if (file.exists("renv/activate.R")) {
+  source("renv/activate.R")
+}
+
+# Suppress specific warnings for cleaner logs
+# options(warn = 1)
+"""
+    path = os.path.join(PROJECT_ROOT, ".Rprofile")
+    with open(path, "w") as f:
+        f.write(rprofile_content)
+    print(f"Created file: {path}")
 
 def main():
-    # Determine base path: if running from 'code/', go up one level
-    base_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    """Main entry point to create the project structure."""
+    print(f"Initializing project structure at: {PROJECT_ROOT}")
+    if not os.path.exists(PROJECT_ROOT):
+        os.makedirs(PROJECT_ROOT)
+        print(f"Created root directory: {PROJECT_ROOT}")
     
-    print(f"Creating project structure in: {base_path}")
+    create_directories()
+    create_gitignore()
+    create_readme()
+    create_requirements_txt()
+    create_r_profile()
     
-    create_directories(base_path)
-    create_gitignore(base_path)
-    create_readme(base_path)
-    create_requirements_txt(base_path)
-    create_r_profile(base_path)
-    
-    print("Project structure created successfully.")
+    # Create .gitkeep files to ensure empty directories are tracked by git
+    keep_dirs = [
+        "data/raw", "data/processed", "data/derived", 
+        "logs", "figures", "reports"
+    ]
+    for d in keep_dirs:
+        path = os.path.join(PROJECT_ROOT, d, ".gitkeep")
+        with open(path, "w") as f:
+            f.write("")
+        print(f"Created keep file: {path}")
+
+    print("Project structure initialization complete.")
 
 if __name__ == "__main__":
     main()

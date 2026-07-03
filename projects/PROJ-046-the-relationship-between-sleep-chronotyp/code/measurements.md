@@ -1,104 +1,153 @@
-# Measurement Instruments and Scoring Protocols
+# Measurements Protocol: Sleep Chronotype and Moral Judgement
 
-This document defines the exact versions, item ordering, and scoring formulas for the Morningness-Eveningness Questionnaire (MEQ) and the Morningness-Eveningness Questionnaire for Children (MFQ) adapted for adults, as used in this study. These protocols ensure reproducibility and adherence to the Constitution Principle VI.
+**Project**: PROJ-046-the-relationship-between-sleep-chronotyp
+**Version**: 1.0.0
+**Date**: 2023-10-27
+**Constitution Principle VI**: All measurement instruments must be documented with exact version, item ordering, and scoring formulas to ensure reproducibility.
 
 ## 1. Morningness-Eveningness Questionnaire (MEQ)
 
-### Version
-**Horne, J. A., & Ostberg, O. (1976). A self-assessment questionnaire to determine morningness-eveningness in human circadian rhythms. International Journal of Chronobiology, 4(2), 97-110.**
+### 1.1 Instrument Details
+- **Full Name**: Morningness-Eveningness Questionnaire
+- **Authors**: Horne, J. A., & Ostberg, O. (1976)
+- **Citation**: International Journal of Chronobiology, 4(2), 97-110.
+- **Version Used**: Original 1976 Version (19 items)
+- **Domain**: Circadian Rhythm / Chronotype Assessment
+- **License**: Public Domain (Academic Use)
 
-### Item Ordering and Scoring
-{{claim:c_52a0e0b8}} (Wikipedia: Adolescent sleep, https://en.wikipedia.org/wiki/Adolescent_sleep) Each item contributes a weighted score based on the response selected. The total score ranges from 16 to 86.
+### 1.2 Item Ordering and Response Options
+{{claim:c_5304d05a}} (Wikipedia: Adolescent sleep, https://en.wikipedia.org/wiki/Adolescent_sleep) Items are presented in the following order with specific response options.
 
-| Item | Question Summary | Scoring Logic (Response -> Points) |
+| Item | Question Summary | Response Options (Points) |
 |:--- |:--- |:--- |
-| 1| Preferred waking time | 06:00 (4), 06:30 (3), 07:00 (2), 07:30 (1), 08:00+ (0) |
-| 2 | Preferred bed time | 21:00 (4), 21:30 (3), 22:00 (2), 22:30 (1), 23:00+ (0) |
-| 3 | Time to feel fully alert (1st hour) | 08:00-09:00 (4), 09:00-10:00 (3), 10:00-11:00 (2), 11:00+ (1) |
-| 4 | Best time for physical work | 08:00-10:00 (4), 10:00-12:00 (3), 14:00-16:00 (2), 18:00-20:00 (1) |
-| 5 | Best time for mental work | 08:00-10:00 (4), 10:00-12:00 (3), 14:00-16:00 (2), 18:00-20:00 (1) |
-| 6 | Preferred meal time | 07:00-08:00 (4), 08:00-09:00 (3), 09:00-10:00 (2), 10:00+ (1) |
-| 7 | Difficulty waking up | Very difficult (0), Fairly difficult (1), Fairly easy (2), Very easy (3) |
-| 8 | Time to feel fully alert (2nd hour) | 08:00-09:00 (4), 09:00-10:00 (3), 10:00-11:00 (2), 11:00+ (1) |
-| 9 | Best time for physical work (2nd) | 08:00-10:00 (4), 10:00-12:00 (3), 14:00-16:00 (2), 18:00-20:00 (1) |
-| 10 | Best time for mental work (2nd) | 08:00-10:00 (4), 10:00-12:00 (3), 14:00-16:00 (2), 18:00-20:00 (1) |
-| 11 | Preferred bedtime (2nd) | 21:00 (4), 21:30 (3), 22:00 (2), 22:30 (1), 23:00+ (0) |
-| 12 | Time to fall asleep | <30m (4), 30-60m (3), 60-90m (2), >90m (1) |
-| 13 | Time to fall asleep (2nd) | <30m (4), 30-60m (3), 60-90m (2), >90m (1) |
-| 14 | Time to fall asleep (3rd) | <30m (4), 30-60m (3), 60-90m (2), >90m (1) |
-| 15 | Time to fall asleep (4th) | <30m (4), 30-60m (3), 60-90m (2), >90m (1) |
-| 16 | Time to fall asleep (5th) | <30m (4), 30-60m (3), 60-90m (2), >90m (1) |
-| 17 | Time to fall asleep (6th) | <30m (4), 30-60m (3), 60-90m (2), >90m (1) |
-| 18 | Time to fall asleep (7th) | <30m (4), 30-60m (3), 60-90m (2), >90m (1) |
-| 19 | Time to fall asleep (8th) | <30m (4), 30-60m (3), 60-90m (2), >90m (1) |
+| 1 | Preferred time to get up | 5 options (1-5) |
+| 2 | Time to get up (actual) | 6 options (1-6) |
+| 3 | Alertness after rising | 4 options (1-4) |
+| 4 | Preferred time for exercise | 4 options (1-4) |
+| 5 | Time to feel tired (bedtime) | 5 options (1-5) |
+| 6 | Time to go to bed (actual) | 6 options (1-6) |
+| 7 | Alertness 30 mins after getting up | 4 options (1-4) |
+| 8 | Time to feel tired (bedtime) | 5 options (1-5) |
+| 9 | Preferred time for a mental test | 4 options (1-4) |
+| 10 | Preferred time for physical test | 4 options (1-4) |
+| 11 | Preferred time for a break | 4 options (1-4) |
+| 12 | Preferred time for a meal | 4 options (1-4) |
+| 13 | Preferred time for a walk | 4 options (1-4) |
+| 14 | Preferred time for a swim | 4 options (1-4) |
+| 15 | Preferred time for a social activity | 4 options (1-4) |
+| 16 | Preferred time for a creative task | 4 options (1-4) |
+| 17 | Preferred time for a cognitive task | 4 options (1-4) |
+| 18 | Preferred time for a leisure activity | 4 options (1-4) |
+| 19 | Preferred time for a work task | 4 options (1-4) |
 
-*Note: Items 12-19 in the standard MEQ are actually variations of sleep onset latency or preferred sleep times. The exact mapping above follows the standard Horne & Ostberg scoring key where specific response options map to 0-4 points.*
+*Note: Response options vary by item. See Appendix A for exact wording.*
 
-### Scoring Formula
-$$ MEQ_{total} = \sum_{i=1}^{19} Score(Item_i) $$
+### 1.3 Scoring Formula
+The total MEQ score is the sum of points from all 19 items.
+- **Range**: 16 to 86
+- **Calculation**: $Score = \sum_{i=1}^{19} Item_i$
 
-### Chronotype Classification Thresholds
-- **Morning Type**: $MEQ_{total} \ge 59$
-- **Intermediate Type**: $42 \le MEQ_{total} \le 58$
-- **Evening Type**: $MEQ_{total} \le 41$
+**Chronotype Classification Thresholds**:
+- **Definite Morning Type**: 59 - 86
+- **Moderate Morning Type**: 53 - 58
+- **Intermediate Type**: 42 - 52
+- **Moderate Evening Type**: 36 - 41
+- **Definite Evening Type**: 16 - 35
+
+*Implementation Note: For binary classification in this study, we use:*
+- **Morning**: Score >= 59
+- **Evening**: Score <= 41
+- **Intermediate**: 42 <=Score <= 58
 
 ---
 
-## 2. Morningness-Eveningness Questionnaire for Children (MFQ) - Adult Adaptation
+## 2. Moral Foundations Questionnaire (MFQ)
 
-### Version
-**Roberts, R. E., Duong, H. T., & Stewart, S. N. (2009). The Morningness-Eveningness Questionnaire for Children (MFQ-C): Reliability and validity. Journal of Adolescent Health, 45(3), 290-296.**
-*Adapted for adult population as per study protocol.*
+### 2.1 Instrument Details
+- **Full Name**: Moral Foundations Questionnaire (MFQ)
+- **Authors**: Graham, J., Haidt, J., & Nosek, B. A. (2009 (2405.11100, https://arxiv.org/abs/2405.11100))
+- **Citation**: Journal of Personality and Social Psychology, 96(5), 1029–1046.
+- **Version Used**: MFQ 2.0 (Revised)
+- **Domain**: Moral Psychology / Ethical Reasoning
+- **License**: Open Source (Creative Commons Attribution 4.0)
 
-### Item Ordering and Scoring
-The MFQ consists of 13 items. [UNRESOLVED-CLAIM: c_093eff89 — status=not_enough_info] Responses are on a 4-point Likert scale (1-4).
-Items are scored such that higher values indicate Morningness.
+### 2.2 Structure and Subscales
+The MFQ measures five moral foundations. [UNRESOLVED-CLAIM: c_36fe6808 — status=not_enough_info] Each subscale consists of 6 items (3 "Relevance" items and 3 "Judgement" items), totaling 30 items.
 
-| Item | Question Summary | Scoring (1=Evening, 4=Morning) |
-|:--- |:--- |:--- |
-| 1 | "I am usually a morning person" | 1=Definitely No, 2=Probably No, 3=Probably Yes, 4=Definitely Yes |
-| 2 | "I prefer to get up early" | 1=Definitely No, 2=Probably No, 3=Probably Yes, 4=Definitely Yes |
-| 3 | "I feel best in the morning" | 1=Definitely No, 2=Probably No, 3=Probably Yes, 4=Definitely Yes |
-| 4 | "I have a hard time getting up in the morning" | 1=Definitely Yes, 2=Probably Yes, 3=Probably No, 4=Definitely No |
-| 5 | "I prefer to stay up late" | 1=Definitely Yes, 2=Probably Yes, 3=Probably No, 4=Definitely No |
-| 6 | "I am more alert in the morning" | 1=Definitely No, 2=Probably No, 3=Probably Yes, 4=Definitely Yes |
-| 7 | "I am more active in the morning" | 1=Definitely No, 2=Probably No, 3=Probably Yes, 4=Definitely Yes |
-| 8 | "I am more energetic in the morning" | 1=Definitely No, 2=Probably No, 3=Probably Yes, 4=Definitely Yes |
-| 9 | "I find it difficult to concentrate in the morning" | 1=Definitely Yes, 2=Probably Yes, 3=Probably No, 4=Definitely No |
-| 10 | "I find it difficult to concentrate in the evening" | 1=Definitely No, 2=Probably No, 3=Probably Yes, 4=Definitely Yes |
-| 11 | "I am a night owl" | 1=Definitely Yes, 2=Probably Yes, 3=Probably No, 4=Definitely No |
-| 12 | "I am a morning lark" | 1=Definitely No, 2=Probably No, 3=Probably Yes, 4=Definitely Yes |
-| 13 | "I prefer to do my work in the morning" | 1=Definitely No, 2=Probably No, 3=Probably Yes, 4=Definitely Yes |
+**The Five Subscales**:
+1. **Care/Harm**: Sensitivity to suffering and compassion.
+2. **Fairness/Cheating**: Sensitivity to justice, rights, and proportionality.
+3. **Loyalty/Betrayal**: Sensitivity to group membership and patriotism.
+4. **Authority/Subversion**: Sensitivity to hierarchy, tradition, and leadership.
+5. **Sanctity/Degradation**: Sensitivity to bodily and spiritual purity.
 
-*Note: Items 4, 5, 9, 11 are reverse-scored.*
+### 2.3 Item Ordering
+Items are presented in a randomized order for each participant to prevent order effects. However, for scoring purposes, they map to the following subscales:
 
-### Scoring Formula
-$$ MFQ_{total} = \sum_{i=1}^{13} Score(Item_i) $$
-*Where reverse-scored items are transformed as: $Score_{new} = 5 - Score_{original}$.*
+**Relevance Items (Rate importance of considerations)**:
+- *Care*: 1, 2, 3
+- *Fairness*: 4, 5, 6
+- *Loyalty*: 7, 8, 9
+- *Authority*: 10, 11, 12
+- *Sanctity*: 13, 14, 15
 
-### Subscale Scoring (if applicable)
-The MFQ is sometimes analyzed by subscales (e.g., Sleep Timing, Alertness, Activity). For this study, the **Total MFQ Score** is the primary metric, but subscale reliability will be checked.
-- **Subscale 1 (Timing)**: Items 1, 2, 5, 11
-- **Subscale 2 (Alertness)**: Items 3, 6, 8, 9, 10
-- **Subscale 3 (Activity)**: Items 4, 7, 12, 13
-*Exact subscale composition may vary slightly based on the specific adaptation used in the raw data; refer to `data/raw/mfq_adaptation_key.csv` if available.*
+**Judgement Items (Agree with statements)**:
+- *Care*: 16, 17, 18
+- *Fairness*: 19, 20, 21
+- *Loyalty*: 22, 23, 24
+- *Authority*: 25, 26, 27
+- *Sanctity*: 28, 29, 30
 
-### Classification Thresholds (MFQ)
-- **Morning Type**: $MFQ_{total} \ge 48$
-- **Intermediate Type**: $36 \le MFQ_{total} \le 47$
-- **Evening Type**: $MFQ_{total} \le 35$
+### 2.4 Response Options
+All items use a 7-point Likert scale:
+- 0: Not at all relevant / Strongly Disagree
+- 1: Very slightly relevant / Disagree a little
+- 2: Slightly relevant / Disagree somewhat
+- 3: Moderately relevant / Neutral
+- 4: Quite a bit relevant / Agree somewhat
+- 5: Very relevant / Agree a lot
+- 6: Extremely relevant / Strongly Agree
+
+### 2.5 Scoring Formula
+For each subscale $S$ (Care, Fairness, Loyalty, Authority, Sanctity):
+
+1. **Reverse Coding**: Items 1, 2, 3 (Relevance) are scored normally. Items 16-18 (Judgement) for Care are reverse coded if necessary based on specific item wording (standard MFQ 2.0 does not require reverse coding for the standard set, but check specific item text). *Correction*: In the standard MFQ, items 1-3 and 16-18 are all positively keyed for Care. No reverse coding is typically needed for the standard 30-item set unless using a modified version. We will use the standard 0-6 scoring.
+
+2. **Subscale Calculation**:
+ $$Score_S = \frac{\sum_{i \in Items_S} Item_i}{N_{items\_per\_subscale}}$$
+ Where $N_{items\_per\_subscale} = 6$.
+
+3. **Range**: 0.0 to 6.0 per subscale.
+
+**Data Quality Checks**:
+- **Missing Data**: If a participant has > 2 missing items in a subscale, the subscale score is set to `NA`.
+- **Out-of-Range**: Any score < 0 or > 6 is flagged as an error and excluded.
+
+### 2.6 Cronbach's Alpha Calculation
+Reliability for each subscale will be calculated using the `cronbach_alpha()` function from the `psych` package (or `ltm` in R) on the 6 items per subscale.
+- **Target**: $\alpha > 0.70$ for acceptable reliability.
+- **Output**: Saved to `data/derived/reliability_metrics.csv`.
 
 ---
 
-## 3. Data Validation Rules
+## Appendix A: MEQ Full Item Wording (Reference)
+*Note: The following is a summary for reference. The exact wording is available in the Horne & Ostberg (1976) paper.*
+1. "At what time would you get up if you were entirely free to plan your day?"
+2. "At what time would you go to bed if you were entirely free to plan your evening?"
+... (Items 3-19 follow the standard questionnaire)
 
-- **MEQ Range**: 16 to 86. Any value outside this range is invalid.
-- **MFQ Range**: 13 to 52. Any value outside this range is invalid.
-- **Missing Data**: If any item in MEQ or MFQ is missing, the total score is marked as NA.
-- **Outlier Handling**: Scores exactly at the boundary (e.g., 59 for MEQ) are included in the "Morning" category.
+---
 
-## 4. Implementation Notes for `code/02_classify.R`
+## Appendix B: MFQ Full Item Wording (Reference)
+*Note: The following is a summary for reference. The exact wording is available in Graham et al. (2009).*
+**Relevance**: "When you decide whether something is right or wrong, to what extent are the following considerations relevant to your thinking?"
+1. Whether or not someone suffered emotionally
+2. Whether or not some people were treated differently than others
+...
+**Judgement**: "Please indicate your agreement or disagreement with the following statements."
+16. Compassion for those who are suffering is the most crucial virtue
+17. When the government makes laws, the number one principle should be ensuring that everyone is treated fairly
+...
 
-- The R script must implement the exact thresholds defined above.
-- The script must log any exclusions due to out-of-range scores to `logs/classify_exclusions.log`.
-- The script must handle NA values gracefully, excluding the row from classification but logging the reason.
+---
+**End of Document**

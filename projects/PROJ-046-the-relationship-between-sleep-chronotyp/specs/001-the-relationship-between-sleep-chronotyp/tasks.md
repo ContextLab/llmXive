@@ -60,7 +60,7 @@ Examples of foundational tasks (adjust based on your project):
 - [ ] T004 Setup `data/raw/`, `data/processed/`, `data/derived/`, and `logs/` directories and `.gitignore` rules
 - [ ] T005 [P] Create `code/measurements.md` with explicit sections for MEQ and MFQ: **exact version**, **item ordering**, and **scoring formula** (Constitution Principle VI)
 - [X] T006 [P] Create `code/00_config.R` to manage environment variables and file paths
-- [~] T007 Create base data validation utilities in `code/utils_validation.R`
+- [X] T007 Create base data validation utilities in `code/utils_validation.R`
 - [~] T008 Setup logging infrastructure in `code/utils_logging.R` (warnings, aborts)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -107,7 +107,7 @@ Examples of foundational tasks (adjust based on your project):
  - **Generate** a synthetic benchmark dataset with known labels. **Scope**: Use ONLY for classifier accuracy testing (SC-001), NOT for primary analysis.
  - Run the classifier on this synthetic data.
  - Verify ≥95% accuracy (SC-001).
-- [ ] T018 [US1] [P] Implement `code/02.6_reliability.R`:
+- [~] T018 [US1] [P] Implement `code/02.6_reliability.R`:
  - **Depends on**: T012.5.
  - Calculate Cronbach's alpha for all five MFQ subscales using the classified data.
  - Save results to `data/derived/reliability_metrics.csv` with columns: `subscale`, `cronbach_alpha`, `n_items`.
@@ -125,12 +125,12 @@ Examples of foundational tasks (adjust based on your project):
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T017 [P] [US2] Unit test for ANCOVA model formula in `tests/test-analysis.R`
-- [ ] T018 [P] [US2] Unit test for Bonferroni correction logic in `tests/test-analysis.R`
+- [~] T017 [P] [US2] Unit test for ANCOVA model formula in `tests/test-analysis.R`
+- [~] T018 [P] [US2] Unit test for Bonferroni correction logic in `tests/test-analysis.R`
 
 ### Implementation for User Story 2
 
-- [ ] T019 [US2] Implement `code/03_analysis.R`:
+- [~] T019 [US2] Implement `code/03_analysis.R`: <!-- FAILED: unspecified -->
  - **Depends on**: T012.5.
  - Run ANCOVA (`MFQ_subscale ~ chronotype + PSQI + acute_sleepiness + age + sex`) for all 5 subscales.
  - Apply Bonferroni correction (α = 0.05/5 = 0.01) to p-values **atomically** within this step (FR-003).

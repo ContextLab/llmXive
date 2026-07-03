@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-07-02T16:49:55.706879Z'
-current_stage: brainstormed
+current_stage: flesh_out_complete
 failed_stage: null
 field: linguistics
 human_escalation_reason: null
 id: PROJ-883-llmxive-follow-up-extending-omniretrieva
-last_run_id: null
+last_run_id: 93c453ac-692d-4fd6-8d61-5c709ec95015
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: null
 title: 'llmXive follow-up: extending "OmniRetrieval: Unified Retrieval across Heterogeneous
   Knowledge Source"'
-updated_at: '2026-07-02T16:49:55.706879Z'
+updated_at: '2026-07-03T13:04:30.501003Z'

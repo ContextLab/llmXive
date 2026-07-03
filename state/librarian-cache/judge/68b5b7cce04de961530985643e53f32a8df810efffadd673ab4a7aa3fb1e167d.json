@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2506.16000",
+  "judged_at": "2026-07-03T13:02:39Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "robotic artificial intelligence algorithms for autonomous vehicle navigation robotics",
+  "rationale": "The paper addresses the user's question by proposing a specific algorithmic framework (Quantum Neural Networks and Quantum Reinforcement Learning) for autonomous vehicle navigation, satisfying criteria (a) for studying the same mechanism (navigation algorithms) and (d) as a foundational proposal for this emerging sub-domain. Although it focuses on \"Quantum\" AI rather than classical robotics, it is a canonical reference for the specific intersection of AI algorithms and AV navigation requested.",
+  "relevant": true
+}

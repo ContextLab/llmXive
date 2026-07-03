@@ -1,0 +1,29 @@
+# lintr configuration for PROJ-046
+# Enforces consistent style for R scripts in the chronotype-moral-judgement pipeline
+exclusions: list()
+linters: list(
+  # General style
+  absolute_path_linter(),
+  assignment_linter(),
+  braces_linter(),
+  commas_linter(),
+  commented_code_linter(),
+  commented_todos_linter(),
+  equals_na_linter(),
+  function_left_parentheses_linter(),
+  infix_spaces_linter(),
+  line_length_linter(120),
+  object_length_linter(50),
+  object_name_linter(),
+  object_usage_linter(),
+  paren_body_linter(),
+  pipe_continuation_linter(),
+  quotes_linter(),
+  semicolons_linter(),
+  spaces_inside_linter(),
+  spaces_left_parentheses_linter(),
+  trailing_blank_lines_linter(),
+  trailing_whitespace_linter(),
+  unnecessary_concatenation_linter(),
+  whitespace_linter()
+)

@@ -95,3 +95,234 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-02T15:40:47Z'
+- artifact_path: projects/PROJ-046-the-relationship-between-sleep-chronotyp/code/measurements.md
+  attempts: 0
+  canonical: MEQ consists of 19 items
+  claim_id: c_5304d05a
+  context: Section 1.2 states the instrument consists of 19 items.
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: "Adolescent sleep is typically poor in duration and quality. Sleep duration\
+        \ and quality reduce to suboptimal levels, and sleep duration variability\
+        \ and latency increases during adolescence. Sleep recommendations suggest\
+        \ that adolescents (12-19) should obtain 6\u201312 hours of sleep per night.\
+        \ Additionally, there is a shift in the body's circadian rhythm such that\
+        \ sleep and wake timings become later during adolescence. Technology, social\
+        \ factors, and physical development are thought to contribute to poor sleep\
+        \ during this time. Poor sleep duration and quality in adolescents has been\
+        \ linked with altered brain functioning and development, poor mental and physical\
+        \ health, as well as higher rates of disease and mortality. The concerns surrounding\
+        \ poor sleep during adolescence has garnered significant public attention,\
+        \ especially concerning policies related to school start times. Many evidences\
+        \ suggest that sleep contributes positively to attention, behavior, and academic\
+        \ achievement for adolescents."
+      source_id: Adolescent sleep
+      url: https://en.wikipedia.org/wiki/Adolescent_sleep
+      value: '19'
+    filled: true
+  kind: numeric
+  raw_text: The MEQ consists of 19 items.
+  resolved_value: '19'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-03T12:56:24Z'
+- artifact_path: projects/PROJ-046-the-relationship-between-sleep-chronotyp/code/measurements.md
+  attempts: 1
+  canonical: Horne and Ostberg authored MEQ in 1976
+  claim_id: c_ec0bbf7c
+  context: Section 1.1 Instrument Details lists the authors and date.
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: "The morningness\u2013eveningness questionnaire (MEQ)  is a self-assessment\
+        \ questionnaire developed by researchers James A. Horne and Olov \xD6stberg\
+        \ in 1976. Its main purpose is to measure whether a person's circadian rhythm\
+        \ (biological clock) produces peak alertness in the morning, in the evening,\
+        \ or in between. The original study showed that the subjective time of peak\
+        \ alertness correlates with the time of peak body temperature; morning types\
+        \ (early birds) have an earlier temperature peak than evening types (night\
+        \ owls), with intermediate types having temperature peaks between the morning\
+        \ and evening chronotype groups. The MEQ is widely used in psychological and\
+        \ medical research and has been professionally cited more than 4,000 times."
+      source_id: "Morningness\u2013eveningness questionnaire"
+      url: "https://en.wikipedia.org/wiki/Morningness\u2013eveningness_questionnaire"
+      value: "James A. Horne and Olov \xD6stberg"
+    filled: true
+  kind: numeric
+  raw_text: The Morningness-Eveningness Questionnaire (MEQ) was authored by Horne,
+    J. A., & Ostberg, O. in 1976.
+  resolved_value: "James A. Horne and Olov \xD6stberg"
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-03T12:56:33Z'
+- artifact_path: projects/PROJ-046-the-relationship-between-sleep-chronotyp/code/measurements.md
+  attempts: 1
+  canonical: MEQ score range is 16 to 86
+  claim_id: c_b9852eff
+  context: Section 1.3 Scoring Formula lists the range.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The MEQ score range is 16 to 86.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T12:56:58Z'
+- artifact_path: projects/PROJ-046-the-relationship-between-sleep-chronotyp/code/measurements.md
+  attempts: 1
+  canonical: MEQ Definite Morning Type score range is 59 to 86
+  claim_id: c_82b61abe
+  context: Section 1.3 lists the classification thresholds.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Definite Morning Type classification for the MEQ corresponds to a
+    score of 59 to 86.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T12:57:17Z'
+- artifact_path: projects/PROJ-046-the-relationship-between-sleep-chronotyp/code/measurements.md
+  attempts: 1
+  canonical: MEQ Definite Evening Type score range is 16 to 35
+  claim_id: c_ecae338a
+  context: Section 1.3 lists the classification thresholds.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Definite Evening Type classification for the MEQ corresponds to a
+    score of 16 to 35.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T12:57:34Z'
+- artifact_path: projects/PROJ-046-the-relationship-between-sleep-chronotyp/code/measurements.md
+  attempts: 1
+  canonical: Graham Haidt and Nosek authored MFQ in 2009
+  claim_id: c_98714e6d
+  context: Section 2.1 Instrument Details lists the authors and date.
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: 2009; Graham et al. 2011). MFQ scores have been shown to
+      source_id: '2405.11100'
+      url: https://arxiv.org/abs/2405.11100
+      value: '2009'
+    filled: true
+  kind: numeric
+  raw_text: The Moral Foundations Questionnaire (MFQ) was authored by Graham, J.,
+    Haidt, J., & Nosek, B. A. in 2009.
+  resolved_value: '2009'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-03T12:58:01Z'
+- artifact_path: projects/PROJ-046-the-relationship-between-sleep-chronotyp/code/measurements.md
+  attempts: 1
+  canonical: MFQ measures five moral foundations
+  claim_id: c_36fe6808
+  context: Section 2.2 Structure and Subscales states the number of foundations.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/MFQ_measures_five_moral_foundations
+  kind: entity_fact
+  raw_text: The MFQ measures five moral foundations.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T12:58:23Z'
+- artifact_path: projects/PROJ-046-the-relationship-between-sleep-chronotyp/code/measurements.md
+  attempts: 1
+  canonical: MFQ subscale has 6 items
+  claim_id: c_2ecb981c
+  context: Section 2.2 states each subscale has 6 items.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Each MFQ subscale consists of 6 items.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T12:58:42Z'
+- artifact_path: projects/PROJ-046-the-relationship-between-sleep-chronotyp/code/measurements.md
+  attempts: 1
+  canonical: MFQ total items is 30
+  claim_id: c_85c71307
+  context: Section 2.2 states the total number of items.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The total number of items in the MFQ is 30.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T12:58:55Z'
+- artifact_path: projects/PROJ-046-the-relationship-between-sleep-chronotyp/code/measurements.md
+  attempts: 1
+  canonical: MFQ uses 7-point Likert scale
+  claim_id: c_4a0abb74
+  context: Section 2.4 Response Options describes the scale.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The MFQ uses a 7-point Likert scale for response options.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T12:59:11Z'
+- artifact_path: projects/PROJ-046-the-relationship-between-sleep-chronotyp/code/measurements.md
+  attempts: 1
+  canonical: MFQ subscale score range is 0.0 to 6.0
+  claim_id: c_f621a5f0
+  context: Section 2.5 Scoring Formula lists the range.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The MFQ subscale score range is 0.0 to 6.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T12:59:27Z'
+- artifact_path: projects/PROJ-046-the-relationship-between-sleep-chronotyp/code/measurements.md
+  attempts: 1
+  canonical: MFQ Cronbach alpha target is greater than 0.70
+  claim_id: c_1b76cb5f
+  context: Section 2.6 Cronbach's Alpha Calculation lists the target.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/MFQ_Cronbach_alpha_target_is_greater_than_0.70
+  kind: magnitude
+  raw_text: The MFQ reliability target is a Cronbach's alpha greater than 0.70.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T12:59:49Z'

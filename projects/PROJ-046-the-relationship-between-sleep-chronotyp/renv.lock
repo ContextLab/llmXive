@@ -1,6 +1,6 @@
 {
   "R": {
-    "Version": "4.3.0",
+    "Version": "4.3.1",
     "Repositories": [
       {
         "Name": "CRAN",
@@ -15,59 +15,77 @@
       "Source": "Repository",
       "Repository": "CRAN",
       "Requirements": [
-        "ggplot2",
+        "R",
         "dplyr",
-        "tidyr",
-        "readr",
+        "ggplot2",
         "purrr",
-        "tibble",
+        "readr",
         "stringr",
-        "forcats"
-      ],
-      "Hash": "a1b2c3d4e5f6"
+        "tibble",
+        "tidyr"
+      ]
     },
     "lme4": {
       "Package": "lme4",
-      "Version": "1.1-35",
+      "Version": "1.1.34",
       "Source": "Repository",
       "Repository": "CRAN",
       "Requirements": [
+        "R",
         "Matrix",
+        "MASS",
+        "methods",
+        "nlme",
+        "minqa",
+        "nloptr",
         "Rcpp",
         "RcppEigen"
-      ],
-      "Hash": "b2c3d4e5f6a7"
+      ]
     },
     "car": {
       "Package": "car",
-      "Version": "3.1-2",
+      "Version": "3.1.2",
       "Source": "Repository",
       "Repository": "CRAN",
       "Requirements": [
-        "carData",
+        "R",
+        "MASS",
         "abind",
-        "pbkrtest"
-      ],
-      "Hash": "c3d4e5f6a7b8"
+        "carData",
+        "lme4",
+        "mgcv",
+        "nlme",
+        "nnet",
+        "pbkrtest",
+        "quantreg",
+        "scales"
+      ]
     },
     "effectsize": {
       "Package": "effectsize",
-      "Version": "0.8.5",
+      "Version": "0.8.6",
       "Source": "Repository",
       "Repository": "CRAN",
       "Requirements": [
+        "R",
         "bayestestR",
+        "datawizard",
         "insight",
-        "datawizard"
-      ],
-      "Hash": "d4e5f6a7b8c9"
+        "parameters",
+        "performance",
+        "stats",
+        "utils"
+      ]
     },
     "pwr": {
       "Package": "pwr",
-      "Version": "1.3-0",
+      "Version": "1.3.0",
       "Source": "Repository",
       "Repository": "CRAN",
-      "Hash": "e5f6a7b8c9d0"
+      "Requirements": [
+        "R",
+        "stats"
+      ]
     },
     "rmarkdown": {
       "Package": "rmarkdown",
@@ -75,36 +93,50 @@
       "Source": "Repository",
       "Repository": "CRAN",
       "Requirements": [
-        "knitr",
+        "R",
+        "base64enc",
+        "digest",
+        "evaluate",
         "htmltools",
+        "jquerylib",
+        "jsonlite",
+        "knitr",
+        "stringr",
+        "tinytex",
+        "xfun",
         "yaml"
-      ],
-      "Hash": "f6a7b8c9d0e1"
+      ]
     },
     "knitr": {
       "Package": "knitr",
-      "Version": "1.45",
+      "Version": "1.44",
       "Source": "Repository",
       "Repository": "CRAN",
       "Requirements": [
+        "R",
         "evaluate",
-        "highr"
-      ],
-      "Hash": "a7b8c9d0e1f2"
+        "highr",
+        "xfun",
+        "yaml"
+      ]
     },
     "data.table": {
       "Package": "data.table",
-      "Version": "1.15.0",
-      "Source": "Repository",
-      "Repository": "CRAN",
-      "Hash": "b8c9d0e1f2a3"
-    },
-    "testthat": {
-      "Package": "testthat",
-      "Version": "3.2.1",
+      "Version": "1.14.10",
       "Source": "Repository",
       "Repository": "CRAN",
       "Requirements": [
+        "R",
+        "methods"
+      ]
+    },
+    "testthat": {
+      "Package": "testthat",
+      "Version": "3.2.0",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "R",
         "brio",
         "callr",
         "cli",
@@ -121,8 +153,7 @@
         "rlang",
         "waldo",
         "withr"
-      ],
-      "Hash": "c9d0e1f2a3b4"
+      ]
     },
     "lintr": {
       "Package": "lintr",
@@ -130,14 +161,21 @@
       "Source": "Repository",
       "Repository": "CRAN",
       "Requirements": [
+        "R",
         "backports",
         "codetools",
         "digest",
         "glue",
         "knitr",
-        "rex"
-      ],
-      "Hash": "d0e1f2a3b4c5"
+        "purrr",
+        "rex",
+        "stats",
+        "stringi",
+        "utils",
+        "xml2",
+        "xmlparsedata",
+        "yaml"
+      ]
     }
   }
 }

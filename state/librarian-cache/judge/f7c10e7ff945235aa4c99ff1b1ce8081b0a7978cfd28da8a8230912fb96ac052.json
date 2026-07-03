@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1804.04475",
+  "judged_at": "2026-07-03T13:03:55Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"omniretrieval: unified retrieval across heterogeneous knowledge source\" linguistics",
+  "rationale": "This paper satisfies criteria (b) and (f) as it measures the core dependent variable (retrieval performance across heterogeneous languages) and operates within the canonical alternative-vocabulary cluster for \"unified retrieval across heterogeneous knowledge sources\" (specifically cross-lingual retrieval without aligned corpora). Although it focuses on multilingual rather than the specific \"OmniRetrieval\" framework, it provides the essential empirical baseline and mechanism for handling linguist",
+  "relevant": true
+}

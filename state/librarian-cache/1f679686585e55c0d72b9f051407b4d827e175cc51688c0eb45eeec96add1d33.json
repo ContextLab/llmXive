@@ -1,0 +1,612 @@
+{
+  "fetched_at": "2026-07-03T13:02:49Z",
+  "field": "robotics",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "robotics",
+      "idea_body_excerpt": "Robotic Artificial Intelligence Algorithms for Autonomous Vehicle Navigation",
+      "target_n": 5
+    },
+    "duration_seconds": 49.601,
+    "ended_at": "2026-07-03T13:02:49Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "autonomous vehicle navigation algorithms"
+        ],
+        [
+          2,
+          "self-driving car perception and planning"
+        ],
+        [
+          3,
+          "robot motion planning for autonomous vehicles"
+        ],
+        [
+          4,
+          "deep reinforcement learning for autonomous driving"
+        ],
+        [
+          5,
+          "sensor fusion in autonomous navigation"
+        ],
+        [
+          6,
+          "SLAM algorithms for self-driving cars"
+        ],
+        [
+          7,
+          "path planning algorithms for autonomous vehicles"
+        ],
+        [
+          8,
+          "computer vision for autonomous vehicle navigation"
+        ],
+        [
+          9,
+          "end-to-end deep learning for autonomous driving"
+        ],
+        [
+          10,
+          "obstacle avoidance in autonomous vehicles"
+        ],
+        [
+          11,
+          "trajectory prediction for autonomous driving"
+        ],
+        [
+          12,
+          "LiDAR-based navigation for autonomous vehicles"
+        ],
+        [
+          13,
+          "behavioral cloning for autonomous vehicles"
+        ],
+        [
+          14,
+          "reinforcement learning for robotic navigation"
+        ],
+        [
+          15,
+          "autonomous driving control systems"
+        ],
+        [
+          16,
+          "visual odometry for self-driving cars"
+        ],
+        [
+          17,
+          "multi-modal sensor fusion for autonomous navigation"
+        ],
+        [
+          18,
+          "decision making algorithms for autonomous vehicles"
+        ],
+        [
+          19,
+          "real-time navigation for autonomous robots"
+        ],
+        [
+          20,
+          "autonomous vehicle localization and mapping"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "Robotic Artificial Intelligence Algorithms for Autonomous Vehicle Navigation robotics": 0,
+        "autonomous vehicle navigation algorithms": 4
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "sim-to-real transfer domain randomization",
+      "autonomous driving nuScenes Waymo Open Dataset",
+      "homophily graph neural network perception",
+      "end-to-end navigation latency safety verification",
+      "training data contamination benchmark generalization"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "success_after_expansion",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2410.03555"
+      ]
+    },
+    "per_query_hit_count": {
+      "Robotic Artificial Intelligence Algorithms for Autonomous Vehicle Navigation robotics": 3,
+      "autonomous driving nuScenes Waymo Open Dataset": 3,
+      "end-to-end navigation latency safety verification": 3,
+      "homophily graph neural network perception": 3,
+      "sim-to-real transfer domain randomization": 3,
+      "training data contamination benchmark generalization": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 0,
+      "rejections": []
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-07-03T13:01:59Z",
+    "term_input": {
+      "normalized": "robotic artificial intelligence algorithms for autonomous vehicle navigation robotics",
+      "raw": "Robotic Artificial Intelligence Algorithms for Autonomous Vehicle Navigation robotics"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "As robots are increasingly deployed to collaborate on tasks within shared workspaces and resources, the failure of an individual robot can critically affect the group's performance. This issue is particularly challenging when robots lack global information or direct communication, relying instead on social interaction for coordination and to complete their tasks. In this study, we propose a novel fault-tolerance technique leveraging physical contact interactions in multi-robot systems, specifically under conditions of limited sensing and spatial confinement. We introduce the \"Active Contact Response\" (ACR) method, where each robot modulates its behavior based on the likelihood of encountering an inoperative (faulty) robot. Active robots are capable of collectively repositioning stationary and faulty peers to reduce obstructions and maintain optimal group functionality. We implement our algorithm in a team of autonomous robots, equipped with contact-sensing and collision-tolerance capabilities, tasked with collectively excavating cohesive model pellets. Experimental results indicate that the ACR method significantly improves the system's recovery time from robot failures, enabling continued collective excavation with minimal performance degradation. Thus, this work demonstrates the potential of leveraging local, social, and physical interactions to enhance fault tolerance and coordination in multi-robot systems operating in constrained and extreme environments.",
+          "claimed_authors": [
+            "Kehinde O. Aina",
+            "Hosain Bagheri",
+            "Daniel I. Goldman"
+          ],
+          "claimed_title": "Fault-Tolerant Multi-Robot Coordination with Limited Sensing within Confined Environments",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2505.15036"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Robotic Artificial Intelligence Algorithms for Autonomous Vehicle Navigation rob', candidate_title='Fault-Tolerant Multi-Robot Coordination with Limited Sensing within Confined Environments')",
+        "failed_at": "2026-07-03T13:02:29Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We attempt to define what is necessary to construct an Artificial Scientist, explore and evaluate several approaches to artificial general intelligence (AGI) which may facilitate this, conclude that a unified or hybrid approach is necessary and explore two theories that satisfy this requirement to some degree.",
+          "claimed_authors": [
+            "Michael Timothy Bennett",
+            "Yoshihiro Maruyama"
+          ],
+          "claimed_title": "The Artificial Scientist: Logicist, Emergentist, and Universalist Approaches to Artificial General Intelligence",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2110.01831"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Robotic Artificial Intelligence Algorithms for Autonomous Vehicle Navigation rob', candidate_title='The Artificial Scientist: Logicist, Emergentist, and Universalist Approaches to Artificial General Intelligence')",
+        "failed_at": "2026-07-03T13:02:29Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Bridging the sim-to-real gap is a core challenge in deploying learned manipulation policies. Sim-to-real learning is attractive because it can replace expensive real robot demonstrations with scalable synthetic data, yet world-action models have not previously been shown to transfer from simulation to real robotic manipulation. We study whether a world-action model can be trained from synthetic priors and deployed zero-shot in the real world. To this end, we build upon Cosmos Policy, a video diffusion model adapted for visuomotor control. We construct simulation environments with extensive domain randomization and generate demonstrations using the AnyTask motion planning pipeline. We evaluate our approach across object lifting, drawer opening, and pick-and-place tasks using ${\\sim}800$ synthetic demonstrations per task and no real demonstrations. When deployed zero-shot on a Franka Robot, our policy attains a 35\\% average success rate. To our knowledge, this represents the first successful sim-to-real transfer of a world-action model for robotic manipulation.",
+          "claimed_authors": [
+            "Zixing Wang",
+            "Kausik Sivakumar",
+            "Jinghuan Shang",
+            "Yafei Hu",
+            "Zhaoming Xie",
+            "Ran Gong",
+            "Xiaohan Zhang",
+            "Karl Schmeckpeper"
+          ],
+          "claimed_title": "Efficient Sim-to-Real Transfer of World-Action Models from Synthetic Priors",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2606.31101"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Robotic Artificial Intelligence Algorithms for Autonomous Vehicle Navigation rob', candidate_title='Efficient Sim-to-Real Transfer of World-Action Models from Synthetic Priors')",
+        "failed_at": "2026-07-03T13:02:29Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In recent years, domain randomization over dynamics parameters has gained a lot of traction as a method for sim-to-real transfer of reinforcement learning policies in robotic manipulation; however, finding optimal randomization distributions can be difficult. In this paper, we introduce DROPO, a novel method for estimating domain randomization distributions for safe sim-to-real transfer. Unlike prior work, DROPO only requires a limited, precollected offline dataset of trajectories, and explicitly models parameter uncertainty to match real data using a likelihood-based approach. We demonstrate that DROPO is capable of recovering dynamic parameter distributions in simulation and finding a distribution capable of compensating for an unmodeled phenomenon. We also evaluate the method in two zero-shot sim-to-real transfer scenarios, showing successful domain transfer and improved performance over prior methods.",
+          "claimed_authors": [
+            "Gabriele Tiboni",
+            "Karol Arndt",
+            "Ville Kyrki"
+          ],
+          "claimed_title": "DROPO: Sim-to-Real Transfer with Offline Domain Randomization",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2201.08434"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Robotic Artificial Intelligence Algorithms for Autonomous Vehicle Navigation rob', candidate_title='DROPO: Sim-to-Real Transfer with Offline Domain Randomization')",
+        "failed_at": "2026-07-03T13:02:29Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In this technical report, we detail our first-place solution for the 2024 Waymo Open Dataset Challenge's semantic segmentation track. We significantly enhanced the performance of Point Transformer V3 on the Waymo benchmark by implementing cutting-edge, plug-and-play training and inference technologies. Notably, our advanced version, Point Transformer V3 Extreme, leverages multi-frame training and a no-clipping-point policy, achieving substantial gains over the original PTv3 performance. Additionally, employing a straightforward model ensemble strategy further boosted our results. This approach secured us the top position on the Waymo Open Dataset semantic segmentation leaderboard, markedly outperforming other entries.",
+          "claimed_authors": [
+            "Xiaoyang Wu",
+            "Xiang Xu",
+            "Lingdong Kong",
+            "Liang Pan",
+            "Ziwei Liu",
+            "Tong He",
+            "Wanli Ouyang",
+            "Hengshuang Zhao"
+          ],
+          "claimed_title": "Point Transformer V3 Extreme: 1st Place Solution for 2024 Waymo Open Dataset Challenge in Semantic Segmentation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2407.15282"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Robotic Artificial Intelligence Algorithms for Autonomous Vehicle Navigation rob', candidate_title='Point Transformer V3 Extreme: 1st Place Solution for 2024 Waymo Open Dataset Challenge in Semantic Segmentation')",
+        "failed_at": "2026-07-03T13:02:29Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "With the increasing global popularity of self-driving cars, there is an immediate need for challenging real-world datasets for benchmarking and training various computer vision tasks such as 3D object detection. Existing datasets either represent simple scenarios or provide only day-time data. In this paper, we introduce a new challenging A*3D dataset which consists of RGB images and LiDAR data with significant diversity of scene, time, and weather. The dataset consists of high-density images ($\\approx~10$ times more than the pioneering KITTI dataset), heavy occlusions, a large number of night-time frames ($\\approx~3$ times the nuScenes dataset), addressing the gaps in the existing datasets to push the boundaries of tasks in autonomous driving research to more challenging highly diverse environments. The dataset contains $39\\text{K}$ frames, $7$ classes, and $230\\text{K}$ 3D object annotations. An extensive 3D object detection benchmark evaluation on the A*3D dataset for various attributes such as high density, day-time/night-time, gives interesting insights into the advantages and limitations of training and testing 3D object detection in real-world setting.",
+          "claimed_authors": [
+            "Quang-Hieu Pham",
+            "Pierre Sevestre",
+            "Ramanpreet Singh Pahwa",
+            "Huijing Zhan",
+            "Chun Ho Pang",
+            "Yuda Chen",
+            "Armin Mustafa",
+            "Vijay Chandrasekhar",
+            "Jie Lin"
+          ],
+          "claimed_title": "A*3D Dataset: Towards Autonomous Driving in Challenging Environments",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1909.07541"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Robotic Artificial Intelligence Algorithms for Autonomous Vehicle Navigation rob', candidate_title='A*3D Dataset: Towards Autonomous Driving in Challenging Environments')",
+        "failed_at": "2026-07-03T13:02:29Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Panoptic image segmentation is the computer vision task of finding groups of pixels in an image and assigning semantic classes and object instance identifiers to them. Research in image segmentation has become increasingly popular due to its critical applications in robotics and autonomous driving. The research community thereby relies on publicly available benchmark dataset to advance the state-of-the-art in computer vision. Due to the high costs of densely labeling the images, however, there is a shortage of publicly available ground truth labels that are suitable for panoptic segmentation. The high labeling costs also make it challenging to extend existing datasets to the video domain and to multi-camera setups. We therefore present the Waymo Open Dataset: Panoramic Video Panoptic Segmentation Dataset, a large-scale dataset that offers high-quality panoptic segmentation labels for autonomous driving. We generate our dataset using the publicly available Waymo Open Dataset, leveraging the diverse set of camera images. Our labels are consistent over time for video processing and consistent across multiple cameras mounted on the vehicles for full panoramic scene understanding. Specifically, we offer labels for 28 semantic categories and 2,860 temporal sequences that were captured by five cameras mounted on autonomous vehicles driving in three different geographical locations, leading to a total of 100k labeled camera images. To the best of our knowledge, this makes our dataset an order of magnitude larger than existing datasets that offer video panoptic segmentation labels. We further propose a new benchmark for Panoramic Video Panoptic Segmentation and establish a number of strong baselines based on the DeepLab family of models. We will make the benchmark and the code publicly available. Find the dataset at https://waymo.com/open.",
+          "claimed_authors": [
+            "Jieru Mei",
+            "Alex Zihao Zhu",
+            "Xinchen Yan",
+            "Hang Yan",
+            "Siyuan Qiao",
+            "Yukun Zhu",
+            "Liang-Chieh Chen",
+            "Henrik Kretzschmar",
+            "Dragomir Anguelov"
+          ],
+          "claimed_title": "Waymo Open Dataset: Panoramic Video Panoptic Segmentation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2206.07704"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Robotic Artificial Intelligence Algorithms for Autonomous Vehicle Navigation rob', candidate_title='Waymo Open Dataset: Panoramic Video Panoptic Segmentation')",
+        "failed_at": "2026-07-03T13:02:29Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Random Neural Networks (RNNs) are a class of Neural Networks (NNs) that can also be seen as a specific type of queuing network. They have been successfully used in several domains during the last 25 years, as queuing networks to analyze the performance of resource sharing in many engineering areas, as learning tools and in combinatorial optimization, where they are seen as neural systems, and also as models of neurological aspects of living beings. In this article we focus on their learning capabilities, and more specifically, we present a practical guide for using the RNN to solve supervised learning problems. We give a general description of these models using almost indistinctly the terminology of Queuing Theory and the neural one. We present the standard learning procedures used by RNNs, adapted from similar well-established improvements in the standard NN field. We describe in particular a set of learning algorithms covering techniques based on the use of first order and, then, of second order derivatives. We also discuss some issues related to these objects and present new perspectives about their use in supervised learning problems. The tutorial describes their most relevant applications, and also provides a large bibliography.",
+          "claimed_authors": [
+            "Sebastián Basterrech",
+            "Gerardo Rubino"
+          ],
+          "claimed_title": "A Tutorial about Random Neural Networks in Supervised Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1609.04846"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Robotic Artificial Intelligence Algorithms for Autonomous Vehicle Navigation rob', candidate_title='A Tutorial about Random Neural Networks in Supervised Learning')",
+        "failed_at": "2026-07-03T13:02:29Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The degree heterogeneity and homophily are two typical features in network data. In this paper, we formulate a general model for undirected networks with these two features and present the moment estimation for inferring the degree and homophily parameters. The binary or nonbinary network edges are simultaneously considered. We establish a unified theoretical framework under which the consistency of the moment estimator holds as the size of networks goes to infinity. We also derive the asymptotic representation of the moment estimator that can be used to characterize its limiting distribution. The asymptotic representation of the moment estimator of the homophily parameter contains a bias term. Two applications are provided to illustrate the theoretical result. Numerical studies and a real data analysis demonstrate our theoretical findings.",
+          "claimed_authors": [
+            "Ting Yan"
+          ],
+          "claimed_title": "A Unified Framework for Inference in Network Models with Degree Heterogeneity and Homophily",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1806.02550"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Robotic Artificial Intelligence Algorithms for Autonomous Vehicle Navigation rob', candidate_title='A Unified Framework for Inference in Network Models with Degree Heterogeneity and Homophily')",
+        "failed_at": "2026-07-03T13:02:29Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Learning powerful data embeddings has become a center piece in machine learning, especially in natural language processing and computer vision domains. The crux of these embeddings is that they are pretrained on huge corpus of data in a unsupervised fashion, sometimes aided with transfer learning. However currently in the graph learning domain, embeddings learned through existing graph neural networks (GNNs) are task dependent and thus cannot be shared across different datasets. In this paper, we present a first powerful and theoretically guaranteed graph neural network that is designed to learn task-independent graph embeddings, thereafter referred to as deep universal graph embedding (DUGNN). Our DUGNN model incorporates a novel graph neural network (as a universal graph encoder) and leverages rich Graph Kernels (as a multi-task graph decoder) for both unsupervised learning and (task-specific) adaptive supervised learning. By learning task-independent graph embeddings across diverse datasets, DUGNN also reaps the benefits of transfer learning. Through extensive experiments and ablation studies, we show that the proposed DUGNN model consistently outperforms both the existing state-of-art GNN models and Graph Kernels by an increased accuracy of 3% - 8% on graph classification benchmark datasets.",
+          "claimed_authors": [
+            "Saurabh Verma",
+            "Zhi-Li Zhang"
+          ],
+          "claimed_title": "Learning Universal Graph Neural Network Embeddings With Aid Of Transfer Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1909.10086"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Robotic Artificial Intelligence Algorithms for Autonomous Vehicle Navigation rob', candidate_title='Learning Universal Graph Neural Network Embeddings With Aid Of Transfer Learning')",
+        "failed_at": "2026-07-03T13:02:29Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The common approach for local navigation on challenging environments with legged robots requires path planning, path following and locomotion, which usually requires a locomotion control policy that accurately tracks a commanded velocity. However, by breaking down the navigation problem into these sub-tasks, we limit the robot's capabilities since the individual tasks do not consider the full solution space. In this work, we propose to solve the complete problem by training an end-to-end policy with deep reinforcement learning. Instead of continuously tracking a precomputed path, the robot needs to reach a target position within a provided time. The task's success is only evaluated at the end of an episode, meaning that the policy does not need to reach the target as fast as possible. It is free to select its path and the locomotion gait. Training a policy in this way opens up a larger set of possible solutions, which allows the robot to learn more complex behaviors. We compare our approach to velocity tracking and additionally show that the time dependence of the task reward is critical to successfully learn these new behaviors. Finally, we demonstrate the successful deployment of policies on a real quadrupedal robot. The robot is able to cross challenging terrains, which were not possible previously, while using a more energy-efficient gait and achieving a higher success rate.",
+          "claimed_authors": [
+            "Nikita Rudin",
+            "David Hoeller",
+            "Marko Bjelonic",
+            "Marco Hutter"
+          ],
+          "claimed_title": "Advanced Skills by Learning Locomotion and Local Navigation End-to-End",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2209.12827"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Robotic Artificial Intelligence Algorithms for Autonomous Vehicle Navigation rob', candidate_title='Advanced Skills by Learning Locomotion and Local Navigation End-to-End')",
+        "failed_at": "2026-07-03T13:02:29Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A new type of End-to-End system for text-dependent speaker verification is presented in this paper. Previously, using the phonetically discriminative/speaker discriminative DNNs as feature extractors for speaker verification has shown promising results. The extracted frame-level (DNN bottleneck, posterior or d-vector) features are equally weighted and aggregated to compute an utterance-level speaker representation (d-vector or i-vector). In this work we use speaker discriminative CNNs to extract the noise-robust frame-level features. These features are smartly combined to form an utterance-level speaker vector through an attention mechanism. The proposed attention model takes the speaker discriminative information and the phonetic information to learn the weights. The whole system, including the CNN and attention model, is joint optimized using an end-to-end criterion. The training algorithm imitates exactly the evaluation process --- directly mapping a test utterance and a few target speaker utterances into a single verification score. The algorithm can automatically select the most similar impostor for each target speaker to train the network. We demonstrated the effectiveness of the proposed end-to-end system on Windows $10$ \"Hey Cortana\" speaker verification task.",
+          "claimed_authors": [
+            "Shi-Xiong Zhang",
+            "Zhuo Chen",
+            "Yong Zhao",
+            "Jinyu Li",
+            "Yifan Gong"
+          ],
+          "claimed_title": "End-to-End Attention based Text-Dependent Speaker Verification",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1701.00562"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Robotic Artificial Intelligence Algorithms for Autonomous Vehicle Navigation rob', candidate_title='End-to-End Attention based Text-Dependent Speaker Verification')",
+        "failed_at": "2026-07-03T13:02:29Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Legged locomotion is arguably the most suited and versatile mode to deal with natural or unstructured terrains. Intensive research into dynamic walking and running controllers has recently yielded great advances, both in the optimal control and reinforcement learning (RL) literature. Hopping is a challenging dynamic task involving a flight phase and has the potential to increase the traversability of legged robots. Model based control for hopping typically relies on accurate detection of different jump phases, such as lift-off or touch down, and using different controllers for each phase. In this paper, we present a end-to-end RL based torque controller that learns to implicitly detect the relevant jump phases, removing the need to provide manual heuristics for state detection. We also extend a method for simulation to reality transfer of the learned controller to contact rich dynamic tasks, resulting in successful deployment on the robot after training without parameter tuning.",
+          "claimed_authors": [
+            "Raghav Soni",
+            "Daniel Harnack",
+            "Hannah Isermann",
+            "Sotaro Fushimi",
+            "Shivesh Kumar",
+            "Frank Kirchner"
+          ],
+          "claimed_title": "End-to-End Reinforcement Learning for Torque Based Variable Height Hopping",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2307.16676"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Robotic Artificial Intelligence Algorithms for Autonomous Vehicle Navigation rob', candidate_title='End-to-End Reinforcement Learning for Torque Based Variable Height Hopping')",
+        "failed_at": "2026-07-03T13:02:29Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We study distributed optimization in the presence of Byzantine adversaries, where both data and computation are distributed among $m$ worker machines, $t$ of which may be corrupt. The compromised nodes may collaboratively and arbitrarily deviate from their pre-specified programs, and a designated (master) node iteratively computes the model/parameter vector for generalized linear models. In this work, we primarily focus on two iterative algorithms: Proximal Gradient Descent (PGD) and Coordinate Descent (CD). Gradient descent (GD) is a special case of these algorithms. PGD is typically used in the data-parallel setting, where data is partitioned across different samples, whereas, CD is used in the model-parallelism setting, where data is partitioned across the parameter space.\n  In this paper, we propose a method based on data encoding and error correction over real numbers to combat adversarial attacks. We can tolerate up to $t\\leq \\lfloor\\frac{m-1}{2}\\rfloor$ corrupt worker nodes, which is information-theoretically optimal. We give deterministic guarantees, and our method does not assume any probability distribution on the data. We develop a {\\em sparse} encoding scheme which enables computationally efficient data encoding and decoding. We demonstrate a trade-off between the corruption threshold and the resource requirements (storage, computational, and communication complexity). As an example, for $t\\leq\\frac{m}{3}$, our scheme incurs only a {\\em constant} overhead on these resources, over that required by the plain distributed PGD/CD algorithms which provide no adversarial protection. To the best of our knowledge, ours is the first paper that makes CD secure against adversarial attacks.\n  Our encoding scheme extends efficiently to the data streaming model and for stochastic gradient descent (SGD). We also give experimental results to show the efficacy of our proposed schemes.",
+          "claimed_authors": [
+            "Deepesh Data",
+            "Linqi Song",
+            "Suhas Diggavi"
+          ],
+          "claimed_title": "Data Encoding for Byzantine-Resilient Distributed Optimization",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1907.02664"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Robotic Artificial Intelligence Algorithms for Autonomous Vehicle Navigation rob', candidate_title='Data Encoding for Byzantine-Resilient Distributed Optimization')",
+        "failed_at": "2026-07-03T13:02:29Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We study distributed stochastic gradient descent (SGD) in the master-worker architecture under Byzantine attacks. We consider the heterogeneous data model, where different workers may have different local datasets, and we do not make any probabilistic assumptions on data generation. At the core of our algorithm, we use the polynomial-time outlier-filtering procedure for robust mean estimation proposed by Steinhardt et al. (ITCS 2018) to filter-out corrupt gradients. In order to be able to apply their filtering procedure in our {\\em heterogeneous} data setting where workers compute {\\em stochastic} gradients, we derive a new matrix concentration result, which may be of independent interest.\n  We provide convergence analyses for smooth strongly-convex and non-convex objectives. We derive our results under the bounded variance assumption on local stochastic gradients and a {\\em deterministic} condition on datasets, namely, gradient dissimilarity; and for both these quantities, we provide concrete bounds in the statistical heterogeneous data model. We give a trade-off between the mini-batch size for stochastic gradients and the approximation error. Our algorithm can tolerate up to $\\frac{1}{4}$ fraction Byzantine workers. It can find approximate optimal parameters in the strongly-convex setting exponentially fast and reach to an approximate stationary point in the non-convex setting with a linear speed, thus, matching the convergence rates of vanilla SGD in the Byzantine-free setting.\n  We also propose and analyze a Byzantine-resilient SGD algorithm with gradient compression, where workers send $k$ random coordinates of their gradients. Under mild conditions, we show a $\\frac{d}{k}$-factor saving in communication bits as well as decoding complexity over our compression-free algorithm without affecting its convergence rate (order-wise) and the approximation error.",
+          "claimed_authors": [
+            "Deepesh Data",
+            "Suhas Diggavi"
+          ],
+          "claimed_title": "Byzantine-Resilient SGD in High Dimensions on Heterogeneous Data",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2005.07866"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Robotic Artificial Intelligence Algorithms for Autonomous Vehicle Navigation rob', candidate_title='Byzantine-Resilient SGD in High Dimensions on Heterogeneous Data')",
+        "failed_at": "2026-07-03T13:02:29Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Remote sensing vision tasks require extensive labeled data across multiple, interconnected domains. However, current generative data augmentation frameworks are task-isolated, i.e., each vision task requires training an independent generative model, and ignores the modeling of geographical information and spatial constraints. To address these issues, we propose \\textbf{TerraGen}, a unified layout-to-image generation framework that enables flexible, spatially controllable synthesis of remote sensing imagery for various high-level vision tasks, e.g., detection, segmentation, and extraction. Specifically, TerraGen introduces a geographic-spatial layout encoder that unifies bounding box and segmentation mask inputs, combined with a multi-scale injection scheme and mask-weighted loss to explicitly encode spatial constraints, from global structures to fine details. Also, we construct the first large-scale multi-task remote sensing layout generation dataset containing 45k images and establish a standardized evaluation protocol for this task. Experimental results show that our TerraGen can achieve the best generation image quality across diverse tasks. Additionally, TerraGen can be used as a universal data-augmentation generator, enhancing downstream task performance significantly and demonstrating robust cross-task generalisation in both full-data and few-shot scenarios.",
+          "claimed_authors": [
+            "Datao Tang",
+            "Hao Wang",
+            "Yudeng Xin",
+            "Hui Qiao",
+            "Dongsheng Jiang",
+            "Yin Li",
+            "Zhiheng Yu",
+            "Xiangyong Cao"
+          ],
+          "claimed_title": "TerraGen: A Unified Multi-Task Layout Generation Framework for Remote Sensing Data Augmentation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2510.21391"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Robotic Artificial Intelligence Algorithms for Autonomous Vehicle Navigation rob', candidate_title='TerraGen: A Unified Multi-Task Layout Generation Framework for Remote Sensing Data Augmentation')",
+        "failed_at": "2026-07-03T13:02:29Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Hemanth Kannamarlapudi",
+            "Sowmya Chintalapudi"
+          ],
+          "title": "Quantum Artificial Intelligence for Secure Autonomous Vehicle Navigation: An Architectural Proposal",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2506.16000",
+        "summary": "Navigation is a very crucial aspect of autonomous vehicle ecosystem which heavily relies on collecting and processing large amounts of data in various states and taking a confident and safe decision to define the next vehicle maneuver. In this paper, we propose a novel architecture based on Quantum Artificial Intelligence by enabling quantum and AI at various levels of navigation decision making and communication process in Autonomous vehicles : Quantum Neural Networks for multimodal sensor fusion, Nav-Q for Quantum reinforcement learning for navigation policy optimization and finally post-quantum cryptographic protocols for secure communication. Quantum neural networks uses quantum amplitude encoding to fuse data from various sensors like LiDAR, radar, camera, GPS and weather etc., This approach gives a unified quantum state representation between heterogeneous sensor modalities. Nav-Q module processes the fused quantum states through variational quantum circuits to learn optimal navigation policies under swift dynamic and complex conditions. Finally, post quantum cryptographic protocols are used to secure communication channels for both within vehicle communication and V2X (Vehicle to Everything) communications and thus secures the autonomous vehicle communication from both classical and quantum security threats. Thus, the proposed framework addresses fundamental challenges in autonomous vehicles navigation by providing quantum performance and future proof security. Index Terms Quantum Computing, Autonomous Vehicles, Sensor Fusion",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2506.16000",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.625,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-03T13:02:28Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Xiaoyu Chen",
+            "Jiachen Hu",
+            "Chi Jin",
+            "Lihong Li",
+            "Liwei Wang"
+          ],
+          "title": "Understanding Domain Randomization for Sim-to-real Transfer",
+          "venue": "arXiv",
+          "year": 2021
+        },
+        "primary_pointer": "2110.03239",
+        "summary": "Reinforcement learning encounters many challenges when applied directly in the real world. Sim-to-real transfer is widely used to transfer the knowledge learned from simulation to the real world. Domain randomization -- one of the most popular algorithms for sim-to-real transfer -- has been demonstrated to be effective in various tasks in robotics and autonomous driving. Despite its empirical successes, theoretical understanding on why this simple algorithm works is limited. In this paper, we propose a theoretical framework for sim-to-real transfers, in which the simulator is modeled as a set of MDPs with tunable parameters (corresponding to unknown physical parameters such as friction). We provide sharp bounds on the sim-to-real gap -- the difference between the value of policy returned by domain randomization and the value of an optimal policy for the real world. We prove that sim-to-real transfer can succeed under mild conditions without any real-world training samples. Our theory also highlights the importance of using memory (i.e., history-dependent policies) in domain randomization. Our proof is based on novel techniques that reduce the problem of bounding the sim-to-real gap to the problem of designing efficient learning algorithms for infinite-horizon MDPs, which we believe are of independent interest.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2110.03239",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.375,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-03T13:02:29Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Harshit Jain",
+            "Priyal Babel"
+          ],
+          "title": "A Comprehensive Survey of PID and Pure Pursuit Control Algorithms for Autonomous Vehicle Navigation",
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2409.09848",
+        "summary": "The autonomous driving industry is experiencing unprecedented growth, driven by rapid advancements in technology and increasing demand for safer, more efficient transportation. At the heart of this revolution are two critical factors: lateral and longitudinal controls, which together enable vehicles to track complex environments with high accuracy and minimal errors. This paper provides a detailed overview of two of the field's most commonly used and stable control algorithms: proportional-integral-derivative (PID) and pure pursuit. These algorithms have proved useful in solving the issues of lateral (steering) and longitudinal (speed and distance) control in autonomous vehicles. This survey aims to provide researchers, engineers, and industry professionals with an in depth understanding of these fundamental control algorithms, their current applications, and their potential to shape the future of autonomous driving technology.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2409.09848",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 1.0,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-03T13:02:35Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Aaron Young",
+            "Nevindu M. Batagoda",
+            "Harry Zhang",
+            "Akshat Dave",
+            "Adithya Pediredla",
+            "Dan Negrut",
+            "Ramesh Raskar"
+          ],
+          "title": "Enhancing Autonomous Navigation by Imaging Hidden Objects using Single-Photon LiDAR",
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2410.03555",
+        "summary": "Robust autonomous navigation in environments with limited visibility remains a critical challenge in robotics. We present a novel approach that leverages Non-Line-of-Sight (NLOS) sensing using single-photon LiDAR to improve visibility and enhance autonomous navigation. Our method enables mobile robots to \"see around corners\" by utilizing multi-bounce light information, effectively expanding their perceptual range without additional infrastructure. We propose a three-module pipeline: (1) Sensing, which captures multi-bounce histograms using SPAD-based LiDAR; (2) Perception, which estimates occupancy maps of hidden regions from these histograms using a convolutional neural network; and (3) Control, which allows a robot to follow safe paths based on the estimated occupancy. We evaluate our approach through simulations and real-world experiments on a mobile robot navigating an L-shaped corridor with hidden obstacles. Our work represents the first experimental demonstration of NLOS imaging for autonomous navigation, paving the way for safer and more efficient robotic systems operating in complex environments. We also contribute a novel dynamics-integrated transient rendering framework for simulating NLOS scenarios, facilitating future research in this domain.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2410.03555",
+          "http_status": 200,
+          "pdf_sample_score": 0.2756,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-03T13:02:35Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Chinmay Vilas Samak",
+            "Tanmay Vilas Samak",
+            "Sivanathan Kandhasamy"
+          ],
+          "title": "Control Strategies for Autonomous Vehicles",
+          "venue": "arXiv",
+          "year": 2020
+        },
+        "primary_pointer": "2011.08729",
+        "summary": "This chapter focuses on the self-driving technology from a control perspective and investigates the control strategies used in autonomous vehicles and advanced driver-assistance systems from both theoretical and practical viewpoints. First, we introduce the self-driving technology as a whole, including perception, planning and control techniques required for accomplishing the challenging task of autonomous driving. We then dwell upon each of these operations to explain their role in the autonomous system architecture, with a prime focus on control strategies. The core portion of this chapter commences with detailed mathematical modeling of autonomous vehicles followed by a comprehensive discussion on control strategies. The chapter covers longitudinal as well as lateral control strategies for autonomous vehicles with coupled and de-coupled control schemes. We as well discuss some of the machine learning techniques applied to autonomous vehicle control task. Finally, we briefly summarize some of the research works that our team has carried out at the Autonomous Systems Lab and conclude the chapter with a few thoughtful remarks.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2011.08729",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-03T13:02:35Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "robotic artificial intelligence algorithms for autonomous vehicle navigation robotics",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

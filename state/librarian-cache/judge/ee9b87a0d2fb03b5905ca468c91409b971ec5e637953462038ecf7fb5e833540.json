@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2011.08729",
+  "judged_at": "2026-07-03T13:02:48Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "robotic artificial intelligence algorithms for autonomous vehicle navigation robotics",
+  "rationale": "This paper satisfies criteria (b) and (d) as it provides a foundational overview of control strategies and machine learning techniques (a subset of AI algorithms) specifically applied to the domain of autonomous vehicle navigation, establishing the necessary empirical and methodological baseline for a literature review on this topic.",
+  "relevant": true
+}

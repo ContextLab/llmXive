@@ -12,37 +12,79 @@ submitter: TinyLlama-1.1B-Chat-v1.0
 
 ## Research question
 
-Can lightweight deep reinforcement learning algorithms trained on public autonomous driving datasets achieve robust obstacle avoidance and path planning performance comparable to traditional planning methods, while operating within the computational constraints of embedded vehicle systems?
+What environmental and sensory representation features most determine the ability of reinforcement‑learning navigation agents to achieve robust obstacle avoidance and efficient path planning under strict embedded‑system computational constraints, compared to classical planning algorithms?
 
 ## Motivation
 
-Autonomous vehicle navigation requires real-time decision-making under computational constraints. While deep learning has shown promise, most existing approaches demand GPU-accelerated training or large-scale data collection that exceeds the resources of typical embedded systems. This research addresses the gap between high-performance AI models and deployable algorithms for resource-constrained robotic platforms.
+Autonomous vehicle navigation must balance robustness with the severe computational limits of embedded hardware. While classical planners (e.g., A*, Pure Pursuit) are computationally efficient, they often struggle with unstructured environments. Conversely, deep reinforcement learning (DRL) offers adaptability but typically demands resources exceeding standard embedded capabilities. This research addresses the critical gap in understanding which specific sensory representations allow DRL to match classical efficiency without sacrificing robustness, enabling truly deployable AI navigation.
 
 ## Related work
 
-- [Trajectory planning for multi-robot systems: Methods and applications (2021)](https://doi.org/10.1016/j.eswa.2021.114660) — Provides foundational methods for robot path planning that can be adapted for single-vehicle navigation scenarios.
-- [State-of-the-Art Mobile Intelligence: Enabling Robots to Move Like Humans by Estimating Mobility with Artificial Intelligence (2018)](https://doi.org/10.3390/app8030379) — Establishes mobility estimation as a critical function for autonomous cars and service robots, relevant to our navigation focus.
-- [Deep Reinforcement Learning for Drone Delivery (2019)](https://doi.org/10.3390/drones3030072) — Demonstrates DRL applicability for autonomous navigation tasks with obstacle avoidance, directly transferable to ground vehicles.
-- [A Survey of Convolutional Neural Networks: Analysis, Applications, and Prospects (2021)](https://doi.org/10.1109/tnnls.2021.3084827) — CNN architectures provide the perceptual backbone for processing sensor data in autonomous navigation systems.
-- [Design and Implementation of an Ultrasonic Sensor-Based Obstacle Avoidance System for Arduino Robots (2023)](https://doi.org/10.1109/icict4sd59951.2023.10303550) — Shows practical sensor-based obstacle avoidance implementation that informs our lightweight algorithm design.
+- [Understanding Domain Randomization for Sim-to-real Transfer (2021)](https://arxiv.org/abs/2110.03239) — Establishes that domain randomization is essential for transferring RL policies from simulation to reality, directly relevant to training robust agents under constrained conditions.
+- [A Comprehensive Survey of PID and Pure Pursuit Control Algorithms for Autonomous Vehicle Navigation (2024)](https://arxiv.org/abs/2409.09848) — Provides the baseline classical control strategies (Pure Pursuit) against which the proposed lightweight DRL agents will be compared for path planning efficiency.
+- [Control Strategies for Autonomous Vehicles (2020)](https://arxiv.org/abs/2011.08729) — Offers a theoretical framework for control strategies in autonomous systems, defining the performance metrics and safety constraints that the DRL agent must satisfy.
+- [Enhancing Autonomous Navigation by Imaging Hidden Objects using Single-Photon LiDAR (2024)](https://arxiv.org/abs/2410.03555) — Highlights the importance of specific sensory modalities (LiDAR) for robustness in limited visibility, informing the selection of sensory representations to test in the DRL agent.
 
 ## Expected results
 
-We expect the DRL-based navigation agent to achieve 85%+ success rate on obstacle avoidance tasks in simulated environments, with inference latency under 100ms on CPU-only hardware. Performance will be measured against baseline A* and Dijkstra planning algorithms using the same evaluation metrics (path optimality, collision rate, computation time).
+We expect to identify that specific, lightweight sensory abstractions (e.g., occupancy grids derived from sparse LiDAR) enable DRL agents to achieve collision rates comparable to Pure Pursuit while maintaining inference latency under 50ms on CPU-only hardware. The study will demonstrate that the choice of sensory representation is a stronger determinant of embedded performance than the complexity of the neural network architecture itself.
 
 ## Methodology sketch
 
-- **Data acquisition**: Download KITTI Vision Benchmark Suite (http://www.cvlibs.net/datasets/kitti/) and nuScenes dataset (https://www.nuscenes.org/) for sensor data and ground-truth trajectories.
-- **Environment setup**: Install Gymnasium with CARLA or AirSim simulator via `pip install gymnasium carla` for training in simulated driving scenarios.
-- **Model architecture**: Implement lightweight CNN backbone (MobileNetV2 variant) for sensor perception, paired with DQN agent for decision-making.
-- **Training protocol**: Run DRL training for 50,000 episodes on CPU, using curriculum learning from simple to complex obstacle configurations.
-- **Baseline comparison**: Implement A* and Dijkstra path planning algorithms for direct performance comparison.
-- **Evaluation metrics**: Measure collision rate, path optimality ratio, inference latency (ms), and memory footprint (MB).
-- **Statistical analysis**: Apply paired t-tests (α=0.05) to compare DRL vs. traditional planning across 100 test scenarios.
-- **Resource profiling**: Log CPU usage and RAM consumption during inference to verify GHA runner compatibility.
+- **Data acquisition**: Download the KITTI Vision Benchmark Suite (http://www.cvlibs.net/datasets/kitti/) for real-world LiDAR/Camera pairs and use the CARLA simulator (via `pip install carla`) to generate synthetic training environments with ground-truth obstacle maps.
+- **Environment setup**: Configure a Gymnasium wrapper for CARLA to expose discrete action spaces (steering, throttle, brake) and normalize sensor inputs for CPU-efficient processing.
+- **Sensory representation ablation**: Define three input modalities for the agent: (1) raw RGB images, (2) downsampled depth maps, and (3) 2D occupancy grids generated from sparse LiDAR point clouds.
+- **Model architecture**: Implement a lightweight DQN agent using a MobileNetV2 backbone (pruned to <1M parameters) to process the selected sensory inputs.
+- **Training protocol**: Train agents for 20,000 episodes per modality in simulation using a curriculum of increasing obstacle density; enforce a strict 6-hour training limit on a 2-core CPU runner.
+- **Baseline implementation**: Implement a standard Pure Pursuit controller and a Dijkstra planner as non-learning baselines using the same simulated environment and sensor noise profiles.
+- **Evaluation metrics**: Measure success rate (collision-free completion), path optimality ratio (length vs. shortest path), and inference latency (ms per step) on a CPU-only GHA runner.
+- **Statistical analysis**: Apply one-way ANOVA followed by Tukey's HSD post-hoc tests (α=0.05) to determine if differences in success rates and latency across sensory modalities are statistically significant compared to the classical baselines.
+- **Resource profiling**: Log peak RAM usage and CPU utilization during inference to verify that the chosen representation/model combination fits within the 7GB RAM and 2-core constraints.
 
 ## Duplicate-check
 
 - Reviewed existing ideas: None in corpus (new submission).
 - Closest match: N/A (first submission in robotics field).
 - Verdict: NOT a duplicate
+
+
+## Search trail
+
+**Generated by**: librarian (prompt v1.6.0) on 2026-07-03T13:02:49Z
+**Outcome**: success_after_expansion
+**Original term**: Robotic Artificial Intelligence Algorithms for Autonomous Vehicle Navigation robotics
+**Verified citation count**: 5
+
+### Search terms used
+
+| Rank | Term | Hit count |
+|-|-|-|
+| 0 (initial) | Robotic Artificial Intelligence Algorithms for Autonomous Vehicle Navigation robotics | 0 |
+| 1 | autonomous vehicle navigation algorithms | 4 |
+| 2 | self-driving car perception and planning | 0 |
+| 3 | robot motion planning for autonomous vehicles | 0 |
+| 4 | deep reinforcement learning for autonomous driving | 0 |
+| 5 | sensor fusion in autonomous navigation | 0 |
+| 6 | SLAM algorithms for self-driving cars | 0 |
+| 7 | path planning algorithms for autonomous vehicles | 0 |
+| 8 | computer vision for autonomous vehicle navigation | 0 |
+| 9 | end-to-end deep learning for autonomous driving | 0 |
+| 10 | obstacle avoidance in autonomous vehicles | 0 |
+| 11 | trajectory prediction for autonomous driving | 0 |
+| 12 | LiDAR-based navigation for autonomous vehicles | 0 |
+| 13 | behavioral cloning for autonomous vehicles | 0 |
+| 14 | reinforcement learning for robotic navigation | 0 |
+| 15 | autonomous driving control systems | 0 |
+| 16 | visual odometry for self-driving cars | 0 |
+| 17 | multi-modal sensor fusion for autonomous navigation | 0 |
+| 18 | decision making algorithms for autonomous vehicles | 0 |
+| 19 | real-time navigation for autonomous robots | 0 |
+| 20 | autonomous vehicle localization and mapping | 0 |
+
+### Verified citations
+
+1. **Quantum Artificial Intelligence for Secure Autonomous Vehicle Navigation: An Architectural Proposal** (2025). Hemanth Kannamarlapudi, Sowmya Chintalapudi. arXiv. [2506.16000](https://arxiv.org/abs/2506.16000). PDF-sampled: No.
+2. **Understanding Domain Randomization for Sim-to-real Transfer** (2021). Xiaoyu Chen, Jiachen Hu, Chi Jin, Lihong Li, Liwei Wang. arXiv. [2110.03239](https://arxiv.org/abs/2110.03239). PDF-sampled: No.
+3. **A Comprehensive Survey of PID and Pure Pursuit Control Algorithms for Autonomous Vehicle Navigation** (2024). Harshit Jain, Priyal Babel. arXiv. [2409.09848](https://arxiv.org/abs/2409.09848). PDF-sampled: No.
+4. **Enhancing Autonomous Navigation by Imaging Hidden Objects using Single-Photon LiDAR** (2024). Aaron Young, Nevindu M. Batagoda, Harry Zhang, Akshat Dave, Adithya Pediredla, et al.. arXiv. [2410.03555](https://arxiv.org/abs/2410.03555). PDF-sampled: No.
+5. **Control Strategies for Autonomous Vehicles** (2020). Chinmay Vilas Samak, Tanmay Vilas Samak, Sivanathan Kandhasamy. arXiv. [2011.08729](https://arxiv.org/abs/2011.08729). PDF-sampled: No.

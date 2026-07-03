@@ -1,0 +1,568 @@
+{
+  "fetched_at": "2026-07-03T13:04:03Z",
+  "field": "linguistics",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "linguistics",
+      "idea_body_excerpt": "llmXive follow-up: extending \"OmniRetrieval: Unified Retrieval across Heterogeneous Knowledge Source\"",
+      "target_n": 5
+    },
+    "duration_seconds": 52.493,
+    "ended_at": "2026-07-03T13:04:03Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "cross-lingual retrieval for heterogeneous corpora"
+        ],
+        [
+          2,
+          "unified information retrieval across multilingual sources"
+        ],
+        [
+          3,
+          "cross-lingual semantic search in linguistics"
+        ],
+        [
+          4,
+          "multilingual document retrieval systems"
+        ],
+        [
+          5,
+          "heterogeneous knowledge graph retrieval for language data"
+        ],
+        [
+          6,
+          "cross-lingual passage retrieval with large language models"
+        ],
+        [
+          7,
+          "unified retrieval frameworks for diverse linguistic datasets"
+        ],
+        [
+          8,
+          "multilingual question answering over heterogeneous sources"
+        ],
+        [
+          9,
+          "cross-lingual semantic matching in information retrieval"
+        ],
+        [
+          10,
+          "retrieval-augmented generation for multilingual linguistics"
+        ],
+        [
+          11,
+          "cross-lingual query expansion for diverse text sources"
+        ],
+        [
+          12,
+          "heterogeneous corpus alignment and retrieval"
+        ],
+        [
+          13,
+          "multilingual semantic search across varied knowledge domains"
+        ],
+        [
+          14,
+          "unified cross-lingual embedding spaces for retrieval"
+        ],
+        [
+          15,
+          "cross-lingual dense retrieval for linguistic analysis"
+        ],
+        [
+          16,
+          "multilingual retrieval over mixed-modality language data"
+        ],
+        [
+          17,
+          "cross-lingual information access for heterogeneous sources"
+        ],
+        [
+          18,
+          "unified semantic search for multilingual linguistic corpora"
+        ],
+        [
+          19,
+          "cross-lingual retrieval performance on diverse datasets"
+        ],
+        [
+          20,
+          "multilingual knowledge retrieval using transformer models"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "cross-lingual retrieval for heterogeneous corpora": 4,
+        "llmXive follow-up: extending \"OmniRetrieval: Unified Retrieval across Heterogeneous Knowledge Source\" linguistics": 0
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "retrieval augmented generation linguistics corpus",
+      "heterogeneous knowledge source NLP benchmark",
+      "cross-domain retrieval linguistic phenomena",
+      "retrieval accuracy linguistic evaluation metrics",
+      "knowledge integration theory semantic heterogeneity"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2505.18673"
+      ]
+    },
+    "per_query_hit_count": {
+      "cross-domain retrieval linguistic phenomena": 3,
+      "heterogeneous knowledge source NLP benchmark": 3,
+      "knowledge integration theory semantic heterogeneity": 3,
+      "llmXive follow-up: extending \"OmniRetrieval: Unified Retrieval across Heterogeneous Knowledge Source\" linguistics": 3,
+      "retrieval accuracy linguistic evaluation metrics": 2,
+      "retrieval augmented generation linguistics corpus": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 2,
+      "rejections": [
+        {
+          "primary_pointer": "2602.09319",
+          "rationale": "The paper focuses on security vulnerabilities (knowledge-extraction attacks) and benchmarking defense mechanisms in RAG systems, which is a distinct construct from the user's question regarding \"OmniRetrieval\" and its extension into linguistics. While both involve retrieval systems, the paper does not measure the same biological/algorithmic mechanism, variables, or empirical population related to linguistic extensions of the specific OmniRetrieval framework, nor does it serve as a foundational r",
+          "title": "Benchmarking Knowledge-Extraction Attack and Defense on Retrieval-Augmented Generation"
+        },
+        {
+          "primary_pointer": "1911.12091",
+          "rationale": "The paper focuses on a specific cross-lingual pronoun prediction task using deep recurrent neural networks, which does not address the user's question about extending a unified retrieval framework (\"OmniRetrieval\") across heterogeneous knowledge sources. While both involve NLP, the paper lacks the retrieval mechanism, heterogeneous source integration, or the specific \"llmXive\" context required by the user's research question, failing to meet any of the inclusion criteria (a-f) for a literature r",
+          "title": "Findings of the 2016 WMT Shared Task on Cross-lingual Pronoun Prediction"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-07-03T13:03:11Z",
+    "term_input": {
+      "normalized": "llmxive follow-up: extending \"omniretrieval: unified retrieval across heterogeneous knowledge source\" linguistics",
+      "raw": "llmXive follow-up: extending \"OmniRetrieval: Unified Retrieval across Heterogeneous Knowledge Source\" linguistics"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We provide an introductory review of Bayesian data analytical methods, with a focus on applications for linguistics, psychology, psycholinguistics, and cognitive science. The empirically oriented researcher will benefit from making Bayesian methods part of their statistical toolkit due to the many advantages of this framework, among them easier interpretation of results relative to research hypotheses, and flexible model specification. We present an informal introduction to the foundational ideas behind Bayesian data analysis, using, as an example, a linear mixed models analysis of data from a typical psycholinguistics experiment. We discuss hypothesis testing using the Bayes factor, and model selection using cross-validation. We close with some examples illustrating the flexibility of model specification in the Bayesian framework. Suggestions for further reading are also provided.",
+          "claimed_authors": [
+            "Bruno Nicenboim",
+            "Shravan Vasishth"
+          ],
+          "claimed_title": "Statistical methods for linguistic research: Foundational Ideas - Part II",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1602.00245"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='llmXive follow-up: extending \"OmniRetrieval: Unified Retrieval across Heterogene', candidate_title='Statistical methods for linguistic research: Foundational Ideas - Part II')",
+        "failed_at": "2026-07-03T13:03:39Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We present the fundamental ideas underlying statistical hypothesis testing using the frequentist framework. We begin with a simple example that builds up the one-sample t-test from the beginning, explaining important concepts such as the sampling distribution of the sample mean, and the iid assumption. Then we examine the p-value in detail, and discuss several important misconceptions about what a p-value does and does not tell us. This leads to a discussion of Type I, II error and power, and Type S and M error. An important conclusion from this discussion is that one should aim to carry out appropriately powered studies. Next, we discuss two common issues we have encountered in psycholinguistics and linguistics: running experiments until significance is reached, and the \"garden-of-forking-paths\" problem discussed by Gelman and others, whereby the researcher attempts to find statistical significance by analyzing the data in different ways. The best way to use frequentist methods is to run appropriately powered studies, check model assumptions, clearly separate exploratory data analysis from confirmatory hypothesis testing, and always attempt to replicate results.",
+          "claimed_authors": [
+            "Shravan Vasishth",
+            "Bruno Nicenboim"
+          ],
+          "claimed_title": "Statistical methods for linguistic research: Foundational Ideas - Part I",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1601.01126"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='llmXive follow-up: extending \"OmniRetrieval: Unified Retrieval across Heterogene', candidate_title='Statistical methods for linguistic research: Foundational Ideas - Part I')",
+        "failed_at": "2026-07-03T13:03:39Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Linguistics olympiad problems (LOPs) are a category of self-sufficient puzzles consisting of a scaled-down corpus representative of certain linguistic phenomena, from which the solver must deduce a primitive set of rules of the language and then translate a new set of elements. The linguistics olympiads (LOs) have become a worldwide phenomenon with 43 different territories taking part in the International Linguistics Olympiad (IOL) 2025. While the typology and solving strategies of LOPs have been analysed, their scientific facet and connections to academic linguistics have yet to be explored. LOPs are directly connected to many linguistic fields, e.g., linguistic typology, linguistic relativity, and linguistics fieldwork. Recently, LOPs have become a research focus as benchmarks for large language models, thus highlighting their usefulness in computational linguistics. Nevertheless, they have not yet been integrated into mainstream linguistics research. This paper attempts to open new directions of including this particular type of puzzle in academic research by offering a structured evaluation of LOPs as linguistic data sources and proposes criteria for their responsible use in academic research. Starting from a set of over 1800 LOPs, this study critically examines the potential of LOPs as a novel corpus for linguistics research by discussing their strengths and limitations as tools, as well as the areas of linguistics into which these problems could fit. This work forms the foundation for a broader initiative aimed at bridging the gap between LOs and academic linguistics, by establishing a robust theoretical framework for LOPs.",
+          "claimed_authors": [
+            "Vlad A. Neacsu"
+          ],
+          "claimed_title": "The Linguistics Olympiads: Towards a New Corpus for Linguistics Research?",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2606.14257"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='llmXive follow-up: extending \"OmniRetrieval: Unified Retrieval across Heterogene', candidate_title='The Linguistics Olympiads: Towards a New Corpus for Linguistics Research?')",
+        "failed_at": "2026-07-03T13:03:39Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Automatic temporal ordering of events described in discourse has been of great interest in recent years. Event orderings are conveyed in text via va rious linguistic mechanisms including the use of expressions such as \"before\", \"after\" or \"during\" that explicitly assert a temporal relation -- temporal signals. In this paper, we investigate the role of temporal signals in temporal relation extraction and provide a quantitative analysis of these expres sions in the TimeBank annotated corpus.",
+          "claimed_authors": [
+            "Leon Derczynski",
+            "Robert Gaizauskas"
+          ],
+          "claimed_title": "A Corpus-based Study of Temporal Signals",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1203.5066"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"OmniRetrieval: Unified Retrieval across Heterogene', candidate_title='A Corpus-based Study of Temporal Signals')",
+        "failed_at": "2026-07-03T13:03:39Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We introduce Autoregressive Retrieval Augmentation (AR-RAG), a novel paradigm that enhances image generation by autoregressively incorporating knearest neighbor retrievals at the patch level. Unlike prior methods that perform a single, static retrieval before generation and condition the entire generation on fixed reference images, AR-RAG performs context-aware retrievals at each generation step, using prior-generated patches as queries to retrieve and incorporate the most relevant patch-level visual references, enabling the model to respond to evolving generation needs while avoiding limitations (e.g., over-copying, stylistic bias, etc.) prevalent in existing methods. To realize AR-RAG, we propose two parallel frameworks: (1) Distribution-Augmentation in Decoding (DAiD), a training-free plug-and-use decoding strategy that directly merges the distribution of model-predicted patches with the distribution of retrieved patches, and (2) Feature-Augmentation in Decoding (FAiD), a parameter-efficient fine-tuning method that progressively smooths the features of retrieved patches via multi-scale convolution operations and leverages them to augment the image generation process. We validate the effectiveness of AR-RAG on widely adopted benchmarks, including Midjourney-30K, GenEval and DPG-Bench, demonstrating significant performance gains over state-of-the-art image generation models.",
+          "claimed_authors": [
+            "Jingyuan Qi",
+            "Zhiyang Xu",
+            "Qifan Wang",
+            "Lifu Huang"
+          ],
+          "claimed_title": "AR-RAG: Autoregressive Retrieval Augmentation for Image Generation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2506.06962"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='llmXive follow-up: extending \"OmniRetrieval: Unified Retrieval across Heterogene', candidate_title='AR-RAG: Autoregressive Retrieval Augmentation for Image Generation')",
+        "failed_at": "2026-07-03T13:03:39Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Human cognition is constrained by processing limitations, leading to cognitive overload and inefficiencies in knowledge synthesis and decision-making. Large Language Models (LLMs) present an opportunity for cognitive augmentation, but their current reactive nature limits their real-world applicability. This position paper explores the potential of context-aware cognitive augmentation, where LLMs dynamically adapt to users' cognitive states and task environments to provide appropriate support. Through a think-aloud study in an exhibition setting, we examine how individuals interact with multi-modal information and identify key cognitive challenges in structuring, retrieving, and applying knowledge. Our findings highlight the need for AI-driven cognitive support systems that integrate real-time contextual awareness, personalized reasoning assistance, and socially adaptive interactions. We propose a framework for AI augmentation that seamlessly transitions between real-time cognitive support and post-experience knowledge organization, contributing to the design of more effective human-centered AI systems.",
+          "claimed_authors": [
+            " Xiangrong",
+            " Zhu",
+            "Yuan Xu",
+            "Tianjian Liu",
+            "Jingwei Sun",
+            "Yu Zhang",
+            "Xin Tong"
+          ],
+          "claimed_title": "Intelligent Interaction Strategies for Context-Aware Cognitive Augmentation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2504.13684"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='llmXive follow-up: extending \"OmniRetrieval: Unified Retrieval across Heterogene', candidate_title='Intelligent Interaction Strategies for Context-Aware Cognitive Augmentation')",
+        "failed_at": "2026-07-03T13:03:39Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We describe and make available the game-based material developed for a laboratory run at several Italian science festivals to popularize NLP among young students.",
+          "claimed_authors": [
+            "Lucio Messina",
+            "Lucia Busso",
+            "Claudia Roberta Combei",
+            "Ludovica Pannitto",
+            "Alessio Miaschi",
+            "Gabriele Sarti",
+            "Malvina Nissim"
+          ],
+          "claimed_title": "A dissemination workshop for introducing young Italian students to NLP",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2104.12405"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"OmniRetrieval: Unified Retrieval across Heterogene', candidate_title='A dissemination workshop for introducing young Italian students to NLP')",
+        "failed_at": "2026-07-03T13:03:40Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Although Natural Language Processing (NLP) is at the core of many tools young people use in their everyday life, high school curricula (in Italy) do not include any computational linguistics education. This lack of exposure makes the use of such tools less responsible than it could be and makes choosing computational linguistics as a university degree unlikely. To raise awareness, curiosity, and longer-term interest in young people, we have developed an interactive workshop designed to illustrate the basic principles of NLP and computational linguistics to high school Italian students aged between 13 and 18 years. The workshop takes the form of a game in which participants play the role of machines needing to solve some of the most common problems a computer faces in understanding language: from voice recognition to Markov chains to syntactic parsing. Participants are guided through the workshop with the help of instructors, who present the activities and explain core concepts from computational linguistics. The workshop was presented at numerous outlets in Italy between 2019 and 2021, both face-to-face and online.",
+          "claimed_authors": [
+            "Ludovica Pannitto",
+            "Lucia Busso",
+            "Claudia Roberta Combei",
+            "Lucio Messina",
+            "Alessio Miaschi",
+            "Gabriele Sarti",
+            "Malvina Nissim"
+          ],
+          "claimed_title": "Teaching NLP with Bracelets and Restaurant Menus: An Interactive Workshop for Italian Students",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2104.12422"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='llmXive follow-up: extending \"OmniRetrieval: Unified Retrieval across Heterogene', candidate_title='Teaching NLP with Bracelets and Restaurant Menus: An Interactive Workshop for Italian Students')",
+        "failed_at": "2026-07-03T13:03:40Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Many questions cannot be answered simply; their answers must include numerous nuanced details and additional context. Complex Answer Retrieval (CAR) is the retrieval of answers to such questions. In their simplest form, these questions are constructed from a topic entity (e.g., `cheese') and a facet (e.g., `health effects'). While topic matching has been thoroughly explored, we observe that some facets use general language that is unlikely to appear verbatim in answers. We call these low-utility facets. In this work, we present an approach to CAR that identifies and addresses low-utility facets. We propose two estimators of facet utility. These include exploiting the hierarchical structure of CAR queries and using facet frequency information from training data. To improve the retrieval performance on low-utility headings, we also include entity similarity scores using knowledge graph embeddings. We apply our approaches to a leading neural ranking technique, and evaluate using the TREC CAR dataset. We find that our approach perform significantly better than the unmodified neural ranker and other leading CAR techniques. We also provide a detailed analysis of our results, and verify that low-utility facets are indeed more difficult to match, and that our approach improves the performance for these difficult queries.",
+          "claimed_authors": [
+            "Sean MacAvaney",
+            "Andrew Yates",
+            "Arman Cohan",
+            "Luca Soldaini",
+            "Kai Hui",
+            "Nazli Goharian",
+            "Ophir Frieder"
+          ],
+          "claimed_title": "Overcoming low-utility facets for complex answer retrieval",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1811.08772"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='llmXive follow-up: extending \"OmniRetrieval: Unified Retrieval across Heterogene', candidate_title='Overcoming low-utility facets for complex answer retrieval')",
+        "failed_at": "2026-07-03T13:03:40Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Diffusion models have enabled high-quality, conditional image editing capabilities. We propose to expand their arsenal, and demonstrate that off-the-shelf diffusion models can be used for a wide range of cross-domain compositing tasks. Among numerous others, these include image blending, object immersion, texture-replacement and even CG2Real translation or stylization. We employ a localized, iterative refinement scheme which infuses the injected objects with contextual information derived from the background scene, and enables control over the degree and types of changes the object may undergo. We conduct a range of qualitative and quantitative comparisons to prior work, and exhibit that our method produces higher quality and realistic results without requiring any annotations or training. Finally, we demonstrate how our method may be used for data augmentation of downstream tasks.",
+          "claimed_authors": [
+            "Roy Hachnochi",
+            "Mingrui Zhao",
+            "Nadav Orzech",
+            "Rinon Gal",
+            "Ali Mahdavi-Amiri",
+            "Daniel Cohen-Or",
+            "Amit Haim Bermano"
+          ],
+          "claimed_title": "Cross-domain Compositing with Pretrained Diffusion Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2302.10167"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"OmniRetrieval: Unified Retrieval across Heterogene', candidate_title='Cross-domain Compositing with Pretrained Diffusion Models')",
+        "failed_at": "2026-07-03T13:03:40Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Generative information retrieval (GenIR) is a promising neural retrieval paradigm that formulates document retrieval as a document identifier (docid) generation task, allowing for end-to-end optimization toward a unified global retrieval objective. However, existing GenIR models suffer from token-level misalignment, where models trained to predict the next token often fail to capture document-level relevance effectively. While reinforcement learning-based methods, such as reinforcement learning from relevance feedback (RLRF), aim to address this misalignment through reward modeling, they introduce significant complexity, requiring the optimization of an auxiliary reward function followed by reinforcement fine-tuning, which is computationally expensive and often unstable. To address these challenges, we propose direct document relevance optimization (DDRO), which aligns token-level docid generation with document-level relevance estimation through direct optimization via pairwise ranking, eliminating the need for explicit reward modeling and reinforcement learning. Experimental results on benchmark datasets, including MS MARCO document and Natural Questions, show that DDRO outperforms reinforcement learning-based methods, achieving a 7.4% improvement in MRR@10 for MS MARCO and a 19.9% improvement for Natural Questions. These findings highlight DDRO's potential to enhance retrieval effectiveness with a simplified optimization approach. By framing alignment as a direct optimization problem, DDRO simplifies the ranking optimization pipeline of GenIR models while offering a viable alternative to reinforcement learning-based methods.",
+          "claimed_authors": [
+            "Kidist Amde Mekonnen",
+            "Yubao Tang",
+            "Maarten de Rijke"
+          ],
+          "claimed_title": "Lightweight and Direct Document Relevance Optimization for Generative Information Retrieval",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2504.05181"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='llmXive follow-up: extending \"OmniRetrieval: Unified Retrieval across Heterogene', candidate_title='Lightweight and Direct Document Relevance Optimization for Generative Information Retrieval')",
+        "failed_at": "2026-07-03T13:03:40Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This report describes metrics for the evaluation of the effectiveness of segment-based retrieval based on existing binary information retrieval metrics. This metrics are described in the context of a task for the hyperlinking of video segments. This evaluation approach re-uses existing evaluation measures from the standard Cranfield evaluation paradigm. Our adaptation approach can in principle be used with any kind of effectiveness measure that uses binary relevance, and for other segment-baed retrieval tasks. In our video hyperlinking setting, we use precision at a cut-off rank n and mean average precision.",
+          "claimed_authors": [
+            "Robin Aly",
+            "Maria Eskevich",
+            "Roeland Ordelman",
+            "Gareth J. F. Jones"
+          ],
+          "claimed_title": "Adapting Binary Information Retrieval Evaluation Metrics for Segment-based Retrieval Tasks",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2013,
+          "primary_pointer": "1312.1913"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='llmXive follow-up: extending \"OmniRetrieval: Unified Retrieval across Heterogene', candidate_title='Adapting Binary Information Retrieval Evaluation Metrics for Segment-based Retrieval Tasks')",
+        "failed_at": "2026-07-03T13:03:40Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We introduce Ragas (Retrieval Augmented Generation Assessment), a framework for reference-free evaluation of Retrieval Augmented Generation (RAG) pipelines. RAG systems are composed of a retrieval and an LLM based generation module, and provide LLMs with knowledge from a reference textual database, which enables them to act as a natural language layer between a user and textual databases, reducing the risk of hallucinations. Evaluating RAG architectures is, however, challenging because there are several dimensions to consider: the ability of the retrieval system to identify relevant and focused context passages, the ability of the LLM to exploit such passages in a faithful way, or the quality of the generation itself. With Ragas, we put forward a suite of metrics which can be used to evaluate these different dimensions \\textit{without having to rely on ground truth human annotations}. We posit that such a framework can crucially contribute to faster evaluation cycles of RAG architectures, which is especially important given the fast adoption of LLMs.",
+          "claimed_authors": [
+            "Shahul Es",
+            "Jithin James",
+            "Luis Espinosa-Anke",
+            "Steven Schockaert"
+          ],
+          "claimed_title": "Ragas: Automated Evaluation of Retrieval Augmented Generation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2309.15217"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='llmXive follow-up: extending \"OmniRetrieval: Unified Retrieval across Heterogene', candidate_title='Ragas: Automated Evaluation of Retrieval Augmented Generation')",
+        "failed_at": "2026-07-03T13:03:40Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This paper proposes a novel approach to semantic ontology alignment using contextual descriptors. A formalization was developed that enables the integration of essential and contextual descriptors to create a comprehensive knowledge model. The hierarchical structure of the semantic approach and the mathematical apparatus for analyzing potential conflicts between concepts, particularly in the example of \"Transparency\" and \"Privacy\" in the context of artificial intelligence, are demonstrated. Experimental studies showed a significant improvement in ontology alignment metrics after the implementation of contextual descriptors, especially in the areas of privacy, responsibility, and freedom & autonomy. The application of contextual descriptors achieved an average overall improvement of approximately 4.36%. The results indicate the effectiveness of the proposed approach for more accurately reflecting the complexity of knowledge and its contextual dependence.",
+          "claimed_authors": [
+            "Eduard Manziuk",
+            "Oleksander Barmak",
+            "Pavlo Radiuk",
+            "Vladislav Kuznetsov",
+            "Iurii Krak",
+            "Sergiy Yakovlev"
+          ],
+          "claimed_title": "Integration of Contextual Descriptors in Ontology Alignment for Enrichment of Semantic Correspondence",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2411.19113"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='llmXive follow-up: extending \"OmniRetrieval: Unified Retrieval across Heterogene', candidate_title='Integration of Contextual Descriptors in Ontology Alignment for Enrichment of Semantic Correspondence')",
+        "failed_at": "2026-07-03T13:03:40Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In informational recommenders, many challenges arise from the need to handle the semantic and hierarchical structure between knowledge areas. This work aims to advance towards building a state-aware educational recommendation system that incorporates semantic relatedness between knowledge topics, propagating latent information across semantically related topics. We introduce a novel learner model that exploits this semantic relatedness between knowledge components in learning resources using the Wikipedia link graph, with the aim to better predict learner engagement and latent knowledge in a lifelong learning scenario. In this sense, Semantic TrueLearn builds a humanly intuitive knowledge representation while leveraging Bayesian machine learning to improve the predictive performance of the educational engagement. Our experiments with a large dataset demonstrate that this new semantic version of TrueLearn algorithm achieves statistically significant improvements in terms of predictive performance with a simple extension that adds semantic awareness to the model.",
+          "claimed_authors": [
+            "Sahan Bulathwela",
+            "María Pérez-Ortiz",
+            "Emine Yilmaz",
+            "John Shawe-Taylor"
+          ],
+          "claimed_title": "Semantic TrueLearn: Using Semantic Knowledge Graphs in Recommendation Systems",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2112.04368"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='llmXive follow-up: extending \"OmniRetrieval: Unified Retrieval across Heterogene', candidate_title='Semantic TrueLearn: Using Semantic Knowledge Graphs in Recommendation Systems')",
+        "failed_at": "2026-07-03T13:03:40Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The IEEE P1600.1 Standard Upper Ontology (SUO) project aims to specify an upper ontology that will provide a structure and a set of general concepts upon which domain ontologies could be constructed. The Information Flow Framework (IFF), which is being developed under the auspices of the SUO Working Group, represents the structural aspect of the SUO. The IFF is based on category theory. Semantic integration of object-level ontologies in the IFF is represented with its fusion construction. The IFF maintains ontologies using powerful composition primitives, which includes the fusion construction.",
+          "claimed_authors": [
+            "Robert E. Kent"
+          ],
+          "claimed_title": "Semantic Integration in the IFF",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2011,
+          "primary_pointer": "1109.0032"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"OmniRetrieval: Unified Retrieval across Heterogene', candidate_title='Semantic Integration in the IFF')",
+        "failed_at": "2026-07-03T13:03:40Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Zixiang Xu",
+            "Yanbo Wang",
+            "Yue Huang",
+            "Xiuying Chen",
+            "Jieyu Zhao",
+            "Meng Jiang",
+            "Xiangliang Zhang"
+          ],
+          "title": "Cross-Lingual Pitfalls: Automatic Probing Cross-Lingual Weakness of Multilingual Large Language Models",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2505.18673",
+        "summary": "Large Language Models (LLMs) have achieved remarkable success in Natural Language Processing (NLP), yet their cross-lingual performance consistency remains a significant challenge. This paper introduces a novel methodology for efficiently identifying inherent cross-lingual weaknesses in LLMs. Our approach leverages beam search and LLM-based simulation to generate bilingual question pairs that expose performance discrepancies between English and target languages. We construct a new dataset of over 6,000 bilingual pairs across 16 languages using this methodology, demonstrating its effectiveness in revealing weaknesses even in state-of-the-art models. The extensive experiments demonstrate that our method precisely and cost-effectively pinpoints cross-lingual weaknesses, consistently revealing over 50\\% accuracy drops in target languages across a wide range of models. Moreover, further experiments investigate the relationship between linguistic similarity and cross-lingual weaknesses, revealing that linguistically related languages share similar performance patterns and benefit from targeted post-training. Code is available at https://github.com/xzx34/Cross-Lingual-Pitfalls.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2505.18673",
+          "http_status": 200,
+          "pdf_sample_score": 0.2236,
+          "query_relevance_score": 0.4,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-03T13:03:46Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Mitodru Niyogi",
+            "Kripabandhu Ghosh",
+            "Arnab Bhattacharya"
+          ],
+          "title": "Learning Multilingual Embeddings for Cross-Lingual Information Retrieval in the Presence of Topically Aligned Corpora",
+          "venue": "arXiv",
+          "year": 2018
+        },
+        "primary_pointer": "1804.04475",
+        "summary": "Cross-lingual information retrieval is a challenging task in the absence of aligned parallel corpora. In this paper, we address this problem by considering topically aligned corpora designed for evaluating an IR setup. To emphasize, we neither use any sentence-aligned corpora or document-aligned corpora, nor do we use any language specific resources such as dictionary, thesaurus, or grammar rules. Instead, we use an embedding into a common space and learn word correspondences directly from there. We test our proposed approach for bilingual IR on standard FIRE datasets for Bangla, Hindi and English. The proposed method is superior to the state-of-the-art method not only for IR evaluation measures but also in terms of time requirements. We extend our method successfully to the trilingual setting.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1804.04475",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.8,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-03T13:03:47Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Zhen Zhang",
+            "Xinyu Ma",
+            "Weiwei Sun",
+            "Pengjie Ren",
+            "Zhumin Chen",
+            "Shuaiqiang Wang",
+            "Dawei Yin",
+            "Maarten de Rijke",
+            "Zhaochun Ren"
+          ],
+          "title": "Replication and Exploration of Generative Retrieval over Dynamic Corpora",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2504.17519",
+        "summary": "Generative retrieval (GR) has emerged as a promising paradigm in information retrieval (IR). However, most existing GR models are developed and evaluated using a static document collection, and their performance in dynamic corpora where document collections evolve continuously is rarely studied. In this paper, we first reproduce and systematically evaluate various representative GR approaches over dynamic corpora. Through extensive experiments, we reveal that existing GR models with \\textit{text-based} docids show superior generalization to unseen documents. We observe that the more fine-grained the docid design in the GR model, the better its performance over dynamic corpora, surpassing BM25 and even being comparable to dense retrieval methods. While GR models with \\textit{numeric-based} docids show high efficiency, their performance drops significantly over dynamic corpora. Furthermore, our experiments find that the underperformance of numeric-based docids is partly due to their excessive tendency toward the initial document set, which likely results from overfitting on the training set. We then conduct an in-depth analysis of the best-performing GR methods. We identify three critical advantages of text-based docids in dynamic corpora: (i) Semantic alignment with language models' pretrained knowledge, (ii) Fine-grained docid design, and (iii) High lexical diversity. Building on these insights, we finally propose a novel multi-docid design that leverages both the efficiency of numeric-based docids and the effectiveness of text-based docids, achieving improved performance in dynamic corpus without requiring additional retraining. Our work offers empirical evidence for advancing GR methods over dynamic corpora and paves the way for developing more generalized yet efficient GR models in real-world search engines.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2504.17519",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-03T13:03:47Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "llmxive follow-up: extending \"omniretrieval: unified retrieval across heterogeneous knowledge source\" linguistics",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

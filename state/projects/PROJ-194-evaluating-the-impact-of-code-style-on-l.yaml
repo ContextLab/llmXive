@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-03T10:27:42.146966Z'
-current_stage: validated
+current_stage: project_initialized
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-194-evaluating-the-impact-of-code-style-on-l
-last_run_id: d4563229-07ea-4b41-966a-6da084ab3f37
+last_run_id: 7bee0b2e-db91-4abd-86f0-12f656df3aee
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: null
 title: Evaluating the Impact of Code Style on LLM Code Understanding and Generation
-updated_at: '2026-06-14T00:09:24.449646Z'
+updated_at: '2026-07-03T13:04:54.457055Z'

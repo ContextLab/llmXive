@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2110.03239",
+  "judged_at": "2026-07-03T13:02:41Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "robotic artificial intelligence algorithms for autonomous vehicle navigation robotics",
+  "rationale": "This paper satisfies criteria (a) and (b) as it investigates a core algorithmic mechanism (domain randomization for sim-to-real transfer) used in robotic AI for autonomous driving, directly addressing the \"Robotic Artificial Intelligence Algorithms\" and \"Autonomous Vehicle Navigation\" components of the user's question. Although it focuses on the theoretical bounds of the transfer rather than a specific navigation task implementation, it provides the foundational algorithmic evidence required for",
+  "relevant": true
+}

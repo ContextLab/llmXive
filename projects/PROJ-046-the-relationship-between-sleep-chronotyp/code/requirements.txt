@@ -1,0 +1,8 @@
+# Python dependencies for project setup and utilities
+# Note: R dependencies are managed via renv in the R project
+os
+json
+pandas
+numpy
+pytest
+rpy2>=3.5.0

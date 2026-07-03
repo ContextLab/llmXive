@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2505.18673",
+  "judged_at": "2026-07-03T13:03:53Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"omniretrieval: unified retrieval across heterogeneous knowledge source\" linguistics",
+  "rationale": "This paper satisfies criterion (a) and (b) as it empirically measures the same core mechanism (cross-lingual performance consistency and weaknesses in LLMs) and investigates the relationship between linguistic properties (similarity) and model behavior, which is directly relevant to extending retrieval systems across heterogeneous linguistic knowledge sources.",
+  "relevant": true
+}
