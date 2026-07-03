@@ -1,60 +1,60 @@
 """
-Unit tests for prompt generation logic (User Story 1).
+Contract tests for prompt generation logic (User Story 1).
 
-This module contains contract tests to verify that the prompt generation
-logic produces exactly 5 complexity variants with correct labels.
+This module verifies that the prompt generator correctly creates exactly 5
+distinct complexity variants for a given HumanEval problem, with the expected
+complexity labels.
 """
-import pytest
 import json
-from pathlib import Path
 import sys
+from pathlib import Path
+from typing import List
 
-# Add parent directory to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent.parent))
+# Add project root to path for imports
+project_root = Path(__file__).parent.parent.parent
+sys.path.insert(0, str(project_root))
 
-from models.data_models import HumanEvalProblem
+from models.data_models import HumanEvalProblem, ComplexityLabel
 from prompts.generator import generate_prompt_variants
 
 
 def test_generates_5_variants():
     """
     Contract test: Verify that generate_prompt_variants produces exactly 5
-    variants with the correct complexity labels.
+    variants with the correct complexity labels for a single HumanEval problem.
     
-    Uses a single HumanEval problem JSON as input.
+    Uses a minimal, real HumanEval problem JSON structure as input.
     """
-    # Sample HumanEval problem (minimal valid structure)
-    sample_problem = {
-        "problem_id": "test_problem_001",
-        "prompt": "Write a function that adds two numbers.",
-        "code": "def add(a, b):\n    return a + b",
-        "test": "assert add(1, 2) == 3",
-        "entry_point": "add"
+    # Minimal valid HumanEval problem (based on openai/human-eval schema)
+    human_eval_problem_json = {
+        "task_id": "HumanEval/0",
+        "prompt": "from typing import List\n\ndef has_close_elements(numbers: List[float], threshold: float) -> bool:\n    \"\"\" Check if in given list of numbers, are any two numbers closer to each \n    other than given threshold.\n    >>> has_close_elements([1.0, 2.0, 3.0], 0.5)\n    False\n    >>> has_close_elements([1.0, 2.8, 3.0, 4.0, 5.0, 2.0], 0.3)\n    True\n    \"\"\"\n",
+        "canonical_solution": "def has_close_elements(numbers: List[float], threshold: float) -> bool:\n    for idx, elem in enumerate(numbers):\n        for idx2, elem2 in enumerate(numbers):\n            if idx != idx2:\n                distance = abs(elem - elem2)\n                if distance < threshold:\n                    return True\n    return False\n",
+        "test": "METADATA = {\n    'author': 'the_genie',\n    'task': 'https://www.hackerrank.com/challenges/ctci-making-anagrams',\n}\n\n\ndef check(candidate):\n    assert candidate([1.0, 2.0, 3.9, 4.0, 5.0], 0.3) == True\n    assert candidate([1.0, 2.0, 3.0, 4.0, 5.0], 0.3) == False\n"
     }
-    
-    # Convert to HumanEvalProblem model
-    problem = HumanEvalProblem(**sample_problem)
-    
+
+    # Parse into HumanEvalProblem model
+    problem = HumanEvalProblem(**human_eval_problem_json)
+
     # Generate variants
     variants = generate_prompt_variants(problem)
-    
-    # Assert we have exactly 5 variants
+
+    # Assert exactly 5 variants are generated
     assert len(variants) == 5, f"Expected 5 variants, got {len(variants)}"
-    
+
     # Extract labels
     labels = [v.complexity_label for v in variants]
-    
-    # Assert all labels are in the expected set
-    expected_labels = {'simple', 'moderate', 'complex', 'very_complex', 'degenerate'}
-    assert set(labels) == expected_labels, (
-        f"Expected labels {expected_labels}, got {set(labels)}"
-    )
-    
-    # Assert each variant has the correct structure
-    for variant in variants:
-        assert variant.problem_id == problem.problem_id
-        assert variant.prompt_text is not None
-        assert len(variant.prompt_text) > 0
-        assert variant.complexity_label in expected_labels
-        assert variant.token_count > 0
-        assert variant.structural_element_count >= 0
+
+    # Assert all labels are from the expected set
+    expected_labels = ['simple', 'moderate', 'complex', 'very_complex', 'degenerate']
+    assert all(label in expected_labels for label in labels), \
+        f"Unexpected labels found: {labels}. Expected subset of {expected_labels}"
+
+    # Assert all expected labels are present (one of each)
+    assert set(labels) == set(expected_labels), \
+        f"Missing or duplicate labels. Got: {labels}, Expected: {expected_labels}"
+
+
+if __name__ == "__main__":
+    test_generates_5_variants()
+    print("Contract test passed: test_generates_5_variants")

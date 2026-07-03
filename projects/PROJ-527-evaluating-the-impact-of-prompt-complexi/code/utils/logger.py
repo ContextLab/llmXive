@@ -1,125 +1,227 @@
 """
-Logging and Error Handling Infrastructure.
+Logging infrastructure and error handling for the llmXive research pipeline.
+
+Provides a centralized, project-aware logger configuration that:
+- Writes to both console and file (rotating)
+- Uses project ID from config
+- Supports structured JSON logging for downstream parsing
+- Integrates with the existing config module
+- Implements global error handling hooks to capture uncaught exceptions
 """
+
 import logging
 import sys
 import traceback
 from pathlib import Path
-from typing import Optional, Dict, Any
-from datetime import datetime
-import json
+from typing import Optional, Callable, Any
 
-from config import LOG_LEVEL, LOG_FILE
+from config import get_project_id, Paths
 
-class PipelineError(Exception):
-    """Base exception for pipeline errors."""
-    pass
 
-class DataFetchError(PipelineError):
-    """Error during data fetching."""
-    pass
+# Global logger instance cache
+_logger_cache: dict[str, logging.Logger] = {}
 
-class LLMClientError(PipelineError):
-    """Error during LLM interaction."""
-    pass
 
-class ExecutionError(PipelineError):
-    """Error during code execution."""
-    pass
+def _get_log_directory() -> Path:
+    """
+    Returns the path to the logs directory within the project structure.
+    Creates the directory if it doesn't exist.
+    """
+    project_id = get_project_id()
+    log_dir = Paths.LOGS_DIR / project_id
+    log_dir.mkdir(parents=True, exist_ok=True)
+    return log_dir
 
-class AnalysisError(PipelineError):
-    """Error during analysis."""
-    pass
 
-class ValidationError(PipelineError):
-    """Error during validation."""
-    pass
+def get_logger(name: Optional[str] = None) -> logging.Logger:
+    """
+    Retrieves or creates a configured logger for the project.
 
-def setup_logging() -> logging.Logger:
-    """Configure and return the root logger for the pipeline."""
-    logger = logging.getLogger("llmXive")
-    logger.setLevel(getattr(logging, LOG_LEVEL.upper(), logging.INFO))
+    Args:
+        name: Optional name for the logger. If None, uses the project ID.
 
-    # Clear existing handlers
+    Returns:
+        A configured logging.Logger instance.
+    """
+    project_id = get_project_id()
+    logger_name = name if name else project_id
+
+    if logger_name in _logger_cache:
+        return _logger_cache[logger_name]
+
+    logger = logging.getLogger(logger_name)
+    logger.setLevel(logging.DEBUG)
+
+    # Prevent adding handlers multiple times
     if logger.handlers:
-        logger.handlers.clear()
+        _logger_cache[logger_name] = logger
+        return logger
 
-    # File Handler
-    try:
-        fh = logging.FileHandler(LOG_FILE)
-        fh.setLevel(logging.DEBUG)
-        formatter = logging.Formatter(
-            '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-        )
-        fh.setFormatter(formatter)
-        logger.addHandler(fh)
-    except Exception as e:
-        print(f"Failed to setup file logging: {e}")
+    log_dir = _get_log_directory()
+    log_file = log_dir / f"{project_id}.log"
 
-    # Console Handler
-    ch = logging.StreamHandler(sys.stdout)
-    ch.setLevel(logging.INFO)
-    ch.setFormatter(logging.Formatter('%(levelname)s: %(message)s'))
-    logger.addHandler(ch)
+    # Formatter for console (human-readable)
+    console_format = (
+        "%(asctime)s | %(levelname)-8s | %(name)s | %(message)s"
+    )
+    console_formatter = logging.Formatter(console_format, datefmt="%Y-%m-%d %H:%M:%S")
 
+    # Formatter for file (includes more context)
+    file_format = (
+        "%(asctime)s | %(levelname)-8s | %(name)s | "
+        "%(filename)s:%(lineno)d | %(funcName)s | %(message)s"
+    )
+    file_formatter = logging.Formatter(file_format, datefmt="%Y-%m-%d %H:%M:%S")
+
+    # Console handler
+    console_handler = logging.StreamHandler(sys.stdout)
+    console_handler.setLevel(logging.INFO)
+    console_handler.setFormatter(console_formatter)
+
+    # Rotating file handler
+    file_handler = logging.handlers.RotatingFileHandler(
+        log_file,
+        maxBytes=10 * 1024 * 1024,  # 10 MB
+        backupCount=5,
+        encoding="utf-8"
+    )
+    file_handler.setLevel(logging.DEBUG)
+    file_handler.setFormatter(file_formatter)
+
+    logger.addHandler(console_handler)
+    logger.addHandler(file_handler)
+
+    _logger_cache[logger_name] = logger
     return logger
 
-def get_logger(name: str) -> logging.Logger:
-    """Get a logger instance with the given name."""
-    parent_logger = logging.getLogger("llmXive")
-    return parent_logger.getChild(name)
 
-def handle_error(error: Exception, context: Optional[Dict[str, Any]] = None) -> None:
-    """Log an error with context and traceback."""
-    logger = get_logger(__name__)
-    logger.error(f"Error occurred: {type(error).__name__}: {str(error)}")
+def setup_structured_logger(name: str, output_path: Optional[Path] = None) -> logging.Logger:
+    """
+    Sets up a logger that outputs JSON-structured logs for pipeline analysis.
+
+    Args:
+        name: Logger name.
+        output_path: Optional custom path for structured logs. Defaults to
+                     data/processed/structured_logs.jsonl.
+
+    Returns:
+        A configured logger with JSON formatting.
+    """
+    import json
+    from datetime import datetime
+
+    logger = logging.getLogger(f"structured.{name}")
+    if logger.handlers:
+        return logger
+
+    logger.setLevel(logging.DEBUG)
+
+    if output_path is None:
+        output_path = Paths.PROCESSED_DATA_DIR / "structured_logs.jsonl"
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+
+    class JsonFormatter(logging.Formatter):
+        def format(self, record: logging.LogRecord) -> str:
+            log_data = {
+                "timestamp": datetime.utcnow().isoformat() + "Z",
+                "level": record.levelname,
+                "logger": record.name,
+                "message": record.getMessage(),
+                "module": record.module,
+                "function": record.funcName,
+                "line": record.lineno,
+            }
+            # Add extra fields if present
+            if hasattr(record, "extra_data"):
+                log_data["extra"] = record.extra_data
+            return json.dumps(log_data)
+
+    file_handler = logging.FileHandler(output_path, mode="a", encoding="utf-8")
+    file_handler.setLevel(logging.DEBUG)
+    file_handler.setFormatter(JsonFormatter())
+
+    logger.addHandler(file_handler)
+    return logger
+
+
+# --- Error Handling Infrastructure ---
+
+def _uncaught_exception_handler(exctype: type, value: Exception, tb: Any) -> None:
+    """
+    Global exception handler to log uncaught exceptions before the program crashes.
+    This ensures critical errors are persisted to the log file even if not caught locally.
+    """
+    logger = get_logger("system")
+    logger.critical(
+        "Uncaught exception: %s\n%s",
+        value,
+        "".join(traceback.format_exception(exctype, value, tb))
+    )
+    # Call the original handler to ensure standard behavior (print to stderr)
+    sys.__excepthook__(exctype, value, tb)
+
+
+def install_exception_hook() -> None:
+    """
+    Installs the global uncaught exception handler.
+    Should be called once at the entry point of the application (e.g., main.py).
+    """
+    sys.excepthook = _uncaught_exception_handler
+
+
+def log_error_context(
+    logger: logging.Logger,
+    error: Exception,
+    context: Optional[dict] = None,
+    level: int = logging.ERROR
+) -> None:
+    """
+    Logs an error with additional context information.
+
+    Args:
+        logger: The logger instance to use.
+        error: The exception to log.
+        context: Optional dictionary of contextual data (e.g., problem_id, variant_label).
+        level: Logging level (default ERROR).
+    """
+    message = str(error)
     if context:
-        logger.error(f"Context: {json.dumps(context, default=str)}")
-    logger.error("Traceback:\n" + traceback.format_exc())
+        message += f" | Context: {context}"
 
-def log_execution_time(func):
-    """Decorator to log execution time of a function."""
-    import functools
+    logger.log(level, message, extra={"extra_data": context} if context else {})
 
-    @functools.wraps(func)
-    def wrapper(*args, **kwargs):
-        start_time = datetime.now()
-        try:
-            result = func(*args, **kwargs)
-            return result
-        finally:
-            end_time = datetime.now()
-            duration = (end_time - start_time).total_seconds()
-            logger = get_logger(func.__module__)
-            logger.info(f"{func.__name__} executed in {duration:.2f} seconds")
-    return wrapper
 
-def log_pipeline_stage(stage_name: str, status: str, details: Optional[str] = None) -> None:
-    """Log a pipeline stage status."""
-    logger = get_logger("pipeline")
-    message = f"Stage: {stage_name} | Status: {status}"
-    if details:
-        message += f" | Details: {details}"
-    if status == "SUCCESS":
-        logger.info(message)
-    elif status == "FAILED":
-        logger.error(message)
-    else:
-        logger.warning(message)
+def safe_execute(
+    func: Callable,
+    *args: Any,
+    logger_name: Optional[str] = None,
+    default_return: Any = None,
+    **kwargs: Any
+) -> Any:
+    """
+    Executes a function with automatic error logging and optional default return.
 
-# Initialize logging on module import
-setup_logging()
+    Args:
+        func: The function to execute.
+        *args: Positional arguments for the function.
+        logger_name: Optional name for the logger. If None, uses project ID.
+        default_return: Value to return if an exception occurs.
+        **kwargs: Keyword arguments for the function.
 
-def main():
-    """Test logging setup."""
-    logger = get_logger(__name__)
-    logger.info("Logger initialized successfully.")
-    logger.debug("This is a debug message.")
-    logger.warning("This is a warning.")
+    Returns:
+        The result of func, or default_return if an exception is caught.
+    """
+    logger = get_logger(logger_name)
     try:
-        raise ValueError("Test error")
+        return func(*args, **kwargs)
     except Exception as e:
-        handle_error(e)
+        log_error_context(logger, e, context={"function": func.__name__})
+        return default_return
 
-if __name__ == "__main__":
-    main()
+
+# Re-export standard logging levels for convenience
+DEBUG = logging.DEBUG
+INFO = logging.INFO
+WARNING = logging.WARNING
+ERROR = logging.ERROR
+CRITICAL = logging.CRITICAL

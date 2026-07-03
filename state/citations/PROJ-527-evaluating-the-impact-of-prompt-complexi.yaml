@@ -31,7 +31,19 @@
   verification_status: verified
   verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/633f068529fea7381b985a8c/002c9e4216fa8b8b4ce6ff87c232677ac2abf31a74bb3db6e6d3b8959b0b75b7?response-content-disposition=inline%3B+filename*%3DUTF-8%27%27HumanEval-MultiLineInfilling.jsonl%3B+filename%3D%22HumanEval-MultiLineInfilling.jsonl%22%3B&user_id=public&X-Xet-Cas-Uid=public&Expires=1783025709&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjMzZjA2ODUyOWZlYTczODFiOTg1YThjLzAwMmM5ZTQyMTZmYThiOGI0Y2U2ZmY4N2MyMzI2NzdhYzJhYmYzMWE3NGJiM2RiNmU2ZDNiODk1OWIwYjc1YjdcXD9yZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3SHVtYW5FdmFsLU11bHRpTGluZUluZmlsbGluZy5qc29ubCUzQitmaWxlbmFtZSUzRCUyMkh1bWFuRXZhbC1NdWx0aUxpbmVJbmZpbGxpbmcuanNvbmwlMjIlM0ImdXNlcl9pZD1wdWJsaWMmWC1YZXQtQ2FzLVVpZD1wdWJsaWMiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkVwb2NoVGltZSI6MTc4MzAyNTcwOX19fV19&Signature=MEUCIQCktBMKB1F2veZK8Vz2xMrDYWz3yNCn3aPFj38KyhEfSwIgeiA9pMSOLFQRtoXfErpWuSrfIlA6yKw18akl8PEhvY0_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
   verified_at: '2026-07-02T19:55:08.650119Z'
-- artifact_hash: 6509b9971158ead6d9ecc45fa7c3c8496f20258ed22dff2763d4d0e8955aba4e
+- artifact_hash: f24204dce46f47dd19b0a16363b53d26ee40630ee6731a634b5fdd43c2c16f8e
+  artifact_path: projects/PROJ-527-evaluating-the-impact-of-prompt-complexi/docs/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: '[2410.12381] HumanEval-V: Benchmarking High-Level Visual Reasoning
+    with Complex Diagrams in Coding Tasks'
+  kind: url
+  value: https://arxiv.org/abs/2410.12381
+  verification_status: verified
+  verified_against_url: https://arxiv.org/abs/2410.12381
+  verified_at: '2026-07-03T00:21:49.057386Z'
+- artifact_hash: 188d70f3b4980896aa88fc3e30af0ca84ab8159c5682fcfba889dafcef11faca
   artifact_path: projects/PROJ-527-evaluating-the-impact-of-prompt-complexi/specs/001-evaluating-the-impact-of-prompt-complexi/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -41,4 +53,4 @@
   value: https://huggingface.co/datasets/openai/human-eval`
   verification_status: pending
   verified_against_url: https://huggingface.co/datasets/openai/human-eval
-  verified_at: '2026-07-02T23:28:42.352725Z'
+  verified_at: '2026-07-03T00:21:49.338808Z'

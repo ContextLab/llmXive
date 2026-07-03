@@ -1,0 +1,95 @@
+- artifact_path: projects/PROJ-527-evaluating-the-impact-of-prompt-complexi/docs/research.md
+  attempts: 1
+  canonical: HumanEval dataset contains 164 problems
+  claim_id: c_c20b94eb
+  context: The HumanEval dataset contains 164 problems. With 5 variants per problem,
+    the total sample size is 820.
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: manEval (Chen et al., 2021) with 164 tasks,
+      source_id: '2410.12381'
+      url: https://arxiv.org/abs/2410.12381
+      value: '164'
+    filled: true
+  kind: numeric
+  raw_text: The HumanEval dataset contains 164 problems.
+  resolved_value: '164'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-03T00:13:04Z'
+- artifact_path: projects/PROJ-527-evaluating-the-impact-of-prompt-complexi/docs/research.md
+  attempts: 1
+  canonical: HumanEval total sample size 820 with 5 variants per problem
+  claim_id: c_51c14cac
+  context: The HumanEval dataset contains 164 problems. With 5 variants per problem,
+    the total sample size is 820.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: With 5 variants per problem, the total sample size is 820.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T00:14:27Z'
+- artifact_path: projects/PROJ-527-evaluating-the-impact-of-prompt-complexi/docs/research.md
+  attempts: 1
+  canonical: Power analysis sufficient to detect Cohen's d > 0.5 at alpha 0.05
+  claim_id: c_d4de29ef
+  context: Power analysis suggests this is sufficient to detect medium-to-large effect
+    sizes (Cohen's d > 0.5) at alpha = 0.05. Small effects may be underpowered.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Power analysis suggests this is sufficient to detect medium-to-large effect
+    sizes (Cohen's d > 0.5) at alpha = 0.05.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T00:17:11Z'
+- artifact_path: projects/PROJ-527-evaluating-the-impact-of-prompt-complexi/docs/research.md
+  attempts: 1
+  canonical: Cyclomatic Complexity formula M = E - N + 2P
+  claim_id: c_bb9846d9
+  context: 'Formula: M = E - N + 2P, where E is edges, N is nodes, and P is the number
+    of connected components.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Cyclomatic_Complexity_formula_M_=_E_-_N_+_2P
+  kind: entity_fact
+  raw_text: Cyclomatic Complexity (M) is calculated via the formula M = E - N + 2P.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T00:20:19Z'
+- artifact_path: projects/PROJ-527-evaluating-the-impact-of-prompt-complexi/docs/research.md
+  attempts: 1
+  canonical: Cognitive Load Theory posits limited working memory and increased extraneous
+    load from complex instructions
+  claim_id: c_ad952500
+  context: This aligns with principles of Cognitive Load Theory (Sweller, 1988), which
+    posits that working memory is limited and that complex instruction sets increase
+    extraneous load.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Cognitive_Load_Theory_posits_limited_working_memory_and_incr
+  kind: entity_fact
+  raw_text: Cognitive Load Theory posits that working memory is limited and that complex
+    instruction sets increase extraneous load.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T00:21:49Z'

@@ -8,7 +8,6 @@ version = "0.1.0"
 description = "Evaluating the Impact of Prompt Complexity on LLM Code Generation Performance"
 readme = "README.md"
 requires-python = ">=3.11"
-license = {text = "MIT"}
 dependencies = [
     "datasets",
     "tiktoken",
@@ -18,47 +17,51 @@ dependencies = [
     "ruff",
     "requests",
     "pyyaml",
+    "numpy",
+    "scipy",
+    "pydantic"
 ]
 
 [project.optional-dependencies]
 dev = [
     "pytest>=7.0.0",
     "pytest-cov>=4.0.0",
+    "mypy>=1.0.0"
 ]
 
 [tool.setuptools.packages.find]
 where = ["code"]
 
 [tool.ruff]
-# Target Python version
-target-version = "py311"
-
-# Line length configuration
 line-length = 100
-
-# Enable specific linting rules
-lint.select = [
-    "E",    # pycodestyle errors
-    "W",    # pycodestyle warnings
-    "F",    # Pyflakes
-    "I",    # isort (import sorting)
-    "C",    # flake8-comprehensions
-    "B",    # flake8-bugbear
-    "UP",   # pyupgrade
-    "N",    # pep8-naming
-]
-lint.ignore = [
-    "E501", # Line too long (handled by formatter)
-    "B008", # Do not perform function call in argument defaults (common in Pydantic/requests)
+target-version = "py311"
+exclude = [
+    ".git",
+    "__pycache__",
+    "data",
+    "state",
+    "venv",
+    ".venv"
 ]
 
-# Per-file ignores (if needed)
-# lint.per-file-ignores = {}
+[tool.ruff.lint]
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # Pyflakes
+    "I",   # isort
+    "C",   # flake8-comprehensions
+    "B",   # flake8-bugbear
+    "UP",  # pyupgrade
+]
+ignore = [
+    "E501", # line too long (handled by formatter)
+    "B008", # do not perform function calls in argument defaults (common in dataclasses)
+]
 
-[tool.ruff.lint.isort]
-known-first-party = ["models", "data", "prompts", "llm", "utils", "execution", "analysis"]
-force-sort-within-sections = true
-lines-after-imports = 2
+[tool.ruff.lint.per-file-ignores]
+"code/__init__.py" = ["F401"]
+"tests/*" = ["S101"] # allow asserts in tests
 
 [tool.ruff.format]
 quote-style = "double"
@@ -71,31 +74,13 @@ testpaths = ["tests"]
 python_files = ["test_*.py"]
 python_classes = ["Test*"]
 python_functions = ["test_*"]
-addopts = [
-    "--verbose",
-    "--strict-markers",
-    "--tb=short",
+addopts = "-v --tb=short"
+filterwarnings = [
+    "ignore::DeprecationWarning",
+    "ignore::PendingDeprecationWarning"
 ]
 markers = [
     "unit: Unit tests",
     "integration: Integration tests",
-    "slow: Marks tests that take a long time",
-    "us1: User Story 1 tests",
-    "us2: User Story 2 tests",
-    "us3: User Story 3 tests",
-]
-
-[tool.coverage.run]
-source = ["code"]
-omit = [
-    "*/tests/*",
-    "*/__pycache__/*",
-]
-
-[tool.coverage.report]
-exclude_lines = [
-    "pragma: no cover",
-    "def __repr__",
-    "raise NotImplementedError",
-    "if __name__ == .__main__.:",
+    "slow: Marks tests that take a long time to run"
 ]

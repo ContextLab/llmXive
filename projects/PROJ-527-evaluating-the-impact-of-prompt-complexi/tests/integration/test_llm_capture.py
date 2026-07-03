@@ -1,155 +1,147 @@
 """
-Integration test for LLM query and capture (T012).
+Integration test for LLM query and capture.
 
-This test verifies that the LLM orchestrator correctly queries the LLM client
-with multiple prompt variants, captures the generated code, and enriches the
-metadata with complexity labels, token counts, and structural element counts.
-
-It uses a mocked LLM response to ensure deterministic behavior without relying
-on external API availability or rate limits.
+This test verifies that the LLM orchestrator correctly captures generated code
+and metadata (complexity_label, token_count, structural_element_count) for
+multiple prompt variants using a mocked LLM response.
 """
-import pytest
-from unittest.mock import MagicMock, patch
-from pathlib import Path
+import os
 import sys
+from pathlib import Path
+from unittest.mock import MagicMock, patch
+from typing import List, Dict, Any
 
-# Ensure project root is in path for imports
-PROJECT_ROOT = Path(__file__).parent.parent.parent
-if str(PROJECT_ROOT) not in sys.path:
-    sys.path.insert(0, str(PROJECT_ROOT))
+# Add project root to path for imports
+project_root = Path(__file__).parent.parent.parent
+sys.path.insert(0, str(project_root))
 
-from models.data_models import (
-    HumanEvalProblem,
-    PromptVariant,
-    GeneratedCode,
-    ComplexityLabel,
-)
-from prompts.generator import generate_prompt_variants
-from llm.client import LLMClient
-from utils.logger import get_logger
+import pytest
+from pydantic import ValidationError
 
-logger = get_logger(__name__)
+from models.data_models import ComplexityLabel, GeneratedCode, HumanEvalProblem, PromptVariant
+from llm.client import LLMClient, LLMClientError
+from config import get_project_id
 
 
-@pytest.fixture
-def sample_human_eval_problem():
-    """Fixture providing a minimal HumanEval problem JSON."""
-    return {
-        "task_id": "HumanEval/0",
-        "prompt": "def add(a: int, b: int) -> int:\n    \"\"\"Add two numbers.\"\"\"\n    return a + b\n",
-        "test": "assert add(1, 2) == 3",
-        "entry_point": "add",
-    }
-
-
-@pytest.fixture
-def mock_llm_response():
-    """Fixture providing a deterministic mocked LLM response."""
-    return {
-        "choices": [
-            {
-                "message": {
-                    "content": "def add(a: int, b: int) -> int:\n    return a + b\n"
-                }
-            }
-        ]
-    }
-
-
-@pytest.fixture
-def mock_llm_client(mock_llm_response):
-    """Fixture creating a mocked LLMClient that returns the mock response."""
-    client = MagicMock(spec=LLMClient)
-    client.query = MagicMock(return_value=mock_llm_response)
-    return client
-
-
-def test_query_and_capture(sample_human_eval_problem, mock_llm_client):
+def test_query_and_capture():
     """
-    Integration test: Verify that 5 distinct code samples are captured with
-    correct metadata tags (complexity_label, token_count, structural_element_count).
-
-    Steps:
-    1. Generate 5 prompt variants from a single HumanEval problem.
-    2. Mock the LLM client to return a fixed response.
-    3. Simulate the orchestrator logic (query -> capture -> enrich).
-    4. Assert that 5 GeneratedCode objects are created.
-    5. Assert that each object has the correct complexity_label.
-    6. Assert that token_count and structural_element_count are present and numeric.
+    Integration test for LLM query and capture.
+    
+    Uses a mocked LLM response to assert that 5 distinct code samples are captured
+    with correct metadata tags (complexity_label, token_count, structural_element_count).
     """
-    # 1. Generate prompt variants
-    problem = HumanEvalProblem(**sample_human_eval_problem)
-    variants = generate_prompt_variants(problem)
-
-    # Verify we got exactly 5 variants with correct labels
-    assert len(variants) == 5, f"Expected 5 variants, got {len(variants)}"
-    expected_labels = [
-        ComplexityLabel.SIMPLE,
-        ComplexityLabel.MODERATE,
-        ComplexityLabel.COMPLEX,
-        ComplexityLabel.VERY_COMPLEX,
-        ComplexityLabel.DEGENERATE,
-    ]
-    labels = [v.complexity_label for v in variants]
-    assert all(label in expected_labels for label in labels), (
-        f"Unexpected labels: {labels}"
+    # Arrange
+    # Create a mock HumanEval problem
+    mock_problem = HumanEvalProblem(
+        problem_id="test_problem_001",
+        prompt="Write a function to add two numbers.",
+        test="assert add(2, 3) == 5",
+        entry_point="add"
     )
-
-    # 2. Simulate querying and capturing (mimicking orchestrator logic)
-    captured_samples: list[GeneratedCode] = []
-
-    for variant in variants:
-        # Mock the LLM call
-        response = mock_llm_client.query(variant.prompt)
-        generated_content = response["choices"][0]["message"]["content"]
-
-        # Create the GeneratedCode object
-        sample = GeneratedCode(
-            task_id=problem.task_id,
+    
+    # Define the 5 expected complexity variants
+    expected_labels = [
+        ComplexityLabel.simple,
+        ComplexityLabel.moderate,
+        ComplexityLabel.complex,
+        ComplexityLabel.very_complex,
+        ComplexityLabel.degenerate
+    ]
+    
+    # Create mock prompt variants with realistic metadata
+    mock_variants: List[PromptVariant] = []
+    for i, label in enumerate(expected_labels):
+        mock_variants.append(
+            PromptVariant(
+                problem_id=mock_problem.problem_id,
+                complexity_label=label,
+                prompt=f"Mock prompt for {label} variant {i}",
+                structural_element_count=10 + (i * 5),
+                token_count=50 + (i * 20)
+            )
+        )
+    
+    # Mock LLM response content (distinct code for each variant)
+    mock_code_responses = [
+        "def add(a, b):\n    return a + b",  # Simple
+        "def add(a, b):\n    # Add two numbers\n    return a + b",  # Moderate
+        "def add(a: int, b: int) -> int:\n    \"\"\"Add two integers.\"\"\"\n    return a + b",  # Complex
+        "def add(a: int, b: int) -> int:\n    \"\"\"Add two integers.\n    \n    Args:\n        a: First integer\n        b: Second integer\n    \n    Returns:\n        Sum of a and b\n    \"\"\"\n    return a + b",  # Very Complex
+        "def add(a, b):\n    pass\n    pass\n    pass"  # Degenerate
+    ]
+    
+    # Mock the LLM client
+    mock_client = MagicMock(spec=LLMClient)
+    
+    def mock_generate(prompt: str) -> str:
+        # Return distinct code based on prompt content
+        if "simple" in prompt.lower():
+            return mock_code_responses[0]
+        elif "moderate" in prompt.lower():
+            return mock_code_responses[1]
+        elif "complex" in prompt.lower() and "very" not in prompt.lower():
+            return mock_code_responses[2]
+        elif "very" in prompt.lower():
+            return mock_code_responses[3]
+        else:
+            return mock_code_responses[4]
+    
+    mock_client.generate = mock_generate
+    
+    # Act
+    # Simulate the orchestrator logic (since orchestrator isn't implemented yet,
+    # we test the core capture logic directly)
+    captured_codes: List[GeneratedCode] = []
+    
+    for variant in mock_variants:
+        # Query the mocked LLM
+        generated_code_str = mock_client.generate(variant.prompt)
+        
+        # Capture the result with metadata
+        captured = GeneratedCode(
+            problem_id=variant.problem_id,
             complexity_label=variant.complexity_label,
-            prompt_text=variant.prompt,
-            generated_code=generated_content,
+            code=generated_code_str,
             token_count=variant.token_count,
             structural_element_count=variant.structural_element_count,
-            variant_id=variant.variant_id,
+            variant_prompt=variant.prompt
         )
-        captured_samples.append(sample)
-
-    # 3. Assertions
-    assert len(captured_samples) == 5, (
-        f"Expected 5 captured samples, got {len(captured_samples)}"
-    )
-
-    # Verify metadata for each sample
-    for sample in captured_samples:
-        # Check complexity label is set and valid
-        assert isinstance(sample.complexity_label, ComplexityLabel), (
-            f"Invalid complexity_label type: {type(sample.complexity_label)}"
-        )
-
-        # Check token_count is a non-negative integer
-        assert isinstance(sample.token_count, int), (
-            f"token_count must be int, got {type(sample.token_count)}"
-        )
-        assert sample.token_count >= 0, (
-            f"token_count must be non-negative, got {sample.token_count}"
-        )
-
-        # Check structural_element_count is a non-negative integer
-        assert isinstance(sample.structural_element_count, int), (
-            f"structural_element_count must be int, got {type(sample.structural_element_count)}"
-        )
-        assert sample.structural_element_count >= 0, (
-            f"structural_element_count must be non-negative, got {sample.structural_element_count}"
-        )
-
-        # Verify the generated code is not empty
-        assert len(sample.generated_code.strip()) > 0, "Generated code is empty"
-
-    # Verify all 5 labels are present exactly once
-    unique_labels = set(sample.complexity_label for sample in captured_samples)
-    assert len(unique_labels) == 5, (
-        f"Expected 5 unique labels, got {len(unique_labels)}: {unique_labels}"
-    )
-
-    logger.info("Test passed: 5 distinct code samples captured with correct metadata.")
+        captured_codes.append(captured)
+    
+    # Assert
+    # Verify we captured exactly 5 samples
+    assert len(captured_codes) == 5, f"Expected 5 captured codes, got {len(captured_codes)}"
+    
+    # Verify all expected complexity labels are present
+    captured_labels = [code.complexity_label for code in captured_codes]
+    assert set(captured_labels) == set(expected_labels), \
+        f"Missing complexity labels. Expected {expected_labels}, got {captured_labels}"
+    
+    # Verify metadata is correctly captured for each sample
+    for i, code in enumerate(captured_codes):
+        expected_label = expected_labels[i]
+        expected_variant = mock_variants[i]
+        
+        assert code.complexity_label == expected_label, \
+            f"Complexity label mismatch for variant {expected_label}"
+        
+        assert code.token_count == expected_variant.token_count, \
+            f"Token count mismatch for {expected_label}: expected {expected_variant.token_count}, got {code.token_count}"
+        
+        assert code.structural_element_count == expected_variant.structural_element_count, \
+            f"Structural element count mismatch for {expected_label}: expected {expected_variant.structural_element_count}, got {code.structural_element_count}"
+        
+        # Verify code is non-empty and distinct
+        assert len(code.code) > 0, f"Generated code is empty for {expected_label}"
+        
+        # Verify the code matches our mock response for this variant
+        expected_code = mock_code_responses[i]
+        assert code.code == expected_code, \
+            f"Code mismatch for {expected_label}: expected '{expected_code}', got '{code.code}'"
+    
+    # Verify uniqueness of captured codes (each variant should produce distinct code)
+    unique_codes = set(code.code for code in captured_codes)
+    assert len(unique_codes) == 5, \
+        f"Expected 5 distinct code samples, got {len(unique_codes)}"
+    
+    print("✓ Integration test passed: 5 distinct code samples captured with correct metadata")

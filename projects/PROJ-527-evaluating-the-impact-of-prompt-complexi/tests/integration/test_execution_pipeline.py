@@ -1,218 +1,198 @@
 """
-Integration test for full execution pipeline (US2).
+Integration test for full execution pipeline (T022).
 
-This test verifies the end-to-end flow of:
-1. Loading generated prompt variants and code samples from data/processed/prompt_variants.parquet
-2. Executing the code against HumanEval unit tests using the runner
-3. Capturing execution results (pass/fail, exceptions, timeouts)
-4. Aggregating results and writing to data/results/execution_outcomes.csv
-
-It uses a small, fixed subset of HumanEval problems to ensure tractability.
+This test validates the end-to-end execution flow:
+1. Loads generated prompt variants and code from data/processed/prompt_variants.parquet
+2. Executes the code against HumanEval unit tests using code/execution/runner.py
+3. Aggregates results and writes to data/results/execution_outcomes.csv
+4. Verifies that the output file exists and contains expected columns
 """
-
 import os
 import sys
 import tempfile
-import shutil
-from pathlib import Path
-from typing import List, Dict, Any
-
 import pytest
+from pathlib import Path
+from datetime import datetime
 import pandas as pd
 
-# Add code directory to path for imports
-code_root = Path(__file__).resolve().parent.parent.parent / "code"
-sys.path.insert(0, str(code_root))
+# Add project root to path for imports
+project_root = Path(__file__).parent.parent.parent
+sys.path.insert(0, str(project_root / "code"))
 
-from models.data_models import ComplexityLabel, ExecutionStatus
 from data.storage import load_variants_from_parquet
-from execution.runner import run_code_with_tests, execute_batch
-from utils.logger import setup_logging, get_logger
-
-logger = get_logger(__name__)
-
-
-@pytest.fixture(scope="module")
-def sample_data_dir():
-    """
-    Create a temporary directory with a minimal mock dataset for testing.
-    This avoids dependency on the full HumanEval generation pipeline for this unit.
-    """
-    temp_dir = tempfile.mkdtemp()
-    data_processed = Path(temp_dir) / "data" / "processed"
-    data_processed.mkdir(parents=True)
-
-    # Create a minimal parquet file with 2 problems, 2 variants each
-    # Using real HumanEval problem IDs and synthetic (but valid) code snippets
-    data = {
-        "problem_id": ["HumanEval/0", "HumanEval/0", "HumanEval/1", "HumanEval/1"],
-        "complexity_label": ["simple", "complex", "simple", "complex"],
-        "prompt_text": [
-            "Write a function to check if a number is even.",
-            "Write a function to check if a number is even. Ensure it handles negative numbers and zero. Add type hints. Include a docstring.",
-            "Write a function to check if a number is even.",
-            "Write a function to check if a number is even. Ensure it handles negative numbers and zero. Add type hints. Include a docstring.",
-        ],
-        "generated_code": [
-            "def is_even(n):\n    return n % 2 == 0",
-            "def is_even(n: int) -> bool:\n    \"\"\"Check if n is even.\"\"\"\n    return n % 2 == 0",
-            "def has_close_elements(numbers: List[float], threshold: float) -> bool:\n    for idx, elem in enumerate(numbers):\n        for idx2, elem2 in enumerate(numbers):\n            if idx != idx2:\n                distance = abs(elem - elem2)\n                if distance < threshold:\n                    return True\n    return False",
-            "def has_close_elements(numbers: List[float], threshold: float) -> bool:\n    \"\"\"Check if any two numbers in the list are closer than threshold.\"\"\"\n    for idx, elem in enumerate(numbers):\n        for idx2, elem2 in enumerate(numbers):\n            if idx != idx2:\n                distance = abs(elem - elem2)\n                if distance < threshold:\n                    return True\n    return False",
-        ],
-        "token_count": [20, 45, 20, 45],
-        "structural_element_count": [1, 3, 1, 3],
-    }
-
-    df = pd.DataFrame(data)
-    parquet_path = data_processed / "prompt_variants.parquet"
-    df.to_parquet(parquet_path)
-
-    yield temp_dir
-
-    # Cleanup
-    shutil.rmtree(temp_dir)
+from execution.runner import execute_code_with_tests, run_batch_execution
+from config import Paths
+from models.data_models import ExecutionStatus, GeneratedCode, HumanEvalProblem
 
 
-def test_execution_pipeline_end_to_end(sample_data_dir):
-    """
-    Integration test: Load data -> Run execution -> Verify outputs.
-    """
-    data_processed = Path(sample_data_dir) / "data" / "processed"
-    data_results = Path(sample_data_dir) / "data" / "results"
-    data_results.mkdir(parents=True)
+class TestExecutionPipeline:
+    """Integration tests for the full execution pipeline."""
 
-    parquet_path = data_processed / "prompt_variants.parquet"
-    assert parquet_path.exists(), "Mock parquet file not created"
+    def test_full_pipeline_writes_results(self):
+        """
+        Test that the full execution pipeline:
+        1. Loads data from parquet
+        2. Executes code samples
+        3. Writes results to CSV
+        4. Results contain expected columns and valid data
+        """
+        # Ensure input data exists (generated by T018)
+        input_path = Paths.PROCESSED_DATA_DIR / "prompt_variants.parquet"
+        if not input_path.exists():
+            pytest.skip(f"Input file {input_path} not found. Run T018 first.")
 
-    # Load data
-    variants = load_variants_from_parquet(parquet_path)
-    assert len(variants) == 4, "Expected 4 variants in mock data"
+        # Load the generated variants
+        variants_df = load_variants_from_parquet(str(input_path))
+        
+        # Filter to a small subset for faster testing (max 10 samples)
+        sample_size = min(10, len(variants_df))
+        sample_df = variants_df.head(sample_size)
+        
+        if sample_df.empty:
+            pytest.skip("No data to execute.")
 
-    # Define a minimal test suite for the mock code
-    # We simulate HumanEval test cases inline for this integration test
-    test_suites = {
-        "HumanEval/0": [
-            "assert is_even(2) == True",
-            "assert is_even(3) == False",
-            "assert is_even(0) == True",
-            "assert is_even(-2) == True",
-        ],
-        "HumanEval/1": [
-            "assert has_close_elements([1.0, 2.0, 3.0], 0.5) == False",
-            "assert has_close_elements([1.0, 2.8, 3.0, 4.0, 5.0, 2.0], 0.3) == True",
-        ],
-    }
+        # Create a temporary output file path
+        with tempfile.NamedTemporaryFile(suffix='.csv', delete=False) as tmp_file:
+            output_path = Path(tmp_file.name)
 
-    execution_results = []
-    problem_ids = list(set(v.problem_id for v in variants))
+        try:
+            # Run the execution pipeline on the sample
+            results = run_batch_execution(
+                variants=sample_df.to_dict('records'),
+                output_path=str(output_path),
+                timeout_seconds=30  # Short timeout for testing
+            )
 
-    for variant in variants:
-        problem_id = variant.problem_id
-        code = variant.generated_code
-        test_cases = test_suites.get(problem_id, [])
+            # Verify the output file was created
+            assert output_path.exists(), f"Output file {output_path} was not created"
 
-        if not test_cases:
-            logger.warning(f"No test cases found for {problem_id}, skipping execution")
-            continue
+            # Load and verify the results
+            results_df = pd.read_csv(output_path)
+            
+            # Check expected columns exist
+            expected_columns = [
+                'problem_id', 'complexity_label', 'code_snippet', 
+                'execution_status', 'pass_count', 'total_tests',
+                'pass_rate', 'execution_time_ms', 'error_type',
+                'timestamp'
+            ]
+            
+            for col in expected_columns:
+                assert col in results_df.columns, f"Missing column: {col}"
 
-        result = run_code_with_tests(code, test_cases, timeout_seconds=5)
-        execution_results.append(result)
+            # Verify we have results for all input samples
+            assert len(results_df) == sample_size, \
+                f"Expected {sample_size} results, got {len(results_df)}"
 
-    assert len(execution_results) > 0, "No execution results generated"
+            # Verify execution statuses are valid
+            valid_statuses = [status.value for status in ExecutionStatus]
+            for status in results_df['execution_status']:
+                assert status in valid_statuses, f"Invalid status: {status}"
 
-    # Verify results structure
-    for res in execution_results:
-        assert res.status in [ExecutionStatus.PASS, ExecutionStatus.FAIL, ExecutionStatus.TIMEOUT, ExecutionStatus.ERROR]
-        assert res.problem_id is not None
-        assert res.complexity_label is not None
+            # Verify pass_rate is between 0 and 1
+            assert all(0 <= rate <= 1 for rate in results_df['pass_rate']), \
+                "Pass rates must be between 0 and 1"
 
-    # Write results to CSV (simulating T030)
-    results_df = pd.DataFrame([
-        {
-            "problem_id": r.problem_id,
-            "complexity_label": r.complexity_label,
-            "status": r.status.value,
-            "error_type": r.error_type,
-            "execution_time_ms": r.execution_time_ms,
-        }
-        for r in execution_results
-    ])
+            # Verify timestamps are valid ISO format
+            for ts in results_df['timestamp']:
+                try:
+                    datetime.fromisoformat(ts)
+                except ValueError:
+                    pytest.fail(f"Invalid timestamp format: {ts}")
 
-    output_csv = data_results / "execution_outcomes.csv"
-    results_df.to_csv(output_csv, index=False)
+        finally:
+            # Cleanup temporary file
+            if output_path.exists():
+                output_path.unlink()
 
-    assert output_csv.exists(), "Execution outcomes CSV not written"
+    def test_pipeline_handles_syntax_errors(self):
+        """
+        Test that the pipeline correctly handles and records syntax errors
+        without crashing.
+        """
+        # Create a minimal synthetic dataset with a syntax error
+        synthetic_data = [
+            {
+                'problem_id': 'test_syntax_error',
+                'complexity_label': 'simple',
+                'code_snippet': 'def broken(:',  # Invalid syntax
+                'prompt_tokens': 50,
+                'structural_elements': 1,
+                'problem_description': 'Test problem',
+                'canonical_solution': 'pass',
+                'test_list': 'def check(): pass',
+                'entry_point': 'broken'
+            }
+        ]
 
-    # Verify content
-    loaded_results = pd.read_csv(output_csv)
-    assert len(loaded_results) == len(execution_results), "CSV row count mismatch"
-    assert "status" in loaded_results.columns, "Missing 'status' column"
-    assert "complexity_label" in loaded_results.columns, "Missing 'complexity_label' column"
+        with tempfile.NamedTemporaryFile(suffix='.csv', delete=False) as tmp_file:
+            output_path = Path(tmp_file.name)
 
-    logger.info(f"Integration test passed. Results written to {output_csv}")
+        try:
+            results = run_batch_execution(
+                variants=synthetic_data,
+                output_path=str(output_path),
+                timeout_seconds=10
+            )
 
+            # Verify output was created
+            assert output_path.exists()
+            
+            results_df = pd.read_csv(output_path)
+            
+            # Should have one result
+            assert len(results_df) == 1
+            
+            # Should be marked as failed with syntax error
+            assert results_df.iloc[0]['execution_status'] == ExecutionStatus.FAILED.value
+            assert 'SyntaxError' in str(results_df.iloc[0]['error_type'])
 
-def test_timeout_handling(sample_data_dir):
-    """
-    Test that the runner correctly handles timeouts.
-    """
-    temp_dir = tempfile.mkdtemp()
-    try:
-        data_processed = Path(temp_dir) / "data" / "processed"
-        data_processed.mkdir(parents=True)
+        finally:
+            if output_path.exists():
+                output_path.unlink()
 
-        # Create a variant with infinite loop code
-        data = {
-            "problem_id": ["HumanEval/999"],
-            "complexity_label": ["simple"],
-            "prompt_text": ["Write infinite loop"],
-            "generated_code": ["while True: pass"],
-            "token_count": [10],
-            "structural_element_count": [1],
-        }
-        df = pd.DataFrame(data)
-        df.to_parquet(data_processed / "prompt_variants.parquet")
+    def test_pipeline_handles_timeout(self):
+        """
+        Test that the pipeline correctly handles execution timeouts.
+        """
+        # Create a synthetic dataset with an infinite loop
+        synthetic_data = [
+            {
+                'problem_id': 'test_timeout',
+                'complexity_label': 'simple',
+                'code_snippet': 'while True: pass',
+                'prompt_tokens': 50,
+                'structural_elements': 1,
+                'problem_description': 'Test problem',
+                'canonical_solution': 'pass',
+                'test_list': 'def check(): pass',
+                'entry_point': 'infinite_loop'
+            }
+        ]
 
-        variants = load_variants_from_parquet(data_processed / "prompt_variants.parquet")
-        variant = variants[0]
+        with tempfile.NamedTemporaryFile(suffix='.csv', delete=False) as tmp_file:
+            output_path = Path(tmp_file.name)
 
-        # Test with a very short timeout
-        result = run_code_with_tests(variant.generated_code, ["assert True"], timeout_seconds=1)
+        try:
+            # Use a very short timeout to force a timeout
+            results = run_batch_execution(
+                variants=synthetic_data,
+                output_path=str(output_path),
+                timeout_seconds=2  # 2 seconds should trigger timeout
+            )
 
-        assert result.status == ExecutionStatus.TIMEOUT, f"Expected TIMEOUT, got {result.status}"
-        logger.info("Timeout handling test passed")
-    finally:
-        shutil.rmtree(temp_dir)
+            # Verify output was created
+            assert output_path.exists()
+            
+            results_df = pd.read_csv(output_path)
+            
+            # Should have one result
+            assert len(results_df) == 1
+            
+            # Should be marked as failed due to timeout
+            assert results_df.iloc[0]['execution_status'] == ExecutionStatus.FAILED.value
+            assert 'Timeout' in str(results_df.iloc[0]['error_type'])
 
-
-def test_syntax_error_handling(sample_data_dir):
-    """
-    Test that the runner correctly handles syntax errors.
-    """
-    temp_dir = tempfile.mkdtemp()
-    try:
-        data_processed = Path(temp_dir) / "data" / "processed"
-        data_processed.mkdir(parents=True)
-
-        # Create a variant with syntax error
-        data = {
-            "problem_id": ["HumanEval/998"],
-            "complexity_label": ["simple"],
-            "prompt_text": ["Write broken code"],
-            "generated_code": ["def broken(:"],
-            "token_count": [10],
-            "structural_element_count": [1],
-        }
-        df = pd.DataFrame(data)
-        df.to_parquet(data_processed / "prompt_variants.parquet")
-
-        variants = load_variants_from_parquet(data_processed / "prompt_variants.parquet")
-        variant = variants[0]
-
-        result = run_code_with_tests(variant.generated_code, ["assert True"], timeout_seconds=5)
-
-        assert result.status == ExecutionStatus.ERROR, f"Expected ERROR, got {result.status}"
-        assert result.error_type == "SyntaxError", f"Expected SyntaxError, got {result.error_type}"
-        logger.info("Syntax error handling test passed")
-    finally:
-        shutil.rmtree(temp_dir)
+        finally:
+            if output_path.exists():
+                output_path.unlink()

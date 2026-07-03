@@ -1,86 +1,174 @@
 """
-Utility for computing and verifying SHA-256 checksums of artifacts.
+Artifact Hashing Utility.
+
+Provides SHA-256 checksumming for project artifacts to ensure data integrity
+and reproducibility.
 """
+
 import hashlib
 import json
 import os
 from pathlib import Path
-from typing import Any, Dict, Optional, List
+from typing import Dict, List, Optional, Union
 
-def compute_string_sha256(data: str) -> str:
-    """Compute SHA-256 hash of a string."""
-    return hashlib.sha256(data.encode('utf-8')).hexdigest()
+# Project root is assumed to be the parent of 'code/'
+# We calculate it dynamically to remain robust.
+_PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 
-def compute_file_sha256(file_path: Path) -> str:
-    """Compute SHA-256 hash of a file."""
+
+def calculate_sha256(file_path: Union[str, Path]) -> str:
+    """
+    Calculate the SHA-256 hash of a file.
+
+    Args:
+        file_path: Path to the file to hash.
+
+    Returns:
+        Hexadecimal string of the SHA-256 hash.
+
+    Raises:
+        FileNotFoundError: If the file does not exist.
+        IOError: If the file cannot be read.
+    """
     sha256_hash = hashlib.sha256()
-    with open(file_path, "rb") as f:
+    path = Path(file_path)
+
+    if not path.is_file():
+        raise FileNotFoundError(f"File not found: {path}")
+
+    with open(path, "rb") as f:
+        # Read in chunks to handle large files without memory issues
         for byte_block in iter(lambda: f.read(4096), b""):
             sha256_hash.update(byte_block)
+
     return sha256_hash.hexdigest()
 
-def hash_artifacts(file_paths: List[Path]) -> Dict[str, str]:
+
+def hash_directory(
+    directory_path: Union[str, Path],
+    extensions: Optional[List[str]] = None,
+    exclude_dirs: Optional[List[str]] = None
+) -> Dict[str, str]:
     """
-    Compute hashes for a list of file paths.
+    Calculate SHA-256 hashes for all files in a directory.
 
     Args:
-        file_paths: List of Path objects to hash.
+        directory_path: Path to the directory.
+        extensions: Optional list of file extensions to include (e.g., ['.csv', '.parquet']).
+        exclude_dirs: Optional list of directory names to skip (e.g., ['.git', '__pycache__']).
 
     Returns:
-        Dictionary mapping file paths to their SHA-256 hashes.
+        Dictionary mapping relative file paths to their SHA-256 hashes.
     """
+    dir_path = Path(directory_path)
+    if not dir_path.is_dir():
+        raise NotADirectoryError(f"Directory not found: {dir_path}")
+
+    if exclude_dirs is None:
+        exclude_dirs = []
+
     hashes = {}
-    for path in file_paths:
-        if not path.exists():
-            raise FileNotFoundError(f"File not found: {path}")
-        hashes[str(path)] = compute_file_sha256(path)
+
+    for root, dirs, files in os.walk(dir_path):
+        # Modify dirs in-place to skip excluded directories
+        dirs[:] = [d for d in dirs if d not in exclude_dirs]
+
+        for file in files:
+            if extensions:
+                if not any(file.endswith(ext) for ext in extensions):
+                    continue
+
+            file_path = Path(root) / file
+            rel_path = file_path.relative_to(dir_path)
+
+            try:
+                file_hash = calculate_sha256(file_path)
+                hashes[str(rel_path)] = file_hash
+            except (FileNotFoundError, IOError) as e:
+                # Log warning or skip if desired, but for now we raise
+                raise e
+
     return hashes
 
-def verify_artifacts(expected_hashes: Dict[str, str], file_paths: List[Path]) -> bool:
+
+def verify_artifacts(
+    manifest_path: Union[str, Path],
+    root_dir: Optional[Union[str, Path]] = None
+) -> bool:
     """
-    Verify that files match expected hashes.
+    Verify file hashes against a manifest JSON file.
+
+    The manifest should be a JSON object where keys are relative file paths
+    and values are expected SHA-256 hashes.
 
     Args:
-        expected_hashes: Dictionary mapping file paths (str) to expected hashes.
-        file_paths: List of Path objects to verify.
+        manifest_path: Path to the JSON manifest file.
+        root_dir: Base directory for resolving relative paths. Defaults to project root.
 
     Returns:
-        True if all files match, False otherwise.
+        True if all hashes match, False otherwise.
+
+    Raises:
+        FileNotFoundError: If manifest or a referenced file is missing.
+        json.JSONDecodeError: If manifest is invalid JSON.
     """
+    manifest_file = Path(manifest_path)
+    if not manifest_file.is_file():
+        raise FileNotFoundError(f"Manifest not found: {manifest_file}")
+
+    if root_dir is None:
+        root_dir = _PROJECT_ROOT
+    else:
+        root_dir = Path(root_dir)
+
+    with open(manifest_file, "r", encoding="utf-8") as f:
+        expected_hashes = json.load(f)
+
     all_valid = True
-    for path in file_paths:
-        path_str = str(path)
-        if path_str not in expected_hashes:
-            print(f"Warning: No expected hash for {path}")
+
+    for rel_path, expected_hash in expected_hashes.items():
+        full_path = root_dir / rel_path
+        if not full_path.is_file():
+            print(f"Missing file: {rel_path}")
+            all_valid = False
             continue
 
-        actual_hash = compute_file_sha256(path)
-        expected_hash = expected_hashes[path_str]
-
-        if actual_hash != expected_hash:
-            print(f"Hash mismatch for {path}:")
-            print(f"  Expected: {expected_hash}")
-            print(f"  Actual:   {actual_hash}")
+        try:
+            actual_hash = calculate_sha256(full_path)
+            if actual_hash != expected_hash:
+                print(f"Hash mismatch for {rel_path}: expected {expected_hash}, got {actual_hash}")
+                all_valid = False
+            else:
+                print(f"Verified: {rel_path}")
+        except Exception as e:
+            print(f"Error verifying {rel_path}: {e}")
             all_valid = False
-        else:
-            print(f"Verified: {path}")
 
     return all_valid
 
-def main():
-    """Example usage of hash utilities."""
-    import sys
-    if len(sys.argv) > 1:
-        file_path = Path(sys.argv[1])
-        if file_path.exists():
-            h = compute_file_sha256(file_path)
-            print(f"SHA-256 of {file_path}: {h}")
-        else:
-            print(f"File not found: {file_path}")
-            sys.exit(1)
-    else:
-        print("Usage: python hash_artifacts.py <file_path>")
-        sys.exit(1)
 
-if __name__ == "__main__":
-    main()
+def create_manifest(
+    directory_path: Union[str, Path],
+    output_path: Union[str, Path],
+    extensions: Optional[List[str]] = None
+) -> Dict[str, str]:
+    """
+    Create a JSON manifest of file hashes for a directory.
+
+    Args:
+        directory_path: Source directory to hash.
+        output_path: Path where the JSON manifest will be written.
+        extensions: Optional list of file extensions to include.
+
+    Returns:
+        The generated hash dictionary.
+    """
+    hashes = hash_directory(directory_path, extensions=extensions)
+
+    output_file = Path(output_path)
+    output_file.parent.mkdir(parents=True, exist_ok=True)
+
+    with open(output_file, "w", encoding="utf-8") as f:
+        json.dump(hashes, f, indent=2)
+
+    return hashes

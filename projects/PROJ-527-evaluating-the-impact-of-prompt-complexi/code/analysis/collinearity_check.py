@@ -1,139 +1,144 @@
 """
-Collinearity diagnostic for FR-013.
+T020: Implement correlation check between token count and structural element count.
 
-Computes the Pearson correlation coefficient between prompt token count
-and structural element count to diagnose collinearity.
-
-Writes the result to data/results/analysis_summary.csv.
+This module diagnoses collinearity (FR-013) between prompt token count and
+structural element count. It loads the generated prompt variants from the
+parquet file, computes the Pearson correlation coefficient, and writes the
+result to data/results/analysis_summary.csv.
 """
-import sys
+import os
 import csv
 from pathlib import Path
-from typing import List, Dict, Any, Optional
+from typing import Optional, Dict, Any
+
 import pandas as pd
-import numpy as np
+from scipy import stats
 
-# Project root relative to code/
-PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
-RESULTS_DIR = PROJECT_ROOT / "data" / "results"
-PARQUET_PATH = PROJECT_ROOT / "data" / "processed" / "prompt_variants.parquet"
-SUMMARY_PATH = RESULTS_DIR / "analysis_summary.csv"
+# Import from project modules
+from config import Paths
+from data.storage import load_variants_from_parquet
+from utils.logger import get_logger
 
-def load_variants_from_parquet(path: Path) -> pd.DataFrame:
-    """Load prompt variants from parquet file."""
-    if not path.exists():
-        raise FileNotFoundError(f"Parquet file not found: {path}")
-    return pd.read_parquet(path)
+logger = get_logger(__name__)
 
-def compute_correlation(df: pd.DataFrame) -> Dict[str, Any]:
+def calculate_collinearity(
+    df: pd.DataFrame,
+    token_col: str = "prompt_token_count",
+    struct_col: str = "structural_element_count"
+) -> Dict[str, Any]:
     """
-    Compute Pearson correlation between token_count and structural_element_count.
+    Calculate Pearson correlation between token count and structural element count.
     
-    Returns a dictionary with correlation coefficient, p-value (if available),
-    and sample size.
+    Args:
+        df: DataFrame containing prompt variant data.
+        token_col: Column name for token counts.
+        struct_col: Column name for structural element counts.
+        
+    Returns:
+        Dictionary with correlation coefficient, p-value, and sample size.
     """
-    if "token_count" not in df.columns or "structural_element_count" not in df.columns:
+    if token_col not in df.columns or struct_col not in df.columns:
         raise ValueError(
-            "DataFrame must contain 'token_count' and 'structural_element_count' columns"
+            f"Required columns not found. "
+            f"Expected '{token_col}' and '{struct_col}' in {df.columns.tolist()}"
         )
     
     # Drop rows with missing values in either column
-    clean_df = df.dropna(subset=["token_count", "structural_element_count"])
-    n = len(clean_df)
+    valid_data = df[[token_col, struct_col]].dropna()
     
-    if n < 2:
+    if len(valid_data) < 2:
+        logger.warning("Insufficient data points for correlation calculation.")
         return {
             "correlation": None,
             "p_value": None,
-            "n_samples": n,
+            "sample_size": len(valid_data),
             "status": "insufficient_data"
         }
     
-    x = clean_df["token_count"].values.astype(float)
-    y = clean_df["structural_element_count"].values.astype(float)
+    # Calculate Pearson correlation
+    correlation, p_value = stats.pearsonr(
+        valid_data[token_col], 
+        valid_data[struct_col]
+    )
     
-    # Compute Pearson correlation
-    correlation_matrix = np.corrcoef(x, y)
-    correlation = correlation_matrix[0, 1]
-    
-    # Compute p-value using t-distribution
-    # t = r * sqrt((n-2) / (1-r^2))
-    if abs(correlation) >= 1.0:
-        p_value = 0.0
-    else:
-        t_stat = correlation * np.sqrt((n - 2) / (1 - correlation**2))
-        # Two-tailed p-value
-        from scipy import stats
-        p_value = 2 * (1 - stats.t.cdf(abs(t_stat), df=n-2))
+    logger.info(
+        f"Collinearity check: r={correlation:.4f}, p={p_value:.4f}, n={len(valid_data)}"
+    )
     
     return {
-        "correlation": float(correlation),
-        "p_value": float(p_value),
-        "n_samples": n,
-        "status": "computed"
+        "correlation": correlation,
+        "p_value": p_value,
+        "sample_size": len(valid_data),
+        "status": "success"
     }
 
-def write_summary(results: Dict[str, Any], output_path: Path) -> None:
-    """Write correlation results to CSV, creating file if needed."""
+def write_summary_to_csv(
+    result: Dict[str, Any],
+    output_path: Path
+) -> None:
+    """
+    Write the correlation analysis result to a CSV file.
+    
+    Args:
+        result: Dictionary containing correlation metrics.
+        output_path: Path to the output CSV file.
+    """
     output_path.parent.mkdir(parents=True, exist_ok=True)
     
+    # Prepare row data
     row = {
-        "metric": "token_structural_collinearity",
-        "correlation_coefficient": results.get("correlation"),
-        "p_value": results.get("p_value"),
-        "sample_size": results.get("n_samples"),
-        "status": results.get("status"),
-        "timestamp": pd.Timestamp.now().isoformat()
+        "metric": "prompt_token_vs_structural_element_correlation",
+        "correlation_coefficient": result.get("correlation"),
+        "p_value": result.get("p_value"),
+        "sample_size": result.get("sample_size"),
+        "status": result.get("status"),
+        "description": "Pearson correlation between prompt token count and structural element count (FR-013)"
     }
     
-    # Check if file exists to determine if we need headers
-    file_exists = output_path.exists()
+    # Check if file exists to determine if header is needed
+    write_header = not output_path.exists()
     
-    with open(output_path, mode='a', newline='') as f:
+    with open(output_path, mode='a', newline='', encoding='utf-8') as f:
         writer = csv.DictWriter(f, fieldnames=row.keys())
-        if not file_exists:
+        if write_header:
             writer.writeheader()
         writer.writerow(row)
+    
+    logger.info(f"Analysis summary written to {output_path}")
 
-def main() -> int:
-    """Main entry point for collinearity check."""
-    logger = __import__('utils.logger', fromlist=['get_logger']).get_logger(__name__)
+def main() -> None:
+    """
+    Main entry point for T020.
     
-    logger.info("Starting collinearity analysis (FR-013)")
+    1. Load prompt variants from parquet.
+    2. Calculate correlation between token count and structural element count.
+    3. Write results to data/results/analysis_summary.csv.
+    """
+    logger.info("Starting T020: Collinearity Check")
     
-    try:
-        # Load data
-        logger.info(f"Loading variants from {PARQUET_PATH}")
-        df = load_variants_from_parquet(PARQUET_PATH)
-        logger.info(f"Loaded {len(df)} records")
-        
-        # Compute correlation
-        logger.info("Computing Pearson correlation")
-        results = compute_correlation(df)
-        
-        # Log results
-        logger.info(f"Correlation coefficient: {results.get('correlation')}")
-        logger.info(f"P-value: {results.get('p_value')}")
-        logger.info(f"Sample size: {results.get('n_samples')}")
-        
-        # Write to CSV
-        logger.info(f"Writing results to {SUMMARY_PATH}")
-        write_summary(results, SUMMARY_PATH)
-        
-        logger.info("Collinearity analysis complete")
-        return 0
-        
-    except FileNotFoundError as e:
-        logger.error(f"Data file not found: {e}")
-        return 1
-    except ValueError as e:
-        logger.error(f"Data validation error: {e}")
-        return 1
-    except Exception as e:
-        logger.error(f"Unexpected error during collinearity analysis: {e}")
-        import traceback
-        traceback.print_exc()
-        return 1
+    # Load data
+    variants_path = Paths.PROCESSED_DATA_DIR / "prompt_variants.parquet"
+    
+    if not variants_path.exists():
+        logger.error(f"Data file not found: {variants_path}")
+        logger.error("Run T018 (storage) before running T020.")
+        raise FileNotFoundError(
+            f"Required data file not found: {variants_path}. "
+            "Ensure T018 has completed successfully."
+        )
+    
+    logger.info(f"Loading variants from {variants_path}")
+    df = load_variants_from_parquet(variants_path)
+    logger.info(f"Loaded {len(df)} variants")
+    
+    # Calculate correlation
+    result = calculate_collinearity(df)
+    
+    # Write to summary CSV
+    summary_path = Paths.RESULTS_DIR / "analysis_summary.csv"
+    write_summary_to_csv(result, summary_path)
+    
+    logger.info("T020 completed successfully")
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

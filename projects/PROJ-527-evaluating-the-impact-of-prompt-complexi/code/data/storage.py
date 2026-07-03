@@ -1,251 +1,210 @@
 """
-Storage module for persisting generated code and metadata.
+Storage module for saving generated code and metadata to Parquet format.
 
-This module implements the persistence layer for the prompt complexity
-evaluation pipeline, writing generated code samples and their associated
-metadata to Parquet format for efficient storage and analysis.
+This module implements the storage layer for User Story 1, writing
+generated code samples and their associated metadata to a Parquet file
+for efficient analysis and downstream processing.
 """
+from __future__ import annotations
 
-import json
-import sys
+import os
 from datetime import datetime
 from pathlib import Path
 from typing import List, Dict, Any, Optional
 
 import pandas as pd
-from pydantic import ValidationError
+from pydantic import BaseModel
 
-# Import from project API surface
-from models.data_models import GeneratedCode, PromptVariant, HumanEvalProblem
-from utils.logger import get_logger, handle_error
-from config import get_config
+from config import Paths
+from models.data_models import GeneratedCode, model_to_dict, ComplexityLabel
+from utils.logger import get_logger
 
 logger = get_logger(__name__)
-config = get_config()
 
 
-def serialize_generated_code(code_obj: GeneratedCode) -> Dict[str, Any]:
-    """
-    Serialize a GeneratedCode Pydantic model to a dictionary for storage.
-
-    Args:
-        code_obj: The GeneratedCode instance to serialize.
-
-    Returns:
-        A dictionary representation suitable for DataFrame conversion.
-    """
-    return {
-        "problem_id": code_obj.problem_id,
-        "prompt_id": code_obj.prompt_id,
-        "complexity_label": code_obj.complexity_label.value,
-        "generated_code": code_obj.generated_code,
-        "generation_timestamp": code_obj.generation_timestamp.isoformat(),
-        "llm_model": code_obj.llm_model,
-        "prompt_token_count": code_obj.prompt_token_count,
-        "structural_element_count": code_obj.structural_element_count,
-        "prompt_text_hash": code_obj.prompt_text_hash,
-        "generation_duration_ms": code_obj.generation_duration_ms,
-        "status": "success"  # Default status for generation stage
-    }
-
-
-def serialize_prompt_variant(variant: PromptVariant) -> Dict[str, Any]:
-    """
-    Serialize a PromptVariant Pydantic model to a dictionary.
-
-    Args:
-        variant: The PromptVariant instance to serialize.
-
-    Returns:
-        A dictionary representation.
-    """
-    return {
-        "problem_id": variant.problem_id,
-        "prompt_id": variant.prompt_id,
-        "complexity_label": variant.complexity_label.value,
-        "prompt_text": variant.prompt_text,
-        "structural_element_count": variant.structural_element_count,
-        "token_count": variant.token_count,
-        "generation_method": variant.generation_method,
-        "created_at": variant.created_at.isoformat() if variant.created_at else datetime.now().isoformat()
-    }
-
-
-def write_variants_to_parquet(
-    generated_codes: List[GeneratedCode],
+def save_variants_to_parquet(
+    variants: List[GeneratedCode],
     output_path: Optional[Path] = None
 ) -> Path:
     """
-    Write a list of GeneratedCode objects to a Parquet file.
-
-    This function aggregates all generated code samples into a single
-    Parquet file for efficient storage and downstream analysis.
-
+    Save a list of GeneratedCode variants to a Parquet file.
+    
     Args:
-        generated_codes: List of GeneratedCode instances to persist.
-        output_path: Optional custom output path. If None, uses config default.
-
+        variants: List of GeneratedCode objects containing prompt variants,
+                 generated code, and metadata.
+        output_path: Optional custom output path. If None, uses the default
+                    path from config: data/processed/prompt_variants.parquet
+    
     Returns:
-        The Path to the written Parquet file.
-
+        Path to the created Parquet file.
+    
     Raises:
-        ValueError: If no generated codes are provided.
-        IOError: If the file cannot be written.
+        ValueError: If the variants list is empty.
+        RuntimeError: If the file write fails.
     """
-    if not generated_codes:
-        logger.warning("No generated codes provided to write_variants_to_parquet")
-        raise ValueError("Cannot write empty list of generated codes")
-
+    if not variants:
+        raise ValueError("Cannot save empty list of variants")
+    
     if output_path is None:
-        output_path = config.OUTPUT_DIR / "prompt_variants.parquet"
-
+        output_path = Paths.data_processed / "prompt_variants.parquet"
+    
     # Ensure parent directory exists
     output_path.parent.mkdir(parents=True, exist_ok=True)
-
-    # Serialize all records
-    records = [serialize_generated_code(code) for code in generated_codes]
-
-    # Convert to DataFrame
+    
+    # Convert Pydantic models to dictionaries
+    records = []
+    for variant in variants:
+        record = model_to_dict(variant)
+        # Add timestamp for reproducibility tracking
+        record['saved_at'] = datetime.utcnow().isoformat()
+        records.append(record)
+    
+    # Create DataFrame
     df = pd.DataFrame(records)
-
-    # Ensure numeric columns are properly typed
-    numeric_columns = [
-        "prompt_token_count",
-        "structural_element_count",
-        "generation_duration_ms"
+    
+    # Ensure consistent column ordering for reproducibility
+    expected_columns = [
+        'problem_id', 'problem_name', 'complexity_label', 'prompt_text',
+        'generated_code', 'token_count', 'structural_element_count',
+        'examples_count', 'constraints_count', 'instructions_count',
+        'state_transition_proxy', 'saved_at'
     ]
-    for col in numeric_columns:
-        if col in df.columns:
-            df[col] = pd.to_numeric(df[col], errors='coerce').fillna(0).astype(int)
-
+    
+    # Reorder columns if they exist, otherwise just use existing order
+    existing_cols = [c for c in expected_columns if c in df.columns]
+    other_cols = [c for c in df.columns if c not in expected_columns]
+    final_columns = existing_cols + other_cols
+    df = df[final_columns]
+    
     # Write to Parquet
-    logger.info(f"Writing {len(df)} records to {output_path}")
     try:
-        df.to_parquet(
-            output_path,
-            engine='pyarrow',
-            index=False,
-            compression='snappy'
-        )
-        logger.info(f"Successfully wrote prompt variants to {output_path}")
+        df.to_parquet(output_path, index=False, engine='pyarrow')
+        logger.info(f"Saved {len(variants)} variants to {output_path}")
     except Exception as e:
         logger.error(f"Failed to write Parquet file: {e}")
-        raise IOError(f"Failed to write Parquet file: {e}")
-
+        raise RuntimeError(f"Failed to save variants to Parquet: {e}")
+    
     return output_path
-
-
-def append_to_variants_parquet(
-    new_codes: List[GeneratedCode],
-    existing_path: Optional[Path] = None
-) -> Path:
-    """
-    Append new generated codes to an existing Parquet file.
-
-    If the file does not exist, creates a new one.
-
-    Args:
-        new_codes: List of new GeneratedCode instances to append.
-        existing_path: Optional path to existing file. Uses config default if None.
-
-    Returns:
-        Path to the updated Parquet file.
-    """
-    if existing_path is None:
-        existing_path = config.OUTPUT_DIR / "prompt_variants.parquet"
-
-    if not new_codes:
-        return existing_path
-
-    if existing_path.exists():
-        # Read existing data
-        existing_df = pd.read_parquet(existing_path)
-        logger.info(f"Loaded {len(existing_df)} existing records from {existing_path}")
-
-        # Serialize new records
-        new_records = [serialize_generated_code(code) for code in new_codes]
-        new_df = pd.DataFrame(new_records)
-
-        # Concatenate
-        combined_df = pd.concat([existing_df, new_df], ignore_index=True)
-        logger.info(f"Combined dataset has {len(combined_df)} records")
-
-        # Write back
-        combined_df.to_parquet(
-            existing_path,
-            engine='pyarrow',
-            index=False,
-            compression='snappy'
-        )
-    else:
-        # Write new file
-        write_variants_to_parquet(new_codes, existing_path)
-
-    return existing_path
 
 
 def load_variants_from_parquet(
     input_path: Optional[Path] = None
 ) -> List[GeneratedCode]:
     """
-    Load generated codes from a Parquet file back into GeneratedCode objects.
-
+    Load generated code variants from a Parquet file.
+    
     Args:
-        input_path: Optional path to Parquet file. Uses config default if None.
-
+        input_path: Optional custom input path. If None, uses the default
+                   path from config: data/processed/prompt_variants.parquet
+    
     Returns:
-        List of GeneratedCode instances.
+        List of GeneratedCode objects.
+    
+    Raises:
+        FileNotFoundError: If the file does not exist.
+        RuntimeError: If the file read fails.
     """
     if input_path is None:
-        input_path = config.OUTPUT_DIR / "prompt_variants.parquet"
-
+        input_path = Paths.data_processed / "prompt_variants.parquet"
+    
     if not input_path.exists():
-        logger.warning(f"Parquet file not found at {input_path}")
-        return []
-
-    df = pd.read_parquet(input_path)
-    records = df.to_dict('records')
-
-    generated_codes = []
-    for record in records:
+        raise FileNotFoundError(f"Parquet file not found: {input_path}")
+    
+    try:
+        df = pd.read_parquet(input_path, engine='pyarrow')
+    except Exception as e:
+        logger.error(f"Failed to read Parquet file: {e}")
+        raise RuntimeError(f"Failed to load variants from Parquet: {e}")
+    
+    variants = []
+    for _, row in df.iterrows():
+        # Convert row dict back to GeneratedCode model
         try:
-            # Convert ISO strings back to datetime
-            if "generation_timestamp" in record and isinstance(record["generation_timestamp"], str):
-                record["generation_timestamp"] = datetime.fromisoformat(record["generation_timestamp"])
-
-            code = GeneratedCode(**record)
-            generated_codes.append(code)
-        except ValidationError as e:
-            logger.error(f"Validation error loading record: {e}")
+            variant = GeneratedCode.model_validate(row.to_dict())
+            variants.append(variant)
+        except Exception as e:
+            logger.warning(f"Failed to parse row: {e}, skipping")
             continue
+    
+    logger.info(f"Loaded {len(variants)} variants from {input_path}")
+    return variants
 
-    logger.info(f"Loaded {len(generated_codes)} records from {input_path}")
-    return generated_codes
+
+def get_variant_counts_by_complexity(
+    variants: List[GeneratedCode]
+) -> Dict[ComplexityLabel, int]:
+    """
+    Count variants grouped by complexity label.
+    
+    Args:
+        variants: List of GeneratedCode objects.
+    
+    Returns:
+        Dictionary mapping complexity labels to counts.
+    """
+    counts = {label: 0 for label in ComplexityLabel}
+    for variant in variants:
+        counts[variant.complexity_label] += 1
+    return counts
 
 
 def main() -> None:
     """
-    Main entry point for storage module testing/demo.
-
-    This function demonstrates the storage functionality by:
-    1. Loading generated codes from the orchestrator output (if available)
-    2. Writing them to Parquet
-    3. Verifying the write by reading back
-
-    Note: This is typically called by the orchestrator after generation.
+    Main entry point for testing the storage module.
+    
+    This function demonstrates the save/load cycle with sample data
+    if no existing data is present.
     """
-    logger.info("Starting storage module main()")
-
-    # Check if we have data from the orchestrator
-    # In a real pipeline, this would receive data from T017 orchestrator
-    # For now, we verify the output path exists and can be written to
-
-    test_path = config.OUTPUT_DIR / "test_storage.parquet"
-    logger.info(f"Storage module ready. Output directory: {config.OUTPUT_DIR}")
-    logger.info(f"Test write path: {test_path}")
-
-    # The actual writing happens when called by orchestrator with GeneratedCode objects
-    logger.info("Storage module initialized. Ready to write prompt_variants.parquet")
+    import sys
+    sys.path.insert(0, str(Path(__file__).parent.parent.parent))
+    
+    from models.data_models import HumanEvalProblem, PromptVariant
+    
+    # Create sample data for demonstration
+    sample_problem = HumanEvalProblem(
+        problem_id="test_001",
+        prompt="Write a function to add two numbers.",
+        test_case="assert add(1, 2) == 3",
+        entry_point="add"
+    )
+    
+    sample_variants = [
+        GeneratedCode(
+            problem_id=sample_problem.problem_id,
+            problem_name="test_001",
+            complexity_label=ComplexityLabel.SIMPLE,
+            prompt_text="Write a function to add two numbers.",
+            generated_code="def add(a, b):\n    return a + b",
+            token_count=15,
+            structural_element_count=1,
+            examples_count=0,
+            constraints_count=0,
+            instructions_count=1,
+            state_transition_proxy=0.5
+        ),
+        GeneratedCode(
+            problem_id=sample_problem.problem_id,
+            problem_name="test_001",
+            complexity_label=ComplexityLabel.MODERATE,
+            prompt_text="Write a function to add two numbers. Ensure it handles integers.",
+            generated_code="def add(a: int, b: int) -> int:\n    return a + b",
+            token_count=25,
+            structural_element_count=2,
+            examples_count=0,
+            constraints_count=1,
+            instructions_count=1,
+            state_transition_proxy=0.6
+        )
+    ]
+    
+    output_path = save_variants_to_parquet(sample_variants)
+    print(f"Saved variants to: {output_path}")
+    
+    loaded_variants = load_variants_from_parquet(output_path)
+    print(f"Loaded {len(loaded_variants)} variants")
+    
+    counts = get_variant_counts_by_complexity(loaded_variants)
+    print(f"Counts by complexity: {counts}")
 
 
 if __name__ == "__main__":

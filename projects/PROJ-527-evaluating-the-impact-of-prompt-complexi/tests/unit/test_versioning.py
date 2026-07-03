@@ -1,114 +1,157 @@
-import json
+"""
+Unit tests for the artifact versioning utility.
+"""
 import os
 import tempfile
+import yaml
 from pathlib import Path
 import pytest
+from unittest.mock import patch, MagicMock
 
 from utils.versioning import (
-    compute_file_hash,
-    generate_version_manifest,
-    update_project_manifest,
+    load_state_file,
+    compute_artifact_checksums,
+    update_state_file,
+    get_state_file_path,
+    record_data_generation_state
 )
-from utils.hash_artifacts import compute_sha256
+from utils.hash_artifacts import calculate_sha256
 
+@pytest.fixture
+def temp_state_dir(tmp_path):
+    """Create a temporary directory for testing state files."""
+    projects_dir = tmp_path / "projects"
+    projects_dir.mkdir()
+    return projects_dir
 
-class TestVersioning:
-    @pytest.fixture
-    def temp_dir(self):
-        with tempfile.TemporaryDirectory() as tmpdir:
-            yield Path(tmpdir)
+@pytest.fixture
+def sample_artifact(tmp_path):
+    """Create a sample artifact file for testing."""
+    artifact = tmp_path / "test_artifact.txt"
+    artifact.write_text("test content for checksum")
+    return artifact
 
-    @pytest.fixture
-    def sample_artifact(self, temp_dir):
-        artifact_path = temp_dir / "sample_data.json"
-        artifact_path.write_text(json.dumps({"key": "value"}))
-        return artifact_path
+def test_load_state_file_existing(temp_state_dir):
+    """Test loading an existing state file."""
+    state_file = temp_state_dir / "test_project.yaml"
+    initial_state = {
+        "project_id": "TEST-001",
+        "state": "initializing",
+        "artifacts": {}
+    }
+    with open(state_file, 'w') as f:
+        yaml.dump(initial_state, f)
+    
+    loaded = load_state_file(state_file)
+    assert loaded["project_id"] == "TEST-001"
+    assert loaded["state"] == "initializing"
 
-    def test_compute_file_hash(self, temp_dir, sample_artifact):
-        """Test that file hash is computed correctly."""
-        expected_hash = compute_sha256(str(sample_artifact))
-        actual_hash = compute_file_hash(sample_artifact)
-        assert actual_hash == expected_hash
-        assert len(actual_hash) == 64  # SHA-256 hex length
+def test_load_state_file_missing(temp_state_dir):
+    """Test loading a non-existent state file returns default structure."""
+    state_file = temp_state_dir / "nonexistent.yaml"
+    loaded = load_state_file(state_file)
+    
+    assert "project_id" in loaded
+    assert "state" in loaded
+    assert "artifacts" in loaded
+    assert "created_at" in loaded
 
-    def test_generate_version_manifest_creates_file(self, temp_dir, sample_artifact):
-        """Test that generate_version_manifest creates a valid YAML file."""
-        output_dir = temp_dir / "state" / "projects"
-        artifacts = [{"path": str(sample_artifact), "hash": compute_file_hash(sample_artifact)}]
+def test_compute_artifact_checksums(sample_artifact):
+    """Test computing checksums for artifacts."""
+    checksums = compute_artifact_checksums([sample_artifact])
+    
+    assert len(checksums) == 1
+    assert str(sample_artifact) in checksums
+    expected_checksum = calculate_sha256(sample_artifact)
+    assert checksums[str(sample_artifact)] == expected_checksum
 
-        manifest_path = generate_version_manifest("TEST-001", artifacts, output_dir)
+def test_compute_artifact_checksums_missing_file():
+    """Test handling of missing files in checksum computation."""
+    missing_path = Path("/nonexistent/path/file.txt")
+    checksums = compute_artifact_checksums([missing_path])
+    
+    assert len(checksums) == 0
 
-        assert manifest_path.exists()
-        assert manifest_path.name == "TEST-001.yaml"
+@patch('utils.versioning.get_project_id')
+@patch('utils.versioning.Paths')
+def test_get_state_file_path(mock_paths, mock_get_project_id, temp_state_dir):
+    """Test constructing the state file path."""
+    mock_get_project_id.return_value = "PROJ-TEST-123"
+    mock_paths.STATE_DIR = temp_state_dir
+    
+    result = get_state_file_path()
+    
+    assert "projects" in str(result)
+    assert "PROJ-TEST-123.yaml" in str(result)
 
-        with open(manifest_path, "r") as f:
-            manifest_data = json.load(f)
+@patch('utils.versioning.get_project_id')
+@patch('utils.versioning.Paths')
+def test_update_state_file(mock_paths, mock_get_project_id, temp_state_dir, sample_artifact):
+    """Test updating state file with new artifacts."""
+    mock_get_project_id.return_value = "PROJ-TEST-456"
+    mock_paths.STATE_DIR = temp_state_dir
+    
+    state_file = temp_state_dir / "projects" / "PROJ-TEST-456.yaml"
+    
+    # Create initial state
+    initial_state = {
+        "project_id": "PROJ-TEST-456",
+        "state": "initializing",
+        "artifacts": {}
+    }
+    with open(state_file, 'w') as f:
+        yaml.dump(initial_state, f)
+    
+    # Update with new artifact
+    updated_state = update_state_file(
+        state_path=state_file,
+        new_artifacts=[sample_artifact],
+        status="data_generated"
+    )
+    
+    assert updated_state["state"] == "data_generated"
+    assert len(updated_state["artifacts"]) == 1
+    assert str(sample_artifact) in updated_state["artifacts"]
+    assert "checksum" in updated_state["artifacts"][str(sample_artifact)]
+    assert "updated_at" in updated_state["artifacts"][str(sample_artifact)]
 
-        assert manifest_data["project_id"] == "TEST-001"
-        assert "artifacts" in manifest_data
-        assert len(manifest_data["artifacts"]) == 1
-        assert manifest_data["artifacts"][0]["path"] == str(sample_artifact)
-        assert "generated_at" in manifest_data
+@patch('utils.versioning.get_state_file_path')
+@patch('utils.versioning.update_state_file')
+def test_record_data_generation_state(mock_update, mock_get_path, temp_state_dir, sample_artifact):
+    """Test the convenience function for recording data generation state."""
+    mock_get_path.return_value = temp_state_dir / "test.yaml"
+    mock_update.return_value = {"status": "success"}
+    
+    result = record_data_generation_state(
+        generated_files=[sample_artifact],
+        status="data_generated"
+    )
+    
+    mock_update.assert_called_once()
+    assert result == {"status": "success"}
 
-    def test_update_project_manifest_adds_new_artifact(self, temp_dir, sample_artifact):
-        """Test that update_project_manifest adds a new artifact to existing manifest."""
-        output_dir = temp_dir / "state" / "projects"
-        output_dir.mkdir(parents=True, exist_ok=True)
-
-        # First, create a manifest with one artifact
-        artifacts = [{"path": str(sample_artifact), "hash": compute_file_hash(sample_artifact)}]
-        generate_version_manifest("TEST-002", artifacts, output_dir)
-
-        # Create a second artifact
-        second_artifact = temp_dir / "second_data.json"
-        second_artifact.write_text(json.dumps({"another": "value"}))
-
-        # Update manifest with second artifact
-        manifest_path = update_project_manifest("TEST-002", second_artifact, output_dir)
-
-        assert manifest_path.exists()
-        with open(manifest_path, "r") as f:
-            manifest_data = json.load(f)
-
-        assert len(manifest_data["artifacts"]) == 2
-        paths = [a["path"] for a in manifest_data["artifacts"]]
-        assert str(sample_artifact) in paths
-        assert str(second_artifact) in paths
-
-    def test_update_project_manifest_updates_existing_artifact(self, temp_dir, sample_artifact):
-        """Test that update_project_manifest updates an existing artifact's hash."""
-        output_dir = temp_dir / "state" / "projects"
-        output_dir.mkdir(parents=True, exist_ok=True)
-
-        # Create manifest
-        artifacts = [{"path": str(sample_artifact), "hash": compute_file_hash(sample_artifact)}]
-        generate_version_manifest("TEST-003", artifacts, output_dir)
-
-        # Modify the artifact
-        sample_artifact.write_text(json.dumps({"key": "modified_value"}))
-
-        # Update manifest
-        manifest_path = update_project_manifest("TEST-003", sample_artifact, output_dir)
-
-        with open(manifest_path, "r") as f:
-            manifest_data = json.load(f)
-
-        assert len(manifest_data["artifacts"]) == 1
-        updated_hash = manifest_data["artifacts"][0]["hash"]
-        expected_hash = compute_sha256(str(sample_artifact))
-        assert updated_hash == expected_hash
-
-    def test_update_project_manifest_creates_new_if_missing(self, temp_dir, sample_artifact):
-        """Test that update_project_manifest creates a new manifest if none exists."""
-        output_dir = temp_dir / "state" / "projects"
-        output_dir.mkdir(parents=True, exist_ok=True)
-
-        manifest_path = update_project_manifest("TEST-004", sample_artifact, output_dir)
-
-        assert manifest_path.exists()
-        with open(manifest_path, "r") as f:
-            manifest_data = json.load(f)
-
-        assert manifest_data["project_id"] == "TEST-004"
-        assert len(manifest_data["artifacts"]) == 1
-        assert manifest_data["artifacts"][0]["path"] == str(sample_artifact)
+@patch('utils.versioning.get_project_id')
+@patch('utils.versioning.Paths')
+def test_update_state_file_with_metadata(mock_paths, mock_get_project_id, temp_state_dir):
+    """Test updating state file with metadata updates."""
+    mock_get_project_id.return_value = "PROJ-META-789"
+    mock_paths.STATE_DIR = temp_state_dir
+    
+    state_file = temp_state_dir / "projects" / "PROJ-META-789.yaml"
+    
+    # Create initial state with metadata
+    initial_state = {
+        "project_id": "PROJ-META-789",
+        "metadata": {"existing_key": "existing_value"}
+    }
+    with open(state_file, 'w') as f:
+        yaml.dump(initial_state, f)
+    
+    # Update with metadata
+    updated_state = update_state_file(
+        state_path=state_file,
+        metadata_updates={"new_key": "new_value", "existing_key": "updated_value"}
+    )
+    
+    assert updated_state["metadata"]["new_key"] == "new_value"
+    assert updated_state["metadata"]["existing_key"] == "updated_value"

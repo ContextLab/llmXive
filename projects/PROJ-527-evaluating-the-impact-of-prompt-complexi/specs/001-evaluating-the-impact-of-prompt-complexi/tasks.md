@@ -44,7 +44,7 @@
 **Purpose**: Resolve critical contradictions between Spec and Plan before implementation begins.
 **⚠️ CRITICAL GATE**: This phase MUST complete successfully before Phase 1 (Setup) begins. **Verification Step**: After T001, verify `spec.md` content matches `plan.md` requirements (FR-005: LMM, FR-012: prompt token count). If verification fails, halt execution.
 
-- [ ] T001 [P] **Apply Spec Amendments**: Create and apply a unified diff patch `spec_amendments.patch` to update `spec.md` with the following changes: <!-- FAILED: unspecified --> <!-- ATOMIZE: requested -->
+- [ ] T001 [P] **Apply Spec Amendments**: Create and apply a unified diff patch `spec_amendments.patch` to update `spec.md` with the following changes: <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
  1. Update FR-005 to mandate **Linear Mixed Models (LMM)** instead of ANOVA/Kruskal-Wallis (aligning with Plan.md).
  2. Update FR-012 to mandate **'prompt token count'** as the covariate for readability metrics instead of 'code length' (aligning with Plan.md).
  3. Update US-1 Acceptance Scenario 3 and US-3 Acceptance Scenario 4 to link structural element count failures to 'manual review' flagging.
@@ -71,7 +71,7 @@
 - [X] T004 [P] Configure linting and formatting tools (ruff) and pytest in `pyproject.toml`
 - [X] T005 Setup data directory structure `data/raw/`, `data/processed/`, `data/results/` and implement `code/utils/hash_artifacts.py` for SHA-256 checksumming
 - [X] T006 [P] Implement configuration management in `code/config.py` with fixed random seeds, paths, and API keys
-- [~] T007 [P] Setup error handling and logging infrastructure in `code/utils/logger.py`
+- [ ] T007 [P] Setup error handling and logging infrastructure in `code/utils/logger.py`
 - [~] T008 Create base data models (Pydantic) for `HumanEvalProblem`, `PromptVariant`, `GeneratedCode`, `AnalysisResult` in `code/models/data_models.py`
 - [~] T009 Implement artifact versioning utility to update `state/projects/PROJ-527-evaluating-the-impact-of-prompt-complexi.yaml` after data generation, deriving the filename from the project ID.
 - [~] T010 [P] Setup CPU-tractable LLM client wrapper in `code/llm/client.py` supporting HuggingFace Inference API with fallback to local GGUF (CPU only, no CUDA). This task implements the HTTP/GGUF client interface only.
@@ -124,8 +124,8 @@
 - [~] T023 [P] [US2] Implement `code/execution/runner.py` to execute generated code with a configurable timeout per test case using `subprocess` or `pytest` isolation.
 - [~] T024 [US2] Implement exception handling in `runner.py` to mark samples as failed on syntax errors or runtime exceptions, logging error types.
 - [~] T025 [US2] Implement timeout handling in `runner.py` to mark problems as failed if execution exceeds a predefined time threshold.
-- [ ] T026 [US2] Implement `code/execution/static_analysis.py` to run `ruff` on generated code and extract cyclomatic complexity, lines of code, and indentation consistency.
-- [ ] T027 [P] [US2] **Document Validation Sources**: Implement documentation of validation sources (McCabe, standard literature) for the readability metrics extracted in T026, satisfying FR-008's requirement for citable validation. Add comments in `static_analysis.py` and entries in `research.md`.
+- [~] T026 [US2] Implement `code/execution/static_analysis.py` to run `ruff` on generated code and extract cyclomatic complexity, lines of code, and indentation consistency.
+- [~] T027 [P] [US2] **Document Validation Sources**: Implement documentation of validation sources (McCabe, standard literature) for the readability metrics extracted in T026, satisfying FR-008's requirement for citable validation. Add comments in `static_analysis.py` and entries in `research.md`.
 - [ ] T028 [US2] Implement aggregation logic in `code/analysis/aggregator.py` to calculate pass rates per complexity level (pass count / total count).
 - [ ] T029 [US2] Implement security vulnerability flagging in `static_analysis.py` (e.g., hardcoded credentials, eval usage) to mark samples for manual review without failing the test.
 - [ ] T030 [US2] Write execution results to `data/results/execution_outcomes.csv` with pass/fail counts, exception types, and static analysis scores.

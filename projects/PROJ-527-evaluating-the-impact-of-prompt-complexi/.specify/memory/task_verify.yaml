@@ -1,7 +1,12 @@
 ? 'T001 [P] **Apply Spec Amendments**: Create and apply a unified diff patch `spec_amendments.patch`
   to update `spec.md` with the following changes: <!-- FAILED: unspecified -->'
-: 2
+: 1
 ? 'T001 [P] **Apply Spec Amendments**: Create and apply a unified diff patch `spec_amendments.patch`
   to update `spec.md` with the following changes: <!-- FAILED: unspecified --> <!--
-  ATOMIZE: requested -->'
+  FAILED: unspecified -->'
 : 1
+? 'T001 [P] **Apply Spec Amendments**: Create and apply a unified diff patch `spec_amendments.patch`
+  to update `spec.md` with the following changes: <!-- FAILED: unspecified --> <!--
+  FAILED: unspecified --> <!-- FAILED: unspecified -->'
+: 1
+T007 [P] Setup error handling and logging infrastructure in `code/utils/logger.py`: 2

@@ -6,7 +6,7 @@ failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-527-evaluating-the-impact-of-prompt-complexi
-last_run_id: 5110627d-3a24-4ff0-ab3a-7cc4ed44b1a7
+last_run_id: 0f012c59-f283-4fd6-832a-2f0a15f8e91d
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-527-evaluating-the-impact-of-prompt-complexi/specs/001-evaluating-the-impact-of-prompt-complexi
 title: Evaluating the Impact of Prompt Complexity on LLM Code Generation Performance
-updated_at: '2026-07-02T22:58:41.674825Z'
+updated_at: '2026-07-02T23:49:14.440840Z'
