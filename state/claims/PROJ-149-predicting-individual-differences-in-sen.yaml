@@ -1,0 +1,310 @@
+- artifact_path: projects/PROJ-149-predicting-individual-differences-in-sen/specs/001-predicting-individual-differences-in-sen/tasks.md
+  attempts: 1
+  canonical: reject channels with variance greater than 3 standard deviations; drop
+    participants with more than 30% channels rejected
+  claim_id: c_9e55f317
+  context: 'T010 [US1] Implement code/02_preprocess_eeg.py: Apply 1-40Hz band-pass,
+    50/60Hz notch, reject channels >3SD variance, and implement participant exclusion
+    logic (drop if >30% channels rejected) (FR-002).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Reject_channels_with_variance_greater_than_3_standard_deviat
+  kind: magnitude
+  raw_text: Apply 1-40Hz band-pass, 50/60Hz notch, reject channels >3SD variance,
+    and implement participant exclusion logic (drop if >30% channels rejected)
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T23:43:12Z'
+- artifact_path: projects/PROJ-149-predicting-individual-differences-in-sen/specs/001-predicting-individual-differences-in-sen/tasks.md
+  attempts: 1
+  canonical: exclude reaction time outliers less than 100ms or greater than 2000ms;
+    exclude participants with fewer than 70% of trials remaining
+  claim_id: c_9fd3d032
+  context: 'T013 [US1] Implement behavioral parsing: extract median RT, exclude outliers
+    (<100ms, >2000ms), exclude participants if <70% trials remain (FR-004).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Exclude_reaction_time_outliers_less_than_100ms_or_greater_th
+  kind: magnitude
+  raw_text: exclude outliers (<100ms, >2000ms), exclude participants if <70% trials
+    remain
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T23:43:53Z'
+- artifact_path: projects/PROJ-149-predicting-individual-differences-in-sen/specs/001-predicting-individual-differences-in-sen/tasks.md
+  attempts: 1
+  canonical: compute Welch power spectral density on 5-minute epochs using 4-second
+    windows with 2-second overlap
+  claim_id: c_5af6be02
+  context: 'T012 [US1] Implement code/03_extract_features.py: Compute Welch''s PSD
+    on continuous 5-minute epochs using 4-second windows with [deferred] overlap (2s)
+    and aggregate power into delta, theta, alpha, low-beta, high-beta, and gamma bands
+    (FR-003).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Compute Welch's PSD on continuous 5-minute epochs using 4-second windows
+    with [deferred] overlap (2s)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T23:44:30Z'
+- artifact_path: projects/PROJ-149-predicting-individual-differences-in-sen/specs/001-predicting-individual-differences-in-sen/tasks.md
+  attempts: 1
+  canonical: apply Bonferroni correction for 6 bands resulting in a significance threshold
+    of 0.0083
+  claim_id: c_8096840a
+  context: T021 [US2] Apply Bonferroni correction for 6 bands (0.05/6 = 0.0083) as
+    per Spec FR-006 and flag significant results.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Apply Bonferroni correction for 6 bands (0.05/6 = 0.0083)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T23:45:01Z'
+- artifact_path: projects/PROJ-149-predicting-individual-differences-in-sen/specs/001-predicting-individual-differences-in-sen/tasks.md
+  attempts: 1
+  canonical: primary analysis uses 4-second windows and robustness check uses 2-second
+    windows
+  claim_id: c_4ac23024
+  context: 'NOTE: Primary analysis uses 4-second windows (Spec FR-003); robustness
+    check uses 2-second windows (Spec FR-008).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Primary analysis uses 4-second windows; robustness check uses 2-second
+    windows
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T23:45:54Z'
+- artifact_path: projects/PROJ-149-predicting-individual-differences-in-sen/specs/001-predicting-individual-differences-in-sen/tasks.md
+  attempts: 1
+  canonical: Dataset source is PhysioNet EEG Motor Movement/Imagery data
+  claim_id: c_8b169831
+  context: T007 Create code/01_download_data.py to fetch PhysioNet EEG Motor Movement/Imagery
+    data and verify checksums
+  evidence:
+    entailment_evidence: Dataset source is PhysioNet EEG Motor Movement/Imagery data
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Dataset_source_is_PhysioNet_EEG_Motor_Movement/Imagery_data
+  kind: entity_fact
+  raw_text: The dataset used is the PhysioNet EEG Motor Movement/Imagery data.
+  resolved_value: Dataset source is PhysioNet EEG Motor Movement/Imagery data
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-03T00:05:48Z'
+- artifact_path: projects/PROJ-149-predicting-individual-differences-in-sen/specs/001-predicting-individual-differences-in-sen/tasks.md
+  attempts: 1
+  canonical: Bonferroni correction threshold for 6 bands is 0.0083
+  claim_id: c_520ae13e
+  context: T021 Apply Bonferroni correction for 6 bands (0.05/6 = 0.0083) as per Spec
+    FR-006 and flag significant results.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Bonferroni correction is applied for 6 bands with a threshold of 0.05/6
+    = 0.0083.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T00:11:52Z'
+- artifact_path: projects/PROJ-149-predicting-individual-differences-in-sen/specs/001-predicting-individual-differences-in-sen/tasks.md
+  attempts: 1
+  canonical: "Power analysis targets R\xB2 of 0.10 with power of at least 0.80"
+  claim_id: c_a1b67803
+  context: "T023 Perform post-hoc power analysis to estimate the required sample size\
+    \ (N) for R\xB2=0.10 with power \u2265 0.80 and report in results"
+  evidence:
+    candidates:
+    - - ''
+      - 0.8
+    - - ''
+      - 0.1
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Power_analysis_targets_R%C2%B2_of_0.10_with_power_of_at_least_0.8
+  kind: magnitude
+  raw_text: "The post-hoc power analysis estimates the required sample size for an\
+    \ R\xB2 of 0.10 with power \u2265 0.80."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-07-03T00:13:58Z'
+- artifact_path: projects/PROJ-149-predicting-individual-differences-in-sen/specs/001-predicting-individual-differences-in-sen/tasks.md
+  attempts: 1
+  canonical: Primary analysis uses 4-second windows
+  claim_id: c_3d8c4750
+  context: 'T012 Implement code/03_extract_features.py: Compute Welch''s PSD on continuous
+    5-minute epochs using 4-second windows'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The primary analysis uses 4-second windows for feature extraction.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T00:15:05Z'
+- artifact_path: projects/PROJ-149-predicting-individual-differences-in-sen/specs/001-predicting-individual-differences-in-sen/tasks.md
+  attempts: 1
+  canonical: Robustness check uses 2-second windows
+  claim_id: c_70336a1f
+  context: 'T026 Implement code/05_robustness_analysis.py: Re-run pipeline with shorter
+    time windows (vs primary 4s) and without ICA cleaning'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The robustness check analysis uses 2-second windows.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T00:16:23Z'
+- artifact_path: projects/PROJ-149-predicting-individual-differences-in-sen/specs/001-predicting-individual-differences-in-sen/tasks.md
+  attempts: 1
+  canonical: Participant exclusion threshold is 30% channel rejection
+  claim_id: c_b3c55682
+  context: 'T010 Implement code/02_preprocess_eeg.py: Apply 1-40Hz band-pass, 50/60Hz
+    notch, reject channels >3SD variance, and implement participant exclusion logic
+    (drop if >30% channels rejected)'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Participant_exclusion_threshold_is_30%25_channel_rejection
+  kind: magnitude
+  raw_text: Participants are excluded if more than 30% of channels are rejected during
+    preprocessing.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T00:17:56Z'
+- artifact_path: projects/PROJ-149-predicting-individual-differences-in-sen/specs/001-predicting-individual-differences-in-sen/tasks.md
+  attempts: 1
+  canonical: Reaction time outliers defined as <100ms or >2000ms
+  claim_id: c_2be18886
+  context: 'T013 Implement behavioral parsing: extract median RT, exclude outliers
+    (<100ms, >2000ms), exclude participants if <70% trials remain'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Reaction_time_outliers_defined_as_%3C100ms_or_%3E2000ms
+  kind: magnitude
+  raw_text: Behavioral outliers are defined as reaction times less than 100ms or greater
+    than 2000ms.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T00:19:02Z'
+- artifact_path: projects/PROJ-149-predicting-individual-differences-in-sen/specs/001-predicting-individual-differences-in-sen/tasks.md
+  attempts: 1
+  canonical: Participant exclusion threshold is 70% trial retention
+  claim_id: c_b1c05242
+  context: 'T013 Implement behavioral parsing: extract median RT, exclude outliers
+    (<100ms, >2000ms), exclude participants if <70% trials remain'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Participant_exclusion_threshold_is_70%25_trial_retention
+  kind: magnitude
+  raw_text: Participants are excluded from behavioral analysis if fewer than 70% of
+    trials remain after outlier removal.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T00:20:14Z'
+- artifact_path: projects/PROJ-149-predicting-individual-differences-in-sen/specs/001-predicting-individual-differences-in-sen/tasks.md
+  attempts: 1
+  canonical: EEG band-pass filter range is 1-40Hz
+  claim_id: c_37f94960
+  context: 'T010 Implement code/02_preprocess_eeg.py: Apply 1-40Hz band-pass, 50/60Hz
+    notch, reject channels >3SD variance'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The EEG preprocessing includes a 1-40Hz band-pass filter.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T00:21:10Z'
+- artifact_path: projects/PROJ-149-predicting-individual-differences-in-sen/specs/001-predicting-individual-differences-in-sen/tasks.md
+  attempts: 1
+  canonical: EEG notch filter frequencies are 50Hz and 60Hz
+  claim_id: c_9558badf
+  context: 'T010 Implement code/02_preprocess_eeg.py: Apply 1-40Hz band-pass, 50/60Hz
+    notch, reject channels >3SD variance'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The EEG preprocessing includes a 50/60Hz notch filter.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T00:22:02Z'
+- artifact_path: projects/PROJ-149-predicting-individual-differences-in-sen/specs/001-predicting-individual-differences-in-sen/tasks.md
+  attempts: 1
+  canonical: Channel rejection threshold is 3 standard deviations
+  claim_id: c_93d0d7d7
+  context: 'T010 Implement code/02_preprocess_eeg.py: Apply 1-40Hz band-pass, 50/60Hz
+    notch, reject channels >3SD variance'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Channel_rejection_threshold_is_3_standard_deviations
+  kind: magnitude
+  raw_text: Channel rejection is based on variance greater than 3 standard deviations.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T00:22:52Z'
+- artifact_path: projects/PROJ-149-predicting-individual-differences-in-sen/specs/001-predicting-individual-differences-in-sen/tasks.md
+  attempts: 1
+  canonical: Welch's PSD computed on 5-minute epochs
+  claim_id: c_7fb1fac5
+  context: 'T012 Implement code/03_extract_features.py: Compute Welch''s PSD on continuous
+    5-minute epochs using 4-second windows'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Welch's PSD is computed on continuous 5-minute epochs.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T00:23:47Z'

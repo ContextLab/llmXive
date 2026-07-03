@@ -20,32 +20,32 @@
 - **Mobile**: `api/src/`, `ios/src/` or `android/src/`
 - Paths shown below assume single project - adjust based on plan.md structure
 
-<!-- 
-  ============================================================================
-  IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-  
-  The /speckit-tasks command MUST replace these with actual tasks based on:
-  - User stories from spec.md (with their priorities P1, P2, P3...)
-  - Feature requirements from plan.md
-  - Entities from data-model.md
-  - Endpoints from contracts/
-  
-  Tasks MUST be organized by user story so each story can be:
-  - Implemented independently
-  - Tested independently
-  - Delivered as an MVP increment
-  
-  DO NOT keep these sample tasks in the generated tasks.md file.
-  ============================================================================
+<!--
+ ============================================================================
+ IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
+
+ The /speckit-tasks command MUST replace these with actual tasks based on:
+ - User stories from spec.md (with their priorities P1, P2, P3...)
+ - Feature requirements from plan.md
+ - Entities from data-model.md
+ - Endpoints from contracts/
+
+ Tasks MUST be organized by user story so each story can be:
+ - Implemented independently
+ - Tested independently
+ - Delivered as an MVP increment
+
+ DO NOT keep these sample tasks in the generated tasks.md file.
+ ============================================================================
 -->
 
 ## Phase 1: Setup (Shared Infrastructure)
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project directory structure (`code/`, `tests/`, `data/raw/`, `data/interim/`, `data/processed/`, `code/utils/`)
-- [ ] T002 Initialize `requirements.txt` with pinned versions (mne, scikit-learn, pandas, numpy, scipy, matplotlib, seaborn, pyyaml)
-- [ ] T003 [P] Configure linting (flake8/black) and formatting tools
+- [X] T001 Create project directory structure (`code/`, `tests/`, `data/raw/`, `data/interim/`, `data/processed/`, `code/utils/`)
+- [X] T002 Initialize `requirements.txt` with pinned versions (mne, scikit-learn, pandas, numpy, scipy, matplotlib, seaborn, pyyaml)
+- [X] T003 [P] Configure linting (flake8/black) and formatting tools
 
 ---
 
@@ -55,13 +55,13 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 Create `code/config.py` to define constants (paths, filter params, seeds, band definitions)
+- [X] T004 Create `code/config.py` to define constants (paths, filter params, seeds, band definitions)
 - [ ] T005 [P] Implement `code/utils/eeg_helpers.py` with band-pass, notch, and variance rejection utilities
-- [ ] T006 [P] Implement `code/utils/stats_helpers.py` with Bonferroni, permutation, and MDES utilities
+- [X] T006 [P] Implement `code/utils/stats_helpers.py` with Bonferroni, permutation, and MDES utilities
 - [ ] T007 Create `code/01_download_data.py` to fetch PhysioNet EEG Motor Movement/Imagery data and verify checksums (FR-001)
 - [ ] T008a [P] Create `code/00_feasibility_check_join.py` to join EEG and RT datasets on `participant_id` and validate demographic metadata (Phase 0.5 Gate Part 1). **Exit Condition**: If join fails or datasets incompatible, exit with code 1 and generate `data/processed/feasibility_report.md`. **Must run after T007 completes**.
 - [ ] T008b [P] Create `code/00_feasibility_check_report.py` to generate `data/processed/feasibility_report.md` based on join results if T008a fails (Phase 0.5 Gate Part 2). **Must run after T008a completes**.
-- [ ] T009 Setup environment configuration management and random seed pinning
+- [~] T009 Setup environment configuration management and random seed pinning
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -75,9 +75,9 @@
 
 ### Implementation for User Story 1
 
-- [ ] T010 [US1] Implement `code/02_preprocess_eeg.py`: Apply 1-40Hz band-pass, 50/60Hz notch, reject channels >3SD variance, and implement participant exclusion logic (drop if >30% channels rejected) (FR-002). **Must run after T007 completes**.
-- [ ] T010b [US1] Implement ICA cleaning in `code/02_preprocess_eeg.py` to remove ocular/muscle artifacts (Constitution Principle VI). **Must run after T010 completes and before T012 starts**.
-- [ ] T012 [US1] Implement `code/03_extract_features.py`: Compute Welch's PSD on continuous 5-minute epochs using **4-second windows** with **[deferred] overlap (2s)** and aggregate power into delta, theta, alpha, low-beta, high-beta, and gamma bands (FR-003). **Must run after T010b completes**.
+- [~] T010 [US1] Implement `code/02_preprocess_eeg.py`: Apply 1-40Hz band-pass, 50/60Hz notch, reject channels >3SD variance, and implement participant exclusion logic (drop if >30% channels rejected) (FR-002). **Must run after T007 completes**.
+- [~] T010b [US1] Implement ICA cleaning in `code/02_preprocess_eeg.py` to remove ocular/muscle artifacts (Constitution Principle VI). **Must run after T010 completes and before T012 starts**.
+- [~] T012 [US1] Implement `code/03_extract_features.py`: Compute Welch's PSD on continuous 5-minute epochs using **4-second windows** with **[deferred] overlap (2s)** and aggregate power into delta, theta, alpha, low-beta, high-beta, and gamma bands (FR-003). **Must run after T010b completes**.
 - [ ] T013 [US1] Implement behavioral parsing: extract median RT, exclude outliers (<100ms, >2000ms), exclude participants if <70% trials remain (FR-004). **Must run after T010b completes**.
 - [ ] T015 [US1] Implement relative power calculation (band/total) for all bands to control for total power confound (FR-010). Consume `data/processed/features_raw.csv` (from T012/T013 merge) and produce `data/processed/features.csv`. **Must run after T012 and T013 complete**.
 - [ ] T016 [US1] Validate schema of `data/processed/features.csv` (no nulls, correct columns, valid RT range). **Must run after T015 completes**.
@@ -145,8 +145,8 @@
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
-  - User stories can then proceed in parallel (if staffed)
-  - Or sequentially in priority order (P1 → P2 → P3)
+ - User stories can then proceed in parallel (if staffed)
+ - Or sequentially in priority order (P1 → P2 → P3)
 - **Reporting (Phase 6)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
@@ -194,9 +194,9 @@ With multiple developers:
 
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
-   - Developer A: User Story 1
-   - Developer B: User Story 2 (once US1 data ready)
-   - Developer C: User Story 3 (once US2 results ready)
+ - Developer A: User Story 1
+ - Developer B: User Story 2 (once US1 data ready)
+ - Developer C: User Story 3 (once US2 results ready)
 3. Stories complete and integrate independently
 
 ---
