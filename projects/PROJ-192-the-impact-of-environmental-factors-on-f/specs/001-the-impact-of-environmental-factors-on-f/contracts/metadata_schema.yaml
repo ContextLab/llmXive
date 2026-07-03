@@ -1,0 +1,18 @@
+$schema: "https://json-schema.org/draft/2020-12/schema"
+title: "Environmental Metadata Schema"
+type: "object"
+properties:
+  sample_id:
+    type: "string"
+    description: "Unique identifier matching a raw‑seq sample."
+  study_id:
+    type: "string"
+    description: "Identifier of the source study (e.g., SRI accession)."
+  pH:
+    type: "number"
+    description: "SOil pH"
+  nitrogen:
+    type: "number"
+    description: "Total    
+
+
