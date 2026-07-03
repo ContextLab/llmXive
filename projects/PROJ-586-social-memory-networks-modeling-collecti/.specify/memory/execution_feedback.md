@@ -25,46 +25,64 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 
 - python code/run_experiment.py --context full --agents 5 --games 1000 -> rc=1
     Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/run_experiment.py", line 26, in <module>
-    from memory.buffer import MemoryBuffer, get_shared_buffer, reset_shared_buffer
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/memory/__init__.py", line 5, in <module>
-    from .buffer import (
-ImportError: cannot import name 'reset_shared_memory_buffer' from 'memory.buffer' (/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/memory/buffer.py)
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/run_experiment.py", line 365, in <module>
+    sys.exit(main())
+             ^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/run_experiment.py", line 347, in main
+    write_results_csv(results, output_path)
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/run_experiment.py", line 256, in write_results_csv
+    "retrieval_efficiency": f"{r.retrieval_efficiency:.6f}",
+                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: unsupported format string passed to RetrievalMetrics.__format__
 - python code/run_experiment.py --context limited --agents 5 --games 1000 -> rc=1
     Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/run_experiment.py", line 26, in <module>
-    from memory.buffer import MemoryBuffer, get_shared_buffer, reset_shared_buffer
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/memory/__init__.py", line 5, in <module>
-    from .buffer import (
-ImportError: cannot import name 'reset_shared_memory_buffer' from 'memory.buffer' (/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/memory/buffer.py)
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/run_experiment.py", line 365, in <module>
+    sys.exit(main())
+             ^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/run_experiment.py", line 347, in main
+    write_results_csv(results, output_path)
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/run_experiment.py", line 256, in write_results_csv
+    "retrieval_efficiency": f"{r.retrieval_efficiency:.6f}",
+                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: unsupported format string passed to RetrievalMetrics.__format__
 - python code/run_experiment.py --context full --agents 3,5,7 --games 800 --plot scaling -> rc=1
     Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/run_experiment.py", line 26, in <module>
-    from memory.buffer import MemoryBuffer, get_shared_buffer, reset_shared_buffer
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/memory/__init__.py", line 5, in <module>
-    from .buffer import (
-ImportError: cannot import name 'reset_shared_memory_buffer' from 'memory.buffer' (/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/memory/buffer.py)
-- python code/run_experiment.py --context limited --agents 5 --games 1000 --thresholds 128,256,512 -> rc=1
-    Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/run_experiment.py", line 26, in <module>
-    from memory.buffer import MemoryBuffer, get_shared_buffer, reset_shared_buffer
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/memory/__init__.py", line 5, in <module>
-    from .buffer import (
-ImportError: cannot import name 'reset_shared_memory_buffer' from 'memory.buffer' (/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/memory/buffer.py)
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/run_experiment.py", line 365, in <module>
+    sys.exit(main())
+             ^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/run_experiment.py", line 347, in main
+    write_results_csv(results, output_path)
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/run_experiment.py", line 256, in write_results_csv
+    "retrieval_efficiency": f"{r.retrieval_efficiency:.6f}",
+                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: unsupported format string passed to RetrievalMetrics.__format__
+- python code/run_experiment.py --context limited --agents 5 --games 1000 --thresholds 128,256,512 -> rc=2
+    usage: run_experiment.py [-h] [--context {full,limited}] [--agents AGENTS]
+                         [--games GAMES] [--output-dir OUTPUT_DIR]
+                         [--seed SEED] [--plot {scaling,None}]
+run_experiment.py: error: unrecognized arguments: --thresholds 128,256,512
 - python code/run_experiment.py --context full --agents 5 --games 100 --seed 42 -> rc=1
     Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/run_experiment.py", line 26, in <module>
-    from memory.buffer import MemoryBuffer, get_shared_buffer, reset_shared_buffer
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/memory/__init__.py", line 5, in <module>
-    from .buffer import (
-ImportError: cannot import name 'reset_shared_memory_buffer' from 'memory.buffer' (/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/memory/buffer.py)
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/run_experiment.py", line 365, in <module>
+    sys.exit(main())
+             ^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/run_experiment.py", line 347, in main
+    write_results_csv(results, output_path)
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/run_experiment.py", line 256, in write_results_csv
+    "retrieval_efficiency": f"{r.retrieval_efficiency:.6f}",
+                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: unsupported format string passed to RetrievalMetrics.__format__
 - python code/run_experiment.py --context full --agents 5 --games 100 --seed 42 -> rc=1
     Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/run_experiment.py", line 26, in <module>
-    from memory.buffer import MemoryBuffer, get_shared_buffer, reset_shared_buffer
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/memory/__init__.py", line 5, in <module>
-    from .buffer import (
-ImportError: cannot import name 'reset_shared_memory_buffer' from 'memory.buffer' (/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/memory/buffer.py)
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/run_experiment.py", line 365, in <module>
+    sys.exit(main())
+             ^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/run_experiment.py", line 347, in main
+    write_results_csv(results, output_path)
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/run_experiment.py", line 256, in write_results_csv
+    "retrieval_efficiency": f"{r.retrieval_efficiency:.6f}",
+                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: unsupported format string passed to RetrievalMetrics.__format__
 
 ## ⚠ SHARED-MODULE CONTRACT — fix the DEFINITION, tolerant of ALL callers
 
@@ -81,7 +99,7 @@ Make `__getattr__` in `code/utils/logging.py` accept ALL of the above.
 
 ### `compute_retrieval_efficiency` — defined in `code/t015_generate_full_results.py`; called 20 way(s):
 
-- code/run_experiment.py: ret_eff, ret_metrics = compute_retrieval_efficiency(
+- code/run_experiment.py: ret_eff, _ = compute_retrieval_efficiency(
 - code/t015_generate_full_results.py: 1. compute_retrieval_efficiency(retrieved, total, agents)
 - code/t015_generate_full_results.py: 2. compute_retrieval_efficiency(agent_count, game_id) - legacy
 - code/t015_generate_full_results.py: 3. compute_retrieval_efficiency(retrieved=..., total=..., agents=...) - keyword
@@ -106,7 +124,7 @@ Make `compute_retrieval_efficiency` in `code/t015_generate_full_results.py` acce
 
 ### `compute_specialization_index` — defined in `code/t015_generate_full_results.py`; called 14 way(s):
 
-- code/run_experiment.py: spec_idx, spec_metrics = compute_specialization_index(
+- code/run_experiment.py: spec_idx, _ = compute_specialization_index(counts, num_agents=agent_count)
 - code/t015_generate_full_results.py: 1. compute_specialization_index(agent_list) - agent_list is a list
 - code/t015_generate_full_results.py: 2. compute_specialization_index(agent_list, num_agents=N)
 - code/t015_generate_full_results.py: 3. compute_specialization_index(agent_count, game_id) - legacy
@@ -123,7 +141,7 @@ Make `compute_retrieval_efficiency` in `code/t015_generate_full_results.py` acce
 
 Make `compute_specialization_index` in `code/t015_generate_full_results.py` accept ALL of the above.
 
-### `get_logger` — defined in `code/utils/logging.py`; called 11 way(s):
+### `get_logger` — defined in `code/utils/logging.py`; called 13 way(s):
 
 - code/run_experiment.py: logger = get_logger(__name__)
 - code/output_full_results.py: logger = get_logger(__name__)
@@ -134,6 +152,8 @@ Make `compute_specialization_index` in `code/t015_generate_full_results.py` acce
 - code/utils/tests/test_logging.py: logger2 = get_logger(name="existing_logger")
 - code/analysis/anova.py: logger = get_logger(__name__)
 - code/analysis/sensitivity.py: logger = get_logger(__name__)
+- code/memory/buffer.py: logger = get_logger(__name__)
+- code/memory/buffer.py: self._logger = get_logger(__name__)
 - code/tests/unit/test_logging.py: logger1 = get_logger(name="test1")
 - code/tests/unit/test_logging.py: logger2 = get_logger(name="test2")
 

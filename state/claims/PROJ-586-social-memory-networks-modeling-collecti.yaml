@@ -7452,3 +7452,176 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-03T03:01:14Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: produce plot of specialization index and retrieval efficiency versus
+    agent count with fitted power-law exponent
+  claim_id: c_dc31f372
+  context: "Phase 5: User Story 3 - Scaling Analysis Across Agent Populations (Priority:\
+    \ P3) Goal: Investigate how the fidelity of collective remembering scales when\
+    \ the number of agents varies across different group sizes. Independent Test:\
+    \ Run the experiment for each specified agent count and produce a plot of specialization\
+    \ index and retrieval efficiency versus number of agents, along with a fitted\
+    \ power\u2011law exponent."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Produce_plot_of_specialization_index_and_retrieval_efficienc
+  kind: entity_fact
+  raw_text: "Run the experiment for each specified agent count and produce a plot\
+    \ of specialization index and retrieval efficiency versus number of agents, along\
+    \ with a fitted power\u2011law exponent."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T03:31:30Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: sensitivity analysis sweeping context-truncation token limit over 128,
+    256, 512
+  claim_id: c_e834d141
+  context: "Implementation for User Story 2: sensitivity analysis sweeping context\u2011\
+    truncation token limit over {128, 256, 512} with performance curves output in\
+    \ `code/analysis/sensitivity.py` (FR-008)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "sensitivity analysis sweeping context\u2011truncation token limit over\
+    \ {128, 256, 512}"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T03:35:44Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: Bonferroni correction applied to all family-wise hypothesis tests
+  claim_id: c_f98d00c4
+  context: "Phase 4: User Story 2 - Context\u2011Window Truncation Impact. T021 [P]\
+    \ [US-2] Apply Bonferroni correction to all family\u2011wise hypothesis tests\
+    \ and report corrected \u03B1 in code/analysis/anova.py (FR-007)"
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Bonferroni_correction_applied_to_all_family-wise_hypothesis
+  kind: entity_fact
+  raw_text: "Apply Bonferroni correction to all family\u2011wise hypothesis tests"
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T03:49:29Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: sensitivity analysis sweeping context-truncation token limit over 128,
+    256, 512
+  claim_id: c_fc065c2d
+  context: "Phase 4: User Story 2 - Context\u2011Window Truncation Impact. T022 [US-2]\
+    \ sensitivity analysis sweeping context\u2011truncation token limit over {128,\
+    \ 256, 512} with performance curves output in code/analysis/sensitivity.py (FR-008)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "sensitivity analysis sweeping context\u2011truncation token limit over\
+    \ {128, 256, 512}"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T03:49:30Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: base Agent abstraction using CPU-only opt-125m transformers with float32
+    precision
+  claim_id: c_ad163eeb
+  context: 'Phase 2: Foundational (Blocking Prerequisites). T005 [P] Implement base
+    Agent abstraction using CPU-only transformers (opt-125m, float32 precision) in
+    code/agent/base_agent.py (FR-002)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement base Agent abstraction using CPU-only transformers (opt-125m,
+    float32 precision)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T03:50:02Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: environment configuration with seed 42 and device cpu
+  claim_id: c_4adb31f0
+  context: 'Phase 2: Foundational (Blocking Prerequisites). T008 [P] Configure environment
+    management (config.yaml with seed=42, device=cpu) in code/utils/config.py'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Configure environment management (config.yaml with seed=42, device=cpu)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T03:50:32Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: output results_full.csv with game_id, specialization_index, retrieval_efficiency,
+    context_condition, agent_count columns
+  claim_id: c_6c5b3b20
+  context: "Phase 3: User Story 1 - Baseline Transactive\u2011Memory Measurement.\
+    \ T015 [US-1] Output results_full.csv with game_id, specialization_index, retrieval_efficiency,\
+    \ context_condition, agent_count to projects/PROJ-586-social-memory-networks-modeling-collecti/results/"
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Output_results_full.csv_with_game_id,_specialization_index,
+  kind: entity_fact
+  raw_text: Output results_full.csv with game_id, specialization_index, retrieval_efficiency,
+    context_condition, agent_count
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T03:50:59Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: validation logic requiring 95% or more games to produce metrics
+  claim_id: c_efdea577
+  context: "Phase 3: User Story 1 - Baseline Transactive\u2011Memory Measurement.\
+    \ T014 [P] [US-1] Implement validation logic for metrics (\u226595% games produce\
+    \ metrics, SC-001) in code/metrics/validator.py"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement validation logic for metrics (\u226595% games produce metrics)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T03:51:01Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: scaling plot with 3 data points limiting power-law reliability
+  claim_id: c_5d4e0b78
+  context: "Phase 5: User Story 3 - Scaling Analysis Across Agent Populations. T030\
+    \ [US-3] Generate scaling_plot.pdf with fitted power\u2011law curves and explicit\
+    \ note that 3 data points limit power\u2011law reliability"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Generate scaling_plot.pdf with fitted power\u2011law curves and explicit\
+    \ note that 3 data points limit power\u2011law reliability"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T03:51:38Z'
