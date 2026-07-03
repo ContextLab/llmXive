@@ -1,0 +1,22 @@
+{
+  "sources": [
+    {
+      "id": "science_advances_glass_forming",
+      "type": "dataset",
+      "url": "https://doi.org/10.1126/sciadv.aaq1566",
+      "description": "Primary dataset from Science Advances on glass forming regions",
+      "checksum": null,
+      "status": "pending_download"
+    },
+    {
+      "id": "materials_project",
+      "type": "api",
+      "url": "https://api.materialsproject.org/v3",
+      "description": "Materials Project API for elemental properties",
+      "checksum": null,
+      "status": "active"
+    }
+  ],
+  "created_at": "2024-01-01T00:00:00Z",
+  "version": "1.0.0"
+}

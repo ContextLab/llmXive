@@ -20,32 +20,32 @@
 - **Mobile**: `api/src/`, `ios/src/` or `android/src/`
 - Paths shown below assume single project - adjust based on plan.md structure
 
-<!-- 
-  ============================================================================
-  IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-  
-  The /speckit-tasks command MUST replace these with actual tasks based on:
-  - User stories from spec.md (with their priorities P1, P2, P3...)
-  - Feature requirements from plan.md
-  - Entities from data-model.md
-  - Endpoints from contracts/
-  
-  Tasks MUST be organized by user story so each story can:
-  - Implemented independently
-  - Tested independently
-  - Delivered as an MVP increment
-  
-  DO NOT keep these sample tasks in the generated tasks.md file.
-  ============================================================================
+<!--
+ ============================================================================
+ IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
+
+ The /speckit-tasks command MUST replace these with actual tasks based on:
+ - User stories from spec.md (with their priorities P1, P2, P3...)
+ - Feature requirements from plan.md
+ - Entities from data-model.md
+ - Endpoints from contracts/
+
+ Tasks MUST be organized by user story so each story can:
+ - Implemented independently
+ - Tested independently
+ - Delivered as an MVP increment
+
+ DO NOT keep these sample tasks in the generated tasks.md file.
+ ============================================================================
 -->
 
 ## Phase 1: Setup (Shared Infrastructure)
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project directory structure (`projects/PROJ-451-predicting-the-glass-forming-region-of-m/`) per `plan.md`
-- [ ] T002 Initialize Python 3.11 project with `requirements.txt` (scikit-learn, xgboost, pandas, numpy, shap, scipy, requests, pytest)
-- [ ] T003 [P] Configure linting (ruff) and formatting (black) tools
+- [X] T001 Create project directory structure (`projects/PROJ-451-predicting-the-glass-forming-region-of-m/`) per `plan.md` <!-- ATOMIZE: requested -->
+- [X] T002 Initialize Python 3.11 project with `requirements.txt` (scikit-learn, xgboost, pandas, numpy, shap, scipy, requests, pytest)
+- [X] T003 [P] Configure linting (ruff) and formatting (black) tools
 
 ---
 
@@ -55,11 +55,11 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 [P] Implement `utils/io.py` with functions for loading CSV/JSON data and handling Materials Project API requests (API Key via env var, v3 endpoint)
-- [ ] T005 [P] Implement `utils/dedup.py` for deduplicating compositions by unique chemical formula (normalized atomic fractions), retaining primary source (Science Advances)
-- [ ] T006 Create `data/provenance.json` schema for tracking source URLs (Zenodo DOI: 10.1126/sciadv.aaq1566) and checksums
+- [X] T004 [P] Implement `utils/io.py` with functions for loading CSV/JSON data and handling Materials Project API requests (API Key via env var, v3 endpoint)
+- [X] T005 [P] Implement `utils/dedup.py` for deduplicating compositions by unique chemical formula (normalized atomic fractions), retaining primary source (Science Advances)
+- [X] T006 Create `data/provenance.json` schema for tracking source URLs (Zenodo DOI: 10.1126/sciadv.aaq1566 [UNRESOLVED-CLAIM: c_af3c446c — status=not_enough_info]) and checksums
 - [ ] T007 [P] Setup `data/raw/` and `data/processed/` directory structure with `.gitkeep`
-- [ ] T008 Configure environment configuration management for API keys (Materials Project) and dataset paths
+- [~] T008 Configure environment configuration management for API keys (Materials Project) and dataset paths
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -73,10 +73,10 @@
 
 ### Implementation for User Story 1
 
-- [ ] T009 [P] [US1] Write unit test for `features/descriptors.py` in `tests/unit/test_descriptors.py` (verify formula correctness for the specific descriptors: Atomic Radius, Electronegativity, Valence Electron Concentration, Atomic Size Mismatch, Mixing Enthalpy, Atomic Size Difference, Valence Electron Size Mismatch, Electron-Atom Ratio, Miedema's Heat of Formation, and Atomic Packing Factor). **Note**: This is a TDD 'write test' task; expect initial failure.
-- [ ] T010 [P] [US1] Write unit test for `utils/dedup.py` in `tests/unit/test_dedup.py` (verify deduplication logic and source retention). **Note**: This is a TDD 'write test' task; expect initial failure.
-- [ ] T012 [P] [US1] Create `features/descriptors.py` to compute a set of atomic descriptors: Atomic Radius, Electronegativity, Valence Electron Concentration, Atomic Size Mismatch (δ), Mixing Enthalpy (ΔHmix), Atomic Size Difference, Valence Electron Size Mismatch, Electron-Atom Ratio, Miedema's Heat of Formation, and Atomic Packing Factor. Ensure all formulas are implemented and documented.
-- [ ] T013 [US1] Implement data ingestion script `code/main.py` (or `scripts/ingest.py`) to fetch from Zenodo DOI and Materials Project API (v3, API Key via env, fields: composition, phase, elemental properties), merging records. **Constraint**: If the primary DOI source is unavailable, MUST fallback to the synthetic generator (T013b) to ensure reproducibility per plan.md.
+- [~] T009 [P] [US1] Write unit test for `features/descriptors.py` in `tests/unit/test_descriptors.py` (verify formula correctness for the specific descriptors: Atomic Radius, Electronegativity, Valence Electron Concentration, Atomic Size Mismatch, Mixing Enthalpy, Atomic Size Difference, Valence Electron Size Mismatch, Electron-Atom Ratio, Miedema's Heat of Formation, and Atomic Packing Factor). **Note**: This is a TDD 'write test' task; expect initial failure.
+- [~] T010 [P] [US1] Write unit test for `utils/dedup.py` in `tests/unit/test_dedup.py` (verify deduplication logic and source retention). **Note**: This is a TDD 'write test' task; expect initial failure.
+- [~] T012 [P] [US1] Create `features/descriptors.py` to compute a set of atomic descriptors: Atomic Radius, Electronegativity, Valence Electron Concentration, Atomic Size Mismatch (δ), Mixing Enthalpy (ΔHmix), Atomic Size Difference, Valence Electron Size Mismatch, Electron-Atom Ratio, Miedema's Heat of Formation, and Atomic Packing Factor. Ensure all formulas are implemented and documented.
+- [~] T013 [US1] Implement data ingestion script `code/main.py` (or `scripts/ingest.py`) to fetch from Zenodo DOI and Materials Project API (v3, API Key via env, fields: composition, phase, elemental properties), merging records. **Constraint**: If the primary DOI source is unavailable, MUST fallback to the synthetic generator (T013b) to ensure reproducibility per plan.md.
 - [ ] T013b [US1] Implement synthetic data generator `utils/synthetic.py` to generate valid alloy compositions with realistic descriptors when canonical DOI is unavailable (supports reproducibility per plan.md Constitution Check).
 - [ ] T011 [US1] Integration test for data ingestion pipeline in `tests/integration/test_ingestion.py` (Requires T013 completion).
 - [ ] T014 [US1] Implement label filtering in `utils/io.py` to exclude compositions lacking definitive phase labels (amorphous/crystalline) per FR-009
@@ -158,8 +158,8 @@
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
-  - User stories can then proceed in parallel (if staffed)
-  - Or sequentially in priority order (P1 → P2 → P3)
+ - User stories can then proceed in parallel (if staffed)
+ - Or sequentially in priority order (P1 → P2 → P3)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
@@ -225,9 +225,9 @@ With multiple developers:
 
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
-   - Developer A: User Story 1
-   - Developer B: User Story 2 (waiting for US1 data)
-   - Developer C: User Story 3 (waiting for US2 models)
+ - Developer A: User Story 1
+ - Developer B: User Story 2 (waiting for US1 data)
+ - Developer C: User Story 3 (waiting for US2 models)
 3. Stories complete and integrate independently
 
 ---

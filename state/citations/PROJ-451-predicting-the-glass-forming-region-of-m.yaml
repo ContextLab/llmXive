@@ -33,7 +33,7 @@
   verification_status: mismatch
   verified_against_url: https://api.crossref.org/works/10.5281/zenodo.XXXXXX
   verified_at: '2026-07-03T01:11:23.707498Z'
-- artifact_hash: e1b4e0f687e2afc925527eb635e88077e463e280689190e9cd0116391ab7aca8
+- artifact_hash: c22d060c8bb2be3f7b6857107f8e8dbdb2398ae63de20052d2cd658b9d625462
   artifact_path: projects/PROJ-451-predicting-the-glass-forming-region-of-m/specs/001-predicting-the-glass-forming-region-of-m/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -44,4 +44,4 @@
   value: 10.1126/sciadv.aaq1566
   verification_status: verified
   verified_against_url: https://doi.org/10.1126/sciadv.aaq1566
-  verified_at: '2026-07-03T01:35:18.592171Z'
+  verified_at: '2026-07-03T05:04:10.774378Z'
