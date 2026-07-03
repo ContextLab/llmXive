@@ -1,0 +1,58 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Model Output Schema"
+type: "object"
+properties:
+  model_type:
+    type: "string"
+    enum: ["ridge"]
+    description: "Type of regression model used."
+  alpha:
+    type: "number"
+    description: "Regularization parameter (L2 penalty) used."
+  r2_adjusted:
+    type: "number"
+    description: "Adjusted R-squared value of the model."
+  p_permutation:
+    type: "number"
+    description: "P-value from permutation testing (1000 permutations)."
+  fdr_corrected_p:
+    type: "number"
+    description: "P-value after False Discovery Rate correction."
+  sensitivity_analysis:
+    type: "object"
+    properties:
+      p_thresholds:
+        type: "array"
+        items:
+          type: "number"
+        description: "List of p-value thresholds tested (e.g., [0.01, 0.05, 0.1])."
+      r2_thresholds:
+        type: "array"
+        items:
+          type: "number"
+        description: "List of R-squared thresholds tested (e.g., [0.2, 0.3, 0.4])."
+      stability_variance:
+        type: "number"
+        description: "Variance in significance status across thresholds. Success if ≤ 0.05."
+    required:
+      - "p_thresholds"
+      - "r2_thresholds"
+      - "stability_variance"
+  status:
+    type: "string"
+    enum: ["valid", "pipeline_broken", "structural_validation_only"]
+    description: "Status of the result. 'pipeline_broken' if Positive Control failed to detect injected signal."
+  timestamp:
+    type: "string"
+    format: "date-time"
+    description: "ISO 8601 timestamp of model generation."
+required:
+  - "model_type"
+  - "alpha"
+  - "r2_adjusted"
+  - "p_permutation"
+  - "fdr_corrected_p"
+  - "sensitivity_analysis"
+  - "status"
+  - "timestamp"
+additionalProperties: false

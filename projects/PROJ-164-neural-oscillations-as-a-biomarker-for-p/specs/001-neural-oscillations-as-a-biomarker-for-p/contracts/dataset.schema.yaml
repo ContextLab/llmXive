@@ -1,0 +1,76 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "EEG Feature Dataset Schema"
+type: "object"
+properties:
+  subject_id:
+    type: "string"
+    description: "Unique anonymized identifier for the subject."
+  condition:
+    type: "string"
+    enum: ["rest", "task"]
+    description: "Experimental condition during EEG recording."
+  mode:
+    type: "string"
+    enum: ["positive_control", "structural_validation"]
+    description: "Processing mode: 'positive_control' for synthetic with injected signal, 'structural_validation' for random noise."
+  power_delta:
+    type: "number"
+    description: "Mean spectral power in delta band (1-4 Hz)."
+  power_theta:
+    type: "number"
+    description: "Mean spectral power in theta band (4-8 Hz)."
+  power_alpha:
+    type: "number"
+    description: "Mean spectral power in alpha band (8-13 Hz)."
+  power_beta:
+    type: "number"
+    description: "Mean spectral power in beta band (13-30 Hz)."
+  power_gamma:
+    type: "number"
+    description: "Mean spectral power in gamma band (30-45 Hz)."
+  plv_c3_c4:
+    type: "number"
+    description: "Phase Locking Value between C3 and C4 (Motor ROI)."
+  plv_c3_cz:
+    type: "number"
+    description: "Phase Locking Value between C3 and Cz (Motor ROI)."
+  plv_c4_cz:
+    type: "number"
+    description: "Phase Locking Value between C4 and Cz (Motor ROI)."
+  plv_mean_global:
+    type: "number"
+    description: "Mean Phase Locking Value across all pairs."
+  wpli_c3_c4:
+    type: "number"
+    description: "Weighted Phase Lag Index between C3 and C4 (Motor ROI)."
+  wpli_mean_global:
+    type: "number"
+    description: "Mean Weighted Phase Lag Index across all pairs."
+  tdcs_response:
+    type: "number"
+    description: "Percentage change in motor performance score. Synthetic in positive_control mode."
+  injected_signal_strength:
+    type: "number"
+    description: "Known correlation coefficient used to generate target (e.g., 0.15)."
+  is_structural_validation_only:
+    type: "boolean"
+    description: "True if data is from structural_validation mode and should not be used for biomarker claims."
+required:
+  - "subject_id"
+  - "condition"
+  - "mode"
+  - "power_delta"
+  - "power_theta"
+  - "power_alpha"
+  - "power_beta"
+  - "power_gamma"
+  - "plv_c3_c4"
+  - "plv_c3_cz"
+  - "plv_c4_cz"
+  - "plv_mean_global"
+  - "wpli_c3_c4"
+  - "wpli_mean_global"
+  - "tdcs_response"
+  - "injected_signal_strength"
+  - "is_structural_validation_only"
+additionalProperties: false
