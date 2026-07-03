@@ -1,35 +1,123 @@
+# Schema definition for NDVI Time Series data
+# Used to validate data structures before processing and storage
+# Corresponds to Pydantic models in code/utils/schema_loader.py
+version: "1.0.0"
+description: >
+  Defines the structure for time-series data points representing
+  vegetation indices (NDVI) and associated metadata for specific sites.
+
+definitions:
+  TimeSeriesPoint:
+    description: A single observation in the time series
+    type: object
+    required:
+      - site_id
+      - date
+      - ndvi
+      - scene_id
+      - cloud_cover
+    properties:
+      site_id:
+        type: string
+        description: Unique identifier for the site (e.g., "SITE_001")
+        pattern: "^[A-Z]{4}_\\d{3}$"
+      date:
+        type: string
+        format: date
+        description: Observation date (YYYY-MM-DD)
+      ndvi:
+        type: number
+        format: float
+        description: Normalized Difference Vegetation Index value
+        minimum: -1.0
+        maximum: 1.0
+      scene_id:
+        type: string
+        description: Landsat scene identifier (e.g., LC08_L2SP_045034_20230101_20230101_02_T1)
+        minLength: 10
+      cloud_cover:
+        type: number
+        format: float
+        description: Percentage of cloud cover for the scene (0-100)
+        minimum: 0.0
+        maximum: 100.0
+      qa_pixel:
+        type: integer
+        description: Bitmask value for pixel quality assessment
+        minimum: 0
+      qa_radsat:
+        type: integer
+        description: Bitmask value for radiometric saturation
+        minimum: 0
+      is_valid:
+        type: boolean
+        description: Flag indicating if the point passed cloud masking and quality checks
+        default: true
+
+  TimeSeriesMetadata:
+    description: Metadata describing the time series collection process
+    type: object
+    required:
+      - site_id
+      - start_date
+      - end_date
+      - total_observations
+      - valid_observations
+      - source_product
+    properties:
+      site_id:
+        type: string
+        description: Unique identifier for the site
+      start_date:
+        type: string
+        format: date
+        description: Earliest date in the time series
+      end_date:
+        type: string
+        format: date
+        description: Latest date in the time series
+      total_observations:
+        type: integer
+        description: Total number of raw observations retrieved
+        minimum: 0
+      valid_observations:
+        type: integer
+        description: Number of observations passing quality filters
+        minimum: 0
+      source_product:
+        type: string
+        description: Landsat processing level (e.g., "Level-2")
+      processing_timestamp:
+        type: string
+        format: date-time
+        description: ISO 8601 timestamp when this series was generated
+      cloud_threshold:
+        type: number
+        format: float
+        description: Maximum cloud cover percentage allowed for inclusion
+        minimum: 0.0
+        maximum: 100.0
+
+  TimeSeriesRecord:
+    description: Complete record combining points and metadata
+    type: object
+    required:
+      - metadata
+      - points
+    properties:
+      metadata:
+        $ref: "#/definitions/TimeSeriesMetadata"
+      points:
+        type: array
+        description: Chronologically sorted list of time series points
+        items:
+          $ref: "#/definitions/TimeSeriesPoint"
+        minItems: 1
+
+# Root schema for validation
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "NDVI Time Series Schema"
-description: "Schema for the processed NDVI and climate time series data"
+$id: "https://llmxive.org/schemas/timeseries.schema.yaml"
+title: "Ecotourism Regeneration Time Series Schema"
 type: object
-properties:
-  site_id:
-    type: string
-    description: "Foreign key to Site"
-  date:
-    type: string
-    format: date
-    description: "Acquisition date (ISO 8601)"
-  ndvi:
-    type: number
-    minimum: -1.0
-    maximum: 1.0
-    description: "Normalized Difference Vegetation Index"
-  cloud_mask:
-    type: boolean
-    description: "True if the pixel was masked as cloud"
-  precipitation:
-    type: number
-    minimum: 0
-    description: "Daily precipitation in mm (from CHIRPS)"
-  temperature:
-    type: number
-    description: "Daily temperature in °C (from MODIS)"
-required:
-  - site_id
-  - date
-  - ndvi
-  - cloud_mask
-  - precipitation
-  - temperature
-additionalProperties: false
+allOf:
+  - $ref: "#/definitions/TimeSeriesRecord"

@@ -18,32 +18,32 @@
 - **Single project**: `code/`, `tests/` at repository root
 - Paths shown below assume single project - adjust based on plan.md structure
 
-<!-- 
-  ============================================================================
-  IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-  
-  The /speckit-tasks command MUST replace these with actual tasks based on:
-  - User stories from spec.md (with their priorities P1, P2, P3...)
-  - Feature requirements from plan.md
-  - Entities from data-model.md
-  - Endpoints from contracts/
-  
-  Tasks MUST be organized by user story so each story can be:
-  - Implemented independently
-  - Tested independently
-  - Delivered as an MVP increment
-  
-  DO NOT keep these sample tasks in the generated tasks.md file.
-  ============================================================================
+<!--
+ ============================================================================
+ IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
+
+ The /speckit-tasks command MUST replace these with actual tasks based on:
+ - User stories from spec.md (with their priorities P1, P2, P3...)
+ - Feature requirements from plan.md
+ - Entities from data-model.md
+ - Endpoints from contracts/
+
+ Tasks MUST be organized by user story so each story can be:
+ - Implemented independently
+ - Tested independently
+ - Delivered as an MVP increment
+
+ DO NOT keep these sample tasks in the generated tasks.md file.
+ ============================================================================
 -->
 
 ## Phase 1: Setup (Shared Infrastructure)
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create `code/__init__.py` and `tests/__init__.py`
-- [ ] T002 Initialize `requirements.txt` with landsatxplore, rasterio, xarray, scikit-learn, statsmodels, pandas, pyyaml, pydantic
-- [ ] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools
+- [X] T001 Create `code/__init__.py` and `tests/__init__.py`
+- [X] T002 Initialize `requirements.txt` with landsatxplore, rasterio, xarray, scikit-learn, statsmodels, pandas, pyyaml, pydantic
+- [X] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools
 
 ---
 
@@ -53,10 +53,10 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 Create base configuration module `code/config.py` (constants, thresholds, paths)
-- [ ] T005 [P] Setup logging infrastructure in `code/logging_config.py`
-- [ ] T006a [P] [Data-Model] Create `site.schema.yaml` schema definition in `specs/001-ecotourism-regeneration/contracts/` using Pydantic models
-- [ ] T006b [P] [Data-Model] Create `timeseries.schema.yaml` schema definition in `specs/001-ecotourism-regeneration/contracts/` using Pydantic models
+- [X] T004 Create base configuration module `code/config.py` (constants, thresholds, paths)
+- [X] T005 [P] Setup logging infrastructure in `code/logging_config.py`
+- [X] T006a [P] [Data-Model] Create `site.schema.yaml` schema definition in `specs/001-ecotourism-regeneration/contracts/` using Pydantic models
+- [X] T006b [P] [Data-Model] Create `timeseries.schema.yaml` schema definition in `specs/001-ecotourism-regeneration/contracts/` using Pydantic models
 - [ ] T006c [P] [Data-Model] Create `output.schema.yaml` schema definition in `specs/001-ecotourism-regeneration/contracts/` using Pydantic models
 - [ ] T007 Implement memory-safe chunking utility in `code/utils/chunking.py` to ensure peak RAM <7GB
 - [ ] T008 Create data directory structure and `.gitkeep` files for `data/raw/landsat`, `data/processed`, `data/ecotourism`
@@ -77,21 +77,28 @@
 > **NOTE**: Write these tests FIRST, ensure they FAIL before implementation
 
 - [ ] T010 [P] [US1] Unit test for chunked download logic in `tests/unit/test_data_acquisition.py`
-- [ ] T011 [P] [US1] Unit test for cloud masking logic in `tests/unit/test_preprocessing.py`
-- [ ] T012 [US1] Integration test for full pipeline run on a subset of 2 sites in `tests/integration/test_pipeline.py`
+- [~] T011 [P] [US1] Unit test for cloud masking logic in `tests/unit/test_preprocessing.py` <!-- SKIPPED: YAML+regex parse failed (while scanning a simple key
+ in "<unicode string>", line 8, column 1:
+ The test includes a fallback imp...
+ ^
+could not find expected ':'
+ in "<unicode string>", line 10, column 1:
+ The tests are designed to fail i...
+ ^) -->
+- [~] T012 [US1] Integration test for full pipeline run on a subset of 2 sites in `tests/integration/test_pipeline.py`
 
 ### Implementation for User Story 1
 
-- [ ] T012b [US1] Generate `data/raw/site_coordinates.csv` containing paired site coordinates (ecotourism and control) with biome and protection status metadata
-- [ ] T012c [US1] Generate `data/ecotourism/revenue_data.csv` containing placeholder or real visitor/revenue data for multiple sites.; create `data/ecotourism/metadata.json` with source info
-- [ ] T013 [US1] Implement `code/data_acquisition.py`: Download Landsat Level-2 data via USGS API for 30 paired sites using chunked streaming; load site coordinates from `data/raw/site_coordinates.csv`
-  *Note: Implements Landsat 8/9 only (Landsat ceased operation in 2011.). Requires T044 to update spec.md FR-001.*
-- [ ] T014 [US1] Implement `code/data_acquisition.py`: Log all API query parameters and versions to `data/raw/query_log.json`
-- [ ] T015 [US1] Implement `code/preprocessing.py`: Calculate NDVI from surface reflectance bands
-- [ ] T016 [US1] Implement `code/preprocessing.py`: Apply cloud masking using USGS QA band or Fmask algorithm
-- [ ] T017 [US1] Implement `code/preprocessing.py`: Pair sites logic (same biome, similar initial NDVI drop ±10%); exclude sites with >50% data gaps; output consolidated `data/processed/ndvi_timeseries.parquet` and `data/processed/site_metadata.csv`
-- [ ] T018 [US1] Implement `code/preprocessing.py`: Fetch and validate ecotourism revenue/visitor data from `data/ecotourism/revenue_data.csv`; output to `data/processed/ecotourism_data.csv` with metadata in `data/ecotourism/metadata.json`
-- [ ] T029 [US1] [FR-007] [Edge-Cases] Implement `code/preprocessing.py`: Handle missing revenue data: if revenue column is null, use visitor count; if both null, exclude site. Log substitution in metadata.
+- [~] T012b [US1] Generate `data/raw/site_coordinates.csv` containing paired site coordinates (ecotourism and control) with biome and protection status metadata
+- [~] T012c [US1] Generate `data/ecotourism/revenue_data.csv` containing placeholder or real visitor/revenue data for multiple sites.; create `data/ecotourism/metadata.json` with source info <!-- FAILED: unspecified -->
+- [~] T013 [US1] Implement `code/data_acquisition.py`: Download Landsat Level-2 data via USGS API for 30 paired sites using chunked streaming; load site coordinates from `data/raw/site_coordinates.csv`
+ *Note: Implements Landsat 8/9 only (Landsat ceased operation in 2011.). Requires T044 to update spec.md FR-001.*
+- [~] T014 [US1] Implement `code/data_acquisition.py`: Log all API query parameters and versions to `data/raw/query_log.json`
+- [~] T015 [US1] Implement `code/preprocessing.py`: Calculate NDVI from surface reflectance bands
+- [~] T016 [US1] Implement `code/preprocessing.py`: Apply cloud masking using USGS QA band or Fmask algorithm <!-- ATOMIZE: requested -->
+- [~] T017 [US1] Implement `code/preprocessing.py`: Pair sites logic (same biome, similar initial NDVI drop ±10%); exclude sites with >50% data gaps; output consolidated `data/processed/ndvi_timeseries.parquet` and `data/processed/site_metadata.csv`
+- [~] T018 [US1] Implement `code/preprocessing.py`: Fetch and validate ecotourism revenue/visitor data from `data/ecotourism/revenue_data.csv`; output to `data/processed/ecotourism_data.csv` with metadata in `data/ecotourism/metadata.json`
+- [~] T029 [US1] [FR-007] [Edge-Cases] Implement `code/preprocessing.py`: Handle missing revenue data: if revenue column is null, use visitor count; if both null, exclude site. Log substitution in metadata.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -105,18 +112,18 @@
 
 ### Tests for User Story 2 (OPTIONAL) ⚠️
 
-- [ ] T021 [P] [US2] Unit test for break-point detection algorithm in `tests/unit/test_detection.py`
-- [ ] T022 [P] [US2] Unit test for asymptotic model fitting in `tests/unit/test_detection.py`
+- [~] T021 [P] [US2] Unit test for break-point detection algorithm in `tests/unit/test_detection.py`
+- [~] T022 [P] [US2] Unit test for asymptotic model fitting in `tests/unit/test_detection.py`
 
 ### Implementation for User Story 2
 
-- [ ] T023 [US2] Implement `code/detection.py`: Deforestation event detection logic (NDVI drop ≥0.30, sustained ≥2 years)
-  *Note: Spec.md FR-002 defines deforestation as '2-year sustained drop' which may contradict 'break-point' logic. Task implements spec as written but flags for review.*
-- [ ] T024 [US2] Implement `code/detection.py`: Filter sites with no clear deforestation event (NDVI drop <0.30)
-- [ ] T025 [US2] Implement `code/detection.py`: Fit non-linear asymptotic model (logistic/Gompertz) to recovery phase (mid-to-long term); verify R² ≥ 0.95
-  *Note: If non-linear fit fails (R² < 0.95), linear slope is the ACCEPTED metric.*
-- [ ] T026 [US2] Implement `code/detection.py`: Fallback to linear slope calculation for an initial short-term window if asymptotic fit fails (R² < 0.95); mark as ACCEPTED metric per spec FR-002
-- [ ] T027 [US2] Implement `code/detection.py`: Handle "incomplete recovery" cases (recovery period <5 years) - flag and exclude from primary slope analysis
+- [~] T023 [US2] Implement `code/detection.py`: Deforestation event detection logic (NDVI drop ≥0.30, sustained ≥2 years)
+ *Note: Spec.md FR-002 defines deforestation as '2-year sustained drop' which may contradict 'break-point' logic. Task implements spec as written but flags for review.*
+- [~] T024 [US2] Implement `code/detection.py`: Filter sites with no clear deforestation event (NDVI drop <0.30)
+- [~] T025 [US2] Implement `code/detection.py`: Fit non-linear asymptotic model (logistic/Gompertz) to recovery phase (mid-to-long term); verify R² ≥ 0.95
+ *Note: If non-linear fit fails (R² < 0.95), linear slope is the ACCEPTED metric.*
+- [~] T026 [US2] Implement `code/detection.py`: Fallback to linear slope calculation for an initial short-term window if asymptotic fit fails (R² < 0.95); mark as ACCEPTED metric per spec FR-002
+- [~] T027 [US2] Implement `code/detection.py`: Handle "incomplete recovery" cases (recovery period <5 years) - flag and exclude from primary slope analysis
 - [ ] T028 [US2] Generate `data/processed/recovery_trajectories.parquet` containing event start/end, severity, and trajectory parameters
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
@@ -164,7 +171,7 @@
 
 **Purpose**: Explicitly address reviewer concerns regarding Landsat operational dates, site counts, and model convergence strategies.
 
-- [ ] T044 [P] [FR-001] [US-1] Update `specs/001-ecotourism-regeneration/spec.md` to replace "Landsat 5/8/9" with "Landsat 8/9" in FR-001 and US-1 to reflect operational reality (Landsat missions ceased operation in 2011.).
+- [ ] T044 [P] [FR-001] [US-1] Update `specs/001-ecotourism-regeneration/spec.md` to replace "Landsat 5/8/9 " with "Landsat 8/9" in FR-001 and US-1 to reflect operational reality (Landsat missions ceased operation in 2011. [UNRESOLVED-CLAIM: c_b7c434d6 — status=not_enough_info]).
 - [ ] T045 [P] [SC-001] Update `specs/001-ecotourism-regeneration/spec.md` to replace "[deferred]" in SC-001 with the explicit number "30".
 - [ ] T046 [P] [FR-002] Update `specs/001-ecotourism-regeneration/spec.md` FR-002 to explicitly state that if non-linear asymptotic fitting fails (R² < 0.95), the linear slope fallback is the primary accepted metric for that site.
 - [ ] T047 [P] [Plan] Update `specs/001-ecotourism-regeneration/plan.md` to confirm the 30-site target and document the specific revenue thresholds used in the sensitivity analysis.
@@ -177,11 +184,11 @@
 
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
-  - T009 depends on T006 (schema) to write valid parquet files.
+ - T009 depends on T006 (schema) to write valid parquet files.
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
-  - User Story 1 (P1): Can start after Foundational. T013 depends on T012b. T018 depends on T013. T029 depends on T018.
-  - User Story 2 (P2): Depends on US1 completion (requires `data/processed/ndvi_timeseries.parquet` and `data/processed/ecotourism_data.csv`).
-  - User Story 3 (P3): Depends on US2 completion (requires `data/processed/recovery_trajectories.parquet`).
+ - User Story 1 (P1): Can start after Foundational. T013 depends on T012b. T018 depends on T013. T029 depends on T018.
+ - User Story 2 (P2): Depends on US1 completion (requires `data/processed/ndvi_timeseries.parquet` and `data/processed/ecotourism_data.csv`).
+ - User Story 3 (P3): Depends on US2 completion (requires `data/processed/recovery_trajectories.parquet`).
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 - **Revision Tasks**: Can be executed in parallel with Phase 1/2 or immediately after spec review.
 
@@ -236,12 +243,12 @@ With multiple developers:
 
 1. Team completes Setup + Foundational (T006a-c, T005, T007) together. T009 waits for T006.
 2. Once Foundational is done:
-   - Developer A: User Story 1 (T012b -> T013 -> T015 -> T017 -> T018 -> T029)
-   - Developer B: Revision Tasks (T044-T047)
+ - Developer A: User Story 1 (T012b -> T013 -> T015 -> T017 -> T018 -> T029)
+ - Developer B: Revision Tasks (T044-T047)
 3. Once US1 completes:
-   - Developer A: User Story 2
+ - Developer A: User Story 2
 4. Once US2 completes:
-   - Developer A: User Story 3
+ - Developer A: User Story 3
 5. Stories complete and integrate sequentially
 
 ---

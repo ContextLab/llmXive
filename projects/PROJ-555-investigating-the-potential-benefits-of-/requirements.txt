@@ -1,0 +1,8 @@
+landsatxplore
+rasterio
+xarray
+scikit-learn
+statsmodels
+pandas
+pyyaml
+pydantic

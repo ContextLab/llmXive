@@ -1,42 +1,84 @@
-$schema: "http://json-schema.org/draft-07/schema#"
-title: "Site Metadata Schema"
-description: "Schema for the raw and processed site metadata CSV/Parquet"
-type: object
-properties:
-  site_id:
-    type: string
-    description: "Unique identifier for the site (e.g., SITE_001)"
-  site_type:
-    type: string
-    enum:
-      - "ecotourism"
-      - "control"
-    description: "Classification of the site"
-  latitude:
-    type: number
-    minimum: -90
-    maximum: 90
-    description: "Latitude in WGS84"
-  longitude:
-    type: number
-    minimum: -180
-    maximum: 180
-    description: "Longitude in WGS84"
-  biome:
-    type: string
-    description: "Biome classification (e.g., Tropical_Rainforest)"
-  pair_id:
-    type: string
-    description: "Identifier linking the site to its matched partner"
-  initial_severity:
-    type: number
-    description: "Absolute NDVI drop at the start of the deforestation event"
-required:
-  - site_id
-  - site_type
-  - latitude
-  - longitude
-  - biome
-  - pair_id
-  - initial_severity
-additionalProperties: false
+# Pydantic-compatible schema definition for Ecotourism Site Metadata
+# This file defines the structure for site coordinates, biome, and protection status.
+# It is used by code/utils/schema_loader.py to generate Pydantic models dynamically.
+
+site_schema:
+  model_name: SiteMetadata
+  fields:
+    site_id:
+      type: str
+      description: Unique identifier for the site (e.g., 'SITE_001')
+      required: true
+    site_type:
+      type: str
+      description: Classification of the site (e.g., 'ecotourism', 'control')
+      required: true
+      enum:
+        - ecotourism
+        - control
+    latitude:
+      type: float
+      description: Latitude in decimal degrees (WGS84)
+      required: true
+      ge: -90.0
+      le: 90.0
+    longitude:
+      type: float
+      description: Longitude in decimal degrees (WGS84)
+      required: true
+      ge: -180.0
+      le: 180.0
+    biome:
+      type: str
+      description: Biome classification (e.g., 'Tropical Rainforest', 'Savanna')
+      required: true
+    protection_status:
+      type: str
+      description: Legal protection status (e.g., 'National Park', 'Private Reserve', 'None')
+      required: true
+    pairing_id:
+      type: str
+      description: ID of the paired site (ecotourism-control pair)
+      required: false
+      nullable: true
+    initial_ndvi:
+      type: float
+      description: Initial NDVI value at the start of the observation period
+      required: false
+      nullable: true
+      ge: 0.0
+      le: 1.0
+    observation_start_date:
+      type: date
+      description: Start date of the observation period (YYYY-MM-DD)
+      required: false
+      nullable: true
+    observation_end_date:
+      type: date
+      description: End date of the observation period (YYYY-MM-DD)
+      required: false
+      nullable: true
+    data_quality_flag:
+      type: str
+      description: Flag indicating data quality status
+      required: false
+      default: "PASS"
+      enum:
+        - PASS
+        - WARNING
+        - FAIL
+    
+    # Metadata about the record itself
+    created_at:
+      type: str
+      description: ISO 8601 timestamp of record creation
+      required: false
+      default_factory: datetime.utcnow
+    source:
+      type: str
+      description: Source of the site data
+      required: false
+      default: "manual_entry"
+
+# Additional validation constraints can be added via Pydantic validators
+# in the generated model if complex cross-field validation is required.

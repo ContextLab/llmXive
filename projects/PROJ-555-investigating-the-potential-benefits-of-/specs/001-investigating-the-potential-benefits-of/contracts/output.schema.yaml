@@ -1,55 +1,265 @@
-$schema: "http://json-schema.org/draft-07/schema#"
-title: "Final Analysis Output Schema"
-description: "Schema for the final regression coefficients and sensitivity analysis results"
+# Output Schema Definition for Ecotourism Regeneration Study
+# This schema defines the structure of the final analysis outputs including
+# recovery trajectories, statistical model results, and sensitivity analysis.
 type: object
+title: OutputSchema
+description: "Aggregated results from the ecotourism regeneration analysis pipeline"
 properties:
-  model_type:
-    type: string
-    enum:
-      - "lmm_fixed_effects"
-      - "sensitivity_revenue"
-      - "sensitivity_proxy"
-    description: "Type of analysis performed"
-  threshold_value:
-    type: number
-    description: "Revenue threshold used (e.g., 10000, 50000) or 0 for proxy analysis"
-  proxy_variable:
-    type: string
-    enum:
-      - "revenue"
-      - "visitor_count"
-      - "none"
-    description: "Proxy variable used in the model"
-  coefficient_ecotourism:
-    type: number
-    description: "Fixed effect estimate for ecotourism status"
-  ci_lower:
-    type: number
-    description: "Lower bound of the 95% confidence interval"
-  ci_upper:
-    type: number
-    description: "Upper bound of the 95% confidence interval"
-  p_value_raw:
-    type: number
-    minimum: 0
-    maximum: 1
-    description: "Raw p-value"
-  p_value_adjusted:
-    type: number
-    minimum: 0
-    maximum: 1
-    description: "Holm-Bonferroni adjusted p-value"
-  significant:
-    type: boolean
-    description: "True if p_value_adjusted < 0.05"
+  metadata:
+    type: object
+    description: "Run metadata and provenance"
+    properties:
+      run_id:
+        type: string
+        description: "Unique identifier for this analysis run"
+      timestamp:
+        type: string
+        format: date-time
+        description: "ISO 8601 timestamp of the analysis execution"
+      version:
+        type: string
+        description: "Pipeline version used"
+      data_sources:
+        type: array
+        items:
+          type: string
+        description: "List of data sources used (e.g., Landsat 8/9, CHIRPS)"
+    required:
+      - run_id
+      - timestamp
+      - version
+
+  site_summary:
+    type: array
+    description: "Summary statistics for each analyzed site pair"
+    items:
+      type: object
+      properties:
+        site_id:
+          type: string
+          description: "Unique site identifier"
+        pair_id:
+          type: string
+          description: "Paired site group identifier"
+        biome:
+          type: string
+          description: "Biome classification"
+        protection_status:
+          type: string
+          description: "Protection status (ecotourism vs control)"
+        initial_ndvi:
+          type: number
+          description: "Initial NDVI value before deforestation event"
+        deforestation_event:
+          type: object
+          properties:
+            start_date:
+              type: string
+              format: date
+            end_date:
+              type: string
+              format: date
+            severity:
+              type: number
+              description: "NDVI drop magnitude"
+          required:
+            - start_date
+            - end_date
+            - severity
+        recovery_metrics:
+          type: object
+          properties:
+            recovery_start:
+              type: string
+              format: date
+            recovery_end:
+              type: string
+              format: date
+            model_type:
+              type: string
+              enum:
+                - logistic
+                - gompertz
+                - linear_fallback
+            r_squared:
+              type: number
+              minimum: 0
+              maximum: 1
+            slope:
+              type: number
+              description: "Annual recovery slope"
+            asymptote:
+              type: number
+              description: "Estimated asymptotic NDVI (for non-linear models)"
+            half_life:
+              type: number
+              description: "Years to reach 50% of recovery (for non-linear models)"
+          required:
+            - model_type
+            - r_squared
+            - slope
+        ecotourism_data:
+          type: object
+          properties:
+            revenue:
+              type: number
+              nullable: true
+            visitor_count:
+              type: integer
+              nullable: true
+            data_source:
+              type: string
+          required:
+            - data_source
+      required:
+        - site_id
+        - pair_id
+        - biome
+        - protection_status
+        - initial_ndvi
+        - recovery_metrics
+
+  statistical_model:
+    type: object
+    description: "Results from the Linear Mixed-Effects Model"
+    properties:
+      model_type:
+        type: string
+        const: "LinearMixedEffects"
+      formula:
+        type: string
+        description: "Model formula string"
+      random_effects:
+        type: array
+        items:
+          type: string
+        description: "Random effect grouping variables"
+      fixed_effects:
+        type: array
+        items:
+          type: object
+          properties:
+            term:
+              type: string
+            estimate:
+              type: number
+            std_error:
+              type: number
+            t_value:
+              type: number
+            p_value:
+              type: number
+            ci_lower:
+              type: number
+            ci_upper:
+              type: number
+          required:
+            - term
+            - estimate
+            - std_error
+            - t_value
+            - p_value
+      diagnostics:
+        type: object
+        properties:
+          aic:
+            type: number
+          bic:
+            type: number
+          log_likelihood:
+            type: number
+          convergence_status:
+            type: integer
+            description: "0 for success, non-zero for failure"
+        required:
+          - convergence_status
+      covariates_controlled:
+        type: array
+        items:
+          type: string
+        description: "List of covariates included in the model"
+    required:
+      - model_type
+      - fixed_effects
+      - diagnostics
+
+  sensitivity_analysis:
+    type: object
+    description: "Results from sensitivity analysis on thresholds and proxies"
+    properties:
+      revenue_thresholds:
+        type: array
+        items:
+          type: object
+          properties:
+            threshold_label:
+              type: string
+            threshold_value:
+              type: number
+            model_coefficient:
+              type: number
+            p_value:
+              type: number
+            significant:
+              type: boolean
+        description: "Results across different revenue tier thresholds"
+      proxy_comparison:
+        type: object
+        properties:
+          revenue_model:
+            type: object
+            properties:
+              coefficient:
+                type: number
+              p_value:
+                type: number
+          visitor_model:
+            type: object
+            properties:
+              coefficient:
+                type: number
+              p_value:
+                type: number
+          difference_significant:
+            type: boolean
+            description: "Whether the difference between proxies is statistically significant"
+        required:
+          - revenue_model
+          - visitor_model
+    required:
+      - revenue_thresholds
+      - proxy_comparison
+
+  data_quality_flags:
+    type: array
+    description: "Flags for data quality issues encountered"
+    items:
+      type: object
+      properties:
+        site_id:
+          type: string
+        flag_type:
+          type: string
+          enum:
+            - missing_revenue
+            - high_cloud_coverage
+            - incomplete_recovery
+            - model_convergence_failure
+        severity:
+          type: string
+          enum:
+            - warning
+            - error
+        description:
+          type: string
+      required:
+        - site_id
+        - flag_type
+        - severity
+
 required:
-  - model_type
-  - threshold_value
-  - proxy_variable
-  - coefficient_ecotourism
-  - ci_lower
-  - ci_upper
-  - p_value_raw
-  - p_value_adjusted
-  - significant
-additionalProperties: false
+  - metadata
+  - site_summary
+  - statistical_model
+  - sensitivity_analysis
+  - data_quality_flags

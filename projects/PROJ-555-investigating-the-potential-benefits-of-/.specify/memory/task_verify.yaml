@@ -1,0 +1,10 @@
+? T006c [P] [Data-Model] Create `output.schema.yaml` schema definition in `specs/001-ecotourism-regeneration/contracts/`
+  using Pydantic models
+: 1
+T007 Implement memory-safe chunking utility in `code/utils/chunking.py` to ensure peak RAM <7GB: 1
+T008 Create data directory structure and `.gitkeep` files for `data/raw/landsat`, `data/processed`, `data/ecotourism`: 1
+? T009 [FR-003] Fetch CHIRPS precipitation and MODIS temperature data for a multi-decadal
+  period spanning the early 21st century.; output to `data/processed/climate_covariates.parquet`
+  with monthly resolution; use CHIRPS API and NASA POWER API
+: 1
+T010 [P] [US1] Unit test for chunked download logic in `tests/unit/test_data_acquisition.py`: 1

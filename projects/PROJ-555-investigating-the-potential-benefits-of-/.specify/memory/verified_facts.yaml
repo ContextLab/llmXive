@@ -1,0 +1,11 @@
+'|landsat longer no operational':
+  quote: With Landsat 5 retiring in early 2013, leaving Landsat 7 as the only on-orbit
+    Landsat program satellite, Landsat 8 ensures the continued acquisition and availability
+    of Landsat data utilizing a two-sensor payload, the Operational Land Imager (OLI)
+    and the Thermal InfraRed Sensor (TIRS). Respectively, these two instruments collect
+    image data for nine shortwave bands and two longwave thermal bands. The satellite
+    was developed with a 5 years mission design life but was launched with enough
+    fuel on board to provide for upwards of ten years of operations.
+  source_id: Landsat 8
+  url: https://en.wikipedia.org/wiki/Landsat_8
+  value: early 2013

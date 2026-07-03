@@ -1,0 +1,48 @@
+[build-system]
+requires = ["setuptools>=45", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ecotourism-regeneration"
+version = "0.1.0"
+description = "Investigating the potential benefits of ecotourism in regenerating deforested areas"
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = [
+    "landsatxplore",
+    "rasterio",
+    "xarray",
+    "scikit-learn",
+    "statsmodels",
+    "pandas",
+    "pyyaml",
+    "pydantic",
+]
+
+[project.optional-dependencies]
+dev = [
+    "ruff",
+    "black",
+    "pytest",
+    "pytest-cov",
+]
+
+[tool.black]
+line-length = 88
+target-version = ['py39']
+include = '\.pyi?$'
+extend-exclude = '''
+/(\.git|\.hg|\.mypy_cache|\.tox|\.venv|_build|buck-out|build|dist)/
+'''
+
+[tool.ruff]
+line-length = 88
+target-version = "py39"
+
+[tool.ruff.lint]
+select = ["E", "W", "F", "I", "B", "C4", "UP"]
+ignore = ["E501"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["code"]
+force-sort-within-sections = true
