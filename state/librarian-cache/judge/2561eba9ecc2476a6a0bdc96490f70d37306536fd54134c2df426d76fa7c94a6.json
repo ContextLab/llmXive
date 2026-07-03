@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2504.14964",
+  "judged_at": "2026-07-03T03:34:18Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "evaluating the robustness of llm-generated code to input perturbations computer science",
+  "rationale": "The paper evaluates the correctness and capability of LLMs on advanced programming problems but does not measure the robustness of the generated code to input perturbations (e.g., adversarial examples, noise, or modified test inputs), which is the specific mechanism and variable of interest in the user's question. While both papers concern LLM-generated code, this work addresses a different research gap (difficulty level of problems) without touching the perturbation/robustness domain required f",
+  "relevant": false
+}

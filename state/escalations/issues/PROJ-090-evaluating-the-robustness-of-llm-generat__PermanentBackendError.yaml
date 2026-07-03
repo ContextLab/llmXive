@@ -1,0 +1,4 @@
+failure_class: PermanentBackendError
+filed_at: '2026-07-03T04:08:49.047291+00:00'
+issue_number: 505
+project_id: PROJ-090-evaluating-the-robustness-of-llm-generat

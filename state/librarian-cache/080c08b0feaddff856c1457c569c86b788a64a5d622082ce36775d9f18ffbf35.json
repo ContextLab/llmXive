@@ -1,0 +1,561 @@
+{
+  "fetched_at": "2026-07-03T03:34:48Z",
+  "field": "computer science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "computer science",
+      "idea_body_excerpt": "Evaluating the Robustness of LLM-Generated Code to Input Perturbations",
+      "target_n": 5
+    },
+    "duration_seconds": 90.765,
+    "ended_at": "2026-07-03T03:34:48Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "adversarial robustness of code generation models"
+        ],
+        [
+          2,
+          "sensitivity analysis of LLM-generated software"
+        ],
+        [
+          3,
+          "input perturbation resistance in AI coding assistants"
+        ],
+        [
+          4,
+          "fault tolerance of large language model outputs"
+        ],
+        [
+          5,
+          "stability of code generation under noisy inputs"
+        ],
+        [
+          6,
+          "adversarial examples for neural code generation"
+        ],
+        [
+          7,
+          "robustness evaluation of synthetic code"
+        ],
+        [
+          8,
+          "code quality degradation under input variation"
+        ],
+        [
+          9,
+          "security vulnerabilities in LLM-generated code"
+        ],
+        [
+          10,
+          "perturbation testing for generative programming models"
+        ],
+        [
+          11,
+          "reliability of AI-assisted software development"
+        ],
+        [
+          12,
+          "generalization error in code generation models"
+        ],
+        [
+          13,
+          "robustness of transformer-based code synthesizers"
+        ],
+        [
+          14,
+          "impact of input noise on code correctness"
+        ],
+        [
+          15,
+          "empirical evaluation of code generator stability"
+        ],
+        [
+          16,
+          "adversarial attacks on code generation systems"
+        ],
+        [
+          17,
+          "variability in LLM code outputs"
+        ],
+        [
+          18,
+          "resilience of neural code interpreters"
+        ],
+        [
+          19,
+          "robustness metrics for generated source code"
+        ],
+        [
+          20,
+          "input sensitivity in machine learning for software engineering"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "Evaluating the Robustness of LLM-Generated Code to Input Perturbations computer science": 0,
+        "adversarial robustness of code generation models": 5
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "adversarial perturbation code generation robustness",
+      "code mutation testing LLM fuzzing input noise",
+      "semantic equivalence robustness graph transformation",
+      "pass@k degradation adversarial examples code",
+      "distributional shift model generalization code security"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2202.07201"
+      ]
+    },
+    "per_query_hit_count": {
+      "Evaluating the Robustness of LLM-Generated Code to Input Perturbations computer science": 3,
+      "adversarial perturbation code generation robustness": 3,
+      "code mutation testing LLM fuzzing input noise": 3,
+      "distributional shift model generalization code security": 3,
+      "pass@k degradation adversarial examples code": 3,
+      "semantic equivalence robustness graph transformation": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 4,
+      "rejections": [
+        {
+          "primary_pointer": "2504.14964",
+          "rationale": "The paper evaluates the correctness and capability of LLMs on advanced programming problems but does not measure the robustness of the generated code to input perturbations (e.g., adversarial examples, noise, or modified test inputs), which is the specific mechanism and variable of interest in the user's question. While both papers concern LLM-generated code, this work addresses a different research gap (difficulty level of problems) without touching the perturbation/robustness domain required f",
+          "title": "Evaluating Code Generation of LLMs in Advanced Computer Science Problems"
+        },
+        {
+          "primary_pointer": "2303.12869",
+          "rationale": "The paper focuses on improving the accuracy of code generation from natural language instructions (a text-to-code task) and does not measure, analyze, or discuss the robustness of generated code against input perturbations. It fails to address the specific mechanism (robustness to perturbation) or the dependent variable (stability under noise) required by the user's question, falling under the rejection rule for having no measurable connection to the user's mechanism or variables.",
+          "title": "JaCoText: A Pretrained Model for Java Code-Text Generation"
+        },
+        {
+          "primary_pointer": "2007.08428",
+          "rationale": "The paper focuses on the adversarial robustness of standard deep learning models (e.g., CNNs) against input perturbations, whereas the user's question specifically targets the robustness of *LLM-generated code* (a software artifact) to input perturbations. This falls under the \"Off-domain entirely\" rejection rule, as the mechanism (neural architecture topology vs. code generation logic) and the domain (image/classification tasks vs. code synthesis) are distinct, despite sharing the general keywo",
+          "title": "On Adversarial Robustness: A Neural Architecture Search perspective"
+        },
+        {
+          "primary_pointer": "2008.07651",
+          "rationale": "The paper focuses on adversarial robustness in Zero-Shot Learning (ZSL) for general machine learning models, which is a distinct domain from the user's specific question regarding the robustness of LLM-generated *code* to input perturbations. While both involve \"robustness\" and \"perturbations,\" the paper does not measure the specific mechanism (code generation), the specific domain (software/code), or the specific variables (code correctness under perturbation) required by the user's question, f",
+          "title": "A Deep Dive into Adversarial Robustness in Zero-Shot Learning"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-07-03T03:33:17Z",
+    "term_input": {
+      "normalized": "evaluating the robustness of llm-generated code to input perturbations computer science",
+      "raw": "Evaluating the Robustness of LLM-Generated Code to Input Perturbations computer science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The large instantaneous sensitivity, a wide frequency coverage and flexible observation modes with large number of beams in the sky are the main features of the SKA observatory's two telescopes, the SKA-Low and the SKA-Mid, which are located on two different continents. Owing to these capabilities, the SKAO telescopes are going to be a game-changer for radio astronomy in general and pulsar astronomy in particular. The eleven articles in this special issue on pulsar science with the SKA Observatory describe its impact on different areas of pulsar science. In this lead article, a brief description of the two telescopes highlighting the relevant features for pulsar science is presented followed by an overview of each accompanying article, exploring the inter-relationship between different pulsar science use cases.",
+          "claimed_authors": [
+            "Bhal Chandra Joshi",
+            "Aris Karastergiou",
+            "Marta Burgay",
+            "The SKA pulsar science working group"
+          ],
+          "claimed_title": "Pulsar Science with the SKA Observatory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.16152"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Evaluating the Robustness of LLM-Generated Code to Input Perturbations computer ', candidate_title='Pulsar Science with the SKA Observatory')",
+        "failed_at": "2026-07-03T03:33:55Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This white paper describes the LSST Dark Energy Science Collaboration (DESC), whose goal is the study of dark energy and related topics in fundamental physics with data from the Large Synoptic Survey Telescope (LSST). It provides an overview of dark energy science and describes the current and anticipated state of the field. It makes the case for the DESC by laying out a robust analytical framework for dark energy science that has been defined by its members and the comprehensive three-year work plan they have developed for implementing that framework. The analysis working groups cover five key probes of dark energy: weak lensing, large scale structure, galaxy clusters, Type Ia supernovae, and strong lensing. The computing working groups span cosmological simulations, galaxy catalogs, photon simulations and a systematic software and computational framework for LSST dark energy data analysis. The technical working groups make the connection between dark energy science and the LSST system. The working groups have close linkages, especially through the use of the photon simulations to study the impact of instrument design and survey strategy on analysis methodology and cosmological parameter estimation. The white paper describes several high priority tasks identified by each of the 16 working groups. Over the next three years these tasks will help prepare for LSST analysis, make synergistic connections with ongoing cosmological surveys and provide the dark energy community with state of the art analysis tools. Members of the community are invited to join the LSST DESC, according to the membership policies described in the white paper. Applications to sign up for associate membership may be made by submitting the Web form at http://www.slac.stanford.edu/exp/lsst/desc/signup.html with a short statement of the work they wish to pursue that is relevant to the LSST DESC.",
+          "claimed_authors": [
+            " LSST Dark Energy Science Collaboration"
+          ],
+          "claimed_title": "Large Synoptic Survey Telescope: Dark Energy Science Collaboration",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1211.0310"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Evaluating the Robustness of LLM-Generated Code to Input Perturbations computer ', candidate_title='Large Synoptic Survey Telescope: Dark Energy Science Collaboration')",
+        "failed_at": "2026-07-03T03:33:55Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Pretrained transformer-based models have shown high performance in natural language generation task. However, a new wave of interest has surged: automatic programming language generation. This task consists of translating natural language instructions to a programming code. Despite the fact that well-known pretrained models on language generation have achieved good performance in learning programming languages, effort is still needed in automatic code generation. In this paper, we introduce JaCoText, a model based on Transformers neural network. It aims to generate java source code from natural language text. JaCoText leverages advantages of both natural language and code generation models. More specifically, we study some findings from the state of the art and use them to (1) initialize our model from powerful pretrained models, (2) explore additional pretraining on our java dataset, (3) carry out experiments combining the unimodal and bimodal data in the training, and (4) scale the input and output length during the fine-tuning of the model. Conducted experiments on CONCODE dataset show that JaCoText achieves new state-of-the-art results.",
+          "claimed_authors": [
+            "Jessica López Espejel",
+            "Mahaman Sanoussi Yahaya Alassan",
+            "Walid Dahhane",
+            "El Hassane Ettifouri"
+          ],
+          "claimed_title": "JaCoText: A Pretrained Model for Java Code-Text Generation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2303.12869"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Evaluating the Robustness of LLM-Generated Code to Input Perturbations computer ', candidate_title='JaCoText: A Pretrained Model for Java Code-Text Generation')",
+        "failed_at": "2026-07-03T03:33:55Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Adversarial robustness of deep learning models has gained much traction in the last few years. Various attacks and defenses are proposed to improve the adversarial robustness of modern-day deep learning architectures. While all these approaches help improve the robustness, one promising direction for improving adversarial robustness is unexplored, i.e., the complex topology of the neural network architecture. In this work, we address the following question: Can the complex topology of a neural network give adversarial robustness without any form of adversarial training?. We answer this empirically by experimenting with different hand-crafted and NAS-based architectures. Our findings show that, for small-scale attacks, NAS-based architectures are more robust for small-scale datasets and simple tasks than hand-crafted architectures. However, as the size of the dataset or the complexity of task increases, hand-crafted architectures are more robust than NAS-based architectures. Our work is the first large-scale study to understand adversarial robustness purely from an architectural perspective. Our study shows that random sampling in the search space of DARTS (a popular NAS method) with simple ensembling can improve the robustness to PGD attack by nearly~12\\%. We show that NAS, which is popular for achieving SoTA accuracy, can provide adversarial accuracy as a free add-on without any form of adversarial training. Our results show that leveraging the search space of NAS methods with methods like ensembles can be an excellent way to achieve adversarial robustness without any form of adversarial training. We also introduce a metric that can be used to calculate the trade-off between clean accuracy and adversarial robustness. Code and pre-trained models will be made available at \\url{https://github.com/tdchaitanya/nas-robustness}",
+          "claimed_authors": [
+            "Chaitanya Devaguptapu",
+            "Devansh Agarwal",
+            "Gaurav Mittal",
+            "Pulkit Gopalani",
+            "Vineeth N Balasubramanian"
+          ],
+          "claimed_title": "On Adversarial Robustness: A Neural Architecture Search perspective",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2007.08428"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Evaluating the Robustness of LLM-Generated Code to Input Perturbations computer ', candidate_title='On Adversarial Robustness: A Neural Architecture Search perspective')",
+        "failed_at": "2026-07-03T03:33:55Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Machine learning (ML) systems have introduced significant advances in various fields, due to the introduction of highly complex models. Despite their success, it has been shown multiple times that machine learning models are prone to imperceptible perturbations that can severely degrade their accuracy. So far, existing studies have primarily focused on models where supervision across all classes were available. In constrast, Zero-shot Learning (ZSL) and Generalized Zero-shot Learning (GZSL) tasks inherently lack supervision across all classes. In this paper, we present a study aimed on evaluating the adversarial robustness of ZSL and GZSL models. We leverage the well-established label embedding model and subject it to a set of established adversarial attacks and defenses across multiple datasets. In addition to creating possibly the first benchmark on adversarial robustness of ZSL models, we also present analyses on important points that require attention for better interpretation of ZSL robustness results. We hope these points, along with the benchmark, will help researchers establish a better understanding what challenges lie ahead and help guide their work.",
+          "claimed_authors": [
+            "Mehmet Kerim Yucel",
+            "Ramazan Gokberk Cinbis",
+            "Pinar Duygulu"
+          ],
+          "claimed_title": "A Deep Dive into Adversarial Robustness in Zero-Shot Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2008.07651"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Evaluating the Robustness of LLM-Generated Code to Input Perturbations computer ', candidate_title='A Deep Dive into Adversarial Robustness in Zero-Shot Learning')",
+        "failed_at": "2026-07-03T03:33:55Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Smart contract is a special program that manages digital assets on blockchain. It is difficult to recover the loss if users make transactions through buggy smart contracts, which cannot be directly fixed. Hence, it is important to ensure the correctness of smart contracts before deploying them. This paper proposes a systematic framework to mutation testing for smart contracts on Ethereum, which is currently the most popular open blockchain for deploying and running smart contracts. Fifteen novel mutation operators have been designed for Ethereum Smart Contracts (ESC), in terms of keyword, global variable/function, variable unit, and error handling. An empirical study on 26 smart contracts in four Ethereum DApps has been conducted to evaluate the effectiveness of mutation testing. The experimental results show that our approach can outperform the coverage-based approach on defect detection rate (96.01% vs. 55.68%). The ESC mutation operators are effective to reveal real defects and we found 117 out of 729 real bug reports are related to our operators. These show the great potential of using mutation testing for quality assurance of ESC.",
+          "claimed_authors": [
+            "Haoran Wu",
+            "Xingya Wang",
+            "Jiehui Xu",
+            "Weiqin Zou",
+            "Lingming Zhang",
+            "Zhenyu Chen"
+          ],
+          "claimed_title": "Mutation Testing for Ethereum Smart Contract",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1908.03707"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Evaluating the Robustness of LLM-Generated Code to Input Perturbations computer ', candidate_title='Mutation Testing for Ethereum Smart Contract')",
+        "failed_at": "2026-07-03T03:33:55Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This paper describes Mull, an open-source tool for mutation testing based on the LLVM framework. Mull works with LLVM IR, a low-level intermediate representation, to perform mutations, and uses LLVM JIT for just-in-time compilation. This design choice enables the following two capabilities of Mull: language independence and fine-grained control over compilation and execution of a tested program and its mutations. Mull can work with code written in any programming language that supports compilation to LLVM IR, such as C, C++, Rust, or Swift. Direct manipulation of LLVM IR allows Mull to do less work to generate mutations: only modified fragments of IR code are recompiled, and this results in faster processing of mutated programs. To our knowledge, no existing mutation testing tool provides these capabilities for compiled programming languages. We describe the algorithm and implementation details of Mull, highlight current limitations of Mull, and present the results of our evaluation of Mull on real-world projects such as RODOS, OpenSSL, LLVM.",
+          "claimed_authors": [
+            "Alex Denisov",
+            "Stanislav Pankevich"
+          ],
+          "claimed_title": "Mull it over: mutation testing based on LLVM",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1908.01540"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Evaluating the Robustness of LLM-Generated Code to Input Perturbations computer ', candidate_title='Mull it over: mutation testing based on LLVM')",
+        "failed_at": "2026-07-03T03:33:55Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Dynamically Adaptive Systems modify their behav- ior and structure in response to changes in their surrounding environment and according to an adaptation logic. Critical sys- tems increasingly incorporate dynamic adaptation capabilities; examples include disaster relief and space exploration systems. In this paper, we focus on mutation testing of the adaptation logic. We propose a fault model for adaptation logics that classifies faults into environmental completeness and adaptation correct- ness. Since there are several adaptation logic languages relying on the same underlying concepts, the fault model is expressed independently from specific adaptation languages. Taking benefit from model-driven engineering technology, we express these common concepts in a metamodel and define the operational semantics of mutation operators at this level. Mutation is applied on model elements and model transformations are used to propagate these changes to a given adaptation policy in the chosen formalism. Preliminary results on an adaptive web server highlight the difficulty of killing mutants for adaptive systems, and thus the difficulty of generating efficient tests.",
+          "claimed_authors": [
+            "Alexandre Bartel",
+            "Benoit Baudry",
+            "Freddy Munoz",
+            "Jacques Klein",
+            "Tejeddine Mouelhi",
+            "Yves Le Traon"
+          ],
+          "claimed_title": "Model Driven Mutation Applied to Adaptative Systems Testing",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1205.5783"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Evaluating the Robustness of LLM-Generated Code to Input Perturbations computer ', candidate_title='Model Driven Mutation Applied to Adaptative Systems Testing')",
+        "failed_at": "2026-07-03T03:33:55Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Multilevel modeling extends traditional modeling techniques with a potentially unlimited number of abstraction levels. Multilevel models can be formally represented by multilevel typed graphs whose manipulation and transformation are carried out by multilevel typed graph transformation rules. These rules are cospans of three graphs and two inclusion graph homomorphisms where the three graphs are multilevel typed over a common typing chain. In this paper, we show that typed graph transformations can be appropriately generalized to multilevel typed graph transformations improving preciseness, flexibility and reusability of transformation rules. We identify type compatibility conditions, for rules and their matches, formulated as equations and inequations, respectively, between composed partial typing morphisms. These conditions are crucial presuppositions for the application of a rule for a match---based on a pushout and a final pullback complement construction for the underlying graphs in the category Graph---to always provide a well-defined canonical result in the multilevel typed setting. Moreover, to formalize and analyze multilevel typing as well as to prove the necessary results, in a systematic way, we introduce the category Chain of typing chains and typing chain morphisms.",
+          "claimed_authors": [
+            "Uwe Wolter",
+            "Fernando Macías",
+            "Adrian Rutle"
+          ],
+          "claimed_title": "Multilevel Typed Graph Transformations",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2006.14612"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Evaluating the Robustness of LLM-Generated Code to Input Perturbations computer ', candidate_title='Multilevel Typed Graph Transformations')",
+        "failed_at": "2026-07-03T03:33:55Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Despite the impressive performance of Deep Neural Networks (DNNs) on various vision tasks, they still exhibit erroneous high sensitivity toward semantic primitives (e.g. object pose). We propose a theoretically grounded analysis for DNN robustness in the semantic space. We qualitatively analyze different DNNs' semantic robustness by visualizing the DNN global behavior as semantic maps and observe interesting behavior of some DNNs. Since generating these semantic maps does not scale well with the dimensionality of the semantic space, we develop a bottom-up approach to detect robust regions of DNNs. To achieve this, we formalize the problem of finding robust semantic regions of the network as optimizing integral bounds and we develop expressions for update directions of the region bounds. We use our developed formulations to quantitatively evaluate the semantic robustness of different popular network architectures. We show through extensive experimentation that several networks, while trained on the same dataset and enjoying comparable accuracy, do not necessarily perform similarly in semantic robustness. For example, InceptionV3 is more accurate despite being less semantically robust than ResNet50. We hope that this tool will serve as a milestone towards understanding the semantic robustness of DNNs.",
+          "claimed_authors": [
+            "Abdullah Hamdi",
+            "Bernard Ghanem"
+          ],
+          "claimed_title": "Towards Analyzing Semantic Robustness of Deep Neural Networks",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1904.04621"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Evaluating the Robustness of LLM-Generated Code to Input Perturbations computer ', candidate_title='Towards Analyzing Semantic Robustness of Deep Neural Networks')",
+        "failed_at": "2026-07-03T03:33:55Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In informational recommenders, many challenges arise from the need to handle the semantic and hierarchical structure between knowledge areas. This work aims to advance towards building a state-aware educational recommendation system that incorporates semantic relatedness between knowledge topics, propagating latent information across semantically related topics. We introduce a novel learner model that exploits this semantic relatedness between knowledge components in learning resources using the Wikipedia link graph, with the aim to better predict learner engagement and latent knowledge in a lifelong learning scenario. In this sense, Semantic TrueLearn builds a humanly intuitive knowledge representation while leveraging Bayesian machine learning to improve the predictive performance of the educational engagement. Our experiments with a large dataset demonstrate that this new semantic version of TrueLearn algorithm achieves statistically significant improvements in terms of predictive performance with a simple extension that adds semantic awareness to the model.",
+          "claimed_authors": [
+            "Sahan Bulathwela",
+            "María Pérez-Ortiz",
+            "Emine Yilmaz",
+            "John Shawe-Taylor"
+          ],
+          "claimed_title": "Semantic TrueLearn: Using Semantic Knowledge Graphs in Recommendation Systems",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2112.04368"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Evaluating the Robustness of LLM-Generated Code to Input Perturbations computer ', candidate_title='Semantic TrueLearn: Using Semantic Knowledge Graphs in Recommendation Systems')",
+        "failed_at": "2026-07-03T03:33:55Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Repeated sampling with a verifier is the standard way to allocate test-time compute for code generation, with pass@$K$ as the canonical metric. Yet the standard policy class draws $K$ independent samples from a single answer distribution, so attempts often collapse onto near-duplicate reasoning paths and waste the budget on redundant rollouts. This failure is costly in competitive programming, where many problems admit multiple distinct algorithmic strategies and pass@$K$ requires only one correct attempt. We propose Coordinated Pass@$K$ Policy Optimization (CPPO), which turns pass@$K$ generation into joint exploration over strategies: a planner emits a tuple of $K{=}4$ alternative high-level methods, and a shared solver attempts one solution per method. CPPO trains this joint policy with a multiplicative planner reward, $R_{\\mathrm{plan}} = J_ψ\\cdot R_{\\mathrm{out}}$, assigning credit only to valid strategy tuples that lead to verifier-confirmed pass@$K$ success. Across APPS, CodeContests, and LiveCodeBench-v6, CPPO improves pass@$4$ over direct sampling, planning baselines, planner-only SFT, and pass@$K$-oriented RL under the same $K{=}4$ solver-attempt budget, with statistically significant gains on six of nine model--benchmark cells. The largest single gain is $+0.16$ on Qwen3.5-9B LiveCodeBench-v6 over the strongest baseline, PKPO ($0.588 \\rightarrow 0.748$; paired bootstrap, $p < 0.05$).",
+          "claimed_authors": [
+            "Yilong Li",
+            "Suman Banerjee",
+            "Tong Che"
+          ],
+          "claimed_title": "Cast a Wider Net: Coordinated Pass@K Policy Optimization for Code Reasoning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2605.27000"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Evaluating the Robustness of LLM-Generated Code to Input Perturbations computer ', candidate_title='Cast a Wider Net: Coordinated Pass@K Policy Optimization for Code Reasoning')",
+        "failed_at": "2026-07-03T03:33:55Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Deep neural networks (DNNs) have demonstrated high vulnerability to adversarial examples, raising broad security concerns about their applications. Besides the attacks in the digital world, the practical implications of adversarial examples in the physical world present significant challenges and safety concerns. However, current research on physical adversarial examples (PAEs) lacks a comprehensive understanding of their unique characteristics, leading to limited significance and understanding. In this paper, we address this gap by thoroughly examining the characteristics of PAEs within a practical workflow encompassing training, manufacturing, and re-sampling processes. By analyzing the links between physical adversarial attacks, we identify manufacturing and re-sampling as the primary sources of distinct attributes and particularities in PAEs. Leveraging this knowledge, we develop a comprehensive analysis and classification framework for PAEs based on their specific characteristics, covering over 100 studies on physical-world adversarial examples. Furthermore, we investigate defense strategies against PAEs and identify open challenges and opportunities for future research. We aim to provide a fresh, thorough, and systematic understanding of PAEs, thereby promoting the development of robust adversarial learning and its application in open-world scenarios to provide the community with a continuously updated list of physical world adversarial sample resources, including papers, code, \\etc, within the proposed framework",
+          "claimed_authors": [
+            "Jiakai Wang",
+            "Xianglong Liu",
+            "Jin Hu",
+            "Donghua Wang",
+            "Siyang Wu",
+            "Tingsong Jiang",
+            "Yuanfang Guo",
+            "Aishan Liu",
+            "Jiantao Zhou"
+          ],
+          "claimed_title": "Adversarial Examples in the Physical World: A Survey",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2311.01473"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Evaluating the Robustness of LLM-Generated Code to Input Perturbations computer ', candidate_title='Adversarial Examples in the Physical World: A Survey')",
+        "failed_at": "2026-07-03T03:33:55Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "With rapid progress and significant successes in a wide spectrum of applications, deep learning is being applied in many safety-critical environments. However, deep neural networks have been recently found vulnerable to well-designed input samples, called adversarial examples. Adversarial examples are imperceptible to human but can easily fool deep neural networks in the testing/deploying stage. The vulnerability to adversarial examples becomes one of the major risks for applying deep neural networks in safety-critical environments. Therefore, attacks and defenses on adversarial examples draw great attention. In this paper, we review recent findings on adversarial examples for deep neural networks, summarize the methods for generating adversarial examples, and propose a taxonomy of these methods. Under the taxonomy, applications for adversarial examples are investigated. We further elaborate on countermeasures for adversarial examples and explore the challenges and the potential solutions.",
+          "claimed_authors": [
+            "Xiaoyong Yuan",
+            "Pan He",
+            "Qile Zhu",
+            "Xiaolin Li"
+          ],
+          "claimed_title": "Adversarial Examples: Attacks and Defenses for Deep Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1712.07107"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Evaluating the Robustness of LLM-Generated Code to Input Perturbations computer ', candidate_title='Adversarial Examples: Attacks and Defenses for Deep Learning')",
+        "failed_at": "2026-07-03T03:33:55Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The Payment Protocol standard BIP70, specifying how payments in Bitcoin are performed by merchants and customers, is supported by the largest payment processors and most widely-used wallets. The protocol has been shown to be vulnerable to refund attacks due to lack of authentication of the refund addresses. In this paper, we give the first formal model of the protocol and formalise the refund address security goals for the protocol, namely refund address authentication and secrecy. The formal model utilises communication channels as abstractions conveying security goals on which the protocol modeller and verifier can rely. We analyse the Payment Protocol confirming that it is vulnerable to an attack violating the refund address authentication security goal. Moreover, we present a concrete protocol revision proposal supporting the merchant with publicly verifiable evidence that can mitigate the attack. We verify that the revised protocol meets the security goals defined for the refund address. Hence, we demonstrate that the revised protocol is secure, not only against the existing attacks, but also against any further attacks violating the formalised security goals.",
+          "claimed_authors": [
+            "Paolo Modesti",
+            "Siamak F. Shahandashti",
+            "Patrick McCorry",
+            "Feng Hao"
+          ],
+          "claimed_title": "Formal Modelling and Security Analysis of Bitcoin's Payment Protocol",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2103.08436"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Evaluating the Robustness of LLM-Generated Code to Input Perturbations computer ', candidate_title=\"Formal Modelling and Security Analysis of Bitcoin's Payment Protocol\")",
+        "failed_at": "2026-07-03T03:33:55Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Voice over IP (VoIP) is the transmission of voice and multimedia content over Internet Protocol (IP) networks, this paper reviews models, frameworks and auditing standards proposed to this date to manage VoIP security through a literature review, with descriptions of both the historical and philosophical evolution reflecting an adequate knowledge of related research. Three research questions are raised here: RQ1. What are the requirements to be met by a model of security audit in VoIP systems to achieve their goals? RQ2. Today, are there additional attacks that previous works have not considered? RQ3. Which security requirements in the VoIP systems are covered (and which are not covered) by security frameworks? After some discussion about VoIP Protocols, Attacks on VoIP, Information Technology (IT) audit, IT security audits, Frameworks and auditing standards, we present a unified view of VoIP Security Requirements; as well as considering the contributions and disadvantages of frameworks and auditing standards toward achieving those requirements through a comparative evaluation. It was determined that there is no security framework which considers social engineering attacks in spite of being an important aspect to consider in security management VoIP; also there is no specific framework that covers all categories of security requirements for VoIP system, therefore, a more extensive model is needed.",
+          "claimed_authors": [
+            "Oscar Gavilanez",
+            "Franklin Gavilanez",
+            "Glen Rodriguez"
+          ],
+          "claimed_title": "Audit Analysis Models, Security Frameworks and Their Relevance for VoIP",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1704.02440"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Evaluating the Robustness of LLM-Generated Code to Input Perturbations computer ', candidate_title='Audit Analysis Models, Security Frameworks and Their Relevance for VoIP')",
+        "failed_at": "2026-07-03T03:33:56Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Shivani Shukla",
+            "Himanshu Joshi",
+            "Romilla Syed"
+          ],
+          "title": "Security Degradation in Iterative AI Code Generation -- A Systematic Analysis of the Paradox",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2506.11022",
+        "summary": "The rapid adoption of Large Language Models(LLMs) for code generation has transformed software development, yet little attention has been given to how security vulnerabilities evolve through iterative LLM feedback. This paper analyzes security degradation in AI-generated code through a controlled experiment with 400 code samples across 40 rounds of \"improvements\" using four distinct prompting strategies. Our findings show a 37.6% increase in critical vulnerabilities after just five iterations, with distinct vulnerability patterns emerging across different prompting approaches. This evidence challenges the assumption that iterative LLM refinement improves code security and highlights the essential role of human expertise in the loop. We propose practical guidelines for developers to mitigate these risks, emphasizing the need for robust human validation between LLM iterations to prevent the paradoxical introduction of new security issues during supposedly beneficial code \"improvements\".",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2506.11022",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.375,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-03T03:33:55Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Mainuddin Ahmad Jonas",
+            "David Evans"
+          ],
+          "title": "Certifying Joint Adversarial Robustness for Model Ensembles",
+          "venue": "arXiv",
+          "year": 2020
+        },
+        "primary_pointer": "2004.10250",
+        "summary": "Deep Neural Networks (DNNs) are often vulnerable to adversarial examples.Several proposed defenses deploy an ensemble of models with the hope that, although the individual models may be vulnerable, an adversary will not be able to find an adversarial example that succeeds against the ensemble. Depending on how the ensemble is used, an attacker may need to find a single adversarial example that succeeds against all, or a majority, of the models in the ensemble. The effectiveness of ensemble defenses against strong adversaries depends on the vulnerability spaces of models in the ensemble being disjoint. We consider the joint vulnerability of an ensemble of models, and propose a novel technique for certifying the joint robustness of ensembles, building upon prior works on single-model robustness certification. We evaluate the robustness of various models ensembles, including models trained using cost-sensitive robustness to be diverse, to improve understanding of the potential effectiveness of ensemble models as a defense against adversarial examples.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2004.10250",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-03T03:34:08Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Pin-Yu Chen",
+            "Sijia Liu"
+          ],
+          "title": "Holistic Adversarial Robustness of Deep Learning Models",
+          "venue": "arXiv",
+          "year": 2022
+        },
+        "primary_pointer": "2202.07201",
+        "summary": "Adversarial robustness studies the worst-case performance of a machine learning model to ensure safety and reliability. With the proliferation of deep-learning-based technology, the potential risks associated with model development and deployment can be amplified and become dreadful vulnerabilities. This paper provides a comprehensive overview of research topics and foundational principles of research methods for adversarial robustness of deep learning models, including attacks, defenses, verification, and novel applications.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2202.07201",
+          "http_status": 200,
+          "pdf_sample_score": 0.0994,
+          "query_relevance_score": 0.6,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-03T03:34:08Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "evaluating the robustness of llm-generated code to input perturbations computer science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

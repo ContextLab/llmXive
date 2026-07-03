@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2303.12869",
+  "judged_at": "2026-07-03T03:34:29Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "evaluating the robustness of llm-generated code to input perturbations computer science",
+  "rationale": "The paper focuses on improving the accuracy of code generation from natural language instructions (a text-to-code task) and does not measure, analyze, or discuss the robustness of generated code against input perturbations. It fails to address the specific mechanism (robustness to perturbation) or the dependent variable (stability under noise) required by the user's question, falling under the rejection rule for having no measurable connection to the user's mechanism or variables.",
+  "relevant": false
+}

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2506.11022",
+  "judged_at": "2026-07-03T03:34:23Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "evaluating the robustness of llm-generated code to input perturbations computer science",
+  "rationale": "This paper satisfies criterion (a) by measuring the robustness of LLM-generated code against a specific type of input perturbation (iterative feedback/prompting strategies), which directly aligns with the user's interest in how code quality degrades under such perturbations. It also fits criterion (b) by providing empirical data on the dependent variable (security vulnerability rates) within the exact domain of LLM-generated code.",
+  "relevant": true
+}

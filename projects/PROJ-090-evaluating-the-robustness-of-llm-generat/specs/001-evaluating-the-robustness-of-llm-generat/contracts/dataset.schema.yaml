@@ -1,0 +1,22 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "HumanEval Dataset Schema"
+description: "Schema for the raw HumanEval dataset downloaded from HuggingFace"
+type: "object"
+properties:
+  task_id:
+    type: "string"
+    description: "Unique identifier for the task (e.g., 'HumanEval/0')"
+  prompt:
+    type: "string"
+    description: "Original problem description including function signature and docstring"
+  canonical_solution:
+    type: "string"
+    description: "Reference solution code (optional)"
+  test:
+    type: "string"
+    description: "Unit test code to validate generated solutions"
+required:
+  - task_id
+  - prompt
+  - test
+additionalProperties: false

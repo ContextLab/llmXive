@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2007.08428",
+  "judged_at": "2026-07-03T03:34:42Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "evaluating the robustness of llm-generated code to input perturbations computer science",
+  "rationale": "The paper focuses on the adversarial robustness of standard deep learning models (e.g., CNNs) against input perturbations, whereas the user's question specifically targets the robustness of *LLM-generated code* (a software artifact) to input perturbations. This falls under the \"Off-domain entirely\" rejection rule, as the mechanism (neural architecture topology vs. code generation logic) and the domain (image/classification tasks vs. code synthesis) are distinct, despite sharing the general keywo",
+  "relevant": false
+}
