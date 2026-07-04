@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2211.08482",
+  "judged_at": "2026-07-04T05:38:31Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "machine learning prediction of crack propagation rates in metals materials science",
+  "rationale": "This paper satisfies criteria (a) and (d) as it directly measures the same physical observable (crack propagation dynamics/speed) in the same domain (materials failure) using the same mechanism (machine learning/deep neural networks) requested by the user, serving as a canonical methodological reference for ML-based fracture prediction.",
+  "relevant": true
+}

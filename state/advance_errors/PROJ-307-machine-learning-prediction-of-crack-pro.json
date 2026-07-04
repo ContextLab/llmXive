@@ -1,0 +1,7 @@
+{
+  "project_id": "PROJ-307-machine-learning-prediction-of-crack-pro",
+  "stage": "clarified",
+  "last_error": "data-model.md <-> contracts/ inconsistency (FR-007): one or more contracts/ schemas are empty or not valid schemas: ['contracts/model_output.schema.yaml (invalid YAML: while scanning a double-quoted scalar\\n  in \"<unicode string>\", line 31, column 18:\\n        description: \"The $\\\\Delta K$ regime this metr ... \\n                     ^\\nfound unknown escape character \\'D\\'\\n  in \"<unicode string>\", line 31, column 25:\\n        description: \"The $\\\\Delta K$ regime this metric appl ... \\n                            ^)']",
+  "last_seen": "2026-07-04T05:51:28.585287+00:00",
+  "count": 1
+}

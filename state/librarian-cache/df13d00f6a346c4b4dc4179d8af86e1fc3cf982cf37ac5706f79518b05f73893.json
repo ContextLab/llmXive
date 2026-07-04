@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-06-24T18:58:35Z",
+  "fetched_at": "2026-07-04T05:38:34Z",
   "field": "materials science",
   "prompt_version": "1.6.0",
   "result": {
@@ -9,84 +9,15 @@
       "idea_body_excerpt": "Machine Learning Prediction of Crack Propagation Rates in Metals",
       "target_n": 5
     },
-    "duration_seconds": 57.814,
-    "ended_at": "2026-06-24T18:58:35Z",
-    "expansion": {
-      "expanded_terms_ranked": [
-        [
-          1,
-          "Data‑driven modeling of fatigue crack growth in alloys"
-        ],
-        [
-          2,
-          "Deep learning for fracture toughness estimation in metals"
-        ],
-        [
-          3,
-          "Predictive analytics of crack growth kinetics in steel"
-        ],
-        [
-          4,
-          "Neural network estimation of stress intensity factor evolution"
-        ],
-        [
-          5,
-          "Machine‑learning‑based fatigue life prediction for metallic components"
-        ],
-        [
-          6,
-          "Surrogate modeling of crack propagation speed in aluminum alloys"
-        ],
-        [
-          7,
-          "AI‑driven crack growth rate prediction in high‑strength steels"
-        ],
-        [
-          8,
-          "Gradient‑boosting models for fatigue crack propagation in metals"
-        ],
-        [
-          9,
-          "Physics‑informed neural networks for fracture propagation in metals"
-        ],
-        [
-          10,
-          "Bayesian inference of crack growth rates in metallic materials"
-        ],
-        [
-          11,
-          "Statistical learning of crack growth parameters in titanium alloys"
-        ],
-        [
-          12,
-          "Multi‑fidelity modeling of crack propagation in metals using ML"
-        ],
-        [
-          13,
-          "Transfer learning for crack growth prediction across metal families"
-        ],
-        [
-          14,
-          "Ensemble learning for fatigue crack growth rate forecasting"
-        ],
-        [
-          15,
-          "Hybrid physics‑ML models for crack propagation in metals"
-        ]
-      ],
-      "original_term": "",
-      "per_term_hit_count": {
-        "Data‑driven modeling of fatigue crack growth in alloys": 4,
-        "Machine Learning Prediction of Crack Propagation Rates in Metals materials science": 0
-      },
-      "total_queries_issued": 1
-    },
+    "duration_seconds": 33.011,
+    "ended_at": "2026-07-04T05:38:34Z",
+    "expansion": null,
     "extracted_queries": [
-      "fatigue crack growth ML",
-      "Paris law dataset metals",
-      "physics-informed neural network fracture",
-      "da/dN prediction regression",
-      "fracture mechanics data-driven modeling"
+      "fatigue crack growth rate data contamination",
+      "X-ray computed tomography fatigue crack propagation",
+      "Paris law exponent machine learning regression",
+      "crack length prediction accuracy fracture mechanics benchmark",
+      "microstructure-informed fracture modeling phase field"
     ],
     "failure_reason": null,
     "librarian_prompt_version": "1.6.0",
@@ -95,21 +26,21 @@
       "invoked": true,
       "verdict": false
     },
-    "outcome": "success_after_expansion",
+    "outcome": "success",
     "pdf_sample": {
       "sample_size_target": 1,
       "sampled_count": 1,
       "sampled_pointers": [
-        "2510.21018"
+        "2403.18337"
       ]
     },
     "per_query_hit_count": {
       "Machine Learning Prediction of Crack Propagation Rates in Metals materials science": 3,
-      "Paris law dataset metals": 3,
-      "da/dN prediction regression": 3,
-      "fatigue crack growth ML": 3,
-      "fracture mechanics data-driven modeling": 2,
-      "physics-informed neural network fracture": 3
+      "Paris law exponent machine learning regression": 1,
+      "X-ray computed tomography fatigue crack propagation": 2,
+      "crack length prediction accuracy fracture mechanics benchmark": 3,
+      "fatigue crack growth rate data contamination": 3,
+      "microstructure-informed fracture modeling phase field": 3
     },
     "relevance_judge": {
       "enabled": true,
@@ -124,7 +55,7 @@
       ]
     },
     "schema_version": "1.0.0",
-    "started_at": "2026-06-24T18:57:37Z",
+    "started_at": "2026-07-04T05:38:01Z",
     "term_input": {
       "normalized": "machine learning prediction of crack propagation rates in metals materials science",
       "raw": "Machine Learning Prediction of Crack Propagation Rates in Metals materials science"
@@ -151,7 +82,7 @@
           "primary_pointer": "2006.16189"
         },
         "details": "query-relevance 0.250 < 0.3 (query='Machine Learning Prediction of Crack Propagation Rates in Metals materials scien', candidate_title='DOME: Recommendations for supervised machine learning validation in biology')",
-        "failed_at": "2026-06-24T18:58:08Z",
+        "failed_at": "2026-07-04T05:38:28Z",
         "reason": "query_irrelevant"
       },
       {
@@ -169,7 +100,7 @@
           "primary_pointer": "2211.08305"
         },
         "details": "query-relevance 0.000 < 0.3 (query='Machine Learning Prediction of Crack Propagation Rates in Metals materials scien', candidate_title='Microstructure sensitive fatigue life prediction model for SLM fabricated Hastelloy-X')",
-        "failed_at": "2026-06-24T18:58:08Z",
+        "failed_at": "2026-07-04T05:38:28Z",
         "reason": "query_irrelevant"
       },
       {
@@ -190,256 +121,118 @@
           "primary_pointer": "2207.05698"
         },
         "details": "query-relevance 0.125 < 0.3 (query='Machine Learning Prediction of Crack Propagation Rates in Metals materials scien', candidate_title='Fatigue crack growth in bearing steel under cyclic mode II + static biaxial compression')",
-        "failed_at": "2026-06-24T18:58:08Z",
+        "failed_at": "2026-07-04T05:38:28Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "The increasing use of polymer composites in industry asks for the creation of better, faster and cost-effective methods to detect the damage state of such materials. This work presents the investigation of the phase decay , $ΔΦ$, as a new parameter to characterise crack growth in composites materials utilising an experimental framework of High Frequency Fatigue Testing (HFFT), a framework where the excitation occurs at vibration resonance. The proposed methodology empirically relates the crack growth measurements, from interrupted testing, with the structural phase decay response, distinctive of material strength degradation",
+          "claimed_abstract": "This paper investigates correlation properties of fluctuations in fatigue crack growth of polycrystalline materials, such as ductile alloys, that are commonly encountered in structures and machinery components of complex electromechanical systems. The model of crack damage measure indicates that the fluctuations of fatigue crack growth are characterized by strong correlation patterns within short time scales and are uncorrelated for larger time scales. The two correlation regimes suggest that the 7075-T6 aluminum alloy, analyzed in this paper, is characterized by a micro-structure which is responsible for an intermittent correlated dynamics of fatigue crack growth within a certain scale. The constitutive equations of the damage measure are built upon the physics of fracture mechanics and are substantiated by Karhunen-Loève decomposition of fatigue test data. Statistical orthogonality of the estimated damage measure and the resulting estimation error is demonstrated in a Hilbert space setting.",
           "claimed_authors": [
-            "Matias Lasen",
-            "Dario Di Maio",
-            "Damaso De Bono",
-            "Michelle Peluzzo"
+            "Nicola Scafetta",
+            "Asok Ray",
+            "Bruce J. West"
           ],
-          "claimed_title": "An investigation of fatigue damage growth in composites materials using the vibration response phase decay",
+          "claimed_title": "Correlation regimes in fluctuations of fatigue crack growth",
           "claimed_venue": "arXiv",
-          "claimed_year": 2024,
-          "primary_pointer": "2404.14834"
+          "claimed_year": 2005,
+          "primary_pointer": "cond-mat/0504530"
         },
-        "details": "query-relevance 0.250 < 0.3 (query='Machine Learning Prediction of Crack Propagation Rates in Metals materials scien', candidate_title='An investigation of fatigue damage growth in composites materials using the vibration response phase decay')",
-        "failed_at": "2026-06-24T18:58:08Z",
+        "details": "query-relevance 0.250 < 0.3 (query='Machine Learning Prediction of Crack Propagation Rates in Metals materials scien', candidate_title='Correlation regimes in fluctuations of fatigue crack growth')",
+        "failed_at": "2026-07-04T05:38:28Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "The RSNA Abdominal Traumatic Injury CT (RATIC) dataset is the largest publicly available collection of adult abdominal CT studies annotated for traumatic injuries. This dataset includes 4,274 studies from 23 institutions across 14 countries. The dataset is freely available for non-commercial use via Kaggle at https://www.kaggle.com/competitions/rsna-2023-abdominal-trauma-detection. Created for the RSNA 2023 Abdominal Trauma Detection competition, the dataset encourages the development of advanced machine learning models for detecting abdominal injuries on CT scans. The dataset encompasses detection and classification of traumatic injuries across multiple organs, including the liver, spleen, kidneys, bowel, and mesentery. Annotations were created by expert radiologists from the American Society of Emergency Radiology (ASER) and Society of Abdominal Radiology (SAR). The dataset is annotated at multiple levels, including the presence of injuries in three solid organs with injury grading, image-level annotations for active extravasations and bowel injury, and voxelwise segmentations of each of the potentially injured organs. With the release of this dataset, we hope to facilitate research and development in machine learning and abdominal trauma that can lead to improved patient care and outcomes.",
+          "claimed_abstract": "This paper presents a study on the influence of welding residual stresses (RS) on fatigue crack propagation rate (FCPR) in mode I. The objective of this work is to develop a novel methodology that allows a variation of a RS field in the studied specimen while keeping constant all other variables influencing FCPR. This led to the development of a novel specimen geometry, named CT-RES, in which RS are introduced by weld bead deposition far from the region in which fatigue crack propagation (FCP) occurs. As a consequence, the effect of factors influencing FCPR other than RS such as microstructural changes or plastic deformation, often introduced by welding processes, can be avoided. The welding RS introduced in the CT-RES specimen were determined by the contour method and the weight functions method was used to calculate the stress intensity factor (SIF), Kres, resulting from the RS as the fatigue crack propagates into the specimen. The evolution of cyclic stress ratio at the crack tip, Rlocal, was then computed from Kres to quantify the influence of RS on the cyclic stress ratio. The results show that for a given stress intensity range, dK, the FCPR of the welded geometry with fixed externally low R ratio (R = 0.1), but constantly increasing Rlocal, is the same as for the as-machined geometry without RS, solicited at high cyclic stress ratio (R = 0.7). These observations partially validate the BS7910 standard philosophy in which the remaining life of a flawed structure in presence of tensile RS is calculated from a high cyclic stress ratio (R > 0.5) crack propagation curve to eliminate crack closure effects.",
           "claimed_authors": [
-            "Jeffrey D. Rudie",
-            "Hui-Ming Lin",
-            "Robyn L. Ball",
-            "Sabeena Jalal",
-            "Luciano M. Prevedello",
-            "Savvas Nicolaou",
-            "Brett S. Marinelli",
-            "Adam E. Flanders",
-            "Kirti Magudia",
-            "George Shih",
-            "Melissa A. Davis",
-            "John Mongan",
-            "Peter D. Chang",
-            "Ferco H. Berger",
-            "Sebastiaan Hermans",
-            "Meng Law",
-            "Tyler Richards",
-            "Jan-Peter Grunz",
-            "Andreas Steven Kunz",
-            "Shobhit Mathur",
-            "Sandro Galea-Soler",
-            "Andrew D. Chung",
-            "Saif Afat",
-            "Chin-Chi Kuo",
-            "Layal Aweidah",
-            "Ana Villanueva Campos",
-            "Arjuna Somasundaram",
-            "Felipe Antonio Sanchez Tijmes",
-            "Attaporn Jantarangkoon",
-            "Leonardo Kayat Bittencourt",
-            "Michael Brassil",
-            "Ayoub El Hajjami",
-            "Hakan Dogan",
-            "Muris Becircic",
-            "Agrahara G. Bharatkumar",
-            "Eduardo Moreno Júdice de Mattos Farina",
-            "Dataset Curator Group",
-            "Dataset Contributor Group",
-            "Dataset Annotator Group",
-            "Errol Colak"
+            "P. -A. Descheenes",
+            "J. Lanteigne",
+            "Y. Verreman",
+            "D. Paquet",
+            "J. -B. Levesque",
+            "M. Brochu"
           ],
-          "claimed_title": "The RSNA Abdominal Traumatic Injury CT (RATIC) Dataset",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2024,
-          "primary_pointer": "2405.19595"
-        },
-        "details": "query-relevance 0.250 < 0.3 (query='Machine Learning Prediction of Crack Propagation Rates in Metals materials scien', candidate_title='The RSNA Abdominal Traumatic Injury CT (RATIC) Dataset')",
-        "failed_at": "2026-06-24T18:58:08Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "The Radiological Society of North America (RSNA) Lumbar Degenerative Imaging Spine Classification (LumbarDISC) dataset is the largest publicly available dataset of adult MRI lumbar spine examinations annotated for degenerative changes. The dataset includes 2,697 patients with a total of 8,593 image series from 8 institutions across 6 countries and 5 continents. The dataset is available for free for non-commercial use via Kaggle and RSNA Medical Imaging Resource of AI (MIRA). The dataset was created for the RSNA 2024 Lumbar Spine Degenerative Classification competition where competitors developed deep learning models to grade degenerative changes in the lumbar spine. The degree of spinal canal, subarticular recess, and neural foraminal stenosis was graded at each intervertebral disc level in the lumbar spine. The images were annotated by expert volunteer neuroradiologists and musculoskeletal radiologists from the RSNA, American Society of Neuroradiology, and the American Society of Spine Radiology. This dataset aims to facilitate research and development in machine learning and lumbar spine imaging to lead to improved patient care and clinical efficiency.",
-          "claimed_authors": [
-            "Tyler J. Richards",
-            "Adam E. Flanders",
-            "Errol Colak",
-            "Luciano M. Prevedello",
-            "Robyn L. Ball",
-            "Felipe Kitamura",
-            "John Mongan",
-            "Maryam Vazirabad",
-            "Hui-Ming Lin",
-            "Anne Kendell",
-            "Thanat Kanthawang",
-            "Salita Angkurawaranon",
-            "Emre Altinmakas",
-            "Hakan Dogan",
-            "Paulo Eduardo de Aguiar Kuriki",
-            "Arjuna Somasundaram",
-            "Christopher Ruston",
-            "Deniz Bulja",
-            "Naida Spahovic",
-            "Jennifer Sommer",
-            "Sirui Jiang",
-            "Eduardo Moreno Judice de Mattos Farina",
-            "Eduardo Caminha Nunes",
-            "Michael Brassil",
-            "Megan McNamara",
-            "Johanna Ortiz",
-            "Jacob Peoples",
-            "Vinson L. Uytana",
-            "Anthony Kam",
-            "Venkata N. S. Dola",
-            "Daniel Murphy",
-            "David Vu",
-            "Dataset Contributor Group",
-            "Dataset Annotator Group",
-            "Competition Data Notebook Group",
-            "Jason F. Talbott"
-          ],
-          "claimed_title": "The RSNA Lumbar Degenerative Imaging Spine Classification (LumbarDISC) Dataset",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2025,
-          "primary_pointer": "2506.09162"
-        },
-        "details": "query-relevance 0.250 < 0.3 (query='Machine Learning Prediction of Crack Propagation Rates in Metals materials scien', candidate_title='The RSNA Lumbar Degenerative Imaging Spine Classification (LumbarDISC) Dataset')",
-        "failed_at": "2026-06-24T18:58:08Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Two basic features of assemblages of unicellular plankton: (1) their high biodiversity and (2) the power-law structure of their abundance, can be explained by an allometric scaling of cell growth and mortality with respect to cell size. To show this, we describe a numerical study of a size-structured, multispecies, population-dynamic model; the model has a single resource, supporting an arbitrary number of phytoplankton and zooplankton species. If the number of plankton species is large enough, the death rate of prey and cell growth rate of predators have approximate allometric scalings with cell size. Together, these scalings give rise to an equilibrium distribution of abundance near the power law, on which many species can coexist. Scalings of this kind cannot be achieved if the number of species is small. This suggests that the conjunction of species-richness and power-law structures in plankton communities is more than a coincidence. Although the exact allometric scalings used here should not be expected in practice, exclusion of species should be relatively slow if they lie close to the power law. Thus the forces needed to achieve coexistence could be effective, even if they are relatively weak.",
-          "claimed_authors": [
-            "Richard Law",
-            "José A. Cuesta",
-            "Gustav W. Delius"
-          ],
-          "claimed_title": "Plankton: the paradox and the power law",
+          "claimed_title": "A new experimental method to study the influence of welding residual stresses on fatigue crack propagation",
           "claimed_venue": "arXiv",
           "claimed_year": 2017,
-          "primary_pointer": "1705.05327"
+          "primary_pointer": "1709.06942"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='Machine Learning Prediction of Crack Propagation Rates in Metals materials scien', candidate_title='Plankton: the paradox and the power law')",
-        "failed_at": "2026-06-24T18:58:08Z",
+        "details": "query-relevance 0.250 < 0.3 (query='Machine Learning Prediction of Crack Propagation Rates in Metals materials scien', candidate_title='A new experimental method to study the influence of welding residual stresses on fatigue crack propagation')",
+        "failed_at": "2026-07-04T05:38:28Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Physics-Informed machine learning models have recently emerged with some interesting and unique features that can be applied to reservoir engineering. In particular, physics-informed neural networks (PINN) leverage the fact that neural networks are a type of universal function approximators that can embed the knowledge of any physical laws that govern a given data-set in the learning process, and can be described by partial differential equations. The transient diffusivity equation is a fundamental equation in reservoir engineering and the general solution to this equation forms the basis for Pressure Transient Analysis (PTA). The diffusivity equation is derived by combining three physical principles, the continuity equation, Darcy's equation, and the equation of state for a slightly compressible liquid. Obtaining general solutions to this equation is imperative to understand flow regimes in porous media. Analytical solutions of the transient diffusivity equation are usually hard to obtain due to the stiff nature of the equation caused by the steep gradients of the pressure near the well. In this work we apply physics-informed neural networks to the one and two dimensional diffusivity equation and demonstrate that decomposing the space domain into very few subdomains can overcome the stiffness problem of the equation. Additionally, we demonstrate that the inverse capabilities of PINNs can estimate missing physics such as permeability and distance from sealing boundary similar to buildup tests without shutting in the well.",
+          "claimed_abstract": "Periodic multilayers are nowadays widely used to perform x-ray analysis in the soft x-ray range (photon energy lower than 1 keV). However, they do not permit to obtain high-resolution spectra like natural or synthetic crystals. Thus, multilayers cannot resolve interferences between close x-ray lines. It has been shown and demonstrated experimentally that patterning a grating profile within a multilayer structure leads to a diffractive optics with improved resolving power. We illustrate the use of a Mo/B4C multilayer grating in the Fe L and C K spectral ranges, around 700 eV and 280 eV respectively. First, in the Fe L range, the improved spectral resolution enables us to distinguish the Fe Lαand Lβemissions (separated by 13 eV). In addition, using a sample made of a mix of LiF and an iron ore, we show that it is possible to easily resolve the F K and Fe L emissions. These examples demonstrate that an improved x-ray analysis can be obtained with multilayer gratings when there is the need to study samples having elements giving rise to close emission lines. Second, in the C K range, by comparing C Kαspectra from B4C and cellulose, we show that the shape of the emission band is sensitive to the chemical state of the carbon atom.",
           "claimed_authors": [
-            "Daniel Badawi",
-            "Eduardo Gildin"
+            "Philippe Jonnard",
+            "Karine Le Guen",
+            "Jean-Michel André"
           ],
-          "claimed_title": "Physics-Informed Neural Network for the Transient Diffusivity Equation in Reservoir Engineering",
+          "claimed_title": "High-resolution x-ray analysis with multilayer gratings",
           "claimed_venue": "arXiv",
-          "claimed_year": 2023,
-          "primary_pointer": "2309.17345"
+          "claimed_year": 2013,
+          "primary_pointer": "1304.1777"
         },
-        "details": "query-relevance 0.250 < 0.3 (query='Machine Learning Prediction of Crack Propagation Rates in Metals materials scien', candidate_title='Physics-Informed Neural Network for the Transient Diffusivity Equation in Reservoir Engineering')",
-        "failed_at": "2026-06-24T18:58:08Z",
+        "details": "query-relevance 0.000 < 0.3 (query='Machine Learning Prediction of Crack Propagation Rates in Metals materials scien', candidate_title='High-resolution x-ray analysis with multilayer gratings')",
+        "failed_at": "2026-07-04T05:38:28Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Random Neural Networks (RNNs) are a class of Neural Networks (NNs) that can also be seen as a specific type of queuing network. They have been successfully used in several domains during the last 25 years, as queuing networks to analyze the performance of resource sharing in many engineering areas, as learning tools and in combinatorial optimization, where they are seen as neural systems, and also as models of neurological aspects of living beings. In this article we focus on their learning capabilities, and more specifically, we present a practical guide for using the RNN to solve supervised learning problems. We give a general description of these models using almost indistinctly the terminology of Queuing Theory and the neural one. We present the standard learning procedures used by RNNs, adapted from similar well-established improvements in the standard NN field. We describe in particular a set of learning algorithms covering techniques based on the use of first order and, then, of second order derivatives. We also discuss some issues related to these objects and present new perspectives about their use in supervised learning problems. The tutorial describes their most relevant applications, and also provides a large bibliography.",
+          "claimed_abstract": "Learning curves are a concept from social sciences that has been adopted in the context of machine learning to assess the performance of a learning algorithm with respect to a certain resource, e.g., the number of training examples or the number of training iterations. Learning curves have important applications in several machine learning contexts, most notably in data acquisition, early stopping of model training, and model selection. For instance, learning curves can be used to model the performance of the combination of an algorithm and its hyperparameter configuration, providing insights into their potential suitability at an early stage and often expediting the algorithm selection process. Various learning curve models have been proposed to use learning curves for decision making. Some of these models answer the binary decision question of whether a given algorithm at a certain budget will outperform a certain reference performance, whereas more complex models predict the entire learning curve of an algorithm. We contribute a framework that categorises learning curve approaches using three criteria: the decision-making situation they address, the intrinsic learning curve question they answer and the type of resources they use. We survey papers from the literature and classify them into this framework.",
           "claimed_authors": [
-            "Sebastián Basterrech",
-            "Gerardo Rubino"
+            "Felix Mohr",
+            "Jan N. van Rijn"
           ],
-          "claimed_title": "A Tutorial about Random Neural Networks in Supervised Learning",
+          "claimed_title": "Learning Curves for Decision Making in Supervised Machine Learning: A Survey",
           "claimed_venue": "arXiv",
-          "claimed_year": 2016,
-          "primary_pointer": "1609.04846"
+          "claimed_year": 2022,
+          "primary_pointer": "2201.12150"
         },
-        "details": "query-relevance 0.125 < 0.3 (query='Machine Learning Prediction of Crack Propagation Rates in Metals materials scien', candidate_title='A Tutorial about Random Neural Networks in Supervised Learning')",
-        "failed_at": "2026-06-24T18:58:08Z",
+        "details": "query-relevance 0.250 < 0.3 (query='Machine Learning Prediction of Crack Propagation Rates in Metals materials scien', candidate_title='Learning Curves for Decision Making in Supervised Machine Learning: A Survey')",
+        "failed_at": "2026-07-04T05:38:28Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "We provide a unified analysis of the predictive risk of ridge regression and regularized discriminant analysis in a dense random effects model. We work in a high-dimensional asymptotic regime where $p, n \\to \\infty$ and $p/n \\to γ\\in (0, \\, \\infty)$, and allow for arbitrary covariance among the features. For both methods, we provide an explicit and efficiently computable expression for the limiting predictive risk, which depends only on the spectrum of the feature-covariance matrix, the signal strength, and the aspect ratio $γ$. Especially in the case of regularized discriminant analysis, we find that predictive accuracy has a nuanced dependence on the eigenvalue distribution of the covariance matrix, suggesting that analyses based on the operator norm of the covariance matrix may not be sharp. Our results also uncover several qualitative insights about both methods: for example, with ridge regression, there is an exact inverse relation between the limiting predictive risk and the limiting estimation risk given a fixed signal strength. Our analysis builds on recent advances in random matrix theory.",
+          "claimed_abstract": "We propose a novel variational phase-field model for fracture and fatigue in pseudoelastic shape memory alloys (SMAs). The model, developed in a one-dimensional setting, builds upon the Auricchio-Petrini constitutive formulation for SMAs and couples damage evolution with phase transformation. We study analytically and numerically the homogeneous and localization responses of a bar under both monotonic and cyclic loading, and we investigate various macroscopic behaviors by tuning the constitutive parameters. A key feature of the model is the introduction of a transformation strain limit, beyond which the material is fully martensitic and behaves elastically. This leads to a distinctive behavior in which the region of localized damage widens, yielding a delay of fracture. The capability of the model to predict the fatigue performance is assessed by simulating the uniaxial response of Ni-Ti multi-wire samples under different loading conditions. The results show that the model discriminates between safe and critical loading scenarios, capturing the experimental trend of increased fatigue resistance with higher mean strain at a fixed strain amplitude. Ongoing efforts are aimed at further evaluating its reliability for quantitative fatigue life prediction.",
           "claimed_authors": [
-            "Edgar Dobriban",
-            "Stefan Wager"
+            "Alma Brambilla",
+            "Laura De Lorenzis",
+            "Lorenza Petrini"
           ],
-          "claimed_title": "High-Dimensional Asymptotics of Prediction: Ridge Regression and Classification",
+          "claimed_title": "Variational phase-field modeling of fracture and fatigue in shape memory alloys: a one-dimensional study",
           "claimed_venue": "arXiv",
-          "claimed_year": 2015,
-          "primary_pointer": "1507.03003"
+          "claimed_year": 2025,
+          "primary_pointer": "2512.24871"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='Machine Learning Prediction of Crack Propagation Rates in Metals materials scien', candidate_title='High-Dimensional Asymptotics of Prediction: Ridge Regression and Classification')",
-        "failed_at": "2026-06-24T18:58:08Z",
+        "details": "query-relevance 0.000 < 0.3 (query='Machine Learning Prediction of Crack Propagation Rates in Metals materials scien', candidate_title='Variational phase-field modeling of fracture and fatigue in shape memory alloys: a one-dimensional study')",
+        "failed_at": "2026-07-04T05:38:29Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Large-scale {\\it in vitro} drug sensitivity screens are an important tool in personalized oncology to predict the effectiveness of potential cancer drugs. The prediction of the sensitivity of cancer cell lines to a panel of drugs is a multivariate regression problem with high-dimensional heterogeneous multi-omics data as input data and with potentially strong correlations between the outcome variables which represent the sensitivity to the different drugs. We propose a joint penalized regression approach with structured penalty terms which allow us to utilize the correlation structure between drugs with group-lasso-type penalties and at the same time address the heterogeneity between omics data sources by introducing data-source-specific penalty factors to penalize different data sources differently. By combining integrative penalty factors (IPF) with tree-guided group lasso, we create the IPF-tree-lasso method. We present a unified framework to transform more general IPF-type methods to the original penalized method. Because the structured penalty terms have multiple parameters, we demonstrate how the interval-search Efficient Parameter Selection via Global Optimization (EPSGO) algorithm can be used to optimize multiple penalty parameters efficiently. Simulation studies show that IPF-tree-lasso can improve the prediction performance compared to other lasso-type methods, in particular for heterogenous data sources. Finally, we employ the new methods to analyse data from the Genomics of Drug Sensitivity in Cancer project.",
+          "claimed_abstract": "This paper addresses the modeling of fracture in quasi-brittle materials using a phase-field approach to the description of crack topology. Within the computational mechanics community, several studies have treated the issue of modeling fracture using phase fields. Most of these studies have used an approach that implies the lack of a damage threshold. We herein explore an alternative model that includes a damage threshold and study how it compares with the most popular approach. The formulation is systematically explained within a rigorous variational framework. Subsequently, we present the corresponding three-dimensional finite element discretization that leads to a straightforward numerical implementation. Benchmark simulations in two dimensions and three dimensions are then presented. The results show that while an elastic stage and a damage threshold are ensured by the present model, good agreement with the results reported in the literature can be obtained, where such features are generally absent.",
           "claimed_authors": [
-            "Zhi Zhao",
-            "Manuela Zucknick"
+            "Jacinto Ulloa",
+            "Patricio Rodríguez",
+            "Cristóbal Samaniego",
+            "Esteban Samaniego"
           ],
-          "claimed_title": "Structured penalized regression for drug sensitivity prediction",
+          "claimed_title": "Phase-field modeling of fracture for quasi-brittle materials",
           "claimed_venue": "arXiv",
           "claimed_year": 2019,
-          "primary_pointer": "1902.04996"
+          "primary_pointer": "1902.10759"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='Machine Learning Prediction of Crack Propagation Rates in Metals materials scien', candidate_title='Structured penalized regression for drug sensitivity prediction')",
-        "failed_at": "2026-06-24T18:58:08Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Computational efficiency is an important consideration for deploying machine learning models for time series prediction in an online setting. Machine learning algorithms adjust model parameters automatically based on the data, but often require users to set additional parameters, known as hyperparameters. Hyperparameters can significantly impact prediction accuracy. Traffic measurements, typically collected online by sensors, are serially correlated. Moreover, the data distribution may change gradually. A typical adaptation strategy is periodically re-tuning the model hyperparameters, at the cost of computational burden. In this work, we present an efficient and principled online hyperparameter optimization algorithm for Kernel Ridge regression applied to traffic prediction problems. In tests with real traffic measurement data, our approach requires as little as one-seventh of the computation time of other tuning methods, while achieving better or similar prediction accuracy.",
-          "claimed_authors": [
-            "Hongyuan Zhan",
-            "Gabriel Gomes",
-            "Xiaoye S. Li",
-            "Kamesh Madduri",
-            "Kesheng Wu"
-          ],
-          "claimed_title": "Efficient Online Hyperparameter Optimization for Kernel Ridge Regression with Applications to Traffic Time Series Prediction",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2018,
-          "primary_pointer": "1811.00620"
-        },
-        "details": "query-relevance 0.250 < 0.3 (query='Machine Learning Prediction of Crack Propagation Rates in Metals materials scien', candidate_title='Efficient Online Hyperparameter Optimization for Kernel Ridge Regression with Applications to Traffic Time Series Prediction')",
-        "failed_at": "2026-06-24T18:58:08Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "We extend the model-free data-driven paradigm for rate-independent fracture mechanics proposed in Carrara et al. (2020), Data-driven Fracture Mechanics, Comp. Meth. App. Mech. Eng., 372 to rate-dependent fracture and sub-critical fatigue. The problem is formulated by combining the balance governing equations stemming from variational principles with a set of data points that encodes the fracture constitutive behavior of the material. The solution is found as the data point that best satisfies the meta-stability condition as given by the variational procedure and following a distance minimization approach based on closest-point-projection. The approach is tested on different setups adopting different types of rate-dependent fracture and fatigue models affected or not by white noise.",
-          "claimed_authors": [
-            "Pietro Carrara",
-            "Michael Ortiz",
-            "Laura De Lorenzis"
-          ],
-          "claimed_title": "Data-Driven Rate-Dependent Fracture Mechanics",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2021,
-          "primary_pointer": "2103.12396"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='Machine Learning Prediction of Crack Propagation Rates in Metals materials scien', candidate_title='Data-Driven Rate-Dependent Fracture Mechanics')",
-        "failed_at": "2026-06-24T18:58:08Z",
+        "details": "query-relevance 0.250 < 0.3 (query='Machine Learning Prediction of Crack Propagation Rates in Metals materials scien', candidate_title='Phase-field modeling of fracture for quasi-brittle materials')",
+        "failed_at": "2026-07-04T05:38:29Z",
         "reason": "query_irrelevant"
       }
     ],
@@ -472,7 +265,7 @@
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-06-24T18:58:08Z"
+          "verified_at": "2026-07-04T05:38:28Z"
         }
       },
       {
@@ -504,7 +297,60 @@
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-06-24T18:58:08Z"
+          "verified_at": "2026-07-04T05:38:28Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Yu-Chuan Hsu",
+            "Markus J. Buehler"
+          ],
+          "title": "DyFraNet: Forecasting and Backcasting Dynamic Fracture Mechanics in Space and Time Using a 2D-to-3D Deep Neural Network",
+          "venue": "arXiv",
+          "year": 2022
+        },
+        "primary_pointer": "2211.08482",
+        "summary": "The dynamics of materials failure is one of the most critical phenomena in a range of scientific and engineering fields, from healthcare to structural materials to transportation. In this paper we propose a specially designed deep neural network, DyFraNet, which can predict dynamic fracture behaviors by identifying a complete history of fracture propagation - from cracking onset, as a crack grows through the material, modeled as a series of frames evolving over time and dependent on each other. Furthermore, this model can not only forecast future fracture processes but also backcast to elucidate the past fracture history. In this scenario, once provided with the outcome of a fracture event, the model will elucidate past events that led to this state and will predict the future evolution of the failure process. By comparing the predicted results with atomistic-level simulations and theory, we show that DyFraNet can capture dynamic fracture mechanics by accurately predicting how cracks develop over time, including measures such as the crack speed, as well as when cracks become unstable. We use GradCAM to interpret how DyFraNet perceives the relationship between geometric conditions and fracture dynamics and we find DyFraNet pays special attention to the areas around crack tips, which have a critical influence in the early stage of fracture propagation. In later stages, the model pays increased attention to the existing or newly formed damage distribution in the material. The proposed approach offers significant potential to accelerate the exploration of the dynamics in material design against fracture failures and can be beneficially adapted for all kinds of dynamical engineering problems.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2211.08482",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.375,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-04T05:38:29Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Johannes Rosenberger",
+            "Johannes Tlatlik",
+            "Sebastian Münstermann"
+          ],
+          "title": "Macroscale fracture surface segmentation via semi-supervised learning considering the structural similarity",
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2403.18337",
+        "summary": "To this date the safety assessment of materials, used for example in the nuclear power sector, commonly relies on a fracture mechanical analysis utilizing macroscopic concepts, where a global load quantity K or J is compared to the materials fracture toughness curve. Part of the experimental effort involved in these concepts is dedicated to the quantitative analysis of fracture surfaces. Within the scope of this study a methodology for the semi-supervised training of deep learning models for fracture surface segmentation on a macroscopic level was established. Therefore, three distinct and unique datasets were created to analyze the influence of structural similarity on the segmentation capability. The structural similarity differs due to the assessed materials and specimen, as well as imaging-induced variance due to fluctuations in image acquisition in different laboratories. The datasets correspond to typical isolated laboratory conditions, complex real-world circumstances, and a curated subset of the two. We implemented a weak-to-strong consistency regularization for semi-supervised learning. On the heterogeneous dataset we were able to train robust and well-generalizing models that learned feature representations from images across different domains without observing a significant drop in prediction quality. Furthermore, our approach reduced the number of labeled images required for training by a factor of 6. To demonstrate the success of our method and the benefit of our approach for the fracture mechanics assessment, we utilized the models for initial crack size measurements with the area average method. For the laboratory setting, the deep learning assisted measurements proved to have the same quality as manual measurements. For models trained on the heterogeneous dataset, very good measurement accuracies with mean deviations smaller than 1 % could be achieved...",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2403.18337",
+          "http_status": 200,
+          "pdf_sample_score": 0.3565,
+          "query_relevance_score": 0.375,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-04T05:38:29Z"
         }
       },
       {
@@ -532,119 +378,7 @@
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-06-24T18:58:08Z"
-        }
-      },
-      {
-        "bibliographic_info": {
-          "authors": [
-            "M. Simoes",
-            "C. Braithwaite",
-            "A. Makaya",
-            "E. Martínez-Pañeda"
-          ],
-          "title": "Modelling fatigue crack growth in Shape Memory Alloys",
-          "venue": "arXiv",
-          "year": 2021
-        },
-        "primary_pointer": "2112.08209",
-        "summary": "We present a phase field-based framework for modelling fatigue damage in Shape Memory Alloys (SMAs). The model combines, for the first time: (i) a generalised phase field description of fracture, incorporating multiple phase field formulations, (ii) a constitutive model for SMAs, based on a Drucker-Prager form of the transformation surface, and (iii) a fatigue degradation function, with damage driven by both elastic and transformation strains. The theoretical framework is numerically implemented, and the resulting linearised system is solved using a robust monolithic scheme, based on quasi-Newton methods. Several paradigmatic boundary value problems are addressed to gain insight into the role of transformation stresses, stress-strain hysteresis and temperature. Namely, we compute $Δ\\varepsilon-N$ curves, quantify Paris law parameters and predict fatigue crack growth rates in several geometries. In addition, the potential of the model for solving large-scale problems is demonstrated by simulating the fatigue failure of a 3D lattice structure.",
-        "summary_grounded_pdf": false,
-        "verification_log": {
-          "backend": "arxiv",
-          "final_url": "https://arxiv.org/abs/2112.08209",
-          "http_status": 200,
-          "pdf_sample_score": null,
-          "query_relevance_score": 0.7143,
-          "redirect_chain": [],
-          "summary_grounding_score": 1.0,
-          "title_token_overlap_score": 1.0,
-          "url_resolves": true,
-          "verified_at": "2026-06-24T18:58:13Z"
-        }
-      },
-      {
-        "bibliographic_info": {
-          "authors": [
-            "Mael Zaid",
-            "Vincent Bonnand",
-            "Véronique Doquet",
-            "Vincent Chiaruttini",
-            "Didier Pacou",
-            "Pierre Depouhon"
-          ],
-          "title": "Fatigue crack growth in bearing steel under cyclic mode II + static biaxial compression",
-          "venue": "arXiv",
-          "year": 2022
-        },
-        "primary_pointer": "2207.05698",
-        "summary": "Mode II fatigue crack growth under reversed shear and static biaxial compression was investigated in two bearing steels. Many aborted branches, quasi-orthogonal to the main crack, were observed along the crack face. The compressive stress parallel to the main crack hindered the growth of these branches and favored coplanar mode II crack growth. The crack face sliding displacement profiles measured by DIC were used to derive $Δ_{\\rm KII,eff}$, at the main crack tip, using elastic-plastic FE simulations with crack face friction, by an inverse method. Friction corrected crack growth kinetics were obtained for mode II crack growth in both steels.",
-        "summary_grounded_pdf": false,
-        "verification_log": {
-          "backend": "arxiv",
-          "final_url": "https://arxiv.org/abs/2207.05698",
-          "http_status": 200,
-          "pdf_sample_score": null,
-          "query_relevance_score": 0.4286,
-          "redirect_chain": [],
-          "summary_grounding_score": 1.0,
-          "title_token_overlap_score": 1.0,
-          "url_resolves": true,
-          "verified_at": "2026-06-24T18:58:13Z"
-        }
-      },
-      {
-        "bibliographic_info": {
-          "authors": [
-            "Nicola Scafetta",
-            "Asok Ray",
-            "Bruce J. West"
-          ],
-          "title": "Correlation regimes in fluctuations of fatigue crack growth",
-          "venue": "arXiv",
-          "year": 2005
-        },
-        "primary_pointer": "cond-mat/0504530",
-        "summary": "This paper investigates correlation properties of fluctuations in fatigue crack growth of polycrystalline materials, such as ductile alloys, that are commonly encountered in structures and machinery components of complex electromechanical systems. The model of crack damage measure indicates that the fluctuations of fatigue crack growth are characterized by strong correlation patterns within short time scales and are uncorrelated for larger time scales. The two correlation regimes suggest that the 7075-T6 aluminum alloy, analyzed in this paper, is characterized by a micro-structure which is responsible for an intermittent correlated dynamics of fatigue crack growth within a certain scale. The constitutive equations of the damage measure are built upon the physics of fracture mechanics and are substantiated by Karhunen-Loève decomposition of fatigue test data. Statistical orthogonality of the estimated damage measure and the resulting estimation error is demonstrated in a Hilbert space setting.",
-        "summary_grounded_pdf": false,
-        "verification_log": {
-          "backend": "arxiv",
-          "final_url": "https://arxiv.org/abs/cond-mat/0504530",
-          "http_status": 200,
-          "pdf_sample_score": null,
-          "query_relevance_score": 0.7143,
-          "redirect_chain": [],
-          "summary_grounding_score": 1.0,
-          "title_token_overlap_score": 1.0,
-          "url_resolves": true,
-          "verified_at": "2026-06-24T18:58:14Z"
-        }
-      },
-      {
-        "bibliographic_info": {
-          "authors": [
-            "Panayiotis Kousoulas",
-            "Rahul Sharma",
-            "Y. B. Guo"
-          ],
-          "title": "Integrated physics-informed learning and resonance process signature for the prediction of fatigue crack growth for laser-fused alloys",
-          "venue": "arXiv",
-          "year": 2025
-        },
-        "primary_pointer": "2510.21018",
-        "summary": "Fatigue behaviors of metal components by laser fusion suffer from scattering due to random geometrical defects (e.g., porosity, lack of fusion). Monitoring fatigue crack initiation and growth is critical, especially for laser-fused components with significant inherent fatigue scattering. Conventional statistics-based curve-fitting fatigue models have difficulty incorporating significant scattering in their fatigue life due to the random geometrical defects. A scattering-informed predictive method is needed for laser-fused materials' crack size and growth. Current data-driven machine learning could circumvent the issue of deterministic modeling, but results in a black-box function that lacks interpretability. To address these challenges, this study explores a novel nondimensionalized physics-informed machine learning (PIML) model to predict fatigue crack growth of laser-fused SS-316L by integrating fatigue laws and constraints with small data to ensure a realistic and interpretable prediction. Resonance process signature data were leveraged with Paris's law to train the PIML model without experimental crack growth data. The results show that Paris's law constants can be learned with good similarity to comparable data from the literature, and the crack growth rate can be predicted to compute crack sizes.",
-        "summary_grounded_pdf": false,
-        "verification_log": {
-          "backend": "arxiv",
-          "final_url": "https://arxiv.org/abs/2510.21018",
-          "http_status": 200,
-          "pdf_sample_score": 0.2592,
-          "query_relevance_score": 1.0,
-          "redirect_chain": [],
-          "summary_grounding_score": 1.0,
-          "title_token_overlap_score": 1.0,
-          "url_resolves": true,
-          "verified_at": "2026-06-24T18:58:14Z"
+          "verified_at": "2026-07-04T05:38:29Z"
         }
       }
     ]

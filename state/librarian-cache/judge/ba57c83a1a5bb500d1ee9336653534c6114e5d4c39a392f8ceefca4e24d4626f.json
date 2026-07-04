@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2403.18337",
+  "judged_at": "2026-07-04T05:38:33Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "machine learning prediction of crack propagation rates in metals materials science",
+  "rationale": "This paper satisfies criterion (b) as it measures a dependent variable (crack size/initial crack measurement) on the user's specific domain (fracture surfaces in materials science) using machine learning, providing an empirical baseline for ML applications in fracture mechanics even though it focuses on segmentation rather than propagation rates. It also aligns with criterion (a) by addressing the core mechanism of analyzing fracture surfaces to support safety assessments in materials.",
+  "relevant": true
+}

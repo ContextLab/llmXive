@@ -1,0 +1,311 @@
+resolved_at: '2026-07-04T05:46:38.416649+00:00'
+datasets:
+- intent: FCG
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/dirtycomputer/FCGEC/resolve/main/FCGEC_train.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/koke/AllTheBacteria-FCGR-6mer/resolve/main/sample2species2file2newspecies.tsv
+    source: huggingface
+    format: tsv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/koke/AllTheBacteria-FCGR-7mer/resolve/main/achromobacter_xylosoxidans__01.tar.gz
+    source: huggingface
+    format: gzip
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/dirtycomputer/FCGEC/resolve/main/FCGEC_train.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/api/resolve-cache/datasets/MiuN2k3/fc-generate/f9c235b4d623b6d23f21f3a27f737a3efb64423b/data.csv?%2Fdatasets%2FMiuN2k3%2Ffc-generate%2Fresolve%2Fmain%2Fdata.csv=&etag=%2272376fc8a3db6a2b50b793856ba1304a86a03b4e%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/koke/AllTheBacteria-FCGR-6mer/resolve/main/sample2species2file2newspecies.tsv
+    source: huggingface
+    status: verified
+    format: tsv
+  - url: https://huggingface.co/datasets/koke/AllTheBacteria-FCGR-7mer/resolve/main/achromobacter_xylosoxidans__01.tar.gz
+    source: huggingface
+    status: verified
+    format: gzip
+  - url: https://huggingface.co/datasets/koke/AllTheBacteria-FCGR-8mer/resolve/main/achromobacter_xylosoxidans__01.tar.gz
+    source: huggingface
+    status: verified
+    format: gzip
+  - url: https://figshare.com/articles/dataset/_b_i_ESR1_i_b_b_and_b_b_i_PIK3CA_i_b_b_Polymorphisms_as_Potential_Genetic_Susceptibility_Markers_for_Breast_Cancer_Risk_in_Bangladeshi_Women_A_Case-Control_Study_b_/32898884
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/MS_dataset_plates/32898878
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/thesis/Protection_of_Consumer_Rights_in_India_and_Bangladesh_A_Comparative_Study/32898875
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Mosquito_fauna_in_the_Ria_Celest_n_Biosphere_Reserve_with_a_new_report_for_Yucat_n_M_xico/32898143
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/A_curated_atomistic_dataset_and_machine_learning_potential_for_calcium_aluminate_silicate_hydrates/32887406
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7805042
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15419277
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5720260
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5720362
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ijphs.iaescore.com/index.php/IJPHS/article/view/22788
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21173329
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21173329
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2607.01929
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://drum.lib.umd.edu/handle/1903/35683
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://toubkal.imist.ma/handle/123456789/28696
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: NASA
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/hmnshudhmn24/igbt-accelerated-aging-nasa/resolve/main/SMU
+      Data for new devices/IGBT-IRG4BC30K/Part 11/Breakdown.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 5000
+      parsed: true
+  - url: https://huggingface.co/datasets/jiang12/nasa/resolve/main/diff-svc-v0.1.1-alpha.zip
+    source: huggingface
+    format: zip
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/liuyanchen1015/MULTI_VALUE_mnli_nasal_possessive_pron/resolve/main/data/dev_matched-00000-of-00001-f5c89bab96bb3fae.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/hmnshudhmn24/igbt-accelerated-aging-nasa/resolve/main/SMU
+      Data for new devices/IGBT-IRG4BC30K/Part 11/Breakdown.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/liuyanchen1015/MULTI_VALUE_mnli_nasal_possessive_pron/resolve/main/data/dev_matched-00000-of-00001-f5c89bab96bb3fae.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/jiang12/nasa/resolve/main/diff-svc-v0.1.1-alpha.zip
+    source: huggingface
+    status: verified
+    format: zip
+  - url: https://figshare.com/articles/dataset/_b_i_ESR1_i_b_b_and_b_b_i_PIK3CA_i_b_b_Polymorphisms_as_Potential_Genetic_Susceptibility_Markers_for_Breast_Cancer_Risk_in_Bangladeshi_Women_A_Case-Control_Study_b_/32898884
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/MS_dataset_plates/32898878
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/thesis/Protection_of_Consumer_Rights_in_India_and_Bangladesh_A_Comparative_Study/32898875
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Mosquito_fauna_in_the_Ria_Celest_n_Biosphere_Reserve_with_a_new_report_for_Yucat_n_M_xico/32898143
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/A_curated_atomistic_dataset_and_machine_learning_potential_for_calcium_aluminate_silicate_hydrates/32887406
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18307252
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18287732
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/2628412
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7655414
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15544360
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://pds.nasa.gov/ds-view/pds/viewBundle.jsp?identifier=urn%3Anasa%3Apds%3Alro-l-lroc-2-edr&amp;version=38.0
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://pds.nasa.gov/ds-view/pds/viewBundle.jsp?identifier=urn%3Anasa%3Apds%3Alro-l-lroc-3-cdr&amp;version=37.0
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21152944
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21152944
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://publica.fraunhofer.de/entities/publication/65a447f8-4342-4b1e-90aa-a1b8c1540aa7
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: NIST
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/nisten/opus-doctor-patient-conversations-all-human-diseases/resolve/main/opusdiseaseconversations.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/open-llm-leaderboard-old/details_nisten__shqiponja-59b-v1/resolve/main/2024-01-14T05-56-39.495831/details_harness|arc:challenge|25_2024-01-14T05-56-39.495831.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/open-llm-leaderboard-old/details_nisten__bigdoc-c34b-instruct-tf32/resolve/main/2024-02-02T03-54-56.700611/details_harness|arc:challenge|25_2024-02-02T03-54-56.700611.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/nisten/opus-doctor-patient-conversations-all-human-diseases/resolve/main/opusdiseaseconversations.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/open-llm-leaderboard-old/details_nisten__shqiponja-59b-v1/resolve/main/2024-01-14T05-56-39.495831/details_harness|arc:challenge|25_2024-01-14T05-56-39.495831.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/open-llm-leaderboard-old/details_nisten__bigdoc-c34b-instruct-tf32/resolve/main/2024-02-02T03-54-56.700611/details_harness|arc:challenge|25_2024-02-02T03-54-56.700611.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/open-llm-leaderboard-old/details_nisten__BigCodeLlama-92b/resolve/main/2024-02-02T12-17-18.661697/details_harness|arc:challenge|25_2024-02-02T12-17-18.661697.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/open-llm-leaderboard-old/details_nisten__shqiponja-15b-v1/resolve/main/2024-02-09T14-57-48.901535/details_harness|arc:challenge|25_2024-02-09T14-57-48.901535.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/dataset/_b_i_ESR1_i_b_b_and_b_b_i_PIK3CA_i_b_b_Polymorphisms_as_Potential_Genetic_Susceptibility_Markers_for_Breast_Cancer_Risk_in_Bangladeshi_Women_A_Case-Control_Study_b_/32898884
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/MS_dataset_plates/32898878
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/thesis/Protection_of_Consumer_Rights_in_India_and_Bangladesh_A_Comparative_Study/32898875
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Mosquito_fauna_in_the_Ria_Celest_n_Biosphere_Reserve_with_a_new_report_for_Yucat_n_M_xico/32898143
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/A_curated_atomistic_dataset_and_machine_learning_potential_for_calcium_aluminate_silicate_hydrates/32887406
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14189804
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6384789
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3382347
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7254581
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/12807749
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21182989
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21182989
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21182469
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21179719
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21179719
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
