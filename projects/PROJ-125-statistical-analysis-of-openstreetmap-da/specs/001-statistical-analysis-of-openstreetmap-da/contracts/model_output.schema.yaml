@@ -1,0 +1,89 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "ModelResultSchema"
+description: "Schema for the output of the spatial modeling pipeline."
+type: "object"
+properties:
+  model_type:
+    type: "string"
+    enum:
+      - "OLS"
+      - "GWR"
+      - "SAR"
+    description: "Type of spatial model fitted."
+  city_id:
+    type: "string"
+    description: "City identifier."
+  coefficients:
+    type: "object"
+    additionalProperties:
+      type: "number"
+    description: "Map of feature names to coefficient values."
+  standard_errors:
+    type: "object"
+    additionalProperties:
+      type: "number"
+    description: "Map of feature names to standard errors."
+  p_values:
+    type: "object"
+    additionalProperties:
+      type: "number"
+      minimum: 0.0
+      maximum: 1.0
+    description: "Map of feature names to p-values (BH corrected)."
+  metrics:
+    type: "object"
+    properties:
+      rmse:
+        type: "number"
+        minimum: 0.0
+      r2:
+        type: "number"
+        minimum: 0.0
+        maximum: 1.0
+      aic:
+        type: "number"
+    required:
+      - rmse
+      - r2
+      - aic
+    description: "In-sample performance metrics."
+  cv_metrics:
+    type: "object"
+    properties:
+      cv_rmse:
+        type: "number"
+        minimum: 0.0
+      cv_r2:
+        type: "number"
+        minimum: 0.0
+        maximum: 1.0
+    required:
+      - cv_rmse
+      - cv_r2
+    description: "Out-of-sample performance via spatial cross-validation."
+  gwr_bandwidth:
+    type: "number"
+    description: "Optimal bandwidth for GWR (only present if model_type is 'GWR')."
+  sensitivity_analysis:
+    type: "object"
+    properties:
+      bandwidth_range:
+        type: "array"
+        items:
+          type: "number"
+        description: "Range of bandwidths tested."
+      optimal_bandwidth:
+        type: "number"
+        description: "Bandwidth selected via AICc minimization."
+    required:
+      - bandwidth_range
+      - optimal_bandwidth
+    description: "Results of the GWR bandwidth sensitivity analysis."
+required:
+  - model_type
+  - city_id
+  - coefficients
+  - p_values
+  - metrics
+  - cv_metrics
+additionalProperties: false

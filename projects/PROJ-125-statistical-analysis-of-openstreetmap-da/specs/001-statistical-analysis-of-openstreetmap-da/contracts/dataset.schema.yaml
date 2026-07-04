@@ -1,0 +1,73 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "CityGridDatasetSchema"
+description: "Schema for the aligned 30m raster dataset for a single city."
+type: "object"
+properties:
+  city_id:
+    type: "string"
+    description: "Unique identifier for the city (e.g., 'NYC', 'CHI', 'LA')."
+  crs:
+    type: "string"
+    description: "Coordinate Reference System (e.g., 'EPSG:3857')."
+  resolution_meters:
+    type: "number"
+    description: "Resolution of the grid in meters."
+    const: 30.0
+  dimensions:
+    type: "object"
+    properties:
+      rows:
+        type: "integer"
+        minimum: 1
+      cols:
+        type: "integer"
+        minimum: 1
+    required:
+      - rows
+      - cols
+  bounds:
+    type: "array"
+    items:
+      type: "number"
+    minItems: 4
+    maxItems: 4
+    description: "Bounding box [min_x, min_y, max_x, max_y]."
+  layers:
+    type: "array"
+    items:
+      type: "string"
+      enum:
+        - "temperature"
+        - "building_density"
+        - "road_density"
+        - "tree_density"
+    description: "List of variable layers present in the dataset."
+  data_quality:
+    type: "object"
+    properties:
+      temperature_valid_pixels_ratio:
+        type: "number"
+        minimum: 0.0
+        maximum: 1.0
+        description: "Ratio of valid temperature pixels (target: >=0.95)."
+      covariate_valid_pixels_ratio:
+        type: "number"
+        minimum: 0.0
+        maximum: 1.0
+        description: "Ratio of valid covariate pixels (target: >=0.95)."
+      alignment_tolerance_degrees:
+        type: "number"
+        maximum:
+        description: "Tolerance for CRS alignment."
+    required:
+      - temperature_valid_pixels_ratio
+      - covariate_valid_pixels_ratio
+      - alignment_tolerance_degrees
+required:
+  - city_id
+  - crs
+  - resolution_meters
+  - dimensions
+  - bounds
+  - layers
+  - data_quality
