@@ -3,16 +3,34 @@
   \ status=not_enough_info] *(Alias of PT002)*"
 : 1
 ? "T002 Implement Monte\u2011Carlo framework core (`src/audit/monte_carlo_core.py`)\
+  \ \u2013 verify core functions importable. [UNRESOLVED-CLAIM: c_c7b8b565 \u2014\
+  \ status=not_enough_info] *(Alias of PT002)*"
+: 1
+? "T002 Implement Monte\u2011Carlo framework core (`src/audit/monte_carlo_core.py`)\
   \ \u2013 verify core functions importable. [UNRESOLVED-CLAIM: c_cac03525 \u2014\
   \ status=not_enough_info] *(Alias of PT002)*"
 : 1
-? "T026 Implement synthetic dataset generator in `src/audit/synthetic.py` (FR\u2011\
-  030) \u2013 outputs `data/synthetic/synthetic_validation.csv` + `data/synthetic/synthetic_ground_truth.json`\
-  \ with at least 10\u202F000 simulated summaries (binary AND continuous outcomes)\
-  \ **and verify both outcome types are present** (constraint\u2011preservation\u2011\
-  2958f04c) (verify files are created and contain \u2265\u202F10\u202F000 records).\
-  \ **DEPENDS ON:** T006\u2011T012."
-: 2
+? "T012 Create CI workflow file `.github/workflows/audit.yml` that installs dependencies,\
+  \ enforces CPU \u2264 2 vCPU [UNRESOLVED-CLAIM: c_cd37e346 \u2014 status=not_enough_info],\
+  \ RAM \u2264 2 GB [UNRESOLVED-CLAIM: c_d04b4d02 \u2014 status=not_enough_info],\
+  \ timeout a predefined duration, and runs audit pipeline (verify workflow runs and\
+  \ respects limits) [DEPENDS ON: T010]."
+: 1
+? "T012 Create CI workflow file `.github/workflows/audit.yml` that installs dependencies,\
+  \ enforces CPU \u2264 2 vCPU, RAM \u2264 2 GB [UNRESOLVED-CLAIM: c_798df5f2 \u2014\
+  \ status=not_enough_info], timeout a predefined duration, and runs audit pipeline\
+  \ (verify workflow runs and respects limits) [DEPENDS ON: T010]."
+: 1
+? "T012 Create CI workflow file `.github/workflows/audit.yml` that installs dependencies,\
+  \ enforces CPU \u2264 2 vCPU, RAM \u2264 2 GB, timeout a predefined duration [UNRESOLVED-CLAIM:\
+  \ c_26bd3e2b \u2014 status=not_enough_info], and runs audit pipeline (verify workflow\
+  \ runs and respects limits) [DEPENDS ON: T010]."
+: 1
+? "T020d **[P]** Verify that every row in `data/provenance_log.csv` contains URL,\
+  \ repository identifier, and fetch timestamp [UNRESOLVED-CLAIM: c_3afd62b7 \u2014\
+  \ status=not_enough_info] (run validation script `tests/unit/test_provenance_schema.py`).\
+  \ **DEPENDS ON:** T020c."
+: 1
 ? "T026 Implement synthetic dataset generator in `src/audit/synthetic.py` (FR\u2011\
   030) \u2013 outputs `data/synthetic/synthetic_validation.csv` + `data/synthetic/synthetic_ground_truth.json`\
   \ with at least 10\u202F000 simulated summaries [UNRESOLVED-CLAIM: c_15e13729 \u2014\
@@ -20,6 +38,28 @@
   \ types are present** (constraint\u2011preservation\u20112958f04c) (verify files\
   \ are created and contain \u2265\u202F10\u202F000 records). **DEPENDS ON:** T006\u2011\
   T012."
+: 1
+? "T026 Implement synthetic dataset generator in `src/audit/synthetic.py` (FR\u2011\
+  030) \u2013 outputs `data/synthetic/synthetic_validation.csv` + `data/synthetic/synthetic_ground_truth.json`\
+  \ with at least 10\u202F000 simulated summaries [UNRESOLVED-CLAIM: c_dd4925ff \u2014\
+  \ status=not_enough_info] (binary AND continuous outcomes) **and verify both outcome\
+  \ types are present** (constraint\u2011preservation\u20112958f04c) (verify files\
+  \ are created and contain \u2265\u202F10\u202F000 records). **DEPENDS ON:** T006\u2011\
+  T012."
+: 1
+? "T026 Implement synthetic dataset generator in `src/audit/synthetic.py` (FR\u2011\
+  030) \u2013 outputs `data/synthetic/synthetic_validation.csv` + `data/synthetic/synthetic_ground_truth.json`\
+  \ with at least 10\u202F000 simulated summaries [UNRESOLVED-CLAIM: c_f8940a80 \u2014\
+  \ status=not_enough_info] (binary AND continuous outcomes) **and verify both outcome\
+  \ types are present** (constraint\u2011preservation\u20112958f04c) (verify files\
+  \ are created and contain \u2265\u202F10\u202F000 records). **DEPENDS ON:** T006\u2011\
+  T012."
+: 1
+? "T029 Evaluate inconsistency\u2011detection component on synthetic validation dataset\
+  \ (FR\u2011031) \u2013 compute precision, recall, F1 and assert precision \u2265\
+  \ 90\u202F%, recall \u2265 80\u202F% [UNRESOLVED-CLAIM: c_71a8564c \u2014 status=not_enough_info]\
+  \ (depends on T026) (verify test passes, otherwise raise `ERR-800`) [DEPENDS ON:\
+  \ T026]."
 : 1
 ? "T029 Evaluate inconsistency\u2011detection component on synthetic validation dataset\
   \ (FR\u2011031) \u2013 compute precision, recall, F1 and assert precision \u2265\
@@ -32,6 +72,11 @@
   \ \u2014 status=not_enough_info] (depends on T026) (verify test passes, otherwise\
   \ raise `ERR-800`) [DEPENDS ON: T026]."
 : 1
+? "T035 FR\u2011001 Verification: Run `tests/integration/test_url_ingestion.py` to\
+  \ assert `input/urls.csv` processing completes without error [UNRESOLVED-CLAIM:\
+  \ c_8b9cf4c7 \u2014 status=not_enough_info] (coverage\u2011executability\u201108d5764f)\
+  \ (verify test passes)."
+: 1
 ? "T036 FR\u2011002 Verification: Run `tests/integration/test_extractor_accuracy.py`\
   \ to assert extracted fields exist for >\u202F95\u202F% of valid pages (coverage\u2011\
   executability\u201108d5764f) (verify test passes)."
@@ -39,6 +84,11 @@
 ? "T036 FR\u2011002 Verification: Run `tests/integration/test_extractor_accuracy.py`\
   \ to assert extracted fields exist for >\u202F95\u202F% of valid pages [UNRESOLVED-CLAIM:\
   \ c_cc811205 \u2014 status=not_enough_info] (coverage\u2011executability\u201108d5764f)\
+  \ (verify test passes)."
+: 1
+? "T037 FR\u2011003 Verification: Run `tests/integration/test_reconstructor_completeness.py`\
+  \ to assert reconstructed p\u2011values computed for all records [UNRESOLVED-CLAIM:\
+  \ c_c95cee25 \u2014 status=not_enough_info] (coverage\u2011executability\u201108d5764f)\
   \ (verify test passes)."
 : 1
 "T043 Unit tests for binomial test and CI width \u2264 0.10 (tests/unit/test_prevalence.py) (verify test passes).": 2
@@ -56,6 +106,12 @@
   \ URLs within 30 minutes [UNRESOLVED-CLAIM: c_cf59c7a8 \u2014 status=not_enough_info]\
   \ (FR\u2011028) **and include novice\u2011user verification step with written confirmation\
   \ log** (see T095b) (verify guide file exists and includes novice verification instructions)."
+: 1
+? "T062 Implement Monte\u2011Carlo validation module (FR\u2011026) in `src/audit/monte_carlo_validation.py`\
+  \ that runs 10\u202F000 replicates for each statistical test (z-test, Fisher's,\
+  \ Welch's, binomial) and checks the absolute difference \u2264 0.005 [UNRESOLVED-CLAIM:\
+  \ c_069d2353 \u2014 status=not_enough_info] (constraint\u2011preservation\u2011\
+  e62a0df4) (verify module exits with status 0)."
 : 1
 ? "T062 Implement Monte\u2011Carlo validation module (FR\u2011026) in `src/audit/monte_carlo_validation.py`\
   \ that runs 10\u202F000 replicates for each statistical test (z-test, Fisher's,\
