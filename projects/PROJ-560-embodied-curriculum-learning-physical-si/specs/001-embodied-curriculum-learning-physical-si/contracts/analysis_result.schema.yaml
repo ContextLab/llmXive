@@ -1,0 +1,104 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "AnalysisResult"
+description: "Schema for the statistical analysis output of the Embodied Curriculum Learning project."
+type: "object"
+required:
+  - "ancova_f_statistic"
+  - "ancova_p_value"
+  - "ancova_effect_size"
+  - "t_statistic"
+  - "p_value"
+  - "corrected_p_value"
+  - "effect_size_cohen_d"
+  - "confidence_interval"
+  - "inference_framing"
+  - "test_type"
+  - "degrees_of_freedom"
+  - "power_achieved"
+  - "power_flag"
+  - "collinearity_warnings"
+properties:
+  ancova_f_statistic:
+    type: "number"
+    description: "The F-value from the primary ANCOVA model."
+  ancova_p_value:
+    type: "number"
+    description: "The uncorrected p-value from ANCOVA."
+  ancova_effect_size:
+    type: "number"
+    description: "Partial eta-squared effect size from ANCOVA."
+  t_statistic:
+    type: "number"
+    description: "The t-value from the secondary t-test on gain scores."
+  p_value:
+    type: "number"
+    description: "The uncorrected p-value from the t-test."
+  corrected_p_value:
+    type: "number"
+    description: "Bonferroni-corrected p-value (alpha_adj = 0.05 / N_concepts)."
+  effect_size_cohen_d:
+    type: "number"
+    description: "Cohen's d effect size from the t-test."
+  confidence_interval:
+    type: "array"
+    items:
+      type: "number"
+    minItems: 2
+    maxItems: 2
+    description: "95% confidence interval for the mean difference [lower, upper]."
+  inference_framing:
+    type: "string"
+    enum:
+      - "associational"
+    description: "Must always be 'associational' for secondary data analysis."
+  test_type:
+    type: "string"
+    enum:
+      - "ancova"
+      - "student"
+      - "welch"
+    description: "Type of statistical test used. 'ancova' is primary."
+  degrees_of_freedom:
+    type: "number"
+    description: "Degrees of freedom (adjusted for Welch's or ANCOVA)."
+  power_achieved:
+    type: "number"
+    description: "Calculated statistical power for the observed effect size."
+  power_flag:
+    type: "string"
+    enum:
+      - "underpowered"
+      - "adequate"
+    description: "Flag indicating if power is below 0.80."
+  collinearity_warnings:
+    type: "array"
+    items:
+      type: "string"
+    description: "List of variable pairs with |r| > 0.8."
+  concept_id:
+    type: "string"
+    description: "The concept being analyzed (if multiple concepts exist)."
+  sensitivity_analysis:
+    type: "array"
+    items:
+      type: "object"
+      required:
+        - "threshold_value"
+        - "n_participants_retained"
+        - "effect_size_cohen_d"
+        - "robustness_flag"
+      properties:
+        threshold_value:
+          type: "number"
+          description: "The gain score threshold used (e.g., 0.01, 0.05, 0.10)."
+        n_participants_retained:
+          type: "integer"
+          description: "Number of participants retained after applying the threshold."
+        effect_size_cohen_d:
+          type: "number"
+          description: "Effect size at this specific threshold."
+        robustness_flag:
+          type: "boolean"
+          description: "True if effect size drops below 0.2 at this threshold."
+    description: "Results of the sensitivity analysis sweep."
+additionalProperties: false

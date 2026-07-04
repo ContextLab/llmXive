@@ -1,0 +1,350 @@
+resolved_at: '2026-07-04T08:00:12.475303+00:00'
+datasets:
+- intent: CPU-tractable
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://karger.figshare.com/articles/dataset/Supplementary_Material_for_Systemic_Inflammatory_Markers_and_Intracranial_Atherosclerosis_Road_to_Nowhere_A_Meta-analysis/32899070
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/different_non_zero_integers_into_the_product_of_two_sums_of_two_squares_one_of_them_is_a_prime_number/30918842
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Data_for_A_novel_SaeS-targeting_antivirulence_antagonist_screened_out_against_methicillin-resistant_Staphylococcus_aureus/32898971
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/The_Unshakeable_Index_A_Measurement_Framework_for_Mental_Strength_MSS_RRS/32899058
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/_b_ERK3_regulates_b_b_endothelial_dysfunction_b_/32899049
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5524642
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17854610
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10199277
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://kjet.kardan.edu.af/Journal?Journal=KJET&id=3183
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15115020
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21019586
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21019586
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20988320
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20988320
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20778398
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: DatasetRecord
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/strayfade/dataset-record-test/resolve/main/data/chunk-000/file-000.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 77404
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/strayfade/dataset-record-test/resolve/main/data/chunk-000/file-000.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://karger.figshare.com/articles/dataset/Supplementary_Material_for_Systemic_Inflammatory_Markers_and_Intracranial_Atherosclerosis_Road_to_Nowhere_A_Meta-analysis/32899070
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/different_non_zero_integers_into_the_product_of_two_sums_of_two_squares_one_of_them_is_a_prime_number/30918842
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Data_for_A_novel_SaeS-targeting_antivirulence_antagonist_screened_out_against_methicillin-resistant_Staphylococcus_aureus/32898971
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/The_Unshakeable_Index_A_Measurement_Framework_for_Mental_Strength_MSS_RRS/32899058
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/_b_ERK3_regulates_b_b_endothelial_dysfunction_b_/32899049
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19894971
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: ONLY
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/KisanVaani/agriculture-qa-english-only/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/bs-modeling-metadata/c4_newslike_url_only/resolve/main/c4_newslike.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/kudo-research/mustc-en-es-text-only/resolve/main/data/dev-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 190547
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/KisanVaani/agriculture-qa-english-only/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/bs-modeling-metadata/c4_newslike_url_only/resolve/main/c4_newslike.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/kudo-research/mustc-en-es-text-only/resolve/main/data/dev-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://karger.figshare.com/articles/dataset/Supplementary_Material_for_Systemic_Inflammatory_Markers_and_Intracranial_Atherosclerosis_Road_to_Nowhere_A_Meta-analysis/32899070
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/different_non_zero_integers_into_the_product_of_two_sums_of_two_squares_one_of_them_is_a_prime_number/30918842
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Data_for_A_novel_SaeS-targeting_antivirulence_antagonist_screened_out_against_methicillin-resistant_Staphylococcus_aureus/32898971
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/The_Unshakeable_Index_A_Measurement_Framework_for_Mental_Strength_MSS_RRS/32899058
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/_b_ERK3_regulates_b_b_endothelial_dysfunction_b_/32899049
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14352943
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/545819
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5951740
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20480751
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5951738
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20823850
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21188605
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21188515
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21188515
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.repository.cam.ac.uk/handle/1810/405775
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: AnalysisResult
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/cicero-im/analysis_results/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/cicero-im/analysis_results/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/dataset/Long-term_phosphorus_enrichment_shifts_grassland_carbon-flux_from_resource_limitation_to_stoichiometric_imbalance_under_increased_precipitation/32899067
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://karger.figshare.com/articles/dataset/Supplementary_Material_for_Systemic_Inflammatory_Markers_and_Intracranial_Atherosclerosis_Road_to_Nowhere_A_Meta-analysis/32899070
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/different_non_zero_integers_into_the_product_of_two_sums_of_two_squares_one_of_them_is_a_prime_number/30918842
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Data_for_A_novel_SaeS-targeting_antivirulence_antagonist_screened_out_against_methicillin-resistant_Staphylococcus_aureus/32898971
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/The_Unshakeable_Index_A_Measurement_Framework_for_Mental_Strength_MSS_RRS/32899058
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19422572
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/11919062
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: UCI
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/udayl/UCI_HAR/resolve/main/csv_files/test.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/jlh/uci-shopper/resolve/main/data/train-00000-of-00001-3316810f8df41d3a.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/ucinlp/drop/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/ucinlp/drop/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/ucirvine/reuters21578/resolve/main/data/reuters21578.tar.gz
+    source: huggingface
+    status: verified
+    format: gzip
+  - url: https://huggingface.co/datasets/ucirvine/sms_spam/resolve/main/plain_text/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/udayl/UCI_HAR/resolve/main/csv_files/test.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/jlh/uci-shopper/resolve/main/data/train-00000-of-00001-3316810f8df41d3a.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/dataset/Long-term_phosphorus_enrichment_shifts_grassland_carbon-flux_from_resource_limitation_to_stoichiometric_imbalance_under_increased_precipitation/32899067
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://karger.figshare.com/articles/dataset/Supplementary_Material_for_Systemic_Inflammatory_Markers_and_Intracranial_Atherosclerosis_Road_to_Nowhere_A_Meta-analysis/32899070
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/different_non_zero_integers_into_the_product_of_two_sums_of_two_squares_one_of_them_is_a_prime_number/30918842
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Data_for_A_novel_SaeS-targeting_antivirulence_antagonist_screened_out_against_methicillin-resistant_Staphylococcus_aureus/32898971
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/The_Unshakeable_Index_A_Measurement_Framework_for_Mental_Strength_MSS_RRS/32899058
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7950533
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/61452
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10685355
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7681792
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6592391
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/j7upd/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21184053
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21184053
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21183179
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21183179
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
