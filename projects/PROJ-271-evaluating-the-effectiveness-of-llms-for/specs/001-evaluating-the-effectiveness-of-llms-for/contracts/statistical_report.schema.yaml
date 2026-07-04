@@ -1,0 +1,73 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Statistical Report Schema"
+description: "Schema for results/statistical_significance.json"
+type: "object"
+properties:
+  mcnemar_pvalues:
+    type: "object"
+    description: "P-values for McNemar's test per smell category"
+    additionalProperties:
+      type: "number"
+      minimum: 0
+      maximum: 1
+  logistic_regression_static_only:
+    type: "object"
+    description: "Coefficients from logistic regression predicting Static-only detection"
+    additionalProperties:
+      type: "number"
+  logistic_regression_llm_only:
+    type: "object"
+    description: "Coefficients from logistic regression predicting LLM-only detection"
+    additionalProperties:
+      type: "number"
+  complementarity_summary:
+    type: "string"
+    description: "Text summary of detection overlap"
+  sensitivity_analysis:
+    type: "object"
+    description: "Sensitivity analysis results"
+    additionalProperties:
+      type: "object"
+      properties:
+        false_positive_rate:
+          type: "number"
+          minimum: 0
+          maximum: 1
+        false_negative_rate:
+          type: "number"
+          minimum: 0
+          maximum: 1
+  vif_scores:
+    type: "object"
+    description: "Variance Inflation Factor scores"
+    additionalProperties:
+      type: "number"
+  resource_usage:
+    type: "object"
+    properties:
+      peak_ram_gb:
+        type: "number"
+        minimum: 0
+      total_time_hours:
+        type: "number"
+        minimum: 0
+  power_analysis:
+    type: "object"
+    description: "Power analysis results"
+    properties:
+      m_des:
+        type: "number"
+        description: "Minimum Detectable Effect Size"
+      estimated_discordance_rate:
+        type: "number"
+        description: "Estimated rate of discordant pairs"
+required:
+  - mcnemar_pvalues
+  - logistic_regression_static_only
+  - logistic_regression_llm_only
+  - complementarity_summary
+  - sensitivity_analysis
+  - vif_scores
+  - resource_usage
+  - power_analysis
+additionalProperties: false

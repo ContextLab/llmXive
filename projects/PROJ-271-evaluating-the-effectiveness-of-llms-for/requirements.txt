@@ -1,0 +1,12 @@
+datasets
+pandas
+radon
+pylint
+sentence-transformers
+llama-cpp-python
+scikit-learn
+statsmodels
+numpy
+psutil
+flake8
+black

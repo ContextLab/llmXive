@@ -1,0 +1,1 @@
+"""Contract tests for the llmXive research pipeline."""
