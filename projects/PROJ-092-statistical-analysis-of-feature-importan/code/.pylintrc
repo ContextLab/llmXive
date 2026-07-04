@@ -1,0 +1,39 @@
+[MAIN]
+ignore=.git,__pycache__,build,dist,venv,env,.venv
+jobs=0
+persistent=yes
+extension-pkg-whitelist=
+
+[MESSAGES CONTROL]
+disable=
+    C0114,  # missing-module-docstring
+    C0115,  # missing-class-docstring
+    C0116,  # missing-function-docstring
+    R0903,  # too-few-public-methods
+    R0913,  # too-many-arguments
+    R0914,  # too-many-locals
+    R0915,  # too-many-statements
+    W0511,  # fixme
+    W1203,  # logging-fstring-interpolation (we use f-strings in logs for performance)
+    C0301,  # line-too-long (handled by black/flake8)
+    R0801   # similar-lines
+
+[FORMAT]
+max-line-length=88
+max-module-lines=1000
+
+[DESIGN]
+max-args=10
+max-locals=20
+max-returns=6
+max-branches=15
+max-statements=50
+max-attributes=10
+max-public-methods=20
+
+[BASIC]
+good-names=i,j,k,ex,_,f,df,X,y
+naming-style=snake_case
+
+[TYPECHECK]
+generated-members=numpy.*,pandas.*,sklearn.*

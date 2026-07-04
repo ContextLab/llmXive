@@ -1,0 +1,2 @@
+# This directory stores output files from the analysis pipeline.
+# Generated files: importance_profiles.csv, drift_metrics.csv, global_stats.json, null_baseline.json

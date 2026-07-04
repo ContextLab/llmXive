@@ -1,0 +1,36 @@
+[tool.black]
+line-length = 88
+target-version = ['py311']
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
+)/
+'''
+
+[tool.isort]
+profile = "black"
+line_length = 88
+skip_gitignore = true
+
+[tool.pylint.messages_control]
+disable = [
+    "C0114",
+    "C0115",
+    "C0116",
+    "R0903",
+    "R0913",
+    "R0914",
+    "W0511",
+]
+
+[tool.pylint.format]
+max-line-length = 88
