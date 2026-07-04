@@ -1,14 +1,13 @@
 """
-Data models and schema validation for the Urban Heat Island analysis pipeline.
+Package initialization for models.
 """
 from .base import BaseModel
-from .city_boundary import CityBoundary
-from .raster_covariate import RasterCovariate
-from .temperature_raster import TemperatureRaster
+from .city import CityBoundary
+from .raster import RasterCovariate, TemperatureRaster
 
 __all__ = [
-    "BaseModel",
-    "CityBoundary",
-    "RasterCovariate",
-    "TemperatureRaster",
+    'BaseModel',
+    'CityBoundary',
+    'RasterCovariate',
+    'TemperatureRaster'
 ]

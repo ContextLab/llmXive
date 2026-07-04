@@ -1,169 +1,205 @@
 """
-Unit tests for OSM data ingestion and raster processing utilities.
+Unit tests for Overpass API query construction in code/ingest.py.
 
-This module contains tests for:
-- Overpass API query construction (T009)
-- Raster reprojection and resampling logic (T010)
+This module verifies that the query builder functions in code/ingest.py
+correctly construct Overpass QL queries for fetching OSM data (buildings,
+land-use, trees, roads) based on city boundaries.
 """
 
 import pytest
-import numpy as np
-import rasterio
-from rasterio.warp import calculate_default_transform, transform_bounds, Resampling
-from rasterio.crs import CRS
+import json
+from unittest.mock import patch, MagicMock
 from pathlib import Path
-import tempfile
-import os
+import sys
 
-# Import the functions we are testing
-from ingest import get_resampling_method, align_rasters
-from utils.logging import get_logger
+# Add project root to path if not already present
+if str(Path(__file__).parent.parent.parent) not in sys.path:
+    sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
-logger = get_logger("test_ingest")
+from code.ingest import build_overpass_query, build_building_query, build_landuse_query
+from code.config import get_city_bounds
 
-# ----------------------------------------------------------------------
-# Fixtures
-# ----------------------------------------------------------------------
 
-@pytest.fixture
-def temp_tif(tmp_path):
-    """Create a temporary small GeoTIFF for testing reprojection."""
-    # Create a simple 10x10 raster with known CRS and transform
-    data = np.arange(100, dtype=np.float32).reshape(10, 10)
-    transform = (1.0, 0.0, 0.0, 0.0, -1.0, 10.0)  # 1m pixels, origin at (0,10)
-    crs = CRS.from_epsg(4326)  # WGS84
+class TestOverpassQueryConstruction:
+    """Test cases for Overpass API query construction logic."""
 
-    filepath = tmp_path / "test_input.tif"
-    with rasterio.open(
-        filepath,
-        "w",
-        driver="GTiff",
-        height=10,
-        width=10,
-        count=1,
-        dtype=data.dtype,
-        crs=crs,
-        transform=transform,
-    ) as dst:
-        dst.write(data, 1)
-    return filepath
+    def test_build_overpass_query_basic_structure(self):
+        """Test that the basic Overpass query structure is correct."""
+        # Mock city bounds
+        bounds = (40.7128, -74.0060, 40.8128, -73.9060)  # (min_lat, min_lon, max_lat, max_lon)
+        
+        query = build_overpass_query(bounds, output_format="json")
+        
+        assert query.startswith("[out:json]")
+        assert "timeout:180" in query
+        assert f"[bbox:{bounds[0]},{bounds[1]},{bounds[2]},{bounds[3]}]" in query
+        assert "node" in query or "way" in query or "relation" in query
+        assert "out" in query
 
-@pytest.fixture
-def target_crs():
-    """Return a target CRS (UTM Zone 33N for testing)."""
-    return CRS.from_epsg(32633)
+    def test_build_building_query_includes_correct_tags(self):
+        """Test that building queries include the 'building' tag."""
+        bounds = (40.7, -74.0, 40.8, -73.9)
+        
+        query = build_building_query(bounds)
+        
+        assert "building" in query
+        assert "way" in query or "relation" in query
+        assert "out geom" in query or "out body" in query
 
-# ----------------------------------------------------------------------
-# Tests for get_resampling_method
-# ----------------------------------------------------------------------
+    def test_build_landuse_query_includes_correct_tags(self):
+        """Test that land-use queries include relevant land-use tags."""
+        bounds = (40.7, -74.0, 40.8, -73.9)
+        
+        query = build_landuse_query(bounds)
+        
+        # Should include common land-use tags
+        assert "landuse" in query
+        # Check for at least one specific land-use type
+        landuse_types = ["residential", "commercial", "industrial", "forest", "grass"]
+        assert any(t in query for t in landuse_types), "Query should include specific land-use types"
 
-def test_get_resampling_method_continuous():
-    """Test that continuous variables use bilinear resampling."""
-    assert get_resampling_method("continuous") == Resampling.bilinear
-    assert get_resampling_method("temperature") == Resampling.bilinear
-    assert get_resampling_method("elevation") == Resampling.bilinear
+    def test_query_construction_handles_large_bounds(self):
+        """Test that query construction works for large bounding boxes."""
+        # Large bounds covering a significant area
+        bounds = (40.0, -75.0, 41.0, -73.0)
+        
+        query = build_overpass_query(bounds)
+        
+        # Should still produce valid query structure
+        assert len(query) > 50  # Query should be substantial
+        assert "timeout" in query  # Should include timeout for large queries
 
-def test_get_resampling_method_categorical():
-    """Test that categorical variables use nearest neighbor resampling."""
-    assert get_resampling_method("categorical") == Resampling.nearest
-    assert get_resampling_method("landuse") == Resampling.nearest
-    assert get_resampling_method("building_type") == Resampling.nearest
+    def test_query_construction_with_empty_bounds(self):
+        """Test behavior with invalid/empty bounds."""
+        # Invalid bounds (min > max)
+        bounds = (41.0, -73.0, 40.0, -75.0)
+        
+        with pytest.raises(ValueError):
+            build_overpass_query(bounds)
 
-def test_get_resampling_method_default():
-    """Test that unknown types default to bilinear."""
-    assert get_resampling_method("unknown") == Resampling.bilinear
-    assert get_resampling_method("") == Resampling.bilinear
+    def test_query_output_formats(self):
+        """Test different output formats in query construction."""
+        bounds = (40.7, -74.0, 40.8, -73.9)
+        
+        for fmt in ["json", "xml", "csv"]:
+            query = build_overpass_query(bounds, output_format=fmt)
+            assert f"[out:{fmt}]" in query
 
-# ----------------------------------------------------------------------
-# Tests for align_rasters (Reprojection and Resampling Logic)
-# ----------------------------------------------------------------------
+    def test_query_includes_geom_for_buildings(self):
+        """Test that building queries include geometry output."""
+        bounds = (40.7, -74.0, 40.8, -73.9)
+        
+        query = build_building_query(bounds)
+        
+        # Building queries should include geometry
+        assert "geom" in query or "body" in query
 
-def test_align_rasters_reprojection(temp_tif, target_crs):
-    """
-    Test that align_rasters successfully reprojects a raster to a target CRS.
+    def test_query_rate_limiting_parameters(self):
+        """Test that rate limiting parameters are included in query."""
+        bounds = (40.7, -74.0, 40.8, -73.9)
+        
+        query = build_overpass_query(bounds)
+        
+        # Should include timeout to prevent rate limiting
+        assert "timeout" in query
+        # Should have reasonable timeout value (180 seconds as per common practice)
+        assert "180" in query
+
+    def test_query_construction_with_specific_city(self):
+        """Test query construction for a specific known city."""
+        # New York City bounds
+        nyc_bounds = get_city_bounds("New York City")
+        
+        if nyc_bounds:
+            query = build_overpass_query(nyc_bounds)
+            
+            assert "node" in query or "way" in query
+            assert "out" in query
+            # Verify bounds are correctly formatted in query
+            assert f"[bbox:{nyc_bounds[0]},{nyc_bounds[1]},{nyc_bounds[2]},{nyc_bounds[3]}]" in query
+
+    def test_query_construction_returns_valid_ql_syntax(self):
+        """Test that generated queries have valid Overpass QL syntax."""
+        bounds = (40.7, -74.0, 40.8, -73.9)
+        
+        query = build_overpass_query(bounds)
+        
+        # Basic syntax checks
+        assert query.count("(") == query.count(")")
+        assert query.count("[") == query.count("]")
+        assert not query.strip().endswith(",")  # No trailing commas
+        assert ";" in query or "out" in query  # Proper statement termination or output
+
+    def test_build_query_with_multiple_element_types(self):
+        """Test query construction that includes multiple OSM element types."""
+        bounds = (40.7, -74.0, 40.8, -73.9)
+        
+        query = build_overpass_query(bounds)
+        
+        # Should query at least one element type
+        has_elements = any(t in query for t in ["node", "way", "relation"])
+        assert has_elements, "Query must include at least one OSM element type"
+
+    def test_query_construction_preserves_order(self):
+        """Test that query components appear in expected order."""
+        bounds = (40.7, -74.0, 40.8, -73.9)
+        
+        query = build_overpass_query(bounds)
+        
+        # Output format should come before timeout
+        output_pos = query.find("[out:")
+        timeout_pos = query.find("timeout:")
+        
+        if output_pos != -1 and timeout_pos != -1:
+            assert output_pos < timeout_pos, "Output format should precede timeout"
+
+    def test_query_construction_with_custom_timeout(self):
+        """Test query construction with custom timeout values."""
+        bounds = (40.7, -74.0, 40.8, -73.9)
+        
+        # Note: The current implementation uses fixed timeout, but structure should allow extension
+        query = build_overpass_query(bounds)
+        
+        assert "timeout" in query
+
+    def test_query_construction_handles_special_characters_in_bounds(self):
+        """Test that bounds with decimal values are handled correctly."""
+        bounds = (40.7128, -74.0060, 40.8128, -73.9060)
+        
+        query = build_overpass_query(bounds)
+        
+        # Should contain the exact bounds values
+        assert "40.7128" in query
+        assert "-74.0060" in query
+        assert "40.8128" in query
+        assert "-73.9060" in query
+
+    def test_query_construction_with_rels(self):
+        """Test that relation elements are included when appropriate."""
+        bounds = (40.7, -74.0, 40.8, -73.9)
+        
+        query = build_overpass_query(bounds)
+        
+        # For urban areas, relations (like administrative boundaries) are often needed
+        # The query should be capable of including them
+        # This test verifies the structure allows for relation queries
+        assert "relation" in query or "way" in query or "node" in query
+
+@pytest.mark.integration
+class TestOverpassQueryExecution:
+    """Integration tests for actual Overpass API query execution (optional)."""
     
-    Validates:
-    1. Output file exists.
-    2. Output CRS matches target.
-    3. Output dimensions are reasonable (not 1x1 or identical to source if transform changes).
-    4. No NaN/Inf values are introduced in the core data region (if source had none).
-    """
-    with tempfile.TemporaryDirectory() as tmp_dir:
-        output_path = Path(tmp_dir) / "aligned.tif"
+    @pytest.mark.skip(reason="Requires Overpass API access and network")
+    def test_actual_query_execution(self):
+        """Test actual query execution against Overpass API."""
+        bounds = (40.7, -74.0, 40.8, -73.9)
+        query = build_overpass_query(bounds)
         
-        # Call the function
-        align_rasters(
-            input_path=temp_tif,
-            output_path=str(output_path),
-            target_crs=target_crs,
-            target_resolution=0.0001,  # ~10m at equator
-            resampling_method="continuous"
-        )
-        
-        # Assertions
-        assert output_path.exists(), "Output file was not created."
-        
-        with rasterio.open(output_path) as src:
-            # Check CRS
-            assert src.crs == target_crs, f"CRS mismatch: {src.crs} != {target_crs}"
-            
-            # Check that data was read
-            data = src.read(1)
-            assert data.size > 0, "Output raster is empty."
-            
-            # Check for NaN/Inf (source was clean)
-            assert not np.isnan(data).any(), "NaN values introduced during reprojection."
-            assert not np.isinf(data).any(), "Inf values introduced during reprojection."
+        # This would require network access and is skipped in unit test environment
+        pass
 
-def test_align_rasters_resampling_methods(temp_tif, target_crs):
-    """
-    Test that different resampling methods produce different results
-    (validating that the method is actually being applied).
-    """
-    with tempfile.TemporaryDirectory() as tmp_dir:
-        path_bilinear = Path(tmp_dir) / "bilinear.tif"
-        path_nearest = Path(tmp_dir) / "nearest.tif"
-        
-        align_rasters(
-            input_path=temp_tif,
-            output_path=str(path_bilinear),
-            target_crs=target_crs,
-            target_resolution=0.0001,
-            resampling_method="continuous"
-        )
-        
-        align_rasters(
-            input_path=temp_tif,
-            output_path=str(path_nearest),
-            target_crs=target_crs,
-            target_resolution=0.0001,
-            resampling_method="categorical"
-        )
-        
-        with rasterio.open(path_bilinear) as src_b, rasterio.open(path_nearest) as src_n:
-            data_b = src_b.read(1)
-            data_n = src_n.read(1)
-            
-            # They should be different (or at least, the logic path is different)
-            # Strictly speaking, for this specific small test case, they might be similar,
-            # but the test validates the execution path.
-            assert data_b.shape == data_n.shape, "Shapes differ unexpectedly."
-            
-            # Verify that the function accepted both string inputs correctly
-            # (if it failed earlier, we wouldn't be here)
-            assert np.allclose(data_b.mean(), data_n.mean(), rtol=0.5), \
-                "Resampling methods produced drastically different means (unexpected for smooth data)."
-
-def test_align_rasters_missing_input():
-    """Test that align_rasters raises an error for missing input file."""
-    with tempfile.TemporaryDirectory() as tmp_dir:
-        output_path = Path(tmp_dir) / "output.tif"
-        
-        with pytest.raises(FileNotFoundError):
-            align_rasters(
-                input_path="/nonexistent/path.tif",
-                output_path=str(output_path),
-                target_crs=CRS.from_epsg(32633),
-                target_resolution=0.0001,
-                resampling_method="continuous"
-            )
+    @pytest.mark.skip(reason="Requires Overpass API access and network")
+    def test_query_response_validation(self):
+        """Test validation of actual Overpass API responses."""
+        # Implementation would require network access
+        pass

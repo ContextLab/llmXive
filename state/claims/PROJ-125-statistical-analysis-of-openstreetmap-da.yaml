@@ -1,0 +1,197 @@
+- artifact_path: projects/PROJ-125-statistical-analysis-of-openstreetmap-da/data/results/eda_report.md
+  attempts: 1
+  canonical: Pearson correlation between building_density and LST is 0.6824
+  claim_id: c_4ad8d166
+  context: The following table presents the Pearson correlation coefficients between
+    the target variable (LST) and the available covariates.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Pearson correlation coefficient between building_density and LST is
+    0.6824.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-04T16:09:51Z'
+- artifact_path: projects/PROJ-125-statistical-analysis-of-openstreetmap-da/data/results/eda_report.md
+  attempts: 1
+  canonical: Pearson correlation between road_density and LST is 0.5102
+  claim_id: c_c61dee36
+  context: The following table presents the Pearson correlation coefficients between
+    the target variable (LST) and the available covariates.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Pearson correlation coefficient between road_density and LST is 0.5102.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-04T16:10:06Z'
+- artifact_path: projects/PROJ-125-statistical-analysis-of-openstreetmap-da/data/results/eda_report.md
+  attempts: 1
+  canonical: Pearson correlation between impervious_surface and LST is 0.4890
+  claim_id: c_896a0354
+  context: The following table presents the Pearson correlation coefficients between
+    the target variable (LST) and the available covariates.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Pearson correlation coefficient between impervious_surface and LST
+    is 0.4890.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-04T16:10:27Z'
+- artifact_path: projects/PROJ-125-statistical-analysis-of-openstreetmap-da/data/results/eda_report.md
+  attempts: 1
+  canonical: Pearson correlation between tree_canopy and LST is -0.4512
+  claim_id: c_938d1b27
+  context: The following table presents the Pearson correlation coefficients between
+    the target variable (LST) and the available covariates.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Pearson correlation coefficient between tree_canopy and LST is -0.4512.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-04T16:10:57Z'
+- artifact_path: projects/PROJ-125-statistical-analysis-of-openstreetmap-da/data/results/eda_report.md
+  attempts: 1
+  canonical: Pearson correlation between water_body and LST is -0.2105
+  claim_id: c_0681b401
+  context: The following table presents the Pearson correlation coefficients between
+    the target variable (LST) and the available covariates.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Pearson correlation coefficient between water_body and LST is -0.2105.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-04T16:11:16Z'
+- artifact_path: projects/PROJ-125-statistical-analysis-of-openstreetmap-da/data/results/eda_report.md
+  attempts: 1
+  canonical: Moran's I statistic for LST in New York is 0.4523
+  claim_id: c_25a2e581
+  context: Spatial dependency of the Land Surface Temperature (LST) was assessed using
+    Moran's I and variogram analysis.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Moran's I statistic for Land Surface Temperature (LST) in New York
+    is 0.4523.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-04T16:12:13Z'
+- artifact_path: projects/PROJ-125-statistical-analysis-of-openstreetmap-da/data/results/eda_report.md
+  attempts: 1
+  canonical: Expected value for Moran's I statistic is -0.0012
+  claim_id: c_2b50a07d
+  context: Spatial dependency of the Land Surface Temperature (LST) was assessed using
+    Moran's I and variogram analysis.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The expected value for the Moran's I statistic is -0.0012.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-04T16:14:11Z'
+- artifact_path: projects/PROJ-125-statistical-analysis-of-openstreetmap-da/data/results/eda_report.md
+  attempts: 1
+  canonical: P-value for Moran's I statistic is 0.0001
+  claim_id: c_6a21e676
+  context: Spatial dependency of the Land Surface Temperature (LST) was assessed using
+    Moran's I and variogram analysis.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The p-value for the Moran's I statistic is 0.0001.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-04T16:15:09Z'
+- artifact_path: projects/PROJ-125-statistical-analysis-of-openstreetmap-da/data/results/eda_report.md
+  attempts: 1
+  canonical: Z-score for Moran's I statistic is 12.45
+  claim_id: c_21b4dc76
+  context: Spatial dependency of the Land Surface Temperature (LST) was assessed using
+    Moran's I and variogram analysis.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Z-score for the Moran's I statistic is 12.45.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-04T16:16:06Z'
+- artifact_path: projects/PROJ-125-statistical-analysis-of-openstreetmap-da/data/results/eda_report.md
+  attempts: 1
+  canonical: Variogram range for LST in New York is 2450 meters
+  claim_id: c_edc783e0
+  context: The variogram indicates the scale at which temperature values become spatially
+    independent.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The variogram range for Land Surface Temperature (LST) in New York is
+    2450 meters.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-04T16:16:30Z'
+- artifact_path: projects/PROJ-125-statistical-analysis-of-openstreetmap-da/data/results/eda_report.md
+  attempts: 1
+  canonical: Variogram sill for LST in New York is 12.45
+  claim_id: c_d3425ff7
+  context: The variogram indicates the scale at which temperature values become spatially
+    independent.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The variogram sill for Land Surface Temperature (LST) in New York is 12.45.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-04T16:16:56Z'
+- artifact_path: projects/PROJ-125-statistical-analysis-of-openstreetmap-da/data/results/eda_report.md
+  attempts: 1
+  canonical: Variogram nugget for LST in New York is 0.85
+  claim_id: c_38fd657a
+  context: The variogram indicates the scale at which temperature values become spatially
+    independent.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The variogram nugget for Land Surface Temperature (LST) in New York is
+    0.85.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-04T16:17:32Z'

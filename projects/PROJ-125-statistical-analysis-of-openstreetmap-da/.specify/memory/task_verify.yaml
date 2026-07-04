@@ -1,4 +1,3 @@
-T008 Configure environment variable management (`.env` support) for API keys (Overpass/AWS): 1
-T009 [P] [US1] Unit test for Overpass API query construction in `tests/unit/test_ingest.py`: 1
-T010 [P] [US1] Unit test for raster reprojection and resampling logic in `tests/unit/test_ingest.py`: 1
-T011 [P] [US1] Integration test for end-to-end ingestion of a single city in `tests/integration/test_ingest_pipeline.py`: 1
+T007 Create base data models and schema validation in `code/models/` (CityBoundary, RasterCovariate, TemperatureRaster): 2
+T008 Configure environment variable management (`.env` support) for API keys (Overpass/AWS): 2
+T009 [P] [US1] Unit test for Overpass API query construction in `tests/unit/test_ingest.py`: 2

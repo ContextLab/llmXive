@@ -4,88 +4,130 @@ Unit tests for the logging infrastructure.
 import logging
 import os
 import tempfile
+import shutil
 from pathlib import Path
+from unittest.mock import patch, MagicMock
+
 import pytest
 
-# We need to patch the _LOG_DIR to use a temporary directory for testing
-# to avoid writing to the actual project data folder during unit tests.
-import sys
-from unittest.mock import patch
+# We need to mock config.get_path to control where logs are written during tests
+from utils import logging as logging_module
 
-# Import the module
-import code.utils.logging as logging_module
 
-class TestLoggingInfrastructure:
-    
-    def test_get_logger_creates_instance(self):
-        """Test that get_logger returns a valid Logger instance."""
-        logger = logging_module.get_logger("test_unit")
-        assert isinstance(logger, logging.Logger)
-        assert logger.name == "test_unit"
+@pytest.fixture
+def temp_logs_dir():
+    """Create a temporary directory for log files during tests."""
+    temp_dir = tempfile.mkdtemp()
+    yield temp_dir
+    shutil.rmtree(temp_dir)
 
-    def test_logger_has_handlers(self):
-        """Test that the logger is configured with handlers."""
-        logger = logging_module.get_logger("test_handlers")
-        # Should have at least one handler (file or console)
-        assert len(logger.handlers) > 0
 
-    def test_logger_levels(self):
-        """Test that log levels are set correctly."""
-        logger = logging_module.get_logger("test_levels")
+def test_setup_logging_creates_file_handler(temp_logs_dir):
+    """Test that setup_logging creates a file handler in the specified directory."""
+    # Mock get_path to return our temp directory for data/logs
+    with patch.object(logging_module, 'get_path', return_value=temp_logs_dir):
+        logger = logging_module.setup_logging(
+            level=logging.DEBUG,
+            log_file_name="test_log.log",
+            enable_console=False
+        )
+        
+        assert logger.name == "osm_uhi_pipeline"
         assert logger.level == logging.DEBUG
         
-        # Check handler levels
-        has_file = False
-        has_console = False
+        # Check that a file handler was added
+        file_handlers = [h for h in logger.handlers if isinstance(h, logging.FileHandler)]
+        assert len(file_handlers) == 1
+        
+        # Check that the file exists
+        log_path = Path(temp_logs_dir) / "test_log.log"
+        assert log_path.exists()
+
+
+def test_setup_logging_creates_console_handler(temp_logs_dir):
+    """Test that setup_logging creates a console handler when enabled."""
+    with patch.object(logging_module, 'get_path', return_value=temp_logs_dir):
+        logger = logging_module.setup_logging(
+            level=logging.INFO,
+            enable_console=True
+        )
+        
+        console_handlers = [h for h in logger.handlers if isinstance(h, logging.StreamHandler)]
+        # Should have at least one console handler (sys.stdout)
+        assert len(console_handlers) >= 1
+
+
+def test_setup_logging_uses_custom_level(temp_logs_dir):
+    """Test that setup_logging respects the custom log level."""
+    with patch.object(logging_module, 'get_path', return_value=temp_logs_dir):
+        logger = logging_module.setup_logging(level=logging.WARNING)
+        assert logger.level == logging.WARNING
+
+
+def test_get_logger_returns_configured_logger(temp_logs_dir):
+    """Test that get_logger returns the configured logger."""
+    with patch.object(logging_module, 'get_path', return_value=temp_logs_dir):
+        # First call should configure
+        logger1 = logging_module.setup_logging(enable_console=False)
+        
+        # Reset the global state for the next call
+        logging_module._logger = None
+        
+        # Now call get_logger - it should configure if not configured
+        logger2 = logging_module.get_logger()
+        
+        assert logger2 is not None
+        assert len(logger2.handlers) > 0
+
+
+def test_logger_writes_to_file(temp_logs_dir):
+    """Test that log messages are written to the log file."""
+    log_filename = "test_write.log"
+    log_path = Path(temp_logs_dir) / log_filename
+    
+    with patch.object(logging_module, 'get_path', return_value=temp_logs_dir):
+        logger = logging_module.setup_logging(
+            level=logging.DEBUG,
+            log_file_name=log_filename,
+            enable_console=False
+        )
+        
+        test_message = "Test log message for verification"
+        logger.info(test_message)
+        
+        # Force flush
         for handler in logger.handlers:
-            if isinstance(handler, logging.FileHandler):
-                has_file = True
-                assert handler.level == logging.DEBUG
-            if isinstance(handler, logging.StreamHandler):
-                has_console = True
-                assert handler.level == logging.INFO
+            handler.flush()
         
-        # We expect at least one of them to exist
-        assert has_file or has_console
+        # Read the file and check content
+        assert log_path.exists()
+        content = log_path.read_text()
+        assert test_message in content
 
-    def test_log_output(self, tmp_path, caplog):
-        """Test that logging actually writes messages."""
-        # Create a temporary log directory
-        temp_log_dir = tmp_path / "logs"
-        temp_log_dir.mkdir()
-        
-        # Patch the _LOG_DIR in the module
-        original_log_dir = logging_module._LOG_DIR
-        logging_module._LOG_DIR = temp_log_dir
-        
-        # Force re-initialization by getting a new logger with a unique name
-        # or clearing handlers. Here we just get a new one.
-        test_logger = logging_module.get_logger("test_log_output_unique")
-        
-        # Ensure handlers are fresh for this test if possible, 
-        # but since the module caches global state, we rely on the fact
-        # that handlers are added if not present.
-        
-        # Log a message
-        test_logger.info("Test info message")
-        test_logger.debug("Test debug message")
-        test_logger.warning("Test warning message")
-        
-        # Check that the file was created
-        log_files = list(temp_log_dir.glob("*.log"))
-        assert len(log_files) > 0, "Log file should be created in temp directory"
-        
-        # Read the content to verify
-        log_content = log_files[0].read_text()
-        assert "Test info message" in log_content
-        assert "Test warning message" in log_content
-        # Debug might be there depending on handler level
-        
-        # Restore original
-        logging_module._LOG_DIR = original_log_dir
 
-    def test_get_main_logger(self):
-        """Test the convenience function."""
-        logger = logging_module.get_main_logger()
-        assert isinstance(logger, logging.Logger)
-        assert logger.name == "osm_uhi"
+def test_log_error_context(temp_logs_dir):
+    """Test the log_error_context utility function."""
+    with patch.object(logging_module, 'get_path', return_value=temp_logs_dir):
+        logger = logging_module.setup_logging(level=logging.DEBUG, enable_console=False)
+        
+        try:
+            raise ValueError("Test error")
+        except Exception as e:
+            logging_module.log_error_context(e, "Test Context")
+        
+        # Just verify it doesn't crash and logs something
+        # The actual content verification is covered by other tests
+
+
+def test_multiple_calls_to_setup_logging(temp_logs_dir):
+    """Test that multiple calls to setup_logging don't duplicate handlers."""
+    with patch.object(logging_module, 'get_path', return_value=temp_logs_dir):
+        logger1 = logging_module.setup_logging(enable_console=False)
+        initial_handler_count = len(logger1.handlers)
+        
+        # Calling again should ideally return the same logger without adding handlers
+        # Note: The current implementation checks hasHandlers() and returns early
+        logger2 = logging_module.setup_logging(enable_console=False)
+        
+        assert logger1 is logger2
+        assert len(logger2.handlers) == initial_handler_count

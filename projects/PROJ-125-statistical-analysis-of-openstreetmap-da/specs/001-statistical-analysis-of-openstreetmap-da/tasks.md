@@ -56,7 +56,7 @@
 - [X] T004 Create `code/config.py` with city definitions, CRS settings (EPSG:3857/Local UTM), path constants, and MAX_BLOCKS=100
 - [X] T005 [P] Implement memory safety utilities (`code/utils/memory.py`) for matrix size estimation and spatial block sampling logic
 - [X] T006 [P] Setup logging infrastructure in `code/utils/logging.py` with file and stdout handlers
-- [X] T007 Create base data models and schema validation in `code/models/` (CityBoundary, RasterCovariate, TemperatureRaster)
+- [ ] T007 Create base data models and schema validation in `code/models/` (CityBoundary, RasterCovariate, TemperatureRaster)
 - [ ] T008 Configure environment variable management (`.env` support) for API keys (Overpass/AWS)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -74,19 +74,19 @@
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
 - [ ] T009 [P] [US1] Unit test for Overpass API query construction in `tests/unit/test_ingest.py`
-- [ ] T010 [P] [US1] Unit test for raster reprojection and resampling logic in `tests/unit/test_ingest.py`
-- [ ] T011 [P] [US1] Integration test for end-to-end ingestion of a single city in `tests/integration/test_ingest_pipeline.py`
+- [~] T010 [P] [US1] Unit test for raster reprojection and resampling logic in `tests/unit/test_ingest.py`
+- [~] T011 [P] [US1] Integration test for end-to-end ingestion of a single city in `tests/integration/test_ingest_pipeline.py`
 
 ### Implementation for User Story 1
 
-- [X] T012 [US1] Implement OSM vector download via Overpass API in `code/ingest.py` (FR-001)
+- [~] T012 [US1] Implement OSM vector download via Overpass API in `code/ingest.py` (FR-001)
  - Download buildings, land-use, trees, roads for specified city boundaries.
  - Handle rate limits with exponential backoff and local caching.
-- [~] T013 [US1] Implement satellite thermal data ingestion in `code/ingest.py` (FR-002) <!-- ATOMIZE: requested -->
+- [~] T013 [US1] Implement satellite thermal data ingestion in `code/ingest.py` (FR-002)
  - Fetch MODIS/Landsat data for a recent multi-year period.
  - Compute daytime land-surface temperature composites.
  - Implement cloud masking and multi-date composite generation if cloud cover > 20%.
-- [~] T014 [US1] Implement raster alignment and resampling in `code/ingest.py` (FR-003) <!-- FAILED: unspecified -->
+- [~] T014 [US1] Implement raster alignment and resampling in `code/ingest.py` (FR-003)
  - Reproject all layers to a common CRS.
  - Resample to a standardized coarse resolution (bilinear for continuous, nearest for categorical).
  - Validate upsampling error < 0.1; exit with code 1 if exceeded.
@@ -114,14 +114,14 @@
 
 ### Implementation for User Story 2
 
-- [~] T019 [US2] Implement correlation matrix generation in `code/eda.py` (FR-004) <!-- FAILED: unspecified -->
+- [~] T019 [US2] Implement correlation matrix generation in `code/eda.py` (FR-004)
  - Calculate Pearson/Spearman correlations between covariates and temperature.
  - Output to `data/results/correlation_matrix.csv`.
 - [~] T020 [US2] Implement spatial autocorrelation analysis in `code/eda.py` (FR-004)
  - Compute Moran's I for the temperature raster.
  - Compute variograms for the target variable.
  - Output statistics to `data/results/spatial_stats.json`.
-- [~] T021 [US2] Generate EDA summary report in `data/results/eda_report.md` <!-- FAILED: unspecified -->
+- [~] T021 [US2] Generate EDA summary report in `data/results/eda_report.md`
  - Attempt to ingest socioeconomic proxies (WorldPop/OSM height) as described in Plan Phase 2.
  - If ingestion fails or data is missing, flag as a limitation in the report.
  - Include summary of strength and direction of linear relationships.
@@ -145,35 +145,35 @@
 
 ### Implementation for User Story 3
 
-- [~] T026 [US3] Implement Spatial Block Sampling in `code/modeling.py` (Memory Safety)
+- [ ] T026 [US3] Implement Spatial Block Sampling in `code/modeling.py` (Memory Safety)
  - Reduce data to a maximum of MAX_BLOCKS (default 100) spatial blocks (1km x 1km) by default, configurable in `code/config.py`.
  - Enforce strict random seed for reproducibility.
-- [~] T027 [US3] Implement OLS baseline model in `code/modeling.py` (FR-005) <!-- FAILED: unspecified -->
+- [ ] T027 [US3] Implement OLS baseline model in `code/modeling.py` (FR-005)
  - Fit OLS with spatially robust standard errors (HAC).
  - Record coefficients and diagnostics.
-- [~] T028 [US3] Implement SAR (Spatial Lag/Error) model in `code/modeling.py` (FR-005)
+- [ ] T028 [US3] Implement SAR (Spatial Lag/Error) model in `code/modeling.py` (FR-005)
  - Fit SAR model if memory footprint < 5GB and N < 500k.
  - If memory constraints exceeded, degrade to OLS with HAC and log `model_type: "OLS_DEGRADED"`.
-- [~] T029 [US3] Implement GWR model in `code/modeling.py` (FR-005)
+- [ ] T029 [US3] Implement GWR model in `code/modeling.py` (FR-005)
  - Fit GWR if memory constraints allow.
  - If convergence fails, fallback to global OLS.
-- [~] T030 [US3] Implement configurable k-fold Spatial Cross-Validation in `code/modeling.py` (FR-006)
+- [ ] T030 [US3] Implement configurable k-fold Spatial Cross-Validation in `code/modeling.py` (FR-006)
  - Use spatial blocks to prevent data leakage.
  - Default k=5 (as per Spec FR-006), but configurable to match Plan's k-fold requirement.
  - Calculate RMSE, MAE, R² for each fold.
-- [~] T031 [US3] Implement Multiple-Comparison Correction in `code/modeling.py` (FR-008)
+- [ ] T031 [US3] Implement Multiple-Comparison Correction in `code/modeling.py` (FR-008)
  - Apply Permutation-based FDR with Meff adjustment for p-values.
  - Output adjusted p-values for all predictors.
-- [~] T032a [US3] Fetch literature-derived upper bounds for OSM-only models (e.g., EPA UHI Review 2023) and store in `data/literature_bounds.json`
-- [~] T032 [US3] Implement Proxy Validity Sensitivity (FR-010)
+- [ ] T032a [US3] Fetch literature-derived upper bounds for OSM-only models (e.g., EPA UHI Review 2023) and store in `data/literature_bounds.json`
+- [ ] T032 [US3] Implement Proxy Validity Sensitivity (FR-010)
  - Calculate "Unexplained Variance Gap" = Literature_Max_R2 (from T032a) - Observed_R2 (from T030/T031).
  - Output gap to `data/results/metrics.csv` as SC-006.
-- [~] T034 [US3] Implement GWR bandwidth sweep in `code/modeling.py` (FR-009)
+- [ ] T034 [US3] Implement GWR bandwidth sweep in `code/modeling.py` (FR-009)
  - Sweep over a configurable set of bandwidth values immediately after GWR fitting.
  - Record R² variation across the sweep.
-- [~] T035 [US3] Generate sensitivity report in `data/results/sensitivity_report.md` (SC-004)
+- [ ] T035 [US3] Generate sensitivity report in `data/results/sensitivity_report.md` (SC-004)
  - Visualize stability of R² across bandwidths using standard deviation of R².
-- [~] T033 [US3] Output all metrics to `data/results/metrics.csv` (SC-001, SC-002, SC-003, SC-005, SC-006)
+- [ ] T033 [US3] Output all metrics to `data/results/metrics.csv` (SC-001, SC-002, SC-003, SC-005, SC-006)
 
 **Checkpoint**: All user stories should now be independently functional
 

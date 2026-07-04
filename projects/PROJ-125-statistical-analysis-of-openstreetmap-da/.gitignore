@@ -35,6 +35,9 @@ pip-delete-this-directory.txt
 # Unit test / coverage reports
 htmlcov/
 .coverage
+.coverage.*
+.cache
+nosetests.xml
 coverage.xml
 *.cover
 .hypothesis/
@@ -45,49 +48,35 @@ coverage.xml
 *.pot
 
 # Environments
-.venv/
+.env
+.venv
 env/
-ENV/
 venv/
 ENV/
-.env
+env.bak/
+venv.bak/
 
-# Jupyter Notebook
-.ipynb_checkpoints
-
-# IPython
-profile_default/
-ipython_config.py
-
-# pyenv
-.python-version
-
-# Cython debug symbols
-cython_debug/
-
-# IDEs and editors
+# IDE
 .idea/
 .vscode/
 *.swp
 *.swo
 *~
 
-# OS generated files
-.DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
-Thumbs.db
+# Jupyter Notebook
+.ipynb_checkpoints
 
-# Project specific
+# Data
 data/raw/*
 !data/raw/.gitkeep
 data/processed/*
 !data/processed/.gitkeep
 data/results/*
 !data/results/.gitkeep
-logs/
+
+# Logs
 *.log
-.env
+
+# OS
+.DS_Store
+Thumbs.db

@@ -1,34 +1,26 @@
 """
 Pytest configuration and fixtures for integration tests.
 """
+
 import os
 import sys
 from pathlib import Path
 
-# Add the project root to the path so imports work correctly
+# Add project root to path for imports
 project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
 
-# Set up environment variables if needed
-os.environ.setdefault("OSM_API_URL", "https://overpass-api.de/api/interpreter")
-os.environ.setdefault("MAX_BLOCKS", "100")
+# Ensure environment variables are loaded
+env_example = project_root / ".env.example"
+if env_example.exists() and not os.path.exists(project_root / ".env"):
+    # Create example .env file if it doesn't exist
+    import shutil
+    shutil.copy(env_example, project_root / ".env")
+    os.environ["OVERPASS_API_KEY"] = "test_key"  # Mock key for testing
+    os.environ["AWS_ACCESS_KEY_ID"] = "test_aws_key"
+    os.environ["AWS_SECRET_ACCESS_KEY"] = "test_aws_secret"
 
-def pytest_configure(config):
-    """Configure pytest markers."""
-    config.addinivalue_line(
-        "markers", "integration: mark test as an integration test."
-    )
+# Import and configure logging
+from utils.logging import setup_logging
 
-def pytest_collection_modifyitems(config, items):
-    """Skip integration tests if not explicitly requested."""
-    # By default, skip integration tests unless --integration is passed
-    if not config.getoption("--integration", default=False):
-        skip_integration = pytest.mark.skip(reason="Need --integration option to run integration tests")
-        for item in items:
-            if "integration" in item.keywords:
-                item.add_marker(skip_integration)
-
-def pytest_addoption(parser):
-    parser.addoption(
-        "--integration", action="store_true", default=False, help="run integration tests"
-    )
+setup_logging(log_level="INFO")
