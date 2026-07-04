@@ -1,0 +1,87 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Transformer Experiment Configuration"
+description: "Schema for the experiment configuration file used in the Dendritic Computation project."
+type: object
+properties:
+  experiment_name:
+    type: string
+    description: "Unique name for the experiment run."
+  model_type:
+    type: string
+    enum:
+      - "baseline"
+      - "dendritic"
+    description: "Type of transformer architecture to use."
+  seed:
+    type: integer
+    description: "Random seed for reproducibility."
+  dendritic_params:
+    type: object
+    description: "Parameters specific to the dendritic model."
+    properties:
+      num_branches:
+        type: integer
+        minimum: 1
+        description: "Number of dendritic branches per unit."
+      nonlinearity_threshold:
+        type: number
+        minimum: 0.0
+        maximum: 1.0
+        description: "Threshold for the dendritic nonlinearity (sensitivity)."
+      plateau_gating:
+        type: boolean
+        description: "Whether to enable plateau potential gating."
+    required:
+      - num_branches
+      - nonlinearity_threshold
+      - plateau_gating
+  training_params:
+    type: object
+    description: "Training hyperparameters."
+    properties:
+      batch_size:
+        type: integer
+        minimum: 1
+        description: "Batch size for training."
+      learning_rate:
+        type: number
+        minimum: 0.0
+        description: "Learning rate."
+      max_steps:
+        type: integer
+        minimum: 1
+        description: "Maximum number of training steps."
+      timeout_hours:
+        type: number
+        minimum: 0.1
+        description: "Maximum wall-clock time in hours."
+    required:
+      - batch_size
+      - learning_rate
+      - max_steps
+      - timeout_hours
+  dataset:
+    type: object
+    description: "Dataset configuration."
+    properties:
+      name:
+        type: string
+        description: "Name of the dataset (e.g., 'sst2')."
+      split:
+        type: string
+        description: "Dataset split to use (e.g., 'train', 'validation')."
+      checksum:
+        type: string
+        description: "SHA256 checksum of the dataset file for verification."
+    required:
+      - name
+      - split
+      - checksum
+required:
+  - experiment_name
+  - model_type
+  - seed
+  - dendritic_params
+  - training_params
+  - dataset
+additionalProperties: false

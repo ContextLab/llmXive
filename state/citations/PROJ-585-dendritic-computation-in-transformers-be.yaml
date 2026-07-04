@@ -1,1 +1,22 @@
-[]
+- artifact_hash: 333e14b531e460661375b8e0aa9aee4bc75b724039025bfedbb8866744e2674a
+  artifact_path: projects/PROJ-585-dendritic-computation-in-transformers-be/specs/001-dendritic-computation-in-transformers-be/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: dev.jsonl
+  kind: url
+  value: https://huggingface.co/datasets/SetFit/sst2/resolve/main/dev.jsonl`
+  verification_status: verified
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/621ffdd236468d709f182754/46436c448c85f17f3dd58ede2c82c78679fec3d7de0434228daf92fcc386d8df?response-content-disposition=inline%3B+filename*%3DUTF-8%27%27dev.jsonl%3B+filename%3D%22dev.jsonl%22%3B&user_id=public&X-Xet-Cas-Uid=public&Expires=1783209052&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjIxZmZkZDIzNjQ2OGQ3MDlmMTgyNzU0LzQ2NDM2YzQ0OGM4NWYxN2YzZGQ1OGVkZTJjODJjNzg2NzlmZWMzZDdkZTA0MzQyMjhkYWY5MmZjYzM4NmQ4ZGZcXD9yZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3ZGV2Lmpzb25sJTNCK2ZpbGVuYW1lJTNEJTIyZGV2Lmpzb25sJTIyJTNCJnVzZXJfaWQ9cHVibGljJlgtWGV0LUNhcy1VaWQ9cHVibGljIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3ODMyMDkwNTJ9fX1dfQ__&Signature=MEUCIQDrqFzuWxZRPfFGla1sQ7qxEKfx2JIaz5go%7E%7E1tZzAi5QIgWf0b3ekbP1nfOMNa09qvdDkKzGJbs2fmmPpvCfVTAIQ_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+  verified_at: '2026-07-04T22:50:52.373844Z'
+- artifact_hash: 333e14b531e460661375b8e0aa9aee4bc75b724039025bfedbb8866744e2674a
+  artifact_path: projects/PROJ-585-dendritic-computation-in-transformers-be/specs/001-dendritic-computation-in-transformers-be/research.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: test-00000-of-00001.parquet
+  kind: url
+  value: https://huggingface.co/datasets/nyu-mll/glue/resolve/main/ax/test-00000-of-00001.parquet`
+  verification_status: verified
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/621ffdd236468d709f181e3f/394f33793584d7d25661706554953e9b71b9cad4fb21951418e30e1b974ab206?response-content-disposition=inline%3B+filename*%3DUTF-8%27%27test-00000-of-00001.parquet%3B+filename%3D%22test-00000-of-00001.parquet%22%3B&user_id=public&X-Xet-Cas-Uid=public&Expires=1783209053&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjIxZmZkZDIzNjQ2OGQ3MDlmMTgxZTNmLzM5NGYzMzc5MzU4NGQ3ZDI1NjYxNzA2NTU0OTUzZTliNzFiOWNhZDRmYjIxOTUxNDE4ZTMwZTFiOTc0YWIyMDZcXD9yZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dGVzdC0wMDAwMC1vZi0wMDAwMS5wYXJxdWV0JTNCK2ZpbGVuYW1lJTNEJTIydGVzdC0wMDAwMC1vZi0wMDAwMS5wYXJxdWV0JTIyJTNCJnVzZXJfaWQ9cHVibGljJlgtWGV0LUNhcy1VaWQ9cHVibGljIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3ODMyMDkwNTN9fX1dfQ__&Signature=MEUCIE5I9ENUQjgqRzK8fr5RNEi9rAaBpkTh-FP5Z3Wxk%7E7RAiEA5IlkCvgWDzC-0WaRdIQwvqjPtMM2y%7E9xKed-z%7EAPgTs_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+  verified_at: '2026-07-04T22:50:52.373844Z'

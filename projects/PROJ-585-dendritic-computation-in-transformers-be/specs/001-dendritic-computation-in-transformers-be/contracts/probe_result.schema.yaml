@@ -1,0 +1,41 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Probing Result Schema"
+description: "Schema for the output of the linear probing analysis."
+type: array
+items:
+  type: object
+  properties:
+    layer_id:
+      type: integer
+      description: "Index of the transformer layer being probed."
+    model_type:
+      type: string
+      enum:
+        - "baseline"
+        - "dendritic"
+      description: "Type of model used."
+    seed:
+      type: integer
+      description: "Random seed for the run."
+    probe_accuracy:
+      type: number
+      minimum: 0.0
+      maximum: 1.0
+      description: "Accuracy of the linear probe."
+    probe_loss:
+      type: number
+      minimum: 0.0
+      description: "Loss of the linear probe."
+    probe_f1:
+      type: number
+      minimum: 0.0
+      maximum: 1.0
+      description: "F1 score of the linear probe."
+  required:
+    - layer_id
+    - model_type
+    - seed
+    - probe_accuracy
+    - probe_loss
+    - probe_f1
+  additionalProperties: false

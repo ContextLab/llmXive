@@ -1,0 +1,60 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Statistical Test Result Schema"
+description: "Schema for the final statistical analysis output. Enforces Benjamini-Hochberg (FDR) correction."
+type: object
+properties:
+  test_type:
+    type: string
+    description: "Name of the statistical test used."
+  correction_method:
+    type: string
+    description: "Method used for multiple comparison correction."
+    enum:
+      - "benjamini_hochberg"
+      - "fdr"
+  alpha:
+    type: number
+    description: "Significance level."
+  layers:
+    type: array
+    description: "Results for each layer."
+    items:
+      type: object
+      properties:
+        layer_id:
+          type: integer
+        p_value_raw:
+          type: number
+        p_value_corrected:
+          type: number
+        effect_size_d:
+          type: number
+        significant:
+          type: boolean
+      required:
+        - layer_id
+        - p_value_raw
+        - p_value_corrected
+        - effect_size_d
+        - significant
+  summary:
+    type: object
+    properties:
+      best_layer:
+        type: integer
+      overall_improvement:
+        type: string
+        enum:
+          - "significant"
+          - "non-significant"
+          - "inconclusive"
+    required:
+      - best_layer
+      - overall_improvement
+required:
+  - test_type
+  - correction_method
+  - alpha
+  - layers
+  - summary
+additionalProperties: false
