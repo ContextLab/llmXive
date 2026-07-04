@@ -1,0 +1,44 @@
+[tool.ruff]
+# Target Python version
+target-version = "py311"
+
+# Line length for formatting (matching Black default)
+line-length = 88
+
+# Exclude directories
+exclude = [
+    ".git",
+    ".tox",
+    "__pycache__",
+    "build",
+    "dist",
+    ".eggs",
+    "*.egg-info",
+    ".mypy_cache",
+    ".ruff_cache",
+]
+
+[tool.ruff.lint]
+# Enable specific rule sets
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # Pyflakes
+    "I",   # isort
+    "C",   # flake8-comprehensions
+    "B",   # flake8-bugbear
+    "UP",  # pyupgrade
+]
+
+# Ignore specific rules if needed
+ignore = [
+    "E501", # Line too long (handled by formatter)
+    "C901", # Too complex (optional, can be enabled later)
+]
+
+[tool.ruff.lint.per-file-ignores]
+# Allow longer lines in docstrings or specific files if necessary
+"code/config.py" = ["E501"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["config", "utils", "generators", "noise", "metrics", "analysis"]

@@ -1,0 +1,21 @@
+# Core numerical and data processing
+numpy>=1.26.0
+pandas>=2.1.0
+scipy>=1.11.0
+
+# Visualization
+matplotlib>=3.8.0
+
+# Configuration and YAML handling
+pyyaml>=6.0.1
+
+# Nonlinear time series analysis (Correlation Dimension, Lyapunov, etc.)
+nolds>=0.6.2
+
+# Testing framework
+pytest>=7.4.0
+pytest-randomly>=3.15.0
+
+# Optional: for linting/formatting if needed later (not strictly required for runtime)
+# ruff>=0.1.0
+# black>=23.0.0

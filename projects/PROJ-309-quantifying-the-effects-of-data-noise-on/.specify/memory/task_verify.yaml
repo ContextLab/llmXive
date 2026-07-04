@@ -1,0 +1,4 @@
+T001 Create project structure per implementation plan in `code/` and `tests/`: 1
+T002 Initialize Python 3.11 project with `requirements.txt` (scipy, numpy, pandas, matplotlib, pyyaml, nolds, pytest): 1
+T003 [P] Configure linting (ruff/flake8) and formatting (black) tools in `code/`: 1
+T006 [P] Implement `code/utils/plotting.py` with base plot styles and error-bar visualization helpers: 1

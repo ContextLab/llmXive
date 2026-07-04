@@ -1,0 +1,633 @@
+- artifact_path: projects/PROJ-309-quantifying-the-effects-of-data-noise-on/specs/001-quantifying-the-effects-of-data-noise-on/tasks.md
+  attempts: 1
+  canonical: Lorenz attractor correlation dimension is 2.06 with a margin of error
+    of 0.05
+  claim_id: c_39756eb5
+  context: "define literature ranges based on standard references (e.g., Lorenz D2\
+    \ \u2248 2.06 \xB1 0.05, Lyapunov \u2248 0.90 \xB1 0.05) for validation"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Lorenz D2 \u2248 2.06 \xB1 0.05"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-04T14:58:56Z'
+- artifact_path: projects/PROJ-309-quantifying-the-effects-of-data-noise-on/specs/001-quantifying-the-effects-of-data-noise-on/tasks.md
+  attempts: 1
+  canonical: Lorenz attractor Lyapunov exponent is 0.90 with a margin of error of
+    0.05
+  claim_id: c_7b3bc337
+  context: "define literature ranges based on standard references (e.g., Lorenz D2\
+    \ \u2248 2.06 \xB1 0.05, Lyapunov \u2248 0.90 \xB1 0.05) for validation"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Lyapunov \u2248 0.90 \xB1 0.05"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-04T14:59:16Z'
+- artifact_path: projects/PROJ-309-quantifying-the-effects-of-data-noise-on/specs/001-quantifying-the-effects-of-data-noise-on/tasks.md
+  attempts: 1
+  canonical: Standard Lorenz system parameters are sigma 10, rho 28, and beta 8/3
+  claim_id: c_3d73e7e6
+  context: "system parameters (Lorenz: \u03C3=10, \u03C1=28, \u03B2=8/3; R\xF6ssler\
+    \ standard)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Lorenz system parameters: \u03C3=10, \u03C1=28, \u03B2=8/3"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-04T14:59:53Z'
+- artifact_path: projects/PROJ-309-quantifying-the-effects-of-data-noise-on/specs/001-quantifying-the-effects-of-data-noise-on/tasks.md
+  attempts: 1
+  canonical: Lorenz attractor correlation dimension is approximately 2.06 with a margin
+    of error of 0.05
+  claim_id: c_51cdda80
+  context: "Define literature ranges based on standard references (e.g., Lorenz D2\
+    \ \u2248 2.06 \xB1 0.05, Lyapunov \u2248 0.90 \xB1 0.05) for validation"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Lorenz D2 \u2248 2.06 \xB1 0.05"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-04T15:00:03Z'
+- artifact_path: projects/PROJ-309-quantifying-the-effects-of-data-noise-on/specs/001-quantifying-the-effects-of-data-noise-on/tasks.md
+  attempts: 1
+  canonical: Lorenz attractor Lyapunov exponent is approximately 0.90 with a margin
+    of error of 0.05
+  claim_id: c_81e4908e
+  context: "Define literature ranges based on standard references (e.g., Lorenz D2\
+    \ \u2248 2.06 \xB1 0.05, Lyapunov \u2248 0.90 \xB1 0.05) for validation"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Lyapunov \u2248 0.90 \xB1 0.05"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-04T15:00:03Z'
+- artifact_path: projects/PROJ-309-quantifying-the-effects-of-data-noise-on/specs/001-quantifying-the-effects-of-data-noise-on/tasks.md
+  attempts: 1
+  canonical: Standard Lorenz system parameters are sigma 10, rho 28, and beta 8/3
+  claim_id: c_1ede69a6
+  context: "Implement code/config.py with constants: seeds, SNR levels... system parameters\
+    \ (Lorenz: \u03C3=10, \u03C1=28, \u03B2=8/3; R\xF6ssler standard)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Lorenz parameters: \u03C3=10, \u03C1=28, \u03B2=8/3"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-04T15:00:40Z'
+- artifact_path: projects/PROJ-309-quantifying-the-effects-of-data-noise-on/specs/001-quantifying-the-effects-of-data-noise-on/tasks.md
+  attempts: 1
+  canonical: Standard Lorenz system parameters are sigma equals 10, rho equals 28,
+    and beta equals 8/3
+  claim_id: c_93d6406d
+  context: "system parameters (Lorenz: \u03C3=10, \u03C1=28, \u03B2=8/3; R\xF6ssler\
+    \ standard), batch size limits"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Lorenz system parameters: \u03C3=10, \u03C1=28, \u03B2=8/3"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-04T15:01:04Z'
+- artifact_path: projects/PROJ-309-quantifying-the-effects-of-data-noise-on/specs/001-quantifying-the-effects-of-data-noise-on/tasks.md
+  attempts: 1
+  canonical: Lorenz attractor correlation dimension is approximately 2.06 with tolerance
+    0.05
+  claim_id: c_82f32510
+  context: "define literature ranges based on standard references (e.g., Lorenz D2\
+    \ \u2248 2.06 \xB1 0.05, Lyapunov \u2248 0.90 \xB1 0.05) for validation"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Lorenz D2 \u2248 2.06 \xB1 0.05"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-04T15:01:27Z'
+- artifact_path: projects/PROJ-309-quantifying-the-effects-of-data-noise-on/specs/001-quantifying-the-effects-of-data-noise-on/tasks.md
+  attempts: 1
+  canonical: Lorenz attractor Lyapunov exponent is approximately 0.90 with tolerance
+    0.05
+  claim_id: c_62243efc
+  context: "define literature ranges based on standard references (e.g., Lorenz D2\
+    \ \u2248 2.06 \xB1 0.05, Lyapunov \u2248 0.90 \xB1 0.05) for validation"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Lyapunov \u2248 0.90 \xB1 0.05"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-04T15:01:27Z'
+- artifact_path: projects/PROJ-309-quantifying-the-effects-of-data-noise-on/specs/001-quantifying-the-effects-of-data-noise-on/tasks.md
+  attempts: 1
+  canonical: Standard Lorenz system parameters are sigma 10, rho 28, beta 8/3
+  claim_id: c_7b2828a5
+  context: "system parameters (Lorenz: \u03C3=10, \u03C1=28, \u03B2=8/3; R\xF6ssler\
+    \ standard)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Lorenz parameters: \u03C3=10, \u03C1=28, \u03B2=8/3"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-04T15:01:28Z'
+- artifact_path: projects/PROJ-309-quantifying-the-effects-of-data-noise-on/specs/001-quantifying-the-effects-of-data-noise-on/tasks.md
+  attempts: 1
+  canonical: Lorenz attractor correlation dimension is approximately 2.06 with a tolerance
+    of 0.05
+  claim_id: c_7599d4f1
+  context: "define literature ranges based on standard references (e.g., Lorenz D2\
+    \ \u2248 2.06 \xB1 0.05, Lyapunov \u2248 0.90 \xB1 0.05) for validation"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Lorenz D2 \u2248 2.06 \xB1 0.05"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-04T15:01:54Z'
+- artifact_path: projects/PROJ-309-quantifying-the-effects-of-data-noise-on/specs/001-quantifying-the-effects-of-data-noise-on/tasks.md
+  attempts: 1
+  canonical: Lorenz attractor Lyapunov exponent is approximately 0.90 with a tolerance
+    of 0.05
+  claim_id: c_0c6d65b9
+  context: "define literature ranges based on standard references (e.g., Lorenz D2\
+    \ \u2248 2.06 \xB1 0.05, Lyapunov \u2248 0.90 \xB1 0.05) for validation"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Lyapunov \u2248 0.90 \xB1 0.05"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-04T15:01:54Z'
+- artifact_path: projects/PROJ-309-quantifying-the-effects-of-data-noise-on/specs/001-quantifying-the-effects-of-data-noise-on/tasks.md
+  attempts: 1
+  canonical: Standard Lorenz system parameters are sigma equals 10, rho equals 28,
+    and beta equals 8/3
+  claim_id: c_9f7ee3b4
+  context: "system parameters (Lorenz: \u03C3=10, \u03C1=28, \u03B2=8/3; R\xF6ssler\
+    \ standard)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Lorenz system parameters: \u03C3=10, \u03C1=28, \u03B2=8/3"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-04T15:01:54Z'
+- artifact_path: projects/PROJ-309-quantifying-the-effects-of-data-noise-on/specs/001-quantifying-the-effects-of-data-noise-on/tasks.md
+  attempts: 1
+  canonical: "R\xF6ssler system uses standard parameters"
+  claim_id: c_33a3aa19
+  context: "system parameters (Lorenz: \u03C3=10, \u03C1=28, \u03B2=8/3; R\xF6ssler\
+    \ standard)"
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: '0.2'
+      source_id: "R\xF6ssler attractor"
+      url: "https://en.wikipedia.org/wiki/R\xF6ssler_attractor"
+      value: '0.2'
+    filled: true
+  kind: entity_fact
+  raw_text: "R\xF6ssler system parameters are standard"
+  resolved_value: '0.2'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-04T15:02:03Z'
+- artifact_path: projects/PROJ-309-quantifying-the-effects-of-data-noise-on/specs/001-quantifying-the-effects-of-data-noise-on/tasks.md
+  attempts: 2
+  canonical: Lorenz attractor correlation dimension is approximately 2.06 with a margin
+    of error of 0.05
+  claim_id: c_b66b5a40
+  context: "define literature ranges based on standard references (e.g., Lorenz D2\
+    \ \u2248 2.06 \xB1 0.05, Lyapunov \u2248 0.90 \xB1 0.05) for validation"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Lorenz D2 \u2248 2.06 \xB1 0.05"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-04T15:03:00Z'
+- artifact_path: projects/PROJ-309-quantifying-the-effects-of-data-noise-on/specs/001-quantifying-the-effects-of-data-noise-on/tasks.md
+  attempts: 2
+  canonical: Lorenz attractor Lyapunov exponent is approximately 0.90 with a margin
+    of error of 0.05
+  claim_id: c_87c2edcb
+  context: "define literature ranges based on standard references (e.g., Lorenz D2\
+    \ \u2248 2.06 \xB1 0.05, Lyapunov \u2248 0.90 \xB1 0.05) for validation"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Lyapunov \u2248 0.90 \xB1 0.05"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-04T15:03:00Z'
+- artifact_path: projects/PROJ-309-quantifying-the-effects-of-data-noise-on/specs/001-quantifying-the-effects-of-data-noise-on/tasks.md
+  attempts: 1
+  canonical: Standard Lorenz system parameters are sigma=10, rho=28, and beta=8/3
+  claim_id: c_0cc9c760
+  context: "system parameters (Lorenz: \u03C3=10, \u03C1=28, \u03B2=8/3; R\xF6ssler\
+    \ standard)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Lorenz system parameters: \u03C3=10, \u03C1=28, \u03B2=8/3"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-04T15:03:00Z'
+- artifact_path: projects/PROJ-309-quantifying-the-effects-of-data-noise-on/specs/001-quantifying-the-effects-of-data-noise-on/tasks.md
+  attempts: 1
+  canonical: Power analysis conducted for 80% statistical power at alpha level of
+    0.05
+  claim_id: c_41b8796d
+  context: Perform power analysis to determine sample size N for 80% power, alpha=0.05
+    (per spec Assumptions)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Power analysis target of 80% power with alpha=0.05
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-04T15:03:20Z'
+- artifact_path: projects/PROJ-309-quantifying-the-effects-of-data-noise-on/specs/001-quantifying-the-effects-of-data-noise-on/tasks.md
+  attempts: 1
+  canonical: Lorenz integration trajectory length must be at least 10,000
+  claim_id: c_1bfea56e
+  context: "Unit test for Lorenz integration in tests/test_generators.py verifying\
+    \ no NaN/Inf and trajectory length \u226510,000"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Lorenz_integration_trajectory_length_must_be_at_least_10,000
+  kind: magnitude
+  raw_text: "Trajectory length \u226510,000"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-04T15:03:44Z'
+- artifact_path: projects/PROJ-309-quantifying-the-effects-of-data-noise-on/specs/001-quantifying-the-effects-of-data-noise-on/tasks.md
+  attempts: 1
+  canonical: Lyapunov exponent error is less than or equal to 15 percent at 20dB SNR
+  claim_id: c_ed919e8e
+  context: "Run pipeline on 20dB SNR data; verify Lyapunov error \u226415% and 5dB\
+    \ SNR FNN rate >50%."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Lyapunov_exponent_error_is_less_than_or_equal_to_15_percent
+  kind: magnitude
+  raw_text: "Lyapunov error \u226415% at 20dB SNR"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-04T15:04:06Z'
+- artifact_path: projects/PROJ-309-quantifying-the-effects-of-data-noise-on/specs/001-quantifying-the-effects-of-data-noise-on/tasks.md
+  attempts: 1
+  canonical: False nearest neighbors rate is greater than 50 percent at 5dB SNR
+  claim_id: c_d2f98aea
+  context: "Run pipeline on 20dB SNR data; verify Lyapunov error \u226415% and 5dB\
+    \ SNR FNN rate >50%."
+  evidence:
+    candidates:
+    - - ''
+      - 50.0
+    - - ''
+      - 5.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/False_nearest_neighbors_rate_is_greater_than_50_percent_at_5
+  kind: magnitude
+  raw_text: FNN rate >50% at 5dB SNR
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-07-04T15:04:22Z'
+- artifact_path: projects/PROJ-309-quantifying-the-effects-of-data-noise-on/specs/001-quantifying-the-effects-of-data-noise-on/tasks.md
+  attempts: 1
+  canonical: Uniform quantization step size equals 2 to the power of negative b of
+    the dynamic range
+  claim_id: c_0187a855
+  context: "Unit test for quantization noise in tests/test_noise.py verifying step\
+    \ size = 2\u207B\u1D47 of dynamic range"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Quantization step size = 2\u207B\u1D47 of dynamic range"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-04T15:04:39Z'
+- artifact_path: projects/PROJ-309-quantifying-the-effects-of-data-noise-on/specs/001-quantifying-the-effects-of-data-noise-on/tasks.md
+  attempts: 1
+  canonical: Pipeline runtime is verified to be less than or equal to 6 hours on CPU
+    cores
+  claim_id: c_9d6e68d9
+  context: "Performance optimization across all stories to ensure \u22646h runtime\
+    \ on CPU cores"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pipeline_runtime_is_verified_to_be_less_than_or_equal_to_6_h
+  kind: magnitude
+  raw_text: "Runtime verification \u22646h on CPU cores"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-04T15:05:14Z'
+- artifact_path: projects/PROJ-309-quantifying-the-effects-of-data-noise-on/specs/001-quantifying-the-effects-of-data-noise-on/tasks.md
+  attempts: 1
+  canonical: Lorenz correlation dimension is approximately 2.06 with a standard deviation
+    of 0.05
+  claim_id: c_4becd5f4
+  context: "define literature ranges based on standard references (e.g., Lorenz D2\
+    \ \u2248 2.06 \xB1 0.05, Lyapunov \u2248 0.90 \xB1 0.05) for validation"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Lorenz D2 \u2248 2.06 \xB1 0.05"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-04T15:05:49Z'
+- artifact_path: projects/PROJ-309-quantifying-the-effects-of-data-noise-on/specs/001-quantifying-the-effects-of-data-noise-on/tasks.md
+  attempts: 1
+  canonical: Lorenz Lyapunov exponent is approximately 0.90 with a standard deviation
+    of 0.05
+  claim_id: c_7c112b63
+  context: "define literature ranges based on standard references (e.g., Lorenz D2\
+    \ \u2248 2.06 \xB1 0.05, Lyapunov \u2248 0.90 \xB1 0.05) for validation"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Lyapunov \u2248 0.90 \xB1 0.05"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-04T15:05:49Z'
+- artifact_path: projects/PROJ-309-quantifying-the-effects-of-data-noise-on/specs/001-quantifying-the-effects-of-data-noise-on/tasks.md
+  attempts: 1
+  canonical: Lorenz system sigma parameter is 10
+  claim_id: c_8d5d763f
+  context: "system parameters (Lorenz: \u03C3=10, \u03C1=28, \u03B2=8/3; R\xF6ssler\
+    \ standard)"
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: "In contrast, for other parameter ranges, the system becomes chaotic.\
+        \ With the well-known parameters \u03C3 = 10, \u03C1 = 28, and \u03B2 = \u2060\
+        8/3\u2060, the solutions never settle down but instead trace out the butterfly-shaped\
+        \ Lorenz attractor. In this regime, small differences in initial conditions\
+        \ grow exponentially."
+      source_id: Lorenz system
+      url: https://en.wikipedia.org/wiki/Lorenz_system
+      value: '10'
+    filled: true
+  kind: numeric
+  raw_text: "Lorenz system parameter \u03C3=10"
+  resolved_value: '10'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-04T15:05:58Z'
+- artifact_path: projects/PROJ-309-quantifying-the-effects-of-data-noise-on/specs/001-quantifying-the-effects-of-data-noise-on/tasks.md
+  attempts: 1
+  canonical: Lorenz system rho parameter is 28
+  claim_id: c_a9a202c5
+  context: "system parameters (Lorenz: \u03C3=10, \u03C1=28, \u03B2=8/3; R\xF6ssler\
+    \ standard)"
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: "In contrast, for other parameter ranges, the system becomes chaotic.\
+        \ With the well-known parameters \u03C3 = 10, \u03C1 = 28, and \u03B2 = \u2060\
+        8/3\u2060, the solutions never settle down but instead trace out the butterfly-shaped\
+        \ Lorenz attractor. In this regime, small differences in initial conditions\
+        \ grow exponentially."
+      source_id: Lorenz system
+      url: https://en.wikipedia.org/wiki/Lorenz_system
+      value: '10'
+    filled: true
+  kind: numeric
+  raw_text: "Lorenz system parameter \u03C1=28"
+  resolved_value: '10'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-04T15:05:59Z'
+- artifact_path: projects/PROJ-309-quantifying-the-effects-of-data-noise-on/specs/001-quantifying-the-effects-of-data-noise-on/tasks.md
+  attempts: 1
+  canonical: Lorenz system beta parameter is 8/3
+  claim_id: c_004397cd
+  context: "system parameters (Lorenz: \u03C3=10, \u03C1=28, \u03B2=8/3; R\xF6ssler\
+    \ standard)"
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: "In contrast, for other parameter ranges, the system becomes chaotic.\
+        \ With the well-known parameters \u03C3 = 10, \u03C1 = 28, and \u03B2 = \u2060\
+        8/3\u2060, the solutions never settle down but instead trace out the butterfly-shaped\
+        \ Lorenz attractor. In this regime, small differences in initial conditions\
+        \ grow exponentially."
+      source_id: Lorenz system
+      url: https://en.wikipedia.org/wiki/Lorenz_system
+      value: 8/3
+    filled: true
+  kind: numeric
+  raw_text: "Lorenz system parameter \u03B2=8/3"
+  resolved_value: 8/3
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-04T15:06:06Z'
+- artifact_path: projects/PROJ-309-quantifying-the-effects-of-data-noise-on/specs/001-quantifying-the-effects-of-data-noise-on/tasks.md
+  attempts: 1
+  canonical: Lorenz correlation dimension is approximately 2.06 with error margin
+    0.05
+  claim_id: c_0c50a5e0
+  context: "define literature ranges based on standard references (e.g., Lorenz D2\
+    \ \u2248 2.06 \xB1 0.05, Lyapunov \u2248 0.90 \xB1 0.05) for validation"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Lorenz D2 \u2248 2.06 \xB1 0.05"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-04T15:06:32Z'
+- artifact_path: projects/PROJ-309-quantifying-the-effects-of-data-noise-on/specs/001-quantifying-the-effects-of-data-noise-on/tasks.md
+  attempts: 1
+  canonical: Lorenz Lyapunov exponent is approximately 0.90 with error margin 0.05
+  claim_id: c_eb7ff43c
+  context: "define literature ranges based on standard references (e.g., Lorenz D2\
+    \ \u2248 2.06 \xB1 0.05, Lyapunov \u2248 0.90 \xB1 0.05) for validation"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Lyapunov \u2248 0.90 \xB1 0.05"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-04T15:06:33Z'
+- artifact_path: projects/PROJ-309-quantifying-the-effects-of-data-noise-on/specs/001-quantifying-the-effects-of-data-noise-on/tasks.md
+  attempts: 1
+  canonical: Standard Lorenz system parameters are sigma=10, rho=28, beta=8/3
+  claim_id: c_36fcb029
+  context: "system parameters (Lorenz: \u03C3=10, \u03C1=28, \u03B2=8/3 (Wikipedia:\
+    \ Lorenz system, https://en.wikipedia.org/wiki/Lorenz_system)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Lorenz system parameters: \u03C3=10, \u03C1=28, \u03B2=8/3"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-04T15:06:33Z'
+- artifact_path: projects/PROJ-309-quantifying-the-effects-of-data-noise-on/specs/001-quantifying-the-effects-of-data-noise-on/tasks.md
+  attempts: 1
+  canonical: Sample size N calculated for 80% statistical power at alpha 0.05
+  claim_id: c_88816b0d
+  context: Perform power analysis to determine sample size N for 80% power, alpha=0.05
+    (per spec Assumptions) and record the calculated N and methodology as a constant
+    in code/config.py
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Power analysis determined sample size N for 80% power, alpha=0.05
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-04T15:07:06Z'
+- artifact_path: projects/PROJ-309-quantifying-the-effects-of-data-noise-on/specs/001-quantifying-the-effects-of-data-noise-on/tasks.md
+  attempts: 1
+  canonical: Lorenz system parameters sigma 10 rho 28 beta 8/3
+  claim_id: c_013303bd
+  context: "Implement code/config.py with constants: seeds, SNR levels spanning a\
+    \ range from low to high values, including near-zero conditions., system parameters\
+    \ (Lorenz: \u03C3=10, \u03C1=28, \u03B2=8/3 (Wikipedia: Lorenz system, https://en.wikipedia.org/wiki/Lorenz_system);\
+    \ R\xF6ssler standard), batch size limits"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Lorenz system parameters: \u03C3=10, \u03C1=28, \u03B2=8/3"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-04T15:07:57Z'
+- artifact_path: projects/PROJ-309-quantifying-the-effects-of-data-noise-on/specs/001-quantifying-the-effects-of-data-noise-on/tasks.md
+  attempts: 1
+  canonical: Lorenz correlation dimension 2.06 plus or minus 0.05
+  claim_id: c_e7264ae9
+  context: "AND define literature ranges based on standard references (e.g., Lorenz\
+    \ D2 \u2248 2.06 \xB1 0.05, Lyapunov \u2248 0.90 \xB1 0.05) for validation"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Lorenz D2 \u2248 2.06 \xB1 0.05"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-04T15:07:57Z'
+- artifact_path: projects/PROJ-309-quantifying-the-effects-of-data-noise-on/specs/001-quantifying-the-effects-of-data-noise-on/tasks.md
+  attempts: 1
+  canonical: Lorenz Lyapunov exponent 0.90 plus or minus 0.05
+  claim_id: c_ecf1ef99
+  context: "AND define literature ranges based on standard references (e.g., Lorenz\
+    \ D2 \u2248 2.06 \xB1 0.05, Lyapunov \u2248 0.90 \xB1 0.05) for validation"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Lorenz Lyapunov exponent \u2248 0.90 \xB1 0.05"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-04T15:08:02Z'

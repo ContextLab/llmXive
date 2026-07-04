@@ -1,0 +1,49 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "ChaoticTrajectory"
+description: "Schema for ground-truth chaotic trajectory data."
+type: object
+properties:
+  trajectory_id:
+    type: string
+    description: "Unique identifier for the trajectory."
+  system_type:
+    type: string
+    enum:
+      - "LORENZ"
+      - "ROSSLER"
+    description: "Type of chaotic system."
+  parameters:
+    type: object
+    description: "System parameters used for generation."
+    additionalProperties: true
+  time_steps:
+    type: array
+    items:
+      type: number
+    description: "Array of time points."
+  state_values:
+    type: array
+    description: "2D array of state values (x, y, z)."
+    items:
+      type: array
+      items:
+        type: number
+  ground_truth_metrics:
+    type: object
+    description: "Literature-verified ground truth metrics (for validation only)."
+    properties:
+      lyapunov_exponent:
+        type: number
+      correlation_dimension:
+        type: number
+  checksum:
+    type: string
+    description: "SHA-256 hash of the raw data."
+required:
+  - trajectory_id
+  - system_type
+  - parameters
+  - time_steps
+  - state_values
+  - ground_truth_metrics
+  - checksum

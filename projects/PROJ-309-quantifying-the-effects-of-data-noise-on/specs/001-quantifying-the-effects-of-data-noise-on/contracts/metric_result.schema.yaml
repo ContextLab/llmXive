@@ -1,0 +1,42 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "MetricResult"
+description: "Schema for computed phase space reconstruction metrics."
+type: object
+properties:
+  result_id:
+    type: string
+    description: "Unique identifier for the result."
+  trajectory_id:
+    type: string
+    description: "Reference to the source trajectory."
+  metric_name:
+    type: string
+    enum:
+      - "CORRELATION_DIMENSION"
+      - "LYAPUNOV_EXPONENT"
+      - "FNN_RATE"
+    description: "Name of the computed metric."
+  computed_value:
+    type: number
+    description: "The computed value of the metric."
+  ground_truth_value:
+    type: number
+    description: "The ground truth value (mean of clean realizations) for comparison."
+  error_percent:
+    type: number
+    description: "Percentage error relative to ground truth."
+  status:
+    type: string
+    enum:
+      - "SUCCESS"
+      - "FAILED"
+      - "INSUFFICIENT_DATA"
+    description: "Status of the computation."
+required:
+  - result_id
+  - trajectory_id
+  - metric_name
+  - computed_value
+  - ground_truth_value
+  - error_percent
+  - status

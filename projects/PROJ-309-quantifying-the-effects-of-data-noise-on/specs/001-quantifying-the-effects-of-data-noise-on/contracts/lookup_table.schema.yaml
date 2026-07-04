@@ -1,0 +1,34 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "LookupTableEntry"
+description: "Schema for the aggregated error-vs-SNR lookup table."
+type: object
+properties:
+  snr_db:
+    type: number
+    description: "Signal-to-Noise Ratio in dB."
+  noise_type:
+    type: string
+    description: "Type of noise applied."
+  metric_name:
+    type: string
+    description: "Name of the metric."
+  mean_error_percent:
+    type: number
+    description: "Mean error percentage across N=50 samples."
+  std_error_percent:
+    type: number
+    description: "Standard deviation of error percentage."
+  n_samples:
+    type: integer
+    description: "Number of samples used for aggregation (fixed at a predetermined constant)."
+  critical_threshold_flag:
+    type: boolean
+    description: "True if mean error exceeds a critical threshold."
+required:
+  - snr_db
+  - noise_type
+  - metric_name
+  - mean_error_percent
+  - std_error_percent
+  - n_samples
+  - critical_threshold_flag
