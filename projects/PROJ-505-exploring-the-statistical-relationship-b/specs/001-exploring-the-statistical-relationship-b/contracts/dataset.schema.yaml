@@ -1,0 +1,50 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "SolarWindGeomagneticDataset"
+description: "Schema for the aligned hourly solar wind and geomagnetic dataset (real or synthetic)."
+type: "object"
+properties:
+  timestamp:
+    type: "string"
+    format: "date-time"
+    description: "UTC timestamp of the hourly observation."
+  velocity_km_s:
+    type: "number"
+    description: "Solar wind bulk velocity in km/s."
+  density_cm3:
+    type: "number"
+    description: "Proton density in cm^-3."
+  imf_nT:
+    type: "number"
+    description: "Interplanetary Magnetic Field magnitude in nT."
+  imf_bz_nT:
+    type: "number"
+    description: "IMF Bz component in nT."
+  o_fe_ratio:
+    type: "number"
+    description: "Oxygen to Iron ion flux ratio."
+  he_h_ratio:
+    type: "number"
+    description: "Helium to Hydrogen ion flux ratio."
+  c_o_ratio:
+    type: "number"
+    description: "Carbon to Oxygen ion flux ratio."
+  epsilon:
+    type: "number"
+    description: "Akasofu epsilon coupling function parameter."
+  newell_flux:
+    type: "number"
+    description: "Newell coupling function parameter."
+  dst_index:
+    type: "number"
+    description: "Dst geomagnetic index in nT."
+  kp_index:
+    type: "number"
+    description: "Kp geomagnetic index (0-9 scale)."
+required:
+  - timestamp
+  - velocity_km_s
+  - density_cm3
+  - imf_nT
+  - dst_index
+  - kp_index
+additionalProperties: false

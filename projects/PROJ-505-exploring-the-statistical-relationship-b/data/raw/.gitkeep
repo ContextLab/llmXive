@@ -1,0 +1,3 @@
+# This directory stores raw, unprocessed data downloaded from external sources (ACE, NOAA, etc.).
+# Files here are immutable and must be checksummed upon ingestion.
+# Do not commit large binary files to git; use .gitignore for data patterns.

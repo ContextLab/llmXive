@@ -1,0 +1,11 @@
+- artifact_hash: 909b7846dae4981ba1c8089b611169c1651a4473563eb31f0345878fc47ab67b
+  artifact_path: projects/PROJ-505-exploring-the-statistical-relationship-b/specs/001-exploring-the-statistical-relationship-b/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: assets.zip
+  kind: url
+  value: https://huggingface.co/datasets/ij5/ace/resolve/main/assets.zip`
+  verification_status: verified
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/62ec9a0c71495fbbf835c8a9/6944d82b065f92ba54205bb8f31d75a465a46c955e6bc5957ec25e290ca807ae?response-content-type=application%2Fzip&X-Xet-Cas-Uid=public&user_id=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27assets.zip%3B+filename%3D%22assets.zip%22%3B&Expires=1783143170&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjJlYzlhMGM3MTQ5NWZiYmY4MzVjOGE5LzY5NDRkODJiMDY1ZjkyYmE1NDIwNWJiOGYzMWQ3NWE0NjVhNDZjOTU1ZTZiYzU5NTdlYzI1ZTI5MGNhODA3YWVcXD9yZXNwb25zZS1jb250ZW50LXR5cGU9YXBwbGljYXRpb24lMkZ6aXAmWC1YZXQtQ2FzLVVpZD1wdWJsaWMmdXNlcl9pZD1wdWJsaWMmcmVzcG9uc2UtY29udGVudC1kaXNwb3NpdGlvbj1pbmxpbmUlM0IrZmlsZW5hbWUlMkElM0RVVEYtOCUyNyUyN2Fzc2V0cy56aXAlM0IrZmlsZW5hbWUlM0QlMjJhc3NldHMuemlwJTIyJTNCIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3ODMxNDMxNzB9fX1dfQ__&Signature=MEQCIDprtAda8qRnvANYEHWWyXe5kW4XJXqMdlUj%7EPkCnANjAiBwrfhpuZIyMfwTfRulkjN9qHAhgZxvELsSo2r6LyVi0g__&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+  verified_at: '2026-07-04T04:32:50.625873Z'
