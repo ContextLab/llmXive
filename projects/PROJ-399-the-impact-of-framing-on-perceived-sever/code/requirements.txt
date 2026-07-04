@@ -1,0 +1,5 @@
+# Python dependencies for project setup and utilities
+# Note: R dependencies are managed via renv in code/renv.lock
+
+# No additional Python dependencies required for T003
+# This file is maintained for project consistency

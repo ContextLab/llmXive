@@ -1,0 +1,87 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Analysis Results Schema"
+description: "Schema for the final results table and statistical metrics."
+type: "object"
+properties:
+  primary_analysis:
+    type: "object"
+    description: "Mixed-effects model results for severity."
+    properties:
+      coefficient:
+        type: "number"
+        description: "Coefficient for the 'harm' framing condition."
+      p_value:
+        type: "number"
+        description: "Raw p-value."
+      p_value_bonferroni:
+        type: "number"
+        description: "Bonferroni-adjusted p-value."
+      effect_size_cohen_d:
+        type: "number"
+        description: "Cohen's d effect size."
+    required:
+      - coefficient
+      - p_value
+      - p_value_bonferroni
+      - effect_size_cohen_d
+  secondary_analysis:
+    type: "object"
+    description: "Logistic regression results for sharing intention."
+    properties:
+      odds_ratio:
+        type: "number"
+        description: "Odds ratio for the 'harm' framing condition."
+      p_value:
+        type: "number"
+        description: "P-value for the framing effect."
+      interaction_p_value:
+        type: "number"
+        description: "P-value for the framing x domain interaction."
+    required:
+      - odds_ratio
+      - p_value
+      - interaction_p_value
+  power_analysis:
+    type: "object"
+    description: "A priori power analysis results."
+    properties:
+      sample_size:
+        type: "integer"
+        description: "Planned sample size (N)."
+      effect_size:
+        type: "number"
+        description: "Target effect size (d)."
+      calculated_power:
+        type: "number"
+        description: "Calculated statistical power."
+      meets_threshold:
+        type: "boolean"
+        description: "True if power >= 0.80."
+    required:
+      - sample_size
+      - effect_size
+      - calculated_power
+      - meets_threshold
+  sensitivity_analysis:
+    type: "object"
+    description: "Results of the sensitivity analysis (power vs effect size curve)."
+    properties:
+      effect_sizes_tested:
+        type: "array"
+        items:
+          type: "number"
+        description: "List of delta values tested."
+      detection_probabilities:
+        type: "array"
+        items:
+          type: "number"
+        description: "Probability of detecting the effect for each delta."
+    required:
+      - effect_sizes_tested
+      - detection_probabilities
+required:
+  - primary_analysis
+  - secondary_analysis
+  - power_analysis
+  - sensitivity_analysis
+additionalProperties: false

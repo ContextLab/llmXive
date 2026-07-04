@@ -1,0 +1,76 @@
+# Lint configuration for PROJ-399
+# Based on tidyverse style guide and R best practices
+
+# Exclusions for specific files (if needed)
+exclusions:
+  "code/01_data_prep.R": [1-10] # Allow long URLs in data prep
+  "code/02_power_analysis.R": [1-5] # Allow comments in power analysis
+
+# Line length limit
+line_length_linter:
+  exclude: ["code/01_data_prep.R"] # Longer lines for URLs/paths
+  length: 100
+
+# Indentation
+indentation_linter:
+  indent_by: 2
+
+# Whitespace
+whitespace_linter:
+  spaces_around_operators: TRUE
+  spaces_inside_parentheses: FALSE
+  trailing_whitespace: TRUE
+
+# Naming conventions
+object_name_linter:
+  style: snake_case
+
+# Function arguments
+function_argument_linter:
+  max_args: 6
+
+# Assignment operators
+assignment_linter:
+  style: c(" <- ", " = ")
+
+# Comments
+commented_code_linter:
+  exclude: ["code/02_power_analysis.R"] # Allow explanatory comments
+
+# Parentheses
+paren_brace_linter:
+  space_before_paren: FALSE
+
+# Quotes
+quotes_linter:
+  allow_single_quotes: FALSE
+
+# Semicolons
+semicolon_linter:
+  allow_last_semicolon: FALSE
+
+# Todo comments
+todo_comment_linter:
+  todo: ["TODO", "FIXME", "XXX", "HACK"]
+
+# Unreachable code
+unreachable_code_linter:
+  enabled: TRUE
+
+# Nested ifelse
+nested_ifelse_linter:
+  max_nesting: 3
+
+# Reproducibility
+nonportable_path_linter:
+  enabled: TRUE
+
+# Function length
+function_length_linter:
+  max_lines: 100
+
+# Missing package imports
+missing_package_linter:
+  packages: ["lme4", "lmerTest", "pwr", "dplyr", "ggplot2", "tidyr", "data.table", "testthat", "yaml", "jsonlite"]
+
+# TODO: Add more specific linters as needed

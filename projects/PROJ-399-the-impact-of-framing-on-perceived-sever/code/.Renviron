@@ -1,0 +1,30 @@
+# Project PROJ-399 Environment Configuration
+# This file is sourced by R at startup to set environment variables.
+# Do not commit sensitive keys here in a real repo; use .Renviron.local or CI secrets.
+
+# Set the project root relative to this file location (code/)
+R_PROJECT_ROOT=..
+
+# Path to the configuration file for deterministic seeds (created in T005)
+R_CONFIG_PATH=../code/config.yaml
+
+# Logging level (DEBUG, INFO, WARNING, ERROR)
+R_LOG_LEVEL=INFO
+
+# Path to processed data directory
+R_DATA_PROCESSED=../data/processed
+
+# Path to raw data directory
+R_DATA_RAW=../data/raw
+
+# Path to results/plots directory
+R_RESULTS_PLOTS=../results/plots
+
+# Path to results/intermediate directory
+R_RESULTS_INTERMEDIATE=../results/intermediate
+
+# Path to results/processed directory
+R_RESULTS_PROCESSED=../results/processed
+
+# R library path (optional, for renv isolation if needed)
+# R_LIBS_USER=../.R/library

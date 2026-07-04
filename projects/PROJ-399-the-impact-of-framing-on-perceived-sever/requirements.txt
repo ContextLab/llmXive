@@ -1,0 +1,7 @@
+# Python dependencies (if any needed for the pipeline wrapper)
+# Note: The primary analysis is in R. This file is maintained for the Python
+# environment if the pipeline orchestrator requires it.
+pyyaml>=6.0
+pandas>=1.5.0
+numpy>=1.21.0
+jsonschema>=4.0.0

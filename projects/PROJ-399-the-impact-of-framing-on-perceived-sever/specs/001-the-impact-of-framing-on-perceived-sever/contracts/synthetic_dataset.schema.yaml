@@ -1,0 +1,43 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Synthetic Dataset Schema"
+description: "Schema for the generated synthetic response data for the framing effects simulation."
+type: "object"
+properties:
+  stimulus_id:
+    type: "string"
+    description: "Unique identifier for the stimulus."
+  content_domain:
+    type: "string"
+    description: "Category of the misinformation."
+    enum:
+      - "Health"
+      - "Politics"
+      - "Science"
+  framing_condition:
+    type: "string"
+    description: "Experimental condition."
+    enum:
+      - "harm"
+      - "fact"
+  severity_rating:
+    type: "integer"
+    description: "Perceived severity rating."
+    minimum: 1
+    maximum: 7
+  sharing_intention:
+    type: "integer"
+    description: "Binary sharing intention (0 or 1)."
+    enum:
+      - 0
+      - 1
+  participant_id:
+    type: "string"
+    description: "Unique identifier for the simulated participant (between-subjects design)."
+required:
+  - stimulus_id
+  - content_domain
+  - framing_condition
+  - severity_rating
+  - sharing_intention
+  - participant_id
+additionalProperties: false

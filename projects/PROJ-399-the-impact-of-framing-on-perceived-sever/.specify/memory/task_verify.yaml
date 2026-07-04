@@ -1,0 +1,15 @@
+? 'T001 Create project structure per implementation plan with exact directories: `projects/PROJ-399-the-impact-of-framing-on-perceived-sever/data/raw/`,
+  `data/processed/`, `results/plots/`, `code/`, `tests/`, `.github/workflows/`. **Deliverable**:
+  `docs/project_structure.md` (a verified directory tree log).'
+: 1
+? 'T002 Initialize R 4.3+ project with `code/DESCRIPTION`, `code/NAMESPACE`, and `code/renv.lock`
+  with dependencies version pinned (e.g., `lme4>=1.1-31`, `lmerTest>=3.1-3`, `pwr>=1.3-0`,
+  `dplyr>=1.1.0`, `ggplot2>=3.4.0`, `tidyr>=1.3.0`, `data.table>=1.14.0`, `testthat>=3.1.0`).
+  **Deliverable**: `code/DESCRIPTION`, `code/NAMESPACE`, `code/renv.lock`. <!-- ATOMIZE:
+  requested -->'
+: 1
+T003 [P] Configure linting and formatting tools (e.g., `lintr` for R): 1
+T006 [P] Setup environment configuration management (e.g., `.Renviron` or `renv`): 1
+? T007 Create base data validation utilities to check for required stimulus columns
+  (`stimulus_id`, `content_domain`, `headline`)
+: 1
