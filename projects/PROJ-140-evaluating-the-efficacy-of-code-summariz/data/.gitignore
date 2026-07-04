@@ -1,0 +1,28 @@
+# Ignore all data files except those explicitly tracked
+# This prevents large datasets and sensitive data from being committed
+
+# Ignore all directories
+*/*
+
+# Exceptions: keep these empty directories tracked
+!defects4j/.gitkeep
+!summaries/.gitkeep
+!interaction_logs/.gitkeep
+!analysis_results/.gitkeep
+!consent/.gitkeep
+!consent/.gitignore
+
+# Explicitly ignore consent files (sensitive)
+consent/*
+!consent/.gitignore
+!consent/.gitkeep
+
+# Ignore generated data
+*.csv
+*.json
+*.tar.gz
+*.log
+*.png
+*.jpg
+*.jpeg
+*.pdf

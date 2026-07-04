@@ -1,0 +1,93 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual environments
+venv/
+ENV/
+env/
+.venv/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Environment variables (CRITICAL: Never commit .env)
+.env
+.env.local
+.env.production
+
+# Data directories with sensitive information
+data/consent/
+data/interaction_logs/raw_logs.csv
+
+# Generated data and results
+data/analysis_results/
+data/summaries/
+data/defects4j/
+
+# Reproducibility package (generated)
+data/reproducibility_package_v*.tar.gz
+
+# Logs
+*.log
+logs/
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# Coverage reports
+htmlcov/
+.coverage
+coverage.xml
+coverage.json
+
+# MyPy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Pytest
+.pytest_cache/
+
+# CI/CD
+.github/workflows/*.yml
+!.github/workflows/
+
+# State
+state/
+
+# Temporary files
+tmp/
+temp/
+*.tmp

@@ -1,0 +1,58 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Analysis Result Schema"
+description: "Schema for statistical analysis results (McNemar's and LME)."
+type: object
+properties:
+  comparison_pair:
+    type: string
+    description: "Identifier for the comparison (e.g., 'baseline_vs_llm_accuracy_top5')."
+  test_type:
+    type: string
+    description: "Type of statistical test used."
+    enum:
+      - McNemar
+      - LME
+      - Exact_Binomial
+      - Wilcoxon_Signed_Rank
+      - Gamma_GLMM
+  p_value:
+    type: number
+    description: "P-value from the statistical test."
+    minimum: 0
+    maximum: 1
+  effect_size:
+    type: number
+    description: "Effect size (Odds Ratio for McNemar, Cohen's d for LME)."
+  ci_lower:
+    type: number
+    description: "Lower bound of the 95% confidence interval."
+  ci_upper:
+    type: number
+    description: "Upper bound of the 95% confidence interval."
+  correction_applied:
+    type: string
+    description: "Multiple comparison correction method used."
+    enum:
+      - Holm-Bonferroni
+      - Bonferroni
+  is_significant:
+    type: boolean
+    description: "Whether the result is significant after correction (p < 0.05)."
+  metric_used:
+    type: string
+    description: "The accuracy metric used (e.g., 'top5_proximity', 'exact_match')."
+    enum:
+      - top5_proximity
+      - exact_match
+      - method_identification
+required:
+  - comparison_pair
+  - test_type
+  - p_value
+  - effect_size
+  - ci_lower
+  - ci_upper
+  - correction_applied
+  - is_significant
+  - metric_used
+additionalProperties: false

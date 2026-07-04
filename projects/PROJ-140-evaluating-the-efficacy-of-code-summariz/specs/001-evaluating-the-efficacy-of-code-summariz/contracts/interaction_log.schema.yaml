@@ -1,0 +1,51 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Interaction Log Schema"
+description: "Schema for anonymized participant interaction logs used in bug localization study."
+type: object
+properties:
+  participant_id:
+    type: string
+    description: "Anonymized participant identifier (e.g., 'P001')."
+    pattern: "^P\\d{3}$"
+  task_id:
+    type: string
+    description: "Unique task identifier."
+  condition:
+    type: string
+    description: "Experimental condition."
+    enum:
+      - baseline
+      - llm_sim
+      - rule
+  timestamp_ms:
+    type: integer
+    description: "Time elapsed from task display to click in milliseconds."
+    minimum: 0
+  selected_line:
+    type: integer
+    description: "Line number selected by the participant."
+    minimum: 1
+  ground_truth_line:
+    type: integer
+    description: "Ground truth buggy line number from Defects4J."
+    minimum: 1
+  accuracy_exact:
+    type: boolean
+    description: "Whether the selected line matches the ground truth exactly."
+  accuracy_top5:
+    type: boolean
+    description: "Whether the selected line is within 5 lines of the ground truth (proximity)."
+  latency_calibrated:
+    type: boolean
+    description: "Whether the startup latency calibration test passed for this session."
+required:
+  - participant_id
+  - task_id
+  - condition
+  - timestamp_ms
+  - selected_line
+  - ground_truth_line
+  - accuracy_exact
+  - accuracy_top5
+  - latency_calibrated
+additionalProperties: false

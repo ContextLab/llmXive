@@ -1,0 +1,107 @@
+resolved_at: '2026-07-04T13:30:39.169931+00:00'
+datasets:
+- intent: Defects4J
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/chathuranga-jayanath/defects4j-context-5-len-10000-prompt-3/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/chathuranga-jayanath/defects4j-context-5-len-all-prompt-3/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/echodrift/adapt_defects4j/resolve/main/adapt_defects4j.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/chathuranga-jayanath/defects4j-context-5-len-10000-prompt-3/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/chathuranga-jayanath/defects4j-context-5-len-all-prompt-3/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/echodrift/adapt_defects4j/resolve/main/adapt_defects4j.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/echodrift/adapt_defects4j_prompt/resolve/main/adapt_defects4j.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/echodrift/defects4j_sketch_code/resolve/main/rambo_defects4j_sketch_fixed_re.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://acs.figshare.com/articles/journal_contribution/Exploring_Iron-Catalyzed_Biphasic_Thermal_Graphitization_via_High-Temperature_In_Situ_XRD_to_Investigate_Biographite_Structural_Evolution_for_Sustainable_Battery_Anodes/32899925
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Intricate_Role_of_Cholesterol_in_Membrane_Fusion/32899922
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Call_09152489563_For_Al-Muhibba_Open_University_2026_2027_POST_UMTE_Pre_Degree_and_Diploma_forms_is_out_call_09152489563_/32899910
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Hydrogen-Induced_Unexpected_Strong_8c_2e_Bond_in_An_sub_2_sub_H_sub_8_sub_An_Pa_-_Pu_Complexes/32899916
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Effect_of_Hydrophilic_Brush_Length_and_Hydrophobic_Chain_on_Biodistribution_of_Polymethacrylate-Based_Statistical_Copolymers/32899913
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7922699
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15274979
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/2706506
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17634840
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4773743
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21059954
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21059954
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2607.01597
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2606.28229
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.5281/zenodo.20954621
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: HTTP 410'

@@ -1,0 +1,3 @@
+# This directory is reserved for generated data files.
+# Do not commit generated data to version control.
+# Add .gitignore rules to exclude specific data types as needed.
