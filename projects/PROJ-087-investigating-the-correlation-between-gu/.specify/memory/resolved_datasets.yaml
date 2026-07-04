@@ -1,0 +1,92 @@
+resolved_at: '2026-07-04T21:10:52.965887+00:00'
+datasets:
+- intent: OTU
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/otuzucbit/turkishloyd/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 74938
+      parsed: true
+  - url: https://huggingface.co/datasets/kali-ai/otus/resolve/main/otus.json
+    source: huggingface
+    format: json
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 197
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/api/resolve-cache/datasets/Dezzpil/otus-fw/f184d53c26b94c3c654ab5cbac112e005b18172b/test.csv?%2Fdatasets%2FDezzpil%2Fotus-fw%2Fresolve%2Fmain%2Ftest.csv=&etag=%22493cc70293da1aa31c5e74870cf12c4060f50ac6%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/otuzucbit/turkishloyd/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/kali-ai/otus/resolve/main/otus.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://figshare.com/articles/software/RF_Scars_Statistical_Analyses/32329038
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/presentation/AI_Delicts_and_the_Split_Between_Action_and_Responsibility/32900654
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/Microstructure_and_wear_behavior_of_a_porous_nanocrystalline_nickel-free_austenitic_stainless_steel_developed_by_powder_metallurgy_http_dx_doi_org_10_1016_j_matdes_2009_10_008_/32900681
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/Microstructural_phase_evaluation_of_high-nitrogen_Fe_Cr_Mn_alloy_powders_synthesized_by_the_mechanical_alloying_process_https_doi_org_10_1007_s10853-008-3117-9_/32900678
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Dataset_supporting_the_study_Knowledge_attitudes_practices_and_perceptions_related_to_dental_caries_among_Peruvian_first-division_soccer_players_a_cross-sectional_study_/32900639
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7969269
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/200704
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/11240028
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3866305
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/200705
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/thesis/Supplementary_files_for_Erik_Johan_M_ller_s_PhD_thesis/32780721/1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/thesis/Supplementary_files_for_Erik_Johan_M_ller_s_PhD_thesis/32780721
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/thesis/Supplementary_files_for_Erik_Johan_M_ller_s_PhD_thesis/32780721/2
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://air.unimi.it/handle/2434/168877
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/bskxc/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

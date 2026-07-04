@@ -1,0 +1,55 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Analysis Data Schema"
+description: "Schema for the merged, filtered analysis dataset (analysis_data.csv)"
+type: "object"
+properties:
+  sample_id:
+    type: "string"
+    description: "Unique identifier for the sample"
+  antibiotic_use_last_3mo:
+    type: "boolean"
+    description: "Flag indicating antibiotic use in the last 3 months (must be False for included rows)"
+  sleep_efficiency:
+    type: "number"
+    description: "Sleep efficiency percentage or ratio (optional)"
+    minimum: 0
+    maximum: 100
+  sleep_duration:
+    type: "number"
+    description: "Sleep duration in hours (optional)"
+  sleep_quality:
+    type: "number"
+    description: "Self-reported sleep quality score (proxy, optional)"
+  age:
+    type: "integer"
+    description: "Age of the subject"
+  bmi:
+    type: "number"
+    description: "Body Mass Index"
+  diet_category:
+    type: "string"
+    description: "Dietary classification"
+  shannon_index:
+    type: "number"
+    description: "Shannon diversity index"
+    minimum: 0
+  simpson_index:
+    type: "number"
+    description: "Simpson diversity index"
+    minimum: 0
+    maximum: 1
+required:
+  - sample_id
+  - shannon_index
+  - simpson_index
+  - age
+  - bmi
+  - diet_category
+anyOf:
+  - required:
+    - sleep_efficiency
+  - required:
+    - sleep_duration
+  - required:
+    - sleep_quality
+additionalProperties: true

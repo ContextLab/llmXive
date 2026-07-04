@@ -1,0 +1,12 @@
+pandas
+scikit-bio
+scipy
+seaborn
+matplotlib
+requests
+numpy
+pyyaml
+pingouin
+pytest
+ruff
+black

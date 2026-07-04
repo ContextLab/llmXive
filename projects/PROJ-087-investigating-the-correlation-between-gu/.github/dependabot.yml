@@ -1,0 +1,18 @@
+version: 2
+updates:
+  - package-ecosystem: "pip"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    commit-message:
+      prefix: "deps"
+      include: "scope"
+    open-pull-requests-limit: 10
+    allow:
+      - dependency-type: "all"
+    labels:
+      - "dependencies"
+      - "python"
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]

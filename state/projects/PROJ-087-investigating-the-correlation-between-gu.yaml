@@ -1,19 +1,19 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-01T12:32:33.218413Z'
-current_stage: project_initialized
+current_stage: in_progress
 failed_stage: null
 field: biology
 human_escalation_reason: null
 id: PROJ-087-investigating-the-correlation-between-gu
-last_run_id: 913113eb-b69e-4fbe-a69f-343bb099efbe
+last_run_id: 50c87f8b-6413-4129-bdf7-15822cb79c10
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
 revision_spec_path: null
 speckit_paper_dir: null
-speckit_research_dir: null
+speckit_research_dir: projects/PROJ-087-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu
 title: Investigating the Correlation Between Gut Microbiome Composition and Sleep
   Quality Using Public Datasets
-updated_at: '2026-06-26T01:32:17.737878Z'
+updated_at: '2026-07-04T21:55:13.226187Z'
