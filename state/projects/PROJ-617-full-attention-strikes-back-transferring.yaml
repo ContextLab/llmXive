@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-23T08:43:38.623279Z'
-current_stage: paper_ingested
+current_stage: reviewed_preprint
 failed_stage: null
 field: linguistics
 human_escalation_reason: null
 id: PROJ-617-full-attention-strikes-back-transferring
-last_run_id: 0179c660-9d4d-4e5f-bad7-00028aff314c
+last_run_id: c23abde1-3499-4a06-8831-c88bdb2b399c
 last_run_status: null
 points_paper: {}
 points_research: {}

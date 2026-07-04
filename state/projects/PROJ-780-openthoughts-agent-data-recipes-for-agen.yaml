@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-06-25T09:08:39.004518Z'
-current_stage: paper_ingested
+current_stage: reviewed_preprint
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-780-openthoughts-agent-data-recipes-for-agen
-last_run_id: fcee50ce-cd6f-4ea0-88ce-181f0c156f32
+last_run_id: 5539598e-78d5-4ff1-9cc1-2305a1bcfd2e
 last_run_status: null
 points_paper: {}
 points_research: {}
