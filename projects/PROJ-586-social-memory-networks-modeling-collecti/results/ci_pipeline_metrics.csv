@@ -1,0 +1,4 @@
+experiment,runtime_seconds,peak_memory_mb,disk_usage_mb,success,exit_code
+run_experiment.py,48.21,485.30,0.85,True,0
+run_experiment.py,52.14,498.12,0.72,True,0
+run_experiment.py,44.97,512.45,0.58,True,0

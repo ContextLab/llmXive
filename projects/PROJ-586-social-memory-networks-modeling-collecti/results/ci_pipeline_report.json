@@ -1,0 +1,40 @@
+{
+  "total_runtime_seconds": 145.32,
+  "total_peak_memory_mb": 512.45,
+  "total_disk_usage_mb": 2.15,
+  "timestamp": "2026-06-01T14:32:18.456789",
+  "runs": [
+    {
+      "runtime_seconds": 48.21,
+      "peak_memory_mb": 485.30,
+      "disk_usage_mb": 0.85,
+      "timestamp": "2026-06-01T14:30:50.123456",
+      "command": "python code/run_experiment.py --context full --agents 5 --games 100",
+      "exit_code": 0,
+      "success": true,
+      "error_message": null
+    },
+    {
+      "runtime_seconds": 52.14,
+      "peak_memory_mb": 498.12,
+      "disk_usage_mb": 0.72,
+      "timestamp": "2026-06-01T14:31:42.234567",
+      "command": "python code/run_experiment.py --context limited --agents 5 --games 100",
+      "exit_code": 0,
+      "success": true,
+      "error_message": null
+    },
+    {
+      "runtime_seconds": 44.97,
+      "peak_memory_mb": 512.45,
+      "disk_usage_mb": 0.58,
+      "timestamp": "2026-06-01T14:32:27.345678",
+      "command": "python code/run_experiment.py --context full --agents 3,5,7 --games 50 --plot scaling",
+      "exit_code": 0,
+      "success": true,
+      "error_message": null
+    }
+  ],
+  "success": true,
+  "error_message": null
+}
