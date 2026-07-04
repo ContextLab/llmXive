@@ -1,0 +1,90 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Model Metrics Output"
+description: "Schema for the cross-validation metrics and model performance results."
+type: "object"
+properties:
+  folds:
+    type: "array"
+    description: "List of metrics for each LOSO fold."
+    items:
+      type: "object"
+      properties:
+        fold_id:
+          type: "integer"
+          description: "Fold index."
+        system_held_out:
+          type: "string"
+          description: "Name of the system excluded in this fold."
+        mae:
+          type: "number"
+          description: "Mean Absolute Error for this fold."
+        r2:
+          type: "number"
+          description: "R-squared score for this fold."
+        null_model_mae:
+          type: "number"
+          description: "MAE of the null model (global mean) for this fold."
+        error_flags:
+          type: "array"
+          description: "List of error flags for this fold (e.g., LOW_DATA_DENSITY, HIGH_VARIANCE)."
+          items:
+            type: "string"
+        std_dev_error:
+          type: "number"
+          description: "Standard deviation of prediction error for this fold."
+      required:
+        - fold_id
+        - system_held_out
+        - mae
+        - r2
+        - error_flags
+        - std_dev_error
+  aggregate:
+    type: "object"
+    description: "Aggregate metrics across all folds."
+    properties:
+      mean_mae:
+        type: "number"
+        description: "Mean MAE across all folds."
+      mean_r2:
+        type: "number"
+        description: "Mean R² across all folds."
+      null_model_mean_mae:
+        type: "number"
+        description: "Mean MAE of the null model across all folds."
+      improvement_percent:
+        type: "number"
+        description: "Percentage improvement of RF over null model."
+    required:
+      - mean_mae
+      - mean_r2
+      - null_model_mean_mae
+      - improvement_percent
+  visual_metrics:
+    type: "array"
+    description: "Visual consistency metrics for each system."
+    items:
+      type: "object"
+      properties:
+        system:
+          type: "string"
+          description: "Name of the alloy system."
+        vcs_score:
+          type: "number"
+          description: "Visual Consistency Score (MAE of boundary lines)."
+        max_error:
+          type: "number"
+          description: "Maximum error in the reconstructed boundary."
+        notes:
+          type: "string"
+          description: "Notes on limitations (e.g., 'Primary lines only')."
+      required:
+        - system
+        - vcs_score
+        - max_error
+        - notes
+required:
+  - folds
+  - aggregate
+  - visual_metrics
+additionalProperties: false

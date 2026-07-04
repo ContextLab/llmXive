@@ -1,0 +1,193 @@
+resolved_at: '2026-07-04T13:24:19.779816+00:00'
+datasets:
+- intent: LOSO
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/aistocrat/c3-expresso-loso/resolve/main/prepared_manifest.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/Humalike-ai/LoSoNA/resolve/main/data/losona_scenarios.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 225895
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/Humalike-ai/LoSoNA/resolve/main/data/losona_scenarios.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/aistocrat/c3-expresso-loso/resolve/main/prepared_manifest.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://figshare.com/articles/dataset/Call_09152489563_For_Khalifa_Isyaku_Rabiu_University_KHAIRUN_2026_2027_POST_UMTE_Pre_Degree_and_Diploma_forms_is_out_call_09152489563_/32899877
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Call_09152489563_For_Capital_City_University_Kano_CCUK_2026_2027_POST_UMTE_Pre_Degree_and_Diploma_forms_is_out_call_09152489563_/32899874
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Call_09152489563_For_Maryam_Abacha_American_University_of_Nigeria_MAAUN_2026_2027_POST_UMTE_Pre_Degree_and_Diploma_forms_is_out_call_09152489563_/32899868
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Call_09152489563_For_Skyline_University_Nigeria_SUN_2026_2027_POST_UMTE_Pre_Degree_and_Diploma_forms_is_out_call_09152489563_/32899865
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Call_09152489563_For_Yusuf_Maitama_Sule_University_YMSU_2026_2027_POST_UMTE_Pre_Degree_and_Diploma_forms_is_out_call_09152489563_/32899841
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17634972
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6424158
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ejeba.com/index.php/journal/article/view/167
+    source: zenodo
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://scientia-tss.com/index.php/journal/article/view/185
+    source: zenodo
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://zenodo.org/records/4429824
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://unige.iris.cineca.it/handle/11567/945784
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.17632/yryvjnzwrb.1
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: HTTP 404'
+  - url: https://doi.org/10.17632/yryvjnzwrb
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: HTTP 404'
+  - url: https://zenodo.org/records/21109289
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21109289
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: MAE
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/lucainiao/MAESTRO_2004_SYNTH/resolve/main/MAESTRO_2004_SYNTH.zip
+    source: huggingface
+    format: zip
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/RvTamaUraP/nva-Maekawa_Miku/resolve/main/LoRa_Maekawa_Miku_A.zip
+    source: huggingface
+    format: zip
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/tvergho/maestro/resolve/main/data/train-00000-of-00017-a44871a8bbf731f8.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/Maeji/autotrain-data-230121_t5_lcw99/resolve/main/raw/paper_summary.csv
+    source: huggingface
+    status: wrong_format
+    reason: HTTP 401
+  - url: https://huggingface.co/datasets/lucainiao/MAESTRO_2004_SYNTH/resolve/main/MAESTRO_2004_SYNTH.zip
+    source: huggingface
+    status: verified
+    format: zip
+  - url: https://huggingface.co/datasets/RvTamaUraP/nva-Maekawa_Miku/resolve/main/LoRa_Maekawa_Miku_A.zip
+    source: huggingface
+    status: verified
+    format: zip
+  - url: https://huggingface.co/datasets/tvergho/maestro/resolve/main/data/train-00000-of-00017-a44871a8bbf731f8.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/roszcz/maestro-v1-sustain/resolve/main/data/test-00000-of-00001-15d650750bca2093.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/dataset/Call_09152489563_For_Khalifa_Isyaku_Rabiu_University_KHAIRUN_2026_2027_POST_UMTE_Pre_Degree_and_Diploma_forms_is_out_call_09152489563_/32899877
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Call_09152489563_For_Capital_City_University_Kano_CCUK_2026_2027_POST_UMTE_Pre_Degree_and_Diploma_forms_is_out_call_09152489563_/32899874
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Call_09152489563_For_Maryam_Abacha_American_University_of_Nigeria_MAAUN_2026_2027_POST_UMTE_Pre_Degree_and_Diploma_forms_is_out_call_09152489563_/32899868
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Call_09152489563_For_Skyline_University_Nigeria_SUN_2026_2027_POST_UMTE_Pre_Degree_and_Diploma_forms_is_out_call_09152489563_/32899865
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Call_09152489563_For_Yusuf_Maitama_Sule_University_YMSU_2026_2027_POST_UMTE_Pre_Degree_and_Diploma_forms_is_out_call_09152489563_/32899841
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8299749
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/13984656
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10023439
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.mapress.com/zt/article/view/zootaxa.4420.3.6
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6068475
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://fair.unifg.it//handle/11369/369485
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://aip.figshare.com/collections/Diamond_Thermometry_Beyond_the_Zero-Phonon_Line_via_Physics-Aware_Spectral_Trend_Learning/8539683/1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://aip.figshare.com/collections/Diamond_Thermometry_Beyond_the_Zero-Phonon_Line_via_Physics-Aware_Spectral_Trend_Learning/8539683
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21132765
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21132765
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

@@ -1,0 +1,71 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Alloy Features Dataset"
+description: "Schema for the processed alloy composition dataset with derived descriptors."
+type: "object"
+properties:
+  columns:
+    type: "array"
+    description: "List of column names in the CSV."
+    items:
+      type: "string"
+    contains:
+      const: "composition_id"
+    contains:
+      const: "elements"
+    contains:
+      const: "fractions"
+    contains:
+      const: "system"
+    contains:
+      const: "mean_atomic_radius"
+    contains:
+      const: "electronegativity_variance"
+    contains:
+      const: "valence_electron_count"
+    contains:
+      const: "temperature"
+  data:
+    type: "array"
+    description: "Rows of data."
+    items:
+      type: "object"
+      properties:
+        composition_id:
+          type: "string"
+          description: "Unique identifier for the composition."
+        elements:
+          type: "array"
+          description: "List of elemental symbols."
+          items:
+            type: "string"
+        fractions:
+          type: "array"
+          description: "List of atomic fractions."
+          items:
+            type: "number"
+        system:
+          type: "string"
+          description: "Name of the alloy system (e.g., Cu-Al)."
+        mean_atomic_radius:
+          type: "number"
+          description: "Mean atomic radius in Angstroms."
+        electronegativity_variance:
+          type: "number"
+          description: "Variance of electronegativity values."
+        valence_electron_count:
+          type: "number"
+          description: "Average valence electron count."
+        temperature:
+          type: "number"
+          description: "Phase boundary temperature in Kelvin (CALPHAD-assessed)."
+      required:
+        - composition_id
+        - system
+        - temperature
+        - mean_atomic_radius
+        - electronegativity_variance
+        - valence_electron_count
+required:
+  - columns
+  - data
+additionalProperties: false
