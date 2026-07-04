@@ -15,7 +15,7 @@
 
 ## Path Conventions
 
-- **Single project**: `code/`, `tests/` at repository root
+- **Single project**: `src/`, `tests/` at repository root
 - **Web app**: `backend/src/`, `frontend/src/`
 - **Mobile**: `api/src/`, `ios/src/` or `android/src/`
 - Paths shown below assume single project - adjust based on plan.md structure
@@ -43,10 +43,9 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001a Create directory structure per implementation plan: `code/`, `data/` (raw, processed, validation), `output/` (results, figures, logs), `tests/`, `specs/contracts/`
-- [ ] T001b Create `__init__.py` files in all `code/` subdirectories (`ingestion`, `processing`, `analysis`, `utils`) and `tests/` subdirectories
-- [ ] T002 Initialize Python 3.11 project with dependencies: `pandas`, `nltk`, `vaderSentiment`, `statsmodels`, `scikit-learn`, `seaborn`, `matplotlib`, `requests`, `pyyaml`, `pydantic`, `sentence-transformers`, `torch` (CPU)
-- [ ] T003 [P] Configure linting (flake8/black) and formatting tools
+- [ ] T001 Create project structure per implementation plan (`projects/PROJ-050-the-effect-of-priming-on-prosocial-behav/`)
+- [ ] T002 Initialize Python 3.11 project with pinned dependencies in `code/requirements.txt` (pandas, numpy, nltk, vaderSentiment, statsmodels, scikit-learn, pyyaml, hashlib, datasets)
+- [ ] T003 [P] Configure linting (flake8/black) and formatting tools in `code/`
 
 ---
 
@@ -56,49 +55,42 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 [P] Implement `code/config.py` with constants: target subreddits, prime keywords, negation words, TARGET_N=10000, random seeds
-- [ ] T005 [P] Create `code/utils/logger.py` for structured logging and `code/utils/checksum.py` for data integrity verification
-- [ ] T006 [P] Implement `code/main.py` orchestration entry point with argument parsing and pipeline flow control
-- [ ] T007 Create base data validation schemas in `specs/contracts/` (dataset.schema.yaml, output.schema.yaml, gold_standard.schema.yaml) with fields explicitly validating against `Thread` and `Comment` entities defined in `data-model.md`
-- [ ] T008 [P] Setup `data/` directory structure: `raw/`, `processed/`, `validation/`
+- [ ] T004 [P] Create data directory structure: `data/raw/`, `data/processed/`, `data/validation/`, `results/`
+- [ ] T005 [P] Implement data checksumming utility in `code/utils/checksum.py` to verify raw data integrity
+- [ ] T006 Create schema validation utilities in `code/utils/schema_validator.py` for `dataset.schema.yaml`, `scored.schema.yaml`, and `output.schema.yaml`
+- [ ] T007 [P] Configure environment variable management for `TARGET_N` and data source paths in `code/config.py`
+- [ ] T008 Implement logging infrastructure in `code/utils/logger.py` to capture "Negation Exclusions" and abort conditions
+- [ ] T009 [P] Setup pytest configuration and test directory structure (`tests/unit/`, `tests/integration/`, `tests/contract/`)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
 ---
 
-## Phase 2.5: Pre-Flight Gate (Blocking)
-
-**Purpose**: Validate study design before data collection
-
-- [ ] T009a [P] Implement power analysis script in `code/analysis/power_analysis.py` (FR-013) to verify N=10,000 yields ≥80% power for d=0.15. Output must be `output/power_analysis_report.json`.
-- [ ] T009b [P] Execute power analysis script (`T009a`). **CONDITIONAL GATE**: If power < 80%, the script MUST log a warning and **halt** execution, requiring a manual `--allow-low-power` flag or an interactive researcher approval prompt to proceed. It MUST NOT automatically abort the pipeline without this override mechanism, per FR-013. The implementation must provide a clear path for the researcher to approve continuation.
-
-**Checkpoint**: Power analysis passed (or approved) - data collection can now begin
-
----
-
 ## Phase 3: User Story 1 - Data Ingestion, Classification, and Anonymization (Priority: P1) 🎯 MVP
 
-**Goal**: Retrieve Reddit data, classify threads into Prime/Control groups, and anonymize PII before storage.
+**Goal**: Retrieve, filter, classify, and anonymize Reddit comments to establish the independent variable (thread type) and ensure PII compliance.
 
-**Independent Test**: Execute `code/ingestion/fetch_data.py` and `code/ingestion/classify.py` against a small test subset; verify output DataFrame has `thread_type` (Prime/Control), `thread_id`, hashed `user_id`, and calculated `thread_age`, with ≥4,000 comments per group (or abort).
+**Independent Test**: Execute `code/01_ingest.py` against a small, known test subset and verify the output DataFrame contains exactly two distinct groups ("Prime", "Control") with at least 4,000 comments each (or aborts correctly), and that no plaintext usernames or timestamps exist in the output.
 
-### Tests for User Story 1
+### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T010 [P] [US1] Contract test for data schema validation in `tests/contract/test_data_schema.py`
-- [ ] T011 [P] [US1] Integration test for negation logic (e.g., "No help needed" → Control) in `tests/integration/test_classification_logic.py`
-- [ ] T012 [P] [US1] Unit test for PII removal (no plaintext usernames/timestamps) in `tests/unit/test_anonymize.py`
+- [ ] T010 [P] [US1] Contract test for dataset schema validation in `tests/contract/test_dataset_schema.py`
+- [ ] T011 [P] [US1] Unit test for negation-aware keyword classification logic in `tests/unit/test_classification.py`
+- [ ] T012 [P] [US1] Unit test for PII anonymization (SHA-256 hashing) in `tests/unit/test_anonymization.py`
 
 ### Implementation for User Story 1
 
-- [ ] T013 [US1] Implement `code/ingestion/fetch_data.py`: Load `pushshift/reddit` (HF), validate presence of all 5 target subreddits (FR-014), fetch comments until TARGET_N reached or exhaustion. **MUST preserve raw `created_utc` timestamp in output DataFrame for downstream calculation.**
-- [ ] T014 [US1] Implement `code/ingestion/classify.py`: Tokenize titles with NLTK, apply negation rule (keyword within 3 tokens of negation → Control), log "Negation Exclusions" (FR-002a), assign `thread_type`. **MUST preserve raw `created_utc` timestamp in output DataFrame.**
-- [ ] T014a [US1] Implement source-switching logic in `fetch_data.py` (FR-001a): If primary source lacks required subreddits, automatically switch to verified fallback source (Pushshift.io full dump or alternative verified HF dataset) before proceeding. If no verified source is available, abort with clear error listing missing subreddits.
-- [ ] T015 [US1] Implement `code/processing/anonymize.py`: Hash usernames (SHA-256) as `user_id`, calculate `thread_age` (days) from `created_utc`, strip original timestamp, save to `data/processed/`. **Only this step strips timestamps.**
-- [ ] T016 [US1] Implement abort logic in `fetch_data.py`: Abort if <4,000 comments per group, OR dataset exhausted before TARGET_N, OR missing subreddits (FR-001, FR-001a). **Verification**: Run with mock dataset returning <4000 comments/group; must cause SystemExit with error message containing "Insufficient data".
-- [ ] T017 [US1] Add checksum generation for raw and processed data files.
+- [ ] T013 [US1] **PRE-COLLECTION POWER ANALYSIS**: Implement `code/00_power_analysis.py` to perform pre-data-collection power analysis (FR-013) assuming d=0.15, α=0.05. **Logic**: Check for existing pilot data; if present, use actual ICC to calculate power; if absent, use a conservative theoretical ICC estimate with a **mandatory log entry citing the specific prior study or theoretical justification** for this value. If power < 80%, the script MUST abort and log a requirement for **researcher approval** before proceeding. This task MUST run BEFORE T014. **CRITICAL**: This is a pre-fetch gate; if it fails, no data fetching occurs.
+- [ ] T014 [US1] Implement `code/01_ingest.py`: Source verification for `pushshift/reddit` (FR-014) and presence check for multiple target subreddits (r/AskReddit, r/relationships, r/socialscience, r/psychology, r/dataisbeautiful). **Dependency**: Must wait for T013 success.
+- [ ] T015 [US1] Implement `code/01_ingest.py`: Data fetching logic with `TARGET_N = 10,000` limit and abort logic if dataset exhausted or group counts < 4,000 (FR-001, FR-001a). **Dependency**: Must wait for T014 success.
+- [ ] T016 [US1] Implement `code/01_ingest.py`: Classification logic using NLTK `word_tokenize` and -token negation window (FR-002, FR-002a); log "Negation Exclusions".
+- [ ] T015b [US1] **Feasibility Check for Optional Feature**: Check CPU feasibility for FR-002c (confidence score). If a lightweight lexical confidence model can be run within time limits, implement logic; otherwise, explicitly defer this feature in code comments and log "FR-002c Deferred". This task does not implement the full feature, only determines feasibility.
+- [ ] T016a [US1] Implement `code/01_ingest.py`: Anonymization logic (SHA hash of username). **CRITICAL**: The SHA-256 hash MUST be **retained and explicitly mapped as the `user_id` column** for downstream LMM random effects (FR-009, SC-009). Strip raw timestamps only after computing `thread_age` (FR-009).
+- [ ] T017 [US1] Implement `code/01_ingest.py`: Save `data/processed/anonymized.csv` and `data/processed/raw_counts.json`.
+- [ ] T018 [US1] Implement `code/01_ingest.py`: Post-fetch validation to ensure at least 4,000 comments per group and ≥3 subreddits remain; abort if conditions not met (FR-001, Edge Cases).
+- [ ] T019 [US1] Create `tests/integration/test_ingest_pipeline.py` to verify end-to-end data flow and abort conditions
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -106,25 +98,26 @@
 
 ## Phase 4: User Story 2 - Prosocial Action Scoring and Validation (Priority: P2)
 
-**Goal**: Compute prosocial action counts and VADER sentiment scores, then validate against human annotations.
+**Goal**: Compute prosocial action counts and VADER scores, and validate the measurement against human annotations.
 
-**Independent Test**: Run `code/processing/scoring.py` on a sample; verify `prosocial_action_count` and `neg_score` columns exist. Run `code/processing/validation.py` on stratified sample; verify Cohen's Kappa ≥ 0.7 against `gold_standard.csv`.
+**Independent Test**: Run `code/02_score.py` on the anonymized dataset and verify `data/processed/scored.csv` contains `prosocial_action_count` and `neg_score` columns, and that `results/validation_report.json` confirms Cohen's Kappa ≥ 0.7 against `data/validation/gold_standard.csv`.
 
-### Tests for User Story 2
+### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T018 [P] [US2] Contract test for scoring output schema in `tests/contract/test_scoring_schema.py`
-- [ ] T019 [P] [US2] Integration test for stratified sampling logic (FR-010a) in `tests/integration/test_stratified_sampling.py`
-- [ ] T020 [P] [US2] Unit test for prosocial lexicon exclusion (prime keywords not counted) in `tests/unit/test_lexicon.py`
+- [ ] T020 [P] [US2] Unit test for `prosocial_action_count` lexicon logic (excluding prime keywords) in `tests/unit/test_lexicon.py`
+- [ ] T021 [P] [US2] Unit test for VADER `neg_score` extraction and range validation in `tests/unit/test_vader.py`
+- [ ] T022 [P] [US2] Unit test for stratified sampling logic (FR-010, FR-010a) in `tests/unit/test_sampling.py`
 
 ### Implementation for User Story 2
 
-- [ ] T021 [US2] Implement `code/processing/scoring.py`: Compute VADER scores (compound, pos, neu, neg) and `prosocial_action_count` using secondary lexicon (excluding prime keywords AND semantic equivalents: `donate`, `contribute`, `share`, `give-away`) (FR-003, FR-003b).
-- [ ] T022 [US2] Implement `code/processing/embedding.py`: Generate sentence embeddings for thread titles using `all-MiniLM-L6-v2` (CPU) for topic control. **Output**: `data/processed/embeddings.parquet`. **Note**: This task implements the "Topic Confounding Mitigation" strategy from plan.md, a deviation from spec FR-005.
-- [ ] T033 [US2] Implement `code/processing/embedding.py` (PCA): Apply PCA to embeddings from T022 (`data/processed/embeddings.parquet`), retain top components as `topic_pc1`, `topic_pc2`, `topic_pc3` for GLMM covariates. **Output**: `data/processed/pca_components.parquet`. Save to `data/processed/`. **Note**: This task implements the "Topic Confounding Mitigation" strategy from plan.md, a deviation from spec FR-005.
-- [ ] T024a [US2] Implement `code/processing/generate_annotations.py`: Generate the `gold_standard.csv` artifact and `human_annotation_protocol.md` if not provided externally. **Recruitment Simulation**: Simulate recruitment of ≥3 independent raters (e.g., using a deterministic seeded random process for testing) and generate the CSV with columns `comment_id`, `rater_id`, `label_prosocial`, `label_neg` per FR-011. **Output**: `data/validation/gold_standard.csv` and `data/validation/human_annotation_protocol.md`. This task ensures the Human Annotation Protocol is fully implemented even without external data.
-- [ ] T023 [US2] Implement `code/processing/validation.py`: Stratified sampling with **explicit FR-010a merge hierarchy**: 1. Merge subreddits within thematic category, 2. Merge across thread_type if still insufficient, 3. Draw from global pool until A minimum sample size sufficient for statistical power was met.. **Verify ≥3 raters in `gold_standard.csv` (FR-011a) and REJECT files with <3 raters, logging an error.** Compute Cohen's Kappa against `gold_standard.csv`. **Input**: `data/validation/gold_standard.csv` (from T024a).
-- [ ] T024 [US2] Create `data/validation/human_annotation_protocol.md` with required sections: 1. Codebook (defining prosocial action intent vs lexical form), 2. Rater Instructions, 3. CSV format spec (FR-011). **Note**: If T024a generates this, T024 updates it with final human-readable instructions.
-- [ ] T025 [US2] Add memory profiling and chunking logic to ensure scoring completes ≤4 hours on 7GB RAM (FR-012).
+- [ ] T023 [US2] Implement `code/02_score.py`: VADER sentiment scoring and `neg_score` extraction for all comments (FR-003, SC-008)
+- [ ] T024 [US2] Implement `code/02_score.py`: `prosocial_action_count` computation using secondary lexicon (FR-003b), excluding "help", "support", "charity" and equivalents
+- [ ] T025 [US2] Implement `code/02_score.py`: Stratified sampling logic for validation (FR-010, FR-010a) to ensure ≥200 comments with ≥50 per stratum. **Logic**: Implement thematic categories (Social Science: r/socialscience, r/psychology; General: all others). If a stratum is insufficient, merge within category, then merge across thread_type, then draw from global pool.
+- [ ] T026a [US2] Create `code/validation/protocol.md` defining "prosocial action" and "negative sentiment" for human raters (FR-011). This task generates the instructions only.
+- [ ] T026b [US2] **EXTERNAL FILE VERIFICATION**: Implement `code/validation/run_validation.py` to **accept an externally supplied** `gold_standard.csv`. Verify the file contains annotations from **≥3 distinct raters** (validated via `rater_id` column). **Abort** if the file does not meet this criterion (FR-011a). This task does not recruit raters; it verifies the external artifact.
+- [ ] T027 [US2] Implement `code/validation/run_validation.py`: Logic to load `gold_standard.csv`, compute Cohen's Kappa (SC-006) and Pearson r for `neg_score` (SC-008). **ABORT LOGIC**: If Cohen's Kappa < 0.7, the script MUST abort the pipeline and log insufficiency per SC-006.
+- [ ] T028 [US2] Implement `code/02_score.py`: Performance monitoring to ensure runtime ≤ 4 hours on CPU (FR-012)
+- [ ] T029 [US2] Save `data/processed/scored.csv` and `results/validation_report.json`
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -132,42 +125,41 @@
 
 ## Phase 5: User Story 3 - Statistical Analysis and Reporting (Priority: P3)
 
-**Goal**: Perform GLMM analysis with topic control, sensitivity analysis, and visualization.
+**Goal**: Perform LMM analysis, sensitivity checks, and generate visualizations to answer the research question.
 
-**Independent Test**: Execute `code/analysis/glmm.py` and `code/analysis/sensitivity.py`; verify `output/results.json` contains p-values, coefficients, and confidence intervals; verify `output/figures/boxplot.png` exists.
+**Independent Test**: Execute `code/03_analyze.py` on the scored dataset and verify `results/stats_report.json` contains p-values, coefficients, CIs, sensitivity results, and `results/boxplot.png` exists.
 
-### Tests for User Story 3
+### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T026 [P] [US3] Contract test for results.json schema in `tests/contract/test_results_schema.py`
-- [ ] T027 [P] [US3] Integration test for GLMM singular fit fallback (FR-005b) in `tests/integration/test_glmm_fallback.py`
-- [ ] T028 [P] [US3] Unit test for sensitivity analysis bootstrap logic in `tests/unit/test_sensitivity.py`
+- [ ] T030 [P] [US3] Unit test for LMM formula construction and singular fit detection in `tests/unit/test_lmm.py`
+- [ ] T031 [P] [US3] Unit test for sensitivity analysis bootstrap logic in `tests/unit/test_sensitivity.py`
 
 ### Implementation for User Story 3
 
-- [ ] T029a [US3] Implement `code/analysis/deviation_log.py`: Create a formal documentation file `output/deviation_log.md` explicitly stating the deviation from spec FR-005 (LMM) to GLMM (Negative Binomial) and the inclusion of topic covariates, referencing the plan.md justification. **This task ensures traceability.**
-- [ ] T029b [US3] Update `spec.md` to formally document the deviation from the LMM (Gaussian) to the GLMM (Negative Binomial) and the inclusion of topic covariates, ensuring the spec and tasks are aligned before implementation. **Reference plan.md "Critical Statistical Correction" and "Topic Confounding Mitigation" sections.**
-- [ ] T029 [US3] Implement `code/analysis/glmm.py`: Fit Negative Binomial GLMM (`prosocial_action_count ~ thread_type + thread_age + comment_count + topic_pc1 + topic_pc2 + topic_pc3 + (1|thread_id) + (1|user_id)`) using `statsmodels`. **Input**: `data/processed/pca_components.parquet` (from T033). **Note: Deviates from spec FR-005 (LMM) per plan.md justification for statistical validity of count data. Documented in T029a and T029b.** **Singular Fit Check**: If variance component for `user_id` <= 0.01, re-fit model WITHOUT `user_id` random effect and record fallback (FR-005b). Include topic covariates per plan's Topic Confounding Mitigation strategy.
-- [ ] T030 [US3] Implement `code/analysis/sensitivity.py`: Run bootstrap resampling, model variants (drop `thread_age`, drop `comment_count`, drop both), and alternative random effects; compute p-values for thresholds including standard significance levels (FR-005a).
-- [ ] T031 [US3] Implement `code/analysis/viz.py`: Generate boxplot comparing `prosocial_action_count` for Prime vs Control; save as PNG (FR-006).
-- [ ] T032 [US3] Implement descriptive stats generation (mean, median, std) per group and save to `output/results.json` (FR-004).
-- [ ] T034 [US3] Finalize `output/results.json` with all coefficients, p-values, confidence intervals, and sensitivity analysis results.
+- [ ] T032 [US3] Implement `code/03_analyze.py`: Load `data/processed/scored.csv` and prepare data for LMM
+- [ ] T033 [US3] Implement `code/03_analyze.py`: Fit Linear Mixed-Effects Model (LMM) with formula `prosocial_action_count ~ thread_type + thread_age + comment_count + (1|thread_id) + (1|user_id)` (FR-005). **Dependency**: `user_id` must be the SHA-256 hash from T016a.
+- [ ] T034 [US3] Implement `code/03_analyze.py`: Singular fit check (variance ≤ 0.01) and fallback re-fit without `user_id` random effect (FR-005b)
+- [ ] T035 [US3] Implement `code/03_analyze.py`: Sensitivity analysis with bootstrap resampling. **Convergence Logic**: Run bootstrap iterations (target a sufficient number to ensure stable estimation) and check for convergence by verifying that the **mean p-value estimate** stabilizes (standard deviation of the mean over the last 100 iterations < 0.001). If not converged after [deferred], log a warning but proceed with the results. Also perform control variable drops and alternative random effects (FR-005a).
+- [ ] T036 [US3] Implement `code/03_analyze.py`: Lexicon sensitivity check (re-run LMM including prime keywords) to test for lexical repetition bias
+- [ ] T037 [US3] Implement `code/03_analyze.py`: Generate boxplot visualization comparing `prosocial_action_count` distributions (FR-006)
+- [ ] T038a [US3] Implement `code/03_analyze.py`: Generate `results/descriptive_stats.json` containing mean, median, and SD for `prosocial_action_count` by group (FR-004). **This must be a separate file from the main report.**
+- [ ] T038b [US3] Implement `code/03_analyze.py`: Generate `results/stats_report.json` with p-values, coefficients, CIs, sensitivity results, and validation metrics (FR-004, SC-001..SC-003)
+- [ ] T039 [US3] Create `tests/integration/test_analysis_pipeline.py` to verify end-to-end analysis and report generation
 
 **Checkpoint**: All user stories should now be independently functional
 
 ---
 
-## Phase 6: Polish & Cross-Cutting Concerns
+## Phase N: Polish & Cross-Cutting Concerns
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T035 [P] Run full pipeline end-to-end on GitHub Actions runner to verify ≤4 hour runtime (SC-004)
-- [ ] T036 [P] Run PII scan script on `data/processed/` to confirm zero plaintext usernames/timestamps (SC-005)
-- [ ] T037 [P] Update `quickstart.md` with execution instructions and expected outputs
-- [ ] T038a [P] Update docstrings for all public functions in `code/ingestion/`, `code/processing/`, and `code/analysis/`
-- [ ] T038b [P] Run `black --check` and `flake8` on entire `code/` directory; fix violations
-- [ ] T038c [P] Update `README.md` with project status and execution steps
-- [ ] T039 [P] Verify `gold_standard.csv` structure and rater count (SC-007)
-- [ ] T040 [P] Validate `neg_score` correlation with VADER `neg` on a **stratified sample of 200 comments** (matching FR-010 robustness); verify Pearson r >= 0.9 (SC-008). **Justification**: Sample size ensures statistical robustness comparable to validation requirements (FR-010).
+- [ ] T040 [P] Documentation updates in `specs/001-the-effect-of-priming-on-prosocial-behav/` including `quickstart.md` and `data-model.md`
+- [ ] T041 Code cleanup and refactoring in `code/`
+- [ ] T042 Performance optimization (vectorization) for VADER and lexicon scoring in `code/02_score.py`
+- [ ] T043 [P] Additional unit tests for edge cases (e.g., empty subreddits, missing keys) in `tests/unit/`
+- [ ] T044 Security hardening: Ensure no PII leakage in logs or error messages
+- [ ] T045 Run `quickstart.md` validation to ensure reproducibility on a clean runner
 
 ---
 
@@ -177,22 +169,22 @@
 
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
-- **Pre-Flight (Phase 2.5)**: Depends on Foundational - BLOCKS Data Ingestion
-- **User Stories (Phase 3+)**: All depend on Pre-Flight phase completion
+- **User Stories (Phase 3+)**: All depend on Foundational phase completion
   - User stories can then proceed in parallel (if staffed)
   - Or sequentially in priority order (P1 → P2 → P3)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
 
-- **User Story 1 (P1)**: Can start after Pre-Flight (Phase 2.5) - No dependencies on other stories
-- **User Story 2 (P2)**: Can start after Pre-Flight (Phase 2.5) - Depends on US1 data output
-- **User Story 3 (P3)**: Can start after Pre-Flight (Phase 2.5) - Depends on US1, US2, and **T033 (PCA)** outputs
+- **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
+- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Depends on US1 output (`anonymized.csv`)
+- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on US2 output (`scored.csv`)
 
 ### Within Each User Story
 
 - Tests (if included) MUST be written and FAIL before implementation
-- Models/Config before services/logic
+- Models/Utilities before services
+- Services before analysis endpoints
 - Core implementation before integration
 - Story complete before moving to next priority
 
@@ -202,26 +194,21 @@
 - All Foundational tasks marked [P] can run in parallel (within Phase 2)
 - Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
 - All tests for a user story marked [P] can run in parallel
+- Models within a story marked [P] can run in parallel
 - Different user stories can be worked on in parallel by different team members
-
-### Explicit Artifact Dependencies
-
-- **T033 (PCA)** produces `data/processed/pca_components.parquet` which is **required** by **T029 (GLMM)**.
-- **T024a (Generate Annotations)** produces `data/validation/gold_standard.csv` which is **required** by **T023 (Validation)**.
-- **T029a (Deviation Log)** and **T029b (Spec Update)** must be completed before **T029 (GLMM)** implementation to ensure documentation exists and spec is aligned.
 
 ---
 
 ## Parallel Example: User Story 1
 
 ```bash
-# Launch all tests for User Story 1 together:
-Task: "Contract test for data schema validation in tests/contract/test_data_schema.py"
-Task: "Integration test for negation logic in tests/integration/test_classification_logic.py"
-Task: "Unit test for PII removal in tests/unit/test_anonymize.py"
+# Launch all tests for User Story 1 together (if tests requested):
+Task: "Contract test for dataset schema validation in tests/contract/test_dataset_schema.py"
+Task: "Unit test for negation-aware keyword classification logic in tests/unit/test_classification.py"
 
-# Launch implementation tasks (sequentially due to data flow):
-Task: "Implement fetch_data.py" -> "Implement classify.py" -> "Implement anonymize.py"
+# Launch all models/utilities for User Story 1 together:
+Task: "Implement data checksumming utility in code/utils/checksum.py"
+Task: "Configure environment variable management in code/config.py"
 ```
 
 ---
@@ -232,19 +219,17 @@ Task: "Implement fetch_data.py" -> "Implement classify.py" -> "Implement anonymi
 
 1. Complete Phase 1: Setup
 2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
-3. Complete Phase 2.5: Pre-Flight Gate (BLOCKING)
-4. Complete Phase 3: User Story 1 (Data Ingestion & Classification)
-5. **STOP and VALIDATE**: Test US1 independently (verify data volume, classification logic, anonymization)
-6. Deploy/demo if ready
+3. Complete Phase 3: User Story 1 (Start with T013 Power Analysis)
+4. **STOP and VALIDATE**: Test User Story 1 independently (verify group counts, anonymization)
+5. Deploy/demo if ready
 
 ### Incremental Delivery
 
 1. Complete Setup + Foundational → Foundation ready
-2. Add Pre-Flight Gate → Validate design
-3. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
-4. Add User Story 2 → Test independently (scoring & validation) → Deploy/Demo
-5. Add User Story 3 → Test independently (analysis & viz) → Deploy/Demo
-6. Each story adds value without breaking previous stories
+2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
+3. Add User Story 2 → Test independently → Deploy/Demo
+4. Add User Story 3 → Test independently → Deploy/Demo
+5. Each story adds value without breaking previous stories
 
 ### Parallel Team Strategy
 
@@ -252,9 +237,9 @@ With multiple developers:
 
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
-   - Developer A: User Story 1 (Data)
+   - Developer A: User Story 1 (Ingestion)
    - Developer B: User Story 2 (Scoring/Validation)
-   - Developer C: User Story 3 (Analysis) - *Note: US3 depends on US1/US2 outputs, so may need to wait or use mock data for unit tests*
+   - Developer C: User Story 3 (Analysis)
 3. Stories complete and integrate independently
 
 ---
@@ -268,15 +253,9 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Critical**: Ensure `fetch_data.py` validates subreddits BEFORE fetching (FR-014).
-- **Critical**: Ensure `fetch_data.py` implements source-switching logic (FR-001a) and aborts if no verified source found.
-- **Critical**: Ensure `scoring.py` excludes prime keywords AND semantic equivalents (`donate`, `share`, `give-away`) from action count (FR-003b).
-- **Critical**: Ensure GLMM uses Negative Binomial distribution, not Gaussian (Plan correction). **Documented in T029a and T029b.**
-- **Critical**: Ensure `thread_age` is calculated BEFORE anonymization strips timestamps (FR-009).
-- **Critical**: Ensure `anonymize.py` is the ONLY step that strips timestamps.
-- **Critical**: Ensure `gold_standard.csv` validation rejects files with <3 raters (FR-011a). **Producer task T024a ensures file exists.**
-- **Critical**: Ensure sensitivity analysis covers all three model variants and thresholds (0.01, 0.05, 0.10) (FR-005a).
-- **Critical**: Ensure singular fit fallback triggers at variance <= 0.01 (FR-005b).
-- **Critical**: Ensure `neg_score` validation uses 200 samples (matching FR-010) for statistical robustness (SC-008).
-- **Critical**: Ensure power analysis is a conditional gate (warning + approval) before data collection (FR-013).
-- **Critical**: Ensure T033 (PCA) is a prerequisite for T029 (GLMM) as per artifact flow.
+- **CPU Constraint**: All tasks must be feasible on a limited CPU configuration with standard RAM, no GPU. Avoid heavy ML models; use VADER and lexicons only.
+- **Data Integrity**: Never fabricate data. All tasks must use real data from `pushshift/reddit` or verified fallbacks.
+- **Power Analysis**: T013 MUST run before any data fetching. It uses theoretical ICC if pilot data is absent, with a mandatory log of the rationale.
+- **Human Annotation**: T026a generates the protocol. T026b verifies an external file. T027 computes Kappa and aborts if < 0.7.
+- **Precision**: T035 enforces a convergence check on the mean p-value estimate over the final iterations.
+- **Anonymization**: T016a must retain the hash as `user_id`.

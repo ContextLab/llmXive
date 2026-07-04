@@ -2,12 +2,12 @@
 
 ## Prerequisites
 - Python 3.11+
-- Access to the `pushshift/reddit` dataset on HuggingFace (verified multi-subreddit source).
-- A `gold_standard.csv` file with ≥ 3 raters (if validation is required).
+- `pip`
+- Access to HuggingFace datasets (internet connection required for download).
 
 ## Installation
 
-1. **Clone the repository** (or navigate to the project root).
+1. **Clone the repository** and navigate to the project root.
 2. **Create a virtual environment**:
    ```bash
    python -m venv venv
@@ -17,45 +17,47 @@
    ```bash
    pip install -r code/requirements.txt
    ```
-   *Note*: `requirements.txt` pins `pandas`, `nltk`, `vaderSentiment`, `statsmodels`, `scikit-learn`, `seaborn`, `matplotlib`, `pytest`, `pydantic`.
+   *Note: `requirements.txt` pins `nltk`, `vaderSentiment`, `statsmodels`, `pandas`, `numpy`, `scikit-learn`, `datasets`.*
 
-## Dataset Setup
-**CRITICAL**: The study uses the `pushshift/reddit` dataset from HuggingFace, which contains all 5 required subreddits.
-
-1. Ensure you have access to HuggingFace (login if required).
-2. Update `code/config.py` with the correct dataset path or URL for `pushshift/reddit`.
-3. The pipeline will automatically filter for `r/AskReddit`, `r/relationships`, `r/socialscience`, `r/psychology`, `r/dataisbeautiful`.
+## Data Preparation
+The pipeline automatically downloads the dataset from the verified HuggingFace source on first run.
+- **Primary Source**: `pushshift/reddit` (via `datasets.load_dataset`).
+- **Multi-subreddit Check**: The script will verify the presence of `r/AskReddit`, `r/relationships`, `r/socialscience`, `r/psychology`, `r/dataisbeautiful`.
+- **Warning**: If the dataset does not contain all 5 subreddits, the script will abort. You may need to provide a verified multi-subreddit source URL.
 
 ## Running the Pipeline
 
-### 1. Run the Full Pipeline
-Execute the main script to ingest, score, analyze, and visualize:
-```bash
-python code/main.py --output-dir output/
-```
-*Note*: The pipeline will automatically fetch and filter data from `pushshift/reddit`.
+Execute the pipeline in sequence:
 
-### 2. Validation (Optional but Recommended)
-If you have a `gold_standard.csv`:
-```bash
-python code/main.py --validate --gold-standard data/validation/gold_standard.csv
-```
-This will compute Cohen's Kappa and generate a validation report in `output/validation/`.
+1. **Ingest & Anonymize**:
+   ```bash
+   python code/01_ingest.py
+   ```
+   *Output*: `data/processed/anonymized.csv`
 
-### 3. Power Analysis
-Run a standalone power analysis check:
-```bash
-python code/main.py --power-analysis
-```
+2. **Score & Validate**:
+   ```bash
+   python code/02_score.py
+   ```
+   *Output*: `data/processed/scored.csv`, `results/validation_report.json`
 
-## Outputs
-- **`output/results.json`**: Statistical results (p-values, coefficients, CI) from the GLMM.
-- **`output/figures/boxplot.png`**: Visualization of prosocial action counts.
-- **`output/logs/pipeline.log`**: Detailed execution logs, including negation exclusions and power warnings.
-- **`data/processed/cleaned_data.parquet`**: Anonymized, scored dataset.
+3. **Analyze & Report**:
+   ```bash
+   python code/03_analyze.py
+   ```
+   *Output*: `results/stats_report.json`, `results/sensitivity_report.json`, `results/boxplot.png`
+
+## Validation (Human Annotation)
+If you have a `gold_standard.csv` (≥3 raters):
+1. Place it in `data/validation/`.
+2. Run:
+   ```bash
+   python code/validation/run_validation.py
+   ```
+   *Output*: Cohen's Kappa score and `neg_score` Pearson r in `results/validation_report.json`.
 
 ## Troubleshooting
-- **Error: "Missing subreddits"**: The dataset does not contain all 5 required subreddits. Check your data source (should be `pushshift/reddit`).
-- **Error: "Insufficient samples"**: A limited number of comments in a group. The pipeline will abort.
-- **Runtime > 4 hours**: Reduce `TARGET_N` in `code/config.py` or optimize the bootstrap iterations.
-- **Statistical Warning**: If the model uses a Gaussian family instead of Negative Binomial, check the `glmm.py` implementation. The plan mandates Negative Binomial for count data.
+- **Dataset Error**: "Missing subreddits". Ensure the HuggingFace dataset used actually contains the 5 target subreddits.
+- **Memory Error**: Reduce `TARGET_N` in `code/01_ingest.py` (though 10k should fit in 7GB RAM).
+- **Singular Fit**: If `user_id` variance is near zero, the script automatically refits without it (FR-005b).
+

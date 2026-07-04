@@ -1,65 +1,48 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Anonymized Comment Dataset Schema"
-type: "object"
+title: "Anonymized Dataset Schema"
+description: "Schema for the anonymized comment dataset after ingestion and classification."
+type: object
 properties:
   comment_id:
-    type: "string"
-    description: "Unique identifier for the comment."
+    type: string
+    description: "Unique comment identifier (hash)."
   thread_id:
-    type: "string"
-    description: "Unique identifier for the thread."
+    type: string
+    description: "Hashed thread identifier."
   user_id:
-    type: "string"
-    description: "SHA-256 hash of the original username."
-    pattern: "^[a-f0-9]{64}$"
+    type: string
+    description: "SHA-256 hash of the username."
+  thread_age:
+    type: number
+    description: "Age of the thread in days."
+    minimum: 0
+  subreddit:
+    type: string
+    description: "Source subreddit name."
+  body:
+    type: string
+    description: "Comment text content."
   thread_type:
     type: "string"
     enum:
       - "Prime"
       - "Control"
-    description: "Classification based on title keywords."
-  subreddit:
-    type: "string"
-    description: "Subreddit name."
-  thread_age:
-    type: "number"
-    minimum: 0
-    description: "Age of the thread in days."
-  body:
-    type: "string"
-    description: "Comment text content."
-  prosocial_action_count:
-    type: "integer"
-    minimum: 0
-    description: "Count of prosocial action verbs."
-  neg_score:
-    type: "number"
-    minimum: 0
-    maximum: 1
-    description: "VADER negative sentiment component."
-  compound:
-    type: "number"
-    minimum: -1
-    maximum: 1
-    description: "VADER compound sentiment score."
-  pos:
-    type: "number"
-    minimum: 0
-    maximum: 1
-    description: "VADER positive sentiment score."
-  neu:
-    type: "number"
-    minimum: 0
-    maximum: 1
-    description: "VADER neutral sentiment score."
+    description: "Classification based on title priming."
+  negation_excluded:
+    type: boolean
+    description: "True if title had keyword but failed negation rule."
+  comment_count:
+    type: integer
+    description: "Total number of comments in the thread."
+    minimum: 1
 required:
   - comment_id
   - thread_id
   - user_id
-  - thread_type
-  - subreddit
   - thread_age
+  - subreddit
   - body
-  - prosocial_action_count
-  - neg_score
-additionalProperties: false
+  - thread_type
+  - negation_excluded
+  - comment_count
+

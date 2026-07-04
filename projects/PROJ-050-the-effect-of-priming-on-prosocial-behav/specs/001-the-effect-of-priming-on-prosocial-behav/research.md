@@ -1,80 +1,83 @@
 # Research: The Effect of Priming on Prosocial Behavior in Online Communities
 
 ## Research Question
-To what extent does the presence of prosocial cues (e.g., keywords related to help or empathy) in online thread headers correlate with increased prosocial language in subsequent user replies compared to control threads?
+To what extent does the presence of prosocial cues (e.g., "help", "support", "charity") in online thread headers correlate with increased prosocial language in subsequent user replies compared to control threads?
 
 ## Dataset Strategy
 
-### Verified Datasets
-The study requires a multi-subreddit Reddit dataset containing titles, bodies, authors, and timestamps. Based on the `# Verified datasets` block, the following sources are available and verified:
+The study relies on a multi-subreddit Reddit corpus. The primary dataset must contain the 5 target subreddits: `r/AskReddit`, `r/relationships`, `r/socialscience`, `r/psychology`, `r/dataisbeautiful`.
 
-| Dataset | URL | Suitability |
-|:--- |:--- |:--- |
-| **AskReddit** | ` | **Partial**. Contains `AskReddit` but lacks the other 4 required subreddits. |
-| **AskReddit (Processed)** | ` | **Partial**. Same limitation as above. |
-| **AskReddit (Hylium)** | ` | **Partial**. Same limitation as above. |
-| **VADER Sentiment** | ` | **Supplementary**. Used for validation of sentiment tools, not primary data. |
-| **LMM / RefCOCO** | ` | **Irrelevant**. Contains image-text pairs, not Reddit comments. |
-| **pushshift/reddit (Multi-Subreddit)** | `https://huggingface.co/datasets/pushshift/reddit` | **Primary/Fallback**. Contains the full corpus including all 5 target subreddits (`r/AskReddit`, `r/relationships`, `r/socialscience`, `r/psychology`, `r/dataisbeautiful`). Verified to contain the required schema fields (`title`, `body`, `author`, `created_utc`, `subreddit`). |
+### Verified Sources
+The following HuggingFace datasets have been verified for format and reachability. We will attempt to load the most comprehensive source that covers all 5 subreddits.
 
-### Gap Analysis & Fallback Strategy
-**Critical Gap**: The primary AskReddit datasets only cover one subreddit.
-**Resolution**: The plan now utilizes **pushshift/reddit** (HuggingFace) as the primary source, which is verified to contain all 5 required subreddits. This resolves the data acquisition blocker and satisfies FR-001a's requirement for a verified multi-subreddit source.
+| Dataset Name | Source URL | Relevance | Usage Plan |
+|:--- |:--- |:--- |:--- |
+| **AskReddit** | ` | High (r/AskReddit) | Primary source for r/AskReddit. |
+| **AskReddit (Processed)** | ` | High (r/AskReddit) | Fallback for r/AskReddit. |
+| **AskReddit (Hylium)** | ` | High (r/AskReddit) | Fallback for r/AskReddit. |
+| **VADER Sentiment** | ` | Medium | Used for validation of sentiment tool, not primary data. |
 
-**Plan**:
-1. **Primary Attempt**: The ingestion script (`fetch_data.py`) will attempt to load the `pushshift/reddit` dataset.
-2. **Validation**: The script will immediately check for the presence of the 5 target subreddits.
-3. **Switch Logic**: If the primary source fails (e.g., network error), the system will attempt to load a secondary verified multi-subreddit source (if available) or abort with a clear error message.
-4. **Pre-flight Check**: Before data retrieval, the system programmatically confirms the presence of all required subreddits (FR-014).
+**Constraint & Mismatch Note**: The provided `# Verified datasets` block contains **only** AskReddit-specific sources and VADER sentiment datasets. It **does not** contain verified URLs for `r/relationships`, `r/socialscience`, `r/psychology`, or `r/dataisbeautiful`.
+**Action**: The ingestion pipeline (FR-001a, FR-014) MUST check for the presence of all 5 subreddits in the loaded dataset.
+- **Primary Strategy**: The plan will attempt to load the standard HuggingFace loader `datasets.load_dataset('pushshift/reddit')`. While this loader is a standard entity, it is not a specific URL in the verified block. The pipeline will proceed ONLY if the loader succeeds and contains all 5 subreddits.
+- **Fallback**: If the loader fails or the dataset lacks the required subreddits, the pipeline will **abort** with a clear error. No unverified URL will be used to proceed.
+- **Resolution**: This strict abort condition satisfies Constitution Principle II (Verified Accuracy) by not proceeding on an unverified assumption.
 
-## Methodology
+**Dataset Variable Fit**:
+- **Required Variables**: `title`, `body` (comment text), `author`, `created_utc`, `subreddit`, `thread_id` (parent ID), `link_id`.
+- **Fit Check**: The verified AskReddit datasets contain `title`, `body`, `author`, `created_utc`, `subreddit`. `thread_id` may need to be derived from `parent_id` or `link_id`.
+- **Missing**: If the dataset lacks `thread_id` (parent link ID) to group comments, the LMM random effect `(1|thread_id)` cannot be computed. We will assume the dataset provides a `link_id` or `post_id` that serves as the thread identifier.
 
-### 1. Data Ingestion & Classification
-- **Filtering**: Select comments from the 5 target subreddits.
-- **Classification**:
- - **Prime**: Title contains "help", "support", or "charity" (case-insensitive).
- - **Negation Check**: If a negation word (`no`, `not`, `never`, `without`) appears within 3 tokens **before** the keyword, the thread is **Control** (FR-002a).
- - **Tokenization**: Use NLTK `word_tokenize` for robust handling of punctuation.
-- **Anonymization**:
- - Hash `author` using SHA-256.
- - Compute `thread_age` (days) from `created_utc` before stripping the timestamp.
- - Strip original timestamp and plaintext username.
+**Thematic Categories for Stratification (FR-010a)**:
+To implement the merging hierarchy for insufficient strata, the subreddits are categorized as follows:
+- **Social Science**: `r/socialscience`, `r/psychology`
+- **General**: `r/AskReddit`, `r/relationships`, `r/dataisbeautiful`
+Merging logic: If a stratum (e.g., Prime in `r/socialscience`) has <50 samples, merge with `r/psychology`. If still insufficient, merge across `thread_type` (Prime+Control).
 
-### 2. Scoring & Validation
-- **Prosocial Action Count**:
- - Lexicon: Verbs like "offer", "give", "assist", "donate", "contribute", "share".
- - **Exclusion**: Explicitly exclude "help", "support", "charity" and their synonyms to avoid lexical echo (FR-003b).
-- **Sentiment**: Use VADER to compute `neg_score` (VADER `neg` component).
-- **Validation**:
- - Stratified sample (sufficient per stratum of `thread_type` x `subreddit`).
- - Compare system scores against `gold_standard.csv` (3 raters).
- - Metric: Cohen's Kappa ≥ 0.7.
- - **Codebook Distinction**: The human annotation codebook will define "prosocial action" based on **intent** (e.g., "offers help", "provides resources") and **outcome**, distinct from the specific verb list used for the automated count. This prevents circular validation where the tool is validated against a definition it was hard-coded to match.
+## Methodology & Statistical Rigor
 
-### 3. Statistical Analysis
-- **Model**: **Generalized Linear Mixed Model (GLMM)** with a **Negative Binomial distribution**.
- - **Formula**: `prosocial_action_count ~ thread_type + thread_age + comment_count + topic_pc1 + topic_pc2 + topic_pc3 + (1|thread_id) + (1|user_id)`
- - **Rationale**:
- - The dependent variable is a count (integer ≥ 0), which typically follows a Poisson or Negative Binomial distribution. A standard LMM (Gaussian) violates the assumption of normality of residuals. The Negative Binomial link handles overdispersion common in count data.
- - **Topic Control**: To address the "topic selection effect" (where Prime threads are inherently about prosocial topics), we compute sentence embeddings for thread titles using `sentence-transformers/all-MiniLM-L6-v2`. We then perform PCA on these embeddings and include the top 3 principal components (`topic_pc1`, `topic_pc2`, `topic_pc3`) as fixed effects. This controls for the semantic topic of the thread, isolating the effect of the specific prime keyword from the general prosocial nature of the topic.
- - **Library**: `statsmodels` (Python) for CPU compatibility.
-- **Sensitivity**:
- - Bootstrap (a sufficient number of iterations).
- - Leave-one-out control variables.
- - Alternative random effects (drop `user_id` if singular fit).
-- **Power Analysis**: Pre-run check for d=0.15, α=0.05, power ≥ 0.80.
+### 1. Priming Classification (Independent Variable)
+- **Method**: Rule-based classification using NLTK `word_tokenize`.
+- **Logic**: A thread is "Prime" if `title` contains ("help" OR "support" OR "charity") AND NO negation word (`no`, `not`, `never`, `without`) appears within 3 tokens preceding the keyword.
+- **Handling Negation**: Titles failing the negation rule are logged as "Negation Exclusions" and assigned to "Control" (FR-002a).
+- **Heuristic Limitation**: The 3-token window is a heuristic. Misclassification (e.g., negation 4 tokens away) may cause attenuation bias. Effect sizes will be interpreted as **lower bounds**. A validation sample of titles will be manually reviewed to estimate misclassification rate.
 
-### 4. Pre-study Prevalence Estimation
-- **Step**: Before full data collection, a pilot sample will be analyzed to estimate the ratio of Prime to Control threads.
-- **Adjustment**: If the Prime group is expected to be <4,000 samples, the target `TARGET_N` will be increased dynamically to ensure sufficient power, or the study will be aborted with a warning if the dataset is exhausted.
+### 2. Prosocial Action Scoring (Dependent Variable)
+- **Metric**: `prosocial_action_count`.
+- **Lexicon**: A custom list of action verbs (e.g., "offer", "give", "assist") **excluding** the prime keywords and their semantic equivalents ("donate", "contribute", "share", "give-away") to avoid lexical repetition bias (FR-003b).
+- **Circularity Mitigation**: The Human Annotation Protocol (FR-011) will explicitly instruct raters to be **blind to thread titles** and define "prosocial action" broadly (e.g., "offering assistance") rather than matching the specific prime keywords, to avoid tautological validation.
+- **Sensitivity Analysis**: A secondary LMM will be run including the prime keywords in the count to test if the effect is driven by lexical repetition.
+- **Sentiment Control**: VADER `neg` score (`neg_score`) computed for control.
+- **Validation**: Stratified sampling (adequate sample size per stratum) against human annotations. Target Cohen's Kappa ≥ 0.7 (SC-006).
 
-## Statistical Rigor & Assumptions
-- **Observational Nature**: The study is **associational**. No causal claims are made. The GLMM controls for observable confounders (age, popularity, subreddit, topic embeddings) but selection bias remains.
-- **Multiple Comparisons**: Not applicable for the primary test (one GLMM), but sensitivity analysis covers robustness.
-- **Collinearity**: `thread_type` is derived from title keywords; `prosocial_action_count` excludes those keywords. Topic embeddings are included to mitigate semantic correlation.
-- **Power**: Assumed N=10,000 is sufficient for d=0.15. If power < 80%, a warning is logged (FR-013).
-- **Statistical Method Correction**: The plan explicitly deviates from the spec's request for an LMM (Gaussian) to a GLMM (Negative Binomial) to ensure scientific validity for count data. This is flagged as a necessary correction.
-- **Topic Confounding**: The inclusion of PCA-reduced sentence embeddings as covariates directly addresses the concern that Prime threads might be inherently more prosocial. This allows the model to estimate the effect of the *prime* while holding the *topic* constant.
+### 3. Statistical Model
+- **Model**: Linear Mixed-Effects Model (LMM).
+- **Formula**: `prosocial_action_count ~ thread_type + thread_age + comment_count + (1|thread_id) + (1|user_id)`
+- **Justification**: Accounts for non-independence of comments within threads and users.
+- **Causal Claim**: **Associational only**. The study is observational. No randomization exists. Claims will be framed as "correlation" or "association," not causation.
+- **Collinearity**: `thread_age` and `comment_count` may be correlated. VIF (Variance Inflation Factor) will be checked.
+- **Post-Treatment Variable Risk**: `comment_count` is a potential mediator (priming might increase engagement). Controlling for it may attenuate the total effect. The plan treats it as a confounder (proxy for popularity) but includes a sensitivity analysis dropping `comment_count` to assess bias.
+- **Multiple Comparisons**: The primary test is the `thread_type` coefficient. Sensitivity analyses (bootstrap, model variants) are planned (FR-005a) to assess robustness.
+
+### 4. Power Analysis
+- **Parameters**: α = 0.05, d = 0.15 (small effect), Power ≥ 80%.
+- **Method**: **Design Effect (DEFF) Adjusted**. Power is calculated as: `N_effective = N_total / (1 + (m-1)*ICC)`, where `m` is average cluster size and `ICC` is estimated from pilot data. This corrects for the hierarchical structure, avoiding the overestimation of power inherent in t-test approximations.
+- **Estimate**: For a two-sample t-test (approximation), N will be sufficiently large per group to ensure adequate statistical power. With LMM and ICC, N=10,000 is likely sufficient.
+- **Constraint**: If the dataset yields < 8,000 comments (4k per group), the study aborts (FR-001).
+
+## Compute Feasibility
+- **Hardware**: GitHub Actions (modest CPU resources, 7GB RAM).
+- **Strategy**:
+ - Data loading: Stream or chunk if necessary (though 10k rows fits in RAM).
+ - NLP: `nltk` and `vaderSentiment` are CPU-light. No GPU required.
+ - LMM: `statsmodels` mixed linear model is CPU-based and efficient for N=10k.
+ - **Runtime Target**: < 4 hours.
+ - **Memory**: Target < 4GB usage.
+
+## Assumptions & Risks
+- **Dataset Availability**: The critical risk is the lack of a verified multi-subreddit source in the `# Verified datasets` block. The plan relies on `pushshift/reddit` loader. If this fails, the study **cannot proceed**.
+- **Variable Definition**: `thread_id` availability in the source dataset.
+- **Measurement Validity**: Lexicon-based counting is a proxy for "prosocial behavior." Validation (Kappa ≥ 0.7) is essential to mitigate this risk.
 
 ## Limitations
 - **Dataset Availability**: Resolved. The `pushshift/reddit` dataset is verified to contain all 5 subreddits.

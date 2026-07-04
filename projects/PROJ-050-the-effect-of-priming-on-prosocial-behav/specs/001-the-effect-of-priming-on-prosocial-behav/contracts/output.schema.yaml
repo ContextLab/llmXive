@@ -1,78 +1,95 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Analysis Results Schema"
-type: "object"
+title: "Analysis Output Schema"
+description: "Schema for the final statistical report JSON."
+type: object
 properties:
-  model_formula:
-    type: "string"
-    description: "The GLMM formula used."
-  prime_coefficient:
-    type: "number"
-    description: "Effect size of the Prime group."
-  prime_p_value:
-    type: "number"
-    description: "P-value for the Prime effect."
-  prime_ci_lower:
-    type: "number"
-    description: "Lower bound of the 95% CI."
-  prime_ci_upper:
-    type: "number"
-    description: "Upper bound of the 95% CI."
-  control_vars:
-    type: "object"
-    description: "Coefficients for control variables."
+  primary_model:
+    type: object
     properties:
-      thread_age:
-        type: "number"
-      comment_count:
-        type: "number"
-      topic_pc1:
-        type: "number"
-      topic_pc2:
-        type: "number"
-      topic_pc3:
-        type: "number"
-      subreddit:
-        type: "object"
-        description: "Coefficients for subreddit fixed effects."
-  random_effects:
-    type: "object"
-    description: "Variance components."
+      thread_type_Prime:
+        type: object
+        properties:
+          coef:
+            type: number
+          std_err:
+            type: number
+          p_value:
+            type: number
+            minimum: 0
+            maximum: 1
+          conf_int:
+            type: array
+            items:
+              type: number
+            minItems: 2
+            maxItems: 2
+        required:
+          - coef
+          - std_err
+          - p_value
+          - conf_int
+      singular_fit_fallback:
+        type: boolean
+        description: "True if user_id random effect was dropped."
+    required:
+      - thread_type_Prime
+      - singular_fit_fallback
+  sensitivity_analysis:
+    type: object
     properties:
-      thread_id:
-        type: "number"
-      user_id:
-        type: "number"
-  sensitivity_results:
-    type: "array"
-    description: "Results from sensitivity analysis."
-    items:
-      type: "object"
+      bootstrap_p_values:
+        type: array
+        items:
+          type: number
+        description: "P-values from 1,000 bootstrap resamples."
+      control_drop_p_values:
+        type: object
+        description: "P-values when dropping each control variable."
+      random_effect_variants:
+        type: object
+        description: "P-values for alternative random effect structures."
+    required:
+      - bootstrap_p_values
   power_analysis:
-    type: "object"
-    description: "Power analysis results."
+    type: object
     properties:
-      power:
-        type: "number"
-      effect_size:
-        type: "number"
+      effect_size_d:
+        type: number
       sample_size:
-        type: "integer"
-  model_family:
-    type: "string"
-    description: "Distribution family used (e.g., 'Negative Binomial')."
-  topic_control_method:
-    type: "string"
-    description: "Description of the embedding/PCA method used for topic control."
+        type: integer
+      power:
+        type: number
+        minimum: 0
+        maximum: 1
+      warning:
+        type: string
+        description: "Warning message if power < 80%."
+    required:
+      - effect_size_d
+      - sample_size
+      - power
+  validation:
+    type: object
+    properties:
+      cohen_kappa:
+        type: number
+        minimum: 0
+        maximum: 1
+      raters_count:
+        type: integer
+        minimum: 3
+      neg_score_pearson_r:
+        type: number
+        minimum: -1
+        maximum: 1
+        description: "Pearson correlation between neg_score and VADER native neg."
+    required:
+      - cohen_kappa
+      - raters_count
+      - neg_score_pearson_r
 required:
-  - model_formula
-  - prime_coefficient
-  - prime_p_value
-  - prime_ci_lower
-  - prime_ci_upper
-  - control_vars
-  - random_effects
-  - sensitivity_results
+  - primary_model
+  - sensitivity_analysis
   - power_analysis
-  - model_family
-  - topic_control_method
-additionalProperties: false
+  - validation
+

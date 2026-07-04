@@ -1,0 +1,50 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Scored Dataset Schema"
+description: "Schema for the dataset after VADER and action lexicon scoring."
+type: object
+properties:
+  comment_id:
+    type: string
+    description: "Unique comment identifier."
+  thread_id:
+    type: string
+  user_id:
+    type: string
+  thread_age:
+    type: number
+    minimum: 0
+  subreddit:
+    type: string
+  thread_type:
+    type: string
+    enum:
+      - "Prime"
+      - "Control"
+  neg_score:
+    type: number
+    description: "VADER negative sentiment component."
+    minimum: 0
+    maximum: 1
+  prosocial_action_count:
+    type: integer
+    description: "Count of prosocial action verbs."
+    minimum: 0
+  compound:
+    type: number
+    description: "VADER compound sentiment score."
+  comment_count:
+    type: integer
+    description: "Total number of comments in the thread."
+    minimum: 1
+required:
+  - comment_id
+  - thread_id
+  - user_id
+  - thread_age
+  - subreddit
+  - thread_type
+  - neg_score
+  - prosocial_action_count
+  - compound
+  - comment_count
+

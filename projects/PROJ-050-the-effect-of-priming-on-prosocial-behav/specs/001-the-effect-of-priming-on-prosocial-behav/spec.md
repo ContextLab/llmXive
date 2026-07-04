@@ -46,7 +46,7 @@ The system MUST perform a Linear Mixed‑Effects Model (LMM) to compare mean `pr
 
 1. **Given** the scored dataset, **When** the LMM is executed, **Then** the system outputs a p‑value and a confidence interval, explicitly stating if the difference is statistically significant at the p < 0.05 level (two‑tailed) (FR-005, SC-001).
 2. **Given** the regression model is fit, **When** the results are printed, **Then** the output includes the coefficient for the "Prime" indicator variable and the control variables (thread age, comment count), indicating the isolated effect of the priming cue (FR-005, SC-002).
-3. **Given** the analysis script runs, **When** the sensitivity analysis is performed, **Then** the output includes p‑values for conventional significance thresholds (0.05, 0.10) as specified in FR-005a, using (i) bootstrap resampling (a sufficient number of iterations), (ii) model variants dropping each control variable, and (iii) alternative random‑effect structures (FR-005a, SC-005).
+3. **Given** the analysis script runs, **When** the sensitivity analysis is performed, **Then** the output includes p‑values for conventional significance thresholds (0.01, 0.05, 0.10) as specified in FR-005a, using (i) bootstrap resampling (A sufficient number of iterations will be performed to ensure convergence.), (ii) model variants dropping each control variable, and (iii) alternative random‑effect structures (FR-005a, SC-005).
 
 ### Edge Cases
 
@@ -101,7 +101,7 @@ The system MUST perform a Linear Mixed‑Effects Model (LMM) to compare mean `pr
 - **SC-005**: The anonymization compliance is measured against a PII scan of the stored data, confirming zero instances of plaintext usernames or timestamps (See US-1).
 - **SC-006**: The methodological validity is measured by confirming Cohen's Kappa ≥ 0.7 on the 200‑comment stratified validation sample against the human annotations (See US-2).
 - **SC-007**: Validation ground truth is measured by confirming that the `gold_standard.csv` contains annotations from **≥ 3 distinct raters**, as verified by the `rater_id` column (See FR-011a).
-- **SC-008**: The `neg_score` metric is measured by comparing it to VADER's native `neg` component on a random sample of comments; Pearson r ≥ 0.9 and all values must lie in [0,1] (See FR-003, FR-003b).
+- **SC-008**: The `neg_score` metric is measured by comparing it to VADER's native `neg` component on a a random sample of comments; Pearson r ≥ 0.9 and all values must lie in [0,1] (See FR-003, FR-003b).
 - **SC-009**: Verify that the derived `thread_age` column exists, is numeric (days), and matches the difference between the original `created_utc` timestamp and the dataset extraction date (See FR-009).
 - **SC-010**: The power analysis (FR-013) must report that the planned sample size (≥ 10,000) yields ≥ 80 % power for detecting d = 0.15 at α = 0.05; otherwise a warning is logged (See FR-013).
 
