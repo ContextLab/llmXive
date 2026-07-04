@@ -1,0 +1,623 @@
+\documentclass{article}
+
+% NeurIPS 2026 style file. Using preprint mode for non-anonymous arXiv posting.
+\usepackage[preprint]{neurips_2026}
+% After acceptance, switch to: \usepackage[final]{neurips_2026}
+% For preprint posting: \usepackage[preprint]{neurips_2026}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{hyperref}
+\usepackage{url}
+\usepackage{xurl}
+\usepackage{booktabs}
+\usepackage{amsfonts}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{mathtools}
+\usepackage{amsthm}
+\usepackage{nicefrac}
+\usepackage{microtype}
+\usepackage{xcolor}
+\usepackage{graphicx}
+\usepackage{subcaption}
+\usepackage{multirow}
+\usepackage{array}
+\usepackage{tcolorbox}
+% arXiv does not allow --shell-escape, which minted normally needs.
+% Workflow: build once locally with finalizecache=true (needs -shell-escape) to
+% populate _minted-neurips_2026/, then switch to frozencache=true below so the
+% arXiv build reads the cache with NO shell-escape. Ship the _minted-* dir.
+% \usepackage[finalizecache=true]{minted}
+\usepackage[frozencache=true]{minted}
+\usepackage{listings}
+\usepackage{comment}
+\usepackage[nameinlink]{cleveref}
+\usepackage[textsize=tiny]{todonotes}
+
+\definecolor{borderblue}{RGB}{34,51,103}
+\definecolor{bggray}{RGB}{245,247,250}
+
+% Theorem environments (kept for completeness; sparingly used)
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{assumption}[theorem]{Assumption}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+\title{Program-as-Weights:\\A Programming Paradigm for Fuzzy Functions}
+
+% Non-anonymous author block for arXiv posting.
+% Wentao Zhang, Liliana Hotsko, and Woojeong Kim are co-first authors.
+\author{%
+  \textbf{Wentao Zhang$^{1,*}$\quad Liliana Hotsko$^{1,*}$\quad Woojeong Kim$^{2,*}$} \\[3pt]
+  \textbf{Pengyu Nie$^{1}$\quad Stuart Shieber$^{3}$\quad Yuntian Deng$^{1}$} \\[5pt]
+  \normalfont $^{1}$University of Waterloo\qquad $^{2}$Cornell University\qquad $^{3}$Harvard University \\[4pt]
+  \normalfont\small\texttt{\{w564zhan, lhotsko, pynie, yuntian\}@uwaterloo.ca} \\[1pt]
+  \normalfont\small\texttt{wk247@cornell.edu}\qquad\texttt{shieber@seas.harvard.edu} \\[4pt]
+  \normalfont $^{*}$Equal contribution%
+}
+
+
+\begin{document}
+
+\maketitle
+
+
+\begin{abstract}
+Many everyday programming tasks resist clean rule-based implementation, such as alerting on important log lines, repairing malformed JSON, or ranking search results by intent, and are increasingly outsourced to large language model APIs at the cost of locality, reproducibility, and price. We propose \emph{fuzzy-function programming}: compiling such a function from a natural-language specification into a compact, locally-executable neural artifact. We instantiate this paradigm with Program-as-Weights (PAW), in which a 4B compiler trained on FuzzyBench, a 10M-example dataset we release, emits parameter-efficient adapters for a frozen, lightweight interpreter. A 0.6B Qwen3 interpreter executing PAW programs matches the performance of direct prompting of Qwen3-32B, while using roughly one fiftieth of the inference memory and running at 30 tokens/s on a MacBook M3. PAW reframes the foundation model from a per-input \emph{problem solver} into a \emph{tool builder}: invoked once per function definition, it produces a small reusable artifact whose subsequent calls per function application are cheap and offline.
+\end{abstract}
+
+
+\section{Introduction}
+\label{sec:intro}
+
+Programming has historically been about writing explicit rules in a formal language designed for the purpose, a programming language. A function is defined by code, and the computer executes it deterministically. For many tasks, this paradigm works beautifully: sorting numbers, processing structured data, computing matrix products. Yet a large class of real-world functions resists precise specification. Consider, for instance, filtering a computer log to alert someone only on the log lines or messages that matter, repairing malformed JSON, or ranking search results by intent. Even apparently ``simple'' tasks, such as writing a regular expression to parse text with many edge cases, prove brittle. Beyond underspecification, real-world inputs are noisy: typos and format drift routinely break hand-written rules and regexes. These are \emph{fuzzy functions}~\citep{10.5555/2594622.2594630}: problems that humans find intuitive but that cannot be fully captured by crisp symbolic rules.
+
+Today, developers frequently outsource such fuzziness to LLM APIs. It is increasingly common to find codebases where a remote LLM is called (e.g., \texttt{gpt(``extract answer'', text)}) to implement functions that are otherwise intractable to program. This approach is undeniably convenient, but it is costly, fragile, undermines reproducibility because providers may silently update their models~\citep{kim-etal-2023-fantom}, and prevents software from being self-contained.
+
+We propose a different paradigm with three steps: the developer \emph{describes} the function in natural language; a neural \emph{compiler} turns that description into a small neural binary; and a frozen, lightweight neural \emph{interpreter}, installed once on the user's device, \emph{runs} that binary just like a user-defined function (\Cref{fig:overview}). We call this paradigm Program-as-Weights (PAW). Any sufficiently expressive parameter-efficient module (PEFT) emitted by a hypernetwork can serve as the program form; we instantiate two, prefix-tuning and text-to-LoRA, and find LoRA better, with future PEFTs possibly better still.
+
+%[[novel contributions? The paradigm itself; the two PEFTs; the FuzzyBench dataset; others?]]
+
+% Overview figure: compile-once-in-the-cloud, run-locally (vertical two-stage trace).
+\begin{figure*}[!t]
+    \centering
+    \includegraphics[width=0.8\linewidth, trim=0 0cm 0 6.3cm]{figures/paw_overview_new.png}
+    % \includegraphics[width=0.76\linewidth]{figures/paw_overview.png}
+    \caption{\label{fig:overview}\textbf{Overview of the Program-as-Weights paradigm.} \emph{Top: compile once in the cloud.} A natural-language description of a fuzzy function (here, ``classify if this is urgent'') is fed to a neural compiler, which produces a neural program. \emph{Bottom: run locally.} A small frozen neural interpreter loads the compiled program and runs the user's input (``Need your signature by EOD!'') to produce the output (``urgent''). The compiled program is a single file that can be cached, version-controlled, and called offline like any other library function.}
+\end{figure*}
+
+A PAW program has two halves. The first is a \emph{pseudo-program} in natural language, a restatement of the user's specification. The second is a PEFT module that re-tunes the frozen interpreter for this one task: in our precursor system this was a prefix-tuning KV cache; in our current system it is a LoRA generated by the compiler from its own hidden states and injected into the interpreter. The discrete half shields the interpreter from typos and ambiguity in the original specification; the continuous half supplies the fine-grained behavioral control that text alone cannot.
+
+The compile pipeline has two stages, both running 4B Qwen3 models. The first stage is a \emph{pseudo compiler}, an off-the-shelf model we never train: prompted with a small task-rewriting template, it turns the user's spec into a clean pseudo-program of a paraphrased description plus a handful of input-output examples. The second stage is a \emph{LoRA compiler} that we train: it reads the spec and the pseudo-program and emits the LoRA. We train the LoRA compiler on \textsc{FuzzyBench}, a 10M-example dataset we release with this paper, built incrementally across 29 thematic versions covering more than 800 categories of fuzzy text tasks such as classification, format conversion, parsing, fuzzy matching, natural-language commands, agentic tool use, and many more.
+
+The result is a small, fast, and accurate system. A Qwen3-0.6B interpreter executing PAW programs outperforms direct prompting of Qwen3-32B (73.78\% vs.\ 68.70\% exact match) at roughly one fiftieth the inference memory. Quantized, the same system runs at 30 tokens per second on a MacBook M3 from a $\sim$430~MB GGUF base shared across functions plus a 23~MB per-program LoRA adapter; a smaller GPT-2 path runs entirely client-side in the browser via WebAssembly.
+
+%Five case studies illustrate the paradigm in use: \emph{output triage} (event-driven log monitoring), \emph{custom classification} (intent-based site navigation), \emph{fuzzy search} (semantic search reranking), \emph{agent preprocessing} (a tool-calling pipeline that scores 93\% on \textsc{ToolCall-15}), and \emph{creative generation} (a multilingual in-browser word-guessing game). Each is the kind of fuzzy task that resists symbolic implementation but does not need an API call to a 30B-parameter model on every input.
+
+We see Program-as-Weights as a concrete step toward a small-model future~\citep{belcak2025smalllanguagemodelsfuture}, in which the heavy lifting happens once at compile time and the day-to-day work of running software happens locally.
+%We hope this work is read as more than one more parameter-efficient adaptation method. 
+%The dominant pattern today treats foundation models as \emph{problem solvers}: a developer invokes the model on every input. Program-as-Weights treats the compiler model instead as a \emph{tool builder}: it is invoked once per fuzzy function and produces a small, reusable artifact whose subsequent calls are cheap, deterministic, and offline. 
+We illustrate its applications in five case studies: \emph{output triage} (event-driven log monitoring), \emph{custom classification} (intent-based site navigation), \emph{fuzzy search} (semantic search reranking), \emph{agent preprocessing} (a tool-calling pipeline that scores 93\% on \textsc{ToolCall-15}), and \emph{creative generation} (a multilingual word-guessing game). Each is the kind of fuzzy task that resists symbolic implementation but does not need an API call to a 30B-parameter model on every input.
+%We frame this work as the proposal of fuzzy-function programming as a programming task, accompanied by an initial method family (PAW with prefix-tuning and text-to-LoRA instantiations) and a 10M-example dataset; . 
+We additionally show the abstraction's modality generality: replacing only the compiler with a vision-language model while keeping the same interpreter runs PAW programs on image-conditioned fuzzy tasks. 
+Our code can be found at \url{https://github.com/programasweights} and a public demo is available at \url{https://programasweights.com}.
+
+%we expect future PEFT mechanisms to instantiate the same compiler-interpreter abstraction with stronger numbers, and view that as a feature of the framing rather than a limitation
+
+% =========================================================================
+% PART I --- Paradigm & System
+% =========================================================================
+
+\section{Programs as Weights}
+\label{sec:paradigm}
+
+% \subsection{Fuzzy functions and the compiler--interpreter abstraction}
+
+Let $f : X \to Y$ denote a function whose behavior is more naturally specified through natural language, examples, or constraints than through symbolic code, a \textit{fuzzy function}. Instead of repeatedly invoking an LLM to approximate $f$, we propose to compile a \emph{neural program} that specializes a fixed model to implement $f$.
+
+Formally, let $s$ denote a user specification, expressed in natural language and optionally accompanied by example input-output pairs $(x, y)$. A neural \texttt{Compiler} maps $s$ to a program $p$. A small fixed neural \texttt{Interpreter} executes $p$ on inputs $x \in X$ to produce outputs $\hat{y} \in Y$:
+\begin{equation}
+\label{eq:paw}
+p \;=\; \texttt{Compiler}(s),
+\qquad
+\hat{y} \;=\; \texttt{Interpreter}(p, x)
+\;\approx\; f(x).
+\end{equation}
+This division mirrors classical programming, where a compiler translates source code into an executable that is later run by a runtime. The crucial difference is that the executable here is a learned parameter blob, and the runtime is a neural network. The interpreter does not need to be retrained: introducing a new fuzzy function only requires compiling a new program $p$.
+
+\paragraph{Hybrid programs.}
+For conceptual simplicity, $p$ may be viewed as a single continuous object. In our concrete instantiation, however, $p$ is a hybrid of a discrete and a continuous component:
+\begin{equation}
+\label{eq:hybrid_program}
+p \;=\; \bigl( p_{\text{discrete}}, \; p_{\text{continuous}} \bigr).
+\end{equation}
+The discrete component $p_{\text{discrete}}$ is a variable-length sequence of tokens that acts as a self-contained ``pseudo-program'' presented to the interpreter as part of its input. The continuous component $p_{\text{continuous}}$ can be implemented using any PEFT method, such as a LoRA injected into the interpreter. %We argue and verify in \Cref{sec:ablations,sec:noise} that the discrete component is not redundant: it acts as a denoiser that normalizes noisy specifications into clean pseudo-programs, while the continuous component provides fine-grained behavioural control that the small interpreter cannot reliably extract from text alone.
+
+\paragraph{Why ``program''?}
+This framing matters because it determines how the artifact is used. A compiled PAW program is a single file ($\sim$23 MB at $Q4\_0$ for a 0.6B interpreter, plus a one-time shared base) that can be saved, version-controlled, distributed via package managers, and called from Python or JavaScript with a two-line API. PAW programs are objects of the same kind as Python modules: they have a name and a version, but their behavior is encoded in weights rather than in source code. The compiler is the part that does the heavy lifting; the interpreter is a fixed runtime, comparable to a CPU or a byte-code interpreter in conventional software stacks.
+
+
+\section{The Compiler--Interpreter System}
+\label{sec:architecture}
+
+\subsection{Compiler--interpreter abstraction}
+\label{sec:arch_abstraction}
+
+The PAW pipeline has three components, none of which depend on the specific PEFT chosen for the program form. A \emph{pseudo compiler} $C_p$ reads the spec $s$ and produces a discrete pseudo-program $p_{\text{discrete}}$. A \emph{PEFT compiler} $C_{\text{PEFT}}$ reads the spec together with $p_{\text{discrete}}$ and emits a small parameter-efficient module $p_{\text{continuous}}$ from its hidden states. The frozen \emph{interpreter} ingests $p_{\text{continuous}}$ at runtime --- by attaching it to the appropriate target modules and running the user's input $x$ through it --- to produce the output $\hat{y}$. We instantiate the PEFT module in two ways: a prefix-tuning KV cache (\Cref{sec:arch_prefix}) and a LoRA (\Cref{sec:arch_lora}), with the latter being our current best.
+
+\paragraph{Pseudo compiler.}
+The pseudo compiler $C_p$ is an off-the-shelf Qwen3-4B-Instruct-2507 model that we never train. Given a specification $s$, we prompt $C_p$ with a small task-rewriting template (full text in \Cref{appendix:paw_prompts}) that asks for a clean restatement of the task plus a handful of representative input-output examples. The output is the discrete component $p_{\text{discrete}}$ of the program.\footnote{In an early prototype we trained a single compiler to generate this discrete component via reinforcement learning, but observed that, regardless of seed prompt, the compiler converged on this same paraphrase-plus-examples format; we therefore eliminate the RL stage by directly hand-crafting a prompt that produces this format from an off-the-shelf model.} The pseudo compiler is shared by both PEFT instantiations below.
+
+\subsection{Text-to-LoRA: our current best}
+\label{sec:arch_lora}
+
+\paragraph{LoRA compiler.}
+The LoRA compiler $C_L$ is a second 4B Qwen3 model, initialized from the same checkpoint as $C_p$ but \emph{trained} (\Cref{sec:training}). Given the spec $s$ and the pseudo-program $p_{\text{discrete}}$ produced by $C_p$, $C_L$ runs a single forward pass on the concatenation $[s \mid p_{\text{discrete}} \mid \texttt{EOS} \mid \tau_1, \dots, \tau_T]$, where $\tau_{1{:}T}$ is a fixed sequence of $T = 64$ learned ``prefix'' tokens. We extract prefix-position hidden states from $L$ compiler layers spaced uniformly by depth ratio (one per interpreter layer), and stack them into the tensor $H \in \mathbb{R}^{L \times T \times d_{\text{teacher}}}$ that is fed to the LoRA mapper (\Cref{fig:architecture_lora}).
+
+\paragraph{LoRA mapper.}
+The LoRA compiler's hidden states $H$ are converted into per-example LoRA weights by a small parameter-efficient module, the \emph{LoRA mapper}. For each interpreter target-module type $m$ (attention $q\!/\!k\!/\!v\!/\!o$ and MLP $\text{gate}/\text{up}/\text{down}$), the mapper maintains shared learnable bases
+\[
+A^{(m)}_{1{:}N} \;\in\; \mathbb{R}^{N \times r \times d_{\text{in}}^{(m)}},
+\qquad
+B^{(m)}_{1{:}N} \;\in\; \mathbb{R}^{N \times d_{\text{out}}^{(m)} \times r}.
+\]
+These hidden states are mean-pooled over both the $L$ depth-aligned layers and the $T$ prefix positions, $\bar{h} = \tfrac{1}{LT}\sum_{l, t} H_{l, t}$, passed through a shallow MLP trunk $\phi$, and projected into mixing coefficients $\alpha^{A,B}_{l,m,n} \in \mathbb{R}$ for each layer $l$, module type $m$, and basis index $n$, via a single linear head. The LoRA at layer $l$ and module $m$ is
+\begin{equation}
+\label{eq:lora_mixing}
+A^{\text{ex}}_{l, m} \;=\; \sum_{n=1}^{N} \alpha^{A}_{l, m, n} \, A^{(m)}_n,
+\qquad
+B^{\text{ex}}_{l, m} \;=\; \sum_{n=1}^{N} \alpha^{B}_{l, m, n} \, B^{(m)}_n.
+\end{equation}
+We use rank $r = 64$ and $N = 64$ shared bases per module type, applied to all layers and module types. Per fuzzy function, this injects approximately 38.5M LoRA parameters into the interpreter.\footnote{We compare this design to several more-expressive alternatives (per-position aggregation, per-layer bases, per-position with per-layer bases, LoRA with prefix-tuning) in \Cref{sec:ablations}; none improve over the simple shared-basis design.}
+
+\paragraph{Interpreter.}
+The interpreter is a frozen language model. To execute a PAW program on input $x$, we (i) attach the LoRA in \cref{eq:lora_mixing} to the appropriate target modules, (ii) prepend $p_{\text{discrete}}$ to the input $x$, and (iii) generate the output autoregressively. Because the interpreter is frozen and the LoRA hot-swappable, a single device-resident interpreter can serve unboundedly many PAW programs; \Cref{fig:program_library} illustrates this ``one runtime, many programs'' picture for three example specifications.
+
+\begin{figure}[!t]
+    \centering
+    \includegraphics[width=\linewidth]{figures/architecture_lora.png}
+    \caption{\label{fig:architecture_lora}\textbf{Text-to-LoRA instantiation of PAW (\Cref{sec:arch_lora}).} \emph{Left.} The trained LoRA compiler reads the function specification, the pseudo-program produced by an off-the-shelf prompted pseudo compiler $C_p$ (not depicted), and a fixed sequence of learned prefix tokens; it emits prefix-position hidden states $H$. \emph{Middle.} The LoRA mapper mean-pools $H$, passes it through an MLP, and projects into mixing coefficients that compose LoRA matrices $(A^{\text{ex}}, B^{\text{ex}})$ over shared learnable bases (\cref{eq:lora_mixing}). \emph{Right.} The frozen interpreter ingests $p_{\text{discrete}}$ prepended to the user input $x$, with the LoRA hot-attached, and generates the output autoregressively. The same pipeline holds for the prefix-tuning precursor (\Cref{sec:arch_prefix}, with architecture in \Cref{fig:architecture_prefix}); only the mapping from compiler hidden states to PEFT module changes (LoRA $\to$ KV-cache mapper).}
+\end{figure}
+
+\subsection{Prefix-tuning: a precursor instantiation}
+\label{sec:arch_prefix}
+
+\paragraph{Prefix compiler.}
+Our precursor system replaced the LoRA mapper with a \emph{prefix-tuning mapper}. The prefix compiler $C_P$ is a second 4B Qwen3 model trained the same way as $C_L$, with the only difference being how its prefix-position hidden states are consumed. Given $[s \mid p_{\text{discrete}} \mid \texttt{EOS} \mid \tau_{1:T}]$, $C_P$ produces hidden states $H \in \mathbb{R}^{L \times T \times d_{\text{teacher}}}$ at the same $L$ depth-aligned layers as in \Cref{sec:arch_lora}. Instead of pooling and projecting into LoRA weights, a small linear mapper $\psi$ projects these hidden states position-wise into KV pairs $(K^{\text{ex}}_{l, t}, V^{\text{ex}}_{l, t}) \in \mathbb{R}^{2 \times d_{\text{int}}}$ that are prepended to the interpreter's attention KV cache at every layer, in the manner of standard prefix-tuning~\citep{li-liang-2021-prefix} (see \Cref{fig:architecture_prefix} in the appendix for an architecture diagram). The interpreter then runs $x$ through its frozen attention with the additional $T$ prefix-position keys and values visible to every query.
+
+\paragraph{Both methods solve the task.}
+At a controlled comparison scale (same amount of training compute), the prefix-tuning instantiation reaches 50.4\% exact match on FuzzyBench, while the LoRA instantiation reaches 56.5\% at $r{=}18$ ($r{=}18$ matches the prefix-tuning program size) and 65.7\% at $r{=}64$ (\Cref{tab:peft_comparison}). Both outperform the no-compiler prompting baseline (9.8\%). LoRA is the stronger PEFT and is the instantiation we scale to the full training data in subsequent experiments. %; we report the prefix-tuning numbers because the framing-level point that the task admits multiple PEFT solutions is what justifies treating the abstraction, not the specific PEFT, as the primary contribution.
+
+\begin{table}[h]
+\centering
+\caption{\label{tab:peft_comparison}\textbf{Two PEFT instantiations.} Both methods outperform the prompting baseline.}
+%\small
+%\setlength{\tabcolsep}{8pt}
+\begin{tabular}{@{}lc@{}}
+\toprule
+Method & Accuracy \\
+\midrule
+Prompting & 0.098 \\
+Prefix Tuning        & 0.504 \\
+Text-to-LoRA, $r{=}18$                      & 0.565 \\
+{Text-to-LoRA, $r{=}64$ (default)}    & \textbf{0.657} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+\section{Training}
+\label{sec:training}
+
+Only the PEFT compiler is trained. The pseudo compiler $C_p$ is held off-the-shelf and frozen; the interpreter is also frozen. The PEFT compiler is trained to produce a PEFT adapter that, when injected into the frozen interpreter alongside a fixed pseudo-program, maximizes the likelihood of the target output. With both endpoints frozen, this reduces to a single supervised objective. We concentrate below on the LoRA instantiation; the prefix-tuning precursor (\Cref{sec:arch_prefix}) was trained with the same SFT recipe described below, substituting the prefix-tuning mapper for the LoRA mapper.
+
+\paragraph{Objective.}
+For each training triple $(s, x, y)$, we look up a pre-generated pseudo-program $p_{\text{discrete}} = C_p(s)$, run a forward pass through $C_L$ on $[s \mid p_{\text{discrete}} \mid \texttt{EOS} \mid \tau_{1{:}T}]$ to obtain prefix-position hidden states, pass those through the LoRA mapper to obtain $p_{\text{LoRA}}$, and inject the result into the interpreter. The loss is the negative mean-token log-likelihood of the target $y$ under the frozen interpreter:
+\begin{equation}
+\label{eq:objective}
+\mathcal{L}(\theta) \;=\; \mathbb{E}_{(s,x,y)}\!\left[ - \log P_{\phi}\!\left( y \,\big|\, p_{\text{discrete}},\, p_{\text{LoRA}}(\theta;\, s, p_{\text{discrete}}),\, x \right) \right],
+\end{equation}
+where $\theta$ is the parameters of $C_L$ and the LoRA mapper, and $\phi$ are the interpreter parameters. The gradient flows back through the frozen interpreter into the LoRA mapper and from there into $C_L$'s hidden states. Full hyperparameters and compute setup are in \Cref{appendix:training_details}.
+
+%\paragraph{Why no RL?}
+%A natural alternative would have been to train a single compiler to emit both halves of the program by combining REINFORCE on the discrete component with the pathwise loss above. Earlier prototypes did exactly this; we observed two things. First, the discrete component converged on a fixed format of a paraphrased restatement of the spec followed by as many input-output examples as fit in the token budget regardless of the seed prompt. Second, that same format can be produced directly by an off-the-shelf 4B-Instruct model with a one-paragraph prompt. We therefore eliminate the RL stage entirely and use the off-the-shelf pseudo compiler in its place. The remaining training is supervised, simple, and stable.
+
+% =========================================================================
+% PART II --- Empirical Backbone
+% =========================================================================
+
+\section{FuzzyBench: A 10M-Example Dataset of Fuzzy Functions}
+\label{sec:fuzzybench}
+
+A central obstacle to training PAW-style methods is the lack of a public dataset for ``compile a fuzzy function from a specification.'' We construct \textbf{FuzzyBench}, a 10M-example dataset in which every example is a triple $(s, x, y)$ of (specification, input, target output), generated using \texttt{gpt-5.2}.
+
+\paragraph{Construction.}
+We use a two-stage pipeline. In the first stage, we prompt \texttt{gpt-5.2} to generate natural-language specifications of fuzzy functions. Each prompting call produces eight specifications, and we run repeated calls under different category constraints to cover the breadth of fuzzy tasks developers actually encounter. In the second stage, for each specification, we prompt \texttt{gpt-5.2} again to generate eight input/output pairs. Specifications are split 80/10/10 by spec into train/validation/test, so that test specifications are entirely unseen at training time. For evaluation, we construct a \emph{verified} test set on which an independent strong model (\texttt{gpt-5-mini}) and \texttt{gpt-5.2} agree on the output, removing examples where the target itself is ambiguous. Full prompts are in \Cref{appendix:prompts}.
+
+\paragraph{Thematic coverage.}
+FuzzyBench is built incrementally over 29 versions, each adding 100K-500K examples covering a new family of fuzzy tasks. \Cref{fig:fuzzybench_categories} groups the resulting 10M examples into seven high-level task families that span what developers actually encounter in fuzzy logic: from raw text processing and parsing to agentic tool use, web intelligence, code-and-command generation, and safety/verification. The full per-version timeline (29 entries; the first version alone establishes 277 base categories, and the final dataset covers more than 800 sub-categories) is in \Cref{appendix:dataset_versions}.
+
+\begin{figure}[!t]
+\centering
+\includegraphics[width=0.85\linewidth]{figures/fuzzybench_categories.pdf}
+\caption{\label{fig:fuzzybench_categories}\textbf{FuzzyBench-10M task-family distribution.} 29 incremental thematic versions are mapped to 7 high-level families. ``Core text processing \& NLP'' is the largest family because the v1 base layer (2.5M examples; 277 base categories) covers parsing, classification, NER, coreference, and sentiment; the remaining 7.5M examples spread across the other six families.}
+\end{figure}
+
+\paragraph{Noise variants.}
+For robustness evaluation, we additionally release noise-perturbed versions of the test set along eight axes: typos, grammar errors, ambiguity, formatting drift, ``all noise'' (combined), terse phrasing, casual phrasing, and paraphrase. Each axis comes in three intensity levels (light, medium, heavy). \Cref{sec:noise} reports robustness numbers.
+
+%\paragraph{Evaluation metrics.}
+%We report exact match (EM) and a normalized exact match (Norm EM) that strips trivial whitespace differences and equivalent JSON formatting. We additionally report normalized edit similarity (ES) for diagnostic plots in the appendix.
+
+\paragraph{Empirical ceiling.}
+The data-generating model itself, \texttt{gpt-5.2}, achieves 96.09\%; \texttt{gpt-5-mini} achieves 91.87\%. These bound how high any compiled function trained on this data can reach.
+
+
+\section{Main Results}
+\label{sec:experiments}
+
+We compare PAW against three families of baselines, all evaluated on the same test sets as PAW so that any compute or data-generation differences are absorbed in the comparison.
+
+\paragraph{Baselines.}
+\emph{(i) Direct prompting} of open-weight LMs (Qwen3 0.6B, 4B, 8B, 14B, 32B; OLMo3-7B; gpt-oss-20B), and of two API models that bound the empirical ceiling (\texttt{gpt-5-mini} and \texttt{gpt-5.2}). \emph{(ii) Symbolic code generation}: ALCHEmist's LM-to-code pipeline~\citep{NEURIPS2024_72802bef}, where a strong LM writes Python code to solve the fuzzy task and the code is executed at inference. \emph{(iii) Standard adaptation of the same 0.6B base}: full fine-tuning across 1-4 epochs, and fixed (non-compiler-generated) LoRAs at ranks $r \in \{18, 64, 128\}$.
+
+\paragraph{Main result.}
+\Cref{tab:main_text} summarizes the main numbers. A 0.6B-parameter interpreter executing PAW programs achieves \textbf{73.78\%} exact match on FuzzyBench, outperforming prompting Qwen3-32B (68.70\%) while using approximately $50\times$ less inference memory ($\sim$1.2 GB at bf16 vs.\ $\sim$60 GB). %The same 0.6B base trained without a compiler is much weaker: in \Cref{tab:killer_baselines} (\Cref{sec:ablations_misc}), full fine-tuning reaches only 58.40\% and a rank-64 fixed LoRA reaches 52.10\%, so PAW exceeds full fine-tuning by 9.3 points and the strongest fixed LoRA by 21.7 points on the same base, demonstrating that the gain comes specifically from compiler-generated PEFT rather than from any specific PEFT architecture itself. 
+%Both PAW PEFT instantiations clear the no-compiler baselines on the same Qwen3 0.6B base (prefix-tuning at 50.4\% controlled-scale, LoRA at 73.78\% production-scale; \Cref{sec:arch_prefix,tab:peft_comparison}), reinforcing that compile-time decomposition --- not the choice of PEFT --- is what drives the gain.
+%$^\ddagger$: PAW prefix-tuning is our precursor instantiation (\Cref{sec:arch_prefix}); the FuzzyBench number is reported at the controlled-comparison data scale (\Cref{tab:peft_comparison}), not the 10M scale used by the LoRA rows.
+\begin{table*}[!t]
+\centering
+\caption{\label{tab:main_text}\textbf{Main results.} FuzzyBench uses exact match accuracy on the verified test set. Following the WRENCH benchmark setup of ALCHEmist~\citep{NEURIPS2024_72802bef}, SMS uses F1 and the rest use Acc. \emph{Contained} indicates the program is self-contained and executable without internet access. PS is per-program shipping size; for prompting baselines this is the prompt/spec size, and for PAW it is the deployed PEFT adapter ($Q4\_0$ quantized for Qwen3 0.6B and Qwen3.5 0.8B; fp32 for GPT-2). $^\dagger$: numbers taken from \citet{NEURIPS2024_72802bef}, which uses 10-sample majority voting; the reimplementation row uses single-sample for fairness. $^*$: zero F1 due to zero recall.}
+\renewcommand{\arraystretch}{1.1}
+\setlength{\tabcolsep}{3.5pt}
+\small
+\resizebox{\textwidth}{!}{
+\begin{tabular}{@{}l@{}c@{ }c cc cc cc cc cc@{}}
+\toprule
+& \multirow{2}{*}{Contained} & \multirow{2}{*}{Interp.\ Size} &
+\multicolumn{2}{c}{FuzzyBench} &
+\multicolumn{2}{c}{YouTube} &
+\multicolumn{2}{c}{SMS} &
+\multicolumn{2}{c}{Yelp} &
+\multicolumn{2}{c}{IMDB} \\
+\cmidrule(lr){4-5}\cmidrule(lr){6-7}\cmidrule(lr){8-9}\cmidrule(lr){10-11}\cmidrule(lr){12-13}
+Method & & & Acc & PS & Acc & PS & F1 & PS & Acc & PS & Acc & PS \\
+\midrule
+gpt-5.2 (API)                              & $\times$ & --   & 96.09\% & 0.73 KB & 95.20\%     & 0.95 KB & 97.06\%     & 1.03 KB & 98.55\%     & 1.69 KB & 95.60\%     & 2.25 KB \\
+gpt-5-mini (API)                           & $\times$ & --   & 91.87\% & 0.73 KB & 93.60\% & 0.95 KB & 91.03\% & 1.03 KB & 98.13\% & 1.69 KB & 94.96\% & 2.25 KB \\
+Local LM (Qwen3 0.6B)                     & $\checkmark$ & 0.6B & 9.84\%  & 0.73 KB & 52.80\% & 0.95 KB & 0.00\%$^*$ & 1.03 KB & 89.55\% & 1.69 KB & 66.88\% & 2.25 KB \\
+Local LM (Qwen3 4B)                       & $\checkmark$ & 4B   & 49.63\% & 0.73 KB & 90.80\% & 0.95 KB & 92.54\% & 1.03 KB & 97.53\% & 1.69 KB & 93.76\% & 2.25 KB \\
+Local LM (Qwen3 8B)                       & $\checkmark$ & 8B   & 52.15\% & 0.73 KB & 94.40\% & 0.95 KB & 91.55\% & 1.03 KB & 97.95\% & 1.69 KB & 94.52\% & 2.25 KB \\
+Local LM (Qwen3 14B)                      & $\checkmark$ & 14B  & 63.96\% & 0.73 KB & 93.20\%     & 0.95 KB & 92.75\%     & 1.03 KB & 97.74\%     & 1.69 KB & 92.64\%     & 2.25 KB \\
+Local LM (Qwen3 32B)                      & $\checkmark$ & 32B  & 68.70\% & 0.73 KB & 93.60\%     & 0.95 KB & 89.04\%     & 1.03 KB & 98.11\%     & 1.69 KB & 94.64\%     & 2.25 KB \\
+Local LM (OLMo3 7B)                       & $\checkmark$ & 7B   & 39.84\%     & 0.73 KB & 90.00\% & 0.95 KB & 90.14\% & 1.03 KB & 97.66\% & 1.69 KB & 93.28\% & 2.25 KB \\
+Local LM (gpt-oss-20B)        & $\checkmark$ & 20B  & 85.45\% & 0.73 KB & 91.60\%     & 0.95 KB & 89.05\%     & 1.03 KB & 97.42\%     & 1.69 KB & 92.08\%     & 2.25 KB \\
+LM$\to$Code~\citep{NEURIPS2024_72802bef}  & $\checkmark$ & 29 MB & --     & --      & 89.10\%$^\dagger$ & -- & 90.00\%$^\dagger$ & -- & 57.50\%$^\dagger$ & -- & 66.20\%$^\dagger$ & -- \\
+LM$\to$Code (Reimplementation)            & $\checkmark$ & 29 MB & 35.81\% & 0.08 KB & 70.46\% & 0.09 KB & 86.41\% & 0.06 KB & 50.35\% & 0.05 KB & 73.92\% & 0.08 KB \\
+\midrule
+\textbf{PAW (Qwen3 0.6B)}                  & $\checkmark$ & 0.6B  & {73.78\%} & 23 MB & 90.40\% & 23 MB & 80.77\% & 23 MB & 95.82\% & 23 MB & 90.64\% & 23 MB \\
+\textbf{PAW (Qwen3.5 0.8B)}                & $\checkmark$ & 0.8B  & 67.29\% & 16 MB & 88.40\% & 16 MB & 84.55\% & 16 MB & 94.05\% & 16 MB & 82.68\% & 16 MB \\
+\textbf{PAW (GPT-2 124M)}                  & $\checkmark$ & 124M  & 54.39\% & 38 MB & 93.60\% & 38 MB & 77.50\% & 38 MB & 93.16\% & 38 MB & 82.12\% & 38 MB \\
+\bottomrule
+\end{tabular}}
+\end{table*}
+
+\paragraph{Cross-interpreter scaling.}
+Among three interpreters GPT-2 124M, Qwen3 0.6B, and Qwen3.5 0.8B, Qwen3 0.6B is the strongest interpreter; the hybrid 0.8B is slightly weaker. GPT-2 124M, despite having only 1/5 the parameters of Qwen3 0.6B and no instruction tuning, still achieves 54\%, suggesting that the compiler-generated LoRA can encode usable task adaptations even into very small, weakly-capable bases. %On the harder FuzzyBench splits, PAW Qwen3 0.6B achieves 57.06\% / 53.88\% / 53.49\% on \textsc{test} / \textsc{7M-test} / \textsc{9M-test} (vs.\ 73.78\% on \textsc{test\_clean}), showing that accuracy degrades gracefully as the test distribution gets harder. We treat these findings as descriptive rather than predictive; we have not yet characterized how compiler size, interpreter size, and freezing interact, and do not draw scaling-law claims from them.
+
+\paragraph{Multimodal generalization without changing the interpreter.}
+The compiler-interpreter abstraction extends to image-conditioned fuzzy functions \emph{without} changing the interpreter. We swap the text-only Qwen3-4B-Instruct compiler for the same-family Qwen3-VL-4B compiler~\citep{Qwen3-VL2025}, keep the same Qwen3 0.6B interpreter, and reuse the same LoRA mapper. Image conditioning is fully encoded in the PEFT module emitted by the VL compiler, so the small text interpreter never sees pixels. \Cref{tab:main_image} reports six image-conditioned tasks: three CoSyn-400K diagram-understanding tasks (Chemical, Circuit, Music)~\citep{yang2025scaling,deitke2024molmo}, the structured-output Im2LaTeX-100K~\citep{pmlr-v70-deng17a} and Im2SMILES-20K~\citep{deng2023markuptoimage} tasks, and the open-ended visual question answering TextVQA~\citep{singh2019textvqa}; full prompts are in \Cref{appendix:paw_image_prompts}.
+
+%(used as both the prompted pseudo compiler $C_p$ and the trained PEFT compiler)
+%\paragraph{The ``right PEFT'' depends on the output structure.}
+PAW (LoRA) outperforms all VLM baselines (up to 4B parameters) on the three CoSyn diagram tasks (Circuit 0.274 vs.\ 0.196 best baseline; Chemical 0.414 vs.\ 0.258; Music 0.552 vs.\ 0.470) at $\sim$0.6B interpreter size. On the long-form structured generation task Im2LaTeX, PAW (LoRA) is weaker than its prefix-tuning precursor  (0.181 vs.\ 0.391); a discrete-pseudo-only ablation in \Cref{appendix:image_ablations} shows the gap arises because the long input/output examples in the pseudo-program crowd the small interpreter's context budget on long-form tasks.
+
+%, and the discrete pseudo-program ends up hurting more than it helps. %We view this split as additional evidence for the framing in \Cref{sec:arch_prefix}: which PEFT is best is a task-dependent question, and PAW's compiler-interpreter abstraction (and its single device-resident interpreter) is what survives that choice across both PEFT axis and modality axis.
+%Three CoSyn-400K diagram tasks~\citep{yang2025scaling,deitke2024molmo}, two structured-output image-to-markup tasks (Im2LaTeX-100K~\citep{pmlr-v70-deng17a}, Im2SMILES-20K~\citep{deng2023markuptoimage}), and the open-ended TextVQA~\citep{singh2019textvqa}. 
+%Bold marks the best 0.6B-or-smaller method per column; underline marks the best overall (any size).
+\begin{table*}[!t]
+\centering
+\caption{\label{tab:main_image}\textbf{Image-conditioned fuzzy functions.} The PAW rows use the same Qwen3 0.6B and Qwen 3.5 0.8B interpreters as in \Cref{tab:main_text} (only the compiler is swapped, from Qwen3-4B-Instruct to Qwen3-VL-4B).}
+\renewcommand{\arraystretch}{1.1}
+\setlength{\tabcolsep}{4pt}
+\small
+\resizebox{\textwidth}{!}{
+\begin{tabular}{@{}lc cccccc@{}}
+\toprule
+Method & Interp.\ Size & Circuit & Chemical & Music & Im2SMILES & Im2LaTeX & TextVQA \\
+\midrule
+AndesVL 0.6B~\citep{jin2025andesvltechnicalreportefficient} & 0.6B  & 0.183 & 0.214 & 0.448 & 0.000 & 0.435 & 0.718 \\
+Qwen3-VL 2B-Instruct~\citep{Qwen3-VL2025}                   & 2B    & 0.186 & 0.258 & 0.470 & 0.016 & 0.408 & {0.836} \\
+Qwen3-VL 4B-Instruct~\citep{Qwen3-VL2025}                   & 4B    & 0.196 & 0.221 & 0.450 & 0.044 & 0.399 & 0.822 \\
+\midrule
+\textbf{PAW prefix-tuning (Qwen3 0.6B)}     & 0.6B  & 0.241 & 0.365 & 0.525 & 0.175 & {{0.391}} & 0.612 \\
+\textbf{PAW LoRA (Qwen3 0.6B)}                         & 0.6B  & {{0.274}} & {{0.414}} & {{0.552}} & 0.203 &  0.181 & {0.721} \\
+\textbf{PAW LoRA (Qwen3.5 0.8B)}                         & 0.8B  & {{0.284}} & {{0.438}} & {{0.573}} & {{0.285}} & 0.204 & {0.755} \\
+\bottomrule
+\end{tabular}}
+\end{table*}
+
+\section{Ablations}
+\label{sec:ablations}
+
+%We highlight one finding that we believe is the most informative for future hypernetwork-LoRA designs: simpler LoRA mapper designs outperform their more expressive variants. %A second key finding, that the discrete pseudo-program acts as a denoiser for the interpreter, is reported alongside the noise-robustness experiments in \Cref{sec:noise}.
+
+\paragraph{Architectural variants of the LoRA mapper.}
+\label{sec:ablation_mapper_design}
+We tried several variants of the LoRA mapper that, on paper, are strictly more expressive than the default (mean-pool over prefix tokens, shallow trunk, shared bases). Each made things worse. \Cref{tab:ablation_mapper} reports accuracy across these variants. The simplest design of mean-pooling the prefix-token hidden states into one vector, running a single residual MLP, and projecting to mixing coefficients over a shared basis set, is the strongest. We do not have a clean theoretical explanation for this; we report the finding so that future work need not rediscover it.
+
+
+\begin{table}[!t]
+\centering
+\begin{minipage}[t]{0.59\linewidth}
+\centering
+\caption{\label{tab:ablation_mapper}\textbf{Architectural variants of the LoRA mapper.} ``More expressive'' design choices that we expected to help all underperformed the simple default.}
+\small
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{@{}lc@{}}
+\toprule
+Mapper variant & Accuracy \\
+\midrule
+\textbf{Default} ($r{=}64$, $N{=}64$, shared bases) & \textbf{0.6223} \\
+Per-position aggregation                          & 0.5598 \\
+Per-position $+$ per-layer bases                  & 0.5559 \\
+Per-layer bases (only)                            & 0.6028 \\
+%Deeper trunk (depth 3)                            & 0.6030 \\
+%``Kitchen sink'' (bases$=$128, depth$=$3)         & 0.5872 \\
+LoRA $+$ prefix-tuning (both pathways)            & 0.6033 \\
+\bottomrule
+\end{tabular}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.39\linewidth}
+\centering
+\caption{\label{tab:killer_baselines}\textbf{No compiler baselines.} PAW row reproduced from \Cref{tab:main_text} for comparison.}
+\small
+\setlength{\tabcolsep}{6pt}
+\begin{tabular}{@{}lc@{}}
+\toprule
+Method (0.6B base) & Accuracy \\
+\midrule
+Fixed LoRA $r{=}18$         & 0.4236  \\
+Fixed LoRA $r{=}64$          & 0.5210 \\
+Fixed LoRA $r{=}128$         & 0.5159 \\
+Full fine-tuning          & 0.5840  \\
+\textbf{PAW (Qwen3 0.6B)}             & \textbf{0.7378}  \\
+\bottomrule
+\end{tabular}
+\end{minipage}
+\end{table}
+
+
+
+
+%\paragraph{Where do the LoRA hidden states come from?}
+%We compared three options for what the LoRA compiler $C_L$ reads when extracting hidden states: spec only, pseudo-program only, and spec+pseudo (the default). The default and the spec-only variant are essentially tied (64.4\% vs.\ 64.1\%), while reading only the pseudo-program is worse (61.7\%). $C_L$ benefits from access to the original spec, but can also do well from spec alone --- a useful flexibility for variants that want to skip pseudo-generation at inference for latency.
+
+%\paragraph{Self-rolling the pseudo (dropped).}
+%We also explored training $C_L$ to reproduce $C_p$'s pseudo-programs, with the goal of removing $C_p$ from the compile pipeline at deployment. The accuracy gain was small (about $+0.5$ to $+1.0$ EM) and the training cost noticeable; we dropped this feature and always use the off-the-shelf $C_p$ at compile time.
+
+\paragraph{Compiler vs.\ no compiler.}
+\Cref{tab:killer_baselines} compares PAW with three same-base ``no compiler'' baselines on FuzzyBench: full fine-tuning of the 0.6B Qwen3 interpreter, and per-task fixed LoRAs at three ranks. The same data, the same base model, the same training budget; only the compiler is removed. PAW exceeds full fine-tuning by 15.4 percentage points and the strongest fixed LoRA by 21.7 points, showing that the gain comes specifically from compiler-generated LoRA.
+
+\paragraph{Other ablations.}
+\label{sec:ablations_misc}
+Additional ablations on model architecture decisions can be found at \Cref{appendix:ablations}.
+
+
+
+
+%\paragraph{Compiler scale and freezing.}
+%We have run experiments at compiler sizes 0.6B/1.7B/4B/8B/14B/32B, both frozen and unfrozen. The pattern is non-monotonic: at small data scales, unfreezing the 4B is the best; at the same scale, frozen 14B and 32B underperform unfrozen 4B; gpt-oss-20B as a frozen compiler is worse than Qwen3-4B. We do not yet have a principled explanation for this, so we report these numbers descriptively in \Cref{appendix:compiler_scaling} and avoid drawing scaling claims.
+
+
+\section{Robustness to Noisy Specifications}
+\label{sec:noise}
+
+Real specifications written by developers are noisy: they contain typos, ambiguity, and grammar errors. We evaluate PAW on noise-perturbed versions of the test\_clean specifications across seven axes (typos, grammar, ambiguity, formatting, all-noise combined, terse, paraphrase).
+
+%The largest single drop is on combined heavy noise (3.7 percentage points).
+\Cref{tab:noise} reports the robustness results. PAW degrades only slightly under heavy noise --- but \emph{why}? We hypothesise that this robustness is mediated by the discrete pseudo-program: the 4B compiler converts the noisy spec into a clean restatement before the small interpreter ever sees it. To test the hypothesis, we trained a variant that bypasses the pseudo-program and feeds the raw spec $s$ directly to the interpreter. The result (\Cref{tab:ablation_pseudo_denoiser}) confirms the hypothesis. On clean inputs, feeding the pseudo-program rather than the raw spec is only 1.6 points better. On \emph{heavy-typo} specifications, however, the gap widens to 4.5 points. The compiler, a 4B LM whose entire job is to read fuzzy specifications and emit a clean restatement, effectively denoises the input that the small interpreter sees, which is why PAW degrades little when the original specification is corrupted.
+
+%, and the appendix variant that feeds the raw spec to the interpreter additionally loses 6 points under typos and 5 points under ambiguity. 
+
+
+\begin{table}[!t]
+\centering
+\caption{\label{tab:noise}\textbf{Robustness to noise.} The 8-axis variants modify the spec but leave the input unchanged. PAW degrades only slightly even under combined heavy noise.}
+\small
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{@{}lcccccccc@{}}
+\toprule
+& clean & typos & grammar & ambiguity & formatting & all-noise & terse & paraphrase \\
+\midrule
+PAW Qwen3 0.6B (e2) & 0.6692 & 0.6621 & 0.6731 & 0.6511 & 0.6526 & 0.6326 & 0.6499 & 0.6614 \\
+\quad drop from clean & --     & $-0.7\%$ & $+0.4\%$ & $-1.8\%$ & $-1.7\%$ & $-3.7\%$ & $-1.9\%$ & $-0.8\%$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+\begin{table}[!t]
+\centering
+\caption{\label{tab:ablation_pseudo_denoiser}\textbf{The pseudo-program protects the interpreter from noisy specifications.} On heavy-typo specifications, feeding raw spec is 4.5 points worse than feeding the pseudo-program to the interpreter.}
+\small
+\setlength{\tabcolsep}{8pt}
+\begin{tabular}{@{}lcc@{}}
+\toprule
+Interpreter input & Accuracy (clean) & Accuracy (heavy typos) \\
+\midrule
+Pseudo-program (default)  & 0.6443 & 0.6108 \\
+Raw spec                  & 0.6285 & 0.5662 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+\section{Local Execution}
+\label{sec:execution}
+
+Beyond benchmarks, to make PAW practical to use, we built a developer interface.
+
+\paragraph{Developer interface.}
+A PAW program is a single file that can be downloaded, cached, and called via a small Python or JavaScript API. \Cref{fig:paw-api} shows a complete minimal Python example: \texttt{paw.compile(prompt)} sends a specification to a compiler service and returns a serializable program object; \texttt{paw.function(id\_or\_path)} loads a compiled program and exposes it as a Python callable. After the first download, all execution happens locally with no external API calls.
+
+\begin{figure*}[!t]
+  \centering
+  \begin{minipage}[t]{0.48\textwidth}
+  \vspace{0pt}
+  \begin{lstlisting}[language=Python,
+      basicstyle=\ttfamily\small,
+      keywordstyle=\color{blue!60!black},
+      commentstyle=\color{green!50!black},
+      stringstyle=\color{orange!70!black},
+      showstringspaces=false,
+      frame=single,
+      caption={Compile a fuzzy function},
+      captionpos=b]
+import programasweights as paw
+
+# (1) Describe the fuzzy function
+spec = """Classify if this email  
+requires immediate attention.
+""".strip()
+
+# (2) Compile to a neural program
+program = paw.compile(spec, \
+  slug="email-triage")
+  \end{lstlisting}
+  \end{minipage}
+  \hfill
+  \begin{minipage}[t]{0.48\textwidth}
+  \vspace{0pt}
+  \begin{lstlisting}[language=Python,
+      basicstyle=\ttfamily\small,
+      keywordstyle=\color{blue!60!black},
+      commentstyle=\color{green!50!black},
+      stringstyle=\color{orange!70!black},
+      showstringspaces=false,
+      frame=single,
+      caption={Run the compiled program locally},
+      captionpos=b]
+import programasweights as paw
+
+# (3) Load the compiled program
+fn = paw.function("email-triage")
+
+# (4) Call it like a function
+print(fn("Thesis defense moved "
+         "to 3pm; need your "
+         "signature today."))
+# -> "immediate"
+  \end{lstlisting}
+  \end{minipage}
+  \caption{\label{fig:paw-api}\textbf{Developer interface.} \emph{Left}: the compiler translates a natural-language specification into a neural program. \emph{Right}: the interpreter loads this program and exposes it as a local function.}
+\end{figure*}
+%, enabling local, deterministic execution without external LM APIs.
+
+\paragraph{Quantization without measurable accuracy loss.}
+On-device execution requires a small footprint. We quantize both the shared interpreter base and each per-program LoRA adapter to GGUF formats compatible with \texttt{llama.cpp}~\citep{llamacpp}. \Cref{tab:quant_main} reports our quantization findings on the 0.6B Qwen3 interpreter, validated at a 4096-example test subset: a 4-bit base ($Q4\_K\_M$, $\sim$484~MB) plus a $Q4\_0$ LoRA adapter ($\sim$23~MB per program) loses only 1.3 points relative to bf16, and a $Q6\_K$ base plus $Q4\_0$ adapter is statistically indistinguishable from bf16. 
+
+%Since 36-example local benchmarks would not have detected the 1.3-point gap, we view at-scale validation as essential when characterizing quantization for compiled functions.
+
+\begin{table}[!t]
+\centering
+\caption{\label{tab:quant_main}\textbf{Quantization on the 0.6B Qwen3 interpreter.} A $Q6\_K$ base + $Q4\_0$ LoRA is indistinguishable from bf16 within noise; $Q4\_K\_M$ loses 1.3 points but cuts total disk to $\sim$507~MB.}
+\small
+\setlength{\tabcolsep}{6pt}
+\begin{tabular}{@{}lccc@{}}
+\toprule
+Configuration & Base size & Adapter size & Accuracy \\
+\midrule
+PyTorch bf16 (no quantization)        & 1515 MB & --   & 0.6580 \\
+fp16 base + fp32 LoRA                 & 1509 MB & 162 MB & 0.6594 \\
+$Q8\_0$ base + $Q4\_0$ LoRA           &  805 MB &  23 MB & 0.6567 \\
+$Q6\_K$ base + $Q4\_0$ LoRA           &  623 MB &  23 MB & 0.6575 \\
+$Q5\_K\_M$ base + $Q4\_0$ LoRA        &  551 MB &  23 MB & 0.6477 \\
+$Q4\_K\_M$ base + $Q4\_0$ LoRA        &  484 MB &  23 MB & 0.6453 \\
+$\textsc{IQ4\_XS}$ base + $Q4\_0$ LoRA &  430 MB &  23 MB & 0.6462 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{Latency on a MacBook M3.}
+On a MacBook M3 with Metal acceleration, the $Q5\_K\_M$ base + $Q4\_0$ adapter runs at 31.6 tokens/s with a 0.48 s cold load. Full per-quant tables for GPT-2 124M and Qwen3.5 0.8B are in \Cref{appendix:quant_full}.
+
+%Cold-cache compile-then-call latency for a new fuzzy function is dominated by the one-time download of the LoRA adapter ($\sim$23 MB at 100 Mbps $\approx$ 2 seconds); subsequent calls share the resident base.
+%\paragraph{In-browser execution.}
+%For the GPT-2 path, we additionally support fully client-side execution in the browser via WebAssembly using the \texttt{wllama}~\citep{wllama} bindings. The GPT-2 base ($\sim$134~MB at $\textsc{IQ4\_NL}$) plus a $\sim$5~MB per-program adapter is small enough to ship as a static asset; the Alien-Taboo case study described below runs entirely in the browser via this path.
+
+\paragraph{Case studies.}
+\label{sec:case_studies}
+We applied PAW to five use cases. \emph{Event-driven log monitoring} replaces the naive \texttt{wait}-based terminal watching in Cursor with a local classifier that fires only on the lines that matter. \emph{Intent-based site navigation} provides a natural-language quick-find for a website without an LLM API call per request. \emph{Semantic search reranking} adds intent-aware fuzzy search to an existing keyword index, again without putting an LLM in the request path. For \emph{tool calling}, a 10-PAW-function pipeline scores 93\% on \textsc{ToolCall-15}, capturing tool-routing behavior usually reserved for much larger models. The \emph{multilingual word-guessing game} (Alien-Taboo) is a fuzzy interactive game in which each player turn is served by a 0.6B PAW interpreter on a small server, with one PAW program per language; the LLM is invoked only at compile time, which is what makes a game of this kind economical to host. Full details are in \Cref{appendix:case_studies}.
+
+
+\section{Related Work}
+\label{sec:related}
+
+%\paragraph{What is new in PAW?}
+%We do not claim novelty in the text-conditioned hypernetwork mechanism itself: hypernetworks~\citep{ha2017hypernetworks} and parameter-efficient adapters~\citep{houlsby2019adapters,hu2022lora,li-liang-2021-prefix,lester2021prompttuning} are well-established, and prior work~\citep{ye-ren-2021-hypter,ivison-etal-2023-hint,phang2023hypertuning,charakorn2025texttolora,li2024mend} has explored generating parameter-efficient modules from natural-language task descriptions. Under our framing, the specific PEFT used by the compiler is interchangeable, and we expect future work to instantiate the same compiler-interpreter abstraction with stronger numbers. Our contribution is fourfold. (1)~The \emph{task formulation}: fuzzy-function programming as compile-once-run-locally with neural binaries that are first-class software artifacts (versioned, distributable, callable). (2)~An \emph{initial method family} that solves this task: PAW, with two instantiations (prefix-tuning and text-to-LoRA) sharing one compiler--interpreter abstraction; both instantiations cleanly outperform same-base no-compiler baselines (\Cref{sec:arch_prefix,tab:peft_comparison,tab:killer_baselines}), evidence that the gain comes from compile-time decomposition rather than from any specific PEFT choice. (3)~The \emph{hybrid} (discrete pseudo-program $+$ continuous PEFT) program form, materially more noise-robust than continuous-only adapter generation (\Cref{sec:noise}), with a clean compile-time decomposition: an off-the-shelf reference compiler produces the discrete pseudo-program by simple prompting --- after observing in earlier prototypes that REINFORCE on the discrete tokens converges on a hand-craftable format anyway --- and a second trained compiler produces the continuous PEFT via pathwise supervised loss through the frozen interpreter. (4)~The \emph{empirical scale and breadth}: a 10M-example benchmark (FuzzyBench) we release with this paper, three interpreter architectures, on-device quantized execution, and five case studies illustrating real usage patterns.
+
+\paragraph{Hypernetworks.}
+Hypernetworks~\citep{ha2017hypernetworks} generate the weights of a target network from a small embedding, originally for vision and language modeling; subsequent work used them for continual learning~\citep{ohs2019hypercl}, multi-task NLP via shared hypernetworks across tasks and layers~\citep{karimi-mahabadi-etal-2021-parameter}, and as parameter-efficient adapters in their own right~\citep{mahabadi2021compacter}. The text-conditioned subfamily relevant to PAW maps a natural-language task description to PEFT parameters in a single forward pass: Hypter~\citep{ye-ren-2021-hypter} generates BART-Large adapters from descriptions; HINT~\citep{ivison-etal-2023-hint} generates prefix-and-adapter modules from instructions to amortize per-query encoding cost; HyperTuning~\citep{phang2023hypertuning} introduces a T5-based hypermodel that emits soft prefixes or LoRA parameters from few-shot examples; Text-to-LoRA~\citep{charakorn2025texttolora} maps textual task descriptions to LoRAs distilled from pre-trained adapters; Generative Adapter~\citep{chen2025generative} produces task-specific adapters from a single forward pass over context; HyperSteer~\citep{sun2025hypersteeractivationsteeringscale} extends the idea to activation steering; Gist~\citep{mu2023gist} compresses prompts into a few prefix tokens via attention-mask training; and MEND~\citep{li2024mend} distills demonstrations into vectors via two-stage meta-distillation. The most recent work closest to PAW maps natural-language \emph{contexts} to LoRA in a single forward pass: SHINE~\citep{shine2026} as a scalable in-context hypernetwork; HypeLoRA~\citep{hypelora2026} for calibrated PEFT generation with structural coupling across layers; Doc-to-LoRA~\citep{doctolora2026}, which meta-learns to internalise a document into a LoRA adapter that the base model can then query without re-consuming the context; and Latent Context Compilation~\citep{latentcompilation2026}, which explicitly frames a LoRA module as a \emph{compiler} that distills long context into compact portable buffer tokens. LoRA composition methods such as LoraHub~\citep{huang2024lorahub} share basis sets across tasks, parallel to our shared-basis LoRA mapper. Compared with these, PAW (a)~emits a hybrid (discrete pseudo-program $+$ continuous PEFT) program rather than a continuous-only adapter; (b)~is trained on \emph{programmer-style fuzzy-function specifications} (FuzzyBench-10M's 800+ task families) rather than on QA contexts or distilled per-task adapters; and (c)~targets a developer-facing API where the compiled program is a versioned, distributable software artifact. %Many of the cited works above are concurrent with this submission, and our framing positions PAW as the developer-API embodiment of a paradigm the field is actively converging on.
+
+\paragraph{Parameter-efficient fine-tuning.}
+The PEFT building blocks our compiler emits are well-studied. Adapters~\citep{houlsby2019adapters,pfeiffer2021adapterfusion} insert small trainable bottlenecks into a frozen backbone; prefix-tuning~\citep{li-liang-2021-prefix} prepends learned key--value pairs to attention; prompt tuning~\citep{lester2021prompttuning,liu2022ptuningv2} learns soft input embeddings; LoRA~\citep{hu2022lora} learns low-rank decomposed updates to the linear projections of attention and MLP layers; AdaLoRA~\citep{zhang2023adalora} dynamically allocates rank budgets across layers; DoRA~\citep{liu2024dora} decomposes pre-trained weights into magnitude and direction and applies LoRA only to the direction component, closing the gap to full fine-tuning; QLoRA~\citep{dettmers2023qlora} combines quantization with LoRA for memory-efficient fine-tuning. PAW differs in that the PEFT module is \emph{generated per example by a separate compiler from a textual specification}, rather than learned per task by gradient descent on the target task. T-Few~\citep{liu2022tfew} argues that PEFT can outperform in-context learning at lower deployment cost --- a related framing, with the difference that T-Few learns its PEFT per task while we generate it from a description.
+
+%\paragraph{Instruction tuning and multi-task generalization.}
+%Instruction-tuning literature is the empirical precedent for ``one model, many tasks specified in natural language.'' FLAN~\citep{wei2022flan} and T0~\citep{sanh2022t0} fine-tune large LMs on a mixture of tasks formatted with natural-language instructions, and demonstrate zero-shot generalization to held-out tasks. Natural Instructions~\citep{mishra2022natinst} and Super-NaturalInstructions~\citep{wang2022supernatinst} curate large benchmarks of declarative task descriptions; FuzzyBench-10M (\Cref{appendix:dataset_versions}) operates in the same spirit but focuses on \emph{fuzzy} text-processing tasks (parsing, format repair, classification, ranking, etc.) rather than canonical NLP benchmark tasks (MNLI, etc.) and emphasises depth over breadth. PAW differs from instruction tuning in that we do not produce a single multi-task model: we produce a per-task neural program at compile time, executed by a small frozen interpreter at runtime. The instruction-tuned literature is most directly relevant as a baseline for ``what if we just instruction-tuned the small interpreter directly?'' --- our killer-baselines table (\Cref{tab:killer_baselines}) addresses this for full fine-tuning and fixed LoRA on FuzzyBench data.
+
+\paragraph{Synthetic instruction-data generation.}
+FuzzyBench-10M is generated by an LLM (\texttt{gpt-5.2}) and follows the methodological precedent of LLM-generated instruction datasets. Self-Instruct~\citep{wang2023selfinstruct} prompts a strong LLM to generate diverse instruction-input-output triples that are then used to fine-tune a smaller model. Unnatural Instructions~\citep{honovich2023unnatural} similarly generates instructions automatically. Textbooks Are All You Need~\citep{gunasekar2023textbooks} argues for synthetic-textbook-style training data for small-model pre-training. Magpie~\citep{xu2025magpie} self-synthesises 4M alignment instances from an aligned LLM with no seed prompts. FuzzyBench-10M differs in that the data-generating pipeline is task-class-specific (29 thematic versions covering categories developers actually encounter, rather than open-ended prompts), and we explicitly construct a verified test split (\Cref{sec:fuzzybench}) where two strong LLMs must agree on the output to filter ambiguous targets. Recent small-model technical reports~\citep{phi42024,gemma3_2025} similarly emphasise high-quality synthetic data as the primary lever for closing capability gaps with frontier models at small scales.
+
+\paragraph{Model distillation.}
+ALCHEmist~\citep{NEURIPS2024_72802bef} distills labelling logic from LLMs into Python programs that run on a standard interpreter. PAW shares the motivation of amortizing LLM usage but compiles directly into \emph{neural} weights instead of textual code, which lets it implement fuzzy functions that resist symbolic encoding. Binder~\citep{cheng2023binder} translates a task input into a SQL/Python program with embedded LM API calls; PAW differs in that the program is the weights themselves, not a piece of text containing API calls. Distilling Step-by-Step~\citep{hsieh2023distillingstepbystep} distills LLM reasoning into smaller fine-tuned models with rationales as auxiliary supervision; PAW shares the goal of replacing large-LM inference with small-model inference, but achieves it via per-task compile rather than per-task fine-tuning.
+
+%\paragraph{Tool use and agentic LLMs.}
+%The tool-calling case study (\Cref{sec:case_studies}) sits in the LLM-tool-use literature. Toolformer~\citep{schick2023toolformer} self-supervises tool-call generation in a single LM; ReAct~\citep{yao2023react} interleaves reasoning steps and tool actions; Gorilla~\citep{patil2024gorilla} fine-tunes a model to invoke arbitrary REST APIs; ToolLLM~\citep{qin2024toolllm} scales fine-tuning to thousands of real-world APIs. Recent 2025 work explicitly targets \emph{on-device} agentic systems with small models: AgentFlux~\citep{agentflux2025} decouples tool-calling into selection and argument-generation subtasks served by separate LoRA adapters; surveys of small-language-model agents~\citep{slmagentic2025} catalogue the emerging design patterns and deployment trade-offs. Our tool-calling case study differs in that the \emph{individual decisions} (does this need a tool? which tool? extract these parameters) are PAW programs running locally on a 0.6B base, while orchestration and structured output formatting are plain Python. The hybrid PAW + Python architecture we report achieves 93\% on \textsc{ToolCall-15} at 0.6B (\Cref{sec:case_studies}) without any tool-specific training of the interpreter --- a different design point from the tool-fine-tuned models above, and one that aligns naturally with the SLM-agentic direction.
+
+\paragraph{Neural programs.}
+Representing programs in neural networks is a long-standing direction~\citep{graves2014neuralturingmachines,reed2016neuralprogrammerinterpreters}, with some work compiling formal code into network weights~\citep{weiss2021thinkingliketransformers,GRUAU19951}. PAW differs in its training and use model: programs are not learned per task but produced on demand by a single compiler, then executed on a fixed interpreter and freely shared. A recent trend argues for replacing API LLMs with small, locally executed models~\citep{belcak2025smalllanguagemodelsfuture,phi42024,gemma3_2025}; PAW is one realization. The crucial difference between PAW and ``just use a small LLM'' is that the small model's behaviour is configured per fuzzy function by a compiler rather than baked into a fine-tune. Practical on-device deployment of small models has been driven by post-training quantization (GPTQ~\citep{frantar2023gptq}, AWQ~\citep{lin2024awq}, QLoRA's quantization-aware finetuning~\citep{dettmers2023qlora}) and lightweight inference runtimes (\texttt{llama.cpp}~\citep{llamacpp}, in-browser via \texttt{wllama}~\citep{wllama}); we use these directly. Most recent small-LM technical reports~\citep{phi42024,gemma3_2025} also adopt LoRA-flavoured PEFT for multimodal extensions and downstream adaptation, complementing the developer-API direction PAW pursues.
+
+
+
+\section{Conclusion}
+\label{sec:conclusion}
+
+We introduced Program-as-Weights, a programming paradigm in which a fuzzy function is compiled once into a small neural binary and executed locally on a fixed interpreter. On FuzzyBench, a 0.6B-parameter interpreter executing PAW programs matches Qwen3-32B prompting at $\sim$50$\times$ less inference memory and runs at 30~tok/s on a MacBook M3 with quantized GGUF; we illustrate the paradigm through five case studies. The same abstraction extends to image-conditioned fuzzy tasks by swapping only the compiler for a vision-language model. We hope Program-as-Weights contributes to a future in which small LMs serve as the runtime~\citep{belcak2025smalllanguagemodelsfuture}, where large models compile and small models execute, and the role of foundation models shifts from per-input \emph{problem solver} to per-function \emph{tool builder}.
+
+
+\subsubsection*{Acknowledgments}
+We thank Sasha Rush for his guidance and contributions to the earlier project that laid the foundation for this work. We also thank Saarang Agarwal, Austin Dong, Mohammad Jaffer Iqbal, Bihui Jin, Yinxi Li, Jiale Amber Wang, and the anonymous reviewers for their valuable comments and feedback.
+
+This research was supported by a Starter Grant from the University of Waterloo and by the Natural Sciences and Engineering Research Council of Canada (NSERC) under grant numbers RGPIN-2024-04909 and RGPIN-2024-05178. Computational resources were provided by Compute Ontario (computeontario.ca) and the Digital Research Alliance of Canada (alliancecan.ca). We also thank OpenAI's Research Access Program for providing API credits. Wentao Zhang was supported in part by these sources and by the Dr. Derick Wood Graduate Scholarship, generously funded by Ms. Mary Chen.
+
+%We thank Saarang Agarwal, Austing Dong, Mohammad Jaffer Iqbal, Bihui Jin, Yinxi Li, Sasha Rush, Jiale Amber Wang and the anonymous reviewers for their comments and feedback.
+%This research was supported by a Starter Grant from the University of Waterloo and by the Natural Sciences and Engineering Research Council of Canada (NSERC) under grant numbers RGPIN-2024-04909 and RGPIN-2024-05178. Computational resources were provided by Compute Ontario (computeontario.ca) and the Digital Research Alliance of Canada (alliancecan.ca). We also thank OpenAI's Research Access Program for providing API credits. Wentao Zhang was supported in part by these sources and by the Dr. Derick Wood Graduate Scholarship, generously funded by Ms. Mary Chen.
+%This research was supported by an NSERC Discovery Grant (RGPIN-2024-05178) and 
+
+% The compiled program is a hybrid of a discrete pseudo-program and a continuous PEFT module --- a prefix-tuning KV cache in our precursor system, and a per-example LoRA in our current best system --- with the abstraction agnostic to which PEFT future work plugs in: an off-the-shelf reference compiler produces the discrete pseudo-program by simple prompting, and a second 4B model trained via pathwise supervised loss through the frozen interpreter produces the continuous PEFT.=========================================================================
+% References
+% =========================================================================
+
+\bibliographystyle{plainnat}
+\bibliography{references}
+
+
+% =========================================================================
+% Appendix
+% =========================================================================
+
+\newpage
+\appendix
+
+\input{appendix.tex}
+
+
+\end{document}

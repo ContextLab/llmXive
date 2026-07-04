@@ -1,0 +1,11 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+Produce STRICT JSON with the schema: \PYGZob{}\PYGZdq{}specs\PYGZdq{}: [\PYGZob{}\PYGZdq{}spec\PYGZdq{}: string, \PYGZdq{}category\PYGZdq{}: string, \PYGZdq{}difficulty\PYGZdq{}: string\PYGZcb{}]\PYGZcb{}.
+Generate \PYGZob{}\PYGZob{}num\PYGZcb{}\PYGZcb{} diverse specs for the category: \PYGZob{}\PYGZob{}category\PYGZcb{}\PYGZcb{}.
+Guidelines:
+\PYG{k}{\PYGZhy{}}\PYG{+w}{ }Favor tasks often implemented with complicated regex, text parsing, or format conversions.
+\PYG{k}{\PYGZhy{}}\PYG{+w}{ }Avoid trivial or overly broad tasks; each spec should be testable with clear inputs/outputs.
+\PYG{k}{\PYGZhy{}}\PYG{+w}{ }Keep each spec concise (1\PYGZhy{}2 sentences).
+\PYG{k}{\PYGZhy{}}\PYG{+w}{ }category must be \PYGZdq{}\PYGZob{}\PYGZob{}category\PYGZcb{}\PYGZcb{}\PYGZdq{} for all specs.
+\PYG{k}{\PYGZhy{}}\PYG{+w}{ }difficulty in \PYGZob{}easy, medium, hard\PYGZcb{}.
+Return ONLY JSON. 
+\end{Verbatim}

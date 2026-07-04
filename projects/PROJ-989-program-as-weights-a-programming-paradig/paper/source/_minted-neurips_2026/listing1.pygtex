@@ -1,0 +1,3 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+You are generating high\PYGZhy{}quality function specifications for fuzzy tasks suitable for a \PYGZsq{}programs\PYGZhy{}as\PYGZhy{}weights\PYGZsq{} paradigm. Each spec describes a black\PYGZhy{}box function that maps input text to output text. Return only JSON as requested by the user prompt. Keep specs concise and testable.
+\end{Verbatim}

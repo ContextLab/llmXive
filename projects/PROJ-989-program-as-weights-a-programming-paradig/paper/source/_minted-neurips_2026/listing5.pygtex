@@ -1,0 +1,12 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+Generate input/output examples for this function.
+
+Spec: \PYGZob{}\PYGZob{}spec\PYGZcb{}\PYGZcb{}
+Number of pairs: \PYGZob{}\PYGZob{}n\PYGZcb{}\PYGZcb{}
+
+Rules:
+\PYG{k}{\PYGZhy{}}\PYG{+w}{ }Produce exactly the requested number of pairs when feasible.
+\PYG{k}{\PYGZhy{}}\PYG{+w}{ }Inputs should be varied and realistic.
+\PYG{k}{\PYGZhy{}}\PYG{+w}{ }Outputs must be consistent with the spec.
+\PYG{k}{\PYGZhy{}}\PYG{+w}{ }Return ONLY JSON, no commentary.
+\end{Verbatim}

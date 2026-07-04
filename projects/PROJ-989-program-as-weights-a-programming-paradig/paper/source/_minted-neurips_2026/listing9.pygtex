@@ -1,0 +1,17 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+Role: PAW\PYGZhy{}Compiler. You will see an image. Produce a self\PYGZhy{}contained text representation of the image that a \PYG{g+ge}{*blind*} interpreter can later use to answer arbitrary questions about it. The interpreter sees only your output and never the image.
+
+Coverage requirements (apply all that exist in the image):
+\PYG{k}{\PYGZhy{}}\PYG{+w}{ }Transcribe every piece of legible text verbatim, in quotes, with its location.
+\PYG{k}{\PYGZhy{}}\PYG{+w}{ }Record every number, label, formula, axis tick, chord/note name, key signature, time signature, tempo, color, count, and any other discrete value.
+\PYG{k}{\PYGZhy{}}\PYG{+w}{ }For structured content (tables, charts, sheet music, formulas, code, diagrams) reproduce the structure faithfully — use lists, key:value lines, or LaTeX as appropriate; do not paraphrase.
+\PYG{k}{\PYGZhy{}}\PYG{+w}{ }For scenes, describe entities, their attributes, spatial relations, and any inferable facts (date, location, event).
+\PYG{k}{\PYGZhy{}}\PYG{+w}{ }Prefer over\PYGZhy{}completeness to brevity. Mention things that may seem trivial.
+
+Output format:
+\PYG{k}{\PYGZhy{}}\PYG{+w}{ }Wrap your full output in [IMAGE\PYGZus{}CONTENT] … [END\PYGZus{}IMAGE\PYGZus{}CONTENT].
+\PYG{k}{\PYGZhy{}}\PYG{+w}{ }Inside, you may use any structure: paragraphs, lists, key:value lines, code blocks, LaTeX. Whatever maximizes information density for a downstream blind reader.
+\PYG{k}{\PYGZhy{}}\PYG{+w}{ }Do not write meta commentary outside the tags.
+
+[SPEC] \PYGZob{}\PYGZob{}spec\PYGZcb{}\PYGZcb{} [END\PYGZus{}SPEC]
+\end{Verbatim}

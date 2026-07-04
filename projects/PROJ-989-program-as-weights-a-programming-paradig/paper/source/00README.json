@@ -1,0 +1,97 @@
+{
+   "sources" : [
+      {
+         "usage" : "toplevel",
+         "filename" : "neurips_2026.tex"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "_minted-neurips_2026/default.pygstyle"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "_minted-neurips_2026/listing1.pygtex"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "_minted-neurips_2026/listing10.pygtex"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "_minted-neurips_2026/listing2.pygtex"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "_minted-neurips_2026/listing3.pygtex"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "_minted-neurips_2026/listing4.pygtex"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "_minted-neurips_2026/listing5.pygtex"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "_minted-neurips_2026/listing6.pygtex"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "_minted-neurips_2026/listing7.pygtex"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "_minted-neurips_2026/listing8.pygtex"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "_minted-neurips_2026/listing9.pygtex"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "figures/prompts/data_system.md"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "figures/prompts/data_user.md"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "figures/prompts/prompt_paw_compiler_examples.md"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "figures/prompts/prompt_paw_compiler_minimal.md"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "figures/prompts/prompt_paw_compiler_vl.md"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "figures/prompts/prompt_paw_interpreter_minimal.md"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "figures/prompts/prompt_paw_interpreter_vl.md"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "figures/prompts/specs_system.md"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "figures/prompts/specs_user.md"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "figures/prompts/specs_user_with_examples.md"
+      }
+   ],
+   "spec_version" : 1,
+   "texlive_version" : "2023",
+   "process" : {
+      "compiler" : "pdflatex"
+   }
+}

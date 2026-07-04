@@ -1,0 +1,546 @@
+% Appendix for the PAW NeurIPS 2026 submission.
+% This is `\input{}` from the main paper after `\appendix`.
+
+\section{Web Interface for PAW Compilation}
+\label{appendix:web_ui}
+
+We provide a hosted web interface that accepts a fuzzy specification, compiles it, lets the user test it interactively, and exports the compiled program as either a serialized weight file or a program identifier that can be loaded through the Python API. The three steps of the workflow are illustrated in Figures~\ref{fig:web-ui-1}, \ref{fig:web-ui-2}, and \ref{fig:web-ui-3}. Compilation runs on a GPU-backed server so that users do not need to provision GPUs locally; once downloaded, the compiled program runs entirely offline on the local interpreter.
+
+\begin{figure*}[!h]
+  \centering
+  \includegraphics[width=0.9\linewidth]{figures/web_ui_1.png}
+  \caption{\label{fig:web-ui-1}\textbf{Step 1: Compile a program from natural language.} The user specifies a fuzzy function in natural language. Image inputs are also supported.}
+\end{figure*}
+\begin{figure*}[!h]
+  \centering
+  \includegraphics[width=0.9\linewidth]{figures/web_ui_2.png}
+  \caption{\label{fig:web-ui-2}\textbf{Step 2: Interactively test the compiled program.} Users can provide test inputs and inspect the corresponding outputs, enabling rapid validation and refinement before download.}
+\end{figure*}
+\begin{figure*}[!h]
+  \centering
+  \includegraphics[width=0.9\linewidth]{figures/web_ui_3.png}
+  \caption{\label{fig:web-ui-3}\textbf{Step 3: Execute the program locally via Python.} Once compiled, the program can be loaded and invoked through a simple Python API; subsequent execution requires no internet access.}
+\end{figure*}
+
+\section{FuzzyBench Construction Prompts}
+\label{appendix:prompts}
+
+\Cref{fig:prompt_specs_system,fig:prompt_specs_user,fig:prompt_specs_user_with_examples} show the prompts used to generate the natural-language specifications. Half of the specifications are generated without exemplar examples (\Cref{fig:prompt_specs_user}) and half with examples (\Cref{fig:prompt_specs_user_with_examples}); we found this mix to produce more diverse specifications than either style alone. \Cref{fig:prompt_data_system,fig:prompt_data_user} show the prompts used to generate input--output examples conditioned on a specification.
+
+\begin{figure}[!h]
+    \centering
+   \begin{tcolorbox}[colframe=borderblue, colback=bggray, left=1mm, right=1mm, top=0.5mm, bottom=0.5mm]
+\inputminted[fontsize=\scriptsize, breaklines, breakanywhere, breaksymbolleft={}]{markdown}{figures/prompts/specs_system.md}
+\end{tcolorbox}
+     \caption{\label{fig:prompt_specs_system}System prompt for generating specifications.}
+\end{figure}
+
+\begin{figure}[!h]
+    \centering
+   \begin{tcolorbox}[colframe=borderblue, colback=bggray, left=1mm, right=1mm, top=0.5mm, bottom=0.5mm]
+\inputminted[fontsize=\scriptsize, breaklines, breakanywhere, breaksymbolleft={}]{markdown}{figures/prompts/specs_user.md}
+\end{tcolorbox}
+     \caption{\label{fig:prompt_specs_user}User prompt for generating specifications (no exemplar examples).}
+\end{figure}
+
+\begin{figure*}[!h]
+    \centering
+   \begin{tcolorbox}[colframe=borderblue, colback=bggray, left=1mm, right=1mm, top=0.5mm, bottom=0.5mm]
+\inputminted[fontsize=\scriptsize, breaklines, breakanywhere, breaksymbolleft={}]{markdown}{figures/prompts/specs_user_with_examples.md}
+\end{tcolorbox}
+     \caption{\label{fig:prompt_specs_user_with_examples}User prompt for generating specifications, with exemplar input/output pairs.}
+\end{figure*}
+
+\begin{figure*}[!h]
+    \centering
+   \begin{tcolorbox}[colframe=borderblue, colback=bggray, left=1mm, right=1mm, top=0.5mm, bottom=0.5mm]
+\inputminted[fontsize=\scriptsize, breaklines, breakanywhere, breaksymbolleft={}]{markdown}{figures/prompts/data_system.md}
+\end{tcolorbox}
+     \caption{\label{fig:prompt_data_system}System prompt for generating input/output examples given a specification.}
+\end{figure*}
+
+\begin{figure*}[!h]
+    \centering
+   \begin{tcolorbox}[colframe=borderblue, colback=bggray, left=1mm, right=1mm, top=0.5mm, bottom=0.5mm]
+\inputminted[fontsize=\scriptsize, breaklines, breakanywhere, breaksymbolleft={}]{markdown}{figures/prompts/data_user.md}
+\end{tcolorbox}
+     \caption{\label{fig:prompt_data_user}User prompt for generating input/output examples given a specification.}
+\end{figure*}
+
+
+\section{Compiler and Interpreter Prompts}
+\label{appendix:paw_prompts}
+
+We use two compiler prompt styles in this paper: \texttt{minimal}, which is a single \texttt{[SPEC]\ldots[END\_SPEC]\ [PSEUDO\_PROGRAM]} wrapper, and \texttt{examples}, which produces task-description-plus-examples pseudo-programs. The \texttt{examples} style is used by the off-the-shelf compiler reference (Qwen3-4B-Instruct-2507) when generating reference rollouts at the start of training; the \texttt{minimal} style is what the trained PAW compiler uses at inference time. The interpreter uses a single \texttt{minimal} prompt that simply concatenates the pseudo-program with the input.
+
+\begin{figure*}[!h]
+    \centering
+   \begin{tcolorbox}[colframe=borderblue, colback=bggray, left=1mm, right=1mm, top=0.5mm, bottom=0.5mm]
+\inputminted[fontsize=\scriptsize, breaklines, breakanywhere, breaksymbolleft={}]{markdown}{figures/prompts/prompt_paw_compiler_minimal.md}
+\end{tcolorbox}
+     \caption{\label{fig:prompt_paw_compiler_minimal}Compiler prompt, \texttt{minimal} style. Used by the trained PAW compiler at inference.}
+\end{figure*}
+
+\begin{figure*}[!h]
+    \centering
+   \begin{tcolorbox}[colframe=borderblue, colback=bggray, left=1mm, right=1mm, top=0.5mm, bottom=0.5mm]
+\inputminted[fontsize=\scriptsize, breaklines, breakanywhere, breaksymbolleft={}]{markdown}{figures/prompts/prompt_paw_compiler_examples.md}
+\end{tcolorbox}
+     \caption{\label{fig:prompt_paw_compiler_examples}Compiler prompt, \texttt{examples} style. Used by the off-the-shelf reference compiler (Qwen3-4B-Instruct-2507) to generate the rollouts used during training.}
+\end{figure*}
+
+\begin{figure*}[!h]
+    \centering
+   \begin{tcolorbox}[colframe=borderblue, colback=bggray, left=1mm, right=1mm, top=0.5mm, bottom=0.5mm]
+\inputminted[fontsize=\scriptsize, breaklines, breakanywhere, breaksymbolleft={}]{markdown}{figures/prompts/prompt_paw_interpreter_minimal.md}
+\end{tcolorbox}
+     \caption{\label{fig:prompt_paw_interpreter_minimal}Interpreter prompt, \texttt{minimal} style.}
+\end{figure*}
+
+
+\section{Image Processing}
+\label{appendix:paw_image_prompts}
+
+This appendix collects the materials supporting the multimodal generalization experiments in \Cref{tab:main_image}: the compiler and interpreter prompts used at compile and inference time (below), and a component-decomposition ablation of the prefix-tuning precursor on the same six image tasks (\Cref{appendix:image_ablations}). Recall that the image-task PAW pipeline replaces only the compiler base (Qwen3-4B-Instruct $\to$ Qwen3-VL-4B); the device-resident interpreter is the same Qwen3 0.6B used for text fuzzy functions, and image conditioning is fully encoded in the per-example PEFT module emitted by the VL compiler.
+
+\begin{figure*}[!h]
+    \centering
+   \begin{tcolorbox}[colframe=borderblue, colback=bggray, left=1mm, right=1mm, top=0.5mm, bottom=0.5mm]
+\inputminted[fontsize=\scriptsize, breaklines, breakanywhere, breaksymbolleft={}]{markdown}{figures/prompts/prompt_paw_compiler_vl.md}
+\end{tcolorbox}
+     \caption{\label{fig:prompt_paw_compiler_vl}Compiler prompt for image-conditioned specifications.}
+\end{figure*}
+
+\begin{figure*}[!h]
+    \centering
+   \begin{tcolorbox}[colframe=borderblue, colback=bggray, left=1mm, right=1mm, top=0.5mm, bottom=0.5mm]
+\inputminted[fontsize=\scriptsize, breaklines, breakanywhere, breaksymbolleft={}]{markdown}{figures/prompts/prompt_paw_interpreter_vl.md}
+\end{tcolorbox}
+     \caption{\label{fig:prompt_paw_interpreter_vl}Interpreter prompt for image-conditioned specifications.}
+\end{figure*}
+
+\subsection{Component decomposition of image-task PAW (prefix-tuning era)}
+\label{appendix:image_ablations}
+
+\Cref{tab:image_ablations} decomposes the prefix-tuning precursor PAW (\Cref{sec:arch_prefix}) into its discrete and continuous components on the same six image tasks reported in \Cref{tab:main_image}. ``Discrete pseudo only'' uses the REINFORCE-trained compiler from the early prototype to emit only a pseudo-program, with no continuous PEFT injected; the small interpreter then runs on the pseudo-program alone. ``Continuous KV-cache only'' injects a per-example prefix-tuning KV cache from the compiler hidden states but feeds the interpreter the raw spec (no discrete pseudo-program). The full ``PAW prefix-tuning'' row is the same as in \Cref{tab:main_image}.
+
+\begin{table}[h]
+\centering
+\caption{\label{tab:image_ablations}\textbf{Image-task component decomposition (prefix-tuning precursor).} EM/accuracy on the six image tasks. Adding the discrete pseudo-program helps on classification-style tasks (Circuit, Chemical, TextVQA) but hurts on long-form structured generation (Im2LaTeX, Im2SMILES), where ``Continuous KV-cache only'' is the strongest variant.}
+\small
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{@{}lcccccc@{}}
+\toprule
+Variant & Circuit & Chemical & Music & Im2SMILES & Im2LaTeX & TextVQA \\
+\midrule
+Discrete pseudo only (REINFORCE)         & 0.009 & 0.004 & 0.007 & 0.041 & 0.267 & 0.025 \\
+Continuous KV-cache only (no pseudo)     & 0.181 & 0.364 & 0.493 & \textbf{0.234} & \textbf{0.471} & 0.439 \\
+PAW prefix-tuning (both)                 & \textbf{0.241} & \textbf{0.365} & \textbf{0.525} & 0.175 & 0.391 & \textbf{0.612} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The cross-task pattern is consistent: when the output is a short phrase (Circuit/Chemical/Music understanding, TextVQA short-answer), the discrete pseudo-program is a strong inductive bias and adds 5--40 EM points on top of the continuous-only variant. When the output is a long structured sequence (Im2SMILES, Im2LaTeX), the discrete pseudo-program's input/output examples appear to crowd the small interpreter's context budget, and removing the pseudo-program returns 6--8 EM points. We read this as suggesting that future PEFT instantiations of PAW for image-to-markup-style tasks may want to either drop the pseudo-program at deployment time or re-design its content to be lighter (e.g.,\ a paraphrase only, no examples).
+
+
+\section{Prefix-tuning Precursor Architecture}
+\label{appendix:architecture_prefix}
+
+This appendix supplements \Cref{sec:arch_prefix} with a visual companion to the prefix-tuning precursor architecture, parallel to \Cref{fig:architecture_lora} for the LoRA instantiation. The figure (originally the ICML-version overview of PAW) shows the high-level ``compile / interpret'' rhythm of the precursor: the compiler emits a compact KV prefix that constitutes the compiled program, and a frozen interpreter executes it locally as a callable function.
+
+\begin{figure}[h]
+\centering
+\begin{subfigure}{0.46\textwidth}
+    \includegraphics[width=\textwidth,trim={0cm 3cm 20cm 0},clip]{figures/fig-1-2.pdf}
+    \caption{Compile}
+\end{subfigure}
+\hfill
+\begin{subfigure}{0.46\textwidth}
+    \includegraphics[width=\textwidth,trim={20cm 3cm 0cm 0},clip]{figures/fig-1-1.pdf}
+    \caption{Interpret}
+\end{subfigure}
+\caption{\label{fig:architecture_prefix}\textbf{Prefix-tuning precursor architecture (\Cref{sec:arch_prefix}).} \emph{(a) Compile.} The user describes a fuzzy function (e.g., ``extract the final answer''); the trained prefix compiler reads the description plus a handful of representative I/O examples and produces a per-example KV prefix --- the ``neural binary'' that constitutes the compiled program. \emph{(b) Interpret.} A small frozen interpreter loads the compiled KV prefix into its attention cache at every layer and processes user inputs locally as a callable function, in the manner of standard prefix-tuning~\citep{li-liang-2021-prefix}. This is the prefix-tuning instantiation of the same compiler--interpreter abstraction depicted in \Cref{fig:architecture_lora}; only the mapping from compiler hidden states to per-example PEFT module differs (KV cache here, LoRA in \Cref{sec:arch_lora}). \emph{Note}: our prefix-tuning precursor's exact training-time input format follows the same $[s \mid p_{\text{discrete}} \mid \texttt{EOS} \mid \tau_{1{:}T}]$ structure as the LoRA instantiation.}
+\end{figure}
+
+
+\section{FuzzyBench-10M Dataset Versions}
+\label{appendix:dataset_versions}
+
+FuzzyBench is built incrementally over 29 thematic versions, each adding 100K--500K examples covering a new family of fuzzy tasks. \Cref{tab:dataset_versions} summarizes the per-version size and the categories added at each stage. The full per-version category list (over 800 sub-categories) and the spec-generation commands used to create each batch are released alongside this paper.
+
+\begin{table*}[!h]
+\centering
+\caption{\label{tab:dataset_versions}\textbf{FuzzyBench-10M version timeline.} Each version is incremental on top of the previous one, with 2{,}000 new validation and 2{,}000 new test specifications added per version.}
+\small
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{@{}rlr>{\raggedright\arraybackslash}p{0.77\linewidth}@{}}
+\toprule
+v & Size & Specs & Categories added (theme) \\
+\midrule
+1  & 2.50M & 81{,}920 & Core text processing (parsing, classification, NER, coref, sentiment, etc.; 277 base categories) \\
+2  & 2.70M & +24{,}576 & New categories + freeform (data filtering, diff parsing, cron, resume parsing, \ldots) \\
+3  & 3.00M & +32{,}768 & Fuzzy/soft matching (fuzzy search, approximate string match, phonetic, entity resolution) \\
+4  & 3.25M & +32{,}768 & Format repair (JSON/XML/CSV/YAML/SQL repair, schema conformance, encoding repair) \\
+5  & 3.50M & +32{,}768 & Natural-language commands (NL$\to$shell/jq/awk/git/curl/find, command flag inference) \\
+6  & 3.75M & +32{,}768 & Agentic/tool use (tool call generation, tool selection, schema generation) \\
+7  & 4.00M & +32{,}768 & Custom classification/filtering (criteria-based, log filtering, salience, anomaly) \\
+8  & 4.25M & +32{,}768 & File/code semantic classification (filepath classification, code purpose, commit message) \\
+9  & 4.50M & +32{,}768 & DSL/code cleanup (NL-to-DSL, comment stripping, dialogue extraction, build error interp.) \\
+10 & 4.75M & +32{,}768 & Log monitoring (importance detection, streaming anomaly, alert evaluation) \\
+11 & 5.00M & +32{,}768 & NL constraint validation (constraint formalization, password policy, schema synthesis) \\
+12 & 5.25M & +32{,}768 & Constraint satisfaction (boolean SAT, type checking, dependency order, API contracts) \\
+13 & 5.50M & +32{,}768 & Operation safety/secrets (command risk classification, secret detection, redaction) \\
+14 & 5.75M & +32{,}768 & Reversibility/output masking/token reduction (traceback distillation, output summarization) \\
+15 & 6.00M & +32{,}768 & Auto-completion (context-aware, history-based, cwd-aware, domain-specific) \\
+16 & 6.25M & +32{,}768 & Pseudo-program execution (execution trace, result prediction, NL-to-Python) \\
+17 & 6.50M & +32{,}768 & Chemistry properties + domain commonsense (SMILES, reaction extraction, service-time est.) \\
+18 & 7.00M & +65{,}536 & Domain-knowledge plugins + counterfactual reasoning (30 categories spanning STEM/health/social) \\
+19 & 7.25M & +32{,}768 & Browser semantic matching + transcript cleanup + narrow translation \\
+20 & 7.50M & +32{,}768 & Agent watchdog / wait interruption (process state classification, completion detection) \\
+21 & 7.75M & +32{,}768 & AI text detection / authorship / style analysis \\
+22 & 8.00M & +32{,}768 & Semantic search + explicit AI detection (relevance, query reformulation, snippet extraction) \\
+23 & 8.25M & +32{,}768 & spaCy superset / custom NLP pipeline (custom NER, span labeling, dependency parsing) \\
+24 & 8.50M & +32{,}768 & HTML understanding / browser intelligence (ad detection, boilerplate removal) \\
+25 & 8.75M & +32{,}768 & Intent-based HTML + semantic equivalence / deduplication \\
+26 & 9.00M & +32{,}768 & Agent tool store / streaming intelligence \\
+27 & 9.25M & +32{,}768 & Intent-to-navigation / settings discovery \\
+28 & 9.75M & +32{,}768 & Document-grounded QA / spec-based classification \\
+29 & 10.0M & +32{,}768 & Smart search pipeline completion (keyword extraction, term weighting, reranking) \\
+\bottomrule
+\end{tabular}
+\end{table*}
+
+
+\section{Training Configuration}
+\label{appendix:training_details}
+
+We use the following configuration for the Qwen3 0.6B and Qwen3.5 0.8B PAW runs (the GPT-2 124M run uses the same hyperparameters but with the GPT-2-specific target modules \texttt{c\_attn c\_proj c\_fc} since GPT-2 fuses Q/K/V into a single projection):
+
+\begin{itemize}
+\item \textbf{Pseudo compiler $C_p$ (untrained).} \texttt{Qwen/Qwen3-4B-Instruct-2507}, prompted with the \texttt{examples} template (\Cref{appendix:paw_prompts}). Pseudo-programs for the entire 10M-example training set are pre-generated once with vLLM, indexed by spec, and stored in a JSONL file. During training, $p_{\text{discrete}}$ is read from disk for each example, never sampled from a live model.
+\item \textbf{LoRA compiler $C_L$ (trained).} \texttt{Qwen3-4B-Instruct-2507}, fully unfrozen, learning rate $2 \times 10^{-5}$, bf16 parameters, gradient checkpointing on. Input format is the \texttt{minimal} spec wrapper followed by the pseudo from $C_p$ and a fixed sequence of $T = 64$ learned ``prefix'' tokens.
+\item \textbf{LoRA mapper.} Kept in fp32 for numerical stability. Mean-pool aggregation, single residual MLP trunk, shared bases. Rank $r = 64$, $N = 64$ bases per module type, target modules \texttt{q\_proj k\_proj v\_proj o\_proj gate\_proj up\_proj down\_proj}.
+\item \textbf{Interpreter.} Frozen. Default \texttt{Qwen/Qwen3-0.6B}.
+\item \textbf{Training loop.} 3 epochs over the 10M-example dataset; batch size 16, gradient accumulation 3 (effective batch 48); max $C_L$ sequence length 1280, max interpreter sequence length 1024. The loss is the negative mean-token log-likelihood of the target $y$ under the frozen interpreter (\cref{eq:objective}); no policy-gradient term, no group baseline.
+\item \textbf{Hardware.} Single B300 (early stages) or 8$\times$H200 (later stages). The 0.6B Qwen3 run completed three epochs in $\sim$72 hours of training on 3 GPUs.
+\end{itemize}
+
+We use AdamW with the default PyTorch settings; no warmup; no LR schedule.
+
+
+\section{Additional Ablations}
+\label{appendix:ablations}
+
+\Cref{tab:ablations_full} reproduces the additional ablations summarized in \Cref{sec:ablations_misc} with their full numbers. Several rows are taken from earlier KV-prefix runs (where indicated) and serve to anchor the architectural transition described in \Cref{sec:ablation_mapper_design}.
+
+\begin{table*}[!h]
+\centering
+\caption{\label{tab:ablations_full}\textbf{Additional ablations.} EM on test\_clean (Qwen3 0.6B interpreter unless otherwise stated). Default in bold.}
+\small
+\setlength{\tabcolsep}{6pt}
+\begin{tabular}{@{}lcc@{}}
+\toprule
+Ablation axis & Variant & EM (test\_clean) \\
+\midrule
+\multirow{3}{*}{Continuous component}
+  & KV-prefix (epoch 2)                & 0.5044 \\
+  & LoRA $r{=}18$ (epoch 2)            & 0.5652 \\
+  & \textbf{LoRA $r{=}64$, 7 modules (epoch 2)} & \textbf{0.6572} \\
+\midrule
+\multirow{3}{*}{Compiler input for LoRA}
+  & Spec only                          & 0.6411 \\
+  & Pseudo only                        & 0.6165 \\
+  & \textbf{Spec + pseudo (default)}   & \textbf{0.6443} \\
+\midrule
+\multirow{2}{*}{Discrete-and-LoRA coupling}
+  & Shared (one head)                  & 0.6350 \\
+  & \textbf{Separate (default)}        & \textbf{0.6443} \\
+\midrule
+\multirow{2}{*}{LoRA-mapper input norm}
+  & With LayerNorm                     & 0.6377 \\
+  & \textbf{Without (default)}         & \textbf{0.6443} \\
+\midrule
+\multirow{2}{*}{Interpreter initialization}
+  & Start from finetuned interpreter   & 0.6038 \\
+  & \textbf{Start from base (default)} & \textbf{0.6223} \\
+\bottomrule
+\end{tabular}
+\end{table*}
+
+
+\section{Compiler Scaling and Freezing (Inconclusive)}
+\label{appendix:compiler_scaling}
+
+\Cref{tab:compiler_scaling} reports test\_clean exact match across compiler sizes (0.6B--32B), in both frozen and unfrozen variants, paired with a Qwen3.5 0.8B interpreter and otherwise identical training. We label this study \emph{inconclusive} because the pattern is non-monotonic in ways we cannot yet attribute to a single cause: unfreezing the 4B compiler beats frozen 32B, and gpt-oss-20B as a frozen compiler underperforms a frozen Qwen3-4B-Instruct-2507. We have not run a controlled study at large data scales because each combination is expensive; we report the numbers descriptively rather than draw scaling claims.
+
+\begin{table}[!h]
+\centering
+\caption{\label{tab:compiler_scaling}\textbf{Inconclusive compiler-scaling table.} EM on test\_clean (Qwen3.5 0.8B interpreter, 0.6M training examples, epoch 1). Reported as exploratory data.}
+\small
+\setlength{\tabcolsep}{8pt}
+\begin{tabular}{@{}lcc@{}}
+\toprule
+Compiler & Frozen? & test\_clean \\
+\midrule
+Qwen3 4B               & No  & 0.6455 \\
+Qwen3 4B               & Yes & 0.6128 \\
+Qwen3 4B + input norm  & Yes & 0.6228 \\
+Qwen3 14B              & No  & 0.6257 \\
+Qwen3 32B              & Yes & 0.6174 \\
+gpt-oss-20B            & Yes & 0.5823 \\
+Qwen3.5 4B (hybrid)    & Yes & 0.5046 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+\section{Per-Noise-Type Robustness}
+\label{appendix:noise_full}
+
+\Cref{tab:noise_full} reports the full noise-robustness numbers across light/medium/heavy intensity for all eight noise axes, for the Qwen3 0.6B interpreter at epoch 2.
+
+\begin{table*}[!h]
+\centering
+\caption{\label{tab:noise_full}\textbf{Per-noise-type robustness.} EM on test\_clean across eight noise axes and three intensity levels (Qwen3 0.6B interpreter, epoch 2).}
+\small
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{@{}lccc@{}}
+\toprule
+Noise axis & Light & Medium & Heavy \\
+\midrule
+Typos                 & 0.6709 & 0.6685 & 0.6621 \\
+Grammar               & 0.6687 & 0.6672 & 0.6731 \\
+Ambiguity             & 0.6731 & 0.6628 & 0.6511 \\
+Formatting            & 0.6702 & 0.6575 & 0.6526 \\
+All noise (combined)  & 0.6670 & 0.6650 & 0.6326 \\
+\midrule
+Terse (heavy only)        & --     & --     & 0.6499 \\
+Casual (heavy only)       & --     & --     & 0.6675 \\
+Paraphrase (heavy only)   & --     & --     & 0.6614 \\
+\bottomrule
+\end{tabular}
+\end{table*}
+
+
+\section{Full Quantization Tables}
+\label{appendix:quant_full}
+
+\Cref{tab:quant_qwen} reports the full per-quant exact-match numbers for Qwen3 0.6B at the 4096-example scale, including the \textsc{IQ4\_XS}/\textsc{IQ4\_NL} I-quants. \Cref{tab:quant_gpt2} and \Cref{tab:quant_qwen35} report the corresponding figures for GPT-2 124M and Qwen3.5 0.8B at 36 examples (36-example numbers are not statistically meaningful below the 0.6B size; full at-scale validation is in progress for those interpreters).
+
+\begin{table}[!h]
+\centering
+\caption{\label{tab:quant_qwen}\textbf{Qwen3 0.6B quantization sweep (4096-example test\_clean).} fp32 LoRA adapter unless otherwise stated.}
+\small
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{@{}lcccc@{}}
+\toprule
+Base format & bpw & Base size & Adapter size & EM (test\_clean) \\
+\midrule
+PyTorch bf16        & 16    & 1515 MB & --     & 0.6580 \\
+fp16                & 16    & 1509 MB & 162 MB & 0.6594 \\
+$Q8\_0$             & 8.5   &  805 MB & 162 MB & 0.6550 \\
+$Q6\_K$             & 6.56  &  623 MB & 162 MB & 0.6558 \\
+$Q5\_K\_M$          & 5.5   &  551 MB & 162 MB & 0.6499 \\
+$Q4\_K\_M$          & 4.8   &  484 MB & 162 MB & 0.6460 \\
+$\textsc{IQ4\_XS}$  & 4.25  &  430 MB & 162 MB & 0.6484 \\
+$Q4\_K\_S$          & 4.5   &  449 MB & 162 MB & 0.6348 \\
+$Q3\_K\_L$          & 3.9   &  416 MB & 162 MB & 0.6055 \\
+$Q3\_K\_M$          & 3.5   &  395 MB & 162 MB & 0.5874 \\
+\midrule
+\multicolumn{5}{l}{\emph{$Q4\_0$ adapter (23 MB) instead of fp32 (162 MB):}}\\
+$Q6\_K$ + $Q4\_0$           & 6.56  & 623 MB & 23 MB & 0.6575 \\
+$Q5\_K\_M$ + $Q4\_0$        & 5.5   & 551 MB & 23 MB & 0.6477 \\
+$Q4\_K\_M$ + $Q4\_0$        & 4.8   & 484 MB & 23 MB & 0.6453 \\
+$\textsc{IQ4\_XS}$ + $Q4\_0$ & 4.25 & 430 MB & 23 MB & 0.6462 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[!h]
+\centering
+\caption{\label{tab:quant_gpt2}\textbf{GPT-2 124M quantization sweep} (36-example handcrafted set, fp32 38~MB LoRA adapter). Smaller benchmarks are used because GPT-2's accuracy ceiling makes 4096-example differences harder to isolate.}
+\small
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{@{}lcccc@{}}
+\toprule
+Base format & bpw & Base size & tok/s & EM (36) \\
+\midrule
+fp16                  & 16    & 252 MB & 100.7 & 21/36 \\
+$Q8\_0$               & 8.5   & 137 MB & 115.7 & 23/36 \\
+$Q6\_K$               & 6.5   & 107 MB & 111.0 & 22/36 \\
+$Q5\_K\_M$            & 5.5   &  99 MB & 108.0 & 24/36 \\
+$Q4\_K\_M$            & 4.8   &  91 MB & 110.5 & 24/36 \\
+$\textsc{IQ4\_NL}$    & 4.5   &  85 MB & 107.1 & 24/36 \\
+$\textsc{IQ4\_XS}$    & 4.25  &  82 MB & 115.4 & 24/36 \\
+$Q3\_K\_L$            & 3.9   &  88 MB & 116.6 & 23/36 \\
+$\textsc{IQ2\_M}$     & 2.7   &  63 MB & 192.5 & 16/36 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[!h]
+\centering
+\caption{\label{tab:quant_qwen35}\textbf{Qwen3.5 0.8B (Mamba-attention hybrid) quantization sweep} (36-example handcrafted set, $Q4\_0$ 16~MB LoRA adapter). $Q4\_K\_S$ and below crash with \texttt{llama\_decode failed (code -3)} due to the Mamba-hybrid architecture's incompatibility with aggressive quantization.}
+\small
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{@{}lcccc@{}}
+\toprule
+Base format & bpw & Base size & tok/s & EM (36) \\
+\midrule
+fp16                  & 16    & 1517 MB & 6.1 & 30/36 \\
+$Q8\_0$               & 8.5   &  774 MB & 6.4 & 30/36 \\
+$Q6\_K$               & 6.5   &  601 MB & 6.7 & 30/36 \\
+$Q5\_K\_M$            & 5.5   &  551 MB & 6.5 & 30/36 \\
+$Q4\_K\_M$            & 4.8   &  505 MB & 6.5 & 31/36 \\
+$Q4\_K\_S$            & 4.5   &  505 MB & --   & crash \\
+$Q3\_K\_L$ and below  & --    &  --     & --   & crash \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+\section{Qualitative Analysis}
+\label{appendix:qualitative}
+
+We hand-inspected the last 20 training rollouts from each of three interpreters (GPT-2 124M, Qwen3 0.6B, Qwen3.5 0.8B) to characterize where each succeeds and fails. The summary statistics are: GPT-2 12/20 perfect, 0.6B 8/20 perfect, 0.8B 13/20 perfect. The 0.8B's strengths are structured-output generation (JSON, CSV, BibTeX, DOT graphs), classification with multiple candidate labels, pattern matching and transformation, and logical reasoning with explicit cases (cycle detection, exclusivity violations, paraphrase detection). Its failure modes are precise numeric computation (off-by-small-amount unit conversions), character-level position tracking (span start/end indices off by a few), and creative reformulation (synonym replacement that changes meaning). The 0.6B has similar strengths but makes more span-offset errors and struggles with multi-step JSON construction. GPT-2 cannot do multi-step reasoning (sentiment timelines, rubric scoring) and cannot track precise positions, but is strong at pattern matching and classification when the answer space is small. We provide example transcripts for each model in the released supplementary material.
+
+
+\section{Full Case-Study Walkthroughs}
+\label{appendix:case_studies}
+
+\begin{figure}[!h]
+\centering
+\includegraphics[width=\linewidth]{figures/paw_program_library.png}
+\caption{\label{fig:program_library}\textbf{A library of compiled PAW programs.} Three example natural-language function specifications (``Classify message urgency'', ``Fix malformed JSON'', ``Remove personal information''; left) are each compiled into a separate neural program (middle): a discrete pseudo-program in a fixed format plus a continuous per-example LoRA (depicted as red, blue, green adapters). At deployment time (right), all three programs are served by a single device-resident interpreter (\texttt{LM}) with the appropriate LoRA hot-attached per call --- the ``one runtime, many programs'' picture that motivates compile-once-run-locally.}
+\end{figure}
+
+\Cref{fig:program_library} sketches the multi-program library that the case studies below populate: each natural-language specification is compiled once into its own neural program, and the resulting programs are served by a single device-resident interpreter at run time. Below we provide longer walkthroughs of the five case studies summarized in \Cref{sec:case_studies}, including the full specifications and the iteration histories.
+
+\subsection{Event-driven log monitoring (full walkthrough)}
+
+The final specification is:
+\begin{tcolorbox}[colframe=borderblue, colback=bggray]
+\scriptsize
+\begin{verbatim}
+Classify log lines. Return ONLY one word: ALERT or QUIET.
+
+Input: [step 100] loss=0.05 lr=0.0001
+Output: QUIET
+
+Input: [Checkpoint] Saved model at step 1000
+Output: ALERT
+
+Input: Traceback (most recent call last):
+Output: ALERT
+
+Input: Training complete. Final loss: 0.11
+Output: ALERT
+\end{verbatim}
+\end{tcolorbox}
+The monitoring loop is a simple file-tailing wrapper that truncates each new chunk to fit the 2048-token context window, calls the PAW function, and surfaces \texttt{ALERT} chunks. A separate stall timer covers ``no new output for $N$ minutes,'' which the classifier cannot detect because it only sees what is written.
+
+\subsection{Intent-based site navigation (full walkthrough)}
+
+The page-classifier specification is:
+\begin{tcolorbox}[colframe=borderblue, colback=bggray]
+\scriptsize
+\begin{verbatim}
+Classify the user's intent. Return ONLY a single label.
+playground = Create or compile something new
+hub = Browse or search existing items
+browser = Run something in the browser
+docs = Read documentation
+settings = Manage account or API keys
+none = None of the above (likely a question)
+
+Input: how do I get started
+Output: docs
+
+Input: browse community programs
+Output: hub
+
+Input: is it free?
+Output: none
+\end{verbatim}
+\end{tcolorbox}
+The full pipeline is five PAW functions in sequence: page classifier, question-type classifier, yes/no answerer, how/what answerer, and answer validator. Each program compiles in seconds and runs in milliseconds. The validator catches answers that are grammatically fine but do not address the question (``yes'' to ``what is the license?'').
+
+\subsection{Semantic search reranking (full walkthrough)}
+
+The reranker template is:
+\begin{tcolorbox}[colframe=borderblue, colback=bggray]
+\scriptsize
+\begin{verbatim}
+You are a search matcher. Rate how well the candidate matches the query.
+Match all constraints: {constraint_types}.
+If the query excludes something, those candidates are not_relevant.
+
+Query: "{query}"
+
+Return ONLY one of: exact_match, highly_relevant, somewhat_relevant, not_relevant
+\end{verbatim}
+\end{tcolorbox}
+The reranker is composed with a keyword search over a full-text index: keyword search returns the top 10--20 candidates, the PAW reranker scores each against the query into one of the four buckets (mapped to integer scores 3--0), and the candidates are returned in descending score order.
+
+\subsection{Tool calling pipeline (full walkthrough)}
+
+The pipeline uses 10 PAW functions: \texttt{tc15-needs-tool}, \texttt{tc15-tool-router}, \texttt{tc15-impossible-check}, \texttt{tc15-second-tool}, plus six parameter-extraction functions (\texttt{tc15-extract-location}, \texttt{tc15-extract-ticker}, \texttt{tc15-extract-units}, \texttt{tc15-extract-search-query}, \texttt{tc15-extract-person}, \texttt{tc15-extract-translate}). Date/time parsing is handled by a regex; OpenAI \texttt{tool\_calls} JSON is built by deterministic Python. The proxy server handles multi-turn conversations by tracking which tools have already been called and threading data between steps. The single failed scenario (TC-13, an empty-results retry) was traced to overly aggressive loop-prevention logic in the proxy code, not to a PAW function; we report it as such in the main paper.
+
+\subsection{Word-guessing game (full walkthrough)}
+
+The English specification is:
+\begin{tcolorbox}[colframe=borderblue, colback=bggray]
+\scriptsize
+\begin{verbatim}
+You are playing a word-guessing game. The user describes a common English
+word in their own words without saying the word itself. Your job is to
+guess the word from the description.
+
+Return ONLY the single word being described. Lowercase. No punctuation,
+no explanation, no extra words.
+
+Input: furry animal that meows and purrs
+Output: cat
+
+Input: yellow curved fruit, monkeys like it
+Output: banana
+
+Input: thing you use to unlock a door, metal, small, has teeth
+Output: key
+
+... (12 more)
+\end{verbatim}
+\end{tcolorbox}
+The Chinese version is the same template translated to Mandarin with $\sim$20 hint $\to$ word examples. The hard part of the project, by far, was vetting a 361-word bank: a candidate-generation step that produced $\sim$4000 candidate words from \texttt{gpt-5.4} across 40 themes; a simulated-playthrough step that prompted \texttt{gpt-5.4-mini} to play the role of a human describer and routed those descriptions through the deployed PAW program, keeping words solved within $\le 8$ rounds across $\ge 4$ of 5 random-seed trials; a commonness filter (Zipf $\ge 5.0$ on the \texttt{wordfreq} corpus); and a final manual pass.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.6\linewidth]{figures/alien_taboo_frame.png}
+\caption{\label{fig:alien_taboo}\textbf{The Alien-Taboo case-study UI.} The player describes the secret word (here, ``moon'') in free text without using any of the listed taboo words (\texttt{night}, \texttt{orbit}, \texttt{lunar}, \texttt{full}); the alien ``Zog'' --- a one-PAW-function compiled program --- must guess the word from the description. Each player turn is served by a 0.6B Qwen3 PAW interpreter on a small server, with one PAW program (and per-program LoRA adapter) per language hot-loaded by the same interpreter; the LLM is invoked only at compile time, not at every move.}
+\end{figure}
+
+\section{Limitations}
+\label{appendix:limitations}
+
+\paragraph{Coupled compiler--interpreter pairs.}
+A trained PAW system pairs one specific compiler with one specific interpreter family. Switching the interpreter (e.g., from Qwen3 0.6B to Qwen3.5 0.8B) requires retraining the compiler. This is a property shared with most parameter-generation methods~\citep{charakorn2025texttolora,chen2025generative}; PAW's main generalization axes are cross-task (one trained pair handles unboundedly many fuzzy specifications) and cross-modality (only the compiler is replaced, see \Cref{tab:main_image}).
+
+\paragraph{Interpretability of the compiled program.}
+Once compiled, the only human-inspectable part of a PAW program is the discrete pseudo-program. The continuous PEFT component (LoRA or KV cache) is opaque. We see this as analogous to the inspectability gap between source code and compiled binaries; concrete tools for inspecting and debugging neural binaries are an open direction.
+
+\paragraph{Single-step fuzzy functions.}
+All evaluations in this paper are single-step (one input, one output). Multi-step / long-horizon reasoning is not yet validated; in principle, PAW functions can be composed in user code (as in the case studies of \Cref{sec:case_studies}), but learning a compiler that produces \emph{compositional} programs is left for future work.
+
+\paragraph{Synthetic training data.}
+FuzzyBench is generated by an LLM (\texttt{gpt-5.2}). The compiler we train is Qwen3-4B-Instruct-2507, a different model family, so the data is not aligned with the compiler's own biases; the test specifications are held out and verified by an independent strong model. Nonetheless, broader external validation is in progress; the five case studies in \Cref{sec:case_studies} are an initial step.
+
+\paragraph{Task-dependent best PEFT.}
+We observe in \Cref{sec:arch_prefix,tab:main_image,appendix:image_ablations} that the best PEFT instantiation is task-dependent: LoRA is strongest on text and on diagram-style image classification, while prefix-tuning (KV cache) is stronger on long-form structured image-to-markup generation. We do not yet have a principled rule for predicting which PEFT to deploy for a new task class without empirical comparison.
+
+
+\section{Broader Impacts}
+\label{appendix:broader_impacts}
+
+PAW shifts foundation-model use from per-input cloud invocation to per-function compilation followed by local execution. Positive impacts include reduced API dependency and cost (functions run on a $\sim$500\,MB device-resident interpreter instead of round-tripping to a cloud LLM), reproducibility (a compiled program is a single versioned file), and offline availability (the in-browser path runs with no network). Negative impacts are constrained: the released interpreter is small ($0.6$B parameters) and is fine-tuned per fuzzy function rather than for open-ended generation, so misuse risks comparable to those of general-purpose LLMs (disinformation generation, fraudulent text at scale) are limited; the training data is fully synthetic and contains no scraped or personal content. We see no direct path from this paradigm to a negative application that requires explicit mitigation, and we do not gate the released artifacts.
+
+
