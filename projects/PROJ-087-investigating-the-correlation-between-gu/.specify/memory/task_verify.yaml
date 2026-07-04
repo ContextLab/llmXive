@@ -1,11 +1,24 @@
-T001 Create project structure per implementation plan (`code/`, `data/`, `results/`, `tests/`): 1
-? T002 Initialize Python 3.11 project with `requirements.txt` (pandas, scikit-bio,
-  scipy, seaborn, matplotlib, requests, numpy, pyyaml, pingouin)
+? 'T001 Create project structure per implementation plan: Execute `mkdir -p src data/raw
+  data/processed tests/unit tests/integration docs` and create empty `__init__.py`
+  in `src`, `tests`, `tests/unit`, `tests/integration`.'
 : 1
-T003 [P] Configure linting (ruff) and formatting (black) tools: 1
-? 'T005 [P] Implement ''Variable Existence Check'' in `code/ingestion.py` (Plan Phase
-  0). Verify `sleep_efficiency` OR `sleep_quality` (proxy) and `antibiotic_use_last_3mo`
-  exist in metadata. **HALT** with "Data Unavailable" error if missing. Log "Scope
-  Narrowed: Using Self-Reported Sleep Quality" if only proxy exists. **Dependency**:
-  None.'
+? 'T002 Initialize Python 3.11 project with pinned dependencies: Create `requirements.txt`
+  containing `pandas>=2.0`, `scikit-bio>=0.5.9`, `scipy>=1.10`, `matplotlib>=3.7`,
+  `seaborn>=0.12`, `requests>=2.28`, `pytest>=7.0`, `pydantic>=2.0`, `ruff>=0.1.0`.
+  Run `pip install -r requirements.txt` then `pip freeze > requirements.txt`. <!--
+  FAILED: unspecified -->'
+: 1
+? 'T003 [P] Configure linting (ruff) and formatting (black): Create `pyproject.toml`
+  with `[tool.ruff]` rules set to `["E", "F", "W", "I"]` and `[tool.black]` line-length
+  88.'
+: 1
+? 'T004 [P] Setup data directory structure (`data/raw/`, `data/processed/`, `data/processed/plots/`):
+  Ensure directories exist and contain `.gitkeep` files.'
+: 1
+? 'T005 [P] Create base configuration loader in `src/config.py`: Implement `load_config()`
+  function reading `DATA_URL`, `RANDOM_SEED`, and `LOG_LEVEL` from environment variables
+  with defaults.'
+: 1
+? 'T006 [P] Implement logging infrastructure in `src/logging_config.py`: Configure
+  root logger with format `%(asctime)s - %(levelname)s - %(message)s` and level `INFO`.'
 : 1

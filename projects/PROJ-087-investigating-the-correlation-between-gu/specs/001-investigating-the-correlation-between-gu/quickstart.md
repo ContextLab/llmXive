@@ -2,57 +2,80 @@
 
 ## Prerequisites
 
-- Python 3.11+
-- `pip`
-- Access to the verified dataset URLs (or the official American Gut Project if the verified URLs lack data, though the pipeline will halt if unverified).
+- Python 3.11 or higher
+- pip (Python package installer)
+- Git
 
 ## Installation
 
-1.  Clone the repository and navigate to the project directory.
-2.  Create a virtual environment:
+1.  **Clone the repository**:
+    ```bash
+    git clone https://github.com/your-org/your-repo.git
+    cd your-repo/projects/PROJ-087-investigating-the-correlation-between-gu
+    ```
+
+2.  **Create a virtual environment**:
     ```bash
     python -m venv venv
     source venv/bin/activate  # On Windows: venv\Scripts\activate
     ```
-3.  Install dependencies:
+
+3.  **Install dependencies**:
     ```bash
     pip install -r requirements.txt
     ```
 
-## Data Setup
-
-The pipeline expects raw data in `data/raw/`.
-1.  Download the OTU table and metadata from the verified sources (or the official AGP source if the verified ones are insufficient, though the pipeline will halt if the URL is unverified).
-2.  Place files in `data/raw/`.
-3.  Ensure the filenames match the configuration in `code/config.py` (default: `otu_counts.parquet`, `metadata.csv`).
-
 ## Running the Pipeline
 
-Execute the main analysis script:
-```bash
-python code/main.py
-```
+**IMPORTANT**: This pipeline is currently **BLOCKED** due to missing data sources. It will halt with a clear error message if the required dataset is not found.
 
-This will:
-1.  Download/Load data.
-2.  Filter samples (antibiotic use, missing sleep).
-3.  Calculate alpha-diversity.
-4.  Perform correlations with BH correction.
-5.  Perform confounder adjustment (Permutation-based Partial Correlation).
-6.  Run sensitivity analysis.
-7.  Generate plots in `results/`.
+1.  **Data Feasibility Check**:
+    ```bash
+    python code/src/main.py --step check_data
+    ```
+    *Note: This step verifies if a valid dataset (OTU + Sleep) exists in the verified list. If not, the pipeline halts.*
 
-## Verification
+2.  **Download and preprocess data** (only if check passes):
+    ```bash
+    python code/src/main.py --step ingest
+    ```
+    *Note: This step will attempt to fetch the American Gut Project data. If the dataset is unavailable, it will fail gracefully.*
 
-Check the output:
-- `results/correlation_results.csv`: Contains `r`, `p_value`, `p_adjusted`.
-- `results/adjusted_correlation_results.csv`: Contains confounder-adjusted results.
-- `results/sensitivity_analysis.csv`: Contains sensitivity sweep results.
-- `results/scatter_shannon_sleep.png`: Scatter plot with regression.
-- `results/boxplot_diversity_sleep_quartile.png`: Boxplot of diversity by sleep quartile.
+3.  **Compute diversity and correlations**:
+    ```bash
+    python code/src/main.py --step analyze
+    ```
 
-Run tests:
+4.  **Generate visualizations**:
+    ```bash
+    python code/src/main.py --step viz
+    ```
+
+5.  **Run the full pipeline**:
+    ```bash
+    python code/src/main.py --step all
+    ```
+
+## Output
+
+- **Data**: `data/processed/analysis_ready.csv`
+- **Results**: `data/processed/correlation_results.csv`
+- **Plots**: `data/processed/plots/`
+
+## Troubleshooting
+
+- **Dataset Unavailable**: If the AGP data cannot be downloaded, check the network connection and the status of the AGP repository. **If the dataset is not in the verified list, the pipeline will halt with a clear error message.**
+- **Memory Issues**: If the dataset is too large, the pipeline will attempt to process it in chunks. If it still fails, consider reducing the dataset size or increasing available RAM (though the plan targets the 7 GB limit).
+- **Missing Variables**: If the dataset lacks required variables (e.g., sleep metrics), the pipeline will halt with an error indicating the missing fields.
+- **Sequencing Depth**: If diversity indices are unstable, ensure the rarefaction step is enabled in the `diversity.py` script.
+
+## Testing
+
+Run the test suite to verify the pipeline:
 ```bash
 pytest tests/
 ```
-*Note: `tests/test_ingestion.py` includes a specific test for the proxy variable fallback logic.*
+
+## Reproducibility
+
+To ensure reproducibility, run the pipeline on a clean environment and compare the output file hashes with the expected values stored in `state/projects/PROJ-087-investigating-the-correlation-between-gu.yaml`.

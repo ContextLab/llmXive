@@ -1,7 +1,7 @@
 # Tasks: Investigating the Correlation Between Gut Microbiome Composition and Sleep Quality
 
 **Input**: Design documents from `/specs/001-gene-regulation/`
-**Prerequisites**: plan.md (required), spec.md (required for user stories)
+**Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
 
 **Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
 
@@ -15,7 +15,7 @@
 
 ## Path Conventions
 
-- **Single project**: `code/`, `tests/` at repository root
+- **Single project**: `src/`, `tests/` at repository root
 - **Web app**: `backend/src/`, `frontend/src/`
 - **Mobile**: `api/src/`, `ios/src/` or `android/src/`
 - Paths shown below assume single project - adjust based on plan.md structure
@@ -39,136 +39,120 @@
  ============================================================================
 -->
 
-## Phase 0: Data Ingestion & Feasibility Check (FR-001, FR-009, SC-002)
+## Phase 1: Setup (Shared Infrastructure)
 
-**Purpose**: Validate data availability, define mapping, and download raw data. **CRITICAL**: No processing or diversity calculation can occur until Phase 0 and Phase 0.5 are complete.
+**Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure per implementation plan (`code/`, `data/`, `results/`, `tests/`)
-- [ ] T002 Initialize Python 3.11 project with `requirements.txt` (pandas, scikit-bio, scipy, seaborn, matplotlib, requests, numpy, pyyaml, pingouin)
-- [ ] T003 [P] Configure linting (ruff) and formatting (black) tools
-- [X] T004 Setup `code/config.py` for path configuration, seed management, and constant definitions
-- [ ] T005 [P] Implement 'Variable Existence Check' in `code/ingestion.py` (Plan Phase 0). Verify `sleep_efficiency` OR `sleep_quality` (proxy) and `antibiotic_use_last_3mo` exist in metadata. **HALT** with "Data Unavailable" error if missing. Log "Scope Narrowed: Using Self-Reported Sleep Quality" if only proxy exists. **Dependency**: None.
-- [X] T007a [P] Define schema for `data/data_mapping_table.yaml` in `code/ingestion.py` (Plan Phase 0). **Dependency**: T005.
-- [~] T007b [P] Implement generation logic for `data/data_mapping_table.yaml` in `code/ingestion.py` (Plan Phase 0). Document sample ID alignment. **Dependency**: T007a.
-- [~] T006 [P] Implement data download with retry/backoff logic in `code/ingestion.py` (FR-001). **Source**: American Gut Project (URL from `code/config.py`). **Format**: CSV/TSV. **Output**: `data/raw/otu_counts.csv` and `data/raw/metadata.csv`. **HALT** with error log if dataset unavailable after retries. **Dependency**: T005.
-
-**Checkpoint**: Phase 0 Complete. Data is available, validated, and mapped.
-
----
-
-## Phase 0.5: Power & Sample Size Check (FR-008, SC-004)
-
-**Purpose**: Verify statistical power before proceeding to diversity calculation. **CRITICAL GATE**.
-
-- [~] T018 [P] Implement power analysis and sample size check in `code/ingestion.py` (Plan Phase 0.5). Calculate Minimum Detectable Effect Size (MDES) and verify statistical power ≥0.8 for r=0.3. **Implement explicit HALT logic**: If N < 30 OR MDES > 0.3, stop pipeline execution and log "Insufficient Power" error. **Dependency**: T006 (Download) and T016 (Filter - see Phase 2). **Note**: This task must run after initial filtering but before Diversity Calculation (T019).
-
-**Checkpoint**: Power sufficient. Proceed to Phase 1 (Diversity).
-
----
-
-## Phase 1: Foundational (Shared Infrastructure)
-
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented.
-
-**⚠️ CRITICAL**: No user story work can begin until this phase is complete
-
-- [~] T008 Setup `data/raw/` and `data/processed/` directory structure with checksum validation hooks
-- [~] T009 Setup environment configuration management for CI (GitHub Actions)
-- [~] T010 [P] Implement `code/utils.py` with helper functions for logging, error handling, and retry logic
+- [ ] T001 Create project structure per implementation plan: Execute `mkdir -p src data/raw data/processed tests/unit tests/integration docs` and create empty `__init__.py` in `src`, `tests`, `tests/unit`, `tests/integration`.
+- [ ] T002 Initialize Python 3.11 project with pinned dependencies: Create `requirements.txt` containing `pandas>=2.0`, `scikit-bio>=0.5.9`, `scipy>=1.10`, `matplotlib>=3.7`, `seaborn>=0.12`, `requests>=2.28`, `pytest>=7.0`, `pydantic>=2.0`, `ruff>=0.1.0`. Run `pip install -r requirements.txt` then `pip freeze > requirements.txt`. <!-- FAILED: unspecified -->
+- [ ] T003 [P] Configure linting (ruff) and formatting (black): Create `pyproject.toml` with `[tool.ruff]` rules set to `["E", "F", "W", "I"]` and `[tool.black]` line-length 88.
+- [ ] T004 [P] Setup data directory structure (`data/raw/`, `data/processed/`, `data/processed/plots/`): Ensure directories exist and contain `.gitkeep` files.
+- [ ] T005 [P] Create base configuration loader in `src/config.py`: Implement `load_config()` function reading `DATA_URL`, `RANDOM_SEED`, and `LOG_LEVEL` from environment variables with defaults.
+- [ ] T006 [P] Implement logging infrastructure in `src/logging_config.py`: Configure root logger with format `%(asctime)s - %(levelname)s - %(message)s` and level `INFO`.
+- [~] T009 [P] Setup content hashing utility in `src/utils/hashing.py`: Implement `def compute_sha256(file_path: str) -> str` function.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
 ---
 
-## Phase 2: User Story 1 - Data Ingestion and Pre-processing (Priority: P1) 🎯 MVP
+## Phase 2: Foundational (Blocking Prerequisites)
 
-**Goal**: Download, filter, and merge raw 16S rRNA OTU count tables with sleep metadata, excluding antibiotic users, to produce a clean analysis-ready dataset.
+**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
 
-**Independent Test**: Run `code/ingestion.py` and verify `data/processed/analysis_data.csv` exists, contains ≥30 samples, has no null alpha-diversity/sleep metrics, and zero samples with `antibiotic_use_last_3mo == True`.
+**⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
+**Note**: Specific data models are deferred to Phase 3 until the data schema is verified.
 
-> **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
+- [~] T010 [P] [US1] Unit test for antibiotic exclusion logic in `tests/unit/test_ingestion.py`: Implement `test_antibiotic_exclusion_logic()` verifying samples with `antibiotic_use_last_3m=True` are filtered.
+- [~] T011 [P] [US1] Unit test for sleep data validation in `tests/unit/test_ingestion.py`: Implement `test_sleep_data_validation()` verifying samples with null `sleep_efficiency` or `sleep_duration_hours` are filtered.
 
-- [~] T013 [P] [US1] Unit test for antibiotic filtering logic in `tests/test_ingestion.py`
-- [~] T014 [P] [US1] Unit test for proxy variable fallback logic in `tests/test_ingestion.py`
-- [~] T015 [P] [US1] Integration test for full ingestion pipeline (download → filter → merge) in `tests/test_ingestion.py`
+**Checkpoint**: Tests for US1 ready. Implementation blocked until T012/T012b pass.
+
+---
+
+## Phase 3: User Story 1 - Data Ingestion and Preprocessing Pipeline (Priority: P1) 🎯 MVP
+
+**Goal**: Automatically download, filter, and merge microbiome data with sleep metadata, excluding samples with antibiotic use or missing sleep data.
+
+**Independent Test**: The pipeline can be tested by running the ingestion script and verifying that the output CSV contains only rows where `antibiotic_use_last_3m` is false/null and `sleep_efficiency`/`sleep_duration_hours` are not null.
+
+**⚠️ CRITICAL BLOCKER**: The plan states the project is BLOCKED until a verified dataset is found. **T012a and T012b are the hard gates.** If T012a or T012b fails, T013-T017 and T037-T038 are BLOCKED.
 
 ### Implementation for User Story 1
 
-- [ ] T016 [P] [US1] Implement filtering logic to remove `antibiotic_use_last_3mo == True` and missing sleep data in `code/ingestion.py` (FR-001). **Dependency**: T006 (Download).
-- [ ] T017 [P] [US1] Implement proxy variable fallback (sleep quality score) if `sleep_efficiency` is missing in `code/ingestion.py` (FR-009). **Dependency**: T005 (Variable Check).
-- [ ] T011 [P] [US1] Ingest confounder variables (age, BMI, diet, medication) from metadata in `code/ingestion.py` (FR-008). **Dependency**: T006 (Download).
-- [ ] T012 [P] [US1] Merge confounder variables into the analysis DataFrame in `code/ingestion.py` (FR-008). **Dependency**: T011, T016.
-- [ ] T019 [P] [US1] Compute alpha-diversity indices (Shannon, Simpson) using `scikit-bio` in `code/diversity.py` (FR-002). **Dependency**: T016 (Filter). Exclude samples with zero OTU counts.
-- [ ] T020 [P] [US1] Merge diversity metrics with sleep metrics and confounders into `data/processed/analysis_data.csv` in `code/ingestion.py` (FR-003). **Dependency**: T019, T012.
-- [ ] T021 [P] [US1] Re-run Power Analysis (T018) on final merged dataset to confirm N ≥ 30 before proceeding. **Dependency**: T020. **HALT** if N < 30.
+- [~] T012a [US1] Implement Data Feasibility Check (URL) in `src/ingestion.py`: Verify the existence of the verified data source URL (from plan.md). **If missing, raise FileNotFoundError and exit with code 1.**
+- [~] T012b [US1] [BLOCKED UNTIL T012a PASSES] Implement Schema Verification in `src/ingestion.py`: Fetch a sample/headers of the source. Verify file format (BIOM/CSV) and presence of required columns (`antibiotic_use_last_3m`, `sleep_efficiency`, `sleep_duration_hours`). **If missing, raise FileNotFoundError and exit with code 1.**
+- [~] T013 [US1] [BLOCKED UNTIL T012b PASSES] Implement download logic with exponential backoff in `src/ingestion.py`. **Must use the verified URL from the plan's '# Verified datasets' block.**
+- [~] T014 [US1] [BLOCKED UNTIL T012b PASSES] Implement filtering logic in `src/ingestion.py` to exclude antibiotic users and missing sleep data. **This task generates the exclusion counts.**
+- [~] T015 [US1] [BLOCKED UNTIL T012b PASSES] Implement merging of OTU tables and metadata in `src/ingestion.py`.
+- [~] T016 [US1] [BLOCKED UNTIL T012b PASSES] Save cleaned dataset to `data/processed/cleaned_microbiome_sleep.csv`.
+- [~] T017 [US1] [BLOCKED UNTIL T012b PASSES] Log exclusion rates to satisfy SC-001: Capture `total_initial_sample_count`, `excluded_count`, and calculate/store `exclusion_proportion` in `data/processed/ingestion_report.json`.
 
-**Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
+### Model Definition (Deferred until Schema Verified)
+
+- [~] T037 [US1] [BLOCKED UNTIL T012b PASSES] Define Pydantic models (`MicrobiomeSample`, `SleepMetric`, `CorrelationResult`) in `src/models/schemas.py` based on the verified schema from T012b.
+- [~] T038 [US1] [BLOCKED UNTIL T012b PASSES] Write unit tests for models in `tests/unit/test_models.py`: Implement `test_microbiome_sample_instantiation()` and `test_sleep_metric_instantiation()`.
+
+**Checkpoint**: At this point, User Story 1 should be fully functional and testable independently (if T012b passed).
 
 ---
 
-## Phase 3: User Story 2 - Statistical Correlation Analysis (Priority: P2)
+## Phase 4: User Story 2 - Statistical Correlation Analysis (Priority: P2)
 
-**Goal**: Compute Spearman correlations (diversity vs. sleep, taxon vs. sleep), apply Benjamini-Hochberg correction, and adjust for confounders.
+**Goal**: Compute Spearman rank correlations between alpha-diversity indices and sleep metrics with Benjamini-Hochberg correction.
 
-**Independent Test**: Run `code/correlation.py` and `code/confounder_adjustment.py` on `analysis_data.csv` and verify `results/correlation_results.csv` and `results/adjusted_correlation_results.csv` contain correct `r`, `p`, and `p_adjusted` values.
+**Independent Test**: The analysis script can be tested on a small, synthetic dataset with known correlation coefficients to verify that the calculated Spearman r-values and adjusted p-values match expected mathematical results.
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T022 [P] [US2] Unit test for Benjamini-Hochberg correction logic in `tests/test_correlation.py`
-- [ ] T023 [P] [US2] Unit test for CLR transformation in `tests/test_correlation.py`
-- [ ] T024 [P] [US2] Integration test for partial correlation with `pingouin` in `tests/test_confounder_adjustment.py`
+- [ ] T018 [P] [US2] Unit test for Spearman correlation calculation in `tests/unit/test_correlation.py`: Implement `test_spearman_correlation_calculation()`.
+- [ ] T019 [P] [US2] Unit test for Benjamini-Hochberg correction in `tests/unit/test_correlation.py`: Implement `test_benjamini_hochberg_correction()`.
 
 ### Implementation for User Story 2
 
-- [ ] T025 [P] [US2] Implement Spearman correlation between diversity indices and sleep metrics in `code/correlation.py` (FR-004). **Dependency**: T020 (Analysis Data).
-- [ ] T026 [P] [US2] Implement Benjamini-Hochberg correction for alpha-diversity p-values in `code/correlation.py` (FR-004). **Dependency**: T025.
-- [ ] T027 [P] [US2] Implement CLR transformation for OTU count tables in `code/correlation.py` (FR-007). **Dependency**: T020.
-- [ ] T025_new [P] [US2] Validate CLR transformation (check for NaN/Inf) in `code/correlation.py`. **HALT** if invalid values found. **Dependency**: T027.
-- [ ] T028 [P] [US2] Implement taxon-level Spearman correlations (OTU vs. sleep) in `code/correlation.py` (FR-007). **Dependency**: T025_new.
-- [ ] T029 [P] [US2] Implement Benjamini-Hochberg correction for taxon-level p-values in `code/correlation.py` (FR-007). **Dependency**: T028.
-- [ ] T030 [P] [US2] Implement permutation-based partial correlation (adjusting for age, BMI, diet, medication) using `pingouin` in `code/confounder_adjustment.py` (FR-008). **Dependency**: T020 (Analysis Data with confounders).
-- [ ] T031 [P] [US2] Implement 'FAIL-STOP' logic for confounder adjustment in `code/confounder_adjustment.py` (Plan Phase 4). **HALT** with "Confounder Adjustment Failed" error if `pingouin` is unavailable, permutation test fails, or N < 20 for stratification. **No custom fallback allowed**. **Dependency**: T030.
-- [ ] T032 [P] [US2] Save `results/correlation_results.csv` and `results/adjusted_correlation_results.csv` in `code/correlation.py` and `code/confounder_adjustment.py`. **Dependency**: T026, T029, T031.
-- [ ] T033 [P] [US2] Implement sensitivity analysis script in `code/sensitivity.py` (SC-004). Sweep p-value cutoffs across standard significance thresholds on correlation results. Save `results/sensitivity_analysis.csv`. **Dependency**: T032.
-- [ ] T034 [P] [US2] Implement variance detection and 'Inconclusive' flagging logic in `code/sensitivity.py` (Plan Phase 5). Flag study as "Inconclusive" if results show high variance (e.g., sign flips across cutoffs). **Dependency**: T033.
+- [ ] T020a [US2] Implement rarefaction logic in `src/diversity.py`: Create function `rarefy_table(counts, depth)` to subsample OTU tables to a fixed sequencing depth.
+- [ ] T020b [US2] [BLOCKED UNTIL T020a PASSES] Implement alpha-diversity computation (Shannon, Simpson, Observed OTUs) **using the rarefied table** in `src/diversity.py`. **Requires: data/processed/cleaned_microbiome_sleep.csv (from T016).**
+- [ ] T021 [US2] Implement Spearman rank correlation test between diversity indices and sleep variables in `src/correlation.py`.
+- [ ] T022 [US2] Implement Benjamini-Hochberg FDR correction on p-values in `src/correlation.py`.
+- [ ] T023 [US2] Flag correlations: Add column `is_moderate` (|r| > 0.3) and column `is_meaningful` (q-value < 0.05 AND |r| > 0.3) to the results DataFrame in `src/correlation.py` to satisfy SC-002 machine-verifiability.
+- [ ] T024 [US2] Save correlation results (r, p, q, significance, is_moderate, is_meaningful) to `data/processed/correlation_results.csv`.
+- [ ] T025 [US2] Implement logic to handle "No significant associations" case gracefully in `src/correlation.py`.
 
-**Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
+**Checkpoint**: At this point, User Stories 1 AND 2 should both work independently.
 
 ---
 
-## Phase 4: User Story 3 - Visualization and Reporting (Priority: P3)
+## Phase 5: User Story 3 - Visualization and Reporting (Priority: P3)
 
-**Goal**: Generate scatter plots with regression lines and boxplots comparing diversity across sleep quartiles.
+**Goal**: Generate scatterplots with regression lines and boxplots by sleep quartiles for significant correlations.
 
-**Independent Test**: Run `code/visualization.py` and verify `results/scatter_shannon_sleep.png` and `results/boxplot_diversity_sleep_quartile.png` exist, are >0 bytes, and have valid PNG headers.
+**Independent Test**: The visualization module can be tested by generating a plot file and verifying that the output image file exists, contains the correct axis labels, and displays the regression line.
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T035 [P] [US3] Unit test for plot generation logic in `tests/test_visualization.py`
-- [ ] T036 [P] [US3] Integration test for file existence and header validation in `tests/test_visualization.py`
+- [ ] T026 [P] [US3] Unit test for plot generation in `tests/unit/test_viz.py`: Implement `test_scatterplot_generation()`.
 
 ### Implementation for User Story 3
 
-- [ ] T037 [P] [US3] Implement scatter plot generation (diversity vs. sleep) with regression lines in `code/visualization.py` (FR-005). **Dependency**: T032 (Correlation Results).
-- [ ] T038 [P] [US3] Implement sleep quartile binning logic in `code/visualization.py`. **Dependency**: T020 (Analysis Data).
-- [ ] T039 [P] [US3] Implement boxplot generation (diversity by sleep quartile) in `code/visualization.py` (FR-005). **Dependency**: T038, T020.
-- [ ] T040 [P] [US3] Save all generated plots to `results/` directory with metric-based filenames in `code/visualization.py`. **Dependency**: T037, T039.
+- [ ] T027 [US3] Implement scatterplot generation with regression lines for significant correlations in `src/viz.py`.
+- [ ] T028 [US3] Implement boxplot generation by sleep quartile in `src/viz.py`.
+- [ ] T029 [US3] Compile final report including summary table of correlations in `src/report.py`.
+- [ ] T030 [US3] Save all plot artifacts to `data/processed/plots/`.
+- [ ] T031 [US3] Generate final HTML/PDF report with all findings and "No significant associations" handling.
 
-**Checkpoint**: All user stories should now be independently functional
+**Checkpoint**: All user stories should now be independently functional.
 
 ---
 
-## Phase 5: Polish & Cross-Cutting Concerns
+## Phase N: Polish & Cross-Cutting Concerns
 
-**Purpose**: Improvements that affect multiple user stories and final validation
+**Purpose**: Improvements that affect multiple user stories
 
-- [ ] T041 [P] Generate final summary report including power analysis, sensitivity results, and adjusted findings
-- [ ] T042 [P] Code cleanup and refactoring across `code/`
-- [ ] T043 [P] Documentation updates in `docs/` and `quickstart.md`
-- [ ] T044 [P] Run full pipeline end-to-end on CI to verify < 6h runtime and < 7GB RAM usage
-- [ ] T045 [P] Verify all requirements (FR-001 to FR-009) are met by generated artifacts
+- [ ] T032 [P] Documentation updates: Add 'Usage Examples' and 'Data Source' sections to `README.md` and update `docs/` with pipeline flow.
+- [ ] T033 Code cleanup and refactoring: Remove unused imports and refactor T014 to use generator expressions for memory efficiency.
+- [ ] T034 Performance optimization: Optimize T015 (merge) to reduce RAM usage by [deferred] using chunked processing.
+- [ ] T035 [P] Implement `tests/integration/test_reproducibility.py`: Run the full pipeline twice, compute **SHA-256 hashes** of `data/processed/cleaned_microbiome_sleep.csv` and all files in `data/processed/plots/`, and assert the hashes match between runs to verify reproducibility (SC-005).
+- [ ] T036 Run quickstart.md validation
 
 ---
 
@@ -176,33 +160,34 @@
 
 ### Phase Dependencies
 
-- **Phase 0 (Data Ingestion & Feasibility)**: No dependencies - can start immediately
-- **Phase 0.5 (Power Check)**: Depends on Phase 0 (Download/Filter) - **GATE** for Phase 1
-- **Phase 1 (Foundational)**: Depends on Phase 0 - BLOCKS user story implementation
-- **User Stories (Phase 2+)**: All depend on Phase 0.5 and Phase 1 completion
+- **Setup (Phase 1)**: No dependencies - can start immediately
+- **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
+- **User Stories (Phase 3+)**: All depend on Foundational phase completion
  - User stories can then proceed in parallel (if staffed)
  - Or sequentially in priority order (P1 → P2 → P3)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
 
-- **User Story 1 (P1)**: Can start after Phase 0.5 and Phase 1 - No dependencies on other stories
-- **User Story 2 (P2)**: Depends on User Story 1 (needs `analysis_data.csv`)
-- **User Story 3 (P3)**: Depends on User Story 2 (needs `correlation_results.csv`)
+- **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
+ - **T012a/T012b** must pass before T013-T017 and T037-T038 execute.
+- **User Story 2 (P2)**: Depends on User Story 1 (needs cleaned data from T016)
+ - **T020a** (Rarefaction) must pass before **T020b** (Diversity) executes.
+- **User Story 3 (P3)**: Depends on User Story 2 (needs correlation results from T024)
 
 ### Within Each User Story
 
 - Tests (if included) MUST be written and FAIL before implementation
-- Models/Helpers before services
+- Models before services
 - Services before endpoints
 - Core implementation before integration
 - Story complete before moving to next priority
 
 ### Parallel Opportunities
 
-- All Phase 0 tasks marked [P] can run in parallel
-- All Phase 1 tasks marked [P] can run in parallel
-- Once Phase 0.5 and Phase 1 complete, all user stories can start in parallel (if team capacity allows)
+- All Setup tasks marked [P] can run in parallel
+- All Foundational tasks marked [P] can run in parallel (within Phase 2)
+- Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
 - All tests for a user story marked [P] can run in parallel
 - Models within a story marked [P] can run in parallel
 - Different user stories can be worked on in parallel by different team members
@@ -213,14 +198,12 @@
 
 ```bash
 # Launch all tests for User Story 1 together (if tests requested):
-Task: "Unit test for antibiotic filtering logic in tests/test_ingestion.py"
-Task: "Unit test for proxy variable fallback logic in tests/test_ingestion.py"
+Task: "Unit test for antibiotic exclusion logic in tests/unit/test_ingestion.py"
+Task: "Unit test for sleep data validation in tests/unit/test_ingestion.py"
 
-# Launch all models for User Story 1 together:
-Task: "Implement filtering logic to remove antibiotic users in code/ingestion.py"
-Task: "Implement proxy variable fallback in code/ingestion.py"
-Task: "Ingest confounder variables in code/ingestion.py"
-Task: "Merge confounder variables in code/ingestion.py"
+# Launch all models for User Story 1 together (after T012b passes):
+Task: "Define Pydantic models in src/models/schemas.py"
+Task: "Write unit tests for models in tests/unit/test_models.py"
 ```
 
 ---
@@ -229,16 +212,15 @@ Task: "Merge confounder variables in code/ingestion.py"
 
 ### MVP First (User Story 1 Only)
 
-1. Complete Phase 0: Data Ingestion & Feasibility
-2. Complete Phase 0.5: Power Check (GATE)
-3. Complete Phase 1: Foundational
-4. Complete Phase 2: User Story 1
-5. **STOP and VALIDATE**: Test User Story 1 independently
-6. Deploy/demo if ready
+1. Complete Phase 1: Setup
+2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
+3. Complete Phase 3: User Story 1 (T012a/T012b must pass first)
+4. **STOP and VALIDATE**: Test User Story 1 independently
+5. Deploy/demo if ready
 
 ### Incremental Delivery
 
-1. Complete Phase 0 + 0.5 + 1 → Foundation ready
+1. Complete Setup + Foundational → Foundation ready
 2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
 3. Add User Story 2 → Test independently → Deploy/Demo
 4. Add User Story 3 → Test independently → Deploy/Demo
@@ -248,11 +230,11 @@ Task: "Merge confounder variables in code/ingestion.py"
 
 With multiple developers:
 
-1. Team completes Phase 0 + 0.5 + 1 together
-2. Once Phase 0.5 and 1 are done:
- - Developer A: User Story 1
- - Developer B: User Story 2 (after US1 data is ready)
- - Developer C: User Story 3 (after US2 results are ready)
+1. Team completes Setup + Foundational together
+2. Once Foundational is done:
+ - Developer A: User Story 1 (Ingestion) - **Must pass T012a/T012b first**
+ - Developer B: User Story 2 (Analysis - can start once T016 is done)
+ - Developer C: User Story 3 (Viz - can start once T024 is done)
 3. Stories complete and integrate independently
 
 ---
@@ -266,3 +248,8 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
+- **CRITICAL**: All data processing must run within 7GB RAM and 6 hours on CPU-only runner. Use chunked processing if needed.
+- **CRITICAL**: Do not fabricate data. If the verified dataset is missing, T012a/T012b must halt the pipeline with a clear error.
+- **CRITICAL**: T013-T017 and T037-T038 are BLOCKED until T012b succeeds. If T012b fails, the project remains BLOCKED as per plan.md.
+- **CRITICAL**: T020b depends on T016 output.
+- **CRITICAL**: T020b depends on T020a output.

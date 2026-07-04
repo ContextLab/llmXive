@@ -1,4 +1,4 @@
-resolved_at: '2026-07-04T21:10:52.965887+00:00'
+resolved_at: '2026-07-04T22:07:08.512260+00:00'
 datasets:
 - intent: OTU
   status: verified
@@ -30,23 +30,23 @@ datasets:
     source: huggingface
     status: verified
     format: json
-  - url: https://figshare.com/articles/software/RF_Scars_Statistical_Analyses/32329038
+  - url: https://figshare.com/articles/dataset/2026_2027_DIRECT_ENTRY_FORM_Redeemer_s_University_Ede_Admission_is_out_officially_Call_ON_07036366909_DR_MRS_GRACE_to_apply/32900756
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/presentation/AI_Delicts_and_the_Split_Between_Action_and_Responsibility/32900654
+  - url: https://tandf.figshare.com/articles/journal_contribution/Families_perspectives_and_experiences_in_using_the_F-words_for_Child_Development_in_daily_life_and_services/32900753
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/figure/Microstructure_and_wear_behavior_of_a_porous_nanocrystalline_nickel-free_austenitic_stainless_steel_developed_by_powder_metallurgy_http_dx_doi_org_10_1016_j_matdes_2009_10_008_/32900681
+  - url: https://figshare.com/articles/dataset/2026_2027_DIRECT_ENTRY_FORM_Novena_University_Ogume_Admission_is_out_officially_Call_ON_07036366909_DR_MRS_GRACE_to_apply/32900750
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/figure/Microstructural_phase_evaluation_of_high-nitrogen_Fe_Cr_Mn_alloy_powders_synthesized_by_the_mechanical_alloying_process_https_doi_org_10_1007_s10853-008-3117-9_/32900678
+  - url: https://figshare.com/articles/figure/2026_2027_DIRECT_ENTRY_FORM_Lead_City_University_Ibadan_Admission_is_out_officially_Call_ON_07036366909_DR_MRS_GRACE_to_apply/32900747
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Dataset_supporting_the_study_Knowledge_attitudes_practices_and_perceptions_related_to_dental_caries_among_Peruvian_first-division_soccer_players_a_cross-sectional_study_/32900639
+  - url: https://figshare.com/articles/media/2026_2027_DIRECT_ENTRY_FORM_Bingham_University_New_Karu_Admission_is_out_officially_Call_ON_07036366909_DR_MRS_GRACE_to_apply/32900744
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -87,6 +87,262 @@ datasets:
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://osf.io/bskxc/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: OTUs
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/kali-ai/otus/resolve/main/otus.json
+    source: huggingface
+    format: json
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 197
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/api/resolve-cache/datasets/Dezzpil/otus-fw/f184d53c26b94c3c654ab5cbac112e005b18172b/test.csv?%2Fdatasets%2FDezzpil%2Fotus-fw%2Fresolve%2Fmain%2Ftest.csv=&etag=%22493cc70293da1aa31c5e74870cf12c4060f50ac6%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/kali-ai/otus/resolve/main/otus.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://figshare.com/articles/dataset/2026_2027_DIRECT_ENTRY_FORM_Redeemer_s_University_Ede_Admission_is_out_officially_Call_ON_07036366909_DR_MRS_GRACE_to_apply/32900756
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Families_perspectives_and_experiences_in_using_the_F-words_for_Child_Development_in_daily_life_and_services/32900753
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/2026_2027_DIRECT_ENTRY_FORM_Novena_University_Ogume_Admission_is_out_officially_Call_ON_07036366909_DR_MRS_GRACE_to_apply/32900750
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/2026_2027_DIRECT_ENTRY_FORM_Lead_City_University_Ibadan_Admission_is_out_officially_Call_ON_07036366909_DR_MRS_GRACE_to_apply/32900747
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/2026_2027_DIRECT_ENTRY_FORM_Bingham_University_New_Karu_Admission_is_out_officially_Call_ON_07036366909_DR_MRS_GRACE_to_apply/32900744
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://bdj.pensoft.net/article/12731/element/2/3581045/
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://mbmg.pensoft.net/article/108649/
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3971272
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5631916
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5622173
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://air.unimi.it/handle/2434/168877
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21184185
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21184185
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.gbif.org/occurrence/download/0015953-260623161305970
+    source: datacite
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://doi.org/10.17600/18000684
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: ConnectTimeout: HTTPSConnectionPool(host=''campagnes.flotteoceanographique.fr'',
+      port=443): Max retries exceeded with url: /campagnes/18000684/ (Caused by ConnectTimeoutError(<HTTPSConnection(host=''campagnes.flotteoceanographique.fr'',
+      port=443) at 0x7fe80d76cc50>, ''Connection to campagnes.flotteoceanographique.fr
+      timed out. (connect timeout=20.0)''))'
+- intent: BMI
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/karan451/BMI-labeled-faced/resolve/main/archive/Final_Dataset.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/NurlanAliyevofficial/Brain-tumor-effect-of-bloodpressure-sugarlevel-and-BMI-ON-ITS-PRESSENCE/resolve/main/Health_Dataset_Brain
+      _Tumor.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 1459
+      parsed: true
+  - url: https://huggingface.co/datasets/minhthong/flashdeal_data_BMI_historical_signal/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 12335
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/karan451/BMI-labeled-faced/resolve/main/archive/Final_Dataset.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/NurlanAliyevofficial/Brain-tumor-effect-of-bloodpressure-sugarlevel-and-BMI-ON-ITS-PRESSENCE/resolve/main/Health_Dataset_Brain
+      _Tumor.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/minhthong/flashdeal_data_BMI_historical_signal/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/dataset/2026_2027_DIRECT_ENTRY_FORM_Redeemer_s_University_Ede_Admission_is_out_officially_Call_ON_07036366909_DR_MRS_GRACE_to_apply/32900756
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Families_perspectives_and_experiences_in_using_the_F-words_for_Child_Development_in_daily_life_and_services/32900753
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/2026_2027_DIRECT_ENTRY_FORM_Novena_University_Ogume_Admission_is_out_officially_Call_ON_07036366909_DR_MRS_GRACE_to_apply/32900750
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/2026_2027_DIRECT_ENTRY_FORM_Lead_City_University_Ibadan_Admission_is_out_officially_Call_ON_07036366909_DR_MRS_GRACE_to_apply/32900747
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/2026_2027_DIRECT_ENTRY_FORM_Bingham_University_New_Karu_Admission_is_out_officially_Call_ON_07036366909_DR_MRS_GRACE_to_apply/32900744
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.11591/eei.v11i3.3779
+    source: zenodo
+    status: unreachable
+    reason: 'reachability failed: HTTP 415'
+  - url: https://doi.org/10.11591/eei.v9i6.2319
+    source: zenodo
+    status: unreachable
+    reason: 'reachability failed: HTTP 415'
+  - url: https://doi.org/10.11591/ijpeds.v10.i1.pp406-413
+    source: zenodo
+    status: unreachable
+    reason: 'reachability failed: HTTP 415'
+  - url: https://zenodo.org/records/8074384
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6646128
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/8ak63/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21195755
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21195755
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/g2sd5/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21196035
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: CPU-only
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/AdityaMayukhSom/MixSub-LLaMA-3.2-Text-Only-Overlap-CPU-Score/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/AdityaMayukhSom/MixSub-LLaMA-3.2-Text-Only-Overlap-CPU-Score/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/dataset/2026_2027_DIRECT_ENTRY_FORM_Redeemer_s_University_Ede_Admission_is_out_officially_Call_ON_07036366909_DR_MRS_GRACE_to_apply/32900756
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Families_perspectives_and_experiences_in_using_the_F-words_for_Child_Development_in_daily_life_and_services/32900753
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/2026_2027_DIRECT_ENTRY_FORM_Novena_University_Ogume_Admission_is_out_officially_Call_ON_07036366909_DR_MRS_GRACE_to_apply/32900750
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/2026_2027_DIRECT_ENTRY_FORM_Lead_City_University_Ibadan_Admission_is_out_officially_Call_ON_07036366909_DR_MRS_GRACE_to_apply/32900747
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/2026_2027_DIRECT_ENTRY_FORM_Bingham_University_New_Karu_Admission_is_out_officially_Call_ON_07036366909_DR_MRS_GRACE_to_apply/32900744
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3810211
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14352943
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.11591/eei.v9i2.1972
+    source: zenodo
+    status: unreachable
+    reason: 'reachability failed: HTTP 415'
+  - url: https://zenodo.org/records/6127654
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17854610
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21198051
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21198051
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21049177
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21049177
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20172622
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content

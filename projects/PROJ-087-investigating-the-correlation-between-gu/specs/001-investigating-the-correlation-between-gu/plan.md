@@ -1,39 +1,40 @@
 # Implementation Plan: Investigating the Correlation Between Gut Microbiome Composition and Sleep Quality
 
-**Branch**: `001-gene-regulation` | **Date**: 2023-10-27 | **Spec**: `specs/001-gene-regulation/spec.md`
-**Input**: Feature specification from `/specs/001-gene-regulation/spec.md`
+**Branch**: `001-gene-regulation` | **Date**: 2026-06-26 | **Spec**: `specs/001-gene-regulation/spec.md`
+**Input**: Feature specification from `specs/001-gene-regulation/spec.md`
+**Status**: **BLOCKED** (Data Availability Gap)
 
 ## Summary
 
-This project implements a reproducible, CPU-tractable statistical pipeline to investigate the correlational relationship between gut microbiome composition (alpha-diversity and taxon-level abundance) and sleep quality metrics. The pipeline ingests 16S rRNA OTU count tables and metadata, filters for antibiotic use and missing data, computes diversity indices, performs Spearman rank correlations with Benjamini-Hochberg correction, adjusts for confounders using permutation-based partial correlation, and generates visualizations. The implementation strictly adheres to the project constitution regarding reproducibility, data hygiene, and statistical rigor, ensuring all steps run within the constraints of a free-tier GitHub Actions runner.
+This plan implements a statistical pipeline to investigate the correlation between gut microbiome alpha-diversity indices and sleep quality metrics. **CRITICAL STATUS**: The project is currently **BLOCKED** because the provided "# Verified datasets" block contains NO dataset that includes both 16S rRNA OTU data AND sleep quality metrics (efficiency, duration). The American Gut Project (AGP) is assumed in the spec, but no verified URL for AGP with sleep metadata exists in the provided list.
+
+The pipeline is designed to **fail fast** if a valid source is not found, preventing any attempt to run on mismatched or missing data. The implementation includes a mandatory "Data Feasibility Check" that must pass before any analysis code is executed.
 
 ## Technical Context
 
 **Language/Version**: Python 3.11  
-**Primary Dependencies**: `pandas`, `scikit-bio`, `scipy`, `seaborn`, `matplotlib`, `requests`, `numpy`, `pyyaml`, `pingouin`  
-**Storage**: Local CSV/Parquet files (no external database); data stored in `data/` and processed in memory with chunking where necessary.  
-**Testing**: `pytest` (unit tests for data filtering, correlation logic, proxy fallback, and file generation).  
-**Target Platform**: Linux (GitHub Actions Runner).  
-**Project Type**: Data analysis pipeline / CLI.  
-**Performance Goals**: Complete end-to-end analysis in < 6 hours; memory usage < 7 GB.  
-**Constraints**: No GPU; no heavy model training; strict adherence to `scikit-bio` for diversity; Benjamini-Hochberg for FDR control; `pingouin` for partial correlation.  
-**Scale/Scope**: Processing of public microbiome datasets (American Gut Project style); expected sample size > 30 after filtering.
+**Primary Dependencies**: `pandas`, `scikit-bio`, `scipy`, `matplotlib`, `seaborn`, `requests`  
+**Storage**: Local CSV/Parquet files (no external DB)  
+**Testing**: `pytest`  
+**Target Platform**: Linux (GitHub Actions `ubuntu-latest`)  
+**Project Type**: Data analysis pipeline  
+**Performance Goals**: Complete analysis within 6 hours, memory usage < 7 GB (if data were available)  
+**Constraints**: No GPU, no heavy LLM inference, **must halt if data source is missing**  
+**Scale/Scope**: Public dataset processing (currently unfeasible due to missing data)
 
-> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase.
+> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
 
 ## Constitution Check
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-| Principle | Status | Verification Strategy |
-| :--- | :--- | :--- |
-| **I. Reproducibility** | **PASS** | Random seeds pinned in `code/`. `requirements.txt` pins all versions. Data fetched from canonical sources only. |
-| **II. Verified Accuracy** | **PENDING DATA (HALT IF UNVERIFIED)** | All dataset URLs in `research.md` will be validated against the "Verified datasets" block. If the required variables (sleep, antibiotic) are missing from the verified block, the pipeline halts. No simulation of data. |
-| **III. Data Hygiene** | **PASS** | Raw data preserved; derivations written to new files. Checksums recorded in state. No PII committed. |
-| **IV. Single Source of Truth** | **PASS** | All statistics in `paper/` will trace to exactly one row in `data/` and one block in `code/`. |
-| **V. Versioning Discipline** | **PASS** | Artifacts carry content hashes. `updated_at` timestamps managed by the system. |
-| **VI. Statistical Rigor** | **PASS** | Benjamini-Hochberg correction mandatory for all multiple tests. Non-parametric (Spearman) tests used by default. **Mandatory**: `pingouin` for Permutation-based Partial Correlation (no custom fallback). |
-| **VII. Cross-Source Harmonization** | **PASS** | `data/data_mapping_table.yaml` generated in Phase 0. Samples lacking compatible sleep metadata excluded (not imputed). |
+- **I. Reproducibility**: The plan mandates pinned dependencies (`requirements.txt`), random seed setting, and fetching from canonical sources (if available).
+- **II. Verified Accuracy**: **FAILED**. The required dataset (AGP with sleep metadata) is NOT in the "# Verified datasets" block. The plan explicitly halts due to this failure.
+- **III. Data Hygiene**: The plan includes checksumming of downloaded files and strict separation of raw vs. derived data.
+- **IV. Single Source of Truth**: All statistics in the final report will be generated programmatically from the `data/` artifacts, ensuring traceability.
+- **V. Versioning Discipline**: The plan includes content hashing for output artifacts to detect staleness.
+- **VI. Statistical Rigor**: The plan explicitly includes Benjamini-Hochberg correction for multiple comparisons and uses non-parametric Spearman correlation as required.
+- **VII. Cross-Source Metadata Harmonization**: The plan defines a strict exclusion rule for samples lacking compatible sleep metadata, avoiding imputation.
 
 ## Project Structure
 
@@ -46,110 +47,87 @@ specs/001-gene-regulation/
 ├── data-model.md        # Phase 1 output
 ├── quickstart.md        # Phase 1 output
 ├── contracts/           # Phase 1 output
-└── tasks.md             # Phase 2 output (generated later)
+└── tasks.md             # Phase 2 output
 ```
 
 ### Source Code (repository root)
 
 ```text
-code/
-├── __init__.py
-├── config.py            # Path config, seed management
-├── ingestion.py         # FR-001, FR-009: Download, filter, merge, proxy logic
-├── diversity.py         # FR-002, FR-003: Alpha-diversity calc
-├── correlation.py       # FR-004, FR-007: Spearman, FDR
-├── confounder_adjustment.py # FR-008: Permutation-based partial correlation (pingouin)
-├── visualization.py     # FR-005: Plots
-├── sensitivity.py       # SC-004: Sensitivity analysis
-├── main.py              # Orchestration script
-└── utils.py             # Helpers
-
-data/
-├── raw/                 # Downloaded raw files (checksummed)
-├── processed/           # Filtered/merged CSVs
-├── data_mapping_table.yaml # Generated mapping table (Principle VII)
-└── checksums.json       # Artifact hashes
-
-results/
-├── correlation_results.csv
-├── adjusted_correlation_results.csv
-├── sensitivity_analysis.csv
-├── scatter_shannon_sleep.png
-└── boxplot_diversity_sleep_quartile.png
-
-tests/
-├── test_ingestion.py        # Includes test for proxy fallback (FR-009)
-├── test_correlation.py
-├── test_confounder_adjustment.py
-└── test_visualization.py
-
-requirements.txt
+projects/PROJ-087-investigating-the-correlation-between-gu/code/
+├── data/
+│   ├── raw/             # Downloaded raw files
+│   └── processed/       # Cleaned analysis-ready files
+├── src/
+│   ├── ingestion.py     # Data download and filtering (with feasibility check)
+│   ├── diversity.py     # Alpha-diversity computation (with rarefaction)
+│   ├── correlation.py   # Statistical tests
+│   ├── viz.py           # Plot generation
+│   └── main.py          # Pipeline orchestrator
+├── tests/
+│   ├── test_ingestion.py
+│   ├── test_correlation.py
+│   └── test_viz.py
+├── requirements.txt
+└── README.md
 ```
 
-**Structure Decision**: Single-project structure selected to minimize overhead for a data analysis pipeline. All scripts reside in `code/` with clear separation of concerns (ingestion, analysis, viz). This aligns with the requirement for a single-source-of-truth pipeline and simplifies the reproducibility test on GitHub Actions.
+**Structure Decision**: Selected a modular single-project structure (`src/`, `data/`, `tests/`) suitable for a data analysis pipeline. This keeps the codebase simple and focused on the specific statistical workflow without unnecessary abstraction layers.
 
 ## Complexity Tracking
 
+> **Fill ONLY if Constitution Check has violations that must be justified**
+
 | Violation | Why Needed | Simpler Alternative Rejected Because |
 |-----------|------------|-------------------------------------|
-| N/A | N/A | N/A |
+| Data Availability Block | The required dataset (OTU + Sleep) is not in the verified list. | No alternative dataset in the verified list contains both modalities. |
+| Spec Assumption Gap | The spec assumes AGP has sleep metrics, but this is unverified. | The plan cannot proceed without a verified source. |
 
-*No complexity violations detected. The design is minimal and directly maps to the spec requirements.*
+## Phase Execution Order
 
-## Implementation Phases
+1. **Phase 0: Research & Data Strategy** (`research.md`)
+   - Identify and verify data sources (American Gut Project).
+   - **CRITICAL**: Confirm variable availability (sleep metrics, OTU counts) in verified sources.
+   - **BLOCKING CHECK**: If no verified source contains both OTU and sleep data, the pipeline halts.
 
-### Phase 0: Data Ingestion & Feasibility Check (FR-001, FR-009, SC-002)
-1.  **Load & Validate**: Load raw data from verified sources.
-    *   **Check**: Verify `sleep_efficiency` OR `sleep_quality` (proxy) and `antibiotic_use_last_3mo` exist.
-    *   **Action**: If neither exists, **HALT** with "Data Unavailable" error. If only proxy exists, log "Scope Narrowed: Using Self-Reported Sleep Quality".
-2.  **Filter**: Remove samples with `antibiotic_use_last_3mo == True` or missing sleep data.
-3.  **Mapping**: Generate `data/data_mapping_table.yaml` documenting sample ID alignment.
-4.  **Test**: Run `tests/test_ingestion.py` including a specific test case for the proxy fallback logic (mocking missing primary variables).
-5.  **Output**: `data/processed/analysis_data.csv`.
+2. **Phase 1: Data Model & Contracts** (`data-model.md`, `quickstart.md`, `contracts/`)
+   - Define input/output schemas.
+   - Set up project structure and dependencies.
+   - Create validation contracts.
 
-### Phase 0.5: Power & Sample Size Check (FR-008, SC-004)
-1. **Calculate**: Compute effective N and Minimum Detectable Effect Size (MDES) for r=0.3 at [deferred] power.
-2.  **Decision**: If N < 30 OR MDES > 0.3, **HALT** with "Insufficient Power" warning.
-3.  **Output**: Log of power analysis.
+3. **Phase 2: Implementation** (Code generation by Implementer)
+   - **Step 0: Data Feasibility Check**: Verify source existence and column presence.
+   - Ingestion script (download, filter).
+   - Diversity computation (with rarefaction).
+   - Correlation analysis with FDR correction.
+   - Visualization generation.
 
-### Phase 1: Diversity Calculation (FR-002, FR-003)
-1.  **Compute**: Calculate Shannon and Simpson indices using `scikit-bio`.
-2.  **Filter**: Exclude samples with zero OTU counts.
-3.  **Contract**: Validate output against `contracts/diversity_metrics.schema.yaml`.
-4.  **Output**: Append diversity columns to `analysis_data.csv`.
+4. **Phase 3: Testing & Validation**
+   - Run unit tests on synthetic data.
+   - Validate end-to-end pipeline on GitHub Actions.
+   - Verify reproducibility (hash comparison).
 
-### Phase 2: Alpha-Diversity Correlation (FR-004)
-1.  **Correlate**: Compute Spearman correlations between diversity indices and sleep metrics.
-2.  **Correct**: Apply Benjamini-Hochberg correction.
-3.  **Output**: `results/correlation_results.csv`.
+## Risk Mitigation
 
-### Phase 3: Taxon-Level Correlation (FR-007, SC-001)
-1.  **Transform**: Apply Centered Log-Ratio (CLR) transformation to OTU counts.
-2.  **Correlate**: Compute Spearman correlations between CLR-transformed taxa and sleep metrics.
-3.  **Correct**: Apply Benjamini-Hochberg correction (thousands of tests).
-4.  **Risk Note**: Explicitly acknowledge in logs that spurious correlations may persist despite CLR.
-5.  **Output**: Append taxon-level results to `results/correlation_results.csv`.
+- **Dataset Unavailability**: The ingestion script will implement exponential backoff with a limited number of retries and fail gracefully with a clear error message if the source is unreachable. **If the source is not in the verified list, the pipeline halts immediately.**
+- **Memory Constraints**: The pipeline will process data in chunks if the dataset exceeds available RAM, ensuring the memory limit is not breached.
+- **No Significant Results**: The report generation will explicitly state "No significant associations found" if no correlations survive FDR correction, preventing silent failures.
+- **Collinearity**: The plan acknowledges that diversity indices are correlated and reports them descriptively without claiming independent causal effects.
+- **Sequencing Depth**: The plan includes a rarefaction/normalization step to prevent sequencing depth artifacts from biasing diversity indices.
 
-### Phase 4: Confounder Adjustment (FR-008)
-1.  **Adjust**: Perform Permutation-based Partial Correlation (using `pingouin.partial_corr(..., method='spearman', permutation=1000)`) adjusting for age, BMI, diet, medication.
-2.  **Fallback**: If N < 20 globally, attempt **Stratified Partial Correlation** (within BMI/Diet strata) and aggregate.
-3.  **Fail-Stop**: If `pingouin` is unavailable or permutation test fails, **HALT** with "Confounder Adjustment Failed" error. **No custom fallback allowed.**
-4.  **Contract**: Validate output against `contracts/adjusted_correlation_results.schema.yaml`.
-5.  **Output**: `results/adjusted_correlation_results.csv`.
+## Success Criteria Alignment
 
-### Phase 5: Sensitivity Analysis (SC-004)
-1.  **Sweep**: Re-calculate significance counts for p < {, 0.05, 0.1}.
-2.  **Output**: `results/sensitivity_analysis.csv`.
-3.  **Gate**: If results show high variance (e.g., sign flips across cutoffs), flag study as "Inconclusive" in the final report.
+- **SC-001**: Exclusion rates will be logged and reported against the initial sample size. **If no dataset is found, SC-001 is marked as 'Unmeasurable'.**
+- **SC-002**: Correlation strength and significance will be measured against the biological benchmark (|r| > 0.3). **If no dataset is found, SC-002 is marked as 'Blocked'.**
+- **SC-003**: FDR control will be verified by checking adjusted p-values.
+- **SC-004**: Resource usage will be monitored and reported to ensure compliance with GitHub Actions limits.
+- **SC-005**: Reproducibility will be validated via SHA-256 hash comparison of outputs on clean runs.
 
-### Phase 6: Visualization & Reporting (FR-005)
-1.  **Plot**: Generate scatter plots and boxplots.
-2.  **Output**: Save PNGs to `results/`.
-3.  **Report**: Generate summary table including power analysis, sensitivity results, and confounder-adjusted findings.
+## Functional Requirements (Conditional)
 
-## Assumptions
-
-- The study assumes the availability of **Self-Reported Sleep Quality** as the primary target, acknowledging that 'Sleep Efficiency' (clinical) is likely unavailable in public datasets.
-- The relationship between gut microbiome diversity and sleep quality is observational; therefore, findings will be framed as associational rather than causal.
-- The `pingouin` library is available and stable on the GitHub Actions runner for permutation-based partial correlation.
-- CLR transformation reduces but does not eliminate the risk of spurious correlations in taxon-level analysis.
+- **FR-001**: System MUST attempt to download and parse pre-processed 16S rRNA OTU count tables and metadata from the American Gut Project public repository **IF a verified URL is found in the '# Verified datasets' block**. If no verified URL exists, the system MUST halt with a clear error message. (See US-1).
+- **FR-002**: System MUST filter samples to exclude those where the `antibiotic_use_last_3m` field is true and those lacking valid `sleep_efficiency` or `sleep_duration_hours`. **If these columns are missing from the source, the system MUST halt with a clear error message.** (See US-1).
+- **FR-003**: System MUST compute alpha-diversity indices (Shannon, Simpson, Observed OTUs) using `scikit-bio` or `vegan` on the filtered count tables, **including a rarefaction step to normalize sequencing depth**, ensuring the computation completes within 6 hours on a 2-core runner. (See US-2).
+- **FR-004**: System MUST perform Spearman rank correlation tests between each alpha-diversity index and sleep variables. Additionally, the system MUST flag any correlation with |r| > 0.3 as a "moderate correlation" for reporting purposes, while noting that Spearman detects only monotonic trends. (See US-2).
+- **FR-005**: System MUST apply Benjamini-Hochberg correction to p-values to control for false discovery rate across the set of alpha-diversity vs. sleep metric comparisons. (See US-2).
+- **FR-006**: System MUST generate scatterplots with regression lines and boxplots by sleep quality quartile for significant findings. (See US-3).
+- **FR-007**: System MUST execute the entire analysis pipeline within 7 GB RAM and 6 hours on a GitHub Actions ubuntu-latest runner (2 vCPUs). (See US-2).

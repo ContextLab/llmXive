@@ -1,2 +1,1 @@
-# This directory stores raw downloaded data (OTU counts, metadata).
-# Files: otu_counts.csv, metadata.csv
+This directory stores raw, unmodified data downloaded from external sources.

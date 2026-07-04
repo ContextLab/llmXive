@@ -1,0 +1,48 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Correlation Analysis Output Schema"
+description: "Schema for the correlation analysis output CSV file"
+type: "object"
+properties:
+  diversity_metric:
+    type: "string"
+    description: "Name of the diversity metric (e.g., 'shannon', 'simpson', 'observed_otus')"
+    enum:
+      - "shannon"
+      - "simpson"
+      - "observed_otus"
+  sleep_metric:
+    type: "string"
+    description: "Name of the sleep metric (e.g., 'efficiency', 'duration')"
+    enum:
+      - "efficiency"
+      - "duration"
+  r_value:
+    type: "number"
+    description: "Spearman correlation coefficient"
+    minimum: -1.0
+    maximum: 1.0
+  p_value:
+    type: "number"
+    description: "Raw p-value from the correlation test"
+    minimum: 0.0
+    maximum: 1.0
+  q_value:
+    type: "number"
+    description: "Benjamini-Hochberg adjusted p-value (q-value)"
+    minimum: 0.0
+    maximum: 1.0
+  is_significant:
+    type: "boolean"
+    description: "True if q_value < 0.05"
+  is_moderate:
+    type: "boolean"
+    description: "True if |r_value| > 0.3"
+required:
+  - diversity_metric
+  - sleep_metric
+  - r_value
+  - p_value
+  - q_value
+  - is_significant
+  - is_moderate
+additionalProperties: false

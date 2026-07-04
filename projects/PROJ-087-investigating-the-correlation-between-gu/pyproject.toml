@@ -1,0 +1,49 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "llmXive-gut-sleep-correlation"
+version = "0.1.0"
+description = "Investigating the correlation between gut microbiome composition and sleep quality"
+requires-python = ">=3.11"
+dependencies = [
+    "pandas>=2.0",
+    "scikit-bio>=0.5.9",
+    "scipy>=1.10",
+    "matplotlib>=3.7",
+    "seaborn>=0.12",
+    "requests>=2.28",
+    "pytest>=7.0",
+    "pydantic>=2.0",
+    "ruff>=0.1.0",
+]
+
+[tool.ruff]
+# Enable specific rules: E (pyflakes), F (pycodestyle errors), W (pycodestyle warnings), I (isort)
+select = ["E", "F", "W", "I"]
+line-length = 88
+target-version = "py311"
+ignore = []
+
+[tool.ruff.isort]
+known-first-party = ["src"]
+
+[tool.black]
+line-length = 88
+target-version = ['py311']
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.eggs
+  | \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
+)/
+'''
