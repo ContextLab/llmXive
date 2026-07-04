@@ -1,0 +1,59 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Correlation Results Schema"
+description: "Schema for SparCC/Spearman correlation results with FDR correction."
+type: object
+properties:
+  parameters:
+    type: object
+    properties:
+      method:
+        type: string
+        enum:
+          - sparcc
+          - spearman_clrs
+      correction:
+        type: string
+        enum:
+          - benjamini_hochberg
+      alpha:
+        type: number
+        description: "Significance threshold"
+    required:
+      - method
+      - correction
+      - alpha
+  results:
+    type: array
+    items:
+      type: object
+      properties:
+        genus:
+          type: string
+        cognitive_metric:
+          type: string
+        rho:
+          type: number
+        p_value:
+          type: number
+          minimum: 0
+          maximum: 1
+        q_value:
+          type: number
+          minimum: 0
+          maximum: 1
+        significant:
+          type: boolean
+        method_used:
+          type: string
+          description: "Primary or secondary method used for this result"
+      required:
+        - genus
+        - cognitive_metric
+        - rho
+        - p_value
+        - q_value
+        - significant
+required:
+  - parameters
+  - results
+additionalProperties: false

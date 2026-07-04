@@ -1,0 +1,84 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Merged Dataset Schema"
+description: "Schema for the merged AGP and HRS dataset after preprocessing (age >= 60, CSS normalized)."
+type: object
+properties:
+  metadata:
+    type: object
+    properties:
+      source_agp:
+        type: string
+        description: "Official Qiita Study ID"
+      source_hrs:
+        type: string
+        description: "Official HRS Data Source"
+      merge_key:
+        type: string
+        description: "Column name used for merging"
+      total_samples:
+        type: integer
+        description: "Total number of samples in the merged dataset"
+      age_filter:
+        type: integer
+        description: "Minimum age filter applied"
+    required:
+      - source_agp
+      - source_hrs
+      - merge_key
+      - total_samples
+      - age_filter
+  samples:
+    type: array
+    items:
+      type: object
+      properties:
+        sample_id:
+          type: string
+          description: "Unique sample identifier"
+        participant_id:
+          type: string
+          description: "Original participant ID"
+        age:
+          type: integer
+          minimum: 60
+        sex:
+          type: string
+          enum:
+            - Male
+            - Female
+            - Other
+            - Unknown
+        bmi:
+          type: number
+          minimum: 0
+        is_missing_bmi:
+          type: boolean
+          description: "True if BMI was imputed"
+        cognitive_score:
+          type: number
+        genera_abundance:
+          type: object
+          additionalProperties:
+            type: number
+            minimum: 0
+            maximum: 1
+          description: "Relative abundance of each genus"
+        genera_css:
+          type: object
+          additionalProperties:
+            type: number
+          description: "CSS normalized values for each genus"
+      required:
+        - sample_id
+        - participant_id
+        - age
+        - sex
+        - bmi
+        - is_missing_bmi
+        - cognitive_score
+        - genera_abundance
+        - genera_css
+required:
+  - metadata
+  - samples
+additionalProperties: false

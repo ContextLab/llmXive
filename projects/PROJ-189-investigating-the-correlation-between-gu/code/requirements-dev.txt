@@ -1,0 +1,9 @@
+# Core dependencies
+-r requirements.txt
+
+# Development tools
+ruff==0.4.8
+black==24.4.2
+pytest==8.2.2
+pytest-cov==5.0.0
+mypy==1.10.0

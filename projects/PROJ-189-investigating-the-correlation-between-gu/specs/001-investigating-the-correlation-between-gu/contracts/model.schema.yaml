@@ -1,0 +1,104 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Model Performance Schema"
+description: "Schema for Random Forest model performance, null distribution, and SHAP results."
+type: object
+properties:
+  model_config:
+    type: object
+    properties:
+      model_type:
+        type: string
+        enum:
+          - RandomForestRegressor
+      n_estimators:
+        type: integer
+      max_depth:
+        type: integer
+      random_state:
+        type: integer
+      cv_folds:
+        type: integer
+    required:
+      - model_type
+      - n_estimators
+      - max_depth
+      - random_state
+      - cv_folds
+  performance:
+    type: object
+    properties:
+      r2_train:
+        type: number
+      r2_test:
+        type: number
+      rmse_test:
+        type: number
+    required:
+      - r2_train
+      - r2_test
+      - rmse_test
+  null_distribution:
+    type: object
+    properties:
+      n_permutations:
+        type: integer
+      r2_null_95th_percentile:
+        type: number
+      r2_null_adjusted_threshold:
+        type: number
+        description: "Threshold adjusted for multiple testing (features)"
+      is_significant:
+        type: boolean
+        description: "True if model R2 > adjusted threshold"
+    required:
+      - n_permutations
+      - r2_null_95th_percentile
+      - r2_null_adjusted_threshold
+      - is_significant
+  vif_check:
+    type: object
+    properties:
+      threshold:
+        type: number
+      flagged_pairs:
+        type: array
+        items:
+          type: object
+          properties:
+            taxon_1:
+              type: string
+            taxon_2:
+              type: string
+            vif:
+              type: number
+          required:
+            - taxon_1
+            - taxon_2
+            - vif
+    required:
+      - threshold
+      - flagged_pairs
+  shap_analysis:
+    type: object
+    properties:
+      top_features:
+        type: array
+        items:
+          type: object
+          properties:
+            genus:
+              type: string
+            mean_abs_shap:
+              type: number
+          required:
+            - genus
+            - mean_abs_shap
+    required:
+      - top_features
+required:
+  - model_config
+  - performance
+  - null_distribution
+  - vif_check
+  - shap_analysis
+additionalProperties: false

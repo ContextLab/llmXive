@@ -1,0 +1,333 @@
+resolved_at: '2026-07-04T16:40:42.083139+00:00'
+datasets:
+- intent: 10.1038/nature11230
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/conference_contribution/Book_of_Abstracts_for_INVESTIGATING_IN-DEPTH_KNOWLEDGE_OF_CYBERCRIME_AMONG_NIGERIANS_Book_of_Abstracts_for_PERSPECTIVE_OF_INFORMATION_AND_COMMUNICATION_TECHNOLOGY_AS_A_WEAPON_PROMOTING_YOUTH_EMPLOYMENT_ISBN_978-978-694-080-9_/32900345
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/NanoPlot_Report/32900339
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/From_Disengagement_to_Work_NEET_Experience/32900342
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Predicted_Biosynthetic_Gene_Clusters_by_AntiSMASH/32900192
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Data_files_and_program_files_for_The_Increase_in_Part-timers_and_its_Effects_on_the_Wage_Phillips_Curve_in_Japan_/32900330
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: AGP
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/eternalaudrey/jump-cp-0016-labelfree-AGP/resolve/main/data/train-00000-of-00053.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/Resurgammm/AGP-Training/resolve/main/coding/train.json
+    source: huggingface
+    format: json
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 175588
+      parsed: true
+  - url: https://huggingface.co/datasets/chongli17/AG-Pair/resolve/main/test.tsv
+    source: huggingface
+    format: tsv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/chongli17/AG-Pair/resolve/main/test.tsv
+    source: huggingface
+    status: verified
+    format: tsv
+  - url: https://huggingface.co/datasets/colabfit/Ag-PBE_MSMSE_2021/resolve/main/co/co_0.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/colabfit/AgPd_NPJ_2021/resolve/main/co/co_0.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/eternalaudrey/jump-cp-0016-labelfree-AGP/resolve/main/data/train-00000-of-00053.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/Resurgammm/AGP-Training/resolve/main/coding/train.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://figshare.com/articles/conference_contribution/Book_of_Abstracts_for_INVESTIGATING_IN-DEPTH_KNOWLEDGE_OF_CYBERCRIME_AMONG_NIGERIANS_Book_of_Abstracts_for_PERSPECTIVE_OF_INFORMATION_AND_COMMUNICATION_TECHNOLOGY_AS_A_WEAPON_PROMOTING_YOUTH_EMPLOYMENT_ISBN_978-978-694-080-9_/32900345
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/NanoPlot_Report/32900339
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/From_Disengagement_to_Work_NEET_Experience/32900342
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Predicted_Biosynthetic_Gene_Clusters_by_AntiSMASH/32900192
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Data_files_and_program_files_for_The_Increase_in_Part-timers_and_its_Effects_on_the_Wage_Phillips_Curve_in_Japan_/32900330
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7400565
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/161172
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5512429
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15331805
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.zgmsbccfd
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://air.unimi.it/handle/2434/171957
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.datalumos.org/datalumos/project/250980/version/V1/view
+    source: datacite
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://www.datalumos.org/datalumos/project/250980/view
+    source: datacite
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://zenodo.org/records/14020835
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14020835
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: HRS
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/irenepap/en-it-hrs-data/resolve/main/data/train-00000-of-00001-5379c2a0af0a1773.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/irenepap/en-it-small-hrs-data/resolve/main/data/train-00000-of-00001-2160931cd736daff.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/bernardolgm/hrstudium-queries/resolve/main/dataset.json
+    source: huggingface
+    format: jsonl
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 7941
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/irenepap/en-it-hrs-data/resolve/main/data/train-00000-of-00001-5379c2a0af0a1773.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/irenepap/en-it-small-hrs-data/resolve/main/data/train-00000-of-00001-2160931cd736daff.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/bernardolgm/hrstudium-queries/resolve/main/dataset.json
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://figshare.com/articles/conference_contribution/Book_of_Abstracts_for_INVESTIGATING_IN-DEPTH_KNOWLEDGE_OF_CYBERCRIME_AMONG_NIGERIANS_Book_of_Abstracts_for_PERSPECTIVE_OF_INFORMATION_AND_COMMUNICATION_TECHNOLOGY_AS_A_WEAPON_PROMOTING_YOUTH_EMPLOYMENT_ISBN_978-978-694-080-9_/32900345
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/NanoPlot_Report/32900339
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/From_Disengagement_to_Work_NEET_Experience/32900342
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Predicted_Biosynthetic_Gene_Clusters_by_AntiSMASH/32900192
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Data_files_and_program_files_for_The_Increase_in_Part-timers_and_its_Effects_on_the_Wage_Phillips_Curve_in_Japan_/32900330
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4733603
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5543863
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14701089
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://linkinghub.elsevier.com/retrieve/pii/S0031942219305953
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10691173
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21193547
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21193547
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/h9b2u/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.researchgate.net/doi/10.13140/RG.2.2.10469.97767
+    source: datacite
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://zenodo.org/records/21188817
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: BMI
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/karan451/BMI-labeled-faced/resolve/main/archive/Final_Dataset.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/NurlanAliyevofficial/Brain-tumor-effect-of-bloodpressure-sugarlevel-and-BMI-ON-ITS-PRESSENCE/resolve/main/Health_Dataset_Brain
+      _Tumor.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 1459
+      parsed: true
+  - url: https://huggingface.co/datasets/minhthong/flashdeal_data_BMI_historical_signal/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 12335
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/karan451/BMI-labeled-faced/resolve/main/archive/Final_Dataset.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/NurlanAliyevofficial/Brain-tumor-effect-of-bloodpressure-sugarlevel-and-BMI-ON-ITS-PRESSENCE/resolve/main/Health_Dataset_Brain
+      _Tumor.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/minhthong/flashdeal_data_BMI_historical_signal/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://tandf.figshare.com/articles/journal_contribution/Recent_advances_in_1_3_5-triazine-based_PI3K_inhibitors_for_cancer_therapy_a_comprehensive_review/32900337
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/conference_contribution/Book_of_Abstracts_for_INVESTIGATING_IN-DEPTH_KNOWLEDGE_OF_CYBERCRIME_AMONG_NIGERIANS_Book_of_Abstracts_for_PERSPECTIVE_OF_INFORMATION_AND_COMMUNICATION_TECHNOLOGY_AS_A_WEAPON_PROMOTING_YOUTH_EMPLOYMENT_ISBN_978-978-694-080-9_/32900345
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/NanoPlot_Report/32900339
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/From_Disengagement_to_Work_NEET_Experience/32900342
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Predicted_Biosynthetic_Gene_Clusters_by_AntiSMASH/32900192
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.11591/eei.v11i3.3779
+    source: zenodo
+    status: unreachable
+    reason: 'reachability failed: ConnectionError: HTTPSConnectionPool(host=''beei.org'',
+      port=443): Max retries exceeded with url: /index.php/EEI/article/view/3779 (Caused
+      by NewConnectionError("HTTPSConnection(host=''beei.org'', port=443): Failed
+      to establish a new connection: [Errno 111] Connection refused"))'
+  - url: https://zenodo.org/records/8074384
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ijpeds.iaescore.com/index.php/IJPEDS/article/view/16396
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.11591/eei.v9i6.2319
+    source: zenodo
+    status: unreachable
+    reason: 'reachability failed: ConnectionError: HTTPSConnectionPool(host=''beei.org'',
+      port=443): Max retries exceeded with url: /index.php/EEI/article/view/2319 (Caused
+      by NewConnectionError("HTTPSConnection(host=''beei.org'', port=443): Failed
+      to establish a new connection: [Errno 111] Connection refused"))'
+  - url: https://zenodo.org/records/6646128
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://fair.unifg.it//handle/11369/369200
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/y3cz5/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/da3h2/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/6sx7k/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/zw3tn/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

@@ -1,0 +1,38 @@
+[tool.ruff]
+# Target Python version
+target-version = "py311"
+
+# Line length matching Black's default
+line-length = 88
+
+# Exclude generated files and caches
+exclude = [
+    ".git",
+    "__pycache__",
+    ".venv",
+    "data",
+    "build",
+    "dist",
+    "*.egg-info"
+]
+
+[tool.ruff.lint]
+# Enable standard rules
+select = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # Pyflakes
+    "I",  # isort
+    "C",  # flake8-comprehensions
+    "B",  # flake8-bugbear
+]
+
+# Ignore specific rules that conflict with Black
+ignore = [
+    "E501",  # line too long (handled by Black)
+    "W503",  # line break before binary operator (handled by Black)
+]
+
+[tool.ruff.lint.isort]
+known-first-party = ["utils"]
+force-sort-within-sections = true
