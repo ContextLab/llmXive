@@ -1,0 +1,208 @@
+resolved_at: '2026-07-04T01:31:50.138596+00:00'
+datasets:
+- intent: ACE
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/ij5/ace/resolve/main/assets.zip
+    source: huggingface
+    format: zip
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/ErickP/ace1/resolve/main/test.tsv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 106390
+      parsed: true
+  - url: https://huggingface.co/datasets/nikitam/ACES/resolve/main/challenge_set.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://us.aws.cdn.hf.co/xet-bridge-us/66c582fe30010c0f2bba4176/90560d1c894c276dbcf2b20d168091b12da9d0a4922715c5861981b1ac12415c?response-content-type=application%2Fjson&X-Xet-Cas-Uid=public&user_id=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27data.json%3B+filename%3D%22data.json%22%3B&Expires=1783132247&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjZjNTgyZmUzMDAxMGMwZjJiYmE0MTc2LzkwNTYwZDFjODk0YzI3NmRiY2YyYjIwZDE2ODA5MWIxMmRhOWQwYTQ5MjI3MTVjNTg2MTk4MWIxYWMxMjQxNWNcXD9yZXNwb25zZS1jb250ZW50LXR5cGU9YXBwbGljYXRpb24lMkZqc29uJlgtWGV0LUNhcy1VaWQ9cHVibGljJnVzZXJfaWQ9cHVibGljJnJlc3BvbnNlLWNvbnRlbnQtZGlzcG9zaXRpb249aW5saW5lJTNCK2ZpbGVuYW1lJTJBJTNEVVRGLTglMjclMjdkYXRhLmpzb24lM0IrZmlsZW5hbWUlM0QlMjJkYXRhLmpzb24lMjIlM0IiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkVwb2NoVGltZSI6MTc4MzEzMjI0N319fV19&Signature=MEUCIQDGDjHxfT-5sA0gS6kpKxGFGH58etLuJJanYz4bWQo8nAIgZNJTOB47Tpx88jhqVlF~5E3kpBAD~4b5HiacuUTkBqU_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/ErickP/ace1/resolve/main/test.tsv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/ij5/ace/resolve/main/assets.zip
+    source: huggingface
+    status: verified
+    format: zip
+  - url: https://huggingface.co/datasets/nikitam/ACES/resolve/main/challenge_set.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://figshare.com/articles/media/Call_09060973758_Federal_University_Kashere_2026_2027_Post-Utme_Form_Part-time_Form_Is_On_sales_Now_09060973758_To_apply_call_Dr_Mrs_Rita_09060973758_for_further_assistance/32897798
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/Call_08132728112_Sa_ad_Zungur_College_of_Nursing_Sciences_Liman_Katagum_Admission_Form_2026_2027_Post_Utme_Application_Is_Out_CALL_08132728112_Dr_Mrs_Sarah_for_admission_process_into_the_school_/32897795
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/Call_09060973758_Federal_University_Dutsin-Ma_2026_2027_Post-Utme_Form_Part-time_Form_Is_On_sales_Now_09060973758_To_apply_call_Dr_Mrs_Rita_09060973758_for_further_assistance/32897792
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/Call_08132728112_Adamu_Adamu_College_of_Nursing_Sciences_FMC_Azare_Admission_Form_2026_2027_Post_Utme_Application_Is_Out_CALL_08132728112_Dr_Mrs_Sarah_for_admission_process_into_the_school_/32897789
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/Call_09060973758_Federal_University_Dutse_2026_2027_Post-Utme_Form_Part-time_Form_Is_On_sales_Now_09060973758_To_apply_call_Dr_Mrs_Rita_09060973758_for_further_assistance/32897780
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.frontiersin.org/journals/digital-health/articles/10.3389/fdgth.2025.1633507/full
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17339916
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17317599
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17338034
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18067696
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/dqphe/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/89pd5/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/yt9e8/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21174027
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21174027
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: MRI
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/FOMO-MRI/FOMO45K/resolve/main/FOMO45k_260k_mapping.tsv
+    source: huggingface
+    format: tsv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/AiDoc/CT-MRI_metrics_validation_dataset/resolve/main/CT-MRI_metrics_validation_dataset.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/nitishpandey04/MRI-Unpaired-T1-and-T2-Images/resolve/main/MRI_Dataset-20230122T105937Z-001.zip
+    source: huggingface
+    format: zip
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/FOMO-MRI/FOMO300K/resolve/main/PT001_ClevelandCCF/mapping.tsv
+    source: huggingface
+    status: wrong_format
+    reason: HTTP 401
+  - url: https://huggingface.co/datasets/FOMO-MRI/FOMO45K/resolve/main/FOMO45k_260k_mapping.tsv
+    source: huggingface
+    status: verified
+    format: tsv
+  - url: https://huggingface.co/api/resolve-cache/datasets/arjundd/mridata-stanford-knee-3d-fse/386707653616d0f84850b6d8f09efcfa5433e964/metadata.csv?%2Fdatasets%2Farjundd%2Fmridata-stanford-knee-3d-fse%2Fresolve%2Fmain%2Fmetadata.csv=&etag=%225ad19715d7b1b1d0422cc932384b6c216526bfed%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/AiDoc/CT-MRI_metrics_validation_dataset/resolve/main/CT-MRI_metrics_validation_dataset.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/nitishpandey04/MRI-Unpaired-T1-and-T2-Images/resolve/main/MRI_Dataset-20230122T105937Z-001.zip
+    source: huggingface
+    status: verified
+    format: zip
+  - url: https://figshare.com/articles/figure/Call_09060973758_Federal_University_Lafia_2026_2027_Post-Utme_Form_Part-time_Form_Is_On_sales_Now_09060973758_To_apply_call_Dr_Mrs_Rita_09060973758_for_further_assistance/32897804
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/Call_08132728112_College_of_Nursing_Sciences_Tombia_Bayelsa_State_Admission_Form_2026_2027_Post_Utme_Application_Is_Out_CALL_08132728112_Dr_Mrs_Sarah_for_admission_process_into_the_school_/32897801
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/Call_09060973758_Federal_University_Kashere_2026_2027_Post-Utme_Form_Part-time_Form_Is_On_sales_Now_09060973758_To_apply_call_Dr_Mrs_Rita_09060973758_for_further_assistance/32897798
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/Call_08132728112_Sa_ad_Zungur_College_of_Nursing_Sciences_Liman_Katagum_Admission_Form_2026_2027_Post_Utme_Application_Is_Out_CALL_08132728112_Dr_Mrs_Sarah_for_admission_process_into_the_school_/32897795
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/Call_09060973758_Federal_University_Dutsin-Ma_2026_2027_Post-Utme_Form_Part-time_Form_Is_On_sales_Now_09060973758_To_apply_call_Dr_Mrs_Rita_09060973758_for_further_assistance/32897792
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16199032
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16198518
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16307763
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7717571
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16202753
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21184344
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21184344
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/d8nx6/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.5281/zenodo.20779017
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: HTTP 410'
+  - url: https://osf.io/tvx83/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

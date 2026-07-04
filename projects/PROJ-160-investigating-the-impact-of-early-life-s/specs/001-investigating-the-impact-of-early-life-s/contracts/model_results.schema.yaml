@@ -1,0 +1,58 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Model Results Schema"
+description: "Schema for the output of the statistical modeling pipeline."
+type: object
+properties:
+  model_id:
+    type: string
+    description: "Unique identifier for the model run."
+  subfield_name:
+    type: string
+    enum: ["CA3", "DG", "Subiculum", "CA3_DG_Ratio"]
+    description: "Target subfield or ratio."
+  formula:
+    type: string
+    description: "The R-style formula used for the model."
+  beta_ace:
+    type: number
+    description: "Standardized beta coefficient for ACE score."
+  beta_ace_se:
+    type: number
+    description: "Standard error of the beta coefficient."
+  p_value_uncorrected:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: "Raw p-value from the LMM."
+  p_value_corrected:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: "Bonferroni-corrected p-value (p * 3)."
+  ci_lower:
+    type: number
+    description: "Lower bound of 95% confidence interval."
+  ci_upper:
+    type: number
+    description: "Upper bound of 95% confidence interval."
+  permutation_p_value:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: "Empirical p-value from 5,000 permutations."
+  n_observations:
+    type: integer
+    description: "Number of observations used in the model."
+  n_groups:
+    type: integer
+    description: "Number of unique family groups."
+required:
+  - model_id
+  - subfield_name
+  - formula
+  - beta_ace
+  - p_value_uncorrected
+  - p_value_corrected
+  - permutation_p_value
+  - n_observations
+additionalProperties: false

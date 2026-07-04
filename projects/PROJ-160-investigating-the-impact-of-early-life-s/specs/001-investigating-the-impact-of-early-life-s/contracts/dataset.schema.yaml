@@ -1,0 +1,61 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Normalized Dataset Schema"
+description: "Schema for the pre-processed dataset used in statistical modeling."
+type: object
+properties:
+  participant_id:
+    type: string
+    description: "Unique identifier for the participant."
+  family_id:
+    type: string
+    description: "Family cluster identifier."
+  age:
+    type: number
+    description: "Age in years."
+  sex:
+    type: string
+    enum: ["Male", "Female"]
+    description: "Biological sex."
+  scanner_site:
+    type: string
+    description: "Scanner location identifier."
+  ace_score:
+    type: number
+    description: "Adverse Childhood Experiences score (possibly log-transformed)."
+  ca3_volume_raw:
+    type: number
+    description: "Raw CA3 volume in mm^3."
+  dg_volume_raw:
+    type: number
+    description: "Raw Dentate Gyrus volume in mm^3."
+  subiculum_volume_raw:
+    type: number
+    description: "Raw Subiculum volume in mm^3."
+  icv:
+    type: number
+    description: "Intracranial volume in mm^3."
+  ca3_volume_norm:
+    type: number
+    description: "Normalized CA3 volume (raw / ICV)."
+  dg_volume_norm:
+    type: number
+    description: "Normalized DG volume (raw / ICV)."
+  subiculum_volume_norm:
+    type: number
+    description: "Normalized Subiculum volume (raw / ICV)."
+  mri_quality_pass:
+    type: boolean
+    description: "True if MRI quality flag indicates pass."
+required:
+  - participant_id
+  - family_id
+  - age
+  - sex
+  - scanner_site
+  - ace_score
+  - ca3_volume_norm
+  - dg_volume_norm
+  - subiculum_volume_norm
+  - icv
+  - mri_quality_pass
+additionalProperties: false
