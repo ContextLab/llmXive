@@ -1,4 +1,4 @@
-- artifact_hash: b2558ea3fa4da38d5784dbcd3f49010ba27e2cd7fb72677fb07454038972ac0f
+- artifact_hash: ce24987ff2ca09e1ade752d70847a656c94587cab80ecc57466b386d048e6538
   artifact_path: projects/PROJ-438-the-effect-of-personalized-feedback-timi/specs/001-the-effect-of-personalized-feedback-timi/spec.md
   cite_id: c-001
   cited_authors: []
@@ -8,4 +8,26 @@
   value: https://analyse.kmi.open.ac.uk/open_dataset
   verification_status: verified
   verified_against_url: https://research.stem.open.ac.uk/ouanalyse/
-  verified_at: '2026-06-28T15:23:50.302525Z'
+  verified_at: '2026-07-04T11:40:09.414246Z'
+- artifact_hash: 05f19d6f138629c391beac16fb251833781224484d7584c9cd75384169b20a1e
+  artifact_path: projects/PROJ-438-the-effect-of-personalized-feedback-timi/specs/001-the-effect-of-personalized-feedback-timi/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: run_0000.json
+  kind: url
+  value: https://huggingface.co/datasets/predact/predact-bench-oulad/resolve/main/hugging_face/claude_haiku_4_5/oulad_40/run_0000.json`
+  verification_status: verified
+  verified_against_url: https://huggingface.co/api/resolve-cache/datasets/predact/predact-bench-oulad/19be6ecbcf0bb83ced372e9fb78f1ba3afba8ba1/hugging_face%2Fclaude_haiku_4_5%2Foulad_40%2Frun_0000.json?%2Fdatasets%2Fpredact%2Fpredact-bench-oulad%2Fresolve%2Fmain%2Fhugging_face%2Fclaude_haiku_4_5%2Foulad_40%2Frun_0000.json=&etag=%227eb4faeedcadb6b631def688b3b2879be764dfb5%22
+  verified_at: '2026-07-04T11:56:53.649009Z'
+- artifact_hash: 689e5f11b527652d304f51100e5856ef7d34d102ad3447ee8b464eafc5bc5a30
+  artifact_path: projects/PROJ-438-the-effect-of-personalized-feedback-timi/specs/001-the-effect-of-personalized-feedback-timi/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: OU Analyse
+  kind: url
+  value: https://analyse.kmi.open.ac.uk/open_dataset
+  verification_status: verified
+  verified_against_url: https://research.stem.open.ac.uk/ouanalyse/
+  verified_at: '2026-07-04T12:18:44.959230Z'

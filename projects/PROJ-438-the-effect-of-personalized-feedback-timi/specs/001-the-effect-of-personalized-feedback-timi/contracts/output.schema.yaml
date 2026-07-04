@@ -1,0 +1,54 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Cluster-Robust OLS Analysis Output Schema"
+description: "Schema for the Cluster-Robust Ordinary Least Squares model results and post-hoc comparisons."
+type: object
+properties:
+  comparison_pair:
+    type: string
+    description: "Pair of groups being compared (e.g., 'Immediate vs Delayed')."
+  mean_diff:
+    type: number
+    description: "Difference in mean final grades between groups."
+  std_err:
+    type: number
+    description: "Standard error of the mean difference (clustered)."
+  t_value:
+    type: number
+    description: "T-statistic."
+  p_value:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: "Raw p-value."
+  p_adjusted:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: "Tukey HSD adjusted p-value."
+  cohen_d:
+    type: number
+    description: "Cohen's d effect size."
+  significant:
+    type: boolean
+    description: "True if p_adjusted < 0.05."
+  model_type:
+    type: string
+    enum:
+      - "Clustered OLS"
+    description: "Type of model used."
+  fixed_effect:
+    type: string
+    description: "Name of the fixed effect variable (feedback_group)."
+  cluster_variable:
+    type: string
+    description: "Name of the clustering variable (course_id)."
+required:
+  - comparison_pair
+  - mean_diff
+  - p_value
+  - p_adjusted
+  - cohen_d
+  - significant
+  - model_type
+  - cluster_variable
+additionalProperties: false

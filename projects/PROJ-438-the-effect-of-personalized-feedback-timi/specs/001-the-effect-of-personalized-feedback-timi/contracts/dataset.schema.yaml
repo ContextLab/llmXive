@@ -1,0 +1,60 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "OULAD Learner Dataset Schema"
+description: "Schema for the processed learner dataset derived from OULAD."
+type: object
+properties:
+  student_id:
+    type: string
+    description: "Anonymized unique identifier for the learner."
+  course_id:
+    type: string
+    description: "Unique identifier for the course."
+  submission_timestamp:
+    type: string
+    format: date-time
+    description: "UTC timestamp of learner submission."
+  response_proxy_timestamp:
+    type: string
+    format: date-time
+    description: "UTC timestamp of system/instructor response (or forum reply proxy)."
+  interval_hours:
+    type: number
+    description: "Time difference in hours (response - submission). Precision ≥0.1h."
+  feedback_group:
+    type: string
+    enum:
+      - "Immediate"
+      - "Delayed"
+      - "Variable"
+    description: "Binned feedback timing group."
+  final_grade:
+    type: number
+    minimum: 0
+    maximum: 100
+    description: "Final course grade."
+  is_complete:
+    type: integer
+    enum:
+      - 0
+      - 1
+    description: "Course completion status (1=completed, 0=incomplete)."
+  missing_response_flag:
+    type: integer
+    enum:
+      - 0
+      - 1
+    description: "Indicator for missing response timestamp (1=missing)."
+  engagement_count:
+    type: integer
+    description: "Total number of submissions/forum posts (covariate)."
+required:
+  - student_id
+  - course_id
+  - submission_timestamp
+  - interval_hours
+  - feedback_group
+  - final_grade
+  - is_complete
+  - missing_response_flag
+  - engagement_count
+additionalProperties: false
