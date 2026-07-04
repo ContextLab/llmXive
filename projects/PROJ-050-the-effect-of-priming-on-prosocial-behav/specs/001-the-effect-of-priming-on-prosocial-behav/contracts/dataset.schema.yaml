@@ -1,58 +1,65 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Reddit Comment Dataset Schema"
-description: "Schema for the anonymized, classified, and scored Reddit comment dataset used in the priming study."
-type: object
+title: "Anonymized Comment Dataset Schema"
+type: "object"
 properties:
   comment_id:
-    type: string
+    type: "string"
     description: "Unique identifier for the comment."
   thread_id:
-    type: string
-    description: "Unique identifier for the parent thread."
+    type: "string"
+    description: "Unique identifier for the thread."
   user_id:
-    type: string
-    description: "SHA-256 hash of the original author (anonymized)."
-  subreddit:
-    type: string
-    description: "Name of the subreddit (e.g., 'AskReddit')."
+    type: "string"
+    description: "SHA-256 hash of the original username."
+    pattern: "^[a-f0-9]{64}$"
   thread_type:
-    type: string
+    type: "string"
     enum:
       - "Prime"
       - "Control"
     description: "Classification based on title keywords."
-  body:
-    type: string
-    description: "The text content of the comment."
-  prosocial_action_count:
-    type: integer
-    minimum: 0
-    description: "Count of prosocial action verbs in the comment."
-  neg_score:
-    type: number
-    minimum: 0.0
-    maximum: 1.0
-    description: "VADER negative sentiment component (0-1)."
-  compound:
-    type: number
-    description: "VADER compound sentiment score."
+  subreddit:
+    type: "string"
+    description: "Subreddit name."
   thread_age:
-    type: number
-    description: "Age of the thread in hours (relative)."
-  comment_count:
-    type: integer
+    type: "number"
     minimum: 0
-    description: "Total number of comments in the thread."
+    description: "Age of the thread in days."
+  body:
+    type: "string"
+    description: "Comment text content."
+  prosocial_action_count:
+    type: "integer"
+    minimum: 0
+    description: "Count of prosocial action verbs."
+  neg_score:
+    type: "number"
+    minimum: 0
+    maximum: 1
+    description: "VADER negative sentiment component."
+  compound:
+    type: "number"
+    minimum: -1
+    maximum: 1
+    description: "VADER compound sentiment score."
+  pos:
+    type: "number"
+    minimum: 0
+    maximum: 1
+    description: "VADER positive sentiment score."
+  neu:
+    type: "number"
+    minimum: 0
+    maximum: 1
+    description: "VADER neutral sentiment score."
 required:
   - comment_id
   - thread_id
   - user_id
-  - subreddit
   - thread_type
+  - subreddit
+  - thread_age
   - body
   - prosocial_action_count
   - neg_score
-  - compound
-  - thread_age
-  - comment_count
 additionalProperties: false

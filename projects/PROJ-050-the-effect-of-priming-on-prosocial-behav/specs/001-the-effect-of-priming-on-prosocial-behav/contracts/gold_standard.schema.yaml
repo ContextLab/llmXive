@@ -1,0 +1,28 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Human Annotation Gold Standard Schema"
+type: "object"
+properties:
+  comment_id:
+    type: "string"
+    description: "Foreign key to the anonymized comment."
+  rater_id:
+    type: "string"
+    description: "Unique identifier for the human rater."
+  label_prosocial:
+    type: "integer"
+    enum:
+      - 0
+      - 1
+    description: "Binary label for prosocial action."
+  label_neg:
+    type: "integer"
+    enum:
+      - 0
+      - 1
+    description: "Binary label for negative sentiment."
+required:
+  - comment_id
+  - rater_id
+  - label_prosocial
+  - label_neg
+additionalProperties: false

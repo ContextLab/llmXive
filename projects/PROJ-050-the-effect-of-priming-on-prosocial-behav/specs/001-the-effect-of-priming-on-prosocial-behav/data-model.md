@@ -1,66 +1,89 @@
 # Data Model: The Effect of Priming on Prosocial Behavior in Online Communities
 
-## 1. Entities & Relationships
+## Overview
+This document defines the data structures, schemas, and relationships for the project. All data artifacts must adhere to these schemas to ensure reproducibility and contract compliance.
 
-### Thread
-A conversation unit identified by a unique `thread_id`.  
-* **Attributes**: `thread_id` (str), `subreddit` (str), `title` (str), `created_utc` (str, **used only for computing `thread_age`**, then removed), `comment_count` (int).  
-* **Derived**: `thread_type` (str: “Prime” | “Control”).
+## Entities
 
-### Comment
-A response within a thread.  
-* **Attributes**: `comment_id` (str), `thread_id` (str, FK), `user_id` (str, hashed), `body` (str), `created_utc` (str, stripped after `thread_age` calculation).  
-* **Derived**: `prosocial_action_count` (int), `compound` (float), `pos` (float), `neu` (float), `neg` (float), `neg_score` (float = `neg` component).
+### 1. Raw Comment (Pre-processing)
+*Source*: External Dataset (Parquet/JSONL)
+*Note*: This entity exists only transiently in memory or as a raw file before anonymization.
 
-### SentimentScore
-A derived record for analysis.  
-* **Attributes**: `comment_id`, `thread_id`, `neg_score` (float), `prosocial_action_count` (int).
-
-## 2. Data Flow
-
-1. **Raw Input**: Parquet file from HuggingFace.  
-2. **Anonymized**: `user_id` = SHA‑256(author), timestamps stripped **after** `thread_age` is computed.  
-3. **Classified**: `thread_type` added based on title keywords.  
-4. **Scored**: `prosocial_action_count` and VADER scores added.  
-5. **Analysis**: Aggregated by `thread_type` for LMM.
-
-## 3. Schema Definitions
-
-### Input Schema (Raw Reddit)
-
-| Column | Type | Description |
+| Field | Type | Description |
 | :--- | :--- | :--- |
-| `id` | string | Unique identifier for the Reddit post/comment. |
-| `title` | string | Thread title (used for priming classification). |
+| `comment_id` | string | Unique identifier (original). |
+| `thread_id` | string | Unique identifier for the thread. |
+| `author` | string | Plaintext username (PII). |
+| `title` | string | Thread title. |
 | `body` | string | Comment text. |
-| `author` | string | Original username (hashed later). |
-| `created_utc` | integer | Unix timestamp (used to compute `thread_age`). |
 | `subreddit` | string | Subreddit name. |
-| `parent_id` | string | Optional parent identifier for threading. |
+| `created_utc` | int | Unix timestamp. |
 
-### Processed Schema (Final Analysis Table)
+### 2. Anonymized & Classified Comment
+*Source*: `code/processing/anonymize.py` & `code/ingestion/classify.py`
+*Output*: `data/processed/cleaned_data.parquet`
 
-| Column | Type | Description |
+| Field | Type | Constraints | Description |
+| :--- | :--- | :--- | :--- |
+| `comment_id` | string | PK | Unique ID. |
+| `thread_id` | string | FK | Thread ID. |
+| `user_id` | string | Hashed | SHA-256 hash of original `author`. |
+| `thread_type` | enum | ["Prime", "Control"] | Classification based on title keywords. |
+| `subreddit` | string | | Subreddit name. |
+| `thread_age` | float | ≥ 0 | Days since creation (calculated before stripping). |
+| `body` | string | | Comment text. |
+| `prosocial_action_count` | int | ≥ 0 | Count of action verbs. |
+| `neg_score` | float | [0, 1] | VADER `neg` component. |
+| `compound` | float | [-1, 1] | VADER compound score. |
+| `pos` | float | [0, 1] | VADER positive score. |
+| `neu` | float | [0, 1] | VADER neutral score. |
+| `topic_pc1` | float | | 1st Principal Component of title embedding. |
+| `topic_pc2` | float | | 2nd Principal Component of title embedding. |
+| `topic_pc3` | float | | 3rd Principal Component of title embedding. |
+
+### 3. Gold Standard (Validation)
+*Source*: `data/validation/gold_standard.csv`
+*Constraints*: Must have ≥ 3 distinct `rater_id`s.
+
+| Field | Type | Description |
 | :--- | :--- | :--- |
-| `comment_id` | string | Unique ID for the comment. |
-| `thread_id` | string | Unique ID for the parent thread. |
-| `user_id` | string | SHA‑256 hash of original author. |
-| `subreddit` | string | Name of the subreddit (e.g., 'AskReddit'). |
-| `thread_type` | string | “Prime” or “Control”. |
-| `body` | string | The text content of the comment. |
-| `prosocial_action_count` | integer | Count of prosocial action verbs in the comment. |
-| `neg_score` | number | VADER negative sentiment component (0‑1). |
-| `compound` | number | VADER compound sentiment score. |
-| `thread_age` | number | Age of the thread in hours (computed **before** timestamp removal). |
-| `comment_count` | integer | Total number of comments in the thread. |
+| `comment_id` | string | FK to `Anonymized & Classified Comment`. |
+| `rater_id` | string | Unique identifier for the human rater. |
+| `label_prosocial` | int | 0 or 1 (Binary label for prosocial action). |
+| `label_neg` | int | 0 or 1 (Binary label for negative sentiment). |
 
-## 4. Anonymization Protocol
+### 4. Analysis Results
+*Source*: `code/analysis/glmm.py`
+*Output*: `output/results.json`
 
-* **Usernames**: Replaced with `SHA256(author)[:16]`.  
-* **Timestamps**: Used only to compute `thread_age`; the original `created_utc` column is then removed from stored files.  
-* **PII Scan**: Final output must pass a regex scan for common email/username patterns to ensure zero plaintext PII.  
+| Field | Type | Description |
+| :--- | :--- | :--- |
+| `model_formula` | string | The GLMM formula used. |
+| `prime_coefficient` | float | Effect size of Prime group. |
+| `prime_p_value` | float | P-value for Prime effect. |
+| `prime_ci_lower` | float | Lower bound 95% CI. |
+| `prime_ci_upper` | float | Upper bound 95% CI. |
+| `control_vars` | dict | Coefficients for `thread_age`, `comment_count`, `topic_pc1-3`. |
+| `random_effects` | dict | Variance components for `thread_id`, `user_id`. |
+| `sensitivity_results` | list | List of p-values from bootstrap/variants. |
+| `power_analysis` | dict | Power, effect size, sample size. |
+| `model_family` | string | "Negative Binomial" (GLMM). |
+| `topic_control_method` | string | Description of embedding/PCA method used. |
 
-## 5. Modeling Considerations
+## Data Flow Diagram
+```mermaid
+graph TD
+    A[Raw Dataset] -->|Fetch & Filter| B(Ingestion Module)
+    B -->|Classify & Anonymize| C[Anonymized Data]
+    C -->|Embed & Score| D[Scored & Embedded Data]
+    D -->|Validate| E[Gold Standard]
+    D -->|Model| F[GLMM Analysis]
+    F -->|Results| G[Final JSON Report]
+    F -->|Plot| H[Boxplot PNG]
+```
 
-* The primary Linear Mixed‑Effects Model includes a random intercept for `thread_id`.  
-* Inclusion of a `user_id` random intercept is **conditional**: after fitting the base model, the variance component for `user_id` is inspected. If it is positive, `user_id` appears in both Prime and Control groups, and the model converges, a second model with `(1|user_id)` is fit. Otherwise, the `user_id` term is omitted and a warning is logged. This safeguards against singular fits and respects the observational design constraints.  
+## Data Hygiene Rules
+1. **Immutability**: Raw data files in `data/raw/` are never modified.
+2. **Checksums**: Every file in `data/` must have a corresponding SHA-256 checksum recorded in the project state.
+3. **PII**: No plaintext usernames or timestamps in `data/processed/` or `output/`.
+4. **Versioning**: All derived files include a `derived_from` field pointing to the source file hash.

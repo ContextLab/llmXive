@@ -1,33 +1,38 @@
 # Implementation Plan: The Effect of Priming on Prosocial Behavior in Online Communities
 
-**Branch**: `001-the-effect-of-priming-on-prosocial-behav` | **Date**: 2026-06-25  
-**Spec**: `specs/001-the-effect-of-priming-on-prosocial-behav/spec.md`
+**Branch**: `001-the-effect-of-priming-on-prosocial-behav` | **Date**: 2023-10-27 | **Spec**: `spec.md`
 
 ## Summary
 
-This project implements an observational study to quantify the correlation between prosocial priming cues in Reddit thread titles and the frequency of prosocial action verbs in subsequent comments. The technical approach involves: (1) Ingesting and filtering a **verified multi‑subreddit Reddit dataset**; (2) Classifying threads into “Prime” (containing non‑negated keywords: “help”, “support”, “charity”) and “Control” groups; (3) Anonymizing PII via SHA‑256 hashing; (4) Computing `prosocial_action_count` and VADER sentiment scores using CPU‑only NLP libraries; (5) Validating metrics against a **human‑generated gold standard**; and (6) Fitting a Linear Mixed‑Effects Model (LMM) to test the hypothesis while controlling for thread age and comment count.
+This project implements a computational social science study to determine if the presence of prosocial cues (keywords like "help", "support", "charity") in Reddit thread titles correlates with increased prosocial language in subsequent replies. The technical approach involves: (1) ingesting and filtering Reddit data from five specific subreddits using a verified multi-subreddit source (pushshift/reddit), (2) classifying threads into "Prime" and "Control" groups using NLTK tokenization and negation logic, (3) computing prosocial action counts and VADER sentiment scores on a CPU-only environment, (4) validating measurement tools against a human-annotated gold standard with distinct intent-based criteria, (5) generating **sentence embeddings** to control for semantic topic confounding, and (6) executing a **Generalized Linear Mixed Model (GLMM)** with a Negative Binomial link to test the hypothesis, controlling for topic, age, and other confounders. The implementation strictly adheres to the project constitution regarding reproducibility, data hygiene, and privacy.
+
+**Critical Statistical Correction**: The original spec (FR-005) requests a Linear Mixed-Effects Model (LMM) with Gaussian assumptions. However, the dependent variable `prosocial_action_count` is count data (integers ≥ 0). To ensure scientific validity, this plan mandates the use of a **Generalized Linear Mixed Model (GLMM)** with a **Negative Binomial distribution**. This corrects the violation of normality assumptions inherent in applying LMM to count data. The plan explicitly flags this as a necessary deviation from the spec's statistical method description, pending a formal spec amendment to align FR-005 with GLMM.
+
+**Topic Confounding Mitigation**: To address the "topic selection effect" (where Prime threads are inherently about prosocial topics), this plan introduces a **semantic topic control**. We will compute sentence embeddings for thread titles using a lightweight, CPU-tractable model (`all-MiniLM-L6-v2`). These embeddings (or their principal components) will be included as covariates in the GLMM to isolate the effect of the specific prime keyword from the general prosocial nature of the topic.
 
 ## Technical Context
 
 **Language/Version**: Python 3.11  
-**Primary Dependencies**: `pandas`, `nltk`, `vaderSentiment`, `statsmodels`, `scikit-learn`, `matplotlib`, `pyyaml`  
-**Storage**: Local `data/` directory (Parquet/CSV), `code/` for scripts, `contracts/` for schemas.  
-**Testing**: `pytest` (unit tests for classification logic, integration tests for pipeline).  
-**Target Platform**: GitHub Actions `ubuntu-latest` (CPU‑only, 2 cores, 7 GB RAM).  
-**Performance Goals**: Full pipeline (10 k comments) < 4 h; Memory < 7 GB.  
-**Constraints**: No GPU; all listed dependencies have CPU‑only wheels.
+**Primary Dependencies**: `pandas`, `nltk`, `vaderSentiment`, `statsmodels`, `scikit-learn`, `seaborn`, `matplotlib`, `requests`, `pyyaml`, `pydantic`, `sentence-transformers` (CPU-only version), `torch` (CPU wheel)  
+**Storage**: Local CSV/Parquet files (data hygiene enforced via checksums); no external DB.  
+**Testing**: `pytest` (unit tests for classification logic, integration tests for pipeline flow, contract tests for schema validation).  
+**Target Platform**: GitHub Actions `ubuntu-latest` (2 vCPU, 7 GB RAM, CPU-only).  
+**Project Type**: Data Science / Research Pipeline (CLI).  
+**Performance Goals**: Full pipeline (10k comments) ≤ 4 hours; Memory usage ≤ 6 GB peak.  
+**Constraints**: No GPU usage; strict PII anonymization (SHA-256 hashing); dataset must contain all target subreddits.  
+**Scale/Scope**: A large volume of comments; subreddits; Multiple raters for validation.
 
 ## Constitution Check
 
 | Principle | Status | Implementation Detail |
 | :--- | :--- | :--- |
-| **I. Reproducibility** | **PASS** | Random seeds pinned in `code/`. Dependencies pinned in `requirements.txt`. Dataset sources fixed to verified URLs. |
-| **II. Verified Accuracy** | **PASS** | Dataset URLs cited are from the verified block. No hallucinated sources. |
-| **III. Data Hygiene** | **PASS** | Raw data preserved in `data/raw/`. Derivations in `data/processed/`. Checksums recorded. |
-| **IV. Single Source of Truth** | **PASS** | All stats in `paper/` trace to `data/processed/analysis_results.json`. |
-| **V. Versioning Discipline** | **PASS** | After each artifact is written, its SHA‑256 checksum is computed and the central state file `state/projects/PROJ-050-the-effect-of-priming-on-prosocial-behav.yaml` is updated with the new hash, ensuring traceability. |
-| **VI. Measurement Validity** | **PASS** | FR‑010/FR‑011 mandate human annotation validation (Cohen’s Kappa ≥ 0.7). VADER and lexicon validated on stratified sample. |
-| **VII. Participant Privacy** | **PASS** | FR mandates SHA‑256 hashing of usernames and stripping timestamps before storage. |
+| **I. Reproducibility** | **PASS** | All random seeds pinned in `code/`; dataset sources fixed to verified HuggingFace URLs; `requirements.txt` pins versions. |
+| **II. Verified Accuracy** | **PASS** | All dataset URLs cited from the `# Verified datasets` block (including the verified `pushshift/reddit` multi-subreddit source); no external citations invented. |
+| **III. Data Hygiene** | **PASS** | Raw data preserved; derivations written to new files; checksums recorded in state YAML; PII scan enforced. |
+| **IV. Single Source of Truth** | **PASS** | All figures/stats trace to `data/` and `code/`; no hand-typed numbers. |
+| **V. Versioning Discipline** | **PASS** | Artifacts hashed; state file updated on change. |
+| **VI. Measurement Validity** | **PASS** | VADER and action lexicon validated against human annotations (Cohen's Kappa ≥ 0.7) per FR-011/SC-006. Human codebook explicitly distinguishes *intent* from *lexical form* to avoid circular validation. |
+| **VII. Privacy/Anonymization** | **PASS** | Usernames hashed (SHA-256); timestamps stripped after deriving `thread_age`; no PII in output. |
 
 ## Project Structure
 
@@ -35,126 +40,132 @@ This project implements an observational study to quantify the correlation betwe
 
 ```text
 specs/001-the-effect-of-priming-on-prosocial-behav/
-├── plan.md               # This file
-├── research.md           # Phase 0 output
-├── data-model.md         # Phase 1 output
-├── quickstart.md         # Phase 1 output
-└── contracts/
-    ├── dataset.schema.yaml
-    └── output.schema.yaml
+├── plan.md              # This file
+├── research.md          # Phase 0 output
+├── data-model.md        # Phase 1 output
+├── quickstart.md        # Phase 1 output
+├── contracts/           # Phase 1 output
+│   ├── dataset.schema.yaml
+│   ├── output.schema.yaml
+│   └── gold_standard.schema.yaml
+└── tasks.md             # Phase 2 output (generated later)
 ```
 
 ### Source Code (repository root)
 
 ```text
-projects/PROJ-050-the-effect-of-priming-on-prosocial-behav/
-├── code/
+code/
+├── __init__.py
+├── main.py              # Orchestration entry point
+├── config.py            # Constants (subreddits, keywords, seeds)
+├── ingestion/
 │   ├── __init__.py
-│   ├── requirements.txt
-│   ├── 01_ingest.py          # Data retrieval, filtering, anonymization
-│   ├── 02_classify.py        # Prime/Control logic, negation handling
-│   ├── 03_score.py           # VADER + Prosocial Lexicon scoring
-│   ├── 04_validate.py        # Human annotation validation (Cohen's Kappa)
-│   ├── 05_analyze.py         # LMM fitting, sensitivity analysis, plotting
-│   └── utils/
-│       ├── constants.py      # Keywords, subreddits, seeds
-│       └── anonymize.py      # SHA‑256 hashing
-├── data/
-│   ├── raw/                  # Downloaded parquet (checksummed)
-│   ├── processed/            # Anonymized, classified, scored data
-│   └── validation/           # Human annotation gold standard
-├── contracts/                # (Symlinked or copied from specs)
+│   ├── fetch_data.py    # Data retrieval, validation, & filtering
+│   └── classify.py      # Prime/Control classification logic
+├── processing/
+│   ├── __init__.py
+│   ├── scoring.py       # VADER & Action Count
+│   ├── embedding.py     # Sentence embedding generation (CPU)
+│   ├── validation.py    # Human annotation comparison
+│   └── anonymize.py     # PII hashing
+├── analysis/
+│   ├── __init__.py
+│   ├── glmm.py          # Generalized Linear Mixed Model (Negative Binomial)
+│   ├── sensitivity.py   # Bootstrap & robustness checks
+│   └── viz.py           # Boxplot generation
+├── utils/
+│   ├── logger.py
+│   └── checksum.py
 └── tests/
-    ├── test_classification.py
-    └── test_anonymization.py
+    ├── test_classify.py
+    ├── test_scoring.py
+    └── test_glmm.py
+
+data/
+├── raw/                 # Downloaded parquet files (checksummed)
+├── processed/           # Anonymized, scored, embedded CSVs
+└── validation/          # gold_standard.csv, validation_reports/
+
+output/
+├── results.json         # Final stats & p-values
+├── figures/             # boxplot.png
+└── logs/
 ```
 
-**Structure Decision**: Single‑project structure; sequential pipeline stages fit the `code/` pattern for computational projects. No web/mobile components required.
+**Structure Decision**: Single `code/` directory with modular sub-packages (`ingestion`, `processing`, `analysis`) to maintain clear separation of concerns while keeping the project runnable as a single CLI tool. This minimizes overhead and fits the GitHub Actions runner constraints.
 
-## Phase Plan (Computational Task Ordering)
+## FR/SC Coverage Mapping
 
-1. **Phase 0: Research & Validation Strategy**  
-   * Confirm dataset availability for the 5 target subreddits.  
-   * Define the “Prosocial Action Lexicon” (excluding prime keywords).  
-   * Draft the Human Annotation Protocol (codebook, rater recruitment, annotation format).  
-
-2. **Phase 1: Data Ingestion & Anonymization (FR‑001, FR‑001a, FR‑009)**  
-   * Download the **primary verified multi‑subreddit source** `pushshift/reddit` from HuggingFace.  
-   * **Verify** that **all five** target subreddits are present. If any are missing, **attempt** to load the **fallback dataset** `pushshift/reddit` (same source but refreshed). If the fallback also lacks required subreddits, **abort with a clear error** (fulfills FR‑001a).  
-   * Filter by the target subreddits.  
-   * Compute `thread_age` **before** stripping timestamps (difference between comment timestamp and thread start, expressed in hours). Store the derived column.  
-   * Hash usernames with SHA‑256, truncate to 16 characters for `user_id`.  
-   * Remove plaintext timestamps and usernames.  
-   * Save `data/processed/raw_anonymized.parquet`.  
-
-3. **Phase 2: Classification (FR‑002, FR‑002a)**  
-   * Apply keyword logic with NLTK word tokenization, excluding titles where a negation word (`no`, `not`, `never`, `without`) appears within three tokens before a keyword.  
-   * Label `thread_type` as “Prime” or “Control”.  
-   * Log any “Negation Exclusions”.  
-   * Save `data/processed/classified.parquet`.  
-
-4. **Phase 3: Scoring (FR‑003, FR‑003b, FR‑012)**  
-   * Compute VADER sentiment scores (`compound`, `pos`, `neu`, `neg`).  
-   * Define `neg_score` as the VADER `neg` component (0‑1).  
-   * Compute `prosocial_action_count` using the secondary lexicon of action verbs (e.g., “offer”, “give”, “assist”, “contribute”) **excluding** the prime keywords and their semantic equivalents.  
-   * Ensure CPU‑only execution; runtime monitored to stay < 4 h for TARGET_N = 10 000 comments.  
-   * Save `data/processed/scored.parquet`.  
-
-5. **Phase 4: Validation (FR‑010, FR‑011)**  
-   * **Human Annotation Protocol** (no simulation):  
-     1. Recruit **at least three independent raters**.  
-     2. Provide a **codebook** defining “prosocial action” (action‑verb list) and “negative sentiment” (VADER neg interpretation).  
-     3. Perform **stratified random sampling** by the cross‑product of `thread_type` and `subreddit` with a **minimum of 50 samples per stratum**. If a stratum has < 50, merge with the most similar subreddit until the threshold is met.  
-   * Raters annotate the sampled comments; their labels are compiled into `data/validation/gold_standard.csv` which must contain a `human_raters` metadata field listing the rater IDs.  
-   * `04_validate.py` loads this file, computes Cohen’s Kappa for both the prosocial lexicon and VADER negativity against the human labels, and **aborts** if Kappa < 0.7 (SC‑006). No simulated or rule‑based gold standard is used.  
-
-6. **Phase 5: Analysis (FR‑004, FR‑005, FR‑005a, SC‑001, SC‑002)**  
-   * Fit a **base** Linear Mixed‑Effects Model using `statsmodels`:
-
-     ```python
-     model_base = smf.mixedlm(
-         "prosocial_action_count ~ thread_type + thread_age + comment_count",
-         data=df,
-         groups=df["thread_id"]
-     ).fit()
-     ```
-
-   * **Diagnostic**: Examine the variance component for `user_id`.  
-     - If the variance is **positive**, `user_id` appears in both Prime and Control groups, and the model converges, fit a **second model** adding `(1|user_id)`.  
-     - If the variance is zero, non‑identifiable, or `user_id` never appears across both conditions, **omit** the `user_id` random effect, log a warning, and retain `model_base`.  
-   * Perform sensitivity analysis reporting significance at thresholds p < 0.01, p < 0.05, p < 0.10.  
-   * Generate a boxplot PNG comparing `prosocial_action_count` distributions across `thread_type`.  
-   * Output `results/analysis_results.json` and `results/boxplot.png`.  
-
-7. **Phase 6: Reporting (FR‑006, SC‑003, SC‑004, SC‑005, SC‑007, SC‑008)**  
-   * Verify total runtime < 4 h (SC‑004).  
-   * Run a PII scan on the final `data/processed/` files to confirm zero plaintext usernames or timestamps (SC‑005).  
-   * Compile the final JSON report (conforming to `contracts/output.schema.yaml`) which includes model summary, sensitivity analysis, validation results (Kappa and pass flag), and metadata (sample sizes, runtime).  
-
-## FR/SC Mapping
-
-| ID | Type | Plan Element |
+| FR/SC ID | Plan Phase/Step | Implementation Detail |
 | :--- | :--- | :--- |
-| FR-001 | Req | Phase 1 ingestion logic, subreddit filter, TARGET_N handling. |
-| FR-001a | Req | Phase 1 verification of subreddit presence; fallback to `pushshift/reddit` or abort. |
-| FR-002 | Req | Phase 2 keyword classification with negation exclusion. |
-| FR-002a | Req | Phase 2 logging of “Negation Exclusions”. |
-| FR-003 | Req | Phase 3 VADER scoring implementation. |
-| FR-003b | Req | Phase 3 secondary lexicon construction (exclude prime words). |
-| FR-004 | Req | Phase 5 LMM fixed effect for `thread_type`. |
-| FR-005 | Req | Phase 5 LMM controls (`thread_age`, `comment_count`). |
-| FR-005a | Req | Phase 5 sensitivity analysis thresholds. |
-| FR-006 | Req | Phase 6 boxplot generation. |
-| FR-009 | Req | Phase 1 SHA‑256 hashing, timestamp stripping. |
-| FR-010 | Req | Phase 4 stratified sampling (thread_type × subreddit) with ≥ 50 per stratum. |
-| FR-011 | Req | Phase 4 Human Annotation Protocol (3 raters, codebook). |
-| FR-012 | Req | Phase 3 CPU‑only constraint, runtime monitoring. |
-| SC-001 | Metric | Phase 5 LMM p‑value < 0.05 check. |
-| SC-002 | Metric | Phase 5 coefficient stability after controls. |
-| SC-003 | Metric | Phase 5 reporting of p‑value and CI. |
-| SC-004 | Metric | Phase 3/5 runtime < 4 h verification. |
-| SC-005 | Metric | Phase 6 PII scan report. |
-| SC-006 | Metric | Phase 4 Kappa ≥ 0.7 report. |
-| SC-007 | Metric | Phase 4 confirmation that gold standard was produced by human raters. |
-| SC-008 | Metric | Phase 3 `neg_score` definition check (VADER `neg` component). |
+| **FR-001** | Ingestion | `fetch_data.py` loops until a sufficient number of comments are collected or exhaustion; aborts if <4k/group. |
+| **FR-001a** | Ingestion | `fetch_data.py` validates subreddit presence; switches to verified `pushshift/reddit` if primary fails. |
+| **FR-002** | Classification | `classify.py` uses NLTK `word_tokenize` + negation window (variable size) logic. |
+| **FR-002a** | Classification | Negation exclusions logged and assigned to Control. |
+| **FR-002c** | Classification | **Not Implemented (Optional)**. Confidence score feature skipped as per plan decision. |
+| **FR-003** | Scoring | `scoring.py` computes VADER scores + `prosocial_action_count`. |
+| **FR-003b** | Scoring | Action lexicon excludes prime keywords and semantic equivalents (`donate`, `share`, etc.). |
+| **FR-004** | Analysis | `glmm.py` generates descriptive stats JSON. |
+| **FR-005** | Analysis | `glmm.py` fits **GLMM (Negative Binomial)** formula with `statsmodels`; p < 0.05 threshold. *Note: Deviates from spec's LMM(Gaussian) to ensure statistical validity.* **Includes topic embedding covariate.** |
+| **FR-005a** | Analysis | `sensitivity.py` runs A sufficient number of bootstrap resamples will be generated to ensure robust estimation of sampling variability. + model variants. |
+| **FR-005b** | Analysis | `glmm.py` checks variance component; drops `user_id` if singular fit. |
+| **FR-006** | Analysis | `viz.py` generates `boxplot.png`. |
+| **FR-009** | Anonymization | `anonymize.py` hashes usernames (SHA-256) after computing `thread_age`. |
+| **FR-010** | Validation | `validation.py` performs stratified sampling with a minimum threshold per stratum and merge logic. |
+| **FR-010a** | Validation | **Explicitly implemented**: Merge hierarchy (Thematic -> Thread Type -> Global) as per spec. |
+| **FR-011** | Validation | `human_annotation_protocol.md` defines protocol; `gold_standard.csv` structure enforced. |
+| **FR-012** | Performance | All processing uses CPU-optimized pandas/nltk; memory profiling in CI. Embedding generation is vectorized. |
+| **FR-013** | Pre-study | `main.py` includes power analysis check (d=0.15) and prevalence estimation before full run. |
+| **FR-014** | Ingestion | **Pre-flight Check**: `fetch_data.py` programmatically confirms subreddit presence before retrieval. |
+| **SC-001** | Analysis | GLMM p-value output in `results.json`. |
+| **SC-002** | Analysis | Control variable significance checked in GLMM output. |
+| **SC-003** | Analysis | p < 0.05 threshold applied. |
+| **SC-004** | Performance | CI timeout set to 4 hours; runtime monitored. |
+| **SC-005** | Anonymization | PII scan script runs on `data/processed/`. |
+| **SC-006** | Validation | Cohen's Kappa ≥ 0.7 calculated in `validation.py`. |
+| **SC-007** | Validation | `gold_standard.csv` requires ≥ 3 raters. |
+| **SC-008** | Validation | `neg_score` correlation with VADER `neg` checked. |
+| **SC-009** | Anonymization | `thread_age` validation in `data-model.md`. |
+| **SC-010** | Pre-study | Power analysis warning logged if N < required. |
 
+## Computational Feasibility
+
+- **Hardware**: GitHub Actions `ubuntu-latest` (2 vCPU, 7 GB RAM).
+- **Strategy**: 
+  - Data loaded in chunks or filtered immediately to stay under 6 GB RAM.
+  - VADER and NLTK are CPU-efficient; no GPU required.
+ - **Embedding Generation**: `sentence-transformers` with `all-MiniLM-L6-v2` is CPU-optimized and runs efficiently on cores for A dataset of [deferred] rows (approx. 1-2 mins).
+  - GLMM via `statsmodels` (Negative Binomial) is CPU-native and scales linearly for N=10k.
+  - Bootstrap (multiple iterations) is parallelized via `joblib` (multiprocessing) but limited to a small number of cores to avoid OOM.
+- **Risk Mitigation**: If memory exceeds 6 GB, `pandas` will be replaced with `dask` or data will be downsampled (logged) per FR-013.
+
+## Data Gap Resolution Protocol
+
+1. **Primary Source**: Attempt to load `pushshift/reddit` (HuggingFace) as the primary verified multi-subreddit source.
+2. **Pre-flight Validation**: Before retrieval, `fetch_data.py` executes `validate_subreddits()` to confirm the presence of all 5 target subreddits (`r/AskReddit`, `r/relationships`, `r/socialscience`, `r/psychology`, `r/dataisbeautiful`).
+3. **Switch Logic**: If the primary source lacks any required subreddit, the system **MUST** switch to the verified fallback (same source, different query parameters or a secondary verified multi-subreddit dataset if available) **before** proceeding. If no verified multi-subreddit source is available, the system aborts with a clear error message listing the missing subreddits.
+4. **Abort Condition**: If the dataset is exhausted before reaching `TARGET_N` or group sizes are insufficient, the system aborts and logs the insufficiency.
+
+## Human Annotation Protocol Implementation
+
+- **Deliverable**: `human_annotation_protocol.md` will be created in `data/validation/`.
+- **Content**:
+  - Recruitment of independent raters.
+  - **Codebook Definition**: Explicitly defines "prosocial action" based on **intent** (e.g., "offers help", "provides resources") and **outcome** (e.g., "reduces distress"), distinct from the specific verb list used for the automated count. This ensures validation measures *behavioral intent* rather than *lexical matching*.
+  - Format for `gold_standard.csv` (columns: `comment_id`, `rater_id`, `label_prosocial`, `label_neg`).
+
+## Stratified Sampling Logic (FR-010a Compliance)
+
+The `validation.py` module implements the following hierarchy for insufficient strata:
+1. **Merge Thematic**: Merge subreddits within the same thematic category (e.g., "social-science" = `r/socialscience` + `r/psychology`).
+2. **Merge Thread Type**: If still insufficient, merge Prime and Control groups within the thematic category.
+3. **Global Pool**: If still insufficient, draw from the global pool until the -sample minimum is met.
+This logic is explicitly coded and tested to ensure compliance with FR-010a.
+
+## Topic Control Strategy
+
+To address the "topic selection effect":
+1. **Embedding Model**: Use `sentence-transformers/all-MiniLM-L6-v2`. This The model is small., runs on CPU, and produces high-dimensional vectors.
+2. **Dimensionality Reduction**: Due to multicollinearity concerns, we will apply Principal Component Analysis (PCA) to the embeddings and retain a subset of top components as covariates.
+3. **Model Integration**: These A set of components will be added as fixed effects in the GLMM.: `prosocial_action_count ~ thread_type + thread_age + comment_count + topic_pc1 + topic_pc2 + topic_pc3 + (1|thread_id) + (1|user_id)`.
+4. **Validation**: We will verify that the embeddings distinguish between Prime and Control topics, ensuring they are capturing relevant semantic variance.

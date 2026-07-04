@@ -1,87 +1,78 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Analysis Results Schema"
-description: "Schema for the JSON output of the Linear Mixed-Effects Model analysis."
-type: object
+type: "object"
 properties:
-  model_summary:
-    type: object
+  model_formula:
+    type: "string"
+    description: "The GLMM formula used."
+  prime_coefficient:
+    type: "number"
+    description: "Effect size of the Prime group."
+  prime_p_value:
+    type: "number"
+    description: "P-value for the Prime effect."
+  prime_ci_lower:
+    type: "number"
+    description: "Lower bound of the 95% CI."
+  prime_ci_upper:
+    type: "number"
+    description: "Upper bound of the 95% CI."
+  control_vars:
+    type: "object"
+    description: "Coefficients for control variables."
     properties:
-      p_value:
-        type: number
-        description: "P-value for the fixed effect of 'thread_type' (Prime vs Control)."
-      coefficient:
-        type: number
-        description: "Coefficient for the 'Prime' indicator variable."
-      std_error:
-        type: number
-        description: "Standard error of the coefficient."
-      confidence_interval:
-        type: array
-        items:
-          type: number
-        minItems: 2
-        maxItems: 2
-        description: "95% Confidence Interval [lower, upper]."
-      significant:
-        type: boolean
-        description: "True if p < 0.05."
-    required:
-      - p_value
-      - coefficient
-      - std_error
-      - confidence_interval
-      - significant
-  sensitivity_analysis:
-    type: object
+      thread_age:
+        type: "number"
+      comment_count:
+        type: "number"
+      topic_pc1:
+        type: "number"
+      topic_pc2:
+        type: "number"
+      topic_pc3:
+        type: "number"
+      subreddit:
+        type: "object"
+        description: "Coefficients for subreddit fixed effects."
+  random_effects:
+    type: "object"
+    description: "Variance components."
     properties:
-      p_0_01:
-        type: number
-        description: "Significance status at p < 0.01."
-      p_0_05:
-        type: number
-        description: "Significance status at p < 0.05."
-      p_0_10:
-        type: number
-        description: "Significance status at p < 0.10."
-    required:
-      - p_0_01
-      - p_0_05
-      - p_0_10
-  validation:
-    type: object
+      thread_id:
+        type: "number"
+      user_id:
+        type: "number"
+  sensitivity_results:
+    type: "array"
+    description: "Results from sensitivity analysis."
+    items:
+      type: "object"
+  power_analysis:
+    type: "object"
+    description: "Power analysis results."
     properties:
-      kappa_score:
-        type: number
-        description: "Cohen's Kappa score from human validation."
-      passed:
-        type: boolean
-        description: "True if kappa >= 0.7."
-    required:
-      - kappa_score
-      - passed
-  metadata:
-    type: object
-    properties:
+      power:
+        type: "number"
+      effect_size:
+        type: "number"
       sample_size:
-        type: integer
-        description: "Total number of comments analyzed."
-      prime_count:
-        type: integer
-        description: "Number of Prime threads."
-      control_count:
-        type: integer
-        description: "Number of Control threads."
-      runtime_seconds:
-        type: number
-        description: "Total pipeline runtime in seconds."
-    required:
-      - sample_size
-      - prime_count
-      - control_count
-      - runtime_seconds
+        type: "integer"
+  model_family:
+    type: "string"
+    description: "Distribution family used (e.g., 'Negative Binomial')."
+  topic_control_method:
+    type: "string"
+    description: "Description of the embedding/PCA method used for topic control."
 required:
-  - model_summary
-  - sensitivity_analysis
-  - validation
-  - metadata
+  - model_formula
+  - prime_coefficient
+  - prime_p_value
+  - prime_ci_lower
+  - prime_ci_upper
+  - control_vars
+  - random_effects
+  - sensitivity_results
+  - power_analysis
+  - model_family
+  - topic_control_method
 additionalProperties: false
