@@ -1,0 +1,63 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Archaeal tRNA Dataset Schema"
+description: "Schema for the merged dataset of tRNA features and organism metadata."
+type: "object"
+properties:
+  species_id:
+    type: "string"
+    description: "Unique identifier for the species (e.g., 'Methanocaldococcus_jannaschii')."
+  ogt:
+    type: "number"
+    description: "Optimal Growth Temperature in degrees Celsius."
+    minimum: 0
+  tRNA_type:
+    type: "string"
+    description: "Type of tRNA (e.g., 'tRNA-Ala')."
+  mean_stem_gc:
+    type: "number"
+    description: "Average GC percentage across all stem regions (0.0 to 1.0)."
+    minimum: 0
+    maximum: 1
+  composite_stem_gc:
+    type: "number"
+    description: "Composite Stem GC (mean of all stems) used as primary predictor."
+    minimum: 0
+    maximum: 1
+  stem_regions:
+    type: "object"
+    description: "Individual GC percentages for each stem region."
+    properties:
+      acceptor_stem:
+        type: "number"
+      d_stem:
+        type: "number"
+      anticodon_stem:
+        type: "number"
+      t_stem:
+        type: "number"
+    required:
+      - acceptor_stem
+      - d_stem
+      - anticodon_stem
+      - t_stem
+  source:
+    type: "string"
+    description: "Source of the metadata (e.g., 'BacDive')."
+  tRNA_count:
+    type: "integer"
+    description: "Number of tRNA types for this species (used for WLS weighting)."
+    minimum: 1
+  tree_coverage:
+    type: "boolean"
+    description: "True if species is present in the phylogenetic tree."
+required:
+  - species_id
+  - ogt
+  - tRNA_type
+  - mean_stem_gc
+  - composite_stem_gc
+  - stem_regions
+  - source
+  - tRNA_count
+  - tree_coverage
+additionalProperties: false

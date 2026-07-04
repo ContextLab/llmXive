@@ -1,0 +1,69 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Analysis Output Schema"
+description: "Schema for the final statistical analysis results."
+type: "object"
+properties:
+  correlation_r:
+    type: "number"
+    description: "Pearson correlation coefficient between mean stem GC and OGT."
+  p_value:
+    type: "number"
+    description: "P-value from the linear regression."
+  ci_95_lower:
+    type: "number"
+    description: "Lower bound of the 95% confidence interval for r."
+  ci_95_upper:
+    type: "number"
+    description: "Upper bound of the 95% confidence interval for r."
+  permutation_p_value:
+    type: ["number", "null"]
+    description: "Empirical p-value from the permutation test (>=1000 iterations). Null if no phylogenetic tree was available."
+  pic_adjusted_r:
+    type: ["number", "null"]
+    description: "Correlation coefficient adjusted for phylogeny (null if PIC not run)."
+  caution_flag:
+    type: ["string", "null"]
+    description: "Flag indicating associational nature if causality cannot be inferred."
+    pattern: "CAUTION: Associational findings only"
+  sensitivity_sweep:
+    type: "array"
+    description: "Results of the sensitivity analysis across thresholds."
+    items:
+      type: "object"
+      properties:
+        threshold_nt:
+          type: "integer"
+        method:
+          type: "string"
+          enum:
+            - "WLS"
+            - "Huber"
+        r:
+          type: "number"
+        p_value:
+          type: "number"
+      required:
+        - threshold_nt
+        - method
+        - r
+        - p_value
+  sample_size:
+    type: "integer"
+    description: "Number of species included in the analysis."
+    minimum: 30
+  m_des:
+    type: "number"
+    description: "Minimum Detectable Effect Size calculated with observed variance, alpha=0.05, power=0.80."
+  lasso_coefficients:
+    type: "object"
+    description: "Coefficients from LASSO regression for each stem type."
+    additionalProperties:
+      type: "number"
+required:
+  - correlation_r
+  - p_value
+  - ci_95_lower
+  - ci_95_upper
+  - sample_size
+  - m_des
+additionalProperties: false

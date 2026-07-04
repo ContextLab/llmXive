@@ -1,1 +1,22 @@
-[]
+- artifact_hash: a890e58d7b87a1a8580633bf11968fc0208b9a03f56a56c608a36521ec14cdd6
+  artifact_path: projects/PROJ-674-gc-content-and-thermal-stability-of-arch/specs/001-gc-content-and-thermal-stability-of-arch/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: bacdive_merged.csv
+  kind: url
+  value: https://huggingface.co/datasets/hukuang/bacdive_genomes/resolve/main/bacdive_merged.csv
+  verification_status: verified
+  verified_against_url: https://huggingface.co/api/resolve-cache/datasets/hukuang/bacdive_genomes/a02cad9139a4326d131c8f9d9e441e6a08fb9cde/bacdive_merged.csv?%2Fdatasets%2Fhukuang%2Fbacdive_genomes%2Fresolve%2Fmain%2Fbacdive_merged.csv=&etag=%22539a93420f49a9b14844fb69f6fa257b9720fea6%22
+  verified_at: '2026-07-04T02:39:13.064221Z'
+- artifact_hash: a890e58d7b87a1a8580633bf11968fc0208b9a03f56a56c608a36521ec14cdd6
+  artifact_path: projects/PROJ-674-gc-content-and-thermal-stability-of-arch/specs/001-gc-content-and-thermal-stability-of-arch/research.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: bacdive_merged.csv
+  kind: url
+  value: https://huggingface.co/datasets/hukuang/bacdive_genomes/resolve/main/bacdive_merged.csv`
+  verification_status: verified
+  verified_against_url: https://huggingface.co/api/resolve-cache/datasets/hukuang/bacdive_genomes/a02cad9139a4326d131c8f9d9e441e6a08fb9cde/bacdive_merged.csv?%2Fdatasets%2Fhukuang%2Fbacdive_genomes%2Fresolve%2Fmain%2Fbacdive_merged.csv=&etag=%22539a93420f49a9b14844fb69f6fa257b9720fea6%22
+  verified_at: '2026-07-04T02:39:13.064221Z'
