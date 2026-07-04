@@ -1,0 +1,2 @@
+# This directory stores processed datasets and model artifacts (e.g., golden_set.csv, load_model.pkl).
+# Do not commit large binary files. Add .gitkeep to ensure directory creation.

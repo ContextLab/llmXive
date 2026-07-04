@@ -1,0 +1,70 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Session Schema"
+description: "Schema for a learner interaction session and derived metrics."
+type: "object"
+required:
+  - session_id
+  - start_time
+  - end_time
+  - interactions
+  - estimated_load
+properties:
+  session_id:
+    type: "string"
+    description: "Unique identifier for the session (UUID)."
+  user_id:
+    type: "string"
+    description: "Anonymized user identifier (hashed)."
+  start_time:
+    type: "string"
+    format: "date-time"
+    description: "ISO 8601 timestamp of session start."
+  end_time:
+    type: "string"
+    format: "date-time"
+    description: "ISO 8601 timestamp of session end."
+  interactions:
+    type: "array"
+    description: "List of interaction events within the session."
+    items:
+      type: "object"
+      required:
+        - interaction_id
+        - timestamp
+        - response_time_ms
+        - is_correct
+        - hint_requested
+      properties:
+        interaction_id:
+          type: "string"
+        timestamp:
+          type: "string"
+          format: "date-time"
+        response_time_ms:
+          type: "number"
+          description: "Response latency in milliseconds."
+        is_correct:
+          type: "boolean"
+        hint_requested:
+          type: "boolean"
+  estimated_load:
+    type: "number"
+    minimum: 0
+    maximum: 100
+    description: "Predicted cognitive load score (0-100)."
+  complexity_tier:
+    type: "string"
+    enum:
+      - "simple"
+      - "moderate"
+      - "complex"
+    description: "Selected complexity tier for the session."
+  efficiency_metric:
+    type: "number"
+    description: "Calculated learning efficiency score."
+  condition:
+    type: "string"
+    enum:
+      - "adaptive"
+      - "static"
+    description: "Simulation condition applied."

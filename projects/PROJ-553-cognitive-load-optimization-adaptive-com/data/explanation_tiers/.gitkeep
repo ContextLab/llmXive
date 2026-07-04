@@ -1,0 +1,2 @@
+# This directory stores generated explanation tiers (CSV/JSON).
+# Do not commit large binary files. Add .gitkeep to ensure directory creation.

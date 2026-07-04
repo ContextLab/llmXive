@@ -1,0 +1,24 @@
+# Ruff configuration file
+# Extends settings from pyproject.toml if needed, or acts as standalone
+
+target-version = "py311"
+line-length = 88
+
+select = [
+    "E",
+    "W",
+    "F",
+    "I",
+    "B",
+    "C4",
+    "UP",
+]
+
+ignore = [
+    "E501",
+    "B008",
+]
+
+[per-file-ignores]
+"code/__init__.py" = ["F401"]
+"tests/__init__.py" = ["F401"]

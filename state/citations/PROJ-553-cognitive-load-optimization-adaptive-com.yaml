@@ -1,1 +1,22 @@
-[]
+- artifact_hash: 2fadf738e4f445c6ef4345c0e151c94ee3ce782f0517b233d89bd5765d5f9e06
+  artifact_path: projects/PROJ-553-cognitive-load-optimization-adaptive-com/specs/001-cognitive-load-optimization-adaptive-com/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: skill_builder_data_corrected.csv
+  kind: url
+  value: https://huggingface.co/datasets/OloriBern/assistments-dataset/resolve/main/skill_builder_data_corrected.csv`
+  verification_status: verified
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/68be9fcd60240ce5c7da4753/5efc92c302efe8d0473e385ccf1683946dc0002ac75a7a69bc158f94705f6e86?user_id=public&X-Xet-Cas-Uid=public&response-content-type=text%2Fcsv&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27skill_builder_data_corrected.csv%3B+filename%3D%22skill_builder_data_corrected.csv%22%3B&Expires=1783199441&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjhiZTlmY2Q2MDI0MGNlNWM3ZGE0NzUzLzVlZmM5MmMzMDJlZmU4ZDA0NzNlMzg1Y2NmMTY4Mzk0NmRjMDAwMmFjNzVhN2E2OWJjMTU4Zjk0NzA1ZjZlODZcXD91c2VyX2lkPXB1YmxpYyZYLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LXR5cGU9dGV4dCUyRmNzdiZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3c2tpbGxfYnVpbGRlcl9kYXRhX2NvcnJlY3RlZC5jc3YlM0IrZmlsZW5hbWUlM0QlMjJza2lsbF9idWlsZGVyX2RhdGFfY29ycmVjdGVkLmNzdiUyMiUzQiIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzgzMTk5NDQxfX19XX0_&Signature=MEYCIQDuytRxf7XAIzDKXIyyggmTgkbhRAyNi8XbajZIwL-aRAIhAPFJm%7EhD3loFuH5070uJK-VKpmz%7EmaU4y9uUdYoNxXEz&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+  verified_at: '2026-07-04T20:10:41.721615Z'
+- artifact_hash: 2fadf738e4f445c6ef4345c0e151c94ee3ce782f0517b233d89bd5765d5f9e06
+  artifact_path: projects/PROJ-553-cognitive-load-optimization-adaptive-com/specs/001-cognitive-load-optimization-adaptive-com/research.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: run_0000.json
+  kind: url
+  value: https://huggingface.co/datasets/predact/predact-bench-oulad/resolve/main/hugging_face/claude_haiku_4_5/oulad_40/run_0000.json`
+  verification_status: verified
+  verified_against_url: https://huggingface.co/api/resolve-cache/datasets/predact/predact-bench-oulad/19be6ecbcf0bb83ced372e9fb78f1ba3afba8ba1/hugging_face%2Fclaude_haiku_4_5%2Foulad_40%2Frun_0000.json?%2Fdatasets%2Fpredact%2Fpredact-bench-oulad%2Fresolve%2Fmain%2Fhugging_face%2Fclaude_haiku_4_5%2Foulad_40%2Frun_0000.json=&etag=%227eb4faeedcadb6b631def688b3b2879be764dfb5%22
+  verified_at: '2026-07-04T20:10:41.721615Z'

@@ -1,0 +1,53 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Complexity Tier Schema"
+description: "Schema for generated explanation complexity tiers."
+type: "object"
+required:
+  - tier_id
+  - source_item_id
+  - tier_level
+  - text_content
+  - readability_metrics
+properties:
+  tier_id:
+    type: "string"
+    description: "Unique identifier for the tier version."
+  source_item_id:
+    type: "string"
+    description: "ID of the original instructional unit."
+  tier_level:
+    type: "string"
+    enum:
+      - "simple"
+      - "moderate"
+      - "complex"
+    description: "Complexity classification."
+  text_content:
+    type: "string"
+    description: "The actual instructional text."
+  readability_metrics:
+    type: "object"
+    required:
+      - flesch_kincaid_grade
+      - sentence_count
+      - avg_sentence_length
+    properties:
+      flesch_kincaid_grade:
+        type: "number"
+        description: "Flesch-Kincaid Grade Level score."
+      sentence_count:
+        type: "integer"
+        description: "Number of sentences in the text."
+      avg_sentence_length:
+        type: "number"
+        description: "Average words per sentence."
+  key_term_similarity:
+    type: "number"
+    minimum: 0
+    maximum: 1
+    description: "Jaccard similarity of key terms vs source."
+  semantic_similarity:
+    type: "number"
+    minimum: 0
+    maximum: 1
+    description: "Semantic similarity score vs source."

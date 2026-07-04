@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-13T11:52:57.078364Z'
-current_stage: specified
+current_stage: in_progress
 failed_stage: null
 field: psychology
 human_escalation_reason: null
 id: PROJ-553-cognitive-load-optimization-adaptive-com
-last_run_id: 0449227c-5fcb-4050-aec5-f394861fe91c
+last_run_id: 5d4b6289-b546-4b53-afdb-a8d8aa81ccfa
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-553-cognitive-load-optimization-adaptive-com/specs/001-cognitive-load-optimization-adaptive-com
 title: 'Cognitive Load Optimization: Adaptive Complexity Scaling for Personalized
   Learning'
-updated_at: '2026-06-28T21:38:25.654624Z'
+updated_at: '2026-07-04T20:36:48.491058Z'

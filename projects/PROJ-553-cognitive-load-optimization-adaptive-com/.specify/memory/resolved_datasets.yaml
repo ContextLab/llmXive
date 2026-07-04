@@ -1,0 +1,178 @@
+resolved_at: '2026-07-04T20:02:29.631461+00:00'
+datasets:
+- intent: ASSISTments
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/OloriBern/assistments-dataset/resolve/main/skill_builder_data_corrected.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/OloriBern/assistments-classic-recommender/resolve/main/item_mapping.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/Atomi/ASSISTments2009/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/ASSISTments/FoundationalASSIST/resolve/main/Data/Interactions.csv
+    source: huggingface
+    status: wrong_format
+    reason: HTTP 401
+  - url: https://huggingface.co/datasets/Atomi/ASSISTments2009/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/OloriBern/assistments-dataset/resolve/main/skill_builder_data_corrected.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/OloriBern/assistments-classic-recommender/resolve/main/item_mapping.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://figshare.com/articles/figure/A_new_consideration_on_reinforcement_distribution_in_the_different_planes_of_nanostructured_metal_matrix_composite_sheets_prepared_by_accumulative_roll_bonding_ARB_https_doi_org_10_1016_j_jallcom_2011_07_084_/32900579
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Core_SR_data_and_supplementary_materials_for_Diagnostic_Accuracy_of_AI_in_Dermatology_for_Skin_of_Colour_A_Systematic_Review_and_Meta-analysis/30827987
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/DhakaPAKHI_Dhaka-based_Precision_Aerial_Knowledge_for_Hazard_Identification/32899151
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/Figures_from_Nam_and_Capecchi_2023_at_high_resolution_600_ppi_/21865815
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/Nam_and_Capecchi_2020_high_resolution_600_dpi_figures/16788295
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4008048
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17166151
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6945530
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4008056
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14563229
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.5281/zenodo.21185997
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: HTTP 410'
+  - url: https://zenodo.org/records/21186391
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21186391
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/jf5zh/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/5x7mq/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: OULAD
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/predact/predact-bench-oulad/resolve/main/hugging_face/claude_haiku_4_5/oulad_40/run_0000.json
+    source: huggingface
+    format: json
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 11833
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/predact/predact-bench-oulad/resolve/main/hugging_face/claude_haiku_4_5/oulad_40/run_0000.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://figshare.com/articles/preprint/AI_and_Analytics_for_Detecting_Fraud_and_Financial_Risks/32900582
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/A_new_double-layer_sol_gel_coating_to_improve_the_corrosion_resistance_of_a_medical-grade_stainless_steel_in_a_simulated_body_fluid_https_doi_org_10_1016_j_matlet_2013_01_111_/32900585
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/A_new_consideration_on_reinforcement_distribution_in_the_different_planes_of_nanostructured_metal_matrix_composite_sheets_prepared_by_accumulative_roll_bonding_ARB_https_doi_org_10_1016_j_jallcom_2011_07_084_/32900579
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Core_SR_data_and_supplementary_materials_for_Diagnostic_Accuracy_of_AI_in_Dermatology_for_Skin_of_Colour_A_Systematic_Review_and_Meta-analysis/30827987
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/DhakaPAKHI_Dhaka-based_Precision_Aerial_Knowledge_for_Hazard_Identification/32899151
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4535082
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5684779
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4687323
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10131572
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10131566
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21191339
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21191339
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.17632/v3vpnpwhyk.1
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: HTTP 404'
+  - url: https://doi.org/10.17632/v3vpnpwhyk
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: HTTP 404'
+  - url: https://zenodo.org/records/21151144
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
