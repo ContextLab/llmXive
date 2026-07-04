@@ -1,0 +1,10 @@
+T001 Create project structure per implementation plan (`code/`, `data/`, `results/`, `tests/`): 2
+? 'T002 Initialize Python 3.10 project with `requirements.txt` (pinned versions: pandas,
+  numpy, scikit-learn, statsmodels, seaborn, matplotlib, pyarrow, requests, zCompositions,
+  huggingface_hub)'
+: 2
+T003 [P] Configure linting (ruff/flake8) and formatting (black) tools: 2
+? T006 [P] Implement streaming/batch data loader utilities in `code/utils/streaming.py`
+  to handle >14GB datasets within 7GB RAM limits
+: 2
+T007 Create base data models/entities (Participant, MicrobiomeProfile, CognitiveScore) in `code/models/`: 1

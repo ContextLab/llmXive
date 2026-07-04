@@ -1,0 +1,89 @@
+resolved_at: '2026-07-04T10:51:19.260582+00:00'
+datasets:
+- intent: ILR
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/punwaiw/il-reasoning-responses/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/punwaiw/il-reasoning-responses/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/ILRDF/ithuan_formosan_train/resolve/main/Amis_Xiuguluan/train-00000-of-00006.parquet
+    source: huggingface
+    status: wrong_format
+    reason: HTTP 401
+  - url: https://huggingface.co/datasets/ILRDF/klokah_asr_train_clean/resolve/main/Amis_Coastal/train-00000-of-00002.parquet
+    source: huggingface
+    status: wrong_format
+    reason: HTTP 401
+  - url: https://huggingface.co/datasets/ILRDF/klokah_tts_train_clean/resolve/main/Amis_Coastal/train-00000-of-00003.parquet
+    source: huggingface
+    status: wrong_format
+    reason: HTTP 401
+  - url: https://figshare.com/articles/poster/Nursing_Form_2026_-2027_College_of_Nursing_Sciences_National_Obstetric_Fistula_Centre_Abakaliki_Is_Open_Call_O7O-468-O5833_Have_begun_the_admission_exercise_O7O46805833_07046805833_Prospective_candidates_are_encouraged_to_apply_early_to_avo/32899475
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Nursing_Form_2026_-2027_Royal_College_of_Nursing_Sciences_Ebonyi_State_Is_Open_Call_O7O-468-O5833_Have_begun_the_admission_exercise_O7O46805833_07046805833_Prospective_candidates_are_encouraged_to_apply_early_to_avoid_the_last-minute_rush_a/32899466
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/ScRNA-seq_data_of_seven_reproductive-axis_tissues_in_Baoshan_pig/31884982
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Nursing_Form_2026_-2027_College_of_Nursing_Sciences_Uburu_Ebonyi_State_Is_Open_Call_O7O-468-O5833_Have_begun_the_admission_exercise_O7O46805833_07046805833_Prospective_candidates_are_encouraged_to_apply_early_to_avoid_the_last-minute_rush_a/32899436
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Nursing_Form_2026_-2027_College_of_Nursing_Sciences_AEFUTH_Abakaliki_Ebonyi_State_Is_Open_Call_O7O-468-O5833_Have_begun_the_admission_exercise_O7O46805833_07046805833_Prospective_candidates_are_encouraged_to_apply_early_to_avoid_the_last-mi/32899433
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20088142
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/546423
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15611780
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20101862
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4770204
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datacatalogue.ukdataservice.ac.uk/studies/study/8190#doi
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datacatalogue.ukdataservice.ac.uk/studies/study/9337#doi
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/brfn9/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21036215
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21036215
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

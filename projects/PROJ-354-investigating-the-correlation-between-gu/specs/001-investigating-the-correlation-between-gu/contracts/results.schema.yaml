@@ -1,0 +1,57 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Association Results Schema"
+description: "Schema for the output of the statistical analysis"
+type: "object"
+properties:
+  taxon_name:
+    type: "string"
+    description: "Name of the genus-level taxon"
+  cognitive_metric:
+    type: "string"
+    description: "Name of the cognitive metric"
+    enum: ["reaction_time", "numeric_memory", "reasoning"]
+  effect_size_beta:
+    type: "number"
+    description: "Coefficient from the linear model (Lasso/Ridge)"
+  unadjusted_p_value:
+    type: "number"
+    description: "Raw p-value"
+    minimum: 0
+    maximum: 1
+  adjusted_p_value:
+    type: "number"
+    description: "Benjamini-Hochberg adjusted p-value"
+    minimum: 0
+    maximum: 1
+  interaction_p_value:
+    type: ["number", "null"]
+    description: "P-value for the Age_Group * Taxon interaction"
+    minimum: 0
+    maximum: 1
+  interaction_adjusted_p_value:
+    type: ["number", "null"]
+    description: "Benjamini-Hochberg adjusted p-value for interaction term"
+    minimum: 0
+    maximum: 1
+  model_type:
+    type: "string"
+    enum: ["main_effect", "interaction_effect"]
+    description: "Type of model this result came from"
+  causality_claim:
+    type: "boolean"
+    const: false
+    description: "Always false to frame findings as associational"
+  regularization:
+    type: "string"
+    enum: ["lasso", "ridge", "ols"]
+    description: "Regularization method used"
+required:
+  - taxon_name
+  - cognitive_metric
+  - effect_size_beta
+  - unadjusted_p_value
+  - adjusted_p_value
+  - causality_claim
+  - model_type
+  - regularization
+additionalProperties: false

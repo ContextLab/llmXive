@@ -1,0 +1,72 @@
+- artifact_path: projects/PROJ-354-investigating-the-correlation-between-gu/results/validation/instrument_citation_report.md
+  attempts: 1
+  canonical: Citation cognitive_fluid_intelligence verified against DOI 10.1038/s41586-018-0579-z
+  claim_id: c_df9cb12c
+  context: All instruments listed below have been cross-referenced with their canonical
+    definitions in the UK Biobank Data Showcase and associated literature.
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: citation
+  raw_text: 'Citation cognitive_fluid_intelligence verified against primary source
+    (DOI: 10.1038/s41586-018-0579-z).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-04T11:21:32Z'
+- artifact_path: projects/PROJ-354-investigating-the-correlation-between-gu/results/validation/instrument_citation_report.md
+  attempts: 1
+  canonical: Citation cognitive_reaction_time verified against DOI 10.1038/s41586-018-0579-z
+  claim_id: c_470c78b1
+  context: All instruments listed below have been cross-referenced with their canonical
+    definitions in the UK Biobank Data Showcase and associated literature.
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: citation
+  raw_text: 'Citation cognitive_reaction_time verified against primary source (DOI:
+    10.1038/s41586-018-0579-z).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-04T11:21:34Z'
+- artifact_path: projects/PROJ-354-investigating-the-correlation-between-gu/results/validation/instrument_citation_report.md
+  attempts: 1
+  canonical: Citation cognitive_pair_matching verified against DOI 10.1038/s41586-018-0579-z
+  claim_id: c_b99ec4e3
+  context: All instruments listed below have been cross-referenced with their canonical
+    definitions in the UK Biobank Data Showcase and associated literature.
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: citation
+  raw_text: 'Citation cognitive_pair_matching verified against primary source (DOI:
+    10.1038/s41586-018-0579-z).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-04T11:21:37Z'
+- artifact_path: projects/PROJ-354-investigating-the-correlation-between-gu/results/validation/instrument_citation_report.md
+  attempts: 1
+  canonical: Citation cognitive_prospective_memory verified against DOI 10.1038/s41586-018-0579-z
+  claim_id: c_541daaec
+  context: All instruments listed below have been cross-referenced with their canonical
+    definitions in the UK Biobank Data Showcase and associated literature.
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: citation
+  raw_text: 'Citation cognitive_prospective_memory verified against primary source
+    (DOI: 10.1038/s41586-018-0579-z).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-04T11:21:40Z'

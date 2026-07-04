@@ -1,0 +1,64 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Processed Dataset Schema"
+description: "Schema for the ILR-transformed microbiome and cognitive data"
+type: "object"
+properties:
+  participant_id:
+    type: "string"
+    description: "Unique identifier for the participant"
+  ilr_coordinates:
+    type: "object"
+    description: "ILR-transformed genus-level coordinates"
+    additionalProperties:
+      type: "number"
+      description: "ILR coordinate value for a specific genus"
+  cognitive_scores:
+    type: "object"
+    description: "Standardized cognitive performance metrics"
+    properties:
+      reaction_time_ms:
+        type: "number"
+        description: "Reaction time in milliseconds"
+      numeric_memory_score:
+        type: "number"
+        description: "Numeric memory score (0-100)"
+      reasoning_score:
+        type: "number"
+        description: "Reasoning score (0-100)"
+    required:
+      - reaction_time_ms
+      - numeric_memory_score
+      - reasoning_score
+  confounders:
+    type: "object"
+    description: "Confounder variables"
+    properties:
+      age:
+        type: "number"
+      sex:
+        type: "string"
+        enum: ["Male", "Female"]
+      bmi:
+        type: "number"
+      diet_quality_score:
+        type: "number"
+      physical_activity_level:
+        type: "string"
+      medication_use:
+        type: "boolean"
+      antibiotic_use:
+        type: "boolean"
+    required:
+      - age
+      - sex
+      - bmi
+      - diet_quality_score
+      - physical_activity_level
+      - medication_use
+      - antibiotic_use
+required:
+  - participant_id
+  - ilr_coordinates
+  - cognitive_scores
+  - confounders
+additionalProperties: false
