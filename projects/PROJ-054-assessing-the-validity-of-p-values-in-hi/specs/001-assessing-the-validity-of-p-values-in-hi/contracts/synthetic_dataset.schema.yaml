@@ -1,0 +1,51 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "SyntheticDataset Metadata"
+description: "Schema for the metadata file accompanying a generated synthetic dataset."
+type: object
+required:
+  - dataset_id
+  - n
+  - p
+  - rho
+  - distribution
+  - seed
+  - checksum
+properties:
+  dataset_id:
+    type: string
+    description: "Unique UUID for the dataset."
+  n:
+    type: integer
+    minimum: 1
+    description: "Number of samples."
+  p:
+    type: integer
+    minimum: 1
+    description: "Number of features."
+  rho:
+    type: number
+    minimum: 0.0
+    maximum: 1.0
+    description: "Target correlation coefficient."
+  distribution:
+    type: string
+    enum:
+      - "normal"
+      - "t_df3"
+      - "skew"
+    description: "Type of distribution used."
+  seed:
+    type: integer
+    description: "Random seed used for generation."
+  checksum:
+    type: string
+    pattern: "^[a-f0-9]{64}$"
+    description: "SHA-256 hash of the data matrix."
+  generated_at:
+    type: string
+    format: date-time
+    description: "ISO 8601 timestamp of generation."
+  config_hash:
+    type: string
+    description: "Hash of the configuration parameters for reproducibility."
+additionalProperties: false

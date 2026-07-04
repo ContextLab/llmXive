@@ -1,0 +1,248 @@
+resolved_at: '2026-07-04T17:31:50.958699+00:00'
+datasets:
+- intent: QQ-plots
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/thesis/Thesis_b_Determinants_of_Digital_Transformation_and_Operational_Efficiency_Evidence_from_Pharmaceutical_Manufacturing_Companies_in_Western_Province_of_Sri_Lanka_b_/32900483
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Deciphering_the_Halide_Chemistry_of_Cl_sup_sup_and_Br_sup_sup_in_Enhancing_Kinetics_of_Mg_Plating_Stripping/32900482
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/media/Deciphering_the_Halide_Chemistry_of_Cl_sup_sup_and_Br_sup_sup_in_Enhancing_Kinetics_of_Mg_Plating_Stripping/32900479
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/media/Deciphering_the_Halide_Chemistry_of_Cl_sup_sup_and_Br_sup_sup_in_Enhancing_Kinetics_of_Mg_Plating_Stripping/32900476
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Selective_Q_Band_Excitation_Modulates_Exciton_Exciton_Annihilation_in_Tetra_p_Sulfonatophenyl_porphyrin_J_Aggregates/32900473
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/2875124
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.4124/cmb3-6m58
+    source: zenodo
+    status: unreachable
+    reason: 'reachability failed: HTTP 404'
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.s38kf65
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/1421522
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8411041
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21128792
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21128792
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20760940
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21077956
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21077956
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: SyntheticDataset
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/coding-Jay/Synthetic-Datasets-Unity-CV/resolve/main/NewDatasetProduced0.zip
+    source: huggingface
+    format: zip
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/tomaszj321/syntheticdataset1/resolve/main/syntheticdata.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 33525
+      parsed: true
+  - url: https://huggingface.co/datasets/tomaszj321/syntheticdataset4/resolve/main/syntheticdata4.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 47385
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/api/resolve-cache/datasets/ProGamerGov/synthetic-dataset-1m-dalle3-high-quality-captions/216b8becd8c112e2a87c08f9ce8f2d65247c8c09/source_column_values.txt?%2Fdatasets%2FProGamerGov%2Fsynthetic-dataset-1m-dalle3-high-quality-captions%2Fresolve%2Fmain%2Fsource_column_values.txt=&etag=%2287adfe3c7ae472408d4b8a63db1de1ca0e0865b2%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/coding-Jay/Synthetic-Datasets-Unity-CV/resolve/main/NewDatasetProduced0.zip
+    source: huggingface
+    status: verified
+    format: zip
+  - url: https://huggingface.co/datasets/tomaszj321/syntheticdataset1/resolve/main/syntheticdata.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/tomaszj321/syntheticdataset4/resolve/main/syntheticdata4.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/kamilakesbi/synthetic_dataset/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/thesis/Thesis_b_Determinants_of_Digital_Transformation_and_Operational_Efficiency_Evidence_from_Pharmaceutical_Manufacturing_Companies_in_Western_Province_of_Sri_Lanka_b_/32900483
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Deciphering_the_Halide_Chemistry_of_Cl_sup_sup_and_Br_sup_sup_in_Enhancing_Kinetics_of_Mg_Plating_Stripping/32900482
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/media/Deciphering_the_Halide_Chemistry_of_Cl_sup_sup_and_Br_sup_sup_in_Enhancing_Kinetics_of_Mg_Plating_Stripping/32900479
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/media/Deciphering_the_Halide_Chemistry_of_Cl_sup_sup_and_Br_sup_sup_in_Enhancing_Kinetics_of_Mg_Plating_Stripping/32900476
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Selective_Q_Band_Excitation_Modulates_Exciton_Exciton_Annihilation_in_Tetra_p_Sulfonatophenyl_porphyrin_J_Aggregates/32900473
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16809493
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18733015
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18733015
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: UCI
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/udayl/UCI_HAR/resolve/main/csv_files/test.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/jlh/uci-shopper/resolve/main/data/train-00000-of-00001-3316810f8df41d3a.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/ucinlp/drop/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/ucinlp/drop/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/ucirvine/reuters21578/resolve/main/data/reuters21578.tar.gz
+    source: huggingface
+    status: verified
+    format: gzip
+  - url: https://huggingface.co/datasets/ucirvine/sms_spam/resolve/main/plain_text/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/udayl/UCI_HAR/resolve/main/csv_files/test.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/jlh/uci-shopper/resolve/main/data/train-00000-of-00001-3316810f8df41d3a.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://tandf.figshare.com/articles/dataset/Twisted_path_to_green_strategic_regulatory_spillovers_in_global_competitive_markets/32900498
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/thesis/Thesis_b_Determinants_of_Digital_Transformation_and_Operational_Efficiency_Evidence_from_Pharmaceutical_Manufacturing_Companies_in_Western_Province_of_Sri_Lanka_b_/32900483
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Deciphering_the_Halide_Chemistry_of_Cl_sup_sup_and_Br_sup_sup_in_Enhancing_Kinetics_of_Mg_Plating_Stripping/32900482
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/media/Deciphering_the_Halide_Chemistry_of_Cl_sup_sup_and_Br_sup_sup_in_Enhancing_Kinetics_of_Mg_Plating_Stripping/32900479
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/media/Deciphering_the_Halide_Chemistry_of_Cl_sup_sup_and_Br_sup_sup_in_Enhancing_Kinetics_of_Mg_Plating_Stripping/32900476
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7950533
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/61452
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7627577
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10685355
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7681792
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21194656
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21194656
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21193124
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21193124
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/q568n/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

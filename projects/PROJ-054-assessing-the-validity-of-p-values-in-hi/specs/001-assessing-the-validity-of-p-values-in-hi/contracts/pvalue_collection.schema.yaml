@@ -1,0 +1,59 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "PValueCollection Metadata"
+description: "Schema for the metadata of a p-value collection from hypothesis tests."
+type: object
+required:
+  - collection_id
+  - dataset_id
+  - test_type
+  - iteration
+  - ks_statistic
+  - ks_ci_lower
+  - ks_ci_upper
+properties:
+  collection_id:
+    type: string
+    description: "Unique UUID for this collection."
+  dataset_id:
+    type: string
+    description: "Reference to the parent SyntheticDataset."
+  test_type:
+    type: string
+    enum:
+      - "t-test"
+      - "f-test"
+    description: "Type of hypothesis test performed."
+  iteration:
+    type: integer
+    minimum: 1
+    description: "Iteration number in the simulation sweep."
+  ks_statistic:
+    type: number
+    minimum: 0.0
+    maximum: 1.0
+    description: "KS statistic comparing p-values to Uniform(0,1)."
+  ks_p_value:
+    type: number
+    minimum: 0.0
+    maximum: 1.0
+    description: "P-value of the KS test."
+  permutation_ks:
+    type: number
+    minimum: 0.0
+    maximum: 1.0
+    description: "KS statistic comparing to permutation reference."
+  p_value_count:
+    type: integer
+    minimum: 1
+    description: "Number of p-values in the collection (should equal p)."
+  ks_ci_lower:
+    type: number
+    minimum: 0.0
+    maximum: 1.0
+    description: "Lower bound of the 95% bootstrap confidence interval for the KS statistic."
+  ks_ci_upper:
+    type: number
+    minimum: 0.0
+    maximum: 1.0
+    description: "Upper bound of the 95% bootstrap confidence interval for the KS statistic."
+additionalProperties: false

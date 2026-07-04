@@ -1,0 +1,24 @@
+# Ruff configuration for PROJ-054
+# Enforces PEP 8 compliance and common best practices
+line-length = 100
+target-version = "py311"
+
+[lint]
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # Pyflakes
+    "I",   # isort
+    "C",   # flake8-comprehensions
+    "B",   # flake8-bugbear
+    "UP",  # pyupgrade
+    "SIM", # flake8-simplify
+]
+ignore = [
+    "E501", # Line too long (handled by formatter)
+    "B008", # Do not perform function call in argument defaults (common in data classes)
+]
+
+[lint.isort]
+known-first-party = ["code"]
+force-sort-within-sections = true
