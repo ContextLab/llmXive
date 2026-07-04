@@ -1,0 +1,79 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Gene Expression Prediction Dataset Schema"
+description: "Schema for the preprocessed gene expression and accessibility matrices."
+type: "object"
+properties:
+  metadata:
+    type: "object"
+    properties:
+      cell_line_id:
+        type: "string"
+        description: "Identifier for the cell line (e.g., GM12878)."
+      source:
+        type: "string"
+        description: "Source of the data (e.g., Synthetic, ENCODE)."
+      preprocessing_version:
+        type: "string"
+        description: "Version of the preprocessing script used."
+  genes:
+    type: "array"
+    description: "List of gene identifiers and their coordinates."
+    items:
+      type: "object"
+      properties:
+        gene_id:
+          type: "string"
+        symbol:
+          type: "string"
+        tss_start:
+          type: "integer"
+        tss_end:
+          type: "integer"
+        chromosome:
+          type: "string"
+      required:
+        - gene_id
+        - tss_start
+        - tss_end
+  peaks:
+    type: "array"
+    description: "List of accessible peaks mapped to genes."
+    items:
+      type: "object"
+      properties:
+        peak_id:
+          type: "string"
+        chromosome:
+          type: "string"
+        start:
+          type: "integer"
+        end:
+          type: "integer"
+        distance_to_tss:
+          type: "integer"
+        gene_id:
+          type: "string"
+          description: "The gene this peak is associated with."
+      required:
+        - peak_id
+        - chromosome
+        - start
+        - end
+        - gene_id
+  expression_matrix:
+    type: "object"
+    description: "Log-transformed expression values (genes x cell lines)."
+    additionalProperties:
+      type: "number"
+  accessibility_matrix:
+    type: "object"
+    description: "Aggregated accessibility values (peaks x cell lines)."
+    additionalProperties:
+      type: "number"
+required:
+  - metadata
+  - genes
+  - peaks
+  - expression_matrix
+  - accessibility_matrix
+additionalProperties: false

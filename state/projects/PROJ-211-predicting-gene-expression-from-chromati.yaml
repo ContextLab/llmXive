@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-03T17:22:58.212471Z'
-current_stage: specified
+current_stage: planned
 failed_stage: null
 field: biology
 human_escalation_reason: null
 id: PROJ-211-predicting-gene-expression-from-chromati
-last_run_id: e7d0ffe4-7ced-409b-8001-480edffa423c
+last_run_id: d117c8fa-0827-4b47-bb48-96b00dcc3b9a
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-211-predicting-gene-expression-from-chromati/specs/001-predicting-gene-expression-from-chromati
 title: Predicting Gene Expression from Chromatin Accessibility in Human Cells
-updated_at: '2026-06-27T20:54:00.304693Z'
+updated_at: '2026-07-04T00:01:22.715166Z'

@@ -1,8 +1,8 @@
 # Feature Specification: Predicting Gene Expression from Chromatin Accessibility in Human Cells
 
-**Feature Branch**: `001-gene-regulation`  
-**Created**: 2024-01-15  
-**Status**: Draft  
+**Feature Branch**: `001-gene-regulation`
+**Created**: 2024-01-15
+**Status**: Draft
 **Input**: User description: "To what extent can bulk chromatin accessibility profiles (DNase-seq/ATAC-seq) predict steady-state gene expression levels (RNA-seq) across diverse human cell types using interpretable regression models?"
 
 ## User Scenarios & Testing *(mandatory)*
@@ -25,7 +25,7 @@ The researcher MUST be able to download paired RNA-seq and DNase-seq/ATAC-seq co
 
 ### User Story 2 - Train and validate interpretable regression models (Priority: P2)
 
-The researcher MUST be able to train Elastic Net regression models for each cell line using accessibility features to predict log-transformed expression values, perform 5-fold cross-validation per cell line, and calculate Pearson correlation coefficients between predicted and actual expression.
+The researcher MUST be able to train Elastic Net regression models for each cell line using accessibility features to predict log-transformed expression values, perform cross-validation with multiple folds per cell line, and calculate Pearson correlation coefficients between predicted and actual expression.
 
 **Why this priority**: This delivers the core scientific analysis. The model performance directly addresses the research question about predictability of expression from accessibility.
 
@@ -33,7 +33,7 @@ The researcher MUST be able to train Elastic Net regression models for each cell
 
 **Acceptance Scenarios**:
 
-1. **Given** preprocessed feature and expression matrices exist, **When** the system trains Elastic Net regression with α=0.5 and λ selected via cross-validation, **Then** a model is produced for each cell line with R² ≥ 0.5 for housekeeping genes
+1. **Given** preprocessed feature and expression matrices exist, **When** the system trains Elastic Net regression with α=0.5 and λ selected via cross-validation, **Then** the system reports the R² value for housekeeping genes for each cell line
 2. **Given** trained models exist, **When** the system performs 5-fold cross-validation, **Then** each fold produces a correlation coefficient and the mean correlation is recorded
 3. **Given** predictions are generated, **When** Pearson correlation is calculated between predicted and actual expression, **Then** p-values are computed and Bonferroni-corrected for multiple testing across genes
 
@@ -49,16 +49,16 @@ The researcher MUST be able to extract feature importance scores from the traine
 
 **Acceptance Scenarios**:
 
-1. **Given** trained Elastic Net models exist, **When** the system extracts non-zero coefficient features, **Then** a ranked list of the top 100 most important peaks is produced for each cell line
+1. **Given** trained Elastic Net models exist, **When** the system extracts non-zero coefficient features, **Then** a ranked list of the most important peaks is produced for each cell line
 2. **Given** feature importance rankings exist, **When** the system maps peaks to genomic coordinates, **Then** at least 50% of top 100 features fall within ±10kb of a TSS
-3. **Given** correlation results exist, **When** the system compares housekeeping vs. cell-type-specific genes, **Then** a performance gap of ≥0.2 R² is documented if the data supports it
+3. **Given** correlation results exist, **When** the system compares housekeeping vs. cell-type-specific genes, **Then** the system reports the performance gap (ΔR²) between the two gene sets
 
 ---
 
 ### Edge Cases
 
 - What happens when ENCODE data for a requested cell line is unavailable or incomplete? The system MUST retry up to 3 failed attempts with 60-second intervals before marking the cell line as unavailable and proceeding with remaining data.
-- How does the system handle genes with extremely low expression values (near zero on log scale)? The system MUST add a pseudocount of 1 before log transformation to avoid undefined values.
+- How does the system handle genes with extremely low expression values (near zero on log scale)? The system MUST add a pseudocount before log transformation to avoid undefined values.
 - What happens when peak accessibility data contains missing values? The system MUST impute missing values using median imputation across samples for each peak.
 
 ## Requirements *(mandatory)*
@@ -69,10 +69,16 @@ The researcher MUST be able to extract feature importance scores from the traine
 - **FR-002**: System MUST aggregate accessibility signal within ±50kb windows of each gene's TSS using bedtools (See US-1)
 - **FR-003**: System MUST filter genes with zero expression in all samples, retaining ≥10,000 genes for analysis (See US-1)
 - **FR-004**: System MUST train Elastic Net regression models (α=0.5) for each cell line using scikit-learn (See US-2)
-- **FR-005**: System MUST perform 5-fold cross-validation per cell line and record mean correlation coefficient (See US-2)
+- **FR-005**: System MUST perform k-fold cross-validation, with k representing a reasonable number of folds. per cell line and record mean correlation coefficient (See US-2)
 - **FR-006**: System MUST apply Bonferroni correction for multiple testing across all genes when calculating p-values (See US-2)
 - **FR-007**: System MUST extract non-zero coefficient features and rank by absolute coefficient magnitude (See US-3)
 - **FR-008**: System MUST map peak coordinates to genomic location relative to nearest TSS (See US-3)
+- **FR-009**: System MUST calculate and report the R² value for the set of housekeeping genes for each cell line (See US-2)
+- **FR-010**: System MUST calculate and report the performance gap (ΔR²) between housekeeping and cell‑type‑specific genes (See US-3)
+- **FR-011**: System MUST select the top [deferred] most variable accessibility peaks across samples based on variance (See US-1)
+- **FR-012**: System MUST define housekeeping genes as the 500 genes with the lowest coefficient of variation (CV ≤ 0.2) across all cell lines (See US-2)
+- **FR-013**: System MUST define cell‑type‑specific genes as the 500 genes with the highest expression variance (variance > 0.5) across cell lines (See US-3)
+- **FR-014**: System MUST perform external validation by training on a subset of cell lines and testing on a held‑out cell line., reporting the R² for the held‑out line (See US-2)
 
 ### Key Entities
 
@@ -85,27 +91,35 @@ The researcher MUST be able to extract feature importance scores from the traine
 
 ### Measurable Outcomes
 
-> Planning docs state *what* will be measured and the *source/reference* it is
-> measured against; defer specific empirical values (counts, dataset sizes,
-> measured quantities, percentages) to the implementation/research phase.
+> Planning docs state *what* will be measured and the *source/reference* it is measured against; defer specific empirical values (counts, dataset sizes, measured quantities, percentages) to the implementation/research phase.
 
-- **SC-001**: Prediction accuracy (R² between predicted and observed expression) is measured against the baseline expectation of R² > 0.5 for housekeeping genes (See US-2)
+- **SC-001**: R² for housekeeping genes is calculated and reported for each cell line (See US-2)
 - **SC-002**: Model generalization is measured against 5-fold cross-validation scores to assess overfitting risk (See US-2)
-- **SC-003**: Feature importance is measured against TSS proximity to verify regulatory plausibility (See US-3)
-- **SC-004**: Statistical significance is measured against Bonferroni-corrected p-values to control family-wise error rate (See US-2)
-- **SC-005**: Computational feasibility is measured against 2 CPU cores, 7GB RAM, and 6-hour runtime limits (See US-1)
+- **SC-003**: Percentage of the top‑100 important features that fall within ±10 kb of a TSS is calculated and reported (See US-3)
+- **SC-004**: Statistical significance is measured against Bonferroni‑corrected p‑values to control family‑wise error rate (See US-2)
+- **SC-005**: Computational feasibility is measured against A limited number of CPU cores, sufficient RAM, and a runtime limit were imposed on each experiment.
+
+The research question is: How does the choice of activation function impact the performance of deep neural networks on image classification tasks?
+
+The method is: We will train convolutional neural networks with ReLU, Sigmoid, and Tanh activation functions on the CIFAR-10 dataset and compare their accuracy and training time.
+
+References: [], (Krizhevsky et al., 2009) (See US-1)
+- **SC-006**: External validation R² on the held‑out cell line is calculated and reported (See US-2)
 
 ## Assumptions
 
 - ENCODE portal contains paired RNA-seq and DNase-seq/ATAC-seq data for at least 5 common human cell lines (GM12878, K562, HMEC, IMR90, HepG2) with ≥3 biological replicates per cell line
-- All required variables for the analysis (accessibility peaks, gene expression values, TSS coordinates) are present in the ENCODE dataset; [NEEDS CLARIFICATION: does ENCODE contain the specific peak-to-gene linkages needed for ±50kb window aggregation?]
+- All required variables for the analysis (accessibility peaks, gene expression values, TSS coordinates) are present in the ENCODE dataset; ENCODE does not provide pre‑computed peak‑to‑gene linkages, therefore the pipeline will implement a deterministic ±50 kb windowing algorithm to construct these links. This windowing approach is the standard community practice for bulk multiomic integration when single‑cell co‑assay data is unavailable.
 - The analysis is observational (no random assignment), so all findings will be framed as associational rather than causal
-- Housekeeping genes are defined using the [deferred] most consistently expressed genes across all cell lines based on coefficient of variation < 0.2
-- Cell-type-specific genes are defined as genes with expression variance > 0.5 across cell lines
-- The top [deferred] most variable peaks are selected to reduce dimensionality to fit 7GB RAM constraint
+- Housekeeping genes are defined as the 500 genes with the lowest coefficient of variation (CV ≤ 0.2) across all cell lines
+- Cell‑type‑specific genes are defined as the 500 genes with the highest expression variance (variance > 0.5) across cell lines
+- The most variable peaks, as determined by variance across samples, are selected for further analysis. ()
+
+Research question: How do patterns of genomic variation relate to phenotypic diversity?
+Method: We will employ a genome-wide association study (GWAS) to identify genomic regions associated with variation in key phenotypic traits. to satisfy the RAM constraint
 - Elastic Net with α=0.5 is used as the default regularization balance between L1 and L2 penalties
 - Bonferroni correction is applied at α=0.05 significance threshold for multiple testing across all genes
-- No GPU/CUDA accelerators are available; all computation runs on 2 CPU cores with default precision
-- Gene expression values are log-transformed using log2(counts + 1) to handle zero counts and normalize distribution
-- Peak accessibility signal is aggregated as sum of reads within the ±50kb window using bedtools coverage
-- The 6-hour runtime budget allows for complete pipeline execution including data download, preprocessing, model training, and validation
+- No GPU/CUDA accelerators are available; all computation runs on a limited number of CPU cores with default precision
+- Gene expression values are log‑transformed using log₂(counts + 1) to handle zero counts and normalize distribution
+- Peak accessibility signal is aggregated as sum of reads within the ±50 kb window using bedtools coverage
+- The allocated runtime budget allows for complete pipeline execution including data download, preprocessing, model training, and validation

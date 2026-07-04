@@ -1,0 +1,80 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Model Output Schema"
+description: "Schema for the trained model metrics and feature importance results."
+type: "object"
+properties:
+  model_info:
+    type: "object"
+    properties:
+      cell_line_id:
+        type: "string"
+      model_type:
+        type: "string"
+        const: "ElasticNet"
+      alpha:
+        type: "number"
+        const: 0.5
+      l1_ratio:
+        type: "number"
+        const: 0.5
+    required:
+      - cell_line_id
+      - model_type
+      - alpha
+      - l1_ratio
+  metrics:
+    type: "object"
+    description: "Performance metrics for the model."
+    properties:
+      r_squared:
+        type: "number"
+        description: "R² score on the test set."
+      mean_cv_r_squared:
+        type: "number"
+        description: "Mean R² from 5-fold cross-validation."
+      pearson_correlation:
+        type: "number"
+        description: "Pearson correlation between predicted and actual expression."
+      p_value_raw:
+        type: "number"
+        description: "Raw p-value for the correlation."
+      p_value_bonferroni:
+        type: "number"
+        description: "Bonferroni-corrected p-value."
+      significant:
+        type: "boolean"
+        description: "True if p_value_bonferroni < 0.05."
+    required:
+      - r_squared
+      - mean_cv_r_squared
+      - pearson_correlation
+      - p_value_raw
+      - p_value_bonferroni
+      - significant
+  feature_importance:
+    type: "array"
+    description: "Top 100 most important peaks."
+    items:
+      type: "object"
+      properties:
+        peak_id:
+          type: "string"
+        gene_id:
+          type: "string"
+        coefficient:
+          type: "number"
+        absolute_coefficient:
+          type: "number"
+        distance_to_tss:
+          type: "integer"
+      required:
+        - peak_id
+        - gene_id
+        - coefficient
+        - absolute_coefficient
+        - distance_to_tss
+required:
+  - model_info
+  - metrics
+  - feature_importance
+additionalProperties: false
