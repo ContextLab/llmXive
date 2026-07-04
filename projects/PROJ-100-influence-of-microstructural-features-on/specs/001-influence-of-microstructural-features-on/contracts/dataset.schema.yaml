@@ -1,0 +1,45 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Aluminum Fatigue Specimen Record"
+description: "Schema for the cleaned and validated specimen records used in the analysis."
+type: "object"
+properties:
+  specimen_id:
+    type: "string"
+    description: "Unique identifier for the specimen."
+  alloy_composition:
+    type: "string"
+    description: "Alloy designation (e.g., 6061-T6)."
+  grain_size_μm:
+    type: "number"
+    description: "Grain size in micrometers."
+  secondary_phase_fraction:
+    type: "number"
+    minimum: 0
+    maximum: 1
+    description: "Fraction of secondary phase (0.0 to 1.0)."
+  dislocation_density_proxy:
+    type: "number"
+    description: "Texture analysis metric used as a proxy for dislocation density."
+  fatigue_life_cycles:
+    type: "number"
+    description: "Number of cycles to failure."
+  microscopy_image_path:
+    type: "string"
+    description: "Relative path to the microscopy image crop."
+  alloy_batch_id:
+    type: "string"
+    description: "Batch ID for grouped cross-validation."
+  validation_status:
+    type: "string"
+    enum: ["valid", "excluded", "imputed"]
+    description: "Status of the record after cleaning."
+required:
+  - specimen_id
+  - alloy_composition
+  - grain_size_μm
+  - secondary_phase_fraction
+  - dislocation_density_proxy
+  - fatigue_life_cycles
+  - alloy_batch_id
+  - validation_status
+additionalProperties: false

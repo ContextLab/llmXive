@@ -1,0 +1,51 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Model Performance Metrics"
+description: "Schema for the model evaluation results stored in results/metrics.json."
+type: "object"
+properties:
+  model_type:
+    type: "string"
+    enum: ["RandomForest", "GradientBoosting", "ElasticNet"]
+    description: "Type of regression model used."
+  r_squared:
+    type: "number"
+    description: "Coefficient of determination."
+  rmse:
+    type: "number"
+    description: "Root Mean Square Error."
+  mean_absolute_error:
+    type: "number"
+    description: "Mean Absolute Error."
+  confidence_interval_95:
+    type: "object"
+    properties:
+      r_squared:
+        type: "object"
+        properties:
+          lower: { type: "number" }
+          upper: { type: "number" }
+        required: ["lower", "upper"]
+      rmse:
+        type: "object"
+        properties:
+          lower: { type: "number" }
+          upper: { type: "number" }
+        required: ["lower", "upper"]
+      mean_absolute_error:
+        type: "object"
+        properties:
+          lower: { type: "number" }
+          upper: { type: "number" }
+        required: ["lower", "upper"]
+    required: ["r_squared", "rmse", "mean_absolute_error"]
+  cross_validation_type:
+    type: "string"
+    description: "Type of cross-validation used (e.g., 'Grouped 5-fold')."
+required:
+  - model_type
+  - r_squared
+  - rmse
+  - mean_absolute_error
+  - confidence_interval_95
+  - cross_validation_type
+additionalProperties: false

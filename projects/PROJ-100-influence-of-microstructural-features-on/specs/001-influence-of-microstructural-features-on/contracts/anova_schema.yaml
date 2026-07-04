@@ -1,0 +1,28 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "ANOVA Summary"
+description: "Schema for the statistical significance summary of microstructural features."
+type: "object"
+properties:
+  feature:
+    type: "string"
+    description: "Name of the microstructural feature tested."
+  p_value:
+    type: "number"
+    description: "Raw p-value from ANOVA/Kruskal-Wallis test."
+  p_value_corrected:
+    type: "number"
+    description: "p-value after multiple-comparison correction (Bonferroni/BH)."
+  significance_flag:
+    type: "boolean"
+    description: "True if p_value_corrected < 0.05."
+  test_method:
+    type: "string"
+    enum: ["ANOVA", "Kruskal-Wallis"]
+    description: "Statistical test used."
+required:
+  - feature
+  - p_value
+  - p_value_corrected
+  - significance_flag
+  - test_method
+additionalProperties: false
