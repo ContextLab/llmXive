@@ -1,0 +1,14 @@
+petitRADTRANS
+astropy
+statsmodels
+scipy
+pandas
+numpy
+requests
+tqdm
+lifelines
+synphot
+scikit-survival
+pytest
+ruff
+black
