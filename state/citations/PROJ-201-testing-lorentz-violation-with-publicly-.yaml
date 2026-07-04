@@ -1,0 +1,22 @@
+- artifact_hash: b3bdeefecfe62ef1e2122748188da73bc0559ee2a9e6fcbe3cb2b7c81afec968
+  artifact_path: projects/PROJ-201-testing-lorentz-violation-with-publicly-/specs/001-testing-lorentz-violation-with-publicly/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: Planck Legacy Archive
+  kind: url
+  value: https://pla.esac.esa.int/pla/`
+  verification_status: verified
+  verified_against_url: https://pla.esac.esa.int/pla/
+  verified_at: '2026-07-04T20:42:18.333760Z'
+- artifact_hash: b3bdeefecfe62ef1e2122748188da73bc0559ee2a9e6fcbe3cb2b7c81afec968
+  artifact_path: projects/PROJ-201-testing-lorentz-violation-with-publicly-/specs/001-testing-lorentz-violation-with-publicly/research.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: "poumiquel/dataset_pr3 \xB7 Datasets at Hugging Face"
+  kind: url
+  value: https://huggingface.co/datasets/poumiquel/dataset_pr3/...`
+  verification_status: verified
+  verified_against_url: https://huggingface.co/datasets/poumiquel/dataset_pr3
+  verified_at: '2026-07-04T20:42:18.333760Z'

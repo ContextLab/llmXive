@@ -1,0 +1,421 @@
+resolved_at: '2026-07-04T20:29:13.915271+00:00'
+datasets:
+- intent: PR3
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/poumiquel/dataset_pr3/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/api/resolve-cache/datasets/samhitmantrala/pr3_train/69153fce19162e34cbecd5193f4e498dae6f888a/pr3_train.json?%2Fdatasets%2Fsamhitmantrala%2Fpr3_train%2Fresolve%2Fmain%2Fpr3_train.json=&etag=%2226684d17890e19175e484832e65acf335b732f93%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/poumiquel/dataset_pr3/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/api/resolve-cache/datasets/Tralalabs/D4T4S3T-PR3TR34NING/d3b0291341276fd188bd74b0f9793e8444d7cba0/D4t4set.txt?%2Fdatasets%2FTralalabs%2FD4T4S3T-PR3TR34NING%2Fresolve%2Fmain%2FD4t4set.txt=&etag=%2204c9e207a47043ca71ca0bc824b7ee85f2ba6f2c%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Technical_Specification_Matrix_and_Procurement_Footprint_of_Ketalar_Ketamine_HCl_Injection_USP_500mg_10ml_Formulations/32900612
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/Effect_of_milling_time_on_structure_and_mechanical_properties_of_porous_nickel-free_austenitic_stainless_steels_processed_by_mechanical_alloying_and_sintering_https_doi_org_10_1016_j_msea_2010_05_008_/32900624
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/Crystal_interstitial_sites_contribution_to_nitrogen_supersaturation_in_mechanically_alloyed_Fe_Cr_Mn_N_alloys_https_doi_org_10_1016_j_jallcom_2010_06_079_/32900621
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/Contribution_of_nitrogen_concentration_to_compressive_elastic_modulus_of_18Cr_12Mn_xN_austenitic_stainless_steels_developed_by_powder_metallurgy_https_dx_doi_org_10_1016_j_matdes_2009_10_016_/32900609
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/From_Doctrine_to_Dialogue_The_Evolving_Role_of_Religion_in_Peacemaking/32900606
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6401512
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10487639
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7174032
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7174034
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zookeys.pensoft.net/article/4258/element/2/11/
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21189277
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21189277
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21186270
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21186270
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21158321
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: SMICA
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/dataset/Technical_Specification_Matrix_and_Procurement_Footprint_of_Ketalar_Ketamine_HCl_Injection_USP_500mg_10ml_Formulations/32900612
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/Effect_of_milling_time_on_structure_and_mechanical_properties_of_porous_nickel-free_austenitic_stainless_steels_processed_by_mechanical_alloying_and_sintering_https_doi_org_10_1016_j_msea_2010_05_008_/32900624
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/Crystal_interstitial_sites_contribution_to_nitrogen_supersaturation_in_mechanically_alloyed_Fe_Cr_Mn_N_alloys_https_doi_org_10_1016_j_jallcom_2010_06_079_/32900621
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/Contribution_of_nitrogen_concentration_to_compressive_elastic_modulus_of_18Cr_12Mn_xN_austenitic_stainless_steels_developed_by_powder_metallurgy_https_dx_doi_org_10_1016_j_matdes_2009_10_016_/32900609
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/From_Doctrine_to_Dialogue_The_Evolving_Role_of_Religion_in_Peacemaking/32900606
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/2651377
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16283859
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/11489180
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18962391
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.researchgate.net/doi/10.13140/RG.2.2.34822.74565
+    source: zenodo
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://zenodo.org/records/21195172
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21195172
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17830440
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17830440
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21166205
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: MCMC
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/PMATHWORK/gemma2_9b_it_math_mcmc_with_prompt/resolve/main/data/train-00000-of-00069.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/PMATHWORK/gemma2_9b_it_gsm8k_mcmc_with_prompt/resolve/main/data/train-00000-of-00036.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/odychlapanis/mcm-civil-procedure/resolve/main/dev_mutated.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 34825
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/GaussianWorld/replica_mcmc_3dgs/resolve/main/manifest/manifest.parquet
+    source: huggingface
+    status: wrong_format
+    reason: HTTP 401
+  - url: https://huggingface.co/datasets/odychlapanis/mcm-civil-procedure/resolve/main/dev_mutated.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/PMATHWORK/gemma2_9b_it_math_mcmc_with_prompt/resolve/main/data/train-00000-of-00069.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/PMATHWORK/gemma2_9b_it_gsm8k_mcmc_with_prompt/resolve/main/data/train-00000-of-00036.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/GaussianWorld/hypersim_mcmc_3dgs/resolve/main/manifest/manifest.parquet
+    source: huggingface
+    status: wrong_format
+    reason: HTTP 401
+  - url: https://figshare.com/articles/dataset/Technical_Specification_Matrix_and_Procurement_Footprint_of_Ketalar_Ketamine_HCl_Injection_USP_500mg_10ml_Formulations/32900612
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/Effect_of_milling_time_on_structure_and_mechanical_properties_of_porous_nickel-free_austenitic_stainless_steels_processed_by_mechanical_alloying_and_sintering_https_doi_org_10_1016_j_msea_2010_05_008_/32900624
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/Crystal_interstitial_sites_contribution_to_nitrogen_supersaturation_in_mechanically_alloyed_Fe_Cr_Mn_N_alloys_https_doi_org_10_1016_j_jallcom_2010_06_079_/32900621
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/Contribution_of_nitrogen_concentration_to_compressive_elastic_modulus_of_18Cr_12Mn_xN_austenitic_stainless_steels_developed_by_powder_metallurgy_https_dx_doi_org_10_1016_j_matdes_2009_10_016_/32900609
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/From_Doctrine_to_Dialogue_The_Evolving_Role_of_Religion_in_Peacemaking/32900606
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16941620
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14633245
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17901754
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.jf7b3
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3516603
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21197220
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21197220
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21196864
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21196710
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21196710
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: SME
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/smearle/pcglm/resolve/main/gpt2-untrained_sample_prop:None/seed-0/checkpoint-100000/config.json
+    source: huggingface
+    format: json
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 1096
+      parsed: true
+  - url: https://huggingface.co/datasets/smearle/interactive_nca/resolve/main/zelda-cellular_NCA_['path-length',
+      'symmetry']_10-batch_10-pass_test_0/eval_levels_fixLvls.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/smellyprepuce/malerecognition/resolve/main/data.json
+    source: huggingface
+    format: json
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 84214
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/smearle/pcglm/resolve/main/gpt2-untrained_sample_prop:None/seed-0/checkpoint-100000/config.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://huggingface.co/datasets/smearle/interactive_nca/resolve/main/zelda-cellular_NCA_['path-length',
+      'symmetry']_10-batch_10-pass_test_0/eval_levels_fixLvls.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/smellyprepuce/malerecognition/resolve/main/data.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://huggingface.co/datasets/sm-esgstudier/redditStocks_last1000/resolve/main/financeReddit.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://figshare.com/articles/figure/Effects_of_boron_addition_on_mechanical_alloying_and_ordering_behaviors_of_Fe-Al-_B_alloy_powders_https_doi_org_10_1016_j_jallcom_2009_12_173_/32900627
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Technical_Specification_Matrix_and_Procurement_Footprint_of_Ketalar_Ketamine_HCl_Injection_USP_500mg_10ml_Formulations/32900612
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/Effect_of_milling_time_on_structure_and_mechanical_properties_of_porous_nickel-free_austenitic_stainless_steels_processed_by_mechanical_alloying_and_sintering_https_doi_org_10_1016_j_msea_2010_05_008_/32900624
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/Crystal_interstitial_sites_contribution_to_nitrogen_supersaturation_in_mechanically_alloyed_Fe_Cr_Mn_N_alloys_https_doi_org_10_1016_j_jallcom_2010_06_079_/32900621
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/Contribution_of_nitrogen_concentration_to_compressive_elastic_modulus_of_18Cr_12Mn_xN_austenitic_stainless_steels_developed_by_powder_metallurgy_https_dx_doi_org_10_1016_j_matdes_2009_10_016_/32900609
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7692730
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/12654140
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14567998
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14278241
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14252247
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21194732
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21194732
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21194510
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21194510
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21194489
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: CPU-tractable
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/figure/Effects_of_boron_addition_on_mechanical_alloying_and_ordering_behaviors_of_Fe-Al-_B_alloy_powders_https_doi_org_10_1016_j_jallcom_2009_12_173_/32900627
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Technical_Specification_Matrix_and_Procurement_Footprint_of_Ketalar_Ketamine_HCl_Injection_USP_500mg_10ml_Formulations/32900612
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/Effect_of_milling_time_on_structure_and_mechanical_properties_of_porous_nickel-free_austenitic_stainless_steels_processed_by_mechanical_alloying_and_sintering_https_doi_org_10_1016_j_msea_2010_05_008_/32900624
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/Crystal_interstitial_sites_contribution_to_nitrogen_supersaturation_in_mechanically_alloyed_Fe_Cr_Mn_N_alloys_https_doi_org_10_1016_j_jallcom_2010_06_079_/32900621
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/Contribution_of_nitrogen_concentration_to_compressive_elastic_modulus_of_18Cr_12Mn_xN_austenitic_stainless_steels_developed_by_powder_metallurgy_https_dx_doi_org_10_1016_j_matdes_2009_10_016_/32900609
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5524642
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10199277
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17854610
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://kjet.kardan.edu.af/Journal?Journal=KJET&id=3183
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3810211
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21019586
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21019586
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20988320
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20988320
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20778398
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

@@ -1,18 +1,18 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-03T13:37:08.118597Z'
-current_stage: project_initialized
+current_stage: analyzed
 failed_stage: null
 field: physics
 human_escalation_reason: null
 id: PROJ-201-testing-lorentz-violation-with-publicly-
-last_run_id: 71c9dbc2-9668-4ec2-9e27-bf103c002cb6
+last_run_id: fbc84100-29e3-4c84-8ac7-39dcc57708fa
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
 revision_spec_path: null
 speckit_paper_dir: null
-speckit_research_dir: null
+speckit_research_dir: projects/PROJ-201-testing-lorentz-violation-with-publicly-/specs/001-testing-lorentz-violation-with-publicly
 title: Testing Lorentz Violation with Publicly Available CMB Data
-updated_at: '2026-06-26T01:26:50.797103Z'
+updated_at: '2026-07-04T21:02:10.574940Z'

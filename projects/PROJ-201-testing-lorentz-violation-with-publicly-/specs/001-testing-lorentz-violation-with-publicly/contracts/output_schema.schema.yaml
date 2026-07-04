@@ -1,0 +1,45 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "SME Constraint Output Schema"
+description: "Schema for the final statistical inference results (SME coefficients)."
+type: "object"
+properties:
+  coefficient_name:
+    type: "string"
+    description: "Name of the SME coefficient (e.g., 'k_(V)00^(5)')."
+  posterior_mean:
+    type: "number"
+    description: "Mean of the posterior distribution."
+  credible_interval_95:
+    type: "array"
+    description: "95% credible interval [lower, upper]."
+    items:
+      type: "number"
+    minItems: 2
+    maxItems: 2
+  likelihood_ratio_stat:
+    type: "number"
+    description: "Likelihood ratio statistic comparing isotropic vs anisotropic models."
+  ess:
+    type: "number"
+    description: "Effective Sample Size of the MCMC chain."
+    minimum: 0
+  converged:
+    type: "boolean"
+    description: "True if the chain converged (ESS > 200)."
+  p_value_corrected:
+    type: "number"
+    description: "P-value after multiple-comparison correction (Benjamini-Hochberg FDR)."
+    minimum: 0
+    maximum: 1
+  warning_flag:
+    type: "boolean"
+    description: "True if there are warnings (e.g., poor mixing, low ESS, non-Gaussian artifacts)."
+required:
+  - "coefficient_name"
+  - "posterior_mean"
+  - "credible_interval_95"
+  - "likelihood_ratio_stat"
+  - "ess"
+  - "converged"
+  - "p_value_corrected"
+additionalProperties: false

@@ -1,0 +1,40 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "CMB Dataset Schema"
+description: "Schema for the processed CMB map data used in Lorentz violation analysis."
+type: "object"
+properties:
+  map_id:
+    type: "string"
+    description: "Unique identifier for the map (e.g., 'SMICA_TT_Nside2048')."
+  nside:
+    type: "integer"
+    description: "HEALPix resolution parameter."
+    minimum: 64
+    maximum: 4096
+  data_checksum:
+    type: "string"
+    description: "SHA-256 checksum of the raw data file."
+    pattern: "^[a-f0-9]{64}$"
+  source_url:
+    type: "string"
+    description: "URL of the source dataset. Must be from the verified list or ESA Legacy Archive."
+    examples:
+      - "https://pla.esac.esa.int/pla/"
+  has_nan:
+    type: "boolean"
+    description: "Flag indicating if NaN values exist within the masked region."
+  mask_applied:
+    type: "boolean"
+    description: "True if the confidence mask has been applied."
+  beam_deconvolved:
+    type: "boolean"
+    description: "True if beam and pixel window functions have been deconvolved."
+required:
+  - "map_id"
+  - "nside"
+  - "data_checksum"
+  - "source_url"
+  - "has_nan"
+  - "mask_applied"
+  - "beam_deconvolved"
+additionalProperties: false
