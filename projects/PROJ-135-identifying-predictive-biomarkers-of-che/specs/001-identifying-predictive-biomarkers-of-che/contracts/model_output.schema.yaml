@@ -13,7 +13,7 @@ properties:
     description: "Unique model identifier."
   cancer_type:
     type: string
-    description: "Tumor type this model was trained on (or 'Pan-Cancer' for pooled model)."
+    description: "Tumor type this model was trained on (e.g., BRCA, LUAD)."
   hyperparameters:
     type: object
     required:
@@ -22,7 +22,7 @@ properties:
     properties:
       alpha:
         type: number
-        description: "Elastic-net mixing parameter (0 <= alpha <= 1)."
+        description: "Elastic‑net mixing parameter (0 ≤ alpha ≤ 1)."
       lambda:
         type: number
         description: "Regularization strength."
@@ -34,18 +34,18 @@ properties:
     properties:
       cross_val_auc:
         type: number
-        description: "Internal cross-validation ROC-AUC."
+        description: "Internal cross‑validation ROC‑AUC."
       external_auc:
-        type: number
-        description: "External validation ROC-AUC."
+        type: ["number", "null"]
+        description: "External validation ROC‑AUC."
       calibration_error:
         type: number
         description: "Maximum calibration error across deciles."
-      p_value_bonferroni:
+      de_long_p:
         type: number
-        description: "Bonferroni-adjusted p-value for model significance."
+        description: "Bonferroni‑adjusted p‑value from DeLong’s test."
   coefficients:
     type: object
-    description: "Gene coefficients (gene_symbol -> weight)."
+    description: "Gene coefficients (gene_symbol → weight)."
     additionalProperties:
       type: number

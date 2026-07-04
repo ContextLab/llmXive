@@ -1,104 +1,63 @@
-# Quickstart: Identifying Predictive Biomarkers of Chemotherapy Response
+# Quickstart: Identifying Predictive Biomarkers of Chemotherapy Response in Public Cancer Datasets
 
 ## Prerequisites
 
-- **Python**: 3.11+
-- **R**: 4.3+ (with `DESeq2`, `edgeR`, `sva`, `GEOquery`, `TCGAbiolinks` packages)
-- **Conda**: Recommended for environment management.
-- **Hardware**: CPU-only (a small number of cores, 7GB RAM). No GPU required.
+- Python 3.11 or higher.
+- `pip` package manager.
+- Unix‑like environment (Linux/macOS).
+- ≥ 14 GB free disk space.
 
 ## Installation
 
-1. **Clone the Repository**:
+```bash
+git clone <repo-url>
+cd <project-dir>
+python -m venv venv
+source venv/bin/activate   # Windows: venv\Scripts\activate
+pip install -r requirements.txt
+```
+
+## Configuration
+
+Edit `src/config.py` to set:
+- `RANDOM_SEED`: Fixed seed for reproducibility.
+- `MAX_VARIANCE_GENES`: Number of top variable genes to retain (default 50).
+- `TCGA_PROJECTS`: List of TCGA project IDs you wish to query (e.g., `["OV", "BRCA", "LUAD"]`). The pipeline will enforce ≥3 successful projects.
+- `GEO_ACCESSIONS`: List of GEO accession numbers with chemotherapy response annotations (e.g., `["GSE25055", "GSE42752"]`). If none are available, the pipeline will skip external validation and note the limitation.
+
+## Running the Pipeline
+
+1. **Data Acquisition**
    ```bash
-   git clone <repo-url>
-   cd projects/PROJ-135-identifying-predictive-biomarkers-of-che
+   python src/cli.py fetch --data-dir data/raw
    ```
+   *Creates* `data/raw/` and `data/feasibility_gate.json`. The gate will halt with status `"halted"` if < 3 TCGA tumor types or required GEO datasets are missing.
 
-2. **Create Conda Environment**:
+2. **Preprocessing**
    ```bash
-   conda create -n chemo-biomarker python=3.11 r-base=4.3
-   conda activate chemo-biomarker
+   python src/cli.py preprocess --input-dir data/raw --output-dir data/processed
    ```
+   *Outputs* normalized matrices, batch‑corrected data, and `data/feasibility_gate.json` (updated).
 
-3. **Install Python Dependencies**:
+3. **Feasibility Check**
    ```bash
-   pip install -r requirements.txt
-   # requirements.txt includes: pandas, numpy, scikit-learn, rpy2, statsmodels, biopython, requests, scipy
+   python src/cli.py gate --data-dir data/processed
    ```
+   *Halts* if the feasibility gate reports `status: "halted"`; otherwise proceeds.
 
-4. **Install R Dependencies** (via `renv` or `conda-forge`):
-   ```r
-   # Inside R or via conda
-   if (!require("BiocManager", quietly = TRUE))
-       install.packages("BiocManager")
-   BiocManager::install(c("DESeq2", "edgeR", "sva", "GEOquery", "TCGAbiolinks"))
+4. **Discovery & Meta‑Analysis**
+   ```bash
+   python src/cli.py analyze --mode discovery --data-dir data/processed --output-dir results/meta_analysis
    ```
+   *Produces* `results/meta_analysis/gene_panel.json`.
 
-## Data Acquisition
-
-The pipeline automatically downloads data from verified HuggingFace mirrors and runs the **Data Feasibility Gate**.
-
-```bash
-python code/data_acquisition.py
-```
-
-**Expected Output**:
-- `data/raw/TCGA/*.h5` (RNA-seq counts)
-- `data/raw/GEO/*.csv` (Microarray data)
-- `data/checksums.json` (Artifact hashes - generated immediately)
-
-*Note: If specific GEO IDs (GSE25055, GSE42752) are not available in the verified mirrors, the script will fallback to available GEO datasets with response labels and log a warning.*
-
-## Preprocessing
-
-Harmonize identifiers and normalize data using **Quantile Normalization** for cross-platform alignment.
-
-```bash
-python code/preprocessing.py
-```
-
-**Steps**:
-1. Map Ensembl/Entrez to HGNC.
-2. Filter low-expression genes (CPM < 1).
-3. Apply DESeq2 VST (RNA-seq) and Log2 (Microarray).
-4. Apply **Quantile Normalization** to align GEO and TCGA data.
-5. Limit analysis to top **[deferred]** most variable genes.
-
-**Output**:
-- `data/processed/normalized_expression.parquet`
-- `data/processed/metadata.json`
-
-## Differential Expression & Meta-Analysis
-
-Identify cross-tumor biomarkers.
-
-```bash
-python code/differential_expression.py
-python code/meta_analysis.py
-```
-
-**Output**:
-- `results/de_results/*.csv`
-- `results/meta_analysis/gene_panel.csv`
-
-## Model Training & Validation
-
-Train a **Pan-Cancer** elastic-net model with **Nested CV** (feature selection inside).
-
-```bash
-python code/modeling.py
-python code/validation.py
-```
-
-**Output**:
-- `results/models/*.pkl`
-- `results/validation/auc_metrics.csv`
-- `results/summary.md`
+5. **Modeling & Validation**
+   ```bash
+   python src/cli.py model --data-dir data/processed --panel results/meta_analysis/gene_panel.json --output-dir results
+   ```
+   *Generates* `results/metrics.json`, `results/summary.md`, `results/runtime_metrics.json`.
 
 ## Verification
-
-Run contract tests to ensure schema compliance.
 
 ```bash
 pytest tests/contract/
@@ -106,7 +65,6 @@ pytest tests/contract/
 
 ## Troubleshooting
 
-- **Memory Error**: Ensure you are not loading the full TCGA dataset. The script automatically subsets to the top **[deferred]** variable genes.
-- **R Package Errors**: Ensure `rpy2` is correctly configured and R packages are installed in the active environment.
-- **Data Not Found**: Check `results/summary.md` for the list of actually used datasets if the requested GEO IDs were unavailable.
-- **Timeout**: If the pipeline exceeds a predefined time threshold, it will halt automatically. Consider reducing the gene limit further or increasing compute resources.
+- **Memory Error**: Reduce `MAX_VARIANCE_GENES` in `config.py`. |
+- **Missing GEO Data**: The pipeline will automatically skip external validation and set `external_validation_status: "skipped"` in `results/summary.md`. |
+- **Runtime Timeout**: Pipeline logs a warning if runtime > 5 h; consider reducing CV folds or gene panel size.

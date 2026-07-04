@@ -1,0 +1,40 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Metrics Schema"
+description: "Schema for model performance metrics."
+type: object
+required:
+  - cancer_type
+  - cross_val_auc
+  - calibration_error
+  - precision_recall_curve
+  - runtime_seconds
+  - peak_memory_mb
+properties:
+  cancer_type:
+    type: string
+    description: "Tumor type for the model."
+  cross_val_auc:
+    type: number
+    description: "AUC from internal nested cross‑validation."
+  external_auc:
+    type: ["number", "null"]
+    description: "AUC from external validation (null if not available)."
+  calibration_error:
+    type: number
+    description: "Calibration error (max deviation)."
+  precision_recall_curve:
+    type: array
+    description: "Precision‑Recall curve data points (list of {precision, recall})."
+    items:
+      type: object
+      properties:
+        precision:
+          type: number
+        recall:
+          type: number
+  runtime_seconds:
+    type: number
+    description: "Total runtime in seconds."
+  peak_memory_mb:
+    type: number
+    description: "Peak memory usage in MB."

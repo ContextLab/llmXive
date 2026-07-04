@@ -1,0 +1,30 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Summary Schema"
+description: "Schema for the human‑readable summary report."
+type: object
+required:
+  - status
+  - gene_panel_size
+  - external_validation_status
+  - limitations
+  - fallback_reason
+properties:
+  status:
+    type: string
+    enum: ["success", "partial", "halted"]
+    description: "Overall pipeline status."
+  gene_panel_size:
+    type: integer
+    description: "Number of genes in the final panel."
+  fallback_reason:
+    type: ["string", "null"]
+    description: "Reason for fallback (e.g., 'intersection_empty') if applicable."
+  external_validation_status:
+    type: string
+    enum: ["completed", "skipped", "failed"]
+    description: "Status of external GEO validation."
+  limitations:
+    type: array
+    items:
+      type: string
+    description: "List of limitations (e.g., power, missing data)."

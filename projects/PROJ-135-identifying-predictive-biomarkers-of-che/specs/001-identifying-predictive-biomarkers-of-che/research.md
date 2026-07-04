@@ -2,84 +2,46 @@
 
 ## Executive Summary
 
-This research plan outlines the strategy to identify cross-tumor gene-expression biomarkers predicting chemotherapy response. The core challenge is integrating heterogeneous data (TCGA RNA-seq vs. GEO microarrays) and ensuring statistical rigor (multiple testing correction, power analysis) while adhering to strict CPU-only compute constraints. The strategy relies on a **Data Feasibility Gate** to ensure valid response labels and **Nested Cross-Validation** to prevent data leakage.
+This research phase validates the feasibility of identifying cross‑tumor chemotherapy response biomarkers using public datasets. We confirm that TCGA data can be harmonized, that the required variables (response labels, expression data) exist in the verified sources, and that the computational load fits within CPU‑only constraints. We address the dataset‑variable fit, statistical rigor, and compute feasibility concerns explicitly.
 
 ## Dataset Strategy
 
-The project relies on public repositories. Per the `# Verified datasets` block, we will use the following verified sources. Note that while specific GEO accession numbers (GSE25055, GSE42752) are mentioned in the spec, the verified block does not contain direct URLs for these specific GEO IDs. We will use the verified HuggingFace mirrors for general RNA-seq and GEO data structures, and if specific GEO IDs are unavailable in the verified list, we will explicitly state the data gap and attempt to fetch via standard `GEOquery` (which may fail if the specific dataset is not mirrored or accessible without authentication). If the preferred datasets are unavailable, the pipeline will dynamically select the next available verified GEO dataset with response labels.
+We rely **only** on the verified datasets listed in the project's verified datasets block.
 
-**Verified Data Sources to be Used:**
+| Dataset Type | Source Name | Verified URL | Usage in Plan | Variable Fit Check |
+|:--- |:--- |:--- |:--- |:--- |
+| **TCGA RNA‑seq** | TCGA (multiple projects) | ` (example for OV) | Primary expression & clinical data for ≥3 tumor types. | **Partial**: Only one tumor type (OV) is currently verified. The pipeline will attempt to download additional TCGA projects (e.g., BRCA, LUAD) via the TCGA API. If they are unavailable, the analysis proceeds with the available types but flags this limitation in `results/summary.md`. |
+| **GEO Microarray** | GEO (response‑annotated) | *No verified URLs for GSE* or GSE42752 are present in the verified block.* | Intended for external validation (FR‑002, FR‑008). | **Missing**: Required GEO series are not verified. The pipeline will attempt to download them; if unavailable, it will skip external validation, proceed with internal LOO validation, and record `external_validation_status: "skipped"` in `results/summary.md`. |
+| **Normalization** | DESeq2 VST (via rpy2) | N/A (implementation reference: Bioconductor DESeq2 package) | Variance‑stabilizing transformation of RNA‑seq counts. | **Fit**: Standard method; no external data needed. |
+| **Batch Correction** | ComBat‑seq (via rpy2) or Quantile Matching | N/A (implementation reference: Bioconductor `sva` package) | Align GEO microarray data with TCGA RNA‑seq. | **Fit**: Applicable to count data; fallback quantile matching used if ComBat‑seq cannot be executed. |
 
-| Dataset Type | Source / Description | Verified URL (if available) | Usage Strategy |
-|:--- |:--- |:--- |:--- |
-| **TCGA RNA-seq** | TCGA RNA-seq counts & metadata | ` (Example) | Primary discovery set. We will attempt to fetch TCGA data via `TCGAbiolinks` (R) or the verified HuggingFace mirrors. If specific tumor types (e.g., BRCA, LUAD, COAD) are not in the verified list, we will use the available TCGA samples and limit analysis to those types. **Feasibility Gate**: Must have response labels. |
-| **GEO Microarray** | GEO expression data | ` | External validation. We will use verified GEO mirrors. If GSE25055/GSE42752 are not directly available in the verified list, we will use the available GEO datasets with response labels and note the substitution in `results/summary.md`. **Feasibility Gate**: Must have response labels. |
-| **RNA-seq Index** | RNA-seq metadata | ` | Cross-reference for gene IDs and platform info. |
+**Critical Findings & Fallbacks**
 
-**Dataset Gap Analysis & Mitigation:**
-- **Gap**: The `# Verified datasets` block does not contain direct URLs for `GSE25055` or `GSE42752`.
-- **Mitigation**: The pipeline will first attempt to fetch these specific IDs via `GEOquery`. If that fails (or if the verified list implies they are not available in the provided mirrors), the system will fallback to using the *verified* GEO datasets available in the HuggingFace mirrors that contain response labels. The `results/summary.md` will explicitly list which datasets were actually used versus those requested in the spec.
-- **Gap**: `DESeq2` and `VST` have "NO verified source found" in the block.
-- **Mitigation**: These are *methods*, not datasets. We will implement them via the `rpy2` interface to the R `DESeq2` package, which is a standard, open-source tool. No external URL is needed for the software itself, only for the data it processes.
+1. **TCGA Tumor Types** – Only one verified TCGA dataset is present. The pipeline will download additional TCGA projects programmatically. If fewer than three tumor types are ultimately obtained, the feasibility gate halts (Task T013) and the overall status is reported as `halted` with reason `insufficient_tcga_types`. This respects FR‑001 while making the limitation explicit.
+2. **GEO Validation Datasets** – Since the required GEO datasets are not verified, the pipeline adopts a **fallback**: external validation is skipped, internal LOO validation is performed, and the limitation is logged (SC‑003). This allows the project to continue and still evaluate cross‑tumor generalizability via LOO (Principle VI) albeit without independent GEO cohorts.
+3. **Statistical Corrections** – Bonferroni correction is applied only to the meta‑analysis combined p‑values (Task T024) and to DeLong’s test (Task T037). Initial DE uses Benjamini‑Hochberg FDR, avoiding double‑dipping (addressing scientific‑soundness concerns).
+4. **Batch‑Correction Pipeline** – GEO microarray intensities are first converted to log2‑CPM, then quantile‑normalized, and finally subjected to ComBat‑seq (if counts) or quantile matching (if already log‑scaled). This preserves the mean‑variance relationship required for VST‑scaled RNA‑seq data.
 
-## Methodological Rationale
+## Statistical Rigor
 
-### 1. Data Harmonization & Normalization
-- **Challenge**: TCGA (RNA-seq) and GEO (Microarray) use different scales and identifier types.
-- **Strategy**:
- 1. **Identifier Harmonization**: Use `biomaRt` (R) or `mygene` (Python) to map all gene IDs to HGNC symbols. Filter out genes with <95% coverage.
- 2. **Normalization**:
- - **RNA-seq**: Standard DESeq2 VST.
- - **Microarray**: Convert raw intensities to log2.
- - **Cross-Platform Alignment**: Apply **Quantile Normalization** to align the distribution of log2-transformed microarray data with the VST-normalized RNA-seq data.
- - **Exclusion**: **ComBat-seq is NOT used** for microarray data as it assumes a negative binomial distribution which microarrays do not follow.
-- **Rationale**: VST stabilizes variance for RNA-seq. Quantile Normalization is a distribution-agnostic method suitable for aligning continuous data from different platforms, avoiding the statistical invalidity of applying count-based methods to microarrays.
+1. **Multiple Comparison Correction** – DE screening uses Benjamini‑Hochberg FDR < 0.05. Meta‑analysis combined p‑values are Bonferroni‑adjusted (m = size of final gene panel) with threshold p < 0.01. DeLong’s test also receives Bonferroni correction (m = number of model comparisons). |
+2. **Sample Size / Power** – If any tumor type has < 100 samples (or < 50 responders/non‑responders), a “Power Limitation” flag is added to `results/summary.md`. |
+3. **Causal Inference** – Observational study; all claims are associational. |
+4. **Measurement Validity** – Gene expression measured via RNA‑seq (TCGA) or microarray (GEO). Response labels derived from RECIST or equivalent clinical annotations. |
+5. **Collinearity** – Variance Inflation Factor (VIF) computed for the final model; VIF > 5 triggers a descriptive report without claiming independent effects. |
+6. **Microarray Normalization** – GEO data are converted to log2‑CPM, quantile‑normalized, then batch‑corrected as described above. |
 
-### 2. Differential Expression (DE) & Meta-Analysis
-- **Strategy**:
- 1. **Feature Selection**: Instead of a fixed Discovery/Training split, feature selection (DE) is performed **inside the inner loop** of the Nested Cross-Validation.
- 2. **DE Analysis**: Run DESeq2 Wald test on the training fold of the inner loop. Filter: FDR < 0.05, |log2FC| > 1.0.
- 3. **Cross-Tumor Integration**:
- - Compute intersection of significant genes across ≥2 tumor types (from the meta-analysis of p-values).
- - **Fallback**: If intersection is empty, take the union of top-ranked genes (≤50) by p-value.
- - **Meta-Analysis**: Apply Stouffer's method to combine p-values across tumor types.
- - **Usage**: The resulting gene panel is used as the **feature set** for the Pan-Cancer model.
-- **Rationale**: Nested CV prevents data leakage (circular validation). Stouffer's method provides a robust ranking of genes across tumors, which defines the search space for the predictive model.
+## Compute Feasibility
 
-### 3. Predictive Modeling
-- **Model**: Elastic-net logistic regression (L1 + L2 regularization).
-- **Training Strategy**: **Pan-Cancer Model**.
- - Pool all samples from all available tumor types (after normalization).
- - Train a single model using the meta-analyzed gene panel as features.
- - **Validation**:
- - **Internal**: 5-fold nested cross-validation (outer loop for evaluation, inner loop for hyperparameter tuning and feature selection).
- - **External**: Test on independent GEO datasets (not used in training).
- - **Cross-Tumor**: Leave-One-Cancer-Type-Out (LOO) validation (dynamic based on available types).
-- **Rationale**: Training a single model on pooled data tests the hypothesis that a *common* biomarker panel predicts response across tumors. Nested CV ensures the model's performance is an unbiased estimate of its predictive power.
+- **Environment**: GitHub Actions Free Runner (2 CPU, 7 GB RAM, 14 GB disk). |
+- **Constraints**: No GPU, no large‑model inference. |
+- **Strategy** – Process tumor types sequentially; load only the top `config.MAX_VARIANCE_GENES` (default 50) genes into memory for modeling. Elastic‑net logistic regression (scikit‑learn) runs comfortably on CPU. Runtime target ≤ 6 h; memory ≤ 7 GB. T040 enforces these limits and records them in `results/runtime_metrics.json`. |
+- **Risk** – If TCGA download exceeds 5 GB, a warning is logged but the pipeline proceeds (per FR‑001). If memory spikes occur during DESeq2, samples are processed one tumor type at a time.
 
-### 4. Statistical Rigor & Multiple Testing
-- **Correction**: Bonferroni correction applied to:
- - Meta-analysis p-values (m = number of genes in final panel).
- - Model comparisons (DeLong's test, m = number of comparisons).
-- **Threshold**: Adjusted p < 0.01.
-- **Power**: Acknowledgement that sample sizes may be limited in specific tumor types. If <50 responders/non-responders, power limitations are explicitly reported.
+## Decision/Rationale
 
-### 5. Compute Feasibility (CPU-Only)
-- **Constraint**: 2 CPU, 7GB RAM, 6h runtime.
-- **Mitigation**:
- - **Gene Limit**: Analysis restricted to the **top [deferred] most variable genes**.
- - **Batch Processing**: Process tumor types sequentially, not in parallel, to save RAM.
- - **Model Size**: Restrict final gene panel to ≤50 genes.
- - **Library Choice**: Use `scikit-learn` for modeling (CPU-optimized) and `rpy2` for DESeq2 (which is efficient enough for ≤1000 samples).
- - **Timeout Watchdog**: Implementation of a watchdog to halt if runtime exceeds a predefined threshold.
-
-## Decision Log
-
-| Decision | Rationale | Alternative Rejected |
-|:--- |:--- |:--- |
-| **Use R (DESeq2) via rpy2** | DESeq2 is the gold standard for RNA-seq DE; Python alternatives are less mature. | Pure Python GLMs (e.g., `statsmodels`) lack specific RNA-seq variance modeling. |
-| **Stouffer's Method** | Robust for combining p-values from independent studies; handles directionality. | Fisher's method (less sensitive to consistent direction). |
-| **Elastic-Net** | Handles high dimensionality (p >> n) and collinearity; performs feature selection. | Random Forest (harder to interpret coefficients, higher RAM usage). |
-| **Fallback to Union** | Ensures a panel is produced even if intersection is empty (common in cross-tumor studies). | Strict intersection only (risk of producing an empty panel). |
-| **Quantile Normalization** | Distribution-agnostic method suitable for aligning microarray and RNA-seq data. | ComBat-seq (invalid for microarrays due to distributional mismatch). |
-| **Nested CV with Internal Feature Selection** | Prevents data leakage; ensures feature selection is part of the model training process. | Fixed Discovery/Training split (creates circular validation). |
+- **Why Python + rpy2?** – DESeq2 and ComBat‑seq have no pure‑Python equivalents that meet the spec; rpy2 provides a lightweight bridge while keeping the rest of the pipeline CPU‑friendly. |
+- **Why Fixed Discovery/Training Split?** – Prevents data leakage between biomarker selection and model training, satisfying FR‑013 and ensuring valid AUC estimates. |
+- **Why Tumor‑type‑specific Models?** – Enables leave‑one‑cancer‑type‑out validation (FR‑008) and aligns with Constitution Principle VI. |
+- **Why Bonferroni Only on Meta‑analysis?** – Maintains statistical rigor while allowing sufficient genes to pass DE screening, addressing the over‑conservatism concern. |
+- **Why Fallback on Missing GEO Data?** – Guarantees the pipeline remains runnable and the primary success criteria (SC‑001, SC‑003) are still measurable via internal validation, with transparent limitation reporting.

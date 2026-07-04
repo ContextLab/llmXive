@@ -8,7 +8,7 @@ required:
 properties:
   expression_matrix:
     type: object
-    description: "Mapping of sample_id to gene expression values (VST or Quantile-normalized)."
+    description: "Mapping of sample_id to gene expression values (VST or Quantile‑normalized)."
     additionalProperties:
       type: object
       description: "Sample data."
@@ -36,7 +36,7 @@ properties:
         response_label:
           type: integer
           enum: [0, 1]
-          description: "1 = Responder, 0 = Non-Responder."
+          description: "1 = Responder, 0 = Non‑Responder."
         source:
           type: string
           enum: ["TCGA", "GEO"]
@@ -46,4 +46,4 @@ properties:
           description: "Original dataset accession (e.g., GSE25055)."
         batch_corrected:
           type: boolean
-          description: "True if Quantile Normalization was applied to align platforms."
+          description: "True if batch correction (ComBat‑seq or Quantile) was applied."

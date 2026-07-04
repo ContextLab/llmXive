@@ -1,33 +1,11 @@
-- artifact_hash: 92e770df637ede41c89fa700dc61015dbe7c7cdeb0917cb40d3701f6fb5126a0
+- artifact_hash: b1f402166a44feeec219962236aae09f791bed567028a0020e619a163584d911
   artifact_path: projects/PROJ-135-identifying-predictive-biomarkers-of-che/specs/001-identifying-predictive-biomarkers-of-che/research.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
-  fetched_title: TCGA-05-4244-01Z-00-DX1.h5
+  fetched_title: metadata.csv
   kind: url
-  value: https://huggingface.co/datasets/RJKiseki/TCGA/resolve/main/TCGA-05-4244-01Z-00-DX1.h5`
+  value: https://huggingface.co/datasets/farrell236/TCGA-OV-AS/resolve/main/metadata.csv`
   verification_status: verified
-  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/647fee15cbb8294ed8104e3f/1274fa3ae1ba53c8f4940d6bfee8b4599a655cc521ea3f4c3315b796c4ac1686?user_id=public&X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27TCGA-05-4244-01Z-00-DX1.h5%3B+filename%3D%22TCGA-05-4244-01Z-00-DX1.h5%22%3B&Expires=1783114180&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjQ3ZmVlMTVjYmI4Mjk0ZWQ4MTA0ZTNmLzEyNzRmYTNhZTFiYTUzYzhmNDk0MGQ2YmZlZThiNDU5OWE2NTVjYzUyMWVhM2Y0YzMzMTViNzk2YzRhYzE2ODZcXD91c2VyX2lkPXB1YmxpYyZYLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3VENHQS0wNS00MjQ0LTAxWi0wMC1EWDEuaDUlM0IrZmlsZW5hbWUlM0QlMjJUQ0dBLTA1LTQyNDQtMDFaLTAwLURYMS5oNSUyMiUzQiIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzgzMTE0MTgwfX19XX0_&Signature=MEYCIQCrABhHR%7E-MVStbj6xMCFgmzpr3IZRUUtIANtXumW0TowIhAITMxYt461yl-KgY6gs0PIR3x5MSlagpHIkYYhrXnHdI&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
-  verified_at: '2026-07-03T20:29:40.046880Z'
-- artifact_hash: 92e770df637ede41c89fa700dc61015dbe7c7cdeb0917cb40d3701f6fb5126a0
-  artifact_path: projects/PROJ-135-identifying-predictive-biomarkers-of-che/specs/001-identifying-predictive-biomarkers-of-che/research.md
-  cite_id: c-002
-  cited_authors: []
-  cited_title: null
-  fetched_title: length_test-00000-of-00001.parquet
-  kind: url
-  value: https://huggingface.co/datasets/GWHed/geoquery/resolve/main/data/length_test-00000-of-00001.parquet`
-  verification_status: verified
-  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/68939b8521fb431d27ff438a/46bbc5b1a6f9ff6f45a365af801f1ca2ba3644315b13c639f3a3cc2a7a493553?user_id=public&X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27length_test-00000-of-00001.parquet%3B+filename%3D%22length_test-00000-of-00001.parquet%22%3B&Expires=1783114180&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjg5MzliODUyMWZiNDMxZDI3ZmY0MzhhLzQ2YmJjNWIxYTZmOWZmNmY0NWEzNjVhZjgwMWYxY2EyYmEzNjQ0MzE1YjEzYzYzOWYzYTNjYzJhN2E0OTM1NTNcXD91c2VyX2lkPXB1YmxpYyZYLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3bGVuZ3RoX3Rlc3QtMDAwMDAtb2YtMDAwMDEucGFycXVldCUzQitmaWxlbmFtZSUzRCUyMmxlbmd0aF90ZXN0LTAwMDAwLW9mLTAwMDAxLnBhcnF1ZXQlMjIlM0IiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkVwb2NoVGltZSI6MTc4MzExNDE4MH19fV19&Signature=MEYCIQDvbx3UJpYDuAcMLI-ra2TSz09ezpVubdWzQEvhOEstmQIhAOZv0wsMTKSeKQvVAWgmZHfg1auSPT8w3laXHE60efse&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
-  verified_at: '2026-07-03T20:29:40.046880Z'
-- artifact_hash: 92e770df637ede41c89fa700dc61015dbe7c7cdeb0917cb40d3701f6fb5126a0
-  artifact_path: projects/PROJ-135-identifying-predictive-biomarkers-of-che/specs/001-identifying-predictive-biomarkers-of-che/research.md
-  cite_id: c-003
-  cited_authors: []
-  cited_title: null
-  fetched_title: gtex_index.json
-  kind: url
-  value: https://huggingface.co/datasets/jarrydmartinx/recount3-RNA-seq/resolve/main/gtex_index.json`
-  verification_status: verified
-  verified_against_url: https://huggingface.co/api/resolve-cache/datasets/jarrydmartinx/recount3-RNA-seq/7dc70e44431b026015ece3e179e211157a211ecc/gtex_index.json?%2Fdatasets%2Fjarrydmartinx%2Frecount3-RNA-seq%2Fresolve%2Fmain%2Fgtex_index.json=&etag=%22a9e287b109edb25a99e7014ee052d9860d440e02%22
-  verified_at: '2026-07-03T20:29:40.046880Z'
+  verified_against_url: https://huggingface.co/api/resolve-cache/datasets/farrell236/TCGA-OV-AS/e11ff6a6d23d4f9bd34c85f9ef7f71ecc7493201/metadata.csv?%2Fdatasets%2Ffarrell236%2FTCGA-OV-AS%2Fresolve%2Fmain%2Fmetadata.csv=&etag=%2284cd66cc4f4b1cd46730bf802edeb8e5604edef1%22
+  verified_at: '2026-07-04T19:14:18.011889Z'

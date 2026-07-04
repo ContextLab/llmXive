@@ -1,4 +1,4 @@
-resolved_at: '2026-07-03T20:16:39.963677+00:00'
+resolved_at: '2026-07-04T18:23:04.784192+00:00'
 datasets:
 - intent: TCGA
   status: verified
@@ -45,23 +45,23 @@ datasets:
     source: huggingface
     status: wrong_format
     reason: HTTP 401
-  - url: https://figshare.com/articles/dataset/Call_09152489563_For_David_Umahi_Federal_University_of_Health_Sciences_DUFUHS_2026_2027_POST_UTME_Diploma_and_Pre_Degree_forms_are_out_call_09152489563_/32897225
+  - url: https://figshare.com/articles/journal_contribution/Re_escribir_el_futuro_Por_qu_el_liderazgo_que_conocemos_no_es_suficiente/32900528
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/figure/MCP_and_range_shift_analysis_for_museum_Texas_crayfish_species_as_seen_throughout_time/31550626
+  - url: https://acs.figshare.com/articles/journal_contribution/Bioinstructive_Hybrid_Scaffold_Integrating_Phosphoinositide_3_Kinase_Akt_and_Complementary_Survival_Pathways_for_Kidney_Regeneration/32900532
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Call_09152489563_For_Alex_Ekwueme_Federal_University_Ndufu-Alike_AE-FUNAI_2026_2027_POST_UTME_Diploma_and_Pre_Degree_forms_are_out_call_09152489563_/32897219
+  - url: https://acs.figshare.com/articles/journal_contribution/MPN-GE_Bilayer_Interphase_Construction_Green_Modification_Derived_from_Biomass_and_Synergistic_Enhancement_of_CFRP/32900529
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/journal_contribution/_b_Evaluasi_Usability_Aplikasi_YouTube_dengan_b_/32897138
+  - url: https://figshare.com/articles/software/Reproducibility_code_for_Blame_Trust_and_Public_Cooperation_in_Child_Protection/32900525
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Call_09152489563_For_Nigerian_University_of_Technology_and_Management_NUTM_2026_2027_POST_UTME_Diploma_and_Pre_Degree_forms_are_out_call_09152489563_/32897153
+  - url: https://figshare.com/articles/journal_contribution/Inteligencia_Artificial_y_Ciencia_Latinoamericana_consumidores_de_tecnolog_a_o_arquitectos_de_soluciones_basadas_en_I_D_i/32900522
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -77,31 +77,31 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/4015959
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
   - url: https://datadryad.org/dataset/doi:10.5061/dryad.5x69p8d4r
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/tcga_gbm/32896688/1
+  - url: https://zenodo.org/records/4015959
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20572845
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/tcga_gbm/32896688
+  - url: https://zenodo.org/records/20572845
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://data.mendeley.com/datasets/4dd545dpmv/1
+  - url: https://www.repository.cam.ac.uk/handle/1810/382036
     source: datacite
     status: wrong_format
-    reason: HTTP 403
-  - url: https://data.mendeley.com/datasets/4dd545dpmv
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21191079
     source: datacite
     status: wrong_format
-    reason: HTTP 403
-  - url: https://osf.io/4c5t6/
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21191079
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -152,23 +152,23 @@ datasets:
     source: huggingface
     status: verified
     format: jsonl
-  - url: https://figshare.com/articles/dataset/Call_09152489563_For_David_Umahi_Federal_University_of_Health_Sciences_DUFUHS_2026_2027_POST_UTME_Diploma_and_Pre_Degree_forms_are_out_call_09152489563_/32897225
+  - url: https://figshare.com/articles/dataset/_b_Peripheral_blood_LCK_and_PPP1R3D_as_candidate_biomarkers_associated_with_heart_failure_an_integrated_bioinformatics_and_preliminary_validation_study_b_/32900351
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/figure/MCP_and_range_shift_analysis_for_museum_Texas_crayfish_species_as_seen_throughout_time/31550626
+  - url: https://figshare.com/articles/journal_contribution/Re_escribir_el_futuro_Por_qu_el_liderazgo_que_conocemos_no_es_suficiente/32900528
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Call_09152489563_For_Alex_Ekwueme_Federal_University_Ndufu-Alike_AE-FUNAI_2026_2027_POST_UTME_Diploma_and_Pre_Degree_forms_are_out_call_09152489563_/32897219
+  - url: https://acs.figshare.com/articles/journal_contribution/Bioinstructive_Hybrid_Scaffold_Integrating_Phosphoinositide_3_Kinase_Akt_and_Complementary_Survival_Pathways_for_Kidney_Regeneration/32900532
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/journal_contribution/_b_Evaluasi_Usability_Aplikasi_YouTube_dengan_b_/32897138
+  - url: https://acs.figshare.com/articles/journal_contribution/MPN-GE_Bilayer_Interphase_Construction_Green_Modification_Derived_from_Biomass_and_Synergistic_Enhancement_of_CFRP/32900529
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Call_09152489563_For_Nigerian_University_of_Technology_and_Management_NUTM_2026_2027_POST_UTME_Diploma_and_Pre_Degree_forms_are_out_call_09152489563_/32897153
+  - url: https://figshare.com/articles/software/Reproducibility_code_for_Blame_Trust_and_Public_Cooperation_in_Child_Protection/32900525
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -184,11 +184,11 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/17214624
+  - url: https://zenodo.org/records/16736158
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/17214645
+  - url: https://zenodo.org/records/19603782
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -200,15 +200,15 @@ datasets:
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20819148
+  - url: https://osf.io/apbnv/
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20819148
+  - url: https://zenodo.org/records/21195299
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://osf.io/m7wej/
+  - url: https://zenodo.org/records/21195299
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -222,6 +222,13 @@ datasets:
     sample_check:
       downloaded_bytes: 177802
       parsed: true
+  - url: https://huggingface.co/datasets/hesandism/colombo-tea-auction-prices/resolve/main/colombo_tea_auction_dataset.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
   - url: https://huggingface.co/datasets/auchoi/website_data/resolve/main/benefitscal-data.jsonl
     source: huggingface
     format: jsonl
@@ -229,14 +236,11 @@ datasets:
     sample_check:
       downloaded_bytes: 256589
       parsed: true
-  - url: https://huggingface.co/datasets/Surajsangwan90/AucklandTransport-FAQs-new/resolve/main/questions_answers_NZTA_with_simple_synthetic.csv
-    source: huggingface
-    format: csv
-    relevance: 0.0
-    sample_check:
-      downloaded_bytes: 24179
-      parsed: true
   candidates_tried:
+  - url: https://huggingface.co/datasets/hesandism/colombo-tea-auction-prices/resolve/main/colombo_tea_auction_dataset.csv
+    source: huggingface
+    status: verified
+    format: csv
   - url: https://huggingface.co/datasets/ChanceFocus/flare-finarg-ecc-auc/resolve/main/data/test-00000-of-00001-fa1c3bc21bf5ca66.parquet
     source: huggingface
     status: verified
@@ -253,27 +257,23 @@ datasets:
     source: huggingface
     status: verified
     format: csv
-  - url: https://huggingface.co/datasets/tipani/Shanghai-License-Plate-Auction/resolve/main/data_csv.csv
-    source: huggingface
-    status: verified
-    format: csv
-  - url: https://figshare.com/articles/dataset/Call_09152489563_For_David_Umahi_Federal_University_of_Health_Sciences_DUFUHS_2026_2027_POST_UTME_Diploma_and_Pre_Degree_forms_are_out_call_09152489563_/32897225
+  - url: https://figshare.com/articles/dataset/_b_Peripheral_blood_LCK_and_PPP1R3D_as_candidate_biomarkers_associated_with_heart_failure_an_integrated_bioinformatics_and_preliminary_validation_study_b_/32900351
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/figure/MCP_and_range_shift_analysis_for_museum_Texas_crayfish_species_as_seen_throughout_time/31550626
+  - url: https://figshare.com/articles/journal_contribution/Re_escribir_el_futuro_Por_qu_el_liderazgo_que_conocemos_no_es_suficiente/32900528
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Call_09152489563_For_Alex_Ekwueme_Federal_University_Ndufu-Alike_AE-FUNAI_2026_2027_POST_UTME_Diploma_and_Pre_Degree_forms_are_out_call_09152489563_/32897219
+  - url: https://acs.figshare.com/articles/journal_contribution/Bioinstructive_Hybrid_Scaffold_Integrating_Phosphoinositide_3_Kinase_Akt_and_Complementary_Survival_Pathways_for_Kidney_Regeneration/32900532
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/journal_contribution/_b_Evaluasi_Usability_Aplikasi_YouTube_dengan_b_/32897138
+  - url: https://acs.figshare.com/articles/journal_contribution/MPN-GE_Bilayer_Interphase_Construction_Green_Modification_Derived_from_Biomass_and_Synergistic_Enhancement_of_CFRP/32900529
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Call_09152489563_For_Nigerian_University_of_Technology_and_Management_NUTM_2026_2027_POST_UTME_Diploma_and_Pre_Degree_forms_are_out_call_09152489563_/32897153
+  - url: https://figshare.com/articles/software/Reproducibility_code_for_Blame_Trust_and_Public_Cooperation_in_Child_Protection/32900525
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -285,6 +285,10 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/2228178
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/18880607
     source: zenodo
     status: wrong_format
@@ -293,27 +297,23 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21154218
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://osf.io/3k6gs/
+  - url: https://zenodo.org/records/21186860
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://osf.io/n3p6g/
+  - url: https://zenodo.org/records/21186860
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20858790
+  - url: https://zenodo.org/records/21195647
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20858790
+  - url: https://zenodo.org/records/21195647
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21177113
+  - url: https://zenodo.org/records/21195939
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -321,23 +321,23 @@ datasets:
   status: unresolved
   candidates: []
   candidates_tried:
-  - url: https://figshare.com/articles/dataset/Call_09152489563_For_David_Umahi_Federal_University_of_Health_Sciences_DUFUHS_2026_2027_POST_UTME_Diploma_and_Pre_Degree_forms_are_out_call_09152489563_/32897225
+  - url: https://figshare.com/articles/dataset/_b_Peripheral_blood_LCK_and_PPP1R3D_as_candidate_biomarkers_associated_with_heart_failure_an_integrated_bioinformatics_and_preliminary_validation_study_b_/32900351
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/figure/MCP_and_range_shift_analysis_for_museum_Texas_crayfish_species_as_seen_throughout_time/31550626
+  - url: https://figshare.com/articles/journal_contribution/Re_escribir_el_futuro_Por_qu_el_liderazgo_que_conocemos_no_es_suficiente/32900528
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Call_09152489563_For_Alex_Ekwueme_Federal_University_Ndufu-Alike_AE-FUNAI_2026_2027_POST_UTME_Diploma_and_Pre_Degree_forms_are_out_call_09152489563_/32897219
+  - url: https://acs.figshare.com/articles/journal_contribution/Bioinstructive_Hybrid_Scaffold_Integrating_Phosphoinositide_3_Kinase_Akt_and_Complementary_Survival_Pathways_for_Kidney_Regeneration/32900532
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/journal_contribution/_b_Evaluasi_Usability_Aplikasi_YouTube_dengan_b_/32897138
+  - url: https://acs.figshare.com/articles/journal_contribution/MPN-GE_Bilayer_Interphase_Construction_Green_Modification_Derived_from_Biomass_and_Synergistic_Enhancement_of_CFRP/32900529
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Call_09152489563_For_Nigerian_University_of_Technology_and_Management_NUTM_2026_2027_POST_UTME_Diploma_and_Pre_Degree_forms_are_out_call_09152489563_/32897153
+  - url: https://figshare.com/articles/software/Reproducibility_code_for_Blame_Trust_and_Public_Cooperation_in_Child_Protection/32900525
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -349,15 +349,15 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10136163
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/19424
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/5854988
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/10136163
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -410,7 +410,7 @@ datasets:
     source: huggingface
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://us.aws.cdn.hf.co/xet-bridge-us/660e66c8a7f16af58a1063bf/5da7e1e0bc539683df76ea0c6b0c1ac2ce061026b6f72a2fdfc92c2ab016b7bf?response-content-disposition=inline%3B+filename*%3DUTF-8%27%27alpaca_data_cleaned-fr.json%3B+filename%3D%22alpaca_data_cleaned-fr.json%22%3B&user_id=public&X-Xet-Cas-Uid=public&response-content-type=application%2Fjson&Expires=1783113214&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjYwZTY2YzhhN2YxNmFmNThhMTA2M2JmLzVkYTdlMWUwYmM1Mzk2ODNkZjc2ZWEwYzZiMGMxYWMyY2UwNjEwMjZiNmY3MmEyZmRmYzkyYzJhYjAxNmI3YmZcXD9yZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3YWxwYWNhX2RhdGFfY2xlYW5lZC1mci5qc29uJTNCK2ZpbGVuYW1lJTNEJTIyYWxwYWNhX2RhdGFfY2xlYW5lZC1mci5qc29uJTIyJTNCJnVzZXJfaWQ9cHVibGljJlgtWGV0LUNhcy1VaWQ9cHVibGljJnJlc3BvbnNlLWNvbnRlbnQtdHlwZT1hcHBsaWNhdGlvbiUyRmpzb24iLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkVwb2NoVGltZSI6MTc4MzExMzIxNH19fV19&Signature=MEUCIQCjwr0JE-5113GwAKPbKXua~DAYzcxcQw7xySPOdclZzgIgSe8EROUMk8JBsWag1zjJaki591ZyTE0j3DIVvRgHV64_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+  - url: https://us.aws.cdn.hf.co/xet-bridge-us/660e66c8a7f16af58a1063bf/5da7e1e0bc539683df76ea0c6b0c1ac2ce061026b6f72a2fdfc92c2ab016b7bf?response-content-disposition=inline%3B+filename*%3DUTF-8%27%27alpaca_data_cleaned-fr.json%3B+filename%3D%22alpaca_data_cleaned-fr.json%22%3B&X-Xet-Cas-Uid=public&response-content-type=application%2Fjson&user_id=public&Expires=1783192811&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjYwZTY2YzhhN2YxNmFmNThhMTA2M2JmLzVkYTdlMWUwYmM1Mzk2ODNkZjc2ZWEwYzZiMGMxYWMyY2UwNjEwMjZiNmY3MmEyZmRmYzkyYzJhYjAxNmI3YmZcXD9yZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3YWxwYWNhX2RhdGFfY2xlYW5lZC1mci5qc29uJTNCK2ZpbGVuYW1lJTNEJTIyYWxwYWNhX2RhdGFfY2xlYW5lZC1mci5qc29uJTIyJTNCJlgtWGV0LUNhcy1VaWQ9cHVibGljJnJlc3BvbnNlLWNvbnRlbnQtdHlwZT1hcHBsaWNhdGlvbiUyRmpzb24mdXNlcl9pZD1wdWJsaWMiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkVwb2NoVGltZSI6MTc4MzE5MjgxMX19fV19&Signature=MEQCIFkFaBR8jq19WMKnKaN5XJmEUOZ0q1dijbZLvvAC-8M-AiB~vc8CLIh8zibJIPCHHInMNiJ71VUkHxlt8rkF4KJ1wA__&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
     source: huggingface
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -426,23 +426,23 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://figshare.com/articles/dataset/Call_09152489563_For_Ebonyi_State_University_EBSU_2026_2027_POST_UTME_Diploma_and_Pre_Degree_forms_are_out_call_09152489563_/32897231
+  - url: https://tandf.figshare.com/articles/dataset/Risk_factors_for_adverse_events_or_use_of_high-potency_corticosteroids_in_non-infectious_uveitis_a_Japan_claims_database_study_J-CAT2_/32900535
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Call_09152489563_For_David_Umahi_Federal_University_of_Health_Sciences_DUFUHS_2026_2027_POST_UTME_Diploma_and_Pre_Degree_forms_are_out_call_09152489563_/32897225
+  - url: https://figshare.com/articles/dataset/_b_Peripheral_blood_LCK_and_PPP1R3D_as_candidate_biomarkers_associated_with_heart_failure_an_integrated_bioinformatics_and_preliminary_validation_study_b_/32900351
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/figure/MCP_and_range_shift_analysis_for_museum_Texas_crayfish_species_as_seen_throughout_time/31550626
+  - url: https://figshare.com/articles/journal_contribution/Re_escribir_el_futuro_Por_qu_el_liderazgo_que_conocemos_no_es_suficiente/32900528
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Call_09152489563_For_Alex_Ekwueme_Federal_University_Ndufu-Alike_AE-FUNAI_2026_2027_POST_UTME_Diploma_and_Pre_Degree_forms_are_out_call_09152489563_/32897219
+  - url: https://acs.figshare.com/articles/journal_contribution/Bioinstructive_Hybrid_Scaffold_Integrating_Phosphoinositide_3_Kinase_Akt_and_Complementary_Survival_Pathways_for_Kidney_Regeneration/32900532
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/journal_contribution/_b_Evaluasi_Usability_Aplikasi_YouTube_dengan_b_/32897138
+  - url: https://acs.figshare.com/articles/journal_contribution/MPN-GE_Bilayer_Interphase_Construction_Green_Modification_Derived_from_Biomass_and_Synergistic_Enhancement_of_CFRP/32900529
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -466,23 +466,23 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21153431
+  - url: https://zenodo.org/records/21187811
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21153431
+  - url: https://zenodo.org/records/21187811
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21163642
+  - url: https://zenodo.org/records/21123943
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21163642
+  - url: https://publica.fraunhofer.de/entities/publication/7e091c86-3390-4807-a726-520185e88626
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21162173
+  - url: https://zenodo.org/records/21185362
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -490,27 +490,31 @@ datasets:
   status: unresolved
   candidates: []
   candidates_tried:
-  - url: https://figshare.com/articles/dataset/Call_09152489563_For_Ebonyi_State_University_EBSU_2026_2027_POST_UTME_Diploma_and_Pre_Degree_forms_are_out_call_09152489563_/32897231
+  - url: https://figshare.com/articles/dataset/High-temperature_superconductivity_at_100_K_in_La3-xNdxNi2O7/32896412
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Call_09152489563_For_David_Umahi_Federal_University_of_Health_Sciences_DUFUHS_2026_2027_POST_UTME_Diploma_and_Pre_Degree_forms_are_out_call_09152489563_/32897225
+  - url: https://tandf.figshare.com/articles/dataset/Risk_factors_for_adverse_events_or_use_of_high-potency_corticosteroids_in_non-infectious_uveitis_a_Japan_claims_database_study_J-CAT2_/32900535
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/figure/MCP_and_range_shift_analysis_for_museum_Texas_crayfish_species_as_seen_throughout_time/31550626
+  - url: https://figshare.com/articles/dataset/_b_Peripheral_blood_LCK_and_PPP1R3D_as_candidate_biomarkers_associated_with_heart_failure_an_integrated_bioinformatics_and_preliminary_validation_study_b_/32900351
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Call_09152489563_For_Alex_Ekwueme_Federal_University_Ndufu-Alike_AE-FUNAI_2026_2027_POST_UTME_Diploma_and_Pre_Degree_forms_are_out_call_09152489563_/32897219
+  - url: https://figshare.com/articles/journal_contribution/Re_escribir_el_futuro_Por_qu_el_liderazgo_que_conocemos_no_es_suficiente/32900528
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/journal_contribution/_b_Evaluasi_Usability_Aplikasi_YouTube_dengan_b_/32897138
+  - url: https://acs.figshare.com/articles/journal_contribution/Bioinstructive_Hybrid_Scaffold_Integrating_Phosphoinositide_3_Kinase_Akt_and_Complementary_Survival_Pathways_for_Kidney_Regeneration/32900532
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/10278225
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20844823
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -522,12 +526,20 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20844823
+  - url: https://zenodo.org/records/19815891
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/7775878
-    source: zenodo
+  - url: https://www.repository.cam.ac.uk/handle/1810/342530
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21181564
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21181564
+    source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/21128268
@@ -535,18 +547,6 @@ datasets:
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/21128268
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://www.scidb.cn/detail?dataSetId=f23d4acc7a9241549d2c63c051a8c3c1
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21104740
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21104740
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -592,23 +592,23 @@ datasets:
     source: huggingface
     status: verified
     format: zip
-  - url: https://figshare.com/articles/dataset/Call_09152489563_For_Ebonyi_State_University_EBSU_2026_2027_POST_UTME_Diploma_and_Pre_Degree_forms_are_out_call_09152489563_/32897231
+  - url: https://figshare.com/articles/dataset/High-temperature_superconductivity_at_100_K_in_La3-xNdxNi2O7/32896412
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Call_09152489563_For_David_Umahi_Federal_University_of_Health_Sciences_DUFUHS_2026_2027_POST_UTME_Diploma_and_Pre_Degree_forms_are_out_call_09152489563_/32897225
+  - url: https://tandf.figshare.com/articles/dataset/Risk_factors_for_adverse_events_or_use_of_high-potency_corticosteroids_in_non-infectious_uveitis_a_Japan_claims_database_study_J-CAT2_/32900535
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/figure/MCP_and_range_shift_analysis_for_museum_Texas_crayfish_species_as_seen_throughout_time/31550626
+  - url: https://figshare.com/articles/dataset/_b_Peripheral_blood_LCK_and_PPP1R3D_as_candidate_biomarkers_associated_with_heart_failure_an_integrated_bioinformatics_and_preliminary_validation_study_b_/32900351
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Call_09152489563_For_Alex_Ekwueme_Federal_University_Ndufu-Alike_AE-FUNAI_2026_2027_POST_UTME_Diploma_and_Pre_Degree_forms_are_out_call_09152489563_/32897219
+  - url: https://figshare.com/articles/journal_contribution/Re_escribir_el_futuro_Por_qu_el_liderazgo_que_conocemos_no_es_suficiente/32900528
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/journal_contribution/_b_Evaluasi_Usability_Aplikasi_YouTube_dengan_b_/32897138
+  - url: https://acs.figshare.com/articles/journal_contribution/Bioinstructive_Hybrid_Scaffold_Integrating_Phosphoinositide_3_Kinase_Akt_and_Complementary_Survival_Pathways_for_Kidney_Regeneration/32900532
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -640,383 +640,35 @@ datasets:
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://cdsarc.cds.unistra.fr/viz-bin/cat/J/A+A/697/A139
+  - url: https://zenodo.org/records/20237577
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://uregina.scholaris.ca/handle/10294/14959
+  - url: https://zenodo.org/records/20237577
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21025760
+  - url: https://publica.fraunhofer.de/entities/publication/105ef745-a089-4703-84a1-a49653b4fe2a
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
 - intent: GSE25055
   status: unresolved
   candidates: []
-  candidates_tried:
-  - url: https://figshare.com/articles/figure/Photon_energy_resolved_trXAS_signal_/32897222
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Call_09152489563_For_Ebonyi_State_University_EBSU_2026_2027_POST_UTME_Diploma_and_Pre_Degree_forms_are_out_call_09152489563_/32897231
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Call_09152489563_For_David_Umahi_Federal_University_of_Health_Sciences_DUFUHS_2026_2027_POST_UTME_Diploma_and_Pre_Degree_forms_are_out_call_09152489563_/32897225
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/figure/MCP_and_range_shift_analysis_for_museum_Texas_crayfish_species_as_seen_throughout_time/31550626
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Call_09152489563_For_Alex_Ekwueme_Federal_University_Ndufu-Alike_AE-FUNAI_2026_2027_POST_UTME_Diploma_and_Pre_Degree_forms_are_out_call_09152489563_/32897219
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/18123420
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21134086
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21134086
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21134086
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://springernature.figshare.com/articles/journal_contribution/Additional_file_1_of_FABP7_is_a_potential_biomarker_to_predict_response_to_neoadjuvant_chemotherapy_for_breast_cancer/13279889/1
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://springernature.figshare.com/articles/journal_contribution/Additional_file_1_of_FABP7_is_a_potential_biomarker_to_predict_response_to_neoadjuvant_chemotherapy_for_breast_cancer/13279889
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/18123420
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
+  candidates_tried: []
 - intent: GSE42752
   status: unresolved
   candidates: []
-  candidates_tried:
-  - url: https://figshare.com/articles/figure/Photon_energy_resolved_trXAS_signal_/32897222
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Call_09152489563_For_Ebonyi_State_University_EBSU_2026_2027_POST_UTME_Diploma_and_Pre_Degree_forms_are_out_call_09152489563_/32897231
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Call_09152489563_For_David_Umahi_Federal_University_of_Health_Sciences_DUFUHS_2026_2027_POST_UTME_Diploma_and_Pre_Degree_forms_are_out_call_09152489563_/32897225
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/figure/MCP_and_range_shift_analysis_for_museum_Texas_crayfish_species_as_seen_throughout_time/31550626
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Call_09152489563_For_Alex_Ekwueme_Federal_University_Ndufu-Alike_AE-FUNAI_2026_2027_POST_UTME_Diploma_and_Pre_Degree_forms_are_out_call_09152489563_/32897219
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
+  candidates_tried: []
 - intent: GEOquery
-  status: verified
-  candidates:
-  - url: https://huggingface.co/datasets/vaishali/geoQuery-tableQA/resolve/main/data/test-00000-of-00001-a7e7bddd8e1781d9.parquet
-    source: huggingface
-    format: parquet
-    relevance: 1.0
-    sample_check:
-      downloaded_bytes: 262144
-      parsed: true
-  - url: https://huggingface.co/datasets/DARELab/geoquery/resolve/main/data.zip
-    source: huggingface
-    format: zip
-    relevance: 1.0
-    sample_check:
-      downloaded_bytes: 42781
-      parsed: true
-  - url: https://huggingface.co/datasets/GWHed/geoquery/resolve/main/data/length_test-00000-of-00001.parquet
-    source: huggingface
-    format: parquet
-    relevance: 1.0
-    sample_check:
-      downloaded_bytes: 12177
-      parsed: true
-  candidates_tried:
-  - url: https://huggingface.co/datasets/vaishali/geoQuery-tableQA/resolve/main/data/test-00000-of-00001-a7e7bddd8e1781d9.parquet
-    source: huggingface
-    status: verified
-    format: parquet
-  - url: https://huggingface.co/datasets/DARELab/geoquery/resolve/main/data.zip
-    source: huggingface
-    status: verified
-    format: zip
-  - url: https://huggingface.co/datasets/GWHed/geoquery/resolve/main/data/length_test-00000-of-00001.parquet
-    source: huggingface
-    status: verified
-    format: parquet
-  - url: https://huggingface.co/datasets/GWHed/geoquery_standard/resolve/main/data/test-00000-of-00001.parquet
-    source: huggingface
-    status: verified
-    format: parquet
-  - url: https://figshare.com/articles/figure/Photon_energy_resolved_trXAS_signal_/32897222
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Call_09152489563_For_Ebonyi_State_University_EBSU_2026_2027_POST_UTME_Diploma_and_Pre_Degree_forms_are_out_call_09152489563_/32897231
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Call_09152489563_For_David_Umahi_Federal_University_of_Health_Sciences_DUFUHS_2026_2027_POST_UTME_Diploma_and_Pre_Degree_forms_are_out_call_09152489563_/32897225
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/figure/MCP_and_range_shift_analysis_for_museum_Texas_crayfish_species_as_seen_throughout_time/31550626
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Call_09152489563_For_Alex_Ekwueme_Federal_University_Ndufu-Alike_AE-FUNAI_2026_2027_POST_UTME_Diploma_and_Pre_Degree_forms_are_out_call_09152489563_/32897219
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/19220833
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/4815134
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/5205322
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/7679088
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20437981
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20951276
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20951276
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://underline.io/lecture/20036-learning-from-executions-for-semantic-parsing
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20437981
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20437981
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
+  status: unresolved
+  candidates: []
+  candidates_tried: []
 - intent: RNA-seq
-  status: verified
-  candidates:
-  - url: https://huggingface.co/datasets/jarrydmartinx/recount3-RNA-seq/resolve/main/gtex_index.json
-    source: huggingface
-    format: json
-    relevance: 1.0
-    sample_check:
-      downloaded_bytes: 4185
-      parsed: true
-  - url: https://huggingface.co/datasets/Prarabdha/Paul_RNA_Sequence_Unprocessed_Data/resolve/main/Paul.csv
-    source: huggingface
-    format: csv
-    relevance: 0.5
-    sample_check:
-      downloaded_bytes: 262144
-      parsed: true
-  - url: https://huggingface.co/datasets/Prarabdha/Paul_RNA_Sequence_Processed_Dataset/resolve/main/Paul_Processed.csv
-    source: huggingface
-    format: csv
-    relevance: 0.5
-    sample_check:
-      downloaded_bytes: 262144
-      parsed: true
-  candidates_tried:
-  - url: https://huggingface.co/datasets/jarrydmartinx/recount3-RNA-seq/resolve/main/gtex_index.json
-    source: huggingface
-    status: verified
-    format: json
-  - url: https://huggingface.co/datasets/Prarabdha/Paul_RNA_Sequence_Unprocessed_Data/resolve/main/Paul.csv
-    source: huggingface
-    status: verified
-    format: csv
-  - url: https://huggingface.co/datasets/Prarabdha/Paul_RNA_Sequence_Processed_Dataset/resolve/main/Paul_Processed.csv
-    source: huggingface
-    status: verified
-    format: csv
-  - url: https://huggingface.co/datasets/suzuki-2001/athaliana_rnaseq_splicing/resolve/main/test.csv
-    source: huggingface
-    status: verified
-    format: csv
-  - url: https://figshare.com/articles/dataset/Call_09152489563_For_Evangel_University_2026_2027_POST_UTME_Diploma_and_Pre_Degree_forms_are_out_call_09152489563_/32897234
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/figure/Photon_energy_resolved_trXAS_signal_/32897222
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Call_09152489563_For_Ebonyi_State_University_EBSU_2026_2027_POST_UTME_Diploma_and_Pre_Degree_forms_are_out_call_09152489563_/32897231
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Call_09152489563_For_David_Umahi_Federal_University_of_Health_Sciences_DUFUHS_2026_2027_POST_UTME_Diploma_and_Pre_Degree_forms_are_out_call_09152489563_/32897225
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/figure/MCP_and_range_shift_analysis_for_museum_Texas_crayfish_species_as_seen_throughout_time/31550626
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/18008608
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://datadryad.org/dataset/doi:10.5061/dryad.83420
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://datadryad.org/dataset/doi:10.5061/dryad.65v002b
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://datadryad.org/dataset/doi:10.5061/dryad.2rf10
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20390640
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://www.repository.cam.ac.uk/handle/1810/405786
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://tandf.figshare.com/articles/dataset/A_secreted_AIP-Like_peptide_from_i_Helcococcus_kunzii_i_inhibits_the_Agr_quorum_sensing_system_of_i_Staphylococcus_aureus_i_/32896863
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://tandf.figshare.com/articles/dataset/A_secreted_AIP-Like_peptide_from_i_Helcococcus_kunzii_i_inhibits_the_Agr_quorum_sensing_system_of_i_Staphylococcus_aureus_i_/32896863/1
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21033443
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21033443
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
+  status: unresolved
+  candidates: []
+  candidates_tried: []
 - intent: LOO
-  status: verified
-  candidates:
-  - url: https://huggingface.co/datasets/camel-ai/loong/resolve/main/advanced_math/test-00000-of-00001.parquet
-    source: huggingface
-    format: parquet
-    relevance: 0.0
-    sample_check:
-      downloaded_bytes: 262144
-      parsed: true
-  - url: https://huggingface.co/datasets/cy0307/awesome-loop-engineering/resolve/main/data/resource_source_audit.csv
-    source: huggingface
-    format: csv
-    relevance: 0.0
-    sample_check:
-      downloaded_bytes: 156496
-      parsed: true
-  candidates_tried:
-  - url: https://huggingface.co/api/resolve-cache/datasets/LooksJuicy/ruozhiba/2a39d86721e0109a7c598a25a1338e297c639d2f/ruozhiba_qa.json?%2Fdatasets%2FLooksJuicy%2Fruozhiba%2Fresolve%2Fmain%2Fruozhiba_qa.json=&etag=%227cd0d818999961f57b90ff819d814daf6f76286b%22
-    source: huggingface
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://huggingface.co/datasets/camel-ai/loong/resolve/main/advanced_math/test-00000-of-00001.parquet
-    source: huggingface
-    status: verified
-    format: parquet
-  - url: https://huggingface.co/datasets/cy0307/awesome-loop-engineering/resolve/main/data/resource_source_audit.csv
-    source: huggingface
-    status: verified
-    format: csv
-  - url: https://figshare.com/articles/dataset/Call_09152489563_For_Evangel_University_2026_2027_POST_UTME_Diploma_and_Pre_Degree_forms_are_out_call_09152489563_/32897234
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/figure/Photon_energy_resolved_trXAS_signal_/32897222
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Call_09152489563_For_Ebonyi_State_University_EBSU_2026_2027_POST_UTME_Diploma_and_Pre_Degree_forms_are_out_call_09152489563_/32897231
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Call_09152489563_For_David_Umahi_Federal_University_of_Health_Sciences_DUFUHS_2026_2027_POST_UTME_Diploma_and_Pre_Degree_forms_are_out_call_09152489563_/32897225
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/figure/MCP_and_range_shift_analysis_for_museum_Texas_crayfish_species_as_seen_throughout_time/31550626
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/3950561
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/3677621
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/13705471
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/10714560
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/16722252
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21159370
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21159370
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://springernature.figshare.com/collections/Optimising_a_behavioural_intervention_to_support_endocrine_therapy_adherence_for_women_with_breast_cancer_protocol_for_the_ROSETA_optimisation_factorial_randomised_controlled_trial/8573412
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://springernature.figshare.com/collections/Optimising_a_behavioural_intervention_to_support_endocrine_therapy_adherence_for_women_with_breast_cancer_protocol_for_the_ROSETA_optimisation_factorial_randomised_controlled_trial/8573412/1
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://springernature.figshare.com/articles/journal_contribution/Additional_file_2_of_Optimising_a_behavioural_intervention_to_support_endocrine_therapy_adherence_for_women_with_breast_cancer_protocol_for_the_ROSETA_optimisation_factorial_randomised_controlled_trial/32888040
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
+  status: unresolved
+  candidates: []
+  candidates_tried: []

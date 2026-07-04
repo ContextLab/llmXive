@@ -1,0 +1,35 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Sample Schema"
+description: "Schema for a single patient tumor specimen in the analysis pipeline."
+type: object
+required:
+  - sample_id
+  - tumor_type
+  - response_label
+  - set_type
+  - source
+  - expression_vector
+properties:
+  sample_id:
+    type: string
+    description: "Unique identifier for the sample."
+  tumor_type:
+    type: string
+    description: "Cancer type code (e.g., BRCA, LUAD)."
+  response_label:
+    type: integer
+    enum: [0, 1]
+    description: "Binary response label: 0 = Non‑Responder, 1 = Responder."
+  set_type:
+    type: string
+    enum: ["discovery", "training"]
+    description: "Whether the sample is in the discovery or training set."
+  source:
+    type: string
+    enum: ["TCGA", "GEO"]
+    description: "Source dataset."
+  expression_vector:
+    type: object
+    additionalProperties:
+      type: number
+    description: "Gene expression values keyed by gene symbol."

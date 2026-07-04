@@ -1,92 +1,55 @@
-# Data Model: Identifying Predictive Biomarkers of Chemotherapy Response
+# Data Model: Identifying Predictive Biomarkers of Chemotherapy Response in Public Cancer Datasets
 
 ## Overview
 
-This document defines the data structures, schemas, and transformations used in the pipeline. All data flows from `data/raw/` (immutable) to `data/processed/` (derived) to `results/` (final outputs).
+This document defines the data structures, schemas, and transformations used in the pipeline. It ensures that all data artifacts conform to the contracts defined in `contracts/`.
 
-## Entity Definitions
+## Entities
 
-### 1. Sample
-Represents a patient specimen.
-- **Attributes**:
-  - `sample_id`: Unique string identifier.
-  - `tumor_type`: String (e.g., "BRCA", "LUAD").
-  - `response_label`: Binary (1 = Responder, 0 = Non-Responder).
-  - `expression_vector`: Dictionary or array mapping HGNC symbols to VST values.
-  - `batch_corrected`: Boolean (True if Quantile Normalization applied).
-  - `source`: String ("TCGA" or "GEO").
-  - `dataset_id`: String (e.g., "GSE25055").
+### Sample
+Represents a single patient tumor specimen.
+- `sample_id`: Unique identifier (string).
+- `tumor_type`: Cancer type (string, e.g., "BRCA", "LUAD").
+- `response_label`: Binary (0 = Non‑responder, 1 = Responder).
+- `expression_vector`: Dictionary or array of gene expression values (gene_symbol → value).
+- `set_type`: "discovery" or "training" (string).
+- `source`: "TCGA" or "GEO" (string).
 
-### 2. GenePanel
-Represents the meta-analyzed biomarker set.
-- **Attributes**:
-  - `gene_symbol`: String (HGNC).
-  - `meta_p_value`: Float (combined p-value from Stouffer's).
-  - `log2FC_mean`: Float (mean log2 fold change across tumor types).
-  - `selected`: Boolean (True if in final panel).
-  - `rank`: Integer (1 = most significant).
-  - `selection_method`: String ("intersection" or "union_fallback").
+### GenePanel
+Represents the meta‑analyzed biomarker set.
+- `gene_symbol`: HGNC symbol (string).
+- `meta_p_value`: Combined p‑value from Stouffer's method (float).
+- `log2FC_mean`: Mean log2 fold change across tumor types (float).
+- `selected`: Boolean (True if in final panel).
+- `rank`: Integer (1‑based rank by meta_p_value).
 
-### 3. Model
-Represents the trained elastic-net predictor.
-- **Attributes**:
-  - `model_id`: String.
-  - `cancer_type`: String (or "Pan-Cancer" for pooled model).
-  - `alpha`: Float (mixing parameter).
-  - `lambda`: Float (regularization strength).
-  - `coefficients`: Dictionary (gene_symbol -> weight).
-  - `cross_val_auc`: Float (internal CV performance).
-  - `external_auc`: Float (external validation performance).
-  - `calibration_error`: Float (max deviation).
+### Model
+Represents a trained elastic‑net predictor.
+- `cancer_type`: The tumor type the model is trained on.
+- `alpha`: Elastic‑net mixing parameter (float).
+- `lambda`: Regularization parameter (float).
+- `coefficients`: Dictionary of gene_symbol → coefficient.
+- `cross_val_auc`: AUC from internal nested CV.
+- `external_auc`: AUC from external GEO validation (if available).
+- `calibration_error`: Maximum deviation across deciles (float).
+- `de_long_p`: Bonferroni‑adjusted p‑value from DeLong’s test.
 
 ## Data Flow
 
-```mermaid
-graph TD
-    A[TCGA Raw Counts] --> B[Harmonize IDs]
-    C[GEO Raw Data] --> B
-    B --> D[Filter Low Expr]
-    D --> E[VST Normalization (RNA-seq) / Log2 (Microarray)]
-    E --> F[Quantile Normalization (Cross-Platform)]
-    F --> G[Nested CV: Feature Selection (DE) inside Inner Loop]
-    G --> H[Meta-Analysis (Gene Ranking)]
-    H --> I[Gene Panel Selection]
-    F --> J[Model Training (Pooled Data)]
-    I --> J
-    J --> K[Nested CV]
-    K --> L[External Validation]
-    L --> M[Results: AUC, Calibration]
-```
+1. **Raw Data**: Downloaded from verified URLs (TCGA CSV/H5, GEO CSV). |
+2. **Harmonization**: Gene identifiers mapped to HGNC. |
+3. **Filtering**: Low‑expression genes removed (CPM < 1 in > 80 % samples). |
+4. **Normalization**: VST (DESeq2) applied; batch correction via ComBat‑seq or quantile matching. |
+5. **Splitting**: Data split into Discovery and Training sets (FR‑013). |
+6. **DE Analysis**: Performed on Discovery set only (FR‑005). |
+7. **Meta‑Analysis**: Stouffer’s method applied to DE results (FR‑006). |
+8. **Modeling**: Elastic‑net trained on Training set using GenePanel (FR‑007). |
+9. **Validation**: Nested CV, LOO, and external GEO cohorts (FR‑008, FR‑009, FR‑011). |
+10. **Reporting**: All artifacts stored under `results/` and validated against contracts.
 
-## File Formats
+## Constraints
 
-### Input: Raw Data
-- **TCGA**: `.h5` or `.csv` (counts matrix, clinical metadata).
-- **GEO**: `.txt` or `.csv` (expression matrix, phenotype data).
-
-### Intermediate: Processed Data
-- **Expression Matrix**: `.npy` (NumPy array) or `.parquet` (Pandas DataFrame).
-  - Rows: Samples.
-  - Columns: HGNC Gene Symbols.
-  - Values: VST-normalized (RNA-seq) or Quantile-normalized (Microarray) expression.
-- **Metadata**: `.json` (Sample info, set splits).
-
-### Output: Results
-- **DE Results**: `.csv` (Gene, log2FC, p-value, adj_p-value).
-- **Meta Analysis**: `.csv` (Gene, meta_p, log2FC_mean, selection_method).
-- **Model**: `.pkl` (Pickled sklearn model) + `.json` (Hyperparameters).
-- **Summary**: `.md` (Human-readable report).
-
-## Schema Constraints
-
-- **Gene Symbols**: Must be valid HGNC symbols (uppercase, no special characters).
-- **Response Labels**: Must be binary (0 or 1).
-- **Missing Data**: Genes with >20% missing values in a tumor type are excluded.
-- **Class Imbalance**: If responder ratio < 20%, class weights are applied.
-- **Batch Correction**: The `batch_corrected` flag must be set to `true` for all processed data used in modeling.
-
-## Data Hygiene & Versioning
-
-- **Checksums**: All files in `data/` are checksummed (SHA-256) and recorded in `state/`. **Raw data checksums are generated immediately upon download.**
-- **Immutability**: Raw data is never modified. Derivations create new files.
-- **Traceability**: Every result in `results/` references the specific `data/` file and `code/` script used to generate it.
+- **Gene Coverage**: ≥95 % of genes must be successfully mapped to HGNC symbols. |
+- **Sample Coverage**: ≥100 samples per tumor type (if available). |
+- **Response Balance**: If responder ratio < 20 %, cost‑sensitive learning with class weights is applied. |
+- **Memory**: All intermediate data structures must fit within 7 GB RAM.

@@ -1,0 +1,26 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Gene Panel Schema"
+description: "Schema for the meta‑analyzed biomarker gene panel."
+type: object
+required:
+  - gene_symbol
+  - meta_p_value
+  - log2FC_mean
+  - selected
+  - rank
+properties:
+  gene_symbol:
+    type: string
+    description: "HGNC gene symbol."
+  meta_p_value:
+    type: number
+    description: "Combined p‑value from Stouffer's method."
+  log2FC_mean:
+    type: number
+    description: "Mean log2 fold change across tumor types."
+  selected:
+    type: boolean
+    description: "Whether the gene is included in the final panel."
+  rank:
+    type: integer
+    description: "Rank by meta_p_value (1‑based)."
