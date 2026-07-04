@@ -1,0 +1,133 @@
+resolved_at: '2026-07-04T00:34:16.788049+00:00'
+datasets:
+- intent: 10.5281/zenodo.10043838
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/media/Call_08132728112_Department_of_Nursing_Sciences_Salem_University_Admission_Form_2026_2027_Post_Utme_Application_Is_Out_CALL_08132728112_Dr_Mrs_Sarah_for_admission_process_into_the_school_/32897528
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/Call_08132728112_Department_of_Nursing_Sciences_Prince_Audu_Abubakar_University_Admission_Form_2026_2027_Post_Utme_Application_Is_Out_CALL_08132728112_Dr_Mrs_Sarah_for_admission_process_into_the_school_/32897525
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/Call_08132728112_Department_of_Nursing_Sciences_Federal_University_Lokoja_Admission_Form_2026_2027_Post_Utme_Application_Is_Out_CALL_08132728112_Dr_Mrs_Sarah_for_admission_process_into_the_school_/32897522
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/Call_08132728112_Department_of_Nursing_Sciences_Kebbi_State_University_Admission_Form_2026_2027_Post_Utme_Application_Is_Out_CALL_08132728112_Dr_Mrs_Sarah_for_admission_process_into_the_school_/32897519
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/Call_08132728112_Department_of_Nursing_Sciences_Al-Qalam_University_Admission_Form_2026_2027_Post_Utme_Application_Is_Out_CALL_08132728112_Dr_Mrs_Sarah_for_admission_process_into_the_school_/32897516
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10043838
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: 10.5281/zenodo.11023456
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/media/Call_08132728112_Department_of_Nursing_Sciences_Salem_University_Admission_Form_2026_2027_Post_Utme_Application_Is_Out_CALL_08132728112_Dr_Mrs_Sarah_for_admission_process_into_the_school_/32897528
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/Call_08132728112_Department_of_Nursing_Sciences_Prince_Audu_Abubakar_University_Admission_Form_2026_2027_Post_Utme_Application_Is_Out_CALL_08132728112_Dr_Mrs_Sarah_for_admission_process_into_the_school_/32897525
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/Call_08132728112_Department_of_Nursing_Sciences_Federal_University_Lokoja_Admission_Form_2026_2027_Post_Utme_Application_Is_Out_CALL_08132728112_Dr_Mrs_Sarah_for_admission_process_into_the_school_/32897522
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/Call_08132728112_Department_of_Nursing_Sciences_Kebbi_State_University_Admission_Form_2026_2027_Post_Utme_Application_Is_Out_CALL_08132728112_Dr_Mrs_Sarah_for_admission_process_into_the_school_/32897519
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/Call_08132728112_Department_of_Nursing_Sciences_Al-Qalam_University_Admission_Form_2026_2027_Post_Utme_Application_Is_Out_CALL_08132728112_Dr_Mrs_Sarah_for_admission_process_into_the_school_/32897516
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/11023457
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: CPU-only
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/AdityaMayukhSom/MixSub-LLaMA-3.2-Text-Only-Overlap-CPU-Score/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/AdityaMayukhSom/MixSub-LLaMA-3.2-Text-Only-Overlap-CPU-Score/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/media/Call_08132728112_Department_of_Nursing_Sciences_Salem_University_Admission_Form_2026_2027_Post_Utme_Application_Is_Out_CALL_08132728112_Dr_Mrs_Sarah_for_admission_process_into_the_school_/32897528
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/Call_08132728112_Department_of_Nursing_Sciences_Prince_Audu_Abubakar_University_Admission_Form_2026_2027_Post_Utme_Application_Is_Out_CALL_08132728112_Dr_Mrs_Sarah_for_admission_process_into_the_school_/32897525
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/Call_08132728112_Department_of_Nursing_Sciences_Federal_University_Lokoja_Admission_Form_2026_2027_Post_Utme_Application_Is_Out_CALL_08132728112_Dr_Mrs_Sarah_for_admission_process_into_the_school_/32897522
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/Call_08132728112_Department_of_Nursing_Sciences_Kebbi_State_University_Admission_Form_2026_2027_Post_Utme_Application_Is_Out_CALL_08132728112_Dr_Mrs_Sarah_for_admission_process_into_the_school_/32897519
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/Call_08132728112_Department_of_Nursing_Sciences_Al-Qalam_University_Admission_Form_2026_2027_Post_Utme_Application_Is_Out_CALL_08132728112_Dr_Mrs_Sarah_for_admission_process_into_the_school_/32897516
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://beei.org/index.php/EEI/article/view/1972
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14352943
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17854610
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10199277
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6127654
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18738911
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18738911
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21171487
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21171487
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21169299
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

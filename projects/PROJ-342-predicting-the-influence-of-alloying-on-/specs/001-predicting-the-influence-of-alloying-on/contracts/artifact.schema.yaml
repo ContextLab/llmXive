@@ -1,0 +1,56 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Model Artifact Schema"
+description: "Schema for model performance and statistical analysis artifacts"
+type: "object"
+properties:
+  artifact_id:
+    type: "string"
+    description: "Unique identifier for the artifact"
+  model_type:
+    type: "string"
+    description: "Type of model used"
+  hyperparameters:
+    type: "object"
+    description: "Hyperparameters used for training"
+  performance_metrics:
+    type: "object"
+    properties:
+      r2_mean:
+        type: "number"
+      r2_std:
+        type: "number"
+      mae_mean:
+        type: "number"
+    required:
+      - r2_mean
+      - mae_mean
+  feature_importances:
+    type: "object"
+    description: "Mapping of feature names to importance scores"
+    additionalProperties:
+      type: "number"
+  sensitivity_variance:
+    type: "number"
+    description: "Variance of R2 across max_depth sweep"
+  fdr_corrected_pvalues:
+    type: "object"
+    description: "FDR corrected p-values for feature correlations"
+    additionalProperties:
+      type: "number"
+      minimum: 0
+      maximum: 1
+  associational_statement:
+    type: "string"
+    description: "Explicit statement that findings are associational only"
+    const: "These findings are associational only"
+  collinearity_flag:
+    type: "boolean"
+    description: "True if any predictor has VIF > 5"
+required:
+  - artifact_id
+  - model_type
+  - performance_metrics
+  - feature_importances
+  - associational_statement
+additionalProperties: false
+

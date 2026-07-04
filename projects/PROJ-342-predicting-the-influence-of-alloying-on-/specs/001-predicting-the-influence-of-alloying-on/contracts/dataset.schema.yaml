@@ -1,0 +1,41 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Metallic Glass Dataset Schema"
+description: "Schema for raw and processed metallic glass composition and Tg data"
+type: "object"
+properties:
+  record_id:
+    type: "string"
+    description: "Unique identifier for the record"
+  family:
+    type: "string"
+    description: "Alloy family (e.g., Zr-based, Pd-based)"
+  elements:
+    type: "object"
+    description: "Elemental composition as atomic fractions"
+    additionalProperties:
+      type: "number"
+      minimum: 0
+      maximum: 1
+    minProperties: 2
+  tg_value:
+    type: "number"
+    description: "Glass transition temperature in Kelvin"
+    minimum: 0
+  source:
+    type: "string"
+    description: "DOI of the source dataset"
+  status:
+    type: "string"
+    enum:
+      - "valid"
+      - "dropped_missing_tg"
+      - "dropped_incomplete_composition"
+required:
+  - record_id
+  - family
+  - elements
+  - tg_value
+  - source
+  - status
+additionalProperties: false
+
