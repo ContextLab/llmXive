@@ -1,11 +1,5 @@
-'|float32 precision':
-  quote: This gives from 6 to 9 significant decimal digits precision. If a decimal
-    string with at most 6 significant digits is converted to the IEEE 754 single-precision
-    format, giving a normal number, and then converted back to a decimal string with
-    the same number of digits, the final result should match the original string.
-    If an IEEE 754 single-precision number is converted to a decimal string with at
-    least 9 significant digits, and then converted back to single-precision representation,
-    the final result must match the original number.
-  source_id: Single-precision floating-point format
-  url: https://en.wikipedia.org/wiki/Single-precision_floating-point_format
-  value: 6 to 9 significant decimal digits
+'|oei':
+  quote: 1000 10715086071862673209484250490600018105614048117055336074437503883703510511249361224931983788156958581275946729175531468251871452856923140435984577574698574803934567774824230985421074605062371141877954182153046474983581941267398767559165543946077062914571196477686542167660429831652624386837205668069376
+  source_id: A000079
+  url: https://oeis.org/A000079
+  value: '10715086071862673209484250490600018105614048117055336074437503883703510511249361224931983788156958581275946729175531468251871452856923140435984577574698574803934567774824230985421074605062371141877954182153046474983581941267398767559165543946077062914571196477686542167660429831652624386837205668069376'
