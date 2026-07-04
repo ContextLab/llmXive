@@ -1,0 +1,309 @@
+resolved_at: '2026-07-04T16:59:52.276857+00:00'
+datasets:
+- intent: NPM
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/deepklarity/top-npm-packages/resolve/main/npm_packages.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/fdsfdg/new_nectar_npm/resolve/main/data/train-00000-of-00007.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/fdsfdg/new_nectar_split_npm/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/deepklarity/top-npm-packages/resolve/main/npm_packages.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/fdsfdg/new_nectar_npm/resolve/main/data/train-00000-of-00007.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/fdsfdg/new_nectar_split_npm/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://tandf.figshare.com/articles/journal_contribution/Determinants_of_authentic_responses_to_medical_student_wellbeing_surveys_An_interpretive_description_study/32900464
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/in_silico_Extracted_ITS_sequences/32900357
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Restaurant_Physical_Environment_and_Diners_Loyalty_A_Multigroup_Structural_Equation_Model_of_Occasional_and_Frequent_Customers_in_Northern_Peru/32899085
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Magnetically_Retrievable_Core_Shell_Nanocomposites_for_Rare_Earth_Element_Adsorption_Experimental_and_Machine_Learning_Insights/32900356
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/online_resource/You_Already_Think_Like_AI_You_Just_Haven_t_Called_It_That_/32737650
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://mab-online.nl/article/12803/
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5236348
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/11050425
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/13350388
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/12720324
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21189278
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21185061
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21185061
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21174686
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21174686
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: CVE
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/stasvinokur/cve-and-cwe-dataset-1999-2025/resolve/main/CVE_CWE_2025.csv
+    source: huggingface
+    format: sdf
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/Trendyol/All-CVE-Chat-MultiTurn-1999-2025-Dataset/resolve/main/all_cve_database.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/Luoberta/cve_train_v1.1/resolve/main/cve_train.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/stasvinokur/cve-and-cwe-dataset-1999-2025/resolve/main/CVE_CWE_2025.csv
+    source: huggingface
+    status: verified
+    format: sdf
+  - url: https://huggingface.co/datasets/Trendyol/All-CVE-Chat-MultiTurn-1999-2025-Dataset/resolve/main/all_cve_database.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/Luoberta/cve_train_v1.1/resolve/main/cve_train.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/build-small-hackathon/CVE_Vulnerailities_Detailed/resolve/main/data/train-00000-of-00002.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/ahadda5/cve150k/resolve/main/cve150k.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://tandf.figshare.com/articles/journal_contribution/Determinants_of_authentic_responses_to_medical_student_wellbeing_surveys_An_interpretive_description_study/32900464
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/in_silico_Extracted_ITS_sequences/32900357
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Restaurant_Physical_Environment_and_Diners_Loyalty_A_Multigroup_Structural_Equation_Model_of_Occasional_and_Frequent_Customers_in_Northern_Peru/32899085
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Magnetically_Retrievable_Core_Shell_Nanocomposites_for_Rare_Earth_Element_Adsorption_Experimental_and_Machine_Learning_Insights/32900356
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/online_resource/You_Already_Think_Like_AI_You_Just_Haven_t_Called_It_That_/32737650
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10223928
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20619433
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18216762
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://link.springer.com/article/10.1186/s12933-025-02636-5
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19058493
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18730055
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18730055
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21192771
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21192771
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20808967
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: CVEs
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/Nganlt/CVEs_10/resolve/main/data/train-00000-of-00001-031fad934e7a8cdd.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 12485
+      parsed: true
+  - url: https://huggingface.co/datasets/Nganlt/CVEs_100/resolve/main/data/train-00000-of-00001-5e442559dc5bfef5.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 101396
+      parsed: true
+  - url: https://huggingface.co/datasets/lambdasec/cve-single-line-fixes/resolve/main/data/cve_single_line_fixes.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/lambdasec/cve-single-line-fixes/resolve/main/data/cve_single_line_fixes.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/Nganlt/CVEs_10/resolve/main/data/train-00000-of-00001-031fad934e7a8cdd.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/Nganlt/CVEs_100/resolve/main/data/train-00000-of-00001-5e442559dc5bfef5.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/api/resolve-cache/datasets/stefanosimonetto/CVEs_Tactics/2447ead1863f8c43072572d05619025c1fc76e9b/input_CVEs%2Fnvdcve-1.1-1999.json?%2Fdatasets%2Fstefanosimonetto%2FCVEs_Tactics%2Fresolve%2Fmain%2Finput_CVEs%2Fnvdcve-1.1-1999.json=&etag=%229eeb562247d2c3f15205d7319e1ac4b93e3f8ce5%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/api/resolve-cache/datasets/saikiranpennam/new_cves_pps/752e79e34c1ab694ad69abea95703f9eb35c3f6c/test_c.json?%2Fdatasets%2Fsaikiranpennam%2Fnew_cves_pps%2Fresolve%2Fmain%2Ftest_c.json=&etag=%22be3da2ff96580fdde8bfba5fe30b67a3b6bce019%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Determinants_of_authentic_responses_to_medical_student_wellbeing_surveys_An_interpretive_description_study/32900464
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/in_silico_Extracted_ITS_sequences/32900357
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Restaurant_Physical_Environment_and_Diners_Loyalty_A_Multigroup_Structural_Equation_Model_of_Occasional_and_Frequent_Customers_in_Northern_Peru/32899085
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Magnetically_Retrievable_Core_Shell_Nanocomposites_for_Rare_Earth_Element_Adsorption_Experimental_and_Machine_Learning_Insights/32900356
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/online_resource/You_Already_Think_Like_AI_You_Just_Haven_t_Called_It_That_/32737650
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18908683
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15066915
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://lib.jucs.org/article/27795/
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://lib.jucs.org/article/74166/
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5433974
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20702272
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20702272
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21158909
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21158909
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2607.02294
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

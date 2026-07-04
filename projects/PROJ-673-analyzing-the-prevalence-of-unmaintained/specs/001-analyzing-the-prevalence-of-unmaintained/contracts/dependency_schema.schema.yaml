@@ -1,0 +1,52 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Dependency Schema"
+description: "Schema for the unified dependency dataset used in correlation analysis."
+type: "object"
+properties:
+  name:
+    type: "string"
+    description: "Unique package name (e.g., 'lodash')."
+  version:
+    type: "string"
+    description: "Specific version string (e.g., '4.17.21')."
+  parent_package:
+    type: "string"
+    description: "The seed package this dependency belongs to."
+  is_transitive:
+    type: "boolean"
+    description: "True if not a direct dependency of the seed."
+  last_release_date:
+    type: ["string", "null"]
+    format: "date-time"
+    description: "Timestamp of the last release (from GitHub or NPM)."
+  last_commit_date:
+    type: ["string", "null"]
+    format: "date-time"
+    description: "Timestamp of the last commit (from GitHub)."
+  age_source:
+    type: ["string", "null"]
+    description: "Source of age data: 'github_release', 'github_commit', 'npm_publish_proxy'."
+  vulnerability_count:
+    type: "integer"
+    minimum: 0
+    description: "Count of currently unpatched CVEs (from npm audit)."
+  vuln_source:
+    type: ["string", "null"]
+    description: "Source of vulnerability data: 'npm_audit', 'historical_proxy'."
+  age_in_days:
+    type: ["number", "null"]
+    description: "Calculated as (Current Date - last_release_date). Null if release date is missing."
+  category:
+    type: ["string", "null"]
+    description: "Inferred category (e.g., 'framework', 'utility')."
+  data_completeness_flags:
+    type: "array"
+    items:
+      type: "string"
+    description: "Flags for missing data (e.g., 'no_github_repo', 'proxy_age_used', 'historical_vuln_used')."
+required:
+  - name
+  - version
+  - vulnerability_count
+  - is_transitive
+  - data_completeness_flags

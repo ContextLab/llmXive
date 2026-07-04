@@ -1,18 +1,18 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-06-06T13:40:17.345242Z'
-current_stage: project_initialized
+current_stage: analyzed
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-673-analyzing-the-prevalence-of-unmaintained
-last_run_id: 44f5009f-2c26-4b58-9ab1-87321b5caf24
+last_run_id: c0b0c5a6-0613-434a-84a7-fc6c461c1325
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
 revision_spec_path: null
 speckit_paper_dir: null
-speckit_research_dir: null
+speckit_research_dir: projects/PROJ-673-analyzing-the-prevalence-of-unmaintained/specs/001-analyzing-the-prevalence-of-unmaintained
 title: Analyzing the Prevalence of Unmaintained Dependencies in Popular NPM Packages
-updated_at: '2026-06-26T00:09:58.061858Z'
+updated_at: '2026-07-04T17:38:00.968713Z'
