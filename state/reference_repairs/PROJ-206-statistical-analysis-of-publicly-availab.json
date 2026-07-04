@@ -10,5 +10,17 @@
         "intent": "epolls RealClearPolitics RCP Historical poll averages and raw data archives. Scraping of archived tables or verified CSV mirrors if available in the \"Verified datasets\""
       }
     ]
+  },
+  {
+    "repaired_at": "2026-07-04T10:51:29.752884+00:00",
+    "project": "PROJ-206-statistical-analysis-of-publicly-availab",
+    "repairs": [
+      {
+        "dead_url": "https://www.realclearpolitics.com/epolls/",
+        "reason": "HTTP 403",
+        "replacement_url": "https://huggingface.co/datasets/rcp-meetings/rudialogsum_v2/resolve/main/test.jsonl",
+        "intent": "epolls RCP Polls RealClearPolitics poll aggregates. datasets.load_dataset \"fivethirtyeight/election polls\" via HuggingFace mirror Verified Direct URL is unstable HTTP 403 . Action : Use dataset"
+      }
+    ]
   }
 ]
