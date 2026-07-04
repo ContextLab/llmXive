@@ -17,7 +17,7 @@ This project implements a CPU-tractable statistical analysis pipeline to compare
 **Project Type**: Data analysis pipeline / CLI
 **Performance Goals**: Runtime ≤6 hours, Peak RAM ≤7 GB, Peak Disk ≤20 GB
 **Constraints**: No GPU/CUDA; no external heavy LLMs; all random seeds pinned; checksum verification for all data.
-**Scale/Scope**: Processing ≥100 *valid* merger events per catalog (after filtering NaNs); generating 2 primary KDE plots; running KS tests on 2 dimensions.
+**Scale/Scope**: Processing ≥100 *valid* merger events per catalog (after filtering NaNs); generating primary KDE plots; running KS tests on multiple dimensions.
 
 > Domain-specific empirical specifics (exact counts, dataset sizes) are deferred to the research/implementation phase. The pipeline is designed to handle the full GWTC catalog if available, but will sample if necessary to meet memory constraints.
 
