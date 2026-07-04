@@ -10,5 +10,17 @@
         "intent": "robust 04 TREC 2004 Relevance judgments for 250 topics from the Track. Note: If 404, fallback to verified mirror or datasets library available Primary"
       }
     ]
+  },
+  {
+    "repaired_at": "2026-07-04T23:50:28.289745+00:00",
+    "project": "PROJ-362-evaluating-the-statistical-validity-of-c",
+    "repairs": [
+      {
+        "dead_url": "https://trec.nist.gov/data/web/",
+        "reason": "HTTP 403",
+        "replacement_url": "https://huggingface.co/datasets/SetFit/TREC-QC/resolve/main/test.jsonl",
+        "intent": "web TREC Track 2009 2012 Large scale ranking benchmarks. Aggregated via NIST archives Secondary source for robustness checks on larger, noisier datasets."
+      }
+    ]
   }
 ]
