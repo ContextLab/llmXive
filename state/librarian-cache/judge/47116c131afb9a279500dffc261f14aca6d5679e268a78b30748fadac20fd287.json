@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1101.6028",
+  "judged_at": "2026-07-04T09:08:53Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "quantifying the impact of code ownership on software quality computer science",
+  "rationale": "The paper discusses \"code\" in the context of quantum error correction (toric code) and physical defects, which is a distinct construct from \"code ownership\" and \"software quality\" in software engineering; this falls under the rejection rule for distinct constructs sharing only homonym keywords.",
+  "relevant": false
+}

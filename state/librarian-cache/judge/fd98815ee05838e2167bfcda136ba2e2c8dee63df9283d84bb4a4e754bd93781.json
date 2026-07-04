@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1908.05399",
+  "judged_at": "2026-07-04T09:08:45Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "quantifying the impact of code ownership on software quality computer science",
+  "rationale": "The paper focuses on \"code refactoring\" as the independent variable, which is a distinct software engineering construct from \"code ownership\" (the user's variable), and does not measure the specific mechanism or empirical baseline regarding ownership's impact on quality. While both topics fall under the broad domain of software quality, the paper fails to satisfy criteria (a) or (b) because it does not study the same causal mechanism or variables, and it is not a foundational methodology paper (",
+  "relevant": false
+}

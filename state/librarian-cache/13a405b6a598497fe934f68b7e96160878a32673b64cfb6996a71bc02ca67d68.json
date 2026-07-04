@@ -1,0 +1,496 @@
+{
+  "fetched_at": "2026-07-04T09:08:55Z",
+  "field": "computer science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "computer science",
+      "idea_body_excerpt": "Quantifying the Impact of Code Ownership on Software Quality",
+      "target_n": 5
+    },
+    "duration_seconds": 52.275,
+    "ended_at": "2026-07-04T09:08:55Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "code ownership and defect density"
+        ],
+        [
+          2,
+          "ownership concentration and software quality"
+        ],
+        [
+          3,
+          "distributed ownership impact on bug rates"
+        ],
+        [
+          4,
+          "code ownership metrics and maintainability"
+        ],
+        [
+          5,
+          "bus factor and software reliability"
+        ],
+        [
+          6,
+          "ownership dispersion and code quality"
+        ],
+        [
+          7,
+          "developer ownership and defect prediction"
+        ],
+        [
+          8,
+          "code authorship and software evolution"
+        ],
+        [
+          9,
+          "ownership structure and technical debt"
+        ],
+        [
+          10,
+          "single owner vs multiple owners code quality"
+        ],
+        [
+          11,
+          "ownership fragmentation and regression bugs"
+        ],
+        [
+          12,
+          "code ownership models and fault proneness"
+        ],
+        [
+          13,
+          "ownership attribution and software defects"
+        ],
+        [
+          14,
+          "collaborative ownership and code stability"
+        ],
+        [
+          15,
+          "ownership boundaries and integration issues"
+        ],
+        [
+          16,
+          "code ownership and refactoring effort"
+        ],
+        [
+          17,
+          "ownership metrics for software reliability"
+        ],
+        [
+          18,
+          "distributed development and ownership effects"
+        ],
+        [
+          19,
+          "ownership consistency and code quality"
+        ],
+        [
+          20,
+          "ownership intensity and bug introduction"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "Quantifying the Impact of Code Ownership on Software Quality computer science": 0,
+        "code ownership and defect density": 3
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "code churn defect density refactoring frequency",
+      "Git blame authorship entropy contributor turnover",
+      "ownership concentration bus factor module coupling",
+      "post-release bug rate technical debt accumulation",
+      "social network analysis code ownership modularity"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2408.12807"
+      ]
+    },
+    "per_query_hit_count": {
+      "Git blame authorship entropy contributor turnover": 3,
+      "Quantifying the Impact of Code Ownership on Software Quality computer science": 3,
+      "code churn defect density refactoring frequency": 3,
+      "ownership concentration bus factor module coupling": 3,
+      "post-release bug rate technical debt accumulation": 3,
+      "social network analysis code ownership modularity": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 3,
+      "rejections": [
+        {
+          "primary_pointer": "1908.05399",
+          "rationale": "The paper focuses on \"code refactoring\" as the independent variable, which is a distinct software engineering construct from \"code ownership\" (the user's variable), and does not measure the specific mechanism or empirical baseline regarding ownership's impact on quality. While both topics fall under the broad domain of software quality, the paper fails to satisfy criteria (a) or (b) because it does not study the same causal mechanism or variables, and it is not a foundational methodology paper (",
+          "title": "How does Object-Oriented Code Refactoring Influence Software Quality? Research Landscape and Challenges"
+        },
+        {
+          "primary_pointer": "1601.07392",
+          "rationale": "The paper discusses general software engineering lessons (encapsulation, testing, documentation) for a specific scientific simulation tool, but it does not measure, analyze, or provide empirical evidence regarding \"code ownership\" (e.g., developer attribution, team structure, or ownership metrics) or its specific correlation with software quality. It falls under the rejection rule for having no measurable connection to the user's specific mechanism (code ownership) or the causal relationship bei",
+          "title": "Nmag micromagnetic simulation tool - software engineering lessons learned"
+        },
+        {
+          "primary_pointer": "1101.6028",
+          "rationale": "The paper discusses \"code\" in the context of quantum error correction (toric code) and physical defects, which is a distinct construct from \"code ownership\" and \"software quality\" in software engineering; this falls under the rejection rule for distinct constructs sharing only homonym keywords.",
+          "title": "Localization of Toric Code Defects"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-07-04T09:08:02Z",
+    "term_input": {
+      "normalized": "quantifying the impact of code ownership on software quality computer science",
+      "raw": "Quantifying the Impact of Code Ownership on Software Quality computer science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Incorrect placement of methods within classes is a typical code smell called Feature Envy, which causes additional maintenance and cost during evolution. To remove this design flaw, several Move Method refactoring tools have been proposed. To the best of our knowledge, state-of-the-art related techniques can be broadly divided into two categories: the first line is non-machine-learning-based approaches built on software measurement, while the selection and thresholds of software metrics heavily rely on expert knowledge. The second line is machine learning-based approaches, which suggest Move Method refactoring by learning to extract features from code information. However, most approaches in this line treat different forms of code information identically, disregarding their significant variation on data analysis. In this paper, we propose an approach to recommend Move Method refactoring named RMove by automatically learning structural and semantic representation from code fragment respectively. We concatenate these representations together and further train the machine learning classifiers to guide the movement of method to suitable classes. We evaluate our approach on two publicly available datasets. The results show that our approach outperforms three state-of-the-art refactoring tools including PathMove, JDeodorant, and JMove in effectiveness and usefulness. The results also unveil useful findings and provide new insights that benefit other types of feature envy refactoring techniques.",
+          "claimed_authors": [
+            "Di Cui",
+            "Siqi Wang",
+            "Yong Luo",
+            "Xingyu Li",
+            "Jie Dai",
+            "Lu Wang",
+            "Qingshan Li"
+          ],
+          "claimed_title": "RMove: Recommending Move Method Refactoring Opportunities using Structural and Semantic Representations of Code",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2212.12195"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Quantifying the Impact of Code Ownership on Software Quality computer science', candidate_title='RMove: Recommending Move Method Refactoring Opportunities using Structural and Semantic Representations of Code')",
+        "failed_at": "2026-07-04T09:08:32Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Just-in-time defect prediction (JIT-DP) aims to predict the likelihood of code changes resulting in software defects at an early stage. Although code change metrics and semantic features have enhanced prediction accuracy, prior research has largely ignored code refactoring during both the evaluation and methodology phases, despite its prevalence. Refactoring and its propagation often tangle with bug-fixing and bug-inducing changes within the same commit and statement. Neglecting refactoring can introduce bias into the learning and evaluation of JIT-DP models. To address this gap, we investigate the impact of refactoring and its propagation on six state-of-the-art JIT-DP approaches. We propose Code chAnge Tactics (CAT) analysis to categorize code refactoring and its propagation, which improves labeling accuracy in the JIT-Defects4J dataset by 13.7%. Our experiments reveal that failing to consider refactoring information in the dataset can diminish the performance of models, particularly semantic-based models, by 18.6% and 37.3% in F1-score. Additionally, we propose integrating refactoring information to enhance six baseline approaches, resulting in overall improvements in recall and F1-score, with increases of up to 43.2% and 32.5%, respectively. Our research underscores the importance of incorporating refactoring information in the methodology and evaluation of JIT-DP. Furthermore, our CAT has broad applicability in analyzing refactoring and its propagation for software maintenance.",
+          "claimed_authors": [
+            "Feifei Niu",
+            "Junqian Shao",
+            "Christoph Mayr-Dorn",
+            "Liguo Huang",
+            "Wesley K. G. Assunção",
+            "Chuanyi Li",
+            "Jidong Ge",
+            "Alexander Egyed"
+          ],
+          "claimed_title": "Refactoring $\\neq$ Bug-Inducing: Improving Defect Prediction with Code Change Tactics Analysis",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2507.19714"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Quantifying the Impact of Code Ownership on Software Quality computer science', candidate_title='Refactoring $\\\\neq$ Bug-Inducing: Improving Defect Prediction with Code Change Tactics Analysis')",
+        "failed_at": "2026-07-04T09:08:33Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Program authorship attribution has implications for the privacy of programmers who wish to contribute code anonymously. While previous work has shown that complete files that are individually authored can be attributed, we show here for the first time that accounts belonging to open source contributors containing short, incomplete, and typically uncompilable fragments can also be effectively attributed.\n  We propose a technique for authorship attribution of contributor accounts containing small source code samples, such as those that can be obtained from version control systems or other direct comparison of sequential versions. We show that while application of previous methods to individual small source code samples yields an accuracy of about 73% for 106 programmers as a baseline, by ensembling and averaging the classification probabilities of a sufficiently large set of samples belonging to the same author we achieve 99% accuracy for assigning the set of samples to the correct author. Through these results, we demonstrate that attribution is an important threat to privacy for programmers even in real-world collaborative environments such as GitHub. Additionally, we propose the use of calibration curves to identify samples by unknown and previously unencountered authors in the open world setting. We show that we can also use these calibration curves in the case that we do not have linking information and thus are forced to classify individual samples directly. This is because the calibration curves allow us to identify which samples are more likely to have been correctly attributed. Using such a curve can help an analyst choose a cut-off point which will prevent most misclassifications, at the cost of causing the rejection of some of the more dubious correct attributions.",
+          "claimed_authors": [
+            "Edwin Dauber",
+            "Aylin Caliskan",
+            "Richard Harang",
+            "Gregory Shearer",
+            "Michael Weisman",
+            "Frederica Nelson",
+            "Rachel Greenstadt"
+          ],
+          "claimed_title": "Git Blame Who?: Stylistic Authorship Attribution of Small, Incomplete Source Code Fragments",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1701.05681"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Quantifying the Impact of Code Ownership on Software Quality computer science', candidate_title='Git Blame Who?: Stylistic Authorship Attribution of Small, Incomplete Source Code Fragments')",
+        "failed_at": "2026-07-04T09:08:33Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "BACKGROUND. Epidemic models of STIs are often used to characterize the contribution of risk groups to overall transmission by projecting the transmission population attributable fraction (tPAF) of unmet prevention and treatment needs within risk groups. However, evidence suggests that STI risk is dynamic over an individual's sexual life course, which manifests as turnover between risk groups. We sought to examine the mechanisms by which turnover influences modelled projections of the tPAF of high risk groups. METHODS. We developed a unifying, data-guided framework to simulate risk group turnover in deterministic, compartmental transmission models. We applied the framework to an illustrative model of an STI and examined the mechanisms by which risk group turnover influenced equilibrium prevalence across risk groups. We then fit a model with and without turnover to the same risk-stratified STI prevalence targets and compared the inferred level of risk heterogeneity and tPAF of the highest risk group projected by the two models. RESULTS. The influence of turnover on group-specific prevalence was mediated by three main phenomena: movement of infectious individuals between risk groups; changes to herd immunity; and changes in discordant partnerships. Faster turnover led to a smaller ratio of STI prevalence between the highest and lowest risk groups. Compared to the fitted model without turnover, the fitted model with turnover inferred greater risk heterogeneity and consistently projected a larger tPAF of the highest risk group over time. IMPLICATIONS. If turnover is not captured in epidemic models, the projected contribution of high risk groups, and thus, the potential impact of prioritizing interventions to address their needs, could be underestimated. To aid the next generation of tPAF models, data collection efforts to parameterize risk group turnover should be prioritized.",
+          "claimed_authors": [
+            "Jesse Knight",
+            "Stefan D. Baral",
+            "Sheree Schwartz",
+            "Linwei Wang",
+            "Huiting Ma",
+            "Katherine Young",
+            "Harry Hausler",
+            "Sharmistha Mishra"
+          ],
+          "claimed_title": "Contribution of high risk groups' unmet needs may be underestimated in epidemic models without risk turnover: a mechanistic modelling analysis",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2001.02744"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Quantifying the Impact of Code Ownership on Software Quality computer science', candidate_title=\"Contribution of high risk groups' unmet needs may be underestimated in epidemic models without risk turnover: a mechanistic modelling analysis\")",
+        "failed_at": "2026-07-04T09:08:33Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The entropy for a black hole in a de Sitter space is approached within the framework of spacetime foam. A simple model, made by $N$ wormholes in a semiclassical approximation, is taken under examination to compute the entropy for such a case. An extension to the extreme case when the black hole and cosmological horizons are equal is discussed.",
+          "claimed_authors": [
+            "Remo Garattini"
+          ],
+          "claimed_title": "A Spacetime Foam Approach to the Schwarzschild-de Sitter Entropy",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2000,
+          "primary_pointer": "gr-qc/0003089"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Quantifying the Impact of Code Ownership on Software Quality computer science', candidate_title='A Spacetime Foam Approach to the Schwarzschild-de Sitter Entropy')",
+        "failed_at": "2026-07-04T09:08:33Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We extend some recent results on the differentiability of torsion theories. In particular, we generalize the concept of $(α, β)$-derivation to $(α, β)$-higher derivation and demonstrate that a filter of a hereditary torsion theory that is invariant for $α$ and $β$ is $(α, β)$-higher derivation invariant. As a consequence, any higher derivation can be extended from a module to its module of quotients. Then, we show that any higher derivation extended to a module of quotients extends also to a module of quotients with respect to a larger torsion theory in such a way that these extensions agree. We also demonstrate these results hold for symmetric filters as well. We finish the paper with answers to two questions posed in [L. Va\\s, Extending higher derivations to rings and modules of quotients, International Journal of Algebra, 2 (15) (2008), 711--731]. In particular, we present an example of a non-hereditary torsion theory that is not differential.",
+          "claimed_authors": [
+            "Lia Vas",
+            "Charalampos Papachristou"
+          ],
+          "claimed_title": "A note on $(α, β)$-higher derivations and their extensions to modules of quotients",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1009.2195"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Quantifying the Impact of Code Ownership on Software Quality computer science', candidate_title='A note on $(α, β)$-higher derivations and their extensions to modules of quotients')",
+        "failed_at": "2026-07-04T09:08:33Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Efficient generation of spatially delocalised entangled states is at the heart of quantum information science. Generally flying qubits are proposed for long range entangling interactions, however here we introduce a bus-mediated alternative for this task. Our scheme permits efficient and flexible generation of deterministic two-qubit operator measurements and has links to the important concepts of mode-entanglement and repeat-until-success protocols. Importantly, unlike flying qubit protocols, our bus particle never contains information about the individual quantum states of the particles, hence is information-free.",
+          "claimed_authors": [
+            "Simon J. Devitt",
+            "Andrew D. Greentree",
+            "Lloyd C. L. Hollenberg"
+          ],
+          "claimed_title": "Information free quantum bus for generating stabiliser states",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2005,
+          "primary_pointer": "quant-ph/0511084"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Quantifying the Impact of Code Ownership on Software Quality computer science', candidate_title='Information free quantum bus for generating stabiliser states')",
+        "failed_at": "2026-07-04T09:08:33Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Bus factor is a metric that identifies how resilient is the project to the sudden engineer turnover. It states the minimal number of engineers that have to be hit by a bus for a project to be stalled. Even though the metric is often discussed in the community, few studies consider its general relevance. Moreover, the existing tools for bus factor estimation focus solely on the data from version control systems, even though there exists other channels for knowledge generation and distribution. With a survey of 269 engineers, we find that the bus factor is perceived as an important problem in collective development, and determine the highest impact channels of knowledge generation and distribution in software development teams. We also propose a multimodal bus factor estimation algorithm that uses data on code reviews and meetings together with the VCS data. We test the algorithm on 13 projects developed at JetBrains and compared its results to the results of the state-of-the-art tool by Avelino et al. against the ground truth collected in a survey of the engineers working on these projects. Our algorithm is slightly better in terms of both predicting the bus factor as well as key developers compared to the results of Avelino et al. Finally, we use the interviews and the surveys to derive a set of best practices to address the bus factor issue and proposals for the possible bus factor assessment tool.",
+          "claimed_authors": [
+            "Elgun Jabrayilzade",
+            "Mikhail Evtikhiev",
+            "Eray Tüzün",
+            "Vladimir Kovalenko"
+          ],
+          "claimed_title": "Bus Factor In Practice",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2202.01523"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Quantifying the Impact of Code Ownership on Software Quality computer science', candidate_title='Bus Factor In Practice')",
+        "failed_at": "2026-07-04T09:08:33Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Incorporating the business perspective into prioritizing technical debt is essential to contribute to decision making in industry. In this paper, we evolve and evaluate a business-driven approach for technical debt prioritization. The approach was evaluated during a five-month industrial case study with business and technical stakeholders' active participation. The results show that the approach contributed to aligning business criteria between the business and technical stakeholders. We also observed a downward trend in the amount of technical debt that affects high-value business assets. Moreover, we identified eight business factors that affect the decision making related to the prioritization of technical debt. The study results suggest that the proposed business-driven technical debt prioritization approach can help teams to focus their efforts on paying off the business' most relevant debt.",
+          "claimed_authors": [
+            "Rodrigo Rebouças de Almeida",
+            "Rafael do Nascimento Ribeiro",
+            "Christoph Treude",
+            "Uirá Kulesza"
+          ],
+          "claimed_title": "Business-Driven Technical Debt Prioritization: An Industrial Case Study",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2010.09711"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Quantifying the Impact of Code Ownership on Software Quality computer science', candidate_title='Business-Driven Technical Debt Prioritization: An Industrial Case Study')",
+        "failed_at": "2026-07-04T09:08:33Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Technical debt has become a common metaphor for the accumulation of software design and implementation choices that seek fast initial gains but that are under par and counterproductive in the long run. However, as a metaphor, technical debt does not offer actionable advice on how to get rid of it. To get to a practical level in solving problems, more focused mechanisms are needed. Commonly used approaches for this include identifying code smells as quick indications of possible problems in the codebase and detecting the presence of AntiPatterns that refer to overt, recurring problems in design. There are known remedies for both code smells and AntiPatterns. In paper, our goal is to show how to effectively use common tools and the existing body of knowledge on code smells and AntiPatterns to detect technical debt and pay it back. We present two main results: (i) How a combination of static code analysis and manual inspection was used to detect code smells in a codebase leading to the discovery of AntiPatterns; and (ii) How AntiPatterns were used to identify, characterize, and fix problems in the software. The experiences stem from a private company and its long-lasting software product development effort.",
+          "claimed_authors": [
+            "Jacinto Ramirez Lahti",
+            "Antti-Pekka Tuovinen",
+            "Tommi Mikkonen"
+          ],
+          "claimed_title": "Experiences on Managing Technical Debt with Code Smells and AntiPatterns",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2103.11486"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Quantifying the Impact of Code Ownership on Software Quality computer science', candidate_title='Experiences on Managing Technical Debt with Code Smells and AntiPatterns')",
+        "failed_at": "2026-07-04T09:08:33Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Technical debt describes situations where developers write less-than-optimal code to meet project milestones. However, this debt accumulation often results in future developer effort to live with or fix these quality issues. To better manage this debt, developers may document their sub-optimal code as comments in the code (i.e., self-admitted technical debt or SATD). While prior research has investigated the occurrence and characteristics of SATD, this research has primarily focused on non-mobile systems. With millions of mobile applications (apps) in multiple genres available for end-users, there is a lack of research on sub-optimal code developers intentionally implement in mobile apps.\n  In this study, we examine the occurrence and characteristics of SATD in 15,614 open-source Android apps. Our findings show that even though such apps contain occurrences of SATD, the volume per app (a median of 4) is lower than in non-mobile systems, with most debt categorized as Code Debt. Additionally, we identify typical elements in an app that are prone to intentional sub-optimal implementations. We envision our findings supporting researchers and tool vendors with building tools and techniques to support app developers with app maintenance.",
+          "claimed_authors": [
+            "Gregory Wilder",
+            "Riley Miyamoto",
+            "Samuel Watson",
+            "Rick Kazman",
+            "Anthony Peruma"
+          ],
+          "claimed_title": "An Exploratory Study on the Occurrence of Self-Admitted Technical Debt in Android Apps",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2303.02258"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Quantifying the Impact of Code Ownership on Software Quality computer science', candidate_title='An Exploratory Study on the Occurrence of Self-Admitted Technical Debt in Android Apps')",
+        "failed_at": "2026-07-04T09:08:33Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "All online sharing systems gather data that reflects users' collective behaviour and their shared activities. This data can be used to extract different kinds of relationships, which can be grouped into layers, and which are basic components of the multidimensional social network proposed in the paper. The layers are created on the basis of two types of relations between humans, i.e. direct and object-based ones which respectively correspond to either social or semantic links between individuals. For better understanding of the complexity of the social network structure, layers and their profiles were identified and studied on two, spanned in time, snapshots of the Flickr population. Additionally, for each layer, a separate strength measure was proposed. The experiments on the Flickr photo sharing system revealed that the relationships between users result either from semantic links between objects they operate on or from social connections of these users. Moreover, the density of the social network increases in time. The second part of the study is devoted to building a social recommender system that supports the creation of new relations between users in a multimedia sharing system. Its main goal is to generate personalized suggestions that are continuously adapted to users' needs depending on the personal weights assigned to each layer in the multidimensional social network. The conducted experiments confirmed the usefulness of the proposed model.",
+          "claimed_authors": [
+            "Przemyslaw Kazienko",
+            "Katarzyna Musial",
+            "Tomasz Kajdanowicz"
+          ],
+          "claimed_title": "Multidimensional Social Network in the Social Recommender System",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2013,
+          "primary_pointer": "1303.0093"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Quantifying the Impact of Code Ownership on Software Quality computer science', candidate_title='Multidimensional Social Network in the Social Recommender System')",
+        "failed_at": "2026-07-04T09:08:33Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In 2016, a network of social media accounts animated by Russian operatives attempted to divert political discourse within the American public around the presidential elections. This was a coordinated effort, part of a Russian-led complex information operation. Utilizing the anonymity and outreach of social media platforms Russian operatives created an online astroturf that is in direct contact with regular Americans, promoting Russian agenda and goals. The elusiveness of this type of adversarial approach rendered security agencies helpless, stressing the unique challenges this type of intervention presents. Building on existing scholarship on the functions within influence networks on social media, we suggest a new approach to map those types of operations. We argue that pretending to be legitimate social actors obliges the network to adhere to social expectations, leaving a social footprint. To test the robustness of this social footprint we train artificial intelligence to identify it and create a predictive model. We use Twitter data identified as part of the Russian influence network for training the artificial intelligence and to test the prediction. Our model attains 88% prediction accuracy for the test set. Testing our prediction on two additional models results in 90.7% and 90.5% accuracy, validating our model. The predictive and validation results suggest that building a machine learning model around social functions within the Russian influence network can be used to map its actors and functions.",
+          "claimed_authors": [
+            "Ori Swed",
+            "Sachith Dassanayaka",
+            "Dimitri Volchenkov"
+          ],
+          "claimed_title": "Keeping it Authentic: The Social Footprint of the Trolls Network",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2409.07720"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Quantifying the Impact of Code Ownership on Software Quality computer science', candidate_title='Keeping it Authentic: The Social Footprint of the Trolls Network')",
+        "failed_at": "2026-07-04T09:08:33Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A new method of feature extraction in the social network for within-network classification is proposed in the paper. The method provides new features calculated by combination of both: network structure information and class labels assigned to nodes. The influence of various features on classification performance has also been studied. The experiments on real-world data have shown that features created owing to the proposed method can lead to significant improvement of classification accuracy.",
+          "claimed_authors": [
+            "Tomasz Kajdanowicz",
+            "Przemyslaw Kazienko",
+            "Piotr Doskocz"
+          ],
+          "claimed_title": "Label-dependent Feature Extraction in Social Networks for Node Classification",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2013,
+          "primary_pointer": "1303.0095"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Quantifying the Impact of Code Ownership on Software Quality computer science', candidate_title='Label-dependent Feature Extraction in Social Networks for Node Classification')",
+        "failed_at": "2026-07-04T09:08:33Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Patanamon Thongtanunam",
+            "Chakkrit Tantithamthavorn"
+          ],
+          "title": "Code Ownership: The Principles, Differences, and Their Associations with Software Quality",
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2408.12807",
+        "summary": "Code ownership -- an approximation of the degree of ownership of a software component -- is one of the important software measures used in quality improvement plans. However, prior studies proposed different variants of code ownership approximations. Yet, little is known about the difference in code ownership approximations and their association with software quality. In this paper, we investigate the differences in the commonly used ownership approximations (i.e., commit-based and line-based) in terms of the set of developers, the approximated code ownership values, and the expertise level. Then, we analyze the association of each code ownership approximation with the defect-proneness. Through an empirical study of 25 releases that span real-world open-source software systems, we find that commit-based and line-based ownership approximations produce different sets of developers, different code ownership values, and different sets of major developers. In addition, we find that the commit-based approximation has a stronger association with software quality than the line-based approximation. Based on our analysis, we recommend line-based code ownership be used for accountability purposes (e.g., authorship attribution, intellectual property), while commit-based code ownership should be used for rapid bug-fixing and charting quality improvement plans.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2408.12807",
+          "http_status": 200,
+          "pdf_sample_score": 0.2925,
+          "query_relevance_score": 0.5714,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-04T09:08:31Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Ahmet Okutan"
+          ],
+          "title": "Use of Source Code Similarity Metrics in Software Defect Prediction",
+          "venue": "arXiv",
+          "year": 2018
+        },
+        "primary_pointer": "1808.10033",
+        "summary": "In recent years, defect prediction has received a great deal of attention in the empirical software engineering world. Predicting software defects before the maintenance phase is very important not only to decrease the maintenance costs but also increase the overall quality of a software product. There are different types of product, process, and developer based software metrics proposed so far to measure the defectiveness of a software system. This paper suggests to use a novel set of software metrics which are based on the similarities detected among the source code files in a software project. To find source code similarities among different files of a software system, plagiarism and clone detection techniques are used. Two simple similarity metrics are calculated for each file, considering its overall similarity to the defective and non defective files in the project. Using these similarity metrics, we predict whether a specific file is defective or not. Our experiments on 10 open source data sets show that depending on the amount of detected similarity, proposed metrics could achieve significantly better performance compared to the existing static code metrics in terms of the area under the curve (AUC).",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1808.10033",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4286,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-04T09:08:32Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "quantifying the impact of code ownership on software quality computer science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

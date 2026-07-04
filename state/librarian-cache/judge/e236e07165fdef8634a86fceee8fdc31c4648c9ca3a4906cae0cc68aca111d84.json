@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1808.10033",
+  "judged_at": "2026-07-04T09:08:51Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "quantifying the impact of code ownership on software quality computer science",
+  "rationale": "This paper satisfies criterion (b) because it measures \"source code similarity\" (a proxy for code duplication and shared ownership) as a predictor for \"software defects\" (a direct measure of software quality), thereby addressing the dependent variable and a key mechanism related to the user's question even though it does not explicitly use the term \"code ownership.\"",
+  "relevant": true
+}

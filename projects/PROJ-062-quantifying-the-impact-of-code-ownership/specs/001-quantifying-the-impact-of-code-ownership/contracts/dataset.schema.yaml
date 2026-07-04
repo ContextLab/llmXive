@@ -1,0 +1,91 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Repository Dataset Schema"
+description: "Schema for the raw and intermediate dataset entities (Repos, Modules, Commits, Bugs)."
+type: "object"
+properties:
+  repository:
+    type: "object"
+    description: "Metadata for a single GitHub repository."
+    properties:
+      url:
+        type: "string"
+        description: "The GitHub URL of the repository."
+      clone_depth:
+        type: "integer"
+        description: "Depth of the shallow clone (must be 1000)."
+      total_commits:
+        type: "integer"
+        description: "Total number of commits in the shallow history."
+      cutoff_date:
+        type: "string"
+        format: "date-time"
+        description: "The date of the latest commit (Time T)."
+      status:
+        type: "string"
+        enum: ["valid", "invalid"]
+        description: "Whether the repo met the ≥1000 commit threshold."
+    required:
+      - url
+      - clone_depth
+      - total_commits
+      - cutoff_date
+      - status
+
+  module:
+    type: "object"
+    description: "A code file or directory within a repository."
+    properties:
+      repo_id:
+        type: "string"
+        description: "Foreign key to repository URL."
+      file_path:
+        type: "string"
+        description: "Normalized file path (lowercase, no trailing extensions)."
+      lines_of_code:
+        type: "integer"
+        description: "Lines of code in the module."
+      age_months:
+        type: "number"
+        description: "Months since the first commit for this file."
+      gini_coefficient:
+        type: "number"
+        minimum: 0.0
+        maximum: 1.0
+        description: "Gini coefficient of commit distribution (precision ≥3)."
+      bug_density:
+        type: "number"
+        description: "Bugs per KLOC for the module."
+    required:
+      - repo_id
+      - file_path
+      - lines_of_code
+      - age_months
+      - gini_coefficient
+      - bug_density
+
+  bug:
+    type: "object"
+    description: "A GitHub Issue linked to a module."
+    properties:
+      issue_id:
+        type: "string"
+        description: "GitHub Issue ID."
+      repo_id:
+        type: "string"
+        description: "Foreign key to repository URL."
+      linked_file_path:
+        type: "string"
+        description: "The file path matched by the Bug-File Proximity Heuristic."
+      created_at:
+        type: "string"
+        format: "date-time"
+        description: "Issue creation date (must be in T+1 window)."
+    required:
+      - issue_id
+      - repo_id
+      - linked_file_path
+      - created_at
+required:
+  - repository
+  - module
+  - bug

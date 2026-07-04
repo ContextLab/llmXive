@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2408.12807",
+  "judged_at": "2026-07-04T09:08:42Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "quantifying the impact of code ownership on software quality computer science",
+  "rationale": "This paper directly addresses the user's research question by empirically investigating the association between different code ownership approximations (the independent variable) and software quality/defect-proneness (the dependent variable), satisfying criteria (a) and (b) for measuring the same mechanism and variables on the same domain.",
+  "relevant": true
+}

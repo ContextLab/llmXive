@@ -1,0 +1,137 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Statistical Output Schema"
+description: "Schema for the final JSON results (correlation, VIF, sensitivity analysis, linkage rate)."
+type: "object"
+properties:
+  correlation_summary:
+    type: "object"
+    description: "Primary Spearman correlation results."
+    properties:
+      rho:
+        type: "number"
+        minimum: -1.0
+        maximum: 1.0
+        description: "Spearman correlation coefficient between Gini and Bug Density."
+      p_value:
+        type: "number"
+        description: "P-value for the correlation test."
+      ci_lower:
+        type: "number"
+        description: "Lower bound of 95% confidence interval."
+      ci_upper:
+        type: "number"
+        description: "Upper bound of 95% confidence interval."
+      vif_max:
+        type: "number"
+        description: "Maximum VIF among linear predictors (Gini, Size, Age)."
+      quadratic_lrt_p_value:
+        type: "number"
+        description: "P-value from Likelihood Ratio Test for non-linearity (Quadratic vs Linear)."
+      multiple_comparison_corrected:
+        type: "boolean"
+        description: "True if Bonferroni or Benjamini-Hoch correction was applied."
+      is_observational:
+        type: "boolean"
+        description: "Always true; indicates findings are associational."
+    required:
+      - rho
+      - p_value
+      - ci_lower
+      - ci_upper
+      - vif_max
+      - quadratic_lrt_p_value
+      - multiple_comparison_corrected
+      - is_observational
+
+  secondary_outcomes:
+    type: "object"
+    description: "Secondary metrics and diagnostics."
+    properties:
+      churn_correlation:
+        type: "object"
+        description: "Spearman correlation between Code Churn and Bug Density (SC-006)."
+        properties:
+          rho:
+            type: "number"
+            description: "Spearman correlation coefficient between Code Churn and Bug Density."
+          p_value:
+            type: "number"
+            description: "P-value for the correlation test."
+        required:
+          - rho
+          - p_value
+      linkage_rate:
+        type: "number"
+        description: "Percentage of issues that successfully linked to a file path (SC-007)."
+    required:
+      - churn_correlation
+      - linkage_rate
+
+  sensitivity_analysis:
+    type: "object"
+    description: "Results of threshold sweeps."
+    properties:
+      p_value_sweep:
+        type: "object"
+        description: "Counts of significant findings for p-value thresholds (FR-012, SC-008)."
+        properties:
+          "0.01":
+            type: "integer"
+            description: "Count of significant findings at p < 0.01."
+          "0.05":
+            type: "integer"
+            description: "Count of significant findings at p < 0.05."
+          "0.1":
+            type: "integer"
+            description: "Count of significant findings at p < 0.1."
+        required:
+          - "0.01"
+          - "0.05"
+          - "0.1"
+      correlation_sweep:
+        type: "object"
+        description: "Counts of significant findings for correlation magnitude thresholds (FR-015, SC-011)."
+        properties:
+          "0.2":
+            type: "integer"
+            description: "Count of significant findings at |ρ| > 0.2."
+          "0.3":
+            type: "integer"
+            description: "Count of significant findings at |ρ| > 0.3."
+          "0.4":
+            type: "integer"
+            description: "Count of significant findings at |ρ| > 0.4."
+        required:
+          - "0.2"
+          - "0.3"
+          - "0.4"
+    required:
+      - p_value_sweep
+      - correlation_sweep
+
+  metadata:
+    type: "object"
+    description: "Execution metadata."
+    properties:
+      total_repos_processed:
+        type: "integer"
+        description: "Number of valid repositories processed."
+      total_modules_analyzed:
+        type: "integer"
+        description: "Total number of modules in the dataset."
+      execution_time_seconds:
+        type: "number"
+        description: "Total runtime in seconds."
+      peak_ram_gb:
+        type: "number"
+        description: "Peak RAM usage in GB."
+    required:
+      - total_repos_processed
+      - total_modules_analyzed
+      - execution_time_seconds
+      - peak_ram_gb
+required:
+  - correlation_summary
+  - secondary_outcomes
+  - sensitivity_analysis
+  - metadata

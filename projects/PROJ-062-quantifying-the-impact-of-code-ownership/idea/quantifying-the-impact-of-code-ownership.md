@@ -9,37 +9,74 @@ submitter: google.gemma-3-27b-it
 
 ## Research question
 
-Does higher code ownership concentration (fewer owners per module) correlate with lower bug density and code churn in large-scale open-source software projects?
+Does higher code ownership concentration (fewer developers committing to a module) correlate with lower bug density and reduced code churn in large-scale open-source software projects, after controlling for module age and size?
 
 ## Motivation
 
-Software teams often assume that assigning clear owners to code modules improves stability, yet empirical evidence at scale is limited. This study addresses the gap between management assumptions and measurable quality outcomes by leveraging public version control histories. Understanding this relationship can guide resource allocation and team structure decisions in distributed development environments.
+Software management often assumes that assigning clear owners to code modules improves stability, yet empirical evidence at scale is limited and mixed. This study addresses the gap between management assumptions and measurable quality outcomes by leveraging public version control histories. Understanding this relationship can guide resource allocation and team structure decisions in distributed development environments, distinguishing between "expert ownership" benefits and "bus factor" risks.
 
 ## Related work
 
-- [Code Ownership: The Principles, Differences, and Their Associations with Software Quality (2024)](http://arxiv.org/abs/2408.12807v1) — Directly investigates the association between ownership metrics and quality outcomes.
-- [How does Object-Oriented Code Refactoring Influence Software Quality? Research Landscape and Challenges (2019)](http://arxiv.org/abs/1908.05399v1) — Provides context on how structural code changes impact quality metrics.
-- [Developers Perception of Peer Code Review in Research Software Development (2021)](http://arxiv.org/abs/2109.10971v1) — Offers insight into developer accountability mechanisms related to ownership.
+- [Code Ownership: The Principles, Differences, and Their Associations with Software Quality (2024)](https://arxiv.org/abs/2408.12807) — Directly investigates the association between ownership metrics and quality outcomes, providing a baseline for defining concentration indices.
+- [Use of Source Code Similarity Metrics in Software Defect Prediction (2018)](https://arxiv.org/abs/1808.10033) — Establishes methodological precedents for linking code structural changes (churn) to defect prediction, relevant for the outcome variable definition.
 
 ## Expected results
 
-We expect to find a negative correlation between ownership concentration (high concentration = fewer owners) and bug density, supporting the "expert ownership" hypothesis. Evidence will be confirmed if Spearman rank correlation coefficients exceed |0.3| with p < 0.05 across the sampled repositories. Failure to find significance would suggest that team structure has less impact than other factors like code complexity.
+We expect to find a non-linear relationship where moderate ownership concentration reduces bug density, but extreme concentration increases it due to knowledge silos. Evidence will be confirmed if regression models show a significant quadratic term for ownership concentration (p < 0.05) or if Spearman correlations differ significantly from zero across the sampled repositories. A null result would suggest that team structure has less impact than other factors like code complexity or testing coverage.
 
 ## Methodology sketch
 
-- Download Git repositories for 10 high-activity open-source projects (e.g., `https://github.com/apache/httpd`, `https://github.com/apache/stratos`) using `git clone --depth 100` to fit GHA memory limits.
-- Parse commit logs to identify file-level ownership, calculating a Gini coefficient for commit distribution per module.
-- Extract bug counts from GitHub Issues API linked to specific file paths or commit hashes for the same time window.
-- Compute code churn (lines added/deleted) and cyclomatic complexity using `radon` library on the latest snapshot.
-- Normalize metrics per module to account for size differences (bugs per KLOC).
-- Perform Spearman rank correlation analysis between ownership Gini coefficient and normalized bug density using `scipy.stats`.
-- Visualize results with scatter plots and regression lines using `matplotlib`.
-- Run analysis sequentially to stay within 7GB RAM constraints; process one repository at a time.
-- Store intermediate CSVs to disk to avoid memory accumulation during the 6-hour job limit.
-- Validate statistical significance with a confidence interval calculation for the correlation coefficient.
+- **Data Acquisition**: Download Git repositories for 10 high-activity open-source projects (e.g., `apache/httpd`, `apache/stratos`) using `git clone --depth 1000` to ensure sufficient history for temporal analysis while staying within 7GB RAM.
+- **Module Definition & Temporal Split**: Define modules as files existing at a specific snapshot $T$ (e.g., 1 year before the latest commit). Calculate ownership concentration (Gini coefficient of commit distribution) for the window $[T-6m, T]$.
+- **Outcome Measurement**: Count bug-inducing commits or issue-linked changes in the window $[T+1, T+6m]$. **Crucial Step**: Exclude any module that is deleted or renamed between $T$ and $T+1$ from *both* the predictor and outcome calculations to prevent survivorship bias.
+- **Bug Linking Heuristic**: Link bugs to files using a strict algorithm: (1) exact substring match of file path in GitHub issue body/PR description, OR (2) exact match of GitHub assignee username with the file's top committer in the $T-6m$ window. If no link is found, the file is recorded with zero bugs for that window.
+- **Metric Normalization**: Compute bug density as (linked bugs / KLOC) and code churn as (lines added + lines deleted) / KLOC for the $T+1$ window.
+- **Statistical Analysis**: Perform Spearman rank correlation between ownership Gini and bug density. Additionally, fit a robust linear regression model (using `statsmodels`) with bug density as the dependent variable, ownership Gini (and its square) as predictors, and module size/age as covariates.
+- **Validation Independence**: The validation target (bug density in $T+1$) is temporally distinct from the predictor (ownership in $T$) and derived from independent event logs (issue tracker vs. commit logs).
+- **Execution Constraints**: Process repositories sequentially; store intermediate metrics as CSVs on disk to avoid memory accumulation. The entire analysis (download, parse, correlate) is designed to complete within 6 hours on 2 CPU cores.
+- **Significance Criteria**: Report p-values for statistical significance and effect sizes ($\rho$) separately; do not enforce a joint threshold for "success."
 
 ## Duplicate-check
 
 - Reviewed existing ideas: None provided in input context.
 - Closest match: N/A (no prior ideas available for comparison).
 - Verdict: NOT a duplicate
+
+
+## Search trail
+
+**Generated by**: librarian (prompt v1.6.0) on 2026-07-04T09:08:55Z
+**Outcome**: exhausted
+**Original term**: Quantifying the Impact of Code Ownership on Software Quality computer science
+**Verified citation count**: 2
+
+### Search terms used
+
+| Rank | Term | Hit count |
+|-|-|-|
+| 0 (initial) | Quantifying the Impact of Code Ownership on Software Quality computer science | 0 |
+| 1 | code ownership and defect density | 3 |
+| 2 | ownership concentration and software quality | 0 |
+| 3 | distributed ownership impact on bug rates | 0 |
+| 4 | code ownership metrics and maintainability | 0 |
+| 5 | bus factor and software reliability | 0 |
+| 6 | ownership dispersion and code quality | 0 |
+| 7 | developer ownership and defect prediction | 0 |
+| 8 | code authorship and software evolution | 0 |
+| 9 | ownership structure and technical debt | 0 |
+| 10 | single owner vs multiple owners code quality | 0 |
+| 11 | ownership fragmentation and regression bugs | 0 |
+| 12 | code ownership models and fault proneness | 0 |
+| 13 | ownership attribution and software defects | 0 |
+| 14 | collaborative ownership and code stability | 0 |
+| 15 | ownership boundaries and integration issues | 0 |
+| 16 | code ownership and refactoring effort | 0 |
+| 17 | ownership metrics for software reliability | 0 |
+| 18 | distributed development and ownership effects | 0 |
+| 19 | ownership consistency and code quality | 0 |
+| 20 | ownership intensity and bug introduction | 0 |
+
+### Verified citations
+
+1. **Code Ownership: The Principles, Differences, and Their Associations with Software Quality** (2024). Patanamon Thongtanunam, Chakkrit Tantithamthavorn. arXiv. [2408.12807](https://arxiv.org/abs/2408.12807). PDF-sampled: No.
+2. **Use of Source Code Similarity Metrics in Software Defect Prediction** (2018). Ahmet Okutan. arXiv. [1808.10033](https://arxiv.org/abs/1808.10033). PDF-sampled: No.
