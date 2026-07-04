@@ -1,4 +1,4 @@
-resolved_at: '2026-07-04T12:27:43.229412+00:00'
+resolved_at: '2026-07-04T12:39:31.245349+00:00'
 datasets:
 - intent: CSVs
   status: verified
@@ -45,6 +45,14 @@ datasets:
     source: huggingface
     status: wrong_format
     reason: unrecognized/non-dataset content
+  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/The_wage_structure_of_white_female_graduates_in_1981_Die_loonstruktuur_van_gegradueerde_blanke_vroue_in_1981/32366076
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/Comparative_Finite_Element_Analysis_of_Different_Internal_Connection_Designs_of_Two_Dental_Implant_Systems_Restored_with_30_Angled_Multi-Unit_Abutments_All_data_of_the_research_that_has_been_done_/32899634
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
   - url: https://figshare.com/articles/book/Expansion_and_Automation_of_the_Unified_Import_System_for_Composite_Skulls_in_OrtogOnBlender_XP/32899760
     source: figshare
     status: wrong_format
@@ -57,14 +65,6 @@ datasets:
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Rall_data_Data_bse_of_mosquitoes_collected_during_the_study_implementation/32899568
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Nursing_Form_2026_-2027_College_of_Nursing_Sciences_Minna_Niger_State_Is_Open_Call_O7O-468-O5833_Have_begun_the_admission_exercise_O7O46805833_07046805833_Prospective_candidates_are_encouraged_to_apply_early_to_avoid_the_last-minute_rush_an/32899745
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/3659329
     source: zenodo
     status: wrong_format
@@ -73,11 +73,11 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/1402269
+  - url: https://zenodo.org/records/17709462
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/17709462
+  - url: https://zenodo.org/records/1402269
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content

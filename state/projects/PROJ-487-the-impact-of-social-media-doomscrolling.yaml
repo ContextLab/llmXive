@@ -6,7 +6,7 @@ failed_stage: null
 field: psychology
 human_escalation_reason: null
 id: PROJ-487-the-impact-of-social-media-doomscrolling
-last_run_id: c416c7eb-c586-463f-b2a4-6b186d11df81
+last_run_id: f7fd5e35-9225-4600-aae3-609b5ac0dd48
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-487-the-impact-of-social-media-doomscrolling/specs/001-the-impact-of-social-media-doomscrolling
 title: "The Impact of Social Media \u201CDoomscrolling\u201D on Anticipatory Anxiety"
-updated_at: '2026-07-04T13:08:20.923246Z'
+updated_at: '2026-07-04T13:21:01.275569Z'

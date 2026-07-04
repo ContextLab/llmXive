@@ -1,0 +1,22 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Time Series Dataset Schema"
+type: "object"
+properties:
+  date:
+    type: "string"
+    format: "date"
+    description: "Calendar date (YYYY-MM-DD)"
+  value:
+    type: "number"
+    description: "Aggregated metric value (news volume or search index)"
+  source:
+    type: "string"
+    enum:
+      - "gdelt"
+      - "google_trends"
+    description: "Data source identifier"
+required:
+  - "date"
+  - "value"
+  - "source"
+additionalProperties: false

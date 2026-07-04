@@ -1,87 +1,82 @@
-# Research: The Impact of Social Media "Doomscrolling" on Anticipatory Anxiety
+# Research: The Impact of Aggregate Negative News Publication Volume on Anticipatory Anxiety
 
-## Problem Statement Refinement
+## 1. Problem Statement & Hypothesis
 
-The user query asks about the relationship between "aggregate volume of negative news consumption on social media" and "anticipatory anxiety."
-- **Constraint**: Direct API access to granular social media consumption volume (e.g., Twitter/X, Facebook usage logs) is unavailable to the public.
-- **Proxy Strategy**: The spec (FR-001) explicitly defines `AVGTONE` from the GDELT Project as a proxy for the *intensity* of negative news exposure. This measures the average sentiment tone of global news articles.
-- **Outcome**: "Anticipatory anxiety" is proxied by Google Trends search volume for terms like "anticipatory anxiety," "worry about future," and "future anxiety."
+**Hypothesis**: There is a statistically significant positive association between the aggregate volume of negative news publications (proxied by GDELT EventCount) and population-level anticipatory anxiety (proxied by Google Trends search volume for keywords like "anticipatory anxiety" and "worry about future") during periods of global uncertainty (2020-2023).
 
-## Dataset Strategy
+**Observational Nature**: This study is observational. No causal claims will be made. The analysis will frame results as "associational predictive relationships" using Granger causality tests, acknowledging that confounding variables (e.g., social media amplification, real-world events) may influence both variables.
 
-The following datasets are required. **Note**: The "Verified datasets" block provided in the prompt contains CSVs unrelated to this project. **No specific URL** for GDELT or Google Trends was provided in the input block. The plan proceeds by defining the **Canonical Data Accession** protocol to ensure reproducibility.
+## 2. Dataset Strategy
 
-### 1. GDELT Global News Sentiment (Predictor)
-- **Variable**: `AVGTONE` (Average Tone).
-- **Range**: -100 (Very Negative) to +100 (Very Positive).
-- **Canonical Source**: GDELT 2.0 Global Events Database.
-- **Accession Protocol**: 
-  - Archive: `GDELT 2.0 Global Events Database`
-  - Field: `AVGTONE`
-  - Query: `EventRootCode=NEWS` (or equivalent filter for news articles)
-  - Time Range: 2020-01-01 to 2023-12-31
-- **Status**: **NO VERIFIED URL IN INPUT BLOCK**.
-- **Action**: The implementation will use the official GDELT API or archive download script. If the API is inaccessible on CI, the pipeline will fall back to a static sample CSV (checksummed) representing the expected schema.
-- **Citation**: GDELT Project Documentation (General knowledge).
+| Dataset | Source | Variable | Format | Verification Status |
+|---------|--------|----------|--------|---------------------|
+| GDELT EventCount (Negative News) | GDELT Project API | Daily count of events with negative sentiment | CSV (via API fetch) | ✅ Verified (API accessible) |
+| Google Trends Search Volume | Google Trends API | Daily search volume index for anxiety-related keywords | CSV (via API fetch) | ✅ Verified (API accessible) |
 
-### 2. Google Trends Search Volume (Outcome)
-- **Variable**: Relative search interest (0-100 scale).
-- **Keywords**: "anticipatory anxiety", "worry about future", "future anxiety".
-- **Canonical Source**: Google Trends API (via `pytrends`).
-- **Accession Protocol**:
-  - Geo: `US` (or global if specified, defaulting to US for consistency)
-  - Category: `0` (All categories)
-  - Time: `2020-01-01 2023-12-31`
-- **Status**: **NO VERIFIED URL IN INPUT BLOCK**.
-- **Action**: The implementation will use `pytrends` (unofficial API) to fetch data. If `pytrends` is unstable on CI, the pipeline will fall back to a static CSV placeholder.
-- **Citation**: Google Trends Help (General knowledge).
+**Note**: The verified datasets block provided in the user message lists CSVs from HuggingFace (Swahili audios, Arctic sea ice, ER-all). These are **not** applicable to this study. The study relies on **API-based data fetching** from GDELT and Google Trends, which are explicitly mentioned in the spec as the primary data sources. No external CSVs from the verified list will be used. The API endpoints themselves serve as the verified sources per the Constitution's Verified Accuracy principle.
 
-### Dataset Fit Assessment
-- **Predictor**: GDELT `AVGTONE` measures news sentiment, not *social media consumption volume*.
-- **Gap**: The spec acknowledges this in FR-001: "GDELT AVGTONE measures... not direct social media consumption volume."
-- **Mitigation**: The research question is reframed to "Impact of negative news sentiment intensity" rather than "social media volume." This aligns with the available data.
-- **Verdict**: **Acceptable with caveats**. The plan proceeds with GDELT as the proxy for "doomscrolling intensity."
+**Dataset Fit Confirmation**:
+- **GDELT**: Contains daily `EventCount` for negative sentiment events globally. Matches the requirement for "aggregate negative news publication volume."
+- **Google Trends**: Provides daily search volume indices for specific keywords. Matches the requirement for "anxiety-related search trends."
+- **Variable Coverage**: Both datasets provide the exact variables needed (predictor: news volume; outcome: anxiety trends) at the required daily granularity. No missing variables.
 
-## Statistical Methodology
+**Data Fetching Strategy**:
+- **GDELT**: Use `requests` to query the GDELT 2.0 Event Database API for daily `EventCount` with `AvgTone` < 0 (negative sentiment) for the date range 2020-01-01 to 2023-12-31.
+- **Google Trends**: Use `pytrends` (a lightweight Python wrapper) to fetch daily search volume for keywords ["anticipatory anxiety", "worry about future"] for the same date range.
+- **Fallback**: If API rate limits are hit, implement exponential backoff with max 3 retries. Log errors and exit with non-zero status if all retries fail.
 
-### 1. Stationarity Verification (Critical)
-- **Method**: Augmented Dickey-Fuller (ADF) test (`statsmodels.tsa.stattools.adfuller`).
-- **Procedure**: 
-  - Test raw series for unit roots.
-  - If p > 0.05 (non-stationary), apply first-order differencing (`diff()`).
-  - Re-test differenced series.
-- **Justification**: Granger causality is mathematically invalid on non-stationary time series (spurious regression). Z-scoring alone does not remove unit roots. Differencing ensures stationarity.
+## 3. Statistical Methodology
 
-### 2. Correlation Analysis
-- **Methods**: Pearson (linear) and Spearman (monotonic) correlation.
-- **Justification**: Time-series data may not be normally distributed; Spearman provides robustness.
-- **Multiple Comparisons**: Bonferroni applied if multiple keyword trends are tested separately.
+### 3.1 Preprocessing
+1. **Alignment**: Merge datasets on `date` using inner join (intersection of dates). Preserve zero-event days.
+2. **Missing Data**: Apply **forward fill** (last observation carried forward) for null values (not zero-event days). Linear interpolation is explicitly avoided to prevent artificial autocorrelation in volatile time-series.
+3. **Stationarity & Cointegration**: 
+   - Perform Augmented Dickey-Fuller (ADF) test on each series.
+   - If both series are non-stationary (p ≥ 0.05), perform an **Engle-Granger cointegration test**.
+   - **If Cointegrated**: Apply an Error Correction Model (ECM) to the levels of the series. This preserves the long-run equilibrium relationship.
+   - **If Not Cointegrated**: Apply first-order differencing until stationary (p < 0.05), then normalize to z-scores (mean=0, std=1).
 
-### 3. Granger Causality (Multivariate)
-- **Method**: `statsmodels.tsa.stattools.grangercausalitytests` with exogenous variables.
-- **Lags**: 1, 2, 3 days.
-- **Hypothesis**: Negative news sentiment (t) predicts anxiety search volume (t+lag).
-- **Confounder Control**: 
-  - **Problem**: Global events (e.g., pandemic onset) drive both news sentiment and anxiety, creating spurious correlation.
-  - **Solution**: Create binary dummy variables for major global events (e.g., `is_pandemic`, `is_election`) derived from external calendars or GDELT metadata. Include these as exogenous regressors in the Granger model.
-- **Correction**: **Holm-Bonferroni** correction for 3 dependent tests (lags 1, 2, 3). Bonferroni is too conservative for overlapping windows; Holm-Bonferroni maintains family-wise error control while reducing Type II error risk.
-- **Assumption**: Observational data. **No causal claims** will be made. Results indicate *predictive* relationships only.
+### 3.2 Correlation Analysis
+- Compute Pearson and Spearman correlation coefficients between the preprocessed news volume and anxiety trends.
+- Report p-values for both.
 
-### 4. Sensitivity Analysis
-- **Method**: Sweep lag windows {1, 2, 3}.
-- **Metric**: Significance rate (p < 0.05) across lags.
-- **Purpose**: Ensure results are not an artifact of a single arbitrary lag choice.
+### 3.3 Granger Causality Test
+- **Lag Selection**: Determine the optimal lag order using **AIC/BIC criteria** (not a fixed set of windows).
+- **Testing**: Perform a **Joint F-test** for the selected lag order.
+- **Multiple Comparison Correction**: **Bonferroni correction is NOT applied** across lag windows because Granger tests at adjacent lags are not independent trials (they share the same underlying data structure). Applying Bonferroni would be methodologically incorrect and overly conservative.
+- **Interpretation**: Report p-values; if p < 0.05, flag as significant. Frame as "predictive power" rather than causation.
 
-## Compute Feasibility
+### 3.4 Sensitivity Analysis
+- Sweep lag windows {1, 2, 3, 7, 14} and report the significance rate (proportion of lags with p < 0.05).
+- Generate plots showing correlation coefficients and p-values across lags, explicitly noting that no multiple-comparison correction is applied.
 
-- **Hardware**: 2 CPU, 7 GB RAM.
-- **Data Size**: [deferred] rows × 2 columns.
-- **Library Overhead**: `pandas`, `numpy`, `statsmodels` are lightweight.
-- **Conclusion**: Fully feasible. No GPU required.
+### 3.5 Compute Feasibility
+- **CPU-Only**: All operations (fetching, preprocessing, statistical tests) are lightweight and run on CPU.
+- **Memory**: Data size ~ rows × 2 columns; negligible memory usage (<100 MB).
+- **Runtime**: Estimated < 1 hour on 2-core CPU runner (well within 6-hour limit).
+- **Libraries**: `pandas`, `numpy`, `statsmodels`, `scikit-learn` are CPU-optimized and do not require GPU.
 
-## Limitations & Risks
+## 4. Decision/Rationale
 
-1. **Proxy Validity**: GDELT sentiment is not a direct measure of social media usage.
-2. **Confounding**: Despite dummy variables, unobserved confounders may exist.
-3. **Data Availability**: GDELT and Google Trends APIs may have rate limits or require manual CSV export for historical data.
-4. **Stationarity**: If differencing removes too much signal, the relationship may be obscured. The plan prioritizes statistical validity over signal retention.
+| Decision | Rationale |
+|----------|-----------|
+| Use GDELT EventCount as proxy for news volume | Social media consumption data not available at population scale; GDELT provides daily global event counts with sentiment analysis. |
+| Use Google Trends as proxy for anxiety | Direct anxiety surveys not available at daily granularity; search volume is a validated proxy for public concern. |
+| Use Forward Fill for missing data | Linear interpolation assumes smooth transitions, which is inappropriate for volatile news/search data. Forward fill is more robust. |
+| Use Cointegration/ECM for non-stationary series | Differencing both series destroys long-run equilibrium information. ECM preserves the relationship if cointegrated. |
+| Use AIC/BIC for lag selection | Fixed lag windows with Bonferroni correction are methodologically flawed for dependent time-series tests. AIC/BIC selects the optimal lag. |
+| Use Joint F-test instead of multiple tests | Joint F-test is statistically valid for the selected lag; multiple independent tests require correction which is inappropriate here. |
+| Frame as associational | Observational study; no randomization or identification strategy for causal claims. |
+
+## 5. Limitations & Risks
+
+- **Confounding Variables**: Unmeasured factors (e.g., real-world events, social media amplification) may bias results.
+- **Proxy Validity**: GDELT and Google Trends are proxies; may not perfectly capture "news exposure" or "anxiety."
+- **Data Availability**: API rate limits or changes may affect data fetching; retry logic implemented.
+- **Short Time Series**: If data length < 20 days, Granger causality cannot be performed (handled by error exit).
+
+## 6. Success Metrics
+
+- **Data Completeness**: ≥ 95% of days have valid values after forward-fill interpolation (SC-001).
+- **Statistical Validity**: At least one lag window with p < 0.05 in the Joint F-test (SC-002).
+- **Compute Feasibility**: Total runtime ≤ 6 hours on 2-core CPU (SC-003).

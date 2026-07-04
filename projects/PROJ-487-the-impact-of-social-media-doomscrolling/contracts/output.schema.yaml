@@ -1,0 +1,47 @@
+# Output Schema for Processed and Analyzed Data
+# Used to validate output files after processing
+
+type: object
+required:
+  - date
+  - gdelt_normalized
+  - trends_normalized
+
+properties:
+  date:
+    type: string
+    constraints:
+      pattern: "^\\d{4}-\\d{2}-\\d{2}$"
+      min_length: 10
+      max_length: 10
+    description: "Date in YYYY-MM-DD format"
+
+  gdelt_normalized:
+    type: number
+    constraints:
+      min: -3.0
+      max: 3.0
+    description: "Z-score normalized GDELT event count"
+
+  trends_normalized:
+    type: number
+    constraints:
+      min: -3.0
+      max: 3.0
+    description: "Z-score normalized Google Trends interest"
+
+  gdelt_stationary:
+    type: boolean
+    description: "Whether the GDELT series is stationary"
+
+  trends_stationary:
+    type: boolean
+    description: "Whether the Trends series is stationary"
+
+  lag:
+    type: integer
+    description: "Lag value for Granger causality (optional)"
+
+  p_value:
+    type: number
+    description: "P-value from Granger causality test (optional)"

@@ -1,0 +1,42 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Analysis Result Schema"
+type: "object"
+properties:
+  metric:
+    type: "string"
+    description: "Test type (e.g., 'pearson', 'granger', 'ecm')"
+  coefficient:
+    type: "number"
+    description: "Test statistic value"
+  p_value:
+    type: "number"
+    minimum: 0
+    maximum: 1
+    description: "P-value of the test"
+  lag:
+    type: "integer"
+    minimum: 1
+    description: "Lag window used (for Granger/ECM)"
+  significance_flag:
+    type: "boolean"
+    description: "True if p < 0.05 (no Bonferroni correction)"
+  stationarity_status:
+    type: "string"
+    enum:
+      - "stationary"
+      - "non-stationary"
+    description: "Result of ADF test"
+  cointegration_status:
+    type: "string"
+    enum:
+      - "cointegrated"
+      - "not_cointegrated"
+      - "not_applicable"
+    description: "Result of Engle-Granger test"
+required:
+  - "metric"
+  - "coefficient"
+  - "p_value"
+  - "significance_flag"
+  - "stationarity_status"
+additionalProperties: false

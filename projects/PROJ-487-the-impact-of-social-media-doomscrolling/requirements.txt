@@ -1,0 +1,11 @@
+pandas
+numpy
+statsmodels
+requests
+scikit-learn
+matplotlib
+seaborn
+pyyaml
+pytrends
+flake8
+black

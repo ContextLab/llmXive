@@ -1,131 +1,83 @@
-# Implementation Plan: The Impact of Social Media "Doomscrolling" on Anticipatory Anxiety
+# Implementation Plan: The Impact of Aggregate Negative News Publication Volume on Anticipatory Anxiety
 
-**Branch**: `001-doomscrolling-anxiety` | **Date**: 2026-06-27 | **Spec**: `specs/001-doomscrolling-anxiety/spec.md`
+**Branch**: `001-news-volume-anxiety` | **Date**: 2026-06-27 | **Spec**: `specs/001-news-volume-anxiety/spec.md`
+**Input**: Feature specification from `/specs/001-news-volume-anxiety/spec.md`
 
 ## Summary
 
-This feature implements a robust statistical analysis pipeline to investigate the relationship between negative news sentiment intensity (proxy for doomscrolling) and population-level anticipatory anxiety. The system fetches time-series data from the GDELT Project (AVGTONE metric) and Google Trends, preprocesses them to a aligned daily resolution with z-score normalization, performs stationarity checks (ADF), differencing if necessary, and executes multivariate Granger causality tests controlling for major global events. The implementation strictly adheres to CPU-only constraints, ensuring the entire pipeline runs within 6 hours on a free-tier CI runner.
+This feature implements a CPU-tractable time-series analysis pipeline to investigate the relationship between aggregate negative news publication volume (proxied via GDELT EventCount) and population-level anticipatory anxiety (proxied via Google Trends search volume). The system fetches raw daily data, aligns timestamps, handles missing data via forward fill, and performs stationarity/cointegration testing. If cointegrated, an Error Correction Model (ECM) is used; otherwise, differencing is applied. The system then performs correlation and Granger causality tests using AIC/BIC for lag selection and Joint F-tests, avoiding Bonferroni correction. The analysis adheres to strict reproducibility and data hygiene standards defined in the project constitution, ensuring all results are reproducible on a free-tier GitHub Actions runner (CPU, ~7 GB RAM).
 
 ## Technical Context
 
 **Language/Version**: Python 3.11  
-**Primary Dependencies**: `pandas`, `numpy`, `scikit-learn`, `statsmodels`, `requests`, `matplotlib`, `seaborn`, `pyyaml`  
-**Storage**: Local CSV files (`data/raw/`, `data/processed/`)  
-**Testing**: `pytest` (unit tests for data alignment, integration tests for pipeline execution)  
-**Target Platform**: Linux (GitHub Actions Runner)  
-**Project Type**: Data Analysis Pipeline / CLI  
-**Performance Goals**: Total runtime ≤ 6 hours; Memory ≤ 7 GB  
-**Constraints**: No GPU/CUDA; No external API keys stored in repo (use env vars); Forward-fill imputation only for small gaps; Mandatory ADF testing; Differencing for non-stationary series; Granger causality requires N ≥ 20.  
-**Scale/Scope**: Time-series data for an extended period.
+**Primary Dependencies**: `pandas`, `numpy`, `statsmodels`, `requests`, `scikit-learn`, `matplotlib`, `seaborn`, `pyyaml`, `pytrends`  
+**Storage**: Local CSV files in `data/raw/` and `data/processed/`; no external database required.  
+**Testing**: `pytest` for unit tests on data alignment and statistical functions; integration tests via pipeline execution.  
+**Target Platform**: Linux (GitHub Actions free-tier runner).  
+**Project Type**: Data analysis pipeline / CLI script.  
+**Performance Goals**: Total runtime ≤ 6 hours; memory usage ≤ 7 GB; disk usage ≤ 14 GB.  
+**Constraints**: No GPU/CUDA; no deep learning models; no large-LLM inference; strict adherence to AIC/BIC lag selection and Joint F-tests (no Bonferroni).  
+**Scale/Scope**: Daily time-series data from a multi-year period; news volume and anxiety trends.
+
+> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
 
 ## Constitution Check
 
-| Principle | Status | Justification / Action |
-| :--- | :--- | :--- |
-| **I. Reproducibility** | **Pass** | Random seeds will be pinned in `code/analysis.py`. External datasets (GDELT, Google Trends) are fetched from canonical sources via script. `requirements.txt` will pin versions. |
-| **II. Verified Accuracy** | **Conditional Pass** | Citations are validated against the canonical GDELT 2.0 Archive structure and Google Trends API parameters defined in `research.md`. Since no specific URL was provided in the input block, the plan relies on the defined accession strings (e.g., `GDELT 2.0 Global Events Database, AVGTONE field`) to ensure testability. |
-| **III. Data Hygiene** | **Pass** | Raw data (CSVs) will be saved to `data/raw/` with checksums. Processed data will be saved to `data/processed/` with derived filenames. No in-place modification. |
-| **IV. Single Source of Truth** | **Pass** | All statistics in the final report will be generated programmatically from `data/processed/` and `code/analysis.py`. No hand-typed values. |
-| **V. Versioning Discipline** | **Pass** | Content hashes for data artifacts will be recorded in `state/projects/...yaml`. |
-| **VI. Temporal Data Alignment** | **Pass** | The `preprocessing` phase explicitly aligns timestamps to daily intervals, performs ADF tests, and documents the differencing logic. Lag operations are documented with justification. |
+*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
+
+| Principle | Compliance Check | Status |
+|-----------|------------------|--------|
+| **I. Reproducibility** | All scripts will pin random seeds; external data fetched from canonical sources (GDELT, Google Trends) via documented APIs; `requirements.txt` will pin all dependencies. | ✅ Compliant |
+| **II. Verified Accuracy** | The API endpoints (GDELT, Google Trends) themselves are the primary sources and MUST be verified against the project's accuracy gate. The plan explicitly validates the source URL and documentation of these APIs as the "verified source" rather than relying on CSVs from the user message. | ✅ Compliant |
+| **III. Data Hygiene** | Raw data will be saved with checksums; derivations (aligned, normalized) saved as new files; no in-place modification. | ✅ Compliant |
+| **IV. Single Source of Truth** | All figures and statistics in the final report will trace back to specific rows in `data/processed/` and code blocks in `code/`. | ✅ Compliant |
+| **V. Versioning Discipline** | Artifacts will carry content hashes; state file updated on artifact changes. | ✅ Compliant |
+| **VI. Temporal Data Alignment** | Lag windows are determined algorithmically via AIC/BIC criteria with sensitivity analysis across short-term intervals ranging from one day to two weeks. The plan explicitly documents the algorithmic selection process and sensitivity analysis results in `research.md` and `code/`. | ✅ Compliant |
 
 ## Project Structure
 
 ### Documentation (this feature)
 
 ```text
-specs/001-doomscrolling-anxiety/
+specs/001-news-volume-anxiety/
 ├── plan.md              # This file
-├── research.md          # Research findings & dataset strategy
-├── data-model.md        # Data schemas & entity definitions
-├── quickstart.md        # Setup & run instructions
-├── contracts/           # YAML schemas for validation
-└── tasks.md             # Generated later
+├── research.md          # Phase 0 output
+├── data-model.md        # Phase 1 output
+├── quickstart.md        # Phase 1 output
+├── contracts/           # Phase 1 output
+│   ├── dataset.schema.yaml
+│   └── output.schema.yaml
+└── tasks.md             # Phase 2 output (created later)
 ```
 
 ### Source Code (repository root)
 
 ```text
-projects/PROJ-487-the-impact-of-social-media-doomscrolling/
-├── code/
-│   ├── __init__.py
-│   ├── fetch_data.py          # Fetches GDELT and Google Trends data
-│   ├── preprocess.py          # Cleans, aligns, normalizes, differs data
-│   ├── analysis.py            # ADF, Correlation, Granger (multivariate)
-│   └── requirements.txt       # Pinned dependencies
+projects/PROJ-487-the-impact-of-social-media-doomscrolling/code/
 ├── data/
-│   ├── raw/                   # Downloaded CSVs (GDELT, Trends)
-│   └── processed/             # Aligned, normalized, differenced time-series
-├── output/
-│   ├── reports/               # PDF/HTML reports, plots
-│   └── logs/                  # Execution logs
-└── tests/
-    ├── unit/                  # Test data alignment, normalization
-    └── integration/           # End-to-end pipeline test
+│   ├── fetch_gdelt.py
+│   ├── fetch_google_trends.py
+│   ├── preprocess.py
+│   └── analyze.py
+├── tests/
+│   ├── test_preprocess.py
+│   └── test_analyze.py
+├── utils/
+│   └── logging.py
+├── requirements.txt
+└── main.py
+
+projects/PROJ-487-the-impact-of-social-media-doomscrolling/data/
+├── raw/
+│   ├── gdelt_events.csv
+│   └── google_trends.csv
+└── processed/
+    ├── aligned_timeseries.csv
+    └── stationarity_check.csv
 ```
 
-**Structure Decision**: Single project structure (`code/`) chosen as the scope is a linear data analysis pipeline without complex frontend/backend separation. This minimizes overhead for CI execution.
+**Structure Decision**: Single project structure chosen for simplicity and direct alignment with the data pipeline nature of the feature. No frontend/backend split required; all logic resides in `code/` with data in `data/`.
 
-## Phase Execution Plan
+**Schema Traceability**: The schema files in `contracts/` (`dataset.schema.yaml`, `output.schema.yaml`) are the machine-readable implementation of the entities (`TimeSeriesRecord`, `AnalysisResult`) defined in `data-model.md`. The `pyyaml` library is explicitly used in `preprocess.py` and `analyze.py` to validate data against these contracts during pipeline execution, ensuring Data Hygiene and SSoT principles.
 
-### Phase 0: Research & Data Accession
-- **Goal**: Define canonical data sources and fallback strategies.
-- **Action**: Acknowledge that no verified URL was in the input block. Define the canonical accession: "GDELT 2.0 Global Events Database, AVGTONE field" and "Google Trends API (geo=US, category=0)".
-- **Constraint Check**: Ensure no un-spec'd constraints are added. The plan relies *only* on the variables specified in FR-001 and FR-002.
-- **Dataset Fit**: GDELT provides `AVGTONE` (sentiment). Google Trends provides search volume. The spec explicitly frames "doomscrolling" as the *impact* of negative news intensity, not direct social media volume. This fits the available data.
-- **Fallback Strategy**: If live API access fails on CI, the pipeline will use static sample CSVs (provided in `data/raw/samples/`) to ensure the analysis logic is testable.
-- **Output**: `research.md` with dataset accession strings and fallback logic.
-
-### Phase 1: Data Model & Contracts
-- **Goal**: Implement validation logic against existing schemas.
-- **Action**: The contracts `raw_news.schema.yaml`, `raw_trends.schema.yaml`, and `processed_timeseries.schema.yaml` are already defined. The implementation will add validation logic in `fetch_data.py` and `preprocess.py` to ensure data conforms to these schemas before processing.
-- **Constraint**: Ensure schemas enforce `date` (ISO8601), `value` (float), and `source` (string).
-- **Output**: Updated `data-model.md`, `quickstart.md`, and validation code.
-
-### Phase 2: Implementation (Mechanical Step)
-- **Goal**: Generate `tasks.md` and execute the mechanical setup.
-- **Action**: The runtime will execute `setup-plan.sh`. The Implementer Agent will then write code based on the plan.
-- **Constraint**: Code must not use GPU libraries.
-
-### Phase 3: Execution & Validation
-- **Goal**: Run the pipeline on CI with rigorous statistical checks.
-- **Action**:
-  1. **Fetch Data** (FR-001): Retrieve GDELT `AVGTONE` and Google Trends. Handle API errors/retries.
-  2. **Preprocess** (FR-002): 
-     - Align to daily (intersection).
-     - Forward-fill gaps < 3 days (preserve continuity).
-     - **Stationarity Check**: Run Augmented Dickey-Fuller (ADF) test.
-     - **Differencing**: If non-stationary (p > 0.05), apply first-order differencing.
-     - Z-score normalization.
-  3. **Analyze** (FR-003, FR-004, FR-005):
-     - **Confounder Control**: Generate event dummy variables for major global events (e.g., Pandemic Start, Election Periods).
-     - **Correlation**: Pearson/Spearman with p-values.
-     - **Granger Causality**: Multivariate Granger tests (lags, 2, 3) including event dummies as exogenous variables.
-     - **Correction**: Apply Holm-Bonferroni correction for dependent lag tests.
-     - **Sensitivity**: Sweep lag windows {, 2, 3}.
-  4. **Report** (FR-006): Generate plots and summary.
-- **Success Criteria**:
-  - SC-001: ≥95% data completeness after imputation.
-  - SC-002: Holm-Bonferroni corrected p < 0.0167 for at least one lag in the primary Granger test.
-  - SC-003: Runtime ≤ 6 hours (enforced by CI job timeout).
-
-## FR/SC Coverage Matrix
-
-| Requirement ID | Plan Element | Description |
-| :--- | :--- | :--- |
-| **FR-001** | `fetch_data.py` | Fetches GDELT `AVGTONE` and Google Trends. Handles API errors/retries. |
-| **FR-002** | `preprocess.py` | Aligns to daily, forward-fills small gaps, ADF test, differencing if needed, z-scores. |
-| **FR-003** | `analysis.py` | Computes Pearson/Spearman correlation with p-values. |
-| **FR-004** | `analysis.py` | Runs multivariate Granger causality (lags 1, 2, 3) with event dummies. Frames as associational. |
-| **FR-005** | `analysis.py` | Sensitivity analysis sweeping lag windows {1, 2, 3} with Holm-Bonferroni correction. |
-| **FR-006** | `CI Config` | Job timeout set to 6h; Memory limit checked; `requirements.txt` pins CPU-only libraries. |
-| **SC-001** | `preprocess.py` | Checks completeness after forward-fill; logs warning if <95%. |
-| **SC-002** | `analysis.py` | Applies Holm-Bonferroni correction to Granger p-values (target < 0.0167). |
-| **SC-003** | `CI Config` | Job timeout set to 6h; Memory limit checked. |
-
-## Compute Feasibility Strategy
-
-- **Data Volume**: years of daily data = [deferred] rows. Extremely small for RAM.
-- **Method**: `statsmodels` Granger causality (CPU-optimized), `scipy` correlations, and `statsmodels.tsa.stattools.adfuller` are lightweight.
-- **No GPU**: No deep learning models. No `torch` or `tensorflow` training.
-- **Runtime**: Expected execution time < 30 minutes. Well within the 6-hour limit.
+**Complexity Tracking**: No violations detected. The single-project structure is sufficient for the data pipeline scope.

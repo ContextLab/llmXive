@@ -1,17 +1,17 @@
-# Quickstart: The Impact of Social Media "Doomscrolling" on Anticipatory Anxiety
+# Quickstart: The Impact of Aggregate Negative News Publication Volume on Anticipatory Anxiety
 
 ## Prerequisites
 
 - Python 3.11+
-- Git
-- (Optional) GDELT API credentials (if using live API)
+- pip (Python package manager)
+- Internet access (for API fetching)
 
 ## Installation
 
 1. **Clone the repository**:
    ```bash
    git clone <repo-url>
-   cd projects/PROJ-487-the-impact-of-social-media-doomscrolling
+   cd projects/PROJ-487-the-impact-of-social-media-doomscrolling/code
    ```
 
 2. **Create a virtual environment**:
@@ -22,43 +22,46 @@
 
 3. **Install dependencies**:
    ```bash
-   pip install -r code/requirements.txt
-   ```
-
-## Data Fetching (Manual Step for CI)
-
-Since GDELT and Google Trends APIs may require manual setup or have rate limits on free tiers:
-
-1. **Option A (Recommended for CI)**: Download sample CSVs from the GDELT archive and Google Trends export and place them in `data/raw/`.
-   - `gdelt_sentiment.csv`: Columns `date`, `AVGTONE`.
-   - `trends_anxiety.csv`: Columns `date`, `anticipatory_anxiety`.
-
-2. **Option B (Live Fetch)**: Run the fetch script (requires API keys in env vars):
-   ```bash
-   export GDELT_API_KEY=your_key
-   export GOOGLE_TRENDS_API_KEY=your_key
-   python code/fetch_data.py --start 2020-01-01 --end 2023-12-31
+   pip install -r requirements.txt
    ```
 
 ## Running the Pipeline
 
-Execute the full pipeline:
-
+### Step 1: Fetch Data
 ```bash
-python code/preprocess.py
-python code/analysis.py
+python data/fetch_gdelt.py --start-date 2020-01-01 --end-date 2023-12-31
+python data/fetch_google_trends.py --start-date 2020-01-01 --end-date 2023-12-31
 ```
+- Outputs: `data/raw/gdelt_events.csv`, `data/raw/google_trends.csv`
 
-## Expected Output
-
-- `data/processed/aligned_timeseries.csv`: Cleaned, normalized data.
-- `output/results/analysis_results.json`: Correlation and Granger results.
-- `output/reports/summary.pdf`: Visualizations and statistical summary.
-
-## Validation
-
-Run tests to ensure data integrity:
-
+### Step 2: Preprocess Data
 ```bash
-pytest tests/
+python data/preprocess.py
 ```
+- Outputs: `data/processed/aligned_timeseries.csv`, `data/processed/stationarity_check.csv`
+- Note: This step performs forward fill, ADF testing, cointegration testing, and ECM/differencing.
+
+### Step 3: Run Analysis
+```bash
+python data/analyze.py
+```
+- Outputs: `analysis_results.json`, `plots/` (correlation heatmap, lag plots)
+- Note: Uses AIC/BIC for lag selection and Joint F-tests.
+
+### Step 4: Generate Report
+```bash
+python data/generate_report.py
+```
+- Outputs: `report.pdf` or `report.html`
+
+## Verification
+
+- **Data Completeness**: Check `data/processed/aligned_timeseries.csv` for missing values (should be 0).
+- **Stationarity/Cointegration**: Verify `data/processed/stationarity_check.csv` shows appropriate status (stationary or cointegrated).
+- **Significance**: Check `analysis_results.json` for p-values < 0.05 in the Joint F-test.
+
+## Troubleshooting
+
+- **API Rate Limits**: If fetching fails, retry with exponential backoff (max 3 attempts).
+- **Non-Stationary Data**: If ADF test fails, the script will automatically check for cointegration and apply ECM or differencing.
+- **Insufficient Data**: If time series length < 20 days, the script exits with "Insufficient data for Granger causality."

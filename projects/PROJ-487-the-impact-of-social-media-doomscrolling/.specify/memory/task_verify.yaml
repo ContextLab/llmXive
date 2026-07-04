@@ -1,17 +1,15 @@
-? 'T001 Create project structure per `plan.md` (directories: `code/`, `data/raw/`,
-  `data/processed/`, `output/reports/`, `tests/`)'
+'T001 Create project root directory: `projects/PROJ-487-the-impact-of-social-media-doomscrolling/`': 1
+? 'T002 Create data directories: `data/raw/`, `data/processed/`, `data/reports/` in
+  `projects/PROJ-487-the-impact-of-social-media-doomscrolling/`'
 : 1
-? T002 Initialize Python 3.11 project with pinned dependencies in `code/requirements.txt`
-  (pandas, numpy, scikit-learn, statsmodels, requests, matplotlib, seaborn, pyyaml)
+? 'T003 Create code directories: `code/data/`, `code/tests/`, `code/utils/` in `projects/PROJ-487-the-impact-of-social-media-doomscrolling/`'
 : 1
-T003 [P] Configure linting (flake8/black) and formatting tools in `code/`: 1
-? 'T004a [P] Implement data schema validation logic for `raw_news.schema.yaml` (GDELT)
-  in `code/` using the following inline schema definition: `{"type": "object", "required":
-  ["date", "value", "source"], "properties": {"date": {"type": "string", "format":
-  "date"}, "value": {"type": "number"}, "source": {"type": "string"}}}`'
+? 'T004 [P] Create Python virtual environment in `projects/PROJ-487-the-impact-of-social-media-doomscrolling/`
+  <!-- FAILED: unspecified -->'
 : 1
-? 'T004b [P] Implement data schema validation logic for `raw_trends.schema.yaml` (Trends)
-  in `code/` using the following inline schema definition: `{"type": "object", "required":
-  ["date", "value", "source"], "properties": {"date": {"type": "string", "format":
-  "date"}, "value": {"type": "number"}, "source": {"type": "string"}}}`'
+? 'T005 [P] Install dependencies from `requirements.txt` in `projects/PROJ-487-the-impact-of-social-media-doomscrolling/`:
+  `pandas`, `numpy`, `statsmodels`, `requests`, `scikit-learn`, `matplotlib`, `seaborn`,
+  `pyyaml`, `pytrends`'
+: 1
+? T006 [P] Configure linting (flake8/black) and formatting tools in `projects/PROJ-487-the-impact-of-social-media-doomscrolling/`
 : 1

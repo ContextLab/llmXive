@@ -1,38 +1,53 @@
-# Data Model: The Impact of Social Media "Doomscrolling" on Anticipatory Anxiety
+# Data Model: The Impact of Aggregate Negative News Publication Volume on Anticipatory Anxiety
 
-## Entities
+## 1. Entity Definitions
 
-### 1. TimeSeriesRecord
+### TimeSeriesRecord
 Represents a single day's aggregated value for a specific metric.
 
 | Field | Type | Description | Constraints |
-| :--- | :--- | :--- | :--- |
-| `date` | `date` (ISO8601) | The date of the observation. | Unique, sorted ascending. |
-| `value` | `float` | The metric value (sentiment or search volume). | Not null after imputation. |
-| `source` | `string` | Identifier of the data source. | Enum: "GDELT_AVGTONE", "GOOGLE_TRENDS" |
-| `metric_name` | `string` | Specific metric name. | e.g., "AVGTONE", "anticipatory_anxiety" |
+|-------|------|-------------|-------------|
+| `date` | `date` | Calendar date (YYYY-MM-DD) | Unique, non-null |
+| `value` | `float` | Aggregated metric value (news volume or search index) | Non-negative |
+| `source` | `string` | Data source identifier | Enum: ["gdelt", "google_trends"] |
 
-### 2. AnalysisResult
+### AnalysisResult
 Represents the output of a statistical test.
 
 | Field | Type | Description | Constraints |
-| :--- | :--- | :--- | :--- |
-| `metric` | `string` | Test type (e.g., "Pearson", "Granger"). | |
-| `coefficient` | `float` | Correlation coefficient or F-statistic. | |
-| `p_value` | `float` | P-value of the test. | 0.0 ≤ value ≤ 1.0 |
-| `lag` | `integer` | Lag used (0 for correlation, 1-3 for Granger). | ≥ 0 |
-| `significance_flag` | `boolean` | True if p < threshold (0.0167). | |
-| `test_date` | `date` | Date the analysis was run. | |
+|-------|------|-------------|-------------|
+| `metric` | `string` | Test type (e.g., "pearson", "granger", "ecm") | Non-null |
+| `coefficient` | `float` | Test statistic value | Non-null |
+| `p_value` | `float` | P-value of the test | 0 ≤ p ≤ 1 |
+| `lag` | `integer` | Lag window used (for Granger/ECM) | ≥ 1 |
+| `significance_flag` | `boolean` | True if p < 0.05 (no Bonferroni) | Non-null |
+| `stationarity_status` | `string` | Result of ADF test | Enum: ["stationary", "non-stationary"] |
+| `cointegration_status` | `string` | Result of Engle-Granger test | Enum: ["cointegrated", "not_cointegrated", "not_applicable"] |
 
-## Data Flow
+## 2. Data Flow Diagram
 
-1. **Raw Data**: `data/raw/gdelt_sentiment.csv`, `data/raw/trends_anxiety.csv`.
-2. **Processed Data**: `data/processed/aligned_timeseries.csv`.
-3. **Results**: `output/results/analysis_results.json`, `output/reports/summary.pdf`.
+```
+[Raw Data] 
+   ↓ (Fetch via API)
+[Raw CSVs] (gdelt_events.csv, google_trends.csv)
+   ↓ (Preprocessing: Alignment, Forward Fill, Cointegration/ECM or Differencing)
+[Processed CSV] (aligned_timeseries.csv)
+   ↓ (Statistical Analysis: Correlation, Granger (AIC/BIC), Sensitivity)
+[Analysis Results] (JSON/CSV)
+   ↓ (Report Generation)
+[Final Report] (PDF/HTML)
+```
 
-## Transformation Rules
+## 3. Schema Validation
 
-- **Alignment**: Inner join on `date`. Only dates present in both series are kept.
-- **Imputation**: Forward-fill (`ffill`) for missing values. Max gap allowed: 3 days.
-- **Normalization**: Z-score: $z = (x - \mu) / \sigma$. Applied per series.
-- **Outliers**: No removal. Z-score normalization handles scale differences.
+All data files must conform to the schemas defined in `contracts/`.
+
+- **Input Schemas**: `dataset.schema.yaml` for raw and processed data.
+- **Output Schemas**: `output.schema.yaml` for analysis results and report metadata.
+- **Implementation**: The `pyyaml` library is used in `preprocess.py` and `analyze.py` to validate data against these schemas at runtime.
+
+## 4. Data Hygiene Rules
+
+- **Checksums**: Every file in `data/raw/` and `data/processed/` must have a checksum recorded in the project state file.
+- **Immutability**: Raw data files are never modified; derivations create new files.
+- **PII**: No personally identifying information is stored or processed.
