@@ -1,0 +1,42 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Statistical Test Result Schema
+description: Schema for KS test results and sensitivity analysis
+type: object
+properties:
+  parameter_name:
+    type: string
+    description: "Parameter being tested (mass_ratio or effective_spin)"
+  ks_statistic:
+    type: number
+    description: "Kolmogorov-Smirnov statistic"
+  p_value:
+    type: number
+    description: "Raw p-value from the test"
+  bonferroni_adjusted_p_value:
+    type: number
+    description: "P-value after Bonferroni correction"
+  significance_flag:
+    type: boolean
+    description: "True if p-value < alpha threshold"
+  borderline_flag:
+    type: boolean
+    description: "True if significance status flips across alpha sweep"
+  alpha_threshold:
+    type: number
+    description: "Alpha threshold used for this result"
+  scope:
+    type: string
+    description: "Scope of the analysis (e.g., 'detection_space', 'intrinsic_space')"
+    enum:
+      - detection_space
+      - intrinsic_space
+required:
+  - parameter_name
+  - ks_statistic
+  - p_value
+  - bonferroni_adjusted_p_value
+  - significance_flag
+  - borderline_flag
+  - alpha_threshold
+  - scope
+additionalProperties: false

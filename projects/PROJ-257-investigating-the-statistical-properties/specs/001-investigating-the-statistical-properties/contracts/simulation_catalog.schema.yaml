@@ -1,0 +1,39 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Simulation Catalog Schema
+description: Schema for the synthetic or external simulation dataset
+type: object
+properties:
+  event_id:
+    type: string
+    description: "Unique event identifier"
+  component_mass_1:
+    type: number
+    description: "Primary component mass in solar masses"
+  component_mass_2:
+    type: number
+    description: "Secondary component mass in solar masses"
+  mass_ratio:
+    type: number
+    description: "Mass ratio q = m2/m1"
+  effective_spin:
+    type: number
+    description: "Effective spin parameter chi_eff"
+  formation_channel:
+    type: string
+    description: "Formation channel (e.g., 'power-law-spin')"
+  generation_method:
+    type: string
+    description: "Method used to generate data (e.g., 'synthetic')"
+  hypothesis_type:
+    type: string
+    description: "Type of hypothesis (e.g., 'Null_Hypothesis', 'Alternative_Model')"
+required:
+  - event_id
+  - component_mass_1
+  - component_mass_2
+  - mass_ratio
+  - effective_spin
+  - formation_channel
+  - generation_method
+  - hypothesis_type
+additionalProperties: false

@@ -1,0 +1,30 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Visualization Output Schema
+description: Schema for generated plot metadata
+type: object
+properties:
+  figure_id:
+    type: string
+    description: "Unique identifier for the figure"
+  parameter_name:
+    type: string
+    description: "Parameter visualized (mass_ratio or effective_spin)"
+  format:
+    type: string
+    description: "File format (e.g., PNG)"
+    enum:
+      - PNG
+  resolution_dpi:
+    type: integer
+    description: "Resolution in dots per inch (target >= 300)"
+    minimum: 300
+  file_path:
+    type: string
+    description: "Relative path to the saved figure"
+required:
+  - figure_id
+  - parameter_name
+  - format
+  - resolution_dpi
+  - file_path
+additionalProperties: false
