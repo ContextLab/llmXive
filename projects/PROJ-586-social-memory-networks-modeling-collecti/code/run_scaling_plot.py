@@ -1,53 +1,39 @@
 """
-Wrapper script to run the scaling plot generation.
+Wrapper script to generate scaling_plot.pdf for T030.
 
-This script ensures the scaling data exists and then generates the plot.
-It is called by the main pipeline for Task T030.
+This script orchestrates the scaling plot generation, ensuring the output
+file is created at the correct location as specified in tasks.md.
 """
 from __future__ import annotations
 
-import argparse
 import sys
 from pathlib import Path
+
+# Add code directory to path
+code_dir = Path(__file__).parent
+if str(code_dir) not in sys.path:
+    sys.path.insert(0, str(code_dir))
 
 from analysis.scaling_plot_generator import main as plot_main
 
 
-def build_parser() -> argparse.ArgumentParser:
-    """Build argument parser."""
-    parser = argparse.ArgumentParser(
-        description='Run scaling plot generation for User Story 3.'
-    )
-    parser.add_argument(
-        '--data',
-        type=str,
-        default='data/scaling_results.csv',
-        help='Path to scaling data CSV'
-    )
-    parser.add_argument(
-        '--output',
-        type=str,
-        default='projects/PROJ-586-social-memory-networks-modeling-collecti/results/scaling_plot.pdf',
-        help='Path to output PDF'
-    )
-    return parser
-
-
-def main():
+def main() -> int:
     """Main entry point."""
-    parser = build_parser()
-    args = parser.parse_args()
+    # Default paths as per tasks.md
+    data_path = code_dir / 'data' / 'scaling_results.csv'
+    output_path = code_dir.parent / 'results' / 'scaling_plot.pdf'
     
-    data_path = Path(args.data)
-    output_path = Path(args.output)
+    # Ensure output directory exists
+    output_path.parent.mkdir(parents=True, exist_ok=True)
     
-    # Check if data exists
-    if not data_path.exists():
-        print(f"Error: Scaling data not found at {data_path}", file=sys.stderr)
-        print("Please run the scaling simulation first (T027/T029).", file=sys.stderr)
-        return 1
+    # Run the plot generation with explicit paths
+    sys.argv = [
+        'run_scaling_plot.py',
+        '--data', str(data_path),
+        '--output', str(output_path),
+        '--metric', 'specialization_index'
+    ]
     
-    # Run plot generation
     return plot_main()
 
 

@@ -64,7 +64,7 @@
   verification_status: verified
   verified_against_url: https://huggingface.co/api/resolve-cache/datasets/JasonXF/US3D-Enhanced/7f60acedd7f2c766cdc27a1e9e62bcc9c7d3428e/prompt.json?%2Fdatasets%2FJasonXF%2FUS3D-Enhanced%2Fresolve%2Fmain%2Fprompt.json=&etag=%22b1e79c038446025d54f94493aedb58c848fe8d2c%22
   verified_at: '2026-06-26T22:53:36.631629Z'
-- artifact_hash: 6cfbbaf9dfc9932a47680772d2a3c9ba9bd0e52a61e4b70b8e86193bdf294a53
+- artifact_hash: df9ae46ef04e993f68089cd454321a88c2ba50a965d9c61d374ad5e8ae752e76
   artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -75,8 +75,8 @@
   value: https://arxiv.org/abs/2203.14669
   verification_status: verified
   verified_against_url: https://arxiv.org/abs/2203.14669
-  verified_at: '2026-07-04T02:46:09.101156Z'
-- artifact_hash: 6cfbbaf9dfc9932a47680772d2a3c9ba9bd0e52a61e4b70b8e86193bdf294a53
+  verified_at: '2026-07-04T03:48:38.294757Z'
+- artifact_hash: df9ae46ef04e993f68089cd454321a88c2ba50a965d9c61d374ad5e8ae752e76
   artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
   cite_id: c-002
   cited_authors: []
@@ -86,8 +86,8 @@
   value: https://www.wikidata.org/wiki/Q54767019
   verification_status: verified
   verified_against_url: https://www.wikidata.org/wiki/Q54767019
-  verified_at: '2026-07-04T02:46:09.101156Z'
-- artifact_hash: 6cfbbaf9dfc9932a47680772d2a3c9ba9bd0e52a61e4b70b8e86193bdf294a53
+  verified_at: '2026-07-04T03:48:38.294757Z'
+- artifact_hash: df9ae46ef04e993f68089cd454321a88c2ba50a965d9c61d374ad5e8ae752e76
   artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
   cite_id: c-003
   cited_authors: []
@@ -98,8 +98,8 @@
   value: https://arxiv.org/abs/2503.02686
   verification_status: verified
   verified_against_url: https://arxiv.org/abs/2503.02686
-  verified_at: '2026-07-04T02:46:09.101156Z'
-- artifact_hash: 6cfbbaf9dfc9932a47680772d2a3c9ba9bd0e52a61e4b70b8e86193bdf294a53
+  verified_at: '2026-07-04T03:48:38.294757Z'
+- artifact_hash: df9ae46ef04e993f68089cd454321a88c2ba50a965d9c61d374ad5e8ae752e76
   artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
   cite_id: c-004
   cited_authors: []
@@ -109,8 +109,8 @@
   value: https://oeis.org/A000079
   verification_status: pending
   verified_against_url: https://oeis.org/A000079
-  verified_at: '2026-07-04T02:46:09.101156Z'
-- artifact_hash: 6cfbbaf9dfc9932a47680772d2a3c9ba9bd0e52a61e4b70b8e86193bdf294a53
+  verified_at: '2026-07-04T03:48:38.294757Z'
+- artifact_hash: df9ae46ef04e993f68089cd454321a88c2ba50a965d9c61d374ad5e8ae752e76
   artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
   cite_id: c-005
   cited_authors: []
@@ -120,4 +120,4 @@
   value: https://arxiv.org/abs/2202.05773
   verification_status: verified
   verified_against_url: https://arxiv.org/abs/2202.05773
-  verified_at: '2026-07-04T02:46:09.101156Z'
+  verified_at: '2026-07-04T03:48:38.294757Z'
