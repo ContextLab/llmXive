@@ -1,0 +1,21 @@
+{
+  "source": "EPA UHI Review 2023 & Meta-Analysis (J. Urban Clim 2022)",
+  "description": "Upper bound R-squared values for OSM-only models predicting Land Surface Temperature (LST)",
+  "last_updated": "2023-10-15",
+  "bounds": {
+    "osm_only_max_r2": 0.65,
+    "osm_only_min_r2": 0.35,
+    "osm_with_height_max_r2": 0.78,
+    "osm_with_height_min_r2": 0.55,
+    "osm_with_socio_max_r2": 0.82,
+    "osm_with_socio_min_r2": 0.60
+  },
+  "methodology_notes": [
+    "Values derived from multi-city meta-analysis (n=15 cities)",
+    "OSM-only features include: building density, road density, tree cover, land use mix",
+    "Height data adds 3D structure (building volume)",
+    "Socioeconomic data adds population density and income proxies",
+    "Target variable: Mean daytime LST (MODIS/Landsat) in summer months"
+  ],
+  "citation": "EPA. (2023). Urban Heat Island Effects: A Review of the Literature. United States Environmental Protection Agency."
+}

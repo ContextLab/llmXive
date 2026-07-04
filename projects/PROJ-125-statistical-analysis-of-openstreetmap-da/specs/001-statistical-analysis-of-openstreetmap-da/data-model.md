@@ -1,77 +1,69 @@
-# Data Model: Statistical Analysis of OpenStreetMap Data for Urban Heat Island Effects
+# Data Model: Reprojection and Resampling Methods
 
 ## Overview
 
-This document defines the data structures, transformations, and schemas used in the UHI analysis pipeline. The data flows from raw vector/raster ingestion to aligned covariates, and finally to statistical model outputs.
+This document specifies the reprojection and resampling methods used to align OpenStreetMap (OSM) vector data and satellite thermal imagery into a common raster grid for Urban Heat Island (UHI) analysis. The pipeline ensures all output rasters share identical dimensions, origin, and Coordinate Reference System (CRS) to enable valid pixel-wise statistical analysis.
 
-## Entity Definitions
+## Coordinate Reference System (CRS) Strategy
 
-### 1. CityBoundary
-- **Type**: GeoJSON / Shapefile
-- **Description**: The administrative boundary of the study city.
-- **Attributes**:
-  - `city_name` (string): e.g., "New York"
-  - `geometry` (Polygon): WGS84 (EPSG:4326)
-  - `crs` (string): "EPSG:4326"
+### Target CRS
+- **Primary CRS**: EPSG:3857 (Web Mercator) for global consistency and visualization compatibility.
+- **Local CRS**: For high-precision local analysis, the pipeline supports dynamic transformation to Local UTM zones based on the city centroid.
+- **Configuration**: Controlled via `code/config.py` (`TARGET_CRS` and `USE_LOCAL_UTM` flags).
 
-### 2. RasterCovariate
-- **Type**: GeoTIFF
-- **Resolution**: 30m
-- **CRS**: Projected (e.g., EPSG:3857 or local UTM)
-- **Description**: OSM-derived features rasterized to a grid.
-- **Attributes**:
-  - `feature_type` (string): e.g., "building_density", "tree_canopy", "road_density"
-  - `unit` (string): e.g., "count_per_pixel", "fraction"
-  - `nodata_value` (float): -9999
+### Reprojection Workflow
+1. **Input Validation**: Verify input rasters and vector footprints have valid CRS definitions.
+2. **Transformation**: Use `rasterio.warp.reproject` for rasters and `geopandas.GeoDataFrame.to_crs` for vectors.
+3. **Resampling**: Apply method-specific resampling (see below) during transformation.
+4. **Verification**: Assert output CRS matches `TARGET_CRS` and dimensions are within 0.1% tolerance of expected grid.
 
-### 3. TemperatureRaster
-- **Type**: GeoTIFF
-- **Resolution**: 30m
-- **CRS**: Same as RasterCovariate
-- **Description**: Land Surface Temperature (LST) derived from Landsat.
-- **Attributes**:
-  - `source` (string): "Landsat 8/9 TIRS"
-  - `unit` (string): "Kelvin" or "Celsius"
-  - `cloud_mask` (boolean): True if pixel is cloud-free.
+## Resampling Methods
 
-### 4. SpatialModelOutput
-- **Type**: JSON / CSV
-- **Description**: Results from OLS, GWR, SAR models.
-- **Attributes**:
-  - `model_type` (string): "OLS", "GWR", "SAR", "OLS_DEGRADED"
-  - `metric_rmse` (float)
-  - `metric_r2` (float)
-  - `coefficients` (dict): {predictor: value}
-  - `p_values_adjusted` (dict): {predictor: value}
-  - `spatial_autocorrelation_residuals` (float): Moran's I of residuals.
+The choice of resampling algorithm depends on the data type to preserve statistical properties and physical meaning.
 
-## Data Flow
+### 1. Continuous Variables (Bilinear Interpolation)
+- **Applies to**: Temperature rasters (LST), elevation models, and continuous covariates.
+- **Method**: Bilinear interpolation (`rasterio.enums.Resampling.bilinear`).
+- **Rationale**: Preserves smooth gradients and minimizes artificial edge effects in thermal data.
+- **Error Handling**: Upsampling error (RMSE between original and reprojected sample points) must be < 0.1. If exceeded, the pipeline exits with code 1.
 
-1.  **Ingestion**:
-    - `CityBoundary` + `Overpass Query` → `RawOSM_Vector`
-    - `Landsat Scene ID` + `AWS` → `RawLandsat_TIF`
-2.  **Processing**:
-    - `RawOSM_Vector` → (Rasterize) → `RasterCovariate`
-    - `RawLandsat_TIF` → (LST Retrieval + Cloud Mask) → `TemperatureRaster`
-    - `RasterCovariate` + `TemperatureRaster` → (Align/Resample) → `StackedDataset`
-3.  **Sampling (Critical Step)**:
-    - `StackedDataset` → (Spatial Block Sampling: 1km x 1km grid) → `SampledDataset`
-    - *Logic*: Generate a fixed grid of 1km x 1km blocks over the city extent. Randomly select a subset of blocks (max [deferred] of total) to ensure spatial autocorrelation structure is preserved while reducing $N$. **Random pixel sampling is explicitly forbidden.**
-4.  **Analysis**:
-    - `SampledDataset` → (EDA) → `CorrelationMatrix`, `MoranI_Report`
-    - `SampledDataset` → (Modeling) → `SpatialModelOutput`
+### 2. Categorical Variables (Nearest Neighbor)
+- **Applies to**: Land-use/land-cover (LULC) classes, building density buckets, road networks (rasterized).
+- **Method**: Nearest neighbor (`rasterio.enums.Resampling.nearest`).
+- **Rationale**: Prevents the creation of non-existent intermediate classes (e.g., "0.5 water") and preserves integer class labels.
 
-## Edge Case Handling
+### 3. Binary/Boolean Variables (Nearest Neighbor)
+- **Applies to**: Tree canopy masks, water bodies.
+- **Method**: Nearest neighbor.
 
-- **Missing Data**: If `nodata_value` > 10% of pixels in `TemperatureRaster`, log WARNING and proceed with mask.
-- **Cloud Cover**: If `cloud_mask` > 20% of area, generate multi-date composite.
-- **Resolution Mismatch**: If OSM vector area differs from raster area by > 0.1, log ERROR and exit.
-- **Memory Overflow**: If $N_{samples} > 500,000$, degrade to OLS only.
+## Resolution Alignment
 
-## Block Generation Logic
+- **Target Resolution**: 30 meters (aligned with Landsat thermal band resolution).
+- **Process**:
+ 1. All input rasters are resampled to 30m resolution in the target CRS.
+ 2. Vector data (OSM buildings, roads) is rasterized to 30m using the appropriate method (nearest for categorical counts, bilinear for density aggregates).
+- **Implementation**: Handled in `code/ingest.py` via the `align_rasters` function.
 
-To ensure reproducibility of spatial statistics:
-- **Grid Size**: Fixed 1km x 1km blocks.
-- **Origin**: Aligned to the UTM zone origin (or EPSG:3857 origin) for the city.
-- **Selection**: A random seed is used to select which blocks are included in the final sample. The seed and block count are recorded in `metadata.json`.
-- **Constraint**: This block-based approach is mandatory to preserve spatial autocorrelation structure for Moran's I and variogram estimation.
+## Missing Data Handling
+
+- **Threshold**:
+ - **≤ 10% missing**: Proceed without warning.
+ - **> 10% missing**: Log a `WARNING` but continue processing.
+ - **> 50% missing**: Log `ERROR` and skip the specific raster layer.
+- **No-Data Value**: Standardized to `-9999` across all output GeoTIFFs.
+- **Masking**: `numpy.ma.masked_invalid` is used during statistical computation to ignore no-data pixels.
+
+## Output Specifications
+
+All aligned rasters in the final stack (`data/processed/`) must satisfy:
+1. **Identical Dimensions**: Same number of rows and columns.
+2. **Identical Origin**: Top-left corner coordinates match exactly.
+3. **Identical CRS**: All layers use the same EPSG code.
+4. **Identical Resolution**: 30m x 30m pixel size.
+
+These constraints are enforced by `code/stack_output.py` during the `create_aligned_stack` step.
+
+## Compliance
+
+- **SC-007**: This document serves as the formal specification for reprojection and resampling methods required by the project specification.
+- **Validation**: The `validate_non_null_overlap` function in `code/ingest.py` verifies these constraints before final output generation.
