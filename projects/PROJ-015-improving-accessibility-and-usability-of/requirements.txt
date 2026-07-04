@@ -1,0 +1,18 @@
+# Core Data Science
+numpy>=1.24.0
+pandas>=2.0.0
+scipy>=1.10.0
+
+# Visualization
+matplotlib>=3.7.0
+
+# Interactive/Notebook
+jupyter>=1.0.0
+
+# Web App
+streamlit>=1.24.0
+
+# Development
+ruff>=0.1.0
+black>=23.0.0
+pytest>=7.0.0

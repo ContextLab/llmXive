@@ -1,0 +1,52 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Analysis Output Schema"
+description: "Schema for the aggregated statistical metrics output (ANOVA results)."
+type: "object"
+required:
+  - metric_name
+  - test_method
+  - p_value_adjusted
+  - n_effective
+properties:
+  metric_name:
+    type: "string"
+    enum:
+      - "completion_time"
+      - "error_count"
+      - "sus_score"
+    description: "The specific metric being analyzed. (Excludes explanation_engagement)."
+  test_method:
+    type: "string"
+    enum:
+      - "Repeated Measures ANOVA"
+    description: "Statistical test used (Constitution Principle VII)."
+  statistic:
+    type: "number"
+    description: "The F-statistic value."
+  p_value:
+    type: "number"
+    minimum: 0
+    maximum: 1
+    description: "Raw p-value."
+  p_value_adjusted:
+    type: "number"
+    minimum: 0
+    maximum: 1
+    description: "P-value after Holm-Bonferroni correction."
+  mean_diff:
+    type: "number"
+    description: "Mean difference between Traditional and Explainable."
+  confidence_interval_lower:
+    type: "number"
+    description: "Lower bound of the 95% confidence interval."
+  confidence_interval_upper:
+    type: "number"
+    description: "Upper bound of the 95% confidence interval."
+  n_effective:
+    type: "integer"
+    minimum: 1
+    description: "Number of valid paired observations."
+  effect_size:
+    type: "number"
+    description: "Partial eta-squared or Cohen's d."
+additionalProperties: false

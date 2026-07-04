@@ -1,0 +1,200 @@
+resolved_at: '2026-07-04T08:55:01.359618+00:00'
+datasets:
+- intent: SUS
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/susumu2357/squad_v2_sv/resolve/main/dataset_infos.json
+    source: huggingface
+    format: json
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 3381
+      parsed: true
+  - url: https://huggingface.co/datasets/Rodion/uno_sustainable_development_goals/resolve/main/sdg_classes.json
+    source: huggingface
+    format: json
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 1192
+      parsed: true
+  - url: https://huggingface.co/datasets/nlp-esg-scoring/spx-sustainalytics-esg-scores/resolve/main/data/train-00000-of-00001-7f89b36539207c5e.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/susumu2357/squad_v2_sv/resolve/main/dataset_infos.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://huggingface.co/datasets/Rodion/uno_sustainable_development_goals/resolve/main/sdg_classes.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://huggingface.co/datasets/nlp-esg-scoring/spx-sustainalytics-esg-scores/resolve/main/data/train-00000-of-00001-7f89b36539207c5e.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/susnato/test-squad/resolve/main/data/train-00000-of-00001-8ba31eefe40017d5.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/dataset/2025_Corrected_TROPOMI_XCH_sub_4_sub_Data/32899121
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Unraveling_the_archaeal_virosphere_diversity_function_and_virus-host_interactions/32899136
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/book/EL_RINC_N_DEL_PENSAMIENTO/32576961
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Unraveling_the_archaeal_virosphere_diversity_function_and_virus-host_interactions/32899112
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Effectiveness_and_safety_of_eravacycline-based_regimens_for_resistant_acinetobacter_baumannii_infections_a_systematic_review_and_meta-analysis/32882288
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://paperssds.eu/index.php/JSPSDS/article/view/83
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4686421
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15204925
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/12731245
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.r6t26
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/n6wvk/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/y9hc5/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/Analisis_i_Usability_i_dan_Sentimen_Pengguna_Aplikasi_SIUTER_Menggunakan_Metode_SUS_dan_i_Na_ve_Bayes_Classifier_i_/32898809/1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/Analisis_i_Usability_i_dan_Sentimen_Pengguna_Aplikasi_SIUTER_Menggunakan_Metode_SUS_dan_i_Na_ve_Bayes_Classifier_i_/32898809
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/h96xu/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: HCI
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/YCAI3/HCI_P2/resolve/main/HCI_Dataset.zip
+    source: huggingface
+    format: zip
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/mlvrt/hci-modules/resolve/main/hci-module1-4.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 118193
+      parsed: true
+  - url: https://huggingface.co/datasets/HCIE/IIT-AFF-Dataset-Modified/resolve/main/data/train-00000-of-00002-df2c6e94e3c6be63.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/HCIE/IIT-AFF-Dataset-Modified/resolve/main/data/train-00000-of-00002-df2c6e94e3c6be63.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/YCAI3/HCI_P2/resolve/main/HCI_Dataset.zip
+    source: huggingface
+    status: verified
+    format: zip
+  - url: https://huggingface.co/datasets/mlvrt/hci-modules/resolve/main/hci-module1-4.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://figshare.com/articles/dataset/2025_Corrected_TROPOMI_XCH_sub_4_sub_Data/32899121
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Unraveling_the_archaeal_virosphere_diversity_function_and_virus-host_interactions/32899136
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/book/EL_RINC_N_DEL_PENSAMIENTO/32576961
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Unraveling_the_archaeal_virosphere_diversity_function_and_virus-host_interactions/32899112
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Effectiveness_and_safety_of_eravacycline-based_regimens_for_resistant_acinetobacter_baumannii_infections_a_systematic_review_and_meta-analysis/32882288
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8032771
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4304070
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10957
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8033173
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7063609
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21187038
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21187038
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://publica.fraunhofer.de/entities/publication/88ede86d-a415-44e0-bde1-a7efcfcdd78a
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://publica.fraunhofer.de/entities/publication/25e102fd-53e2-429d-a948-94f9676eab6c
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://publica.fraunhofer.de/entities/publication/e275bd0d-4fe6-4b24-ad21-b2622c59dabf
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
