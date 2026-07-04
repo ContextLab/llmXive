@@ -1,0 +1,22 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Task"
+description: "Schema for a programming problem from the HumanEval dataset."
+type: "object"
+properties:
+  task_id:
+    type: "string"
+    description: "Unique identifier for the task (e.g., 'HumanEval/0')."
+  canonical_prompt:
+    type: "string"
+    description: "The original prompt text including function signature and docstring."
+  canonical_solution:
+    type: "string"
+    description: "The reference solution code."
+  test_code:
+    type: "string"
+    description: "The unit tests used to validate the solution."
+required:
+  - task_id
+  - canonical_prompt
+  - canonical_solution
+  - test_code

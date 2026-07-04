@@ -1,81 +1,56 @@
 # Data Model: Evaluating the Robustness of LLM-Generated Code to Input Perturbations
 
-## Overview
+## 1. Entity Relationship Overview
 
-This document defines the data model for the robustness evaluation pipeline. It includes schemas for raw dataset ingestion, perturbed prompt generation, inference results, and statistical analysis outputs. All data files are stored under `data/` with checksums recorded in `state/`.
+The data model consists of three primary entities: `Task`, `PromptVariant`, and `ExecutionResult`.
 
-## Entity Relationships
+*   **Task**: Represents a unique programming problem from HumanEval.
+*   **PromptVariant**: Represents a specific version of a prompt (Original or Perturbed) associated with a Task.
+*   **ExecutionResult**: Represents the outcome of running the model on a PromptVariant.
 
-```mermaid
-erDiagram
-    TASK ||--o{ PROMPT : "has"
-    PROMPT ||--o{ GENERATION : "produces"
-    GENERATION ||--o{ RESULT : "yields"
-    PROMPT ||--o{ SIMILARITY : "has"
-    TASK ||--o{ RESULT : "aggregates"
-```
+## 2. Schema Definitions
 
-## Core Entities
+### 2.1 Task
+Unique identifier for a programming problem.
+*   `task_id` (string): Unique ID (e.g., "HumanEval/0").
+*   `canonical_prompt` (string): The original prompt text.
+*   `canonical_solution` (string): The reference solution code.
+*   `test_code` (string): The unit tests to validate the solution.
 
-### Task
-- **task_id**: Unique identifier from HumanEval (e.g., `HumanEval/0`)
-- **prompt**: Original problem description (string)
-- **canonical_solution**: Reference solution (string, optional for analysis)
-- **test_code**: Unit tests to validate generated code (string)
+### 2.2 PromptVariant
+A specific text input sent to the model.
+*   `variant_id` (string): Unique ID.
+*   `task_id` (string): Foreign key to `Task`.
+*   `variant_type` (string): Enum: "original", "synonym", "typo", "rephrase".
+*   `prompt_text` (string): The actual text content.
+*   `similarity_score` (float): Cosine similarity to `canonical_prompt` (for non-originals).
+*   `is_primary` (boolean): True if `similarity_score` > 0.95 (or > 0.90 if fallback) and included in primary analysis.
+*   `raw_similarity_score` (float): The raw score before filtering (for sensitivity analysis).
+*   `selected_rank` (integer): Rank of this candidate among generated candidates (1 = best).
 
-### Prompt
-- **prompt_id**: Unique identifier (e.g., `HumanEval/0_synonym_1`)
-- **task_id**: Foreign key to Task
-- **perturbation_type**: One of `synonym`, `typo`, `rephrase`, `original`
-- **prompt_text**: Actual text sent to model (string)
-- **similarity_score**: Cosine similarity to original (float, 0.0-1.0)
-- **is_primary**: Boolean (True if similarity > 0.95)
+### 2.3 ExecutionResult
+The outcome of the inference and execution pipeline.
+*   `result_id` (string): Unique ID.
+*   `variant_id` (string): Foreign key to `PromptVariant`.
+*   `generated_code` (string): The code produced by the model.
+*   `execution_status` (string): Enum: "pass", "fail", "timeout", "oom", "error".
+*   `error_type` (string): Enum: "syntax", "logic", "hallucination", "timeout", "none" (null if pass).
+*   `generation_time_ms` (integer): Time taken to generate code.
+*   `execution_time_ms` (integer): Time taken to run tests.
+*   `seed` (integer): Random seed used for generation (fixed at 42).
+*   `temperature` (float): Temperature used for generation (fixed at 0.0).
 
-### Generation
-- **generation_id**: Unique identifier
-- **prompt_id**: Foreign key to Prompt
-- **model_name**: StarCoder2-3B (string)
-- **generated_code**: Code output (string)
-- **generation_time_ms**: Time taken (integer)
-- **timeout**: Boolean (True if 30s exceeded)
-- **oom**: Boolean (True if OOM error)
+## 3. Data Flow
 
-### Result
-- **result_id**: Unique identifier
-- **generation_id**: Foreign key to Generation
-- **pass**: Boolean (True if all tests passed)
-- **error_type**: One of `syntax`, `logic`, `hallucination`, `timeout`, `OOM`
-- **test_output**: Raw test output (string)
-- **execution_time_ms**: Time taken (integer)
+1.  **Ingestion**: `Task` records created from `HumanEval` parquet.
+2.  **Perturbation**: `PromptVariant` records created. `similarity_score` calculated. `is_primary` flagged. `selected_rank` recorded.
+3.  **Inference**: `ExecutionResult` records created. `generated_code` stored. `temperature` recorded.
+4.  **Execution**: `execution_status` and `error_type` updated in `ExecutionResult`.
+5.  **Analysis**: Aggregations performed on `ExecutionResult` joined with `PromptVariant` and `Task`.
 
-### Analysis Output
-- **analysis_id**: Unique identifier
-- **metric_name**: e.g., `pass@1_original`, `pass@1_synonym`
-- **value**: Numeric result (float)
-- **p_value**: Statistical p-value (float, if applicable)
-- **corrected_p_value**: Bonferroni-corrected p-value (float)
-- **threshold**: Semantic similarity threshold used (float)
+## 4. File Formats
 
-## File Formats
-
-### Raw Data
-- **Format**: Parquet
-- **Location**: `data/raw/humaneval.parquet`
-- **Checksum**: SHA-256 recorded in `state/`
-
-### Processed Data
-- **Format**: CSV
-- **Location**: `data/processed/perturbed_prompts.csv`, `data/processed/inference_results.csv`
-- **Encoding**: UTF-8
-
-### Results
-- **Format**: CSV/JSON
-- **Location**: `data/results/analysis_results.csv`, `data/results/sensitivity_report.json`
-
-## Data Flow
-
-1. **Ingestion**: Download HumanEval parquet → `data/raw/`
-2. **Perturbation**: Generate variants → `data/processed/perturbed_prompts.csv`
-3. **Inference**: Run model → `data/processed/inference_results.csv`
-4. **Execution**: Run tests → `data/processed/results.csv`
-5. **Analysis**: Compute statistics → `data/results/analysis_results.csv`
+*   **Raw Inputs**: Parquet (HumanEval).
+*   **Intermediate**: JSONL (PromptVariants with raw scores).
+*   **Final Output**: CSV (ExecutionResults for analysis).
+*   **Logs**: JSON (Error logs, OOM events, timeouts).

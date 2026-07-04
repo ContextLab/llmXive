@@ -2,100 +2,80 @@
 
 ## Prerequisites
 
-- Python 3.11+
-- Docker (for sandboxed execution)
-- Git
-- 14 GB disk space, 7 GB RAM
+*   Python 3.11+
+*   7 GB+ RAM available
+*   Git
+*   Access to HuggingFace Hub (no token required for public datasets)
 
 ## Installation
 
-1. **Clone the repository**
-   ```bash
-   git clone <repo-url>
-   cd projects/PROJ-090-evaluating-the-robustness-of-llm-generat
-   ```
-
-2. **Install dependencies**
-   ```bash
-   python -m venv venv
-   source venv/bin/activate
-   pip install -r requirements.txt
-   ```
-
-3. **Verify Docker**
-   ```bash
-   docker run --rm hello-world
-   ```
+1.  **Clone the repository** and navigate to the project directory.
+2.  **Create a virtual environment**:
+    ```bash
+    python -m venv venv
+    source venv/bin/activate  # On Windows: venv\Scripts\activate
+    ```
+3.  **Install dependencies**:
+    ```bash
+    pip install -r requirements.txt
+    ```
+    *Note: `requirements.txt` pins `bitsandbytes` to a CPU-compatible version and `transformers`.*
 
 ## Running the Pipeline
 
-### Step 1: Download Data
-```bash
-python code/data/download.py
-```
-- Downloads HumanEval from HuggingFace.
-- Verifies checksum.
-- Outputs: `data/raw/humaneval.parquet`
+The pipeline is executed via `code/main.py`.
 
-### Step 2: Generate Perturbations
+### 1. Download Data
 ```bash
-python code/perturb/generator.py --threshold 0.95
+python code/data/download_humaneval.py
 ```
-- Generates up to 3 variants per task.
-- Validates semantic similarity.
-- Outputs: `data/processed/perturbed_prompts.csv`
+This downloads the HumanEval dataset to `data/raw/humaneval.parquet`.
 
-### Step 3: Run Inference
+### 2. Generate Perturbations
 ```bash
-python code/inference/runner.py --timeout 30 --max-tasks 164
+python code/data/generate_perturbations.py
 ```
-- Loads StarCoder2-3B (4-bit quantized).
-- Generates code for each prompt.
-- Outputs: `data/processed/inference_results.csv`
+Generates perturbed prompts, calculates similarity scores, and saves:
+*   `data/processed/prompt_variants.jsonl` (all candidates)
+*   `data/processed/primary_variants.jsonl` (filtered > 0.95, with fallback logic)
 
-### Step 4: Execute Tests
+### 3. Run Inference & Execution
 ```bash
-python code/execution/sandbox.py --timeout 10
+python code/model/inference.py
 ```
-- Runs generated code in Docker sandbox.
-- Captures pass/fail results.
-- Outputs: `data/processed/results.csv`
+*   Loads StarCoder2-3B (4-bit quantized).
+*   Runs generation with 30s timeout, fixed seed (42), and temperature=0.
+*   Executes code in sandbox with 10s timeout.
+*   Outputs: `data/results/execution_log.jsonl`.
 
-### Step 5: Statistical Analysis
+### 4. Statistical Analysis
 ```bash
 python code/analysis/statistics.py
-python code/analysis/sensitivity.py
 ```
-- Computes pass@1, McNemar's test, Mixed-Effects model.
-- Runs sensitivity analysis.
-- Outputs: `data/results/analysis_results.csv`, `data/results/sensitivity_report.json`
+*   Computes pass@1 rates.
+*   Runs McNemar's test with Bonferroni correction (with power contingency).
+*   Runs Mixed-Effects Logistic Regression.
+*   Performs sensitivity analysis.
+*   Outputs: `data/results/analysis_report.csv` and `data/results/figures/`.
 
-## Testing
+### 5. Error Classification
+```bash
+python code/analysis/error_classifier.py
+```
+*   Samples failures.
+*   Classifies into syntax/logic/hallucination.
+*   Outputs: `data/results/error_classification.csv`.
 
-### Unit Tests
+## Verification
+
+To verify the setup without running the full heavy inference:
 ```bash
 pytest tests/unit/
 ```
-
-### Integration Tests
-```bash
-pytest tests/integration/
-```
-
-### Contract Tests (Schema Validation)
-```bash
-pytest tests/contract/
-```
-
-## Reproducibility
-
-- All random seeds are pinned in `code/utils/config.py`.
-- Dependencies are pinned in `requirements.txt`.
-- Data checksums are recorded in `state/`.
-- Re-run the pipeline with `./run_pipeline.sh` for full reproducibility.
+This tests the perturbation logic, sandbox timeout handling, and **contract schema validation**.
 
 ## Troubleshooting
 
-- **OOM Errors**: Reduce `--max-tasks` or increase swap space.
-- **Timeouts**: Check Docker container resource limits.
-- **Semantic Similarity Failures**: Adjust `--threshold` (default 0.95).
+*   **OOM Errors**: If you encounter OOM, ensure no other heavy processes are running. The model is 4-bit quantized; if issues persist, reduce the batch size in `code/model/inference.py`.
+*   **Timeouts**: If the 30s generation limit is too strict for your hardware, increase `GEN_TIMEOUT` in `config.py`, but be aware of the 6-hour CI limit.
+*   **Network**: Ensure HuggingFace Hub is accessible.

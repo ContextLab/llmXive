@@ -1,0 +1,46 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "PromptVariant"
+description: "Schema for a single prompt variant (original or perturbed) used in the robustness study."
+type: "object"
+properties:
+  variant_id:
+    type: "string"
+    description: "Unique identifier for the variant (e.g., 'HumanEval/0_synonym_1')."
+  task_id:
+    type: "string"
+    description: "Foreign key referencing the parent Task ID."
+  variant_type:
+    type: "string"
+    description: "Type of perturbation applied."
+    enum:
+      - "original"
+      - "synonym"
+      - "typo"
+      - "rephrase"
+  prompt_text:
+    type: "string"
+    description: "The full text of the prompt sent to the model."
+  similarity_score:
+    type: "number"
+    description: "Cosine similarity score to the canonical prompt. Only present for non-original variants."
+    minimum: 0.0
+    maximum: 1.0
+  is_primary:
+    type: "boolean"
+    description: "True if the variant passed the semantic similarity filter (> 0.95 or fallback > 0.90) and is included in primary analysis."
+  raw_similarity_score:
+    type: "number"
+    description: "The raw similarity score before any filtering, used for sensitivity analysis."
+    minimum: 0.0
+    maximum: 1.0
+  selected_rank:
+    type: "integer"
+    description: "Rank of this candidate among generated candidates (1 = best)."
+required:
+  - variant_id
+  - task_id
+  - variant_type
+  - prompt_text
+  - is_primary
+  - raw_similarity_score
+  - selected_rank

@@ -51,6 +51,9 @@ properties:
   execution_time_ms:
     type: "integer"
     description: "Time taken for test execution in milliseconds"
+  temperature:
+    type: "number"
+    description: "Temperature used for generation (fixed at 0.0)."
 required:
   - generation_id
   - prompt_id
@@ -59,4 +62,5 @@ required:
   - generated_code
   - pass
   - error_type
+  - temperature
 additionalProperties: false

@@ -1,4 +1,4 @@
-resolved_at: '2026-07-03T03:42:15.870858+00:00'
+resolved_at: '2026-07-04T04:15:44.951031+00:00'
 datasets:
 - intent: HumanEval
   status: verified
@@ -45,23 +45,23 @@ datasets:
     source: huggingface
     status: verified
     format: jsonl
-  - url: https://figshare.com/articles/media/hges/32887568
+  - url: https://figshare.com/articles/media/Call_08132728112_Department_of_Nursing_Sciences_Lagos_State_University_Ikeja_Admission_Form_2026_2027_Post_Utme_Application_Is_Out_CALL_08132728112_Dr_Mrs_Sarah_for_admission_process_into_the_school_/32898755
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/media/Call_08132728112_Baptist_College_of_Nursing_Sciences_Saki_Oyo_State_Admission_Form_2026_2027_Post_Utme_Application_Is_Out_CALL_08132728112_Dr_Mrs_Sarah_for_admission_process_into_the_school/32887562
+  - url: https://figshare.com/articles/online_resource/Pan-Atlantic_University_Lagos_2026_2027_Postgraduate_Form_07040964654_Dr_Mrs_Faith_Admissions_are_now_ongoing_for_the_2026_2027_academic_session_Interested_candidates_07040964654_for_Post_UTME_Undergraduate_Form_JUPEB_Form_IJMB_Form_Masters/32898752
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/media/Call_08132728112_College_of_Nursing_Sciences_Eleyele_Ibadan_Admission_Form_2026_2027_Post_Utme_Application_Is_Out_CALL_08132728112_Dr_Mrs_Sarah_for_admission_process_into_the_school/32887559
+  - url: https://figshare.com/articles/media/Call_08132728112_College_of_Nursing_Sciences_Igando_Lagos_State_Admission_Form_2026_2027_Post_Utme_Application_Is_Out_CALL_08132728112_Dr_Mrs_Sarah_for_admission_process_into_the_school_/32898746
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/H_pylori/32887547
+  - url: https://acs.figshare.com/articles/journal_contribution/Y_OTf_sub_3_sub_Catalyzed_Formal_3_2_Cycloadditions_of_Donor_Acceptor_Cyclopropanes_with_KSCN_under_Mechanochemical_Conditions/32898749
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/media/Call_08132728112_Department_of_Nursing_Sciences_University_of_Ibadan_Admission_Form_2026_2027_Post_Utme_Application_Is_Out_CALL_08132728112_Dr_Mrs_Sarah_for_admission_process_into_the_school/32887556
+  - url: https://figshare.com/articles/dataset/Ajayi_Crowther_University_2026_2027_Postgraduate_Form_07040964654_Dr_Mrs_Faith_Admissions_are_now_ongoing_for_the_2026_2027_academic_session_Interested_candidates_07040964654_for_Post_UTME_Undergraduate_Form_JUPEB_Form_IJMB_Form_Masters_For/32898740
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -85,23 +85,23 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/preprint/Benchmark_Design_for_Real-Time_Machine_Learning_Principles_Practices_and_the_Prevention_of_Benchmark_Gaming/32873441/1
+  - url: https://zenodo.org/records/21074777
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/preprint/Benchmark_Design_for_Real-Time_Machine_Learning_Principles_Practices_and_the_Prevention_of_Benchmark_Gaming/32873441
+  - url: https://zenodo.org/records/21074777
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://arxiv.org/abs/2604.22659
+  - url: https://zenodo.org/records/20766480
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://arxiv.org/abs/2607.01953
+  - url: https://zenodo.org/records/20766480
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://arxiv.org/abs/2607.01855
+  - url: https://zenodo.org/records/21154221
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -150,23 +150,23 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://figshare.com/articles/media/Call_08132728112_College_of_Nursing_Sciences_Muslim_Medical_Foundation_Saki_Admission_Form_2026_2027_Post_Utme_Application_Is_Out_CALL_08132728112_Dr_Mrs_Sarah_for_admission_process_into_the_school/32887571
+  - url: https://figshare.com/articles/poster/Covenant_University_Ota_2026_2027_Postgraduate_Form_07040964654_Dr_Mrs_Faith_Admissions_are_now_ongoing_for_the_2026_2027_academic_session_Interested_candidates_07040964654_for_Post_UTME_Undergraduate_Form_JUPEB_Form_IJMB_Form_Masters_Form_/32898758
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/media/hges/32887568
+  - url: https://figshare.com/articles/media/Call_08132728112_Department_of_Nursing_Sciences_Lagos_State_University_Ikeja_Admission_Form_2026_2027_Post_Utme_Application_Is_Out_CALL_08132728112_Dr_Mrs_Sarah_for_admission_process_into_the_school_/32898755
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/media/Call_08132728112_Baptist_College_of_Nursing_Sciences_Saki_Oyo_State_Admission_Form_2026_2027_Post_Utme_Application_Is_Out_CALL_08132728112_Dr_Mrs_Sarah_for_admission_process_into_the_school/32887562
+  - url: https://figshare.com/articles/online_resource/Pan-Atlantic_University_Lagos_2026_2027_Postgraduate_Form_07040964654_Dr_Mrs_Faith_Admissions_are_now_ongoing_for_the_2026_2027_academic_session_Interested_candidates_07040964654_for_Post_UTME_Undergraduate_Form_JUPEB_Form_IJMB_Form_Masters/32898752
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/media/Call_08132728112_College_of_Nursing_Sciences_Eleyele_Ibadan_Admission_Form_2026_2027_Post_Utme_Application_Is_Out_CALL_08132728112_Dr_Mrs_Sarah_for_admission_process_into_the_school/32887559
+  - url: https://figshare.com/articles/media/Call_08132728112_College_of_Nursing_Sciences_Igando_Lagos_State_Admission_Form_2026_2027_Post_Utme_Application_Is_Out_CALL_08132728112_Dr_Mrs_Sarah_for_admission_process_into_the_school_/32898746
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/H_pylori/32887547
+  - url: https://acs.figshare.com/articles/journal_contribution/Y_OTf_sub_3_sub_Catalyzed_Formal_3_2_Cycloadditions_of_Donor_Acceptor_Cyclopropanes_with_KSCN_under_Mechanochemical_Conditions/32898749
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -190,23 +190,23 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21147895
+  - url: https://zenodo.org/records/21176288
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21176288
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21154451
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21154451
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/21147895
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21064993
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21064993
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21064413
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
