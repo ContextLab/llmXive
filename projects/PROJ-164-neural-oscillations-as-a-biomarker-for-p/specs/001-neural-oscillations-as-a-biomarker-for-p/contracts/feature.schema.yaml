@@ -1,0 +1,38 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Feature Vector Schema"
+type: "object"
+properties:
+  subject_id:
+    type: "string"
+    description: "Unique identifier for the subject"
+  band:
+    type: "string"
+    enum:
+      - "delta"
+      - "theta"
+      - "alpha"
+      - "beta"
+      - "gamma"
+    description: "Frequency band"
+  metric_type:
+    type: "string"
+    enum:
+      - "power"
+      - "plv"
+      - "wpli"
+    description: "Type of metric extracted"
+  value:
+    type: "number"
+    description: "Aggregated metric value"
+  source_mode:
+    type: "string"
+    enum:
+      - "primary"
+      - "fallback"
+    description: "Whether data is from real or synthetic source"
+required:
+  - subject_id
+  - band
+  - metric_type
+  - value
+  - source_mode

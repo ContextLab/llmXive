@@ -1,57 +1,72 @@
 # Data Model: Neural Oscillations as a Biomarker for Predicting Response to Transcranial Direct Current Stimulation
 
-## 1. Overview
+## Overview
 
-This document defines the data structures used throughout the pipeline. All data flows from `raw` (downloaded) to `processed` (cleaned/extracted) to `models` (trained).
+This document defines the data structures used throughout the pipeline, ensuring compatibility between ingestion, preprocessing, feature extraction, and modeling stages. The model supports both **Primary Mode** (real paired data) and **Fallback Mode** (synthetic targets).
 
-## 2. Entity Definitions
+## Core Entities
 
-### 2.1 EEG Epoch
-Represents a short-duration window of filtered EEG data.
-*   **subject_id**: Unique identifier for the participant.
-*   **condition**: `rest` or `task`.
-*   **channel**: Channel name (e.g., `C3`, `C4`, `Fz`).
-*   **time**: Timestamp relative to epoch start (seconds).
-*   **voltage**: Amplitude in microvolts (µV).
+### 1. Raw EEG Recordings
+Represents the raw input data from PhysioNet.
+-   **Format**: Parquet (converted to MNE `Raw` objects in memory).
+-   **Schema**:
+    -   `subject_id`: String (Unique identifier).
+    -   `channel`: String (e.g., "C3", "C4", "Cz").
+    -   `time`: Float64 (Timestamp in seconds).
+    -   `voltage`: Float64 (Microvolts).
+    -   `condition`: String (e.g., "rest", "move", "imagery").
 
-### 2.2 Feature Vector
+### 2. Preprocessed EEG Epochs
+Derived data after filtering and re-referencing.
+-   **Format**: MNE `Epochs` object (serialized to `.fif` or kept in memory for small batches).
+-   **Schema**:
+    -   `subject_id`: String.
+    -   `epoch_id`: Integer.
+    -   `time`: Float64 (Relative to event onset, e.g., -1.0 to 1.0s).
+    -   `channel`: String.
+    -   `voltage`: Float64 (Filtered, re-referenced).
+    -   `bad_channel_flag`: Boolean (True if channel was rejected).
+
+### 3. Feature Vector
 Aggregated metrics per subject.
-*   **subject_id**: Unique identifier.
-*   **mode**: `positive_control` (synthetic with injected signal) or `structural_validation` (random noise).
-*   **power_delta**: Mean power in the low-frequency band.
-*   **power_theta**: Mean power in a low-frequency band.
-*   **power_alpha**: Mean power in –13 Hz band.
-*   **power_beta**: Mean power in the beta frequency band.
-*   **power_gamma**: Mean power in –45 Hz band.
-*   **plv_c3_c4**: Phase Locking Value between C3 and C4 (Motor ROI).
-*   **plv_c3_cz**: Phase Locking Value between C3 and Cz (Motor ROI).
-*   **plv_c4_cz**: Phase Locking Value between C4 and Cz (Motor ROI).
-*   **plv_mean_global**: Mean Phase Locking Value across all pairs.
-*   **wpli_c3_c4**: Weighted Phase Lag Index between C3 and C4 (Motor ROI).
-*   **wpli_mean_global**: Mean Weighted Phase Lag Index across all pairs.
-*   **tdcs_response**: Percentage change in motor score (Synthetic: injected signal + noise).
-*   **injected_signal_strength**: Known correlation coefficient used to generate target (e.g., a small positive magnitude).
+-   **Format**: Pandas DataFrame (Row = Subject, Columns = Features).
+-   **Schema**:
+    -   `subject_id`: String.
+    -   `mode`: Enum (`primary`, `fallback`).
+    -   `power_delta`: Float64.
+    -   `power_theta`: Float64.
+    -   `power_alpha`: Float64.
+    -   `power_beta`: Float64.
+    -   `power_gamma`: Float64.
+    -   `plv_alpha`: Float64 (Average PLV across selected channels).
+    -   `wpli_beta`: Float64 (Average wPLI across selected channels).
+    -   `tDCS_response`: Float64 (Percentage change in motor score).
+        -   *Primary Mode*: Real value from dataset.
+        -   *Fallback Mode*: Synthetic value (mean=0, noise=0.5, decoupled).
 
-### 2.3 Model Output
-*   **model_type**: `ridge`.
-*   **alpha**: Regularization parameter used.
-*   **r2_adjusted**: Adjusted R-squared value.
-*   **p_permutation**: P-value from permutation test.
-*   **fdr_corrected_p**: P-value after FDR correction.
-*   **status**: `valid` (detected injected signal) or `pipeline_broken` (failed to detect signal).
-*   **stability_variance**: Variance in significance status across sensitivity sweep.
+### 4. Model Output
+Results from the regression and validation steps.
+-   **Format**: JSON / YAML.
+-   **Schema**:
+    -   `run_id`: String (UUID).
+    -   `mode`: Enum (`primary`, `fallback`).
+    -   `adjusted_r2`: Float64.
+    -   `permutation_p_value`: Float64.
+    -   `coefficients`: Dictionary (Feature name -> Weight).
+    -   `fdr_corrected_p_values`: Dictionary (Feature name -> Adjusted p-value).
+    -   `sensitivity_sweep`: List of objects (threshold, stability_metric).
+    -   `flags`: List of Strings (e.g., "fallback_mode_active", "primary_question_abandoned").
 
-## 3. Data Flow
+## Data Flow
 
-1.  **Ingestion**: Raw CSV/Parquet files downloaded to `data/raw`.
-2.  **Preprocessing**: Filtered, re-referenced, epoched. Output: `data/processed/epochs.fif` (MNE format) or `data/processed/epochs.csv`.
-3.  **Feature Extraction**: Spectral/Connectivity features computed (ROI specific). Output: `data/processed/features.csv`.
-4.  **Modeling**: Ridge regression fit. Output: `models/ridge_model.pkl` and `data/processed/model_metrics.json`.
-5.  **Validation**: Permutation/FDR results. Output: `data/processed/validation_report.csv`.
+1.  **Ingestion**: Raw Parquet -> `subject_id`, `channel`, `time`, `voltage`.
+2.  **Preprocessing**: Raw -> Filtered (1-45Hz) -> Re-referenced (CAR) -> Epochs.
+3.  **Feature Extraction**: Epochs -> Spectral Power (Welch) + Connectivity (PLV/wPLI) -> Feature Vector.
+4.  **Modeling**: Feature Vector -> Ridge Regression -> Model Output.
+5.  **Validation**: Model Output -> Permutation Test + FDR + Sensitivity Analysis -> Final Report.
 
-## 4. Constraints
+## Memory Management Strategy
 
-*   **Data Integrity**: Raw files never modified. Checksums recorded (SHA-256).
-*   **Memory**: The feature matrix must fit in available system RAM. If `n_subjects * n_features` > threshold, subsample epochs.
-*   **Privacy**: No PII in `data/processed` or `models/`. Subject IDs are anonymized.
-*   **Synthetic Target**: In Positive Control Mode, `tdcs_response` must be generated with a known `injected_signal_strength` and verified to be decoupled from noise.
+-   **Subsampling**: If the number of epochs per subject exceeds a threshold (configurable, default 50), random epochs are dropped to fit within 7 GB RAM.
+-   **Batching**: Permutation testing is executed in batches to avoid memory spikes.
+-   **Garbage Collection**: Explicit `del` and `gc.collect()` calls after each major stage (Preprocessing, Feature Extraction).

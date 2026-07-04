@@ -1,93 +1,67 @@
 # Quickstart: Neural Oscillations as a Biomarker for Predicting Response to Transcranial Direct Current Stimulation
 
-## 1. Prerequisites
+## Prerequisites
 
-*   Python 3.11+
-*   `pip` (or `conda`)
-*   Internet access (for dataset download)
+-   Python 3.11+
+-   `pip` or `conda`
+-   ~10 GB free disk space (for dataset caching and intermediate files).
+-   Access to the internet (for initial dataset download).
 
-## 2. Installation
+## Installation
 
+1.  **Clone the repository** (if applicable) or navigate to the project root.
+2.  **Create a virtual environment**:
+    ```bash
+    python -m venv venv
+    source venv/bin/activate  # On Windows: venv\Scripts\activate
+    ```
+3.  **Install dependencies**:
+    ```bash
+    pip install -r code/requirements.txt
+    ```
+    *Note: `requirements.txt` pins versions to ensure reproducibility on CPU-only runners.*
+
+## Running the Pipeline
+
+The pipeline automatically detects data pairing and switches modes.
+
+### Step 1: Data Ingestion & Preprocessing
+Download and prepare the data. This step handles the mode switch logic.
 ```bash
-# Clone the repository (placeholder command)
-git clone <repo-url>
-cd <project-root>
-
-# Create virtual environment
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-
-# Install dependencies
-pip install -r requirements.txt
+python code/main.py --stage ingest_preprocess
 ```
-
-**Key Dependencies**:
-*   `mne`: EEG processing
-*   `scikit-learn`: Modeling
-*   `pandas`, `numpy`: Data manipulation
-*   `statsmodels`: Statistics
-*   `pyyaml`: Contract validation
-
-## 3. Running the Pipeline
-
-The pipeline is designed to run end-to-end on a CPU-only environment.
-
-### Step 1: Ingest & Preprocess
-```bash
-python code/01_ingest_preprocess.py
-```
-*   Downloads datasets from verified URLs.
-*   Computes SHA-256 checksums and verifies integrity.
-*   Detects missing paired data; switches to **Positive Control Mode**.
-*   Generates synthetic targets with **injected signal**.
-*   Output: `data/processed/epochs.csv` (or `.fif`).
+-   **Expected Output**:
+    -   If paired data found: "Primary Mode Active. Proceeding with analysis."
+    -   If unpaired: "Warning: No paired data found. Switching to Fallback Mode. Primary research question ABANDONED."
 
 ### Step 2: Feature Extraction
+Compute spectral and connectivity features.
 ```bash
-python code/02_feature_extraction.py
+python code/main.py --stage extract_features
 ```
-*   Computes spectral power and **ROI-specific connectivity** (C3-C4, etc.).
-*   Output: `data/processed/features.csv`.
+-   **Expected Output**: `data/processed/feature_matrix.csv` (or parquet).
 
-### Step 3: Modeling
+### Step 3: Modeling & Validation
+Fit the Ridge regression model and run validation (permutation, FDR, sensitivity).
 ```bash
-python code/03_modeling.py
+python code/main.py --stage model_validate
 ```
-*   Fits Ridge Regression with 5-fold CV.
-*   In Positive Control Mode: Verifies detection of injected signal.
-*   Output: `models/ridge_model.pkl`, `data/processed/model_metrics.json`.
+-   **Expected Output**: `reports/validation_report.json` containing R², p-values, and sensitivity tables.
 
-### Step 4: Validation
+### Step 4: Generate Reports
+Compile the final analysis report.
 ```bash
-python code/04_validation.py
-```
-*   Runs 1,000 permutations.
-*   Applies FDR correction.
-*   Performs sensitivity analysis (p ∈ {0.01, 0.05, 0.1}, R² ∈ {0.2, 0.3, 0.4}).
-*   Calculates `stability_variance`.
-*   Output: `data/processed/validation_report.csv`.
-
-### Step 5: Report Generation
-```bash
-python code/05_report.py
-```
-*   Generates final summary table and plots.
-
-## 4. Verification
-
-To verify the pipeline on a small subset:
-
-```bash
-# Run unit tests
-pytest tests/ -v
-
-# Run integration test (Positive Control mode)
-python code/03_modeling.py --mode positive_control --test
+python code/main.py --stage generate_report
 ```
 
-## 5. Troubleshooting
+## Verifying the Run
 
-*   **Memory Error**: Reduce `--epochs-per-subject` in `config.py` or enable `--batch-processing`.
-*   **Missing Data**: If the dataset lacks pairing, the system will automatically switch to **Positive Control Mode** and log a warning. No manual intervention required.
-*   **CUDA Error**: Ensure no GPU-specific flags are set. The pipeline is CPU-only by design.
-*   **Checksum Mismatch**: If raw data checksums do not match the manifest, the pipeline will halt. Re-download data.
+1.  **Check Logs**: Look for the `mode` flag in `code/logs/pipeline.log`.
+2.  **Validate Schema**: Ensure `data/processed/feature_matrix.csv` matches `contracts/dataset.schema.yaml`.
+3.  **Confirm Fallback Mode**: If the system entered Fallback Mode, verify that `reports/validation_report.json` contains `"flags": ["fallback_mode_active", "primary_question_abandoned"]` and that no biological claims are made.
+
+## Troubleshooting
+
+-   **Memory Error**: If the process crashes with OOM, reduce the `max_epochs_per_subject` in `code/config.py`.
+-   **Missing Data**: If the download fails, verify network access to the HuggingFace URLs listed in `research.md`.
+-   **Schema Mismatch**: Ensure the input Parquet files match the expected column names defined in the Data Model.
