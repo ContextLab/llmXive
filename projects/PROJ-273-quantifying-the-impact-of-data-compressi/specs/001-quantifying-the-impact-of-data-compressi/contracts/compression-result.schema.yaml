@@ -1,0 +1,57 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "CompressionArtifact"
+description: "Schema for the result of applying a compression method to a waveform."
+type: "object"
+required:
+  - source_event_id
+  - method
+  - level
+  - file_size_original
+  - file_size_compressed
+  - reconstruction_mse
+  - snr_degradation_db
+  - checksum
+properties:
+  source_event_id:
+    type: "string"
+    description: "ID of the source GW event."
+  method:
+    type: "string"
+    enum:
+      - "gzip"
+      - "lz4"
+      - "bzip2"
+      - "jpeg2000"
+      - "quantize_16bit"
+      - "quantize_8bit"
+      - "quantize_4bit"
+    description: "Compression method applied."
+  level:
+    type: "integer"
+    description: "Compression level (1-9) or bit-depth."
+  file_size_original:
+    type: "integer"
+    description: "Size of the original file in bytes."
+  file_size_compressed:
+    type: "integer"
+    description: "Size of the compressed file in bytes."
+  compression_ratio:
+    type: "number"
+    description: "Ratio of original to compressed size."
+  reconstruction_mse:
+    type: "number"
+    description: "Mean Squared Error between original and decompressed data."
+  snr_degradation_db:
+    type: "number"
+    description: "SNR degradation in decibels (negative values indicate loss)."
+  checksum:
+    type: "string"
+    pattern: "^[a-f0-9]{64}$"
+    description: "SHA-256 checksum of the compressed file."
+  acceptable:
+    type: "boolean"
+    description: "Whether SNR degradation is within the acceptable threshold (≤5%)."
+    default: false
+  is_real_event:
+    type: "boolean"
+    description: "True if this is a real GWOSC event; False if simulated injection."

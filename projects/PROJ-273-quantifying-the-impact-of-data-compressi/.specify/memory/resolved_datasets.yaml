@@ -1,0 +1,447 @@
+resolved_at: '2026-07-04T23:05:25.456221+00:00'
+datasets:
+- intent: GWOSC
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/dataset/Dados_Coletados_para_a_Pesquisa_de_An_lise_de_Acessibilidade_em_Jogos_Digitais_Independentes/32900768
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Dataset_supporting_the_study_Knowledge_attitudes_practices_and_perceptions_related_to_dental_caries_among_Peruvian_first-division_soccer_players_a_cross-sectional_study_/32900639
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/2026_2027_DIRECT_ENTRY_FORM_Nile_University_of_Nigeria_Abuja_Admission_is_out_officially_Call_ON_07036366909_DR_MRS_GRACE_to_apply/32900786
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/2026_2027_DIRECT_ENTRY_FORM_Afe_Babalola_University_Ado-EkitiAdmission_is_out_officially_Call_ON_07036366909_DR_MRS_GRACE_to_apply/32900783
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/2026_2027_DIRECT_ENTRY_FORM_Caleb_University_Lagos_Admission_is_out_officially_Call_ON_07036366909_DR_MRS_GRACE_to_apply/32900780
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5191361
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20418856
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20918160
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10995271
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16277785
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/4x2ht/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21183235
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21183235
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21109217
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21109217
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: LAL-format
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/dataset/Dados_Coletados_para_a_Pesquisa_de_An_lise_de_Acessibilidade_em_Jogos_Digitais_Independentes/32900768
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Dataset_supporting_the_study_Knowledge_attitudes_practices_and_perceptions_related_to_dental_caries_among_Peruvian_first-division_soccer_players_a_cross-sectional_study_/32900639
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/2026_2027_DIRECT_ENTRY_FORM_Nile_University_of_Nigeria_Abuja_Admission_is_out_officially_Call_ON_07036366909_DR_MRS_GRACE_to_apply/32900786
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/2026_2027_DIRECT_ENTRY_FORM_Afe_Babalola_University_Ado-EkitiAdmission_is_out_officially_Call_ON_07036366909_DR_MRS_GRACE_to_apply/32900783
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/2026_2027_DIRECT_ENTRY_FORM_Caleb_University_Lagos_Admission_is_out_officially_Call_ON_07036366909_DR_MRS_GRACE_to_apply/32900780
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.biodiversitylibrary.org/part/399695
+    source: zenodo
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://www.biodiversitylibrary.org/part/384534
+    source: zenodo
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://www.biodiversitylibrary.org/part/384628
+    source: zenodo
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://www.biodiversitylibrary.org/part/399708
+    source: zenodo
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://www.biodiversitylibrary.org/part/384977
+    source: zenodo
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.98sf7m0tr
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.5281/zenodo.19489893
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: ReadTimeout: HTTPSConnectionPool(host=''zenodo.org'',
+      port=443): Read timed out. (read timeout=20.0)'
+  - url: https://doi.org/10.5281/zenodo.19529024
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: ReadTimeout: HTTPSConnectionPool(host=''zenodo.org'',
+      port=443): Read timed out. (read timeout=20.0)'
+  - url: https://doi.org/10.5281/zenodo.19494255
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: ReadTimeout: HTTPSConnectionPool(host=''zenodo.org'',
+      port=443): Read timed out. (read timeout=20.0)'
+  - url: https://zenodo.org/records/19489894
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: LALInference
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/preprint/Why_Can_High-Dimensional_Heterogeneity_Be_Reduced_in_Economics_The_Subject_Matter_of_Economics_and_a_Causal_Dimensionality_Reduction_Principle/32900795
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Dados_Coletados_para_a_Pesquisa_de_An_lise_de_Acessibilidade_em_Jogos_Digitais_Independentes/32900768
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Dataset_supporting_the_study_Knowledge_attitudes_practices_and_perceptions_related_to_dental_caries_among_Peruvian_first-division_soccer_players_a_cross-sectional_study_/32900639
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/2026_2027_DIRECT_ENTRY_FORM_Nile_University_of_Nigeria_Abuja_Admission_is_out_officially_Call_ON_07036366909_DR_MRS_GRACE_to_apply/32900786
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/2026_2027_DIRECT_ENTRY_FORM_Afe_Babalola_University_Ado-EkitiAdmission_is_out_officially_Call_ON_07036366909_DR_MRS_GRACE_to_apply/32900783
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4057131
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4751656
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19069429
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17608173
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17539180
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19069429
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19069429
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.swinburne.edu.au/articles/journal_contribution/Classification_methods_for_noise_transients_in_advanced_gravitational-wave_detectors/26245277/1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.swinburne.edu.au/articles/journal_contribution/Classification_methods_for_noise_transients_in_advanced_gravitational-wave_detectors/26245277
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.swinburne.edu.au/articles/journal_contribution/Classification_methods_for_noise_transients_in_advanced_gravitational-wave_detectors_II_Performance_tests_on_Advanced_LIGO_data/26245274/1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: CPU-mode
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/davanstrien/model-cards-entities-1k-cpu/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.5
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/davanstrien/model-cards-entities-1k-cpu/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/preprint/Why_Can_High-Dimensional_Heterogeneity_Be_Reduced_in_Economics_The_Subject_Matter_of_Economics_and_a_Causal_Dimensionality_Reduction_Principle/32900795
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Dados_Coletados_para_a_Pesquisa_de_An_lise_de_Acessibilidade_em_Jogos_Digitais_Independentes/32900768
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Dataset_supporting_the_study_Knowledge_attitudes_practices_and_perceptions_related_to_dental_caries_among_Peruvian_first-division_soccer_players_a_cross-sectional_study_/32900639
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/2026_2027_DIRECT_ENTRY_FORM_Nile_University_of_Nigeria_Abuja_Admission_is_out_officially_Call_ON_07036366909_DR_MRS_GRACE_to_apply/32900786
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/2026_2027_DIRECT_ENTRY_FORM_Afe_Babalola_University_Ado-EkitiAdmission_is_out_officially_Call_ON_07036366909_DR_MRS_GRACE_to_apply/32900783
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10617848
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.journals.uchicago.edu/doi/10.1086/479548
+    source: zenodo
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://www.jstor.org/stable/3355400?origin=crossref
+    source: zenodo
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://www.journals.uchicago.edu/doi/10.1086/480112
+    source: zenodo
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://www.jstor.org/stable/3354623?origin=crossref
+    source: zenodo
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://zenodo.org/records/21198051
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21198051
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21193755
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21193755
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17071173
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: ANOVA
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/P2SAMAPA/p2-etf-functional-anova-results/resolve/main/functional_anova_2026-05-19.json
+    source: huggingface
+    format: json
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 16586
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/P2SAMAPA/p2-etf-functional-anova-results/resolve/main/functional_anova_2026-05-19.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://figshare.com/articles/preprint/Why_Can_High-Dimensional_Heterogeneity_Be_Reduced_in_Economics_The_Subject_Matter_of_Economics_and_a_Causal_Dimensionality_Reduction_Principle/32900795
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Dados_Coletados_para_a_Pesquisa_de_An_lise_de_Acessibilidade_em_Jogos_Digitais_Independentes/32900768
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Dataset_supporting_the_study_Knowledge_attitudes_practices_and_perceptions_related_to_dental_caries_among_Peruvian_first-division_soccer_players_a_cross-sectional_study_/32900639
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/2026_2027_DIRECT_ENTRY_FORM_Nile_University_of_Nigeria_Abuja_Admission_is_out_officially_Call_ON_07036366909_DR_MRS_GRACE_to_apply/32900786
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/2026_2027_DIRECT_ENTRY_FORM_Afe_Babalola_University_Ado-EkitiAdmission_is_out_officially_Call_ON_07036366909_DR_MRS_GRACE_to_apply/32900783
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10437571
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/1255322
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15804920
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10011805
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14242875
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/r6egn/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/7qus9/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21195598
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21195598
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/agcpx/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: LZ4
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/preprint/Why_Can_High-Dimensional_Heterogeneity_Be_Reduced_in_Economics_The_Subject_Matter_of_Economics_and_a_Causal_Dimensionality_Reduction_Principle/32900795
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Dados_Coletados_para_a_Pesquisa_de_An_lise_de_Acessibilidade_em_Jogos_Digitais_Independentes/32900768
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Dataset_supporting_the_study_Knowledge_attitudes_practices_and_perceptions_related_to_dental_caries_among_Peruvian_first-division_soccer_players_a_cross-sectional_study_/32900639
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/2026_2027_DIRECT_ENTRY_FORM_Nile_University_of_Nigeria_Abuja_Admission_is_out_officially_Call_ON_07036366909_DR_MRS_GRACE_to_apply/32900786
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/2026_2027_DIRECT_ENTRY_FORM_Afe_Babalola_University_Ado-EkitiAdmission_is_out_officially_Call_ON_07036366909_DR_MRS_GRACE_to_apply/32900783
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/11925160
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5888864
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6580480
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20632664
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6584753
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21150065
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21150065
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21071802
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21071802
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21009454
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: JPEG2000
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/chitradrishti/JPEG2000/resolve/main/jpeg2000
+      database release.zip
+    source: huggingface
+    format: zip
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/danjacobellis/imagenet_224_mpq2_jpeg2000/resolve/main/data/validation-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/chitradrishti/JPEG2000/resolve/main/jpeg2000
+      database release.zip
+    source: huggingface
+    status: verified
+    format: zip
+  - url: https://huggingface.co/datasets/danjacobellis/imagenet_224_mpq2_jpeg2000/resolve/main/data/validation-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/preprint/Why_Can_High-Dimensional_Heterogeneity_Be_Reduced_in_Economics_The_Subject_Matter_of_Economics_and_a_Causal_Dimensionality_Reduction_Principle/32900795
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Dados_Coletados_para_a_Pesquisa_de_An_lise_de_Acessibilidade_em_Jogos_Digitais_Independentes/32900768
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
