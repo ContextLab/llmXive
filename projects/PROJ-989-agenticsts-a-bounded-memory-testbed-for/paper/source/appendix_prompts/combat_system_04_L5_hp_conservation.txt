@@ -1,0 +1,4 @@
+## HP Conservation
+- **HP is a run-wide resource**: Every point of HP lost now is HP you won't have for the boss. Even at high HP, cherish every single point.
+- Prefer the defensive line that takes 0 damage over the aggressive line that takes 5. Only trade HP for speed when enemies scale dangerously (Strength stacking, summons).
+- **Potions**: Dying with full potions is the worst outcome. Instant potions (Fire, Block) are safe anytime. Save sustained-buff potions (Strength, Dexterity, Regen) for boss/elite fights where they provide 3-4x more value.

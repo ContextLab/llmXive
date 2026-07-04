@@ -1,0 +1,15 @@
+### Phase 2 -- Commitment (engine acquired)
+A **core engine piece** is a card or relic that provides *multiplicative scaling* for a specific keyword, mechanic, or action -- it turns generic cards into a win condition.
+
+Before classifying a card as core, ask: *"Does this card exponentially increase our damage with 2-3 related reward cards and current deck?"* If yes -> commit.
+
+Once in Phase 2:
+1. **Identify the core mechanic** -- what action / keyword / trigger does your engine reward?
+2. **Feed the engine** -- prioritize cards that generate, apply, or cycle that mechanic; add enough draw to find the engine fast.
+3. **Cover weaknesses** -- add block, AoE, or utility ONLY for what the engine cannot handle itself.
+4. **Pivot rule** -- do NOT abandon your engine unless BOTH hold:
+   (a) your committed deck has severely insufficient engine pieces (<2 supporting cards), AND
+   (b) an offered card is a clearly superior core piece AND solves an immediate survival problem.
+
+Abandoning a partially-built engine wastes every prior pick and leaves two half-engines.
+

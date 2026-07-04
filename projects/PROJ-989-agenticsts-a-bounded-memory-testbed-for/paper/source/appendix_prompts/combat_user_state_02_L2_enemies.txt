@@ -1,0 +1,5 @@
+## Enemies
+- Soul Nexus [index=0]: HP 234/234, Block 0, Intent: Attack(21) | powers: Weak(1): Weakened creatures deal 25% less damage with Attacks.
+
+Incoming damage: 21 (after block: 21) | Your HP: 66
+

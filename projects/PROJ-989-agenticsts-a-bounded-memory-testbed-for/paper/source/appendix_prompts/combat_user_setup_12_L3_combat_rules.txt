@@ -1,0 +1,7 @@
+## Combat Rules
+- Only play cards marked [PLAYABLE]. Cards marked [UNPLAYABLE] will fail.
+- Cards show `cost=N` -- you need at least N energy remaining to play them.
+- In `plan`, action order is execution order. Earlier plays change your remaining energy, hand composition, and later card costs.
+- Include potions in your combat plan when useful (they don't cost energy).
+- **Discard effects**: If a card requires discarding (e.g. Survivor), specify with the `"discard"` field. Example: `{"type": "card", "card": "Survivor", "target_index": -1, "discard": "Defend"}`
+- **Target priority**: Kill enemies that scale (Strength-stacking, buffing). Against non-scaling enemies, block every attack to minimize HP loss.

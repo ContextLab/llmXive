@@ -1,0 +1,9 @@
+## Combat Start
+Encounter type: elite
+Act: 3 | Floor: 43
+Enemies: Soul Nexus
+- Soul Nexus [index=0]: HP 234/234, Block 0 | powers: Weak(1): Weakened creatures deal 25% less damage with Attacks.
+
+Player HP: 66/70 | Block: 0 | Energy: 3/3
+Player buffs/debuffs: Dexterity(1): Dexterity improves Block gained from cards.
+

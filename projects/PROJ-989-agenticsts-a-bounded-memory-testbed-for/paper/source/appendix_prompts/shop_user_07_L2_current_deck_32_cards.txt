@@ -1,0 +1,24 @@
+## Current Deck (32 cards)
+  - Leading Strike+(cost=1) x2: Deal 6 damage. Add 2 Shivs into your Hand.
+  - Strike(cost=1) x2: Deal 6 damage.
+  - Byrd Swoop+(cost=0): Deal 18 damage.
+  - Neutralize+[Sown](cost=0): Deal 4 damage. Apply 2 Weak. Gain 1 energy .
+  - Accuracy(cost=1) x2: Shivs deal 4 additional damage.
+  - Footwork+(cost=1): Gain 3 Dexterity.
+  - Infinite Blades(cost=1): At the start of your turn, add 1 Shiv into your Hand.
+  - Phantom Blades(cost=1): Shivs gain Retain. The first Shiv you play each turn deals 9 additional damage.
+  - Serpent Form(cost=3): Whenever you play a card, deal 4 damage to a random enemy.
+  - Well-Laid Plans(cost=1): At the end of your turn, Retain up to 1 card.
+  - Defend(cost=1) x6: Gain 5 Block.
+  - Backflip(cost=1) x3: Gain 5 Block. Draw 2 cards.
+  - Backflip+(cost=1): Gain 8 Block. Draw 2 cards.
+  - Blade of Ink(cost=1): Add 2 Inky Shivs into your Hand.
+  - Cloak and Dagger+(cost=1): Gain 6 Block. Add 2 Shivs into your Hand.
+  - Deflect(cost=0): Gain 4 Block.
+  - Expertise+(cost=1): Draw cards until you have 7 in your Hand.
+  - Knife Trap(cost=2): Play every Shiv in your Exhaust Pile on the enemy.
+  - Piercing Wail(cost=1): ALL enemies lose 6 Strength this turn. Exhaust.
+  - Storm of Steel(cost=1): Discard your Hand. Add 1 Shiv into your Hand for each card discarded.
+  - Survivor(cost=1): Gain 8 Block. Discard 1 card.
+  - Up My Sleeve(cost=2): Add 3 Shivs into your Hand. Reduce this card's cost by 1.
+

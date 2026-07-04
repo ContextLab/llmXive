@@ -1,0 +1,3 @@
+## Relic Synergies
+- **Biiig Hug**: Upon pickup, remove 4 cards from your Deck. Whenever you shuffle your Draw Pile, add a Soot into your Draw Pile.
+

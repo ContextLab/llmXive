@@ -1,0 +1,151 @@
+% ------------------------------------------------------------------------------------
+% AgenticSTS (arXiv version).
+% Compile: pdflatex main && bibtex main && pdflatex main && pdflatex main
+% ------------------------------------------------------------------------------------
+\documentclass[]{fairmeta}
+
+\usepackage{makecell}
+\usepackage{wrapfig}
+\usepackage{tabularx}
+\usepackage{textcomp}
+\IfFileExists{stfloats.sty}{\usepackage{stfloats}}{}
+\usepackage{url}
+\usepackage{verbatim}
+\usepackage{titlesec}
+\usepackage{adjustbox}
+\usepackage{multirow}
+% \usepackage{pifont}  % removed (Type-3 dingbats; unused — see marks below)
+\usepackage[sc]{mathpazo}
+\usepackage{comment}
+\usepackage{amsmath,amssymb}
+\usepackage{colortbl}
+\usepackage[numbers]{natbib}
+\usepackage{color}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage{subcaption}
+\RequirePackage{xspace}
+\makeatletter
+\DeclareRobustCommand\onedot{\futurelet\@let@token\@onedot}
+\def\@onedot{\ifx\@let@token.\else.\null\fi\xspace}
+\def\eg{\emph{e.g}\onedot} \def\Eg{\emph{E.g}\onedot}
+\def\ie{\emph{i.e}\onedot} \def\Ie{\emph{I.e}\onedot}
+\def\cf{\emph{cf}\onedot}  \def\Cf{\emph{Cf}\onedot}
+\def\etc{\emph{etc}\onedot} \def\vs{\emph{vs}\onedot}
+\def\wrt{w.r.t\onedot} \def\etal{\emph{et al}\onedot}
+\makeatother
+\usepackage{xcolor}
+\usepackage{array}
+\usepackage{caption}
+% bbding (METAFONT) + pifont dingbats removed: they embed Type-3 bitmap fonts and
+% the table marks use amssymb-based \yesmark/\nomark/\partmark (scalable Type-1) instead.
+\usepackage{float}
+\renewcommand{\paragraph}[1]{\vspace{1.25mm}\noindent\textbf{#1}}
+\setlength{\abovecaptionskip}{1pt}
+
+% --- Our packages on top of the template ---
+\usepackage{enumitem}
+\usepackage{fvextra}            % VerbatimInput for the 44 prompt exhibits
+\newcolumntype{Y}{>{\raggedright\arraybackslash}X}
+
+% --- Layer colors + prompt-exhibit boxes ---
+\definecolor{LoneFrame}{HTML}{8C6BB1}
+\definecolor{LoneBg}{HTML}{F4F0FA}
+\definecolor{LtwoFrame}{HTML}{2B8CBE}
+\definecolor{LtwoBg}{HTML}{EEF7FB}
+\definecolor{LthreeFrame}{HTML}{31A354}
+\definecolor{LthreeBg}{HTML}{F0F8F0}
+\definecolor{LfourFrame}{HTML}{F16913}
+\definecolor{LfourBg}{HTML}{FFF3E8}
+\definecolor{LfiveFrame}{HTML}{D94801}
+\definecolor{LfiveBg}{HTML}{FFF0E6}
+
+\newcommand{\PromptFileBox}[4]{%
+  \par\nobreak\vspace{1.5pt}%
+  \noindent\colorbox{#2}{\textcolor{#1}{$\blacksquare$}\,{\scriptsize\textbf{#3}}}%
+  \par\nobreak\vspace{0.5pt}%
+  \VerbatimInput[fontsize=\scriptsize,baselinestretch=0.92,breaklines=true,breakanywhere=true,breaksymbolleft={},breaksymbolright={},tabsize=2]{#4}%
+  \vspace{1.5pt}%
+}
+\newcommand{\LoneFile}[2]{\PromptFileBox{LoneFrame}{LoneBg}{$L_1$ --- #1}{#2}}
+\newcommand{\LtwoFile}[2]{\PromptFileBox{LtwoFrame}{LtwoBg}{$L_2$ --- #1}{#2}}
+\newcommand{\LthreeFile}[2]{\PromptFileBox{LthreeFrame}{LthreeBg}{$L_3$ --- #1}{#2}}
+\newcommand{\LfourFile}[2]{\PromptFileBox{LfourFrame}{LfourBg}{$L_4$ --- #1}{#2}}
+\newcommand{\LfiveFile}[2]{\PromptFileBox{LfiveFrame}{LfiveBg}{$L_5$ --- #1}{#2}}
+
+% Unicode characters present in raw prompt logs / section text.
+\DeclareUnicodeCharacter{2192}{$\rightarrow$}
+\DeclareUnicodeCharacter{21B3}{$\hookrightarrow$}
+\DeclareUnicodeCharacter{00D7}{$\times$}
+\DeclareUnicodeCharacter{2248}{$\approx$}
+\DeclareUnicodeCharacter{2014}{---}
+\DeclareUnicodeCharacter{2013}{--}
+\DeclareUnicodeCharacter{2011}{-}
+\DeclareUnicodeCharacter{2019}{'}
+
+% --- Custom macros ---
+\newcommand{\sts}{Slay the Spire 2\xspace}
+\newcommand{\stspad}{Slay the Spire 2\xspace}
+\newcommand{\yesmark}{\textcolor{green!45!black}{\boldmath$\checkmark$\unboldmath}}
+% \partmark is a kernel/titlesec sectioning mark; we never use \part, so overriding is safe.
+\renewcommand{\partmark}{\textcolor{orange!85!black}{$\blacktriangle$}}
+\newcommand{\nomark}{\textcolor{gray}{\textbf{--}}}
+
+% ------------------------------------------------------------------------------------
+\title{AgenticSTS: A Bounded-Memory Testbed for Long-Horizon LLM Agents}
+
+\author[1,2]{Xiangchen Cheng}
+\author[2,3]{Yunwei Jiang}
+\author[1,3,4]{Jianwen Sun}
+\author[1,3,4]{Zizhen Li}
+\author[1]{Chuanhao Li}
+\author[1]{Xiangcheng Cao}
+\author[1]{Yihao Liu}
+\author[3,5]{Fanrui Zhang}
+\author[2]{Li Jin}
+\author[1,\dagger]{Kaipeng Zhang}
+
+\affiliation[1]{Alaya Lab}
+\affiliation[2]{Shanghai Jiao Tong University}
+\affiliation[3]{Shanghai Innovation Institute}
+\affiliation[4]{Nankai University}
+\affiliation[5]{University of Science and Technology of China}
+
+\contribution[\dagger]{Corresponding author}
+
+
+\input{sec/00.abstract}
+\projectpage{\url{https://github.com/AlayaLab/AgenticSTS}}
+\github{\url{https://github.com/AlayaLab/AgenticSTS}}
+\data{\url{https://huggingface.co/datasets/ShandaAI/AgenticSTS-trajectories}}
+\correspondence{\email{kaipeng.zhang@shanda.com}}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\input{sec/01.intro}
+\input{sec/02.relatedwork}
+\input{sec/03.testbed}
+\input{sec/04.architecture}
+\input{sec/05.methodology}
+\input{sec/06.results}
+\input{sec/07.competitors}
+\input{sec/08.discussion}
+\input{sec/09.conclusion}
+
+\section*{Limitations}
+\label{sec:limitations}
+\input{sec/10.limitations}
+
+%\section*{Ethical Considerations}
+%\input{sec/11.ethics}
+
+\bibliographystyle{abbrv}
+\bibliography{refs}
+
+\beginappendix
+\input{sec/90.appendix}
+\input{sec/91.appendix_prompts}
+
+\end{document}

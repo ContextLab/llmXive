@@ -1,0 +1,28 @@
+## Your Task
+Plan ALL purchases for this shop visit in one decision.
+Order matters: items are bought first-to-last. Track gold after each purchase.
+
+For each affordable item you choose NOT to buy, explain why in skipped_items.
+
+Output format:
+```
+{
+  "purchases": [
+    {"action": "buy_card|buy_relic|buy_potion|remove_card|discard_potion",
+     "item_name": "exact name", "price": <int>,
+     "gold_after": <int>, "reason": "..."}
+  ],
+  "skipped_items": [
+    {"item_name": "...", "reason": "..."}
+  ],
+  "reasoning": "overall strategy",
+  "strategic_note": "plain prose current deck game plan, not JSON"
+}
+```
+
+Rules:
+- Gold math must be exact: start with current gold, subtract each price in order.
+- If you buy nothing, purchases = [] and list all affordable items in skipped_items.
+- Current gold: 244. Double-check gold_after values.
+- Schema for card removal purchase entries: action "remove_card", item_name "Card Removal", price 100.
+

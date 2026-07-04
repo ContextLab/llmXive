@@ -1,0 +1,5 @@
+## Card & Deck Philosophy
+- Evaluate cards along 4 dimensions: **Damage** (kill faster), **Defense** (survive), **Draw** (cycle deck faster), **Energy** (play more per turn).
+- A strong deck needs enough damage to kill bosses in ~10 turns (Act 1 ~= 200 HP, Act 2 ~= 400, Act 3 ~= 600) while surviving. Damage is the primary constraint -- defense, draw, and energy support damage output.
+- **Shops**: Choose whatever gives the biggest power spike for remaining fights -- cards, relics, removal, or potions.
+

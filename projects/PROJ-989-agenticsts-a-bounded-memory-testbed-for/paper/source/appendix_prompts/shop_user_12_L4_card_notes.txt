@@ -1,0 +1,3 @@
+## Card Notes
+- Accuracy: ONLY boosts Shiv cards (Blade Dance outputs, Infinite Blades outputs, Fan of Knives outputs, Cloak and Dagger outputs, etc.). Does NOT buff other multi-hit attacks like Ricochet or Dagger Spray.
+

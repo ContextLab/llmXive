@@ -1,0 +1,51 @@
+% ============================================
+% Limitations
+% ============================================
+% No \section here — main.tex provides "\section*{Limitations}".
+
+\paragraph{Sample size and statistical inference.}
+The headline fixed-$A_0$ result uses a balanced 50-game subset,
+which is at or above the per-condition sample size typical for
+recent LLM-agent game benchmarks
+\citep{voyager2023,balrog2024,lmgame-bench-2025}. The
+cross-backbone and ladder streams are smaller diagnostic streams,
+reported separately rather than pooled into the headline table.
+Wilson intervals at this sample size are read at the
+scaffolded-versus-unscaffolded level; finer-grained equivalence
+tests among scaffolded variants and smooth backbone-transfer
+curves are natural extensions that the released archive supports.
+
+\paragraph{Same-codebase accumulating-context variant.}
+The release is organized so that an accumulating-context cell
+sharing our codebase, condition tags, scoring scripts, and frozen
+stores can be added as one further row in the same matrix. This is
+the cleanest direct comparison to the bounded contract, and the
+artifact provides the run protocol, prompt records, and analysis
+scripts needed to run it.
+
+\paragraph{Single character and game-version coverage.}
+The headline runs target one playable character, Silent, chosen to
+keep the typed substrate ($L_3$ enumerable game knowledge,
+$L_4{+}L_5$ stores) self-consistent in the present submission.
+Released trajectories carry game-version tags so that
+version-stratified re-analysis is possible from the archive, and
+cross-character runs follow the same harness once $L_3/L_4/L_5$
+are repopulated for the new character.
+
+\paragraph{External player and ecosystem references.}
+Mega Crit, Spiracle, and AGI-Eval enter the paper only as
+difficulty and ecosystem context, with cached snapshots released
+alongside the artifact. Matched human inference would require a
+separately designed user study with controlled denominators, which
+is outside the present resource.
+
+\paragraph{Architectural scope.}
+The evaluation is training-free and single-game. The bounded
+contract is tuned for \emph{turn-based decision} settings like
+\stspad{}; continuous or streaming control loops, visual input,
+multi-agent play, online human correction, model-internal
+fine-tuning, and cross-game transfer are deliberate non-targets of
+this release. Stub templates and expert seed skills are
+author-curated; Mode~B measures within-interface template filling,
+which we report as one operating point rather than as fully
+autonomous skill invention.

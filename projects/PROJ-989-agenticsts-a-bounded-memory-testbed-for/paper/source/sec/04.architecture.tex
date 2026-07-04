@@ -1,0 +1,136 @@
+% ============================================
+% §4 Agent Architecture
+% ============================================
+\section{Architecture: Per-Decision Typed Retrieval}
+\label{sec:arch}
+
+This section specifies what the LLM is allowed to see when it makes
+a move. The agent never appends the raw message turns from earlier
+decisions. Instead, it rebuilds each decision prompt from five typed
+knowledge layers (Figure~\ref{fig:overview}b). Any information that
+survives across decisions must first be written into a bounded store;
+in our experiments, postrun extraction and skill discovery can write
+back only to $L_4/L_5$.
+
+The contract gives the resource four evaluation handles that a raw
+prompt-history setup usually hides: horizon growth is capped by
+slot budgets; retrieved evidence is labeled by layer; $L_4$ and
+$L_5$ can be toggled without rewriting the whole prompt; and runs,
+stores, prompts, and scripts carry condition tags for reuse.
+
+\subsection{Per-decision compositional context}
+\label{sec:arch:bounded}
+
+In ReAct/Reflexion-style agents \citep{react2023,reflexion2023}, the
+model may see a growing log of earlier states, tool calls, and
+self-critiques. AgenticSTS uses a different interface: for
+decision $d$ at state $s_d$, the engine retrieves from
+$L_1,\ldots,L_5$ and composes a fresh user message
+\begin{equation}
+u_d = \pi\bigl(L_1, L_2(s_d), L_3(s_d), L_4(s_d), L_5(s_d)\bigr),
+\label{eq:composition}
+\end{equation}
+sent to the LLM as $\langle\mathrm{sys},u_d\rangle$. The design still
+allows bounded typed summaries, a per-run Strategic Thread, and
+same-decision repair retries. What it disallows is an unbounded
+transcript that grows because the run has been long.
+
+\textbf{Bounded context.} With capped top-$k$ retrieval and capped
+item sizes, the configured prompt size is
+$O(|\mathrm{sys}| + s_{\mathrm{thread}} + \sum_i k_i\cdot s_i)$.
+The raw cross-decision transcript therefore does not scale with the
+number of decisions. A transcript interface has worst-case
+$\Omega(d\cdot \bar{s})$ growth for $d$ decisions, raising
+per-decision token cost as a run lengthens \citep{lumer-cache-2026}. Figure~\ref{fig:bounded-ablation}a--b reports a per-cell linearity audit
+($N{=}2$ runs per cell, $10$ runs total) of the released fixed-$A_0$ runs.
+
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=0.96\textwidth]{figures/v2/fig_bounded_ablation.pdf}
+\caption{Token audit of the bounded-memory contract on ten
+fixed-$A_0$ runs (two per cell); dashed line is a transcript-appending
+counterfactual at $\tfrac{1}{4}$ of naive $O(c^2)$ growth (median
+tokens/call $\times c(c{+}1)/8$, a moderate prompt-caching discount).
+The audit illustrates context-growth mechanics under each contract;
+at two runs per cell it is not a win-rate comparison.}
+\label{fig:bounded-ablation}
+\end{figure*}
+
+
+\textbf{Ablatable layers.} Because context reaches the model through
+named slots, we can switch prompt strictness, rule retrieval,
+episodes, and strategic skills on or off independently. This is the
+main experimental advantage of the contract: the fixed-$A_0$ matrix
+can ask which layer changes behavior, not only whether a larger
+prompt helps.
+
+\subsection{Five typed knowledge layers}
+\label{sec:arch:layers}
+
+The compose operator uses five substrates, separated by mutability
+and role. $L_1$ \emph{operator prompts} contain immutable role and
+protocol templates for each state type. $L_2$ \emph{state-typed
+prompts} provide immutable schemas for combat, deckbuilding, map,
+event, and intermission decisions, including legal action formats.
+$L_3$ \emph{game knowledge} stores enumerable rule data---cards,
+relics, events, enemies, and intents---refreshed by patch. $L_4$
+\emph{episodic memory} stores postrun summaries (character $\times$
+ascension $\times$ act $\times$ enemy class) --- \emph{case-based
+recall}. $L_5$ \emph{skill library} stores triggered strategic
+guides distilled from logs --- \emph{general scenario-class tactics}
+indexed by trigger conditions for retrieval across recurring state
+classes. Each $L_5$
+guide has an explicit trigger, a prose policy, and a four-level
+write gate.
+
+Raw \stspad{} logs are not used as similarity RAG. In this game,
+nearby-looking states can have very different strategic meanings
+because of card order, relic combinations, and route history. The
+agent therefore retrieves summaries and triggered guides rather than
+nearest-neighbor log snippets.
+
+\subsection{Routing and combat truncation}
+\label{sec:arch:routing}
+
+A dispatcher routes decisions to four model tiers: \emph{fast} for
+trivial combat plans, \emph{strategic} for ordinary decisions,
+\emph{analysis} for postrun memory extraction, and \emph{evolution}
+for skill distillation. Four static system prompts are cacheable;
+per-run state is placed in the user message. Combat is the only
+decision type with a local conversation object, and that object emits
+at most three messages per round: \verb|combat_start|, \verb|ok|,
+and the latest user state. Earlier rounds are summarized through the
+typed state rather than appended. Together with fast-tier routing
+and mechanical handlers, this yields a median of 67 strategic LLM
+calls per run instead of one call for every in-game action.
+
+\subsection{\texorpdfstring{$L_4$}{L4} episodic memory: role and ablation}
+\label{sec:arch:l4}
+
+$L_4$ is the episodic layer. It stores postrun summaries for later
+retrieval and can also feed online skill evolution. In the fixed-$A_0$
+matrix, \texttt{full-frozen} (with $L_4$) and \texttt{mode-a}
+(without $L_4$) both win $6/10$ games. Thus the balanced $A_0$
+comparison points to $L_5$ as the layer associated with the headline
+lift. $L_4$ remains part of the longer-horizon substrate used in the
+auto-mode streams, which attempt $A_6$--$A_8$.
+
+\subsection{Skill discovery: distillation, write gate, and Mode B}
+\label{sec:arch:l5}
+
+$L_5$ is populated in two ways. \textbf{Mistake-driven discovery}
+(\emph{self-evolve}) reads combat losses relative to per-enemy
+baselines, runs a pre-write A/B check ($B{=}3$ resample, strict
+$2/3$ plus zero-harmful), and then applies a four-level write gate:
+cosine, Jaccard, LLM judge, and optional reap. Most candidates are
+rejected or merged rather than added as new skills. \textbf{Stub-template-filled
+authoring} (\emph{Mode B}) fills five character-parametric templates
+for combat, boss, deckbuilding, map, and intermission decisions,
+under namespace isolation, a library lock, and warn-only validators.
+Mode~B reaches the same $6/10$ fixed-$A_0$ point estimate as the
+human-authored \texttt{mode-a} seed library (\S\ref{sec:results:modeb}),
+so the evaluation can separate the existence of a skill layer from
+the prose source used to populate it.
+
+% (preserved verbatim in sections_v2/appendix.tex).

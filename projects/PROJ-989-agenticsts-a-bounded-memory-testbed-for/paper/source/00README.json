@@ -1,0 +1,225 @@
+{
+   "sources" : [
+      {
+         "usage" : "toplevel",
+         "filename" : "main.tex"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "appendix_prompts/combat_assistant_ack_01_OUT_assistant_acknowledgement.txt"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "appendix_prompts/combat_model_output_01_OUT_structured_decision.txt"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "appendix_prompts/combat_system_01_L1_preamble.txt"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "appendix_prompts/combat_system_02_L1_output_format.txt"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "appendix_prompts/combat_system_03_L3_core_combat_rules.txt"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "appendix_prompts/combat_system_04_L5_hp_conservation.txt"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "appendix_prompts/combat_user_setup_01_L2_combat_start.txt"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "appendix_prompts/combat_user_setup_02_L2_current_deck_35_cards.txt"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "appendix_prompts/combat_user_setup_03_L2_relics_14.txt"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "appendix_prompts/combat_user_setup_04_L4_strategic_thread.txt"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "appendix_prompts/combat_user_setup_05_L5_expert_knowledge_retrieved_skills.txt"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "appendix_prompts/combat_user_setup_06_L4_past_experience.txt"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "appendix_prompts/combat_user_setup_07_L4_past_experience.txt"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "appendix_prompts/combat_user_setup_08_L4_combat_guide.txt"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "appendix_prompts/combat_user_setup_09_L2_enemy_patterns.txt"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "appendix_prompts/combat_user_setup_10_L5_potion_strategy.txt"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "appendix_prompts/combat_user_setup_11_L4_card_notes_from_experience.txt"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "appendix_prompts/combat_user_setup_12_L3_combat_rules.txt"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "appendix_prompts/combat_user_state_01_L2_round_1_state.txt"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "appendix_prompts/combat_user_state_02_L2_enemies.txt"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "appendix_prompts/combat_user_state_03_L2_relic_counters.txt"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "appendix_prompts/combat_user_state_04_L2_usable_potions.txt"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "appendix_prompts/combat_user_state_05_L2_piles.txt"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "appendix_prompts/combat_user_state_06_L3_key_effects_active_this_combat.txt"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "appendix_prompts/combat_user_state_07_L2_hand_7_playable_7_total.txt"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "appendix_prompts/shop_model_output_01_OUT_structured_decision.txt"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "appendix_prompts/shop_system_01_L1_preamble.txt"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "appendix_prompts/shop_system_02_L1_output_format.txt"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "appendix_prompts/shop_system_03_L5_card_deck_philosophy.txt"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "appendix_prompts/shop_system_04_L5_strategic_deckbuilding_the_two_phase_framework.txt"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "appendix_prompts/shop_system_05_L5_phase_1_foundation_no_engine_yet.txt"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "appendix_prompts/shop_system_06_L5_phase_2_commitment_engine_acquired.txt"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "appendix_prompts/shop_system_07_L1_output_strategic_note.txt"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "appendix_prompts/shop_user_01_L5_expert_knowledge_retrieved_skills.txt"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "appendix_prompts/shop_user_02_L4_deck_building_insights.txt"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "appendix_prompts/shop_user_03_L4_card_specific_insights.txt"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "appendix_prompts/shop_user_04_L3_game_knowledge.txt"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "appendix_prompts/shop_user_05_L3_card_mechanics_from_game_data.txt"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "appendix_prompts/shop_user_06_L2_shop.txt"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "appendix_prompts/shop_user_07_L2_current_deck_32_cards.txt"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "appendix_prompts/shop_user_08_L2_relics_ring_of_the_snake_at_the_start_of_each_combat_draw_2_additional_cards_lar.txt"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "appendix_prompts/shop_user_09_L4_relic_synergies.txt"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "appendix_prompts/shop_user_10_L4_gold_budget_analysis.txt"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "appendix_prompts/shop_user_11_L5_guide.txt"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "appendix_prompts/shop_user_12_L4_card_notes.txt"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "appendix_prompts/shop_user_13_L1_your_task.txt"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "appendix_prompts/shop_user_14_L3_keyword_glossary.txt"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "appendix_prompts/shop_user_15_L2_items_for_sale.txt"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "appendix_prompts/shop_user_16_L1_decision_format_shop_plan.txt"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "assets/plainnat.bst"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "main.bbl"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "refs.bib"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "sec/11.ethics.tex"
+      }
+   ],
+   "spec_version" : 1,
+   "texlive_version" : "2025",
+   "process" : {
+      "compiler" : "pdflatex"
+   }
+}

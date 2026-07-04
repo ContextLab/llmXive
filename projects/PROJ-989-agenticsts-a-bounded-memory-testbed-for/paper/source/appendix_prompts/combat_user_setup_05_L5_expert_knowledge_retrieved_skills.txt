@@ -1,0 +1,16 @@
+## Expert Knowledge (retrieved skills)
+*Apply these strategies to the current situation. Deviate only with good reason.*
+
+
+**Silent - Combat Sequencing** (92%)
+Silent wins by converting discard and free cards into tempo; count playable cards, not just energy. Sequence zero-cost and setup cards first: Pinpoint after skills, Pounce before an expensive skill, and discard Sly cards or other trick cards when that gives a free play. In the first three hallway fights, default to no-damage lines: if full block is available, take it before racing. From the fourth hallway fight onward, protect HP aggressively and spend potions when needed. Once defense is stable in a long fight, prefer poison over fair attacks; keep stacking poison and block instead of taking weak damage trades.
+  - Example: Play skills before Pinpoint so it discounts to 0 whenever possible.
+
+**Core Combat Principles** (90%)
+Every combat turn: (1) Read enemy intents -- if ALL enemies have non-attack intents (Buff/Debuff/Sleep), it is a FREE offense window. In multi-enemy fights, some enemies may still attack while others buff -- always account for total incoming damage and block accordingly. (2) Dead enemies deal zero damage. If your attacks can kill an enemy this turn, prioritize that. (3) Check your draw pile -- knowing what cards remain tells you what you might draw next turn or from draw effects. Plan your plays considering both current hand and future draws. (4) Use ALL energy -- unspent energy is permanently wasted. If you have 1 energy left, play a 1-cost card. (5) Multi-enemy: focus fire the most dangerous attacker first. Each kill reduces incoming damage next turn. Use AoE when 3+ enemies alive. (6) Potions don't cost energy -- use buff potions BEFORE attacks, damage potions to secure kills, defensive potions vs lethal incoming.
+  - Example: Single enemy buffs -> play all attacks. Multi-enemy: one enemy buffs but others attack -> still block for the attackers
+
+**Boss and Elite Fight Strategy** (seed)
+Boss fights are the make-or-break moments. (1) USE ALL POTIONS -- potions exist for these fights. Dying with unused potions is the worst outcome. (2) Bosses scale over time -- they gain Strength, add curses. End fights QUICKLY. Front-load damage in the first 3-4 turns. (3) After beating a Boss, HP fully restores between Acts. You CAN play more aggressively -- but first verify you survive the next enemy turn. Never go all-in if incoming damage would kill you. (4) For specific boss/elite mechanics, use lookup_enemy or recall_encounter tools to learn their attack patterns before the fight. (5) Consider playing Power cards that boost your damage or block capacity early in boss fights -- sometimes sacrificing one turn of offense or defense to play a scaling Power wins the long fight.
+
+

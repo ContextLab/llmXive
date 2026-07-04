@@ -1,0 +1,8 @@
+## Strategic Thread
+*Your deck-building decisions so far -- fight with this deck's strengths.*
+
+- [card_reward] Committed Shiv plan: scale with Accuracy and Phantom Blades, use Shivs for damage and block with Footwork-scaled Backflips. Needs to draw through the deck quickly to set up powers.
+- [shop] Committed shiv plan: prioritize playing scaling powers like Accuracy and Phantom Blades early, then use high-volume shiv generators and Expertise to cycle damage; use Leg Sweep and Backflips to survive while setup occurs. Needs consistent shiv production and block scaling; avoid high-cost non-shiv attacks that clog the hand for Expertise.
+- [event] Committed Shiv plan: play powers (Accuracy, Phantom Blades), generate Shivs, and cycle through the deck with Backflips and Expertise. Keep upgrading key block/draw cards and remove remaining basic Strikes.
+- [rest_site] Committed Shiv plan: scale damage with Accuracy and Phantom Blades, using Backflip and Expertise for draw and defense. Prioritize upgrading key scaling powers to ensure Act 3 boss lethality.
+

@@ -1,0 +1,110 @@
+% ============================================
+% §3 STS2 Testbed (edited — non-game reader pass)
+% ============================================
+\section{The \stspad{} Testbed}
+\label{sec:testbed}
+
+\stspad{} is a turn-based deck-building roguelike: an agent builds
+a deck during a run, fights stochastic battles, chooses routes and
+rewards, and climbs an ordinal difficulty ladder. The game is
+useful for evaluating LLM-agent memory because it is long-horizon
+but not visually opaque. Rules, cards, relics, enemies, events,
+legal actions, and state transitions can be represented as text
+records, while success still requires sustained planning across
+many contingent decisions. We release the resulting runs as a
+reusable evaluation resource (\S\ref{sec:methodology:repro}).
+
+\subsection{Four properties of \stspad{} as an LLM testbed}
+\label{sec:testbed:props}
+
+\textbf{(\emph{P1}) Closed, enumerable, LLM-readable rule space.}
+Public database snapshots index hundreds of typed records (576
+cards, 293 relics, 115 monsters, 87 encounters, and 66 events in
+Spire Codex's May~2026 API; these are database counts, not unique
+experimental-patch counts) \citep{spirecodex-2026}. Unlike
+pixel-rendered Crafter \citep{crafter2022} or the inherited code
+complexity of NetHack \citep{nethack2020}, \stspad{} has a compact
+rule space that can be loaded into a typed knowledge layer
+(\S\ref{sec:arch}). This makes $L_3$ part of the evaluation
+substrate rather than a hidden source of game knowledge.
+
+\textbf{(\emph{P2}) Empirically long horizon.} A typical run lasts
+a median $\sim$80~min wall-clock (IQR 37--109\,min) and contains
+67 LLM strategic calls (IQR 27--105). Roughly $500$ additional
+per-run decisions, such as combat targets, treasure choices, map
+nodes, and hand selection, are mechanically resolved or routed to a
+fast tier with bounded combat context (\S\ref{sec:arch}). This is
+precisely the regime where message-history accumulation becomes
+costly relative to typed recomposition
+\citep{sinha-horizon-2026,horizon-mirage-2026,kwa-metr-2025}.
+
+\textbf{(\emph{P3}) Multi-axis stochasticity.} Random card draw,
+shuffle order, reward offerings, map paths, relic effects, elite
+and event placements, and Ascension modifiers prevent simple
+trajectory replay. A strong policy must generalize over states, not
+memorize a fixed route.
+
+\textbf{(\emph{P4}) State-conditioned combat math.} Damage and
+status pipelines combine hand contents, enemy intent, block timing,
+and effects such as \emph{vulnerable, weak, strength}, and
+\emph{dexterity}. The agent must compute from the current state;
+web-like recall is much less useful than state-conditioned
+calculation.
+
+\subsection{Ascension ladder and scoring}
+\label{sec:testbed:difficulty}
+
+The 11-level Ascension ladder ($A_0$--$A_{10}$, with $A_{10}$ the
+maximum) gives the testbed an ordinal difficulty scale. Higher
+Ascensions stack modifiers that change strategic priorities, so
+climbing the ladder is not just repeating $A_0$ with larger
+numbers. We therefore use two complementary evidence streams: a
+fixed-$A_0$ matrix that isolates components at one difficulty
+(\S\ref{sec:methodology}) and an auto-mode ladder in which the
+agent advances after victories and retries after defeats
+(\S\ref{sec:methodology}).
+
+Runs are scored with a derived analysis score:
+\begin{equation}
+s =
+\begin{cases}
+100 & \text{if victory,}\\
+\mathrm{floor} + \tfrac{52}{3}\cdot\mathrm{bosses} & \text{otherwise,}
+\end{cases}
+\label{eq:score}
+\end{equation}
+where $\mathrm{bosses}$ counts cleared act bosses (0/1/2 by reached
+floor for non-victory runs, 3 for victories; full mapping in
+Appendix~\ref{app:configs}). The value is recomputed from outcome,
+floor, and boss-count fields, not copied from the raw archive
+\texttt{score} field. The $52/3$ coefficient calibrates three
+cleared bosses to $52$ points, the approximate mid-Act-3 floor
+reach. A $\pm 10\%$ perturbation of the coefficient checks
+score-based qualitative comparisons; win-rate claims do not depend
+on this score scale.
+
+\subsection{Data corpus, release, and harness}
+\label{sec:testbed:data}
+
+The released archive contains $298$ completed independent game
+trajectories spanning fixed-$A_0$ ablations, cross-backbone probes,
+and auto-mode ascension runs. Each trajectory records target and
+reached Ascension, outcome, wall-clock duration, LLM-call counts,
+condition tag, and the active memory/scaffold setting. The headline
+fixed-$A_0$ comparison uses a pre-specified balanced subset of 50
+completed games, namely the first ten per condition under the
+frozen configuration. Other completed trajectories support the
+cross-backbone and ladder diagnostics rather than entering the
+fixed-$A_0$ estimate. Frozen $L_4{+}L_5$ stores and per-condition tags
+are released with the public artifact archive
+\citep{deal-checklist-2025,liu-versioning-2025}.
+
+The game alone is not the full benchmark: a game interface must
+be paired with a decision protocol. Public \stspad{}
+implementations \citep{sts2mcp-2026,hermesbridge-2026,%
+ai-spire-2026,chartyr-sts2-2026} let LLMs act in the game, while
+the independently evaluated AGI-Eval configurations
+\citep{agi-eval-spire-2026} report no listed victory. Our
+architecture (\S\ref{sec:arch}) supplies the bounded-memory
+contract that makes the released trajectories a reusable evaluation
+surface.

@@ -1,0 +1,6 @@
+## Combat Guide
+*Tactical advice from past encounters.*
+
+- [Guide: Soul Nexus] - **Aggressive Racing:** The cleanest wins bypass the boss's lethal attacks entirely by ending the fight in exactly 3 rounds. Push extreme damage using Shiv generators and draw/discard loops (Acrobatics, Calculated Gamble, Reflex/Tactician) to race the boss down.
+- **Passive Defense:** Standard block cards cannot keep pace with the boss's scaling. Rely heavily on passive defense engines like Afterimage combined with 0-cost spam (Shivs) to generate incidental block while maintaining your offensive momentum.
+- **Mitigate the Spikes:** If the fight extends past round 3, you will face devastating attacks (a 43-damage swing and a 36-damage Maelstrom). Save premium damage mitigation like Piercing Wail and Weak strictly for these critical survival turns.

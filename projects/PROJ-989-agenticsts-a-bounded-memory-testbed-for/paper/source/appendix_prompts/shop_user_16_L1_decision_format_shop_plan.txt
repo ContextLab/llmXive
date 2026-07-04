@@ -1,0 +1,4 @@
+## Decision Format (shop_plan)
+Required fields: purchases, skipped_items, reasoning
+Optional: strategic_note, note_scope (turn|combat|run), note_triggers (combat|deck_building|routing|all)
+strategic_note must be plain prose, not JSON or key-value fields.

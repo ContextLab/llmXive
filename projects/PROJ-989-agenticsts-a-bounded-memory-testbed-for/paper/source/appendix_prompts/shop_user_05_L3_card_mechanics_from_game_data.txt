@@ -1,0 +1,9 @@
+## Card Mechanics (from game data)
+- Skewer: Upgrade: Damage +3
+- PreciseCut: Upgrade: Calculationbase +3
+- LegSweep: Applies: 2 Weak | Upgrade: Block +3, Weak +1
+- BladeDance: Creates: Shiv | Upgrade: Cards +1
+- NoxiousFumes: Applies: 2 Noxious Fumes | Upgrade: Poisonperturn +1
+- MindBlast: Upgrade: Cost -> 0
+- Jackpot: Upgrade: Damage +5
+

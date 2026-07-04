@@ -1,0 +1,38 @@
+% ============================================
+% §7 Discussion
+% ============================================
+\section{Discussion}
+\label{sec:discussion}
+
+\paragraph{Interpretation and scope.}
+The main lesson is that the memory interface can be made into an
+object of evaluation rather than left as a prompting convention. In
+a closed-rule game with text-readable state, the bounded typed
+contract supports fixed-$A_0$ wins, locates the largest
+within-harness difference at the $L_5$ skill layer (directional at
+our sample size), and keeps fixed-difficulty performance separate
+from ladder endpoints. The release is meant to
+make the next comparison easier: an accumulating-context variant can
+be added in the same codebase, with the same condition tags, frozen
+stores, prompt records, and scoring scripts, rather than inferred
+from public runs that use different harnesses.
+
+\paragraph{Implications.}
+Two observations suggest broader applicability. First, separating
+memory into typed slots makes attribution tractable: gains can be
+traced to a specific layer rather than to ``more context.'' Second,
+the bounded contract decouples interface design from accumulating
+state, making the same evaluation surface portable to non-game
+agentic tasks with comparable closed-rule structure.
+
+\paragraph{Implications for loop engineering.}
+The bounded contract is a concrete, measurable design point for the memory
+stage of closed-rule, turn-based agent loops: per-decision typed retrieval
+keeps the online context bounded regardless of run length, typed stores make
+memory updates auditable, and postrun writes expose learning as explicit
+artifacts rather than opaque transcript growth. Whether this pattern is the
+right default for open-ended production loops is untested here; what we provide
+is a reproducible testbed and archive for measuring a memory-layer change under
+fixed game, denominators, and scoring---an empirical complement to the largely
+qualitative loop-engineering guidance now common in
+practice~\citep{anthropic-context-2025,memory-survey-2025}.

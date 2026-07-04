@@ -1,0 +1,4 @@
+## Round 1 State
+Energy: 3/3 | HP: 66/70 | Block: 0
+Player buffs/debuffs: Dexterity(1): Dexterity improves Block gained from cards.
+

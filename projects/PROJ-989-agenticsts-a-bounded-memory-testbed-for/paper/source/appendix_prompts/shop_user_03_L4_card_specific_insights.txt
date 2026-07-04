@@ -1,0 +1,12 @@
+## Card-Specific Insights
+*Per-card experience -- consider alongside your build plan.*
+
+- skewer: X-cost: deals 7 damage x energy spent. Scales with available energy -- spending 3 energy = 21 damage. Pairs with energy generation (Adrenaline, Tactician) for higher output.
+- precise cut: 0-cost: deals 13 damage minus 2 per other card in hand. Strongest in small hands (1-2 other cards = 9-11 damage for 0 energy). Empty hand = 13 free damage. Pair with hand-emptying effects (Restlessness, Calculated Gamble).
+- leg sweep: support for shiv (3 runs): Provided essential Weak application and block to mitigate incoming damage.
+- leg sweep: 2-cost: high Block + applies Weak. Scales with Dexterity for the Block portion. Pounce reduces the next Skill cost to 0 -- play Pounce before Leg Sweep to play it for free.
+- blade dance: core for shiv (5 runs): Played frequently to generate 3 Shivs for 1 energy, fueling Accuracy and Envenom.
+- blade dance: core in 1 win of Repeatedly generating and empowering a large burst of zero-cost multi-hit attacks, with retained hands and extra card draw allowing the deck to chain several attack sequences in one turn; co-played with Accuracy+, Phantom Blades, Runic Pyramid
+- blade dance: Premium Shiv engine.
+
+

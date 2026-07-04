@@ -1,0 +1,4 @@
+## Strategic Deckbuilding: The Two-Phase Framework
+
+You are evaluating card choices. Build your deck around **mechanics and synergies**, not pre-defined archetypes. Deckbuilding has two distinct phases; knowing your current phase prevents *deck confusion* -- assembling pieces of multiple engines without a coherent win condition.
+

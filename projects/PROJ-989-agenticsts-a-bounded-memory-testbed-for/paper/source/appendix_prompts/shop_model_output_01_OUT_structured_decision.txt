@@ -1,0 +1,74 @@
+<decision>
+{
+  "purchases": [
+    {
+      "action": "buy_card",
+      "item_name": "Blade Dance",
+      "price": 24,
+      "gold_after": 220,
+      "reason": "Core shiv engine piece; provides massive damage scaling with Accuracy and Phantom Blades."
+    },
+    {
+      "action": "buy_card",
+      "item_name": "Leg Sweep",
+      "price": 73,
+      "gold_after": 147,
+      "reason": "High-efficiency block and Weak application; becomes a massive survival tool when combined with Vambrace and current Dexterity."
+    },
+    {
+      "action": "buy_card",
+      "item_name": "Mind Blast",
+      "price": 84,
+      "gold_after": 63,
+      "reason": "Provides significant Innate frontload damage (32+) which helps end hallway fights and elites quickly in Act 3."
+    },
+    {
+      "action": "buy_potion",
+      "item_name": "Swift Potion",
+      "price": 52,
+      "gold_after": 11,
+      "reason": "Emergency cycling to find setup powers or block during high-damage turns."
+    }
+  ],
+  "skipped_items": [
+    {
+      "item_name": "Skewer",
+      "reason": "Deck already has Storm of Steel for energy-to-damage conversion; Mind Blast provides better frontload."
+    },
+    {
+      "item_name": "Precise Cut",
+      "reason": "Expertise and Backflips keep the hand full, making this card inefficient."
+    },
+    {
+      "item_name": "Noxious Fumes",
+      "reason": "Already committed to a Shiv engine; adding slow poison would bloat the deck."
+    },
+    {
+      "item_name": "Jackpot",
+      "reason": "Too expensive for high-variance output."
+    },
+    {
+      "item_name": "Venerable Tea Set",
+      "reason": "Value of the cards and potion purchased is higher than a situational energy boost."
+    },
+    {
+      "item_name": "The Abacus",
+      "reason": "With a 32+ card deck, shuffles are infrequent; 6 block is negligible compared to Leg Sweep's output."
+    },
+    {
+      "item_name": "Attack Potion",
+      "reason": "Swift Potion offers better consistency for this deck's cycling needs."
+    },
+    {
+      "item_name": "Explosive Ampoule",
+      "reason": "Frontload damage is already addressed by Mind Blast."
+    },
+    {
+      "item_name": "Card Removal",
+      "reason": "High cost (100g) compared to the immediate power increase of the chosen card additions."
+    }
+  ],
+  "reasoning": "The deck is firmly committed to a Shiv engine. Blade Dance is an essential engine piece at a sale price. Leg Sweep provides crucial damage mitigation that synergizes with Vambrace (doubling the first block gain). Mind Blast utilizes the large deck size (32+ cards) to provide powerful Innate frontload for Act 3 hallway and elite fights. The Swift Potion adds a layer of consistency to find setup pieces like Accuracy or Phantom Blades.",
+  "strategic_note": "Committed shiv plan: prioritize playing scaling powers like Accuracy and Phantom Blades early, then use high-volume shiv generators and Expertise to cycle damage; use Leg Sweep and Backflips to survive while setup occurs. Needs consistent shiv production and block scaling; avoid high-cost non-shiv attacks that clog the hand for Expertise."
+}
+</decision>

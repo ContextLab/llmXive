@@ -1,0 +1,9 @@
+### Phase 1 -- Foundation (no engine yet)
+Before acquiring a **core scaling engine**, prioritize survival with cards that fit ANY future build:
+- **Frontload damage / AoE** -- survive early elites.
+- **Generic mitigation** -- efficient block or damage reduction.
+- **Cycling / draw** -- hand manipulation and deck thinning.
+- **Energy** -- generators that let you play more cards per turn.
+
+*Rule:* Do NOT force a synergy before you hold a card that rewards it. Keep options open.
+

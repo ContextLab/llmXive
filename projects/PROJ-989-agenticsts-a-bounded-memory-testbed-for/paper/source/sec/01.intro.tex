@@ -1,0 +1,142 @@
+% ============================================
+% §1 Introduction
+% ============================================
+\section{Introduction}
+\label{sec:intro}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\linewidth]{figures/v2/PRO_fig0.png}
+\caption{Overview of our paper: a bounded, typed memory contract
+turns long-horizon LLM-agent memory into an ablatable evaluation
+surface. Summary performance labels in this schematic (e.g.\
+relative scores and ladder reach) are illustrative; the exact
+numbers, denominators, and caveats---including that cross-agent
+comparisons are operational rather than matched ablations and that
+win-rate differences are directional at our sample size---are given
+in \S\ref{sec:results}--\ref{sec:competitors}.}
+\label{fig:overview-pro}
+\end{figure}
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=\linewidth]{figures/v2/fig1_abc.png}
+\caption{Typed retrieval as a bounded-memory contract:
+\textbf{(a)}~per-decision composition, \textbf{(b)}~the five typed
+layers, and \textbf{(c)}~AgenticSTS scores vs AGI-Eval rows
+and the community human reference
+\citep{sts2fun-community-stats-2026}. In-panel summary labels (e.g.\
+``no trade-off'', token-efficiency and score-gap figures) are
+illustrative; cross-backbone and external comparisons are operational
+context, not matched ablations of the memory contract, and
+within-harness win-rate differences are directional at our sample
+size---see \S\ref{sec:results}--\ref{sec:competitors} for exact
+numbers and caveats.}
+\label{fig:overview}
+\end{figure*}
+
+
+For a long-horizon LLM agent, memory is not a place to store
+text; it is a contract about what each future decision is allowed
+to see. One common contract appends past observations, tool calls,
+and reflections to the next prompt
+\citep{react2023,reflexion2023,voyager2023}.
+Another distills prior experience into typed records and retrieves
+only the pieces selected for the current decision
+\citep{coala-2024,memgpt2024,a-mem-2025,memoryos2025,generative-agents-2023}. This choice
+is not just an engineering detail: it determines what evidence the
+model sees, what stale information can re-enter a decision, and
+which component can be ablated when the agent succeeds or fails.
+We therefore ask whether a long-horizon benchmark
+\citep{sinha-horizon-2026,kwa-metr-2025} can make the memory
+interface bounded, inspectable, and reusable rather than treating
+context growth as an implicit default. Practitioners increasingly
+frame this through the \emph{agent loop} and its context or ``loop''
+engineering~\citep{anthropic-context-2025,memory-survey-2025}---the
+per-iteration choice of which prior experience to place in a finite
+window; our bounded contract is a formal, ablatable answer to the
+memory stage of that loop.
+
+We instantiate this question in \stspad{}, a roguelike
+deck-building game. A run is a stochastic strategic campaign:
+the agent chooses map routes, fights turn-based battles, drafts
+cards, buys or skips items, and preserves scarce health over
+many delayed consequences. The rule space is closed, symbolic, and
+text-readable, so game facts and legal actions can be supplied as
+structured records rather than pixels. At the same time, success
+requires hundreds of local and long-range decisions under random
+card draws, rewards, enemies, events, and difficulty modifiers.
+Public benchmarks indicate that the task is not already saturated.
+The game ships an ascension difficulty system that runs from $A_0$
+(the easiest tier) up to $A_{10}$ (the hardest). At $A_0$,
+a publicly available benchmark of frontier LLMs on
+this game reports zero wins across five model configurations, and
+the developer-reported human win rate is $16\%$
+\citep{agi-eval-spire-2026,megacrit-neowsletter-may2026}. Together these numbers make \stspad{} a hard but unsaturated
+testbed for studying long-horizon LLM-agent memory.
+
+Our agent, AgenticSTS, implements typed retrieval as a bounded
+memory contract.
+For every decision, the user message is freshly composed from five
+slots: fixed protocol instructions ($L_1$), state-specific schemas
+and legal action formats ($L_2$), retrieved game rules ($L_3$),
+episodic summaries ($L_4$), and triggered strategic skills ($L_5$).
+The slots differ in mutability and experimental role: $L_1$ and
+$L_2$ are fixed; $L_3$ can be filtered; $L_4$ and $L_5$ can be
+disabled, frozen, or made writable between runs through postrun
+analysis; raw
+cross-decision transcripts are not appended. The resulting prompt
+interface turns memory from ``how much history fits'' into ``which
+typed evidence is selected,'' a form that can be inspected and
+re-aggregated across conditions.
+
+Across $298$ completed trajectories, we run two main evidence
+streams and a cross-backbone probe.
+The first holds difficulty fixed at $A_0$ and varies the five
+memory slots: a no-scaffold baseline wins $3/10$ games (Wilson
+95\% confidence interval $[10.8\%, 60.3\%]$, i.e., the true
+win-rate is likely between $10.8\%$ and $60.3\%$), and the largest
+observed difference coincides with enabling $L_5$ skills, which
+reach $6/10$ in each scaffolded cell ($[31.3\%, 83.2\%]$). At this
+sample size the difference is directional rather than statistically
+decisive (Fisher exact $p\approx0.37$), and the five typed slots
+remain individually ablatable. The second stream climbs the
+difficulty ladder with $L_4$ and $L_5$ stores that update
+between runs, reaching high-difficulty probes at $A_6$--$A_8$.
+A cross-backbone probe (the underlying LLM is swapped among
+Gemini, Qwen, and DeepSeek) exercises the same ablation surface on
+other model families; the frozen stack is backbone-sensitive, with
+model-specific caveats detailed in \S\ref{sec:results:modeb}.
+
+The released archive supports re-aggregation and cross-condition
+re-analysis: a reader can recompute the headline fixed-$A_0$ cells
+or slice trajectories by condition tag using the included scripts.
+We ship the condition-tagged trajectories, the SHA-anchored
+$L_4{+}L_5$ snapshots used in the fixed-$A_0$ matrix, decision-time
+prompt records, and Wilson/bootstrap analysis scripts.
+
+\paragraph{Contributions.}
+We contribute (see Figure~\ref{fig:overview-pro}):
+\begin{enumerate}[leftmargin=1.5em,labelsep=0.3em,itemsep=0pt,topsep=0pt,partopsep=0pt,parsep=0pt,label=(\roman*)]
+\item a per-decision composition interface assembling prompts
+from typed $L_1$--$L_5$ slices rather than a raw transcript;
+\item evidence that, under the bounded contract, the largest
+observed $A_0$ difference coincides with enabling triggered $L_5$
+skills ($3/10\to6/10$, directional at this sample size rather than
+statistically significant), that the typed slots remain individually
+ablatable across three model backbones, and that the surface admits
+ladder probes at high-difficulty $A_6$--$A_8$;
+\item a reusable archive of $298$ trajectories with condition
+tags, SHA-anchored $L_4/L_5$ snapshots, prompts, and
+Wilson/bootstrap scripts for community study of context use in
+long-horizon agents.
+\end{enumerate}
+Claims concern layer separability inside the contract; a matched
+accumulating-context comparison is future work (Limitations).
+Prior prompt-history \citep{react2023,reflexion2023,voyager2023},
+structured-memory \citep{memgpt2024,mem0-2025,memoryos2025,gam-2026},
+and skill-library agents \citep{skillsbench2026,skillos2026,%
+memento-skills-2026} motivate the design space.
+\S\ref{sec:testbed} presents the testbed; \S\ref{sec:arch} the
+contract; \S\ref{sec:methodology} the protocol;
+\S\ref{sec:results} the results.

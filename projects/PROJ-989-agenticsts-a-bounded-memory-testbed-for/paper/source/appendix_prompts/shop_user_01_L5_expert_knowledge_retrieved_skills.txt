@@ -1,0 +1,11 @@
+## Expert Knowledge (retrieved skills)
+*Apply these strategies to the current situation. Deviate only with good reason.*
+
+
+**Silent - Draft and Shop Rules** (seed)
+Early rewards must solve damage first, then block, draw, and energy. Premium Silent pickups when offered are Backstab, Pinpoint, Pounce, Backflip, Footwork, Acrobatics, Escape Plan, Calculated Gamble (usually one copy), Adrenaline, and Tactician. Hidden Daggers and Corrosive Wave are core shiv/poison cards but are must-picks even outside those archetypes. Expose is a free exhaust card -- take one copy. Haze, Accuracy, Burst, Shadowmeld, Storm of Steel, Knife Trap, Accelerant, Afterimage, and Tools of the Trade are strong picks when they fit your current deck building direction. Prepared is strong only after upgrade; Reflex is only good when discard outlets are already plentiful. If you already have Pounce, expensive skills get better because the next skill can be free. In shops, try to arrive with 200+ gold when possible; buy order is exceptional colorless cards > Silent cards that fit the plan > powerful relics that fit the deck building > card removal.
+
+**Deck Building Across the Run** (seed)
+Evaluate every card along 4 dimensions: Damage (kill faster), Defense (survive), Draw (cycle deck faster), Energy (play more per turn). A balanced deck needs all four -- identify which dimension your deck lacks most and prioritize filling that gap. Skip if the card doesn't clearly improve a weak dimension. Upgrade priority: cards with cost reduction (2->1, 1->0) or doubled effects first. Do NOT over-thin: keep enough damage AND defense that your deck still functions in every combat. Always think about how your deck will perform in boss fights -- build enough damage and defense through card synergies. Avoid picking too many transitional cards that don't combo well. Also avoid having too few damage cards. If you've committed to an archetype (poison, shiv, etc.), specialize in damage cards for that archetype. Generic damage cards are fine as supplements, but avoid bloating the deck with cards that don't contribute to your core damage plan.
+
+

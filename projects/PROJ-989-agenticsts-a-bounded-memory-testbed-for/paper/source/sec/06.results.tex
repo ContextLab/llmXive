@@ -1,0 +1,135 @@
+% ============================================
+% §6 Results
+% ============================================
+\section{Results}
+\label{sec:results}
+
+\subsection{Public difficulty calibration}
+\label{sec:results:cross}
+
+External rows calibrate difficulty, not causal attribution. The
+May~2026 AGI-Eval snapshot reports zero listed $A_0$ victories
+across five frontier-model configurations
+\citep{agi-eval-spire-2026} (max defeat floor 33), and Mega Crit
+reports a player-side $A_0$ win rate of $16\%$ across 240M community
+runs \citep{megacrit-neowsletter-may2026}. Under our own harness,
+\texttt{baseline-strict} wins $3/10$ runs (Wilson 95\% CI
+$[10.8,60.3]$; mean score 70.4), placing the task in a hard but
+non-saturated regime. Public rows use different interfaces, prompt
+budgets, and decoding setups, so they are not matched baselines; the
+within-harness ablation in \S\ref{sec:results:scaffold} establishes
+the role of typed retrieval.
+
+\subsection{Within-harness ablation}
+\label{sec:results:scaffold}
+
+Table~\ref{tab:fivecond} reports the balanced fixed-$A_0$ subset: ten
+completed games per condition, the active $L_5/L_4$ layers, and the
+mean derived score. The comparison isolates prompt strictness,
+triggered skills, and episodic memory inside one codebase.
+
+\begin{table}[!t]
+\centering\footnotesize
+\caption{Fixed-$A_0$ ablation ($N{=}10$/cell). Wilson 95\% CIs $[11,60]$/$[17,69]$/$[31,83]$ for $3/10$/$4/10$/$6/10$.}
+\label{tab:fivecond}
+\setlength{\tabcolsep}{3.5pt}
+\renewcommand{\arraystretch}{1.0}
+\begin{tabular*}{\columnwidth}{@{\extracolsep{\fill}}lccrr@{}}
+\toprule
+Cell & $L_5$ & $L_4$ & Win & Score \\
+\midrule
+No scaffold      & -- & -- & 3/10 & 70.4 \\
+Prompt only      & -- & -- & 4/10 & 69.6 \\
+\midrule
+Hand skills      & A  & -- & \textbf{6/10} & \textbf{85.5} \\
+Template skills  & B  & -- & \textbf{6/10} & 83.3 \\
+Skills+episodes  & A  & $\checkmark$ & \textbf{6/10} & 82.1 \\
+\bottomrule
+\end{tabular*}
+\end{table}
+
+The largest separation is between no-scaffold and skill-scaffolded
+rows. The two no-scaffold cells win $3/10$ and $4/10$ games; all
+three $L_5$ cells win $6/10$. Writing the layer-attributable
+difference as
+\begin{equation}
+\Delta_{L_\ell} = \widehat p_{\text{with-}\ell} - \widehat p_{\text{without-}\ell},
+\label{eq:lift}
+\end{equation}
+Table~\ref{tab:fivecond} gives $\Delta_{\text{prompt}}{=}{+}1/10$
+(strictness, wrappers) and $\Delta_{L_5}{=}{+}2/10$ at the same prompt
+setup. \emph{At $N{=}10$ this difference is not statistically
+significant}: a Fisher exact test on $3/10$ vs.\ $6/10$ gives
+$p\approx0.37$, and pooling all scaffolded vs.\ unscaffolded cells
+($18/30$ vs.\ $7/20$) gives $p\approx0.148$; the Wilson 95\% CIs
+\citep{wilson1927} overlap. We therefore read $L_5$ as the layer with
+the largest observed difference in the balanced matrix --- a
+directional result, not a fine ranking among the three scaffolded
+variants and not a significance claim. Establishing whether the
+bounded contract itself outperforms a matched accumulating-context
+design would require the controlled comparison we leave to future
+work (Limitations).
+
+\subsection{Auto-mode ascension ladder: endpoint evidence}
+\label{sec:results:auto}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.52\linewidth]{figures/v2/fig5_ascension_ladder.pdf}
+\caption{Auto-mode ascension ladder: per-stream highest attempted
+ascension (endpoint, not win-rate).}
+\label{fig:ascend}
+\end{figure}
+
+Runs with postrun-active memory attempt $A_6$--$A_8$, while
+no-postrun streams stop at $A_2$--$A_4$
+(Figure~\ref{fig:ascend}). The ladder therefore complements the
+fixed-$A_0$ matrix: one stream isolates component lift at a fixed
+difficulty, and the other shows the highest difficulty reached
+when stores can be updated after runs.
+
+\subsection{Template skills, transfer, and episodes}
+\label{sec:results:modeb}
+
+\paragraph{Mode B without hand-authored skill prose.}
+\texttt{mode-b-frozen} matches the hand-authored \texttt{mode-a} 60\%
+$A_0$ win estimate (score-diff CI $[-18.6,+24.8]$): template-filled
+skills are competitive with the seed library inside the same skill
+interface.
+
+\paragraph{Frozen skills are backbone-sensitive.}
+Table~\ref{tab:crossbackbone} shows the same Gemini-trained
+\texttt{full-frozen} $L_4{+}L_5$ stack transferred to two
+non-training backbones. The Gemini-trained stack lifts Qwen's
+mean score ($+84.5\%$) but reduces DeepSeek's ($-18.1\%$); Qwen and
+DeepSeek wins remain $0/5$. Transfer is therefore an empirical
+property of the stack, not a premise.
+
+\begin{table}[!t]
+\centering\scriptsize
+\caption{Cross-backbone transfer of the Gemini-trained
+$L_4{+}L_5$ stack ($N{=}5$/cell, Gemini $N{=}10$). Full-frozen 95\%
+score CIs $[13.8,41.9]$/$[21.7,45.9]$/$[63.1,96.5]$ for
+Qwen/DeepSeek/Gemini; Qwen and DeepSeek wins $=0/5$ in both columns,
+so $\Delta\%$ is a score-only signal. $^{\dagger}$Gemini
+floor-48 endpoints include victories.}
+\label{tab:crossbackbone}
+\setlength{\tabcolsep}{3pt}
+\renewcommand{\arraystretch}{1.0}
+\begin{tabular*}{\columnwidth}{@{\extracolsep{\fill}}lcccc@{}}
+\toprule
+Backbone & Wins & Score & $\Delta$\% & Floor \\
+\midrule
+Qwen 3.6-27B    & 0/5$\to$0/5            & $14.6\!\to\!\textbf{26.9}$ & $+84.5$ & $17\!\to\!\textbf{33}$ \\
+DeepSeek V4-Pro & 0/5$\to$0/5            & $41.3\!\to\!33.8$          & $-18.1$ & $37\!\to\!33$ \\
+Gemini 3.1-Pro  & 3/10$\to$\textbf{6/10} & $70.4\!\to\!\textbf{82.1}$ & $+16.6$ & $48\!\to\!48^{\dagger}$ \\
+\bottomrule
+\end{tabular*}
+\end{table}
+
+\paragraph{$L_4$ at $A_0$ is saturated.}
+\label{sec:results:l4}
+\texttt{mode-a} (no $L_4$) and \texttt{full-frozen} (with $L_4$)
+produce the same win point estimate (score-diff CI $[-21.7,+14.9]$);
+$L_4$ still serves the longer-horizon substrate in the ladder
+streams (\S\ref{sec:results:auto}).

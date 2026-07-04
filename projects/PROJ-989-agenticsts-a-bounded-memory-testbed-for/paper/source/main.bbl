@@ -1,0 +1,243 @@
+\begin{thebibliography}{10}
+
+\bibitem{agi-eval-spire-2026}
+{AGI-Eval Community}.
+\newblock {Slay the Spire 2 Becomes DeepSeek V4's Mirror: Sounds Reasonable, Plays Terribly}.
+\newblock Community blog post (Chinese), \url{https://deepseek.csdn.net/6a01b6b80a2f6a37c5a944ed.html}; video \url{https://www.youtube.com/watch?v=0v94pZmif9Y}, May 2026.
+\newblock Non peer-reviewed; cited as cross-harness calibration only; accessed 2026-05-13.
+
+\bibitem{anthropic-context-2025}
+{Anthropic}.
+\newblock Effective context engineering for {AI} agents.
+\newblock Anthropic Engineering blog, \url{https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents}, 2025.
+\newblock Non peer-reviewed industry article; accessed 2026-06-17.
+
+\bibitem{bateni-whitehead-2024}
+B.~Bateni and J.~Whitehead.
+\newblock {Language-Driven Play: Large Language Models as Game-Playing Agents in Slay the Spire}.
+\newblock In {\em Proceedings of the 19th International Conference on the Foundations of Digital Games}, 2024.
+
+\bibitem{urzagpt-2025}
+T.~Bertram.
+\newblock {UrzaGPT: LoRA-Tuned Large Language Models for Card Selection in Collectible Card Games}, 2025.
+
+\bibitem{ai-spire-2026}
+biolbe1230.
+\newblock {AI-Spire: LLM plays Slay the Spire 2 through prompt engineering}.
+\newblock GitHub repository, \url{https://github.com/biolbe1230/ai-spire}, 2026.
+\newblock commit b0a40997; accessed 2026-05-13.
+
+\bibitem{chartyr-sts2-2026}
+CharTyr.
+\newblock {STS2-Agent: MCP server for Slay the Spire 2}.
+\newblock GitHub repository, \url{https://github.com/CharTyr/STS2-Agent}, 2026.
+\newblock commit 2617fb19; accessed 2026-05-13.
+
+\bibitem{mem0-2025}
+P.~Chhikara, D.~Khant, S.~Aryan, T.~Singh, and D.~Yadav.
+\newblock {Mem0: Building Production-Ready AI Agents with Scalable Long-Term Memory}, 2025.
+
+\bibitem{rethinking-agent-design-2025}
+J.~Du, J.~Wu, Y.~Chen, Y.~Hu, B.~Li, and J.~T. Zhou.
+\newblock {Rethinking Agent Design: From Top-Down Workflows to Bottom-Up Skill Evolution}, 2025.
+
+\bibitem{efron1979}
+B.~Efron.
+\newblock Bootstrap methods: Another look at the jackknife.
+\newblock {\em The Annals of Statistics}, 7(1):1--26, 1979.
+
+\bibitem{macla-2025}
+S.~Forouzandeh, W.~Peng, P.~Moradi, X.~Yu, and M.~Jalili.
+\newblock {Learning Hierarchical Procedural Memory for LLM Agents through Bayesian Selection and Contrastive Refinement}, 2025.
+
+\bibitem{sts2mcp-2026}
+Gennadiyev.
+\newblock {STS2MCP: Full agentic runs for Slay the Spire 2}.
+\newblock GitHub repository, \url{https://github.com/Gennadiyev/STS2MCP}, 2026.
+\newblock commit 2fb53908; accessed 2026-05-13.
+
+\bibitem{crafter2022}
+D.~Hafner.
+\newblock Benchmarking the spectrum of agent capabilities.
+\newblock In {\em International Conference on Learning Representations (ICLR)}, 2022.
+
+\bibitem{hermesbridge-2026}
+{hiKareeem}.
+\newblock {ClaudePlaysTheSpire (HermesBridge): Claude and friends play Slay the Spire II}.
+\newblock GitHub repository, \url{https://github.com/hiKareeem/ClaudePlaysTheSpire}, 2026.
+\newblock commit 38202d7f; accessed 2026-05-13.
+
+\bibitem{lmgame-bench-2025}
+L.~Hu, M.~Huo, Y.~Zhang, H.~Yu, E.~P. Xing, I.~Stoica, T.~Rosing, H.~Jin, and H.~Zhang.
+\newblock {lmgame-Bench: How Good are LLMs at Playing Games?}, 2025.
+
+\bibitem{memory-survey-2025}
+Y.~Hu, S.~Liu, Y.~Yue, et~al.
+\newblock Memory in the age of {AI} agents.
+\newblock {\em arXiv preprint arXiv:2512.13564}, 2025.
+
+\bibitem{sok-agentic-skills-2026}
+Y.~Jiang, D.~Li, H.~Deng, B.~Ma, X.~Wang, Q.~Wang, and G.~Yu.
+\newblock {SoK: Agentic Skills -- Beyond Tool Use in LLM Agents}, 2026.
+
+\bibitem{memoryos2025}
+J.~Kang, M.~Ji, Z.~Zhao, and T.~Bai.
+\newblock {Memory OS of AI Agent}, 2025.
+
+\bibitem{kwa-metr-2025}
+T.~Kwa, B.~West, J.~Becker, A.~Deng, K.~Garcia, M.~Hasin, S.~Jawhar, M.~Kinniment, N.~Rush, S.~Von~Arx, R.~Bloom, T.~Broadley, H.~Du, B.~Goodrich, N.~Jurkovic, L.~H. Miles, S.~Nix, T.~Lin, N.~Parikh, D.~Rein, L.~J.~K. Sato, H.~Wijk, D.~M. Ziegler, E.~Barnes, and L.~Chan.
+\newblock {Measuring AI Ability to Complete Long Software Tasks}, 2025.
+
+\bibitem{nethack2020}
+H.~Küttler, N.~Nardelli, A.~H. Miller, R.~Raileanu, M.~Selvatici, E.~Grefenstette, and T.~Rocktäschel.
+\newblock {The NetHack Learning Environment}.
+\newblock In {\em Advances in Neural Information Processing Systems (NeurIPS)}, 2020.
+
+\bibitem{skillsbench2026}
+X.~Li, W.~Chen, Y.~Liu, S.~Zheng, X.~Chen, Y.~He, Y.~Li, B.~You, H.~Shen, J.~Sun, S.~Wang, B.~Li, Q.~Zeng, D.~Wang, X.~Zhao, Y.~Wang, R.~B. Chaim, Z.~Di, Y.~Gao, J.~He, Y.~He, L.~Jing, L.~Kong, X.~Lan, J.~Li, S.~Li, Y.~Li, Y.~Lin, X.~Liu, X.~Liu, H.~Lyu, Z.~Ma, B.~Wang, R.~Wang, T.~Wang, W.~Ye, Y.~Zhang, H.~Xing, Y.~Xue, S.~Dillmann, and H.-c. Lee.
+\newblock {SkillsBench: Benchmarking How Well Agent Skills Work Across Diverse Tasks}, 2026.
+
+\bibitem{liu-versioning-2025}
+C.~Liu, L.~Zhang, X.~Xu, W.~Guo, and Y.~Liu.
+\newblock Towards the versioning of llm-agent-based software.
+\newblock In {\em Companion Proceedings of the 33rd ACM International Conference on the Foundations of Software Engineering (FSE Companion '25)}, pages 1619--1622, 2025.
+\newblock Ideas, Visions and Reflections track (4-page paper).
+
+\bibitem{lumer-cache-2026}
+E.~Lumer, F.~Nizar, A.~Jangiti, K.~Frank, A.~Gulati, M.~Phadate, and V.~K. Subbiah.
+\newblock {Don't Break the Cache: An Evaluation of Prompt Caching for Long-Horizon Agentic Tasks}, 2026.
+
+\bibitem{megacrit-neowsletter-may2026}
+{Mega Crit}.
+\newblock {The Neowsletter - May 2026}.
+\newblock Steam Community announcement, \url{https://store.steampowered.com/news/app/2868840/view/701016542742053855}, May 2026.
+\newblock Developer newsletter for Slay the Spire 2; non peer-reviewed; accessed 2026-05-23.
+
+\bibitem{skillos2026}
+S.~Ouyang, J.~Yan, Y.~Chen, R.~Han, Z.~Wang, B.~D. Mishra, R.~Meng, C.-L. Li, Y.~Jiao, K.~Zha, M.~Shen, V.~Tirumalashetty, G.~Lee, J.~Han, T.~Pfister, and C.-Y. Lee.
+\newblock {SkillOS: Learning Skill Curation for Self-Evolving Agents}, 2026.
+
+\bibitem{memgpt2024}
+C.~Packer, S.~Wooders, K.~Lin, V.~Fang, S.~G. Patil, I.~Stoica, and J.~E. Gonzalez.
+\newblock {MemGPT: Towards LLMs as Operating Systems}, 2024.
+
+\bibitem{balrog2024}
+D.~Paglieri, B.~Cupial, S.~Coward, U.~Piterbarg, M.~Wolczyk, A.~Khan, E.~Pignatelli, L.~Kucinski, L.~Pinto, R.~Fergus, J.~N. Foerster, J.~Parker-Holder, and T.~Rocktaschel.
+\newblock {BALROG: Benchmarking Agentic LLM and VLM Reasoning On Games}, 2024.
+
+\bibitem{generative-agents-2023}
+J.~S. Park, J.~C. O'Brien, C.~J. Cai, M.~R. Morris, P.~Liang, and M.~S. Bernstein.
+\newblock {Generative Agents: Interactive Simulacra of Human Behavior}, 2023.
+\newblock ACM Symposium on User Interface Software and Technology (UIST).
+
+\bibitem{reflexion2023}
+N.~Shinn, F.~Cassano, A.~Gopinath, K.~R. Narasimhan, and S.~Yao.
+\newblock Reflexion: Language agents with verbal reinforcement learning.
+\newblock In {\em Advances in Neural Information Processing Systems (NeurIPS)}, 2023.
+
+\bibitem{sinha-horizon-2026}
+A.~Sinha, A.~Arun, S.~Goel, S.~Staab, and J.~Geiping.
+\newblock {The Illusion of Diminishing Returns: Measuring Long Horizon Execution in LLMs}, 2025.
+
+\bibitem{spirecodex-2026}
+{Spire Codex}.
+\newblock {Spire Codex: Slay the Spire 2 Database}.
+\newblock Community database, \url{https://spire-codex.com/}, 2026.
+\newblock Public game-data database and REST API; non peer-reviewed; accessed 2026-05-23.
+
+\bibitem{sts2fun-community-stats-2026}
+{STS2 Community Stats}.
+\newblock {Slay the Spire 2 Community Stats}.
+\newblock Community statistics website, \url{https://www.sts2.fun/}, 2026.
+\newblock Community-uploaded survival-by-floor and ascension statistics; non peer-reviewed; accessed 2026-05-25.
+
+\bibitem{coala-2024}
+T.~R. Sumers, S.~Yao, K.~Narasimhan, and T.~L. Griffiths.
+\newblock {Cognitive Architectures for Language Agents}, 2024.
+\newblock Transactions on Machine Learning Research.
+
+\bibitem{dsgbench-2025}
+W.~Tang, Y.~Zhou, E.~Xu, K.~Cheng, M.~Li, and L.~Xiao.
+\newblock {DSGBench: A Diverse Strategic Game Benchmark for Evaluating LLM-based Agents in Complex Decision-Making Environments}, 2025.
+
+\bibitem{deal-checklist-2025}
+S.~Tripathi, D.~Alkhulaifat, F.~X. Doo, P.~Rajpurkar, R.~McBeth, D.~Daye, and T.~S. Cook.
+\newblock {Development, Evaluation, and Assessment of Large Language Models (DEAL) Checklist: A Technical Report}.
+\newblock {\em NEJM AI}, 2(6), May 2025.
+\newblock NEJM AI uses article-number citation (AIp2401106) rather than traditional page numbers; online publication 2025-05-22.
+
+\bibitem{dystil2025}
+B.~Wang, K.~McKeown, and R.~Ying.
+\newblock {DYSTIL: Dynamic Strategy Induction with Large Language Models for Reinforcement Learning}, 2025.
+
+\bibitem{voyager2023}
+G.~Wang, Y.~Xie, Y.~Jiang, A.~Mandlekar, C.~Xiao, Y.~Zhu, L.~Fan, and A.~Anandkumar.
+\newblock {Voyager: An Open-Ended Embodied Agent with Large Language Models}.
+\newblock {\em Transactions on Machine Learning Research}, 2024.
+\newblock Originally released as arXiv:2305.16291.
+
+\bibitem{sage-skillrl-2025}
+J.~Wang, Q.~Yan, Y.~Wang, Y.~Tian, S.~S. Mishra, Z.~Xu, M.~Gandhi, P.~Xu, and L.~L. Cheong.
+\newblock {Reinforcement Learning for Self-Improving Agent with Skill Library}, 2025.
+
+\bibitem{wang-cardgames-2025}
+W.~Wang, F.~Bie, J.~Chen, D.~Zhang, S.~Huang, E.~Kharlamov, and J.~Tang.
+\newblock {Can Large Language Models Master Complex Card Games?}, 2025.
+
+\bibitem{horizon-mirage-2026}
+X.~J. Wang, H.~Bai, Y.~Sun, H.~Wang, S.~Zhang, W.~Hu, M.~Schroder, B.~Mutlu, D.~Song, and R.~D. Nowak.
+\newblock {The Long-Horizon Task Mirage? Diagnosing Where and Why Agentic Systems Break}, 2026.
+
+\bibitem{ragen2025}
+Z.~Wang, K.~Wang, Q.~Wang, P.~Zhang, L.~Li, Z.~Yang, X.~Jin, K.~Yu, M.~N. Nguyen, L.~Liu, E.~Gottlieb, Y.~Lu, K.~Cho, J.~Wu, L.~Fei-Fei, L.~Wang, Y.~Choi, and M.~Li.
+\newblock {RAGEN: Understanding Self-Evolution in LLM Agents via Multi-Turn Reinforcement Learning}, 2025.
+
+\bibitem{wang-planning-2026}
+Z.~Wang, F.~Wu, H.~Wang, X.~Tang, B.~Li, Z.~Yin, Y.~Ma, Y.~Li, W.~Sun, X.~Chen, and Y.~Ye.
+\newblock {Why Reasoning Fails to Plan: A Planning-Centric Analysis of Long-Horizon Decision Making in LLM Agents}, 2026.
+
+\bibitem{awm-2025}
+Z.~Z. Wang, J.~Mao, D.~Fried, and G.~Neubig.
+\newblock {Agent Workflow Memory}, 2024.
+
+\bibitem{wilson1927}
+E.~B. Wilson.
+\newblock Probable inference, the law of succession, and statistical inference.
+\newblock {\em Journal of the American Statistical Association}, 22(158):209--212, 1927.
+
+\bibitem{gam-2026}
+Z.~Wu, H.~Zhang, F.~Lin, W.~Xu, X.~Xu, Y.~Chen, H.~P. Zou, S.~Chen, W.~Zhang, X.~Liu, P.~S. Yu, and H.~Wang.
+\newblock {GAM: Hierarchical Graph-based Agentic Memory for LLM Agents}, 2026.
+
+\bibitem{xiao-hearthstone-2023}
+C.~Xiao, Y.~Zhang, X.~Huang, Q.~Huang, J.~Chen, and P.~Sun.
+\newblock {Mastering Strategy Card Game (Hearthstone) with Improved Techniques}.
+\newblock In {\em IEEE Conference on Games (CoG)}, 2023.
+
+\bibitem{a-mem-2025}
+W.~Xu, Z.~Liang, K.~Mei, H.~Gao, J.~Tan, and Y.~Zhang.
+\newblock {A-MEM: Agentic Memory for LLM Agents}, 2025.
+
+\bibitem{react2023}
+S.~Yao, J.~Zhao, D.~Yu, N.~Du, I.~Shafran, K.~Narasimhan, and Y.~Cao.
+\newblock {ReAct: Synergizing Reasoning and Acting in Language Models}.
+\newblock In {\em International Conference on Learning Representations (ICLR)}, 2023.
+
+\bibitem{gameverse2026}
+K.~Zhang, D.~Liu, Q.~Zhao, J.~Hou, X.~Zhang, Q.~Xie, M.~Liu, and Y.~Li.
+\newblock {GameVerse: Can Vision-Language Models Learn from Video-based Reflection?}, 2026.
+
+\bibitem{expel2024}
+A.~Zhao, D.~Huang, Q.~Xu, M.~Lin, Y.-J. Liu, and G.~Huang.
+\newblock {ExpeL: LLM Agents Are Experiential Learners}.
+\newblock In {\em Proceedings of the AAAI Conference on Artificial Intelligence}, volume~38, pages 19632--19642, 2024.
+
+\bibitem{skillweaver2025}
+B.~Zheng, M.~Y. Fatemi, X.~Jin, Z.~Z. Wang, A.~Gandhi, Y.~Song, Y.~Gu, J.~Srinivasa, G.~Liu, G.~Neubig, and Y.~Su.
+\newblock {SkillWeaver: Web Agents can Self-Improve by Discovering and Honing Skills}, 2025.
+
+\bibitem{memento-skills-2026}
+H.~Zhou, S.~Guo, A.~Liu, Z.~Yu, Z.~Gong, B.~Zhao, Z.~Chen, M.~Zhang, Y.~Chen, J.~Li, R.~Yang, Q.~Liu, X.~Yu, J.~Zhou, N.~Wang, C.~Sun, and J.~Wang.
+\newblock {Memento-Skills: Let Agents Design Agents}, 2026.
+
+\end{thebibliography}

@@ -1,0 +1,16 @@
+## Items For Sale
+- [0] Skewer (XE, 76g) [CAN BUY] Uncommon: Deal 8 damage X times.
+- [1] Precise Cut (0E, 78g) [CAN BUY] Uncommon: Deal 13 damage. Deals 2 less damage for each other card in your Hand.
+- [2] Leg Sweep (2E, 73g) [CAN BUY] Uncommon: Apply 2 Weak. Gain 11 Block.
+- [3] Blade Dance (1E, 24g SALE) [CAN BUY] Common: Add 3 Shivs into your Hand. Exhaust. -> generates: Shiv (Attack, 0E, Exhaust): Deal 4 damage. Exhaust.
+- [4] Noxious Fumes (1E, 78g) [CAN BUY] Uncommon: At the start of your turn, apply 2 Poison to ALL enemies.
+- [5] Mind Blast (1E, 84g) [CAN BUY] Uncommon: Innate. Deal damage equal to the number of cards in your Draw Pile.
+- [6] Jackpot (3E, 179g) [CAN BUY] Rare: Deal 25 damage. Add 3 random 0 energy cards into your Hand.
+- [0] Venerable Tea Set (Relic, Common, 188g) [CAN BUY]: Whenever you enter a Rest Site, start the next combat with an additional 2 Energy.
+- [1] Vexing Puzzlebox (Relic, Rare, 309g) [TOO EXPENSIVE]: At the start of each combat, add a random card into your Hand. It's free to play this turn.
+- [2] The Abacus (Relic, Shop, 217g) [CAN BUY]: Whenever you shuffle your Draw Pile, gain 6 Block.
+- [0] Attack Potion (Potion, 52g) [CAN BUY]: Choose 1 of 3 random Attack cards to add into your Hand. It's free to play this turn.
+- [1] Swift Potion (Potion, 52g) [CAN BUY]: Draw 3 cards.
+- [2] Explosive Ampoule (Potion, 51g) [CAN BUY]: Deal 10 damage to ALL enemies.
+- [REMOVE] Card Removal (100g) [CAN BUY]
+

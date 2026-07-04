@@ -1,0 +1,12 @@
+## Guide
+Best purchase = biggest power spike for remaining run.
+
+Boss HP: ~600 in ~10 turns -> need ~60 damage/turn.
+Estimate your deck's damage output first. If below target, prioritize damage/poison cards.
+For scaling attacks, estimate their damage on boss turns 5-10, not just their baseline text.
+If a card strengthens an engine you already have, count it as immediate plan support even if future rewards are unknown.
+If above target, invest in defense, draw, relics, or save gold.
+If card removal costs more than 100g, prefer combat-improving cards, relics, or potions unless removing a Curse.
+
+Review your Build Plan in the Strategic Thread. Prioritize purchases that fill gaps.
+

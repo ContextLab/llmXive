@@ -1,0 +1,23 @@
+## Hand (7 playable / 7 total)
+- Mind Blast (Attack, cost=1) [0 dmg] -> targets enemies: Innate. Deal damage equal to the number of cards in your Draw Pile. (Deals 28 damage)
+    vs Soul Nexus[0]: 28 dmg
+- Backflip+ (Skill, cost=1) [8 block] DRAWS: Gain 18 Block. Draw 2 cards.
+- Survivor (Skill, cost=1) [8 block]: Gain 18 Block. Discard 1 card.
+- Defend (Skill, cost=1) [5 block]: Gain 12 Block.
+- Strike (Attack, cost=1) [6 dmg] -> targets enemies: Deal 6 damage.
+- Infinite Blades (Power, cost=1): At the start of your turn, add 1 Shiv into your Hand.
+  -> generates Shiv (Attack, cost=0, Exhaust): Deal 4 damage. Exhaust.
+- Neutralize+ (Attack, cost=0) [4 dmg] -> targets enemies: Deal 4 damage. Apply 2 Weak. Gain 1 energy .
+!! DISCARD: Survivor will require discarding. Fill the "discard" field in your plan. Use a list when the card discards multiple cards.
+!! DISCARD RULE: Survivor -- if hand has fewer cards than the discard cost, you only discard what remains (possibly zero). SEQUENCE: play ALL other cards BEFORE Survivor so it discards 0 cards.
+
+Energy budget: 3E available, fixed-cost total: 6E
+
+CRITICAL RULES:
+- Energy RESETS to full each turn. Unspent energy is WASTED.
+- Hand cards are DISCARDED at end of turn. Unplayed cards are WASTED.
+- Cards DRAWN or CREATED this turn enter your CURRENT hand now. If left unplayed, they are discarded/exhausted/retained by their own rules at the end of THIS turn -- they do NOT wait for next turn.
+- Hand size limit is 10 cards. Current hand is 7/10; draw/add-to-hand effects beyond 10 are lost or fail to enter hand.
+- Current Block only matters for the upcoming enemy turn. It does NOT carry into your next turn unless a visible effect explicitly preserves Block.
+- Draw pile order is only a CONDITIONAL forecast. It predicts later draws only if you stop drawing right now; any draw/add-to-hand effect changes that forecast immediately.
+- The `plan` array is executed top-to-bottom. If a card should be played last (for example an X-cost card like Malaise), list it last.

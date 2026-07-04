@@ -1,0 +1,5 @@
+## Usable Potions
+Potion slots: 2/3 (1 open)
+- [potion_index=0] Powdered Demise [INSTANT] -> targets enemies (target_index required): Enemy loses 9 HP at the end of each of its turns.
+- [potion_index=1] Swift Potion [INSTANT]: Draw 3 cards.
+

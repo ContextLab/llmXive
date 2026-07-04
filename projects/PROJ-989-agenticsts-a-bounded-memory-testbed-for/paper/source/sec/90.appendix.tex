@@ -1,0 +1,182 @@
+% ============================================
+% Appendix
+% Outside 8-page limit
+% ============================================
+
+\section{Evaluation archive and aggregation rule}
+\label{app:configs}
+
+The archive is organized so that each reported win rate can be
+recomputed from completed-run records. It includes one record per
+trajectory, the condition tags used to select cells, frozen $L_4{+}L_5$
+snapshots for the within-codebase ablation, representative
+decision-time and postrun prompt records, and scripts for Wilson 95\%
+win-rate intervals and bootstrap 95\% score intervals. A cell's win
+rate is simply victories divided by completed games in that cell. We
+keep the fixed-$A_0$, cross-backbone, ladder, and full-archive
+streams separate. Table~\ref{tab:evidence-streams} gives the
+denominator rule for each stream.
+
+\begin{table}[H]
+\centering\footnotesize
+\caption{Denominator map. Only the balanced fixed-$A_0$ subset enters the headline ablation (Table~\ref{tab:fivecond}); streams are never pooled.}
+\label{tab:evidence-streams}
+\setlength{\tabcolsep}{4pt}
+\renewcommand{\arraystretch}{1.08}
+\begin{tabular*}{\columnwidth}{@{\extracolsep{\fill}}llll@{}}
+\toprule
+Stream & $N$ & Metric & Role \\
+\midrule
+Fixed-$A_0$ & 50 $(5\!\times\!10)$ & win+score & headline \\
+Backbone & 5/cell & score shift & diagnostic \\
+Ladder & unequal & max $A$ & endpoint \\
+Archive & 298 & tags+scripts & audit \\
+\bottomrule
+\end{tabular*}
+\end{table}
+\FloatBarrier
+
+\paragraph{Score-formula audit.}
+The derived score (Eq.~\ref{eq:score}) uses $\mathrm{bosses}=0$
+when floor $<18$, $1$ when floor $<34$, $2$ otherwise, and $3$
+for victories. Table~\ref{tab:cell-floor-boss} lets readers
+reproduce the paper-reported means.
+
+\paragraph{Confidence intervals.}
+For a cell with $w$ wins out of $n$ completed runs, the Wilson 95\%
+interval \citep{wilson1927} on the win rate $\hat p = w/n$ is
+\begin{equation}
+\frac{\hat p + \tfrac{z^2}{2n} \pm z\sqrt{\tfrac{\hat p(1-\hat p)}{n} + \tfrac{z^2}{4n^2}}}{1 + z^2/n},
+\quad z=1.96.
+\label{eq:wilson}
+\end{equation}
+Score intervals use the percentile bootstrap \citep{efron1979}: 5{,}000
+resamples with replacement from the cell's $n$ run-level scores,
+reporting the empirical $[2.5,97.5]$ percentiles. The descriptive
+pooled scaffolded row uses an exact Clopper--Pearson interval and is
+labeled as such.
+
+\begin{table}[H]
+\centering\footnotesize
+\caption{Per-cell floor and boss-clear counts that reproduce the
+mean scores reported in Table~\ref{tab:fivecond}.}
+\label{tab:cell-floor-boss}
+\setlength{\tabcolsep}{4pt}
+\renewcommand{\arraystretch}{1.05}
+\begin{tabular*}{\columnwidth}{@{\extracolsep{\fill}}lccccc@{}}
+\toprule
+Cell & $N$ & Wins & $\overline{\mathrm{floor}}$ & $\overline{\mathrm{bosses}}$ & $\overline{\mathrm{score}}$ \\
+\midrule
+baseline-strict & 10 & 3 & 39.2 & 1.80 & 70.40 \\
+prompt-only     & 10 & 4 & 38.4 & 1.80 & 69.60 \\
+mode-a          & 10 & 6 & 43.9 & 2.40 & 85.50 \\
+mode-b-frozen   & 10 & 6 & 43.4 & 2.30 & 83.27 \\
+full-frozen     & 10 & 6 & 42.2 & 2.30 & 82.07 \\
+\bottomrule
+\end{tabular*}
+\end{table}
+\FloatBarrier
+
+\section{Memory contract: five typed layers}
+\label{app:memory-contract}
+
+Table~\ref{tab:memory-contract} gives a compact legend for the five
+stores used in the paper. The useful distinction is mutability:
+$L_1$ and $L_2$ are fixed, $L_3$ can be filtered, and $L_4/L_5$ can be
+disabled, frozen, or made writable depending on the evidence stream.
+
+\begin{table}[H]
+\centering\footnotesize
+\caption{Five-layer memory contract. Each decision receives typed slices; raw cross-decision transcript is not appended.}
+\label{tab:memory-contract}
+\setlength{\tabcolsep}{4pt}
+\renewcommand{\arraystretch}{1.08}
+\begin{tabular*}{\columnwidth}{@{\extracolsep{\fill}}cllll@{}}
+\toprule
+Layer & Store & Key & Write & Ablation \\
+\midrule
+$L_1$ & protocol & state & fixed & always \\
+$L_2$ & schema & decision & fixed & always \\
+$L_3$ & rules & entities & refresh & filter \\
+$L_4$ & episodes & char/$A$/act & postrun & off/on \\
+$L_5$ & skills & trigger & gated & off/A/B \\
+\bottomrule
+\end{tabular*}
+\end{table}
+\FloatBarrier
+
+\section{Concrete prompt and learning examples}
+\label{app:artifacts}
+
+\paragraph{Decision-time composed prompt.}
+At decision time, the agent assembles the user prompt in a fixed
+typed order: fired $L_5$ skills, $L_4$ episodes, $L_3$ game facts,
+the $L_2$ typed state prompt, and a schema hint listing valid
+actions. The order is shared across non-combat decision states. Combat
+is the only intra-fight stateful container, and its emitted message
+list per round is bounded to three items: combat start, an
+acknowledgement, and the latest user state. Earlier rounds are not
+copied into the transcript; the next round is prompted from a newly
+composed user message. A shortened floor-7 card-reward excerpt shows
+the typed layers:
+
+\begin{Verbatim}[fontsize=\footnotesize]
+## Expert Knowledge (retrieved skills)
+**Silent - Draft and Shop Rules** (seed)
+Early rewards must solve damage first,
+then block, draw, and energy. ...
+
+## Card-Specific Insights
+- dodge and roll: delayed block plus Dexterity.
+- slice: 0-cost transitional damage.
+
+## Game Knowledge / Card Mechanics
+- DodgeAndRoll: Block Next Turn; upgrade +2.
+- Slice: Upgrade: Damage +3
+
+## Card Reward
+HP: 57/57 (100%) | Gold: 55 | Act: 1 | Floor: 7
+
+## Decision Format (card_reward_action)
+Valid actions: choose_reward_card
+or choose_reward_alternative
+\end{Verbatim}
+
+\paragraph{Representative learned skill.}
+One learned skill concerns a boss mechanic that exhausts attacks and
+skills on specific turns (turns 2, 5, 8, and 11). The stored rule
+instructs the agent to preserve core scaling cards on those turns and
+to prefer powers or natively exhausting cards. The example shows that
+$L_5$ stores state-conditioned tactical rules with Boolean triggers,
+not generic advice or similarity-retrieved raw logs. Full prompt and
+learned-skill records are included in the artifact archive.
+
+\section{External calibration and source boundaries}
+\label{app:difficulty-calibration}
+
+External \stspad{} statistics enter the paper as difficulty and
+ecosystem context. Cached snapshots of each source are released
+with the artifact archive so that follow-up work can reproduce
+the calibration rows under identical inputs.
+
+\begin{table}[H]
+\centering\footnotesize
+\caption{External numbers calibrate difficulty and ecosystem context only.}
+\label{tab:difficulty-calibration}
+\setlength{\tabcolsep}{4pt}
+\renewcommand{\arraystretch}{1.08}
+\begin{tabular*}{\columnwidth}{@{\extracolsep{\fill}}lll@{}}
+\toprule
+Source & Role & Not used as \\
+\midrule
+AGI-Eval & LLM yardstick & causal baseline \\
+Mega Crit $A_0$ & difficulty anchor & matched human test \\
+Spiracle & community context & population rate \\
+\bottomrule
+\end{tabular*}
+\end{table}
+\FloatBarrier
+
+% The new "Full decision-time prompt exhibits" section (appendix_two_full_prompt_exhibits.tex)
+% is \input{} after this file from main_v2.tex and provides complete prompt
+% content for both a combat and a shop decision.

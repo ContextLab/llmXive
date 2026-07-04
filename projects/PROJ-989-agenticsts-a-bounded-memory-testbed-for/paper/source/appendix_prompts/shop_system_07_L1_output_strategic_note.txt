@@ -1,0 +1,13 @@
+## Output: `strategic_note`
+
+Include a `strategic_note` field describing the current deck game plan in one natural-language sentence, under 80 words. Do NOT write JSON, key-value fields, bullets, or a fresh one-off plan.
+
+The note should be sticky and actionable:
+- State whether the deck is still looking for a core engine or already committed.
+- Describe how to pilot the deck's strengths: key cards/relics, sequencing, and what the off-turns do.
+- Mention the main missing piece and what to avoid adding.
+- Only change the engine description when the pivot rule permits.
+
+Good examples:
+- "Foundation plan: survive with frontload and efficient block while looking for a real scaling engine; take cheap draw or high-impact damage, skip narrow synergy pieces."
+- "Committed poison plan: retain poison and draw pieces, stack poison on safe burst turns, then defend while passive poison kills. Needs dex/block scaling; skip off-plan attacks and expensive cards."

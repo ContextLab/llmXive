@@ -1,0 +1,4 @@
+### Past Experience
+- The boss opens the encounter with moderate attacks (18 to 29 damage) and debuff abilities like Soul Burn and DebuffStrong.
+- If the fight extends into later rounds, the boss gains Strength and utilizes massive damage spikes, notably a 43-damage single hit and a 36-damage (9x4) Maelstrom.
+

@@ -1,0 +1,16 @@
+## Relics (14)
+- Ring of the Snake: At the start of each combat, draw 2 additional cards.
+- Large Capsule: Upon pickup, obtain 2 random Relics. Add an additional Strike and Defend to your Deck.
+- Parrying Shield: If you end a turn with at least 10 Block, deal 6 damage to a random enemy.
+- Blood Vial: At the start of each combat, heal 2 HP.
+- Oddly Smooth Stone: Start each combat with 1 Dexterity.
+- Letter Opener: Every time you play 3 Skills in a single turn, deal 5 damage to ALL enemies.
+- Vambrace: The first time you gain Block from a card each combat, double the amount gained.
+- Byrdpip: Upon pickup, gain the card Byrd Swoop. A Byrdpip will accompany you in battles.
+- Biiig Hug: Upon pickup, remove 4 cards from your Deck. Whenever you shuffle your Draw Pile, add a Soot into your Draw Pile.
+- Red Mask: At the start of each combat, apply 1 Weak to ALL enemies.
+- Happy Flower: Every 3 turns, gain Energy.
+- Whetstone: Upon pickup, Upgrade 2 random Attacks.
+- Music Box: Create an Ethereal copy of the first Attack you play each turn.
+- Reptile Trinket: Whenever you use a potion, gain 3 Strength this turn.
+

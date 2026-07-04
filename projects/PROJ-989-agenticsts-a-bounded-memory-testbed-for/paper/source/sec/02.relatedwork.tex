@@ -1,0 +1,93 @@
+% ============================================
+% §2 Related Work
+% ============================================
+\section{Related Work}
+\label{sec:related}
+
+
+We build on four recent research threads---prompt-history agents,
+externalized memory, skill libraries, and long-horizon game
+testbeds---and target their joint problem: which slice of prior
+experience enters each decision, and whether that route can itself
+be ablated.
+
+\paragraph{Loop and context engineering.}
+In practice, agent design is increasingly framed as \emph{loop
+engineering}: specifying a goal, tools, termination, and---centrally---the
+memory and context policy of a control loop that runs over hundreds of
+steps and multiple sessions~\citep{anthropic-context-2025}. The recurring
+failure mode is context growth: appending full transcripts and tool logs
+to every call overflows the window and dilutes attention, whereas
+``token-poor'' loops keep only the last few messages or short summaries
+and therefore depend on an explicit memory store~\citep{memory-survey-2025}.
+This is exactly the axis our contract isolates. That literature is largely
+qualitative and centered on coding agents; the academic threads below
+supply the mechanisms, and we make the memory stage of the loop a typed,
+bounded, ablatable contract on a hard long-horizon game.
+
+\paragraph{Long-horizon LLM agents and prompt-visible history.}
+ReAct and Reflexion made it natural for observations and
+self-critiques to reappear in later LLM
+calls \citep{react2023,reflexion2023}. Recent horizon analyses
+\citep{sinha-horizon-2026,wang-planning-2026,horizon-mirage-2026,%
+kwa-metr-2025} examine how small errors compound over many steps.
+
+\paragraph{Typed and structured memory.}
+MemGPT, Mem0, MemoryOS, GAM, hierarchical procedural memory, and
+Agent Workflow Memory \citep{memgpt2024,mem0-2025,memoryos2025,%
+gam-2026,macla-2025,awm-2025} move information out of raw message
+history into external stores. Adjacent typed-memory frameworks
+\citep{coala-2024,generative-agents-2023,a-mem-2025} group memory
+by capacity; we instead role-type slots by mutability and retrieval
+source. Most evaluation is in dialogue or QA; in our setting
+retrieval feeds an action policy in a stochastic environment.
+
+\paragraph{Self-evolving skill libraries.}
+Voyager pioneered an external library of agent-written skills
+\citep{voyager2023}; SkillsBench, SkillOS, Memento-Skills,
+SAGE/SkillRL, SkillWeaver, ExpEL, and DyStIL extend the design
+\citep{skillsbench2026,skillos2026,memento-skills-2026,%
+sage-skillrl-2025,skillweaver2025,expel2024,dystil2025}. In the
+SoK notation $S=(C,\pi,T,R)$ \citep{sok-agentic-skills-2026}, our
+$L_5$ guides correspond to $(C,\pi)$: a trigger selects a prose
+policy for the next decision.
+
+\paragraph{LLM agents on games.}
+Games such as Crafter, NetHack, BALROG, LMGame-Bench, DSGBench,
+Gameverse, and RAGEN \citep{crafter2022,nethack2020,balrog2024,lmgame-bench-2025,%
+dsgbench-2025,gameverse2026,ragen2025} provide stochastic testbeds
+for agents. Card-game work includes end-to-end policy networks
+\citep{xiao-hearthstone-2023}, LoRA-tuned draft models
+\citep{urzagpt-2025}, cross-card-game LLM evaluation
+\citep{wang-cardgames-2025}, and LLM play on the original Slay the
+Spire with simplified rule sets
+\citep{bateni-whitehead-2024,rethinking-agent-design-2025}.
+
+\paragraph{Public \stspad{} LLM agents.}
+The public \stspad{} ecosystem---STS2MCP, HermesBridge, AI-Spire,
+CharTyr \citep{sts2mcp-2026,hermesbridge-2026,ai-spire-2026,%
+chartyr-sts2-2026}---does not report a matched ablation over
+prompt strictness, episodic memory, and triggered skills.
+AGI-Eval~\cite{agi-eval-spire-2026} lists zero $A_0$ victories across
+five frontier-model rows with mixed denominators.
+
+\begin{table*}[t]
+\centering\small
+\caption{Positioning map for prior-experience interfaces. Green checkmarks mark a central axis; orange triangles mark a partial or optional axis. Citations appear in the surrounding paragraphs.}
+\label{tab:memcompare}
+\setlength{\tabcolsep}{6pt}
+\renewcommand{\arraystretch}{1.08}
+\begin{tabularx}{\textwidth}{@{}p{0.22\textwidth}cccccY@{}}
+\toprule
+Family & Transcript & Typed memory & Skills & Layer ablation & Game policy & Gap \\
+\midrule
+Prompt-history / replay & \yesmark & \nomark & \partmark & \nomark & \partmark & attribution \\
+Structured memory       & \nomark & \yesmark & \nomark & \partmark & \nomark & policy \\
+Skill-library agents    & \partmark & \partmark & \yesmark & \partmark & \partmark & contract \\
+\textbf{Ours}            & \textbf{\nomark} & \textbf{\yesmark} & \textbf{\yesmark} & \textbf{\yesmark} & \textbf{\yesmark} & \textbf{joint test} \\
+\bottomrule
+\end{tabularx}
+\end{table*}
+
+We combine these threads in one bounded-memory contract, so future
+work can compare alternative contracts under the same harness.

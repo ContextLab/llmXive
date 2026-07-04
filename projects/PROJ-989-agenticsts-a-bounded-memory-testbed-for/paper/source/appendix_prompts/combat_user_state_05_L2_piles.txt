@@ -1,0 +1,24 @@
+## Piles
+Piles: Draw 20 | Discard 0 | Exhaust 0
+Draw (20):
+  - Accuracy [1]: Shivs deal 4 additional damage.
+  - Accuracy+ [1]: Shivs deal 6 additional damage.
+  - Backflip [1]: Gain 5 Block. Draw 2 cards.
+  - Blade Dance [1]: Add 3 Shivs into your Hand. Exhaust.
+  - Blade of Ink [1]: Add 2 Inky Shivs into your Hand.
+  - Byrd Swoop+ [0]: Deal 18 damage.
+  - Cloak and Dagger+ [1]: Gain 6 Block. Add 2 Shivs into your Hand.
+  - Defend [1]: Gain 5 Block.
+  - Deflect [0]: Gain 4 Block.
+  - Expertise+ [1]: Draw cards until you have 7 in your Hand.
+  - Footwork+ [1]: Gain 3 Dexterity.
+  - Knife Trap [2]: Play every Shiv in your Exhaust Pile on the enemy. (Plays 0 Shivs)
+  - Leading Strike+ [1]: Deal 6 damage. Add 2 Shivs into your Hand.
+  - Leg Sweep [2]: Apply 2 Weak. Gain 11 Block.
+  - Phantom Blades [1]: Shivs gain Retain. The first Shiv you play each turn deals 9 additional damage.
+  - Piercing Wail [1]: ALL enemies lose 6 Strength this turn. Exhaust.
+  - Serpent Form [3]: Whenever you play a card, deal 4 damage to a random enemy.
+  - Storm of Steel [1]: Discard your Hand. Add 1 Shiv into your Hand for each card discarded.
+  - Up My Sleeve [2]: Add 3 Shivs into your Hand. Reduce this card's cost by 1.
+  - Well-Laid Plans [1]: At the end of your turn, Retain up to 1 card.
+

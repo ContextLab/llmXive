@@ -1,0 +1,15 @@
+## Output Format
+Think through your decision, then output your choice in a <decision> tag containing valid JSON.
+
+Example (map):
+<decision>
+{"action": "choose_map_node", "option_index": 2, "reasoning": "Elite fight for card reward", "strategic_note": "Need AoE damage for Act 2 hallways"}
+</decision>
+
+Example (combat plan):
+<decision>
+{"plan": [{"type": "card", "card": "Backflip", "target_index": -1}, {"type": "card", "card": "Shiv", "target_index": 0}], "end_turn": true, "reasoning": "Block first, then chip damage", "note_to_future_self": "Poison at 8, need 2 more turns", "analysis": {"problem": "Incoming 15 damage", "key_observations": ["Can block 11 with Backflip", "Shiv for 5 chip"], "candidate_lines": ["Block+Shiv", "All-in damage"], "chosen_line": "Block+Shiv to survive"}}
+</decision>
+
+The JSON must match the schema for the current decision type. Every decision requires a "reasoning" field.For combat plans, the `plan` array is the exact execution order: item 1 happens first, then item 2, etc. Put cards in the same order they should actually be played.
+

@@ -1,0 +1,44 @@
+% ============================================
+% Ethical Considerations
+% ============================================
+% No \section here — main.tex provides "\section*{Ethical Considerations}".
+
+\paragraph{Subject of study.}
+The agent acts only inside a single-player video game on a community
+mod. No human subjects are involved, and the project collects no
+personal data. We cite aggregate public community statistics and
+public repository metadata, but do not redistribute user-level
+community runs.
+
+\paragraph{Game and mod licensing.}
+\stspad{} is a commercial title, and the surrounding mod ecosystem
+includes open-source projects such as STS2MCP, AI-Spire,
+HermesBridge, and CharTyr. The artifact records community-mod
+ancestry and license notes, including the CharTyr STS2 mod
+\citep{chartyr-sts2-2026}, without redistributing game asset dumps.
+Game names, screenshots, and textual references throughout this paper
+and the released artifact are used for research documentation only;
+all rights to the underlying game and its content remain with the
+rights holders, and verbatim game-string tables are regenerated locally
+rather than redistributed.
+
+\paragraph{Reproducibility and data sharing.}
+We release run logs, frozen $L_4{+}L_5$ artifacts, configuration
+snapshots, and analysis scripts in a separate public archive with
+license and provenance notes (\S\ref{sec:methodology:repro}). The
+archive contains derived fields and local scripts, not a
+redistributable copy of the game. It excludes scraped human dialogue,
+model weights, copyrighted raw art, and game asset dumps.
+
+\paragraph{Use of AI assistance.}
+LLM systems were used for drafting and editing assistance. The
+authors verified the experimental results, statistical analyses,
+architecture choices, and interpretations against frozen logs and
+scripts. LLM systems were not used to generate or alter raw logs or
+to fabricate numerical results.
+
+\paragraph{Risk of dual use.}
+Bounded retrieval and skill write-back are general agent capabilities.
+The single-player game setting has low direct harm. Deployment in
+domains with real-world actions would require separate safety review,
+logging, and write-gate controls.

@@ -1,0 +1,5 @@
+## Potion Strategy
+Fight: elite | Boss: 8 floors away
+- Powdered Demise [INSTANT]: Enemy loses 9 HP at the end of each of its turns.
+- Swift Potion [INSTANT]: Draw 3 cards.
+

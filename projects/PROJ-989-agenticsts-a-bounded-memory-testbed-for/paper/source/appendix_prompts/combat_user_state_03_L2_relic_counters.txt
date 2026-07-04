@@ -1,0 +1,4 @@
+## Relic Counters
+- Letter Opener: 0 -- Every time you play 3 Skills in a single turn, deal 5 damage to ALL enemies.
+- Happy Flower: 2 -- Every 3 turns, gain Energy.
+

@@ -1,0 +1,5 @@
+## Current Deck (35 cards)
+  [Attack] Leading Strike+ x2, Byrd Swoop+(cost=0), Mind Blast(cost=1), Neutralize+[Sown](cost=0), Strike(cost=1)
+  [Power] Accuracy(cost=1), Accuracy+(cost=1), Footwork+(cost=1), Infinite Blades(cost=1), Phantom Blades(cost=1), Serpent Form(cost=3), Well-Laid Plans(cost=1)
+  [Skill] Defend x6, Backflip x3, Leg Sweep x2, Backflip+(cost=1), Blade Dance(cost=1), Blade of Ink(cost=1), Cloak and Dagger+(cost=1), Deflect(cost=0), Expertise+(cost=1), Knife Trap(cost=2), Piercing Wail(cost=1), Storm of Steel(cost=1), Survivor(cost=1), Up My Sleeve(cost=2)
+
