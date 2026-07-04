@@ -1,88 +1,66 @@
 # Quickstart: Investigating Network Centrality in ASD Resting-State fMRI
 
 ## Prerequisites
-
-*   Python 3.11+
-*   Docker (for fMRIPrep)
-*   Git
-*   7 GB+ RAM (recommended)
+- Python 3.11+
+- Docker (for fMRIPrep)
+- 14GB+ Disk Space
+- 7GB+ RAM
 
 ## Installation
 
-1.  **Clone the repository**:
-    ```bash
-    git clone <repo-url>
-    cd projects/PROJ-460-investigating-the-impact-of-network-cent
-    ```
+1. **Clone and Setup**
+   ```bash
+   git clone <repo-url>
+   cd projects/PROJ-460-investigating-the-impact-of-network-cent
+   python -m venv venv
+   source venv/bin/activate
+   pip install -r code/requirements.txt
+   ```
 
-2.  **Create a virtual environment**:
-    ```bash
-    python -m venv venv
-    source venv/bin/activate  # On Windows: venv\Scripts\activate
-    ```
+2. **Verify Docker**
+   ```bash
+   docker pull jopet/fmriprep:latest
+   ```
 
-3.  **Install dependencies**:
-    ```bash
-    pip install -r code/requirements.txt
-    ```
+## Execution
 
-## Running the Pipeline
-
-### ⚠️ CRITICAL BLOCKER: Real Data Required
-
-**This pipeline is currently BLOCKED.** The `# Verified datasets` block does not contain a valid source for raw ABIDE fMRI data (NIfTI files). The scientific analysis **cannot proceed** without real biological data.
-
-**To Unblock**:
-1.  Identify a verified source for raw ABIDE data (e.g., official ABIDE website, verified HuggingFace dataset with NIfTI files).
-2.  Update the `# Verified datasets` block in the project specification with the new URL.
-3.  Once a valid source is confirmed, the pipeline can be executed as described below.
-
-### Unit Testing (Code Logic Only)
-
-To verify that the code logic (centrality calculation, FDR correction, etc.) functions correctly, you may run unit tests using **mock data**. This does **not** generate scientific results.
-
+### Step 1: Download Data
+Run the download script. It will fetch metadata from the verified ABIDE parquet and attempt to download raw images.
 ```bash
-# Run unit tests (uses mock data internally)
-pytest code/tests/
+python code/01_download.py
+```
+*Note: If the verified parquet links do not provide direct image downloads, this step will log the missing files and halt.*
+
+### Step 2: Preprocess
+Run fMRIPrep on the downloaded data.
+```bash
+python code/02_preprocess.py
+```
+*Warning: This step is CPU-intensive and may take several hours.*
+
+### Step 3: Compute Centrality
+Extract time-series, build graphs, and compute metrics.
+```bash
+python code/03_connectivity.py
+python code/04_centrality.py
 ```
 
-### Option B: Real Data (Required for Scientific Results)
-
-Once a valid ABIDE source is added to the verified datasets block:
-
+### Step 4: Statistical Analysis
+Run t-tests, FDR correction, and sensitivity analysis.
 ```bash
-# Download real data (requires valid credentials/source)
-python code/download.py --mode abide --credentials-file .abide_creds
-
-# Run fMRIPrep (CPU mode) - Note: May require batch processing
-python code/preprocess.py --mode abide --docker-image fmriprep/fmriprep:23.1.0
-
-# Compute centrality and run stats
-python code/analysis/centrality.py
-python code/analysis/stats.py
-
-# Generate visualizations
-python code/viz/brain_maps.py
+python code/05_analysis.py
 ```
 
-## Validation
+### Step 5: Classification & Visualization
+Train classifier and generate brain plots.
+```bash
+python code/06_classification.py
+python code/07_visualize.py
+```
 
-1.  **Check Output Files**:
-    *   `data/outputs/stats/group_comparison.json` should exist (only if real data was processed).
-    *   `data/outputs/figures/centrality_map.png` should exist (only if real data was processed).
-
-2.  **Run Tests**:
-    ```bash
-    pytest code/tests/
-    ```
-
-3.  **Verify FDR Correction**:
-    Ensure `q_value` in the stats output is calculated using the Benjamini-Hochberg procedure.
-
-## Troubleshooting
-
-*   **Memory Error**: If running on real data, reduce the number of subjects or use a smaller atlas (e.g., 200 ROIs instead of 400).
-*   **Docker Issues**: Ensure Docker daemon is running and the user has permissions.
-*   **No Significant Results**: This is expected if the effect size is small or power is low. Report effect sizes and confidence intervals.
-*   **Pipeline Blocked**: If you see a "Pipeline Blocked" message, check the `# Verified datasets` block for a valid fMRI source.
-*   **Synthetic Data**: Synthetic data is **NOT** used for scientific results. Unit tests only use mock data.
+## Verification
+Check `data/processed/results/` for statistical outputs and `data/processed/plots/` for visualizations.
+Run tests:
+```bash
+pytest tests/
+```

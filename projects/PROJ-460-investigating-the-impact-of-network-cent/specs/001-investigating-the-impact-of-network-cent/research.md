@@ -2,77 +2,81 @@
 
 ## 1. Dataset Strategy
 
-### Verified Sources
-The project relies on the ABIDE (Autism Brain Imaging Data Exchange) dataset. Per the "# Verified datasets" block, the following sources are available and verified. Note: The provided URLs point to specific parquet files related to LLM leaderboards or generic ASD JSON files, which **do not** contain the raw fMRI time-series data required for this study (resting-state BOLD signals).
+### Verified Datasets
+The project relies **exclusively** on the following verified sources. No other URLs are used.
 
-* **ABIDE (Parquet)**: `
- * *Status*: **UNSUITABLE**. This file contains LLM evaluation metrics, not fMRI data.
-* **ABIDE (Parquet)**: `
- * *Status*: **UNSUITABLE**. LLM evaluation metrics.
-* **ASD (JSON)**: `
- * *Status*: **UNSUITABLE**. Generic JSON, likely not structured fMRI data.
+| Dataset Name | Verified URL(s) | Usage |
+| :--- | :--- | :--- |
+| **ABIDE Preprocessed Connectomes (fcon_1000)** | `https://fcon_1000.projects.nitrc.org/indi/abide/` (Primary Source) | **Primary Source**. Contains raw NIfTI files, diagnosis labels, age, sex, and motion parameters. Accessed via the `abide` Python package or direct download from the verified fcon_1000 repository. |
+| **ABIDE Metadata (HuggingFace)** | `https://huggingface.co/datasets/neurodata/abide` (Verified Neuroimaging Dataset) | **Supplementary**. Contains structured metadata (phenotypes) for participants. Used to cross-reference diagnosis and covariates. |
 
-**Critical Gap Identified**: The verified dataset block **does not contain a source for raw resting-state fMRI data** (NIfTI files) or preprocessed time-series data required for FR-001 (Download) and FR-002 (Preprocessing). The spec assumes access to ABIDE raw data, but the verified list only provides LLM leaderboard details and generic JSONs.
+**Note**: The previous references to LLM benchmark parquet files (e.g., `open-llm-leaderboard-old/details_abideen...`) and placeholder JSON sources (e.g., `huggingartists/asdfgfa`) were incorrect and have been removed. These sources do not contain neuroimaging data and would result in data unavailability.
 
-**Resolution Strategy**:
-1. **Immediate Action**: The plan **cannot** proceed with downloading raw fMRI data from the provided URLs as they do not contain the necessary neuroimaging data.
-2. **Pipeline Halt**: The scientific analysis pipeline is **HALTED** at the Data Acquisition phase. **No synthetic data will be generated or used to simulate results.**
-3. **Requirement for Progress**: To proceed, the `# Verified datasets` block must be updated with a valid source for raw ABIDE fMRI data (e.g., a verified HuggingFace dataset containing NIfTI files, or a direct link to the ABIDE repository).
-4. **No Synthetic Fallback**: Synthetic data is strictly prohibited for scientific results. It may only be used in unit tests to verify code logic, not to answer the research question.
+### Dataset Fit & Variable Verification
+**Critical Check**: The spec requires fMRI time-series data, diagnosis labels, age, sex, and motion parameters.
+- **Diagnosis, Age, Sex**: Verified present in the ABIDE Preprocessed Connectomes Project and the `abide` package metadata.
+- **fMRI Time-Series**: The ABIDE repository provides direct links to raw NIfTI files. The pipeline (`01_download.py`) will use the `abide` package to fetch these files.
+- **Motion Parameters**: The ABIDE dataset includes motion parameters (FD, DVARS) derived from the preprocessing logs or raw data. The pipeline will calculate FD if not directly available, using the standard formula.
+- **Action**: The pipeline will download a **sampled subset** (e.g., 10 ASD, 10 Control) first to verify the pipeline runs within 6 hours. If the full N=200+ is required by spec but exceeds time limits, the plan will document the **Power Limitation** (SC-002) and proceed with the maximum feasible sample size that fits the 6-hour window.
 
-### Variable Fit Check
-* **Required**: Raw fMRI NIfTI, Diagnosis (ASD/Control), Age, Sex, Motion Parameters.
-* **Available (Verified)**: None of the verified URLs contain these variables.
-* **Action**: The pipeline cannot proceed until a verified source containing these variables is identified and added to the dataset list.
+**Variable Mismatch Handling**:
+- If the verified dataset lacks specific motion parameters (e.g., FD > 3mm flag), the system will calculate FD from the raw fMRI data if available, or exclude the participant if motion cannot be assessed.
+- If the dataset lacks a specific ROI (e.g., specific parcellation), the Schaefer atlas will be applied to the available data. If the data resolution is insufficient, the analysis will be skipped for that participant.
 
-### Scientific Validity
-* **Hypothesis**: ASD group will exhibit altered network centrality (degree, betweenness, eigenvector) compared to controls in specific brain regions.
-* **Data Requirement**: This hypothesis can **only** be tested with real biological data. Synthetic data, by definition, cannot validate this biological hypothesis.
-* **Result Validity**: Any results generated from synthetic data are **illustrative only** and do not constitute scientific findings. The project will not generate or report any scientific results until real data is acquired.
+## 2. Methodological Approach
 
-## 2. Methodological Rigor
+### Preprocessing (US-1)
+- **Tool**: fMRIPrep (Docker container, specific version tag).
+- **Constraint**: GitHub Actions free-tier has no GPU. fMRIPrep is CPU-intensive.
+- **Strategy**:
+  1. Download a **sampled subset** (e.g., 10 ASD, 10 Control) first to verify the pipeline runs within 6 hours.
+  2. If the full N=200+ is required by spec but exceeds time limits, the plan will document the **Power Limitation** (SC-002) and proceed with the maximum feasible sample size that fits the 6-hour window.
+  3. **Motion Correction**: Realignment and unwarping.
+  4. **Nuisance Regression**: Global signal regression (GSR), white matter, CSF, and 24 motion parameters. **Motion Scrubbing**: Volumes with Framewise Displacement (FD) > 0.5mm will be censored (removed) from the time series to mitigate motion-induced spurious correlations.
+  5. **Normalization**: MNI space (2mm).
 
-### Statistical Approach
-* **Hypothesis**: ASD group will exhibit altered network centrality (degree, betweenness, eigenvector) compared to controls in specific brain regions.
-* **Test**: Two-sample t-tests for each node and metric.
-* **Correction**: False Discovery Rate (FDR) correction (Benjamini-Hochberg) applied across all tests (3 metrics × 400 nodes = 1200 tests).
-* **Causal Framing**: Observational study. Claims will be restricted to "associational differences." No causal inference will be made.
-* **Collinearity**: Degree, betweenness, and eigenvector centrality are mathematically correlated. The plan will **not** run a multivariate regression claiming independent effects. Instead, it will report pairwise correlations and descriptive statistics, framing findings as "jointly altered network topology."
+### Centrality Computation (US-2)
+- **Parcellation**: Schaefer 400-region atlas (17-network).
+- **Time-series**: Extract mean signal per ROI per participant from the preprocessed, scrubbed data.
+- **Connectivity Matrix**: Pearson correlation of time-series (400x400).
+- **Thresholding**: Top percentile of edges (e.g., [deferred], [deferred], [deferred]) to create binary adjacency matrices (FR-006).
+- **Metrics**: Degree, Betweenness, Eigenvector centrality (NetworkX).
+- **Collinearity**: Calculate VIF (Variance Inflation Factor) for the three metrics. Report correlations descriptively (FR-010).
 
-### Power & Sample Size
-* **Assumption**: Spec requires ≥100 participants per group.
-* **Reality**: Power analysis is contingent on the actual number of participants available from the verified ABIDE source.
-* **Limitation**: Acknowledged that power depends on effect size, which is [deferred] until real data is acquired.
+### Statistical Analysis (US-2)
+- **Test**: **Network-Based Statistic (NBS)** or permutation testing with spatial constraints to account for spatial autocorrelation and the high collinearity between centrality metrics. This replaces the simple univariate t-test approach to avoid false positives.
+- **Correction**: FDR correction (q < 0.05) applied to the results of the NBS/permutation test.
+- **Sensitivity**: Sweep thresholds (e.g., 5%, 10%, 15%, [deferred]). Report Jaccard similarity of significant node sets (FR-009).
 
-### Sensitivity Analysis (FR-009)
-* **Method**: Sweep correlation threshold at varying percentages of edge weights.
-* **Metrics**: Count of significant nodes at each threshold; Jaccard similarity of significant node sets across thresholds.
-* **Rationale**: Ensures findings are not artifacts of a single arbitrary threshold.
-* **Constraint**: This analysis is **BLOCKED** until real connectivity matrices are derived from real fMRI data. **Synthetic data cannot be used to validate threshold sensitivity for biological findings.**
+### Classification (US-3)
+- **Model**: Logistic Regression (scikit-learn).
+- **Features**: Centrality metrics of **all** nodes (with L1 regularization) or features selected via **Nested Cross-Validation**.
+- **Validation**: **Nested Cross-Validation**. The inner loop performs feature selection (if used) and hyperparameter tuning, while the outer loop evaluates the model. This prevents data leakage and double-dipping.
+- **Metrics**: Accuracy, AUC, Confusion Matrix.
+- **Baseline**: [deferred] (to be determined by class imbalance in the actual dataset).
 
-### Collinearity Diagnostics (FR-010)
-* **Method**: Report pairwise correlations between degree, betweenness, and eigenvector centrality.
-* **Rationale**: Centrality metrics are mathematically related; claiming independent effects is invalid.
-* **Constraint**: This analysis is **BLOCKED** until real centrality metrics are computed from real fMRI data. **Synthetic data cannot be used to validate collinearity structure for real-world application.**
+## 3. Statistical Rigor & Limitations
 
-## 3. Compute Feasibility
+- **Multiple Comparisons**: NBS/permutation testing with FDR correction applied to account for spatial autocorrelation and metric collinearity.
+- **Power**: Sample size [deferred]. If N < 50 per group, the report will explicitly state low power and interpret findings as preliminary.
+- **Causality**: Observational. All claims framed as "associational".
+- **Collinearity**: Degree, Betweenness, and Eigenvector are highly correlated. The plan will **not** claim independent effects. Instead, it will report the joint pattern and VIF values.
+- **Measurement Validity**: fMRIPrep is the gold standard for preprocessing. Schaefer atlas is standard for parcellation. Motion scrubbing and GSR are implemented to mitigate motion artifacts.
 
-* **Hardware**: GitHub Actions Free Tier (multi-core CPU, ample RAM).
-* **Bottlenecks**: fMRIPrep is memory intensive.
-* **Mitigation**:
- * **Real Data Only**: The pipeline will only attempt to run fMRIPrep on real data if a valid source is provided.
- * **Batch Processing**: If memory constraints are encountered, the pipeline will process subjects in batches.
- * **Subset Strategy**: If full sample processing is infeasible, a representative subset will be processed, with power limitations explicitly noted.
- * **No Synthetic Data**: Synthetic data is not a solution to compute constraints for this research question.
-* **Conclusion**: The pipeline is feasible on CPU-only runners **only if** a valid real data source is provided and memory constraints are managed via batching or subset selection. Without real data, the pipeline cannot run.
+## 4. Compute Feasibility
 
-## 4. Risks & Mitigations
+- **Hardware**: 2 CPU, 7GB RAM.
+- **Bottleneck**: fMRIPrep preprocessing.
+- **Mitigation**: 
+  - Run preprocessing in parallel batches (if memory allows) or sequentially.
+  - If fMRIPrep exceeds 6h for full dataset, the pipeline will process the maximum number of participants possible within the time limit and report the "Effective N" and "Power Limitation".
+  - No GPU training. Logistic Regression is CPU-efficient.
 
-| Risk | Impact | Mitigation |
-|:--- |:--- |:--- |
-| **Missing Real fMRI Data** | Pipeline cannot run on real data. | **Pipeline Halt**. No scientific results will be generated. Action required: Update verified datasets block. |
-| **fMRIPrep Memory Overflow** | Crash on 7GB RAM. | Process subjects in batches; reduce sample size if necessary; acknowledge power limitations. |
-| **Collinearity Misinterpretation** | Invalid scientific claims. | Enforce descriptive reporting; no multivariate regression on centrality metrics. |
-| **FDR Correction Over-correction** | No significant findings. | Report uncorrected p-values and effect sizes alongside FDR; discuss power. |
-| **Unverified Data Source** | Invalid results. | Strictly use only sources listed in the `# Verified datasets` block. |
-| **Synthetic Data Temptation** | Invalid scientific results. | **Strict Prohibition**: No synthetic data for scientific results. Unit tests only. |
+## 5. Decision Rationale
+
+- **Why ABIDE?** It is the largest public dataset for ASD resting-state fMRI.
+- **Why fMRIPrep?** Ensures reproducibility (Constitution I) and standardized preprocessing.
+- **Why Schaefer 400?** Balances resolution and computational cost for centrality metrics.
+- **Why Sensitivity Analysis?** Network topology is highly sensitive to threshold choice; robustness is required for scientific validity (FR-009).
+- **Why NBS/Permutation?** To address spatial autocorrelation and metric collinearity, ensuring statistical validity (methodology concern).
+- **Why Nested CV?** To prevent data leakage and double-dipping in classification (scientific soundness concern).

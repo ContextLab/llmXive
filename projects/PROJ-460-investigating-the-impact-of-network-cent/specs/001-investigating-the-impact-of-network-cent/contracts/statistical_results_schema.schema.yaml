@@ -1,0 +1,42 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Statistical Group Comparison Schema"
+description: "Schema for FDR-corrected group comparison results."
+type: "object"
+properties:
+  roi_index:
+    type: "integer"
+    description: "Index of the brain region (0-399)."
+  metric_type:
+    type: "string"
+    description: "Type of centrality metric."
+    enum:
+      - "degree"
+      - "betweenness"
+      - "eigenvector"
+  t_statistic:
+    type: "number"
+    description: "T-statistic from two-sample t-test."
+  p_value:
+    type: "number"
+    description: "Uncorrected p-value."
+  q_value:
+    type: "number"
+    description: "FDR-corrected q-value."
+  mean_asd:
+    type: "number"
+    description: "Mean value in ASD group."
+  mean_control:
+    type: "number"
+    description: "Mean value in Control group."
+  significant:
+    type: "boolean"
+    description: "True if q_value < 0.05."
+required:
+  - roi_index
+  - metric_type
+  - t_statistic
+  - p_value
+  - q_value
+  - mean_asd
+  - mean_control
+  - significant

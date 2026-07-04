@@ -1,4 +1,4 @@
-resolved_at: '2026-07-03T18:05:18.290553+00:00'
+resolved_at: '2026-07-04T01:32:44.200933+00:00'
 datasets:
 - intent: ABIDE
   status: verified
@@ -45,27 +45,31 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://acs.figshare.com/articles/journal_contribution/Heterojunction-Enhanced_Interfacial_Evanescent-Tunable_Fiber_Optic_Probe_for_Amplification-free_CRISPR_Cas12a-Based_Rapid_and_Ultrasensitive_Detection_of_MPXV/32896950
+  - url: https://figshare.com/articles/media/Call_08132728112_Faculty_of_Nursing_Sciences_Niger_Delta_University_Admission_Form_2026_2027_Post_Utme_Application_Is_Out_CALL_08132728112_Dr_Mrs_Sarah_for_admission_process_into_the_school_/32897807
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/How_Does_the_Nature_of_a_Nonmagnetic_Diluent_Affect_the_Magnetic_Properties_of_Antiferromagnets_High-Entropy_Wolframites_and_Other_Systems/32896949
+  - url: https://figshare.com/articles/figure/Call_09060973758_Federal_University_Lafia_2026_2027_Post-Utme_Form_Part-time_Form_Is_On_sales_Now_09060973758_To_apply_call_Dr_Mrs_Rita_09060973758_for_further_assistance/32897804
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/preprint/Unification_In_Psychology_in_the_Lens_of_Bogdanov_s_Tectology_/32896919
+  - url: https://figshare.com/articles/media/Call_08132728112_College_of_Nursing_Sciences_Tombia_Bayelsa_State_Admission_Form_2026_2027_Post_Utme_Application_Is_Out_CALL_08132728112_Dr_Mrs_Sarah_for_admission_process_into_the_school_/32897801
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://tandf.figshare.com/articles/journal_contribution/Exploring_the_potential_of_cognitive_intra-individual_variability_in_HIV_care_and_research_in_adults_with_HIV_a_concept_analysis/32896922
+  - url: https://figshare.com/articles/media/Call_09060973758_Federal_University_Kashere_2026_2027_Post-Utme_Form_Part-time_Form_Is_On_sales_Now_09060973758_To_apply_call_Dr_Mrs_Rita_09060973758_for_further_assistance/32897798
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Wearing_Wellness_The_Influence_of_Athleisure_on_Healthy_Eating_Through_Emotional_Uplift/32896916
+  - url: https://figshare.com/articles/media/Call_08132728112_Sa_ad_Zungur_College_of_Nursing_Sciences_Liman_Katagum_Admission_Form_2026_2027_Post_Utme_Application_Is_Out_CALL_08132728112_Dr_Mrs_Sarah_for_admission_process_into_the_school_/32897795
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://linkinghub.elsevier.com/retrieve/pii/S0898122120304454
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15582775
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -77,11 +81,7 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/15582775
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/581861
+  - url: https://zenodo.org/records/8068739
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -130,6 +130,10 @@ datasets:
       downloaded_bytes: 6
       parsed: true
   candidates_tried:
+  - url: https://huggingface.co/api/resolve-cache/datasets/asd567557275/chinese_novel/a6f4a7675eabbd9268935ced4084172119ce75a8/space_grimoire.jsonl?%2Fdatasets%2Fasd567557275%2Fchinese_novel%2Fresolve%2Fmain%2Fspace_grimoire.jsonl=&etag=%22e31b8545cd8c7a6a357233aed3977339c92d726e%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
   - url: https://huggingface.co/datasets/huggingartists/asdfgfa/resolve/main/datasets.json
     source: huggingface
     status: verified
@@ -142,39 +146,35 @@ datasets:
     source: huggingface
     status: verified
     format: csv
-  - url: https://acs.figshare.com/articles/journal_contribution/Heterojunction-Enhanced_Interfacial_Evanescent-Tunable_Fiber_Optic_Probe_for_Amplification-free_CRISPR_Cas12a-Based_Rapid_and_Ultrasensitive_Detection_of_MPXV/32896950
+  - url: https://figshare.com/articles/media/Call_08132728112_College_of_Nursing_Sciences_Makurdi_Benue_State_Admission_Form_2026_2027_Post_Utme_Application_Is_Out_CALL_08132728112_Dr_Mrs_Sarah_for_admission_process_into_the_school_/32897813
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/How_Does_the_Nature_of_a_Nonmagnetic_Diluent_Affect_the_Magnetic_Properties_of_Antiferromagnets_High-Entropy_Wolframites_and_Other_Systems/32896949
+  - url: https://figshare.com/articles/dataset/S_Table2_The_raw_data_for_short-read_and_long-read_sequencing_of_Lacticaseibacillus_paracasei_TOKAI_83m_/32897783
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/preprint/Unification_In_Psychology_in_the_Lens_of_Bogdanov_s_Tectology_/32896919
+  - url: https://figshare.com/articles/media/Call_08132728112_Faculty_of_Nursing_Sciences_Niger_Delta_University_Admission_Form_2026_2027_Post_Utme_Application_Is_Out_CALL_08132728112_Dr_Mrs_Sarah_for_admission_process_into_the_school_/32897807
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://tandf.figshare.com/articles/journal_contribution/Exploring_the_potential_of_cognitive_intra-individual_variability_in_HIV_care_and_research_in_adults_with_HIV_a_concept_analysis/32896922
+  - url: https://figshare.com/articles/figure/Call_09060973758_Federal_University_Lafia_2026_2027_Post-Utme_Form_Part-time_Form_Is_On_sales_Now_09060973758_To_apply_call_Dr_Mrs_Rita_09060973758_for_further_assistance/32897804
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Wearing_Wellness_The_Influence_of_Athleisure_on_Healthy_Eating_Through_Emotional_Uplift/32896916
+  - url: https://figshare.com/articles/media/Call_08132728112_College_of_Nursing_Sciences_Tombia_Bayelsa_State_Admission_Form_2026_2027_Post_Utme_Application_Is_Out_CALL_08132728112_Dr_Mrs_Sarah_for_admission_process_into_the_school_/32897801
     source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/7797278
-    source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/7358082
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/7767267
+  - url: https://zenodo.org/records/7752684
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/7642049
+  - url: https://zenodo.org/records/7676141
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -182,23 +182,27 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://osf.io/4er6k/
+  - url: https://zenodo.org/records/7767267
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/2ueq8/
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://osf.io/v5pd6/
+  - url: https://osf.io/3hsdr/
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://osf.io/xdhtk/
+  - url: https://osf.io/rczpm/
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://osf.io/jza4y/
+  - url: https://yareta.unige.ch/archives/e093263c-9778-402b-9455-9d24f424327d
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://osf.io/y6zvm/
+  - url: https://yareta.unige.ch/archives/71797026-1639-44b3-9aca-b08c5191dab9
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content

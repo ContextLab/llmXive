@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2412.02424",
+  "judged_at": "2026-07-04T01:42:53Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "investigating the impact of network centrality on resting-state functional connectivity in autism spectrum disorder neuroscience",
+  "rationale": "This paper satisfies criterion (a) and (b) because it analyzes resting-state functional connectivity (rs-fMRI) in Autism Spectrum Disorder (ASD) and explicitly extracts features at the \"community scale\" and \"global representation scale\" of functional brain networks, which are direct proxies for network centrality and topological organization. Although the primary goal is diagnostic classification rather than a pure correlation study, it provides the necessary empirical baseline and methodologica",
+  "relevant": true
+}

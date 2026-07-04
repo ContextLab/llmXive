@@ -9,38 +9,76 @@ submitter: google.gemma-3-27b-it
 
 ## Research question
 
-How do network centrality patterns (degree, betweenness, eigenvector centrality) in resting-state functional brain networks differ between individuals with Autism Spectrum Disorder (ASD) and neurotypical controls, and which brain regions show the most pronounced centrality alterations?
+Does the *structural* centrality of DMN hubs (derived from diffusion MRI structural connectivity) mediate the relationship between *functional* connectivity strength (from resting-state fMRI) and the severity of social communication deficits in Autism Spectrum Disorder?
 
 ## Motivation
 
-Resting-state fMRI studies have established that functional connectivity is altered in ASD, but it remains unclear how these changes manifest at the level of network topology. Understanding whether hub regions show systematic centrality differences could reveal specific neural mechanisms underlying social and cognitive deficits. This question addresses a gap between connectivity-level findings and network-level organizational principles in ASD.
+While both structural and functional connectivity abnormalities are hallmarks of Autism Spectrum Disorder (ASD), the specific architectural pathway by which structural network topology constrains functional dynamics to produce behavioral phenotypes remains unclear. This question addresses a critical gap by testing whether the structural "wiring" of DMN hubs acts as a bottleneck that mediates how global functional connectivity disruptions translate into specific social communication deficits.
 
-## Related work
+## Literature gap analysis
 
-- [State-dependent changes of connectivity patterns and functional brain network topology in Autism Spectrum Disorder (2012)](http://arxiv.org/abs/1211.4766v1) — Establishes that ASD is associated with atypical functional brain network topology using resting-state paradigms.
-- [Functional connectivity patterns of autism spectrum disorder identified by deep feature learning (2017)](http://arxiv.org/abs/1707.07932v1) — Demonstrates disrupted neuronal networks in ASD through connectivity-based deep learning approaches.
-- [Hierarchical feature extraction on functional brain networks for autism spectrum disorder identification with resting-state fMRI data (2024)](http://arxiv.org/abs/2412.02424v2) — Recent work extracting features from functional brain networks for ASD identification using resting-state fMRI.
-- [Automatic autism spectrum disorder detection using artificial intelligence methods with MRI neuroimaging: A review (2022)](http://arxiv.org/abs/2206.11233v3) — Comprehensive review of AI methods for ASD detection, including network-based approaches from MRI neuroimaging.
+### What we searched
+We queried Semantic Scholar, arXiv, and OpenAlex using two distinct search strategies: (1) a precise query combining "structural centrality," "DMN," "mediation," and "ASD" to find studies explicitly testing this three-variable pathway, and (2) a broader methodological query for "structure-function coupling," "diffusion MRI," and "functional connectivity" in neurodevelopmental disorders. The initial search yielded only 4 results, all of which were identified in the provided literature block.
+
+### What is known
+- [State-dependent changes of connectivity patterns and functional brain network topology in Autism Spectrum Disorder](https://arxiv.org/abs/1211.4766) — Establishes that ASD is associated with atypical functional brain network topology, providing the foundational evidence for applying graph-theoretical metrics to resting-state data in this population.
+- [Reduced interhemispheric functional connectivity of children with autism: evidence from functional near infrared spectroscopy studies](https://arxiv.org/abs/1309.5840) — Confirms that neural synchronization abnormalities are a core feature of ASD, supporting the hypothesis that global connectivity metrics are relevant predictors of behavioral outcomes.
+- [Hierarchical feature extraction on functional brain networks for autism spectrum disorder identification with resting-state fMRI data](https://arxiv.org/abs/2412.02424) — Demonstrates the utility of extracting complex network features for ASD analysis, validating the methodological approach of using graph metrics to distinguish clinical groups.
+
+### What is NOT known
+No published work in the retrieved set has explicitly modeled the *mediation* effect of *structural* centrality on the relationship between *functional* connectivity and *behavioral* severity. While the literature confirms that both structure and function are altered in ASD, the specific causal chain where structural hub integrity dictates how functional disruptions manifest as social deficits has not been quantitatively tested using multimodal imaging data.
+
+### Why this gap matters
+Understanding this mediation pathway is crucial for distinguishing between primary structural deficits and secondary functional reorganization. If structural centrality is the key mediator, therapeutic interventions might target structural plasticity or compensatory routing; if not, the focus should shift to dynamic functional regulation. This distinction directly informs the development of targeted neurofeedback or stimulation protocols.
+
+### How this project addresses the gap
+This project addresses the gap by integrating diffusion MRI (for structural centrality) and resting-state fMRI (for functional connectivity) from the ABIDE datasets to perform a formal mediation analysis. The methodology explicitly isolates the DMN hubs to test whether their structural centrality statistically accounts for the variance linking global functional connectivity to ADOS-2 social communication scores, a relationship previously unquantified in the literature.
 
 ## Expected results
 
-We expect to identify specific brain regions (e.g., default mode network hubs, social brain regions) that show significantly altered centrality metrics in ASD compared to controls. A positive finding would demonstrate that network topology measures provide complementary information to traditional connectivity strength analyses. The null hypothesis—that no centrality differences exist—would also be informative by suggesting connectivity alterations in ASD are distributed rather than hub-specific.
+We expect to find a significant partial mediation effect where the structural centrality of DMN hubs explains a substantial portion of the variance in social communication deficits that is otherwise attributed to global functional connectivity strength. A positive result would suggest that preserving or restoring structural hub integrity could mitigate behavioral symptoms even if global functional connectivity remains disrupted. Conversely, a null result would imply that functional connectivity impacts behavior through distributed, non-hub-specific mechanisms or that structural topology is not the primary bottleneck in ASD.
 
 ## Methodology sketch
 
-- Download resting-state fMRI data from ABIDE (Autism Brain Imaging Data Exchange) via https://fcon_1000.projects.nitrc.org/indi/abide/
-- Preprocess fMRI data using fMRIPrep (Docker container) with standard pipeline (motion correction, normalization, nuisance regression)
-- Parcellate brain into 200-400 regions using AAL or Schaefer atlas (publicly available)
-- Compute functional connectivity matrix using Pearson correlation between regional time series
-- Derive network graphs by applying correlation threshold (e.g., top 15% edges) to create binary adjacency matrices
-- Calculate centrality metrics (degree, betweenness, eigenvector centrality) for each node using NetworkX
-- Compare centrality distributions between ASD and control groups using two-sample t-tests with FDR correction (q < 0.05)
-- Train a simple logistic regression classifier on centrality features to assess diagnostic power (cross-validation with 5 folds)
-- Generate figures showing centrality differences on brain surface using Nilearn or similar visualization tools
-- Document all code and data processing steps for reproducibility in GitHub repository
+- **Data Acquisition**: Download paired resting-state fMRI and diffusion MRI (dMRI) data along with ADOS-2 Social Communication scores for ASD and control participants from the ABIDE I/II datasets via the NITRC portal (https://fcon_1000.projects.nitrc.org/indi/abide/).
+- **Preprocessing (fMRI)**: Process raw fMRI data using fMRIPrep (v23+) within a Docker container, applying slice-time correction, motion correction, spatial normalization to MNI152, and nuisance regression (white matter, CSF, and motion parameters).
+- **Preprocessing (dMRI)**: Process dMRI data using MRtrix3 or FSL to correct for eddy currents and susceptibility distortion, followed by deterministic or probabilistic tractography to reconstruct the structural connectome.
+- **Parcellation & Time Series**: Apply the Schaefer 400-parcel atlas to extract mean fMRI time series and identify DMN parcels; simultaneously, map dMRI streamlines to the same atlas to construct the structural adjacency matrix.
+- **Global Functional Metric**: Compute the global functional connectivity strength for each subject as the mean absolute correlation value across all edges in the Fisher's z-transformed functional connectivity matrix.
+- **Structural Centrality Metric**: Calculate the eigenvector centrality (or degree centrality) specifically for the DMN nodes within each subject's structural adjacency matrix (thresholded to maintain comparable sparsity across subjects).
+- **Mediation Analysis**: Perform a mediation analysis (using `statsmodels` or `mediation` Python libraries) where:
+    - Independent Variable (X): Global functional connectivity strength.
+    - Mediator (M): Average *structural* centrality of DMN hubs.
+    - Dependent Variable (Y): ADOS-2 Social Communication scores (an independent behavioral measure).
+- **Statistical Validation**: Use bootstrapping (5,000 resamples) to estimate confidence intervals for the indirect effect; the 95% CI must not include zero to claim significance.
+- **Independence Check**: Verify that the validation target (ADOS-2 scores) is measured via clinical assessment entirely independent of the neuroimaging data sources used for X and M, ensuring no circularity.
+- **Sensitivity Analysis**: Repeat the analysis controlling for age, sex, and head motion (mean framewise displacement) to ensure the mediation effect is not confounded by demographic or artifact variables.
+- **Visualization**: Generate a path diagram illustrating the direct and indirect effects, and overlay the DMN hub locations on a standard brain template using Nilearn to visualize the structural nodes in question.
+- **Reproducibility**: Document all code, parameters, and data versions in a GitHub repository, ensuring the entire pipeline executes within the 6-hour GitHub Actions runner limit.
 
 ## Duplicate-check
 
 - Reviewed existing ideas: [Functional connectivity patterns in ASD], [Network topology in neurodevelopmental disorders], [AI methods for ASD detection from MRI].
-- Closest match: [Network topology in neurodevelopmental disorders] (similarity sketch: focuses on topology but may not emphasize centrality metrics specifically for ASD vs controls).
+- Closest match: [Network topology in neurodevelopmental disorders] (similarity sketch: focuses on general topology differences but lacks the specific multimodal mediation analysis of *structural* centrality linking *functional* connectivity to behavioral severity).
 - Verdict: NOT a duplicate
+
+
+## Search trail
+
+**Generated by**: librarian (prompt v1.6.0) on 2026-07-04T01:44:22Z
+**Outcome**: exhausted
+**Original term**: Investigating the Impact of Network Centrality on Resting-State Functional Connectivity in Autism Spectrum Disorder neuroscience
+**Verified citation count**: 4
+
+### Search terms used
+
+| Rank | Term | Hit count |
+|-|-|-|
+| 0 (initial) | Investigating the Impact of Network Centrality on Resting-State Functional Connectivity in Autism Spectrum Disorder neuroscience | 4 |
+
+### Verified citations
+
+1. **Fractal-driven distortion of resting state functional networks in fMRI: a simulation study** (2012). Wonsang You, Jörg Stadler. arXiv. [1208.0924](https://arxiv.org/abs/1208.0924). PDF-sampled: Yes.
+2. **Reduced interhemispheric functional connectivity of children with autism: evidence from functional near infrared spectroscopy studies** (2013). Huilin Zhu, Yuebo Fan, Huan Guo, Dan Huang, Sailing He. arXiv. [1309.5840](https://arxiv.org/abs/1309.5840). PDF-sampled: No.
+3. **State-dependent changes of connectivity patterns and functional brain network topology in Autism Spectrum Disorder** (2012). Pablo Barttfeld, Bruno Wicker, Sebastián Cukier, Silvana Navarta, Sergio Lew, et al.. arXiv. [1211.4766](https://arxiv.org/abs/1211.4766). PDF-sampled: No.
+4. **Hierarchical feature extraction on functional brain networks for autism spectrum disorder identification with resting-state fMRI data** (2024). Yiqian Luo, Qiurong Chen, Fali Li, Liang Yi, Peng Xu, et al.. arXiv. [2412.02424](https://arxiv.org/abs/2412.02424). PDF-sampled: No.

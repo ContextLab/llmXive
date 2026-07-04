@@ -65,14 +65,15 @@ The system MUST train a logistic regression classifier on centrality features to
 
 - **FR-001**: System MUST download resting-state fMRI data from ABIDE for ≥100 ASD participants and ≥100 control participants (See US-1)
 - **FR-002**: System MUST preprocess fMRI data using fMRIPrep Docker container with motion correction, normalization, and nuisance regression (See US-1)
-- **FR-003**: System MUST parcellate brain into a set of regions using Schaefer atlas with multiple parcels (See US-2)
+- **FR-003**: System MUST parcellate brain into 400 regions using the Schaefer 400-parcel atlas (See US-2)
 - **FR-004**: System MUST compute degree, betweenness, and eigenvector centrality metrics for each node using NetworkX (See US-2)
-- **FR-005**: System MUST perform two-sample t-tests with FDR correction (q < 0.05) comparing centrality distributions between groups (See US-2)
-- **FR-006**: System MUST apply correlation threshold at top-ranked edges to create binary adjacency matrices. (See US-2)
+- **FR-005**: System MUST perform non-parametric permutation tests (10,000 permutations) with FDR correction (q < 0.05) comparing centrality distributions between groups (See US-2)
+- **FR-006**: System MUST apply correlation threshold at the top 15% of edges to create binary adjacency matrices. (See US-2)
 - **FR-007**: System MUST train logistic regression classifier with k-fold cross-validation on centrality features (See US-3)
 - **FR-008**: System MUST generate brain surface visualizations using Nilearn showing centrality differences (See US-3)
-- **FR-009**: System MUST perform sensitivity analysis sweeping the correlation threshold over a range of representative values and report the count of nodes significant at all thresholds and the Jaccard similarity of significant node sets across thresholds (See US-2)
+- **FR-009**: System MUST perform sensitivity analysis sweeping the correlation threshold over {10%, 15%, 20%} and report the count of nodes significant at all thresholds and the overlap (Jaccard index) of the top-50 nodes by effect size across thresholds (See US-2)
 - **FR-010**: System MUST document collinearity diagnostics for centrality metrics (degree, betweenness, eigenvector) and frame joint relationships descriptively rather than claiming independent effects (See US-2)
+- **FR-011**: System MUST correlate centrality metrics with clinical severity scores (e.g., ADOS-2 CSS) for participants with available data, reporting the correlation coefficient and p-value (See US-2)
 
 ### Key Entities *(include if feature involves data)*
 
@@ -90,22 +91,23 @@ The system MUST train a logistic regression classifier on centrality features to
 > measured against; defer specific empirical values (counts, dataset sizes,
 > measured quantities, percentages) to the implementation/research phase.
 
-- **SC-001**: Data-preprocessing success rate is measured against the requirement that ≥90% of downloaded participants produce valid output (See US-1)
-- **SC-002**: Centrality-computation completeness is measured against the requirement that all 400 ROIs have centrality values for ≥95% of participants (See US-2)
-- **SC-003**: Statistical-validity is measured against the requirement that FDR correction is applied and q-values are reported for all tested nodes (See US-2)
-- **SC-004**: Threshold-sensitivity is measured against the requirement that sensitivity analysis sweeps correlation threshold over {10%, 15%, 20%} and reports the count of nodes significant at all thresholds and the Jaccard similarity of significant node sets (See US-2)
-- **SC-005**: Classifier-performance is measured against the baseline of [deferred] accuracy (or class imbalance ratio if specified) for binary ASD/control classification (See US-3)
+- **SC-001**: Data-preprocessing success rate is measured against the requirement that ≥90% of downloaded participants produce valid output (See US-1). All metrics must be derived from real ABIDE data; simulated data is strictly for unit testing only.
+- **SC-002**: Centrality-computation completeness is measured against the requirement that all 400 ROIs have centrality values for ≥95% of participants (See US-2). All metrics must be derived from real ABIDE data; simulated data is strictly for unit testing only.
+- **SC-003**: Statistical-validity is measured against the requirement that FDR correction is applied and q-values are reported for all tested nodes (See US-2). All metrics must be derived from real ABIDE data; simulated data is strictly for unit testing only.
+- **SC-004**: Threshold-sensitivity is measured against the requirement that sensitivity analysis sweeps correlation threshold over {10%, 15%, 20%} and reports the count of nodes significant at all thresholds and the overlap of top-50 nodes by effect size (See US-2). All metrics must be derived from real ABIDE data; simulated data is strictly for unit testing only.
+- **SC-005**: Classifier-performance is measured against the baseline of majority-class accuracy (the accuracy achieved by always predicting the majority class) for binary ASD/control classification, calculated from real held-out test data (See US-3). No hardcoded or simulated accuracy values are permitted.
 
 ## Assumptions
 
-- ABIDE dataset contains the required variables: fMRI time-series data, diagnosis labels (ASD/control), age, sex, and motion parameters for ≥100 participants per group
+- ABIDE dataset contains the required variables: fMRI time-series data, diagnosis labels (ASD/control), age, sex, motion parameters, and clinical severity scores (e.g., ADOS-2) for ≥100 participants per group
 - fMRIPrep Docker container is accessible within GitHub Actions free-tier environment (CPU-only, no GPU)
-- Schaefer multi-parcel atlas is publicly available and compatible with ABIDE preprocessing pipeline
+- Schaefer 400-parcel atlas is publicly available and compatible with ABIDE preprocessing pipeline
 - The analysis is observational (no random assignment); therefore all findings are framed as ASSOCIATIONAL, not causal
 - Multiple-comparison correction is required because ≥3 centrality metrics are tested across ≥400 ROIs (total tests >1200)
-- The correlation threshold is set to a community-standard default for binary graph construction in functional connectivity analysis.
+- The correlation threshold is set to 15% (top 15% of edges), a community-standard default for binary graph construction in functional connectivity analysis.
 - The chosen threshold requires sensitivity analysis; the justification is that this is a standard range in the literature, and sweeping {[deferred], [deferred], [deferred]} tests robustness
 - Sample size/power is [deferred]; the analysis will proceed with available ABIDE participants and report power limitations if sample is <50 per group
 - All methods are CPU-tractable: NetworkX centrality computation, scikit-learn logistic regression, and Nilearn visualization run within 6 hours on 2 CPU cores, 7GB RAM
 - ABIDE data download is permitted under the project's research use license; no commercial use is required
 - Questionnaires/instruments are not used; fMRI-derived metrics serve as the primary measurements, so instrument validity is established through fMRIPrep preprocessing standards
+- Clinical severity scores (e.g., ADOS-2) are available for a subset of participants; if fewer than 30 participants have scores, the correlation analysis (FR-011) will be reported as exploratory with appropriate caveats.

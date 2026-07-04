@@ -1,40 +1,33 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "ABIDE Participant Metadata Schema"
+title: "ABIDE Dataset Metadata Schema"
+description: "Schema for the verified ABIDE parquet dataset metadata."
 type: "object"
 properties:
   participant_id:
     type: "string"
-    description: "Unique identifier for the participant (e.g., 'ABIDE_001')."
+    description: "Unique participant identifier."
   diagnosis:
     type: "string"
+    description: "Diagnosis label. Allowed values: 'ASD', 'Control'."
     enum:
       - "ASD"
       - "Control"
-    description: "Diagnosis label."
   age:
     type: "number"
-    description: "Age in years."
+    description: "Age of the participant in years."
   sex:
     type: "string"
+    description: "Sex of the participant."
     enum:
       - "M"
       - "F"
-    description: "Sex assigned at birth."
-  motion_mean:
-    type: "number"
-    description: "Mean framewise displacement in mm."
-  preprocessing_status:
+  raw_nifti_path:
     type: "string"
-    enum:
-      - "success"
-      - "failed"
-      - "skipped"
-    description: "Status of the fMRIPrep pipeline."
+    description: "Path or URL to the raw NIfTI file."
+  site:
+    type: "string"
+    description: "Data collection site."
 required:
-  - "participant_id"
-  - "diagnosis"
-  - "age"
-  - "sex"
-  - "motion_mean"
-  - "preprocessing_status"
-additionalProperties: false
+  - participant_id
+  - diagnosis
+  - raw_nifti_path

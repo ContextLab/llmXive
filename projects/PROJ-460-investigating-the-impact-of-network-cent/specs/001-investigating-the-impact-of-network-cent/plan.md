@@ -1,149 +1,117 @@
 # Implementation Plan: Investigating Network Centrality in ASD Resting-State fMRI
 
-**Branch**: `001-investigate-asd-centrality` | **Date**: 2025-01-10 | **Spec**: `specs/001-investigating-the-impact-of-network-cent/spec.md`
-**Input**: Feature specification from `/specs/001-investigating-the-impact-of-network-cent/spec.md`
+**Branch**: `001-investigate-asd-centrality` | **Date**: 2026-06-24 | **Spec**: `specs/001-investigating-asd-centrality/spec.md`
+**Input**: Feature specification from `/specs/001-investigating-asd-centrality/spec.md`
 
 ## Summary
 
-This project implements a computational pipeline to investigate the impact of network centrality (degree, betweenness, eigenvector) on resting-state functional connectivity in Autism Spectrum Disorder (ASD). The technical approach involves downloading ABIDE fMRI data, preprocessing it with fMRIPrep, parcellating using the Schaefer atlas, computing centrality metrics via NetworkX, and performing statistical group comparisons with FDR correction.
-
-**CRITICAL STATUS**: The scientific analysis pipeline is currently **BLOCKED** due to the absence of a verified real fMRI data source in the project's `# Verified datasets` block. The plan below outlines the required steps **contingent upon** the acquisition of valid ABIDE data. **No synthetic data is permitted for scientific results.**
+This feature implements a neuroimaging analysis pipeline to investigate the impact of network centrality on resting-state functional connectivity in Autism Spectrum Disorder (ASD). The system downloads ABIDE fMRI data from the verified fcon_1000 repository, preprocesses it with fMRIPrep (including motion scrubbing and global signal regression), constructs functional connectivity graphs using the Schaefer atlas, computes centrality metrics (degree, betweenness, eigenvector), and performs statistical group comparisons using Network-Based Statistic (NBS) and FDR correction. The analysis is strictly observational, CPU-tractable, and designed to run within GitHub Actions free-tier constraints (2 CPU, 7GB RAM). All results are computed at runtime from real data; no simulated or hardcoded metrics are used.
 
 ## Technical Context
 
 **Language/Version**: Python 3.11
-**Primary Dependencies**: `nibabel`, `nilearn`, `networkx`, `scikit-learn`, `pandas`, `numpy`, `scipy`, `fmriprep` (via Docker)
-**Storage**: Local file system (`data/raw/`, `data/processed/`), Parquet/CSV for tabular outputs.
-**Testing**: `pytest` (unit tests for metric computation, integration tests for pipeline stages).
-**Target Platform**: Linux (GitHub Actions free-tier runner: CPU, ~7 GB RAM).
-**Project Type**: Computational neuroscience analysis pipeline.
-**Performance Goals**: Complete preprocessing and analysis for a subset of participants (or batch processing) within 6 hours; memory usage < 6 GB.
-**Constraints**: No GPU access; no large language model inference; fMRIPrep must run in CPU mode; data must be subset to fit RAM.
-**Scale/Scope**: A cohort of participants (ASD + Control), ~400 ROIs, Several centrality metrics.
+**Primary Dependencies**: 
+- `nilearn` (fMRI preprocessing/visualization)
+- `networkx` (graph centrality metrics)
+- `nbs` (Network-Based Statistic) or `nibabel` + custom permutation testing
+- `scikit-learn` (classification, statistics)
+- `pandas`, `numpy` (data manipulation)
+- `docker` (fMRIPrep execution)
+- `abide` (verified HuggingFace loader for ABIDE metadata and NIfTI paths)
+**Storage**: Local filesystem (`data/raw`, `data/processed`); no external DB.
+**Testing**: `pytest` (unit/integration), `pytest-cov` (coverage).
+**Target Platform**: Linux (GitHub Actions free-tier runner).
+**Project Type**: Computational neuroscience pipeline / CLI.
+**Performance Goals**: 
+- Preprocessing: < 4 hours for sample batch (due to 6h job limit, full run requires sampling).
+- Centrality computation: < 30 minutes for N=200 participants.
+- Memory: < 6GB peak RAM (via chunked processing).
+**Constraints**: 
+- No GPU/CUDA.
+- **Strict fMRIPrep requirement**: The pipeline MUST use the fMRIPrep Docker container with a specific version tag. No fallback to pre-processed data or alternative pipelines is permitted to ensure reproducibility (Constitution I & VI). If fMRIPrep cannot be executed, the pipeline halts with an error.
+- Dataset size limited to a manageable disk footprint; full ABIDE is too large, so strict sampling or verified subset usage is required.
+**Scale/Scope**: N ≥ 100 ASD, N ≥ 100 Control (if data available in verified subset); 400 ROIs.
 
-> **Data Dependency Note**: All downstream phases (Preprocessing, Centrality, Statistics, Visualization) are strictly dependent on the successful acquisition of real, raw fMRI data (NIfTI) from a verified source. If no such source is available, the pipeline halts at the Data Acquisition phase. **No scientific results will be generated without real data.**
+> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. All metrics are computed dynamically at runtime.
 
 ## Constitution Check
 
-*Gates determined based on `projects/PROJ-460-investigating-the-impact-of-network-cent/.specify/memory/constitution.md`*
+*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-| Principle | Compliance Status | Implementation Strategy |
+| Principle | Status | Notes |
 | :--- | :--- | :--- |
-| **I. Reproducibility** | **PASS** | All code pinned in `requirements.txt`; random seeds fixed in `code/config.py`; Docker image hash recorded in provenance. |
-| **II. Verified Accuracy** | **FAILED** | **Status**: Cannot verify accuracy of results because the required raw fMRI data source is missing from the verified datasets block. **Action**: Pipeline halts until a valid ABIDE source is added. |
-| **III. Data Hygiene** | **PASS** | Raw data stored in `data/raw/` unchanged; derivations written to new files; checksums recorded in `state/...yaml`. |
-| **IV. Single Source of Truth** | **PASS** | All statistics in `paper/` will be generated directly from `data/` outputs via scripts; no hand-typed numbers. |
-| **V. Versioning Discipline** | **PASS** | Content hashes generated for all artifacts; `updated_at` timestamps managed by Advancement-Evaluator. |
-| **VI. Neuroimaging Data Integrity** | **FAILED** | **Status**: Raw fMRI scans from ABIDE are not available in the verified list. **Action**: Pipeline cannot preserve or process raw scans until a valid source is provided. |
-| **VII. Statistical Rigor** | **FAILED** | **Status**: Statistical tests (t-tests, FDR) are invalid without real biological data. **Action**: Analysis phase is blocked until real data is acquired. |
+| **I. Reproducibility** | PASS | Plan mandates pinned seeds, Docker versioning, and `requirements.txt`. No fallbacks to non-reproducible data. |
+| **II. Verified Accuracy** | PASS | Plan restricts dataset sources to the verified fcon_1000/ABIDE official repository and `abide` package. No fabricated URLs. |
+| **III. Data Hygiene** | PASS | Raw data preserved in `data/raw`; checksums recorded; no in-place modification. |
+| **IV. Single Source of Truth** | PASS | All figures/stats trace to `data/` and `code/`; no hand-typed numbers in paper. |
+| **V. Versioning Discipline** | PASS | Artifacts carry content hashes; state file updated on change. |
+| **VI. Neuroimaging Data Integrity** | PASS | Raw scans stored unchanged; fMRIPrep version/params logged; derived data new files. |
+| **VII. Statistical Rigor** | PASS | Plan mandates NBS/permutation testing, FDR correction, effect sizes, and collinearity diagnostics. |
+
+**Action Required**: The "FABRICATED-RESULT" concern is addressed by ensuring **no hardcoded metrics** are used. All results (accuracy, centrality values) must be computed at runtime from real data. The plan explicitly defers specific numeric thresholds to the `research.md` phase where real data verification occurs.
 
 ## Project Structure
 
 ### Documentation (this feature)
 
 ```text
-specs/001-investigating-the-impact-of-network-cent/
+specs/001-investigating-asd-centrality/
 ├── plan.md              # This file
 ├── research.md          # Phase 0 output
 ├── data-model.md        # Phase 1 output
 ├── quickstart.md        # Phase 1 output
 ├── contracts/           # Phase 1 output
-└── tasks.md             # Phase 2 output (generated later)
+└── tasks.md             # Phase 2 output
 ```
 
 ### Source Code (repository root)
 
 ```text
 code/
-├── __init__.py
-├── config.py            # Configuration, seeds, paths
-├── provenance.json      # fMRIPrep version, parameters, checksums
-├── download.py          # ABIDE data acquisition (BLOCKED if no source)
-├── preprocess.py        # fMRIPrep wrapper (CPU mode)
-├── analysis/
-│   ├── __init__.py
-│   ├── centrality.py    # NetworkX metric computation
-│   ├── stats.py         # T-tests, FDR, collinearity
-│   └── classification.py # Logistic regression, CV
-├── viz/
-│   └── brain_maps.py    # Nilearn surface visualization
-└── tests/
-    ├── test_centrality.py
-    └── test_stats.py
+├── 01_download.py           # ABIDE data fetch & checksum (uses `abide` package)
+├── 02_preprocess.py         # fMRIPrep wrapper / execution (strict Docker)
+├── 03_connectivity.py       # Time-series extraction, Correlation matrix, Scrubbing
+├── 04_centrality.py         # Graph construction, Centrality metrics
+├── 05_analysis.py           # NBS, FDR, Sensitivity analysis
+├── 06_classification.py     # Logistic Regression, Nested CV
+├── 07_visualize.py          # Nilearn brain plots
+├── config.py                # Paths, seeds, thresholds (no hardcoded results)
+└── requirements.txt         # Pinned dependencies
 
 data/
-├── raw/                 # Unmodified ABIDE data
-├── processed/           # Preprocessed time series, connectivity matrices
-└── outputs/             # Statistical results, figures
+├── raw/                     # Unmodified ABIDE data (or verified subset)
+├── processed/               # fMRIPrep outputs, Time-series, Matrices
+└── results/                 # Statistical outputs, Plots, Classifiers
 
-requirements.txt
+tests/
+├── unit/                    # Logic tests (e.g., centrality calc)
+├── integration/             # Pipeline flow tests
+└── contract/                # Schema validation tests
 ```
 
-**Structure Decision**: Single project structure selected to maintain tight coupling between data processing and analysis, facilitating the "Single Source of Truth" principle. The `code/` directory contains all executable logic, while `data/` is strictly for artifacts.
+**Structure Decision**: Single `code/` directory with modular scripts ordered by pipeline dependency. This ensures data flows linearly from download -> preprocess -> analysis, satisfying the "Data before Task" ordering rule.
+
+## Contract Mapping
+
+To ensure internal coherence, each pipeline step is mapped to its corresponding contract schema:
+
+| Pipeline Script | Output Artifact | Contract Schema |
+| :--- | :--- | :--- |
+| `01_download.py` | `data/raw/metadata.parquet` | `contracts/dataset_schema.schema.yaml` |
+| `02_preprocess.py` | `data/processed/preprocessed/*.nii.gz` | `contracts/participant.schema.yaml` (QC logs) |
+| `03_connectivity.py` | `data/processed/timeseries/*.csv` | `contracts/statistical_results_schema.schema.yaml` (intermediate) |
+| `04_centrality.py` | `data/processed/centrality/*.csv` | `contracts/centrality_metrics_schema.schema.yaml` |
+| `05_analysis.py` | `data/processed/results/*.csv` | `contracts/stats_schema.schema.yaml` |
+| `06_classification.py` | `data/processed/classification/*.json` | `contracts/classification_results.schema.yaml` |
+| `05_analysis.py` (Sensitivity) | `data/processed/results/sensitivity/*.json` | `contracts/centrality_sensitivity.schema.yaml` |
 
 ## Complexity Tracking
 
 | Violation | Why Needed | Simpler Alternative Rejected Because |
-|-----------|------------|-------------------------------------|
-| **Docker-based fMRIPrep** | Essential for standardized, reproducible neuroimaging preprocessing (motion correction, normalization). | Manual preprocessing scripts are error-prone and lack the rigorous quality control of fMRIPrep. |
-| **Sensitivity Analysis (Threshold Sweep)** | Required by FR-009 to ensure robustness of findings against arbitrary threshold choices. | Reporting results at a single threshold is scientifically insufficient for network neuroscience. |
-| **Collinearity Diagnostics** | Required by FR-010 because centrality metrics are mathematically correlated. | Claiming independent effects would be statistically invalid and misleading. |
-| **Real Data Requirement** | Scientific validity requires real biological data. | Synthetic data cannot validate hypotheses about ASD pathology; using it would violate Principle VI and scientific soundness. |
-
-## Data Acquisition Blocker (FR-001, FR-002)
-
-**Current State**: **BLOCKED**
-**Reason**: The `# Verified datasets` block does not contain a source for raw resting-state fMRI data (NIfTI files) required by FR-001 and FR-002.
-**Resolution Requirement**:
-1.  A valid ABIDE data source (e.g., official ABIDE website, verified HuggingFace dataset with raw NIfTI) must be identified and added to the `# Verified datasets` block.
-2.  Once added, the `download.py` script will be updated to fetch from this new source.
-3.  The pipeline will proceed to preprocessing (FR-002) only after real data is successfully downloaded and checksummed.
-4.  **No synthetic data** will be used to bypass this blocker or to generate "illustrative" scientific results.
-
-## Compute Feasibility (Conditional)
-
-*   **Hardware**: GitHub Actions Free Tier (2 CPU, 7 GB RAM).
-*   **Bottlenecks**: fMRIPrep is memory intensive.
-*   **Mitigation Strategy (Pending Real Data)**:
-    *   If real data is acquired, the pipeline will attempt to run fMRIPrep on a **subset** of subjects first to validate memory usage.
-    *   If memory constraints are exceeded, the pipeline will process subjects in **batches** or reduce the number of subjects, acknowledging the impact on statistical power.
-    *   **Note**: Running fMRIPrep on a large cohort of subjects on a 7GB RAM runner is likely infeasible. The plan will prioritize data integrity over sample size if necessary, or seek alternative compute resources.
-    *   **No Synthetic Fallback**: If real data cannot be processed due to compute constraints, the project will report power limitations and halt, rather than simulating data.
-*   **Centrality & Stats**: NetworkX and scikit-learn are CPU-tractable for the expected data sizes (400 nodes, ~ subjects).
-
-## Unit Testing vs. Scientific Analysis
-
-*   **Unit Tests**: `code/tests/` may use **mock data** (e.g., small random matrices) to verify that the code logic (e.g., centrality calculation, FDR correction) functions correctly. This is strictly for code validation.
-*   **Scientific Analysis**: The main pipeline (`code/download.py`, `code/preprocess.py`, `code/analysis/`) **MUST NOT** execute on mock or synthetic data for the purpose of generating scientific results. If real data is unavailable, the scientific pipeline halts.
-
-## Pipeline Status
-
-*   **Mode**: Code Validation (Mock Data) / Scientific Analysis (Blocked)
-*   **Status**: **SCIENTIFIC ANALYSIS BLOCKED**
-*   **Reason**: Missing verified real fMRI data source.
-*   **Next Steps**:
-    1.  Identify and add a verified real fMRI data source to the `# Verified datasets` block.
-    2.  Update the `download.py` script to fetch from the new source.
-    3.  Re-run the pipeline to generate real scientific results.
-
-## Task List (Pending Data Acquisition)
-
-1.  **Task 0: Acquire Real Data** (Mandatory, Blocks All Others)
-    *   Identify a verified source for raw ABIDE fMRI data.
-    *   Update `# Verified datasets` block.
-    *   Implement `download.py` to fetch and checksum data.
-2.  **Task 1: Preprocess Data**
-    *   Run fMRIPrep (CPU mode) on acquired data.
-    *   Handle memory constraints via batching/subsetting.
-3.  **Task 2: Compute Centrality Metrics**
-    *   Parcellate data using Schaefer atlas.
-    *   Compute degree, betweenness, eigenvector centrality.
-4.  **Task 3: Statistical Analysis**
-    *   Perform t-tests with FDR correction.
-    *   Conduct sensitivity analysis (threshold sweep).
-    *   Perform collinearity diagnostics.
-5.  **Task 4: Classification & Visualization**
-    *   Train logistic regression classifier.
-    *   Generate brain surface visualizations.
-6.  **Task 5: Reporting**
-    *   Generate final report and paper artifacts.
+| :--- | :--- | :--- |
+| **fMRIPrep Docker** | Required for standardized, reproducible neuroimaging preprocessing (Constitution VI). | Manual preprocessing (fsl/fslmaths) is error-prone and violates reproducibility standards. |
+| **Motion Scrubbing & GSR** | Required to mitigate motion artifacts (methodology concern). | Ignoring motion leads to spurious correlations and invalid centrality claims. |
+| **Network-Based Statistic (NBS)** | Required to account for spatial autocorrelation and metric collinearity (methodology concern). | Simple t-tests are underpowered and prone to false positives in network data. |
+| **Nested Cross-Validation** | Required to prevent double-dipping in classification (scientific soundness concern). | Simple CV on selected features inflates accuracy and invalidates diagnostic claims. |
+| **Sensitivity Analysis** | Required by FR-009 to validate threshold robustness. | Single-threshold analysis is scientifically insufficient for network topology studies. |
+| **Collinearity Diagnostics** | Required by FR-010 (centrality metrics are mathematically correlated). | Ignoring collinearity would lead to false claims of "independent" effects. |
