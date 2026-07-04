@@ -3,7 +3,7 @@
 **Input**: Design documents from `/specs/001-eval-ab-test-validity/`
 **Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
 
-**Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
+**Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification. [UNRESOLVED-CLAIM: c_bbbc9874 — status=not_enough_info]
 
 **Organization**: Tasks are grouped by user story to enable independent implementation and testing of each user story.
 
@@ -138,8 +138,8 @@
 
 ### Tests for User Story 2 (OPTIONAL)
 
-- [ ] T054 US2 Contract test for prevalence calculations in `tests/contract/test_prevalence_schema.py` (run AFTER T042 completes) (verify schema compliance).
-- [ ] T055 US2 Integration test that runs `src/audit/prevalence.py` on a known audit JSON and checks CSV columns (tests/integration/test_summary_generation.py) (run AFTER T042‑T046) (verify CSV columns exist).
+- [X] T054 US2 Contract test for prevalence calculations in `tests/contract/test_prevalence_schema.py` (run AFTER T042 completes) (verify schema compliance).
+- [X] T055 US2 Integration test that runs `src/audit/prevalence.py` on a known audit JSON and checks CSV columns (tests/integration/test_summary_generation.py) (run AFTER T042‑T046) (verify CSV columns exist).
 
 ---
 
@@ -192,7 +192,7 @@
 
 **Independent Test**: Compute extraction precision ≥ 85 % and recall ≥ 75 % (F1 ≥ 0.80) on the real‑world validation set.
 
-- [ ] T069a Source ≥ 100 public A/B test summary URLs across five major domains (tech, e‑commerce, finance, healthcare, SaaS) with at least 20 per domain [UNRESOLVED-CLAIM: c_024908c8 — status=not_enough_info] (constraint‑preservation‑0be190a4) (verify `data/manual_validation/source_urls.csv` exists and meets distribution).
+- [ ] T069a Source ≥ 100 public A/B test summary URLs across five major domains (tech, e‑commerce, finance, healthcare, SaaS) with at least 20 per domain (constraint‑preservation‑0be190a4) (verify `data/manual_validation/source_urls.csv` exists and meets distribution).
 - [ ] T069b Draft annotation protocol documenting field‑level extraction criteria, reviewer instructions, and conflict‑resolution process (document saved as `docs/annotation_protocol.md`).
 - [ ] T069c Conduct manual annotation (human annotators) following protocol, resulting in `data/manual_validation/real_world_labels.csv` with two annotator columns and a resolved ground‑truth column (constraint‑preservation‑0be190a4) (verify file exists with ≥ 100 rows and required columns).
 - [ ] T069d **[P]** Run `tests/unit/test_stratification_counts.py` to verify that `real_world_labels.csv` contains at least 20 annotated summaries per each of the five required domains. **DEPENDS ON:** T069c.
