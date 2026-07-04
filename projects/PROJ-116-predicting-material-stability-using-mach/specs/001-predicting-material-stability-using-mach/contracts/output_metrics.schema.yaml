@@ -1,0 +1,41 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "ModelPerformanceMetrics"
+description: "Schema for model evaluation results"
+type: object
+properties:
+  model_type:
+    type: string
+    enum:
+      - "baseline"
+      - "augmented"
+    description: "Type of model evaluated"
+  mae:
+    type: number
+    description: "Mean Absolute Error in eV/atom"
+  rmse:
+    type: number
+    description: "Root Mean Squared Error in eV/atom"
+  r2:
+    type: number
+    description: "R-squared score"
+  auc_roc:
+    type: number
+    description: "Area Under ROC Curve for metastability classification (all metastable)"
+  auc_roc_near_hull:
+    type: number
+    description: "Area Under ROC Curve for the Near-Hull cohort (0.00 < dist <= 0.05)"
+  training_time_seconds:
+    type: number
+    description: "Time taken to train the model"
+  delta_mae:
+    type: number
+    description: "Difference in MAE compared to baseline (null if baseline)"
+  p_value_permutation:
+    type: number
+    description: "P-value from the permutation test on MAE reduction"
+required:
+  - model_type
+  - mae
+  - rmse
+  - r2
+  - training_time_seconds

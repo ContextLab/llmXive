@@ -1,0 +1,496 @@
+resolved_at: '2026-07-04T21:25:13.373418+00:00'
+datasets:
+- intent: OQMD
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/kjappelbaum/chemnlp-oqmd/resolve/main/targets.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/materials-toolkits/oqmd/resolve/main/oqmd.tar.gz
+    source: huggingface
+    format: gzip
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/jablonkagroup/oqmd/resolve/main/completion_0/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/kjappelbaum/chemnlp-oqmd/resolve/main/targets.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/materials-toolkits/oqmd/resolve/main/oqmd.tar.gz
+    source: huggingface
+    status: verified
+    format: gzip
+  - url: https://huggingface.co/api/resolve-cache/datasets/chenebuah/oqmd/817946484b34c34fb4f15f99aea46837647f5b25/data%2Foqmd_data.csv?%2Fdatasets%2Fchenebuah%2Foqmd%2Fresolve%2Fmain%2Fdata%2Foqmd_data.csv=&etag=%2293db93dd7ed55e87a549b916aaa2720956d20028%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/jablonkagroup/oqmd/resolve/main/completion_0/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/colabfit/JARVIS_CFID_OQMD/resolve/main/co/co_0.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/figure/On_the_general_outline_of_physical_properties_of_amorphous-nanocrystalline_Fe_Cr_Mn_N_alloy_powders_prepared_by_mechanical_alloying_under_nitrogen_https_doi_org_10_1016_j_jallcom_2010_12_097_/32900693
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/Nanostructured_zirconium_titanate_fibers_prepared_by_particulate_sol_gel_and_cellulose_templating_techniques_https_doi_org_10_1016_j_jallcom_2013_03_142_/32900690
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/Figures_from_Nam_and_Benezra_2009_at_high_resolution_600_ppi_/25139513
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/Multilayer_zirconium_titanate_thin_films_prepared_by_a_sol_gel_deposition_method_https_doi_org_10_1016_j_ceramint_2012_07_058_/32900687
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/Multilayer_bioactive_glass_zirconium_titanate_thin_films_in_bone_tissue_engineering_and_regenerative_dentistry_http_dx_doi_org_10_2147_IJN_S42659_/32900684
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3966736
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7118055
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10028980
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7124330
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7373089
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2606.14088
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20456970
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20456970
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.5281/zenodo.20322680
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: HTTP 410'
+  - url: https://arxiv.org/abs/2605.27229
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: MAE
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/lucainiao/MAESTRO_2004_SYNTH/resolve/main/MAESTRO_2004_SYNTH.zip
+    source: huggingface
+    format: zip
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/RvTamaUraP/nva-Maekawa_Miku/resolve/main/LoRa_Maekawa_Miku_A.zip
+    source: huggingface
+    format: zip
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/tvergho/maestro/resolve/main/data/train-00000-of-00017-a44871a8bbf731f8.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/Maeji/autotrain-data-230121_t5_lcw99/resolve/main/raw/paper_summary.csv
+    source: huggingface
+    status: wrong_format
+    reason: HTTP 401
+  - url: https://huggingface.co/datasets/lucainiao/MAESTRO_2004_SYNTH/resolve/main/MAESTRO_2004_SYNTH.zip
+    source: huggingface
+    status: verified
+    format: zip
+  - url: https://huggingface.co/datasets/RvTamaUraP/nva-Maekawa_Miku/resolve/main/LoRa_Maekawa_Miku_A.zip
+    source: huggingface
+    status: verified
+    format: zip
+  - url: https://huggingface.co/datasets/tvergho/maestro/resolve/main/data/train-00000-of-00017-a44871a8bbf731f8.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/roszcz/maestro-v1-sustain/resolve/main/data/test-00000-of-00001-15d650750bca2093.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/figure/Processing_of_nanostructured_metallic_matrix_composites_by_a_modified_accumulative_roll_bonding_method_with_structural_and_mechanical_considerations_https_doi_org_10_1007_s12613-012-0653-8_/32900696
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/On_the_general_outline_of_physical_properties_of_amorphous-nanocrystalline_Fe_Cr_Mn_N_alloy_powders_prepared_by_mechanical_alloying_under_nitrogen_https_doi_org_10_1016_j_jallcom_2010_12_097_/32900693
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/Nanostructured_zirconium_titanate_fibers_prepared_by_particulate_sol_gel_and_cellulose_templating_techniques_https_doi_org_10_1016_j_jallcom_2013_03_142_/32900690
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/Figures_from_Nam_and_Benezra_2009_at_high_resolution_600_ppi_/25139513
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/Multilayer_zirconium_titanate_thin_films_prepared_by_a_sol_gel_deposition_method_https_doi_org_10_1016_j_ceramint_2012_07_058_/32900687
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/13984656
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8299749
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10023439
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.mapress.com/zt/article/view/zootaxa.4420.3.6
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14174346
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21196318
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21196318
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://fair.unifg.it//handle/11369/369485
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://aip.figshare.com/collections/Diamond_Thermometry_Beyond_the_Zero-Phonon_Line_via_Physics-Aware_Spectral_Trend_Learning/8539683/1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://aip.figshare.com/collections/Diamond_Thermometry_Beyond_the_Zero-Phonon_Line_via_Physics-Aware_Spectral_Trend_Learning/8539683
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: RMSE
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/arjunashok/medical-5day-zeroshot-freshexps-test-plot_with_rmsesort/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/arjunashok/medical-5day-zeroshot-freshexps-test-no-context-plot_with_rmsesort_noctx/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/arjunashok/medical-5day-zeroshot-freshexps-test-plot_with_rmsesort/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/arjunashok/medical-5day-zeroshot-freshexps-test-no-context-plot_with_rmsesort_noctx/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://us.aws.cdn.hf.co/xet-bridge-us/68edd46259f14f21c698aa28/f44f703ecd57d1ddffab68ea166dffcb818f02a0274566ab4651239ed85fffff?X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27dataset_list.json%3B+filename%3D%22dataset_list.json%22%3B&response-content-type=application%2Fjson&user_id=public&Expires=1783203802&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjhlZGQ0NjI1OWYxNGYyMWM2OThhYTI4L2Y0NGY3MDNlY2Q1N2QxZGRmZmFiNjhlYTE2NmRmZmNiODE4ZjAyYTAyNzQ1NjZhYjQ2NTEyMzllZDg1ZmZmZmZcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3ZGF0YXNldF9saXN0Lmpzb24lM0IrZmlsZW5hbWUlM0QlMjJkYXRhc2V0X2xpc3QuanNvbiUyMiUzQiZyZXNwb25zZS1jb250ZW50LXR5cGU9YXBwbGljYXRpb24lMkZqc29uJnVzZXJfaWQ9cHVibGljIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3ODMyMDM4MDJ9fX1dfQ__&Signature=MEQCIGx-76-sm-svpy9nWJezmxoGwmuAiWZsS1mVsvymLO7cAiBR2-CcjEDxhgaMt2toALgyHE-xIWthhGjmNdx-7ATBlQ__&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/Processing_of_nanostructured_metallic_matrix_composites_by_a_modified_accumulative_roll_bonding_method_with_structural_and_mechanical_considerations_https_doi_org_10_1007_s12613-012-0653-8_/32900696
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/On_the_general_outline_of_physical_properties_of_amorphous-nanocrystalline_Fe_Cr_Mn_N_alloy_powders_prepared_by_mechanical_alloying_under_nitrogen_https_doi_org_10_1016_j_jallcom_2010_12_097_/32900693
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/Nanostructured_zirconium_titanate_fibers_prepared_by_particulate_sol_gel_and_cellulose_templating_techniques_https_doi_org_10_1016_j_jallcom_2013_03_142_/32900690
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/Figures_from_Nam_and_Benezra_2009_at_high_resolution_600_ppi_/25139513
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/Multilayer_zirconium_titanate_thin_films_prepared_by_a_sol_gel_deposition_method_https_doi_org_10_1016_j_ceramint_2012_07_058_/32900687
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20325172
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17593144
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17750460
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10972798
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17167994
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21197220
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21197220
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21196864
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21196318
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21196318
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: DFT
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/bio-datasets/dft23-full/resolve/main/data/test-00000-of-00001-a791a8874f9adf69.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 180247
+      parsed: true
+  - url: https://huggingface.co/datasets/sdmattpotter/dftest61523/resolve/main/data/train-00000-of-00001-17dbf6e61ca73a23.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/sdmattpotter/dftest61623/resolve/main/data/train-00000-of-00001-17dbf6e61ca73a23.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/bio-datasets/dft23-full/resolve/main/data/test-00000-of-00001-a791a8874f9adf69.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/sdmattpotter/dftest61523/resolve/main/data/train-00000-of-00001-17dbf6e61ca73a23.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/sdmattpotter/dftest61623/resolve/main/data/train-00000-of-00001-17dbf6e61ca73a23.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: "https://huggingface.co/datasets/youngwoo3283/df_transportation_keyword/resolve/main/df_\uAD50\
+      \uD1B5.csv"
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/api/resolve-cache/datasets/youngwoo3283/df_text_generation_20k/a7593f2818c220c3b12d23877708bb4487e29232/df_text_generateion_20k.csv?%2Fdatasets%2Fyoungwoo3283%2Fdf_text_generation_20k%2Fresolve%2Fmain%2Fdf_text_generateion_20k.csv=&etag=%229ff9a2b9e7682fdb9c25dbfa6ac91cb66bade221%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/Processing_of_nanostructured_metallic_matrix_composites_by_a_modified_accumulative_roll_bonding_method_with_structural_and_mechanical_considerations_https_doi_org_10_1007_s12613-012-0653-8_/32900696
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/On_the_general_outline_of_physical_properties_of_amorphous-nanocrystalline_Fe_Cr_Mn_N_alloy_powders_prepared_by_mechanical_alloying_under_nitrogen_https_doi_org_10_1016_j_jallcom_2010_12_097_/32900693
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/Nanostructured_zirconium_titanate_fibers_prepared_by_particulate_sol_gel_and_cellulose_templating_techniques_https_doi_org_10_1016_j_jallcom_2013_03_142_/32900690
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/Figures_from_Nam_and_Benezra_2009_at_high_resolution_600_ppi_/25139513
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/Multilayer_zirconium_titanate_thin_films_prepared_by_a_sol_gel_deposition_method_https_doi_org_10_1016_j_ceramint_2012_07_058_/32900687
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6417557
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8401258
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3771172
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7861665
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15478832
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21197563
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21197563
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://opendata.uni-halle.de//handle/1981185920/126065
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21196288
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21196288
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: MaterialEntry
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/figure/Processing_of_nanostructured_metallic_matrix_composites_by_a_modified_accumulative_roll_bonding_method_with_structural_and_mechanical_considerations_https_doi_org_10_1007_s12613-012-0653-8_/32900696
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/On_the_general_outline_of_physical_properties_of_amorphous-nanocrystalline_Fe_Cr_Mn_N_alloy_powders_prepared_by_mechanical_alloying_under_nitrogen_https_doi_org_10_1016_j_jallcom_2010_12_097_/32900693
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/Nanostructured_zirconium_titanate_fibers_prepared_by_particulate_sol_gel_and_cellulose_templating_techniques_https_doi_org_10_1016_j_jallcom_2013_03_142_/32900690
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/Figures_from_Nam_and_Benezra_2009_at_high_resolution_600_ppi_/25139513
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/Multilayer_zirconium_titanate_thin_films_prepared_by_a_sol_gel_deposition_method_https_doi_org_10_1016_j_ceramint_2012_07_058_/32900687
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: PhaseDiagram
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/figure/Processing_of_nanostructured_metallic_matrix_composites_by_a_modified_accumulative_roll_bonding_method_with_structural_and_mechanical_considerations_https_doi_org_10_1007_s12613-012-0653-8_/32900696
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/On_the_general_outline_of_physical_properties_of_amorphous-nanocrystalline_Fe_Cr_Mn_N_alloy_powders_prepared_by_mechanical_alloying_under_nitrogen_https_doi_org_10_1016_j_jallcom_2010_12_097_/32900693
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/Nanostructured_zirconium_titanate_fibers_prepared_by_particulate_sol_gel_and_cellulose_templating_techniques_https_doi_org_10_1016_j_jallcom_2013_03_142_/32900690
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/Figures_from_Nam_and_Benezra_2009_at_high_resolution_600_ppi_/25139513
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/Multilayer_zirconium_titanate_thin_films_prepared_by_a_sol_gel_deposition_method_https_doi_org_10_1016_j_ceramint_2012_07_058_/32900687
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8008763
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.3jg57
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18777694
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19896908
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6562930
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19595848
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19595848
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.5281/zenodo.19022548
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: HTTP 404'
+  - url: https://arxiv.org/abs/2403.07737
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8237363
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

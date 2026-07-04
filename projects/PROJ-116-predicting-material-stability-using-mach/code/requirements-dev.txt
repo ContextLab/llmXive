@@ -1,0 +1,17 @@
+# Core dependencies (ensure these are installed)
+-r requirements.txt
+
+# Linting and Formatting
+flake8
+black
+isort
+mypy
+
+# Testing
+pytest
+pytest-cov
+pytest-mock
+
+# Type stubs (optional but recommended)
+types-requests
+types-setuptools

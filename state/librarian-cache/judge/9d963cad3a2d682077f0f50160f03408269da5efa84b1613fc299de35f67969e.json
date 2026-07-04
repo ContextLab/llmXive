@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2510.26100",
+  "judged_at": "2026-07-04T21:15:27Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting material stability using machine learning and dft calculations chemistry",
+  "rationale": "This paper satisfies criteria (b) and (d) as it reviews machine learning methods for property prediction in materials (polymers), which is the same domain and mechanism as the user's question, even though it focuses on polymers rather than the specific DFT integration mentioned. It serves as a foundational review of the ML techniques and data strategies (descriptors, feature representation) that are essential for the user's proposed work on material stability.",
+  "relevant": true
+}

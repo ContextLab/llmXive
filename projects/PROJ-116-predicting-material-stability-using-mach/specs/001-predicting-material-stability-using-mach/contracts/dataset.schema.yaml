@@ -1,0 +1,56 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "FeaturizedMaterialEntry"
+description: "Schema for a single material entry after feature engineering"
+type: object
+properties:
+  material_id:
+    type: string
+    description: "Unique identifier from OQMD"
+  composition:
+    type: string
+    description: "Chemical formula (e.g., Li2O)"
+  formation_energy_per_atom:
+    type: number
+    description: "DFT ground truth formation energy in eV/atom"
+  distance_to_hull:
+    type: number
+    description: "Distance to convex hull in eV/atom"
+  is_stable:
+    type: boolean
+    description: "True if distance_to_hull is 0.0"
+  is_metastable:
+    type: boolean
+    description: "True if 0.0 < distance_to_hull <= threshold"
+  is_near_hull:
+    type: boolean
+    description: "True if 0.0 < distance_to_hull <= 0.05"
+  magpie_features:
+    type: object
+    description: "Bulk compositional descriptors"
+    additionalProperties:
+      type: number
+  voronoi_stats:
+    type: object
+    description: "Local coordination statistics (aggregated)"
+    additionalProperties:
+      type: number
+  bond_length_features:
+    type: array
+    description: "Fixed-size vector of aggregated bond length statistics (mean, std, skew, kurt, percentiles)"
+    items:
+      type: number
+  collinearity_vif:
+    type: object
+    description: "Variance Inflation Factors for each feature"
+    additionalProperties:
+      type: number
+required:
+  - material_id
+  - composition
+  - formation_energy_per_atom
+  - distance_to_hull
+  - is_stable
+  - is_near_hull
+  - magpie_features
+  - voronoi_stats
+  - bond_length_features

@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-06-25T01:33:58Z",
+  "fetched_at": "2026-07-04T21:15:28Z",
   "field": "chemistry",
   "prompt_version": "1.6.0",
   "result": {
@@ -9,105 +9,104 @@
       "idea_body_excerpt": "Predicting Material Stability using Machine Learning and DFT Calculations",
       "target_n": 5
     },
-    "duration_seconds": 102.546,
-    "ended_at": "2026-06-25T01:33:58Z",
+    "duration_seconds": 47.175,
+    "ended_at": "2026-07-04T21:15:28Z",
     "expansion": {
       "expanded_terms_ranked": [
         [
           1,
-          "machine‑learned formation energy prediction"
+          "machine learning for materials stability prediction"
         ],
         [
           2,
-          "data‑driven phase stability modeling"
+          "density functional theory thermodynamic stability"
         ],
         [
           3,
-          "materials informatics stability classification"
+          "formation energy prediction with machine learning"
         ],
         [
           4,
-          "supervised learning of thermodynamic stability"
+          "crystal structure stability classification"
         ],
         [
           5,
-          "graph neural networks for crystal stability"
+          "DFT-calculated cohesive energy models"
         ],
         [
           6,
-          "deep neural networks for inorganic compound stability"
+          "high-throughput screening of material stability"
         ],
         [
           7,
-          "Gaussian process regression of formation energies"
+          "graph neural networks for formation energy"
         ],
         [
           8,
-          "high‑throughput DFT screening combined with ML"
+          "phase stability prediction using AI"
         ],
         [
           9,
-          "ML‑based construction of phase diagrams"
+          "machine learning interatomic potentials for stability"
         ],
         [
           10,
-          "predicting decomposition energies with machine learning"
+          "computational materials design stability metrics"
         ],
         [
           11,
-          "hybrid ML‑DFT approaches for metastable materials"
+          "predicting decomposition energy with deep learning"
         ],
         [
           12,
-          "descriptor‑based machine learning of solid‑state stability"
+          "descriptor-based stability models in materials science"
         ],
         [
           13,
-          "transfer learning for DFT property prediction"
+          "DFT-based machine learning force fields"
         ],
         [
           14,
-          "active learning for discovery of stable compounds"
+          "convex hull construction for material stability"
         ],
         [
           15,
-          "Bayesian optimization of stable material candidates"
+          "automated materials discovery stability assessment"
         ],
         [
           16,
-          "ensemble learning of material energetics"
+          "symmetry-aware neural networks for crystal stability"
         ],
         [
           17,
-          "convex hull stability prediction using AI"
+          "transfer learning for materials property prediction"
         ],
         [
           18,
-          "materials genome initiative stability models"
+          "active learning in computational chemistry stability"
         ],
         [
           19,
-          "machine‑learning accelerated DFT calculations for stability"
+          "Bayesian optimization for stable material discovery"
         ],
         [
           20,
-          "AI‑guided prediction of inorganic material robustness"
+          "quantum mechanical calculations coupled with ML for thermodynamics"
         ]
       ],
       "original_term": "",
       "per_term_hit_count": {
         "Predicting Material Stability using Machine Learning and DFT Calculations chemistry": 0,
-        "data‑driven phase stability modeling": 5,
-        "machine‑learned formation energy prediction": 0
+        "machine learning for materials stability prediction": 5
       },
-      "total_queries_issued": 2
+      "total_queries_issued": 1
     },
     "extracted_queries": [
-      "formation energy prediction",
-      "Materials Project dataset",
-      "graph neural network materials",
-      "energy above hull metric",
-      "physics-informed machine learning"
+      "thermodynamic stability formation energy",
+      "Materials Project OQMD DFT dataset",
+      "crystal structure representation learning graph neural network",
+      "energy above hull machine learning prediction",
+      "phase diagram stability computational screening"
     ],
     "failure_reason": null,
     "librarian_prompt_version": "1.6.0",
@@ -121,21 +120,21 @@
       "sample_size_target": 1,
       "sampled_count": 1,
       "sampled_pointers": [
-        "2008.06415"
+        "1811.05660"
       ]
     },
     "per_query_hit_count": {
-      "Materials Project dataset": 3,
+      "Materials Project OQMD DFT dataset": 3,
       "Predicting Material Stability using Machine Learning and DFT Calculations chemistry": 3,
-      "energy above hull metric": 1,
-      "formation energy prediction": 3,
-      "graph neural network materials": 3,
-      "physics-informed machine learning": 1
+      "crystal structure representation learning graph neural network": 3,
+      "energy above hull machine learning prediction": 0,
+      "phase diagram stability computational screening": 3,
+      "thermodynamic stability formation energy": 3
     },
     "relevance_judge": {
       "enabled": true,
       "marginal_fallback_used": false,
-      "rejected_count": 6,
+      "rejected_count": 3,
       "rejections": [
         {
           "primary_pointer": "2006.16189",
@@ -148,29 +147,14 @@
           "title": "Learning Curves for Decision Making in Supervised Machine Learning: A Survey"
         },
         {
-          "primary_pointer": "2204.01150",
-          "rationale": "The paper focuses on theoretical guarantees for a data‑driven nonlinear predictive control scheme in control systems engineering, which bears no relevance to predicting material stability, machine learning models for materials, or DFT calculations in chemistry. It is off‑domain and does not address any of the variables or mechanisms of the user's question.",
-          "title": "Practical exponential stability of a robust data-driven nonlinear predictive control scheme"
-        },
-        {
-          "primary_pointer": "2408.04767",
-          "rationale": "The paper focuses on sensor pixel control, computer‑vision neural networks, and energy‑delay trade‑offs, which are unrelated to material stability prediction, machine‑learning models for chemistry, or DFT calculations. It does not address any of the mechanisms, variables, or domain of the user's question.",
-          "title": "Data-Driven Pixel Control: Challenges and Prospects"
-        },
-        {
-          "primary_pointer": "1706.01619",
-          "rationale": "The paper studies nonequilibrium phase transitions in an XY ferromagnet using Monte Carlo simulations, with no focus on material stability, machine‑learning models, or density‑functional theory in chemistry; it is off‑domain and lacks any relevant mechanism, variable, or empirical setting for the user's question.",
-          "title": "Driven spin wave modes in XY ferromagnet: Nonequilibrium phase transition"
-        },
-        {
-          "primary_pointer": "2511.16033",
-          "rationale": "The paper focuses on data‑driven model reduction for parameter‑dependent matrix equations using operator inference, which is unrelated to material stability prediction, machine‑learning models for chemistry, or DFT calculations; it does not address any of the variables, mechanisms, or domain of the user's question.",
-          "title": "Data-driven Model Reduction for Parameter-Dependent Matrix Equations via Operator Inference"
+          "primary_pointer": "2306.04338",
+          "rationale": "The paper focuses on \"official statistics\" and policy-making data sources, which is an entirely different domain from the user's question about predicting material stability in chemistry using DFT and machine learning. It fails to address the specific mechanism, variables, or empirical population required, falling under the \"Off-domain entirely\" rejection rule.",
+          "title": "Changing Data Sources in the Age of Machine Learning for Official Statistics"
         }
       ]
     },
     "schema_version": "1.0.0",
-    "started_at": "2026-06-25T01:32:15Z",
+    "started_at": "2026-07-04T21:14:41Z",
     "term_input": {
       "normalized": "predicting material stability using machine learning and dft calculations chemistry",
       "raw": "Predicting Material Stability using Machine Learning and DFT Calculations chemistry"
@@ -190,7 +174,7 @@
           "primary_pointer": "2306.04338"
         },
         "details": "query-relevance 0.250 < 0.3 (query='Predicting Material Stability using Machine Learning and DFT Calculations chemis', candidate_title='Changing Data Sources in the Age of Machine Learning for Official Statistics')",
-        "failed_at": "2026-06-25T01:32:52Z",
+        "failed_at": "2026-07-04T21:15:08Z",
         "reason": "query_irrelevant"
       },
       {
@@ -206,7 +190,7 @@
           "primary_pointer": "astro-ph/0510346"
         },
         "details": "query-relevance 0.000 < 0.3 (query='Predicting Material Stability using Machine Learning and DFT Calculations chemis', candidate_title='The Dark Energy Survey')",
-        "failed_at": "2026-06-25T01:32:52Z",
+        "failed_at": "2026-07-04T21:15:09Z",
         "reason": "query_irrelevant"
       },
       {
@@ -222,7 +206,7 @@
           "primary_pointer": "1211.0310"
         },
         "details": "query-relevance 0.000 < 0.3 (query='Predicting Material Stability using Machine Learning and DFT Calculations chemis', candidate_title='Large Synoptic Survey Telescope: Dark Energy Science Collaboration')",
-        "failed_at": "2026-06-25T01:32:52Z",
+        "failed_at": "2026-07-04T21:15:09Z",
         "reason": "query_irrelevant"
       },
       {
@@ -242,7 +226,7 @@
           "primary_pointer": "astro-ph/0507457"
         },
         "details": "query-relevance 0.000 < 0.3 (query='Predicting Material Stability using Machine Learning and DFT Calculations chemis', candidate_title='Dark Energy and Cosmic Sound: w(z) Surveys with the Gemini/Subaru Wide-Field Multi-Object Spectrograph')",
-        "failed_at": "2026-06-25T01:32:52Z",
+        "failed_at": "2026-07-04T21:15:09Z",
         "reason": "query_irrelevant"
       },
       {
@@ -297,7 +281,7 @@
           "primary_pointer": "2405.19595"
         },
         "details": "query-relevance 0.250 < 0.3 (query='Predicting Material Stability using Machine Learning and DFT Calculations chemis', candidate_title='The RSNA Abdominal Traumatic Injury CT (RATIC) Dataset')",
-        "failed_at": "2026-06-25T01:32:52Z",
+        "failed_at": "2026-07-04T21:15:09Z",
         "reason": "query_irrelevant"
       },
       {
@@ -336,58 +320,47 @@
           "primary_pointer": "2305.17247"
         },
         "details": "query-relevance 0.000 < 0.3 (query='Predicting Material Stability using Machine Learning and DFT Calculations chemis', candidate_title='The Araucaria Project: Improving the cosmic distance scale')",
-        "failed_at": "2026-06-25T01:32:52Z",
+        "failed_at": "2026-07-04T21:15:09Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "The Radiological Society of North America (RSNA) Lumbar Degenerative Imaging Spine Classification (LumbarDISC) dataset is the largest publicly available dataset of adult MRI lumbar spine examinations annotated for degenerative changes. The dataset includes 2,697 patients with a total of 8,593 image series from 8 institutions across 6 countries and 5 continents. The dataset is available for free for non-commercial use via Kaggle and RSNA Medical Imaging Resource of AI (MIRA). The dataset was created for the RSNA 2024 Lumbar Spine Degenerative Classification competition where competitors developed deep learning models to grade degenerative changes in the lumbar spine. The degree of spinal canal, subarticular recess, and neural foraminal stenosis was graded at each intervertebral disc level in the lumbar spine. The images were annotated by expert volunteer neuroradiologists and musculoskeletal radiologists from the RSNA, American Society of Neuroradiology, and the American Society of Spine Radiology. This dataset aims to facilitate research and development in machine learning and lumbar spine imaging to lead to improved patient care and clinical efficiency.",
+          "claimed_abstract": "Graph representation learning, involving both node features and graph structures, is crucial for real-world applications but often encounters pervasive noise. State-of-the-art methods typically address noise by focusing separately on node features with large language models (LLMs) and on graph structures with graph structure learning models (GSLMs). In this paper, we introduce LangGSL, a robust framework that integrates the complementary strengths of pre-trained language models and GSLMs to jointly enhance both node feature and graph structure learning. In LangGSL, we first leverage LLMs to filter noise in the raw data and extract valuable cleaned information as features, enhancing the synergy of downstream models. During the mutual learning phase in LangGSL, the core idea is to leverage the relatively small language model (LM) to process local attributes and generate reliable pseudo-labels and informative node embeddings, which are then integrated into the GSLM's prediction phase. This approach enriches the global context and enhances overall performance. Meanwhile, GSLM refines the evolving graph structure constructed from the LM's output, offering updated labels back to the LM as additional guidance, thus facilitating a more effective mutual learning process. The LM and GSLM work synergistically, complementing each other's strengths and offsetting weaknesses within a variational information-maximizing framework, resulting in enhanced node features and a more robust graph structure. Extensive experiments on diverse graph datasets of varying scales and across different task scenarios demonstrate the scalability and effectiveness of the proposed approach.",
           "claimed_authors": [
-            "Tyler J. Richards",
-            "Adam E. Flanders",
-            "Errol Colak",
-            "Luciano M. Prevedello",
-            "Robyn L. Ball",
-            "Felipe Kitamura",
-            "John Mongan",
-            "Maryam Vazirabad",
-            "Hui-Ming Lin",
-            "Anne Kendell",
-            "Thanat Kanthawang",
-            "Salita Angkurawaranon",
-            "Emre Altinmakas",
-            "Hakan Dogan",
-            "Paulo Eduardo de Aguiar Kuriki",
-            "Arjuna Somasundaram",
-            "Christopher Ruston",
-            "Deniz Bulja",
-            "Naida Spahovic",
-            "Jennifer Sommer",
-            "Sirui Jiang",
-            "Eduardo Moreno Judice de Mattos Farina",
-            "Eduardo Caminha Nunes",
-            "Michael Brassil",
-            "Megan McNamara",
-            "Johanna Ortiz",
-            "Jacob Peoples",
-            "Vinson L. Uytana",
-            "Anthony Kam",
-            "Venkata N. S. Dola",
-            "Daniel Murphy",
-            "David Vu",
-            "Dataset Contributor Group",
-            "Dataset Annotator Group",
-            "Competition Data Notebook Group",
-            "Jason F. Talbott"
+            "Guangxin Su",
+            "Yifan Zhu",
+            "Wenjie Zhang",
+            "Hanchen Wang",
+            "Ying Zhang"
           ],
-          "claimed_title": "The RSNA Lumbar Degenerative Imaging Spine Classification (LumbarDISC) Dataset",
+          "claimed_title": "Bridging Large Language Models and Graph Structure Learning Models for Robust Representation Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2410.12096"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Predicting Material Stability using Machine Learning and DFT Calculations chemis', candidate_title='Bridging Large Language Models and Graph Structure Learning Models for Robust Representation Learning')",
+        "failed_at": "2026-07-04T21:15:09Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Air pollution (AP) poses a great threat to human health, and people are paying more attention than ever to its prediction. Accurate prediction of AP helps people to plan for their outdoor activities and aids protecting human health. In this paper, long-short term memory (LSTM) recurrent neural networks (RNNs) have been used to predict the future concentration of air pollutants (APS) in Macau. Additionally, meteorological data and data on the concentration of APS have been utilized. Moreover, in Macau, some air quality monitoring stations (AQMSs) have less observed data in quantity, and, at the same time, some AQMSs recorded less observed data of certain types of APS. Therefore, the transfer learning and pre-trained neural networks have been employed to assist AQMSs with less observed data to build a neural network with high prediction accuracy. The experimental sample covers a period longer than 12-year and includes daily measurements from several APS as well as other more classical meteorological values. Records from five stations, four out of them are AQMSs and the remaining one is an automatic weather station, have been prepared from the aforesaid period and eventually underwent to computational intelligence techniques to build and extract a prediction knowledge-based system. As shown by experimentation, LSTM RNNs initialized with transfer learning methods have higher prediction accuracy; it incurred shorter training time than randomly initialized recurrent neural networks.",
+          "claimed_authors": [
+            "Iat Hang Fong",
+            "Tengyue Li",
+            "Simon Fong",
+            "Raymond K. Wong",
+            "Antonio J. Tallón-Ballesteros"
+          ],
+          "claimed_title": "Predicting concentration levels of air pollutants by transfer learning and recurrent neural network",
           "claimed_venue": "arXiv",
           "claimed_year": 2025,
-          "primary_pointer": "2506.09162"
+          "primary_pointer": "2502.01654"
         },
-        "details": "query-relevance 0.250 < 0.3 (query='Predicting Material Stability using Machine Learning and DFT Calculations chemis', candidate_title='The RSNA Lumbar Degenerative Imaging Spine Classification (LumbarDISC) Dataset')",
-        "failed_at": "2026-06-25T01:32:52Z",
+        "details": "query-relevance 0.125 < 0.3 (query='Predicting Material Stability using Machine Learning and DFT Calculations chemis', candidate_title='Predicting concentration levels of air pollutants by transfer learning and recurrent neural network')",
+        "failed_at": "2026-07-04T21:15:09Z",
         "reason": "query_irrelevant"
       },
       {
@@ -404,56 +377,58 @@
           "primary_pointer": "1609.04846"
         },
         "details": "query-relevance 0.250 < 0.3 (query='Predicting Material Stability using Machine Learning and DFT Calculations chemis', candidate_title='A Tutorial about Random Neural Networks in Supervised Learning')",
-        "failed_at": "2026-06-25T01:32:52Z",
+        "failed_at": "2026-07-04T21:15:09Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Learning powerful data embeddings has become a center piece in machine learning, especially in natural language processing and computer vision domains. The crux of these embeddings is that they are pretrained on huge corpus of data in a unsupervised fashion, sometimes aided with transfer learning. However currently in the graph learning domain, embeddings learned through existing graph neural networks (GNNs) are task dependent and thus cannot be shared across different datasets. In this paper, we present a first powerful and theoretically guaranteed graph neural network that is designed to learn task-independent graph embeddings, thereafter referred to as deep universal graph embedding (DUGNN). Our DUGNN model incorporates a novel graph neural network (as a universal graph encoder) and leverages rich Graph Kernels (as a multi-task graph decoder) for both unsupervised learning and (task-specific) adaptive supervised learning. By learning task-independent graph embeddings across diverse datasets, DUGNN also reaps the benefits of transfer learning. Through extensive experiments and ablation studies, we show that the proposed DUGNN model consistently outperforms both the existing state-of-art GNN models and Graph Kernels by an increased accuracy of 3% - 8% on graph classification benchmark datasets.",
+          "claimed_abstract": "This article reviews the application of fragment descriptors at different stages of virtual screening: filtering, similarity search, and direct activity assessment using QSAR/QSPR models. Several case studies are considered. It is demonstrated that the power of fragment descriptors stems from their universality, very high computational efficiency, simplicity of interpretation and versatility.",
           "claimed_authors": [
-            "Saurabh Verma",
-            "Zhi-Li Zhang"
+            "Igor I. Baskin",
+            "Alexandre Varnek"
           ],
-          "claimed_title": "Learning Universal Graph Neural Network Embeddings With Aid Of Transfer Learning",
+          "claimed_title": "Fragment Descriptors in Virtual Screening",
           "claimed_venue": "arXiv",
-          "claimed_year": 2019,
-          "primary_pointer": "1909.10086"
+          "claimed_year": 2013,
+          "primary_pointer": "1311.3723"
         },
-        "details": "query-relevance 0.250 < 0.3 (query='Predicting Material Stability using Machine Learning and DFT Calculations chemis', candidate_title='Learning Universal Graph Neural Network Embeddings With Aid Of Transfer Learning')",
-        "failed_at": "2026-06-25T01:32:52Z",
+        "details": "query-relevance 0.125 < 0.3 (query='Predicting Material Stability using Machine Learning and DFT Calculations chemis', candidate_title='Fragment Descriptors in Virtual Screening')",
+        "failed_at": "2026-07-04T21:15:09Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Knowledge of the centre-of-mass energy at LEP2 is of primary importance to set the absolute energy scale for the measurement of the W-boson mass. The beam energy above 80 GeV is derived from continuous measurements of the magnetic bending field by 16 NMR probes situated in a number of the LEP dipoles. The relationship between the fields measured by the probes and the beam energy is calibrated against precise measurements of the average beam energy between 41 and 55 GeV made using the resonant depolarisation technique. The linearity of the relationship is tested by comparing the fields measured by the probes with the total bending field measured by a flux loop. This test results in the largest contribution to the systematic uncertainty. Several further corrections are applied to derive the the centre-of-mass energies at each interaction point. In addition the centre-of-mass energy spread is evaluated. The beam energy has been determined with a precision of 25 MeV for the data taken in 1997, corresponding to a relative precision of 2.7x10^{-4}. This is small in comparison to the present uncertainty on the W mass measurement at LEP. However, the ultimate statistical precision on the W mass with the full LEP2 data sample should be around 25 MeV, and a smaller uncertainty on the beam energy is desirable. Prospects for improvements are outlined.",
+          "claimed_abstract": "The phase diagram of the Ashkin-Tellerized XY model in spatial dimension $d=3$ is calculated by renormalization-group theory. In this system, each site has two spins, each spin being an XY spin, that is having orientation continuously varying in 2πradians. Nearest-neighbor sites are coupled by two-spin and four-spin interactions. The phase diagram has ordered phases that are ferromagnetic and antiferromagnetic in each of the spins, and phases that are ferromagnetic and antiferromagnetic in the multiplicative spin variable. The phase diagram exhibits two symmetrically situated reverse bifurcation points of the phase boundaries. The renormalization-group flows are in terms of the doubly composite Fourier coefficients of the exponentiated energy of nearest-neighbor spins.",
           "claimed_authors": [
-            " The LEP Energy Working Group"
+            "Alpar Turkoglu",
+            "A. Nihat Berker"
           ],
-          "claimed_title": "Evaluation of the LEP Centre-of-Mass Energy Above the W-Pair Production Threshold",
-          "claimed_venue": "arXiv",
-          "claimed_year": 1999,
-          "primary_pointer": "hep-ex/9901002"
-        },
-        "details": "query-relevance 0.125 < 0.3 (query='Predicting Material Stability using Machine Learning and DFT Calculations chemis', candidate_title='Evaluation of the LEP Centre-of-Mass Energy Above the W-Pair Production Threshold')",
-        "failed_at": "2026-06-25T01:32:52Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "The integration of physics-based knowledge with machine learning models is increasingly shaping the monitoring, diagnostics, and prognostics of electrical transformers. In this two-part series, the first paper introduced the foundations of Neural Networks (NNs) and their variants for health assessment tasks. This second paper focuses on integrating physics and uncertainty into the learning process. We begin with the fundamentals of Physics-Informed Neural Networks (PINNs), applied to spatiotemporal thermal modeling and solid insulation ageing. Building on this, we present Bayesian PINNs as a principled framework to quantify epistemic uncertainty and deliver robust predictions under sparse data. Finally, we outline emerging research directions that highlight the potential of physics-aware and trustworthy machine learning for critical power assets.",
-          "claimed_authors": [
-            "Jose I. Aizpurua"
-          ],
-          "claimed_title": "Physics-Informed Machine Learning for Transformer Condition Monitoring -- Part II: Physics-Informed Neural Networks and Uncertainty Quantification",
+          "claimed_title": "XY-Ashkin-Teller Phase Diagram in d=3",
           "claimed_venue": "arXiv",
           "claimed_year": 2025,
-          "primary_pointer": "2512.22189"
+          "primary_pointer": "2503.23739"
         },
-        "details": "query-relevance 0.250 < 0.3 (query='Predicting Material Stability using Machine Learning and DFT Calculations chemis', candidate_title='Physics-Informed Machine Learning for Transformer Condition Monitoring -- Part II: Physics-Informed Neural Networks and Uncertainty Quantification')",
-        "failed_at": "2026-06-25T01:32:52Z",
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Material Stability using Machine Learning and DFT Calculations chemis', candidate_title='XY-Ashkin-Teller Phase Diagram in d=3')",
+        "failed_at": "2026-07-04T21:15:09Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In this paper we attempt a non-perturbative study of the five dimensional, anisotropic SU(2) gauge theory on the lattice using Monte-Carlo techniques. Our goal is the exploration of the phase diagram, define the various phases and the critical boundary lines. Three phases appear, two of them are continuations of the Strong and the Weak coupling phases of pure 4d SU(2) to non-zero coupling $β^{'}$ in the fifth transverse direction and they are separated by a crossover transition, while the third phase is a 5D Coulombic phase. We provide evidence that the phase transition between the 5D Coulomb phase and the Weak coupling phase is a second order phase transition. Assuming that this result is not altered when increasing the lattice volume we give a first estimate of the associated critical exponents. This opens the possibility for a continuum effective five dimensional field theory.",
+          "claimed_authors": [
+            "K. Farakos",
+            "S. Vrentzos"
+          ],
+          "claimed_title": "Exploration of the phase diagram of 5D anisotropic SU(2) gauge theory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1007.4442"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Predicting Material Stability using Machine Learning and DFT Calculations chemis', candidate_title='Exploration of the phase diagram of 5D anisotropic SU(2) gauge theory')",
+        "failed_at": "2026-07-04T21:15:09Z",
         "reason": "query_irrelevant"
       }
     ],
@@ -461,56 +436,91 @@
       {
         "bibliographic_info": {
           "authors": [
-            "Mohammadreza Karamad",
-            "Rishikesh Magar",
-            "Yuting Shi",
-            "Samira Siahrostami",
-            "Ian D. Gates",
-            "Amir Barati Farimani"
+            "Vinay I. Hegde",
+            "Christopher K. H. Borg",
+            "Zachary del Rosario",
+            "Yoolhee Kim",
+            "Maxwell Hutchinson",
+            "Erin Antono",
+            "Julia Ling",
+            "Paul Saxe",
+            "James E. Saal",
+            "Bryce Meredig"
           ],
-          "title": "Orbital Graph Convolutional Neural Network for Material Property Prediction",
+          "title": "Quantifying uncertainty in high-throughput density functional theory: a comparison of AFLOW, Materials Project, and OQMD",
           "venue": "arXiv",
           "year": 2020
         },
-        "primary_pointer": "2008.06415",
-        "summary": "Material representations that are compatible with machine learning models play a key role in developing models that exhibit high accuracy for property prediction. Atomic orbital interactions are one of the important factors that govern the properties of crystalline materials, from which the local chemical environments of atoms is inferred. Therefore, to develop robust machine learningmodels for material properties prediction, it is imperative to include features representing such chemical attributes. Here, we propose the Orbital Graph Convolutional Neural Network (OGCNN), a crystal graph convolutional neural network framework that includes atomic orbital interaction features that learns material properties in a robust way. In addition, we embedded an encoder-decoder network into the OGCNN enabling it to learn important features among basic atomic (elemental features), orbital-orbital interactions, and topological features. We examined the performance of this model on a broad range of crystalline material data to predict different properties. We benchmarked the performance of the OGCNN model with that of: 1) the crystal graph convolutional neural network (CGCNN), 2) other state-of-the-art descriptors for material representations including Many-body Tensor Representation (MBTR) and the Smooth Overlap of Atomic Positions (SOAP), and 3) other conventional regression machine learning algorithms where different crystal featurization methods have been used. We find that OGCNN significantly outperforms them. The OGCNN model with high predictive accuracy can be used to discover new materials among the immense phase and compound spaces of materials",
+        "primary_pointer": "2007.01988",
+        "summary": "A central challenge in high throughput density functional theory (HT-DFT) calculations is selecting a combination of input parameters and post-processing techniques that can be used across all materials classes, while also managing accuracy-cost tradeoffs. To investigate the effects of these parameter choices, we consolidate three large HT-DFT databases: Automatic-FLOW (AFLOW), the Materials Project (MP), and the Open Quantum Materials Database (OQMD), and compare reported properties across each pair of databases for materials calculated using the same initial crystal structure. We find that HT-DFT formation energies and volumes are generally more reproducible than band gaps and total magnetizations; for instance, a notable fraction of records disagree on whether a material is metallic (up to 7%) or magnetic (up to 15%). The variance between calculated properties is as high as 0.105 eV/atom (median relative absolute difference, or MRAD, of 6%) for formation energy, 0.65 Å$^3$/atom (MRAD of 4%) for volume, 0.21 eV (MRAD of 9%) for band gap, and 0.15 $μ_{\\rm B}$/formula unit (MRAD of 8%) for total magnetization, comparable to the differences between DFT and experiment. We trace some of the larger discrepancies to choices involving pseudopotentials, the DFT+U formalism, and elemental reference states, and argue that further standardization of HT-DFT would be beneficial to reproducibility.",
         "summary_grounded_pdf": false,
         "verification_log": {
           "backend": "arxiv",
-          "final_url": "https://arxiv.org/abs/2008.06415",
+          "final_url": "https://arxiv.org/abs/2007.01988",
           "http_status": 200,
-          "pdf_sample_score": 0.2952,
-          "query_relevance_score": 0.375,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
           "redirect_chain": [],
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-06-25T01:32:52Z"
+          "verified_at": "2026-07-04T21:15:09Z"
         }
       },
       {
         "bibliographic_info": {
           "authors": [
-            "Alexander I. Lebedev"
+            "Soumya Sanyal",
+            "Janakiraman Balachandran",
+            "Naganand Yadati",
+            "Abhishek Kumar",
+            "Padmini Rajagopalan",
+            "Suchismita Sanyal",
+            "Partha Talukdar"
           ],
-          "title": "First-principles study of ferroelectricity and pressure-induced phase transitions in HgTiO$_3$",
+          "title": "MT-CGCNN: Integrating Crystal Graph Convolutional Neural Network with Multitask Learning for Material Property Prediction",
           "venue": "arXiv",
-          "year": 2012
+          "year": 2018
         },
-        "primary_pointer": "1203.2370",
-        "summary": "Ground-state structure is found and pressure-induced phase transitions up to 210 kbar are studied in mercury titanate from first principles within the density functional theory. It is established that the $R3c$ structure experimentally observed in HgTiO$_3$ is metastable at ambient pressure. With increasing the hydrostatic pressure, the ground-state structure changes following the $R{\\bar 3} \\to R3c \\to Pbnm$ sequence. It is shown that the appearance of ferroelectricity in HgTiO$_3$ at $P = 0$ is associated with an unstable phonon mode. Optical and elastic properties of different phases of mercury titanate are calculated. The quasiparticle band gap calculated in the \\emph{GW} approximation ($E_g = 2.43$ eV) agrees with experimental data better than the value obtained in the LDA approximation (1.49 eV). Analysis of the thermodynamic stability explains why the synthesis of mercury titanate is possible only at high pressures.",
+        "primary_pointer": "1811.05660",
+        "summary": "Developing accurate, transferable and computationally inexpensive machine learning models can rapidly accelerate the discovery and development of new materials. Some of the major challenges involved in developing such models are, (i) limited availability of materials data as compared to other fields, (ii) lack of universal descriptor of materials to predict its various properties. The limited availability of materials data can be addressed through transfer learning, while the generic representation was recently addressed by Xie and Grossman [1], where they developed a crystal graph convolutional neural network (CGCNN) that provides a unified representation of crystals. In this work, we develop a new model (MT-CGCNN) by integrating CGCNN with transfer learning based on multi-task (MT) learning. We demonstrate the effectiveness of MT-CGCNN by simultaneous prediction of various material properties such as Formation Energy, Band Gap and Fermi Energy for a wide range of inorganic crystals (46774 materials). MT-CGCNN is able to reduce the test error when employed on correlated properties by upto 8%. The model prediction has lower test error compared to CGCNN, even when the training data is reduced by 10%. We also demonstrate our model's better performance through prediction of end user scenario related to metal/non-metal classification. These results encourage further development of machine learning approaches which leverage multi-task learning to address the aforementioned challenges in the discovery of new materials. We make MT-CGCNN's source code available to encourage reproducible research.",
         "summary_grounded_pdf": false,
         "verification_log": {
           "backend": "arxiv",
-          "final_url": "https://arxiv.org/abs/1203.2370",
+          "final_url": "https://arxiv.org/abs/1811.05660",
           "http_status": 200,
-          "pdf_sample_score": null,
-          "query_relevance_score": 0.6,
+          "pdf_sample_score": 0.3342,
+          "query_relevance_score": 0.75,
           "redirect_chain": [],
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-06-25T01:33:04Z"
+          "verified_at": "2026-07-04T21:15:15Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Hongtao Guo Shuai Li Shu Li"
+          ],
+          "title": "Applications of Machine Learning in Polymer Materials: Property Prediction, Material Design, and Systematic Processes",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2510.26100",
+        "summary": "This paper systematically reviews the research progress and application prospects of machine learning technologies in the field of polymer materials. Currently, machine learning methods are developing rapidly in polymer material research; although they have significantly accelerated material prediction and design, their complexity has also caused difficulties in understanding and application for researchers in traditional fields. In response to the above issues, this paper first analyzes the inherent challenges in the research and development of polymer materials, including structural complexity and the limitations of traditional trial-and-error methods. To address these problems, it focuses on introducing key basic technologies such as molecular descriptors and feature representation, data standardization and cleaning, and records a number of high-quality polymer databases. Subsequently, it elaborates on the key role of machine learning in polymer property prediction and material design, covering the specific applications of algorithms such as traditional machine learning, deep learning, and transfer learning; further, it deeply expounds on data-driven design strategies, such as reverse design, high-throughput virtual screening, and multi-objective optimization. The paper also systematically introduces the complete process of constructing high-reliability machine learning models and summarizes effective experimental verification, model evaluation, and optimization methods. Finally, it summarizes the current technical challenges in research, such as data quality and model generalization ability, and looks forward to future development trends including multi-scale modeling, physics-informed machine learning, standardized data sharing, and interpretable machine learning.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2510.26100",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.75,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-04T21:15:16Z"
         }
       }
     ]

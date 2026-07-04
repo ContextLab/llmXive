@@ -1,0 +1,10 @@
+pymatgen
+scikit-learn
+pandas
+numpy
+matplotlib
+seaborn
+requests
+datasets
+shap
+matminer

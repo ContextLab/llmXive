@@ -1,3 +1,13 @@
 {"at": "2026-05-01T23:29:10.794762+00:00", "from_stage": "brainstormed", "last_run_id": "763c64ca-a779-43e1-87a0-772fcedc69ce", "to_stage": "flesh_out_complete"}
 {"at": "2026-06-11T23:13:49.012018+00:00", "from_stage": "flesh_out_complete", "last_run_id": "eaefec35-d832-40e2-972b-605c1e59bfb6", "to_stage": "flesh_out_in_progress"}
 {"at": "2026-06-25T01:34:13.422251+00:00", "from_stage": "flesh_out_in_progress", "last_run_id": "7b6acc51-e243-4325-9119-aa61d0808e92", "to_stage": "flesh_out_complete"}
+{"at": "2026-07-04T21:14:40.954397+00:00", "from_stage": "flesh_out_complete", "last_run_id": "292164c6-0b76-4623-b7dc-bd61f15bacb5", "to_stage": "flesh_out_in_progress"}
+{"at": "2026-07-04T21:16:08.104418+00:00", "from_stage": "flesh_out_in_progress", "last_run_id": "4b996d4d-dfab-4db3-a3c2-12136eb42b2f", "to_stage": "flesh_out_complete"}
+{"at": "2026-07-04T21:16:18.529369+00:00", "from_stage": "flesh_out_complete", "last_run_id": "569b1e24-797d-4461-b2db-e7520a202905", "to_stage": "validated"}
+{"at": "2026-07-04T21:16:45.535998+00:00", "from_stage": "validated", "last_run_id": "73993db5-056b-4159-ad72-74bb5c4e51b3", "to_stage": "project_initialized"}
+{"at": "2026-07-04T21:18:28.945616+00:00", "from_stage": "project_initialized", "last_run_id": "c7c02cca-2791-4be0-beff-58a3a643f94b", "to_stage": "specified"}
+{"at": "2026-07-04T21:21:42.690738+00:00", "from_stage": "specified", "last_run_id": "0600b4e0-1feb-4822-937b-8484f6644c21", "to_stage": "clarified"}
+{"at": "2026-07-04T21:31:32.751983+00:00", "from_stage": "clarified", "last_run_id": "97b35a7b-0d52-4f1d-a8f2-3c29547cf4b8", "to_stage": "planned"}
+{"at": "2026-07-04T21:39:50.219531+00:00", "from_stage": "planned", "last_run_id": "1a1b10c1-5367-4774-8109-9511e48a4505", "to_stage": "tasked"}
+{"at": "2026-07-04T21:48:13.036411+00:00", "from_stage": "tasked", "last_run_id": "b9e8d95d-347e-4f76-b918-cb9c665e9a1e", "to_stage": "analyzed"}
+{"at": "2026-07-04T22:20:10.199392+00:00", "from_stage": "analyzed", "last_run_id": "a2c6cd0c-16eb-453a-81e7-d71ce8294a65", "to_stage": "in_progress"}

@@ -1,18 +1,18 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-01T23:24:29.113850Z'
-current_stage: flesh_out_complete
+current_stage: in_progress
 failed_stage: null
 field: chemistry
 human_escalation_reason: null
 id: PROJ-116-predicting-material-stability-using-mach
-last_run_id: 7b6acc51-e243-4325-9119-aa61d0808e92
+last_run_id: a2c6cd0c-16eb-453a-81e7-d71ce8294a65
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
 revision_spec_path: null
 speckit_paper_dir: null
-speckit_research_dir: null
+speckit_research_dir: projects/PROJ-116-predicting-material-stability-using-mach/specs/001-predicting-material-stability-using-mach
 title: Predicting Material Stability using Machine Learning and DFT Calculations
-updated_at: '2026-06-25T01:34:13.420625Z'
+updated_at: '2026-07-04T22:20:10.197704Z'

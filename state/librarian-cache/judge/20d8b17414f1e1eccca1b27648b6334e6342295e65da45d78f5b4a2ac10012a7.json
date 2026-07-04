@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1811.05660",
+  "judged_at": "2026-07-04T21:15:24Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting material stability using machine learning and dft calculations chemistry",
+  "rationale": "This paper satisfies criteria (a) and (d) as it presents a foundational machine learning framework (MT-CGCNN) specifically designed for predicting material properties (including formation energy, a proxy for stability) using crystal graph representations, which is the canonical methodology for the user's domain of ML-driven material discovery. While it does not explicitly mention DFT calculations in the abstract, it operates on the standard DFT-derived datasets (like Materials Project) that serv",
+  "relevant": true
+}

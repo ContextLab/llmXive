@@ -1,0 +1,26 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+venv/
+.venv/
+env/
+
+# Data files (large)
+data/raw/*.gz
+data/raw/*.zip
+data/raw/*.tar
+data/processed/*.parquet
+data/models/*.pkl
+
+# Outputs
+outputs/
+.DS_Store
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
