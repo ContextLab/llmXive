@@ -1,0 +1,43 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Processed Dialogue Dataset Schema"
+type: "object"
+properties:
+  dialogue_id:
+    type: "string"
+    description: "Unique identifier for the dialogue"
+  user_id:
+    type: "string"
+    description: "Anonymized user identifier"
+  quality_rating:
+    type: "integer"
+    minimum: 1
+    maximum: 5
+    description: "User-reported quality rating (1-5 Likert)"
+  conversation_length:
+    type: "integer"
+    description: "Total word count or utterance count"
+  mean_politeness_score:
+    type: "number"
+    description: "Z-scored mean politeness score for chatbot utterances"
+  raw_politeness_mean:
+    type: "number"
+    description: "Raw mean politeness score before z-scoring"
+  age:
+    type: ["integer", "null"]
+    description: "User age (may be null)"
+  gender:
+    type: ["string", "null"]
+    description: "User gender (may be null)"
+  num_utterances:
+    type: "integer"
+    description: "Number of chatbot utterances in the dialogue"
+required:
+  - dialogue_id
+  - user_id
+  - quality_rating
+  - conversation_length
+  - mean_politeness_score
+  - raw_politeness_mean
+  - num_utterances
+additionalProperties: false
+description: "Schema for the processed dialogue dataset used in CLMM analysis. All fields must be present except age and gender which are optional."

@@ -1,0 +1,20 @@
+# Black configuration for llmXive project
+# See: https://black.readthedocs.io/en/stable/usage_and_configuration/the_basics.html
+
+[tool.black]
+line-length = 88
+target-version = ['py311']
+include = '\\.pyi?$'
+extend-exclude = '''
+/(
+    # directories to exclude
+    \\.git
+    | \\.mypy_cache
+    | \\.ruff_cache
+    | __pycache__
+    | data/raw
+    | data/processed
+    | venv
+    | .venv
+)/
+'''

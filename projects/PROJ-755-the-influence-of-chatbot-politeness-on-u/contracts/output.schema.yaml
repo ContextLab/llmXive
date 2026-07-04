@@ -1,0 +1,132 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: CLMM Results Schema
+description: >-
+  Schema defining the structure of Cumulative Link Mixed-Effects (CLMM)
+  analysis results stored in data/processed/clmm_results.csv and
+  data/processed/robustness_results.csv.
+type: object
+properties:
+  model_id:
+    type: string
+    description: Unique identifier for the model run (e.g., 'clmm_main', 'clmm_robust_lexicon').
+  model_type:
+    type: string
+    description: Type of model fitted (e.g., 'CLMM', 'OrdinalRegression').
+  formula:
+    type: string
+    description: R formula string used for the model (e.g., 'quality_rating ~ politeness + (1|user_id)').
+  fixed_effects:
+    type: array
+    description: List of fixed effect parameters.
+    items:
+      type: object
+      properties:
+        term:
+          type: string
+          description: Name of the predictor variable.
+        estimate:
+          type: number
+          description: Coefficient estimate.
+        std_error:
+          type: number
+          description: Standard error of the estimate.
+        z_value:
+          type: number
+          description: Z-statistic (estimate / std_error).
+        p_value:
+          type: number
+          description: Raw p-value.
+        p_value_bh:
+          type: number
+          description: Benjamini-Hochberg adjusted p-value.
+        ci_lower:
+          type: number
+          description: Lower bound of the 95% confidence interval.
+        ci_upper:
+          type: number
+          description: Upper bound of the 95% confidence interval.
+      required:
+        - term
+        - estimate
+        - std_error
+        - p_value
+        - p_value_bh
+  random_effects:
+    type: array
+    description: Variance components for random effects.
+    items:
+      type: object
+      properties:
+        group:
+          type: string
+          description: Random effect grouping factor (e.g., 'user_id').
+        variance:
+          type: number
+          description: Variance of the random effect.
+        std_dev:
+          type: number
+          description: Standard deviation of the random effect.
+        n_levels:
+          type: integer
+          description: Number of levels in the grouping factor.
+      required:
+        - group
+        - variance
+        - n_levels
+  model_fit:
+    type: object
+    description: Overall model fit statistics.
+    properties:
+      log_likelihood:
+        type: number
+      aic:
+        type: number
+      bic:
+        type: number
+      n_obs:
+        type: integer
+      n_groups:
+        type: integer
+      convergence:
+        type: boolean
+        description: Whether the model converged successfully.
+      convergence_message:
+        type: string
+        description: Message from the optimizer regarding convergence.
+    required:
+      - convergence
+  sensitivity_analysis:
+    type: object
+    description: Results from sensitivity analysis (if performed).
+    properties:
+      threshold_01:
+        type: boolean
+        description: Significant at p < 0.01.
+      threshold_05:
+        type: boolean
+        description: Significant at p < 0.05.
+      threshold_10:
+        type: boolean
+        description: Significant at p < 0.10.
+      significance_range:
+        type: string
+        description: Range of thresholds where the effect remains significant.
+  robustness_metrics:
+    type: object
+    description: Metrics for robustness checks (e.g., correlation with alternative models).
+    properties:
+      correlation_r:
+        type: number
+        description: Pearson correlation between primary and robustness model predictions.
+      e_value:
+        type: number
+        description: E-value for the primary effect (robustness to unmeasured confounding).
+      e_value_ci_lower:
+        type: number
+        description: E-value lower bound.
+required:
+  - model_id
+  - model_type
+  - fixed_effects
+  - model_fit
+  - convergence

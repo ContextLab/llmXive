@@ -1,0 +1,14 @@
+transformers
+datasets
+statsmodels
+pandas
+scikit-learn
+numpy
+pyyaml
+tqdm
+rpy2
+textstat
+evalue
+python-dotenv
+pyarrow
+fastparquet

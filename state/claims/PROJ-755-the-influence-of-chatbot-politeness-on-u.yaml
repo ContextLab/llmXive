@@ -1,0 +1,128 @@
+- artifact_path: projects/PROJ-755-the-influence-of-chatbot-politeness-on-u/specs/001-the-influence-of-chatbot-politeness-on-u/tasks.md
+  attempts: 1
+  canonical: CLMM tests association between politeness and quality ratings controlling
+    for length and user random effects with multiple-comparison correction
+  claim_id: c_79bd5d69
+  context: 'Phase 4: User Story 2 - Cumulative Link Mixed-Effects Analysis (Priority:
+    P2) Goal: Fit a CLMM testing the association between politeness and quality ratings,
+    controlling for length and user random effects, with multiple-comparison correction.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/CLMM_tests_association_between_politeness_and_quality_rating
+  kind: entity_fact
+  raw_text: Fit a CLMM testing the association between politeness and quality ratings,
+    controlling for length and user random effects, with multiple-comparison correction.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-04T19:44:38Z'
+- artifact_path: projects/PROJ-755-the-influence-of-chatbot-politeness-on-u/specs/001-the-influence-of-chatbot-politeness-on-u/tasks.md
+  attempts: 1
+  canonical: Subgroups with fewer than 30 participants are excluded from analysis
+  claim_id: c_15e7ff21
+  context: 'Logic: Exclude groups with n < 30, log exclusions. Fit separate CLMMs
+    for valid subgroups and test interaction terms.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Subgroups_with_fewer_than_30_participants_are_excluded_from
+  kind: magnitude
+  raw_text: Exclude groups with n < 30.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-04T19:46:07Z'
+- artifact_path: projects/PROJ-755-the-influence-of-chatbot-politeness-on-u/specs/001-the-influence-of-chatbot-politeness-on-u/tasks.md
+  attempts: 1
+  canonical: CLMM convergence rate of 95% or higher is required to proceed with primary
+    analysis
+  claim_id: c_c739bab0
+  context: "Success Condition: If convergence \u2265 95%, proceed. Failure Condition:\
+    \ If convergence < 95%, generate data/processed/convergence_failure_report.csv\
+    \ detailing the failure, halt the primary CLMM path, and trigger fallback to fixed-effects\
+    \ ordinal regression."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "If convergence \u2265 95%, proceed."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-04T19:46:07Z'
+- artifact_path: projects/PROJ-755-the-influence-of-chatbot-politeness-on-u/specs/001-the-influence-of-chatbot-politeness-on-u/tasks.md
+  attempts: 1
+  canonical: Variables with Variance Inflation Factor of 5 or higher are dropped due
+    to collinearity
+  claim_id: c_11d2dd88
+  context: "Implement VIF check for politeness and conversation_length; log warning\
+    \ and drop variable if VIF \u2265 5."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "log warning and drop variable if VIF \u2265 5."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-04T19:46:07Z'
+- artifact_path: projects/PROJ-755-the-influence-of-chatbot-politeness-on-u/specs/001-the-influence-of-chatbot-politeness-on-u/tasks.md
+  attempts: 1
+  canonical: BERT inference is restricted to CPU-only execution without CUDA
+  claim_id: c_91f4b2c0
+  context: 'Constraint: All BERT inference must be CPU-only (no CUDA); use batch processing
+    to stay under available RAM limits.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/BERT_inference_is_restricted_to_CPU-only_execution_without_C
+  kind: entity_fact
+  raw_text: All BERT inference must be CPU-only (no CUDA).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-04T19:46:24Z'
+- artifact_path: projects/PROJ-755-the-influence-of-chatbot-politeness-on-u/specs/001-the-influence-of-chatbot-politeness-on-u/tasks.md
+  attempts: 1
+  canonical: Full pipeline executes on CI within 6 hours
+  claim_id: c_cd8f7c7b
+  context: T042 Run quickstart.md validation to ensure full pipeline executes on CI
+    within 6 hours
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run quickstart.md validation to ensure full pipeline executes on CI within
+    6 hours
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-04T19:46:34Z'
+- artifact_path: projects/PROJ-755-the-influence-of-chatbot-politeness-on-u/specs/001-the-influence-of-chatbot-politeness-on-u/tasks.md
+  attempts: 1
+  canonical: Memory usage during peak BERT inference is less than 7GB
+  claim_id: c_5cd14c3a
+  context: 'T040 Performance optimization: verify memory usage < 7GB during peak BERT
+    inference'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Memory_usage_during_peak_BERT_inference_is_less_than_7GB
+  kind: magnitude
+  raw_text: verify memory usage < 7GB during peak BERT inference
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-04T19:46:49Z'

@@ -1,0 +1,275 @@
+resolved_at: '2026-07-04T19:17:17.596028+00:00'
+datasets:
+- intent: EmpatheticDialogues
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/pixelsandpointers/empathetic_dialogues_for_lm/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/ia-bentebib/empathetic_dialogues_fr/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/Adapting/empathetic_dialogues_v2/resolve/main/dev.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/pixelsandpointers/empathetic_dialogues_for_lm/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/ia-bentebib/empathetic_dialogues_fr/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/Adapting/empathetic_dialogues_v2/resolve/main/dev.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/Adapting/empathetic_dialogues_with_special_tokens/resolve/main/dev.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://figshare.com/articles/dataset/ATE_and_CCCS_answers/32900558
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/Beweis_der_Collatz-Vermutung/27822657
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/Beweis_der_Collatz-Vermutung_mit_intuitiver_Erkl_rung_/27872115
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/presentation/GIBA_workshop_-_Taxonomic_and_functional_profiling_of_metagenomes/32900546
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/presentation/The_Software_we_build_and_the_People_we_are/32900543
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19043115
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19043103
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15481109
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17852673
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16409913
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://underline.io/lecture/49668-a-taxonomy-of-empathetic-questions-in-social-dialogs
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://underline.io/lecture/75539-valuenet-a-new-dataset-for-human-value-driven-dialogue-system
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ieee-dataport.org/documents/synth-empathy
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19043115
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19043115
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: CLMM
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/yueluoshuangtian/clmm-benchmark/resolve/main/MathDataset/dataset_info.json
+    source: huggingface
+    format: json
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 1108
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/yueluoshuangtian/clmm-benchmark/resolve/main/MathDataset/dataset_info.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://figshare.com/articles/dataset/ATE_and_CCCS_answers/32900558
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/Beweis_der_Collatz-Vermutung/27822657
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/Beweis_der_Collatz-Vermutung_mit_intuitiver_Erkl_rung_/27872115
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/presentation/GIBA_workshop_-_Taxonomic_and_functional_profiling_of_metagenomes/32900546
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/presentation/The_Software_we_build_and_the_People_we_are/32900543
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17819142
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19445681
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.v9s4mw6w2
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4855636
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4817297
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20942415
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20942415
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://data.goettingen-research-online.de/dataset.xhtml?persistentId=doi:10.25625/FYKLCZ
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/From_trip_metrics_to_corporate_disclosures_predicting_ride-hailing_prices_for_longitudinal_data_using_an_integrated_Cumulative_Link_Mixed_Model_and_generative_AI-based_methodology/31669528/1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/From_trip_metrics_to_corporate_disclosures_predicting_ride-hailing_prices_for_longitudinal_data_using_an_integrated_Cumulative_Link_Mixed_Model_and_generative_AI-based_methodology/31669528
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: HCI
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/YCAI3/HCI_P2/resolve/main/HCI_Dataset.zip
+    source: huggingface
+    format: zip
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/mlvrt/hci-modules/resolve/main/hci-module1-4.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 118193
+      parsed: true
+  - url: https://huggingface.co/datasets/HCIE/IIT-AFF-Dataset-Modified/resolve/main/data/train-00000-of-00002-df2c6e94e3c6be63.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/HCIE/IIT-AFF-Dataset-Modified/resolve/main/data/train-00000-of-00002-df2c6e94e3c6be63.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/YCAI3/HCI_P2/resolve/main/HCI_Dataset.zip
+    source: huggingface
+    status: verified
+    format: zip
+  - url: https://huggingface.co/datasets/mlvrt/hci-modules/resolve/main/hci-module1-4.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://figshare.com/articles/dataset/ATE_and_CCCS_answers/32900558
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/Beweis_der_Collatz-Vermutung/27822657
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/Beweis_der_Collatz-Vermutung_mit_intuitiver_Erkl_rung_/27872115
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/presentation/GIBA_workshop_-_Taxonomic_and_functional_profiling_of_metagenomes/32900546
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/presentation/The_Software_we_build_and_the_People_we_are/32900543
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8032771
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4304070
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10957
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8033173
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6900163
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21194559
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21194559
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21187038
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21187038
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://publica.fraunhofer.de/entities/publication/88ede86d-a415-44e0-bde1-a7efcfcdd78a
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

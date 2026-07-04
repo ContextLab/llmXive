@@ -1,0 +1,123 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Chatbot Politeness Dataset Schema
+description: >
+  Schema defining the structure of the merged dataset for the study
+  "The Influence of Chatbot Politeness on User-Perceived Quality".
+  Covers Dialogue, Utterance, and User entities as per project specs.
+
+definitions:
+  User:
+    type: object
+    description: Demographic and identification information for the participant.
+    properties:
+      user_id:
+        type: string
+        description: Unique identifier for the user across all dialogues.
+      age:
+        type: integer
+        description: Age of the user in years.
+        minimum: 0
+      gender:
+        type: string
+        description: Gender of the user.
+        enum: [Male, Female, Non-binary, Prefer not to say, Other]
+        nullable: true
+    required:
+      - user_id
+    additionalProperties: false
+
+  Utterance:
+    type: object
+    description: A single turn in a dialogue.
+    properties:
+      utterance_id:
+        type: string
+        description: Unique identifier for the utterance.
+      text:
+        type: string
+        description: The raw text content of the utterance.
+      speaker:
+        type: string
+        description: Role of the speaker.
+        enum: [User, Bot]
+      politeness_score:
+        type: number
+        description: Politeness score assigned by the model (e.g., BERT or lexicon).
+        minimum: -3.0
+        maximum: 3.0
+        nullable: true
+    required:
+      - utterance_id
+      - text
+      - speaker
+    additionalProperties: false
+
+  Dialogue:
+    type: object
+    description: A complete conversation between a user and a bot.
+    properties:
+      dialogue_id:
+        type: string
+        description: Unique identifier for the dialogue session.
+      user_id:
+        type: string
+        description: Reference to the user who generated this dialogue.
+      source_dataset:
+        type: string
+        description: Name of the source dataset (e.g., Persona-Chat, EmpatheticDialogues).
+      utterances:
+        type: array
+        description: Ordered list of utterances in the dialogue.
+        items:
+          $ref: '#/definitions/Utterance'
+      quality_rating:
+        type: integer
+        description: User-perceived quality rating of the dialogue.
+        minimum: 1
+        maximum: 5
+        nullable: true
+      conversation_length:
+        type: integer
+        description: Total number of utterances in the dialogue.
+      mean_politeness_score:
+        type: number
+        description: Mean politeness score across all bot utterances in the dialogue.
+        nullable: true
+      z_score_politeness:
+        type: number
+        description: Z-score standardized politeness score for this dialogue.
+        nullable: true
+    required:
+      - dialogue_id
+      - user_id
+      - source_dataset
+      - utterances
+    additionalProperties: false
+
+type: object
+properties:
+  meta:
+    type: object
+    description: Metadata about the dataset generation.
+    properties:
+      version:
+        type: string
+        description: Schema version.
+      generated_at:
+        type: string
+        format: date-time
+        description: Timestamp of generation.
+      source_datasets:
+        type: array
+        items:
+          type: string
+    required:
+      - version
+  records:
+    type: array
+    description: List of dialogue records conforming to the Dialogue schema.
+    items:
+      $ref: '#/definitions/Dialogue'
+required:
+  - meta
+  - records
