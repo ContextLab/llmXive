@@ -1,7 +1,7 @@
 {
   "project_id": "PROJ-362-evaluating-the-statistical-validity-of-c",
   "stage": "clarified",
-  "last_error": "research.md reference is unreachable: 'https://trec.nist.gov/data/web/' (HTTP 403). FR-006 admits NO transient-retry leniency \u2014 re-run when the source recovers or fix the reference.",
-  "last_seen": "2026-07-04T00:19:22.559754+00:00",
-  "count": 1
+  "last_error": "research.md reference is unreachable: 'https://trec.nist.gov/data/robust/04/' (HTTP 404). FR-006 admits NO transient-retry leniency \u2014 re-run when the source recovers or fix the reference.",
+  "last_seen": "2026-07-04T23:41:10.255624+00:00",
+  "count": 2
 }
