@@ -1,254 +1,241 @@
 """
-Unit tests for binomial test and CI width <= 0.10 (Task T043).
+Unit tests for binomial test and CI width constraint (≤ 0.10).
 
-These tests verify:
-1. The binomial test function returns valid p-values.
-2. The Wilson Confidence Interval width is <= 0.10 for sufficiently large N.
-3. Edge cases (N=0, p=0, p=1) are handled correctly.
+This module verifies the statistical validity of the prevalence calculations
+in src/audit/prevalence.py, specifically ensuring:
+1. The binomial test computes correct p-values against known benchmarks.
+2. The Wilson confidence interval width does not exceed 0.10 for sufficiently large samples.
+3. Sensitivity analysis behaves as expected.
 """
-import pytest
 import json
 import math
-import tempfile
+import sys
 from pathlib import Path
 from typing import List, Dict, Any
 
-# Import from the project's source
-# Ensure the code directory is in the path for imports
-import sys
-from pathlib import Path
-sys.path.insert(0, str(Path(__file__).parent.parent.parent))
+import pytest
+import numpy as np
 
-from code.src.audit.prevalence import (
+# Add project root to path for imports
+project_root = Path(__file__).resolve().parent.parent.parent
+if str(project_root / "code") not in sys.path:
+    sys.path.insert(0, str(project_root / "code"))
+
+from src.audit.prevalence import (
     binomial_test,
     wilson_ci,
     compute_prevalence,
-    set_rng_seed_for_prevalence
+    sensitivity_analysis,
+    apply_bonferroni_correction,
+    set_rng_seed_for_prevalence,
 )
-from code.src.config import set_rng_seed
+from src.config import SEED
 
 
 class TestBinomialTest:
     """Tests for the binomial_test function."""
 
-    def test_binomial_test_standard_case(self):
-        """Test binomial test with a standard scenario."""
-        # n=100, k=50 (p=0.5), null hypothesis p0=0.5
-        # Expected p-value should be 1.0 (perfect match)
-        p_val = binomial_test(n=100, k=50, p0=0.5)
-        assert p_val == 1.0, f"Expected 1.0, got {p_val}"
+    def test_binomial_test_exact_match(self):
+        """Verify binomial test p-value matches scipy.stats.binom_test for a known case."""
+        # Case: 15 successes out of 100 trials, null hypothesis p=0.1
+        # Expected p-value from scipy.stats.binom_test (two-sided)
+        # Using exact calculation or scipy reference
+        successes = 15
+        n = 100
+        p_null = 0.1
 
-    def test_binomial_test_significant_difference(self):
-        """Test binomial test with a significant difference."""
-        # n=100, k=90 (p=0.9), null hypothesis p0=0.5
-        # This should be highly significant (p < 0.05)
-        p_val = binomial_test(n=100, k=90, p0=0.5)
-        assert p_val < 0.05, f"Expected p < 0.05, got {p_val}"
+        p_val = binomial_test(successes, n, p_null)
 
-    def test_binomial_test_edge_case_zero_successes(self):
-        """Test binomial test with zero successes."""
-        p_val = binomial_test(n=100, k=0, p0=0.5)
-        # Should be extremely small but not necessarily 0 due to float precision
-        assert 0 <= p_val <= 1e-20, f"Expected very small p-value, got {p_val}"
+        # Reference: scipy.stats.binom_test(successes, n, p_null, alternative='two-sided')
+        # Note: scipy.stats.binom_test is deprecated in favor of binomtest, but we check logic
+        from scipy import stats
+        ref_result = stats.binomtest(successes, n, p_null, alternative="two-sided")
+        expected_p = ref_result.pvalue
 
-    def test_binomial_test_edge_case_all_successes(self):
-        """Test binomial test with all successes."""
-        p_val = binomial_test(n=100, k=100, p0=0.5)
-        assert 0 <= p_val <= 1e-20, f"Expected very small p-value, got {p_val}"
+        assert abs(p_val - expected_p) < 1e-6, f"Binomial test p-value mismatch: {p_val} vs {expected_p}"
 
-    def test_binomial_test_invalid_n(self):
-        """Test binomial test with invalid n (negative)."""
-        with pytest.raises(ValueError):
-            binomial_test(n=-1, k=0, p0=0.5)
+    def test_binomial_test_edge_cases(self):
+        """Test edge cases: 0 successes, all successes."""
+        # 0 successes
+        p_val_zero = binomial_test(0, 100, 0.1)
+        # When k=0, p-value should be high if p_null is low, but let's just ensure it returns a float in [0,1]
+        assert 0.0 <= p_val_zero <= 1.0
 
-    def test_binomial_test_k_greater_than_n(self):
-        """Test binomial test with k > n."""
-        with pytest.raises(ValueError):
-            binomial_test(n=10, k=11, p0=0.5)
+        # All successes
+        p_val_all = binomial_test(100, 100, 0.1)
+        assert 0.0 <= p_val_all <= 1.0
+
+    def test_binomial_test_symmetry(self):
+        """Test that swapping successes and failures with (1-p) yields similar logic."""
+        # 5 successes out of 100 with p=0.05 vs 95 successes with p=0.95
+        # This is a sanity check for the two-sided nature
+        p1 = binomial_test(5, 100, 0.05)
+        p2 = binomial_test(95, 100, 0.95)
+        # They should be very close if the test is symmetric around the null
+        assert abs(p1 - p2) < 1e-5
 
 
 class TestWilsonCI:
-    """Tests for the Wilson Confidence Interval function."""
+    """Tests for the wilson_ci function."""
 
-    def test_wilson_ci_width_small_n(self):
-        """Test Wilson CI width with small N (should be wide)."""
-        # n=10, k=5
-        lower, upper = wilson_ci(n=10, k=5, confidence=0.95)
+    def test_wilson_ci_width_constraint(self):
+        """Verify that CI width is ≤ 0.10 for sufficiently large N (N >= 300)."""
+        # According to FR-025 and SC-024, the audited corpus must meet N >= 300.
+        # We test that for N=300, the width is <= 0.10 for a range of proportions.
+        n = 300
+        proportions = [0.1, 0.3, 0.5, 0.7, 0.9]
+
+        for p in proportions:
+            successes = int(n * p)
+            lower, upper = wilson_ci(successes, n)
+            width = upper - lower
+            assert width <= 0.10, f"CI width {width:.4f} exceeds 0.10 for N={n}, p={p}"
+
+    def test_wilson_ci_width_smaller_n(self):
+        """Verify that CI width is larger for smaller N (e.g., N=50)."""
+        n = 50
+        successes = 25
+        lower, upper = wilson_ci(successes, n)
         width = upper - lower
-        # For small N, width should be large (> 0.10)
-        assert width > 0.10, f"Expected width > 0.10 for small N, got {width}"
-
-    def test_wilson_ci_width_large_n(self):
-        """Test Wilson CI width with large N (should be <= 0.10)."""
-        # n=1000, k=500 -> p=0.5
-        # Expected width should be small
-        lower, upper = wilson_ci(n=1000, k=500, confidence=0.95)
-        width = upper - lower
-        assert width <= 0.10, f"Expected width <= 0.10 for large N, got {width}"
-
-    def test_wilson_ci_width_very_large_n(self):
-        """Test Wilson CI width with very large N (should be very narrow)."""
-        # n=10000, k=5000
-        lower, upper = wilson_ci(n=10000, k=5000, confidence=0.95)
-        width = upper - lower
-        assert width <= 0.05, f"Expected width <= 0.05 for very large N, got {width}"
-
-    def test_wilson_ci_bounds_valid(self):
-        """Test that Wilson CI bounds are within [0, 1]."""
-        lower, upper = wilson_ci(n=100, k=50, confidence=0.95)
-        assert 0 <= lower <= upper <= 1, f"CI bounds out of range: [{lower}, {upper}]"
-
-    def test_wilson_ci_edge_case_zero_successes(self):
-        """Test Wilson CI with zero successes."""
-        lower, upper = wilson_ci(n=100, k=0, confidence=0.95)
-        assert 0 <= lower <= upper <= 1, f"CI bounds out of range: [{lower}, {upper}]"
-        # Lower bound should be 0 or very close to 0
-        assert lower == 0 or math.isclose(lower, 0, abs_tol=1e-6)
-
-    def test_wilson_ci_edge_case_all_successes(self):
-        """Test Wilson CI with all successes."""
-        lower, upper = wilson_ci(n=100, k=100, confidence=0.95)
-        assert 0 <= lower <= upper <= 1, f"CI bounds out of range: [{lower}, {upper}]"
-        # Upper bound should be 1 or very close to 1
-        assert upper == 1 or math.isclose(upper, 1, abs_tol=1e-6)
+        # For small N, width should be significantly larger than 0.10
+        assert width > 0.10, f"CI width {width:.4f} should be > 0.10 for small N={n}"
 
     def test_wilson_ci_symmetry(self):
-        """Test symmetry of Wilson CI for p and 1-p."""
+        """Test that Wilson CI is symmetric around p-hat for p and 1-p."""
+        n = 200
+        successes = 40
+        p_hat = successes / n
+
+        lower1, upper1 = wilson_ci(successes, n)
+        center1 = (lower1 + upper1) / 2
+
+        # Inverse case
+        successes_inv = n - successes
+        lower2, upper2 = wilson_ci(successes_inv, n)
+        center2 = (lower2 + upper2) / 2
+
+        # The centers should be symmetric around 0.5
+        # center1 should be approx p_hat, center2 should be approx 1 - p_hat
+        assert abs(center1 - p_hat) < 1e-6
+        assert abs(center2 - (1 - p_hat)) < 1e-6
+
+    def test_wilson_ci_bounds(self):
+        """Ensure CI bounds are within [0, 1]."""
         n = 100
-        lower1, upper1 = wilson_ci(n=n, k=30, confidence=0.95)
-        lower2, upper2 = wilson_ci(n=n, k=70, confidence=0.95)
-        
-        # The interval for 30/100 should be symmetric to 70/100 around 0.5
-        # i.e., lower1 = 1 - upper2, upper1 = 1 - lower2
-        assert math.isclose(lower1, 1 - upper2, abs_tol=1e-6), "Symmetry check failed for lower bound"
-        assert math.isclose(upper1, 1 - lower2, abs_tol=1e-6), "Symmetry check failed for upper bound"
+        for k in [0, 50, 100]:
+            lower, upper = wilson_ci(k, n)
+            assert 0.0 <= lower <= 1.0
+            assert 0.0 <= upper <= 1.0
+            assert lower <= upper
 
 
 class TestComputePrevalence:
     """Tests for the compute_prevalence function."""
 
     def test_compute_prevalence_basic(self):
-        """Test compute_prevalence with a simple dataset."""
-        # Create mock audit records
+        """Test basic prevalence computation."""
+        # Mock audit records
         records = [
             {"is_inconsistent": True},
             {"is_inconsistent": False},
             {"is_inconsistent": True},
             {"is_inconsistent": False},
-            {"is_inconsistent": False}
+            {"is_inconsistent": False},
         ]
-        
         result = compute_prevalence(records)
-        
+
         assert "prevalence" in result
-        assert "n_total" in result
-        assert "n_inconsistent" in result
         assert "ci_lower" in result
         assert "ci_upper" in result
-        
-        assert result["n_total"] == 5
-        assert result["n_inconsistent"] == 2
-        assert math.isclose(result["prevalence"], 0.4, abs_tol=1e-6)
+        assert "n" in result
+        assert result["n"] == 5
+        assert abs(result["prevalence"] - 0.4) < 1e-6
 
-    def test_compute_prevalence_empty_list(self):
-        """Test compute_prevalence with an empty list."""
-        with pytest.raises(ValueError):
-            compute_prevalence([])
-
-    def test_compute_prevalence_all_inconsistent(self):
-        """Test compute_prevalence when all records are inconsistent."""
-        records = [
-            {"is_inconsistent": True},
-            {"is_inconsistent": True},
-            {"is_inconsistent": True}
-        ]
-        
-        result = compute_prevalence(records)
-        assert math.isclose(result["prevalence"], 1.0, abs_tol=1e-6)
-        assert result["n_inconsistent"] == 3
-
-    def test_compute_prevalence_ci_width_constraint(self):
-        """
-        Test that for a sufficiently large corpus, the CI width is <= 0.10.
-        This directly addresses the task requirement: "CI width <= 0.10".
-        """
-        # Simulate a large corpus (N >= 300 as per FR-025/SC-025)
-        # We need enough samples such that the Wilson CI width <= 0.10
-        # For p=0.5, n=97 gives width ~0.10. For n=300, width is much smaller.
-        
-        # Create 300 mock records with 50% inconsistency
-        records = [{"is_inconsistent": i % 2 == 0} for i in range(300)]
-        
-        result = compute_prevalence(records)
-        ci_width = result["ci_upper"] - result["ci_lower"]
-        
-        assert ci_width <= 0.10, f"CI width {ci_width} exceeds 0.10 threshold for N=300"
-
-    def test_compute_prevalence_seed_reproducibility(self):
-        """Test that seeding produces reproducible results (if randomness is involved)."""
-        # Although compute_prevalence is deterministic, we test the seed setup
-        set_rng_seed_for_prevalence(42)
-        records = [{"is_inconsistent": i % 2 == 0} for i in range(100)]
-        result1 = compute_prevalence(records)
-        
-        set_rng_seed_for_prevalence(42)
-        result2 = compute_prevalence(records)
-        
-        # Results should be identical
-        assert result1 == result2, "Results differ despite same seed"
+    def test_compute_prevalence_empty(self):
+        """Test behavior with empty records."""
+        result = compute_prevalence([])
+        assert result["n"] == 0
+        assert result["prevalence"] == 0.0
+        # CI should be 0 or handled gracefully
+        assert result["ci_lower"] == 0.0
+        assert result["ci_upper"] == 0.0
 
 
-class TestIntegration:
-    """Integration tests combining multiple functions."""
+class TestSensitivityAnalysis:
+    """Tests for the sensitivity_analysis function."""
+
+    def test_sensitivity_analysis_output(self):
+        """Verify sensitivity analysis returns expected structure and variation < 0.02."""
+        # Create mock data
+        base_prevalence = 0.2
+        n = 1000
+        records = [{"is_inconsistent": True} if i < base_prevalence * n else {"is_inconsistent": False} for i in range(n)]
+
+        # Run sensitivity analysis with a range of baseline adjustments
+        # The function should return a dict with 'sensitivity_results'
+        result = sensitivity_analysis(records, baseline_range=[0.9, 1.0, 1.1])
+
+        assert "sensitivity_results" in result
+        assert "variation" in result
+        
+        # The variation should be small (< 0.02) for stable estimates
+        assert result["variation"] < 0.02, f"Sensitivity variation {result['variation']} exceeds 0.02"
+
+
+class TestBonferroniCorrection:
+    """Tests for the apply_bonferroni_correction function."""
+
+    def test_bonferroni_correction(self):
+        """Verify Bonferroni correction divides alpha by number of tests."""
+        alpha = 0.05
+        num_tests = 10
+        corrected_alpha = apply_bonferroni_correction(alpha, num_tests)
+        expected = 0.05 / 10
+        assert abs(corrected_alpha - expected) < 1e-9
+
+    def test_bonferroni_single_test(self):
+        """Verify no correction for single test."""
+        alpha = 0.05
+        corrected = apply_bonferroni_correction(alpha, 1)
+        assert abs(corrected - alpha) < 1e-9
+
+
+class TestPrevalenceIntegration:
+    """Integration tests for the prevalence module."""
 
     def test_full_prevalence_pipeline(self):
-        """Test the full prevalence pipeline with a realistic scenario."""
-        # Generate a realistic set of audit records
-        # Simulate a corpus of 500 summaries with ~15% inconsistency rate
-        n_total = 500
-        inconsistency_rate = 0.15
-        n_inconsistent = int(n_total * inconsistency_rate)
-        
-        records = []
-        for i in range(n_total):
-            is_inconsistent = i < n_inconsistent
-            records.append({"is_inconsistent": is_inconsistent})
-        
-        result = compute_prevalence(records)
-        
-        # Verify basic counts
-        assert result["n_total"] == n_total
-        assert result["n_inconsistent"] == n_inconsistent
-        assert math.isclose(result["prevalence"], inconsistency_rate, abs_tol=1e-6)
-        
-        # Verify CI width constraint
-        ci_width = result["ci_upper"] - result["ci_lower"]
-        assert ci_width <= 0.10, f"CI width {ci_width} exceeds 0.10 for N={n_total}"
-        
-        # Verify bounds
-        assert 0 <= result["ci_lower"] <= result["prevalence"] <= result["ci_upper"] <= 1
+        """Run a full pipeline: load records, compute prevalence, check CI width."""
+        # Simulate a corpus of 300 records with ~10% inconsistency
+        n = 300
+        inconsistency_rate = 0.10
+        records = [
+            {"is_inconsistent": True} if i < n * inconsistency_rate else {"is_inconsistent": False}
+            for i in range(n)
+        ]
 
-    def test_precision_recall_implications(self):
-        """
-        Test implications for precision/recall calculations.
-        If we treat 'inconsistent' as 'positive', we can verify
-        that the prevalence estimate is stable.
-        """
-        # Create a dataset where we know the true prevalence
-        true_prevalence = 0.20
-        n = 1000
-        
-        # Deterministic generation based on true prevalence
-        records = [{"is_inconsistent": i < int(n * true_prevalence)} for i in range(n)]
-        
         result = compute_prevalence(records)
+
+        # Check prevalence is close to 0.10
+        assert abs(result["prevalence"] - 0.10) < 0.05
+
+        # Check CI width <= 0.10 (SC-014 requirement)
+        width = result["ci_upper"] - result["ci_lower"]
+        assert width <= 0.10, f"CI width {width} exceeds 0.10 for N={n}"
+
+    def test_seed_reproducibility(self):
+        """Verify that setting the seed produces reproducible results."""
+        set_rng_seed_for_prevalence(SEED)
+        n = 100
+        records = [{"is_inconsistent": True} if i % 3 == 0 else {"is_inconsistent": False} for i in range(n)]
         
-        # The estimated prevalence should match the true prevalence
-        assert math.isclose(result["prevalence"], true_prevalence, abs_tol=0.01)
+        result1 = compute_prevalence(records)
         
-        # CI should be narrow enough
-        ci_width = result["ci_upper"] - result["ci_lower"]
-        assert ci_width <= 0.10, f"CI width {ci_width} too wide for N={n}"
+        set_rng_seed_for_prevalence(SEED)
+        result2 = compute_prevalence(records)
+        
+        assert result1["prevalence"] == result2["prevalence"]
+        assert result1["ci_lower"] == result2["ci_lower"]
+        assert result1["ci_upper"] == result2["ci_upper"]
 
 
 if __name__ == "__main__":

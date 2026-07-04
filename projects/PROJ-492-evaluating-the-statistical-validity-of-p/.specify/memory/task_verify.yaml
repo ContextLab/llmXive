@@ -1,5 +1,17 @@
+? "T002 Implement Monte\u2011Carlo framework core (`src/audit/monte_carlo_core.py`)\
+  \ \u2013 verify core functions importable. *(Alias of PT002)*"
+: 1
+? "T002 Implement Monte\u2011Carlo framework core (`src/audit/monte_carlo_core.py`)\
+  \ \u2013 verify core functions importable. [UNRESOLVED-CLAIM: c_cac03525 \u2014\
+  \ status=not_enough_info] *(Alias of PT002)*"
+: 1
+T003 {{claim:c_ef1634da}} (Wikidata Q19873191, https://www.wikidata.org/wiki/Q19873191) *(Alias of PT003)*: 2
+"T043 Unit tests for binomial test and CI width \u2264 0.10 (tests/unit/test_prevalence.py) (verify test passes).": 1
 ? "T043 Unit tests for binomial test and CI width \u2264 0.10 (tests/unit/test_prevalence.py)\
   \ (verify test passes). [UNRESOLVED-CLAIM: c_ae78747a \u2014 status=not_enough_info]"
+: 1
+? "T043 Unit tests for binomial test and CI width \u2264 0.10 [UNRESOLVED-CLAIM: c_597a8193\
+  \ \u2014 status=not_enough_info] (tests/unit/test_prevalence.py) (verify test passes)."
 : 1
 ? "T049 Add Quickstart guide `docs/README_QUICKSTART.md` covering execution on 30\
   \ URLs within 30 minutes [UNRESOLVED-CLAIM: c_cf59c7a8 \u2014 status=not_enough_info]\
@@ -18,8 +30,12 @@
   \ c_9b059f74 \u2014 status=not_enough_info] (constraint\u2011preservation\u2011\
   e62a0df4) (verify module exits with status 0)."
 : 1
-? "T098 Add resource\u2011monitoring module `src/utils/resource_monitor.py` that records\
-  \ peak CPU & memory, writes to `output/resource_log.json` (SC\u2011008) **and aborts\
-  \ with `ERR-301` when limits exceeded per FR\u2011009** (verify log file exists,\
-  \ records within limits, and abort logic triggers on breach)."
-: 2
+? 'T063 Modify `src/cli/run_audit.py` to invoke `resource_monitor` and abort with
+  `ERR-301` if limits exceeded (plan.md) (run AFTER T098) (verify script aborts on
+  limit breach) [DEPENDS ON: T098].'
+: 1
+? "T064 Update `.github/workflows/audit.yml` to include steps: (a) schema validation,\
+  \ (b) synthetic validation (ensure precision/recall thresholds), (c) resource\u2011\
+  monitor check, (d) main pipeline run (verify workflow runs all steps) [DEPENDS ON:\
+  \ T098]. <!-- ATOMIZE: requested -->"
+: 1

@@ -17,8 +17,8 @@
 
 - [X] T000 Create CLI interface skeleton (`src/cli/main.py`) – verify script runs with `--help`. *(Alias of PT000)*
 - [X] T001 Set up GitHub Actions workflow (`.github/workflows/audit.yml`) – verify CI triggers on push. *(Alias of PT001)*
-- [X] T002 Implement Monte‑Carlo framework core (`src/audit/monte_carlo_core.py`) – verify core functions importable. *(Alias of PT002)*
-- [X] T003 Add statistical verification utilities (`src/audit/stat_verification.py`) – verify functions compute z‑test, t‑test, Fisher. *(Alias of PT003)*
+- [ ] T002 Implement Monte‑Carlo framework core (`src/audit/monte_carlo_core.py`) – verify core functions importable. *(Alias of PT002)*
+- [ ] T003 {{claim:c_ef1634da}} (Wikidata Q19873191, https://www.wikidata.org/wiki/Q19873191) *(Alias of PT003)*
 - [X] T004 Implement power‑analysis utility (`src/audit/power_analysis.py`) – verify it outputs JSON with required fields. *(Alias of PT004)*
 - [ ] T005C **[P]** Implement Constitution compliance checker in `src/utils/constitution_checker.py` that validates all seven Principles (I–VII). Run this checker in CI and abort with an error if any principle fails. (verify checker script exists, runs in CI, and passes all seven checks). *(Alias of PT005C)*
 
@@ -122,7 +122,7 @@
 
 - [X] T042 Implement binomial prevalence test, Wilson CI, **and sensitivity analysis** (FR‑005a & FR‑005b) in `src/audit/prevalence.py` including dynamic Bonferroni correction (α = 0.05 / number_of_subgroups) per FR‑032 (verify JSON output contains required fields including sensitivity analysis results).
 - [X] T042b **[P]** Verify that `prevalence.json` does **not** contain any entries flagged for sample‑size mismatch (cross‑check with T025c). (depends on T025c)
-- [X] T043 Unit tests for binomial test and CI width ≤ 0.10 (tests/unit/test_prevalence.py) (verify test passes).
+- [ ] T043 Unit tests for binomial test and CI width ≤ 0.10 (tests/unit/test_prevalence.py) (verify test passes).
 - [X] T044 **[P]** Domain Bias Subsampling – create a balanced subsample of the corpus so that no single domain exceeds 30 % before bias adjustment (FR‑027). (writes `data/subsampled_balanced.csv`). **DEPENDS ON:** T006‑T012.
 - [X] T045 Implement bias‑adjustment module that computes domain‑weighted prevalence using domain‑weighted averaging (FR‑027) **and either subsamples the dominant domain *or* flags a violation** per FR‑027 (constraint‑preservation‑01844dd3) in `src/audit/bias_adjustment.py` (verify bias‑adjusted rate is written and appropriate action taken when any domain exceeds 30 %). **DEPENDS ON:** T044.
 - [X] T046 Unit tests for bias‑adjustment ensuring no domain exceeds 30 % proportion (tests/unit/test_bias_adjustment.py) (verify test passes).
@@ -172,9 +172,9 @@
 
 ### Implementation for User Story 4
 
-- [ ] T098 Add resource‑monitoring module `src/utils/resource_monitor.py` that records peak CPU & memory, writes to `output/resource_log.json` (SC‑008) **and aborts with `ERR-301` when limits exceeded per FR‑009** (verify log file exists, records within limits, and abort logic triggers on breach).
+- [X] T098 Add resource‑monitoring module `src/utils/resource_monitor.py` that records peak CPU & memory, writes to `output/resource_log.json` (SC‑008) **and aborts with `ERR-301` when limits exceeded per FR‑009** (verify log file exists, records within limits, and abort logic triggers on breach).
 - [ ] T063 Modify `src/cli/run_audit.py` to invoke `resource_monitor` and abort with `ERR-301` if limits exceeded (plan.md) (run AFTER T098) (verify script aborts on limit breach) [DEPENDS ON: T098].
-- [ ] T064 Update `.github/workflows/audit.yml` to include steps: (a) schema validation, (b) synthetic validation (ensure precision/recall thresholds), (c) resource‑monitor check, (d) main pipeline run (verify workflow runs all steps) [DEPENDS ON: T098].
+- [ ] T064 Update `.github/workflows/audit.yml` to include steps: (a) schema validation, (b) synthetic validation (ensure precision/recall thresholds), (c) resource‑monitor check, (d) main pipeline run (verify workflow runs all steps) [DEPENDS ON: T098]. <!-- ATOMIZE: requested -->
 - [ ] T065 Add CI step that caches `pip` packages to stay within 6 hour total runtime (plan.md) (verify cache hit on subsequent runs).
 - [ ] T066 Add unit test for resource monitor parsing of `/proc` (tests/unit/test_resource_monitor.py) (verify test passes) [DEPENDS ON: T098].
 - [ ] T095b Verify Quickstart Docker guide also reproduces environment via `requirements.txt` and isolated venv (Constitution Principle I) (verify Dockerfile runs `pip install -r requirements.txt` and that a venv is created) (addresses ordering‑28dea5aa).
