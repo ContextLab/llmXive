@@ -1,7 +1,7 @@
 {
   "project_id": "PROJ-077-investigating-the-correlation-between-gu",
   "stage": "tasked",
-  "last_error": "speckit refused to emit a 'template' artifact at /home/runner/work/llmXive/llmXive/projects/PROJ-077-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md.\n  Rules fired: unfilled_bracket_density=31 bracket markers; sample=['[User Story 1]', '[User Story 1]', '[User Story 1]']\n  Missing context: High density of [bracketed] placeholders \u2014 likely never filled in by the emitter; ensure the emitter received real project context.\n  Project progression points are NOT incremented.\n  Fix by supplying the missing inputs and re-running, or by abstaining cleanly.",
-  "last_seen": "2026-07-04T14:42:10.417497+00:00",
-  "count": 65
+  "last_error": "every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth(outage): every model in chain ['qwen.qwen3.5-122b', 'google.gemma-3-27b-it', 'openai.gpt-oss-120b', 'anthropic.claude-haiku-4-5-20251001'] failed on backend 'dartmouth'; errors: qwen.qwen3.5-122b(model-down attempt 1): !DOCTYPE HTML PUBLIC \"-//IETF//DTD HTML 2.0//EN\">\n<html><head>\n<title>302 Moved Temporarily</title>\n</head><body>\n<h1>Moved </h1>\n<p>The document has moved <a href=\"http://outage.dartmouth.edu\">here</a>.</p>\n</body></html> | google.gemma-3-27b-it(permanent): Error code: 400 - {'detail': \"litellm.ContextWindowExceededError: litellm.BadRequestError: ContextWindowExceededError: OpenAIException - 'max_tokens' or 'max_completion_tokens' is too large: 131072. This model's maximum context length is 98304 tokens and your request has 12466 input tokens (131072 > 98304 - 12466). None\\nmodel=google.gemma-3-27b-it. context_window_fallbacks=None. fallbacks=None.\\n\\nSet 'context_window_fallback' - https://docs.lit",
+  "last_seen": "2026-07-04T15:16:57.905380+00:00",
+  "count": 66
 }
