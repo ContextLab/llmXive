@@ -1,0 +1,293 @@
+resolved_at: '2026-07-04T22:53:58.323491+00:00'
+datasets:
+- intent: GPT-2-medium
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/DatPySci/gpt2-medium_dpo_tldr/resolve/main/data/train-00000-of-00001-c7e82dea0ce59a0f.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.5
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/DatPySci/gpt2-medium_dpo_anthropic_hh/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.5
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/DatPySci/gpt2-medium_dpo_tldr_temp_1_0/resolve/main/data/train-00000-of-00001-69b3d8787890cec0.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.5
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/DatPySci/gpt2-medium_dpo_tldr/resolve/main/data/train-00000-of-00001-c7e82dea0ce59a0f.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/DatPySci/gpt2-medium_dpo_anthropic_hh/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/DatPySci/gpt2-medium_dpo_tldr_temp_1_0/resolve/main/data/train-00000-of-00001-69b3d8787890cec0.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/DatPySci/gpt2-medium_dpo_tldr_temp_1_2/resolve/main/data/train-00000-of-00001-a36c95a2645a0c92.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/BNDSteven/gpt2-medium-solutions/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/dataset/Dados_Coletados_para_a_Pesquisa_de_An_lise_de_Acessibilidade_em_Jogos_Digitais_Independentes/32900768
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Dataset_supporting_the_study_Knowledge_attitudes_practices_and_perceptions_related_to_dental_caries_among_Peruvian_first-division_soccer_players_a_cross-sectional_study_/32900639
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/2026_2027_DIRECT_ENTRY_FORM_Nile_University_of_Nigeria_Abuja_Admission_is_out_officially_Call_ON_07036366909_DR_MRS_GRACE_to_apply/32900786
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/2026_2027_DIRECT_ENTRY_FORM_Afe_Babalola_University_Ado-EkitiAdmission_is_out_officially_Call_ON_07036366909_DR_MRS_GRACE_to_apply/32900783
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/2026_2027_DIRECT_ENTRY_FORM_Caleb_University_Lagos_Admission_is_out_officially_Call_ON_07036366909_DR_MRS_GRACE_to_apply/32900780
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4275046
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15487792
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6544101
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7233565
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4147567
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20510136
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20510136
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15228609
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15228609
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/7gnm8/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: CodeCarbon
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/dataset/Dados_Coletados_para_a_Pesquisa_de_An_lise_de_Acessibilidade_em_Jogos_Digitais_Independentes/32900768
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Dataset_supporting_the_study_Knowledge_attitudes_practices_and_perceptions_related_to_dental_caries_among_Peruvian_first-division_soccer_players_a_cross-sectional_study_/32900639
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/2026_2027_DIRECT_ENTRY_FORM_Nile_University_of_Nigeria_Abuja_Admission_is_out_officially_Call_ON_07036366909_DR_MRS_GRACE_to_apply/32900786
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/2026_2027_DIRECT_ENTRY_FORM_Afe_Babalola_University_Ado-EkitiAdmission_is_out_officially_Call_ON_07036366909_DR_MRS_GRACE_to_apply/32900783
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/2026_2027_DIRECT_ENTRY_FORM_Caleb_University_Lagos_Admission_is_out_officially_Call_ON_07036366909_DR_MRS_GRACE_to_apply/32900780
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10060878
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17009508
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20584960
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19240436
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20304680
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21097430
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21097430
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21058370
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21042582
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2602.00343
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: LOC
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/LocalLaws/LOCUS-v1/resolve/main/data/train-00000-of-00008.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/LocalLaws/LOCUS-v1/resolve/main/data/train-00000-of-00008.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/api/resolve-cache/datasets/localmin/GOATBench/f75bf4abac4f232b0f3b6afdf04dbf6730972f95/api_corpus%2Fseen_corpus.json?%2Fdatasets%2Flocalmin%2FGOATBench%2Fresolve%2Fmain%2Fapi_corpus%2Fseen_corpus.json=&etag=%227ee0d26a7803b11eebeb254939844a6a32826e43%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Dados_Coletados_para_a_Pesquisa_de_An_lise_de_Acessibilidade_em_Jogos_Digitais_Independentes/32900768
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Dataset_supporting_the_study_Knowledge_attitudes_practices_and_perceptions_related_to_dental_caries_among_Peruvian_first-division_soccer_players_a_cross-sectional_study_/32900639
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/2026_2027_DIRECT_ENTRY_FORM_Nile_University_of_Nigeria_Abuja_Admission_is_out_officially_Call_ON_07036366909_DR_MRS_GRACE_to_apply/32900786
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/2026_2027_DIRECT_ENTRY_FORM_Afe_Babalola_University_Ado-EkitiAdmission_is_out_officially_Call_ON_07036366909_DR_MRS_GRACE_to_apply/32900783
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/2026_2027_DIRECT_ENTRY_FORM_Caleb_University_Lagos_Admission_is_out_officially_Call_ON_07036366909_DR_MRS_GRACE_to_apply/32900780
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5875084
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/u9xc5/
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20029524
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20247041
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19345923
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21166949
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21166949
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21191870
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21191870
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/xgb9q/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: HumanBaseline
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/Jessie09/human_baseline_zh/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/Jessie09/human_baseline_zh/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/dataset/Dados_Coletados_para_a_Pesquisa_de_An_lise_de_Acessibilidade_em_Jogos_Digitais_Independentes/32900768
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Dataset_supporting_the_study_Knowledge_attitudes_practices_and_perceptions_related_to_dental_caries_among_Peruvian_first-division_soccer_players_a_cross-sectional_study_/32900639
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/2026_2027_DIRECT_ENTRY_FORM_Nile_University_of_Nigeria_Abuja_Admission_is_out_officially_Call_ON_07036366909_DR_MRS_GRACE_to_apply/32900786
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/2026_2027_DIRECT_ENTRY_FORM_Afe_Babalola_University_Ado-EkitiAdmission_is_out_officially_Call_ON_07036366909_DR_MRS_GRACE_to_apply/32900783
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/2026_2027_DIRECT_ENTRY_FORM_Caleb_University_Lagos_Admission_is_out_officially_Call_ON_07036366909_DR_MRS_GRACE_to_apply/32900780
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21063212
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17663736
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content

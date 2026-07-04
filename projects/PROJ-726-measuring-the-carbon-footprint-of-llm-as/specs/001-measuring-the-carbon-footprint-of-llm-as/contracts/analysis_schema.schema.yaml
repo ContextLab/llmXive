@@ -1,0 +1,33 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "PairedAnalysisRecord"
+description: "Schema for the joined dataset used in statistical analysis."
+type: object
+properties:
+  prompt_id:
+    type: string
+    description: "Unique identifier for the prompt."
+  llm_model:
+    type: string
+    description: "Name of the LLM model used (e.g., 'gpt2-medium')."
+  llm_co2_per_loc:
+    type: number
+    description: "Carbon emissions per line of code for the LLM."
+    minimum: 0
+  human_co2_per_loc:
+    type: number
+    description: "Carbon emissions per line of code for the human baseline (Theoretical Reference)."
+    minimum: 0
+  difference:
+    type: number
+    description: "Difference between LLM and human emissions (LLM - Human)."
+  valid:
+    type: boolean
+    description: "True if both LLM and human LOC counts are non-zero."
+required:
+  - prompt_id
+  - llm_model
+  - llm_co2_per_loc
+  - human_co2_per_loc
+  - difference
+  - valid
+additionalProperties: false

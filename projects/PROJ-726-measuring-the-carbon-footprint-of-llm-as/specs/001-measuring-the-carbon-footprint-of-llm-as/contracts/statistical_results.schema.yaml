@@ -1,0 +1,79 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "StatisticalResults"
+description: "Schema for the output of the statistical analysis step."
+type: object
+properties:
+  test_name:
+    type: string
+    description: "Name of the statistical test used (e.g., 'one_sample_t_test', 'wilcoxon')."
+  p_value:
+    type: number
+    description: "P-value of the test."
+    minimum: 0
+    maximum: 1
+  statistic:
+    type: number
+    description: "Test statistic value."
+  effect_size:
+    type: number
+    description: "Effect size (Cohen's d or rank-biserial correlation)."
+  significance:
+    type: string
+    description: "Label indicating statistical significance ('significant' or 'not significant')."
+    enum:
+      - "significant"
+      - "not significant"
+  normality_test:
+    type: object
+    description: "Results of the normality test on the differences."
+    properties:
+      shapiro_wilk_p_value:
+        type: number
+        description: "P-value from the Shapiro-Wilk test."
+        minimum: 0
+        maximum: 1
+      test_used:
+        type: string
+        description: "The statistical test selected based on normality (e.g., 't_test', 'wilcoxon')."
+    required:
+      - shapiro_wilk_p_value
+      - test_used
+  robustness_check:
+    type: object
+    description: "Results from the DistilGPT-2 robustness check."
+    properties:
+      direction_consistent:
+        type: boolean
+        description: "True if the direction of effect is the same as the primary model."
+      p_value_distil:
+        type: number
+        description: "P-value for the DistilGPT-2 analysis."
+    required:
+      - direction_consistent
+      - p_value_distil
+  sensitivity_analysis:
+    type: array
+    description: "Results for different power draw assumptions."
+    items:
+      type: object
+      properties:
+        power_draw_w:
+          type: integer
+        human_co2_per_loc:
+          type: number
+        difference_from_llm:
+          type: number
+      required:
+        - power_draw_w
+        - human_co2_per_loc
+        - difference_from_llm
+required:
+  - test_name
+  - p_value
+  - statistic
+  - effect_size
+  - significance
+  - normality_test
+  - robustness_check
+  - sensitivity_analysis
+additionalProperties: false
