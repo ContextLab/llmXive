@@ -1,0 +1,57 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: TrainingRun
+type: object
+properties:
+  run_id:
+    type: string
+    description: "Unique identifier for the training run"
+  graph_id:
+    type: string
+    description: "Reference to the SyntheticGraph id"
+  loss_type:
+    type: string
+    enum:
+      - ce
+      - infonce
+    description: "Loss function used (Cross-Entropy or InfoNCE)"
+  steps_to_convergence:
+    type: integer
+    minimum: 0
+ description: "Epochs to reach [deferred] accuracy, or max_epochs if censored"
+  censored:
+    type: boolean
+    description: "True if the run did not converge within max_epochs"
+  final_accuracy:
+    type: number
+    minimum: 0.0
+    maximum: 1.0
+    description: "Final classification accuracy"
+  trajectory:
+    type: array
+    items:
+      type: object
+      properties:
+        epoch:
+          type: integer
+        loss:
+          type: number
+        accuracy:
+          type: number
+      required:
+        - epoch
+        - loss
+        - accuracy
+    description: "Per-epoch training metrics"
+  hyperparameters:
+    type: object
+    description: "Dictionary of hyperparameters used"
+required:
+  - run_id
+  - graph_id
+  - loss_type
+  - steps_to_convergence
+  - censored
+  - final_accuracy
+  - trajectory
+  - hyperparameters
+additionalProperties: false

@@ -1,0 +1,11 @@
+{
+  "effect_size_f2": 0.15,
+  "alpha": 0.05,
+  "power": 0.8,
+  "k_groups": 11,
+  "num_predictors_interaction": 2,
+  "calculated_total_n": 110,
+  "samples_per_group": 10,
+  "adjusted_total_n": 110,
+  "justification": "To detect a moderate interaction effect (f^2=0.15) with 80% power at alpha=0.05, a total sample size of 110 is required. This corresponds to 10 graphs per beta level across 11 levels (0.0 to 1.0)."
+}

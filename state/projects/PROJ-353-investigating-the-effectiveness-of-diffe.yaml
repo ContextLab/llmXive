@@ -1,19 +1,19 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-06T10:49:55.866396Z'
-current_stage: project_initialized
+current_stage: in_progress
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-353-investigating-the-effectiveness-of-diffe
-last_run_id: 5867492e-83d4-45d6-be76-bc7fc6eeab9e
+last_run_id: a9b91f89-b111-499c-ae33-572ecedd3e9c
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
 revision_spec_path: null
 speckit_paper_dir: null
-speckit_research_dir: null
+speckit_research_dir: projects/PROJ-353-investigating-the-effectiveness-of-diffe/specs/001-investigating-the-effectiveness-of-diffe
 title: Investigating the Effectiveness of Different Loss Functions for Training Graph
   Neural Networks on Small Worlds
-updated_at: '2026-06-25T18:20:26.809627Z'
+updated_at: '2026-07-04T14:57:28.389893Z'

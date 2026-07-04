@@ -1,0 +1,5 @@
+T001 Create project structure per implementation plan (`code/`, `tests/`, `data/` directories): 1
+? T002 Initialize Python 3.10 project with `requirements.txt` (pinned `networkx`,
+  `torch`, `scikit-learn`, `statsmodels`, `lifelines`, `numpy`, `pandas`)
+: 1
+T003 [P] Configure linting (flake8/black) and formatting tools: 1

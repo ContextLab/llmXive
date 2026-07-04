@@ -1,0 +1,66 @@
+resolved_at: '2026-07-04T14:17:54.244320+00:00'
+datasets:
+- intent: ANCOVA
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/dataset/Matbench_Discovery_v1_0_0/22715158
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/Analisis_dan_Evaluasi_Usability_pada_Aplikasi_Go-Jek_Dengan_Menggunakan_Metode_Skala_Likert/32900033
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Hydrogen_Isotope_and_Water_Content_Analysis_of_Ultralow_Volume_Volcanic_Glass/32900099
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Probing_the_Hygroscopicity_Phase_and_Chemical_Composition_of_Methylglyoxal-Glycine_Aqueous_Brown_Carbon_Aerosol_A_Multi-Instrument_Approach/32900096
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Intermolecular_Selective_1_2-Aminohydroxylation_of_1_3-Dienes_Enabled_by_Palladium_Copper_Oxygen_Cooperation/32900093
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10549231
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8190644
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19263008
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7842203
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10219200
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/4mzg7/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/ardwx/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://unsworks.unsw.edu.au/handle/1959.4/unsworks_49188
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.5281/zenodo.21170255
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: HTTP 404'
+  - url: https://zenodo.org/records/21170255
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

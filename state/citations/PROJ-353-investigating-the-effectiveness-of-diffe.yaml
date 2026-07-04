@@ -1,0 +1,22 @@
+- artifact_hash: 02962b02c7a105e7684604fe4ef058fc7b3eeab95d9cf679f394dee728a9bc63
+  artifact_path: projects/PROJ-353-investigating-the-effectiveness-of-diffe/specs/001-investigating-the-effectiveness-of-diffe/quickstart.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: cpu
+  kind: url
+  value: https://download.pytorch.org/whl/cpu`
+  verification_status: pending
+  verified_against_url: https://download.pytorch.org/whl/cpu
+  verified_at: '2026-07-04T14:27:55.296425Z'
+- artifact_hash: 99652dce16341df5aadc6113e53b1e0b72ea815564c1e8870a7bdfae2df9a15e
+  artifact_path: projects/PROJ-353-investigating-the-effectiveness-of-diffe/specs/001-investigating-the-effectiveness-of-diffe/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: Bonferroni - Wikidata
+  kind: url
+  value: https://www.wikidata.org/wiki/Q87892954
+  verification_status: verified
+  verified_against_url: https://www.wikidata.org/wiki/Q87892954
+  verified_at: '2026-07-04T14:56:42.415061Z'

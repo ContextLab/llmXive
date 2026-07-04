@@ -1,0 +1,45 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: SyntheticGraph
+type: object
+properties:
+  id:
+    type: string
+    description: "Unique identifier for the graph instance"
+  rewiring_probability:
+    type: number
+    minimum: 0.0
+    maximum: 1.0
+    description: "The beta parameter for Watts-Strogatz generation"
+  node_count:
+    type: integer
+    const: 100
+    description: "Number of nodes in the graph"
+  edge_list:
+    type: array
+    items:
+      type: array
+      items:
+        type: integer
+    description: "Adjacency list representation of the graph"
+  clustering_coefficient:
+    type: number
+    minimum: 0.0
+    maximum: 1.0
+    description: "Global clustering coefficient of the graph"
+  node_labels:
+    type: array
+    items:
+      type: integer
+    description: "Community labels for each node"
+  seed:
+    type: integer
+    description: "Random seed used for generation"
+required:
+  - id
+  - rewiring_probability
+  - node_count
+  - edge_list
+  - clustering_coefficient
+  - node_labels
+  - seed
+additionalProperties: false
