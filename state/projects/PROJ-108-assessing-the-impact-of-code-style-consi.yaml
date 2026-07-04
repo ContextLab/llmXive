@@ -1,18 +1,18 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-01T21:23:47.107060Z'
-current_stage: project_initialized
+current_stage: analyzed
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-108-assessing-the-impact-of-code-style-consi
-last_run_id: 21edce80-0357-4010-807c-0c790536d088
+last_run_id: 1995edac-0372-4ef5-ab3d-5e84fbd11d19
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
 revision_spec_path: null
 speckit_paper_dir: null
-speckit_research_dir: null
+speckit_research_dir: projects/PROJ-108-assessing-the-impact-of-code-style-consi/specs/001-assessing-the-impact-of-code-style-consi
 title: Assessing the Impact of Code Style Consistency on LLM Code Understanding
-updated_at: '2026-06-25T09:59:40.626734Z'
+updated_at: '2026-07-04T02:57:41.862235Z'

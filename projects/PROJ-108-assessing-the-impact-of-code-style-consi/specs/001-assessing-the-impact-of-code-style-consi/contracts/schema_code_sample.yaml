@@ -1,0 +1,42 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: CodeSample
+description: Schema for a single code sample with computed style metrics.
+type: object
+properties:
+  file_path:
+    type: string
+    description: "Relative path to the source file."
+  source_code:
+    type: string
+    description: "The raw content of the source file."
+  style_score:
+    type: number
+    minimum: 0.0
+    maximum: 1.0
+    description: "Normalized style consistency score (0.0 = inconsistent, 1.0 = consistent)."
+  consistency_group:
+    type: string
+    description: "Stratification group based on style score."
+    enum:
+      - High
+      - Medium
+      - Low
+  cyclomatic_complexity:
+    type: number
+    description: "Cyclomatic complexity score computed via radon."
+  file_age_days:
+    type:
+      - number
+      - "null"
+    description: "Age of the file in days (may be null if git history unavailable)."
+  dataset_source:
+    type: string
+    description: "Source dataset name (e.g., codesearchnet, defects4j)."
+required:
+  - file_path
+  - source_code
+  - style_score
+  - consistency_group
+  - cyclomatic_complexity
+  - dataset_source
+additionalProperties: false

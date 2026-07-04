@@ -1,0 +1,42 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: PerformanceMetric
+description: Schema for evaluation metrics linking inference output to ground truth.
+type: object
+properties:
+  result_id:
+    type: string
+    description: "Reference to the InferenceResult."
+  task_type:
+    type: string
+    description: "Type of task performed."
+    enum:
+      - summarization
+      - bug_localization
+  bleu_score:
+    type:
+      - number
+      - "null"
+    description: "BLEU-4 score for summarization (null if no reference)."
+  precision:
+    type:
+      - number
+      - "null"
+    description: "Precision score for bug localization."
+  recall:
+    type:
+      - number
+      - "null"
+    description: "Recall score for bug localization."
+  f1_score:
+    type:
+      - number
+      - "null"
+    description: "F1 score for bug localization."
+  ground_truth_exists:
+    type: boolean
+    description: "Whether a ground truth reference was available for this sample."
+required:
+  - result_id
+  - task_type
+  - ground_truth_exists
+additionalProperties: false
