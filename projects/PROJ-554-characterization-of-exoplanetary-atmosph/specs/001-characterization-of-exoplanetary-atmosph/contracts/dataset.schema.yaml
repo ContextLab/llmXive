@@ -1,0 +1,50 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Exoplanet Dataset Schema"
+description: "Schema for the merged analysis dataset containing planetary parameters and retrieval results."
+type: "object"
+properties:
+  planet_name:
+    type: "string"
+    description: "Unique identifier for the exoplanet."
+    minLength: 1
+  equilibrium_temp:
+    type: "number"
+    description: "Equilibrium temperature in Kelvin."
+    exclusiveMinimum: 0
+  host_metallicity:
+    type: ["number", "null"]
+    description: "Host star metallicity [Fe/H]. Can be null if missing."
+  planet_mass:
+    type: "number"
+    description: "Planet mass in Jupiter masses."
+    exclusiveMinimum: 0
+  planet_category:
+    type: "string"
+    description: "Classification of the planet."
+    enum:
+      - "Hot Jupiter"
+      - "Super Earth"
+  water_abundance_log10:
+    type: ["number", "null"]
+    description: "Log10 water mixing ratio. Null if upper limit."
+  uncertainty:
+    type: "number"
+    description: "1-sigma uncertainty of the water abundance."
+    exclusiveMinimum: 0
+  is_upper_limit:
+    type: "boolean"
+    description: "True if the water abundance is an upper limit."
+  detection_limit:
+    type: "number"
+    description: "The 3-sigma noise floor value used as the censoring point (per-observation)."
+    exclusiveMinimum: -10.0
+    maximum: 0.0
+required:
+  - planet_name
+  - equilibrium_temp
+  - planet_mass
+  - planet_category
+  - uncertainty
+  - is_upper_limit
+  - detection_limit
+additionalProperties: false

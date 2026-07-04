@@ -1,0 +1,11 @@
+- artifact_hash: 4b680653122b8e2c75269ccd84009657fc1a955d85ae6fb05413593bc41f1535
+  artifact_path: projects/PROJ-554-characterization-of-exoplanetary-atmosph/specs/001-characterization-of-exoplanetary-atmosph/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: NASA Exoplanet Archive
+  kind: url
+  value: https://exoplanetarchive.ipac.caltech.edu/`
+  verification_status: verified
+  verified_against_url: https://exoplanetarchive.ipac.caltech.edu/
+  verified_at: '2026-07-04T18:58:32.678664Z'

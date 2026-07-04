@@ -1,0 +1,35 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Retrieval Output Schema"
+description: "Schema for the output of the petitRADTRANS retrieval pipeline."
+type: "object"
+properties:
+  planet_name:
+    type: "string"
+    description: "Unique identifier for the exoplanet."
+  water_abundance_log10:
+    type: ["number", "null"]
+    description: "Derived water vapor mixing ratio (log10 scale)."
+  uncertainty:
+    type: "number"
+    description: "Standard deviation of the retrieval."
+    exclusiveMinimum: 0
+  is_upper_limit:
+    type: "boolean"
+    description: "Flag indicating if the result is an upper limit."
+  detection_limit:
+    type: "number"
+    description: "The 3-sigma noise floor value (censoring point) for this observation."
+  retrieval_status:
+    type: "string"
+    description: "Status of the retrieval run."
+    enum:
+      - "Success"
+      - "Upper Limit"
+      - "Failed"
+required:
+  - planet_name
+  - uncertainty
+  - is_upper_limit
+  - detection_limit
+  - retrieval_status
+additionalProperties: false
