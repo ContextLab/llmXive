@@ -57,7 +57,7 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [X] T002a [P] Create `requirements.txt` at repository root with pinned dependencies (pandas, numpy, scipy, pymc, arviz, requests, pyyaml, statsmodels, pytest)
-- [ ] T002b [P] Install dependencies from `requirements.txt` in a virtual environment <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
+- [X] T002b [P] Install dependencies from `requirements.txt` in a virtual environment
 - [ ] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools
 - [ ] T004 Setup data directory structure: `data/raw/`, `data/processed/`, `state/projects/`
 - [ ] T005 [P] Implement configuration management in `src/utils/config.py` (seed pinning, path resolution)
@@ -134,10 +134,10 @@
 **Purpose**: Improvements that affect multiple user stories and final validation
 
 - [~] T030 [P] [Polish] Generate `research.md` documenting mathematical formulations for all three methods (Random Walk Bayesian, Simple Avg, Weighted Avg) and explicitly documenting the sanctioned architectural exceptions (T021, T026, T009b).
-- [~] T031 [P] [Polish] Create `quickstart.md` with instructions to run the full pipeline on CPU.
-- [~] T032 [Polish] Run end-to-end integration test in `tests/integration/test_pipeline.py` to verify full data flow from download to final metrics.
-- [~] T033 [Polish] Verify all artifacts have valid checksums in `state/projects/` and no manual data fabrication occurred.
-- [~] T034 [P] [Polish] Documentation updates in `README.md` summarizing the comparative results and limitations.
+- [ ] T031 [P] [Polish] Create `quickstart.md` with instructions to run the full pipeline on CPU.
+- [ ] T032 [Polish] Run end-to-end integration test in `tests/integration/test_pipeline.py` to verify full data flow from download to final metrics.
+- [ ] T033 [Polish] Verify all artifacts have valid checksums in `state/projects/` and no manual data fabrication occurred.
+- [ ] T034 [P] [Polish] Documentation updates in `README.md` summarizing the comparative results and limitations.
 
 ---
 

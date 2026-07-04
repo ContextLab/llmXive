@@ -1,203 +1,101 @@
 import os
 import sys
 import tempfile
+import math
 from pathlib import Path
-import pandas as pd
-import numpy as np
 import pytest
+import pandas as pd
 
-# Add the project root to the path
-project_root = Path(__file__).parent.parent.parent
-sys.path.insert(0, str(project_root / 'code'))
+# Add project root to path
+project_root = Path(__file__).resolve().parent.parent.parent
+if str(project_root) not in sys.path:
+    sys.path.insert(0, str(project_root))
 
-from src.data.weights import calculate_historical_rmse, assign_weights, DEFAULT_MEDIAN_WEIGHT
+from src.data.weights import calculate_historical_rmse, assign_weights_with_fallback
 
-class TestHistoricalRMSE:
-    """Tests for the calculate_historical_rmse function"""
+def test_calculate_historical_rmse():
+    """Test RMSE calculation with strict temporal split."""
+    # Create mock data
+    # Cycle 2020 data
+    poll_2020 = [
+        {'pollster': 'A', 'cycle': '2020', 'candidate': 'X', 'vote_share': 50.0},
+        {'pollster': 'B', 'cycle': '2020', 'candidate': 'X', 'vote_share': 52.0},
+    ]
+    # Cycle 2024 data
+    poll_2024 = [
+        {'pollster': 'A', 'cycle': '2024', 'candidate': 'X', 'vote_share': 48.0},
+        {'pollster': 'C', 'cycle': '2024', 'candidate': 'X', 'vote_share': 49.0},
+    ]
     
-    def test_calculate_rmse_basic(self):
-        """Test basic RMSE calculation with known values"""
-        # Create test data with known errors
-        data = {
-            'pollster': ['A', 'A', 'B', 'B'],
-            'date': ['2024-01-01', '2024-01-02', '2024-01-01', '2024-01-02'],
-            'vote_share': [50.0, 52.0, 48.0, 51.0],
-            'actual_result': [50.0, 50.0, 50.0, 50.0]
-        }
-        df = pd.DataFrame(data)
-        
-        rmse_df = calculate_historical_rmse(df)
-        
-        # Pollster A: errors = [0, 2], RMSE = sqrt((0 + 4)/2) = sqrt(2) ≈ 1.414
-        # Pollster B: errors = [-2, 1], RMSE = sqrt((4 + 1)/2) = sqrt(2.5) ≈ 1.581
-        
-        assert len(rmse_df) == 2
-        assert 'pollster' in rmse_df.columns
-        assert 'historical_rmse' in rmse_df.columns
-        assert 'poll_count' in rmse_df.columns
-        
-        # Check specific values
-        rmse_a = rmse_df[rmse_df['pollster'] == 'A']['historical_rmse'].values[0]
-        rmse_b = rmse_df[rmse_df['pollster'] == 'B']['historical_rmse'].values[0]
-        
-        assert np.isclose(rmse_a, np.sqrt(2), rtol=1e-5)
-        assert np.isclose(rmse_b, np.sqrt(2.5), rtol=1e-5)
+    # Outcomes
+    outcome_2020 = {'cycle': '2020', 'candidate': 'X', 'vote_share': 51.0}
+    outcome_2024 = {'cycle': '2024', 'candidate': 'X', 'vote_share': 49.0}
     
-    def test_calculate_rmse_single_poll(self):
-        """Test RMSE calculation with only one poll per pollster"""
-        data = {
-            'pollster': ['A', 'B'],
-            'date': ['2024-01-01', '2024-01-02'],
-            'vote_share': [50.0, 48.0],
-            'actual_result': [50.0, 50.0]
-        }
-        df = pd.DataFrame(data)
-        
-        rmse_df = calculate_historical_rmse(df)
-        
-        # With only one poll, RMSE cannot be calculated (need at least 2)
-        # The function should skip these pollsters
-        assert len(rmse_df) == 0
+    all_polls = poll_2020 + poll_2024
+    outcomes = [outcome_2020, outcome_2024]
     
-    def test_calculate_rmse_zero_error(self):
-        """Test RMSE calculation when all polls are perfect"""
-        data = {
-            'pollster': ['A', 'A', 'A'],
-            'date': ['2024-01-01', '2024-01-02', '2024-01-03'],
-            'vote_share': [50.0, 50.0, 50.0],
-            'actual_result': [50.0, 50.0, 50.0]
-        }
-        df = pd.DataFrame(data)
-        
-        rmse_df = calculate_historical_rmse(df)
-        
-        # All errors are 0, so RMSE should be 0
-        assert len(rmse_df) == 1
-        assert np.isclose(rmse_df['historical_rmse'].values[0], 0.0)
+    # Calculate RMSE for 2024 using only 2020 data
+    rmse_map = calculate_historical_rmse(all_polls, outcomes, '2024')
     
-    def test_calculate_rmse_empty_dataframe(self):
-        """Test RMSE calculation with empty DataFrame"""
-        df = pd.DataFrame(columns=['pollster', 'date', 'vote_share', 'actual_result'])
-        
-        rmse_df = calculate_historical_rmse(df)
-        
-        assert len(rmse_df) == 0
+    # Pollster A: 2020 error = 50 - 51 = -1 -> sq = 1. RMSE = sqrt(1) = 1.0
+    # Pollster B: 2020 error = 52 - 51 = 1 -> sq = 1. RMSE = 1.0
+    # Pollster C: No history in 2020, should not be in map
+    
+    assert 'A' in rmse_map
+    assert math.isclose(rmse_map['A'], 1.0)
+    assert 'B' in rmse_map
+    assert math.isclose(rmse_map['B'], 1.0)
+    assert 'C' not in rmse_map
 
-class TestWeightAssignment:
-    """Tests for the assign_weights function"""
+def test_assign_weights_with_fallback():
+    """Test weight assignment and fallback logic."""
+    polls = [
+        {'pollster': 'A', 'vote_share': 50.0},
+        {'pollster': 'B', 'vote_share': 51.0},
+        {'pollster': 'C', 'vote_share': 49.0}, # No history
+    ]
     
-    def test_assign_weights_basic(self):
-        """Test basic weight assignment with known RMSE values"""
-        # Create test data
-        df = pd.DataFrame({
-            'pollster': ['A', 'A', 'B', 'B'],
-            'date': ['2024-01-01', '2024-01-02', '2024-01-01', '2024-01-02'],
-            'vote_share': [50.0, 52.0, 48.0, 51.0]
-        })
-        
-        # Create RMSE DataFrame
-        rmse_df = pd.DataFrame({
-            'pollster': ['A', 'B'],
-            'historical_rmse': [1.0, 2.0]  # A is more accurate
-        })
-        
-        df_weighted = assign_weights(df, rmse_df)
-        
-        # Check that weights are assigned
-        assert 'weight' in df_weighted.columns
-        assert len(df_weighted) == 4
-        
-        # Check that weights sum to 1.0
-        assert np.isclose(df_weighted['weight'].sum(), 1.0)
-        
-        # Pollster A should have higher weights than B (lower RMSE)
-        weight_a = df_weighted[df_weighted['pollster'] == 'A']['weight'].sum()
-        weight_b = df_weighted[df_weighted['pollster'] == 'B']['weight'].sum()
-        
-        assert weight_a > weight_b
+    rmse_map = {'A': 1.0, 'B': 2.0}
     
-    def test_assign_weights_no_history(self):
-        """Test weight assignment for pollsters with no history"""
-        df = pd.DataFrame({
-            'pollster': ['A', 'B', 'C'],  # C has no history
-            'date': ['2024-01-01', '2024-01-02', '2024-01-03'],
-            'vote_share': [50.0, 52.0, 48.0]
-        })
-        
-        rmse_df = pd.DataFrame({
-            'pollster': ['A', 'B'],
-            'historical_rmse': [1.0, 2.0]
-        })
-        
-        df_weighted = assign_weights(df, rmse_df)
-        
-        # Check that weights are assigned to all
-        assert 'weight' in df_weighted.columns
-        assert len(df_weighted) == 3
-        assert np.isclose(df_weighted['weight'].sum(), 1.0)
-        
-        # Pollster C should have the default median weight
-        weight_c = df_weighted[df_weighted['pollster'] == 'C']['weight'].values[0]
-        assert weight_c > 0
+    weighted = assign_weights_with_fallback(polls, rmse_map)
     
-    def test_assign_weights_zero_rmse(self):
-        """Test weight assignment when RMSE is zero (prevents division by zero)"""
-        df = pd.DataFrame({
-            'pollster': ['A', 'B'],
-            'date': ['2024-01-01', '2024-01-02'],
-            'vote_share': [50.0, 52.0]
-        })
-        
-        rmse_df = pd.DataFrame({
-            'pollster': ['A', 'B'],
-            'historical_rmse': [0.0, 1.0]  # A has zero RMSE
-        })
-        
-        # This should not raise a division by zero error
-        df_weighted = assign_weights(df, rmse_df)
-        
-        assert 'weight' in df_weighted.columns
-        assert np.isclose(df_weighted['weight'].sum(), 1.0)
-        
-        # Both should have valid weights
-        assert all(df_weighted['weight'] > 0)
+    # Check weights
+    # A: 1/1.0 = 1.0
+    # B: 1/2.0 = 0.5
+    # C: Fallback (median of [1.0, 2.0] is 1.5) -> 1/1.5 = 0.666...
     
-    def test_assign_weights_empty_rmse(self):
-        """Test weight assignment when RMSE DataFrame is empty"""
-        df = pd.DataFrame({
-            'pollster': ['A', 'B', 'C'],
-            'date': ['2024-01-01', '2024-01-02', '2024-01-03'],
-            'vote_share': [50.0, 52.0, 48.0]
-        })
-        
-        rmse_df = pd.DataFrame(columns=['pollster', 'historical_rmse'])
-        
-        df_weighted = assign_weights(df, rmse_df)
-        
-        # All should get default median weight, then normalized
-        assert 'weight' in df_weighted.columns
-        assert len(df_weighted) == 3
-        assert np.isclose(df_weighted['weight'].sum(), 1.0)
-        
-        # All weights should be equal (normalized default)
-        expected_weight = 1.0 / 3
-        for weight in df_weighted['weight']:
-            assert np.isclose(weight, expected_weight)
+    w_a = next(p['weight'] for p in weighted if p['pollster'] == 'A')
+    w_b = next(p['weight'] for p in weighted if p['pollster'] == 'B')
+    w_c = next(p['weight'] for p in weighted if p['pollster'] == 'C')
     
-    def test_assign_weights_single_poll(self):
-        """Test weight assignment with a single poll"""
-        df = pd.DataFrame({
-            'pollster': ['A'],
-            'date': ['2024-01-01'],
-            'vote_share': [50.0]
-        })
-        
-        rmse_df = pd.DataFrame({
-            'pollster': ['A'],
-            'historical_rmse': [1.0]
-        })
-        
-        df_weighted = assign_weights(df, rmse_df)
-        
-        assert len(df_weighted) == 1
-        assert df_weighted['weight'].values[0] == 1.0  # Single poll gets weight 1.0
+    assert math.isclose(w_a, 1.0)
+    assert math.isclose(w_b, 0.5)
+    assert math.isclose(w_c, 1.0/1.5, rel_tol=1e-4)
+    
+    # Check RMSE assignment
+    assert weighted[0]['historical_rmse'] == 1.0
+    assert weighted[1]['historical_rmse'] == 2.0
+    assert weighted[2]['historical_rmse'] == 1.5 # Median fallback
+
+def test_division_by_zero_prevention():
+    """Test that zero RMSE does not cause division by zero."""
+    polls = [{'pollster': 'A', 'vote_share': 50.0}]
+    rmse_map = {'A': 0.0} # Zero RMSE
+    
+    # Should not raise error
+    weighted = assign_weights_with_fallback(polls, rmse_map)
+    w_a = weighted[0]['weight']
+    
+    # Should be a large but finite number due to epsilon
+    assert w_a > 0
+    assert w_a != float('inf')
+
+def test_empty_history():
+    """Test behavior when no historical data exists."""
+    polls = [{'pollster': 'A', 'vote_share': 50.0}]
+    rmse_map = {}
+    
+    weighted = assign_weights_with_fallback(polls, rmse_map)
+    # Should use default RMSE of 1.0
+    assert weighted[0]['historical_rmse'] == 1.0
+    assert weighted[0]['weight'] == 1.0

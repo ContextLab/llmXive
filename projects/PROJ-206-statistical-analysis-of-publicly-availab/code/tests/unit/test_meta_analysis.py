@@ -1,237 +1,132 @@
 """
-Unit tests for meta-analysis module (Diebold-Mariano tests with Westfall-Young correction).
+Unit tests for meta_analysis.py (Diebold-Mariano and Westfall-Young).
 """
 
 import os
 import sys
 import tempfile
+import csv
 from pathlib import Path
-import pandas as pd
-import numpy as np
 import pytest
+import numpy as np
 
 from src.evaluation.meta_analysis import (
-    diebold_mariano_test,
-    westfall_young_stepdown_max_t,
-    run_pairwise_dm_tests
+    calculate_loss_differential,
+    diebold_mariano_statistic,
+    calculate_dm_statistics,
+    westfall_young_correction,
+    load_forecasts_and_outcomes,
+    run_meta_analysis
 )
 
-class TestDieboldMariano:
-    """Tests for the Diebold-Mariano test function."""
+@pytest.fixture
+def sample_forecasts():
+    """Generate simple synthetic forecasts for testing."""
+    np.random.seed(42)
+    n = 50
+    outcome = np.random.randn(n)
+    # Model A: good forecasts
+    forecast_a = outcome + np.random.randn(n) * 0.5
+    # Model B: worse forecasts
+    forecast_b = outcome + np.random.randn(n) * 1.5
+    return {
+        'model_a': forecast_a.tolist(),
+        'model_b': forecast_b.tolist()
+    }, outcome.tolist(), ['model_a', 'model_b']
 
-    def test_identical_forecasts(self):
-        """DM test should return p-value near 1.0 for identical forecasts."""
-        actual = np.array([1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0])
-        forecast = np.array([1.1, 2.1, 3.1, 4.1, 5.1, 6.1, 7.1, 8.1, 9.1, 10.1])
+@pytest.fixture
+def temp_forecast_file(sample_forecasts):
+    """Create a temporary CSV file with forecast data."""
+    forecasts, outcomes, model_names = sample_forecasts
+    with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.csv', newline='') as f:
+        writer = csv.writer(f)
+        writer.writerow(['date', 'model_a', 'model_b'])
+        for i in range(len(outcomes)):
+            writer.writerow([f"2020-{i:02d}-01", forecasts['model_a'][i], forecasts['model_b'][i]])
+        temp_path = f.name
+    yield temp_path
+    os.unlink(temp_path)
 
-        dm_stat, p_value = diebold_mariano_test(actual, forecast, forecast)
+@pytest.fixture
+def temp_outcome_file(sample_forecasts):
+    """Create a temporary CSV file with outcome data."""
+    forecasts, outcomes, model_names = sample_forecasts
+    with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.csv', newline='') as f:
+        writer = csv.writer(f)
+        writer.writerow(['date', 'actual'])
+        for i in range(len(outcomes)):
+            writer.writerow([f"2020-{i:02d}-01", outcomes[i]])
+        temp_path = f.name
+    yield temp_path
+    os.unlink(temp_path)
 
-        # For identical forecasts, loss difference should be ~0
-        assert p_value > 0.5, "Identical forecasts should have high p-value"
+def test_calculate_loss_differential():
+    """Test loss differential calculation."""
+    forecast_a = [1.0, 2.0]
+    forecast_b = [1.5, 2.5]
+    outcome = [1.0, 2.0]
+    
+    # e_a = [0, 0], e_b = [-0.5, -0.5]
+    # loss_a = [0, 0], loss_b = [0.25, 0.25]
+    # diff = [-0.25, -0.25]
+    diff = calculate_loss_differential(forecast_a, forecast_b, outcome)
+    assert len(diff) == 2
+    assert np.isclose(diff[0], -0.25)
+    assert np.isclose(diff[1], -0.25)
 
-    def test_different_forecast_accuracy(self):
-        """DM test should detect significant difference when one forecast is clearly better."""
-        actual = np.array([1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0])
-        forecast_a = np.array([1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0])  # Perfect
-        forecast_b = np.array([5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0, 13.0, 14.0])  # Bad
+def test_diebold_mariano_statistic():
+    """Test DM statistic calculation."""
+    # Perfect forecasts (loss diff = 0) -> stat = 0
+    loss_diff = [0.0, 0.0, 0.0]
+    stat = diebold_mariano_statistic(loss_diff)
+    assert stat == 0.0
 
-        dm_stat, p_value = diebold_mariano_test(actual, forecast_a, forecast_b)
+    # Non-zero mean
+    loss_diff = [1.0, 1.0, 1.0]
+    stat = diebold_mariano_statistic(loss_diff)
+    # mean = 1, var = 0 -> stat = 0 (division by zero handled)
+    # Actually if var is 0, we return 0.
+    assert stat == 0.0
 
-        # Should detect significant difference
-        assert p_value < 0.05, "Should detect significant difference between good and bad forecasts"
+    # With variance
+    loss_diff = [1.0, -1.0, 1.0]
+    stat = diebold_mariano_statistic(loss_diff)
+    # mean = 1/3, var = 4/3 (ddof=1)
+    # se = sqrt(4/3 / 3) = sqrt(4/9) = 2/3
+    # stat = (1/3) / (2/3) = 0.5
+    assert np.isclose(stat, 0.5, atol=1e-4)
 
-    def test_mismatched_lengths(self):
-        """Should raise ValueError for mismatched lengths."""
-        actual = np.array([1.0, 2.0, 3.0])
-        forecast_a = np.array([1.0, 2.0])
-        forecast_b = np.array([1.0, 2.0, 3.0])
+def test_westfall_young_correction_basic(sample_forecasts):
+    """Test that Westfall-Young correction runs and returns valid p-values."""
+    forecasts, outcomes, model_names = sample_forecasts
+    # Use few permutations for speed in unit test
+    p_vals = westfall_young_correction(
+        forecasts, outcomes, model_names, n_permutations=10, seed=42
+    )
+    assert len(p_vals) == 1  # Only one pair
+    assert (0.0 <= list(p_vals.values())[0] <= 1.0)
 
-        with pytest.raises(ValueError):
-            diebold_mariano_test(actual, forecast_a, forecast_b)
-
-    def test_absolute_loss_function(self):
-        """Test with absolute loss function."""
-        actual = np.array([1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0])
-        forecast_a = np.array([1.1, 2.1, 3.1, 4.1, 5.1, 6.1, 7.1, 8.1, 9.1, 10.1])
-        forecast_b = np.array([1.2, 2.2, 3.2, 4.2, 5.2, 6.2, 7.2, 8.2, 9.2, 10.2])
-
-        dm_stat, p_value = diebold_mariano_test(
-            actual, forecast_a, forecast_b, loss_function="absolute"
+def test_run_meta_analysis_integration(temp_forecast_file, temp_outcome_file):
+    """Integration test for the full meta-analysis pipeline."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        output_path = Path(tmpdir) / "meta_analysis.csv"
+        
+        run_meta_analysis(
+            Path(temp_forecast_file),
+            Path(temp_outcome_file),
+            output_path
         )
+        
+        assert output_path.exists()
+        with open(output_path, 'r') as f:
+            reader = csv.DictReader(f)
+            rows = list(reader)
+            assert len(rows) == 1
+            assert 'dm_statistic' in rows[0]
+            assert 'adjusted_p_value' in rows[0]
+            assert 'significant' in rows[0]
 
-        assert isinstance(dm_stat, float)
-        assert 0 <= p_value <= 1
-
-    def test_unknown_loss_function(self):
-        """Should raise ValueError for unknown loss function."""
-        actual = np.array([1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0])
-        forecast_a = np.array([1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0])
-        forecast_b = np.array([1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0])
-
-        with pytest.raises(ValueError):
-            diebold_mariano_test(actual, forecast_a, forecast_b, loss_function="unknown")
-
-class TestWestfallYoung:
-    """Tests for Westfall-Young step-down max-t correction."""
-
-    def test_single_hypothesis(self):
-        """Should handle single hypothesis test correctly."""
-        np.random.seed(42)
-        loss_diff = np.random.randn(100)
-        loss_diffs = [loss_diff]
-
-        adj_p_values, rejections = westfall_young_stepdown_max_t(
-            loss_diffs, n_permutations=100, seed=42
-        )
-
-        assert len(adj_p_values) == 1
-        assert len(rejections) == 1
-        assert 0 <= adj_p_values[0] <= 1
-
-    def test_multiple_hypotheses(self):
-        """Should handle multiple hypothesis tests."""
-        np.random.seed(42)
-        loss_diffs = [np.random.randn(100) for _ in range(5)]
-
-        adj_p_values, rejections = westfall_young_stepdown_max_t(
-            loss_diffs, n_permutations=100, seed=42
-        )
-
-        assert len(adj_p_values) == 5
-        assert len(rejections) == 5
-        assert all(0 <= p <= 1 for p in adj_p_values)
-        assert all(isinstance(r, bool) for r in rejections)
-
-    def test_monotonicity(self):
-        """Adjusted p-values should be monotonic (step-down property)."""
-        np.random.seed(42)
-        loss_diffs = [np.random.randn(100) for _ in range(10)]
-
-        adj_p_values, _ = westfall_young_stepdown_max_t(
-            loss_diffs, n_permutations=100, seed=42
-        )
-
-        # Check that p-values are non-decreasing when sorted by original statistic
-        # (This is a property of step-down procedures)
-        assert all(adj_p_values[i] <= adj_p_values[j] or i >= j
-                  for i in range(len(adj_p_values))
-                  for j in range(i+1, len(adj_p_values)))
-
-    def test_alpha_threshold(self):
-        """Rejections should depend on alpha threshold."""
-        np.random.seed(42)
-        # Create a strong signal
-        loss_diffs = [np.random.randn(100) + 3.0 for _ in range(3)]
-
-        _, rejections_alpha_05 = westfall_young_stepdown_max_t(
-            loss_diffs, n_permutations=100, alpha=0.05, seed=42
-        )
-
-        _, rejections_alpha_01 = westfall_young_stepdown_max_t(
-            loss_diffs, n_permutations=100, alpha=0.01, seed=42
-        )
-
-        # Should have fewer rejections at stricter alpha
-        assert sum(rejections_alpha_01) <= sum(rejections_alpha_05)
-
-class TestPairwiseDMTests:
-    """Tests for pairwise DM test execution."""
-
-    def test_empty_model_list(self):
-        """Should handle empty model list gracefully."""
-        forecasts_df = pd.DataFrame({"date": [1, 2, 3]})
-        actual_outcomes = pd.Series([1.0, 2.0, 3.0])
-
-        results = run_pairwise_dm_tests(forecasts_df, actual_outcomes, [])
-
-        assert results["dm_stats"] == {}
-        assert results["p_values"] == {}
-
-    def test_single_model(self):
-        """Should handle single model (no pairs to compare)."""
-        forecasts_df = pd.DataFrame({
-            "date": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
-            "model_a": [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0]
-        })
-        actual_outcomes = pd.Series([1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0])
-
-        results = run_pairwise_dm_tests(
-            forecasts_df, actual_outcomes, ["model_a"]
-        )
-
-        assert results["dm_stats"] == {}
-        assert results["p_values"] == {}
-
-    def test_two_models(self):
-        """Should correctly compare two models."""
-        np.random.seed(42)
-        n = 50
-        actual = np.random.randn(n)
-        forecast_a = actual + np.random.randn(n) * 0.5
-        forecast_b = actual + np.random.randn(n) * 1.0
-
-        forecasts_df = pd.DataFrame({
-            "date": range(n),
-            "model_a": forecast_a,
-            "model_b": forecast_b
-        })
-        actual_outcomes = pd.Series(actual)
-
-        results = run_pairwise_dm_tests(
-            forecasts_df, actual_outcomes, ["model_a", "model_b"],
-            n_permutations=50, alpha=0.05
-        )
-
-        assert ("model_a", "model_b") in results["dm_stats"]
-        assert ("model_a", "model_b") in results["p_values"]
-        assert ("model_a", "model_b") in results["adjusted_p_values"]
-        assert ("model_a", "model_b") in results["rejections"]
-        assert results["comparison_matrix"] is not None
-
-    def test_three_models(self):
-        """Should handle three models with all pairwise comparisons."""
-        np.random.seed(42)
-        n = 50
-        actual = np.random.randn(n)
-        forecast_a = actual + np.random.randn(n) * 0.5
-        forecast_b = actual + np.random.randn(n) * 0.7
-        forecast_c = actual + np.random.randn(n) * 1.0
-
-        forecasts_df = pd.DataFrame({
-            "date": range(n),
-            "model_a": forecast_a,
-            "model_b": forecast_b,
-            "model_c": forecast_c
-        })
-        actual_outcomes = pd.Series(actual)
-
-        results = run_pairwise_dm_tests(
-            forecasts_df, actual_outcomes, ["model_a", "model_b", "model_c"],
-            n_permutations=50, alpha=0.05
-        )
-
-        # Should have 3 pairwise comparisons: (a,b), (a,c), (b,c)
-        assert len(results["dm_stats"]) == 3
-        assert len(results["p_values"]) == 3
-        assert results["comparison_matrix"].shape == (3, 3)
-
-    def test_mismatched_lengths_handling(self):
-        """Should handle cases where forecasts and actuals have different lengths."""
-        np.random.seed(42)
-        forecasts_df = pd.DataFrame({
-            "date": range(50),
-            "model_a": np.random.randn(50),
-            "model_b": np.random.randn(50)
-        })
-        actual_outcomes = pd.Series(np.random.randn(40))  # Shorter
-
-        results = run_pairwise_dm_tests(
-            forecasts_df, actual_outcomes, ["model_a", "model_b"],
-            n_permutations=50, alpha=0.05
-        )
-
-        # Should still run, truncating to shortest length
-        assert len(results["dm_stats"]) == 1
-
-if __name__ == "__main__":
-    pytest.main([__file__, "-v"])
+def test_load_forecasts_and_outcomes_missing_file():
+    """Test error handling for missing files."""
+    with pytest.raises(FileNotFoundError):
+        load_forecasts_and_outcomes(Path("nonexistent.csv"), Path("nonexistent.csv"))

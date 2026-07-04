@@ -1,381 +1,399 @@
 """
-Meta-analysis module for statistical comparison of forecasting models.
+Meta-analysis module for Diebold-Mariano tests with Westfall-Young correction.
 
-Implements Diebold-Mariano (DM) tests with Westfall-Young correction
-for pairwise comparison of forecast accuracy.
-
-Sanctioned Architectural Exception:
-This task implements the Spec's FR-006 DM test, overriding the Plan's
-rejection of DM for static forecasts. This deviation is documented in
-research.md as a hypothesis test for predictive accuracy.
+Implements FR-006 and SC-003:
+- Pairwise Diebold-Mariano tests for predictive accuracy comparison.
+- Westfall-Young step-down max-t permutation correction (1000 permutations).
+- Overrides Plan's rejection of DM for static forecasts (Sanctioned Exception).
 """
 
 import os
 import sys
+import csv
 import logging
+import math
 from pathlib import Path
-from typing import List, Dict, Any, Optional, Tuple
+from typing import List, Dict, Tuple, Any, Optional
+
 import numpy as np
-import pandas as pd
 from scipy import stats
 
-# Import from existing project modules
-from src.utils.config import get_project_root, get_data_processed_path
+# Import existing utilities
 from src.utils.logging import get_logger
 
 logger = get_logger(__name__)
 
-def diebold_mariano_test(
-    actual: np.ndarray,
-    forecast_a: np.ndarray,
-    forecast_b: np.ndarray,
-    loss_function: str = "squared",
-    horizon: int = 1
-) -> Tuple[float, float]:
+# Configuration constants
+N_PERMUTATIONS = 1000
+SIGNIFICANCE_LEVEL = 0.05
+ALPHA = 0.05  # For binomial test context if needed elsewhere
+
+def load_forecasts_and_outcomes(
+    forecasts_path: Path, outcomes_path: Path
+) -> Tuple[Dict[str, List[float]], List[float], List[str]]:
     """
-    Perform Diebold-Mariano test for equal predictive accuracy.
-
-    The DM test evaluates whether the difference in loss between two
-    forecasts is significantly different from zero.
-
-    Args:
-        actual: Array of actual values (e.g., election outcomes)
-        forecast_a: Forecasts from model A
-        forecast_b: Forecasts from model B
-        loss_function: Loss function to use ("squared" or "absolute")
-        horizon: Forecasting horizon (default 1 for point forecasts)
+    Load forecast values and actual outcomes from processed CSVs.
 
     Returns:
-        Tuple of (DM statistic, p-value)
+        forecasts: Dict mapping model_name -> list of forecast values.
+        outcomes: List of actual election outcomes (binary or continuous).
+        model_names: List of model names in order.
     """
-    if len(actual) != len(forecast_a) or len(actual) != len(forecast_b):
-        raise ValueError("Actual and forecasts must have the same length")
+    if not forecasts_path.exists():
+        raise FileNotFoundError(f"Forecasts file not found: {forecasts_path}")
+    if not outcomes_path.exists():
+        raise FileNotFoundError(f"Outcomes file not found: {outcomes_path}")
 
-    if len(actual) < 10:
-        logger.warning("Small sample size for DM test. Results may be unreliable.")
+    # Load outcomes
+    outcomes = []
+    with open(outcomes_path, 'r', newline='', encoding='utf-8') as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            # Assuming 'actual' or 'outcome' column exists
+            val = row.get('actual') or row.get('outcome') or row.get('vote_share_actual')
+            if val is None:
+                raise ValueError("Could not find outcome column in outcomes file")
+            outcomes.append(float(val))
 
-    # Calculate loss differential
-    if loss_function == "squared":
-        loss_a = (actual - forecast_a) ** 2
-        loss_b = (actual - forecast_b) ** 2
-    elif loss_function == "absolute":
-        loss_a = np.abs(actual - forecast_a)
-        loss_b = np.abs(actual - forecast_b)
-    else:
-        raise ValueError(f"Unknown loss function: {loss_function}")
+    # Load forecasts
+    forecasts = {}
+    with open(forecasts_path, 'r', newline='', encoding='utf-8') as f:
+        reader = csv.DictReader(f)
+        fieldnames = reader.fieldnames
+        if not fieldnames:
+            raise ValueError("Forecasts file is empty or has no headers")
 
-    d = loss_a - loss_b
+        # Identify forecast columns (exclude 'date', 'cycle', etc.)
+        forecast_cols = [col for col in fieldnames if col not in ['date', 'cycle', 'state', 'candidate']]
+        
+        for row in reader:
+            for col in forecast_cols:
+                if col not in forecasts:
+                    forecasts[col] = []
+                val = row.get(col)
+                if val is not None and val != '':
+                    forecasts[col].append(float(val))
+                else:
+                    forecasts[col].append(np.nan)
 
-    # Calculate DM statistic
-    n = len(d)
-    mean_d = np.mean(d)
+    # Align lengths and handle NaNs
+    min_len = min(len(outcomes), min(len(v) for v in forecasts.values()))
+    outcomes = outcomes[:min_len]
+    for k in forecasts:
+        forecasts[k] = [v for v in forecasts[k][:min_len] if not math.isnan(v)]
+    
+    # Re-align outcomes to match forecast length if necessary (simple truncation)
+    if len(outcomes) > min_len:
+        outcomes = outcomes[:min_len]
 
-    # Autocovariance calculation for overlapping forecasts
-    # Using Newey-West HAC estimator
-    gamma_0 = np.var(d, ddof=1)
-    gamma_sum = 0.0
+    model_names = sorted(forecasts.keys())
+    return forecasts, outcomes, model_names
 
-    for h in range(1, horizon):
-        if h < n:
-            gamma_h = np.mean(d[:n-h] * d[h:])
-            gamma_sum += 2 * gamma_h
-
-    # Long-run variance estimate
-    long_run_var = (gamma_0 + gamma_sum) / n
-
-    if long_run_var <= 0:
-        long_run_var = gamma_0 / n  # Fallback to simple variance
-
-    dm_stat = mean_d / np.sqrt(long_run_var)
-
-    # Two-sided p-value from standard normal
-    p_value = 2 * (1 - stats.norm.cdf(abs(dm_stat)))
-
-    return dm_stat, p_value
-
-def westfall_young_stepdown_max_t(
-    loss_diffs: List[np.ndarray],
-    n_permutations: int = 1000,
-    alpha: float = 0.05,
-    seed: int = 42
-) -> Tuple[np.ndarray, np.ndarray]:
+def calculate_loss_differential(
+    forecast_a: List[float], forecast_b: List[float], outcome: List[float]
+) -> List[float]:
     """
-    Perform Westfall-Young step-down max-t correction for multiple testing.
-
-    This implements a permutation-based correction that controls the
-    family-wise error rate (FWER) using a step-down max-t strategy.
-
-    Args:
-        loss_diffs: List of loss differential arrays (one per hypothesis test)
-        n_permutations: Number of permutations for the correction
-        alpha: Significance level
-        seed: Random seed for reproducibility
-
-    Returns:
-        Tuple of (adjusted p-values, boolean array indicating rejection)
+    Calculate the loss differential series d_t = L(e_a,t) - L(e_b,t).
+    Uses squared error loss: L(e) = e^2.
     """
-    k = len(loss_diffs)
-    if k == 0:
-        return np.array([]), np.array([])
+    if len(forecast_a) != len(outcome) or len(forecast_b) != len(outcome):
+        raise ValueError("Forecast and outcome lengths must match")
 
-    if k == 1:
-        # Single test: standard DM p-value
-        dm_stat, p_val = diebold_mariano_test(
-            np.zeros(len(loss_diffs[0])),  # Placeholder, actual DM uses forecasts
-            np.zeros(len(loss_diffs[0])),
-            np.zeros(len(loss_diffs[0]))
-        )
-        # We need to calculate actual DM statistics first
+    diffs = []
+    for i in range(len(outcome)):
+        e_a = forecast_a[i] - outcome[i]
+        e_b = forecast_b[i] - outcome[i]
+        loss_a = e_a ** 2
+        loss_b = e_b ** 2
+        diffs.append(loss_a - loss_b)
+    return diffs
+
+def diebold_mariano_statistic(loss_diff: List[float]) -> float:
+    """
+    Calculate the standard Diebold-Mariano test statistic.
+    H0: Forecasts have equal predictive accuracy (mean loss diff = 0).
+    """
+    n = len(loss_diff)
+    if n < 2:
+        return 0.0
+    
+    mean_diff = np.mean(loss_diff)
+    # Autocovariance at lag 0 (variance)
+    var_diff = np.var(loss_diff, ddof=1)
+    
+    if var_diff == 0:
+        return 0.0
+    
+    # Standard error of the mean
+    se = math.sqrt(var_diff / n)
+    
+    if se == 0:
+        return 0.0
+    
+    return mean_diff / se
+
+def calculate_dm_statistics(
+    forecasts: Dict[str, List[float]], outcomes: List[float], model_names: List[str]
+) -> Dict[Tuple[str, str], float]:
+    """
+    Calculate pairwise DM statistics for all model combinations.
+    Returns a dict mapping (model_a, model_b) -> DM statistic.
+    """
+    dm_stats = {}
+    for i in range(len(model_names)):
+        for j in range(i + 1, len(model_names)):
+            m_a = model_names[i]
+            m_b = model_names[j]
+            loss_diff = calculate_loss_differential(forecasts[m_a], forecasts[m_b], outcomes)
+            stat = diebold_mariano_statistic(loss_diff)
+            dm_stats[(m_a, m_b)] = stat
+    return dm_stats
+
+def westfall_young_correction(
+    forecasts: Dict[str, List[float]],
+    outcomes: List[float],
+    model_names: List[str],
+    n_permutations: int = N_PERMUTATIONS,
+    alpha: float = SIGNIFICANCE_LEVEL,
+    seed: Optional[int] = None
+) -> Dict[Tuple[str, str], float]:
+    """
+    Perform Westfall-Young step-down max-t permutation correction.
+
+    This implements a custom permutation-based correction because
+    statsmodels.stats.multitest does not natively support Westfall-Young
+    for Diebold-Mariano tests with time-series dependencies.
+
+    Strategy:
+    1. Calculate observed DM statistics.
+    2. Permute the loss differential series (sign flipping or block permutation).
+       For simplicity and robustness against autocorrelation, we use sign flipping
+       on the loss differential series under the null hypothesis of equal accuracy.
+    3. For each permutation, calculate the max-t statistic (max absolute DM stat).
+    4. Calculate adjusted p-values based on the distribution of max-t statistics.
+    5. Apply step-down procedure.
+    """
+    if seed is not None:
+        np.random.seed(seed)
+
+    # Step 1: Calculate observed statistics
+    obs_stats = calculate_dm_statistics(forecasts, outcomes, model_names)
+    pairs = list(obs_stats.keys())
+    n_pairs = len(pairs)
+
+    if n_pairs == 0:
+        return {pair: 1.0 for pair in pairs}
+
+    # Sort pairs by observed statistic magnitude (descending) for step-down
+    sorted_pairs = sorted(pairs, key=lambda p: abs(obs_stats[p]), reverse=True)
+
+    # Store observed stats in a list corresponding to sorted_pairs
+    observed_t = [obs_stats[p] for p in sorted_pairs]
+    observed_abs_t = [abs(t) for t in observed_t]
+
+    # Step 2: Permutation loop
+    # We use sign flipping on the loss differential series.
+    # Under H0: E[L(e_a) - L(e_b)] = 0, the signs of the differences are exchangeable.
+    # This preserves the dependence structure of the loss differential series.
+    
+    max_t_dist = np.zeros(n_permutations)
+
+    for p in range(n_permutations):
+        # Generate random signs for each time point
+        signs = np.random.choice([-1, 1], size=len(outcomes))
+        
+        perm_stats = []
+        for m_a, m_b in sorted_pairs:
+            # Recalculate loss differential with flipped signs
+            # Note: We need to recalculate the loss diff from raw forecasts/outcomes
+            # to apply the sign flip correctly.
+            # However, the loss diff is a scalar per time point.
+            # We can flip the sign of the loss differential series directly.
+            
+            # Reconstruct loss diff for this pair
+            loss_diff = calculate_loss_differential(forecasts[m_a], forecasts[m_b], outcomes)
+            loss_diff_arr = np.array(loss_diff)
+            
+            # Apply sign flip
+            permuted_loss_diff = loss_diff_arr * signs
+            
+            # Calculate DM stat for permuted data
+            perm_stat = diebold_mariano_statistic(permuted_loss_diff.tolist())
+            perm_stats.append(perm_stat)
+        
+        # Max-t for this permutation
+        max_t_dist[p] = max(abs(t) for t in perm_stats)
+
+    # Step 3: Calculate raw p-values for each test based on max-t distribution
+    # p-value = P(max|T| >= |observed_t|)
+    
+    adjusted_p = np.zeros(n_pairs)
+    for i in range(n_pairs):
+        obs_val = observed_abs_t[i]
+        count = np.sum(max_t_dist >= obs_val)
+        adjusted_p[i] = (count + 1) / (n_permutations + 1)
+
+    # Step 4: Step-down procedure
+    # We iterate from largest statistic to smallest.
+    # If a hypothesis is rejected, we proceed. If not, we stop (or adjust).
+    # The Westfall-Young step-down ensures strong control of FWER.
+    
+    # Sort indices by observed statistic magnitude descending
+    indices = np.argsort(observed_abs_t)[::-1]
+    
+    final_p = np.zeros(n_pairs)
+    rejected = np.zeros(n_pairs, dtype=bool)
+    
+    # Current minimum p-value for step-down
+    min_p = 1.0
+    
+    for idx in indices:
+        p_val = adjusted_p[idx]
+        # Step-down: p_adj = max(p_val, previous_min_p)
+        # Actually, for step-down max-t, the adjusted p-value is the proportion of permutations
+        # where the max statistic exceeds the observed statistic of the *current* hypothesis,
+        # but we must ensure monotonicity.
+        # Standard Westfall-Young step-down:
+        # p_adj(i) = max(p_adj(i+1), p_raw(i)) where ordered by statistic size.
+        
+        # However, a simpler interpretation for step-down max-t:
+        # The adjusted p-value is the proportion of permutations where the max statistic
+        # is >= the observed statistic of the current hypothesis.
+        # We already calculated this in 'adjusted_p'.
+        # The step-down logic is implicitly handled by the max-t distribution.
+        # We just need to ensure we don't accept a hypothesis if a more significant one was rejected?
+        # No, step-down means we test the most significant first.
+        
+        # Let's use the standard step-down logic:
+        # p_adj[i] = max(p_raw[i], p_adj[i+1]) where sorted by statistic.
+        # But since we sorted descending, we iterate and take max with previous (which was larger statistic).
+        # Wait, step-down: start with smallest p-value (largest statistic).
+        # If p < alpha, reject. Then move to next.
+        # The adjusted p-value is the max of the current raw p and the previous adjusted p (which corresponds to a more extreme stat).
+        
+        # Actually, the 'adjusted_p' calculated above IS the Westfall-Young adjusted p-value for each test.
+        # The step-down procedure is about the order of testing to maximize power, but the p-values themselves
+        # are already corrected for multiplicity via the max-t distribution.
+        # We just need to ensure monotonicity: if a less significant test has a smaller adjusted p-value
+        # than a more significant one (due to sampling noise), we fix it.
+        
         pass
 
-    n_obs = len(loss_diffs[0])
-    rng = np.random.default_rng(seed)
+    # Ensure monotonicity for step-down:
+    # Sort by observed statistic descending.
+    # p_adj[i] = max(p_adj[i], p_adj[i-1]) for i=1..n
+    # (Because if a more extreme statistic has a higher p-value, it's an artifact of permutation noise).
+    
+    sorted_indices = np.argsort(observed_abs_t)[::-1] # indices in original list, sorted by stat desc
+    # Map back to original order
+    final_p = np.zeros(n_pairs)
+    
+    # Create a list of (original_index, p_val, abs_stat)
+    p_list = [(i, adjusted_p[i], observed_abs_t[i]) for i in range(n_pairs)]
+    # Sort by abs_stat descending
+    p_list.sort(key=lambda x: x[2], reverse=True)
+    
+    current_max_p = 0.0
+    for i in range(len(p_list)):
+        orig_idx = p_list[i][0]
+        p_val = p_list[i][1]
+        current_max_p = max(current_max_p, p_val)
+        final_p[orig_idx] = current_max_p
 
-    # Calculate original test statistics (t-statistics for each loss differential)
-    original_t_stats = np.zeros(k)
-    for i, d in enumerate(loss_diffs):
-        mean_d = np.mean(d)
-        std_d = np.std(d, ddof=1)
-        if std_d > 0:
-            original_t_stats[i] = mean_d / (std_d / np.sqrt(n_obs))
-        else:
-            original_t_stats[i] = 0.0
+    # Map back to dictionary
+    result = {}
+    for i, pair in enumerate(pairs):
+        result[pair] = final_p[i]
 
-    # Sort original statistics in descending order for step-down
-    sorted_indices = np.argsort(-original_t_stats)
-    sorted_original_t = original_t_stats[sorted_indices]
+    return result
 
-    # Permutation matrix: max-t statistics from permutations
-    max_t_stats = np.zeros(n_permutations)
-
-    for perm in range(n_permutations):
-        # Generate random signs for permutation
-        signs = rng.choice([-1, 1], size=n_obs)
-
-        # Calculate permuted test statistics for all hypotheses
-        perm_t_stats = np.zeros(k)
-        for i, d in enumerate(loss_diffs):
-            d_perm = d * signs
-            mean_d_perm = np.mean(d_perm)
-            std_d_perm = np.std(d_perm, ddof=1)
-            if std_d_perm > 0:
-                perm_t_stats[i] = mean_d_perm / (std_d_perm / np.sqrt(n_obs))
-            else:
-                perm_t_stats[i] = 0.0
-
-        # Store the maximum absolute t-statistic from this permutation
-        max_t_stats[perm] = np.max(np.abs(perm_t_stats))
-
-    # Calculate adjusted p-values using step-down max-t
-    adjusted_p_values = np.ones(k)
-
-    for i, idx in enumerate(sorted_indices):
-        # Count how many permutations have max-t >= current observed t
-        count = np.sum(max_t_stats >= np.abs(sorted_original_t[i]))
-        p_adj = count / n_permutations
-
-        # Step-down: ensure monotonicity (p-values should be non-decreasing in rank)
-        if i > 0:
-            p_adj = max(p_adj, adjusted_p_values[sorted_indices[i-1]])
-
-        adjusted_p_values[idx] = min(p_adj, 1.0)
-
-    # Determine rejections
-    rejections = adjusted_p_values < alpha
-
-    return adjusted_p_values, rejections
-
-def run_pairwise_dm_tests(
-    forecasts_df: pd.DataFrame,
-    actual_outcomes: pd.Series,
-    model_columns: List[str],
-    n_permutations: int = 1000,
-    alpha: float = 0.05
-) -> Dict[str, Any]:
+def run_meta_analysis(
+    forecasts_path: Path, outcomes_path: Path, output_path: Path
+) -> None:
     """
-    Run pairwise Diebold-Mariano tests with Westfall-Young correction.
-
-    Args:
-        forecasts_df: DataFrame with forecast columns
-        actual_outcomes: Series of actual election outcomes
-        model_columns: List of column names containing forecasts
-        n_permutations: Number of permutations for Westfall-Young
-        alpha: Significance level
-
-    Returns:
-        Dictionary containing DM statistics, p-values, and adjusted results
+    Main entry point for running the meta-analysis.
+    Performs pairwise DM tests and applies Westfall-Young correction.
     """
-    if len(model_columns) < 2:
-        logger.warning("Need at least 2 models for pairwise comparison")
-        return {
-            "dm_stats": {},
-            "p_values": {},
-            "adjusted_p_values": {},
-            "rejections": {},
-            "comparison_matrix": None
-        }
+    logger.info(f"Starting meta-analysis with forecasts: {forecasts_path}")
+    logger.info(f"Outcomes file: {outcomes_path}")
 
-    # Calculate loss differentials for all pairs
-    loss_diffs_list = []
-    pairs = []
+    if not forecasts_path.exists():
+        logger.error(f"Forecasts file not found: {forecasts_path}")
+        # Create a dummy output or raise error? Task says halt with error.
+        raise FileNotFoundError(f"Forecasts file not found: {forecasts_path}")
+    
+    if not outcomes_path.exists():
+        logger.error(f"Outcomes file not found: {outcomes_path}")
+        raise FileNotFoundError(f"Outcomes file not found: {outcomes_path}")
 
-    for i, model_a in enumerate(model_columns):
-        for j, model_b in enumerate(model_columns):
-            if i >= j:
-                continue
+    try:
+        forecasts, outcomes, model_names = load_forecasts_and_outcomes(forecasts_path, outcomes_path)
+    except Exception as e:
+        logger.error(f"Error loading data: {e}")
+        raise
 
-            forecast_a = forecasts_df[model_a].values
-            forecast_b = forecasts_df[model_b].values
-            actual = actual_outcomes.values
+    if len(model_names) < 2:
+        logger.warning("Less than 2 models found. Skipping pairwise comparison.")
+        # Write empty or minimal result
+        with open(output_path, 'w', newline='', encoding='utf-8') as f:
+            writer = csv.writer(f)
+            writer.writerow(['model_a', 'model_b', 'dm_statistic', 'adjusted_p_value', 'significant'])
+        return
 
-            # Ensure same length
-            min_len = min(len(actual), len(forecast_a), len(forecast_b))
-            actual = actual[:min_len]
-            forecast_a = forecast_a[:min_len]
-            forecast_b = forecast_b[:min_len]
+    logger.info(f"Models to compare: {model_names}")
 
-            # Calculate squared error losses
-            loss_a = (actual - forecast_a) ** 2
-            loss_b = (actual - forecast_b) ** 2
-            loss_diff = loss_a - loss_b
+    # Calculate DM statistics
+    dm_stats = calculate_dm_statistics(forecasts, outcomes, model_names)
+    logger.info("Diebold-Mariano statistics calculated.")
 
-            loss_diffs_list.append(loss_diff)
-            pairs.append((model_a, model_b))
+    # Apply Westfall-Young correction
+    adj_p_values = westfall_young_correction(forecasts, outcomes, model_names, n_permutations=N_PERMUTATIONS)
+    logger.info(f"Westfall-Young correction applied ({N_PERMUTATIONS} permutations).")
 
-    if len(loss_diffs_list) == 0:
-        return {
-            "dm_stats": {},
-            "p_values": {},
-            "adjusted_p_values": {},
-            "rejections": {},
-            "comparison_matrix": None
-        }
+    # Prepare results
+    results = []
+    for pair in dm_stats:
+        m_a, m_b = pair
+        stat = dm_stats[pair]
+        p_val = adj_p_values[pair]
+        sig = "Yes" if p_val < SIGNIFICANCE_LEVEL else "No"
+        results.append({
+            'model_a': m_a,
+            'model_b': m_b,
+            'dm_statistic': f"{stat:.4f}",
+            'adjusted_p_value': f"{p_val:.4f}",
+            'significant': sig
+        })
 
-    # Run Westfall-Young correction
-    adj_p_values, rejections = westfall_young_stepdown_max_t(
-        loss_diffs_list,
-        n_permutations=n_permutations,
-        alpha=alpha
-    )
+    # Write output
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(output_path, 'w', newline='', encoding='utf-8') as f:
+        writer = csv.DictWriter(f, fieldnames=['model_a', 'model_b', 'dm_statistic', 'adjusted_p_value', 'significant'])
+        writer.writeheader()
+        writer.writerows(results)
 
-    # Calculate individual DM statistics and p-values
-    dm_stats = {}
-    p_values = {}
-
-    for idx, (model_a, model_b) in enumerate(pairs):
-        forecast_a = forecasts_df[model_a].values
-        forecast_b = forecasts_df[model_b].values
-        actual = actual_outcomes.values
-
-        min_len = min(len(actual), len(forecast_a), len(forecast_b))
-        actual = actual[:min_len]
-        forecast_a = forecast_a[:min_len]
-        forecast_b = forecast_b[:min_len]
-
-        dm_stat, p_val = diebold_mariano_test(actual, forecast_a, forecast_b)
-        dm_stats[(model_a, model_b)] = dm_stat
-        p_values[(model_a, model_b)] = p_val
-
-    # Build comparison matrix
-    comparison_matrix = pd.DataFrame(
-        np.nan,
-        index=model_columns,
-        columns=model_columns
-    )
-
-    for idx, (model_a, model_b) in enumerate(pairs):
-        comparison_matrix.loc[model_a, model_b] = adj_p_values[idx]
-        comparison_matrix.loc[model_b, model_a] = adj_p_values[idx]
-
-    return {
-        "dm_stats": dm_stats,
-        "p_values": p_values,
-        "adjusted_p_values": dict(zip(pairs, adj_p_values)),
-        "rejections": dict(zip(pairs, rejections)),
-        "comparison_matrix": comparison_matrix
-    }
+    logger.info(f"Meta-analysis results written to {output_path}")
 
 def main():
     """
-    Main entry point for meta-analysis.
-
-    Loads processed forecasts and actual outcomes, performs pairwise
-    Diebold-Mariano tests with Westfall-Young correction, and saves
-    results to data/processed/meta_analysis_results.csv
+    CLI entry point for the meta-analysis script.
     """
-    project_root = get_project_root()
-    data_path = get_data_processed_path()
+    parser = argparse.ArgumentParser(description="Diebold-Mariano Meta-Analysis with Westfall-Young Correction")
+    parser.add_argument("--forecasts", type=str, required=True, help="Path to frequentist_forecasts.csv")
+    parser.add_argument("--outcomes", type=str, required=True, help="Path to election outcomes CSV")
+    parser.add_argument("--output", type=str, required=True, help="Path to output meta_analysis.csv")
+    parser.add_argument("--seed", type=int, default=42, help="Random seed for permutations")
+    
+    args = parser.parse_args()
 
-    logger.info("Starting meta-analysis with Diebold-Mariano tests")
+    configure_logging()
+    logger.info("Starting Diebold-Mariano Meta-Analysis")
 
-    # Load forecasts data
-    try:
-        forecasts_file = data_path / "frequentist_forecasts.csv"
-        if not forecasts_file.exists():
-            logger.error(f"Forecasts file not found: {forecasts_file}")
-            return
-
-        forecasts_df = pd.read_csv(forecasts_file)
-        logger.info(f"Loaded forecasts from {forecasts_file}")
-    except Exception as e:
-        logger.error(f"Error loading forecasts: {e}")
-        return
-
-    # Load actual outcomes (should be in the same file or separate)
-    # Assuming actual outcomes are in the harmonized data
-    try:
-        harmonized_file = data_path / "poll_data_cleaned.csv"
-        if harmonized_file.exists():
-            harmonized_df = pd.read_csv(harmonized_file)
-            # Extract actual outcomes if available
-            if "actual_outcome" in harmonized_df.columns:
-                actual_outcomes = harmonized_df.set_index("date")["actual_outcome"]
-            else:
-                logger.warning("No actual outcomes found in harmonized data")
-                return
-        else:
-            logger.warning("Harmonized data not found, attempting to use forecasts file")
-            # Try to get actual from forecasts if available
-            if "actual" in forecasts_df.columns:
-                actual_outcomes = forecasts_df.set_index("date")["actual"]
-            else:
-                logger.error("Cannot find actual outcomes")
-                return
-    except Exception as e:
-        logger.error(f"Error loading actual outcomes: {e}")
-        return
-
-    # Identify forecast columns
-    forecast_cols = [col for col in forecasts_df.columns if "forecast" in col.lower()]
-
-    if len(forecast_cols) < 2:
-        logger.warning("Need at least 2 forecast columns for comparison")
-        return
-
-    # Run pairwise DM tests
-    results = run_pairwise_dm_tests(
-        forecasts_df,
-        actual_outcomes,
-        forecast_cols,
-        n_permutations=1000,
-        alpha=0.05
+    run_meta_analysis(
+        Path(args.forecasts),
+        Path(args.outcomes),
+        Path(args.output)
     )
-
-    # Save results
-    output_dir = data_path
-    output_file = output_dir / "meta_analysis_results.csv"
-
-    # Convert comparison matrix to CSV format
-    if results["comparison_matrix"] is not None:
-        results["comparison_matrix"].to_csv(output_file)
-        logger.info(f"Saved meta-analysis results to {output_file}")
-
-    # Log summary
-    logger.info("Meta-analysis complete")
-    logger.info(f"Number of pairwise comparisons: {len(results['dm_stats'])}")
-    logger.info(f"Significant differences (alpha=0.05): {sum(results['rejections'].values())}")
-
-    return results
 
 if __name__ == "__main__":
     main()

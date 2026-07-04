@@ -1,13 +1,16 @@
+%YAML 1.2
+---
 # Dataset Schema for Poll Aggregation Pipeline
-# Defines the structure for raw and processed poll data
-# Used for validation of data ingestion and harmonization steps
+# Defines the structure for raw and cleaned poll data
+# Used for validation in src/data/harmonize.py
 
 $schema: http://json-schema.org/draft-07/schema#
 title: Poll Dataset Schema
-description: Schema for validating poll data before and after processing
+description: Schema for the cleaned poll dataset used in statistical analysis
 
-definitions:
-  raw_poll_record:
+type: object
+properties:
+  metadata:
     type: object
     required:
       - poll_id
@@ -20,80 +23,116 @@ definitions:
     properties:
       poll_id:
         type: string
-        description: Unique identifier for the poll
-      pollster:
+        description: "Data source (e.g., FiveThirtyEight)"
+      ingestion_date:
         type: string
-        description: Name of the polling organization
-      start_date:
+        format: date-time
+        description: "Timestamp of data ingestion"
+      version:
         type: string
-        format: date
-        description: Start date of the polling period
-      end_date:
-        type: string
-        format: date
-        description: End date of the polling period
-      population:
-        type: string
-        enum: [A, LV, RV, Likely Voters, All Adults, Adults]
-        description: Target population of the poll
-      method:
-        type: string
-        enum: [Live Phone, IVR, Online, Mixed Mode, Mail]
-        description: Data collection method
-      candidate_votes:
+        description: "Schema version"
+      total_records:
+        type: integer
+        minimum: 0
+        description: "Total number of records"
+    required:
+      - source
+      - ingestion_date
+      - version
+      - total_records
+
+  columns:
+    type: array
+    items:
+      type: object
+      properties:
+        name:
+          type: string
+        dtype:
+          type: string
+          enum: [date, string, float, integer]
+        description:
+          type: string
+        required:
+          type: boolean
+      required:
+        - name
+        - dtype
+        - description
+        - required
+
+  constraints:
+    type: object
+    properties:
+      unique_keys:
         type: array
         items:
-          type: object
-          required:
-            - candidate
-            - vote_share
-          properties:
-            candidate:
-              type: string
-            vote_share:
-              type: number
-              minimum: 0
-              maximum: 100
-      sample_size:
+          type: array
+          items:
+            type: string
+        description: "Combinations of columns that must be unique"
+      date_range:
+        type: object
+        properties:
+          min:
+            type: string
+            format: date
+          max:
+            type: string
+            format: date
+      sample_size_min:
         type: integer
         minimum: 1
-      margin_of_error:
-        type: number
-        minimum: 0
-
-  processed_poll_record:
-    type: object
+      vote_share_range:
+        type: object
+        properties:
+          min:
+            type: number
+            minimum: 0
+            maximum: 100
+          max:
+            type: number
+            minimum: 0
+            maximum: 100
     required:
-      - date
-      - pollster
-      - vote_share
-      - sample_size
-      - historical_rmse
-    properties:
-      date:
-        type: string
-        format: date
-        description: Unified date (usually end_date or midpoint)
-      pollster:
-        type: string
-      candidate:
-        type: string
-      vote_share:
-        type: number
-        minimum: 0
-        maximum: 100
-      sample_size:
-        type: integer
-        minimum: 1
-      historical_rmse:
-        type: number
-        minimum: 0
-        description: Pollster's historical root mean square error
-      weight:
-        type: number
-        minimum: 0
-        description: Calculated weight for aggregation
+      - unique_keys
 
-oneOf:
-  - $ref: '#/definitions/raw_poll_record'
-  - $ref: '#/definitions/processed_poll_record'
+# Specific column definitions for the cleaned dataset
+expected_columns:
+  - name: date
+    dtype: date
+    description: "Date of the poll (ISO 8601)"
+    required: true
+  - name: pollster
+    dtype: string
+    description: "Name of the polling organization"
+    required: true
+  - name: candidate
+    dtype: string
+    description: "Candidate name"
+    required: true
+  - name: vote_share
+    dtype: float
+    description: "Percentage of vote share (0-100)"
+    required: true
+  - name: sample_size
+    dtype: integer
+    description: "Number of respondents"
+    required: true
+  - name: election_cycle
+    dtype: string
+    description: "Election year or cycle identifier"
+    required: true
+  - name: historical_rmse
+    dtype: float
+    description: "Historical RMSE weight for this pollster"
+    required: false
+  - name: weight
+    dtype: float
+    description: "Calculated weight for aggregation"
+    required: false
+
+required:
+  - metadata
+  - columns
+  - constraints

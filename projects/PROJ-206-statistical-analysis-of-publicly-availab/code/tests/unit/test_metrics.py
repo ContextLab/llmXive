@@ -1,222 +1,151 @@
 import os
 import sys
 import tempfile
+import csv
 from pathlib import Path
-import pandas as pd
-import numpy as np
 import pytest
 
-# Add parent directory to path for imports
-current_dir = Path(__file__).resolve().parent
-project_root = current_dir.parent.parent.parent
-if str(project_root) not in sys.path:
-    sys.path.insert(0, str(project_root))
-
-# Also handle 'code' directory structure
-code_dir = current_dir.parent.parent.parent.parent
-if str(code_dir) not in sys.path:
-    sys.path.insert(0, str(code_dir))
+# Add project root to path if running from tests directory
+project_root = Path(__file__).resolve().parent.parent.parent
+sys.path.insert(0, str(project_root))
 
 from src.evaluation.metrics import (
-    calculate_rmse, 
-    calculate_mae, 
-    evaluate_frequentist_forecasts,
-    calculate_coverage,
-    test_coverage_reliability
+    calculate_rmse,
+    calculate_mae,
+    load_forecasts,
+    load_outcomes,
+    evaluate_frequentist_methods
 )
 
-class TestCalculateRMSE:
-    def test_basic_rmse(self):
-        """Test basic RMSE calculation"""
-        predictions = pd.Series([1.0, 2.0, 3.0, 4.0, 5.0])
-        actuals = pd.Series([1.1, 2.1, 2.9, 4.2, 4.8])
-        
-        rmse = calculate_rmse(predictions, actuals)
-        expected_rmse = np.sqrt(np.mean((predictions - actuals) ** 2))
-        
-        assert np.isclose(rmse, expected_rmse)
-        
-    def test_perfect_prediction(self):
-        """Test RMSE when predictions match actuals"""
-        predictions = pd.Series([1.0, 2.0, 3.0])
-        actuals = pd.Series([1.0, 2.0, 3.0])
-        
-        rmse = calculate_rmse(predictions, actuals)
-        assert rmse == 0.0
-        
-    def test_empty_series(self):
-        """Test RMSE with empty series"""
-        predictions = pd.Series([], dtype=float)
-        actuals = pd.Series([], dtype=float)
-        
-        rmse = calculate_rmse(predictions, actuals)
-        assert rmse == 0.0
-        
-    def test_mismatched_lengths(self):
-        """Test RMSE with mismatched lengths raises error"""
-        predictions = pd.Series([1.0, 2.0, 3.0])
-        actuals = pd.Series([1.0, 2.0])
-        
+class TestRMSE:
+    def test_rmse_perfect_prediction(self):
+        actuals = [50.0, 51.0, 49.5]
+        predictions = [50.0, 51.0, 49.5]
+        assert calculate_rmse(actuals, predictions) == 0.0
+
+    def test_rmse_constant_error(self):
+        actuals = [50.0, 50.0, 50.0]
+        predictions = [52.0, 52.0, 52.0]
+        # Error is 2.0 for all, so RMSE should be 2.0
+        assert calculate_rmse(actuals, predictions) == 2.0
+
+    def test_rmse_mixed_errors(self):
+        actuals = [0.0, 10.0]
+        predictions = [1.0, 9.0]
+        # Errors: 1, 1 -> MSE = 1 -> RMSE = 1
+        assert calculate_rmse(actuals, predictions) == 1.0
+
+    def test_rmse_empty_list(self):
         with pytest.raises(ValueError):
-            calculate_rmse(predictions, actuals)
+            calculate_rmse([], [])
 
-class TestCalculateMAE:
-    def test_basic_mae(self):
-        """Test basic MAE calculation"""
-        predictions = pd.Series([1.0, 2.0, 3.0, 4.0])
-        actuals = pd.Series([1.5, 2.5, 2.5, 4.5])
-        
-        mae = calculate_mae(predictions, actuals)
-        expected_mae = np.mean(np.abs(predictions - actuals))
-        
-        assert np.isclose(mae, expected_mae)
-        
-    def test_perfect_prediction(self):
-        """Test MAE when predictions match actuals"""
-        predictions = pd.Series([1.0, 2.0, 3.0])
-        actuals = pd.Series([1.0, 2.0, 3.0])
-        
-        mae = calculate_mae(predictions, actuals)
-        assert mae == 0.0
-        
-    def test_empty_series(self):
-        """Test MAE with empty series"""
-        predictions = pd.Series([], dtype=float)
-        actuals = pd.Series([], dtype=float)
-        
-        mae = calculate_mae(predictions, actuals)
-        assert mae == 0.0
+    def test_rmse_mismatched_lengths(self):
+        with pytest.raises(ValueError):
+            calculate_rmse([1.0, 2.0], [1.0])
 
-class TestEvaluateFrequentistForecasts:
-    def test_evaluate_with_data(self):
-        """Test evaluation with sample forecast data"""
-        forecasts = pd.DataFrame({
-            'simple_avg_forecast': [45.0, 48.0, 52.0, 55.0],
-            'weighted_avg_forecast': [45.5, 47.5, 52.5, 54.5],
-            'actual_outcome': [46.0, 47.0, 53.0, 54.0]
-        })
-        
-        outcomes = pd.DataFrame()  # Not used in this implementation
-        
-        results = evaluate_frequentist_forecasts(forecasts, outcomes)
-        
-        assert 'method' in results.columns
-        assert 'rmse' in results.columns
-        assert 'mae' in results.columns
-        assert len(results) == 2  # Two methods
-        
-    def test_missing_columns(self):
-        """Test evaluation with missing forecast columns"""
-        forecasts = pd.DataFrame({
-            'actual_outcome': [46.0, 47.0, 53.0, 54.0]
-        })
-        
-        outcomes = pd.DataFrame()
-        
-        results = evaluate_frequentist_forecasts(forecasts, outcomes)
-        assert len(results) == 0  # No valid methods to evaluate
+class TestMAE:
+    def test_mae_perfect_prediction(self):
+        actuals = [50.0, 51.0, 49.5]
+        predictions = [50.0, 51.0, 49.5]
+        assert calculate_mae(actuals, predictions) == 0.0
 
-class TestCalculateCoverage:
-    def test_basic_coverage(self):
-        """Test basic coverage calculation"""
-        lower = pd.Series([40.0, 45.0, 50.0])
-        upper = pd.Series([50.0, 55.0, 60.0])
-        actuals = pd.Series([45.0, 50.0, 55.0])  # All within intervals
-        
-        coverage = calculate_coverage(lower, upper, actuals)
-        assert coverage == 1.0
-        
-    def test_partial_coverage(self):
-        """Test coverage with some values outside intervals"""
-        lower = pd.Series([40.0, 45.0, 50.0])
-        upper = pd.Series([50.0, 55.0, 60.0])
-        actuals = pd.Series([45.0, 60.0, 55.0])  # One outside
-        
-        coverage = calculate_coverage(lower, upper, actuals)
-        assert coverage == 2/3
-        
-    def test_no_coverage(self):
-        """Test coverage with no values within intervals"""
-        lower = pd.Series([40.0, 45.0, 50.0])
-        upper = pd.Series([50.0, 55.0, 60.0])
-        actuals = pd.Series([30.0, 70.0, 80.0])  # All outside
-        
-        coverage = calculate_coverage(lower, upper, actuals)
-        assert coverage == 0.0
-        
-    def test_empty_series(self):
-        """Test coverage with empty series"""
-        lower = pd.Series([], dtype=float)
-        upper = pd.Series([], dtype=float)
-        actuals = pd.Series([], dtype=float)
-        
-        coverage = calculate_coverage(lower, upper, actuals)
-        assert coverage == 0.0
+    def test_mae_constant_error(self):
+        actuals = [50.0, 50.0, 50.0]
+        predictions = [52.0, 52.0, 52.0]
+        assert calculate_mae(actuals, predictions) == 2.0
 
-class TestCoverageReliability:
-    def test_perfect_coverage(self):
-        """Test binomial test with perfect coverage"""
-        results = test_coverage_reliability(
-            coverage_rate=0.95,
-            n_observations=100,
-            target_coverage=0.95,
-            alpha=0.05
+    def test_mae_mixed_errors(self):
+        actuals = [0.0, 10.0]
+        predictions = [1.0, 9.0]
+        # Errors: 1, 1 -> MAE = 1
+        assert calculate_mae(actuals, predictions) == 1.0
+
+    def test_mae_empty_list(self):
+        with pytest.raises(ValueError):
+            calculate_mae([], [])
+
+    def test_mae_mismatched_lengths(self):
+        with pytest.raises(ValueError):
+            calculate_mae([1.0, 2.0], [1.0])
+
+class TestEvaluateFrequentistMethods:
+    @pytest.fixture
+    def temp_forecast_file(self, tmp_path):
+        data = [
+            {"election_date": "2020-11-03", "candidate": "A", "simple_avg_forecast": 49.0, "weighted_avg_forecast": 50.0},
+            {"election_date": "2020-11-03", "candidate": "B", "simple_avg_forecast": 51.0, "weighted_avg_forecast": 50.0},
+            {"election_date": "2016-11-08", "candidate": "A", "simple_avg_forecast": 45.0, "weighted_avg_forecast": 46.0},
+        ]
+        filepath = tmp_path / "frequentist_forecasts.csv"
+        with open(filepath, 'w', newline='') as f:
+            writer = csv.DictWriter(f, fieldnames=data[0].keys())
+            writer.writeheader()
+            writer.writerows(data)
+        return str(filepath)
+
+    @pytest.fixture
+    def temp_outcome_file(self, tmp_path):
+        data = [
+            {"election_date": "2020-11-03", "candidate": "A", "actual_vote_share": 51.0},
+            {"election_date": "2020-11-03", "candidate": "B", "actual_vote_share": 49.0},
+            {"election_date": "2016-11-08", "candidate": "A", "actual_vote_share": 48.0},
+        ]
+        filepath = tmp_path / "election_outcomes.csv"
+        with open(filepath, 'w', newline='') as f:
+            writer = csv.DictWriter(f, fieldnames=data[0].keys())
+            writer.writeheader()
+            writer.writerows(data)
+        return str(filepath)
+
+    def test_evaluate_methods(self, temp_forecast_file, temp_outcome_file, tmp_path):
+        output_path = str(tmp_path / "metrics.csv")
+        
+        metrics = evaluate_frequentist_methods(
+            temp_forecast_file,
+            temp_outcome_file,
+            output_path
         )
         
-        assert results['reject_null'] == False
-        assert 'consistent' in results['conclusion'].lower()
+        # Check 2020-11-03, A: Simple (49 vs 51 -> err 2), Weighted (50 vs 51 -> err 1)
+        # Check 2020-11-03, B: Simple (51 vs 49 -> err 2), Weighted (50 vs 49 -> err 1)
+        # Check 2016-11-08, A: Simple (45 vs 48 -> err 3), Weighted (46 vs 48 -> err 2)
         
-    def test_under_coverage(self):
-        """Test binomial test with significantly low coverage"""
-        # With n=100, observed=0.85, target=0.95
-        # This should likely reject the null
-        results = test_coverage_reliability(
-            coverage_rate=0.85,
-            n_observations=100,
-            target_coverage=0.95,
-            alpha=0.05
-        )
+        # Simple Errors: 2, 2, 3 -> MSE = (4+4+9)/3 = 17/3 = 5.666... -> RMSE = sqrt(5.666)
+        # Weighted Errors: 1, 1, 2 -> MSE = (1+1+4)/3 = 6/3 = 2 -> RMSE = sqrt(2)
         
-        # The conclusion should mention under-coverage
-        assert 'lower' in results['conclusion'].lower() or 'under' in results['conclusion'].lower()
+        import math
+        expected_simple_rmse = math.sqrt(17/3)
+        expected_weighted_rmse = math.sqrt(2)
         
-    def test_over_coverage(self):
-        """Test binomial test with significantly high coverage"""
-        results = test_coverage_reliability(
-            coverage_rate=0.99,
-            n_observations=100,
-            target_coverage=0.95,
-            alpha=0.05
-        )
+        assert abs(metrics['simple_average']['rmse'] - expected_simple_rmse) < 1e-6
+        assert abs(metrics['weighted_average']['rmse'] - expected_weighted_rmse) < 1e-6
         
-        # The conclusion should mention over-coverage or higher
-        assert 'higher' in results['conclusion'].lower() or 'over' in results['conclusion'].lower()
+        # Check file was written
+        assert os.path.exists(output_path)
+        with open(output_path, 'r') as f:
+            reader = csv.DictReader(f)
+            rows = list(reader)
+            assert len(rows) == 2
+            assert rows[0]['method'] == 'simple_average'
+            assert rows[1]['method'] == 'weighted_average'
+
+    def test_no_matching_data(self, tmp_path):
+        # Create forecast file with no matching keys
+        forecast_data = [{"election_date": "2020-01-01", "candidate": "X", "simple_avg_forecast": 50.0, "weighted_avg_forecast": 50.0}]
+        forecast_file = tmp_path / "forecasts.csv"
+        with open(forecast_file, 'w', newline='') as f:
+            writer = csv.DictWriter(f, fieldnames=forecast_data[0].keys())
+            writer.writeheader()
+            writer.writerows(forecast_data)
         
-    def test_zero_observations(self):
-        """Test binomial test with no observations"""
-        results = test_coverage_reliability(
-            coverage_rate=0.0,
-            n_observations=0,
-            target_coverage=0.95,
-            alpha=0.05
-        )
+        outcome_data = [{"election_date": "2021-01-01", "candidate": "Y", "actual_vote_share": 50.0}]
+        outcome_file = tmp_path / "outcomes.csv"
+        with open(outcome_file, 'w', newline='') as f:
+            writer = csv.DictWriter(f, fieldnames=outcome_data[0].keys())
+            writer.writeheader()
+            writer.writerows(outcome_data)
         
-        assert results['reject_null'] == False
-        assert 'no observations' in results['conclusion'].lower()
+        output_file = tmp_path / "metrics.csv"
         
-    def test_statistical_properties(self):
-        """Test that test returns expected statistical properties"""
-        results = test_coverage_reliability(
-            coverage_rate=0.90,
-            n_observations=200,
-            target_coverage=0.95,
-            alpha=0.05
-        )
-        
-        assert 'statistic' in results
-        assert 'p_value' in results
-        assert 'reject_null' in results
-        assert 'conclusion' in results
-        assert results['n_observations'] == 200
-        assert results['target_coverage'] == 0.95
-        assert results['alpha'] == 0.05
+        with pytest.raises(ValueError, match="No matching data found"):
+            evaluate_frequentist_methods(str(forecast_file), str(outcome_file), str(output_file))

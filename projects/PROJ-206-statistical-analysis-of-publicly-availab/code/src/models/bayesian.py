@@ -1,230 +1,285 @@
 import os
 import sys
+import csv
 import logging
+import math
 from pathlib import Path
-from typing import List, Dict, Any, Optional, Tuple
+from typing import Optional, Tuple, Dict, Any
 
-import pandas as pd
 import numpy as np
+import pandas as pd
+import pymc as pm
+import arviz as az
 
-# Conditional import for PyMC to allow graceful failure if not installed
+# Import local logging utility
 try:
-    import pymc as pm
-    import arviz as az
-    PYMC_AVAILABLE = True
+    from src.utils.logging import get_logger, configure_logging
 except ImportError:
-    PYMC_AVAILABLE = False
-    pm = None
-    az = None
-
-from src.utils.logging import get_logger
-from src.utils.config import get_project_root, get_data_processed_path
+    # Fallback if src is not in path during local execution
+    import logging
+    def get_logger(name):
+        return logging.getLogger(name)
+    def configure_logging():
+        pass
 
 logger = get_logger(__name__)
 
-def fit_random_walk_model(
-    data: pd.DataFrame,
-    output_path: Optional[str] = None,
-    tune_steps: int = 1000,
-    draw_steps: int = 1000,
-    chains: int = 2,
-    random_seed: int = 42,
-    convergence_threshold: float = 1.05
-) -> Optional[Dict[str, Any]]:
+# Constants
+R_HAT_THRESHOLD = 1.05
+DEFAULT_SEED = 42
+
+def load_processed_poll_data(filepath: str) -> pd.DataFrame:
     """
-    Fits a Random Walk Bayesian Hierarchical Model to poll data.
+    Load the harmonized and binned poll data.
+    Expected columns: date, week_bin, vote_share, sample_size, pollster
+    """
+    if not os.path.exists(filepath):
+        raise FileNotFoundError(f"Processed data file not found: {filepath}")
+    
+    df = pd.read_csv(filepath)
+    
+    # Ensure date is datetime
+    if 'date' in df.columns:
+        df['date'] = pd.to_datetime(df['date'])
+    
+    # Sort by date to ensure time series order
+    df = df.sort_values('date').reset_index(drop=True)
+    
+    return df
 
-    Model Specification:
-      Latent weekly preference: theta_t ~ Normal(theta_{t-1}, sigma_t^2)
-      Observation: y_i ~ Normal(theta_{week(i)}, tau^2)
-
-    Args:
-        data: DataFrame with columns 'date', 'vote_share', 'pollster', 'weight' (optional).
-        output_path: Path to save the resulting ArviZ InferenceData object.
-        tune_steps: Number of tuning steps for NUTS sampler.
-        draw_steps: Number of draws per chain after tuning.
-        chains: Number of MCMC chains.
-        random_seed: Seed for reproducibility.
-        convergence_threshold: Maximum allowed R-hat value. If max R-hat > this,
-                             the function halts and raises an error.
-
+def prepare_random_walk_data(df: pd.DataFrame) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+    """
+    Prepare data for the Random Walk model.
     Returns:
-        Dictionary containing:
-          - 'inference_data': ArviZ InferenceData object
-          - 'summary': Dictionary of summary statistics (R-hat, etc.)
-          - 'convergence_status': 'passed' or 'failed'
-
-    Raises:
-        RuntimeError: If PyMC is not installed or if convergence check fails.
+      y: vote shares (observations)
+      sigma_obs: observation noise (approx 1/sqrt(sample_size))
+      n_obs: number of observations
     """
-    if not PYMC_AVAILABLE:
-        raise RuntimeError(
-            "PyMC is not installed. Please install dependencies from requirements.txt "
-            "to run Bayesian modeling tasks."
-        )
+    if df.empty:
+        raise ValueError("Input dataframe is empty")
+    
+    # Extract vote shares
+    y = df['vote_share'].values.astype(float)
+    
+    # Calculate observation noise based on sample size
+    # Assuming binomial variance approximation: sigma ~ 1/sqrt(n)
+    sample_sizes = df['sample_size'].values.astype(float)
+    # Avoid division by zero
+    sample_sizes = np.where(sample_sizes == 0, 1, sample_sizes)
+    sigma_obs = 1.0 / np.sqrt(sample_sizes)
+    
+    return y, sigma_obs, len(y)
 
-    logger.info("Starting Random Walk Bayesian Model fitting...")
-
-    # Preprocess data for PyMC
-    # Ensure data is sorted by date
-    data = data.sort_values('date').reset_index(drop=True)
-
-    # Map weeks to integers for the latent process
-    # We assume data is already binned into weekly intervals by harmonize.py
-    # If not, we create a simple week index
-    if 'week_index' not in data.columns:
-        # Fallback: create a unique index per unique date (treating each date as a time step if not binned)
-        unique_dates = data['date'].unique()
-        date_to_idx = {d: i for i, d in enumerate(sorted(unique_dates))}
-        data['week_index'] = data['date'].map(date_to_idx)
-        logger.warning("No 'week_index' found in data. Created index based on unique dates.")
-
-    # Extract arrays
-    y = data['vote_share'].values.astype(np.float32)
-    t = data['week_index'].values.astype(np.int32)
-    n_weeks = int(t.max() + 1)
-    n_obs = len(y)
-
-    if n_weeks < 2:
-        raise ValueError("Data must contain at least 2 time steps to fit a Random Walk model.")
-
-    logger.info(f"Fitting model with {n_obs} observations across {n_weeks} time steps.")
-
+def run_random_walk_model(
+    y: np.ndarray,
+    sigma_obs: np.ndarray,
+    n_obs: int,
+    seed: int = DEFAULT_SEED,
+    tune: int = 1000,
+    draws: int = 1000,
+    chains: int = 2
+) -> az.InferenceData:
+    """
+    Run the Bayesian Random Walk hierarchical model.
+    Model:
+      theta_0 ~ Normal(0.5, 1)
+      theta_t ~ Normal(theta_{t-1}, sigma_rw)
+      y_t ~ Normal(theta_t, sigma_obs_t)
+    """
+    logger.info(f"Starting Random Walk model with {n_obs} observations.")
+    
     with pm.Model() as rw_model:
         # Priors
-        # sigma_t: volatility of the random walk
-        sigma_t = pm.HalfNormal("sigma_t", sigma=5.0)
+        # Initial state
+        theta_0 = pm.Normal("theta_0", mu=0.5, sigma=0.5)
         
-        # tau: observation noise
-        tau = pm.HalfNormal("tau", sigma=5.0)
-
-        # Latent random walk process
-        # theta_0 ~ Normal(50, 10) (centered around 50% for 2-candidate race)
-        theta_0 = pm.Normal("theta_0", mu=50.0, sigma=10.0)
+        # Random walk step size (sigma_rw)
+        sigma_rw = pm.HalfNormal("sigma_rw", sigma=0.05)
         
-        # Construct the random walk
-        # theta_t = theta_{t-1} + epsilon_t, where epsilon_t ~ Normal(0, sigma_t)
-        # We use a scan or manual construction. For simplicity with small n_weeks:
-        eps = pm.Normal("eps", mu=0, sigma=sigma_t, shape=n_weeks - 1)
+        # Construct the random walk latent process
+        # theta[t] = theta[t-1] + epsilon
+        # Using a Gaussian Random Walk
+        steps = pm.GaussianRandomWalk(
+            "theta", 
+            sigma=sigma_rw, 
+            steps=n_obs - 1,
+            init_dist=pm.Normal.dist(mu=0.5, sigma=0.5) # Initial distribution for theta_0 effectively handled by steps if we index correctly, but let's be explicit
+        )
         
-        # Build the path
-        # theta = [theta_0, theta_0 + eps_0, theta_0 + eps_0 + eps_1, ...]
-        # Using cumulative sum
-        theta_steps = pm.Deterministic("theta_steps", pm.math.cumsum(eps))
-        theta = pm.Deterministic("theta", pm.math.concatenate([[theta_0], theta_steps + theta_0]))
-
-        # Observation model
-        # Map observations to their corresponding theta
-        theta_obs = theta[t]
+        # Ensure theta includes the initial state if steps = n-1
+        # Actually, GaussianRandomWalk with steps=n-1 produces n values if init_dist is provided? 
+        # No, usually steps is the number of transitions. 
+        # Let's manually construct to be safe and clear.
         
-        y_obs = pm.Normal("y_obs", mu=theta_obs, sigma=tau, observed=y)
-
-        # Sampling
-        logger.info(f"Sampling with {chains} chains, {tune_steps} tune, {draw_steps} draws...")
+        # Re-implementation for clarity:
+        # theta[0]
+        # theta[t] = theta[t-1] + delta_t
         
-        # Set random seed
-        pm.random.seed(random_seed)
-
+        # Let's use the explicit GaussianRandomWalk which returns a vector of length `steps + 1` if init_dist is set?
+        # PyMC docs: steps is the number of steps. The result shape is (steps,). 
+        # So we need steps = n_obs - 1 to get n_obs values? No, that gives n_obs-1 values.
+        # We need to handle the first point separately or use a specific construction.
+        
+        # Simpler approach for PyMC:
+        # theta_0
+        # theta_rest ~ GaussianRandomWalk(...)
+        # theta = pm.math.concatenate([theta_0, theta_rest])
+        
+        theta_0_var = pm.Normal("theta_0_var", mu=0.5, sigma=0.5)
+        theta_rest = pm.GaussianRandomWalk("theta_rest", sigma=sigma_rw, steps=n_obs - 1)
+        theta = pm.Deterministic("theta", pm.math.concatenate([[theta_0_var], theta_rest]))
+        
+        # Likelihood
+        obs = pm.Normal("obs", mu=theta, sigma=sigma_obs, observed=y)
+        
+        # Sample
+        logger.info("Sampling started...")
         try:
             trace = pm.sample(
-                draws=draw_steps,
-                tune=tune_steps,
+                draws=draws,
+                tune=tune,
                 chains=chains,
-                target_accept=0.9, # Higher acceptance for better mixing in RW
-                compute_convergence_checks=True,
+                seed=seed,
                 return_inferencedata=True,
-                random_seed=random_seed
+                target_accept=0.95, # Higher for random walks
+                random_seed=seed
             )
         except Exception as e:
             logger.error(f"Sampling failed: {e}")
-            raise RuntimeError(f"MCMC sampling failed: {e}")
+            raise
+        
+        logger.info("Sampling completed.")
+        return trace
 
-    # Convergence Checks
-    logger.info("Running convergence diagnostics (R-hat)...")
-    summary = az.summary(trace, var_names=["theta", "sigma_t", "tau"], stat_funcs=[lambda x: x.mean()])
+def check_convergence(trace: az.InferenceData) -> Tuple[bool, Dict[str, float]]:
+    """
+    Check convergence using R-hat statistics.
+    Halts and reports error if any R-hat > 1.05.
     
-    # Extract R-hat values
-    r_hat = az.rhat(trace)
+    Returns:
+      is_converged: bool
+      r_hat_values: dict of variable names to R-hat values
+    """
+    logger.info("Checking model convergence...")
     
-    # Check global max R-hat
-    # r_hat is a DataArray; we need to check all variables
-    max_rhat = float(r_hat.max().values)
+    try:
+        r_hat_stats = az.rhat(trace)
+    except Exception as e:
+        logger.error(f"Failed to compute R-hat: {e}")
+        raise RuntimeError(f"Convergence check failed: {e}")
     
-    logger.info(f"Maximum R-hat observed: {max_rhat:.4f}")
-    logger.info(f"Convergence threshold: {convergence_threshold}")
-
-    status = "passed"
-    if max_rhat > convergence_threshold:
-        status = "failed"
-        error_msg = (
-            f"Convergence check FAILED. Maximum R-hat ({max_rhat:.4f}) exceeds threshold "
-            f"({convergence_threshold}). The model has not converged. "
-            "Consider increasing tune_steps, adjusting target_accept, or checking data quality."
-        )
+    # r_hat_stats is a DataArray or dict-like
+    # Flatten to check all variables
+    converged = True
+    r_hat_values = {}
+    
+    # Handle different types of return from az.rhat
+    if hasattr(r_hat_stats, 'items'):
+        items = r_hat_stats.items()
+    else:
+        # If it's a DataArray, convert to dict
+        items = r_hat_stats.to_dict().items() if hasattr(r_hat_stats, 'to_dict') else []
+    
+    # Iterate through variables
+    for var_name, value in r_hat_stats.to_dict().items() if hasattr(r_hat_stats, 'to_dict') else r_hat_stats.items():
+        # Value might be a scalar or an array (if multiple chains/vars mixed)
+        if hasattr(value, '__iter__'):
+            max_r = max(value)
+        else:
+            max_r = value
+        
+        r_hat_values[var_name] = float(max_r)
+        
+        if max_r > R_HAT_THRESHOLD:
+            logger.error(f"Convergence FAILED for variable '{var_name}': R-hat = {max_r:.4f} (threshold: {R_HAT_THRESHOLD})")
+            converged = False
+    
+    if not converged:
+        error_msg = f"Model did not converge. Max R-hat: {max(r_hat_values.values()):.4f} > {R_HAT_THRESHOLD}"
         logger.error(error_msg)
-        # HALT: Raise error as per task requirement
         raise RuntimeError(error_msg)
+    
+    logger.info("Convergence check PASSED. All R-hat values <= 1.05.")
+    return True, r_hat_values
 
-    logger.info("Convergence check PASSED.")
+def generate_forecasts(trace: az.InferenceData, n_steps: int = 1) -> pd.DataFrame:
+    """
+    Generate forecasts from the posterior predictive distribution.
+    """
+    logger.info("Generating forecasts...")
+    
+    # Get the posterior samples of the last theta
+    # InferenceData structure: trace.posterior['theta']
+    theta_samples = trace.posterior['theta'].values
+    # Shape: (chains, draws, steps)
+    # We want the distribution of the last step (index -1)
+    
+    last_theta = theta_samples[..., -1]
+    # Flatten to (chains * draws,)
+    last_theta_flat = last_theta.flatten()
+    
+    # Calculate mean and credible intervals
+    mean_forecast = np.mean(last_theta_flat)
+    lower_ci = np.percentile(last_theta_flat, 2.5)
+    upper_ci = np.percentile(last_theta_flat, 97.5)
+    
+    forecast_df = pd.DataFrame({
+        'forecast_mean': [mean_forecast],
+        'ci_lower_95': [lower_ci],
+        'ci_upper_95': [upper_ci]
+    })
+    
+    return forecast_df
 
-    # Save results if path provided
-    if output_path:
-        Path(output_path).parent.mkdir(parents=True, exist_ok=True)
-        trace.to_netcdf(output_path)
-        logger.info(f"Model results saved to {output_path}")
-
-    return {
-        "inference_data": trace,
-        "summary": summary,
-        "convergence_status": status,
-        "max_rhat": max_rhat
-    }
+def save_forecasts(forecast_df: pd.DataFrame, filepath: str) -> None:
+    """
+    Save forecasts to CSV.
+    """
+    logger.info(f"Saving forecasts to {filepath}")
+    forecast_df.to_csv(filepath, index=False)
+    logger.info("Forecasts saved successfully.")
 
 def main():
     """
-    Entry point for running the Bayesian model fitting pipeline.
-    Loads processed data, fits the model, and saves results.
+    Main entry point for the Bayesian model execution with convergence checks.
     """
-    project_root = get_project_root()
-    data_path = get_data_processed_path("poll_data_cleaned.csv")
+    configure_logging()
     
-    if not os.path.exists(data_path):
-        logger.error(f"Processed data not found at {data_path}. Run harmonize.py first.")
-        sys.exit(1)
-
-    logger.info(f"Loading data from {data_path}")
-    df = pd.read_csv(data_path)
-
-    # Ensure required columns exist
-    required_cols = ['date', 'vote_share']
-    if not all(col in df.columns for col in required_cols):
-        logger.error(f"Data missing required columns: {required_cols}")
-        sys.exit(1)
-
-    output_path = os.path.join(project_root, "data", "processed", "bayesian_model_results.nc")
+    # Paths
+    data_path = os.path.join("data", "processed", "poll_data_cleaned.csv")
+    output_path = os.path.join("data", "processed", "bayesian_forecasts.csv")
     
     try:
-        result = fit_random_walk_model(
-            data=df,
-            output_path=output_path,
-            tune_steps=1000,
-            draw_steps=1000,
-            chains=2,
-            convergence_threshold=1.05
-        )
+        # 1. Load Data
+        df = load_processed_poll_data(data_path)
+        logger.info(f"Loaded {len(df)} records.")
         
-        if result["convergence_status"] == "passed":
-            logger.info("Pipeline completed successfully. Model converged.")
-        else:
-            # This should not be reached due to the exception in fit_random_walk_model
-            logger.error("Pipeline completed with convergence failure (should have raised error).")
-            sys.exit(1)
-            
+        # 2. Prepare Data
+        y, sigma_obs, n_obs = prepare_random_walk_data(df)
+        
+        # 3. Run Model
+        trace = run_random_walk_model(y, sigma_obs, n_obs)
+        
+        # 4. Check Convergence (CRITICAL FOR T023)
+        # This will raise RuntimeError if R-hat > 1.05
+        is_converged, r_hats = check_convergence(trace)
+        
+        # 5. Generate Forecasts
+        forecasts = generate_forecasts(trace)
+        
+        # 6. Save Results
+        save_forecasts(forecasts, output_path)
+        
+        logger.info("Pipeline completed successfully.")
+        
     except RuntimeError as e:
-        logger.error(f"Pipeline halted due to error: {e}")
+        logger.critical(f"Pipeline halted due to error: {e}")
+        sys.exit(1)
+    except FileNotFoundError as e:
+        logger.critical(f"Data file missing: {e}")
         sys.exit(1)
     except Exception as e:
-        logger.error(f"Unexpected error during pipeline execution: {e}")
+        logger.critical(f"Unexpected error: {e}")
         sys.exit(1)
 
 if __name__ == "__main__":

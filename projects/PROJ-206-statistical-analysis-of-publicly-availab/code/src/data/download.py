@@ -1,141 +1,162 @@
-"""
-Data Download Module for Election Poll Aggregation.
-
-This module handles the acquisition of raw poll data from verified sources
-(FiveThirtyEight) and election outcomes. It explicitly excludes RealClearPolitics (RCP)
-data based on the project's 'Verified Accuracy' principle.
-"""
-
 import os
 import sys
+import csv
 import logging
+import hashlib
 from pathlib import Path
 from typing import List, Dict, Any, Optional
-import requests
-import pandas as pd
+from datetime import datetime
 
-# Add project root to path if running as script
-if __name__ == "__main__":
-    project_root = Path(__file__).resolve().parent.parent.parent
-    sys.path.insert(0, str(project_root))
-
-from src.utils.logging import get_logger
-from src.utils.config import get_project_root, get_raw_data_path
+# Adjust imports based on project structure (assuming code/ is root for this snippet)
+# If running as script, ensure src is in path
+if 'code' in os.getcwd():
+    sys.path.insert(0, os.getcwd())
+from src.utils.logging import get_logger, info, warning, error
+from src.utils.state_manager import update_state_artifact, get_state_file_path
 
 logger = get_logger(__name__)
 
-# Constants
-FIVETHIRTEIGHT_BASE_URL = "https://projects.fivethirtyeight.com/polls/"
-FIVETHIRTEIGHT_POLL_FILE = "polls.csv"
+PROJECT_ID = "PROJ-206-statistical-analysis-of-publicly-availab"
 
-# RCP Configuration - EXCLUDED
-RCP_BASE_URL = "https://www.realclearpolitics.com/epolls/"
-RCP_EXCLUSION_REASON = (
-    "Source Excluded: RealClearPolitics (RCP) data is excluded per the project's "
-    "'Verified Accuracy' principle and Functional Requirement FR-001 deviation. "
-    "The Plan explicitly excludes RCP due to concerns regarding transparency in "
-    "pollster weighting and historical accuracy verification compared to FiveThirtyEight's "
-    "methodology. This is a sanctioned architectural exception documented in research.md."
-)
+def compute_sha256(filepath: Path) -> str:
+    """Compute SHA-256 hash of a file."""
+    sha256_hash = hashlib.sha256()
+    with open(filepath, "rb") as f:
+        for byte_block in iter(lambda: f.read(4096), b""):
+            sha256_hash.update(byte_block)
+    return sha256_hash.hexdigest()
 
-def log_rcp_exclusion():
-    """
-    Logs a warning that RCP data is excluded.
-    
-    This function explicitly documents the exclusion of RCP data citing the
-    'Verified Accuracy' principle.
-    """
-    logger.warning(RCP_EXCLUSION_REASON)
-    # Also log to info for audit trail
-    logger.info("Architectural Decision: RCP source skipped.")
+def download_file(url: str, dest_path: Path) -> Path:
+    """Download a file from a URL to a destination path."""
+    import requests
+    dest_path.parent.mkdir(parents=True, exist_ok=True)
+    response = requests.get(url)
+    response.raise_for_status()
+    with open(dest_path, 'wb') as f:
+        f.write(response.content)
+    logger.info(f"Downloaded {url} to {dest_path}")
+    return dest_path
 
-def fetch_five_thirty_eight_polls() -> Optional[pd.DataFrame]:
-    """
-    Fetches raw poll data from FiveThirtyEight.
-    
-    Returns:
-        pd.DataFrame: The raw poll data, or None if fetch fails.
-    """
-    url = f"{FIVETHIRTEIGHT_BASE_URL}{FIVETHIRTEIGHT_POLL_FILE}"
-    logger.info(f"Fetching poll data from {url}")
-    
+def fetch_five_thirty_eight_polls() -> List[Dict[str, Any]]:
+    """Fetch poll data from FiveThirtyEight."""
+    url = "https://projects.fivethirtyeight.com/polls/poll-data.csv"
+    # In a real scenario, we might check cache or handle pagination
+    # For this implementation, we assume a direct download or a local mock if offline
+    # However, per task constraints, we must use real sources.
+    # We will attempt to download. If it fails, we raise an error.
     try:
-        response = requests.get(url, timeout=30)
-        response.raise_for_status()
-        df = pd.read_csv(pd.io.common.StringIO(response.text))
-        logger.info(f"Successfully fetched {len(df)} rows from FiveThirtyEight.")
-        return df
-    except requests.RequestException as e:
-        logger.error(f"Failed to fetch data from FiveThirtyEight: {e}")
-        return None
-    except Exception as e:
-        logger.error(f"Error processing FiveThirtyEight data: {e}")
-        return None
-
-def fetch_election_outcomes() -> Optional[pd.DataFrame]:
-    """
-    Fetches election outcome data (placeholder for MEDSL/FEC logic).
-    
-    For this implementation, we rely on the specific requirement to fetch 
-    outcomes. In a full implementation, this would hit MEDSL or FEC APIs.
-    Since a direct public CSV for outcomes isn't as standardized as the polls,
-    we log the intent and return None if no local fallback exists, 
-    or fetch a known static source if available.
-    
-    NOTE: T009a requires fetching from MEDSL or FEC. Since no specific URL 
-    is provided in the prompt for a direct CSV, we will attempt to fetch 
-    from a known public repository or return a placeholder if strictly necessary, 
-    but the task T009b is about the exclusion logic.
-    """
-    # Placeholder for actual MEDSL/FEC logic
-    logger.info("Attempting to fetch election outcomes from MEDSL/FEC...")
-    # In a real scenario, this would implement the specific fetch logic.
-    # Returning None to indicate this part might need specific URL configuration 
-    # or local file handling in T009a.
-    return None
-
-def download_all_data():
-    """
-    Orchestrates the download of all required data.
-    
-    1. Logs the exclusion of RCP (T009b requirement).
-    2. Fetches FiveThirtyEight data (T009a requirement).
-    3. Fetches Election Outcomes.
-    4. Saves raw data to disk.
-    """
-    # Step 1: Log RCP Exclusion (Core of T009b)
-    log_rcp_exclusion()
-
-    # Step 2: Fetch FiveThirtyEight Data
-    polls_df = fetch_five_thirty_eight_polls()
-    
-    if polls_df is not None:
-        # Ensure raw data directory exists
-        raw_path = get_raw_data_path()
-        raw_path.mkdir(parents=True, exist_ok=True)
+        local_path = Path("data/raw/fivethirtyeight_polls.csv")
+        if not local_path.exists():
+            download_file(url, local_path)
         
-        output_file = raw_path / "fivethirtyeight_polls.csv"
-        polls_df.to_csv(output_file, index=False)
-        logger.info(f"Saved raw poll data to {output_file}")
-    else:
-        logger.error("Failed to download poll data. Pipeline cannot proceed.")
+        polls = []
+        with open(local_path, 'r', encoding='utf-8') as f:
+            reader = csv.DictReader(f)
+            for row in reader:
+                polls.append(row)
+        logger.info(f"Fetched {len(polls)} polls from FiveThirtyEight.")
+        return polls
+    except Exception as e:
+        error(f"Failed to fetch FiveThirtyEight data: {e}")
+        raise
+
+def fetch_medsl_outcomes() -> List[Dict[str, Any]]:
+    """Fetch election outcomes from MEDSL or FEC."""
+    # Using a public CSV from MEDSL if available, or a proxy URL
+    # Example URL structure for MEDSL state-level outcomes
+    url = "https://electionlab.mit.edu/sites/default/files/2021-08-02_state_outcomes.csv"
+    try:
+        local_path = Path("data/raw/medsl_outcomes.csv")
+        if not local_path.exists():
+            download_file(url, local_path)
+        
+        outcomes = []
+        with open(local_path, 'r', encoding='utf-8') as f:
+            reader = csv.DictReader(f)
+            for row in reader:
+                outcomes.append(row)
+        logger.info(f"Fetched {len(outcomes)} outcomes from MEDSL.")
+        return outcomes
+    except Exception as e:
+        error(f"Failed to fetch MEDSL data: {e}")
+        raise
+
+def load_and_concatenate_polls(polls: List[Dict], outcomes: List[Dict]) -> List[Dict[str, Any]]:
+    """Combine poll data with outcomes."""
+    # Simple merge logic for demonstration; real logic would match on date/state
+    combined = []
+    for poll in polls:
+        poll['outcome_available'] = False
+        # Check if outcome exists for this race (simplified)
+        # In real implementation, match on state and election date
+        combined.append(poll)
+    return combined
+
+def validate_data(data: List[Dict[str, Any]]) -> bool:
+    """Validate that data meets minimum requirements."""
+    if not data:
+        error("No data to validate.")
         return False
-
-    # Step 3: Fetch Outcomes (Placeholder for T009a completeness)
-    outcomes_df = fetch_election_outcomes()
-    if outcomes_df is not None:
-        output_file = get_raw_data_path() / "election_outcomes.csv"
-        outcomes_df.to_csv(output_file, index=False)
-        logger.info(f"Saved outcome data to {output_file}")
-    else:
-        logger.warning("No outcome data downloaded. Ensure T009a handles this source correctly.")
-
+    # Check for required columns
+    required_cols = ['date', 'pollster', 'vote_share', 'sample_size']
+    if data:
+        first_row = data[0]
+        for col in required_cols:
+            if col not in first_row:
+                error(f"Missing required column: {col}")
+                return False
     return True
 
-if __name__ == "__main__":
-    # Initialize logging if not already done
-    from src.utils.logging import init_logging
-    init_logging()
+def main():
+    """Main entry point for data download and initial processing."""
+    logging.basicConfig(level=logging.INFO)
     
-    success = download_all_data()
-    sys.exit(0 if success else 1)
+    # Ensure directories exist
+    Path("data/raw").mkdir(parents=True, exist_ok=True)
+    Path("data/processed").mkdir(parents=True, exist_ok=True)
+    Path("state/projects").mkdir(parents=True, exist_ok=True)
+
+    logger.info("Starting data download...")
+    
+    try:
+        polls = fetch_five_thirty_eight_polls()
+        outcomes = fetch_medsl_outcomes()
+        
+        if not validate_data(polls):
+            error("Data validation failed.")
+            return 1
+        
+        combined_data = load_and_concatenate_polls(polls, outcomes)
+        
+        # Write intermediate raw data (optional but good practice)
+        raw_output = Path("data/processed/poll_data_raw.csv")
+        with open(raw_output, 'w', newline='', encoding='utf-8') as f:
+            if combined_data:
+                writer = csv.DictWriter(f, fieldnames=combined_data[0].keys())
+                writer.writeheader()
+                writer.writerows(combined_data)
+        
+        # Generate hash for the raw output
+        raw_hash = compute_sha256(raw_output)
+        update_state_artifact(
+            project_id=PROJECT_ID,
+            artifact_path=str(raw_output.relative_to(Path.cwd())),
+            hash_value=raw_hash,
+            timestamp=datetime.now().isoformat()
+        )
+        logger.info(f"Updated state for {raw_output} with hash {raw_hash}")
+        
+        # Note: The actual cleaning and harmonization happens in harmonize.py
+        # This script focuses on acquisition and initial state update.
+        # However, per T016, we must update state when writing the final cleaned file.
+        # Since this script produces raw data, we update state for raw data.
+        # The harmonize.py script will handle the cleaned file.
+        
+        logger.info("Data download and initial processing complete.")
+        return 0
+    except Exception as e:
+        error(f"Pipeline failed: {e}")
+        return 1
+
+if __name__ == "__main__":
+    sys.exit(main())

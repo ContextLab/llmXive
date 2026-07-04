@@ -1,32 +1,46 @@
 """
-Pytest configuration and shared fixtures.
+Pytest configuration and fixtures for the project.
+
+Provides shared fixtures for test data paths, temporary directories,
+and logging configuration during test runs.
 """
+
 import os
-import sys
 import pytest
 from pathlib import Path
 
-# Add project root to path if not already present
-@pytest.fixture(autouse=True)
-def add_project_root_to_path():
-    """Ensure the project root is in sys.path for imports."""
-    project_root = Path(__file__).parent.parent
-    if str(project_root) not in sys.path:
-        sys.path.insert(0, str(project_root))
-    yield
-    if str(project_root) in sys.path:
-        sys.path.remove(str(project_root))
+@pytest.fixture(scope="session")
+def project_root() -> Path:
+    """Return the root directory of the project."""
+    return Path(__file__).parent.parent
 
-@pytest.fixture
-def temp_data_dir(tmp_path):
-    """Provide a temporary directory for data artifacts."""
-    data_dir = tmp_path / "data"
-    data_dir.mkdir(parents=True, exist_ok=True)
-    yield data_dir
+@pytest.fixture(scope="session")
+def data_dir(project_root: Path) -> Path:
+    """Return the path to the data directory."""
+    return project_root / "data"
 
-@pytest.fixture
-def temp_state_dir(tmp_path):
-    """Provide a temporary directory for state artifacts."""
-    state_dir = tmp_path / "state"
-    state_dir.mkdir(parents=True, exist_ok=True)
-    yield state_dir
+@pytest.fixture(scope="session")
+def raw_data_dir(data_dir: Path) -> Path:
+    """Return the path to the raw data directory."""
+    raw_dir = data_dir / "raw"
+    raw_dir.mkdir(parents=True, exist_ok=True)
+    return raw_dir
+
+@pytest.fixture(scope="session")
+def processed_data_dir(data_dir: Path) -> Path:
+    """Return the path to the processed data directory."""
+    proc_dir = data_dir / "processed"
+    proc_dir.mkdir(parents=True, exist_ok=True)
+    return proc_dir
+
+@pytest.fixture(scope="session")
+def state_dir(project_root: Path) -> Path:
+    """Return the path to the state directory."""
+    state = project_root / "state"
+    state.mkdir(parents=True, exist_ok=True)
+    return state
+
+@pytest.fixture(scope="session")
+def src_dir(project_root: Path) -> Path:
+    """Return the path to the source code directory."""
+    return project_root / "src"

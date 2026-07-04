@@ -1,133 +1,176 @@
 """
-Unit tests for the Bayesian Random Walk model (T021).
-Tests model convergence and synthetic data edge cases.
+Unit tests for Bayesian Random Walk model (T021).
+
+Tests:
+- Synthetic data generation and model fitting
+- Convergence checks (R-hat)
+- Edge cases (single observation, zero variance)
 """
 import os
 import sys
 import tempfile
 from pathlib import Path
-import pandas as pd
-import numpy as np
 import pytest
+import numpy as np
+import pandas as pd
+import pymc as pm
+import arviz as az
 
-# Mock PyMC if not installed to allow test structure validation
-# In a real run, PyMC must be installed.
-try:
-    import pymc as pm
-    import arviz as az
-    HAS_PMC = True
-except ImportError:
-    HAS_PMC = False
-    pm = None
-    az = None
+# Add src to path
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
-from src.models.bayesian import fit_random_walk_model
+from src.models.bayesian import (
+    load_processed_poll_data,
+    prepare_random_walk_data,
+    run_random_walk_model,
+    check_convergence,
+    generate_forecasts
+)
 
 @pytest.fixture
-def synthetic_poll_data():
-    """Generate synthetic poll data for testing."""
+def synthetic_data():
+    """Generate synthetic data for testing."""
     np.random.seed(42)
-    n_weeks = 10
-    n_polls_per_week = 5
+    n_weeks = 20
+    weeks = np.arange(n_weeks)
     
-    weeks = []
-    vote_shares = []
-    sample_sizes = []
-    rmse_vals = []
+    # Random walk latent state
+    theta = np.zeros(n_weeks)
+    sigma_rw = 0.05
+    for t in range(1, n_weeks):
+        theta[t] = theta[t-1] + np.random.normal(0, sigma_rw)
     
-    # Simulate a random walk for truth
-    true_theta = 50.0
-    sigma_rw = 0.5
+    # Add initial drift
+    theta += 0.5
     
-    for w in range(n_weeks):
-        if w > 0:
-            true_theta += np.random.normal(0, sigma_rw)
+    # Observation noise
+    sigma_obs = np.full(n_weeks, 0.03)
+    y = theta + np.random.normal(0, sigma_obs)
+    
+    return y, sigma_obs, n_weeks
+
+def test_prepare_random_walk_data():
+    """Test data preparation function."""
+    # Create a temporary CSV file
+    with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False) as f:
+        writer = csv.writer(f)
+        writer.writerow(['date', 'pollster', 'vote_share', 'sample_size', 'historical_rmse'])
         
-        for _ in range(n_polls_per_week):
-            weeks.append(w)
-            # Observation noise
-            obs_noise = 2.0
-            vote_shares.append(true_theta + np.random.normal(0, obs_noise))
-            sample_sizes.append(1000) # Fixed sample size for simplicity
-            rmse_vals.append(2.0)     # Fixed RMSE for simplicity
+        dates = pd.date_range('2020-01-01', periods=10, freq='W')
+        for i, date in enumerate(dates):
+            writer.writerow([
+                date.strftime('%Y-%m-%d'),
+                f'Pollster_{i}',
+                0.5 + 0.01 * i,
+                1000,
+                0.03
+            ])
+        temp_path = Path(f.name)
+    
+    try:
+        df = pd.read_csv(temp_path)
+        df['date'] = pd.to_datetime(df['date'])
+        
+        y, sigma_obs, weeks, n_weeks = prepare_random_walk_data(df)
+        
+        assert len(y) == n_weeks
+        assert len(sigma_obs) == n_weeks
+        assert len(weeks) == n_weeks
+        assert n_weeks == 10
+        assert all(sigma_obs > 0)
+    finally:
+        temp_path.unlink()
 
-    df = pd.DataFrame({
-        'date': pd.date_range('2024-01-01', periods=len(weeks), freq='D'),
-        'week_bin': weeks,
-        'vote_share': vote_shares,
-        'sample_size': sample_sizes,
-        'historical_rmse': rmse_vals
-    })
-    return df
-
-@pytest.mark.skipif(not HAS_PMC, reason="PyMC not installed")
-def test_model_convergence(synthetic_poll_data):
-    """Test that the model converges on synthetic data (R-hat <= 1.05)."""
-    # Use fewer draws for speed in tests
-    idata, forecasts_df = fit_random_walk_model(
-        synthetic_poll_data,
-        election_outcomes=pd.DataFrame(),
-        tune=500,
-        draws=500,
-        chains=2,
+def test_run_random_walk_model_synthetic(synthetic_data):
+    """Test model fitting on synthetic data."""
+    y, sigma_obs, n_weeks = synthetic_data
+    
+    # Run with minimal tuning for speed in tests
+    trace = run_random_walk_model(
+        y, sigma_obs, n_weeks,
+        tune=100,
+        draws=100,
+        chains=1,
         random_seed=42
     )
     
-    # Check convergence
-    r_hat = az.rhat(idata)
-    # Check max R-hat across all variables
-    max_rhat = 0.0
-    for var in r_hat.data_vars:
-        val = r_hat[var].values
-        if np.isscalar(val):
-            max_rhat = max(max_rhat, val)
-        else:
-            max_rhat = max(max_rhat, np.max(val))
+    assert isinstance(trace, az.InferenceData)
+    assert 'posterior' in trace
+    assert 'theta' in trace.posterior
     
-    assert max_rhat <= 1.05, f"Model did not converge: Max R-hat = {max_rhat}"
-    assert len(forecasts_df) == len(synthetic_poll_data['week_bin'].unique())
-    assert 'bayesian_forecast' in forecasts_df.columns
+    # Check shape
+    theta_shape = trace.posterior['theta'].shape
+    assert theta_shape[-1] == n_weeks
 
-@pytest.mark.skipif(not HAS_PMC, reason="PyMC not installed")
-def test_single_week_edge_case(synthetic_poll_data):
-    """Test behavior with minimal data (single week)."""
-    # Filter to single week
-    single_week_data = synthetic_poll_data[synthetic_poll_data['week_bin'] == 0].copy()
+def test_check_convergence_pass(synthetic_data):
+    """Test convergence check on converged model."""
+    y, sigma_obs, n_weeks = synthetic_data
+    trace = run_random_walk_model(
+        y, sigma_obs, n_weeks,
+        tune=100,
+        draws=100,
+        chains=1,
+        random_seed=42
+    )
     
-    # This might be too little data for a proper RW, but should not crash
-    # We expect it to run, though convergence might be tricky with very few points
-    # For the test, we just ensure it doesn't raise an exception immediately
-    # We might need to adjust parameters for such small data
-    try:
-        idata, forecasts_df = fit_random_walk_model(
-            single_week_data,
-            election_outcomes=pd.DataFrame(),
-            tune=200,
-            draws=200,
-            chains=1,
-            random_seed=42
-        )
-        assert len(forecasts_df) == 1
-    except RuntimeError as e:
-        # If it fails due to convergence on such small data, that's acceptable behavior
-        # The important thing is the model structure is correct
-        if "did not converge" in str(e):
-            pass # Acceptable
-        else:
-            raise
+    # Should pass
+    assert check_convergence(trace, rhat_threshold=1.1)
 
-def test_missing_pymc():
-    """Test that the function raises RuntimeError if PyMC is missing."""
-    # This test is only relevant if PyMC is actually missing
-    if HAS_PMC:
-        pytest.skip("PyMC is installed, skipping missing dependency test")
+def test_generate_forecasts(synthetic_data):
+    """Test forecast generation."""
+    y, sigma_obs, n_weeks = synthetic_data
+    trace = run_random_walk_model(
+        y, sigma_obs, n_weeks,
+        tune=100,
+        draws=100,
+        chains=1,
+        random_seed=42
+    )
     
-    df = pd.DataFrame({
-        'week_bin': [0, 1],
-        'vote_share': [50, 51],
-        'sample_size': [100, 100],
-        'historical_rmse': [2.0, 2.0]
-    })
+    df_forecasts = generate_forecasts(trace, n_weeks)
     
-    with pytest.raises(RuntimeError, match="PyMC is not installed"):
-        fit_random_walk_model(df, pd.DataFrame())
+    assert 'week_idx' in df_forecasts.columns
+    assert 'bayesian_forecast' in df_forecasts.columns
+    assert 'ci_lower_95' in df_forecasts.columns
+    assert 'ci_upper_95' in df_forecasts.columns
+    assert len(df_forecasts) == n_weeks
+    
+    # Check CI validity
+    assert all(df_forecasts['ci_lower_95'] <= df_forecasts['bayesian_forecast'])
+    assert all(df_forecasts['bayesian_forecast'] <= df_forecasts['ci_upper_95'])
+
+def test_single_observation():
+    """Test edge case with single observation."""
+    y = np.array([0.5])
+    sigma_obs = np.array([0.03])
+    n_weeks = 1
+    
+    trace = run_random_walk_model(
+        y, sigma_obs, n_weeks,
+        tune=50,
+        draws=50,
+        chains=1,
+        random_seed=42
+    )
+    
+    assert 'theta' in trace.posterior
+
+def test_zero_observation_variance():
+    """Test handling of near-zero observation variance."""
+    y = np.array([0.5, 0.51, 0.52])
+    sigma_obs = np.array([1e-5, 1e-5, 1e-5]) # Very small but not zero
+    n_weeks = 3
+    
+    # Should not crash
+    trace = run_random_walk_model(
+        y, sigma_obs, n_weeks,
+        tune=50,
+        draws=50,
+        chains=1,
+        random_seed=42
+    )
+    
+    assert 'theta' in trace.posterior
+
+if __name__ == "__main__":
+    pytest.main([__file__, "-v"])

@@ -1,50 +1,49 @@
-"""
-Install dependencies from requirements.txt into the current virtual environment.
-
-This script acts as the executable for task T002b. It verifies the existence
-of requirements.txt and invokes pip to install the specified dependencies.
-"""
 import subprocess
 import sys
 import os
+import venv
 from pathlib import Path
 
 def main():
-    """Execute the dependency installation."""
+    """
+    Creates a virtual environment in the project root (if it doesn't exist)
+    and installs dependencies from requirements.txt.
+    """
     project_root = Path(__file__).resolve().parent.parent
+    venv_path = project_root / "venv"
     requirements_path = project_root / "requirements.txt"
 
     if not requirements_path.exists():
-        raise FileNotFoundError(
-            f"requirements.txt not found at {requirements_path}. "
-            "Ensure T002a has been completed."
-        )
+        print(f"Error: {requirements_path} not found.")
+        sys.exit(1)
 
-    print(f"Installing dependencies from: {requirements_path}")
-    print("-" * 40)
+    # Create virtual environment if it doesn't exist
+    if not venv_path.exists():
+        print(f"Creating virtual environment at {venv_path}...")
+        venv.create(venv_path, with_pip=True)
+    else:
+        print(f"Virtual environment already exists at {venv_path}.")
 
-    try:
-        # Use the current python executable to ensure we install into the active venv
-        result = subprocess.run(
-            [sys.executable, "-m", "pip", "install", "-r", str(requirements_path)],
-            check=True,
-            capture_output=False,
-            text=True
-        )
-        
-        if result.returncode == 0:
-            print("-" * 40)
-            print("Dependency installation completed successfully.")
-            return 0
-        else:
-            raise RuntimeError("pip installation failed with non-zero exit code.")
-            
-    except subprocess.CalledProcessError as e:
-        print(f"Error during installation: {e}")
-        return 1
-    except Exception as e:
-        print(f"Unexpected error: {e}")
-        return 1
+    # Determine the correct pip path based on OS
+    if os.name == 'nt':
+        pip_path = venv_path / "Scripts" / "pip"
+    else:
+        pip_path = venv_path / "bin" / "pip"
+
+    if not pip_path.exists():
+        print(f"Error: pip not found at {pip_path}. Virtual environment may be corrupted.")
+        sys.exit(1)
+
+    # Upgrade pip first
+    print("Upgrading pip...")
+    subprocess.check_call([str(pip_path), "install", "--upgrade", "pip"])
+
+    # Install dependencies
+    print(f"Installing dependencies from {requirements_path}...")
+    subprocess.check_call([str(pip_path), "install", "-r", str(requirements_path)])
+
+    print("Dependencies installed successfully.")
+    return 0
 
 if __name__ == "__main__":
     sys.exit(main())

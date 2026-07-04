@@ -1,82 +1,341 @@
-- artifact_path: projects/PROJ-206-statistical-analysis-of-publicly-availab/docs/quickstart.md
+- artifact_path: projects/PROJ-206-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
   attempts: 1
-  canonical: RealClearPolitics data excluded from pipeline
-  claim_id: c_199c0c4a
-  context: 'Architecture Notes: RCP Exclusion: Per the project''s ''Verified Accuracy''
-    principle, RealClearPolitics data is excluded. The pipeline logs a warning for
-    this exclusion.'
+  canonical: RealClearPolitics data excluded from election poll aggregation due to
+    Verified Accuracy principle
+  claim_id: c_466f828a
+  context: 'Goal: Ingest raw poll data from FiveThirtyEight, harmonize dates, calculate
+    historical RMSE weights, and enforce data sufficiency checks. Note: RCP is excluded
+    per Plan''s ''Verified Accuracy'' principle (see T009b).'
   evidence:
     entailment_status: not_found
     reason: source found but does not address entity claim
-    source_url: https://en.wikipedia.org/wiki/RealClearPolitics_data_excluded_from_pipeline
+    source_url: https://en.wikipedia.org/wiki/RealClearPolitics_data_excluded_from_election_poll_aggregati
   kind: entity_fact
-  raw_text: RealClearPolitics data is excluded per the project's 'Verified Accuracy'
-    principle.
+  raw_text: RCP is excluded per Plan's 'Verified Accuracy' principle
   resolved_value: null
   resolver: resolve_entity_fact
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-04T18:20:24Z'
+  updated_at: '2026-07-04T17:45:57Z'
 - artifact_path: projects/PROJ-206-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
   attempts: 1
-  canonical: MCMC sampling completes with R-hat less than or equal to 1.05 and 95%
-    credible intervals with at least 90% coverage
-  claim_id: c_c6eb31da
-  context: "Independent Test: Verify src/models/bayesian.py completes MCMC sampling\
-    \ without divergence (R-hat \u2264 1.05), produces 95% credible intervals with\
-    \ \u226590% coverage, and outputs a Diebold-Mariano comparison matrix."
+  canonical: FiveThirtyEight poll CSVs fetched from https://projects.fivethirtyeight.com/polls/
+  claim_id: c_0ea8e584
+  context: '- [ ] T009a [P] [US1] Implement `src/data/download.py` to fetch FiveThirtyEight
+    poll CSVs from `https://projects.fivethirtyeight.com/polls/` and election outcomes
+    from MIT Election Data and Science Lab (MEDSL) or FEC.'
   evidence:
-    entailment_evidence: MCMC sampling completes with R-hat less than or equal to
-      1.
-    entailment_status: contradicted
-    source_url: https://en.wikipedia.org/wiki/MCMC_sampling_completes_with_R-hat_less_than_or_equal_to_1.0
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/FiveThirtyEight_poll_CSVs_fetched_from_https://projects.five
+  kind: entity_fact
+  raw_text: Implement `src/data/download.py` to fetch FiveThirtyEight poll CSVs from
+    `https://projects.fivethirtyeight.com/polls/`
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-04T17:46:16Z'
+- artifact_path: projects/PROJ-206-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Data sufficiency check halts pipeline if fewer than 5 polls in 30 days
+    before election
+  claim_id: c_185e451b
+  context: '- [ ] T013 [US1] Implement FR-008: Data sufficiency check in `src/data/harmonize.py`
+    to halt with warning if <5 polls in the 30 days preceding the election day or
+    <3 distinct cycles.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Data_sufficiency_check_halts_pipeline_if_fewer_than_5_polls
   kind: magnitude
-  raw_text: "Verify src/models/bayesian.py completes MCMC sampling without divergence\
-    \ (R-hat \u2264 1.05), produces 95% credible intervals with \u226590% coverage,\
-    \ and outputs a Diebold-Mariano comparison matrix."
+  raw_text: Implement logic to halt with warning if less than 5 polls in the 30 days
+    preceding the election day
   resolved_value: null
   resolver: resolve_superlative
   source_hash: null
   source_type: external
-  status: refuted
-  updated_at: '2026-07-04T18:22:17Z'
+  status: not_enough_info
+  updated_at: '2026-07-04T17:47:08Z'
 - artifact_path: projects/PROJ-206-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
   attempts: 1
-  canonical: binomial test against null hypothesis p0 equals 0.95 using significance
-    level alpha equals 0.05
-  claim_id: c_2cb6cbe4
-  context: Implement binomial test in src/evaluation/metrics.py against the null hypothesis
-    (p0=0.95) for coverage reliability, using significance level alpha=0.05 (as required
-    by SC-002).
+  canonical: Data sufficiency check halts pipeline if fewer than 3 distinct election
+    cycles
+  claim_id: c_146d5180
+  context: '- [ ] T013 [US1] Implement FR-008: Data sufficiency check in `src/data/harmonize.py`
+    to halt with warning if <5 polls in the 30 days preceding the election day or
+    <3 distinct cycles.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Data_sufficiency_check_halts_pipeline_if_fewer_than_3_distin
+  kind: magnitude
+  raw_text: Implement logic to halt with warning if less than 3 distinct cycles
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-04T17:47:59Z'
+- artifact_path: projects/PROJ-206-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Global poll count check halts pipeline if fewer than 500 total polls
+    across all cycles
+  claim_id: c_cba87474
+  context: '- [ ] T014 [US1] Implement FR-010: Global poll count check in `src/data/harmonize.py`
+    to halt with error if total count across all ingested election cycles is <500.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Global_poll_count_check_halts_pipeline_if_fewer_than_500_tot
+  kind: magnitude
+  raw_text: Implement global poll count check to halt with error if total count across
+    all ingested election cycles is less than 500
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-04T17:48:35Z'
+- artifact_path: projects/PROJ-206-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Bayesian MCMC sampling requires R-hat value less than or equal to 1.05
+    for convergence
+  claim_id: c_a040a08c
+  context: "Independent Test: Verify `src/models/bayesian.py` completes MCMC sampling\
+    \ without divergence (R-hat \u2264 1.05), produces 95% credible intervals with\
+    \ \u226590% coverage, and outputs a Diebold-Mariano comparison matrix."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Bayesian_MCMC_sampling_requires_R-hat_value_less_than_or_equ
+  kind: magnitude
+  raw_text: "Verify `src/models/bayesian.py` completes MCMC sampling without divergence\
+    \ (R-hat \u2264 1.05)"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-04T17:49:07Z'
+- artifact_path: projects/PROJ-206-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Bayesian model produces 95% credible intervals with at least 90% coverage
+    rate
+  claim_id: c_9d0d7d99
+  context: "Independent Test: Verify `src/models/bayesian.py` completes MCMC sampling\
+    \ without divergence (R-hat \u2264 1.05), produces 95% credible intervals with\
+    \ \u226590% coverage, and outputs a Diebold-Mariano comparison matrix."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Bayesian_model_produces_95%25_credible_intervals_with_at_least
+  kind: magnitude
+  raw_text: "Verify `src/models/bayesian.py` produces 95% credible intervals with\
+    \ \u226590% coverage"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-04T17:49:29Z'
+- artifact_path: projects/PROJ-206-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Convergence check halts execution if R-hat exceeds 1.05
+  claim_id: c_a4c05dea
+  context: '- [ ] T023 [US3] Implement convergence checks in `src/models/bayesian.py`
+    to halt and report error if R-hat > 1.05.'
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
-  raw_text: Implement binomial test in src/evaluation/metrics.py against the null
-    hypothesis (p0=0.95) for coverage reliability, using significance level alpha=0.05.
+  raw_text: Implement convergence checks to halt and report error if R-hat > 1.05
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-04T18:22:26Z'
+  updated_at: '2026-07-04T17:49:29Z'
 - artifact_path: projects/PROJ-206-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
   attempts: 1
-  canonical: pairwise Diebold-Mariano tests with Westfall-Young correction using 1000
-    permutations
-  claim_id: c_4dd31ff4
-  context: Implement src/evaluation/meta_analysis.py to perform pairwise Diebold-Mariano
-    tests with Westfall-Young correction (FR-006, SC-003). Use 1000 permutations with
-    a step-down max-t strategy.
+  canonical: Coverage reliability binomial test uses null hypothesis p0=0.95 and significance
+    level alpha=0.05
+  claim_id: c_848a9c77
+  context: '- [ ] T025 [US3] Implement binomial test in `src/evaluation/metrics.py`
+    against the null hypothesis (p0=0.95) for coverage reliability, using significance
+    level **alpha=0.05** (as required by SC-002).'
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
-  raw_text: Implement src/evaluation/meta_analysis.py to perform pairwise Diebold-Mariano
-    tests with Westfall-Young correction using 1000 permutations with a step-down
-    max-t strategy.
+  raw_text: Implement binomial test against the null hypothesis (p0=0.95) for coverage
+    reliability, using significance level alpha=0.05
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-04T18:22:39Z'
+  updated_at: '2026-07-04T17:49:44Z'
+- artifact_path: projects/PROJ-206-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Diebold-Mariano tests performed with Westfall-Young correction using
+    1000 permutations and step-down max-t strategy
+  claim_id: c_5a7d70a9
+  context: '- [ ] T026 [US3] Implement `src/evaluation/meta_analysis.py` to perform
+    pairwise **Diebold-Mariano tests** with **Westfall-Young correction** (FR-006,
+    SC-003). Use **1000 permutations** with a **step-down max-t** strategy.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Perform pairwise Diebold-Mariano tests with Westfall-Young correction
+    using 1000 permutations with a step-down max-t strategy
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-04T17:50:00Z'
+- artifact_path: projects/PROJ-206-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: System implementation requires CPU-only execution with limited cores
+    and constrained RAM
+  claim_id: c_10c20823
+  context: '**Critical Constraint**: All tasks must run on CPU-only (a limited number
+    of cores, constrained RAM). No GPU, no 8-bit/4-bit quantization, no large LLMs.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/System_implementation_requires_CPU-only_execution_with_limit
+  kind: entity_fact
+  raw_text: All tasks must run on CPU-only (a limited number of cores, constrained
+    RAM)
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-04T17:50:40Z'
+- artifact_path: projects/PROJ-206-statistical-analysis-of-publicly-availab/code/research.md
+  attempts: 1
+  canonical: 1000 permutations for Westfall-Young correction
+  claim_id: c_44eec6a7
+  context: 'To control the Family-Wise Error Rate (FWER) across multiple pairwise
+    comparisons, we apply the Westfall-Young step-down max-t permutation correction.
+    Procedure: 2. Permute the loss differential series (via sign flipping) B=1000
+    times.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Permute the loss differential series (via sign flipping) B=1000 times.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-04T18:21:25Z'
+- artifact_path: projects/PROJ-206-statistical-analysis-of-publicly-availab/research.md
+  attempts: 1
+  canonical: FiveThirtyEight raw polling data ingested from public repository
+  claim_id: c_69c2816b
+  context: 'FiveThirtyEight Poll Data: Raw polling data is ingested from the FiveThirtyEight
+    public repository (https://projects.fivethirtyeight.com/polls/). This dataset
+    provides granular polling information including sample sizes, margins of error,
+    and pollster identifiers.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/FiveThirtyEight_raw_polling_data_ingested_from_public_reposi
+  kind: entity_fact
+  raw_text: Raw polling data is ingested from the FiveThirtyEight public repository
+    (https://projects.fivethirtyeight.com/polls/).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-04T18:25:18Z'
+- artifact_path: projects/PROJ-206-statistical-analysis-of-publicly-availab/research.md
+  attempts: 1
+  canonical: Ground truth election outcomes sourced from MEDSL or FEC
+  claim_id: c_d91d886c
+  context: 'Election Outcomes: Ground truth data is sourced from the MIT Election
+    Data and Science Lab (MEDSL) or the Federal Election Commission (FEC) to validate
+    forecast accuracy.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Ground_truth_election_outcomes_sourced_from_MEDSL_or_FEC
+  kind: entity_fact
+  raw_text: Ground truth data is sourced from the MIT Election Data and Science Lab
+    (MEDSL) or the Federal Election Commission (FEC) to validate forecast accuracy.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-04T18:25:54Z'
+- artifact_path: projects/PROJ-206-statistical-analysis-of-publicly-availab/research.md
+  attempts: 1
+  canonical: Pipeline halts if R-hat statistic exceeds 1.05
+  claim_id: c_91eecf40
+  context: 'Convergence: Monitored via R-hat (R-hat) statistic. The pipeline halts
+    if R-hat > 1.05.'
+  evidence:
+    asserted: '1.05'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: magnitude
+  raw_text: The pipeline halts if the R-hat statistic is greater than 1.05.
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-07-04T18:25:55Z'
+- artifact_path: projects/PROJ-206-statistical-analysis-of-publicly-availab/research.md
+  attempts: 1
+  canonical: Coverage reliability hypothesis test uses alpha 0.05
+  claim_id: c_0932ef01
+  context: 'Binomial Test: A hypothesis test (H0: p = 0.95) is performed with alpha=0.05
+    to verify if the observed coverage rate is statistically consistent with the nominal
+    level.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: A hypothesis test is performed with alpha equal to 0.05 to verify if the
+    observed coverage rate is statistically consistent with the nominal level.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-04T18:26:18Z'
+- artifact_path: projects/PROJ-206-statistical-analysis-of-publicly-availab/research.md
+  attempts: 1
+  canonical: Westfall-Young correction applied with 1000 permutations
+  claim_id: c_969f9299
+  context: 'Correction: Westfall-Young step-down max-t correction is applied to account
+    for multiple comparisons (1000 permutations).'
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: "arate set of 1000 simulations, and the Westfall\u2013Young metho d is\
+        \ using 1000"
+      source_id: '1106.2068'
+      url: https://arxiv.org/abs/1106.2068
+      value: '1000'
+    filled: true
+  kind: numeric
+  raw_text: Westfall-Young step-down max-t correction is applied to account for multiple
+    comparisons using 1000 permutations.
+  resolved_value: '1000'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-04T18:26:45Z'

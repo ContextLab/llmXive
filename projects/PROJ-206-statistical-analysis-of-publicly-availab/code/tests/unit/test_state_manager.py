@@ -1,147 +1,135 @@
-"""
-Unit tests for the state_manager utility.
-"""
 import os
 import tempfile
+import hashlib
 from pathlib import Path
 import pytest
 import yaml
 
+# Import the functions to test
 from src.utils.state_manager import (
     compute_file_hash,
     get_state_file_path,
     load_state,
-    save_state,
-    update_artifact_state,
-    verify_artifact_integrity,
+    update_state_artifact,
+    verify_artifact_integrity
 )
-from src.utils.config import get_project_root, get_state_path
 
+@pytest.fixture
+def temp_dir():
+    """Create a temporary directory for test artifacts."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        # We need to simulate the project root structure temporarily
+        # or mock the paths. For this test, we'll create a real temp structure
+        # and patch the functions or run in a controlled env.
+        # Since the functions use relative paths, we'll create a temp root
+        # and change directory if necessary, or just test the logic that doesn't rely on global paths.
+        # However, update_state_artifact relies on 'state/projects/'.
+        # Let's create a temp dir and set an env var or just create the structure there.
+        # To keep it simple and robust, we will create the necessary dirs in the temp dir.
+        # But the code uses relative paths. 
+        # Strategy: Create the temp structure, cd into it, run tests, cd out.
+        # Or better: The test runner might handle this. 
+        # Let's assume the test runs from project root or we mock the path generation.
+        # For this implementation, we will rely on the fact that we can create 'state' dir
+        # in the temp directory and change cwd.
+        
+        original_cwd = os.getcwd()
+        os.chdir(tempdir)
+        
+        # Create necessary dirs
+        Path("state").mkdir()
+        Path("state/projects").mkdir()
+        
+        yield tempdir
+        
+        os.chdir(original_cwd)
 
-def test_compute_file_hash(tmp_path):
-    """Test SHA-256 hash computation for a known file."""
-    test_file = tmp_path / "test.txt"
+def test_compute_file_hash(temp_dir):
+    """Test SHA-256 hash computation."""
+    test_file = Path("test_file.txt")
     content = b"Hello, World!"
     test_file.write_bytes(content)
-
-    expected_hash = "dffd6021bb2bd5b0af676290809ec3a53191dd81c7f70a4b28688a362182986f"
+    
+    expected_hash = hashlib.sha256(content).hexdigest()
     computed_hash = compute_file_hash(test_file)
-
+    
     assert computed_hash == expected_hash
+    
+    # Test non-existent file
+    non_existent = Path("does_not_exist.txt")
+    assert compute_file_hash(non_existent) is None
 
+def test_get_state_file_path(temp_dir):
+    """Test state file path generation."""
+    path = get_state_file_path("TEST-001")
+    assert path == Path("state/projects/TEST-001.yaml")
+    assert path.parent.exists()
 
-def test_compute_file_hash_nonexistent():
-    """Test that computing hash for nonexistent file raises error."""
-    with pytest.raises(FileNotFoundError):
-        compute_file_hash(Path("/nonexistent/file.txt"))
+def test_load_state_empty(temp_dir):
+    """Test loading state when file doesn't exist."""
+    state = load_state("NEW-PROJ")
+    assert state == {}
 
+def test_load_state_existing(temp_dir):
+    """Test loading state when file exists."""
+    state_path = get_state_file_path("EXISTING-PROJ")
+    initial_state = {"project_id": "EXISTING-PROJ", "artifacts": {}}
+    with open(state_path, "w") as f:
+        yaml.dump(initial_state, f)
+    
+    loaded = load_state("EXISTING-PROJ")
+    assert loaded["project_id"] == "EXISTING-PROJ"
 
-def test_load_state_empty():
-    """Test loading state when file does not exist."""
-    # Use a temporary directory to ensure no existing state file interferes
-    # Note: In a real test suite, we might mock the state path, but here
-    # we rely on the fact that a fresh environment won't have the file.
-    # If the file exists from a previous run, this test verifies we get a dict.
-    state = load_state()
-    assert isinstance(state, dict)
+def test_update_state_artifact(temp_dir):
+    """Test updating state with a new artifact hash."""
+    # Create a dummy artifact
+    artifact_path = Path("data/processed/test_data.csv")
+    artifact_path.parent.mkdir(parents=True, exist_ok=True)
+    artifact_path.write_text("col1,col2\n1,2\n")
+    
+    success = update_state_artifact(artifact_path, "TEST-PROJ")
+    assert success is True
+    
+    # Verify state file content
+    state_path = get_state_file_path("TEST-PROJ")
+    assert state_path.exists()
+    
+    with open(state_path, "r") as f:
+        state = yaml.safe_load(f)
+    
+    assert "artifacts" in state
+    assert "derived_data" in state["artifacts"]
+    assert str(artifact_path) in state["artifacts"]["derived_data"]
+    
+    entry = state["artifacts"]["derived_data"][str(artifact_path)]
+    assert "hash" in entry
+    assert "updated_at" in entry
+    assert "size_bytes" in entry
 
+def test_verify_artifact_integrity_success(temp_dir):
+    """Test verification when hash matches."""
+    artifact_path = Path("data/processed/verify_test.csv")
+    artifact_path.parent.mkdir(parents=True, exist_ok=True)
+    content = b"test content"
+    artifact_path.write_bytes(content)
+    
+    # Update state first
+    update_state_artifact(artifact_path, "VERIFY-PROJ")
+    
+    # Verify
+    assert verify_artifact_integrity(artifact_path, "VERIFY-PROJ") is True
 
-def test_save_and_load_state(tmp_path, monkeypatch):
-    """Test saving and loading state."""
-    # Monkeypatch the state path to our temp directory
-    def mock_get_state_path():
-        return tmp_path
-
-    monkeypatch.setattr("src.utils.state_manager.get_state_path", mock_get_state_path)
-    monkeypatch.setattr("src.utils.config.get_state_path", mock_get_state_path)
-
-    test_state = {"key": "value", "nested": {"a": 1}}
-    save_state(test_state)
-
-    loaded_state = load_state()
-    assert loaded_state == test_state
-
-
-def test_update_artifact_state(tmp_path, monkeypatch):
-    """Test updating state with a new artifact."""
-    # Setup temp directories
-    project_root = tmp_path / "project"
-    project_root.mkdir()
-    data_dir = project_root / "data"
-    data_dir.mkdir()
-    state_dir = project_root / "state" / "projects"
-    state_dir.mkdir(parents=True)
-
-    # Create a test artifact
-    artifact_file = data_dir / "test_output.csv"
-    artifact_file.write_text("col1,col2\n1,2\n3,4")
-
-    # Monkeypatch paths
-    def mock_get_project_root():
-        return project_root
-
-    def mock_get_state_path():
-        return state_dir
-
-    monkeypatch.setattr("src.utils.state_manager.get_project_root", mock_get_project_root)
-    monkeypatch.setattr("src.utils.config.get_project_root", mock_get_project_root)
-    monkeypatch.setattr("src.utils.state_manager.get_state_path", mock_get_state_path)
-    monkeypatch.setattr("src.utils.config.get_state_path", mock_get_state_path)
-
+def test_verify_artifact_integrity_failure(temp_dir):
+    """Test verification when hash mismatches."""
+    artifact_path = Path("data/processed/mismatch_test.csv")
+    artifact_path.parent.mkdir(parents=True, exist_ok=True)
+    artifact_path.write_text("original")
+    
     # Update state
-    new_state = update_artifact_state(artifact_file, "Test artifact description")
-
-    # Verify state structure
-    assert "artifacts" in new_state
-    assert "data/test_output.csv" in new_state["artifacts"]
-
-    entry = new_state["artifacts"]["data/test_output.csv"]
-    assert entry["description"] == "Test artifact description"
-    assert len(entry["hash"]) == 64  # SHA-256 hex length
-    assert Path(entry["path"]).name == "test_output.csv"
-
-
-def test_verify_artifact_integrity(tmp_path, monkeypatch):
-    """Test artifact integrity verification."""
-    project_root = tmp_path / "project"
-    project_root.mkdir()
-    data_dir = project_root / "data"
-    data_dir.mkdir()
-    state_dir = project_root / "state" / "projects"
-    state_dir.mkdir(parents=True)
-
-    artifact_file = data_dir / "verify_test.txt"
-    artifact_file.write_text("original content")
-
-    def mock_get_project_root():
-        return project_root
-
-    def mock_get_state_path():
-        return state_dir
-
-    monkeypatch.setattr("src.utils.state_manager.get_project_root", mock_get_project_root)
-    monkeypatch.setattr("src.utils.config.get_project_root", mock_get_project_root)
-    monkeypatch.setattr("src.utils.state_manager.get_state_path", mock_get_state_path)
-    monkeypatch.setattr("src.utils.config.get_state_path", mock_get_state_path)
-
-    # First, update state to store the hash
-    update_artifact_state(artifact_file)
-
-    # Verify should return True
-    assert verify_artifact_integrity(artifact_file) is True
-
-    # Modify the file
-    artifact_file.write_text("modified content")
-
-    # Verify should return False
-    assert verify_artifact_integrity(artifact_file) is False
-
-    # Restore original content
-    artifact_file.write_text("original content")
-    assert verify_artifact_integrity(artifact_file) is True
-
-
-def test_update_artifact_nonexistent():
-    """Test that updating state with nonexistent artifact raises error."""
-    with pytest.raises(FileNotFoundError):
-        update_artifact_state(Path("/nonexistent/artifact.txt"))
+    update_state_artifact(artifact_path, "MISMATCH-PROJ")
+    
+    # Modify file
+    artifact_path.write_text("modified")
+    
+    # Verify should fail
+    assert verify_artifact_integrity(artifact_path, "MISMATCH-PROJ") is False
