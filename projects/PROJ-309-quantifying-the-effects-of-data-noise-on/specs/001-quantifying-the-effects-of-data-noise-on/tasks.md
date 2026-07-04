@@ -20,37 +20,37 @@
 - **Mobile**: `api/src/`, `ios/src/` or `android/src/`
 - Paths shown below assume single project - adjust based on plan.md structure
 
-<!-- 
-  ============================================================================
-  IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-  
-  The /speckit-tasks command MUST replace these with actual tasks based on:
-  - User stories from spec.md (with their priorities P1, P2, P3...)
-  - Feature requirements from plan.md
-  - Entities from data-model.md
-  - Endpoints from contracts/
-  
-  Tasks MUST be organized by user story so each story can be:
-  - Implemented independently
-  - Tested independently
-  - Delivered as an MVP increment
-  
-  DO NOT keep these sample tasks in the generated tasks.md file.
-  ============================================================================
+<!--
+ ============================================================================
+ IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
+
+ The /speckit-tasks command MUST replace these with actual tasks based on:
+ - User stories from spec.md (with their priorities P1, P2, P3...)
+ - Feature requirements from plan.md
+ - Entities from data-model.md
+ - Endpoints from contracts/
+
+ Tasks MUST be organized by user story so each story can be:
+ - Implemented independently
+ - Tested independently
+ - Delivered as an MVP increment
+
+ DO NOT keep these sample tasks in the generated tasks.md file.
+ ============================================================================
 -->
 
 ## Phase 1: Setup (Shared Infrastructure)
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001a [P] Create `code/` directory at repository root
-- [ ] T001b [P] Create `data/raw`, `data/processed`, `data/results` directories with `.gitkeep`
-- [ ] T001c [P] Create `tests/unit`, `tests/contract`, `tests/integration` directories
+- [X] T001a [P] Create `code/` directory at repository root
+- [X] T001b [P] Create `data/raw`, `data/processed`, `data/results` directories with `.gitkeep`
+- [X] T001c [P] Create `tests/unit`, `tests/contract`, `tests/integration` directories
 
-- [ ] T002a [P] Create `requirements.txt` with pinned Python dependencies (numpy, scipy, pandas, matplotlib, pytest)
-- [ ] T002b [P] Create `pyproject.toml` with project metadata and entry points
+- [X] T002a [P] Create `requirements.txt` with pinned Python dependencies (numpy, scipy, pandas, matplotlib, pytest)
+- [X] T002b [P] Create `pyproject.toml` with project metadata and entry points
 
-- [ ] T003 [P] Configure linting (ruff) and formatting (black) tools
+- [X] T003 [P] Configure linting (ruff) and formatting (black) tools
 
 ---
 
@@ -65,20 +65,20 @@
 ### Phase 2a: Scaffolding & Signatures
 
 - [ ] T004 [P] Create `code/config.py` with function signatures and docstrings for constants: SNR levels, system params, seeds, noise type enums (Gaussian, Uniform Quantization).
-- [ ] T005 [P] Create `code/generators.py` with function signatures and docstrings for Lorenz/Rössler integration (FR-001).
-- [ ] T006 [P] Create `code/noise.py` with function signatures and docstrings for Gaussian/Quantization injection (FR-002, FR-003).
+- [X] T005 [P] Create `code/generators.py` with function signatures and docstrings for Lorenz/Rössler integration (FR-001).
+- [ ] T006 [P] Create `code/noise.py` with function signatures and docstrings for Gaussian/Quantization injection (FR-002, FR-003). <!-- FAILED: unspecified -->
 - [ ] T007 [P] Create `code/metrics.py` with function signatures and docstrings for GP, Rosenstein, FNN (FR-004, FR-005, FR-006).
-- [ ] T008 [P] Create `code/analysis.py` with function signatures and docstrings for error calc, threshold ID (FR-007, FR-008).
-- [ ] T009 [P] Create `code/visualize.py` with function signatures and docstrings for plotting, CSV export (FR-009, FR-010).
+- [X] T008 [P] Create `code/analysis.py` with function signatures and docstrings for error calc, threshold ID (FR-007, FR-008).
+- [X] T009 [P] Create `code/visualize.py` with function signatures and docstrings for plotting, CSV export (FR-009, FR-010).
 
 ### Phase 2b: Core Logic Implementation
 
-- [ ] T039 [P] Implement `code/config.py` constants and enums (SNR levels, system params, seeds, noise types).
-- [ ] T040 [P] Implement `code/generators.py` logic for Lorenz/Rössler integration (FR-001).
-- [ ] T041 [P] Implement `code/noise.py` logic for Gaussian/Quantization injection (FR-002, FR-003).
-- [ ] T042 [P] Implement `code/metrics.py` logic for GP, Rosenstein, FNN (FR-004, FR-005, FR-006).
-- [ ] T043 [P] Implement `code/analysis.py` logic for error calc, threshold ID (FR-007, FR-008).
-- [ ] T044 [P] Implement `code/visualize.py` logic for plotting, CSV export (FR-009, FR-010).
+- [~] T039 [P] Implement `code/config.py` constants and enums (SNR levels, system params, seeds, noise types).
+- [~] T040 [P] Implement `code/generators.py` logic for Lorenz/Rössler integration (FR-001).
+- [~] T041 [P] Implement `code/noise.py` logic for Gaussian/Quantization injection (FR-002, FR-003).
+- [~] T042 [P] Implement `code/metrics.py` logic for GP, Rosenstein, FNN (FR-004, FR-005, FR-006).
+- [~] T043 [P] Implement `code/analysis.py` logic for error calc, threshold ID (FR-007, FR-008).
+- [~] T044 [P] Implement `code/visualize.py` logic for plotting, CSV export (FR-009, FR-010).
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -94,17 +94,17 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T010 [P] [US1] Contract test for trajectory schema in `tests/contract/test_trajectory.py`
-- [ ] T011 [P] [US1] Integration test for reproducibility (seed stability) in `tests/integration/test_reproducibility.py`
+- [~] T010 [P] [US1] Contract test for trajectory schema in `tests/contract/test_trajectory.py`
+- [~] T011 [P] [US1] Integration test for reproducibility (seed stability) in `tests/integration/test_reproducibility.py`
 
 ### Implementation for User Story 1
 
-- [ ] T012 [US1] Implement Lorenz attractor integration in `code/generators.py` using `scipy.integrate.solve_ivp` with standard parameters (σ=10, ρ=28, β=8/3)
-- [ ] T013 [US1] Implement Rössler attractor integration in `code/generators.py` with standard parameters
-- [ ] T014 [US1] Implement trajectory validation (NaN check, minimum length threshold) in `code/generators.py`
-- [ ] T015 [US1] Add logging for integration overflow warnings and trajectory generation metadata
-- [ ] T016 [US1] Write clean trajectories to `data/raw/` with naming convention `{system_type}_clean_{seed}.csv` and sidecar checksum file
-- [ ] T017 [US1] **Compute Ground Truth Metrics**: Implement logic in `code/metrics.py` to compute Correlation Dimension and Lyapunov Exponent for clean trajectories generated in T012/T013. Store results in `data/processed/ground_truth_metrics_{seed}.json` to serve as the reference for error calculation.
+- [~] T012 [US1] Implement Lorenz attractor integration in `code/generators.py` using `scipy.integrate.solve_ivp` with standard parameters (σ=10, ρ=28, β=8/3)
+- [~] T013 [US1] Implement Rössler attractor integration in `code/generators.py` with standard parameters
+- [~] T014 [US1] Implement trajectory validation (NaN check, minimum length threshold) in `code/generators.py`
+- [~] T015 [US1] Add logging for integration overflow warnings and trajectory generation metadata
+- [~] T016 [US1] Write clean trajectories to `data/raw/` with naming convention `{system_type}_clean_{seed}.csv` and sidecar checksum file
+- [~] T017 [US1] **Compute Ground Truth Metrics**: Implement logic in `code/metrics.py` to compute Correlation Dimension and Lyapunov Exponent for clean trajectories generated in T012/T013. Store results in `data/processed/ground_truth_metrics_{seed}.json` to serve as the reference for error calculation.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -118,16 +118,16 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T018 [P] [US2] Contract test for noisy trajectory schema in `tests/contract/test_noisy_trajectory.py`
-- [ ] T019 [P] [US2] Unit test for SNR calculation accuracy in `tests/unit/test_noise.py`
+- [~] T018 [P] [US2] Contract test for noisy trajectory schema in `tests/contract/test_noisy_trajectory.py`
+- [~] T019 [P] [US2] Unit test for SNR calculation accuracy in `tests/unit/test_noise.py`
 
 ### Implementation for User Story 2
 
-- [ ] T020 [P] [US2] Implement Gaussian noise injection in `code/noise.py` with target SNR accuracy ±0.5dB (See US-2 Acceptance Scenario 1: Negative to positive decibel levels in fixed increments. per FR-002)
-- [ ] T021 [US2] Implement uniform quantization noise injection in `code/noise.py` with user-specified bit resolution (FR-003)
-- [ ] T022 [US2] Implement SNR verification logic (calculate actual SNR post-injection) in `code/noise.py`
-- [ ] T023 [US2] Add error handling for unsupported noise types (only Gaussian and uniform quantization supported)
-- [ ] T024 [US2] Write noisy trajectories to `data/processed/` with metadata in sidecar JSON file `manifest_{system_type}.json`
+- [~] T020 [P] [US2] Implement Gaussian noise injection in `code/noise.py` with target SNR accuracy ±0.5dB (See US-2 Acceptance Scenario 1: Negative to positive decibel levels in fixed increments. per FR-002)
+- [~] T021 [US2] Implement uniform quantization noise injection in `code/noise.py` with user-specified bit resolution (FR-003)
+- [~] T022 [US2] Implement SNR verification logic (calculate actual SNR post-injection) in `code/noise.py`
+- [~] T023 [US2] Add error handling for unsupported noise types (only Gaussian and uniform quantization supported)
+- [~] T024 [US2] Write noisy trajectories to `data/processed/` with metadata in sidecar JSON file `manifest_{system_type}.json`
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -141,21 +141,28 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T025 [P] [US3] Contract test for metric results schema in `tests/contract/test_metrics.py`
-- [ ] T026 [P] [US3] Unit test for Grassberger-Procaccia algorithm correctness on known synthetic data in `tests/unit/test_metrics.py`
+- [~] T025 [P] [US3] Contract test for metric results schema in `tests/contract/test_metrics.py`
+- [~] T026 [P] [US3] Unit test for Grassberger-Procaccia algorithm correctness on known synthetic data in `tests/unit/test_metrics.py`
 
 ### Implementation for User Story 3
 
-- [ ] T027 [P] [US3] Implement Correlation Dimension (Grassberger-Procaccia) in `code/metrics.py` with embedding dimension search
-- [ ] T028 [US3] Implement Largest Lyapunov Exponent (Rosenstein's algorithm) in `code/metrics.py` with convergence checks
-- [ ] T029 [US3] Implement False Nearest Neighbors (FNN) in `code/metrics.py` (embedding=2, threshold=10× std)
-- [ ] T030 [US3] **Implement Error Calculation**: Implement logic in `code/analysis.py` to calculate absolute error for each metric as `|computed_value - ground_truth_value| / |ground_truth_value| × 100`. The `ground_truth_value` MUST be sourced from the metrics computed in Task T017 (Clean Trajectory Metrics). (See FR-007)
-- [ ] T031 [US3] **Identify Critical Threshold**: Implement logic to identify critical SNR threshold where FNN rate exceeds a majority level
+- [~] T027 [P] [US3] Implement Correlation Dimension (Grassberger-Procaccia) in `code/metrics.py` with embedding dimension search
+- [~] T028 [US3] Implement Largest Lyapunov Exponent (Rosenstein's algorithm) in `code/metrics.py` with convergence checks
+- [~] T029 [US3] Implement False Nearest Neighbors (FNN) in `code/metrics.py` (embedding=2, threshold=10× std)
+- [~] T030 [US3] **Implement Error Calculation**: Implement logic in `code/analysis.py` to calculate absolute error for each metric as `|computed_value - ground_truth_value| / |ground_truth_value| × 100`. The `ground_truth_value` MUST be sourced from the metrics computed in Task T017 (Clean Trajectory Metrics). (See FR-007)
+- [~] T031 [US3] **Identify Critical Threshold**: Implement logic to identify critical SNR threshold where FNN rate exceeds a majority level <!-- SKIPPED: YAML+regex parse failed (while scanning a simple key
+ in "<unicode string>", line 3, column 1:
+ 1. **Loads metric results** from...
+ ^
+could not find expected ':'
+ in "<unicode string>", line 4, column 1:
+ 2. **Computes FNN errors** relat...
+ ^) -->
 
 Reference: [Citation preserved verbatim]
 Research Question: [Question preserved verbatim]
 Method: [Method preserved verbatim] (per SC-003). (See FR-008, SC-003)
-- [ ] T032 [US3] Write metric results and error tables to `data/processed/` as `metrics_summary.csv`
+- [~] T032 [US3] Write metric results and error tables to `data/processed/` as `metrics_summary.csv`
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -169,15 +176,15 @@ Method: [Method preserved verbatim] (per SC-003). (See FR-008, SC-003)
 
 ### Tests for User Story 4 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T033 [P] [US4] Integration test for CSV export format in `tests/integration/test_export.py`
+- [~] T033 [P] [US4] Integration test for CSV export format in `tests/integration/test_export.py`
 
 ### Implementation for User Story 4
 
-- [ ] T034 [P] [US4] Implement CSV export logic (columns: SNR_dB, noise_type, metric_name, computed_value, ground_truth_value, error_percent) in `code/visualize.py`
-- [ ] T035 [US4] Implement line plot generation with critical threshold marker (at the 50% FNN point) in `code/visualize.py`
-- [ ] T036 [US4] Implement pipeline orchestration in `code/main.py` to run generation → noise → metrics → analysis → export
-- [ ] T037 [US4] Add timing logic to verify pipeline completes within 2-hour CPU budget (FR-010)
-- [ ] T038 [US4] Write final results and plots to `data/results/` including `error_vs_snr.png`, `final_lookup.csv`, and `critical_threshold_report.json`
+- [~] T034 [P] [US4] Implement CSV export logic (columns: SNR_dB, noise_type, metric_name, computed_value, ground_truth_value, error_percent) in `code/visualize.py`
+- [~] T035 [US4] Implement line plot generation with critical threshold marker (at the 50% FNN point) in `code/visualize.py`
+- [~] T036 [US4] Implement pipeline orchestration in `code/main.py` to run generation → noise → metrics → analysis → export
+- [~] T037 [US4] Add timing logic to verify pipeline completes within 2-hour CPU budget (FR-010)
+- [~] T038 [US4] Write final results and plots to `data/results/` including `error_vs_snr.png`, `final_lookup.csv`, and `critical_threshold_report.json`
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -189,11 +196,11 @@ Method: [Method preserved verbatim] (per SC-003). (See FR-008, SC-003)
 
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
-  - Phase 2a (Scaffolding) must complete before Phase 2b (Logic)
-  - Phase 2b (Logic) must complete before User Story implementation
+ - Phase 2a (Scaffolding) must complete before Phase 2b (Logic)
+ - Phase 2b (Logic) must complete before User Story implementation
 - **User Stories (Phase 3-6)**: All depend on Foundational phase completion
-  - User stories can then proceed in parallel (if staffed)
-  - Or sequentially in priority order (P1 → P2 → P3)
+ - User stories can then proceed in parallel (if staffed)
+ - Or sequentially in priority order (P1 → P2 → P3)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
@@ -203,11 +210,11 @@ Method: [Method preserved verbatim] (per SC-003). (See FR-008, SC-003)
 - **User Story 3 (P2)**: **Must run AFTER US1 AND US2 complete** - Requires clean data (US1) and noisy data (US2) to compute error rates (FR-007). Specifically, T030 (Error Calculation) requires the ground truth metrics produced in **Task T017** (US1).
 - **User Story 4 (P3)**: Can start after Foundational (Phase 2) - Depends on US3 results
 - **Within Each User Story**:
-  - Tests (if included) MUST be written and FAIL before implementation
-  - Models before services
-  - Services before endpoints
-  - Core implementation before integration
-  - Story complete before moving to next priority
+ - Tests (if included) MUST be written and FAIL before implementation
+ - Models before services
+ - Services before endpoints
+ - Core implementation before integration
+ - Story complete before moving to next priority
 
 ### Parallel Opportunities
 
@@ -241,8 +248,8 @@ Task: "Implement Rössler attractor integration in code/generators.py"
 
 1. Complete Phase 1: Setup
 2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
-   - Complete Phase 2a (Scaffolding)
-   - Complete Phase 2b (Logic)
+ - Complete Phase 2a (Scaffolding)
+ - Complete Phase 2b (Logic)
 3. Complete Phase 3: User Story 1 (including T017 for Ground Truth Metrics)
 4. **STOP and VALIDATE**: Test User Story 1 independently
 5. Deploy/demo if ready
@@ -263,10 +270,10 @@ With multiple developers:
 1. Team completes Setup + Phase 2a together
 2. Team completes Phase 2b together
 3. Once Foundational is done:
-   - Developer A: User Story 1
-   - Developer B: User Story 2
-   - Developer C: User Story 3 (Must wait for US1/US2 data artifacts, specifically T017 output)
-   - Developer D: User Story 4 (Can start early with scaffolding)
+ - Developer A: User Story 1
+ - Developer B: User Story 2
+ - Developer C: User Story 3 (Must wait for US1/US2 data artifacts, specifically T017 output)
+ - Developer D: User Story 4 (Can start early with scaffolding)
 4. Stories complete and integrate independently
 
 ---

@@ -1,0 +1,2 @@
+# This file ensures the code directory exists in version control.
+# Linting and formatting configurations are managed via pyproject.toml and .ruff.toml.

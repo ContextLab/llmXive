@@ -1,83 +1,61 @@
 """
-Configuration constants and parameters for the research pipeline.
+Configuration constants and enums for the project.
+
+Defines:
+- SNR levels
+- System parameters (Lorenz, Rössler)
+- Seeds
+- Noise type enums
+- Algorithm parameters (FNN_THRESHOLD_FACTOR, etc.)
 """
 import numpy as np
 from scipy.stats import t, norm
+from enum import Enum
+from typing import List, Dict, Any, Optional
 
-# Simulation Seeds
-SEED_BASE = 42
-SEEDS = [42, 123, 456, 789, 101112]
 
-# SNR Levels (dB) - Spanning low to high, including near-zero conditions
-# Includes negative dB (noise > signal), 0dB (noise = signal), and high SNR
-SNR_LEVELS_DB = [-10.0, -5.0, 0.0, 5.0, 10.0, 15.0, 20.0, 30.0]
+class NoiseType(Enum):
+    """Enumeration of supported noise types."""
+    GAUSSIAN = "gaussian"
+    UNIFORM_QUANTIZATION = "uniform_quantization"
+
 
 # System Parameters
-# Lorenz Attractor (Standard parameters)
-LORENZ_SIGMA = 10.0
-LORENZ_RHO = 28.0
-LORENZ_BETA = 8.0 / 3.0
 LORENZ_PARAMS = {
-    "sigma": LORENZ_SIGMA,
-    "rho": LORENZ_RHO,
-    "beta": LORENZ_BETA
+    'sigma': 10.0,
+    'rho': 28.0,
+    'beta': 8.0/3.0
 }
 
-# Rössler Attractor (Standard parameters)
-ROSSLER_A = 0.2
-ROSSLER_B = 0.2
-ROSSLER_C = 5.7
 ROSSLER_PARAMS = {
-    "a": ROSSLER_A,
-    "b": ROSSLER_B,
-    "c": ROSSLER_C
+    'a': 0.2,
+    'b': 0.2,
+    'c': 5.7
 }
 
 # Integration Parameters
 DT = 0.01
-TIME_STEP_COUNT = 10000
-TOTAL_TIME = DT * TIME_STEP_COUNT
+T_MAX = 100.0
+SAVE_FREQ = 10  # Save every 10 time steps
 
-# Batch Size Limits
-MAX_BATCH_SIZE = 100
+# Noise Parameters
+SNR_LEVELS = [0, 5, 10, 15, 20, 25, 30]  # dB
+QUANTIZATION_BITS = [8, 10, 12, 14, 16]
 
-# Literature Reference Ranges for Validation
-# Source: Standard literature values for Lorenz attractor
-# Correlation Dimension (D2) ≈ 2.06 ± 0.05
-# Lyapunov Exponent (LE) ≈ 0.90 ± 0.05
-# Note: These are established values from chaotic dynamics literature.
-LITERATURE_LORENZ = {
-    "correlation_dimension": {
-        "mean": 2.06,
-        "std": 0.05,
-        "tolerance_pct": 5.0
-    },
-    "lyapunov_exponent": {
-        "mean": 0.90,
-        "std": 0.05,
-        "tolerance_pct": 5.0
-    }
-}
+# Algorithm Parameters
+FNN_THRESHOLD_FACTOR = 10.0  # Threshold for FNN is 10 * std
+FNN_EMBEDDING_START = 1
+FNN_EMBEDDING_MAX = 10
+FNN_DELAY = 1
 
-# Power Analysis Parameters
-# Target: 80% power, alpha=0.05
-# Effect size estimation based on expected variance in noisy dynamical systems
-# Calculated sample size N per group for a 2-sample t-test assuming medium effect size (Cohen's d = 0.5)
-# Using standard power analysis formula: N = 2 * ((Z_alpha + Z_beta) / d)^2
-# Z_alpha (0.05) ≈ 1.96, Z_beta (0.20) ≈ 0.84 -> N ≈ 2 * (2.8/0.5)^2 ≈ 62.72 -> rounded to 64
-POWER_ANALYSIS = {
-    "power": 0.80,
-    "alpha": 0.05,
-    "estimated_effect_size": 0.5,  # Medium effect size (Cohen's d)
-    "calculated_sample_size": 64   # N per group for 2-sample t-test
-}
+# Random Seeds
+BASE_SEED = 42
+SEEDS = [42, 123, 456, 789, 101112]
 
-# Noise Types
-NOISE_TYPES = ["gaussian", "quantization"]
+# Metric Parameters
+CORRELATION_DIM_R_MIN = 0.01
+CORRELATION_DIM_R_MAX = 1.0
+CORRELATION_DIM_N_BINS = 20
 
-# File Paths
-DATA_DIR = "data"
-DATA_RAW_DIR = "data/raw"
-DATA_PROCESSED_DIR = "data/processed"
-FIGURES_DIR = "figures"
-CHECKSUMS_FILE = "data/checksums.json"
+LYAPUNOV_T_MAX = 100
+LYAPUNOV_MIN_SEPARATION = 10

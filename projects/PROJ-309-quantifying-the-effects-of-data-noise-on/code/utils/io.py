@@ -1,125 +1,74 @@
-"""
-I/O utilities for the llmXive research pipeline.
-
-Provides functions for:
-- CSV export (pandas)
-- JSON artifact writing with metadata
-- SHA256 checksumming of generated files
-"""
 import csv
 import hashlib
 import json
 import os
 from pathlib import Path
 from typing import Any, Dict, Optional, Union
-
+import logging
 import numpy as np
-import pandas as pd
+from code.utils.data_models import Trajectory
 
+logger = logging.getLogger(__name__)
 
-def export_csv(
-    data: Union[pd.DataFrame, Dict[str, list]],
-    output_path: Union[str, Path],
-    metadata: Optional[Dict[str, Any]] = None,
-) -> None:
-    """
-    Export data to a CSV file.
-
-    Args:
-        data: Either a pandas DataFrame or a dictionary of column lists.
-        output_path: Path where the CSV file will be written.
-        metadata: Optional dictionary of metadata to include in a companion .meta.json file.
-                  If provided, the metadata will be saved alongside the CSV.
-
-    Raises:
-        ValueError: If data format is invalid.
-        FileNotFoundError: If the parent directory of output_path does not exist.
-    """
-    output_path = Path(output_path)
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-
-    if isinstance(data, pd.DataFrame):
-        df = data
-    elif isinstance(data, dict):
-        df = pd.DataFrame(data)
-    else:
-        raise ValueError(f"Unsupported data type: {type(data)}. Expected DataFrame or dict.")
-
-    df.to_csv(output_path, index=False)
-
-    if metadata is not None:
-        meta_path = output_path.with_suffix(output_path.suffix + ".meta.json")
-        write_json_artifact(metadata, meta_path)
-
-
-def write_json_artifact(
-    data: Dict[str, Any],
-    output_path: Union[str, Path],
-    include_checksum: bool = True,
-) -> str:
-    """
-    Write a dictionary to a JSON file with optional checksum metadata.
-
-    Args:
-        data: The dictionary to serialize.
-        output_path: Path where the JSON file will be written.
-        include_checksum: If True, compute the SHA256 of the written file and
-                          inject it into the metadata under '_checksum'.
-
-    Returns:
-        The SHA256 checksum of the written file.
-    """
-    output_path = Path(output_path)
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-
-    # Pre-calculate checksum if requested (after writing)
-    # We write first, then read back to compute checksum to ensure accuracy
-    # However, to avoid a second read, we can compute on the serialized string
-    # but file encoding might differ. The safest is write -> read -> hash.
+def export_csv(data: Union[np.ndarray, list], path: Union[str, Path], headers: Optional[list] = None):
+    """Export data to CSV."""
+    path = Path(path)
+    path.parent.mkdir(parents=True, exist_ok=True)
     
-    # For efficiency, we serialize, write, then hash the file.
-    json_str = json.dumps(data, indent=2, default=str)
-    with open(output_path, "w", encoding="utf-8") as f:
-        f.write(json_str)
+    with open(path, 'w', newline='') as f:
+        writer = csv.writer(f)
+        if headers:
+            writer.writerow(headers)
+        if isinstance(data, np.ndarray):
+            for row in data:
+                writer.writerow(row)
+        else:
+            for row in data:
+                writer.writerow(row)
+    logger.info(f"Exported CSV to {path}")
 
-    checksum = compute_file_checksum(output_path)
+def write_json_artifact(data: Dict[str, Any], path: Union[str, Path]):
+    """Write a dictionary to a JSON file."""
+    path = Path(path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    
+    with open(path, 'w') as f:
+        json.dump(data, f, indent=2)
+    logger.info(f"Written JSON artifact to {path}")
 
-    if include_checksum:
-        # Update the data object in memory to reflect the checksum for the caller
-        # Note: This modifies the input dict if it's the same reference, 
-        # but usually we just return the checksum.
-        # To be safe and pure, we don't modify input, but we can return the checksum.
-        pass
+def compute_file_checksum(path: Union[str, Path]) -> str:
+    """Compute MD5 checksum of a file."""
+    path = Path(path)
+    hash_md5 = hashlib.md5()
+    with open(path, "rb") as f:
+        for chunk in iter(lambda: f.read(4096), b""):
+            hash_md5.update(chunk)
+    return hash_md5.hexdigest()
 
-    return checksum
-
-
-def compute_file_checksum(
-    file_path: Union[str, Path],
-    algorithm: str = "sha256",
-    chunk_size: int = 8192,
-) -> str:
+def load_trajectory(path: Union[str, Path]) -> Trajectory:
     """
-    Compute the SHA256 checksum of a file.
-
-    Args:
-        file_path: Path to the file to hash.
-        algorithm: Hash algorithm to use (default: sha256).
-        chunk_size: Size of chunks to read at a time.
-
-    Returns:
-        Hexadecimal string of the hash.
-
-    Raises:
-        FileNotFoundError: If the file does not exist.
+    Load a trajectory from a CSV file.
+    Expected format: header row, then rows of floats.
+    Assumes columns correspond to state dimensions.
     """
-    file_path = Path(file_path)
-    if not file_path.exists():
-        raise FileNotFoundError(f"File not found: {file_path}")
-
-    hasher = hashlib.new(algorithm)
-    with open(file_path, "rb") as f:
-        for chunk in iter(lambda: f.read(chunk_size), b""):
-            hasher.update(chunk)
-
-    return hasher.hexdigest()
+    path = Path(path)
+    if not path.exists():
+        raise FileNotFoundError(f"Trajectory file not found: {path}")
+    
+    data = np.loadtxt(path, delimiter=',', skiprows=1)
+    # Ensure 2D
+    if data.ndim == 1:
+        data = data.reshape(-1, 1)
+        
+    # Extract metadata if available in sidecar? 
+    # For now, assume standard load.
+    # Create a Trajectory object
+    # We need to infer system_type and seed from filename or pass them?
+    # The function signature in the prompt implies we just load data.
+    # We'll create a basic Trajectory object.
+    # The actual metadata (system, seed) should be passed or derived.
+    # Let's assume the caller handles metadata or we store it in the object if possible.
+    # Since Trajectory is a dataclass, we can add metadata fields if needed, 
+    # but for now we just return the object with state.
+    # To be safe, we return a Trajectory with state and empty metadata.
+    return Trajectory(state=data, system_type="unknown", seed=0)

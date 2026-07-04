@@ -1,232 +1,225 @@
-"""
-Main orchestration script for the research pipeline.
-Enforces data flow: Generate → Inject → Compute → Analyze
-
-This script coordinates the execution of the full research pipeline:
-1. Generate clean chaotic time-series data (Lorenz, Rössler)
-2. Inject controlled noise at specified SNR levels
-3. Compute phase space reconstruction metrics
-4. Analyze errors and generate lookup tables/visualizations
-
-Usage: python code/main.py [--snr <levels>] [--noise <types>] [--seeds <seeds>]
-"""
 import sys
 import os
 import argparse
 import logging
 from pathlib import Path
 from typing import List, Optional, Dict, Any
+import json
+import time
 
-# Add project root to path for imports
-project_root = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(project_root))
+# Add project root to path if running as script
+sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from code.config import (
-    SNR_LEVELS,
-    NOISE_TYPES,
-    SEEDS,
-    SYSTEMS,
-    DATA_DIR,
-    FIGURES_DIR,
-    LOG_FILE,
-    METRICS_LITERATURE
-)
-from code.utils.io import export_csv, write_json_artifact, compute_file_checksum
-from code.utils.data_models import Trajectory, NoisyTrajectory, MetricResult
-from code.utils.plotting import set_plot_style, plot_error_vs_snr, save_figure
+from code.generators import generate_lorenz_trajectory, generate_rossler_trajectory, validate_trajectory
+from code.noise import add_noise_to_trajectory, NoiseType
+from code.metrics import compute_all_metrics
+from code.analysis import analyze_results_from_files, load_ground_truth_metrics
+from code.visualize import run_visualization_pipeline
+from code.utils.io import write_json_artifact, load_trajectory, compute_file_checksum
+from code.config import LORENZ_PARAMS, ROSSLER_PARAMS, DT, T_MAX, SNR_LEVELS
 
-# Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.FileHandler(LOG_FILE),
-        logging.StreamHandler(sys.stdout)
-    ]
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
 
-def generate_clean_trajectories(systems: List[str], seeds: List[int]) -> Dict[str, Trajectory]:
-    """
-    Generate clean chaotic time-series data for specified systems and seeds.
+def generate_clean_trajectories(systems: List[str], seeds: List[int], output_dir: Path):
+    """Generate clean trajectories for specified systems and seeds."""
+    output_dir = Path(output_dir)
+    output_dir.mkdir(parents=True, exist_ok=True)
     
-    Args:
-        systems: List of system names (e.g., 'lorenz', 'rossler')
-        seeds: List of random seeds for reproducibility
-        
-    Returns:
-        Dictionary mapping (system, seed) to Trajectory objects
-    """
-    logger.info(f"Starting clean trajectory generation for systems: {systems}")
-    trajectories = {}
+    generated_files = []
     
-    # Placeholder for actual generator implementation
-    # This will be implemented in T013/T014
     for system in systems:
         for seed in seeds:
             logger.info(f"Generating {system} trajectory with seed {seed}")
-            # In a real implementation, we would call:
-            # trajectory = generate_lorenz(seed) or generate_rossler(seed)
-            # For now, we log the intent and skip actual generation
-            logger.warning(f"Skipping actual generation for {system} - implementation pending (T013/T014)")
             
-    logger.info(f"Generated {len(trajectories)} clean trajectories")
-    return trajectories
+            if system == "lorenz":
+                traj = generate_lorenz_trajectory(seed=seed)
+            elif system == "rossler":
+                traj = generate_rossler_trajectory(seed=seed)
+            else:
+                logger.error(f"Unknown system: {system}")
+                continue
+            
+            if not validate_trajectory(traj):
+                logger.warning(f"Validation failed for {system} seed {seed}, skipping.")
+                continue
+            
+            # Save trajectory
+            filename = f"{system}_clean_{seed}.csv"
+            filepath = output_dir / filename
+            traj.save_to_csv(filepath)
+            
+            # Save checksum
+            checksum = compute_file_checksum(filepath)
+            checksum_file = output_dir / f"{system}_clean_{seed}.sha256"
+            with open(checksum_file, 'w') as f:
+                f.write(checksum)
+            
+            generated_files.append(str(filepath))
+            logger.info(f"Saved {filepath}")
+            
+    return generated_files
 
-def inject_noise(trajectories: Dict[str, Trajectory], snr_levels: List[float], 
-                noise_types: List[str]) -> Dict[str, NoisyTrajectory]:
-    """
-    Inject controlled noise at specified SNR levels.
+def inject_noise(traj_path: str, snr_db: float, noise_type: NoiseType, output_dir: Path):
+    """Inject noise into a trajectory and save it."""
+    traj = load_trajectory(traj_path)
     
-    Args:
-        trajectories: Dictionary of clean trajectories
-        snr_levels: List of SNR values in dB
-        noise_types: List of noise types ('gaussian', 'quantization')
-        
-    Returns:
-        Dictionary mapping (system, seed, snr, noise_type) to NoisyTrajectory objects
-    """
-    logger.info(f"Starting noise injection for SNR levels: {snr_levels}, types: {noise_types}")
-    noisy_trajectories = {}
+    logger.info(f"Injecting {noise_type} noise at {snr_db}dB into {traj_path}")
     
-    # Placeholder for actual noise injection implementation
-    # This will be implemented in T022/T023
-    for key, trajectory in trajectories.items():
-        for snr in snr_levels:
-            for noise_type in noise_types:
-                logger.info(f"Injecting {noise_type} noise at {snr}dB SNR")
-                # In a real implementation:
-                # noisy = inject_gaussian_noise(trajectory, snr) or inject_quantization_noise(...)
-                logger.warning(f"Skipping actual noise injection - implementation pending (T022/T023)")
-                
-    logger.info(f"Generated {len(noisy_trajectories)} noisy trajectories")
-    return noisy_trajectories
-
-def compute_metrics(noisy_trajectories: Dict[str, NoisyTrajectory]) -> List[MetricResult]:
-    """
-    Compute phase space reconstruction metrics for noisy trajectories.
+    noisy_traj = add_noise_to_trajectory(traj, snr_db, noise_type)
     
-    Args:
-        noisy_trajectories: Dictionary of noisy trajectories
-        
-    Returns:
-        List of MetricResult objects
-    """
-    logger.info("Starting metric computation")
-    results = []
+    # Save noisy trajectory
+    system_type = traj.system_type
+    seed = traj.seed
+    noise_suffix = "gaussian" if noise_type == NoiseType.GAUSSIAN else "quantization"
+    filename = f"{system_type}_noisy_{noise_suffix}_{int(snr_db)}dB_{seed}.csv"
+    filepath = output_dir / filename
     
-    # Placeholder for actual metric computation implementation
-    # This will be implemented in T031/T032/T033
-    for key, trajectory in noisy_trajectories.items():
-        logger.info(f"Computing metrics for trajectory {key}")
-        # In a real implementation:
-        # lyapunov = compute_lyapunov(trajectory)
-        # correlation_dim = compute_correlation_dimension(trajectory)
-        # fnn_rate = compute_fnn(trajectory)
-        logger.warning(f"Skipping actual metric computation - implementation pending (T031/T032/T033)")
-        
-    logger.info(f"Computed {len(results)} metric results")
-    return results
-
-def analyze_results(results: List[MetricResult], snr_levels: List[float], 
-                   noise_types: List[str]) -> Dict[str, Any]:
-    """
-    Analyze results and generate lookup tables and visualizations.
+    noisy_traj.save_to_csv(filepath)
     
-    Args:
-        results: List of metric results
-        snr_levels: List of SNR values used
-        noise_types: List of noise types used
-        
-    Returns:
-        Dictionary containing analysis results and file paths
-    """
-    logger.info("Starting analysis and visualization generation")
-    
-    # Ensure output directories exist
-    DATA_DIR.mkdir(parents=True, exist_ok=True)
-    FIGURES_DIR.mkdir(parents=True, exist_ok=True)
-    
-    # Placeholder for actual analysis implementation
-    # This will be implemented in T040/T041/T042
-    analysis_output = {
-        'lookup_table_path': None,
-        'figures': [],
-        'thresholds': {}
+    # Save metadata
+    metadata = {
+        "source_file": traj_path,
+        "noise_type": noise_type.value,
+        "target_snr_db": snr_db,
+        "actual_snr_db": noisy_traj.actual_snr_db,
+        "seed": seed,
+        "system_type": system_type
     }
+    metadata_path = output_dir / f"{filename.replace('.csv', '.json')}"
+    write_json_artifact(metadata, str(metadata_path))
     
-    logger.warning("Skipping actual analysis - implementation pending (T040/T041/T042)")
-    
-    logger.info("Analysis complete")
-    return analysis_output
+    logger.info(f"Saved noisy trajectory to {filepath}")
+    return str(filepath)
 
-def main():
-    """
-    Main orchestration function that enforces the data flow:
-    Generate → Inject → Compute → Analyze
-    """
-    logger.info("Starting llmXive Research Pipeline: Quantifying Data Noise Effects")
+def compute_metrics_for_all(noisy_files: List[str], ground_truth_dir: Path, metrics_dir: Path):
+    """Compute metrics for all noisy trajectories and compare with ground truth."""
+    metrics_dir = Path(metrics_dir)
+    metrics_dir.mkdir(parents=True, exist_ok=True)
     
-    # Parse command line arguments
-    parser = argparse.ArgumentParser(description='Research Pipeline Orchestration')
-    parser.add_argument('--snr', type=float, nargs='+', default=None,
-                      help='Override default SNR levels')
-    parser.add_argument('--noise', type=str, nargs='+', default=None,
-                      help='Override default noise types')
-    parser.add_argument('--seeds', type=int, nargs='+', default=None,
-                      help='Override default seeds')
-    parser.add_argument('--systems', type=str, nargs='+', default=None,
-                      help='Override default systems')
-    args = parser.parse_args()
+    all_metrics = []
     
-    # Use command line overrides or defaults from config
-    snr_levels = args.snr if args.snr is not None else SNR_LEVELS
-    noise_types = args.noise if args.noise is not None else NOISE_TYPES
-    seeds = args.seeds if args.seeds is not None else SEEDS
-    systems = args.systems if args.systems is not None else SYSTEMS
+    for traj_file in noisy_files:
+        logger.info(f"Computing metrics for {traj_file}")
+        
+        traj = load_trajectory(traj_file)
+        metrics = compute_all_metrics(traj)
+        
+        # Load ground truth for comparison
+        # Assuming ground truth is named based on seed
+        seed = traj.seed
+        gt_file = ground_truth_dir / f"ground_truth_metrics_{seed}.json"
+        
+        if gt_file.exists():
+            gt_metrics = load_ground_truth_metrics(str(gt_file))
+            # Add error calculation here if needed, or let analysis step handle it
+            metrics["ground_truth"] = gt_metrics
+        else:
+            logger.warning(f"Ground truth not found for seed {seed}")
+        
+        # Save individual metrics
+        output_name = Path(traj_file).stem + "_metrics.json"
+        output_path = metrics_dir / output_name
+        write_json_artifact(metrics, str(output_path))
+        
+        all_metrics.append(metrics)
+        
+    return all_metrics
+
+def run_full_pipeline(systems: List[str], seeds: List[int], snr_levels: List[float], 
+                     noise_types: List[NoiseType], output_root: Path, time_budget_seconds: int = 7200):
+    """Run the full pipeline: generation -> noise -> metrics -> analysis -> export."""
+    start_time = time.time()
     
-    logger.info(f"Configuration: SNR={snr_levels}, Noise={noise_types}, "
-               f"Seeds={seeds}, Systems={systems}")
+    data_raw = output_root / "data" / "raw"
+    data_processed = output_root / "data" / "processed"
+    data_results = output_root / "data" / "results"
+    
+    data_raw.mkdir(parents=True, exist_ok=True)
+    data_processed.mkdir(parents=True, exist_ok=True)
+    data_results.mkdir(parents=True, exist_ok=True)
     
     # Step 1: Generate clean trajectories
-    logger.info("=== PHASE 1: GENERATE ===")
-    clean_trajectories = generate_clean_trajectories(systems, seeds)
+    logger.info("=== Step 1: Generating Clean Trajectories ===")
+    clean_files = generate_clean_trajectories(systems, seeds, data_raw)
     
-    if not clean_trajectories:
-        logger.error("No clean trajectories generated. Cannot proceed.")
-        return 1
+    if not clean_files:
+        logger.error("No clean trajectories generated. Aborting.")
+        return
     
-    # Step 2: Inject noise
-    logger.info("=== PHASE 2: INJECT ===")
-    noisy_trajectories = inject_noise(clean_trajectories, snr_levels, noise_types)
+    # Step 2: Compute ground truth metrics (T017)
+    logger.info("=== Step 2: Computing Ground Truth Metrics ===")
+    for traj_file in clean_files:
+        filename = Path(traj_file).name
+        system, _, seed = filename.replace(".csv", "").split("_")
+        metrics_file = data_processed / f"ground_truth_metrics_{seed}.json"
+        
+        # Compute and save
+        compute_metrics_for_all([traj_file], data_raw, data_processed)
+        # Rename to ground truth format
+        src = data_processed / f"{filename.replace('.csv', '_metrics.json')}"
+        if src.exists():
+            src.rename(metrics_file)
+            
+    # Step 3: Inject noise
+    logger.info("=== Step 3: Injecting Noise ===")
+    noisy_files = []
+    for traj_file in clean_files:
+        for snr in snr_levels:
+            for noise_type in noise_types:
+                if time.time() - start_time > time_budget_seconds:
+                    logger.warning("Time budget exceeded. Stopping noise injection.")
+                    break
+                
+                noisy_path = inject_noise(traj_file, snr, noise_type, data_processed)
+                noisy_files.append(noisy_path)
+        if time.time() - start_time > time_budget_seconds:
+            break
     
-    if not noisy_trajectories:
-        logger.error("No noisy trajectories generated. Cannot proceed.")
-        return 1
+    # Step 4: Compute metrics for noisy data
+    logger.info("=== Step 4: Computing Metrics for Noisy Data ===")
+    noisy_metrics = compute_metrics_for_all(noisy_files, data_processed, data_processed)
     
-    # Step 3: Compute metrics
-    logger.info("=== PHASE 3: COMPUTE ===")
-    metric_results = compute_metrics(noisy_trajectories)
+    # Step 5: Analyze results
+    logger.info("=== Step 5: Analyzing Results ===")
+    analysis_results = analyze_results_from_files(data_processed, data_results)
     
-    if not metric_results:
-        logger.error("No metrics computed. Cannot proceed.")
-        return 1
+    # Step 6: Visualization and Export
+    logger.info("=== Step 6: Visualization and Export ===")
+    run_visualization_pipeline(data_processed, data_results)
     
-    # Step 4: Analyze results
-    logger.info("=== PHASE 4: ANALYZE ===")
-    analysis_output = analyze_results(metric_results, snr_levels, noise_types)
+    elapsed = time.time() - start_time
+    logger.info(f"Pipeline completed in {elapsed:.2f} seconds.")
     
-    # Log final status
-    logger.info("=== PIPELINE COMPLETE ===")
-    logger.info(f"Generated {len(clean_trajectories)} clean trajectories")
-    logger.info(f"Generated {len(noisy_trajectories)} noisy trajectories")
-    logger.info(f"Computed {len(metric_results)} metric results")
-    if analysis_output['lookup_table_path']:
-        logger.info(f"Lookup table saved to: {analysis_output['lookup_table_path']}")
-    if analysis_output['figures']:
-        logger.info(f"Generated {len(analysis_output['figures'])} figures")
+    return analysis_results
+
+def main():
+    parser = argparse.ArgumentParser(description="Full Pipeline for Chaotic Time-Series Analysis")
+    parser.add_argument("--systems", nargs='+', default=["lorenz", "rossler"], help="Systems to generate")
+    parser.add_argument("--seeds", nargs='+', type=int, default=[42], help="Seeds to use")
+    parser.add_argument("--snr-levels", nargs='+', type=float, default=[0, 10, 20, 30], help="SNR levels in dB")
+    parser.add_argument("--noise-types", nargs='+', choices=["gaussian", "quantization"], default=["gaussian"], help="Noise types")
+    parser.add_argument("--output-root", type=str, default=".", help="Project root directory")
+    parser.add_argument("--time-budget", type=int, default=7200, help="Time budget in seconds (default 2h)")
     
-    return 0
+    args = parser.parse_args()
+    
+    # Parse noise types
+    noise_types = [NoiseType.GAUSSIAN if n == "gaussian" else NoiseType.QUANTIZATION for n in args.noise_types]
+    
+    output_root = Path(args.output_root)
+    
+    run_full_pipeline(
+        systems=args.systems,
+        seeds=args.seeds,
+        snr_levels=args.snr_levels,
+        noise_types=noise_types,
+        output_root=output_root,
+        time_budget_seconds=args.time_budget
+    )
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

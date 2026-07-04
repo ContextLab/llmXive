@@ -1,18 +1,64 @@
-# PROJ-309: Quantifying the Effects of Data Noise on Dynamical Systems Reconstruction
-
-## Overview
-This project investigates how varying levels and types of noise affect the reconstruction of dynamical systems metrics (Correlation Dimension, Lyapunov Exponents, False Nearest Neighbors).
-
-## Structure
-- `code/`: Source code for generation, noise injection, metrics, and analysis
-- `data/`: Raw and processed data artifacts
-- `tests/`: Unit and integration tests
-- `specs/`: Research specifications and design documents
+# Quantifying the Effects of Data Noise on Dynamical Systems Reconstruction
 
 ## Setup
-1. Install dependencies: `pip install -r requirements.txt`
-2. Run pipeline: `python code/main.py`
-3. Run tests: `pytest tests/`
 
-## License
-Research Project
+### Prerequisites
+- Python 3.9+
+- pip
+
+### Installation
+1. Clone the repository.
+2. Create a virtual environment:
+ ```bash
+ python -m venv venv
+ source venv/bin/activate # On Windows: venv\Scripts\activate
+ ```
+3. Install dependencies:
+ ```bash
+ pip install -e ".[dev]"
+ ```
+
+### Linting and Formatting
+This project uses **Ruff** for linting and **Black** for formatting.
+
+**Format code:**
+```bash
+black code/ tests/
+```
+
+**Lint code:**
+```bash
+ruff check code/ tests/
+```
+
+**Run both:**
+```bash
+black code/ tests/ && ruff check code/ tests/
+```
+
+## Usage
+Run the full pipeline:
+```bash
+python code/main.py
+```
+
+Or using the entry point:
+```bash
+run-pipeline
+```
+
+## Project Structure
+```
+├── code/ # Source code
+├── data/
+│ ├── raw/ # Clean trajectories
+│ ├── processed/ # Noisy trajectories & metrics
+│ └── results/ # Final outputs & figures
+├── tests/
+│ ├── unit/
+│ ├── contract/
+│ └── integration/
+├── requirements.txt
+├── pyproject.toml # Project metadata, Black, and Ruff config
+└── README.md
+```
