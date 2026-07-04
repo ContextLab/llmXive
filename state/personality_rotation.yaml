@@ -1,14 +1,7 @@
-last_used: ada-lovelace
-last_used_at: '2026-07-04T07:07:24.840591+00:00'
-last_outcome: triage_rejected_advanced_as_abstain
+last_used: alan-turing
+last_used_at: '2026-07-04T18:27:44.960159+00:00'
+last_outcome: committed
 history:
-- slug: stephen-wolfram
-  started_at: '2026-06-23T10:43:13.924267+00:00'
-  ended_at: '2026-06-23T12:02:53.508608+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-689-searchswarm-towards-delegation-intellige/paper/reviews/stephen-wolfram-simulated__2026-06-23__paper.md
 - slug: ada-lovelace
   started_at: '2026-06-23T12:02:53.508608+00:00'
   ended_at: '2026-06-23T13:27:49.935149+00:00'
@@ -1218,3 +1211,10 @@ history:
   ended_at: '2026-07-04T07:07:24.840591+00:00'
   outcome: triage_rejected_advanced_as_abstain
   action: comment
+- slug: alan-turing
+  started_at: '2026-07-04T07:07:24.840591+00:00'
+  ended_at: '2026-07-04T18:27:44.960159+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-586-social-memory-networks-modeling-collecti/reviews/research/alan-turing-simulated__2026-07-04__research.md
