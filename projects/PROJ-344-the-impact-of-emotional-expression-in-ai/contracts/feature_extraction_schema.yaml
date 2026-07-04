@@ -1,0 +1,52 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Feature Extraction Schema
+description: Schema for processed feature data derived from modalities.
+type: object
+required:
+  - interaction_id
+  - features
+properties:
+  interaction_id:
+    type: string
+  features:
+    type: object
+    required:
+      - facial
+      - vocal
+    properties:
+      facial:
+        type: object
+        properties:
+          au_intensity:
+            type: array
+            items:
+              type: number
+          eye_blink:
+            type: array
+            items:
+              type: number
+          head_pose:
+            type: array
+            items:
+              type: number
+      vocal:
+        type: object
+        properties:
+          pitch:
+            type: array
+            items:
+              type: number
+          energy:
+            type: array
+            items:
+              type: number
+          tempo:
+            type: array
+            items:
+              type: number
+  consistency_score:
+    type: number
+    description: Normalized intra-modal consistency score.
+  trust_score:
+    type: number
+    description: User trust rating (0-100).

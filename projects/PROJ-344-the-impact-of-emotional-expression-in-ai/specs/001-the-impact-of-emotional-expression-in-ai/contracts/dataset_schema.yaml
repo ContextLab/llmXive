@@ -1,0 +1,63 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Emotional Synchrony Dataset Schema
+description: Schema for raw interaction data including video, audio, and trust scores.
+type: object
+required:
+  - interaction_id
+  - metadata
+  - modalities
+properties:
+  interaction_id:
+    type: string
+    description: Unique identifier for the interaction session.
+  metadata:
+    type: object
+    required:
+      - avatar_type
+      - duration_seconds
+      - difficulty_level
+      - user_id
+    properties:
+      avatar_type:
+        type: string
+        enum: [neutral, happy, angry, sad, mixed]
+      duration_seconds:
+        type: number
+        minimum: 0
+      difficulty_level:
+        type: integer
+        minimum: 1
+        maximum: 5
+      user_id:
+        type: string
+  modalities:
+    type: object
+    required:
+      - video
+      - audio
+    properties:
+      video:
+        type: object
+        required:
+          - path
+          - fps
+        properties:
+          path:
+            type: string
+          fps:
+            type: number
+      audio:
+        type: object
+        required:
+          - path
+          - sample_rate
+        properties:
+          path:
+            type: string
+          sample_rate:
+            type: integer
+  trust_score:
+    type: number
+    minimum: 0
+    maximum: 100
+    description: User trust rating (0-100).

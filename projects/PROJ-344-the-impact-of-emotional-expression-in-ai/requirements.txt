@@ -1,0 +1,26 @@
+# Core Data Processing
+numpy==1.23.5
+pandas==1.5.3
+scipy==1.10.1
+
+# Machine Learning & Statistics
+scikit-learn==1.2.2
+statsmodels==0.13.5
+
+# Visualization
+matplotlib==3.7.1
+seaborn==0.12.2
+
+# Audio/Video (Dependencies for other tasks)
+librosa==0.10.0
+# openface is typically installed via binary or system package, 
+# but listed here for dependency tracking if a python wrapper is used
+# openface-python==0.2.0
+
+# Synthetic Data (Fallback)
+synthpop==0.1.0
+
+# Linting & Formatting
+black==23.3.0
+flake8==6.0.0
+pyyaml==6.0

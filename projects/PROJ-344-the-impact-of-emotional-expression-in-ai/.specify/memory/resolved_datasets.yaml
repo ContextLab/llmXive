@@ -1,0 +1,66 @@
+resolved_at: '2026-07-04T05:41:59.749526+00:00'
+datasets:
+- intent: CPU-compatible
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/dataset/_b_i_ESR1_i_b_b_and_b_b_i_PIK3CA_i_b_b_Polymorphisms_as_Potential_Genetic_Susceptibility_Markers_for_Breast_Cancer_Risk_in_Bangladeshi_Women_A_Case-Control_Study_b_/32898884
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/MS_dataset_plates/32898878
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/thesis/Protection_of_Consumer_Rights_in_India_and_Bangladesh_A_Comparative_Study/32898875
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Mosquito_fauna_in_the_Ria_Celest_n_Biosphere_Reserve_with_a_new_report_for_Yucat_n_M_xico/32898143
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/A_curated_atomistic_dataset_and_machine_learning_potential_for_calcium_aluminate_silicate_hydrates/32887406
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17854610
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10199277
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://kjet.kardan.edu.af/Journal?Journal=KJET&id=3183
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/12770771
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/12759131
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21132722
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21132722
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21107296
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20988950
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20988950
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

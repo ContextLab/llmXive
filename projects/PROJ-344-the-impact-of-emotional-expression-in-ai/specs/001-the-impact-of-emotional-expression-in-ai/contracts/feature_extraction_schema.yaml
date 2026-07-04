@@ -1,0 +1,77 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Feature Extraction Schema
+description: >
+  Static schema definition for the extracted features from facial and vocal
+  modalities. Used to validate the output of extract_facial.py and extract_vocal.py.
+  Based on FR-001 schema requirements.
+type: object
+required:
+  - metadata
+  - features
+properties:
+  metadata:
+    type: object
+    required:
+      - version
+      - extraction_tool
+      - extraction_timestamp
+      - source_dataset_version
+    properties:
+      version:
+        type: string
+        description: Feature schema version
+      extraction_tool:
+        type: string
+        description: Tool used for extraction (e.g., "OpenFace", "Librosa")
+      extraction_timestamp:
+        type: string
+        format: date-time
+        description: When features were extracted
+      source_dataset_version:
+        type: string
+        description: Version of the source dataset
+  features:
+    type: array
+    description: List of extracted feature records
+    items:
+      type: object
+      required:
+        - interaction_id
+        - modality
+        - timestamp
+        - feature_vector
+      properties:
+        interaction_id:
+          type: string
+          description: Links to the interaction in the dataset
+        modality:
+          type: string
+          enum: [facial, vocal]
+          description: Modality of the features
+        timestamp:
+          type: number
+          description: Timestamp relative to interaction start (seconds)
+        feature_vector:
+          type: array
+          items:
+            type: number
+          description: Numerical feature values
+        confidence_score:
+          type: number
+          minimum: 0
+          maximum: 1
+          description: Confidence score of the extraction (optional)
+        quality_metrics:
+          type: object
+          properties:
+            signal_to_noise_ratio:
+              type: number
+            frame_quality:
+              type: number
+            missing_data_ratio:
+              type: number
+        processing_status:
+          type: string
+          enum: [success, partial, failed]
+          description: Status of the feature extraction for this segment
+additionalProperties: false
