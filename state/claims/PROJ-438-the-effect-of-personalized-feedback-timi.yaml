@@ -1,0 +1,236 @@
+- artifact_path: projects/PROJ-438-the-effect-of-personalized-feedback-timi/specs/001-the-effect-of-personalized-feedback-timi/tasks.md
+  attempts: 1
+  canonical: 10000 learner records in raw CSV
+  claim_id: c_baf39e4e
+  context: "Independent Test: Can be fully tested by running download_data.py and\
+    \ preprocess.py and verifying the output CSV contains \u226510,000 learner records\
+    \ with non-null feedback interval, final grade, and completion status values."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Generate data/processed/learners_raw.csv containing \u226510,000 records\
+    \ with required fields"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-04T14:08:41Z'
+- artifact_path: projects/PROJ-438-the-effect-of-personalized-feedback-timi/specs/001-the-effect-of-personalized-feedback-timi/tasks.md
+  attempts: 1
+  canonical: 'Feedback timing bins: <2h, 2h-48h, >48h'
+  claim_id: c_b0a54d08
+  context: 'Goal: Compute inter-event intervals between submissions and responses,
+    then bin students into ''Immediate'', ''Delayed'', or ''Variable'' groups.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Feedback_timing_bins:_%3C2h,_2h-48h,_%3E48h
+  kind: entity_fact
+  raw_text: "Implement binning logic to assign 'Immediate' (<2h), 'Delayed' (2h\u2013\
+    48h), or 'Variable' (>48h) groups"
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-04T14:09:09Z'
+- artifact_path: projects/PROJ-438-the-effect-of-personalized-feedback-timi/specs/001-the-effect-of-personalized-feedback-timi/tasks.md
+  attempts: 1
+  canonical: Target effect size 0.3
+  claim_id: c_dfd9332e
+  context: "Verify 'significance flip rate' against SC-003 and log the result (SC-003)\
+    \ ... Compare calculated effect sizes against the \u22650.3 target and flag the\
+    \ result in the final output"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Compare calculated effect sizes against the \u22650.3 target"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-04T14:09:09Z'
+- artifact_path: projects/PROJ-438-the-effect-of-personalized-feedback-timi/specs/001-the-effect-of-personalized-feedback-timi/tasks.md
+  attempts: 1
+  canonical: Pipeline runtime 6 hours on 2 CPU cores
+  claim_id: c_99eb673e
+  context: "Performance optimization: verify pipeline runs \u22646h on 2 CPU cores\
+    \ (Assumptions)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify pipeline runs \u22646h on 2 CPU cores"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-04T14:09:09Z'
+- artifact_path: projects/PROJ-438-the-effect-of-personalized-feedback-timi/specs/001-the-effect-of-personalized-feedback-timi/tasks.md
+  attempts: 1
+  canonical: Model resource constraint 2 CPU cores 7 GB RAM
+  claim_id: c_35c7795c
+  context: "CPU Constraint: All statistical models must run on 2 CPU cores, ~7 GB\
+    \ RAM, \u22646h. No GPU/CUDA, no 8-bit quantization, no deep learning."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: All statistical models must run on 2 CPU cores, ~7 GB RAM
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-04T14:09:30Z'
+- artifact_path: projects/PROJ-438-the-effect-of-personalized-feedback-timi/specs/001-the-effect-of-personalized-feedback-timi/tasks.md
+  attempts: 1
+  canonical: learner dataset contains at least 10000 records
+  claim_id: c_00fddbee
+  context: "Independent Test: Can be fully tested by running download_data.py and\
+    \ preprocess.py and verifying the output CSV contains \u226510,000 learner records\
+    \ with non-null feedback interval, final grade, and completion status values."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Learner_dataset_contains_at_least_10000_records
+  kind: magnitude
+  raw_text: "Generate data/processed/learners_raw.csv containing \u226510,000 records\
+    \ with required fields"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-04T14:22:51Z'
+- artifact_path: projects/PROJ-438-the-effect-of-personalized-feedback-timi/specs/001-the-effect-of-personalized-feedback-timi/tasks.md
+  attempts: 1
+  canonical: courses with fewer than 50 learners are excluded
+  claim_id: c_89cd2230
+  context: Implement logic to exclude courses with <50 learners and log the exclusion
+    count (Assumptions)
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Courses_with_fewer_than_50_learners_are_excluded
+  kind: magnitude
+  raw_text: Exclude courses with <50 learners
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-04T14:23:34Z'
+- artifact_path: projects/PROJ-438-the-effect-of-personalized-feedback-timi/specs/001-the-effect-of-personalized-feedback-timi/tasks.md
+  attempts: 1
+  canonical: interval calculation precision is at least 0.1 hours
+  claim_id: c_ed374024
+  context: "Unit test for interval calculation precision (\u22650.1h) in tests/test_intervals.py"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Interval_calculation_precision_is_at_least_0.1_hours
+  kind: magnitude
+  raw_text: "Compute inter-event intervals with precision \u22650.1h"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-04T14:23:52Z'
+- artifact_path: projects/PROJ-438-the-effect-of-personalized-feedback-timi/specs/001-the-effect-of-personalized-feedback-timi/tasks.md
+  attempts: 1
+  canonical: feedback timing bins are less than 2 hours, 2 to 48 hours, and greater
+    than 48 hours
+  claim_id: c_80fa932f
+  context: Unit test for binning logic boundaries (<2h, 2h-48h, >48h) in tests/test_binning.py
+  evidence:
+    entailment_evidence: Feedback timing bins are less than 2 hours, 2 to 48 hours,
+      a
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Feedback_timing_bins_are_less_than_2_hours,_2_to_48_hours,_a
+  kind: magnitude
+  raw_text: Bin students into groups using boundaries <2h, 2h-48h, >48h
+  resolved_value: feedback timing bins are less than 2 hours, 2 to 48 hours, and greater
+    than 48 hours
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-04T14:23:55Z'
+- artifact_path: projects/PROJ-438-the-effect-of-personalized-feedback-timi/specs/001-the-effect-of-personalized-feedback-timi/tasks.md
+  attempts: 1
+  canonical: pipeline execution time is at most 6 hours on 2 CPU cores
+  claim_id: c_ff94ff81
+  context: "Performance optimization: verify pipeline runs \u22646h on 2 CPU cores\
+    \ (Assumptions)"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pipeline_execution_time_is_at_most_6_hours_on_2_CPU_cores
+  kind: magnitude
+  raw_text: "Pipeline runs \u22646h on 2 CPU cores"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-04T14:24:10Z'
+- artifact_path: projects/PROJ-438-the-effect-of-personalized-feedback-timi/specs/001-the-effect-of-personalized-feedback-timi/tasks.md
+  attempts: 1
+  canonical: effect size target is at least 0.3
+  claim_id: c_ebfc3c29
+  context: "Compare calculated effect sizes against the \u22650.3 target and flag\
+    \ the result in the final output (SC-001)"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Effect_size_target_is_at_least_0.3
+  kind: magnitude
+  raw_text: "Compare calculated effect sizes against the \u22650.3 target"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-04T14:24:34Z'
+- artifact_path: projects/PROJ-438-the-effect-of-personalized-feedback-timi/specs/001-the-effect-of-personalized-feedback-timi/tasks.md
+  attempts: 1
+  canonical: learners_raw.csv contains at least 10000 records with required fields
+  claim_id: c_0a970dc0
+  context: "Implementation for User Story 1 ... Generate `data/processed/learners_raw.csv`\
+    \ containing \u226510,000 records with required fields (SC-004)"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Learners_raw.csv_contains_at_least_10000_records_with_requir
+  kind: magnitude
+  raw_text: "Generate `data/processed/learners_raw.csv` containing \u226510,000 records\
+    \ with required fields"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-04T14:25:23Z'
+- artifact_path: projects/PROJ-438-the-effect-of-personalized-feedback-timi/specs/001-the-effect-of-personalized-feedback-timi/tasks.md
+  attempts: 1
+  canonical: each learner assigned to exactly one timing group
+  claim_id: c_909f9241
+  context: 'Independent Test: Can be fully tested by running `projects/PROJ-438-the-effect-of-personalized-feedback-timi/code/compute_intervals.py`
+    on a sample of 100 learners and verifying that each is assigned to exactly one
+    timing group with correct boundary classification.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Each_learner_assigned_to_exactly_one_timing_group
+  kind: entity_fact
+  raw_text: Verify that each is assigned to exactly one timing group with correct
+    boundary classification
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-04T14:26:04Z'

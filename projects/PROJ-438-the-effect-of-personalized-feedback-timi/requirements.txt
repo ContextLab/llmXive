@@ -1,0 +1,10 @@
+pandas
+numpy
+statsmodels
+pyyaml
+requests
+tqdm
+scipy
+pytest
+flake8
+black

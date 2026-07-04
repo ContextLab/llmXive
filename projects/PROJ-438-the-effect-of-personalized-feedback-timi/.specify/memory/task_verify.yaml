@@ -1,0 +1,16 @@
+? T006 [P] Update spec.md FR-005 and User Story 3 header to explicitly mandate 'Cluster-Robust
+  OLS' instead of 'Linear Mixed-Effects Models (LMM)' to align with Plan.md (Resolution
+  of FR-005 vs Plan contradiction)
+: 1
+? T009 Create base data schema validation utilities in `projects/PROJ-438-the-effect-of-personalized-feedback-timi/code/schema.py`
+  (aligns with `contracts/dataset.schema.yaml`)
+: 1
+? T010 Implement checksum utility for raw data integrity in `projects/PROJ-438-the-effect-of-personalized-feedback-timi/code/checksums.py`
+: 1
+? T012 [P] Update spec.md FR-007 to explicitly mandate calculation of 'significance
+  flip rate' (conclusion change) in addition to 'significance stability' (FR-007/SC-003
+  alignment)
+: 1
+? T013 [P] [US1] Unit test for OULAD URL accessibility and response validation in
+  `projects/PROJ-438-the-effect-of-personalized-feedback-timi/tests/test_download.py`
+: 1

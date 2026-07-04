@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-08T12:42:57.507121Z'
-current_stage: analyzed
+current_stage: in_progress
 failed_stage: null
 field: psychology
 human_escalation_reason: null
 id: PROJ-438-the-effect-of-personalized-feedback-timi
-last_run_id: 50c91fc3-5cb8-485d-b38a-fe2ea8219d73
+last_run_id: c900c93f-d491-4b61-9d00-4daa6620bab4
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-438-the-effect-of-personalized-feedback-timi/specs/001-the-effect-of-personalized-feedback-timi
 title: The Effect of Personalized Feedback Timing on Skill Acquisition
-updated_at: '2026-07-04T12:19:15.489697Z'
+updated_at: '2026-07-04T14:12:03.574442Z'

@@ -1,0 +1,30 @@
+# Configuration for PROJ-438: The Effect of Personalized Feedback Timing
+# This file contains default parameters for data processing and analysis.
+
+dataset:
+  source_url: "https://analyse.kmi.open.ac.uk/open_dataset"
+  local_raw_dir: "data/raw"
+  local_processed_dir: "data/processed"
+
+preprocessing:
+  min_learners_per_course: 50
+  required_event_types:
+    - "assessment"
+    - "forum"
+
+binning:
+  # Thresholds for feedback timing groups (in hours)
+  # Immediate: < 2h
+  # Delayed: 2h - 48h
+  # Variable: > 48h
+  immediate_threshold_hours: 2.0
+  delayed_threshold_hours: 48.0
+
+model:
+  clustering_variable: "course_id"
+  target_variable: "final_grade"
+  significance_level: 0.05
+
+logging:
+  level: "INFO"
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"

@@ -20,34 +20,34 @@
 - **Mobile**: `api/src/`, `ios/src/` or `android/src/`
 - Paths shown below assume single project - adjust based on plan.md structure
 
-<!-- 
-  ============================================================================
-  IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-  
-  The /speckit-tasks command MUST replace these with actual tasks based on:
-  - User stories from spec.md (with their priorities P1, P2, P3...)
-  - Feature requirements from plan.md
-  - Entities from data-model.md
-  - Endpoints from contracts/
-  
-  Tasks MUST be organized by user story so each story can be:
-  - Implemented independently
-  - Tested independently
-  - Delivered as an MVP increment
-  
-  DO NOT keep these sample tasks in the generated tasks.md file.
-  ============================================================================
+<!--
+ ============================================================================
+ IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
+
+ The /speckit-tasks command MUST replace these with actual tasks based on:
+ - User stories from spec.md (with their priorities P1, P2, P3...)
+ - Feature requirements from plan.md
+ - Entities from data-model.md
+ - Endpoints from contracts/
+
+ Tasks MUST be organized by user story so each story can be:
+ - Implemented independently
+ - Tested independently
+ - Delivered as an MVP increment
+
+ DO NOT keep these sample tasks in the generated tasks.md file.
+ ============================================================================
 -->
 
 ## Phase 1: Setup (Shared Infrastructure)
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create `projects/PROJ-438-the-effect-of-personalized-feedback-timi/code/` directory at the correct project path (Plan.md Project Structure)
-- [ ] T002 Create `projects/PROJ-438-the-effect-of-personalized-feedback-timi/data/raw/`, `data/processed/`, `data/cache/`, and `data/checksums/` directories with `.gitkeep`
-- [ ] T003 Create `projects/PROJ-438-the-effect-of-personalized-feedback-timi/tests/` directory at repository root
-- [ ] T004 Initialize Python 3.11 project with dependencies: pandas, numpy, statsmodels, pyyaml, requests, tqdm, scipy, pytest
-- [ ] T005 [P] Configure linting (flake8/black) and formatting tools
+- [X] T001 Create `projects/PROJ-438-the-effect-of-personalized-feedback-timi/code/` directory at the correct project path (Plan.md Project Structure)
+- [X] T002 Create `projects/PROJ-438-the-effect-of-personalized-feedback-timi/data/raw/`, `data/processed/`, `data/cache/`, and `data/checksums/` directories with `.gitkeep`
+- [X] T003 Create `projects/PROJ-438-the-effect-of-personalized-feedback-timi/tests/` directory at repository root
+- [X] T004 Initialize Python 3.11 project with dependencies: pandas, numpy, statsmodels, pyyaml, requests, tqdm, scipy, pytest
+- [X] T005 [P] Configure linting (flake8/black) and formatting tools
 
 ---
 
@@ -57,12 +57,12 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T006 [P] Update spec.md FR-005 and User Story 3 header to explicitly mandate 'Cluster-Robust OLS' instead of 'Linear Mixed-Effects Models (LMM)' to align with Plan.md (Resolution of FR-005 vs Plan contradiction)
-- [ ] T007 [P] Implement configuration loader for dataset URLs and hyperparameters in `projects/PROJ-438-the-effect-of-personalized-feedback-timi/code/config.py`
-- [ ] T008 [P] Setup logging infrastructure to `projects/PROJ-438-the-effect-of-personalized-feedback-timi/code/logging_config.py` for reproducible audit trails
+- [X] T006 [P] Update spec.md FR-005 and User Story 3 header to explicitly mandate 'Cluster-Robust OLS' instead of 'Linear Mixed-Effects Models (LMM)' to align with Plan.md (Resolution of FR-005 vs Plan contradiction) <!-- ATOMIZE: requested -->
+- [X] T007 [P] Implement configuration loader for dataset URLs and hyperparameters in `projects/PROJ-438-the-effect-of-personalized-feedback-timi/code/config.py`
+- [X] T008 [P] Setup logging infrastructure to `projects/PROJ-438-the-effect-of-personalized-feedback-timi/code/logging_config.py` for reproducible audit trails
 - [ ] T009 Create base data schema validation utilities in `projects/PROJ-438-the-effect-of-personalized-feedback-timi/code/schema.py` (aligns with `contracts/dataset.schema.yaml`)
 - [ ] T010 Implement checksum utility for raw data integrity in `projects/PROJ-438-the-effect-of-personalized-feedback-timi/code/checksums.py`
-- [ ] T011 [P] Update spec.md Assumptions section to explicitly state that 'final grade' proxy validation is performed by the automated 'Reference-Validator Agent' (FR-008 alignment)
+- [X] T011 [P] Update spec.md Assumptions section to explicitly state that 'final grade' proxy validation is performed by the automated 'Reference-Validator Agent' (FR-008 alignment)
 - [ ] T012 [P] Update spec.md FR-007 to explicitly mandate calculation of 'significance flip rate' (conclusion change) in addition to 'significance stability' (FR-007/SC-003 alignment)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -80,16 +80,16 @@
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
 - [ ] T013 [P] [US1] Unit test for OULAD URL accessibility and response validation in `projects/PROJ-438-the-effect-of-personalized-feedback-timi/tests/test_download.py`
-- [ ] T014 [P] [US1] Unit test for course filtering logic (assessment + forum presence) in `projects/PROJ-438-the-effect-of-personalized-feedback-timi/tests/test_preprocess.py`
-- [ ] T015 [P] [US1] Integration test for full data pipeline on a small sample (N=100) in `projects/PROJ-438-the-effect-of-personalized-feedback-timi/tests/test_pipeline_sample.py`
+- [~] T014 [P] [US1] Unit test for course filtering logic (assessment + forum presence) in `projects/PROJ-438-the-effect-of-personalized-feedback-timi/tests/test_preprocess.py`
+- [~] T015 [P] [US1] Integration test for full data pipeline on a small sample (N=100) in `projects/PROJ-438-the-effect-of-personalized-feedback-timi/tests/test_pipeline_sample.py`
 
 ### Implementation for User Story 1
 
-- [ ] T016 [US1] Implement `projects/PROJ-438-the-effect-of-personalized-feedback-timi/code/download_data.py` to fetch OULAD from https://analyse.kmi.open.ac.uk/open_dataset and save to `data/raw/` (FR-001)
-- [ ] T017 [US1] Implement `projects/PROJ-438-the-effect-of-personalized-feedback-timi/code/preprocess.py` to filter courses by "assessment" and "forum" events and extract `is_complete` (FR-002)
-- [ ] T018 [US1] Implement logic to exclude learners with no recorded forum interactions (cannot compute interval) and log the exclusion count (Edge Case)
-- [ ] T019 [US1] Implement logic to exclude courses with <50 learners and log the exclusion count (Assumptions)
-- [ ] T020 [US1] Generate `data/processed/learners_raw.csv` containing ≥10,000 records with required fields (SC-004)
+- [~] T016 [US1] Implement `projects/PROJ-438-the-effect-of-personalized-feedback-timi/code/download_data.py` to fetch OULAD from https://analyse.kmi.open.ac.uk/open_dataset and save to `data/raw/` (FR-001)
+- [~] T017 [US1] Implement `projects/PROJ-438-the-effect-of-personalized-feedback-timi/code/preprocess.py` to filter courses by "assessment" and "forum" events and extract `is_complete` (FR-002)
+- [~] T018 [US1] Implement logic to exclude learners with no recorded forum interactions (cannot compute interval) and log the exclusion count (Edge Case)
+- [~] T019 [US1] Implement logic to exclude courses with <50 learners and log the exclusion count (Assumptions)
+- [~] T020 [US1] Generate `data/processed/learners_raw.csv` containing ≥10,000 records with required fields (SC-004)
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -103,15 +103,15 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T021 [P] [US2] Unit test for interval calculation precision (≥0.1h) in `projects/PROJ-438-the-effect-of-personalized-feedback-timi/tests/test_intervals.py`
-- [ ] T022 [P] [US2] Unit test for binning logic boundaries (<2h, 2h-48h, >48h) in `projects/PROJ-438-the-effect-of-personalized-feedback-timi/tests/test_binning.py`
+- [~] T021 [P] [US2] Unit test for interval calculation precision (≥0.1h) in `projects/PROJ-438-the-effect-of-personalized-feedback-timi/tests/test_intervals.py`
+- [~] T022 [P] [US2] Unit test for binning logic boundaries (<2h, 2h-48h, >48h) in `projects/PROJ-438-the-effect-of-personalized-feedback-timi/tests/test_binning.py`
 
 ### Implementation for User Story 2
 
-- [ ] T023 [US2] Implement `projects/PROJ-438-the-effect-of-personalized-feedback-timi/code/compute_intervals.py` to calculate time delta between submission and response in hours (FR-003)
-- [ ] T024 [US2] Implement median calculation per learner to determine their representative feedback interval; **Skip exclusion logic (handled in US1)** (Edge Case)
-- [ ] T025 [US2] Implement binning logic to assign "Immediate" (<2h), "Delayed" (2h–48h), or "Variable" (>48h) groups (FR-004)
-- [ ] T026 [US2] Generate `data/processed/learners_binned.csv` with interval and group columns (US-2)
+- [~] T023 [US2] Implement `projects/PROJ-438-the-effect-of-personalized-feedback-timi/code/compute_intervals.py` to calculate time delta between submission and response in hours (FR-003)
+- [~] T024 [US2] Implement median calculation per learner to determine their representative feedback interval; **Skip exclusion logic (handled in US1)** (Edge Case)
+- [~] T025 [US2] Implement binning logic to assign "Immediate" (<2h), "Delayed" (2h–48h), or "Variable" (>48h) groups (FR-004)
+- [~] T026 [US2] Generate `data/processed/learners_binned.csv` with interval and group columns (US-2)
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -125,23 +125,23 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T027 [P] [US3] Unit test for model fitting on synthetic data with known coefficients in `projects/PROJ-438-the-effect-of-personalized-feedback-timi/tests/test_ols.py`
-- [ ] T028 [P] [US3] Unit test for Tukey HSD adjustment logic in `projects/PROJ-438-the-effect-of-personalized-feedback-timi/tests/test_posthoc.py`
+- [~] T027 [P] [US3] Unit test for model fitting on synthetic data with known coefficients in `projects/PROJ-438-the-effect-of-personalized-feedback-timi/tests/test_ols.py`
+- [~] T028 [P] [US3] Unit test for Tukey HSD adjustment logic in `projects/PROJ-438-the-effect-of-personalized-feedback-timi/tests/test_posthoc.py`
 
 ### Implementation for User Story 3
 
-- [ ] T029 [US3] Implement `projects/PROJ-438-the-effect-of-personalized-feedback-timi/code/models.py` to fit Cluster-Robust OLS (clustering by course ID) with feedback group as fixed effect (Plan: Technical Context, Complexity Tracking; FR-005)
-- [ ] T030 [US3] Implement extraction of Cohen's d effect sizes and p-values for pairwise comparisons (FR-005)
-- [ ] T031 [US3] Implement Tukey HSD post-hoc pairwise comparisons to control family-wise error rate (FR-006, SC-002)
-- [ ] T032 [US3] Implement `projects/PROJ-438-the-effect-of-personalized-feedback-timi/code/sensitivity.py` to sweep 2h and 48h boundaries by ±0.01h, ±0.05h, ±0.1h and output intermediate data for stability calculation (FR-007)
-- [ ] T033 [US3] Calculate and report "significance stability" (proportion of shifts where p < 0.05) using output from T032 (FR-007, SC-003)
-- [ ] T034 [US3] Calculate and report "significance flip rate" (proportion of shifts where the *conclusion* changes) as required by SC-003 (SC-003)
-- [ ] T035 [US3] Generate `data/processed/results_metrics.csv` with effect sizes, p-values, and sensitivity stats (SC-001)
-- [ ] T036 [US3] Generate `data/processed/significance_stability_report.csv` explicitly documenting the stability metric and flip rate (FR-007, SC-003)
-- [ ] T037 [US3] Verify "significance flip rate" against SC-003 and log the result (SC-003)
-- [ ] T038 [US3] Compare calculated effect sizes against the ≥0.3 target and flag the result in the final output (SC-001)
-- [ ] T039 [US3] Run Reference-Validator Agent on candidate literature citations to verify "final grade" as a proxy for "skill acquisition" (FR-008, Constitution Principle II)
-- [ ] T040 [US3] Implement `projects/PROJ-438-the-effect-of-personalized-feedback-timi/code/report.py` to generate final analysis report including the verified citation (FR-008)
+- [~] T029 [US3] Implement `projects/PROJ-438-the-effect-of-personalized-feedback-timi/code/models.py` to fit Cluster-Robust OLS (clustering by course ID) with feedback group as fixed effect (Plan: Technical Context, Complexity Tracking; FR-005)
+- [~] T030 [US3] Implement extraction of Cohen's d effect sizes and p-values for pairwise comparisons (FR-005)
+- [~] T031 [US3] Implement Tukey HSD post-hoc pairwise comparisons to control family-wise error rate (FR-006, SC-002)
+- [~] T032 [US3] Implement `projects/PROJ-438-the-effect-of-personalized-feedback-timi/code/sensitivity.py` to sweep 2h and 48h boundaries by ±0.01h, ±0.05h, ±0.1h and output intermediate data for stability calculation (FR-007)
+- [~] T033 [US3] Calculate and report "significance stability" (proportion of shifts where p < 0.05) using output from T032 (FR-007, SC-003)
+- [~] T034 [US3] Calculate and report "significance flip rate" (proportion of shifts where the *conclusion* changes) as required by SC-003 (SC-003)
+- [~] T035 [US3] Generate `data/processed/results_metrics.csv` with effect sizes, p-values, and sensitivity stats (SC-001)
+- [~] T036 [US3] Generate `data/processed/significance_stability_report.csv` explicitly documenting the stability metric and flip rate (FR-007, SC-003)
+- [~] T037 [US3] Verify "significance flip rate" against SC-003 and log the result (SC-003)
+- [~] T038 [US3] Compare calculated effect sizes against the ≥0.3 target and flag the result in the final output (SC-001)
+- [~] T039 [US3] Run Reference-Validator Agent on candidate literature citations to verify "final grade" as a proxy for "skill acquisition" (FR-008, Constitution Principle II) <!-- ATOMIZE: requested -->
+- [~] T040 [US3] Implement `projects/PROJ-438-the-effect-of-personalized-feedback-timi/code/report.py` to generate final analysis report including the verified citation (FR-008)
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -151,11 +151,14 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T041 [P] Documentation updates: Add usage instructions to `README.md`
-- [ ] T042 [P] Documentation updates: Add API/implementation docs to `docs/`
-- [ ] T043 Code cleanup and refactoring of `projects/PROJ-438-the-effect-of-personalized-feedback-timi/code/` scripts
-- [ ] T044 Performance optimization: verify pipeline runs ≤6h on 2 CPU cores (Assumptions)
-- [ ] T045 [P] Additional unit tests for edge cases (missing timestamps, empty courses) in `tests/unit/`
+- [~] T041 [P] Documentation updates: Add usage instructions to `README.md`
+- [~] T042 [P] Documentation updates: Add API/implementation docs to `docs/` <!-- SKIPPED: YAML+regex parse failed (mapping values are not allowed here
+ in "<unicode string>", line 2, column 13:
+ contents: |
+ ^) -->
+- [~] T043 Code cleanup and refactoring of `projects/PROJ-438-the-effect-of-personalized-feedback-timi/code/` scripts
+- [~] T044 Performance optimization: verify pipeline runs ≤6h on 2 CPU cores (Assumptions)
+- [~] T045 [P] Additional unit tests for edge cases (missing timestamps, empty courses) in `tests/unit/`
 - [ ] T046 Run `quickstart.md` validation to ensure reproducibility
 
 ---
@@ -167,8 +170,8 @@
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
-  - User stories can then proceed in parallel (if staffed)
-  - Or sequentially in priority order (P1 → P2 → P3)
+ - User stories can then proceed in parallel (if staffed)
+ - Or sequentially in priority order (P1 → P2 → P3)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
@@ -233,9 +236,9 @@ With multiple developers:
 
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
-   - Developer A: User Story 1
-   - Developer B: User Story 2
-   - Developer C: User Story 3
+ - Developer A: User Story 1
+ - Developer B: User Story 2
+ - Developer C: User Story 3
 3. Stories complete and integrate independently
 
 ---
