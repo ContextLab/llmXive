@@ -1,7 +1,7 @@
 {
   "project_id": "PROJ-201-testing-lorentz-violation-with-publicly-",
-  "stage": "analyzed",
+  "stage": "in_progress",
   "last_error": "[Errno 17] File exists: '/home/runner/work/llmXive/llmXive/projects/PROJ-201-testing-lorentz-violation-with-publicly-/data/processed'",
-  "last_seen": "2026-07-04T22:12:38.285336+00:00",
-  "count": 3
+  "last_seen": "2026-07-04T22:55:33.834605+00:00",
+  "count": 4
 }

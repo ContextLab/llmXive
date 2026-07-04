@@ -1,0 +1,6 @@
+# Tasks an independent verifier REJECTED (redo these)
+
+A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
+
+- **T012 [P] Create `data/raw/.gitkeep` and `data/processed/.gitkeep` <!-- ATOMIZE: requested -->** — Both required placeholder files `data/raw/.gitkeep` and `data/processed/.gitkeep` are missing from the repository, so the implementer has not fulfilled the task of creating them. The artifact list shows “MISSING” for each file.
+- **T013 [P] Create `code/data/simulation.py` skeleton with `inject_sme_coefficient()` function signature (Plan Task 1.2) <!-- ATOMIZE: requested -->** — The provided `code/data/simulation.py` file does not contain an `inject_sme_coefficient()` function signature (the excerpt shows only a `generate_isotropic_alm` definition and the rest is truncated). Without that required function, the task’s specification is not met. The implementer must add the `inject_sme_coefficient()` signature (and optionally its skeleton implementation) to the file.

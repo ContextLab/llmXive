@@ -1,0 +1,4 @@
+'T012 [P] Create `data/raw/.gitkeep` and `data/processed/.gitkeep` <!-- ATOMIZE: requested -->': 1
+? 'T013 [P] Create `code/data/simulation.py` skeleton with `inject_sme_coefficient()`
+  function signature (Plan Task 1.2) <!-- ATOMIZE: requested -->'
+: 1
