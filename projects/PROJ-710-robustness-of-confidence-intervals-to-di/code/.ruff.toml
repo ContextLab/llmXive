@@ -1,0 +1,26 @@
+# Ruff configuration for PROJ-710
+# Enforces consistent style and catches common errors
+
+[lint]
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # Pyflakes
+    "I",   # isort (import sorting)
+    "B",   # flake8-bugbear
+    "C4",  # flake8-comprehensions
+    "UP",  # pyupgrade
+]
+ignore = [
+    "E501", # Line too long (handled by black)
+    "B008", # Do not perform function call in argument defaults (common in data generation)
+]
+
+[lint.isort]
+known-first-party = ["data", "analysis", "utils"]
+
+[format]
+# Configuration for ruff format (compatible with black)
+quote-style = "double"
+indent-style = "space"
+line-ending = "auto"

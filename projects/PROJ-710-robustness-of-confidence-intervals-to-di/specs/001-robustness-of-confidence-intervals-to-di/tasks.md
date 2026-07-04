@@ -20,34 +20,34 @@
 - **Mobile**: `api/src/`, `ios/src/` or `android/src/`
 - Paths shown below assume single project - adjust based on plan.md structure
 
-<!-- 
-  ============================================================================
-  IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-  
-  The /speckit-tasks command MUST replace these with actual tasks based on:
-  - User stories from spec.md (with their priorities P1, P2, P3...)
-  - Feature requirements from plan.md
-  - Entities from data-model.md
-  - Endpoints from contracts/
-  
-  Tasks MUST be organized by user story so each story can be:
-  - Implemented independently
-  - Tested independently
-  - Delivered as an MVP increment
-  
-  DO NOT keep these sample tasks in the generated tasks.md file.
-  ============================================================================
+<!--
+ ============================================================================
+ IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
+
+ The /speckit-tasks command MUST replace these with actual tasks based on:
+ - User stories from spec.md (with their priorities P1, P2, P3...)
+ - Feature requirements from plan.md
+ - Entities from data-model.md
+ - Endpoints from contracts/
+
+ Tasks MUST be organized by user story so each story can be:
+ - Implemented independently
+ - Tested independently
+ - Delivered as an MVP increment
+
+ DO NOT keep these sample tasks in the generated tasks.md file.
+ ============================================================================
 -->
 
 ## Phase 1: Setup (Shared Infrastructure)
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001a [P] Create project directory structure: `projects/PROJ-710-robustness-of-confidence-intervals-to-di/code/`, `projects/PROJ-710-robustness-of-confidence-intervals-to-di/code/data/`, `projects/PROJ-710-robustness-of-confidence-intervals-to-di/code/analysis/`, `projects/PROJ-710-robustness-of-confidence-intervals-to-di/code/utils/`, `projects/PROJ-710-robustness-of-confidence-intervals-to-di/code/tests/`, `projects/PROJ-710-robustness-of-confidence-intervals-to-di/artifacts/`
-- [ ] T001b [P] Create `__init__.py` files in all Python package directories (`code/`, `code/data/`, `code/analysis/`, `code/utils/`, `code/tests/`)
-- [ ] T001c [P] Create `code/config.py` skeleton with placeholders for hyperparameters, random seeds, and artifact paths
-- [ ] T001d [P] Create `requirements.txt` with pinned versions for `numpy`, `pandas`, `scipy`, `statsmodels`, `scikit-learn`, `pytest`, `ruff`, `black`
-- [ ] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools
+- [ ] T001a [P] Create project directory structure: `projects/PROJ-710-robustness-of-confidence-intervals-to-di/code/`, `projects/PROJ-710-robustness-of-confidence-intervals-to-di/code/data/`, `projects/PROJ-710-robustness-of-confidence-intervals-to-di/code/analysis/`, `projects/PROJ-710-robustness-of-confidence-intervals-to-di/code/utils/`, `projects/PROJ-710-robustness-of-confidence-intervals-to-di/code/tests/`, `projects/PROJ-710-robustness-of-confidence-intervals-to-di/artifacts/` <!-- ATOMIZE: requested -->
+- [X] T001b [P] Create `__init__.py` files in all Python package directories (`code/`, `code/data/`, `code/analysis/`, `code/utils/`, `code/tests/`)
+- [X] T001c [P] Create `code/config.py` skeleton with placeholders for hyperparameters, random seeds, and artifact paths
+- [X] T001d [P] Create `requirements.txt` with pinned versions for `numpy`, `pandas`, `scipy`, `statsmodels`, `scikit-learn`, `pytest`, `ruff`, `black`
+- [X] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools
 
 ---
 
@@ -57,10 +57,10 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 [P] Implement `code/config.py` with hyperparameters, random seeds, artifact paths, and `nominal_coverage_target` (default 0.95)
-- [ ] T005 [P] Implement `code/data/synthetic_pop.py` to generate N=1,000,000 synthetic populations for **UCI Adult**, **UCI Iris**, and **UCI Wine Quality** distributions. The generation MUST create a population with **known parameters** (mean, variance, coefficients) to serve as ground truth, ensuring independence from sample realization. **Output to `code/data/ground_truth.json`** containing these known parameters for each population.
+- [X] T004 [P] Implement `code/config.py` with hyperparameters, random seeds, artifact paths, and `nominal_coverage_target` (default 0.95)
+- [ ] T005 [P] Implement `code/data/synthetic_pop.py` to generate N=1,000,000 synthetic populations for **UCI Adult**, **UCI Iris**, and **UCI Wine Quality** distributions. The generation MUST create a population with **known parameters** (mean, variance, coefficients) to serve as ground truth, ensuring independence from sample realization. **Output to `code/data/ground_truth.json`** containing these known parameters for each population. <!-- FAILED: unspecified -->
 - [ ] T006 [P] Implement `code/data/dp_noise.py` for calibrated Laplace and Gaussian noise injection (CPU-only, no 8-bit quantization)
-- [ ] T007 [P] Create `code/utils/update_state.py` for post-run artifact hashing and state updates
+- [X] T007 [P] Create `code/utils/update_state.py` for post-run artifact hashing and state updates
 - [ ] T008 [P] Implement `code/data/__init__.py` and `code/utils/__init__.py` package initializers
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -78,17 +78,17 @@
 > **NOTE: Write these tests BEFORE the implementation tasks they depend on**
 
 - [ ] T009 [P] [US1] Unit test for DP noise calibration accuracy in `code/tests/test_dp_noise.py`
-- [ ] T010 [P] [US1] Unit test for CI construction (percentile method) in `code/tests/test_ci_builder.py`
-- [ ] T011 [P] [US1] Integration test for end-to-end coverage calculation on a single condition in `code/tests/test_coverage_pipeline.py` (depends on T013 orchestration logic)
+- [~] T010 [P] [US1] Unit test for CI construction (percentile method) in `code/tests/test_ci_builder.py`
+- [~] T011 [P] [US1] Integration test for end-to-end coverage calculation on a single condition in `code/tests/test_coverage_pipeline.py` (depends on T013 orchestration logic) <!-- FAILED: unspecified -->
 
 ### Implementation for User Story 1
 
-- [ ] T012 [P] [US1] Implement `code/analysis/ci_builder.py` for 1,000 bootstrap resamples and 95% CI construction (Percentile method)
-- [ ] T014 [P] [US1] Implement logic to handle edge cases: clamping noise scale for small $\epsilon$, collinearity detection in regression, and minimum sample size enforcement for bootstrap. This logic must be encapsulated as reusable functions to be called by the orchestration loop.
-- [ ] T013 [US1] Implement `code/main.py` orchestration logic: Outer Loop (**[deferred] independent samples**) $\times$ Inner Loop (1,000 bootstrap resamples). **Crucially**, the CI construction (T012) MUST be executed for *every single one* of the [deferred] outer samples to generate the full coverage distribution. **Read ground_truth.json from `code/data/ground_truth.json` (T005)**. **Calculate deviation_from_nominal using `config.nominal_coverage_target`**. **Write intermediate coverage rows to `artifacts/coverage_intermediate.csv`**. Integrate the edge-case logic from T014 into this loop.
-- [ ] T015 [US1] Implement result aggregation to read `artifacts/coverage_intermediate.csv` and write `artifacts/coverage_results.csv` (columns: dataset, epsilon, noise_type, statistic, covered, ci_lower, ci_upper, point_estimate, **deviation_from_nominal**). Explicitly calculate and store the `deviation_from_nominal` value for each row using the nominal target from config.py to satisfy SC-001.
-- [ ] T016 [US1] Add validation to ensure all computations use double-precision floats and CPU-only execution
-- [ ] T017 [US1] Add logging for simulation progress and completion of each (dataset, $\epsilon$, noise_type) combination
+- [~] T012 [P] [US1] Implement `code/analysis/ci_builder.py` for 1,000 bootstrap resamples and 95% CI construction (Percentile method)
+- [~] T014 [P] [US1] Implement logic to handle edge cases: clamping noise scale for small $\epsilon$, collinearity detection in regression, and minimum sample size enforcement for bootstrap. This logic must be encapsulated as reusable functions to be called by the orchestration loop.
+- [~] T013 [US1] Implement `code/main.py` orchestration logic: Outer Loop (**[deferred] independent samples**) $\times$ Inner Loop (1,000 bootstrap resamples). **Crucially**, the CI construction (T012) MUST be executed for *every single one* of the [deferred] outer samples to generate the full coverage distribution. **Read ground_truth.json from `code/data/ground_truth.json` (T005)**. **Calculate deviation_from_nominal using `config.nominal_coverage_target`**. **Write intermediate coverage rows to `artifacts/coverage_intermediate.csv`**. Integrate the edge-case logic from T014 into this loop. <!-- ATOMIZE: requested -->
+- [~] T015 [US1] Implement result aggregation to read `artifacts/coverage_intermediate.csv` and write `artifacts/coverage_results.csv` (columns: dataset, epsilon, noise_type, statistic, covered, ci_lower, ci_upper, point_estimate, **deviation_from_nominal**). Explicitly calculate and store the `deviation_from_nominal` value for each row using the nominal target from config.py to satisfy SC-001.
+- [~] T016 [US1] Add validation to ensure all computations use double-precision floats and CPU-only execution
+- [~] T017 [US1] Add logging for simulation progress and completion of each (dataset, $\epsilon$, noise_type) combination
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -102,16 +102,16 @@
 
 ### Implementation for User Story 2
 
-- [ ] T020 [P] [US2] Implement `code/analysis/adjustments.py` with bias-correction and variance-inflation methods. **Mandatory**: Verify the specific formulas against the cited literature (**Covington et al. 2021** and **Karwa & Vadhan 2017**) before implementation to satisfy the "Verified Accuracy" constitution principle. **Apply bias-correction (Covington) to means and variance-inflation (Karwa & Vadhan) to regression coefficients**.
-- [ ] T021 [US2] Modify the orchestration logic in `code/main.py` (T013) to apply adjustments to point estimates and standard errors before CI construction
-- [ ] T022 [US2] Extend `artifacts/coverage_results.csv` to include columns for `adjusted_coverage`, `adjustment_method`, and `improvement_delta`
-- [ ] T023 [US2] Integrate adjustment logic into the simulation loop, ensuring it runs after noise injection but before bootstrap resampling
-- [ ] T024 [US2] Add logging to record which adjustment methods were applied and the resulting coverage rates for each condition
+- [~] T020 [P] [US2] Implement `code/analysis/adjustments.py` with bias-correction and variance-inflation methods. **Mandatory**: Verify the specific formulas against the cited literature (**Covington et al. 2021** and **Karwa & Vadhan 2017**) before implementation to satisfy the "Verified Accuracy" constitution principle. **Apply bias-correction (Covington) to means and variance-inflation (Karwa & Vadhan) to regression coefficients. [UNRESOLVED-CLAIM: c_e932261d — status=not_enough_info] **.
+- [~] T021 [US2] Modify the orchestration logic in `code/main.py` (T013) to apply adjustments to point estimates and standard errors before CI construction <!-- FAILED: unspecified -->
+- [~] T022 [US2] Extend `artifacts/coverage_results.csv` to include columns for `adjusted_coverage`, `adjustment_method`, and `improvement_delta`
+- [~] T023 [US2] Integrate adjustment logic into the simulation loop, ensuring it runs after noise injection but before bootstrap resampling
+- [~] T024 [US2] Add logging to record which adjustment methods were applied and the resulting coverage rates for each condition
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T018 [P] [US2] Unit test for bias-correction formula implementation in `code/tests/test_adjustments.py`
-- [ ] T019 [P] [US2] Unit test for variance-inflation correction implementation in `code/tests/test_adjustments.py`
+- [~] T018 [P] [US2] Unit test for bias-correction formula implementation in `code/tests/test_adjustments.py`
+- [~] T019 [P] [US2] Unit test for variance-inflation correction implementation in `code/tests/test_adjustments.py`
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -125,15 +125,15 @@
 
 ### Implementation for User Story 3
 
-- [ ] T026 [P] [US3] Implement `code/analysis/glm_analysis.py` to fit GLM: `covered ~ epsilon + noise_type + epsilon:noise_type` with binomial link. **Load `artifacts/coverage_results.csv` generated by T015**.
-- [ ] T027 [US3] Implement extraction of p-values and coefficients from GLM results and save to `artifacts/glm_summary.json`
-- [ ] T028 [US3] Implement visualization script in `code/analysis/plotting.py` to generate line plots of coverage vs. $\epsilon$ with error bars (SE) for Laplace and Gaussian noise
-- [ ] T029 [US3] Implement summary table generation listing coverage rates for each (dataset, statistic, $\epsilon$, noise_type) combination
-- [ ] T030 [US3] Add validation to ensure GLM assumptions are met (binary outcome) and handle convergence warnings
+- [~] T026 [P] [US3] Implement `code/analysis/glm_analysis.py` to fit GLM: `covered ~ epsilon + noise_type + epsilon:noise_type` with binomial link. **Load `artifacts/coverage_results.csv` generated by T015**.
+- [~] T027 [US3] Implement extraction of p-values and coefficients from GLM results and save to `artifacts/glm_summary.json`
+- [~] T028 [US3] Implement visualization script in `code/analysis/plotting.py` to generate line plots of coverage vs. $\epsilon$ with error bars (SE) for Laplace and Gaussian noise
+- [~] T029 [US3] Implement summary table generation listing coverage rates for each (dataset, statistic, $\epsilon$, noise_type) combination
+- [~] T030 [US3] Add validation to ensure GLM assumptions are met (binary outcome) and handle convergence warnings
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T025 [P] [US3] Unit test for GLM model setup and convergence in `code/tests/test_glm_analysis.py`
+- [~] T025 [P] [US3] Unit test for GLM model setup and convergence in `code/tests/test_glm_analysis.py`
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -160,8 +160,8 @@
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
-  - User stories can then proceed in parallel (if staffed)
-  - Or sequentially in priority order (P1 → P2 → P3)
+ - User stories can then proceed in parallel (if staffed)
+ - Or sequentially in priority order (P1 → P2 → P3)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
@@ -228,9 +228,9 @@ With multiple developers:
 
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
-   - Developer A: User Story 1
-   - Developer B: User Story 2
-   - Developer C: User Story 3
+ - Developer A: User Story 1
+ - Developer B: User Story 2
+ - Developer C: User Story 3
 3. Stories complete and integrate independently
 
 ---

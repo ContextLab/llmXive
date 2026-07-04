@@ -1,0 +1,5 @@
+95|bootstrap ci construction resample use:
+  quote: 1000 independent time series of length n = 500 and 1000. Construction of
+  source_id: '0804.4361'
+  url: https://arxiv.org/abs/0804.4361
+  value: 1,000

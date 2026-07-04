@@ -1,0 +1,171 @@
+{
+  "model_specification": "covered ~ epsilon * noise_type + C(dataset) + C(statistic)",
+  "global_results": {
+    "intercept": {
+      "estimate": 0.9482,
+      "std_error": 0.0045,
+      "z_value": 210.71,
+      "p_value": 0.0,
+      "ci_lower": 0.9394,
+      "ci_upper": 0.957
+    },
+    "epsilon": {
+      "estimate": -0.0125,
+      "std_error": 0.0032,
+      "z_value": -3.91,
+      "p_value": 9.2e-05,
+      "ci_lower": -0.0188,
+      "ci_upper": -0.0062
+    },
+    "noise_type[T.Gaussian]": {
+      "estimate": 0.0045,
+      "std_error": 0.0042,
+      "z_value": 1.07,
+      "p_value": 0.284,
+      "ci_lower": -0.0037,
+      "ci_upper": 0.0127
+    },
+    "epsilon:noise_type[T.Gaussian]": {
+      "estimate": 0.0008,
+      "std_error": 0.0028,
+      "z_value": 0.29,
+      "p_value": 0.772,
+      "ci_lower": -0.0047,
+      "ci_upper": 0.0063
+    },
+    "C(dataset)[T.UCI Adult]": {
+      "estimate": -0.0012,
+      "std_error": 0.0051,
+      "z_value": -0.24,
+      "p_value": 0.811,
+      "ci_lower": -0.0112,
+      "ci_upper": 0.0088
+    },
+    "C(dataset)[T.UCI Iris]": {
+      "estimate": 0.0031,
+      "std_error": 0.0055,
+      "z_value": 0.56,
+      "p_value": 0.575,
+      "ci_lower": -0.0077,
+      "ci_upper": 0.0139
+    },
+    "C(statistic)[T.mean]": {
+      "estimate": 0.0005,
+      "std_error": 0.0048,
+      "z_value": 0.10,
+      "p_value": 0.919,
+      "ci_lower": -0.0089,
+      "ci_upper": 0.0099
+    },
+    "_model_stats": {
+      "log_likelihood": -1245.32,
+      "aic": 2508.64,
+      "bic": 2545.12,
+      "deviance": 2490.64,
+      "null_deviance": 2610.45,
+      "converged": true
+    }
+  },
+  "per_group_results": [
+    {
+      "dataset": "UCI Adult",
+      "statistic": "mean",
+      "observations": 150,
+      "coefficients": {
+        "intercept": {
+          "estimate": 0.945,
+          "std_error": 0.008,
+          "z_value": 118.1,
+          "p_value": 0.0,
+          "ci_lower": 0.929,
+          "ci_upper": 0.961
+        },
+        "epsilon": {
+          "estimate": -0.015,
+          "std_error": 0.005,
+          "z_value": -3.0,
+          "p_value": 0.003,
+          "ci_lower": -0.025,
+          "ci_upper": -0.005
+        },
+        "noise_type[T.Gaussian]": {
+          "estimate": 0.002,
+          "std_error": 0.007,
+          "z_value": 0.29,
+          "p_value": 0.77,
+          "ci_lower": -0.012,
+          "ci_upper": 0.016
+        },
+        "epsilon:noise_type[T.Gaussian]": {
+          "estimate": 0.001,
+          "std_error": 0.004,
+          "z_value": 0.25,
+          "p_value": 0.80,
+          "ci_lower": -0.007,
+          "ci_upper": 0.009
+        },
+        "_model_stats": {
+          "log_likelihood": -412.5,
+          "aic": 833.0,
+          "bic": 851.5,
+          "deviance": 825.0,
+          "null_deviance": 865.2,
+          "converged": true
+        }
+      }
+    },
+    {
+      "dataset": "UCI Iris",
+      "statistic": "mean",
+      "observations": 150,
+      "coefficients": {
+        "intercept": {
+          "estimate": 0.951,
+          "std_error": 0.007,
+          "z_value": 135.9,
+          "p_value": 0.0,
+          "ci_lower": 0.937,
+          "ci_upper": 0.965
+        },
+        "epsilon": {
+          "estimate": -0.010,
+          "std_error": 0.004,
+          "z_value": -2.5,
+          "p_value": 0.012,
+          "ci_lower": -0.018,
+          "ci_upper": -0.002
+        },
+        "noise_type[T.Gaussian]": {
+          "estimate": 0.006,
+          "std_error": 0.006,
+          "z_value": 1.0,
+          "p_value": 0.32,
+          "ci_lower": -0.006,
+          "ci_upper": 0.018
+        },
+        "epsilon:noise_type[T.Gaussian]": {
+          "estimate": 0.000,
+          "std_error": 0.003,
+          "z_value": 0.0,
+          "p_value": 1.0,
+          "ci_lower": -0.006,
+          "ci_upper": 0.006
+        },
+        "_model_stats": {
+          "log_likelihood": -398.2,
+          "aic": 806.4,
+          "bic": 824.9,
+          "deviance": 796.4,
+          "null_deviance": 832.1,
+          "converged": true
+        }
+      }
+    }
+  ],
+  "metadata": {
+    "total_observations": 450,
+    "unique_datasets": 3,
+    "unique_noise_types": 2,
+    "epsilon_range": [0.1, 10.0]
+  }
+}
