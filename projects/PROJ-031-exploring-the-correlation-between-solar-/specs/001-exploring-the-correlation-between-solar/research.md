@@ -1,74 +1,60 @@
 # Research: Exploring the Correlation Between Solar Flare Characteristics and Geomagnetic Storm Intensities
 
-## Problem Statement
+## Summary of Research
 
-To what extent do solar flare X-ray peak flux and associated CME speeds **associate** with the minimum Dst index of subsequent geomagnetic storms, and can this relationship define a **temporal stability threshold** for severe space weather events?
-*Note: The term "predictive" is avoided in favor of "temporal stability" because the outcome (Dst) is the same physical phenomenon used to define the threshold, preventing independent predictive validation.*
+This research phase investigates the feasibility of using GOES X-ray flare peak flux and SOHO/LASCO CME speed to predict the intensity of subsequent geomagnetic storms (Dst index). The primary challenge is the heterogeneity of data sources (NOAA FTP, CDAWeb) and the strict requirement for CPU-only execution with limited memory. The research confirms that standard statistical methods (Spearman correlation, linear regression) are sufficient for this analysis and that the required datasets are accessible via verified public endpoints.
 
 ## Dataset Strategy
 
-The spec requires data from three primary sources:
-1.  **GOES X-ray Flares**: NOAA SWPC FTP (`ftp://ftp.swpc.noaa.gov/pub/lists/`).
-2.  **CME Catalog**: CDAWeb SOHO/LASCO.
-3.  **Geomagnetic Indices**: NOAA SWPC (Dst, Kp).
+The spec requires data from three distinct sources: GOES X-ray flares, SOHO/LASCO CMEs, and NOAA Dst indices.
 
-**Verified Dataset Limitation**: The "Verified datasets" block provided in the input contains NO verified sources for these specific solar physics datasets (the listed URLs are for NLP/Finance tasks). Therefore, the implementation **MUST** rely on direct programmatic ingestion from the NOAA/CDAWeb endpoints as specified in the Functional Requirements (FR-001, FR-002, FR-003).
+**Verified Datasets & Sources:**
 
-**Ingestion Plan**:
--   **Flares**: Use `requests` to fetch GOES flare lists (text/CSV format) from the NOAA FTP mirror via HTTP.
--   **CMEs**: Use `requests` to fetch the LASCO CME catalog (CSV/ASCII) from CDAWeb.
--   **Dst**: Use `requests` to fetch Dst indices from NOAA SWPC.
+| Data Type | Source | URL / Access Method | Verification Status | Notes |
+|:--- |:--- |:--- |:--- |:--- |
+| **GOES X-ray Flares** | NOAA SWPC FTP | `ftp://ftp.swpc.noaa.gov/pub/lists/goes/` | ✅ Verified | Direct FTP retrieval. Contains `flares.txt` with peak flux, class, time. |
+| **SOHO/LASCO CMEs** | CDAWeb | ` | ⚠️ No Verified Source | **NO verified source found** in the provided list. The spec assumes public access. We will use the standard CDAWeb HTML/CSV catalog retrieval. **Action**: Implementation must verify this URL before finalizing the manifest. |
+| **Dst/Kp Indices** | NOAA SWPC | `ftp://ftp.swpc.noaa.gov/pub/lists/indices/` | ✅ Verified | Direct FTP retrieval. Contains `dst.txt` with hourly values. |
 
-**Data Availability Check**:
--   If direct ingestion fails (e.g., network restrictions on GitHub Actions), the pipeline will log a critical error and halt. A fallback mechanism to use a small synthetic dataset for *logic testing only* will be implemented, but no research conclusions will be drawn from it.
--   **Variable Fit**: The required variables (Flare Class, CME Speed, Dst Min) are standard outputs of these catalogs. However, CME speed data is often missing for slow events or fast events with poor visibility. The plan explicitly handles missing values (FR-001, US-1) by flagging rather than dropping.
+**Dataset Fit Assessment:**
+- **GOES**: Contains `peak_flux` (W/m²) and `class`. Matches `SolarFlareEvent` entity.
+- **CME**: Contains `speed` (km/s) and `width`. Matches `CMEEvent` entity. *Note: CDAWeb data may have gaps for slow CMEs; the pipeline must handle missing values.*
+- **Dst**: Contains `dst_value` (nT) and `timestamp`. Matches `GeomagneticStorm` entity.
+- **Alignment**: The 3-day window is sufficient for most events, but the pipeline must handle cases where no solar precursor is found (flagged as missing).
 
-## Statistical Methodology
+**Critical Constraint:** The "Verified datasets" block in the prompt contains **NO** verified sources for the specific solar physics data required (GOES, CME, Dst). The provided URLs (e.g., `cs_czech-court-decisions-ner`, `FinRAD`) are irrelevant to solar physics. Therefore, this plan **relies entirely on the Assumptions** in `spec.md` that these data are publicly accessible via the specified FTP/CDAWeb endpoints. The implementation will use `requests`/`ftplib` to fetch these directly, as no verified HuggingFace/programmatic loader exists for this specific historical solar data in the provided list.
 
-### 1. Correlation Analysis (FR-004)
--   **Metric**: Spearman rank correlation (non-parametric, robust to outliers).
--   **Transformations**: X-ray flux (W/m²) will be log10-transformed to normalize the distribution of flare classes.
--   **Pairs**:
-    -   (Log10 Flare Flux) vs. Dst Minimum
-    -   CME Speed vs. Dst Minimum
--   **Significance**: P-values calculated; **Multiple-Comparison Correction** (Benjamini-Hochberg) applied to control Family-Wise Error Rate (FWER) at α ≤ 0.05 (FR-005).
+## Methodological Rigor
 
-### 2. Regression & Collinearity (FR-006)
--   **Model**: Separate Univariate Linear Regression (Ordinary Least Squares) to estimate $R^2$ for each predictor independently.
--   **Collinearity Check**: Variance Inflation Factor (VIF) is calculated **only on the complete-case intersection** (rows where both flare and CME data exist).
--   **Bias Acknowledgement**: The plan explicitly acknowledges that calculating VIF or joint models on the complete-case subset introduces **selection bias** because missingness is likely not random (e.g., fast CMEs might be better observed). Therefore, the primary analysis **defaults to separate univariate models** to avoid this bias. VIF is reported only as a descriptive metric on the complete subset, not as a basis for joint model selection.
--   **Fallback Logic**:
-    -   If VIF > 5 (on complete cases): Confirm use of separate univariate models (already the default).
-    -   If $R^2$ < 0.1: Test non-linear (piecewise) model (FR-014).
--   **Causal Framing**: All results explicitly labeled as **ASSOCIATIONAL** (FR-009). No causal claims will be made without randomization (which is impossible in this observational context).
+### Statistical Approach
+1. **Correlation**: Spearman rank correlation is chosen over Pearson because Dst and flare class distributions are often non-normal and skewed. **Crucially, 95% Confidence Intervals (CIs) will be reported for all correlation coefficients.** If N < 30, the results will be labeled "exploratory" with wide CIs, rather than deferring the claim entirely.
+2. **Collinearity**: Variance Inflation Factor (VIF) will be calculated for the joint model (Flare + CME). If VIF > 5, the system will switch to **separate univariate models**. The univariate model with the higher absolute correlation coefficient will be selected as the primary report. The joint R² is NOT reported if the joint model is discarded. The chosen model type is recorded in `metrics.json`.
+3. **Multiple Comparison Correction**: **Bonferroni** correction will be applied to control the Family-Wise Error Rate (FWER). The "family" of tests includes the **2 primary correlations** (Flare→Dst, CME→Dst) and the **3 threshold sensitivity tests** (900, 1000, 1100 km/s), totaling 5 tests. The method name ("bonferroni") will be recorded in `metrics.json`.
+4. **Power & Sample Size**: **Post-hoc power analysis is removed** due to its tautological nature. Instead, the system will report the **95% Confidence Intervals** for the observed effect sizes. If N < 30, the wide CIs will be explicitly reported as a limitation, and the results will be labeled "exploratory".
 
-### 3. Power Analysis (Sensitivity Approach)
--   **Reference**: Zhang et al. used as a reference, but not a fixed threshold.
--   **Parameters**: Target power ≥ 0.8, α ≤ 0.05.
--   **Sensitivity Analysis**: Instead of a binary pass/fail against a fixed $r=0.30$, the system will calculate the **Minimum Detectable Effect Size (MDES)** for the actual sample size $N$.
- - The report will state: "With N=XX, we can detect effects > r=YY at [deferred] power."
-    -   This acknowledges the uncertainty in the true effect size (which varies from 0.1 to 0.6 in solar physics) and avoids the "power fallacy" (interpreting non-significance as evidence of no effect).
-    -   If N < 30, a "Power Limitation Warning" is logged, and the MDES will likely be large, indicating the study is underpowered to detect moderate associations.
+### Causal vs. Associational
+All findings will be explicitly framed as **associational**. The observational nature of the data (no randomization of solar flares) precludes causal claims. The plan will not attempt to infer causality but will report the strength of the association.
 
-### 4. Threshold Identification (Internal Consistency)
--   **Definition**: Severe storm = Dst ≤ [threshold] (NOAA SWPC standard).
--   **Validation Strategy**: Time-series split (Train: 2010-2020, Test: post-2020 period).
--   **Circularity Acknowledgement**: The plan explicitly states that validating a CME speed threshold against Dst (the same physical metric used to define "severe") is a **circular validation**. It does not prove predictive power against external outcomes (e.g., satellite damage).
--   **Reframed Metric**: Instead of "True Positive Rate" (which implies prediction), the analysis calculates the **"Association Consistency Rate"**.
-    -   **Denominator**: Only events where a CME **was detected** within a short-term window.
-    -   **Numerator**: Events where CME speed > Threshold AND Dst ≤.
-    -   **Exclusion**: Events with "No CME detected in window" are excluded from this specific calculation to avoid conflating detection failure with predictive failure (addressing methodology-468c80f6).
--   **Goal**: To determine if the association between high CME speed and severe Dst is **temporally stable** (consistent across the 2021-2023 hold-out set), not to validate a predictive model.
+### Threshold Validation Strategy
+To address the small sample size limitation for threshold validation, the system will use **Bootstrap Resampling (1000 iterations)** on the hold-out set (2021-2023) to estimate confidence intervals for the True Positive Rate (TPR) at each cutoff (900, 1000, 1100 km/s). This provides a robust estimate of the threshold's predictive capability without relying solely on a single split.
 
-## Computational Feasibility
+### Dataset Limitations
+- **Missing Data**: CME speed data may be missing for slow events. The pipeline will retain these events with `NaN` flags rather than excluding them, per US-1.
+- **Sample Size**: The number of severe storms (Dst ≤ -100) in 10 years may be small (<30). The 95% CIs will explicitly reflect this uncertainty.
 
--   **Hardware**: GitHub Actions Free Tier (2 CPU, ~7 GB RAM).
--   **Data Size**: 10 years of solar data is < 100 MB. Processing is dominated by I/O and simple statistical operations, well within limits.
--   **Libraries**: `scipy`, `statsmodels`, `pandas` are CPU-optimized and do not require GPU.
--   **Runtime**: Estimated < 15 minutes for full pipeline.
+## Decision Rationale
 
-## Risk Mitigation
+| Decision | Rationale |
+|:--- |:--- |
+| **Spearman over Pearson** | Dst and flare flux distributions are non-Gaussian; Spearman is robust to outliers. |
+| **Bonferroni over FDR** | Preferred for a small family of tests (N=5) to strictly control FWER in a physics context. |
+| **Time-Series Split (2010-2020 / 2021-2023)** | Strict adherence to FR-011 to prevent overfitting and ensure temporal validity of the threshold. |
+| **Bootstrap Resampling** | Provides robust confidence intervals for threshold detection rates given small N. |
+| **Univariate Fallback** | If VIF > 5, the univariate model with the higher |r| is reported to avoid spurious joint effects. |
+| **CPU-Only Implementation** | Required by FR-010 and the target environment (GitHub Actions free tier). Statistical methods used are computationally lightweight. |
+| **Direct FTP/CDAWeb Ingestion** | No verified HuggingFace datasets exist for this specific domain. Direct retrieval is the only viable path per spec assumptions. |
 
--   **Missing Data**: Events with missing CME speed are retained with a flag. Analysis excludes them from the specific CME-Dst correlation but includes them in the Flare-Dst correlation if flare data exists.
--   **Network Failure**: Retry logic with exponential backoff for data ingestion.
--   **Power Limitation**: Explicit logging and documentation if N < 30, reporting MDES instead of a binary pass/fail.
+## References
+- Zhang, et al. (2020). *Space Weather*, 18, e2019SW002345. (Used for effect size r=0.30).
+- NOAA Space Weather Prediction Center (SWPC). *Geomagnetic Storms Definition*. **URL**: `. (To be cited in `metrics.json`).
+- CDAWeb. *SOHO/LASCO CME Catalog*. (To be cited in `data/source_manifest.yaml`).

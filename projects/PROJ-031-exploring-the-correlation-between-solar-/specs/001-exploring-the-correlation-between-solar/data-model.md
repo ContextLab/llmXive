@@ -1,68 +1,60 @@
-# Data Model: Solar-Geomagnetic Correlation
-
-## Overview
-
-This document defines the data structures used for ingesting, aligning, and analyzing solar flare, CME, and geomagnetic storm data. The model supports missing data handling and ensures traceability to source records.
+# Data Model: Exploring the Correlation Between Solar Flare Characteristics and Geomagnetic Storm Intensities
 
 ## Entity Definitions
 
-### 1. SolarFlareEvent
-Represents a GOES X-ray flare event.
--   `event_id`: Unique identifier (Source: NOAA SWPC).
--   `timestamp`: ISO 8601 datetime of peak flux.
--   `peak_flux_wm2`: Float, X-ray peak flux in W/m².
--   `flare_class`: String (e.g., "M5.3", "X2.1").
--   `log10_flux`: Float, calculated as $\log_{10}(peak\_flux\_wm2)$.
--   `source_location`: String (e.g., "S15W30").
--   `data_quality_flag`: Boolean, `True` if data is valid.
+### SolarFlareEvent
+Represents a GOES X-ray flare.
+- `timestamp` (datetime): Time of X-ray peak.
+- `class` (string): Flare class (e.g., "X1.2", "M5.0").
+- `peak_flux` (float): X-ray peak flux in W/m².
+- `log10_flux` (float): Log10 transformed peak flux.
+- `location` (string): Solar disk location (e.g., "N12W45").
+- `source_id` (string): Original record ID from NOAA source.
 
-### 2. CMEEvent
+### CMEEvent
 Represents a SOHO/LASCO Coronal Mass Ejection.
--   `event_id`: Unique identifier (Source: CDAWeb).
--   `timestamp`: ISO 8601 datetime of first appearance.
--   `speed_kms`: Float, CME speed in km/s. **Nullable**.
--   `width_degrees`: Float, angular width.
--   `direction`: String (e.g., "Earth-directed").
--   `data_quality_flag`: Boolean, `True` if speed is available.
+- `timestamp` (datetime): Time of CME occurrence.
+- `speed` (float): Speed in km/s (may be null).
+- `width` (float): Angular width in degrees.
+- `direction` (string): Direction (e.g., "halo", "E", "W").
+- `source_id` (string): Original record ID from CDAWeb source.
 
-### 3. GeomagneticStorm
-Represents a geomagnetic storm event.
--   `event_id`: Unique identifier.
--   `timestamp_min`: ISO 8601 datetime of Dst minimum.
--   `dst_min`: Float, minimum Dst index in nT.
--   `kp_max`: Float, maximum Kp index during storm.
--   `is_severe`: Boolean, `True` if `dst_min` ≤ -100.
--   `is_recurrent`: Boolean, `True` if storm is within 24h of a previous storm (excluded from primary analysis).
+### GeomagneticStorm
+Represents a distinct Dst minimum event.
+- `timestamp` (datetime): Time of Dst minimum.
+- `dst_min` (float): Minimum Dst value in nT.
+- `k_index` (float): Kp index at time of minimum.
+- `storm_id` (string): Unique identifier for the storm event.
+- `is_recurrent` (boolean): Flag indicating if this storm is part of a recurrent period (excluded from analysis if true).
 
-### 4. AlignedEvent
-Composite entity linking the three sources.
--   `storm_id`: Reference to `GeomagneticStorm`.
--   `flare_id`: Reference to `SolarFlareEvent` (Nullable).
--   `cme_id`: Reference to `CMEEvent` (Nullable).
--   `time_diff_hours`: Float, time difference between storm min and solar event.
--   `window_valid`: Boolean, `True` if `time_diff_hours` ≤ 72 (3 days).
--   `flare_flux`: Float (from linked flare, or `null`).
--   `cme_speed`: Float (from linked CME, or `null`).
--   `missing_flare_flag`: Boolean.
--   `missing_cme_flag`: Boolean.
--   `source_manifest_ref`: String, reference to `data/source_manifest.yaml` entry.
+### AlignedEvent
+Composite entity linking the above within a ≤3-day window.
+- `storm_id` (string): FK to GeomagneticStorm.
+- `storm_timestamp` (datetime): Time of Dst minimum.
+- `storm_dst` (float): Dst minimum value.
+- `flare_timestamp` (datetime): Time of matching flare (or null).
+- `flare_log10_flux` (float): Log10 flux of matching flare (or null).
+- `cme_timestamp` (datetime): Time of matching CME (or null).
+- `cme_speed` (float): Speed of matching CME (or null).
+- `match_window_days` (int): Days between storm and solar event (always ≤ 3).
+- `flare_missing_flag` (boolean): True if no flare found in window.
+- `cme_missing_flag` (boolean): True if no CME found in window.
+- `data_quality_score` (integer): **Calculation**: 100 - (count of missing flags). Range [0, 100]. **Usage Note**: This score is for metadata only and is NOT used to weight the regression or correlation analysis to avoid confounding.
 
 ## Data Flow
 
-1.  **Ingestion**: Raw CSV/JSON from NOAA/CDAWeb → `data/raw/`.
-2.  **Parsing**: Raw files → `SolarFlareEvent`, `CMEEvent`, `GeomagneticStorm` objects.
+1.  **Ingestion**: Raw files downloaded from NOAA/CDAWeb → `data/raw/`.
+2.  **Parsing**: Raw files parsed into `SolarFlareEvent`, `CMEEvent`, `GeomagneticStorm` lists.
 3.  **Alignment**:
-    -   Identify all `GeomagneticStorm` minima.
-    -   For each storm, search for flares/CMEs within ±3 days (preceding).
-    -   Create `AlignedEvent`. If no match, set `flare_id`/`cme_id` to `null` and set flags.
-    -   Filter out `is_recurrent` storms for primary correlation analysis (but retain in dataset).
-4.  **Output**: `data/processed/aligned_events.csv`.
+    - Identify distinct Dst minima (separated by ≥24h recovery).
+    - For each storm, search for preceding flare/CME within 3 days.
+    - Create `AlignedEvent` row. If no match, flags are set to `True`, values are `NaN`.
+4.  **Validation**: `AlignedEvent` list validated against `contracts/aligned_event.schema.yaml`. **Blocking**: If validation fails, the writing of `aligned_events.csv` and the update of the manifest are aborted.
+5.  **Storage**: Validated data written to `data/processed/aligned_events.csv`.
 
-## Missing Data Handling
+## Constraints & Assumptions
 
--   **Strategy**: Retain events with missing predictors.
--   **Implementation**: `null` values in CSV; specific flags (`missing_flare_flag`, `missing_cme_flag`) set to `True`.
--   **Analysis Impact**:
-    -   Flare-Dst correlation: Excludes rows where `missing_flare_flag` is `True`.
-    -   CME-Dst correlation: Excludes rows where `missing_cme_flag` is `True`.
-    -   Joint analysis: Excludes rows where either flag is `True`.
+- **Missing Data**: Missing values are represented as `NaN` in CSV and `null` in JSON. They are **not** dropped from the dataset.
+- **Recurrent Storms**: Storms with <24h recovery are flagged `is_recurrent=True` and excluded from the primary correlation analysis.
+- **Time Window**: The 3-day window is fixed. Events outside this window are not matched.
+- **Collinearity**: If `flare_log10_flux` and `cme_speed` are highly correlated, VIF will detect this, and the analysis will switch to univariate models.

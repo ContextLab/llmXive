@@ -1,4 +1,4 @@
-resolved_at: '2026-07-02T23:22:22.665895+00:00'
+resolved_at: '2026-07-04T00:55:48.210983+00:00'
 datasets:
 - intent: GOES
   status: verified
@@ -45,23 +45,23 @@ datasets:
     source: huggingface
     status: verified
     format: jsonl
-  - url: https://figshare.com/articles/poster/_070_4096_4654_Claretian_University_of_Nigeria_Admission_Form_Open_2026-2027_Transfer_Form_Jupeb_Admission_form_is_still_on_sale_call_O_70409-64654-O7040964654_for_the_Four_main_quads_compose_the_center_of_the_university_and_are_arranged_fr/32885828
+  - url: https://figshare.com/articles/media/Call_08132728112_Department_of_Nursing_Science_Yobe_State_University_Admission_Form_2026_2027_Post_Utme_Application_Is_Out_CALL_08132728112_Dr_Mrs_Sarah_for_admission_process_into_the_school_/32897612
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/_b_Hallmarks_of_social_action_in_the_vocal_turn-taking_of_wild_common_marmosets_b_b_i_Callithrix_jacchus_i_b_/30061930
+  - url: https://figshare.com/articles/online_resource/Casinohallen_se/32897603
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/journal_contribution/_070_4096_4654_James_Hope_University_Lagos_Admission_Form_Open_2026-2027_Transfer_Form_Jupeb_Admission_form_is_still_on_sale_call_O_70409-64654-O7040964654_for_the_Four_main_quads_compose_the_center_of_the_university_and_are_arranged_from_n/32885819
+  - url: https://figshare.com/articles/media/Call_08132728112_Department_of_Nursing_Nort-West_University_Admission_Form_2026_2027_Post_Utme_Application_Is_Out_CALL_08132728112_Dr_Mrs_Sarah_for_admission_process_into_the_school_/32897609
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://openresearch.newcastle.edu.au/articles/journal_contribution/Advancing_antimicrobial_stewardship_through_the_One_Health_Stewardship_Competency_Model_for_Nursing/32885822
+  - url: https://figshare.com/articles/dataset/Coffee_particle-size_measurements_TDS_data_and_derived_features/32897561
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/media/CRediT_en_RECIE_qui_n_hizo_qu_en_la_investigaci_n_/32885786
+  - url: https://figshare.com/articles/media/Call_08132728112_Department_of_Nursing_Sciences_Koladaisi_University_Admission_Form_2026_2027_Post_Utme_Application_Is_Out_CALL_08132728112_Dr_Mrs_Sarah_for_admission_process_into_the_school_/32897606
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -73,35 +73,35 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/16058112
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/13906097
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/17374097
+  - url: https://zenodo.org/records/16058112
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://uregina.scholaris.ca/handle/10294/8469
+  - url: https://zenodo.org/records/7647786
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21184373
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://uregina.scholaris.ca/handle/10294/5256
+  - url: https://zenodo.org/records/21184373
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://publikationen.uni-tuebingen.de/xmlui/handle/10900/181217
+  - url: https://osf.io/ev8uj/
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://uregina.scholaris.ca/handle/10294/9021
+  - url: https://zenodo.org/records/18738911
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://yareta.unige.ch/archives/7cb9b106-e48f-41f2-8776-0dfe39ff958c
+  - url: https://zenodo.org/records/18738911
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -123,11 +123,11 @@ datasets:
       downloaded_bytes: 262144
       parsed: true
   candidates_tried:
-  - url: https://us.aws.cdn.hf.co/xet-bridge-us/6585f9c85695e60040800358/b716c460e4d027c773c1ac99415818d5fa9b3741bc031830b0e59ede7067f1f1?response-content-disposition=inline%3B+filename*%3DUTF-8%27%27BraTS-GLI-00001-000-t1c_slice_65.npy%3B+filename%3D%22BraTS-GLI-00001-000-t1c_slice_65.npy%22%3B&X-Xet-Cas-Uid=public&user_id=public&Expires=1783037899&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjU4NWY5Yzg1Njk1ZTYwMDQwODAwMzU4L2I3MTZjNDYwZTRkMDI3Yzc3M2MxYWM5OTQxNTgxOGQ1ZmE5YjM3NDFiYzAzMTgzMGIwZTU5ZWRlNzA2N2YxZjFcXD9yZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3QnJhVFMtR0xJLTAwMDAxLTAwMC10MWNfc2xpY2VfNjUubnB5JTNCK2ZpbGVuYW1lJTNEJTIyQnJhVFMtR0xJLTAwMDAxLTAwMC10MWNfc2xpY2VfNjUubnB5JTIyJTNCJlgtWGV0LUNhcy1VaWQ9cHVibGljJnVzZXJfaWQ9cHVibGljIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3ODMwMzc4OTl9fX1dfQ__&Signature=MEUCIBUI6x-0JkwPsTPAQ5o90451ya8fc-7WkLnPvko4zpJMAiEA1mSJfww~H009k7bKaWjahm1RjBX0NZfOiXSjuH74qMk_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+  - url: https://us.aws.cdn.hf.co/xet-bridge-us/6585f9c85695e60040800358/b716c460e4d027c773c1ac99415818d5fa9b3741bc031830b0e59ede7067f1f1?response-content-disposition=inline%3B+filename*%3DUTF-8%27%27BraTS-GLI-00001-000-t1c_slice_65.npy%3B+filename%3D%22BraTS-GLI-00001-000-t1c_slice_65.npy%22%3B&X-Xet-Cas-Uid=public&user_id=public&Expires=1783129952&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjU4NWY5Yzg1Njk1ZTYwMDQwODAwMzU4L2I3MTZjNDYwZTRkMDI3Yzc3M2MxYWM5OTQxNTgxOGQ1ZmE5YjM3NDFiYzAzMTgzMGIwZTU5ZWRlNzA2N2YxZjFcXD9yZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3QnJhVFMtR0xJLTAwMDAxLTAwMC10MWNfc2xpY2VfNjUubnB5JTNCK2ZpbGVuYW1lJTNEJTIyQnJhVFMtR0xJLTAwMDAxLTAwMC10MWNfc2xpY2VfNjUubnB5JTIyJTNCJlgtWGV0LUNhcy1VaWQ9cHVibGljJnVzZXJfaWQ9cHVibGljIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3ODMxMjk5NTJ9fX1dfQ__&Signature=MEQCID2tIpNTi3qPdS~Si1liJgb1ahSAoS1CunQXPdSHGCFAAiBBbtXx83Gb~NPKcSDDdLnjg6OU66gQpojJvyweHk-K2A__&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
     source: huggingface
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://us.aws.cdn.hf.co/xet-bridge-us/65df31b7487081eb2c10a4e1/af5f56c2fbfb686507587dc99ce7b25f7be006361494544631a2372e7d4a1b70?X-Xet-Cas-Uid=public&user_id=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27Resume.csv%3B+filename%3D%22Resume.csv%22%3B&response-content-type=text%2Fcsv&Expires=1783037900&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjVkZjMxYjc0ODcwODFlYjJjMTBhNGUxL2FmNWY1NmMyZmJmYjY4NjUwNzU4N2RjOTljZTdiMjVmN2JlMDA2MzYxNDk0NTQ0NjMxYTIzNzJlN2Q0YTFiNzBcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZ1c2VyX2lkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3UmVzdW1lLmNzdiUzQitmaWxlbmFtZSUzRCUyMlJlc3VtZS5jc3YlMjIlM0ImcmVzcG9uc2UtY29udGVudC10eXBlPXRleHQlMkZjc3YiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkVwb2NoVGltZSI6MTc4MzAzNzkwMH19fV19&Signature=MEYCIQDu-qtgn~LZJqZoBwGHCECP-AA-cLSvGngTmePibdmk9QIhAPMR8-waLNSI6n2LWc7QbXWcpPrvNGflZU5dYLZj0rH0&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+  - url: https://us.aws.cdn.hf.co/xet-bridge-us/65df31b7487081eb2c10a4e1/af5f56c2fbfb686507587dc99ce7b25f7be006361494544631a2372e7d4a1b70?response-content-type=text%2Fcsv&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27Resume.csv%3B+filename%3D%22Resume.csv%22%3B&X-Xet-Cas-Uid=public&user_id=public&Expires=1783129953&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjVkZjMxYjc0ODcwODFlYjJjMTBhNGUxL2FmNWY1NmMyZmJmYjY4NjUwNzU4N2RjOTljZTdiMjVmN2JlMDA2MzYxNDk0NTQ0NjMxYTIzNzJlN2Q0YTFiNzBcXD9yZXNwb25zZS1jb250ZW50LXR5cGU9dGV4dCUyRmNzdiZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3UmVzdW1lLmNzdiUzQitmaWxlbmFtZSUzRCUyMlJlc3VtZS5jc3YlMjIlM0ImWC1YZXQtQ2FzLVVpZD1wdWJsaWMmdXNlcl9pZD1wdWJsaWMiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkVwb2NoVGltZSI6MTc4MzEyOTk1M319fV19&Signature=MEUCIQCxyK8-cxH-LcxKsT0Lk~d9Ndchx-5EKFLpIhpg9VKq-AIgdR73ADTkNs2OVmry5b9XKl7QgwvIlbJ6TpzSLLyO~kk_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
     source: huggingface
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -139,23 +139,23 @@ datasets:
     source: huggingface
     status: verified
     format: zip
-  - url: https://openresearch.newcastle.edu.au/articles/journal_contribution/Positive_effects_of_student-led_health_promotion_activities_at_mass_gathering_events_on_health_modification_behaviors/32885834
+  - url: https://figshare.com/articles/media/Call_08132728112_Department_of_Nursing_Science_Yobe_State_University_Admission_Form_2026_2027_Post_Utme_Application_Is_Out_CALL_08132728112_Dr_Mrs_Sarah_for_admission_process_into_the_school_/32897612
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/poster/_070_4096_4654_Claretian_University_of_Nigeria_Admission_Form_Open_2026-2027_Transfer_Form_Jupeb_Admission_form_is_still_on_sale_call_O_70409-64654-O7040964654_for_the_Four_main_quads_compose_the_center_of_the_university_and_are_arranged_fr/32885828
+  - url: https://figshare.com/articles/online_resource/Casinohallen_se/32897603
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/_b_Hallmarks_of_social_action_in_the_vocal_turn-taking_of_wild_common_marmosets_b_b_i_Callithrix_jacchus_i_b_/30061930
+  - url: https://figshare.com/articles/media/Call_08132728112_Department_of_Nursing_Nort-West_University_Admission_Form_2026_2027_Post_Utme_Application_Is_Out_CALL_08132728112_Dr_Mrs_Sarah_for_admission_process_into_the_school_/32897609
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/journal_contribution/_070_4096_4654_James_Hope_University_Lagos_Admission_Form_Open_2026-2027_Transfer_Form_Jupeb_Admission_form_is_still_on_sale_call_O_70409-64654-O7040964654_for_the_Four_main_quads_compose_the_center_of_the_university_and_are_arranged_from_n/32885819
+  - url: https://figshare.com/articles/dataset/Coffee_particle-size_measurements_TDS_data_and_derived_features/32897561
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://openresearch.newcastle.edu.au/articles/journal_contribution/Advancing_antimicrobial_stewardship_through_the_One_Health_Stewardship_Competency_Model_for_Nursing/32885822
+  - url: https://figshare.com/articles/media/Call_08132728112_Department_of_Nursing_Sciences_Koladaisi_University_Admission_Form_2026_2027_Post_Utme_Application_Is_Out_CALL_08132728112_Dr_Mrs_Sarah_for_admission_process_into_the_school_/32897606
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -163,11 +163,11 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20921116
+  - url: https://zenodo.org/records/19455477
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/19455477
+  - url: https://zenodo.org/records/20921116
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -177,6 +177,14 @@ datasets:
     reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/21066664
     source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21039466
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21039466
+    source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://www.re3data.org/repository/r3d100010171
@@ -188,14 +196,6 @@ datasets:
     status: unreachable
     reason: 'reachability failed: HTTP 410'
   - url: https://zenodo.org/records/19048544
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/19048544
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21066664
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -225,23 +225,23 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://figshare.com/articles/journal_contribution/_070_4096_4654_Havilla_University_Nde-Ikom_Admission_Form_Open_2026-2027_Transfer_Form_Jupeb_Admission_form_is_still_on_sale_call_O_70409-64654-O7040964654_for_the_Four_main_quads_compose_the_center_of_the_university_and_are_arranged_from_n/32885831
+  - url: https://figshare.com/articles/media/Call_08132728112_Department_of_Nursing_Sciences_Federal_University_Gusau_Admission_Form_2026_2027_Post_Utme_Application_Is_Out_CALL_08132728112_Dr_Mrs_Sarah_for_admission_process_into_the_school_/32897615
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://openresearch.newcastle.edu.au/articles/journal_contribution/Positive_effects_of_student-led_health_promotion_activities_at_mass_gathering_events_on_health_modification_behaviors/32885834
+  - url: https://figshare.com/articles/media/Call_08132728112_Department_of_Nursing_Science_Yobe_State_University_Admission_Form_2026_2027_Post_Utme_Application_Is_Out_CALL_08132728112_Dr_Mrs_Sarah_for_admission_process_into_the_school_/32897612
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/poster/_070_4096_4654_Claretian_University_of_Nigeria_Admission_Form_Open_2026-2027_Transfer_Form_Jupeb_Admission_form_is_still_on_sale_call_O_70409-64654-O7040964654_for_the_Four_main_quads_compose_the_center_of_the_university_and_are_arranged_fr/32885828
+  - url: https://figshare.com/articles/online_resource/Casinohallen_se/32897603
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/_b_Hallmarks_of_social_action_in_the_vocal_turn-taking_of_wild_common_marmosets_b_b_i_Callithrix_jacchus_i_b_/30061930
+  - url: https://figshare.com/articles/media/Call_08132728112_Department_of_Nursing_Nort-West_University_Admission_Form_2026_2027_Post_Utme_Application_Is_Out_CALL_08132728112_Dr_Mrs_Sarah_for_admission_process_into_the_school_/32897609
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/journal_contribution/_070_4096_4654_James_Hope_University_Lagos_Admission_Form_Open_2026-2027_Transfer_Form_Jupeb_Admission_form_is_still_on_sale_call_O_70409-64654-O7040964654_for_the_Four_main_quads_compose_the_center_of_the_university_and_are_arranged_from_n/32885819
+  - url: https://figshare.com/articles/dataset/Coffee_particle-size_measurements_TDS_data_and_derived_features/32897561
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -249,11 +249,11 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://journals.team4excellence.ro/journal-of-non-formal-education/article/view/55
+  - url: https://zenodo.org/records/18804261
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/18804261
+  - url: https://journals.team4excellence.ro/journal-of-non-formal-education/article/view/55
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -265,6 +265,14 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21165279
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21165279
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
   - url: https://www.datalumos.org/datalumos/project/250208/version/V1/view
     source: datacite
     status: wrong_format
@@ -274,14 +282,6 @@ datasets:
     status: wrong_format
     reason: HTTP 403
   - url: https://www.scidb.cn/detail?dataSetId=9898fa816927434fa7eb55daea08e6e3
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://mgbl-online.de/ojs/index.php/mgb/article/view/101589
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20785759
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -300,23 +300,23 @@ datasets:
     source: huggingface
     status: verified
     format: csv
-  - url: https://figshare.utas.edu.au/articles/conference_contribution/Non-lethal_assessment_of_reproductive_parameters_in_Spiniraja_whitleyi_to_inform_conservation_and_management/32872313
+  - url: https://figshare.com/articles/media/Call_08132728112_Department_of_Nursing_Sciences_Huda_University_Admission_Form_2026_2027_Post_Utme_Application_Is_Out_CALL_08132728112_Dr_Mrs_Sarah_for_admission_process_into_the_school_/32897618
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/journal_contribution/_070_4096_4654_Havilla_University_Nde-Ikom_Admission_Form_Open_2026-2027_Transfer_Form_Jupeb_Admission_form_is_still_on_sale_call_O_70409-64654-O7040964654_for_the_Four_main_quads_compose_the_center_of_the_university_and_are_arranged_from_n/32885831
+  - url: https://figshare.com/articles/media/Call_08132728112_Department_of_Nursing_Sciences_Federal_University_Gusau_Admission_Form_2026_2027_Post_Utme_Application_Is_Out_CALL_08132728112_Dr_Mrs_Sarah_for_admission_process_into_the_school_/32897615
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://openresearch.newcastle.edu.au/articles/journal_contribution/Positive_effects_of_student-led_health_promotion_activities_at_mass_gathering_events_on_health_modification_behaviors/32885834
+  - url: https://figshare.com/articles/media/Call_08132728112_Department_of_Nursing_Science_Yobe_State_University_Admission_Form_2026_2027_Post_Utme_Application_Is_Out_CALL_08132728112_Dr_Mrs_Sarah_for_admission_process_into_the_school_/32897612
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/poster/_070_4096_4654_Claretian_University_of_Nigeria_Admission_Form_Open_2026-2027_Transfer_Form_Jupeb_Admission_form_is_still_on_sale_call_O_70409-64654-O7040964654_for_the_Four_main_quads_compose_the_center_of_the_university_and_are_arranged_fr/32885828
+  - url: https://figshare.com/articles/online_resource/Casinohallen_se/32897603
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/_b_Hallmarks_of_social_action_in_the_vocal_turn-taking_of_wild_common_marmosets_b_b_i_Callithrix_jacchus_i_b_/30061930
+  - url: https://figshare.com/articles/media/Call_08132728112_Department_of_Nursing_Nort-West_University_Admission_Form_2026_2027_Post_Utme_Application_Is_Out_CALL_08132728112_Dr_Mrs_Sarah_for_admission_process_into_the_school_/32897609
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -328,16 +328,24 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/4122096
+  - url: https://zenodo.org/records/4273094
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/4273094
+  - url: https://zenodo.org/records/4122096
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/7693250
     source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21165279
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21165279
+    source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://springernature.figshare.com/collections/Robotic_surgery_in_colorectal_emergencies_a_systematic_review_of_current_evidence/8570991/1
@@ -349,14 +357,6 @@ datasets:
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://arxiv.org/abs/2606.31440
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://arxiv.org/abs/2606.31194
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://arxiv.org/abs/2512.21846
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -405,24 +405,28 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://figshare.com/articles/dataset/_070_4096_4654_Maranatha_University_Lagos_Admission_Form_Open_2026-2027_Transfer_Form_Jupeb_Admission_form_is_still_on_sale_call_O_70409-64654-O7040964654_for_the_Four_main_quads_compose_the_center_of_the_university_and_are_arranged_from_no/32885837
+  - url: https://figshare.com/articles/media/Call_08132728112_Department_of_Nursing_Sciences_Huda_University_Admission_Form_2026_2027_Post_Utme_Application_Is_Out_CALL_08132728112_Dr_Mrs_Sarah_for_admission_process_into_the_school_/32897618
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.utas.edu.au/articles/conference_contribution/Non-lethal_assessment_of_reproductive_parameters_in_Spiniraja_whitleyi_to_inform_conservation_and_management/32872313
+  - url: https://figshare.com/articles/media/Call_08132728112_Department_of_Nursing_Sciences_Federal_University_Gusau_Admission_Form_2026_2027_Post_Utme_Application_Is_Out_CALL_08132728112_Dr_Mrs_Sarah_for_admission_process_into_the_school_/32897615
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/journal_contribution/_070_4096_4654_Havilla_University_Nde-Ikom_Admission_Form_Open_2026-2027_Transfer_Form_Jupeb_Admission_form_is_still_on_sale_call_O_70409-64654-O7040964654_for_the_Four_main_quads_compose_the_center_of_the_university_and_are_arranged_from_n/32885831
+  - url: https://figshare.com/articles/media/Call_08132728112_Department_of_Nursing_Science_Yobe_State_University_Admission_Form_2026_2027_Post_Utme_Application_Is_Out_CALL_08132728112_Dr_Mrs_Sarah_for_admission_process_into_the_school_/32897612
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://openresearch.newcastle.edu.au/articles/journal_contribution/Positive_effects_of_student-led_health_promotion_activities_at_mass_gathering_events_on_health_modification_behaviors/32885834
+  - url: https://figshare.com/articles/online_resource/Casinohallen_se/32897603
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/poster/_070_4096_4654_Claretian_University_of_Nigeria_Admission_Form_Open_2026-2027_Transfer_Form_Jupeb_Admission_form_is_still_on_sale_call_O_70409-64654-O7040964654_for_the_Four_main_quads_compose_the_center_of_the_university_and_are_arranged_fr/32885828
+  - url: https://figshare.com/articles/media/Call_08132728112_Department_of_Nursing_Nort-West_University_Admission_Form_2026_2027_Post_Utme_Application_Is_Out_CALL_08132728112_Dr_Mrs_Sarah_for_admission_process_into_the_school_/32897609
     source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18893503
+    source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://doi.org/10.135212/slp
@@ -433,35 +437,31 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/18893503
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/5787067
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zookeys.pensoft.net/article/34317/element/2/119/
+  - url: https://zenodo.org/records/14816488
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://ir.library.oregonstate.edu/concern/datasets/zk51vs057
-    source: datacite
-    status: wrong_format
-    reason: HTTP 403
-  - url: https://www.sciencebase.gov/catalog/item/598b89a7e4b09fa1cb0eae2b
+  - url: https://zenodo.org/records/21153486
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20973604
+  - url: https://zenodo.org/records/21153486
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20973604
+  - url: https://campagnes.flotteoceanographique.fr/series/280/
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21133531
+  - url: https://campagnes.flotteoceanographique.fr/campagnes/99110080/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://campagnes.flotteoceanographique.fr/campagnes/18003833/
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -483,7 +483,7 @@ datasets:
       downloaded_bytes: 4422
       parsed: true
   candidates_tried:
-  - url: https://us.aws.cdn.hf.co/xet-bridge-us/62e38ab30c2a907c388d2421/a2c47cf5702b29bc198ef30b3e8e2f6a340e9b94fb0e96baf8fc5b0914b40e39?response-content-type=application%2Fjson&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27train.json%3B+filename%3D%22train.json%22%3B&user_id=public&X-Xet-Cas-Uid=public&Expires=1783038022&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjJlMzhhYjMwYzJhOTA3YzM4OGQyNDIxL2EyYzQ3Y2Y1NzAyYjI5YmMxOThlZjMwYjNlOGUyZjZhMzQwZTliOTRmYjBlOTZiYWY4ZmM1YjA5MTRiNDBlMzlcXD9yZXNwb25zZS1jb250ZW50LXR5cGU9YXBwbGljYXRpb24lMkZqc29uJnJlc3BvbnNlLWNvbnRlbnQtZGlzcG9zaXRpb249aW5saW5lJTNCK2ZpbGVuYW1lJTJBJTNEVVRGLTglMjclMjd0cmFpbi5qc29uJTNCK2ZpbGVuYW1lJTNEJTIydHJhaW4uanNvbiUyMiUzQiZ1c2VyX2lkPXB1YmxpYyZYLVhldC1DYXMtVWlkPXB1YmxpYyIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzgzMDM4MDIyfX19XX0_&Signature=MEYCIQDe4Wd~a7ovS-8Xq5RKffqR6yDP3IGniKqm6Py0PUINjgIhAP0KpT-RGBkc1NygZPMqnmaV6Z-losRJUndpbY3Qi-Z7&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+  - url: https://us.aws.cdn.hf.co/xet-bridge-us/62e38ab30c2a907c388d2421/a2c47cf5702b29bc198ef30b3e8e2f6a340e9b94fb0e96baf8fc5b0914b40e39?X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27train.json%3B+filename%3D%22train.json%22%3B&response-content-type=application%2Fjson&user_id=public&Expires=1783130051&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjJlMzhhYjMwYzJhOTA3YzM4OGQyNDIxL2EyYzQ3Y2Y1NzAyYjI5YmMxOThlZjMwYjNlOGUyZjZhMzQwZTliOTRmYjBlOTZiYWY4ZmM1YjA5MTRiNDBlMzlcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dHJhaW4uanNvbiUzQitmaWxlbmFtZSUzRCUyMnRyYWluLmpzb24lMjIlM0ImcmVzcG9uc2UtY29udGVudC10eXBlPWFwcGxpY2F0aW9uJTJGanNvbiZ1c2VyX2lkPXB1YmxpYyIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzgzMTMwMDUxfX19XX0_&Signature=MEUCIC13QRVa8c6Y0cahipr6RCE~ublDOg9C9cDCucW1whQoAiEA7y-bQyfDdy0NDkY0oW0EDe9QZoHm86ohu8tS2ph3g-g_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
     source: huggingface
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -503,23 +503,23 @@ datasets:
     source: huggingface
     status: verified
     format: jsonl
-  - url: https://tandf.figshare.com/articles/journal_contribution/Estimating_clinical_and_economic_impacts_and_cost-effectiveness_of_introducing_20-valent_pneumococcal_conjugate_vaccine_in_Taiwan_s_pediatric_National_Immunization_Program_and_impacts_of_a_delayed_implementation/32885808
+  - url: https://figshare.com/articles/media/Call_08132728112_Department_of_Nursing_Sciences_Zamfara_State_University_Admission_Form_2026_2027_Post_Utme_Application_Is_Out_CALL_08132728112_Dr_Mrs_Sarah_for_admission_process_into_the_school_/32897621
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/_070_4096_4654_Maranatha_University_Lagos_Admission_Form_Open_2026-2027_Transfer_Form_Jupeb_Admission_form_is_still_on_sale_call_O_70409-64654-O7040964654_for_the_Four_main_quads_compose_the_center_of_the_university_and_are_arranged_from_no/32885837
+  - url: https://figshare.com/articles/media/Call_08132728112_Department_of_Nursing_Sciences_Huda_University_Admission_Form_2026_2027_Post_Utme_Application_Is_Out_CALL_08132728112_Dr_Mrs_Sarah_for_admission_process_into_the_school_/32897618
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.utas.edu.au/articles/conference_contribution/Non-lethal_assessment_of_reproductive_parameters_in_Spiniraja_whitleyi_to_inform_conservation_and_management/32872313
+  - url: https://figshare.com/articles/media/Call_08132728112_Department_of_Nursing_Sciences_Federal_University_Gusau_Admission_Form_2026_2027_Post_Utme_Application_Is_Out_CALL_08132728112_Dr_Mrs_Sarah_for_admission_process_into_the_school_/32897615
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/journal_contribution/_070_4096_4654_Havilla_University_Nde-Ikom_Admission_Form_Open_2026-2027_Transfer_Form_Jupeb_Admission_form_is_still_on_sale_call_O_70409-64654-O7040964654_for_the_Four_main_quads_compose_the_center_of_the_university_and_are_arranged_from_n/32885831
+  - url: https://figshare.com/articles/media/Call_08132728112_Department_of_Nursing_Science_Yobe_State_University_Admission_Form_2026_2027_Post_Utme_Application_Is_Out_CALL_08132728112_Dr_Mrs_Sarah_for_admission_process_into_the_school_/32897612
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://openresearch.newcastle.edu.au/articles/journal_contribution/Positive_effects_of_student-led_health_promotion_activities_at_mass_gathering_events_on_health_modification_behaviors/32885834
+  - url: https://figshare.com/articles/online_resource/Casinohallen_se/32897603
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -543,23 +543,23 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://doi.org/10.5281/zenodo.21134206
-    source: datacite
-    status: unreachable
-    reason: 'reachability failed: HTTP 410'
-  - url: https://zenodo.org/records/21135331
+  - url: https://campagnes.flotteoceanographique.fr/campagnes/18002457/
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21135331
+  - url: https://maser-lira.obspm.fr/publications/planetary-solar-and-heliospheric/the-location-and-propagation-of.html
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://doi.org/10.5281/zenodo.21135086
+  - url: https://zenodo.org/records/21165279
     source: datacite
-    status: unreachable
-    reason: 'reachability failed: HTTP 410'
-  - url: https://zenodo.org/records/21134841
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21165279
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21163697
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -608,23 +608,23 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://tandf.figshare.com/articles/journal_contribution/Estimating_clinical_and_economic_impacts_and_cost-effectiveness_of_introducing_20-valent_pneumococcal_conjugate_vaccine_in_Taiwan_s_pediatric_National_Immunization_Program_and_impacts_of_a_delayed_implementation/32885808
+  - url: https://figshare.com/articles/media/Call_08132728112_Department_of_Nursing_Sciences_Zamfara_State_University_Admission_Form_2026_2027_Post_Utme_Application_Is_Out_CALL_08132728112_Dr_Mrs_Sarah_for_admission_process_into_the_school_/32897621
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/_070_4096_4654_Maranatha_University_Lagos_Admission_Form_Open_2026-2027_Transfer_Form_Jupeb_Admission_form_is_still_on_sale_call_O_70409-64654-O7040964654_for_the_Four_main_quads_compose_the_center_of_the_university_and_are_arranged_from_no/32885837
+  - url: https://figshare.com/articles/media/Call_08132728112_Department_of_Nursing_Sciences_Huda_University_Admission_Form_2026_2027_Post_Utme_Application_Is_Out_CALL_08132728112_Dr_Mrs_Sarah_for_admission_process_into_the_school_/32897618
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.utas.edu.au/articles/conference_contribution/Non-lethal_assessment_of_reproductive_parameters_in_Spiniraja_whitleyi_to_inform_conservation_and_management/32872313
+  - url: https://figshare.com/articles/media/Call_08132728112_Department_of_Nursing_Sciences_Federal_University_Gusau_Admission_Form_2026_2027_Post_Utme_Application_Is_Out_CALL_08132728112_Dr_Mrs_Sarah_for_admission_process_into_the_school_/32897615
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/journal_contribution/_070_4096_4654_Havilla_University_Nde-Ikom_Admission_Form_Open_2026-2027_Transfer_Form_Jupeb_Admission_form_is_still_on_sale_call_O_70409-64654-O7040964654_for_the_Four_main_quads_compose_the_center_of_the_university_and_are_arranged_from_n/32885831
+  - url: https://figshare.com/articles/media/Call_08132728112_Department_of_Nursing_Science_Yobe_State_University_Admission_Form_2026_2027_Post_Utme_Application_Is_Out_CALL_08132728112_Dr_Mrs_Sarah_for_admission_process_into_the_school_/32897612
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://openresearch.newcastle.edu.au/articles/journal_contribution/Positive_effects_of_student-led_health_promotion_activities_at_mass_gathering_events_on_health_modification_behaviors/32885834
+  - url: https://figshare.com/articles/online_resource/Casinohallen_se/32897603
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -632,20 +632,32 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/13305679
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/11898895
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/8043002
+  - url: https://zenodo.org/records/13305679
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/200884
     source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ijere.iaescore.com/index.php/IJERE/article/view/20709
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21184154
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21184154
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://campagnes.flotteoceanographique.fr/campagnes/1200070/
+    source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://uregina.scholaris.ca/handle/10294/5613
@@ -656,39 +668,27 @@ datasets:
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21134382
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://www.re3data.org/repository/r3d100010573
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://www.re3data.org/repository/r3d100010528
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
 - intent: CDAWeb
   status: unresolved
   candidates: []
   candidates_tried:
-  - url: https://figshare.com/articles/poster/_070_4096_4654_Vision_University_Ikogbo_Admission_Form_Open_2026-2027_Transfer_Form_Jupeb_Admission_form_is_still_on_sale_call_O_70409-64654-O7040964654_for_the_Four_main_quads_compose_the_center_of_the_university_and_are_arranged_from_nort/32885840
+  - url: https://figshare.com/articles/media/Call_08132728112_Department_of_Nursing_Sciences_Cosmopolitan_University_Admission_Form_2026_2027_Post_Utme_Application_Is_Out_CALL_08132728112_Dr_Mrs_Sarah_for_admission_process_into_the_school_/32897630
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://tandf.figshare.com/articles/journal_contribution/Estimating_clinical_and_economic_impacts_and_cost-effectiveness_of_introducing_20-valent_pneumococcal_conjugate_vaccine_in_Taiwan_s_pediatric_National_Immunization_Program_and_impacts_of_a_delayed_implementation/32885808
+  - url: https://figshare.com/articles/media/Call_08132728112_Department_of_Nursing_Sciences_Zamfara_State_University_Admission_Form_2026_2027_Post_Utme_Application_Is_Out_CALL_08132728112_Dr_Mrs_Sarah_for_admission_process_into_the_school_/32897621
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/_070_4096_4654_Maranatha_University_Lagos_Admission_Form_Open_2026-2027_Transfer_Form_Jupeb_Admission_form_is_still_on_sale_call_O_70409-64654-O7040964654_for_the_Four_main_quads_compose_the_center_of_the_university_and_are_arranged_from_no/32885837
+  - url: https://figshare.com/articles/media/Call_08132728112_Department_of_Nursing_Sciences_Huda_University_Admission_Form_2026_2027_Post_Utme_Application_Is_Out_CALL_08132728112_Dr_Mrs_Sarah_for_admission_process_into_the_school_/32897618
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.utas.edu.au/articles/conference_contribution/Non-lethal_assessment_of_reproductive_parameters_in_Spiniraja_whitleyi_to_inform_conservation_and_management/32872313
+  - url: https://figshare.com/articles/media/Call_08132728112_Department_of_Nursing_Sciences_Federal_University_Gusau_Admission_Form_2026_2027_Post_Utme_Application_Is_Out_CALL_08132728112_Dr_Mrs_Sarah_for_admission_process_into_the_school_/32897615
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/journal_contribution/_070_4096_4654_Havilla_University_Nde-Ikom_Admission_Form_Open_2026-2027_Transfer_Form_Jupeb_Admission_form_is_still_on_sale_call_O_70409-64654-O7040964654_for_the_Four_main_quads_compose_the_center_of_the_university_and_are_arranged_from_n/32885831
+  - url: https://figshare.com/articles/media/Call_08132728112_Department_of_Nursing_Science_Yobe_State_University_Admission_Form_2026_2027_Post_Utme_Application_Is_Out_CALL_08132728112_Dr_Mrs_Sarah_for_admission_process_into_the_school_/32897612
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -712,23 +712,23 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21039466
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21039466
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.scidb.cn/detail?dataSetId=d9454ac60c9741628dca8239cb53466c
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
   - url: https://www.re3data.org/repository/r3d100010168
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/20837820
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20837820
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://www.scidb.cn/detail?dataSetId=9898fa816927434fa7eb55daea08e6e3
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20651915
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -769,27 +769,27 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://huggingface.co/datasets/nothingiisreal/Reddit-Dirty-And-WritingPrompts/resolve/main/reddit_dirty_writing_prompts.jsonl
+  - url: https://huggingface.co/datasets/Nottybro/Minecraft-Fable-Raw/resolve/main/amulet_processed/manifest.csv
     source: huggingface
     status: verified
-    format: jsonl
-  - url: https://figshare.utas.edu.au/articles/report/Attracting_and_Retaining_Criminal_Lawyers_in_Australia_Research_Report_and_Recommendations/32817416
+    format: csv
+  - url: https://figshare.com/articles/media/Call_08132728112_Department_of_Nursing_Sciences_Cosmopolitan_University_Admission_Form_2026_2027_Post_Utme_Application_Is_Out_CALL_08132728112_Dr_Mrs_Sarah_for_admission_process_into_the_school_/32897630
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/poster/_070_4096_4654_Vision_University_Ikogbo_Admission_Form_Open_2026-2027_Transfer_Form_Jupeb_Admission_form_is_still_on_sale_call_O_70409-64654-O7040964654_for_the_Four_main_quads_compose_the_center_of_the_university_and_are_arranged_from_nort/32885840
+  - url: https://figshare.com/articles/media/Call_08132728112_Department_of_Nursing_Sciences_Zamfara_State_University_Admission_Form_2026_2027_Post_Utme_Application_Is_Out_CALL_08132728112_Dr_Mrs_Sarah_for_admission_process_into_the_school_/32897621
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://tandf.figshare.com/articles/journal_contribution/Estimating_clinical_and_economic_impacts_and_cost-effectiveness_of_introducing_20-valent_pneumococcal_conjugate_vaccine_in_Taiwan_s_pediatric_National_Immunization_Program_and_impacts_of_a_delayed_implementation/32885808
+  - url: https://figshare.com/articles/media/Call_08132728112_Department_of_Nursing_Sciences_Huda_University_Admission_Form_2026_2027_Post_Utme_Application_Is_Out_CALL_08132728112_Dr_Mrs_Sarah_for_admission_process_into_the_school_/32897618
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/_070_4096_4654_Maranatha_University_Lagos_Admission_Form_Open_2026-2027_Transfer_Form_Jupeb_Admission_form_is_still_on_sale_call_O_70409-64654-O7040964654_for_the_Four_main_quads_compose_the_center_of_the_university_and_are_arranged_from_no/32885837
+  - url: https://figshare.com/articles/media/Call_08132728112_Department_of_Nursing_Sciences_Federal_University_Gusau_Admission_Form_2026_2027_Post_Utme_Application_Is_Out_CALL_08132728112_Dr_Mrs_Sarah_for_admission_process_into_the_school_/32897615
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.utas.edu.au/articles/conference_contribution/Non-lethal_assessment_of_reproductive_parameters_in_Spiniraja_whitleyi_to_inform_conservation_and_management/32872313
+  - url: https://figshare.com/articles/media/Call_08132728112_Department_of_Nursing_Science_Yobe_State_University_Admission_Form_2026_2027_Post_Utme_Application_Is_Out_CALL_08132728112_Dr_Mrs_Sarah_for_admission_process_into_the_school_/32897612
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -805,11 +805,11 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/16413496
+  - url: https://zenodo.org/records/5105584
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/3824448
+  - url: https://zenodo.org/records/17305397
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content

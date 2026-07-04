@@ -1,6 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Analysis Metrics Schema"
-description: "Schema for the output metrics of the correlation and threshold analysis."
+title: "Metrics Schema"
+description: "Schema for statistical results and performance metrics."
 type: object
 properties:
   correlation_flare_dst:
@@ -8,131 +8,131 @@ properties:
     properties:
       coefficient:
         type: number
-        description: "Spearman correlation coefficient."
       p_value:
         type: number
-        description: "Raw p-value."
-      p_value_adjusted:
+      corrected_p_value:
         type: number
-        description: "Benjamini-Hochberg adjusted p-value."
-      significant:
-        type: boolean
-        description: "True if adjusted p-value <= 0.05."
+      correction_method:
+        type: string
+        enum: ["bonferroni"]
+      confidence_interval:
+        type: object
+        properties:
+          lower:
+            type: number
+          upper:
+            type: number
+        required:
+          - lower
+          - upper
     required:
       - coefficient
       - p_value
-      - p_value_adjusted
-      - significant
+      - corrected_p_value
+      - correction_method
+      - confidence_interval
   correlation_cme_dst:
     type: object
     properties:
       coefficient:
         type: number
-        description: "Spearman correlation coefficient."
       p_value:
         type: number
-        description: "Raw p-value."
-      p_value_adjusted:
+      corrected_p_value:
         type: number
-        description: "Benjamini-Hochberg adjusted p-value."
-      significant:
-        type: boolean
-        description: "True if adjusted p-value <= 0.05."
+      correction_method:
+        type: string
+        enum: ["bonferroni"]
+      confidence_interval:
+        type: object
+        properties:
+          lower:
+            type: number
+          upper:
+            type: number
+        required:
+          - lower
+          - upper
     required:
       - coefficient
       - p_value
-      - p_value_adjusted
-      - significant
-  regression:
-    type: object
-    properties:
-      r_squared:
-        type: number
-        description: "Variance explained by the model."
-      vif:
-        type: number
-        description: "Variance Inflation Factor."
-      model_type:
-        type: string
-        enum:
-          - "OLS"
-          - "Ridge"
-          - "Univariate"
-        description: "Type of regression model used."
-      non_linear_tested:
-        type: boolean
-        description: "True if piecewise model was tested due to low R²."
-      non_linear_improvement:
-        type: ["number", "null"]
-        description: "R² improvement if non-linear model was used."
-    required:
-      - r_squared
-      - vif
-      - model_type
-      - non_linear_tested
-  threshold_analysis:
-    type: object
-    properties:
-      severe_definition:
-        type: string
-        description: "Definition used for severe storm (e.g., Dst <= -100)."
-      candidate_thresholds:
-        type: array
-        items:
-          type: object
-          properties:
-            speed_kms:
-              type: integer
-              description: "CME speed cutoff (900, 1000, or 1100)."
-            true_positive_rate:
-              type: number
-              description: "Detection rate on the hold-out set."
-          required:
-            - speed_kms
-            - true_positive_rate
-      best_threshold:
-        type: ["integer", "null"]
-        description: "Best performing threshold speed."
-    required:
-      - severe_definition
-      - candidate_thresholds
+      - corrected_p_value
+      - correction_method
+      - confidence_interval
+  regression_r_squared:
+    type: number
+    description: "R-squared value from the selected model (joint or univariate)."
+  vif_score:
+    type: number
+    description: "Variance Inflation Factor score."
+  model_type:
+    type: string
+    enum: ["joint_linear", "univariate_flare", "univariate_cme", "ridge"]
+    description: "Type of model used based on VIF check."
   power_analysis:
     type: object
     properties:
       sample_size:
         type: integer
-        description: "Effective sample size used."
       min_detectable_effect:
         type: number
-        description: "Minimum detectable effect size given N."
-      power_warning:
+      power_limitation_warning:
         type: boolean
-        description: "True if N < 30."
+      exploratory_flag:
+        type: boolean
+        description: "True if N < 30, indicating results are exploratory."
     required:
       - sample_size
-      - power_warning
-  execution_metrics:
-    type: object
-    properties:
-      runtime_seconds:
-        type: number
-        description: "Total execution time."
-      peak_ram_mb:
-        type: number
-        description: "Peak RAM usage in MB."
-    required:
-      - runtime_seconds
-      - peak_ram_mb
-  assumptions:
+      - min_detectable_effect
+      - power_limitation_warning
+      - exploratory_flag
+  threshold_sensitivity:
     type: array
     items:
-      type: string
-    description: "List of associational framing statements."
+      type: object
+      properties:
+        cutoff_kms:
+          type: integer
+          enum: [900, 1000, 1100]
+        true_positive_rate:
+          type: number
+        bootstrap_ci_lower:
+          type: number
+          description: "Lower bound of 95% CI from bootstrap resampling."
+        bootstrap_ci_upper:
+          type: number
+          description: "Upper bound of 95% CI from bootstrap resampling."
+      required:
+        - cutoff_kms
+        - true_positive_rate
+        - bootstrap_ci_lower
+        - bootstrap_ci_upper
+  piecewise_r2_improvement:
+    type: number
+    nullable: true
+    description: "Improvement in R-squared if piecewise model was tested."
+  performance:
+    type: object
+    properties:
+      execution_time_seconds:
+        type: number
+      peak_ram_mb:
+        type: number
+    required:
+      - execution_time_seconds
+      - peak_ram_mb
+  assocational_claim:
+    type: boolean
+    const: true
+    description: "Flag indicating all claims are associational."
 required:
   - correlation_flare_dst
   - correlation_cme_dst
-  - regression
-  - threshold_analysis
+  - regression_r_squared
+  - vif_score
+  - model_type
   - power_analysis
-  - execution_metrics
-  - assumptions
+  - threshold_sensitivity
+  - performance
+  - assocational_claim
+additionalProperties: false

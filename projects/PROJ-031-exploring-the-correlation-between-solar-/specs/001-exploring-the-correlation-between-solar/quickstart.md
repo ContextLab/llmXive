@@ -1,63 +1,51 @@
-# Quickstart: Solar Flare-Storm Correlation
+# Quickstart: Exploring the Correlation Between Solar Flare Characteristics and Geomagnetic Storm Intensities
 
 ## Prerequisites
 
--   Python 3.11+
--   `pip` (or `venv`/`conda`)
--   Network access to NOAA SWPC and CDAWeb (for data ingestion).
+- Python 3.11+
+- `pip` or `venv`
+- Access to the internet (for data download)
 
 ## Installation
 
-1.  **Clone and Setup Environment**:
+1.  **Clone the repository** (or navigate to the project directory).
+2.  **Create a virtual environment**:
     ```bash
-    cd projects/PROJ-031-exploring-the-correlation-between-solar-/
     python -m venv venv
     source venv/bin/activate  # On Windows: venv\Scripts\activate
+    ```
+3.  **Install dependencies**:
+    ```bash
     pip install -r requirements.txt
     ```
 
-2.  **Verify Dependencies**:
-    Ensure `scipy`, `statsmodels`, and `pandas` are installed:
+## Execution
+
+Run the full pipeline:
+```bash
+python code/main.py
+```
+
+This command will:
+1.  Download raw data from NOAA SWPC and CDAWeb (if not already present).
+2.  Align events and generate `data/processed/aligned_events.csv`.
+3.  Perform statistical analysis (correlation, regression, power analysis).
+4.  Identify thresholds and run sensitivity analysis.
+5.  Write results to `results/metrics.json`.
+6.  Validate all outputs against `contracts/`.
+
+## Verification
+
+After execution, verify the results:
+1.  Check `results/metrics.json` for correlation coefficients, p-values, and performance metrics.
+2.  Run the validation script manually:
     ```bash
-    python -c "import scipy, statsmodels, pandas; print('Dependencies OK')"
+    python code/validate.py data/processed/aligned_events.csv contracts/aligned_event.schema.yaml
     ```
-
-## Running the Pipeline
-
-### 1. Ingest Data
-Download raw data from NOAA/CDAWeb:
-```bash
-python code/ingest.py --years 10 --output data/raw/
-```
-*Note: This step may take a few minutes depending on network speed.*
-
-### 2. Align Events
-Match storms to solar events within the 3-day window:
-```bash
-python code/align.py --input data/raw/ --output data/processed/aligned_events.csv
-```
-
-### 3. Run Analysis
-Perform correlations, regression, and threshold sensitivity:
-```bash
-python code/analysis.py --input data/processed/aligned_events.csv --output results/
-```
-
-### 4. Validate Results
-Check output against schema contracts:
-```bash
-python code/validate.py --data results/metrics.json --schema contracts/metrics.schema.yaml
-```
-
-## Expected Outputs
-
--   `data/processed/aligned_events.csv`: Unified dataset with flags.
--   `results/metrics.json`: Correlation coefficients, p-values, R², VIF, and detection rates.
--   `results/figures/`: Plots of correlations and threshold sensitivity.
--   `results/logs/pipeline.log`: Execution time, RAM usage, and power analysis warnings.
+3.  Ensure `data/source_manifest.yaml` contains the correct URLs and checksums.
 
 ## Troubleshooting
 
--   **Network Errors**: If `ingest.py` fails, check firewall settings. The pipeline requires access to `ftp.swpc.noaa.gov` and `cdaweb.gsfc.nasa.gov`.
--   **Missing Data**: If `aligned_events.csv` has many nulls, this is expected for slow CMEs. The analysis handles this via flags.
--   **Power Warning**: If `results/metrics.json` contains a `power_limitation_warning`, the sample size was < 30. Interpret threshold claims with caution.
+- **Network Errors**: If data download fails, check your internet connection and firewall settings. The pipeline will retry up to 3 times.
+- **Missing Data**: If `aligned_events.csv` contains many `NaN` values, this is expected if no solar precursor was found within the 3-day window.
+- **Memory Errors**: If the pipeline exceeds 7 GB RAM, reduce the historical window in `config.py` (not recommended for standard runs).

@@ -40,7 +40,7 @@ The system MUST compute Spearman rank correlation coefficients between (a) X-ray
 
 ### User Story 3 - Threshold Identification and Sensitivity Analysis (Priority: P3)
 
-The system MUST attempt to identify predictive thresholds (e.g., CME speed > 1000 km/s) where severe storm probability increases, using a hold-out validation set to prevent overfitting. The hold-out set MUST be strictly the last 2 years of data (e.g., 2021-2023) to ensure the threshold was not derived from the validation period. It MUST perform a sensitivity analysis sweeping the cutoff over {900, 1000, 1100} km/s (step size 100 km/s) and report how detection rates (True Positive Rate) vary on the validation set.
+The system MUST attempt to identify predictive thresholds (e.g., CME speed > 1000 km/s) where severe storm probability increases, using a hold-out validation set to prevent overfitting. The hold-out set MUST be strictly the last two years of data (e.g., 2021-2023) to ensure the threshold was not derived from the validation period. It MUST perform a sensitivity analysis sweeping the cutoff over {900, 1000, 1100} km/s (step size 100 km/s) and report how detection rates (True Positive Rate) vary on the validation set.
 
 **Why this priority**: This provides the practical predictive value for space weather forecasting. The sensitivity analysis ensures the threshold is not arbitrarily chosen and demonstrates robustness. The hold-out set ensures validation metrics are not training artifacts.
 
