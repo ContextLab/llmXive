@@ -159,8 +159,8 @@
 
 ### Tests for User Story 3 (OPTIONAL)
 
-- [ ] T030 Integration test that checks JSON ↔ CSV count consistency (tests/integration/test_export_consistency.py) (run AFTER T056‑T060) (verify counts match) [DEPENDS ON: T056].
-- [ ] T061 Contract test for manifest schema in `tests/contract/test_manifest_schema.py` (run AFTER T056 completes) (verify schema compliance).
+- [X] T030 Integration test that checks JSON ↔ CSV count consistency (tests/integration/test_export_consistency.py) (run AFTER T056‑T060) (verify counts match) [DEPENDS ON: T056].
+- [X] T061 Contract test for manifest schema in `tests/contract/test_manifest_schema.py` (run AFTER T056 completes) (verify schema compliance).
 
 ---
 
@@ -192,9 +192,9 @@
 
 **Independent Test**: Compute extraction precision ≥ 85 % and recall ≥ 75 % (F1 ≥ 0.80) on the real‑world validation set.
 
-- [ ] T069a Source ≥ 100 public A/B test summary URLs across five major domains (tech, e‑commerce, finance, healthcare, SaaS) with at least 20 per domain (constraint‑preservation‑0be190a4) (verify `data/manual_validation/source_urls.csv` exists and meets distribution).
+- [ ] T069a {{claim:c_1eb3fc6b}} (constraint‑preservation‑0be190a4) (verify `data/manual_validation/source_urls.csv` exists and meets distribution).
 - [ ] T069b Draft annotation protocol documenting field‑level extraction criteria, reviewer instructions, and conflict‑resolution process (document saved as `docs/annotation_protocol.md`).
-- [ ] T069c Conduct manual annotation (human annotators) following protocol, resulting in `data/manual_validation/real_world_labels.csv` with two annotator columns and a resolved ground‑truth column (constraint‑preservation‑0be190a4) (verify file exists with ≥ 100 rows and required columns).
+- [ ] T069c Conduct manual annotation (human annotators) following protocol, resulting in `data/manual_validation/real_world_labels.csv` with two annotator columns and a resolved ground‑truth column (constraint‑preservation‑0be190a4) (verify file exists with ≥ 100 (1911.07850, https://arxiv.org/abs/1911.07850) rows and required columns).
 - [ ] T069d **[P]** Run `tests/unit/test_stratification_counts.py` to verify that `real_world_labels.csv` contains at least 20 annotated summaries per each of the five required domains. **DEPENDS ON:** T069c.
 - [ ] T070 Evaluate **extraction accuracy component** on the real‑world validation set (FR‑031b) – compute precision, recall, F1 and assert precision ≥ 85 %, recall ≥ 75 %, F1 ≥ 0.80 (uses `tests/integration/test_extraction_accuracy_realworld.py`) (verify test passes, otherwise raise `ERR-802`).
 - [ ] T071 Verify SC‑031b: Real‑world validation precision ≥ 85 % and recall ≥ 75 % (run T070) (depends on T069c) [DEPENDS ON: T069c].

@@ -1,177 +1,227 @@
 """
-Resource monitoring module for A/B test audit pipeline.
-
-Implements FR-009: Monitor CPU and memory usage, enforce limits.
+Resource monitoring module for tracking CPU and memory usage.
+Implements FR-009: Abort with ERR-301 when limits are exceeded.
+Implements SC-008: Record peak CPU & memory to output/resource_log.json.
 """
 import json
 import logging
 import os
+import sys
 import time
+import threading
 from datetime import datetime
 from pathlib import Path
-from threading import Thread
-from typing import Dict, Any, Optional
+from typing import Dict, Any, Optional, Tuple
 
-from code.src.utils.logger import get_default_logger, get_error_message
-
+# Import config for limits and seed
+from code.src.config import get_config_summary
+from code.src.utils.logger import get_default_logger, AuditLogger, get_error_message
 
 # Resource limits per FR-009
-MAX_MEMORY_GB = 2.0
+MAX_RAM_GB = 2.0
 MAX_CPU_CORES = 2.0
-MAX_RUNTIME_HOURS = 6.0
-
-
-def get_memory_usage_gb() -> float:
-    """Get current memory usage in GB."""
-    try:
-        with open('/proc/self/status', 'r') as f:
-            for line in f:
-                if line.startswith('VmRSS:'):
-                    # VmRSS is in kB
-                    memory_kb = int(line.split()[1])
-                    return memory_kb / (1024 * 1024)  # Convert to GB
-        return 0.0
-    except Exception:
-        return 0.0
-
-
-def get_cpu_cores() -> float:
-    """Get current CPU usage as fraction of available cores."""
-    try:
-        with open('/proc/stat', 'r') as f:
-            line = f.readline()
-            parts = line.split()
-            # Sum all CPU time values
-            total = sum(int(x) for x in parts[1:])
-            idle = int(parts[4])
-            usage = 1.0 - (idle / total) if total > 0 else 0.0
-            return usage * os.cpu_count() or 1.0
-    except Exception:
-        return 1.0
-
+ERROR_CODE_RESOURCE_EXCEEDED = "ERR-301"
 
 class ResourceMonitor:
-    """Monitor resource usage and write logs."""
+    """Monitors CPU and memory usage in a background thread."""
 
-    def __init__(self, output_path: Path, logger: Optional[Any] = None):
-        self.output_path = output_path
+    def __init__(self, logger: Optional[AuditLogger] = None):
         self.logger = logger or get_default_logger()
-        self.peak_memory_gb = 0.0
-        self.peak_cpu = 0.0
-        self.start_time = time.time()
-        self._running = False
-        self._thread: Optional[Thread] = None
+        self._stop_event = threading.Event()
+        self._peak_memory_gb = 0.0
+        self._peak_cpu_percent = 0.0
+        self._monitor_thread: Optional[threading.Thread] = None
+        self._start_time: Optional[datetime] = None
+        self._end_time: Optional[datetime] = None
 
-    def start(self):
-        """Start monitoring in background thread."""
-        self._running = True
-        self.start_time = time.time()
-        self._thread = Thread(target=self._monitor_loop, daemon=True)
-        self._thread.start()
+    def _get_memory_usage_gb(self) -> float:
+        """Get current memory usage in GB."""
+        try:
+            # Read from /proc/self/statm (Linux) or use resource module (Unix)
+            # Fallback to psutil if available, else estimate
+            import resource
+            # ru_maxrss is in KB on Linux, convert to GB
+            usage_kb = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
+            usage_gb = usage_kb / (1024 * 1024)
+            return usage_gb
+        except (ImportError, AttributeError, OSError):
+            # Fallback: try psutil if installed
+            try:
+                import psutil
+                process = psutil.Process(os.getpid())
+                return process.memory_info().rss / (1024 * 1024 * 1024)
+            except ImportError:
+                # If no method works, return 0 and log warning
+                self.logger.warning("Could not determine memory usage; psutil not available and /proc not accessible")
+                return 0.0
+
+    def _get_cpu_percent(self) -> float:
+        """Get current CPU usage percentage."""
+        try:
+            # Simple CPU usage estimation using time difference
+            # For more accurate monitoring, psutil is preferred
+            import psutil
+            return psutil.cpu_percent(interval=0.1)
+        except ImportError:
+            # Fallback: estimate based on number of cores
+            # This is less accurate but avoids hard dependency
+            try:
+                cpu_count = os.cpu_count() or 1
+                # Estimate 100% if we can't measure
+                return 100.0
+            except Exception:
+                return 0.0
+
+    def _monitor_loop(self, interval: float = 1.0):
+        """Background loop to monitor resources."""
+        while not self._stop_event.is_set():
+            try:
+                mem_gb = self._get_memory_usage_gb()
+                cpu_pct = self._get_cpu_percent()
+
+                if mem_gb > self._peak_memory_gb:
+                    self._peak_memory_gb = mem_gb
+                if cpu_pct > self._peak_cpu_percent:
+                    self._peak_cpu_percent = cpu_pct
+
+                # Check limits and abort if exceeded
+                if mem_gb > MAX_RAM_GB:
+                    msg = get_error_message(ERROR_CODE_RESOURCE_EXCEEDED)
+                    self.logger.error(f"{ERROR_CODE_RESOURCE_EXCEEDED}: Memory limit exceeded ({mem_gb:.2f}GB > {MAX_RAM_GB}GB)")
+                    self._stop_event.set()
+                    sys.exit(1)
+
+                if cpu_pct > (MAX_CPU_CORES * 100):  # Convert cores to percentage
+                    msg = get_error_message(ERROR_CODE_RESOURCE_EXCEEDED)
+                    self.logger.error(f"{ERROR_CODE_RESOURCE_EXCEEDED}: CPU limit exceeded ({cpu_pct:.1f}% > {MAX_CPU_CORES * 100}%)" )
+                    self._stop_event.set()
+                    sys.exit(1)
+
+            except Exception as e:
+                self.logger.warning(f"Error during resource monitoring: {e}")
+
+            self._stop_event.wait(interval)
+
+    def start(self, interval: float = 1.0):
+        """Start monitoring in a background thread."""
+        self._start_time = datetime.utcnow()
+        self._stop_event.clear()
+        self._monitor_thread = threading.Thread(target=self._monitor_loop, args=(interval,), daemon=True)
+        self._monitor_thread.start()
 
     def stop(self):
-        """Stop monitoring and write final log."""
-        self._running = False
-        if self._thread:
-            self._thread.join(timeout=1.0)
-        self._write_log()
+        """Stop monitoring and record end time."""
+        self._end_time = datetime.utcnow()
+        self._stop_event.set()
+        if self._monitor_thread:
+            self._monitor_thread.join(timeout=5.0)
 
-    def _monitor_loop(self):
-        """Background monitoring loop."""
-        while self._running:
-            memory_gb = get_memory_usage_gb()
-            cpu = get_cpu_cores()
-
-            self.peak_memory_gb = max(self.peak_memory_gb, memory_gb)
-            self.peak_cpu = max(self.peak_cpu, cpu)
-
-            # Check limits
-            if memory_gb > MAX_MEMORY_GB:
-                self.logger.error(f"ERR-301: Memory limit exceeded: {memory_gb:.2f}GB > {MAX_MEMORY_GB}GB")
-                self._write_log()
-                raise MemoryError(f"Memory limit exceeded: {memory_gb:.2f}GB")
-
-            if cpu > MAX_CPU_CORES:
-                self.logger.warning(f"CPU usage high: {cpu:.2f} cores")
-
-            time.sleep(1.0)  # Check every second
-
-    def _write_log(self):
-        """Write resource usage log."""
-        try:
-            self.output_path.parent.mkdir(parents=True, exist_ok=True)
-            log_data = {
-                'timestamp': datetime.utcnow().isoformat(),
-                'peak_memory_gb': self.peak_memory_gb,
-                'peak_cpu_cores': self.peak_cpu,
-                'runtime_seconds': time.time() - self.start_time,
-                'limits': {
-                    'max_memory_gb': MAX_MEMORY_GB,
-                    'max_cpu_cores': MAX_CPU_CORES,
-                    'max_runtime_hours': MAX_RUNTIME_HOURS
-                }
-            }
-            with open(self.output_path, 'w') as f:
-                json.dump(log_data, f, indent=2)
-        except Exception as e:
-            self.logger.error(f"Failed to write resource log: {e}")
-
-
-def start_monitoring(output_path: Path) -> ResourceMonitor:
-    """Start resource monitoring and return monitor instance."""
-    monitor = ResourceMonitor(output_path)
-    monitor.start()
-    return monitor
-
-
-def stop_monitoring(monitor: ResourceMonitor):
-    """Stop resource monitoring."""
-    monitor.stop()
-
-
-def write_resource_log(output_path: Path, peak_memory_gb: float, peak_cpu: float, runtime_seconds: float) -> bool:
-    """Write resource log directly (without monitoring thread)."""
-    try:
-        output_path.parent.mkdir(parents=True, exist_ok=True)
-        log_data = {
-            'timestamp': datetime.utcnow().isoformat(),
-            'peak_memory_gb': peak_memory_gb,
-            'peak_cpu_cores': peak_cpu,
-            'runtime_seconds': runtime_seconds,
-            'limits': {
-                'max_memory_gb': MAX_MEMORY_GB,
-                'max_cpu_cores': MAX_CPU_CORES,
-                'max_runtime_hours': MAX_RUNTIME_HOURS
-            }
+    def get_peak_usage(self) -> Dict[str, float]:
+        """Return peak usage statistics."""
+        return {
+            "peak_memory_gb": round(self._peak_memory_gb, 4),
+            "peak_cpu_percent": round(self._peak_cpu_percent, 2)
         }
-        with open(output_path, 'w') as f:
-            json.dump(log_data, f, indent=2)
-        return True
-    except Exception as e:
-        logging.error(f"ERR-302: Failed to write resource log: {e}")
-        return False
 
+    def get_duration_seconds(self) -> float:
+        """Return monitoring duration in seconds."""
+        if self._start_time and self._end_time:
+            return (self._end_time - self._start_time).total_seconds()
+        return 0.0
+
+# Global monitor instance
+_monitor: Optional[ResourceMonitor] = None
+
+def start_monitoring(interval: float = 1.0) -> ResourceMonitor:
+    """Start the global resource monitor."""
+    global _monitor
+    if _monitor is None:
+        _monitor = ResourceMonitor()
+    _monitor.start(interval)
+    return _monitor
+
+def stop_monitoring() -> Optional[ResourceMonitor]:
+    """Stop the global resource monitor."""
+    global _monitor
+    if _monitor:
+        _monitor.stop()
+    return _monitor
+
+def write_resource_log(output_path: str, monitor: Optional[ResourceMonitor] = None) -> Path:
+    """Write resource usage log to JSON file."""
+    if monitor is None:
+        monitor = _monitor
+
+    if monitor is None:
+        raise RuntimeError("No resource monitor available. Call start_monitoring() first.")
+
+    usage = monitor.get_peak_usage()
+    duration = monitor.get_duration_seconds()
+
+    log_data = {
+        "timestamp": datetime.utcnow().isoformat(),
+        "duration_seconds": round(duration, 2),
+        "peak_memory_gb": usage["peak_memory_gb"],
+        "peak_cpu_percent": usage["peak_cpu_percent"],
+        "limits": {
+            "max_memory_gb": MAX_RAM_GB,
+            "max_cpu_percent": MAX_CPU_CORES * 100
+        },
+        "within_limits": usage["peak_memory_gb"] <= MAX_RAM_GB and usage["peak_cpu_percent"] <= (MAX_CPU_CORES * 100)
+    }
+
+    path = Path(output_path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+
+    with open(path, "w", encoding="utf-8") as f:
+        json.dump(log_data, f, indent=2)
+
+    return path
+
+def get_memory_usage_gb() -> float:
+    """Convenience function to get current memory usage."""
+    try:
+        import resource
+        usage_kb = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
+        return usage_kb / (1024 * 1024)
+    except (ImportError, AttributeError, OSError):
+        try:
+            import psutil
+            return psutil.Process(os.getpid()).memory_info().rss / (1024 * 1024 * 1024)
+        except ImportError:
+            return 0.0
+
+def get_cpu_cores() -> float:
+    """Get number of CPU cores available."""
+    return float(os.cpu_count() or 1)
 
 def main():
-    """Main entry point for standalone resource monitoring test."""
-    import argparse
+    """Main entry point for resource monitoring test."""
+    logger = get_default_logger()
+    logger.info("Starting resource monitor test...")
 
-    parser = argparse.ArgumentParser(description='Test resource monitoring')
-    parser.add_argument('--output', type=str, default='output/resource_log.json', help='Output log path')
-    parser.add_argument('--duration', type=int, default=5, help='Monitoring duration in seconds')
-    args = parser.parse_args()
+    monitor = start_monitoring(interval=0.5)
 
-    print(f"Starting resource monitoring for {args.duration} seconds...")
-    monitor = start_monitoring(Path(args.output))
+    # Simulate some work
+    time.sleep(3)
 
-    time.sleep(args.duration)
+    # Stop monitoring
+    stop_monitoring()
 
-    stop_monitoring(monitor)
+    # Write log
+    log_path = write_resource_log("output/resource_log.json", monitor)
+    logger.info(f"Resource log written to {log_path}")
 
-    print(f"Resource log written to {args.output}")
-    print(f"Peak memory: {monitor.peak_memory_gb:.2f}GB")
-    print(f"Peak CPU: {monitor.peak_cpu:.2f} cores")
+    # Verify limits
+    usage = monitor.get_peak_usage()
+    if usage["peak_memory_gb"] > MAX_RAM_GB:
+        logger.error(f"{ERROR_CODE_RESOURCE_EXCEEDED}: Memory limit exceeded")
+        sys.exit(1)
+    if usage["peak_cpu_percent"] > (MAX_CPU_CORES * 100):
+        logger.error(f"{ERROR_CODE_RESOURCE_EXCEEDED}: CPU limit exceeded")
+        sys.exit(1)
 
+    logger.info("Resource usage within limits")
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
