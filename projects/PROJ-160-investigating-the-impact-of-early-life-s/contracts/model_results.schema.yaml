@@ -1,59 +1,80 @@
-description: Schema for statistical model outputs from the early-life stress analysis pipeline.
+$schema: http://json-schema.org/draft-07/schema#
+title: Model Results Schema
+description: |
+  Schema for statistical model outputs from the linear mixed-effects analysis
+  of Early Life Stress impact on Hippocampal Subfield Volumes.
+  Defines the structure for model_results.json and model_results_summary.csv.
 type: object
 required:
   - model_id
   - subfield
-  - beta
+  - formula
+  - beta_ace
   - ci_lower
   - ci_upper
-  - p_value
-  - corrected_p_value
+  - p_value_uncorrected
+  - p_value_corrected
+  - correction_method
   - n_observations
   - n_groups
-  - covariates
+  - timestamp
 properties:
   model_id:
     type: string
-    description: Unique identifier for the fitted model (e.g., 'LMM_CA3_v1').
+    description: Unique identifier for the model run (e.g., "LMM_CA3_001")
   subfield:
     type: string
-    description: Hippocampal subfield name (CA3, DG, Subiculum, or CA3_DG_Ratio).
+    description: The hippocampal subfield analyzed (CA3, DG, Subiculum, or CA3_DG_Ratio)
     enum:
       - CA3
       - DG
       - Subiculum
       - CA3_DG_Ratio
-  beta:
-    type: number
-    description: Estimated coefficient (β) for the ACE score predictor.
-  ci_lower:
-    type: number
-    description: Lower bound of the 95% confidence interval for β.
-  ci_upper:
-    type: number
-    description: Upper bound of the 95% confidence interval for β.
-  p_value:
-    type: number
-    description: Uncorrected p-value for the ACE score coefficient.
-  corrected_p_value:
-    type: number
-    description: Bonferroni-corrected p-value for the ACE score coefficient.
-  n_observations:
-    type: integer
-    description: Total number of observations used in the model.
-  n_groups:
-    type: integer
-    description: Number of unique family groups (random effect levels).
-  covariates:
-    type: array
-    description: List of covariates included in the fixed effects part of the model.
-    items:
-      type: string
   formula:
     type: string
-    description: The R-style formula used for the model.
+    description: The statistical formula used for the model (e.g., "subfield_vol ~ ACE_score + age + sex + scanner_site + (1|family_id)")
+  beta_ace:
+    type: number
+    description: The standardized beta coefficient for the ACE score predictor
+  ci_lower:
+    type: number
+    description: Lower bound of the 95% confidence interval for beta_ace
+  ci_upper:
+    type: number
+    description: Upper bound of the 95% confidence interval for beta_ace
+  p_value_uncorrected:
+    type: number
+    description: The raw p-value for the ACE score coefficient
+  p_value_corrected:
+    type: number
+    description: The Bonferroni-corrected p-value for the ACE score coefficient
+  correction_method:
+    type: string
+    description: The method used for multiple comparison correction
+    enum:
+      - Bonferroni
+      - Holm
+      - None
+  n_observations:
+    type: integer
+    description: Total number of observations used in the model
+  n_groups:
+    type: integer
+    description: Number of unique groups (family_ids) in the mixed-effects model
   timestamp:
     type: string
     format: date-time
-    description: ISO 8601 timestamp when the model was fitted.
+    description: ISO 8601 timestamp of when the model was generated
+  covariates:
+    type: object
+    description: Optional details about other covariates in the model
+    properties:
+      age_beta:
+        type: number
+      sex_beta:
+        type: number
+      site_effects:
+        type: object
+        additionalProperties:
+          type: number
 additionalProperties: false

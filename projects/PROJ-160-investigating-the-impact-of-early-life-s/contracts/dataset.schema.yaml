@@ -1,68 +1,79 @@
 $schema: http://json-schema.org/draft-07/schema#
 title: Preprocessed Dataset Schema
 description: |
-  Schema for the preprocessed dataset derived from ABCD Release 4.0.
-  Contains early life stress (ACE) scores, demographic covariates, and
-  normalized hippocampal subfield volumes.
+  Schema for the preprocessed dataset derived from the ABCD Study Release 4.0.
+  Contains Adverse Childhood Experiences (ACE) scores, demographic data,
+  and normalized hippocampal subfield volumes.
 type: object
 required:
-  - type
   - properties
-  - additionalProperties
+  - required
+  - type
 properties:
   type:
     type: string
     const: object
+  required:
+    type: array
+    items:
+      type: string
   properties:
     type: object
     properties:
       ACE:
+        description: Adverse Childhood Experiences score.
         type: number
-        description: Adverse Childhood Experiences score. May be log-transformed if skewness > 1.0.
+        minimum: 0
       Age:
+        description: Age of the participant at baseline (years).
         type: number
-        description: Age of participant at baseline (years).
+        minimum: 9
+        maximum: 11
       Sex:
-        type: integer
-        description: Biological sex (0=Female, 1=Male) or encoded categorical value.
+        description: Biological sex of the participant.
+        type: string
+        enum: [Male, Female]
       Site:
-        type: string
         description: Scanning site identifier.
-      FamilyID:
         type: string
-        description: Unique family identifier for random effects grouping.
+      FamilyID:
+        description: Unique identifier for the family unit (to handle clustering).
+        type: string
       CA3:
+        description: Raw volume of the CA3 hippocampal subfield.
         type: number
-        description: Raw volume of CA3 subfield (mm^3).
+        minimum: 0
       DG:
+        description: Raw volume of the Dentate Gyrus hippocampal subfield.
         type: number
-        description: Raw volume of Dentate Gyrus subfield (mm^3).
+        minimum: 0
       Subiculum:
+        description: Raw volume of the Subiculum hippocampal subfield.
         type: number
-        description: Raw volume of Subiculum subfield (mm^3).
+        minimum: 0
       ICV:
+        description: Intracranial volume used for normalization.
         type: number
-        description: Intracranial Volume (mm^3) used for normalization.
+        minimum: 0
       Normalized_Volumes:
+        description: |
+          Object containing ICV-normalized volumes for each subfield.
+          Calculated as: RawVolume / ICV.
         type: object
-        description: Dictionary containing ICV-normalized volumes for each subfield.
-        properties:
-          CA3:
-            type: number
-            description: CA3 volume / ICV.
-          DG:
-            type: number
-            description: DG volume / ICV.
-          Subiculum:
-            type: number
-            description: Subiculum volume / ICV.
         required:
           - CA3
           - DG
           - Subiculum
-      ACE_Outlier_Flag:
-        type: boolean
-        description: Flag indicating if ACE score is an extreme outlier (>3 SD).
+        properties:
+          CA3:
+            description: Normalized CA3 volume.
+            type: number
+          DG:
+            description: Normalized DG volume.
+            type: number
+          Subiculum:
+            description: Normalized Subiculum volume.
+            type: number
     required:
       - ACE
       - Age
@@ -74,23 +85,3 @@ properties:
       - Subiculum
       - ICV
       - Normalized_Volumes
-  additionalProperties:
-    type: boolean
-    const: false
-examples:
-  - type: object
-    properties:
-      ACE: 2.0
-      Age: 9.9
-      Sex: 0
-      Site: "site_01"
-      FamilyID: "fam_12345"
-      CA3: 450.5
-      DG: 620.2
-      Subiculum: 580.1
-      ICV: 1450000.0
-      Normalized_Volumes:
-        CA3: 0.00031069
-        DG: 0.00042772
-        Subiculum: 0.00040007
-      ACE_Outlier_Flag: false

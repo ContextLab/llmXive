@@ -58,11 +58,11 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [X] T004 Create `code/config.py` with paths, random seeds (line 12), and constants for ABCD Release 4.0
-- [X] T005 [P] Implement data loading utilities in `code/data/loaders.py` (handling CSV/TSV parsing)
-- [ ] T006a [P] Create `contracts/dataset.schema.yaml` defining the schema for the preprocessed dataset (columns: ACE, Age, Sex, Site, FamilyID, CA3, DG, Subiculum, ICV, Normalized_Volumes)
-- [ ] T006b [P] Create `contracts/model_results.schema.yaml` defining the schema for model outputs (β, CI, p-value, corrected_p-value)
-- [X] T007 Create base entity definitions in `code/analysis/results.py` (AnalysisResult, StatisticalModel)
-- [ ] T008 Configure error handling and logging infrastructure in `code/main.py`: Implement try/except blocks for all I/O operations; log errors to `logs/pipeline.log` in JSON format; raise custom exceptions on failure.
+- [~] T005 [P] Implement data loading utilities in `code/data/loaders.py` (handling CSV/TSV parsing)
+- [~] T006a [P] Create `contracts/dataset.schema.yaml` defining the schema for the preprocessed dataset (columns: ACE, Age, Sex, Site, FamilyID, CA3, DG, Subiculum, ICV, Normalized_Volumes)
+- [~] T006b [P] Create `contracts/model_results.schema.yaml` defining the schema for model outputs (β, CI, p-value, corrected_p-value)
+- [~] T007 Create base entity definitions in `code/analysis/results.py` (AnalysisResult, StatisticalModel)
+- [~] T008 Configure error handling and logging infrastructure in `code/main.py`: Implement try/except blocks for all I/O operations; log errors to `logs/pipeline.log` in JSON format; raise custom exceptions on failure.
 - [~] T009 Setup environment configuration management (`.env` support if needed, though paths are relative)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -73,16 +73,16 @@
 
 **Goal**: Acquire ABCD Study Release 4.0 data, filter for quality/completeness, and normalize volumes.
 
-**Independent Test**: Verify pipeline downloads CSVs, filters missing ACE/poor MRI quality, and outputs normalized dataset with ≥80% retention.
+**Independent Test**: Verify pipeline downloads CSVs, filters missing ACE/poor MRI quality, and outputs normalized dataset with ≥80% retention. [UNRESOLVED-CLAIM: c_5224b36d — status=not_enough_info]
 
 ### Implementation for User Story 1
 
-- [~] T014 [US1] Implement `code/data/acquisition.py` to download ABCD phenotypic and subcorticalSegmentationStats files from official portal, verify MD5 checksums (FR-001)
+- [~] T014 [US1] Implement `code/data/acquisition.py` to download ABCD phenotypic and subcorticalSegmentationStats files from official portal, verify MD5 checksums (FR-001) <!-- FAILED: unspecified -->
 - [~] T015 [US1] Implement `code/data/preprocessing.py` to exclude participants with missing ACE scores or poor MRI quality flags (FR-002)
-- [~] T016 [US1] [Depends on T015] Implement `code/data/preprocessing.py` to normalize CA3, DG, subiculum volumes by dividing by ICV, storing with ≥4 decimal precision (FR-003)
+- [~] T016 [US1] [Depends on T015] Implement `code/data/preprocessing.py` to normalize CA3, DG, subiculum volumes by dividing by ICV, storing with ≥4 decimal precision (FR-003) <!-- SKIPPED: non-mapping output -->
 - [~] T017 [US1] [Depends on T016] Implement `code/data/preprocessing.py` to check ACE score skewness and apply **log-transformation** if |skewness| > 1.0 (FR-011).
 - [~] T018 [US1] [Depends on T017] Implement `code/data/preprocessing.py` to handle extreme ACE outliers (>3 SD) by flagging them (appending a flag column to `data/processed/cleaned_dataset.csv`) for downstream sensitivity analysis, without auto-exclusion (Edge Case). This flagging supports sensitivity analysis and does not alter the FR-002 exclusion logic.
-- [~] T019 [US1] Generate `data/processed/cleaned_dataset.csv` with all required columns (ACE, Age, Sex, Site, FamilyID, CA3, DG, Subiculum, ICV, Normalized_Volumes)
+- [ ] T019 [US1] Generate `data/processed/cleaned_dataset.csv` with all required columns (ACE, Age, Sex, Site, FamilyID, CA3, DG, Subiculum, ICV, Normalized_Volumes)
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
@@ -108,7 +108,7 @@ expected <block end>, but found '<scalar>'
 
 **Goal**: Fit linear mixed-effects models for CA3, DG, subiculum and CA3:DG ratio, apply Bonferroni correction.
 
-**Independent Test**: Verify three separate models output standardized β, 95% CI, p-values (corrected and uncorrected) and complete within 45 mins.
+**Independent Test**: Verify three separate models output standardized β, 95% CI, p-values (corrected and uncorrected) and complete within 45 mins. [UNRESOLVED-CLAIM: c_45988c78 — status=not_enough_info]
 
 ### Implementation for User Story 2
 
@@ -135,7 +135,7 @@ expected <block end>, but found '<scalar>'
 
 **Goal**: Perform cluster-level permutation tests and sensitivity analyses to validate findings.
 
-**Independent Test**: Verify 5,000 permutation tests complete within 3 hours, sensitivity sweeps run, and ICV-restricted analysis outputs effect size change.
+**Independent Test**: Verify 5,000 permutation tests complete within 3 hours [UNRESOLVED-CLAIM: c_9b56765e — status=not_enough_info], sensitivity sweeps run, and ICV-restricted analysis outputs effect size change.
 
 ### Implementation for User Story 3
 
@@ -166,7 +166,7 @@ expected <block end>, but found '<scalar>'
 - [ ] T042 Performance optimization: Ensure data loading streams only necessary columns to fit in GB RAM (Plan: Computational Feasibility)
 - [ ] T043 [P] Run full test suite `pytest` and verify all contract tests pass
 - [ ] T044 Run `quickstart.md` validation if generated
-- [ ] T045 Verify total pipeline runtime (Acquisition → Robustness) is ≤ 6 hours (SC-006)
+- [ ] T045 Verify total pipeline runtime (Acquisition → Robustness) is ≤ 6 hours [UNRESOLVED-CLAIM: c_29ee9fe7 — status=not_enough_info] (SC-006)
 
 ---
 

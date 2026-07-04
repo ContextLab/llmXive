@@ -1,13 +1,13 @@
 - artifact_path: projects/PROJ-160-investigating-the-impact-of-early-life-s/specs/001-investigating-the-impact-of-early-life-s/tasks.md
   attempts: 1
-  canonical: normalized dataset with at least 80 percent retention
-  claim_id: c_0452f7bd
+  canonical: normalized dataset retention rate at least 80 percent
+  claim_id: c_abc34181
   context: "Independent Test: Verify pipeline downloads CSVs, filters missing ACE/poor\
     \ MRI quality, and outputs normalized dataset with \u226580% retention."
   evidence:
     candidates_found: 1
     reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/Normalized_dataset_with_at_least_80_percent_retention
+    source_url: https://en.wikipedia.org/wiki/Normalized_dataset_retention_rate_at_least_80_percent
   kind: magnitude
   raw_text: "Verify pipeline downloads CSVs, filters missing ACE/poor MRI quality,\
     \ and outputs normalized dataset with \u226580% retention."
@@ -16,11 +16,11 @@
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-04T03:15:01Z'
+  updated_at: '2026-07-04T03:09:44Z'
 - artifact_path: projects/PROJ-160-investigating-the-impact-of-early-life-s/specs/001-investigating-the-impact-of-early-life-s/tasks.md
   attempts: 1
-  canonical: three separate models complete within 45 minutes
-  claim_id: c_99ff6a91
+  canonical: statistical modeling output completion time 45 minutes
+  claim_id: c_21cf085e
   context: "Independent Test: Verify three separate models output standardized \u03B2\
     , 95% CI, p-values (corrected and uncorrected) and complete within 45 mins."
   evidence:
@@ -33,9 +33,164 @@
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-04T03:15:01Z'
+  updated_at: '2026-07-04T03:09:44Z'
 - artifact_path: projects/PROJ-160-investigating-the-impact-of-early-life-s/specs/001-investigating-the-impact-of-early-life-s/tasks.md
-  attempts: 2
+  attempts: 1
+  canonical: 5000 permutation tests completion time 3 hours
+  claim_id: c_ee4289bc
+  context: 'Independent Test: Verify 5,000 permutation tests complete within 3 hours,
+    sensitivity sweeps run, and ICV-restricted analysis outputs effect size change.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify 5,000 permutation tests complete within 3 hours, sensitivity sweeps
+    run, and ICV-restricted analysis outputs effect size change.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-04T03:09:57Z'
+- artifact_path: projects/PROJ-160-investigating-the-impact-of-early-life-s/specs/001-investigating-the-impact-of-early-life-s/tasks.md
+  attempts: 1
+  canonical: parallelize permutations with 2 jobs to meet 3 hour runtime
+  claim_id: c_ae38f1f5
+  context: 'Implement code/analysis/robustness.py to parallelize permutations using
+    joblib with n_jobs=2 to meet 3-hour runtime constraint (SC-003, Edge Case: Timeout)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement code/analysis/robustness.py to parallelize permutations using
+    joblib with n_jobs=2 to meet 3-hour runtime constraint.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-04T03:10:06Z'
+- artifact_path: projects/PROJ-160-investigating-the-impact-of-early-life-s/specs/001-investigating-the-impact-of-early-life-s/tasks.md
+  attempts: 1
+  canonical: User Story 1 pipeline retention rate >= 80%
+  claim_id: c_ecf67f23
+  context: "Independent Test: Verify pipeline downloads CSVs, filters missing ACE/poor\
+    \ MRI quality, and outputs normalized dataset with \u226580% retention."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The independent test for User Story 1 requires a normalized dataset with\
+    \ \u226580% retention."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-04T03:14:37Z'
+- artifact_path: projects/PROJ-160-investigating-the-impact-of-early-life-s/specs/001-investigating-the-impact-of-early-life-s/tasks.md
+  attempts: 1
+  canonical: User Story 2 model completion time <= 45 mins
+  claim_id: c_41ea6d85
+  context: "Independent Test: Verify three separate models output standardized \u03B2\
+    , 95% CI, p-values (corrected and uncorrected) and complete within 45 mins."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The independent test for User Story 2 requires models to complete within
+    45 minutes.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-04T03:15:31Z'
+- artifact_path: projects/PROJ-160-investigating-the-impact-of-early-life-s/specs/001-investigating-the-impact-of-early-life-s/tasks.md
+  attempts: 1
+  canonical: User Story 3 permutation tests completion time <= 3 hours for 5000 permutations
+  claim_id: c_adf37a15
+  context: 'Independent Test: Verify 5,000 permutation tests complete within 3 hours,
+    sensitivity sweeps run, and ICV-restricted analysis outputs effect size change.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The independent test for User Story 3 requires 5,000 permutation tests
+    to complete within 3 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-04T03:16:12Z'
+- artifact_path: projects/PROJ-160-investigating-the-impact-of-early-life-s/specs/001-investigating-the-impact-of-early-life-s/tasks.md
+  attempts: 1
+  canonical: Robustness analysis uses 5000 non-parametric permutations
+  claim_id: c_b6bec230
+  context: Implement code/analysis/robustness.py to perform non-parametric permutation
+    tests (5,000 permutations) to verify linear model assumptions per Constitution
+    Principle VI and Spec FR-007.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The robustness analysis task implements non-parametric permutation tests
+    with 5,000 permutations.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-04T03:16:49Z'
+- artifact_path: projects/PROJ-160-investigating-the-impact-of-early-life-s/specs/001-investigating-the-impact-of-early-life-s/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis default thresholds are 0.01, 0.05, 0.1
+  claim_id: c_edbef7bc
+  context: 'The table must list counts of significant findings for thresholds read
+    from code/config.py (default: {0.01, 0.05, 0.1} to allow configurability per FR-008).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity analysis summary table uses default thresholds of 0.01,
+    0.05, and 0.1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-04T03:18:10Z'
+- artifact_path: projects/PROJ-160-investigating-the-impact-of-early-life-s/specs/001-investigating-the-impact-of-early-life-s/tasks.md
+  attempts: 1
+  canonical: Total pipeline runtime <= 6 hours
+  claim_id: c_dea93148
+  context: "Verify total pipeline runtime (Acquisition \u2192 Robustness) is \u2264\
+    \ 6 hours (SC-006)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The total pipeline runtime (Acquisition to Robustness) is verified to\
+    \ be \u2264 6 hours."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-04T03:18:10Z'
+- artifact_path: projects/PROJ-160-investigating-the-impact-of-early-life-s/specs/001-investigating-the-impact-of-early-life-s/tasks.md
+  attempts: 1
+  canonical: Three separate models output standardized beta, 95% CI, and p-values
+    and complete within 45 minutes
+  claim_id: c_45988c78
+  context: "Independent Test: Verify three separate models output standardized \u03B2\
+    , 95% CI, p-values (corrected and uncorrected) and complete within 45 mins."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify three separate models output standardized \u03B2, 95% CI, p-values\
+    \ (corrected and uncorrected) and complete within 45 mins."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-04T03:37:26Z'
+- artifact_path: projects/PROJ-160-investigating-the-impact-of-early-life-s/specs/001-investigating-the-impact-of-early-life-s/tasks.md
+  attempts: 1
   canonical: 5000 permutation tests complete within 3 hours
   claim_id: c_9b56765e
   context: 'Independent Test: Verify 5,000 permutation tests complete within 3 hours,
@@ -49,15 +204,34 @@
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-04T03:15:51Z'
+  updated_at: '2026-07-04T03:38:16Z'
 - artifact_path: projects/PROJ-160-investigating-the-impact-of-early-life-s/specs/001-investigating-the-impact-of-early-life-s/tasks.md
   attempts: 1
-  canonical: default significance thresholds 0.01 0.05 0.1
-  claim_id: c_f26189c2
-  context: 'The table must list counts of significant findings for thresholds read
-    from code/config.py (default: {0.01, 0.05, 0.1} to allow configurability per FR-008)
-    AND calculate the variation metric (standard deviation of counts) to quantify
-    dependency (SC-005).'
+  canonical: Total pipeline runtime from acquisition to robustness is less than or
+    equal to 6 hours
+  claim_id: c_29ee9fe7
+  context: "T045 Verify total pipeline runtime (Acquisition \u2192 Robustness) is\
+    \ \u2264 6 hours (SC-006)"
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Total_pipeline_runtime_from_acquisition_to_robustness_is_les
+  kind: magnitude
+  raw_text: "Verify total pipeline runtime (Acquisition \u2192 Robustness) is \u2264\
+    \ 6 hours"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-04T03:39:06Z'
+- artifact_path: projects/PROJ-160-investigating-the-impact-of-early-life-s/specs/001-investigating-the-impact-of-early-life-s/tasks.md
+  attempts: 1
+  canonical: Default significance thresholds are 0.01, 0.05, and 0.1
+  claim_id: c_ba971a59
+  context: 'T037 ... The table must list counts of significant findings for thresholds
+    read from code/config.py (default: {0.01, 0.05, 0.1} to allow configurability
+    per FR-008) ...'
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
@@ -68,77 +242,129 @@
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-04T03:16:17Z'
+  updated_at: '2026-07-04T03:39:40Z'
 - artifact_path: projects/PROJ-160-investigating-the-impact-of-early-life-s/specs/001-investigating-the-impact-of-early-life-s/tasks.md
   attempts: 1
-  canonical: total pipeline runtime less than or equal to 6 hours
-  claim_id: c_1e0a3372
-  context: "Verify total pipeline runtime (Acquisition \u2192 Robustness) is \u2264\
-    \ 6 hours (SC-006)"
-  evidence:
-    candidates_found: 1
-    reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/Total_pipeline_runtime_less_than_or_equal_to_6_hours
-  kind: magnitude
-  raw_text: "Verify total pipeline runtime (Acquisition \u2192 Robustness) is \u2264\
-    \ 6 hours"
-  resolved_value: null
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-04T03:16:49Z'
-- artifact_path: projects/PROJ-160-investigating-the-impact-of-early-life-s/specs/001-investigating-the-impact-of-early-life-s/tasks.md
-  attempts: 1
-  canonical: VIF threshold greater than 5 triggers residualization
-  claim_id: c_e97b7586
-  context: 'Implement code/analysis/modeling.py to calculate VIF for covariates; if
-    VIF > 5, apply residualization strategy (regress ACE on collinear covariate) before
-    fitting (Edge Case: Multicollinearity)'
-  evidence:
-    candidates_found: 1
-    reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/VIF_threshold_greater_than_5_triggers_residualization
-  kind: magnitude
-  raw_text: Implement code/analysis/modeling.py to calculate VIF for covariates; if
-    VIF > 5, apply residualization strategy
-  resolved_value: null
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-04T03:18:00Z'
-- artifact_path: projects/PROJ-160-investigating-the-impact-of-early-life-s/specs/001-investigating-the-impact-of-early-life-s/tasks.md
-  attempts: 1
-  canonical: Bonferroni correction applied for 3 tests
-  claim_id: c_e9357fcf
-  context: Implement code/analysis/results.py to apply Bonferroni correction (threshold)
-    and report corrected p-values (FR-005)
+  canonical: Non-parametric permutation tests use 5000 permutations
+  claim_id: c_f7efb891
+  context: T035 [US3] Implement code/analysis/robustness.py to perform non-parametric
+    permutation tests (5,000 permutations) to verify linear model assumptions per
+    Constitution Principle VI and Spec FR-007.
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
-  raw_text: Implement code/analysis/results.py to apply Bonferroni correction (threshold)
-    and report corrected p-values
+  raw_text: Implement code/analysis/robustness.py to perform non-parametric permutation
+    tests (5,000 permutations)
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-04T03:18:00Z'
+  updated_at: '2026-07-04T03:40:22Z'
 - artifact_path: projects/PROJ-160-investigating-the-impact-of-early-life-s/specs/001-investigating-the-impact-of-early-life-s/tasks.md
   attempts: 1
-  canonical: Normalized dataset retention rate of at least 80%
-  claim_id: c_fd68af1d
+  canonical: Parallelize permutations using joblib with 2 jobs to meet 3-hour runtime
+    constraint
+  claim_id: c_7185ca1d
+  context: 'T036 [US3] Implement code/analysis/robustness.py to parallelize permutations
+    using joblib with n_jobs=2 to meet 3-hour runtime constraint (SC-003, Edge Case:
+    Timeout)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement code/analysis/robustness.py to parallelize permutations using
+    joblib with n_jobs=2 to meet 3-hour runtime constraint
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-04T03:40:22Z'
+- artifact_path: projects/PROJ-160-investigating-the-impact-of-early-life-s/specs/001-investigating-the-impact-of-early-life-s/tasks.md
+  attempts: 1
+  canonical: Bonferroni correction applied for model outputs
+  claim_id: c_1056c730
+  context: 'Goal: Fit linear mixed-effects models for CA3, DG, subiculum and CA3:DG
+    ratio, apply Bonferroni correction.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Bonferroni_correction_applied_for_model_outputs
+  kind: entity_fact
+  raw_text: Apply Bonferroni correction (threshold) and report corrected p-values
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-04T03:41:24Z'
+- artifact_path: projects/PROJ-160-investigating-the-impact-of-early-life-s/specs/001-investigating-the-impact-of-early-life-s/tasks.md
+  attempts: 1
+  canonical: Volumes normalized by ICV stored with at least 4 decimal precision
+  claim_id: c_8e7ced46
+  context: "T016 [US1] [Depends on T015] Implement code/data/preprocessing.py to normalize\
+    \ CA3, DG, subiculum volumes by dividing by ICV, storing with \u22654 decimal\
+    \ precision (FR-003)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Volumes_normalized_by_ICV_stored_with_at_least_4_decimal_pre
+  kind: magnitude
+  raw_text: "Normalize CA3, DG, subiculum volumes by dividing by ICV, storing with\
+    \ \u22654 decimal precision"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-04T03:42:10Z'
+- artifact_path: projects/PROJ-160-investigating-the-impact-of-early-life-s/specs/001-investigating-the-impact-of-early-life-s/tasks.md
+  attempts: 1
+  canonical: Log transformation applied if absolute skewness is greater than 1.0
+  claim_id: c_45be250b
+  context: T017 [US1] [Depends on T016] Implement code/data/preprocessing.py to check
+    ACE score skewness and apply log-transformation if |skewness| > 1.0 (FR-011).
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Log_transformation_applied_if_absolute_skewness_is_greater_t
+  kind: magnitude
+  raw_text: Apply log-transformation if |skewness| > 1.0
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-04T03:43:11Z'
+- artifact_path: projects/PROJ-160-investigating-the-impact-of-early-life-s/specs/001-investigating-the-impact-of-early-life-s/tasks.md
+  attempts: 1
+  canonical: Extreme ACE outliers greater than 3 standard deviations are flagged
+  claim_id: c_93e22ca6
+  context: T018 [US1] [Depends on T017] Implement code/data/preprocessing.py to handle
+    extreme ACE outliers (>3 SD) by flagging them (appending a flag column to data/processed/cleaned_dataset.csv)
+    for downstream sensitivity analysis, without auto-exclusion (Edge Case).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Extreme_ACE_outliers_greater_than_3_standard_deviations_are
+  kind: magnitude
+  raw_text: Handle extreme ACE outliers (>3 SD) by flagging them
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-04T03:44:14Z'
+- artifact_path: projects/PROJ-160-investigating-the-impact-of-early-life-s/specs/001-investigating-the-impact-of-early-life-s/tasks.md
+  attempts: 1
+  canonical: Normalized dataset outputs with at least 80% retention
+  claim_id: c_5224b36d
   context: "Independent Test: Verify pipeline downloads CSVs, filters missing ACE/poor\
     \ MRI quality, and outputs normalized dataset with \u226580% retention."
   evidence:
-    candidates:
-    - - ''
-      - 80.0
-    - - ''
-      - 25.0
-    ordering_correct: false
-    source_url: https://en.wikipedia.org/wiki/Normalized_dataset_retention_rate_of_at_least_80%25
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Normalized_dataset_outputs_with_at_least_80%25_retention
   kind: magnitude
   raw_text: "Verify pipeline downloads CSVs, filters missing ACE/poor MRI quality,\
     \ and outputs normalized dataset with \u226580% retention."
@@ -146,193 +372,42 @@
   resolver: resolve_superlative
   source_hash: null
   source_type: external
-  status: refuted
-  updated_at: '2026-07-04T03:24:53Z'
-- artifact_path: projects/PROJ-160-investigating-the-impact-of-early-life-s/specs/001-investigating-the-impact-of-early-life-s/tasks.md
-  attempts: 1
-  canonical: Normalized volumes stored with at least 4 decimal precision
-  claim_id: c_0433147f
-  context: "Implement code/data/preprocessing.py to normalize CA3, DG, subiculum volumes\
-    \ by dividing by ICV, storing with \u22654 decimal precision (FR-003)"
-  evidence:
-    candidates_found: 1
-    reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/Normalized_volumes_stored_with_at_least_4_decimal_precision
-  kind: magnitude
-  raw_text: "store with \u22654 decimal precision"
-  resolved_value: null
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
   status: not_enough_info
-  updated_at: '2026-07-04T03:25:35Z'
+  updated_at: '2026-07-04T03:44:18Z'
 - artifact_path: projects/PROJ-160-investigating-the-impact-of-early-life-s/specs/001-investigating-the-impact-of-early-life-s/tasks.md
   attempts: 1
-  canonical: Log-transformation applied if ACE score skewness absolute value exceeds
-    1.0
-  claim_id: c_26215601
-  context: Implement code/data/preprocessing.py to check ACE score skewness and apply
-    log-transformation if |skewness| > 1.0 (FR-011).
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: apply log-transformation if |skewness| > 1.0
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-04T03:25:35Z'
-- artifact_path: projects/PROJ-160-investigating-the-impact-of-early-life-s/specs/001-investigating-the-impact-of-early-life-s/tasks.md
-  attempts: 1
-  canonical: Extreme ACE outliers defined as greater than 3 standard deviations
-  claim_id: c_50c9d63a
-  context: Implement code/data/preprocessing.py to handle extreme ACE outliers (>3
-    SD) by flagging them...
-  evidence:
-    candidates_found: 1
-    reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/Extreme_ACE_outliers_defined_as_greater_than_3_standard_devi
-  kind: magnitude
-  raw_text: handle extreme ACE outliers (>3 SD)
-  resolved_value: null
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-04T03:26:39Z'
-- artifact_path: projects/PROJ-160-investigating-the-impact-of-early-life-s/specs/001-investigating-the-impact-of-early-life-s/tasks.md
-  attempts: 1
-  canonical: Linear mixed-effects models output standardized beta, 95% CI, and p-values
-    within 45 minutes
-  claim_id: c_ca3d86f4
-  context: "Independent Test: Verify three separate models output standardized \u03B2\
-    , 95% CI, p-values (corrected and uncorrected) and complete within 45 mins."
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: "output standardized \u03B2, 95% CI, p-values (corrected and uncorrected)\
-    \ and complete within 45 mins"
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-04T03:26:39Z'
-- artifact_path: projects/PROJ-160-investigating-the-impact-of-early-life-s/specs/001-investigating-the-impact-of-early-life-s/tasks.md
-  attempts: 1
-  canonical: Residualization strategy applied if Variance Inflation Factor exceeds
-    5
-  claim_id: c_f4dd66df
-  context: Implement code/analysis/modeling.py to calculate VIF for covariates; if
-    VIF > 5, apply residualization strategy...
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: if VIF > 5, apply residualization strategy
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-04T03:26:39Z'
-- artifact_path: projects/PROJ-160-investigating-the-impact-of-early-life-s/specs/001-investigating-the-impact-of-early-life-s/tasks.md
-  attempts: 1
-  canonical: Non-parametric permutation tests performed with 5,000 permutations
-  claim_id: c_11a906f6
-  context: Implement code/analysis/robustness.py to perform non-parametric permutation
-    tests (5,000 permutations) to verify linear model assumptions...
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: perform non-parametric permutation tests (5,000 permutations)
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-04T03:27:42Z'
-- artifact_path: projects/PROJ-160-investigating-the-impact-of-early-life-s/specs/001-investigating-the-impact-of-early-life-s/tasks.md
-  attempts: 1
-  canonical: 5,000 permutation tests complete within 3 hours
-  claim_id: c_b8047f27
-  context: 'Independent Test: Verify 5,000 permutation tests complete within 3 hours,
-    sensitivity sweeps run, and ICV-restricted analysis outputs effect size change.'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: Verify 5,000 permutation tests complete within 3 hours
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-04T03:27:42Z'
-- artifact_path: projects/PROJ-160-investigating-the-impact-of-early-life-s/specs/001-investigating-the-impact-of-early-life-s/tasks.md
-  attempts: 1
-  canonical: Permutations parallelized using 2 jobs
-  claim_id: c_4aa6eac1
-  context: Implement code/analysis/robustness.py to parallelize permutations using
-    joblib with n_jobs=2 to meet 3-hour runtime constraint...
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: parallelize permutations using joblib with n_jobs=2
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-04T03:28:05Z'
-- artifact_path: projects/PROJ-160-investigating-the-impact-of-early-life-s/specs/001-investigating-the-impact-of-early-life-s/tasks.md
-  attempts: 1
-  canonical: Sensitivity analysis thresholds default to 0.01, 0.05, and 0.1
-  claim_id: c_0890b4a8
-  context: 'The table must list counts of significant findings for thresholds read
-    from code/config.py (default: {0.01, 0.05, 0.1} to allow configurability per FR-008)...'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: 'default: {0.01, 0.05, 0.1}'
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-04T03:28:31Z'
-- artifact_path: projects/PROJ-160-investigating-the-impact-of-early-life-s/specs/001-investigating-the-impact-of-early-life-s/tasks.md
-  attempts: 1
-  canonical: Data subset for intracranial volume within 1 standard deviation of the
-    mean
-  claim_id: c_af476c8d
-  context: Implement code/analysis/robustness.py to subset data for ICV within 1 SD
-    of mean and re-run primary analysis to calculate % change in effect size...
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: subset data for ICV within 1 SD of mean
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-04T03:29:10Z'
-- artifact_path: projects/PROJ-160-investigating-the-impact-of-early-life-s/specs/001-investigating-the-impact-of-early-life-s/tasks.md
-  attempts: 1
-  canonical: Total pipeline runtime from acquisition to robustness is at most 6 hours
-  claim_id: c_23b9c2bc
-  context: "Verify total pipeline runtime (Acquisition \u2192 Robustness) is \u2264\
-    \ 6 hours (SC-006)"
+  canonical: Residualization strategy applied if Variance Inflation Factor is greater
+    than 5
+  claim_id: c_9370b9ea
+  context: 'T025 [US2] Implement code/analysis/modeling.py to calculate VIF for covariates;
+    if VIF > 5, apply residualization strategy (regress ACE on collinear covariate)
+    before fitting (Edge Case: Multicollinearity)'
   evidence:
     candidates_found: 0
     reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/Total_pipeline_runtime_from_acquisition_to_robustness_is_at
+    source_url: https://en.wikipedia.org/wiki/Residualization_strategy_applied_if_Variance_Inflation_Facto
   kind: magnitude
-  raw_text: "Verify total pipeline runtime (Acquisition \u2192 Robustness) is \u2264\
-    \ 6 hours"
+  raw_text: If VIF > 5, apply residualization strategy (regress ACE on collinear covariate)
+    before fitting
   resolved_value: null
   resolver: resolve_superlative
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-04T03:29:13Z'
+  updated_at: '2026-07-04T03:45:23Z'
+- artifact_path: projects/PROJ-160-investigating-the-impact-of-early-life-s/specs/001-investigating-the-impact-of-early-life-s/tasks.md
+  attempts: 1
+  canonical: ABCD Study Release 4.0 data used
+  claim_id: c_ba9fbb19
+  context: 'Goal: Acquire ABCD Study Release 4.0 data, filter for quality/completeness,
+    and normalize volumes.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use ABCD Study Release 4.0 data
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-04T03:46:18Z'
