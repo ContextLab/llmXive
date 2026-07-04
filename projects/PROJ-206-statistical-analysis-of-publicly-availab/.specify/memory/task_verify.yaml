@@ -1,0 +1,16 @@
+T002b [P] Install dependencies from `requirements.txt` in a virtual environment: 1
+'T002b [P] Install dependencies from `requirements.txt` in a virtual environment <!-- ATOMIZE: requested -->': 1
+? 'T002b [P] Install dependencies from `requirements.txt` in a virtual environment
+  <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->'
+: 1
+? 'T002b [P] Install dependencies from `requirements.txt` in a virtual environment
+  <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested
+  -->'
+: 1
+T003 [P] Configure linting (ruff/flake8) and formatting (black) tools: 1
+'T004 Setup data directory structure: `data/raw/`, `data/processed/`, `state/projects/`': 1
+T005 [P] Implement configuration management in `src/utils/config.py` (seed pinning, path resolution): 1
+T006 [P] Implement logging infrastructure in `src/utils/logging.py`: 1
+? T007 Create base data validation schemas in `specs/001-statistical-poll-aggregation/contracts/`
+  (dataset.schema.yaml, forecast.schema.yaml)
+: 1

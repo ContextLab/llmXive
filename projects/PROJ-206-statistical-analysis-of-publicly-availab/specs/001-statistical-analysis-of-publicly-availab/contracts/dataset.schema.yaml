@@ -1,67 +1,99 @@
+# Dataset Schema for Poll Aggregation Pipeline
+# Defines the structure for raw and processed poll data
+# Used for validation of data ingestion and harmonization steps
+
 $schema: http://json-schema.org/draft-07/schema#
-title: HarmonizedPollDataSchema
-description: >
-  Schema for the cleaned and harmonized poll dataset.
-  Validates structure after the download and harmonization steps.
-type: object
-properties:
-  metadata:
+title: Poll Dataset Schema
+description: Schema for validating poll data before and after processing
+
+definitions:
+  raw_poll_record:
     type: object
+    required:
+      - poll_id
+      - pollster
+      - start_date
+      - end_date
+      - population
+      - method
+      - candidate_votes
     properties:
-      source:
+      poll_id:
         type: string
-        description: "Primary data source (e.g., 'fivethirtyeight')"
-      generated_at:
+        description: Unique identifier for the poll
+      pollster:
         type: string
-        format: date-time
-        description: "Timestamp of data generation"
-      row_count:
+        description: Name of the polling organization
+      start_date:
+        type: string
+        format: date
+        description: Start date of the polling period
+      end_date:
+        type: string
+        format: date
+        description: End date of the polling period
+      population:
+        type: string
+        enum: [A, LV, RV, Likely Voters, All Adults, Adults]
+        description: Target population of the poll
+      method:
+        type: string
+        enum: [Live Phone, IVR, Online, Mixed Mode, Mail]
+        description: Data collection method
+      candidate_votes:
+        type: array
+        items:
+          type: object
+          required:
+            - candidate
+            - vote_share
+          properties:
+            candidate:
+              type: string
+            vote_share:
+              type: number
+              minimum: 0
+              maximum: 100
+      sample_size:
         type: integer
         minimum: 1
-        description: "Total number of poll records"
-  data:
-    type: array
-    items:
-      type: object
-      required:
-        - date
-        - pollster
-        - vote_share
-        - sample_size
-        - historical_rmse
-      properties:
-        date:
-          type: string
-          format: date
-          description: "ISO 8601 date of the poll"
-        pollster:
-          type: string
-          description: "Name of the polling organization"
-        vote_share:
-          type: number
-          minimum: 0
-          maximum: 100
-          description: "Vote share percentage for the leading candidate"
-        sample_size:
-          type: integer
-          minimum: 1
-          description: "Number of respondents"
-        historical_rmse:
-          type: number
-          minimum: 0
-          description: "Historical RMSE for this pollster (or median default)"
-        weight:
-          type: number
-          minimum: 0
-          maximum: 1
-          description: "Normalized weight for aggregation"
-        source:
-          type: string
-          enum:
-            - "fivethirtyeight"
-          description: "Data source (RCP excluded from scope)"
-      additionalProperties: false
-additionalProperties: false
-required:
-  - metadata
-  - data
+      margin_of_error:
+        type: number
+        minimum: 0
+
+  processed_poll_record:
+    type: object
+    required:
+      - date
+      - pollster
+      - vote_share
+      - sample_size
+      - historical_rmse
+    properties:
+      date:
+        type: string
+        format: date
+        description: Unified date (usually end_date or midpoint)
+      pollster:
+        type: string
+      candidate:
+        type: string
+      vote_share:
+        type: number
+        minimum: 0
+        maximum: 100
+      sample_size:
+        type: integer
+        minimum: 1
+      historical_rmse:
+        type: number
+        minimum: 0
+        description: Pollster's historical root mean square error
+      weight:
+        type: number
+        minimum: 0
+        description: Calculated weight for aggregation
+
+oneOf:
+  - $ref: '#/definitions/raw_poll_record'
+  - $ref: '#/definitions/processed_poll_record'

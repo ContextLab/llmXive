@@ -1,0 +1,82 @@
+- artifact_path: projects/PROJ-206-statistical-analysis-of-publicly-availab/docs/quickstart.md
+  attempts: 1
+  canonical: RealClearPolitics data excluded from pipeline
+  claim_id: c_199c0c4a
+  context: 'Architecture Notes: RCP Exclusion: Per the project''s ''Verified Accuracy''
+    principle, RealClearPolitics data is excluded. The pipeline logs a warning for
+    this exclusion.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/RealClearPolitics_data_excluded_from_pipeline
+  kind: entity_fact
+  raw_text: RealClearPolitics data is excluded per the project's 'Verified Accuracy'
+    principle.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-04T18:20:24Z'
+- artifact_path: projects/PROJ-206-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: MCMC sampling completes with R-hat less than or equal to 1.05 and 95%
+    credible intervals with at least 90% coverage
+  claim_id: c_c6eb31da
+  context: "Independent Test: Verify src/models/bayesian.py completes MCMC sampling\
+    \ without divergence (R-hat \u2264 1.05), produces 95% credible intervals with\
+    \ \u226590% coverage, and outputs a Diebold-Mariano comparison matrix."
+  evidence:
+    entailment_evidence: MCMC sampling completes with R-hat less than or equal to
+      1.
+    entailment_status: contradicted
+    source_url: https://en.wikipedia.org/wiki/MCMC_sampling_completes_with_R-hat_less_than_or_equal_to_1.0
+  kind: magnitude
+  raw_text: "Verify src/models/bayesian.py completes MCMC sampling without divergence\
+    \ (R-hat \u2264 1.05), produces 95% credible intervals with \u226590% coverage,\
+    \ and outputs a Diebold-Mariano comparison matrix."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-07-04T18:22:17Z'
+- artifact_path: projects/PROJ-206-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: binomial test against null hypothesis p0 equals 0.95 using significance
+    level alpha equals 0.05
+  claim_id: c_2cb6cbe4
+  context: Implement binomial test in src/evaluation/metrics.py against the null hypothesis
+    (p0=0.95) for coverage reliability, using significance level alpha=0.05 (as required
+    by SC-002).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement binomial test in src/evaluation/metrics.py against the null
+    hypothesis (p0=0.95) for coverage reliability, using significance level alpha=0.05.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-04T18:22:26Z'
+- artifact_path: projects/PROJ-206-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: pairwise Diebold-Mariano tests with Westfall-Young correction using 1000
+    permutations
+  claim_id: c_4dd31ff4
+  context: Implement src/evaluation/meta_analysis.py to perform pairwise Diebold-Mariano
+    tests with Westfall-Young correction (FR-006, SC-003). Use 1000 permutations with
+    a step-down max-t strategy.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement src/evaluation/meta_analysis.py to perform pairwise Diebold-Mariano
+    tests with Westfall-Young correction using 1000 permutations with a step-down
+    max-t strategy.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-04T18:22:39Z'

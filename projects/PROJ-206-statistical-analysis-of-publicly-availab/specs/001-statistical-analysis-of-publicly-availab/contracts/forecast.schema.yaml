@@ -1,57 +1,104 @@
+# Forecast Schema for Poll Aggregation Pipeline
+# Defines the structure for frequentist and Bayesian forecast outputs
+
 $schema: http://json-schema.org/draft-07/schema#
-title: AggregationForecastSchema
-description: >
-  Schema for the output of the aggregation models (Simple, Weighted, Bayesian).
-  Used to validate the final forecast data before evaluation.
-type: object
-properties:
-  metadata:
+title: Forecast Schema
+description: Schema for validating forecast outputs from aggregation models
+
+definitions:
+  frequentist_forecast:
     type: object
+    required:
+      - date
+      - candidate
+      - simple_avg_forecast
+      - weighted_avg_forecast
+    properties:
+      date:
+        type: string
+        format: date
+        description: Forecast date (weekly bin)
+      candidate:
+        type: string
+      simple_avg_forecast:
+        type: number
+        description: Simple unweighted average forecast
+      weighted_avg_forecast:
+        type: number
+        description: Accuracy-weighted average forecast
+      ci_lower_95:
+        type: number
+        description: Lower bound of 95% confidence interval
+      ci_upper_95:
+        type: number
+        description: Upper bound of 95% confidence interval
+      n_polls:
+        type: integer
+        minimum: 1
+        description: Number of polls used in aggregation
+
+  bayesian_forecast:
+    type: object
+    required:
+      - date
+      - candidate
+      - posterior_mean
+      - ci_lower_95
+      - ci_upper_95
+      - r_hat
+    properties:
+      date:
+        type: string
+        format: date
+      candidate:
+        type: string
+      posterior_mean:
+        type: number
+      posterior_median:
+        type: number
+      ci_lower_95:
+        type: number
+      ci_upper_95:
+        type: number
+      r_hat:
+        type: number
+        maximum: 1.05
+        description: Convergence diagnostic (R-hat)
+      effective_sample_size:
+        type: integer
+      predicted_winner:
+        type: string
+      win_probability:
+        type: number
+        minimum: 0
+        maximum: 1
+
+  evaluation_metrics:
+    type: object
+    required:
+      - method
+      - rmse
+      - mae
     properties:
       method:
         type: string
-        enum:
-          - "simple"
-          - "weighted"
-          - "bayesian"
-        description: "Aggregation method used"
-      generated_at:
-        type: string
-        format: date-time
-        description: "Timestamp of forecast generation"
-  forecasts:
-    type: array
-    items:
-      type: object
-      required:
-        - week_start
-        - point_estimate
-        - lower_ci
-        - upper_ci
-      properties:
-        week_start:
-          type: string
-          format: date
-          description: "Start date of the forecast week"
-        point_estimate:
-          type: number
-          description: "Forecasted vote share"
-        lower_ci:
-          type: number
-          description: "Lower bound of the 95% credible/confidence interval"
-        upper_ci:
-          type: number
-          description: "Upper bound of the 95% credible/confidence interval"
-        actual_outcome:
-          type: number
-          nullable: true
-          description: "Actual election outcome (if available)"
-        error:
-          type: number
-          nullable: true
-          description: "Absolute error (|forecast - actual|)"
-      additionalProperties: false
-additionalProperties: false
-required:
-  - metadata
-  - forecasts
+        enum: [simple_average, weighted_average, bayesian_random_walk]
+      rmse:
+        type: number
+        minimum: 0
+      mae:
+        type: number
+        minimum: 0
+      coverage_95:
+        type: number
+        minimum: 0
+        maximum: 1
+      diebold_mariano_pvalue:
+        type: number
+        minimum: 0
+        maximum: 1
+
+oneOf:
+  - $ref: '#/definitions/frequentist_forecast'
+  - $ref: '#/definitions/bayesian_forecast'
+  - $ref: '#/definitions/evaluation_metrics'

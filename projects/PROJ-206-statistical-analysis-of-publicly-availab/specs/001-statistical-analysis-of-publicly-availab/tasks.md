@@ -20,33 +20,33 @@
 - **Mobile**: `api/src/`, `ios/src/` or `android/src/`
 - Paths shown below assume single project - adjust based on plan.md structure
 
-<!-- 
-  ============================================================================
-  IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-  
-  The /speckit-tasks command MUST replace these with actual tasks based on:
-  - User stories from spec.md (with their priorities P1, P2, P3...)
-  - Feature requirements from plan.md
-  - Entities from data-model.md
-  - Endpoints from contracts/
-  
-  Tasks MUST be organized by user story so each story can be:
-  - Implemented independently
-  - Tested independently
-  - Delivered as an MVP increment
-  
-  DO NOT keep these sample tasks in the generated tasks.md file.
-  ============================================================================
+<!--
+ ============================================================================
+ IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
+
+ The /speckit-tasks command MUST replace these with actual tasks based on:
+ - User stories from spec.md (with their priorities P1, P2, P3...)
+ - Feature requirements from plan.md
+ - Entities from data-model.md
+ - Endpoints from contracts/
+
+ Tasks MUST be organized by user story so each story can be:
+ - Implemented independently
+ - Tested independently
+ - Delivered as an MVP increment
+
+ DO NOT keep these sample tasks in the generated tasks.md file.
+ ============================================================================
 -->
 
 ## Phase 1: Setup (Shared Infrastructure)
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001a [P] Create `src/` directory (root)
-- [ ] T001b [P] Create `tests/` directory (root)
-- [ ] T001c [P] Create `data/` directory (root)
-- [ ] T001d [P] Create `state/` directory (root)
+- [X] T001a [P] Create `src/` directory (root)
+- [X] T001b [P] Create `tests/` directory (root)
+- [X] T001c [P] Create `data/` directory (root)
+- [X] T001d [P] Create `state/` directory (root)
 
 ---
 
@@ -56,14 +56,14 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T002a [P] Create `requirements.txt` at repository root with pinned dependencies (pandas, numpy, scipy, pymc, arviz, requests, pyyaml, statsmodels, pytest)
-- [ ] T002b [P] Install dependencies from `requirements.txt` in a virtual environment
+- [X] T002a [P] Create `requirements.txt` at repository root with pinned dependencies (pandas, numpy, scipy, pymc, arviz, requests, pyyaml, statsmodels, pytest)
+- [ ] T002b [P] Install dependencies from `requirements.txt` in a virtual environment <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
 - [ ] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools
 - [ ] T004 Setup data directory structure: `data/raw/`, `data/processed/`, `state/projects/`
 - [ ] T005 [P] Implement configuration management in `src/utils/config.py` (seed pinning, path resolution)
 - [ ] T006 [P] Implement logging infrastructure in `src/utils/logging.py`
 - [ ] T007 Create base data validation schemas in `specs/001-statistical-poll-aggregation/contracts/` (dataset.schema.yaml, forecast.schema.yaml)
-- [ ] T008 Implement state management utility to compute SHA-256 hashes and update `state/projects/PROJ-206-*.yaml` on derived artifact creation
+- [~] T008 Implement state management utility to compute SHA-256 hashes and update `state/projects/PROJ-206-*.yaml` on derived artifact creation
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -77,15 +77,15 @@
 
 ### Implementation for User Story 1
 
-- [ ] T009a [P] [US1] Implement `src/data/download.py` to fetch FiveThirtyEight poll CSVs from `https://projects.fivethirtyeight.com/polls/` and election outcomes from MIT Election Data and Science Lab (MEDSL) or FEC. **Do not** attempt to fetch RealClearPolitics (RCP) data.
-- [ ] T009b [P] [US1] Implement `src/data/download.py` logic to log a "Source Excluded" warning for RCP, explicitly citing the Plan's 'Verified Accuracy' principle and FR-001 deviation. Document this exclusion in `research.md` as a sanctioned architectural exception.
-- [ ] T010 [P] [US1] Implement `src/data/harmonize.py` to parse raw CSVs, unify date formats, and bin data into weekly intervals.
-- [ ] T011 [US1] Implement `src/data/weights.py` to calculate pollster-specific historical RMSE using out-of-sample data (strict temporal split: weights for cycle T use only cycles < T).
-- [ ] T012 [US1] Add logic in `src/data/weights.py` to assign default median weight for pollsters with no history and prevent division by zero.
-- [ ] T013 [US1] Implement FR-008: Data sufficiency check in `src/data/harmonize.py` to halt with warning if <5 polls in the 30 days preceding the election day or <3 distinct cycles.
-- [ ] T014 [US1] Implement FR-010: Global poll count check in `src/data/harmonize.py` to halt with error if total count across all ingested election cycles is <500.
-- [ ] T015 [US1] Implement system-level blocking gate in `src/main.py` to check for data sufficiency flags (generated by T013/T014) before executing downstream tasks (T016+), ensuring the entire pipeline halts if data is insufficient.
-- [ ] T016 [US1] Integrate hash generation in `src/data/` scripts to update `state/projects/PROJ-206-*.yaml` upon writing `poll_data_cleaned.csv` and `historical_weights.csv`.
+- [~] T009a [P] [US1] Implement `src/data/download.py` to fetch FiveThirtyEight poll CSVs from `https://projects.fivethirtyeight.com/polls/` and election outcomes from MIT Election Data and Science Lab (MEDSL) or FEC. **Do not** attempt to fetch RealClearPolitics (RCP) data.
+- [~] T009b [P] [US1] Implement `src/data/download.py` logic to log a "Source Excluded" warning for RCP, explicitly citing the Plan's 'Verified Accuracy' principle and FR-001 deviation. Document this exclusion in `research.md` as a sanctioned architectural exception.
+- [~] T010 [P] [US1] Implement `src/data/harmonize.py` to parse raw CSVs, unify date formats, and bin data into weekly intervals.
+- [~] T011 [US1] Implement `src/data/weights.py` to calculate pollster-specific historical RMSE using out-of-sample data (strict temporal split: weights for cycle T use only cycles < T).
+- [~] T012 [US1] Add logic in `src/data/weights.py` to assign default median weight for pollsters with no history and prevent division by zero.
+- [~] T013 [US1] Implement FR-008: Data sufficiency check in `src/data/harmonize.py` to halt with warning if <5 polls in the 30 days preceding the election day or <3 distinct cycles.
+- [~] T014 [US1] Implement FR-010: Global poll count check in `src/data/harmonize.py` to halt with error if total count across all ingested election cycles is <500.
+- [~] T015 [US1] Implement system-level blocking gate in `src/main.py` to check for data sufficiency flags (generated by T013/T014) before executing downstream tasks (T016+), ensuring the entire pipeline halts if data is insufficient.
+- [~] T016 [US1] Integrate hash generation in `src/data/` scripts to update `state/projects/PROJ-206-*.yaml` upon writing `poll_data_cleaned.csv` and `historical_weights.csv`.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -99,10 +99,10 @@
 
 ### Implementation for User Story 2
 
-- [ ] T017 [P] [US2] Implement `src/models/frequentist.py` function `simple_average()` to calculate arithmetic mean of vote shares per weekly bin (FR-003).
-- [ ] T018 [P] [US2] Implement `src/models/frequentist.py` function `weighted_average()` to calculate inverse-RMSE weighted mean, normalizing weights to sum to 1.0 (FR-004).
-- [ ] T019 [US2] Implement evaluation logic in `src/evaluation/metrics.py` to compute RMSE and MAE for both frequentist methods against actual election outcomes (SC-001).
-- [ ] T020 [US2] Add unit tests in `tests/unit/test_frequentist.py` verifying edge cases (e.g., single poll, missing weights).
+- [~] T017 [P] [US2] Implement `src/models/frequentist.py` function `simple_average()` to calculate arithmetic mean of vote shares per weekly bin (FR-003).
+- [~] T018 [P] [US2] Implement `src/models/frequentist.py` function `weighted_average()` to calculate inverse-RMSE weighted mean, normalizing weights to sum to 1.0 (FR-004).
+- [~] T019 [US2] Implement evaluation logic in `src/evaluation/metrics.py` to compute RMSE and MAE for both frequentist methods against actual election outcomes (SC-001).
+- [~] T020 [US2] Add unit tests in `tests/unit/test_frequentist.py` verifying edge cases (e.g., single poll, missing weights).
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -116,14 +116,14 @@
 
 ### Implementation for User Story 3
 
-- [ ] T021 [P] [US3] Implement `src/models/bayesian.py` with a **Random Walk** hierarchical model: latent weekly preference θₜ ~ Normal(θₜ₋₁, σₜ²) and observation noise τᵢ². **Sanctioned Exception**: This task implements the Spec's FR-005 Random Walk requirement, overriding the Plan's 'Static Parameter' decision. Document this architectural deviation in `research.md` as a hypothesis test (Random Walk vs. Static).
-- [ ] T022 [P] [US3] Configure PyMC NUTS sampler for CPU-only execution (no GPU/CUDA) with appropriate tuning steps and random seeds.
-- [ ] T023 [US3] Implement convergence checks in `src/models/bayesian.py` to halt and report error if R-hat > 1.05.
-- [ ] T024 [US3] Implement `src/evaluation/metrics.py` function `calculate_coverage()` to verify credible interval coverage rate against outcomes (FR-009, SC-002).
-- [ ] T025 [US3] Implement binomial test in `src/evaluation/metrics.py` against the null hypothesis (p0=0.95) for coverage reliability, using significance level **alpha=0.05** (as required by SC-002). Note: The '[deferred]' tag in the Spec refers to the research phase determination of this value, which is now established as 0.95 for 95% CI.
-- [ ] T026 [US3] Implement `src/evaluation/meta_analysis.py` to perform pairwise **Diebold-Mariano tests** with **Westfall-Young correction** (FR-006, SC-003). Use **1000 permutations** with a **step-down max-t** strategy. If `statsmodels.stats.multitest` does not support Westfall-Young directly, implement a custom permutation-based correction. **Sanctioned Exception**: This task implements the Spec's FR-006 DM test, overriding the Plan's rejection of DM for static forecasts. Document this architectural deviation in `research.md`. This is the **sole** implementation of SC-003.
-- [ ] T028 [US3] Add logic to frame findings as "predictive accuracy" and "associational uncertainty" in output reports (FR-007).
-- [ ] T029 [US3] Implement unit tests in `tests/unit/test_bayesian.py` for model convergence and synthetic data edge cases.
+- [~] T021 [P] [US3] Implement `src/models/bayesian.py` with a **Random Walk** hierarchical model: latent weekly preference θₜ ~ Normal(θₜ₋₁, σₜ²) and observation noise τᵢ². **Sanctioned Exception**: This task implements the Spec's FR-005 Random Walk requirement, overriding the Plan's 'Static Parameter' decision. Document this architectural deviation in `research.md` as a hypothesis test (Random Walk vs. Static).
+- [~] T022 [P] [US3] Configure PyMC NUTS sampler for CPU-only execution (no GPU/CUDA) with appropriate tuning steps and random seeds.
+- [~] T023 [US3] Implement convergence checks in `src/models/bayesian.py` to halt and report error if R-hat > 1.05.
+- [~] T024 [US3] Implement `src/evaluation/metrics.py` function `calculate_coverage()` to verify credible interval coverage rate against outcomes (FR-009, SC-002).
+- [~] T025 [US3] Implement binomial test in `src/evaluation/metrics.py` against the null hypothesis (p0=0.95) for coverage reliability, using significance level **alpha=0.05** (as required by SC-002). Note: The '[deferred]' tag in the Spec refers to the research phase determination of this value, which is now established as 0.95 for 95% CI.
+- [~] T026 [US3] Implement `src/evaluation/meta_analysis.py` to perform pairwise **Diebold-Mariano tests** with **Westfall-Young correction** (FR-006, SC-003). Use **1000 permutations** with a **step-down max-t** strategy. If `statsmodels.stats.multitest` does not support Westfall-Young directly, implement a custom permutation-based correction. **Sanctioned Exception**: This task implements the Spec's FR-006 DM test, overriding the Plan's rejection of DM for static forecasts. Document this architectural deviation in `research.md`. This is the **sole** implementation of SC-003.
+- [~] T028 [US3] Add logic to frame findings as "predictive accuracy" and "associational uncertainty" in output reports (FR-007).
+- [~] T029 [US3] Implement unit tests in `tests/unit/test_bayesian.py` for model convergence and synthetic data edge cases.
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -133,11 +133,11 @@
 
 **Purpose**: Improvements that affect multiple user stories and final validation
 
-- [ ] T030 [P] [Polish] Generate `research.md` documenting mathematical formulations for all three methods (Random Walk Bayesian, Simple Avg, Weighted Avg) and explicitly documenting the sanctioned architectural exceptions (T021, T026, T009b).
-- [ ] T031 [P] [Polish] Create `quickstart.md` with instructions to run the full pipeline on CPU.
-- [ ] T032 [Polish] Run end-to-end integration test in `tests/integration/test_pipeline.py` to verify full data flow from download to final metrics.
-- [ ] T033 [Polish] Verify all artifacts have valid checksums in `state/projects/` and no manual data fabrication occurred.
-- [ ] T034 [P] [Polish] Documentation updates in `README.md` summarizing the comparative results and limitations.
+- [~] T030 [P] [Polish] Generate `research.md` documenting mathematical formulations for all three methods (Random Walk Bayesian, Simple Avg, Weighted Avg) and explicitly documenting the sanctioned architectural exceptions (T021, T026, T009b).
+- [~] T031 [P] [Polish] Create `quickstart.md` with instructions to run the full pipeline on CPU.
+- [~] T032 [Polish] Run end-to-end integration test in `tests/integration/test_pipeline.py` to verify full data flow from download to final metrics.
+- [~] T033 [Polish] Verify all artifacts have valid checksums in `state/projects/` and no manual data fabrication occurred.
+- [~] T034 [P] [Polish] Documentation updates in `README.md` summarizing the comparative results and limitations.
 
 ---
 
@@ -148,8 +148,8 @@
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
-  - User stories can then proceed in parallel (if staffed)
-  - Or sequentially in priority order (P1 → P2 → P3)
+ - User stories can then proceed in parallel (if staffed)
+ - Or sequentially in priority order (P1 → P2 → P3)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
@@ -215,9 +215,9 @@ With multiple developers:
 
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
-   - Developer A: User Story 1
-   - Developer B: User Story 2
-   - Developer C: User Story 3
+ - Developer A: User Story 1
+ - Developer B: User Story 2
+ - Developer C: User Story 3
 3. Stories complete and integrate independently
 
 ---

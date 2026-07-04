@@ -1,0 +1,2 @@
+# This directory is for raw and processed data files.
+# Do not commit large binary files; use .gitattributes or git-lfs if needed.

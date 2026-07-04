@@ -56,7 +56,19 @@
   verification_status: verified
   verified_against_url: https://abcnews.com/politics
   verified_at: '2026-07-04T17:07:11.676069Z'
-- artifact_hash: 76dcdc8bad1894949eb4e3d89e9ce97c84592229f54dd2e414e4d988cfc528da
+- artifact_hash: 0756e466e787a66a1fd659f4d5a964cface778c1e1b481eabdeaf25a4b547a5c
+  artifact_path: projects/PROJ-206-statistical-analysis-of-publicly-availab/docs/quickstart.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: Politics News | Breaking Political News, Video &amp; Analysis-ABC
+    News - ABC News
+  kind: url
+  value: https://projects.fivethirtyeight.com/polls/`
+  verification_status: verified
+  verified_against_url: https://abcnews.com/politics
+  verified_at: '2026-07-04T18:19:47.201343Z'
+- artifact_hash: 066d2be84fc4bcd721d7d32e2ea0a7b5056c618567a50e6b79e090fc236b98c7
   artifact_path: projects/PROJ-206-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -67,4 +79,4 @@
   value: https://projects.fivethirtyeight.com/polls/`
   verification_status: verified
   verified_against_url: https://abcnews.com/politics
-  verified_at: '2026-07-04T17:25:40.419726Z'
+  verified_at: '2026-07-04T18:24:34.374959Z'
