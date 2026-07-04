@@ -1,0 +1,88 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "StatisticalResult"
+description: "Schema for the output of the deviation magnitude test using Block Bootstrap."
+type: object
+properties:
+  test_type:
+    type: string
+    description: "Type of statistical test performed."
+    enum: ["block_bootstrap_deviation"]
+  test_statistic:
+    type: number
+    description: "The calculated deviation statistic (e.g., sum of squared residuals)."
+    minimum: 0
+  p_value:
+    type: number
+    description: "The p-value for the test (proportion of bootstrap samples exceeding observed statistic)."
+    minimum: 0
+    maximum: 1
+  degrees_of_freedom:
+    type: integer
+    description: "Degrees of freedom (p - 1)."
+    minimum: 1
+  method:
+    type: string
+    description: "Method used for p-value estimation."
+    enum: ["block_bootstrap"]
+  deviation_magnitude:
+    type: number
+    description: "The maximum absolute deviation |O_k - E_k^{theo}| observed."
+    minimum: 0
+  error_term_residual:
+    type: number
+    description: "The ratio of observed deviation to predicted error bound."
+    minimum: 0
+  expected_counts:
+    type: array
+    description: "List of theoretical expected counts E_k^{theo} for each residue."
+    items:
+      type: number
+    minItems: 3
+    maxItems: 11
+  uniformity_hypothesis:
+    type: boolean
+    description: "Result of H0 at alpha=0.05 regarding deviation bounds (True if within bounds)."
+  metadata:
+    type: object
+    description: "Execution metadata for reproducibility."
+    properties:
+      timestamp:
+        type: string
+        format: date-time
+        description: "ISO 8601 timestamp."
+      python_version:
+        type: string
+        description: "Python version used."
+      n_processed:
+        type: integer
+        description: "Actual N processed."
+        minimum: 1
+      peak_memory_mb:
+        type: number
+        description: "Peak RAM usage in MB."
+        minimum: 0
+      wall_time_sec:
+        type: number
+        description: "Total execution time in seconds."
+        minimum: 0
+      limit_reached:
+        type: boolean
+        description: "Flag indicating if memory limit was reached."
+    required:
+      - timestamp
+      - python_version
+      - n_processed
+      - peak_memory_mb
+      - wall_time_sec
+      - limit_reached
+    additionalProperties: false
+required:
+  - test_type
+  - test_statistic
+  - p_value
+  - degrees_of_freedom
+  - method
+  - deviation_magnitude
+  - expected_counts
+  - metadata
+additionalProperties: false

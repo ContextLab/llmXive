@@ -1,0 +1,26 @@
+resolved_at: '2026-07-04T09:58:41.547496+00:00'
+datasets:
+- intent: ResidueDataset
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/poster/Nursing_Form_2026_-2027_College_of_Nursing_Sciences_ABSUTH_Aba_Abia_State_Is_Open_Call_O7O-468-O5833_Have_begun_the_admission_exercise_O7O46805833_07046805833_Prospective_candidates_are_encouraged_to_apply_early_to_avoid_the_last-minute_rus/32899256
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/Nursing_Form_2026_-2027_College_of_Nursing_Sciences_Umuahia_Abia_State_Is_Open_Call_O7O-468-O5833_Have_begun_the_admission_exercise_O7O46805833_07046805833_Prospective_candidates_are_encouraged_to_apply_early_to_avoid_the_last-minute_rush_a/32899253
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Nursing_Form_2026_-2027_College_of_Nursing_Sciences_Amachara_Abia_State_Is_Open_Call_O7O-468-O5833_Have_begun_the_admission_exercise_O7O46805833_07046805833_Prospective_candidates_are_encouraged_to_apply_early_to_avoid_the_last-minute_rush_/32899238
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://karger.figshare.com/articles/dataset/Supplementary_Material_for_Prevalence_of_Dementia_and_Modifiable_Risk_Factors_among_Older_Adults_in_Cuba_A_Population-Based_Study/32899244
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://karger.figshare.com/articles/dataset/Supplementary_Material_for_Balloon-assisted_Enteroscopy_Assesses_Endoscopic_Remission_and_Mucosal_Healing_Following_Risankizumab_Initiation_in_Crohn_s_Disease/32899241
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content

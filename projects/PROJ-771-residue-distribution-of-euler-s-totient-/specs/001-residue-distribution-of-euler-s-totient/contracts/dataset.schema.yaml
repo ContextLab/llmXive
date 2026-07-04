@@ -1,0 +1,33 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "ResidueDataset"
+description: "Schema for the aggregated residue counts of Euler's totient function modulo a prime."
+type: object
+properties:
+  prime_modulus:
+    type: integer
+    description: "The prime modulus p (e.g., 3, 5, 7, 11)."
+    enum: [3, 5, 7, 11]
+  total_count:
+    type: integer
+    description: "Total number of integers n processed (N)."
+    minimum: 1
+  frequency_map:
+    type: object
+    description: "Mapping of residue r to count. Keys are strings representing integers 0 to p-1."
+    patternProperties:
+      "^[0-9]+$":
+        type: integer
+        minimum: 0
+    additionalProperties: false
+    minProperties: 3
+    maxProperties: 11
+  computation_seed:
+    type: integer
+    description: "Random seed used for reproducibility."
+    minimum: 0
+required:
+  - prime_modulus
+  - total_count
+  - frequency_map
+  - computation_seed
+additionalProperties: false
