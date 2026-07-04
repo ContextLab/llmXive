@@ -1,0 +1,88 @@
+resolved_at: '2026-07-04T22:04:34.363493+00:00'
+datasets:
+- intent: RAVDESS
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/viks66/ravdess_speech/resolve/main/ravdess.zip
+    source: huggingface
+    format: zip
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/akhmedsakip/ravdess-singing-emotions/resolve/main/data/test-00000-of-00001-f339d4b8ae5981fa.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/viks66/ravdess_speech/resolve/main/ravdess.zip
+    source: huggingface
+    status: verified
+    format: zip
+  - url: https://huggingface.co/datasets/akhmedsakip/ravdess-singing-emotions/resolve/main/data/test-00000-of-00001-f339d4b8ae5981fa.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/dataset/2026_2027_DIRECT_ENTRY_FORM_Redeemer_s_University_Ede_Admission_is_out_officially_Call_ON_07036366909_DR_MRS_GRACE_to_apply/32900756
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Families_perspectives_and_experiences_in_using_the_F-words_for_Child_Development_in_daily_life_and_services/32900753
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/2026_2027_DIRECT_ENTRY_FORM_Novena_University_Ogume_Admission_is_out_officially_Call_ON_07036366909_DR_MRS_GRACE_to_apply/32900750
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/2026_2027_DIRECT_ENTRY_FORM_Lead_City_University_Ibadan_Admission_is_out_officially_Call_ON_07036366909_DR_MRS_GRACE_to_apply/32900747
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/2026_2027_DIRECT_ENTRY_FORM_Bingham_University_New_Karu_Admission_is_out_officially_Call_ON_07036366909_DR_MRS_GRACE_to_apply/32900744
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/1188976
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10528908
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7930268
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ijece.iaescore.com/index.php/IJECE/article/view/28743
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/11063852
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20976660
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20976660
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20925366
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20925366
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2606.24941
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

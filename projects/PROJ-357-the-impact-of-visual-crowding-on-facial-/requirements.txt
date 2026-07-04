@@ -1,0 +1,18 @@
+# Existing dependencies
+numpy
+pandas
+pillow
+torch
+torchvision
+transformers
+huggingface_hub
+scikit-learn
+scipy
+matplotlib
+seaborn
+pyyaml
+pytest
+pytest-cov
+
+# New dependencies (if any)
+# None added for T014 (uses standard library and existing deps)

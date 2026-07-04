@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-06T12:50:47.766473Z'
-current_stage: specified
+current_stage: in_progress
 failed_stage: null
 field: psychology
 human_escalation_reason: null
 id: PROJ-357-the-impact-of-visual-crowding-on-facial-
-last_run_id: 0ba9de6c-2b02-47c8-b9a0-2c9fa8df10a0
+last_run_id: ea8d0130-dbe8-4ea0-a76a-84846551e62a
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-357-the-impact-of-visual-crowding-on-facial-/specs/001-the-impact-of-visual-crowding-on-facial
 title: The Impact of Visual Crowding on Facial Emotion Recognition Accuracy
-updated_at: '2026-06-28T21:44:09.428527Z'
+updated_at: '2026-07-04T22:48:43.458213Z'

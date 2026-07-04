@@ -1,0 +1,38 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Clutter Metrics Schema"
+description: "Schema for the CSV/JSON table of computed visual clutter metrics."
+type: "object"
+required:
+  - "columns"
+  - "data"
+properties:
+  columns:
+    type: "array"
+    description: "List of column names in the data table."
+    items:
+      type: "string"
+      enum:
+        - "stimulus_id"
+        - "local_contrast_variance"
+        - "spatial_frequency_energy"
+  data:
+    type: "array"
+    description: "Array of metric records."
+    items:
+      type: "object"
+      required:
+        - "stimulus_id"
+        - "local_contrast_variance"
+        - "spatial_frequency_energy"
+      properties:
+        stimulus_id:
+          type: "string"
+          description: "Foreign key to the stimulus manifest."
+        local_contrast_variance:
+          type: "number"
+          description: "Computed local contrast variance of the flanker region."
+        spatial_frequency_energy:
+          type: "number"
+          description: "Computed spatial frequency energy of the flanker region."
+      additionalProperties: false
+additionalProperties: false

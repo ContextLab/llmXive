@@ -1,0 +1,68 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Stimulus Manifest Schema"
+description: "Schema for the JSON manifest linking generated stimuli to their parameters."
+type: "object"
+required:
+  - "version"
+  - "generated_at"
+  - "stimuli"
+properties:
+  version:
+    type: "string"
+    description: "Schema version (e.g., '1.0.0')"
+  generated_at:
+    type: "string"
+    format: "date-time"
+    description: "ISO 8601 timestamp of generation."
+  stimuli:
+    type: "array"
+    items:
+      type: "object"
+      required:
+        - "stimulus_id"
+        - "file_path"
+        - "emotion_label"
+        - "flanker_count"
+        - "eccentricity_deg"
+        - "is_valid"
+      properties:
+        stimulus_id:
+          type: "string"
+          description: "Unique identifier for the stimulus."
+        file_path:
+          type: "string"
+          description: "Relative path to the generated image file."
+        emotion_label:
+          type: "string"
+          description: "The emotion category of the target face."
+          enum:
+            - "neutral"
+            - "happiness"
+            - "sadness"
+            - "anger"
+            - "fear"
+            - "disgust"
+            - "surprise"
+            - "contempt"
+        flanker_count:
+          type: "integer"
+          description: "Number of flanker images."
+          enum:
+            - 1
+            - 3
+            - 5
+        eccentricity_deg:
+          type: "number"
+          description: "Eccentricity in degrees."
+          enum:
+            - 2.0
+            - 4.0
+            - 6.0
+        is_valid:
+          type: "boolean"
+          description: "True if the stimulus was generated without errors (e.g., no overlap)."
+        exclusion_reason:
+          type: ["string", "null"]
+          description: "Reason for exclusion if is_valid is false."
+      additionalProperties: false
+additionalProperties: false

@@ -1,25 +1,44 @@
-- artifact_hash: cb60f31b9e03c1cb06522b71d19b89df29b1eff73ab92fb957985b8d10868d09
+- artifact_hash: 7ab0e84a5108cbefe76336ec42b3eb09f1237dd7fc81459e9efb5b06e2746727
   artifact_path: projects/PROJ-357-the-impact-of-visual-crowding-on-facial-/specs/001-the-impact-of-visual-crowding-on-facial/spec.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
-  fetched_title: 'The Ryerson Audio-Visual Database of Emotional Speech and Song (RAVDESS):
-    A dynamic, multimodal set of facial and vocal expressions in North American English
-    | PLOS One'
+  fetched_title: null
   kind: url
-  value: https://doi.org/10.1371/journal.pone.0196391
-  verification_status: verified
-  verified_against_url: https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0196391
-  verified_at: '2026-06-28T21:40:14.652313Z'
-- artifact_hash: cb60f31b9e03c1cb06522b71d19b89df29b1eff73ab92fb957985b8d10868d09
-  artifact_path: projects/PROJ-357-the-impact-of-visual-crowding-on-facial-/specs/001-the-impact-of-visual-crowding-on-facial/spec.md
+  value: https://zenodo.org/record/
+  verification_status: mismatch
+  verified_against_url: https://zenodo.org/record/
+  verified_at: '2026-07-04T22:03:57.644000Z'
+- artifact_hash: ff0e1abfb72d56d3ddaf90a8bd686261119778a4326e595bae74d7b33ff6aff4
+  artifact_path: projects/PROJ-357-the-impact-of-visual-crowding-on-facial-/specs/001-the-impact-of-visual-crowding-on-facial/plan.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: arxiv
+  value: '2301.12345'
+  verification_status: unreachable
+  verified_against_url: null
+  verified_at: '2026-07-04T22:10:38.540071Z'
+- artifact_hash: ff0e1abfb72d56d3ddaf90a8bd686261119778a4326e595bae74d7b33ff6aff4
+  artifact_path: projects/PROJ-357-the-impact-of-visual-crowding-on-facial-/specs/001-the-impact-of-visual-crowding-on-facial/plan.md
   cite_id: c-002
   cited_authors: []
   cited_title: null
-  fetched_title: 'The Ryerson Audio-Visual Database of Emotional Speech and Song (RAVDESS):
-    A dynamic, multimodal set of facial and vocal expressions in North American English'
+  fetched_title: null
   kind: doi
-  value: 10.1371/journal.pone.0196391
+  value: 10.5281/zenodo.1234567
+  verification_status: mismatch
+  verified_against_url: https://api.crossref.org/works/10.5281/zenodo.1234567
+  verified_at: '2026-07-04T22:10:38.540071Z'
+- artifact_hash: 0ba91dbf93d406decc2b813cf9ea63a9f0b4f3771eee80660b3617437979d563
+  artifact_path: projects/PROJ-357-the-impact-of-visual-crowding-on-facial-/specs/001-the-impact-of-visual-crowding-on-facial/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: ravdess.zip
+  kind: url
+  value: https://huggingface.co/datasets/viks66/ravdess_speech/resolve/main/ravdess.zip
   verification_status: verified
-  verified_against_url: https://doi.org/10.1371/journal.pone.0196391
-  verified_at: '2026-06-28T21:40:14.652313Z'
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/62e74a897bcdffbec95f1e55/11997b8bb61c9e52a763e9bbcc8d50a20541481782dec4867f838e5ce2492f43?response-content-type=application%2Fzip&user_id=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27ravdess.zip%3B+filename%3D%22ravdess.zip%22%3B&X-Xet-Cas-Uid=public&Expires=1783206647&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjJlNzRhODk3YmNkZmZiZWM5NWYxZTU1LzExOTk3YjhiYjYxYzllNTJhNzYzZTliYmNjOGQ1MGEyMDU0MTQ4MTc4MmRlYzQ4NjdmODM4ZTVjZTI0OTJmNDNcXD9yZXNwb25zZS1jb250ZW50LXR5cGU9YXBwbGljYXRpb24lMkZ6aXAmdXNlcl9pZD1wdWJsaWMmcmVzcG9uc2UtY29udGVudC1kaXNwb3NpdGlvbj1pbmxpbmUlM0IrZmlsZW5hbWUlMkElM0RVVEYtOCUyNyUyN3JhdmRlc3MuemlwJTNCK2ZpbGVuYW1lJTNEJTIycmF2ZGVzcy56aXAlMjIlM0ImWC1YZXQtQ2FzLVVpZD1wdWJsaWMiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkVwb2NoVGltZSI6MTc4MzIwNjY0N319fV19&Signature=MEQCIFPZtIWvdPQLnu4QNDGENnqj0fFdkCjUo6zfWVwA4r4%7EAiBQp8khMF2AsyWVTdhRyIND3LH4TzuAIvWg0znVAzZtOA__&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+  verified_at: '2026-07-04T22:10:47.221837Z'

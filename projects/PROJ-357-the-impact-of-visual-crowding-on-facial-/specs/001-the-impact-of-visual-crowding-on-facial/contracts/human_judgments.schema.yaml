@@ -1,0 +1,59 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Human Judgments Schema"
+description: "Schema for the CSV/JSON table of human recognition accuracy data."
+type: "object"
+required:
+  - "columns"
+  - "data"
+properties:
+  columns:
+    type: "array"
+    description: "List of column names in the data table."
+    items:
+      type: "string"
+      enum:
+        - "judgment_id"
+        - "stimulus_id"
+        - "participant_id"
+        - "true_emotion"
+        - "response_emotion"
+        - "accuracy"
+        - "timestamp"
+  data:
+    type: "array"
+    description: "Array of judgment records."
+    items:
+      type: "object"
+      required:
+        - "judgment_id"
+        - "stimulus_id"
+        - "participant_id"
+        - "true_emotion"
+        - "response_emotion"
+        - "accuracy"
+        - "timestamp"
+      properties:
+        judgment_id:
+          type: "string"
+          description: "Unique identifier for the judgment."
+        stimulus_id:
+          type: "string"
+          description: "Foreign key to the stimulus manifest."
+        participant_id:
+          type: "string"
+          description: "Anonymized participant identifier."
+        true_emotion:
+          type: "string"
+          description: "The actual emotion of the stimulus."
+        response_emotion:
+          type: "string"
+          description: "The emotion selected by the participant."
+        accuracy:
+          type: "boolean"
+          description: "True if response_emotion matches true_emotion."
+        timestamp:
+          type: "string"
+          format: "date-time"
+          description: "ISO 8601 timestamp of the response."
+      additionalProperties: false
+additionalProperties: false

@@ -1,0 +1,11 @@
+? 'T002 [P] Create `projects/PROJ-357-the-impact-of-visual-crowding-on-facial-/` root
+  directory and subdirectories: `code/`, `data/`, `tests/`, `artifacts/`, `state/projects/`'
+: 1
+? T011 [P] [US1] Implement `code/utils/download.py` to fetch RAVDESS dataset from
+  the verified URL (from T011a) and cache in `data/raw`.
+: 1
+? 'T011a [P] [US1] **Verify RAVDESS Source**: Query the official HuggingFace API to
+  validate the RAVDESS dataset URL. If `spec.md` FR-001 URL is empty, default to the
+  verified canonical URL `parlance/RAVDESS` and document the resolution in `code/config.py`.'
+: 1
+T012 [P] [US1] Implement `code/utils/frame_extractor.py` to extract frames from RAVDESS video files into `data/raw/frames`: 1
