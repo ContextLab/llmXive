@@ -1,0 +1,757 @@
+{
+  "fetched_at": "2026-07-04T12:38:08Z",
+  "field": "computer science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "computer science",
+      "idea_body_excerpt": "llmXive follow-up: extending \"LoopCoder-v2: Only Loop Once for Efficient Test-Time Computation Scali\"",
+      "target_n": 5
+    },
+    "duration_seconds": 53.188,
+    "ended_at": "2026-07-04T12:38:08Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "test-time computation scaling for large language models"
+        ],
+        [
+          2,
+          "efficient inference strategies for LLMs with iterative refinement"
+        ],
+        [
+          3,
+          "LoopCoder architecture and optimization techniques"
+        ],
+        [
+          4,
+          "single-pass test-time scaling methods"
+        ],
+        [
+          5,
+          "reducing computational overhead in LLM inference loops"
+        ],
+        [
+          6,
+          "adaptive test-time compute allocation in language models"
+        ],
+        [
+          7,
+          "iterative self-correction in large language model generation"
+        ],
+        [
+          8,
+          "efficient decoding algorithms for recursive LLM processes"
+        ],
+        [
+          9,
+          "scaling laws for test-time compute in generative AI"
+        ],
+        [
+          10,
+          "LoopCoder-v2 implementation and performance analysis"
+        ],
+        [
+          11,
+          "minimizing redundant computation in LLM reasoning chains"
+        ],
+        [
+          12,
+          "one-step test-time optimization for code generation models"
+        ],
+        [
+          13,
+          "efficient test-time scaling without iterative feedback loops"
+        ],
+        [
+          14,
+          "computational efficiency in large language model inference"
+        ],
+        [
+          15,
+          "test-time scaling techniques for code-focused LLMs"
+        ],
+        [
+          16,
+          "optimizing inference latency in recursive language model architectures"
+        ],
+        [
+          17,
+          "efficient test-time computation for automated code synthesis"
+        ],
+        [
+          18,
+          "reducing inference costs in iterative LLM frameworks"
+        ],
+        [
+          19,
+          "single-iteration test-time scaling for language models"
+        ],
+        [
+          20,
+          "performance analysis of LoopCoder-style efficient inference"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "llmXive follow-up: extending \"LoopCoder-v2: Only Loop Once for Efficient Test-Time Computation Scali\" computer science": 0,
+        "test-time computation scaling for large language models": 5
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "test-time scaling inference compute",
+      "LoopCoder efficient decoding strategy",
+      "chain-of-thought self-refinement LLM",
+      "inference compute cost accuracy tradeoff",
+      "autoregressive generation iterative refinement"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "success_after_expansion",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2405.11357"
+      ]
+    },
+    "per_query_hit_count": {
+      "LoopCoder efficient decoding strategy": 3,
+      "autoregressive generation iterative refinement": 3,
+      "chain-of-thought self-refinement LLM": 3,
+      "inference compute cost accuracy tradeoff": 3,
+      "llmXive follow-up: extending \"LoopCoder-v2: Only Loop Once for Efficient Test-Time Computation Scali\" computer science": 3,
+      "test-time scaling inference compute": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": true,
+      "rejected_count": 5,
+      "rejections": [
+        {
+          "primary_pointer": "2403.09832",
+          "rationale": "The paper focuses on \"Prompt Injection Attacks\" and \"Inverse Scaling\" in machine translation, which is a distinct security and safety construct unrelated to the user's question about \"efficient test-time computation scaling\" via the \"LoopCoder\" mechanism. While both involve LLMs and scaling, the paper does not measure the same mechanism, variables, or empirical setting required for inclusion in a literature review on test-time computation efficiency.",
+          "title": "Scaling Behavior of Machine Translation with Large Language Models under Prompt Injection Attacks"
+        },
+        {
+          "primary_pointer": "2501.05032",
+          "rationale": "The paper focuses on enhancing human-like qualities (emotional intelligence, conversational coherence) in LLMs, which is a distinct construct from the user's question regarding \"efficient test-time computation scaling\" and loop-based inference mechanisms. It fails all inclusion criteria (a-f) as it does not measure the same mechanism, variables, or domain, and instead falls under the rejection rule for \"Distinct construct sharing only homonym keywords\" (both involve LLMs but address completely d",
+          "title": "Enhancing Human-Like Responses in Large Language Models"
+        },
+        {
+          "primary_pointer": "2402.14679",
+          "rationale": "The candidate paper investigates LLM personality consistency and self-knowledge, which is a distinct construct from the user's question regarding \"Test-Time Computation Scaling\" and efficient inference mechanisms (specifically the \"LoopCoder\" approach). There is no overlap in the independent variables (computation scaling strategies), dependent variables (efficiency or performance metrics), or the underlying mechanism (looping for computation vs. personality assessment), and the paper does not f",
+          "title": "Is Self-knowledge and Action Consistent or Not: Investigating Large Language Model's Personality"
+        },
+        {
+          "primary_pointer": "2405.11357",
+          "rationale": "The candidate paper investigates a fundamental limitation of LLMs regarding character-level understanding, which is a distinct construct from the user's question about extending \"LoopCoder-v2\" for efficient test-time computation scaling. There is no overlap in the specific mechanism (loop-based test-time scaling vs. character composition), variables, or empirical domain (code generation efficiency vs. linguistic unit analysis), and the paper does not serve as a foundational method or baseline fo",
+          "title": "Large Language Models Lack Understanding of Character Composition of Words"
+        },
+        {
+          "primary_pointer": "2403.09676",
+          "rationale": "The paper focuses on AI safety, deception, and governance, which is a distinct construct from the user's question regarding efficient test-time computation scaling and loop-based algorithms. It fails all inclusion criteria (a-f) as it does not measure the same mechanism, variables, or domain, and instead falls under the rejection rule for \"Distinct construct sharing only homonym keywords\" (sharing \"LLM\" but addressing completely different research goals).",
+          "title": "Unmasking the Shadows of AI: Investigating Deceptive Capabilities in Large Language Models"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-07-04T12:37:15Z",
+    "term_input": {
+      "normalized": "llmxive follow-up: extending \"loopcoder-v2: only loop once for efficient test-time computation scali\" computer science",
+      "raw": "llmXive follow-up: extending \"LoopCoder-v2: Only Loop Once for Efficient Test-Time Computation Scali\" computer science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This white paper describes the LSST Dark Energy Science Collaboration (DESC), whose goal is the study of dark energy and related topics in fundamental physics with data from the Large Synoptic Survey Telescope (LSST). It provides an overview of dark energy science and describes the current and anticipated state of the field. It makes the case for the DESC by laying out a robust analytical framework for dark energy science that has been defined by its members and the comprehensive three-year work plan they have developed for implementing that framework. The analysis working groups cover five key probes of dark energy: weak lensing, large scale structure, galaxy clusters, Type Ia supernovae, and strong lensing. The computing working groups span cosmological simulations, galaxy catalogs, photon simulations and a systematic software and computational framework for LSST dark energy data analysis. The technical working groups make the connection between dark energy science and the LSST system. The working groups have close linkages, especially through the use of the photon simulations to study the impact of instrument design and survey strategy on analysis methodology and cosmological parameter estimation. The white paper describes several high priority tasks identified by each of the 16 working groups. Over the next three years these tasks will help prepare for LSST analysis, make synergistic connections with ongoing cosmological surveys and provide the dark energy community with state of the art analysis tools. Members of the community are invited to join the LSST DESC, according to the membership policies described in the white paper. Applications to sign up for associate membership may be made by submitting the Web form at http://www.slac.stanford.edu/exp/lsst/desc/signup.html with a short statement of the work they wish to pursue that is relevant to the LSST DESC.",
+          "claimed_authors": [
+            " LSST Dark Energy Science Collaboration"
+          ],
+          "claimed_title": "Large Synoptic Survey Telescope: Dark Energy Science Collaboration",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1211.0310"
+        },
+        "details": "query-relevance 0.077 < 0.3 (query='llmXive follow-up: extending \"LoopCoder-v2: Only Loop Once for Efficient Test-Ti', candidate_title='Large Synoptic Survey Telescope: Dark Energy Science Collaboration')",
+        "failed_at": "2026-07-04T12:37:43Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The large instantaneous sensitivity, a wide frequency coverage and flexible observation modes with large number of beams in the sky are the main features of the SKA observatory's two telescopes, the SKA-Low and the SKA-Mid, which are located on two different continents. Owing to these capabilities, the SKAO telescopes are going to be a game-changer for radio astronomy in general and pulsar astronomy in particular. The eleven articles in this special issue on pulsar science with the SKA Observatory describe its impact on different areas of pulsar science. In this lead article, a brief description of the two telescopes highlighting the relevant features for pulsar science is presented followed by an overview of each accompanying article, exploring the inter-relationship between different pulsar science use cases.",
+          "claimed_authors": [
+            "Bhal Chandra Joshi",
+            "Aris Karastergiou",
+            "Marta Burgay",
+            "The SKA pulsar science working group"
+          ],
+          "claimed_title": "Pulsar Science with the SKA Observatory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.16152"
+        },
+        "details": "query-relevance 0.077 < 0.3 (query='llmXive follow-up: extending \"LoopCoder-v2: Only Loop Once for Efficient Test-Ti', candidate_title='Pulsar Science with the SKA Observatory')",
+        "failed_at": "2026-07-04T12:37:43Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A Human Computer Interface (HCI) System for playing games is designed here for more natural communication with the machines. The system presented here is a vision-based system for detection of long voluntary eye blinks and interpretation of blink patterns for communication between man and machine. This system replaces the mouse with the human face as a new way to interact with the computer. Facial features (nose tip and eyes) are detected and tracked in realtime to use their actions as mouse events. The coordinates and movement of the nose tip in the live video feed are translated to become the coordinates and movement of the mouse pointer on the application. The left or right eye blinks fire left or right mouse click events. The system works with inexpensive USB cameras and runs at a frame rate of 30 frames per second.",
+          "claimed_authors": [
+            "S. Sumathi",
+            "S. K. Srivatsa",
+            "M. Uma Maheswari"
+          ],
+          "claimed_title": "Vision Based Game Development Using Human Computer Interaction",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1002.2191"
+        },
+        "details": "query-relevance 0.077 < 0.3 (query='llmXive follow-up: extending \"LoopCoder-v2: Only Loop Once for Efficient Test-Ti', candidate_title='Vision Based Game Development Using Human Computer Interaction')",
+        "failed_at": "2026-07-04T12:37:43Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Scaling test-time compute has emerged as a key ingredient for enabling large language models (LLMs) to solve difficult problems, but comes with high latency and inference cost. We introduce sleep-time compute, which allows models to \"think\" offline about contexts before queries are presented: by anticipating what queries users might ask and pre-computing useful quantities, we can significantly reduce the compute requirements at test-time. To demonstrate the efficacy of our method, we create modified versions of two reasoning tasks - Stateful GSM-Symbolic and Stateful AIME. We find that sleep-time compute can reduce the amount of test-time compute needed to achieve the same accuracy by ~ 5x on Stateful GSM-Symbolic and Stateful AIME and that by scaling sleep-time compute we can further increase accuracy by up to 13% on Stateful GSM-Symbolic and 18% on Stateful AIME. Furthermore, we introduce Multi-Query GSM-Symbolic, which extends GSM-Symbolic by including multiple related queries per context. By amortizing sleep-time compute across related queries about the same context using Multi-Query GSM-Symbolic, we can decrease the average cost per query by 2.5x. We then conduct additional analysis to understand when sleep-time compute is most effective, finding the predictability of the user query to be well correlated with the efficacy of sleep-time compute. Finally, we conduct a case-study of applying sleep-time compute to a realistic agentic SWE task.",
+          "claimed_authors": [
+            "Kevin Lin",
+            "Charlie Snell",
+            "Yu Wang",
+            "Charles Packer",
+            "Sarah Wooders",
+            "Ion Stoica",
+            "Joseph E. Gonzalez"
+          ],
+          "claimed_title": "Sleep-time Compute: Beyond Inference Scaling at Test-time",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2504.13171"
+        },
+        "details": "query-relevance 0.154 < 0.3 (query='llmXive follow-up: extending \"LoopCoder-v2: Only Loop Once for Efficient Test-Ti', candidate_title='Sleep-time Compute: Beyond Inference Scaling at Test-time')",
+        "failed_at": "2026-07-04T12:37:43Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Existing safety assurance research has primarily focused on training-phase alignment to instill safe behaviors into LLMs. However, recent studies have exposed these methods' susceptibility to diverse jailbreak attacks. Concurrently, inference scaling has significantly advanced LLM reasoning capabilities but remains unexplored in the context of safety assurance. Addressing this gap, our work pioneers inference scaling for robust and effective LLM safety against emerging threats. We reveal that conventional inference scaling techniques, despite their success in reasoning tasks, perform poorly in safety contexts, even falling short of basic approaches like Best-of-N Sampling. We attribute this inefficiency to a newly identified challenge, the exploration--efficiency dilemma, arising from the high computational overhead associated with frequent process reward model (PRM) evaluations. To overcome this dilemma, we propose SAFFRON, a novel inference scaling paradigm tailored explicitly for safety assurance. Central to our approach is the introduction of a multifurcation reward model (MRM) that significantly reduces the required number of reward model evaluations. To operationalize this paradigm, we further propose: (i) a partial supervision training objective for MRM, (ii) a conservative exploration constraint to prevent out-of-distribution explorations, and (iii) a Trie-based key--value caching strategy that facilitates cache sharing across sequences during tree search. Extensive experiments validate the effectiveness of our method. Additionally, we publicly release our trained multifurcation reward model (Saffron-1) and the accompanying token-level safety reward dataset (Safety4M) to accelerate future research in LLM safety. Our code, model, and data are publicly available at https://github.com/q-rz/saffron , and our project homepage is at https://q-rz.github.io/p/saffron .",
+          "claimed_authors": [
+            "Ruizhong Qiu",
+            "Gaotang Li",
+            "Tianxin Wei",
+            "Jingrui He",
+            "Hanghang Tong"
+          ],
+          "claimed_title": "Saffron-1: Safety Inference Scaling",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2506.06444"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"LoopCoder-v2: Only Loop Once for Efficient Test-Ti', candidate_title='Saffron-1: Safety Inference Scaling')",
+        "failed_at": "2026-07-04T12:37:43Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We formulate long-context language modeling as a problem in continual learning rather than architecture design. Under this formulation, we only use a standard architecture -- a Transformer with sliding-window attention. However, our model continues learning at test time via next-token prediction on the given context, compressing the context it reads into its weights. In addition, we improve the model's initialization for learning at test time via meta-learning at training time. Overall, our method, a form of Test-Time Training (TTT), is End-to-End (E2E) both at test time (via next-token prediction) and training time (via meta-learning), in contrast to previous forms. We conduct extensive experiments with a focus on scaling properties. In particular, for 3B models trained with 164B tokens, our method (TTT-E2E) scales with context length in the same way as Transformer with full attention, while others, such as Mamba 2 and Gated DeltaNet, do not. However, similar to RNNs, TTT-E2E has constant inference latency regardless of context length, making it 2.7 times faster than full attention for 128K context. Our code is publicly available.",
+          "claimed_authors": [
+            "Arnuv Tandon",
+            "Karan Dalal",
+            "Xinhao Li",
+            "Daniel Koceja",
+            "Marcel Rød",
+            "Sam Buchanan",
+            "Xiaolong Wang",
+            "Jure Leskovec",
+            "Sanmi Koyejo",
+            "Tatsunori Hashimoto",
+            "Carlos Guestrin",
+            "Jed McCaleb",
+            "Yejin Choi",
+            "Yu Sun"
+          ],
+          "claimed_title": "End-to-End Test-Time Training for Long Context",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.23675"
+        },
+        "details": "query-relevance 0.154 < 0.3 (query='llmXive follow-up: extending \"LoopCoder-v2: Only Loop Once for Efficient Test-Ti', candidate_title='End-to-End Test-Time Training for Long Context')",
+        "failed_at": "2026-07-04T12:37:43Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The 2023-2032 Planetary Science and Astrobiology Decadal Survey Origins, Worlds, and Life recommended that \"NASA develop scientific exploration strategies, as it has for Mars, in areas of broad scientific importance, e.g., Venus... that have an increasing number of U.S. missions and international collaboration opportunities\" (OWL, p.22-10). In NASA's initial responses to that Decadal Survey, the agency asserted that \"...specific scientific exploration strategies should be community generated by bodies such as the Analysis Groups,\" thus placing the onus on the planetary community to generate and support these exploration strategies. In late 2022, the Venus Exploration Analysis Group began a project to develop a new exploration strategy for Venus, reflecting the 2021 selections of the VERITAS, DAVINCI, and EnVision missions and the sweeping comparative planetology recommendations relevant to Venus in Origins, Worlds, and Life.\n  This is that strategy.\n  Taking a broad look at the scientific, technological, and programmatic advances required to address the key outstanding questions that Venus poses, and predicated on VERITAS, DAVINCI, and EnVision flying as planned in the early 2030s, this report outlines a set of actions available to NASA, VEXAG, and the planetary science community at large to establish a sustained program of Venus exploration in the years and decades ahead. Key to this approach is recognizing Venus as a unique setting where multiple, cross-disciplinary, Decadal-level planetary, Earth, heliophysics, and exoplanet science questions can be addressed, as well as being a worthy target of exploration in its own right.\n  This report offers Assessments of the current state of Venus exploration, and Actions for the U.S. and international Venus community, as well as NASA, to consider. This strategy is a living document and should be updated as warranted.",
+          "claimed_authors": [
+            "The VEXAG Exploration Strategy Study Analysis Workgroup"
+          ],
+          "claimed_title": "A New Strategy for the Exploration of Venus",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2412.06830"
+        },
+        "details": "query-relevance 0.077 < 0.3 (query='llmXive follow-up: extending \"LoopCoder-v2: Only Loop Once for Efficient Test-Ti', candidate_title='A New Strategy for the Exploration of Venus')",
+        "failed_at": "2026-07-04T12:37:43Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The European Particle Physics Strategy Update (EPPSU) process takes a bottom-up approach, whereby the community is first invited to submit proposals (also called inputs) for projects that it would like to see realised in the near-term, mid-term and longer-term future. National inputs as well as inputs from National Laboratories are also an important element of the process. All these inputs are then reviewed by the Physics Preparatory Group (PPG), whose role is to organize a Symposium around the submitted ideas and to prepare a community discussion on the importance and merits of the various proposals. The results of these discussions are then concisely summarised in this Briefing Book, prepared by the Conveners, assisted by Scientific Secretaries, and with further contributions provided by the Contributors listed on the title page. This constitutes the basis for the considerations of the European Strategy Group (ESG), consisting of scientific delegates from CERN Member States, Associate Member States, directors of major European laboratories, representatives of various European organizations as well as invitees from outside the European Community. The ESG has the mission to formulate the European Strategy Update for the consideration and approval of the CERN Council.",
+          "claimed_authors": [
+            " European Strategy for Particle Physics Preparatory Group"
+          ],
+          "claimed_title": "Physics Briefing Book",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1910.11775"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"LoopCoder-v2: Only Loop Once for Efficient Test-Ti', candidate_title='Physics Briefing Book')",
+        "failed_at": "2026-07-04T12:37:43Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Fault-tolerant quantum computing will require error rates far below those achievable with physical qubits. Quantum error correction (QEC) bridges this gap, but depends on decoders being simultaneously fast, accurate, and scalable. This combination of requirements remains unmet by a machine-learning decoder, nor by any decoder for promising resource-efficient codes such as the color code. Here we introduce AlphaQubit 2, a neural-network decoder that achieves near-optimal logical error rates for both surface and color codes at scale under realistic noise. For the color code, it is orders of magnitude faster than other high-accuracy decoders. We demonstrate real-time decoding faster than 1μs per cycle on commercial accelerators: for the surface code to distance 11, with better accuracy than leading real-time decoders; and the first real-time decoding of the color code to distance 9. These results support the practical application of a wider class of promising QEC codes, and establish a credible path towards high-accuracy, real-time neural decoding at the scales required for fault-tolerant quantum computation.",
+          "claimed_authors": [
+            "Andrew W. Senior",
+            "Thomas Edlich",
+            "Francisco J. H. Heras",
+            "Lei M. Zhang",
+            "Oscar Higgott",
+            "James S. Spencer",
+            "Taylor Applebaum",
+            "Sam Blackwell",
+            "Justin Ledford",
+            "Akvilė Žemgulytė",
+            "Augustin Žídek",
+            "Noah Shutty",
+            "Andrew Cowie",
+            "Yin Li",
+            "George Holland",
+            "Peter Brooks",
+            "Charlie Beattie",
+            "Michael Newman",
+            "Alex Davies",
+            "Cody Jones",
+            "Sergio Boixo",
+            "Hartmut Neven",
+            "Pushmeet Kohli",
+            "Johannes Bausch"
+          ],
+          "claimed_title": "A scalable and real-time neural decoder for topological quantum codes",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.07737"
+        },
+        "details": "query-relevance 0.231 < 0.3 (query='llmXive follow-up: extending \"LoopCoder-v2: Only Loop Once for Efficient Test-Ti', candidate_title='A scalable and real-time neural decoder for topological quantum codes')",
+        "failed_at": "2026-07-04T12:37:43Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Chain-of-Thought (CoT) reasoning improves multi-step mathematical problem solving in large language models but remains vulnerable to exposure bias and error accumulation, as early mistakes propagate irreversibly through autoregressive decoding. In this work, we propose DiffCoT, a diffusion-styled CoT framework that reformulates CoT reasoning as an iterative denoising process. DiffCoT integrates diffusion principles at the reasoning-step level via a sliding-window mechanism, enabling unified generation and retrospective correction of intermediate steps while preserving token-level autoregression. To maintain causal consistency, we further introduce a causal diffusion noise schedule that respects the temporal structure of reasoning chains. Extensive experiments on three multi-step CoT reasoning benchmarks across diverse model backbones demonstrate that DiffCoT consistently outperforms existing CoT preference optimization methods, yielding improved robustness and error-correction capability in CoT reasoning.",
+          "claimed_authors": [
+            "Shidong Cao",
+            "Hongzhan Lin",
+            "Yuxuan Gu",
+            "Ziyang Luo",
+            "Jing Ma"
+          ],
+          "claimed_title": "DiffCoT: Diffusion-styled Chain-of-Thought Reasoning in LLMs",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2601.03559"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"LoopCoder-v2: Only Loop Once for Efficient Test-Ti', candidate_title='DiffCoT: Diffusion-styled Chain-of-Thought Reasoning in LLMs')",
+        "failed_at": "2026-07-04T12:37:43Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Large language models (LLMs) drive significant financial innovations, yet their high-concurrency deployment is severely bottlenecked by KV cache memory overhead, which inflates infrastructure costs and throttles scalability. To address this, we propose YouZhi-LLM, a highly efficient financial LLM empowered by a comprehensive structural transition and training pipeline natively built on the Huawei Ascend ecosystem. At its algorithmic core, YouZhi-LLM features a layer-adaptive GQA-to-MLA transition framework that dynamically assigns per-layer FreqFold sizes, maximizing KV-cache compression while minimizing perplexity degradation. To recover representation capacity and inject domain expertise, the Ascend-based training pipeline seamlessly integrates generalized knowledge distillation with financial-specific supervised fine-tuning. Evaluations demonstrate the superiority of this systematic approach, with the adaptive transition reducing perplexity degradation by up to 35% over uniform baselines. Crucially, when evaluated on Ascend NPUs via vLLM-Ascend, the massive KV-cache reduction translates directly into deployment efficiency. Compared to their respective base models, YouZhi-7B yields a 12.3% improvement in average financial benchmark score alongside a 2.69$\\times$ increase in maximum concurrency; similarly, YouZhi-14B achieves a 7.0% accuracy gain and a 2.43$\\times$ concurrency boost, establishing a new paradigm for cost-effective, high-throughput financial inference.",
+          "claimed_authors": [
+            " PSBC LLM Team",
+            " Huawei LLM Team",
+            "Ruihan Long",
+            "Junjie Wu",
+            "Tianan Zhang",
+            "Duo Zhang",
+            "Yaozong Wu",
+            "Jinbin Fu",
+            "Chang Liu",
+            "Zhentao Tang",
+            "Wenshuang Yang",
+            "Xin Wang",
+            "Zhihao Song",
+            "Ning Huang",
+            "Wenjing Xu",
+            "Shuai Zong",
+            "Shupei Sun",
+            "Sen Wang",
+            "Jing Hu",
+            "Bin Wang",
+            "Xinyu Wang",
+            "Junkui Ju",
+            "Zequn Ding",
+            "Jie Ran",
+            "Man Luo",
+            "Shixiong Kai",
+            "Linkai Hou",
+            "Kaichao Liang",
+            "Hu Zhao",
+            "Yang Zhao",
+            "Shucheng Lin",
+            "Wei Yu",
+            "Chenghan Jiang",
+            "Jingjing Ding",
+            "Jiahui Zhang",
+            "Tian Jin",
+            "Yuhang Zhang",
+            "Dong Guo",
+            "Wei Sun",
+            "Jun Xie",
+            "Jianwei Li",
+            "Lei Cao",
+            "Pei Li",
+            "Jiabin Li",
+            "Jia Yuan",
+            "Rui Yuan",
+            "Jing Zhu",
+            "Mingxuan Yuan",
+            "Zhangcheng Lv",
+            "Xin Jiang",
+            "Xiuhong Fei",
+            "Xiaozhe Ren",
+            "Yulong Li",
+            "Zhipeng Zhang",
+            "Hang Wang",
+            "Zhaohui Xu",
+            "Rui Zhao",
+            "Yibo He",
+            "Xinzhuang Niu"
+          ],
+          "claimed_title": "YouZhi: Towards High-Concurrency Financial LLMs via Adaptive GQA-to-MLA Transition",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2606.05868"
+        },
+        "details": "query-relevance 0.077 < 0.3 (query='llmXive follow-up: extending \"LoopCoder-v2: Only Loop Once for Efficient Test-Ti', candidate_title='YouZhi: Towards High-Concurrency Financial LLMs via Adaptive GQA-to-MLA Transition')",
+        "failed_at": "2026-07-04T12:37:43Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Large Language Models have demonstrated remarkable abilities across various tasks, with Chain-of-Thought (CoT) prompting emerging as a key technique to enhance reasoning capabilities. However, existing research primarily focuses on improving performance, lacking a comprehensive framework to explain and understand the fundamental factors behind CoT's success. To bridge this gap, we introduce a novel perspective grounded in the Hopfieldian view of cognition in cognitive neuroscience. We establish a connection between CoT reasoning and key cognitive elements such as stimuli, actions, neural populations, and representation spaces. From our view, we can understand the reasoning process as the movement between these representation spaces. Building on this insight, we develop a method for localizing reasoning errors in the response of CoTs. Moreover, we propose the Representation-of-Thought (RoT) framework, which leverages the robustness of low-dimensional representation spaces to enhance the robustness of the reasoning process in CoTs. Experimental results demonstrate that RoT improves the robustness and interpretability of CoT reasoning while offering fine-grained control over the reasoning process.",
+          "claimed_authors": [
+            "Lijie Hu",
+            "Liang Liu",
+            "Shu Yang",
+            "Xin Chen",
+            "Zhen Tan",
+            "Muhammad Asif Ali",
+            "Mengdi Li",
+            "Di Wang"
+          ],
+          "claimed_title": "Understanding Reasoning in Chain-of-Thought from the Hopfieldian View",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2410.03595"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"LoopCoder-v2: Only Loop Once for Efficient Test-Ti', candidate_title='Understanding Reasoning in Chain-of-Thought from the Hopfieldian View')",
+        "failed_at": "2026-07-04T12:37:43Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Simulation is a fundamental research tool in the computer architecture field. These kinds of tools enable the exploration and evaluation of architectural proposals capturing the most relevant aspects of the highly complex systems under study. Many state-of-the-art simulation tools focus on single-system scenarios, but the scalability required by trending applications has shifted towards distributed computing systems integrated via complex software stacks. Web services with client-server architectures or distributed storage and processing of scale-out data analytics (Big Data) are among the main exponents. The complete simulation of a distributed computer system is the appropriate methodology to conduct accurate evaluations. Unfortunately, this methodology could have a significant impact on the already large computational effort derived from detailed simulation. In this work, we conduct a set of experiments to evaluate this accuracy/cost tradeoff. We measure the error made if client-server applications are evaluated in a single-node environment, as well as the overhead induced by the methodology and simulation tool employed for multi-node simulations. We quantify this error for different micro-architecture components, such as last-level cache and instruction/data TLB. Our findings show that accuracy loss can lead to completely wrong conclusions about the effects of proposed hardware optimizations. Fortunately, our results also demonstrate that the computational overhead of a multi-node simulation framework is affordable, suggesting multi-node simulation as the most appropriate methodology.",
+          "claimed_authors": [
+            "Adrian Colaso",
+            "Pablo Prieto",
+            "Jose-Angel Herrero",
+            "Pablo Abad",
+            "Valentin Puente",
+            "Jose-Angel Gregorio"
+          ],
+          "claimed_title": "Accuracy vs. Computational Cost Tradeoff in Distributed Computer System Simulation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1902.02837"
+        },
+        "details": "query-relevance 0.077 < 0.3 (query='llmXive follow-up: extending \"LoopCoder-v2: Only Loop Once for Efficient Test-Ti', candidate_title='Accuracy vs. Computational Cost Tradeoff in Distributed Computer System Simulation')",
+        "failed_at": "2026-07-04T12:37:43Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In many data-mining applications, including recommender systems, influence maximization, and team formation, the goal is to pick a subset of elements (e.g., items, nodes in a network, experts to perform a task) to maximize a monotone submodular utility function while simultaneously minimizing a cost function. Classical formulations model this tradeoff via cardinality or knapsack constraints, or by combining utility and cost into a single weighted objective. However, such approaches require committing to a specific tradeoff in advance and return only a single solution, offering limited insight into the space of viable utility-cost tradeoffs. In this paper, we depart from the single-solution paradigm and examine the problem of computing representative sets of high-quality solutions that expose different tradeoffs between submodular utility and cost. For this, we introduce $(α_1,α_2)$-approximate Pareto frontiers that provably approximate the achievable tradeoffs between submodular utility and cost. Specifically, we formalize the Pareto-$\\langle f,c \\rangle$ problem and develop efficient algorithms for multiple instantiations arising from different combinations of submodular utility $f$ and cost functions $c$. Our results offer a principled and practical framework for understanding and exploiting utility-cost tradeoffs in submodular optimization. Experiments on datasets from diverse application domains demonstrate that our algorithms efficiently compute approximate Pareto frontiers in practice.",
+          "claimed_authors": [
+            "Karan Vombatkere",
+            "Evimaria Terzi"
+          ],
+          "claimed_title": "Computing Approximate Pareto Frontiers for Submodular Utility and Cost Tradeoffs",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2602.15964"
+        },
+        "details": "query-relevance 0.077 < 0.3 (query='llmXive follow-up: extending \"LoopCoder-v2: Only Loop Once for Efficient Test-Ti', candidate_title='Computing Approximate Pareto Frontiers for Submodular Utility and Cost Tradeoffs')",
+        "failed_at": "2026-07-04T12:37:43Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Widespread adoption of AI systems hinges on their ability to generate economic value that outweighs their inference costs. Evaluating this tradeoff requires metrics accounting for both performance and costs. Building on production theory, we develop an economically grounded framework to evaluate language models' productivity by combining accuracy and inference cost. We formalize cost-of-pass: the expected monetary cost of generating a correct solution. We then define the frontier cost-of-pass: the minimum cost-of-pass achievable across available models or the human-expert(s), using the approx. cost of hiring an expert. Our analysis reveals distinct economic insights. First, lightweight models are most cost-effective for basic quantitative tasks, large models for knowledge-intensive ones, and reasoning models for complex quantitative problems, despite higher per-token costs. Second, tracking the frontier cost-of-pass over the past year reveals significant progress, particularly for complex quant. tasks where the cost roughly halved every few months. Third, to trace key innovations driving this progress, we examine counterfactual frontiers -- estimates of cost-efficiency without specific model classes. We find that innovations in lightweight, large, and reasoning models have been essential for pushing the frontier in basic quant., knowledge-intensive, and complex quant. tasks, respectively. Finally, we assess the cost-reductions from common inference-time techniques (majority voting and self-refinement), and a budget-aware technique (TALE-EP). We find that performance-oriented methods with marginal performance gains rarely justify the costs, while TALE-EP shows some promise. Overall, our findings underscore that complementary model-level innovations are the primary drivers of cost-efficiency and our framework provides a principled tool for measuring this progress and guiding deployment.",
+          "claimed_authors": [
+            "Mehmet Hamza Erol",
+            "Batu El",
+            "Mirac Suzgun",
+            "Mert Yuksekgonul",
+            "James Zou"
+          ],
+          "claimed_title": "Cost-of-Pass: An Economic Framework for Evaluating Language Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2504.13359"
+        },
+        "details": "query-relevance 0.077 < 0.3 (query='llmXive follow-up: extending \"LoopCoder-v2: Only Loop Once for Efficient Test-Ti', candidate_title='Cost-of-Pass: An Economic Framework for Evaluating Language Models')",
+        "failed_at": "2026-07-04T12:37:43Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Text-to-image (T2I) models have achieved remarkable progress, yet they continue to struggle with complex prompts that require simultaneously handling multiple objects, relations, and attributes. Existing inference-time strategies, such as parallel sampling with verifiers or simply increasing denoising steps, can improve prompt alignment but remain inadequate for richly compositional settings where many constraints must be satisfied. Inspired by the success of chain-of-thought reasoning in large language models, we propose an iterative test-time strategy in which a T2I model progressively refines its generations across multiple steps, guided by feedback from a vision-language model as the critic in the loop. Our approach is simple, requires no external tools or priors, and can be flexibly applied to a wide range of image generators and vision-language models. Empirically, we demonstrate consistent gains on image generation across benchmarks: a 16.9% improvement in all-correct rate on ConceptMix (k=7), a 13.8% improvement on T2I-CompBench (3D-Spatial category) and a 12.5% improvement on Visual Jenga scene decomposition compared to compute-matched parallel sampling. Beyond quantitative gains, iterative refinement produces more faithful generations by decomposing complex prompts into sequential corrections, with human evaluators preferring our method 58.7% of the time over 41.3% for the parallel baseline. Together, these findings highlight iterative self-correction as a broadly applicable principle for compositional image generation. Results and visualizations are available at https://iterative-img-gen.github.io/",
+          "claimed_authors": [
+            "Shantanu Jaiswal",
+            "Mihir Prabhudesai",
+            "Nikash Bhardwaj",
+            "Zheyang Qin",
+            "Amir Zadeh",
+            "Chuan Li",
+            "Katerina Fragkiadaki",
+            "Deepak Pathak"
+          ],
+          "claimed_title": "Iterative Refinement Improves Compositional Image Generation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2601.15286"
+        },
+        "details": "query-relevance 0.231 < 0.3 (query='llmXive follow-up: extending \"LoopCoder-v2: Only Loop Once for Efficient Test-Ti', candidate_title='Iterative Refinement Improves Compositional Image Generation')",
+        "failed_at": "2026-07-04T12:37:43Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Large-scale autoregressive models have demonstrated remarkable capabilities in image generation. However, their sequential raster-scan decoding relies on strictly next-token prediction, making inference prohibitively expensive. Existing acceleration methods typically either introduce entirely new generation paradigms that necessitate costly pre-training from scratch, or enable parallel generation at the expense of a training-inference gap or altered prediction objectives. In this paper, we introduce FlashAR, a lightweight post-training adaptation framework that efficiently adapts a pre-trained raster-scan autoregressive model into a highly parallel generator based on two-way next-token prediction. Our key insight is that effective adaptation should minimize modifications to the pre-trained model's original training objective to preserve its learned prior. Accordingly, we retain the original AR head as a horizontal head for row-wise prediction and introduce a complementary, lightweight vertical head for column-wise prediction. To facilitate efficient adaptation, we branch the vertical head from an intermediate layer rather than the final layer, bypassing the inherent horizontal head bias. Moreover, since horizontal and vertical predictions capture complementary dependencies whose relative importance varies across target positions, we employ a learnable fusion gate to dynamically combine the two predictions at each position. To further reduce adaptation cost, we propose a two-stage adaptation pipeline: the vertical head is first initialized through adaptation from the pre-trained autoregressive model before jointly fine-tuned with backbone to adapt to the new decoding paradigm. Extensive experiments on LlamaGen and Emu3.5 show that FlashAR achieves up to a 22.9x speedup for 512x512 image generation through a lightweight post-training with merely 0.05% of the original training data.",
+          "claimed_authors": [
+            "Junkang Zhou",
+            "Yefei He",
+            "Feng Chen",
+            "Weijie Wang",
+            "Bohan Zhuang"
+          ],
+          "claimed_title": "FlashAR: Efficient Post-Training Acceleration for Autoregressive Image Generation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2605.09430"
+        },
+        "details": "query-relevance 0.077 < 0.3 (query='llmXive follow-up: extending \"LoopCoder-v2: Only Loop Once for Efficient Test-Ti', candidate_title='FlashAR: Efficient Post-Training Acceleration for Autoregressive Image Generation')",
+        "failed_at": "2026-07-04T12:37:43Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This paper presents Randomized AutoRegressive modeling (RAR) for visual generation, which sets a new state-of-the-art performance on the image generation task while maintaining full compatibility with language modeling frameworks. The proposed RAR is simple: during a standard autoregressive training process with a next-token prediction objective, the input sequence-typically ordered in raster form-is randomly permuted into different factorization orders with a probability r, where r starts at 1 and linearly decays to 0 over the course of training. This annealing training strategy enables the model to learn to maximize the expected likelihood over all factorization orders and thus effectively improve the model's capability of modeling bidirectional contexts. Importantly, RAR preserves the integrity of the autoregressive modeling framework, ensuring full compatibility with language modeling while significantly improving performance in image generation. On the ImageNet-256 benchmark, RAR achieves an FID score of 1.48, not only surpassing prior state-of-the-art autoregressive image generators but also outperforming leading diffusion-based and masked transformer-based methods. Code and models will be made available at https://github.com/bytedance/1d-tokenizer",
+          "claimed_authors": [
+            "Qihang Yu",
+            "Ju He",
+            "Xueqing Deng",
+            "Xiaohui Shen",
+            "Liang-Chieh Chen"
+          ],
+          "claimed_title": "Randomized Autoregressive Visual Generation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2411.00776"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"LoopCoder-v2: Only Loop Once for Efficient Test-Ti', candidate_title='Randomized Autoregressive Visual Generation')",
+        "failed_at": "2026-07-04T12:37:43Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Zhifan Sun",
+            "Antonio Valerio Miceli-Barone"
+          ],
+          "title": "Scaling Behavior of Machine Translation with Large Language Models under Prompt Injection Attacks",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2403.09832",
+        "summary": "Large Language Models (LLMs) are increasingly becoming the preferred foundation platforms for many Natural Language Processing tasks such as Machine Translation, owing to their quality often comparable to or better than task-specific models, and the simplicity of specifying the task through natural language instructions or in-context examples. Their generality, however, opens them up to subversion by end users who may embed into their requests instructions that cause the model to behave in unauthorized and possibly unsafe ways. In this work we study these Prompt Injection Attacks (PIAs) on multiple families of LLMs on a Machine Translation task, focusing on the effects of model size on the attack success rates. We introduce a new benchmark data set and we discover that on multiple language pairs and injected prompts written in English, larger models under certain conditions may become more susceptible to successful attacks, an instance of the Inverse Scaling phenomenon (McKenzie et al., 2023). To our knowledge, this is the first work to study non-trivial LLM scaling behaviour in a multi-lingual setting.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2403.09832",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5714,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-04T12:37:50Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Ethem Yağız Çalık",
+            "Talha Rüzgar Akkuş"
+          ],
+          "title": "Enhancing Human-Like Responses in Large Language Models",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2501.05032",
+        "summary": "This paper explores the advancements in making large language models (LLMs) more human-like. We focus on techniques that enhance natural language understanding, conversational coherence, and emotional intelligence in AI systems. The study evaluates various approaches, including fine-tuning with diverse datasets, incorporating psychological principles, and designing models that better mimic human reasoning patterns. Our findings demonstrate that these enhancements not only improve user interactions but also open new possibilities for AI applications across different domains. Future work will address the ethical implications and potential biases introduced by these human-like attributes.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2501.05032",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4286,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-04T12:37:51Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Yiming Ai",
+            "Zhiwei He",
+            "Ziyin Zhang",
+            "Wenhong Zhu",
+            "Hongkun Hao",
+            "Kai Yu",
+            "Lingjun Chen",
+            "Rui Wang"
+          ],
+          "title": "Is Self-knowledge and Action Consistent or Not: Investigating Large Language Model's Personality",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2402.14679",
+        "summary": "In this study, we delve into the validity of conventional personality questionnaires in capturing the human-like personality traits of Large Language Models (LLMs). Our objective is to assess the congruence between the personality traits LLMs claim to possess and their demonstrated tendencies in real-world scenarios. By conducting an extensive examination of LLM outputs against observed human response patterns, we aim to understand the disjunction between self-knowledge and action in LLMs.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2402.14679",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4286,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-04T12:37:51Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Andrew Shin",
+            "Kunitake Kaneko"
+          ],
+          "title": "Large Language Models Lack Understanding of Character Composition of Words",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2405.11357",
+        "summary": "Large language models (LLMs) have demonstrated remarkable performances on a wide range of natural language tasks. Yet, LLMs' successes have been largely restricted to tasks concerning words, sentences, or documents, and it remains questionable how much they understand the minimal units of text, namely characters. In this paper, we examine contemporary LLMs regarding their ability to understand character composition of words, and show that most of them fail to reliably carry out even the simple tasks that can be handled by humans with perfection. We analyze their behaviors with comparison to token level performances, and discuss the potential directions for future research.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2405.11357",
+          "http_status": 200,
+          "pdf_sample_score": 0.1612,
+          "query_relevance_score": 0.4286,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-04T12:37:52Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Linge Guo"
+          ],
+          "title": "Unmasking the Shadows of AI: Investigating Deceptive Capabilities in Large Language Models",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2403.09676",
+        "summary": "This research critically navigates the intricate landscape of AI deception, concentrating on deceptive behaviours of Large Language Models (LLMs). My objective is to elucidate this issue, examine the discourse surrounding it, and subsequently delve into its categorization and ramifications. The essay initiates with an evaluation of the AI Safety Summit 2023 (ASS) and introduction of LLMs, emphasising multidimensional biases that underlie their deceptive behaviours.The literature review covers four types of deception categorised: Strategic deception, Imitation, Sycophancy, and Unfaithful Reasoning, along with the social implications and risks they entail. Lastly, I take an evaluative stance on various aspects related to navigating the persistent challenges of the deceptive AI. This encompasses considerations of international collaborative governance, the reconfigured engagement of individuals with AI, proposal of practical adjustments, and specific elements of digital education.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2403.09676",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4286,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-04T12:37:52Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "llmxive follow-up: extending \"loopcoder-v2: only loop once for efficient test-time computation scali\" computer science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

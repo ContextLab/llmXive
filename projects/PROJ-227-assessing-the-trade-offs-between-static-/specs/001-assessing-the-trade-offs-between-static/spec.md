@@ -17,7 +17,7 @@ The Researcher MUST be able to download and verify the integrity of the target c
 
 **Acceptance Scenarios**:
 
-1. **Given** the download script is invoked, **When** it accesses the public repositories, **Then** it MUST retrieve ≥ 500 code snippets across Python, JavaScript, and Java.
+1. **Given** the download script is invoked, **When** it accesses the public repositories, **Then** it MUST retrieve a minimum viable sample size of ≥ 500 code snippets distributed across Python, JavaScript, and Java.
 2. **Given** the datasets are downloaded, **When** the integrity check runs, **Then** it MUST confirm all files match expected checksums.
 3. **Given** a dataset file is corrupted, **When** the validation script runs, **Then** it MUST halt and report the specific file error.
 
@@ -33,8 +33,8 @@ The CI Pipeline MUST execute both static and dynamic analysis tools on the downl
 
 **Acceptance Scenarios**:
 
-1. **Given** valid code snippets are present, **When** the static analysis tools (CodeQL, SonarQube) run, **Then** they MUST produce detection logs within 15 minutes.
-2. **Given** valid code snippets are present, **When** the dynamic analysis tools (Unit Tests) run, **Then** they MUST produce execution results within 30 minutes.
+1. **Given** valid code snippets are present, **When** the static analysis tools (CodeQL, SonarQube) run, **Then** they MUST produce detection logs within 15 minutes. If CodeQL or SonarQube fail, the system MUST attempt a fallback static analyzer (e.g., ESLint, PyLint) or log a 'tool_failure'.
+2. **Given** valid code snippets are present, **When** the dynamic analysis tool (test runner, e.g., pytest) executes the unit test oracle, **Then** it MUST produce execution results within 30 minutes. (Note: The unit tests serve as the oracle for functional correctness, not the analysis tool itself).
 3. **Given** the analysis runs, **When** resource limits are reached (CPU > 2 cores, RAM > 7 GB), **Then** the process MUST terminate with a resource error code.
 
 ---
@@ -58,20 +58,21 @@ The Researcher MUST be able to view aggregated metrics and statistical significa
 ### Edge Cases
 
 - What happens when a code snippet times out during dynamic execution? (System MUST mark as 'timeout' and exclude from runtime metrics).
-- How does system handle static tool crashes? (System MUST retry up to 3 times, then log 'tool_failure').
+- How does system handle static tool crashes? (System MUST retry up to 3 times, then log 'tool_failure' and attempt fallback if configured).
 - What happens if a dataset download fails? (System MUST abort and alert Researcher within 5 minutes).
 
 ## Requirements *(mandatory)*
 
 ### Functional Requirements
 
-- **FR-001**: System MUST download ≥ 500 code snippets from HumanEval, CodeXGLUE, and BigCode repositories (See US-1)
-- **FR-002**: System MUST execute CodeQL and SonarQube static analysis on all snippets (See US-2)
-- **FR-003**: System MUST execute dynamic unit tests from HumanEval benchmarks on all snippets (See US-2)
+- **FR-001**: System MUST download a minimum viable sample size of ≥ 500 code snippets from HumanEval, CodeXGLUE, and BigCode repositories, distributed across Python, JavaScript, and Java (See US-1)
+- **FR-002**: System MUST execute CodeQL and SonarQube static analysis on all snippets; if these fail, the system MUST attempt a fallback static analyzer or log 'tool_failure' (See US-2)
+- **FR-003**: System MUST execute dynamic unit tests from HumanEval benchmarks on all snippets to determine functional correctness pass/fail status (See US-2)
 - **FR-004**: System MUST compute precision, recall, and F1-score for both analysis methods (See US-3)
-- **FR-005**: System MUST apply McNemar's test with α=0.05 and frame findings as associational, not causal (See US-3)
+- **FR-005**: System MUST apply McNemar's test with α=0.05 on the intersection of code snippets where both static and dynamic analysis produced a valid result (See US-3)
 - **FR-006**: System MUST enforce CPU ≤ 2 cores, RAM ≤ 7 GB, and duration ≤ 6 hours (See US-2)
-- **FR-007**: System MUST sweep α over a range of small values. and report detection rate variation (See US-3)
+- **FR-007**: System MUST sweep α over a set of representative values and report detection rate variation (See US-3)
+- **FR-008**: System MUST apply a multiplicity adjustment (e.g., Bonferroni correction or FDR control) when testing multiple metrics to control Type I error (See US-3)
 
 ### Key Entities *(include if feature involves data)*
 
@@ -88,19 +89,22 @@ The Researcher MUST be able to view aggregated metrics and statistical significa
 > measured quantities, percentages) to the implementation/research phase.
 
 - **SC-001**: Analysis pipeline completes within 6 hours of start time (See US-2)
-- **SC-002**: Statistical report includes p-value < 0.05 for at least one comparison metric (See US-3)
+- **SC-002**: Statistical report is generated containing p-values for McNemar's test and sensitivity analysis results (See US-3)
 - **SC-003**: Dataset covers ≥ 3 programming languages (Python, JavaScript, Java) (See US-1)
 - **SC-004**: Sensitivity analysis report includes rates for α ∈ {0.01, 0.05, 0.1} (See US-3)
 
 ## Assumptions
 
-- GitHub Actions free-tier runner is available with 2 CPU cores and 7 GB RAM.
+- GitHub Actions free-tier runner is available with a standard multi-core CPU configuration and 7 GB RAM.
 - CodeQL CLI is pre-installed or installable within 15 minutes on the runner.
 - HumanEval and CodeXGLUE datasets are accessible without authentication.
 - Ground truth for functional correctness exists in HumanEval test suites.
+- **Ground truth for security vulnerabilities is NOT available in the selected datasets; dynamic analysis is limited to functional correctness.**
+- Static analysis is the primary method for security vulnerability detection; dynamic analysis is limited to functional correctness.
 - Findings are framed as associational due to the observational nature of the dataset.
 - Static and dynamic analysis tools are treated as independent measurement modalities.
 - Dataset variable fit is confirmed (HumanEval contains code + tests).
-- Multiplicity is addressed via McNemar's test for paired comparisons.
+- Multiplicity is addressed via McNemar's test for paired comparisons and FR-008 for multiple metrics.
 - Threshold α=0.05 is justified by community-standard statistical significance.
 - Sensitivity analysis sweep (α ∈ {0.01, 0.05, 0.1}) is computationally trivial.
+- The 500 snippet target is derived from a minimum viable sample size assumption for statistical power.

@@ -854,5 +854,9 @@
   "PROJ-918-llmxive-follow-up-extending-agentic-abst::1.6.0": {
     "classified_at": "2026-07-04T10:08:59Z",
     "verdict": false
+  },
+  "PROJ-979-llmxive-follow-up-extending-loopcoder-v2::1.6.0": {
+    "classified_at": "2026-07-04T12:37:43Z",
+    "verdict": false
   }
 }

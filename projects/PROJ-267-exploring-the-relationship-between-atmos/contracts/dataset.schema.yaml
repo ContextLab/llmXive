@@ -1,0 +1,138 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Merged Atmospheric River and Gravity Anomaly Dataset"
+description: >
+  Schema for the merged monthly CSV output (data/processed/merged_monthly.csv)
+  resulting from the data ingestion and preprocessing pipeline (US-1).
+  This schema validates the structure and data types of the combined GRACE-FO
+  gravity anomaly and NOAA CPC Atmospheric River catalog data.
+
+type: object
+required:
+  - properties
+  - type
+
+properties:
+  type:
+    type: string
+    const: "object"
+  
+  title:
+    type: string
+  
+  description:
+    type: string
+  
+  required:
+    type: array
+    items:
+      type: string
+    contains:
+      - "month"
+      - "ar_intensity"
+      - "gravity_anomaly"
+      - "ar_event_count"
+  
+  properties:
+    type: object
+    required:
+      - month
+      - ar_intensity
+      - gravity_anomaly
+      - ar_event_count
+      - region
+    
+    properties:
+      month:
+        type: object
+        description: "ISO 8601 formatted month (YYYY-MM)"
+        properties:
+          type:
+            type: string
+            const: "string"
+          format:
+            type: string
+            const: "date"
+          description:
+            type: string
+        required:
+          - type
+          - format
+          - description
+      
+      ar_intensity:
+        type: object
+        description: >
+          Mean Integrated Water Vapor Transport (IWVT) in kg/(m·s) for the
+          defined West Coast NA region (35°N-50°N, 120°W-125°W) during the month.
+        properties:
+          type:
+            type: string
+            const: "number"
+          description:
+            type: string
+          minimum:
+            type: number
+            const: 0
+        required:
+          - type
+          - description
+      
+      gravity_anomaly:
+        type: object
+        description: >
+          Monthly mean gravity anomaly (geoid height variation at satellite altitude)
+          in milligals (mGal) for the defined region, derived from GRACE-FO mascon
+          solutions after degree-1 and C20 corrections and Gaussian smoothing.
+        properties:
+          type:
+            type: string
+            const: "number"
+          description:
+            type: string
+        required:
+          - type
+          - description
+      
+      ar_event_count:
+        type: object
+        description: "Total number of distinct AR events making landfall in the region during the month."
+        properties:
+          type:
+            type: string
+            const: "integer"
+          description:
+            type: string
+          minimum:
+            type: integer
+            const: 0
+        required:
+          - type
+          - description
+      
+      region:
+        type: object
+        description: "Fixed region identifier for traceability."
+        properties:
+          type:
+            type: string
+            const: "string"
+          const:
+            type: string
+            const: "West_Coast_NA_35N50N_120W125W"
+          description:
+            type: string
+        required:
+          - type
+          - const
+          - description
+  
+  additionalProperties:
+    type: "boolean"
+    const: false
+
+examples:
+  - month: "2020-01"
+    ar_intensity: 450.5
+    gravity_anomaly: -0.012
+    ar_event_count: 3
+    region: "West_Coast_NA_35N50N_120W125W"

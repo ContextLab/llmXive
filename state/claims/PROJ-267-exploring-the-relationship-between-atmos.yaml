@@ -110,3 +110,48 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-06-29T08:52:00Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/docs/frame-of-reference.md
+  attempts: 1
+  canonical: EWH from GRACE-FO Level-2 mascon solutions aggregated monthly for West
+    Coast North America region 35N-50N 120W-125W
+  claim_id: c_8cc47533
+  context: "For the purposes of this research, the gravity anomaly is operationally\
+    \ defined as: The equivalent water height (EWH) derived from GRACE-FO Level-2\
+    \ mascon solutions, after applying degree-1 coefficient corrections, C20 replacement,\
+    \ and Gaussian smoothing, aggregated to a monthly resolution for the West Coast\
+    \ North America region (35\xB0N-50\xB0N, 120\xB0W-125\xB0W)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The equivalent water height (EWH) derived from GRACE-FO Level-2 mascon\
+    \ solutions, after applying degree-1 coefficient corrections, C20 replacement,\
+    \ and Gaussian smoothing, is aggregated to a monthly resolution for the West Coast\
+    \ North America region (35\xB0N-50\xB0N, 120\xB0W-125\xB0W)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-04T12:45:47Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/docs/frame-of-reference.md
+  attempts: 1
+  canonical: C20 zonal harmonic replaced with SLR values due to better temporal variation
+    measurement by SLR than GRACE
+  claim_id: c_9203e984
+  context: The zonal harmonic C20 (related to the Earth's oblateness) is subject to
+    temporal variations that are better measured by satellite laser ranging (SLR)
+    than GRACE. We replace the GRACE-derived C20 with SLR values.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/C20_zonal_harmonic_replaced_with_SLR_values_due_to_better_te
+  kind: entity_fact
+  raw_text: The zonal harmonic C20 is replaced with SLR values because it is subject
+    to temporal variations that are better measured by satellite laser ranging (SLR)
+    than GRACE.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-04T12:46:19Z'

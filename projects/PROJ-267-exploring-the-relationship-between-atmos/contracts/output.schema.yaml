@@ -1,0 +1,174 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: CorrelationResult
+description: |
+  Schema for correlation results between Atmospheric River (AR) intensity
+  and Gravity Anomalies. Validates output from User Story 2 analysis pipeline.
+  Per Constitution Principle VII, effect size thresholds are NOT pre-specified;
+  only bootstrap confidence intervals and p-values are reported.
+type: object
+required:
+  - analysis_id
+  - region_type
+  - region_bounds
+  - lag_months
+  - correlation_coefficient
+  - p_value
+  - p_value_corrected
+  - is_significant
+  - bootstrap_ci_lower
+  - bootstrap_ci_upper
+  - effective_sample_size
+  - noise_floor_sigma
+  - signal_to_noise_ratio
+  - method_details
+  - generated_at
+properties:
+  analysis_id:
+    type: string
+    description: Unique identifier for this analysis run (UUID).
+    pattern: "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+  
+  region_type:
+    type: string
+    description: Type of region analyzed (target vs control).
+    enum:
+      - target
+      - control
+    example: "target"
+  
+  region_bounds:
+    type: object
+    description: Geographic bounds of the analysis region.
+    required:
+      - lat_min
+      - lat_max
+      - lon_min
+      - lon_max
+    properties:
+      lat_min:
+        type: number
+        description: Minimum latitude in degrees.
+      lat_max:
+        type: number
+        description: Maximum latitude in degrees.
+      lon_min:
+        type: number
+        description: Minimum longitude in degrees (negative for West).
+      lon_max:
+        type: number
+        description: Maximum longitude in degrees (negative for West).
+    example:
+      lat_min: 35.0
+      lat_max: 50.0
+      lon_min: -125.0
+      lon_max: -120.0
+  
+  lag_months:
+    type: integer
+    description: Lag in months applied to AR intensity relative to gravity anomaly.
+    minimum: 0
+    maximum: 3
+    example: 0
+  
+  correlation_coefficient:
+    type: number
+    description: Pearson correlation coefficient (r).
+    minimum: -1.0
+    maximum: 1.0
+    example: 0.42
+  
+  p_value:
+    type: number
+    description: Raw p-value from Pearson correlation test.
+    minimum: 0.0
+    maximum: 1.0
+    example: 0.034
+  
+  p_value_corrected:
+    type: number
+    description: Bonferroni-corrected p-value for multiple comparisons.
+    minimum: 0.0
+    maximum: 1.0
+    example: 0.136
+  
+  is_significant:
+    type: boolean
+    description: Whether the result is significant after correction (p < 0.05).
+    example: false
+  
+  bootstrap_ci_lower:
+    type: number
+    description: Lower bound of 95% bootstrap confidence interval for correlation.
+    minimum: -1.0
+    maximum: 1.0
+    example: 0.15
+  
+  bootstrap_ci_upper:
+    type: number
+    description: Upper bound of 95% bootstrap confidence interval for correlation.
+    minimum: -1.0
+    maximum: 1.0
+    example: 0.68
+  
+  effective_sample_size:
+    type: number
+    description: Effective sample size after autocorrelation correction (n_eff).
+    minimum: 0
+    example: 45.3
+  
+  noise_floor_sigma:
+    type: number
+    description: GRACE-FO mascon measurement noise floor in equivalent water height (mm).
+    minimum: 0
+    example: 2.5
+  
+  signal_to_noise_ratio:
+    type: number
+    description: Ratio of signal magnitude to noise floor (≥3σ threshold check).
+    minimum: 0
+    example: 4.2
+  
+  method_details:
+    type: object
+    description: Details of the statistical methods applied.
+    required:
+      - correlation_method
+      - autocorrection_method
+      - bootstrap_iterations
+      - bootstrap_seed
+      - multiple_comparison_method
+    properties:
+      correlation_method:
+        type: string
+        const: "pearson"
+      autocorrection_method:
+        type: string
+        enum:
+          - ar1_prewhitening_newey_west
+        description: Method used for autocorrelation correction.
+      bootstrap_iterations:
+        type: integer
+        const: 1000
+      bootstrap_seed:
+        type: integer
+        const: 42
+      multiple_comparison_method:
+        type: string
+        const: "bonferroni"
+  
+  generated_at:
+    type: string
+    format: date-time
+    description: ISO 8601 timestamp of when this result was generated.
+    example: "2026-06-27T14:30:00Z"
+  
+  data_version:
+    type: string
+    description: Version tag of the input dataset used (e.g., GRACE-FO release).
+    example: "RL06"
+  
+  notes:
+    type: string
+    description: Optional notes about the analysis, edge cases, or warnings.
+    example: "Lag=2 shows strongest correlation but not significant after Bonferroni correction."
+additionalProperties: false

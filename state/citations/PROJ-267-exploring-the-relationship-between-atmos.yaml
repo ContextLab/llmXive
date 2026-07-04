@@ -1,1 +1,22 @@
-[]
+- artifact_hash: 43c5e92230ce16c76651f8d8f8f442641a564197ed88f16b32b91d7ce52b034d
+  artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/quickstart.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://grace.jpl.nasa.gov/data/get-data/monthly-mass-grids-mascon/
+  verification_status: mismatch
+  verified_against_url: https://grace.jpl.nasa.gov/data/get-data/monthly-mass-grids-mascon/
+  verified_at: '2026-07-04T12:43:53.366405Z'
+- artifact_hash: 43c5e92230ce16c76651f8d8f8f442641a564197ed88f16b32b91d7ce52b034d
+  artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/quickstart.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://www.cpc.ncep.noaa.gov/products/international/ar_catalog/
+  verification_status: mismatch
+  verified_against_url: https://www.cpc.ncep.noaa.gov/products/international/ar_catalog/
+  verified_at: '2026-07-04T12:43:53.366405Z'

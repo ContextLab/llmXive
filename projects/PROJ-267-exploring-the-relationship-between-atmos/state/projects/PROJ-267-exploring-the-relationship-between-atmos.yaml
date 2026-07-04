@@ -1,0 +1,61 @@
+project_id: PROJ-267-exploring-the-relationship-between-atmos
+title: Exploring the relationship between atmospheric rivers and gravity anomalies
+status: active
+phase: foundational
+created_at: "2026-06-27T00:00:00Z"
+updated_at: "2026-06-27T22:30:00Z"
+metadata:
+  version: "0.1.0"
+  python_version: "3.11"
+  primary_investigator: "llmXive Research Agent"
+  data_sources:
+    - name: GRACE-FO Mascon Solutions
+      url: "https://grace.jpl.nasa.gov/data/get-data/monthly-mascon/"
+      type: satellite_gravity
+      access_method: direct_download
+    - name: NOAA CPC Atmospheric River Catalog
+      url: "https://www.ncei.noaa.gov/access/data/atmospheric-river-catalog/"
+      type: meteorological_catalog
+      access_method: api_or_download
+  dependencies:
+    - pandas
+    - numpy
+    - scipy
+    - statsmodels
+    - requests
+    - matplotlib
+    - seaborn
+    - pyyaml
+  directories:
+    code: "projects/PROJ-267-exploring-the-relationship-between-atmos/code/"
+    data_raw: "projects/PROJ-267-exploring-the-relationship-between-atmos/data/raw/"
+    data_processed: "projects/PROJ-267-exploring-the-relationship-between-atmos/data/processed/"
+    tests: "projects/PROJ-267-exploring-the-relationship-between-atmos/tests/"
+    state: "projects/PROJ-267-exploring-the-relationship-between-atmos/state/"
+    docs: "projects/PROJ-267-exploring-the-relationship-between-atmos/docs/"
+  completed_tasks:
+    - T001
+    - T002
+    - T003
+    - T004
+    - T005
+    - T006
+    - T007
+    - T008
+    - T009
+    - T010
+    - T011
+  current_task: T012
+  next_tasks:
+    - T013
+    - T014
+    - T015
+  specifications:
+    - specs/001-atmospheric-river-gravity/spec.md
+  contracts:
+    - contracts/dataset.schema.yaml
+    - contracts/output.schema.yaml
+  notes:
+    - "Frame of reference for gravity anomaly defined in docs/frame-of-reference.md per Einstein review."
+    - "Citation verification implemented per Constitution Principle II."
+    - "Project adheres to CPU-tractable constraints (no GPU/CUDA)."
