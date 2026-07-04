@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2408.08946",
+  "judged_at": "2026-07-04T01:13:57Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"a stylometric application of large language models\" computer science",
+  "rationale": "This paper satisfies criteria (d) and (f) as it is a canonical survey establishing the foundational methodologies, problems, and vocabulary (e.g., \"LLM-generated Text Detection,\" \"Human-LLM Co-authored Text Attribution\") for the field of stylometric analysis and authorship attribution in the era of LLMs, which is the direct domain of the user's question regarding the extension of \"A Stylometric Application of Large Language Models.\"",
+  "relevant": true
+}

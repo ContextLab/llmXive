@@ -1,0 +1,358 @@
+{
+  "fetched_at": "2026-07-04T01:14:32Z",
+  "field": "computer science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "computer science",
+      "idea_body_excerpt": "llmXive follow-up: extending \"A Stylometric Application of Large Language Models\"",
+      "target_n": 5
+    },
+    "duration_seconds": 592.096,
+    "ended_at": "2026-07-04T01:14:32Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "large language model stylometry"
+        ],
+        [
+          2,
+          "LLM-based authorship attribution"
+        ],
+        [
+          3,
+          "stylometric analysis with generative AI"
+        ],
+        [
+          4,
+          "language model stylistic fingerprinting"
+        ],
+        [
+          5,
+          "deep learning for stylometric classification"
+        ],
+        [
+          6,
+          "transformer models in author profiling"
+        ],
+        [
+          7,
+          "neural stylometry techniques"
+        ],
+        [
+          8,
+          "LLM detection of writing style"
+        ],
+        [
+          9,
+          "stylistic feature extraction using LLMs"
+        ],
+        [
+          10,
+          "computational stylometry with foundation models"
+        ],
+        [
+          11,
+          "authorship verification via large language models"
+        ],
+        [
+          12,
+          "stylistic similarity measurement using transformers"
+        ],
+        [
+          13,
+          "language model applications in forensic linguistics"
+        ],
+        [
+          14,
+          "stylometric author identification with AI"
+        ],
+        [
+          15,
+          "generative model analysis of writing style"
+        ],
+        [
+          16,
+          "LLMs for detecting stylistic anomalies"
+        ],
+        [
+          17,
+          "stylistic representation learning in NLP"
+        ],
+        [
+          18,
+          "authorship attribution using pre-trained language models"
+        ],
+        [
+          19,
+          "stylometry in the era of generative AI"
+        ],
+        [
+          20,
+          "machine learning approaches to stylometric variation"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "large language model stylometry": 5,
+        "llmXive follow-up: extending \"A Stylometric Application of Large Language Models\" computer science": 0
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "authorship attribution stylometry LLM",
+      "LLM stylometric fingerprinting perplexity burstiness",
+      "stylometric feature extraction machine learning",
+      "author profiling lexical diversity syntactic complexity",
+      "model watermarking text origin detection forensic analysis"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2408.08946"
+      ]
+    },
+    "per_query_hit_count": {
+      "LLM stylometric fingerprinting perplexity burstiness": 3,
+      "author profiling lexical diversity syntactic complexity": 0,
+      "authorship attribution stylometry LLM": 3,
+      "llmXive follow-up: extending \"A Stylometric Application of Large Language Models\" computer science": 3,
+      "model watermarking text origin detection forensic analysis": 0,
+      "stylometric feature extraction machine learning": 0
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 6,
+      "rejections": [
+        {
+          "primary_pointer": "2606.05868",
+          "rationale": "The paper focuses on system-level optimization (KV cache compression, concurrency, and hardware-specific deployment) for financial LLMs, which does not address the user's question about \"stylometric application\" (analyzing writing style, authorship, or linguistic features). While both involve LLMs, the mechanisms, variables, and research goals are entirely distinct, falling under the \"off-domain entirely\" rejection rule for a specific sub-field of computer science.",
+          "title": "YouZhi: Towards High-Concurrency Financial LLMs via Adaptive GQA-to-MLA Transition"
+        },
+        {
+          "primary_pointer": "2402.11651",
+          "rationale": "The candidate paper focuses on fine-tuning strategies for LLM agents using negative examples (failed trajectories), which is a methodological contribution to agent training and data efficiency. This does not address the user's specific question regarding \"stylometric application\" (analyzing authorship or writing style) or the specific follow-up to the \"llmXive\" project, as the paper studies a different mechanism (agent tool-use optimization) and a different domain (reasoning tasks vs. stylistic ",
+          "title": "Learning From Failure: Integrating Negative Examples when Fine-tuning Large Language Models as Agents"
+        },
+        {
+          "primary_pointer": "2312.10793",
+          "rationale": "The paper focuses on the general mechanism of instruction mixing for fine-tuning LLMs across broad task categories (NLP, coding, chat), whereas the user's question specifically targets \"llmXive\" (a specific stylometric application framework) and the extension of a particular prior work on stylometry. There is no overlap in the specific mechanism (stylometric analysis vs. general instruction tuning), the empirical population (stylometric datasets vs. general instruction corpora), or the canonical",
+          "title": "Demystifying Instruction Mixing for Fine-tuning Large Language Models"
+        },
+        {
+          "primary_pointer": "2304.12244",
+          "rationale": "The paper focuses on instruction-following capabilities and data synthesis for LLMs, which is a distinct research construct from the user's question regarding \"stylometric application\" (authorship attribution or style analysis). While both involve LLMs, the paper does not measure the same mechanism, variables, or domain as stylometry, and thus fails to meet the inclusion criteria for a literature review on that specific topic.",
+          "title": "WizardLM: Empowering large pre-trained language models to follow complex instructions"
+        },
+        {
+          "primary_pointer": "2310.00034",
+          "rationale": "The candidate paper focuses on model compression techniques (quantization and binarization) to reduce LLM size, whereas the user's question concerns \"stylometric application,\" which involves using LLMs to analyze writing style and authorship. These are distinct constructs within computer science with no overlap in mechanism, variables, or empirical population, failing to meet any inclusion criteria (a-f) and falling under the \"Distinct construct\" rejection rule.",
+          "title": "PB-LLM: Partially Binarized Large Language Models"
+        },
+        {
+          "primary_pointer": "2503.21676",
+          "rationale": "The paper investigates the internal learning dynamics and factual acquisition mechanisms of LLMs, which does not align with the user's specific focus on \"stylometric application\" (using LLMs to analyze writing style or authorship). While both involve LLMs, the paper addresses the mechanism of *learning facts* rather than the mechanism of *stylometric analysis*, failing to satisfy the criteria for same-mechanism evidence, shared variables, or foundational methodology for the specific domain of st",
+          "title": "How do language models learn facts? Dynamics, curricula and hallucinations"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-07-04T01:04:40Z",
+    "term_input": {
+      "normalized": "llmxive follow-up: extending \"a stylometric application of large language models\" computer science",
+      "raw": "llmXive follow-up: extending \"A Stylometric Application of Large Language Models\" computer science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This white paper describes the LSST Dark Energy Science Collaboration (DESC), whose goal is the study of dark energy and related topics in fundamental physics with data from the Large Synoptic Survey Telescope (LSST). It provides an overview of dark energy science and describes the current and anticipated state of the field. It makes the case for the DESC by laying out a robust analytical framework for dark energy science that has been defined by its members and the comprehensive three-year work plan they have developed for implementing that framework. The analysis working groups cover five key probes of dark energy: weak lensing, large scale structure, galaxy clusters, Type Ia supernovae, and strong lensing. The computing working groups span cosmological simulations, galaxy catalogs, photon simulations and a systematic software and computational framework for LSST dark energy data analysis. The technical working groups make the connection between dark energy science and the LSST system. The working groups have close linkages, especially through the use of the photon simulations to study the impact of instrument design and survey strategy on analysis methodology and cosmological parameter estimation. The white paper describes several high priority tasks identified by each of the 16 working groups. Over the next three years these tasks will help prepare for LSST analysis, make synergistic connections with ongoing cosmological surveys and provide the dark energy community with state of the art analysis tools. Members of the community are invited to join the LSST DESC, according to the membership policies described in the white paper. Applications to sign up for associate membership may be made by submitting the Web form at http://www.slac.stanford.edu/exp/lsst/desc/signup.html with a short statement of the work they wish to pursue that is relevant to the LSST DESC.",
+          "claimed_authors": [
+            " LSST Dark Energy Science Collaboration"
+          ],
+          "claimed_title": "Large Synoptic Survey Telescope: Dark Energy Science Collaboration",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1211.0310"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='llmXive follow-up: extending \"A Stylometric Application of Large Language Models', candidate_title='Large Synoptic Survey Telescope: Dark Energy Science Collaboration')",
+        "failed_at": "2026-07-04T01:11:53Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The large instantaneous sensitivity, a wide frequency coverage and flexible observation modes with large number of beams in the sky are the main features of the SKA observatory's two telescopes, the SKA-Low and the SKA-Mid, which are located on two different continents. Owing to these capabilities, the SKAO telescopes are going to be a game-changer for radio astronomy in general and pulsar astronomy in particular. The eleven articles in this special issue on pulsar science with the SKA Observatory describe its impact on different areas of pulsar science. In this lead article, a brief description of the two telescopes highlighting the relevant features for pulsar science is presented followed by an overview of each accompanying article, exploring the inter-relationship between different pulsar science use cases.",
+          "claimed_authors": [
+            "Bhal Chandra Joshi",
+            "Aris Karastergiou",
+            "Marta Burgay",
+            "The SKA pulsar science working group"
+          ],
+          "claimed_title": "Pulsar Science with the SKA Observatory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.16152"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='llmXive follow-up: extending \"A Stylometric Application of Large Language Models', candidate_title='Pulsar Science with the SKA Observatory')",
+        "failed_at": "2026-07-04T01:11:53Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A Human Computer Interface (HCI) System for playing games is designed here for more natural communication with the machines. The system presented here is a vision-based system for detection of long voluntary eye blinks and interpretation of blink patterns for communication between man and machine. This system replaces the mouse with the human face as a new way to interact with the computer. Facial features (nose tip and eyes) are detected and tracked in realtime to use their actions as mouse events. The coordinates and movement of the nose tip in the live video feed are translated to become the coordinates and movement of the mouse pointer on the application. The left or right eye blinks fire left or right mouse click events. The system works with inexpensive USB cameras and runs at a frame rate of 30 frames per second.",
+          "claimed_authors": [
+            "S. Sumathi",
+            "S. K. Srivatsa",
+            "M. Uma Maheswari"
+          ],
+          "claimed_title": "Vision Based Game Development Using Human Computer Interaction",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1002.2191"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='llmXive follow-up: extending \"A Stylometric Application of Large Language Models', candidate_title='Vision Based Game Development Using Human Computer Interaction')",
+        "failed_at": "2026-07-04T01:11:53Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This study aims to evaluate the accuracy of authorship attributions in scientific publications, focusing on the fairness and precision of individual contributions within academic works. The study analyzes 81,823 publications from the journal PLOS ONE, covering the period from January 2018 to June 2023. It examines the authorship attributions within these publications to try and determine the prevalence of inappropriate authorship. It also investigates the demographic and professional profiles of affected authors, exploring trends and potential factors contributing to inaccuracies in authorship. Surprisingly, 9.14% of articles feature at least one author with inappropriate authorship, affecting over 14,000 individuals (2.56% of the sample). Inappropriate authorship is more concentrated in Asia, Africa, and specific European countries like Italy. Established researchers with significant publication records and those affiliated with companies or nonprofits show higher instances of potential monetary authorship. Our findings are based on contributions as declared by the authors, which implies a degree of trust in their transparency. However, this reliance on self-reporting may introduce biases or inaccuracies into the dataset. Further research could employ additional verification methods to enhance the reliability of the findings. These findings have significant implications for journal publishers, highlighting the necessity for robust control mechanisms to ensure the integrity of authorship attributions. Moreover, researchers must exercise discernment in determining when to acknowledge a contributor and when to include them in the author list. Addressing these issues is crucial for maintaining the credibility and fairness of academic publications.",
+          "claimed_authors": [
+            "Abdelghani Maddi",
+            "Jaime A. Teixeira da Silva"
+          ],
+          "claimed_title": "Beyond authorship: Analyzing contributions in PLOS ONE and the challenges of appropriate attribution",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2504.06314"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"A Stylometric Application of Large Language Models', candidate_title='Beyond authorship: Analyzing contributions in PLOS ONE and the challenges of appropriate attribution')",
+        "failed_at": "2026-07-04T01:13:40Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Program authorship attribution has implications for the privacy of programmers who wish to contribute code anonymously. While previous work has shown that complete files that are individually authored can be attributed, we show here for the first time that accounts belonging to open source contributors containing short, incomplete, and typically uncompilable fragments can also be effectively attributed.\n  We propose a technique for authorship attribution of contributor accounts containing small source code samples, such as those that can be obtained from version control systems or other direct comparison of sequential versions. We show that while application of previous methods to individual small source code samples yields an accuracy of about 73% for 106 programmers as a baseline, by ensembling and averaging the classification probabilities of a sufficiently large set of samples belonging to the same author we achieve 99% accuracy for assigning the set of samples to the correct author. Through these results, we demonstrate that attribution is an important threat to privacy for programmers even in real-world collaborative environments such as GitHub. Additionally, we propose the use of calibration curves to identify samples by unknown and previously unencountered authors in the open world setting. We show that we can also use these calibration curves in the case that we do not have linking information and thus are forced to classify individual samples directly. This is because the calibration curves allow us to identify which samples are more likely to have been correctly attributed. Using such a curve can help an analyst choose a cut-off point which will prevent most misclassifications, at the cost of causing the rejection of some of the more dubious correct attributions.",
+          "claimed_authors": [
+            "Edwin Dauber",
+            "Aylin Caliskan",
+            "Richard Harang",
+            "Gregory Shearer",
+            "Michael Weisman",
+            "Frederica Nelson",
+            "Rachel Greenstadt"
+          ],
+          "claimed_title": "Git Blame Who?: Stylistic Authorship Attribution of Small, Incomplete Source Code Fragments",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1701.05681"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='llmXive follow-up: extending \"A Stylometric Application of Large Language Models', candidate_title='Git Blame Who?: Stylistic Authorship Attribution of Small, Incomplete Source Code Fragments')",
+        "failed_at": "2026-07-04T01:13:40Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Complexity researchers view burstiness--fluctuating levels of activity--as evidence of hidden interactions within the system generating the activity signal. Yet, current burstiness metrics miss evidence of burstiness in some moderately bursty distributions and under moderate sampling conditions. The canonical Burstiness Parameter (BP) compares distributions of timing statistics to the exponential distribution, representing the timing of independent random events, but it provides false negatives for some parameter ranges of power laws, with and without cut-offs. We introduce a metric that maintains BP's measurement approach but reduces false negatives: the Burstiness Tail-based Index (BTI). Based on ratios of differences in quantiles, BTI correctly classifies bursty distributions over certain parameter ranges misclassified by BP. Additionally, we find BTI to be more robust than BP in the presence of limited sample sizes and short observation windows, using simulated samples drawn from distributions correctly classified by BP in their analytical form. As a case study, we revisit an analysis of human activity data and find that the choice of BTI over BP influences interpretations of the timescales of burstiness in the dataset. Given these analytical, simulated, and empirical results, we argue for BTI's practical advantage over BP in assessing burstiness in real-world temporal signals for complexity research and time series modeling.",
+          "claimed_authors": [
+            "Joshua Z. Stadlan",
+            "Michelle Birkett",
+            "Jason H. Rife"
+          ],
+          "claimed_title": "Ratio of Quantiles Indicates Burstiness with Fewer False Negatives than the Conventional Burstiness Parameter",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2604.05188"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"A Stylometric Application of Large Language Models', candidate_title='Ratio of Quantiles Indicates Burstiness with Fewer False Negatives than the Conventional Burstiness Parameter')",
+        "failed_at": "2026-07-04T01:13:43Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Baixiang Huang",
+            "Canyu Chen",
+            "Kai Shu"
+          ],
+          "title": "Authorship Attribution in the Era of LLMs: Problems, Methodologies, and Challenges",
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2408.08946",
+        "summary": "Accurate attribution of authorship is crucial for maintaining the integrity of digital content, improving forensic investigations, and mitigating the risks of misinformation and plagiarism. Addressing the imperative need for proper authorship attribution is essential to uphold the credibility and accountability of authentic authorship. The rapid advancements of Large Language Models (LLMs) have blurred the lines between human and machine authorship, posing significant challenges for traditional methods. We present a comprehensive literature review that examines the latest research on authorship attribution in the era of LLMs. This survey systematically explores the landscape of this field by categorizing four representative problems: (1) Human-written Text Attribution; (2) LLM-generated Text Detection; (3) LLM-generated Text Attribution; and (4) Human-LLM Co-authored Text Attribution. We also discuss the challenges related to ensuring the generalization and explainability of authorship attribution methods. Generalization requires the ability to generalize across various domains, while explainability emphasizes providing transparent and understandable insights into the decisions made by these models. By evaluating the strengths and limitations of existing methods and benchmarks, we identify key open problems and future research directions in this field. This literature review serves as a roadmap for researchers and practitioners interested in understanding the state of the art in this rapidly evolving field.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2408.08946",
+          "http_status": 200,
+          "pdf_sample_score": 0.2532,
+          "query_relevance_score": 0.3,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-04T01:11:53Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Bing Liu",
+            "Shunping Wang",
+            "Yufan Zhu",
+            "Xinyi Yu",
+            "Jing Huang",
+            "Linkang Du",
+            "Hongbin Pei",
+            "Wei Luo"
+          ],
+          "title": "Implicit Identity Technologies for LLMs: Fingerprinting and Watermarking across Datasets, Models, and Generated Content",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2605.29245",
+        "summary": "This paper presents a survey and taxonomy of LLM fingerprinting and watermarking for identity, ownership verification, provenance, and generated-content attribution. Large language models (LLMs) require substantial investments in data, computation, and expertise, and are increasingly deployed in high-stakes settings, making it critical to protect LLM-related assets and trace their origins. Existing work has rapidly expanded across dataset provenance, model ownership, and generated-content detection, but the field remains fragmented: fingerprinting and watermarking are often used inconsistently, and methods are typically studied within isolated asset-specific settings. To address this gap, we introduce implicit identity as a unifying abstraction for verifiable but not directly observable identity signals in LLM systems. We distinguish fingerprinting as non-intrusive identity derived from intrinsic characteristics, and watermarking as intrusive identity deliberately embedded into data, models, or generated content. We then propose a lifecycle-based taxonomy that organises techniques across datasets, models, and generated content, and further separates them by verification semantics: similarity-based attribution and keyed verification. Finally, we establish an evaluation framework centred on identifiability, robustness, and deployability, summarising representative metrics under realistic access and transformation regimes. By unifying terminology, lifecycle stages, and evaluation objectives, this survey provides a structured foundation for studying LLM identity technologies and for developing more reliable mechanisms for asset protection and provenance.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2605.29245",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-04T01:13:40Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "llmxive follow-up: extending \"a stylometric application of large language models\" computer science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

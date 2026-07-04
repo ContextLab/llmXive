@@ -1,0 +1,4 @@
+# Explicit ruff configuration file to ensure linter is discoverable
+extend = "pyproject.toml"
+# Additional specific overrides if needed for root level
+ignore = ["E402"] # Allow imports to be placed anywhere for specific scripts

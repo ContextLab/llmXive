@@ -466,3 +466,113 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-03T16:30:27Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: Final directory structure for PROJ-300 project
+  claim_id: c_10bf2fa6
+  context: 'T001 Create project structure per implementation plan. Target Structure:
+    The final directory tree must match...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'The final directory tree must match: projects/PROJ-300-exploring-the-relationship-between-solar/
+    with code/, data/, tests/, requirements.txt, and README.md.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-04T01:34:00Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: Pinned dependency versions for PROJ-300
+  claim_id: c_345704e3
+  context: T002 Initialize Python 3.11 project with requirements.txt at projects/PROJ-300-exploring-the-relationship-between-solar/requirements.txt
+    containing the following exact pinned versions...
+  evidence:
+    asserted: '2.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The requirements.txt must contain pandas==2.0.3, numpy==1.24.3, scipy==1.11.1,
+    matplotlib==3.7.2, requests==2.31.0, tqdm==4.65.0, pyyaml==6.0.1, cdaweb==0.4.0,
+    and pytest==7.4.0.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-07-04T01:34:00Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: Lag search window range 30 to 90 minutes
+  claim_id: c_8156574e
+  context: "Phase 4: User Story 2 - Identify Optimal Propagation Lag. Goal: Search\
+    \ a plausible lag window (30\u201390 min)..."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Lag_search_window_range_30_to_90_minutes
+  kind: entity_fact
+  raw_text: "The lag search window is defined as 30\u201390 minutes."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-04T01:35:02Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: Sensitivity thresholds 400, 500, 600 km/s
+  claim_id: c_868840c2
+  context: "T028 Integrate analysis/sensitivity.py to compute correlations for T \u2208\
+    \ {400, 500, 600} km/s..."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity analysis thresholds are 400, 500, and 600 km/s.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-04T01:35:38Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: Synthetic dataset lag validation 45 min plus or minus 1 min
+  claim_id: c_43a3de2f
+  context: "Phase 4: Independent Test: Execute the lag-search on a known synthetic\
+    \ dataset where the true lag is min; the pipeline must report 45 min (\xB11 min)\
+    \ as the optimal lag."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The pipeline must report 45 min (\xB11 min) as the optimal lag for the\
+    \ synthetic dataset with true lag 45 min."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-04T01:36:27Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: Sensitivity table thresholds 400, 500, 600 km/s
+  claim_id: c_66dfb50f
+  context: "Phase 5: Independent Test: ...verify PNG files (scatter, time-series)\
+    \ and sensitivity table (T \u2208 {, 500, 600} km/s) are generated."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The sensitivity table reports correlation magnitude for thresholds T\
+    \ \u2208 {400, 500, 600} km/s."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-04T01:37:12Z'

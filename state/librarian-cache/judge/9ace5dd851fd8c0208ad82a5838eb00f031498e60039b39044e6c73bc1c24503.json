@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2606.05868",
+  "judged_at": "2026-07-04T01:14:07Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"a stylometric application of large language models\" computer science",
+  "rationale": "The paper focuses on system-level optimization (KV cache compression, concurrency, and hardware-specific deployment) for financial LLMs, which does not address the user's question about \"stylometric application\" (analyzing writing style, authorship, or linguistic features). While both involve LLMs, the mechanisms, variables, and research goals are entirely distinct, falling under the \"off-domain entirely\" rejection rule for a specific sub-field of computer science.",
+  "relevant": false
+}

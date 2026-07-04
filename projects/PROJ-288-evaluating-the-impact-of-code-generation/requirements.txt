@@ -7,4 +7,7 @@ matplotlib==3.7.2
 seaborn==0.12.2
 pyyaml==6.0.1
 pytest==7.4.0
-pyarrow==12.0.1
+python-dotenv==1.0.0
+scipy==1.11.1
+ruff==0.1.0
+black==23.11.0

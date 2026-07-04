@@ -1,0 +1,342 @@
+- artifact_path: projects/PROJ-288-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Python version 3.11 required
+  claim_id: c_a58f3b03
+  context: Initialize Python 3.11 project with requirements.txt containing pinned
+    versions
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project requires Python 3.11.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-04T00:56:41Z'
+- artifact_path: projects/PROJ-288-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: pandas version 2.0.3 pinned
+  claim_id: c_f72a60e1
+  context: 'requirements.txt containing pinned versions: pandas==2.0.3'
+  evidence:
+    asserted: '2.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The requirements.txt file pins pandas to version 2.0.3.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-07-04T00:56:41Z'
+- artifact_path: projects/PROJ-288-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: numpy version 1.24.3 pinned
+  claim_id: c_af332808
+  context: 'requirements.txt containing pinned versions: numpy==1.24.3'
+  evidence:
+    asserted: '1.24'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The requirements.txt file pins numpy to version 1.24.3.
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-07-04T00:56:41Z'
+- artifact_path: projects/PROJ-288-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: requests version 2.31.0 pinned
+  claim_id: c_924f77ea
+  context: 'requirements.txt containing pinned versions: requests==2.31.0'
+  evidence:
+    asserted: '2.31'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The requirements.txt file pins requests to version 2.31.0.
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-07-04T00:56:41Z'
+- artifact_path: projects/PROJ-288-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: statsmodels version 0.14.0 pinned
+  claim_id: c_c47583cc
+  context: 'requirements.txt containing pinned versions: statsmodels==0.14.0'
+  evidence:
+    asserted: '0.14'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The requirements.txt file pins statsmodels to version 0.14.0.
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-07-04T00:56:42Z'
+- artifact_path: projects/PROJ-288-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: scikit-learn version 1.3.0 pinned
+  claim_id: c_01601e2d
+  context: 'requirements.txt containing pinned versions: scikit-learn==1.3.0'
+  evidence:
+    asserted: '1.3'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The requirements.txt file pins scikit-learn to version 1.3.0.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-07-04T00:56:42Z'
+- artifact_path: projects/PROJ-288-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: matplotlib version 3.7.2 pinned
+  claim_id: c_c9ef3a88
+  context: 'requirements.txt containing pinned versions: matplotlib==3.7.2'
+  evidence:
+    asserted: '3.7'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The requirements.txt file pins matplotlib to version 3.7.2.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-07-04T00:56:42Z'
+- artifact_path: projects/PROJ-288-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: seaborn version 0.12.2 pinned
+  claim_id: c_e446305d
+  context: 'requirements.txt containing pinned versions: seaborn==0.12.2'
+  evidence:
+    asserted: '0.12'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The requirements.txt file pins seaborn to version 0.12.2.
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-07-04T00:56:42Z'
+- artifact_path: projects/PROJ-288-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: pyyaml version 6.0.1 pinned
+  claim_id: c_4dbd933b
+  context: 'requirements.txt containing pinned versions: pyyaml==6.0.1'
+  evidence:
+    asserted: '6.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The requirements.txt file pins pyyaml to version 6.0.1.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-07-04T00:56:42Z'
+- artifact_path: projects/PROJ-288-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: pytest version 7.4.0 pinned
+  claim_id: c_08e8458b
+  context: 'requirements.txt containing pinned versions: pytest==7.4.0'
+  evidence:
+    asserted: '7.4'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The requirements.txt file pins pytest to version 7.4.0.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-07-04T00:56:42Z'
+- artifact_path: projects/PROJ-288-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: filter PRs with at least 1000 stars
+  claim_id: c_61cc9169
+  context: "Query GitHub API for PRs with \u22651000 stars"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Filter_PRs_with_at_least_1000_stars
+  kind: magnitude
+  raw_text: The task filters PRs with 1000 or more stars.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-04T00:57:42Z'
+- artifact_path: projects/PROJ-288-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: exclude repos with over 50 percent LLM keyword PRs
+  claim_id: c_0468c09a
+  context: Exclude any repository where >50% of PRs contain LLM keywords
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Exclude_repos_with_over_50_percent_LLM_keyword_PRs
+  kind: magnitude
+  raw_text: The task excludes repositories where more than 50% of PRs contain LLM
+    keywords.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-04T00:57:57Z'
+- artifact_path: projects/PROJ-288-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Cohen's Kappa threshold 0.6 for validation
+  claim_id: c_cd5947de
+  context: If Kappa < 0.6, halt execution and flag dataset
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The task requires a Cohen's Kappa value of 0.6 or higher to validate the
+    disclosure signal.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-04T00:58:48Z'
+- artifact_path: projects/PROJ-288-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: download baseline corpus from CodeParrot Small dataset on Hugging Face
+  claim_id: c_fe4575c8
+  context: Download data/baseline_corpus/codeparrot_sample.csv from https://huggingface.co/datasets/codeparrot/codeparrot-small
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Download_baseline_corpus_from_CodeParrot_Small_dataset_on_Hu
+  kind: entity_fact
+  raw_text: The baseline corpus is downloaded from the CodeParrot Small dataset on
+    Hugging Face.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-04T00:59:35Z'
+- artifact_path: projects/PROJ-288-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: apply SIMEX correction if false positive rate exceeds 5 percent
+  claim_id: c_f1d6de09
+  context: Implement SIMEX correction for misclassification bias if false positive
+    rate > 5%
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The SIMEX correction is applied if the false positive rate exceeds 5%.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-04T00:59:35Z'
+- artifact_path: projects/PROJ-288-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: memory usage limit 7 GB
+  claim_id: c_523d4775
+  context: Ensure memory usage < 7 GB via chunking/streaming if necessary
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Memory usage must be kept below 7 GB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-04T00:59:49Z'
+- artifact_path: projects/PROJ-288-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: total runtime limit 21600 seconds
+  claim_id: c_eb9583ba
+  context: 'Run quickstart.md validation to ensure all steps complete within 6 hours.
+    Pass Criteria: Exit code 0 and total runtime < 21600s'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Total_runtime_limit_21600_seconds
+  kind: magnitude
+  raw_text: The quickstart validation requires the total runtime to be less than 21600
+    seconds.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-04T01:00:31Z'
+- artifact_path: projects/PROJ-288-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Download codeparrot_sample.csv from HuggingFace codeparrot-small dataset
+  claim_id: c_ce1636af
+  context: 'Implement false positive estimation using external baseline corpus. Input:
+    Download data/baseline_corpus/codeparrot_sample.csv from https://huggingface.co/datasets/codeparrot/codeparrot-small.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Download_codeparrot_sample.csv_from_HuggingFace_codeparrot-s
+  kind: entity_fact
+  raw_text: Download `data/baseline_corpus/codeparrot_sample.csv` from `https://huggingface.co/datasets/codeparrot/codeparrot-small`.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-04T01:03:36Z'

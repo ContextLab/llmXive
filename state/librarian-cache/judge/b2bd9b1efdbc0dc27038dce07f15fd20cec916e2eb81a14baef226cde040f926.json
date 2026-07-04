@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2402.14679",
+  "judged_at": "2026-07-04T01:38:50Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"appo: agentic procedural policy optimization\" computer science",
+  "rationale": "The paper investigates LLM personality consistency and self-knowledge, which is a distinct construct from \"Agentic Procedural Policy Optimization\" (APPO), a specific reinforcement learning algorithm for training agents. While both involve LLMs, the candidate paper does not measure the same mechanism, variables, or empirical setting as the user's question regarding policy optimization algorithms, and it falls under the rejection rule for distinct constructs sharing only the broad domain of \"LLMs.",
+  "relevant": false
+}

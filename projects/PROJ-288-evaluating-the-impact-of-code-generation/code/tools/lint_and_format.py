@@ -1,49 +1,70 @@
 """
-Script to run linting and formatting on the codebase.
-Uses ruff for linting and black for formatting.
+Tool to run linter (ruff) and formatter (black) on the project codebase.
+This script ensures code quality standards are met.
 """
 import subprocess
 import sys
 from pathlib import Path
 
+def run_command(cmd: list[str], description: str) -> bool:
+    """Execute a shell command and return success status."""
+    print(f"Running: {description}")
+    print(f"Command: {' '.join(cmd)}")
+    try:
+        result = subprocess.run(
+            cmd,
+            check=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True
+        )
+        if result.stdout:
+            print(result.stdout)
+        if result.stderr:
+            print(result.stderr)
+        print(f"✓ {description} completed successfully.\n")
+        return True
+    except subprocess.CalledProcessError as e:
+        print(f"✗ {description} failed.")
+        print(f"Error output:\n{e.stderr}")
+        return False
 
-def run_command(cmd: list[str]) -> int:
-    """Run a command and return the exit code."""
-    print(f"Running: {' '.join(cmd)}")
-    result = subprocess.run(cmd, capture_output=False)
-    return result.returncode
-
-
-def main() -> None:
-    """Run linting and formatting checks."""
-    project_root = Path(__file__).parent.parent
+def main():
+    """Main entry point for linting and formatting."""
+    project_root = Path(__file__).resolve().parent.parent
     code_dir = project_root / "code"
     tests_dir = project_root / "tests"
 
-    # Check if code directories exist
-    if not code_dir.exists():
-        print(f"Error: {code_dir} does not exist.")
+    print(f"Project root: {project_root}")
+    print(f"Running tools for: {code_dir}, {tests_dir}\n")
+
+    # 1. Format with Black
+    # Using the version pinned in requirements.txt to ensure consistency
+    format_cmd = [
+        sys.executable, "-m", "black",
+        "--config", str(project_root / "pyproject.toml"),
+        str(code_dir),
+        str(tests_dir)
+    ]
+    format_success = run_command(format_cmd, "Formatting code with Black")
+
+    # 2. Lint with Ruff
+    # Using the version pinned in requirements.txt
+    lint_cmd = [
+        sys.executable, "-m", "ruff",
+        "check",
+        "--config", str(project_root / "pyproject.toml"),
+        str(code_dir),
+        str(tests_dir)
+    ]
+    lint_success = run_command(lint_cmd, "Linting code with Ruff")
+
+    if not (format_success and lint_success):
+        print("One or more checks failed. Please fix the issues above.")
         sys.exit(1)
 
-    # Run ruff check
-    print("\n--- Running Ruff Linter ---")
-    ruff_exit = run_command([sys.executable, "-m", "ruff", "check", str(code_dir), str(tests_dir)])
-
-    # Run black check (dry run)
-    print("\n--- Running Black Formatter Check ---")
-    black_exit = run_command([sys.executable, "-m", "black", "--check", str(code_dir), str(tests_dir)])
-
-    if ruff_exit == 0 and black_exit == 0:
-        print("\n✅ All checks passed!")
-        sys.exit(0)
-    else:
-        print("\n❌ Some checks failed.")
-        if ruff_exit != 0:
-            print("   Fix linting errors with: ruff check . --fix")
-        if black_exit != 0:
-            print("   Fix formatting with: black .")
-        sys.exit(1)
-
+    print("All linting and formatting checks passed.")
+    sys.exit(0)
 
 if __name__ == "__main__":
     main()

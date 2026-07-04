@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2501.05032",
+  "judged_at": "2026-07-04T01:38:46Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"appo: agentic procedural policy optimization\" computer science",
+  "rationale": "The paper focuses on general techniques for improving human-like qualities (emotional intelligence, conversational coherence) in LLMs, which is a distinct construct from the specific \"Agentic Procedural Policy Optimization\" (APPO) reinforcement learning framework mentioned in the user's question. It fails to address the mechanism, variables, or domain of procedural policy optimization for agentic systems, falling under the rejection rule for distinct constructs sharing only broad keywords like \"",
+  "relevant": false
+}

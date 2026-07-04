@@ -803,8 +803,16 @@
     "classified_at": "2026-06-29T18:45:51Z",
     "verdict": false
   },
+  "PROJ-809-llmxive-follow-up-extending-a-stylometri::1.6.0": {
+    "classified_at": "2026-07-04T01:11:53Z",
+    "verdict": false
+  },
   "PROJ-820-llmxive-follow-up-extending-visual-gener::1.6.0": {
     "classified_at": "2026-07-03T18:58:54Z",
+    "verdict": false
+  },
+  "PROJ-861-llmxive-follow-up-extending-appo-agentic::1.6.0": {
+    "classified_at": "2026-07-04T01:38:07Z",
     "verdict": false
   },
   "PROJ-883-llmxive-follow-up-extending-omniretrieva::1.6.0": {

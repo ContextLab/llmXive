@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2312.10793",
+  "judged_at": "2026-07-04T01:14:18Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"a stylometric application of large language models\" computer science",
+  "rationale": "The paper focuses on the general mechanism of instruction mixing for fine-tuning LLMs across broad task categories (NLP, coding, chat), whereas the user's question specifically targets \"llmXive\" (a specific stylometric application framework) and the extension of a particular prior work on stylometry. There is no overlap in the specific mechanism (stylometric analysis vs. general instruction tuning), the empirical population (stylometric datasets vs. general instruction corpora), or the canonical",
+  "relevant": false
+}

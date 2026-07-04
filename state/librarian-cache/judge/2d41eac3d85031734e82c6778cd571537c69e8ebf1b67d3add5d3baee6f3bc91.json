@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2010.14374",
+  "judged_at": "2026-07-04T01:38:29Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"appo: agentic procedural policy optimization\" computer science",
+  "rationale": "The paper focuses on explainable machine learning (XAI) in the context of public policy use cases, which is a distinct construct from the user's question about \"Agentic Procedural Policy Optimization\" (APPO), a specific reinforcement learning algorithm for training autonomous agents. While both involve \"policy,\" the former refers to government/social policy and the latter to decision-making strategies in RL, satisfying the rejection rule for distinct constructs sharing only homonym keywords.",
+  "relevant": false
+}

@@ -190,11 +190,11 @@ L_phys = (k * 6371) / Vsw_mean / k` (FR-012) and apply lag shifts to time series
 
 - [ ] T032 [P] Write unit tests for `data/clean.py` in `tests/unit/test_clean.py` (FR-003).
  - **Test Functions**: `test_clean_removes_nan`, `test_clean_resamples_to_5min`, `test_clean_handles_empty_input`.
-- [~] T033 [P] Write unit tests for `data/lag.py` in `tests/unit/test_lag.py` (FR-012).
+- [ ] T033 [P] Write unit tests for `data/lag.py` in `tests/unit/test_lag.py` (FR-012).
  - **Test Functions**: `test_lag_calculation_formula`, `test_lag_shift_applies_correctly`.
-- [~] T034 [P] Write integration test for lag-adjusted correlation pipeline in `tests/integration/test_pipeline.py` (US-1 Independent Test).
+- [ ] T034 [P] Write integration test for lag-adjusted correlation pipeline in `tests/integration/test_pipeline.py` (US-1 Independent Test).
  - **Test Function**: `test_us1_full_pipeline` verifying JSON output keys.
-- [~] T035 [P] Write unit tests for permutation test logic in `tests/unit/test_correlation.py` (FR-005).
+- [ ] T035 [P] Write unit tests for permutation test logic in `tests/unit/test_correlation.py` (FR-005).
  - **Test Functions**: `test_permutation_block_size`, `test_permutation_p_value_calculation`.
 - [~] T036 [P] Write unit tests for lag sweep logic in `tests/unit/test_lag_search.py` (FR-010).
  - **Test Functions**: `test_lag_sweep_window`, `test_optimal_lag_identification`.

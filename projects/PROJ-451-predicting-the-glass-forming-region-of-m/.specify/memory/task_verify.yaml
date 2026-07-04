@@ -1,1 +1,18 @@
-T007 [P] Setup `data/raw/` and `data/processed/` directory structure with `.gitkeep`: 1
+? T005 [P] Implement `utils/dedup.py` for deduplicating compositions by unique chemical
+  formula (normalized atomic fractions), {{claim:c_6a2d6a3c}} (Wikidata Q19881044,
+  https://www.wikidata.org/wiki/Q19881044)
+: 1
+T006 Create `data/provenance.json` schema for tracking source URLs (Zenodo) and checksums: 1
+T007 [P] Setup `data/raw/` and `data/processed/` directory structure with `.gitkeep`: 2
+T008 Configure environment configuration management for API keys (Materials Project) and dataset paths: 1
+? 'T009 [P] [US1] Write unit test for `features/descriptors.py` in `tests/unit/test_descriptors.py`
+  (verify formula correctness for the specific descriptors: Atomic Radius, Electronegativity,
+  Valence Electron Concentration, Atomic Size Mismatch, Mixing Enthalpy, Atomic Size
+  Difference, Valence Electron Size Mismatch, Electron-Atom Ratio, Miedema''s Heat
+  of Formation, and Atomic Packing Factor). **Note**: This is a TDD ''write test''
+  task; expect initial failure.'
+: 1
+? 'T010 [P] [US1] Write unit test for `utils/dedup.py` in `tests/unit/test_dedup.py`
+  (verify deduplication logic and source retention). **Note**: This is a TDD ''write
+  test'' task; expect initial failure.'
+: 1

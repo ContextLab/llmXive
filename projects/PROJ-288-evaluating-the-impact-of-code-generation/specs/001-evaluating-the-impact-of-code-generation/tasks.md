@@ -58,7 +58,7 @@
 - [X] T004 Create `code/config.py` to manage API keys and constants. Schema: `GITHUB_TOKEN` (str), `RATE_LIMIT_HOURLY` (int=5000), `BACKOFF_INITIAL` (int=1), `BACKOFF_MAX` (int=60), `STRATIFICATION_SEED` (int=42), `MAX_REVIEW_DAYS` (int=30). (FR-007)
 - [ ] T005 [P] Implement `code/data/__init__.py` and base data utilities
 - [ ] T006 [P] Setup rate limiting infrastructure (Token Bucket algorithm) in `code/data/rate_limiter.py`
-- [~] T007 Create base data models/entities in `code/data/models.py`. Define: `PullRequest(repo_id: str, pr_number: int, author: str, code_lines_changed: int, origin_label: str)`, `ReviewMetrics(median_time: float, mean_time: float, std_dev: float, sample_size: int)`. (FR-001)
+- [ ] T007 Create base data models/entities in `code/data/models.py`. Define: `PullRequest(repo_id: str, pr_number: int, author: str, code_lines_changed: int, origin_label: str)`, `ReviewMetrics(median_time: float, mean_time: float, std_dev: float, sample_size: int)`. (FR-001)
 - [~] T008 Configure logging infrastructure to output to `data/run_logs.txt` and console
 - [~] T009 Setup environment configuration management for GitHub API tokens
 
@@ -104,7 +104,7 @@
 ### Implementation for User Story 2
 
 - [~] T021 [US2] Implement `code/data/process.py`: Calculate `first_review_time` and `total_review_time` (minutes) from `data/processed/sampled_prs.csv`. **Output**: Append time columns to `data/processed/pr_data_cleaned.csv`. (FR-003)
-- [ ] T022 [US2] Implement outlier exclusion logic: Remove PRs with negative time or >30 days duration. **Output**: Save filtered dataset to `data/processed/pr_data_filtered.csv`. (FR-006)
+- [~] T022 [US2] Implement outlier exclusion logic: Remove PRs with negative time or >30 days duration. **Output**: Save filtered dataset to `data/processed/pr_data_filtered.csv`. (FR-006)
 - [ ] T023 [US2] Implement Mann-Whitney U test for primary hypothesis. **Context**: Per Plan Override, this satisfies the Plan's definition of SC-001 (overriding Spec FR-004/SC-001 which incorrectly cite LMER). **Input**: `data/processed/pr_data_filtered.csv`. **Output**: Write `statistic`, `p_value`, and `primary_p_value` to `data/analysis_results.json` under key `mann_whitney`. (SC-001, Plan Override)
 - [ ] T024 [US2] Implement Linear Mixed-Effects Regression (random intercept by repo) with fixed effects (origin, code_size, reviewer_count). **Context**: Secondary analysis per Plan. **Output**: Write `coefficients`, `p_values`, `variance_components` to `data/analysis_results.json` under key `lmer`. (FR-004)
 - [ ] T025 [US2] Implement Shapiro-Wilk test for distribution normality check on residuals. **Output**: Append `shapiro_p_value` to `data/analysis_results.json`. (SC-004)
