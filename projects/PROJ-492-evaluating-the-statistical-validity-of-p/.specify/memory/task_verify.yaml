@@ -17,6 +17,11 @@
   \ respects limits) [DEPENDS ON: T010]."
 : 1
 ? "T012 Create CI workflow file `.github/workflows/audit.yml` that installs dependencies,\
+  \ enforces CPU \u2264 2 vCPU, RAM \u2264 2 GB [UNRESOLVED-CLAIM: c_30975192 \u2014\
+  \ status=not_enough_info], timeout a predefined duration, and runs audit pipeline\
+  \ (verify workflow runs and respects limits) [DEPENDS ON: T010]."
+: 1
+? "T012 Create CI workflow file `.github/workflows/audit.yml` that installs dependencies,\
   \ enforces CPU \u2264 2 vCPU, RAM \u2264 2 GB [UNRESOLVED-CLAIM: c_798df5f2 \u2014\
   \ status=not_enough_info], timeout a predefined duration, and runs audit pipeline\
   \ (verify workflow runs and respects limits) [DEPENDS ON: T010]."
@@ -26,25 +31,22 @@
   \ c_26bd3e2b \u2014 status=not_enough_info], and runs audit pipeline (verify workflow\
   \ runs and respects limits) [DEPENDS ON: T010]."
 : 1
-? "T012 Create CI workflow file `.github/workflows/audit.yml` that installs dependencies,\
-  \ enforces CPU \u2264 2 vCPU, RAM \u2264 2 GB, timeout a predefined duration, and\
-  \ runs audit pipeline (verify workflow runs and respects limits) [DEPENDS ON: T010]."
-: 2
 ? T020d **[P]** Verify that every row in `data/provenance_log.csv` contains URL, repository
   identifier, and fetch timestamp (run validation script `tests/unit/test_provenance_schema.py`).
   **DEPENDS ON:** T020c.
+: 2
+? 'T020d **[P]** Verify that every row in `data/provenance_log.csv` contains URL,
+  repository identifier, and fetch timestamp (run validation script `tests/unit/test_provenance_schema.py`).
+  **DEPENDS ON:** T020c. <!-- FAILED: unspecified -->'
+: 1
+? 'T020d **[P]** Verify that every row in `data/provenance_log.csv` contains URL,
+  repository identifier, and fetch timestamp (run validation script `tests/unit/test_provenance_schema.py`).
+  **DEPENDS ON:** T020c. <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->'
 : 1
 ? "T020d **[P]** Verify that every row in `data/provenance_log.csv` contains URL,\
   \ repository identifier, and fetch timestamp [UNRESOLVED-CLAIM: c_3afd62b7 \u2014\
   \ status=not_enough_info] (run validation script `tests/unit/test_provenance_schema.py`).\
   \ **DEPENDS ON:** T020c."
-: 1
-? "T026 Implement synthetic dataset generator in `src/audit/synthetic.py` (FR\u2011\
-  030) \u2013 outputs `data/synthetic/synthetic_validation.csv` + `data/synthetic/synthetic_ground_truth.json`\
-  \ with at least 10\u202F000 simulated summaries (binary AND continuous outcomes)\
-  \ **and verify both outcome types are present** (constraint\u2011preservation\u2011\
-  2958f04c) (verify files are created and contain \u2265\u202F10\u202F000 records).\
-  \ **DEPENDS ON:** T006\u2011T012."
 : 1
 ? "T026 Implement synthetic dataset generator in `src/audit/synthetic.py` (FR\u2011\
   030) \u2013 outputs `data/synthetic/synthetic_validation.csv` + `data/synthetic/synthetic_ground_truth.json`\
@@ -73,17 +75,23 @@
 ? "T028 Implement power\u2011analysis utility in `src/audit/power_analysis.py` (FR\u2011\
   025) that computes the minimum N given baseline, detectable effect, \u03B1 and power,\
   \ writes result to `output/power_analysis.json`, **and asserts audited corpus meets\
-  \ N \u2265 300 OR N \u2265 calculated_minimum ** (constraint\u2011preservation\u2011\
-  ba913176) (verify JSON file exists, contains numeric N, and satisfies condition).\
-  \ **DEPENDS ON:** T010."
-: 1
-? "T028 Implement power\u2011analysis utility in `src/audit/power_analysis.py` (FR\u2011\
-  025) that computes the minimum N given baseline, detectable effect, \u03B1 and power,\
-  \ writes result to `output/power_analysis.json`, **and asserts audited corpus meets\
   \ N \u2265 300 OR N \u2265 calculated_minimum [UNRESOLVED-CLAIM: c_3b567611 \u2014\
   \ status=not_enough_info] ** (constraint\u2011preservation\u2011ba913176) (verify\
   \ JSON file exists, contains numeric N, and satisfies condition). **DEPENDS ON:**\
   \ T010."
+: 1
+? "T028 Implement power\u2011analysis utility in `src/audit/power_analysis.py` (FR\u2011\
+  025) that computes the minimum N given baseline, detectable effect, \u03B1 and power,\
+  \ writes result to `output/power_analysis.json`, **and asserts audited corpus meets\
+  \ N \u2265 300 OR N \u2265 calculated_minimum [UNRESOLVED-CLAIM: c_db24849f \u2014\
+  \ status=not_enough_info] ** (constraint\u2011preservation\u2011ba913176) (verify\
+  \ JSON file exists, contains numeric N, and satisfies condition). **DEPENDS ON:**\
+  \ T010."
+: 1
+? "T029 Evaluate inconsistency\u2011detection component on synthetic validation dataset\
+  \ (FR\u2011031) \u2013 compute precision, recall, F1 and assert precision \u2265\
+  \ 90\u202F%, recall \u2265 80\u202F% (depends on T026) (verify test passes, otherwise\
+  \ raise `ERR-800`) [DEPENDS ON: T026]."
 : 1
 ? "T029 Evaluate inconsistency\u2011detection component on synthetic validation dataset\
   \ (FR\u2011031) \u2013 compute precision, recall, F1 and assert precision \u2265\

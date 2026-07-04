@@ -1,6 +1,4 @@
 url,repository_identifier,fetch_timestamp
-https://example.com/ab-test-123,example.com,2024-01-15T10:30:00Z
-https://shop.example.com/blog/ab-testing-results,shop.example.com,2024-01-15T11:00:00Z
-https://test.org/experiment,test.org,2024-01-15T12:00:00Z
-https://domain1.io/variant-test,domain1.io,2024-01-16T09:00:00Z
-https://analytics.platform.com/report/analytics-report,analytics.platform.com,2024-01-16T14:30:00Z
+https://example.com/ab-test-1,repo-001,2026-06-27T10:00:00
+https://example.com/ab-test-2,repo-002,2026-06-27T10:05:00
+https://example.com/ab-test-3,repo-001,2026-06-27T10:10:00

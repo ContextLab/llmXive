@@ -1,0 +1,6 @@
+url,repository_identifier,fetch_timestamp
+https://example.com/ab-test-1,repo-001,2026-06-27T10:00:00
+https://example.com/ab-test-2,repo-002,2026-06-27T10:05:00
+https://example.com/ab-test-3,repo-001,2026-06-27T10:10:00
+https://example.com/ab-test-4,repo-003,2026-06-27T10:15:00
+https://example.com/ab-test-5,repo-002,2026-06-27T10:20:00

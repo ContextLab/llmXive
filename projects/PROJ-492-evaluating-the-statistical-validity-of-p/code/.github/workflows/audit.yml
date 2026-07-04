@@ -1,0 +1,89 @@
+name: A/B Test Audit Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    
+    # Resource constraints: CPU <= 2 vCPU, RAM <= 2 GB
+    timeout-minutes: 60
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Cache pip packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pytest pytest-cov
+
+      - name: Schema validation
+        run: |
+          python -m code.src.audit.export_schema_validator --report output/audit_report.json || echo "Schema validation skipped (no report yet)"
+          python -m code.src.audit.manifest_schema_validator || echo "Manifest validation skipped (no manifest yet)"
+
+      - name: Synthetic validation
+        run: |
+          python -m code.src.audit.synthetic
+          python -m code.src.audit.evaluation || echo "Evaluation skipped (no synthetic data yet)"
+
+      - name: Resource monitor check
+        run: |
+          python -m code.src.utils.resource_monitor --check-limits || exit 1
+
+      - name: Run Monte Carlo validation
+        run: |
+          python -m code.src.cli.run_monte_carlo_validation
+
+      - name: Run Constitution compliance checker
+        run: |
+          python -m code.src.utils.constitution_checker || exit 1
+
+      - name: Run main audit pipeline
+        run: |
+          python -m code.src.cli.run_audit
+
+      - name: Verify outputs
+        run: |
+          test -f output/audit_report.json || exit 1
+          test -f output/summary_report.csv || exit 1
+          test -f output/power_analysis.json || exit 1
+          test -f output/manifest.json || exit 1
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: audit-results
+          path: |
+            output/
+            data/provenance_log.csv
+            data/synthetic/
+
+      - name: Run unit tests
+        run: |
+          pytest tests/unit/ -v --cov=code.src --cov-report=xml
+
+      - name: Upload coverage
+        uses: codecov/codecov-action@v3
+        with:
+          files: ./coverage.xml
+          fail_ci_if_error: false

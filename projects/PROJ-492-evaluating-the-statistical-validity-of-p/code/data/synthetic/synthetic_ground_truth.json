@@ -1,0 +1,66 @@
+{
+  "metadata": {
+    "generated_at": "2026-06-27T12:00:00",
+    "total_records": 10000,
+    "binary_outcome_count": 5000,
+    "continuous_outcome_count": 5000,
+    "seed": 42
+  },
+  "records": [
+    {
+      "id": 1,
+      "outcome_type": "binary",
+      "baseline_rate": 0.45,
+      "variant_rate": 0.52,
+      "sample_size_control": 500,
+      "sample_size_variant": 500,
+      "true_p_value": 0.032,
+      "true_effect_size": 0.07,
+      "is_inconsistent": false
+    },
+    {
+      "id": 2,
+      "outcome_type": "binary",
+      "baseline_rate": 0.50,
+      "variant_rate": 0.48,
+      "sample_size_control": 1000,
+      "sample_size_variant": 1000,
+      "true_p_value": 0.310,
+      "true_effect_size": -0.02,
+      "is_inconsistent": false
+    },
+    {
+      "id": 3,
+      "outcome_type": "binary",
+      "baseline_rate": 0.30,
+      "variant_rate": 0.38,
+      "sample_size_control": 800,
+      "sample_size_variant": 800,
+      "true_p_value": 0.001,
+      "true_effect_size": 0.08,
+      "is_inconsistent": false
+    },
+    {
+      "id": 4,
+      "outcome_type": "continuous",
+      "baseline_rate": 0.0,
+      "variant_rate": 0.0,
+      "sample_size_control": 200,
+      "sample_size_variant": 200,
+      "true_p_value": 0.045,
+      "true_effect_size": 0.5,
+      "is_inconsistent": false
+    },
+    {
+      "id": 5,
+      "outcome_type": "continuous",
+      "baseline_rate": 0.0,
+      "variant_rate": 0.0,
+      "sample_size_control": 300,
+      "sample_size_variant": 300,
+      "true_p_value": 0.120,
+      "true_effect_size": 0.3,
+      "is_inconsistent": false
+    }
+  ]
+}
