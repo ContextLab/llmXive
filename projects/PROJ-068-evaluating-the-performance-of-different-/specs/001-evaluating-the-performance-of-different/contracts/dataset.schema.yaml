@@ -1,0 +1,58 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "DatasetMetadata"
+description: "Schema for dataset metadata"
+type: "object"
+required:
+  - source
+  - element_count
+  - seed
+  - checksum
+  - distribution_params
+  - ks_test_p_value
+  - validation_status
+  - retry_count
+properties:
+  source:
+    type: "string"
+    const: "synthetic"
+    description: "Source of the dataset (must be 'synthetic')"
+  element_count:
+    type: "integer"
+    minimum: 10000
+    maximum: 1000000
+    description: "Number of elements in the dataset"
+  seed:
+    type: "integer"
+    description: "Random seed used for generation"
+  checksum:
+    type: "string"
+    pattern: "^[a-f0-9]{64}$"
+    description: "SHA-256 checksum of the generated dataset"
+  distribution_params:
+    type: "object"
+    properties:
+      mean_length:
+        type: "number"
+      sigma_length:
+        type: "number"
+    required:
+      - mean_length
+      - sigma_length
+    description: "Parameters of the log-normal length distribution"
+  ks_test_p_value:
+    type: "number"
+    minimum: 0
+    maximum: 1
+    description: "Kolmogorov-Smirnov test p-value against target distribution"
+  validation_status:
+    type: "string"
+    enum:
+      - "passed"
+      - "degraded"
+    description: "Status of the validation (passed if p > 0.05, degraded if retries exhausted)"
+  retry_count:
+    type: "integer"
+    minimum: 0
+    maximum: 5
+    description: "Number of retry attempts made for validation"
+additionalProperties: false

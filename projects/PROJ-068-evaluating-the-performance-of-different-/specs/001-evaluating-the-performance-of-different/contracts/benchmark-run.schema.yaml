@@ -1,0 +1,71 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "BenchmarkRun"
+description: "Schema for a single benchmark run result"
+type: "object"
+required:
+  - run_id
+  - implementation
+  - dataset_size
+  - false_positive_rate
+  - insertion_time_ms
+  - query_time_ms
+  - peak_memory_bytes
+  - repetition_index
+  - random_seed
+  - timestamp
+  - status
+properties:
+  run_id:
+    type: "string"
+    description: "Unique identifier for the run"
+  implementation:
+    type: "string"
+    enum:
+      - "array"
+      - "vector"
+      - "bitset"
+    description: "Bloom filter implementation variant"
+  dataset_size:
+    type: "integer"
+    minimum: 10000
+    maximum: 1000000
+    description: "Number of elements in the dataset"
+  false_positive_rate:
+    type: "number"
+    enum:
+      - 0.01
+      - 0.05
+      - 0.10
+    description: "Target false positive rate"
+  insertion_time_ms:
+    type: "number"
+    minimum: 0
+    description: "Wall-clock time for insertion phase (milliseconds)"
+  query_time_ms:
+    type: "number"
+    minimum: 0
+    description: "Wall-clock time for query phase (milliseconds)"
+  peak_memory_bytes:
+    type: "integer"
+    minimum: 0
+    description: "Peak memory usage during the run (bytes)"
+  repetition_index:
+    type: "integer"
+    minimum: 1
+    maximum: 50
+    description: "Repetition number (1–50)"
+  random_seed:
+    type: "integer"
+    description: "Random seed used for reproducibility"
+  timestamp:
+    type: "string"
+    format: "date-time"
+    description: "ISO 8601 timestamp of the run"
+  status:
+    type: "string"
+    enum:
+      - "complete"
+      - "timeout"
+      - "truncated"
+    description: "Status of the run"
+additionalProperties: false

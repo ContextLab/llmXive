@@ -9,23 +9,23 @@
 
 ### User Story 1 - Implement Three Bloom Filter Variants (Priority: P1)
 
-As a researcher, I need to implement three Bloom filter variants using native arrays, dynamic vectors, and specialized bitsets so that I can compare their performance characteristics under controlled conditions.
+As a researcher, I need to implement three Bloom filter variants using native arrays, dynamic vectors, and specialized bitsets with specific false positive rate targets of [deferred], [deferred], and [deferred] so that I can compare their performance characteristics under controlled conditions.
 
 **Why this priority**: This is the foundational capability without which no benchmarking or analysis can occur. All subsequent testing depends on having working implementations.
 
-**Independent Test**: Can be fully tested by running insertion and query operations on each implementation with a known dataset and verifying that false positive rates match theoretical expectations within ±1% tolerance.
+**Independent Test**: Can be fully tested by running insertion and query operations on each implementation with a known dataset ([deferred] to [deferred] elements) and verifying that memory usage and latency are recorded for comparison.
 
 **Acceptance Scenarios**:
 
-1. **Given** a Bloom filter implementation is instantiated with [deferred] elements and [deferred] false positive rate target, **When** [deferred] unique strings are inserted and [deferred] membership queries are executed, **Then** at least 99% of queries for inserted elements return true positives.
-2. **Given** a Bloom filter with known hash function parameters, **When** [deferred] non-member strings are queried, **Then** no more than 11% of queries return false positives (1% target + 1% tolerance margin).
+1. **Given** a Bloom filter implementation is instantiated with [deferred] to [deferred] elements and a false positive rate target of [deferred], [deferred], or [deferred], **When** [deferred] unique strings are inserted and [deferred] membership queries are executed, **Then** the system records memory usage and latency for each of the three implementations.
+2. **Given** a Bloom filter with known hash function parameters and a target false positive rate of [deferred], **When** [deferred] non-member strings are queried, **Then** the observed false positive rate does not exceed a low threshold (target plus absolute tolerance) and matches the theoretical false positive rate calculated from the filter size and hash count within the specified tolerance.
 3. **Given** the three implementations are configured with identical hash functions and memory budgets, **When** the same [deferred]-element dataset is processed, **Then** all three implementations produce identical membership results for the same query set.
 
 ---
 
 ### User Story 2 - Execute Benchmark Suite Across Dataset Sizes (Priority: P2)
 
-As a researcher, I need to run insertion and query benchmarks across set sizes from [deferred] to [deferred] elements with 5 repetitions per configuration so that I can measure performance trends and account for system noise.
+As a researcher, I need to run insertion and query benchmarks on the Enron Email Corpus and Google 10000 English words dataset across set sizes from [deferred] to [deferred] elements with 5 repetitions per configuration so that I can measure performance trends and account for system noise.
 
 **Why this priority**: This enables the core research question to be answered by generating the empirical data needed for comparison. Without systematic benchmarking, no performance conclusions can be drawn.
 
@@ -33,7 +33,7 @@ As a researcher, I need to run insertion and query benchmarks across set sizes f
 
 **Acceptance Scenarios**:
 
-1. **Given** a dataset size of [deferred] elements is specified, **When** the benchmark script executes, **Then** memory_profiler or OS-level tools record peak memory usage for each of the three implementations across 5 independent runs.
+1. **Given** a dataset size of [deferred] to [deferred] elements is specified, **When** the benchmark script executes, **Then** memory_profiler or OS-level tools record peak memory usage for each of the three implementations across 5 independent runs.
 2. **Given** the benchmark completes, **When** the results are aggregated, **Then** wall-clock time for [deferred] membership queries is recorded with at least 3 decimal places of precision (milliseconds).
 3. **Given** any single benchmark run exceeds 30 minutes, **When** the timeout threshold is reached, **Then** the run is marked as failed and logged without corrupting results from other repetitions.
 
@@ -49,8 +49,8 @@ As a researcher, I need to apply Kruskal-Wallis H-test to determine statistical 
 
 **Acceptance Scenarios**:
 
-1. **Given** benchmark results from 5 repetitions across 10 dataset sizes, **When** the Kruskal-Wallis H-test is applied, **Then** a p-value is computed for each performance metric (memory, latency) comparing the three implementations.
-2. **Given** p < 0.05 for any metric, **When** the results are documented, **Then** the finding is explicitly labeled as "statistically significant" with the exact p-value recorded to 4 decimal places.
+1. **Given** benchmark results from 5 repetitions across at least 5 logarithmically spaced dataset sizes, **When** the Kruskal-Wallis H-test is applied, **Then** a p-value is computed for each performance metric (memory, latency) comparing the three implementations.
+2. **Given** p < 0.05 for any metric, **When** the results are documented, **Then** the finding is explicitly labeled as "statistically significant" with the exact p-value recorded to a standard level of precision.
 3. **Given** the analysis completes, **When** visualizations are generated, **Then** at least 2 plots are produced: one showing memory usage vs. set size and one showing query latency vs. set size, each with 3 lines (one per implementation).
 
 ---
@@ -71,10 +71,10 @@ As a researcher, I need to apply Kruskal-Wallis H-test to determine statistical 
 - **FR-002**: System MUST configure false positive rate targets at [deferred], [deferred], and [deferred] for each implementation variant (See US-1)
 - **FR-003**: System MUST measure peak memory usage via memory_profiler or OS-level tools during all benchmark executions (See US-2)
 - **FR-004**: System MUST record wall-clock time for [deferred] membership queries per dataset size with millisecond precision (See US-2)
-- **FR-005**: System MUST execute 5 independent repetitions for each dataset size and implementation combination (See US-2)
+- **FR-005**: System MUST execute Multiple independent repetitions for each dataset size and implementation combination (See US-2)
 - **FR-006**: System MUST apply Kruskal-Wallis H-test to compare performance differences across the three data structure implementations (See US-3)
 - **FR-007**: System MUST generate at least 2 visualization plots: memory vs. set size and latency vs. set size (See US-3)
-- **FR-008**: System MUST sample Enron Email Corpus to ≤1,000,000 elements to fit within 14GB disk constraint (See US-2)
+- **FR-008**: System MUST sample the Enron Email Corpus to a maximum dataset size of [deferred] elements to fit within 14GB disk constraint (See US-2)
 - **FR-009**: System MUST use only CPU-tractable methods (no GPU, CUDA, or 8-bit quantization) to ensure compatibility with GitHub Actions free-tier runners (See US-2)
 
 ### Key Entities
@@ -89,21 +89,21 @@ As a researcher, I need to apply Kruskal-Wallis H-test to determine statistical 
 
 > Planning docs state *what* will be measured and the *source/reference* it is measured against; defer specific empirical values (counts, dataset sizes, measured quantities, percentages) to the implementation/research phase.
 
-- **SC-001**: Memory overhead is measured against theoretical minimum bitset size for each false positive rate target (See US-2)
-- **SC-002**: Query latency is measured against native array baseline implementation for each dataset size (See US-2)
+- **SC-001**: Memory overhead is measured against the theoretical minimum *for the specific storage unit* used by each implementation (e.g., bits for bitsets, bytes for arrays) (See US-2)
+- **SC-002**: Query latency is measured against the theoretical lower bound for each dataset size (See US-2)
 - **SC-003**: Statistical significance is measured against α = 0.05 threshold using Kruskal-Wallis H-test p-values (See US-3)
-- **SC-004**: Reproducibility is measured against coefficient of variation ≤15% across 5 repetitions per configuration (See US-2)
+- **SC-004**: Reproducibility is measured against coefficient of variation ≤15% across 5 repetitions per configuration for each dataset size and FPR configuration (See US-2)
 - **SC-005**: Dataset-variable fit is measured by verifying all required variables (text elements for insertion, membership ground truth) exist in Google 10000 English words and Enron Email Corpus subsets (See US-1)
 
 ## Assumptions
 
-- The Google English words dataset URL (https://raw.githubusercontent.com/first20hours/google-10000-english/master/20k.txt) remains accessible throughout the benchmark execution period
+- The Google English words dataset URL (https://raw.githubusercontent.com/firsthours/google-10000-english/master/20k.txt) remains accessible throughout the benchmark execution period
 - The Enron Email Corpus subset download completes within 30 minutes on GitHub Actions free-tier network bandwidth
 - Python 3.10+ or C++17 compiler is available in the GHA runner environment for implementation
 - memory_profiler library is installable via pip without CUDA or GPU dependencies
 - The Kruskal-Wallis H-test implementation in scipy.stats requires no GPU acceleration and completes within 60 seconds for the expected data volume
 - Hash function selection uses MurmurHash3 or similar with deterministic output across runs (no randomness in hash computation)
 - Peak memory measurements are taken immediately after insertion phase completes, before query phase begins
-- All benchmark scripts execute within the 6-hour GHA job time limit when using the maximum intended dataset size
+- All benchmark scripts execute within the GHA job time limit. when using the maximum intended dataset size
 - The disk constraint is not exceeded by temporary dataset files and benchmark output logs combined
-- False positive rate targets ([deferred], [deferred], [deferred]) are achievable within the 7GB RAM constraint for all dataset sizes up to 1,000,000 elements
+- False positive rate targets ([deferred], [deferred], and [deferred]) are achievable within the 7GB RAM constraint for all dataset sizes up to 1,000,000 elements
