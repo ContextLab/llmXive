@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-06-25T09:09:00.760162Z'
-current_stage: paper_ingested
+current_stage: reviewed_preprint
 failed_stage: null
 field: linguistics
 human_escalation_reason: null
 id: PROJ-783-naturebench-can-coding-agents-match-the
-last_run_id: 538cd74b-05b1-4db4-bca3-8cc0fd2c0e93
+last_run_id: 4638eca1-be54-464e-8bcb-c1dde6f338ef
 last_run_status: null
 points_paper: {}
 points_research: {}

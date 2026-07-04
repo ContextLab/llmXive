@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-06-12T09:26:34.177713Z'
-current_stage: paper_ingested
+current_stage: reviewed_preprint
 failed_stage: null
 field: linguistics
 human_escalation_reason: null
 id: PROJ-696-agentic-environment-engineering-for-larg
-last_run_id: eb08b5ea-a9ea-46f8-a6b5-6d1036e485a0
+last_run_id: 5fdb2c49-e88b-46eb-a961-d6e5a8341c42
 last_run_status: null
 points_paper: {}
 points_research: {}
