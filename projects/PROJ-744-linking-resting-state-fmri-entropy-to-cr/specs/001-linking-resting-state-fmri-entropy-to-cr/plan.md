@@ -4,7 +4,7 @@
 **Input**: Feature specification from `/specs/001-linking-resting-state-fmri-entropy/spec.md`
 
 ## Summary
-This project implements a computational pipeline to compute Multiscale Sample Entropy (MSE) from pre-processed HCP resting-state fMRI data and test its association with Alternative Uses Test scores. The pipeline strictly adheres to data hygiene, motion exclusion criteria (FD > 0.2mm or < 100 frames), and statistical rigor (Ordinary Least Squares with Robust Standard Errors, Benjamini-Hochberg FDR, and sensitivity analysis on tolerance `r` including surrogate data validation). The implementation is constrained to CPU-only execution on GitHub Actions free-tier runners (limited CPU, 7GB RAM).
+This project implements a computational pipeline to compute Multiscale Sample Entropy (MSE) from pre-processed HCP resting-state fMRI data and test its association with Alternative Uses Test scores. The pipeline strictly adheres to data hygiene, motion exclusion criteria (FD > 0.2mm or < 100 frames), and statistical rigor (Ordinary Least Squares with Robust Standard Errors, Benjamini-Hochberg FDR, and sensitivity analysis on tolerance `r` including surrogate data validation). The implementation is constrained to CPU-only execution on GitHub Actions free-tier runners (limited CPU, limited RAM).
 
 ## Technical Context
 
@@ -16,7 +16,7 @@ This project implements a computational pipeline to compute Multiscale Sample En
 **Project Type**: Computational Research Pipeline / CLI.  
 **Performance Goals**: Process full cohort within 6 hours; peak RAM < 7GB.  
 **Constraints**: No GPU; strict exclusion logic for motion artifacts; sensitivity analysis must re-compute full multiscale AUC for each `r` value.  
-**Scale/Scope**: A large cohort of subjects (HCP), 360 parcels, 7 canonical networks.
+**Scale/Scope**: A large cohort of subjects (HCP), a high-resolution parcellation scheme, and 7 canonical networks.
 
 > Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
 
