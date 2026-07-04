@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-07-01T01:49:19.845688Z'
-current_stage: paper_ingested
+current_stage: reviewed_preprint
 failed_stage: null
 field: linguistics
 human_escalation_reason: null
 id: PROJ-806-scaling-the-horizon-not-the-parameters-r
-last_run_id: 5a02f3dd-d6b2-4109-8210-2a5ef1ac3186
+last_run_id: d885ad20-439b-4f3d-aa60-dbf2eae81fe1
 last_run_status: null
 points_paper: {}
 points_research: {}
