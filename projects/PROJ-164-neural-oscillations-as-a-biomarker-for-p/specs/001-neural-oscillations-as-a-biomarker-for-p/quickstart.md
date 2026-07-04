@@ -2,66 +2,68 @@
 
 ## Prerequisites
 
--   Python 3.11+
--   `pip` or `conda`
--   ~10 GB free disk space (for dataset caching and intermediate files).
--   Access to the internet (for initial dataset download).
+*   Python 3.11+
+*   Git
+*   Access to a GitHub Actions runner (or local environment with sufficient RAM).
 
 ## Installation
 
-1.  **Clone the repository** (if applicable) or navigate to the project root.
-2.  **Create a virtual environment**:
+1.  **Clone the repository**:
+    ```bash
+    git clone <repo-url>
+    cd projects/PROJ-164-neural-oscillations-as-a-biomarker-for-p
+    ```
+
+2.  **Create and activate virtual environment**:
     ```bash
     python -m venv venv
     source venv/bin/activate  # On Windows: venv\Scripts\activate
     ```
+
 3.  **Install dependencies**:
     ```bash
     pip install -r code/requirements.txt
     ```
-    *Note: `requirements.txt` pins versions to ensure reproducibility on CPU-only runners.*
 
 ## Running the Pipeline
 
-The pipeline automatically detects data pairing and switches modes.
-
-### Step 1: Data Ingestion & Preprocessing
-Download and prepare the data. This step handles the mode switch logic.
+### Step 1: Data Ingestion
+Run the ingestion script to download datasets.
 ```bash
-python code/main.py --stage ingest_preprocess
+python code/data_ingestion.py
 ```
--   **Expected Output**:
-    -   If paired data found: "Primary Mode Active. Proceeding with analysis."
-    -   If unpaired: "Warning: No paired data found. Switching to Fallback Mode. Primary research question ABANDONED."
+*   This will check for paired data.
+*   If unpaired, it will log a warning and prepare for Fallback Mode.
 
-### Step 2: Feature Extraction
-Compute spectral and connectivity features.
+### Step 2: Preprocessing & Feature Extraction
 ```bash
-python code/main.py --stage extract_features
+python code/preprocessing.py
+python code/feature_extraction.py
 ```
--   **Expected Output**: `data/processed/feature_matrix.csv` (or parquet).
 
 ### Step 3: Modeling & Validation
-Fit the Ridge regression model and run validation (permutation, FDR, sensitivity).
 ```bash
-python code/main.py --stage model_validate
+python code/main.py
 ```
--   **Expected Output**: `reports/validation_report.json` containing R², p-values, and sensitivity tables.
+*   **Primary Mode**: Runs full statistical analysis.
+*   **Fallback Mode**: Runs structural validation only. No statistical claims are made.
 
-### Step 4: Generate Reports
-Compile the final analysis report.
+### Step 4: Review Output
+Check `data/reports/` for:
+*   `sensitivity_analysis.csv`
+*   `model_results.json`
+*   `pipeline_log.txt` (contains mode flags and warnings).
+
+## Verification
+
+To verify the pipeline runs correctly in a constrained environment:
 ```bash
-python code/main.py --stage generate_report
+pytest tests/contract/test_schemas.py
+pytest tests/integration/test_pipeline.py
 ```
-
-## Verifying the Run
-
-1.  **Check Logs**: Look for the `mode` flag in `code/logs/pipeline.log`.
-2.  **Validate Schema**: Ensure `data/processed/feature_matrix.csv` matches `contracts/dataset.schema.yaml`.
-3.  **Confirm Fallback Mode**: If the system entered Fallback Mode, verify that `reports/validation_report.json` contains `"flags": ["fallback_mode_active", "primary_question_abandoned"]` and that no biological claims are made.
 
 ## Troubleshooting
 
--   **Memory Error**: If the process crashes with OOM, reduce the `max_epochs_per_subject` in `code/config.py`.
--   **Missing Data**: If the download fails, verify network access to the HuggingFace URLs listed in `research.md`.
--   **Schema Mismatch**: Ensure the input Parquet files match the expected column names defined in the Data Model.
+*   **Memory Error**: If the process exceeds a substantial RAM threshold, the script will automatically downsample epochs. Ensure `NFR-001` constraints are met.
+*   **Missing Data**: If the dataset is unpaired, the system will switch to Fallback Mode. Check `pipeline_log.txt` for the "Fallback Mode Active" warning.
+*   **Underpowered**: If the available N is insufficient for the expected effect size, the report will be flagged as "Exploratory".

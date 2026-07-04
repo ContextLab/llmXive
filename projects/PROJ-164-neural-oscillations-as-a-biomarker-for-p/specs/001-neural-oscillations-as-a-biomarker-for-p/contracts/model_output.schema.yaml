@@ -55,6 +55,12 @@ properties:
         type: "number"
       min_p_value:
         type: "number"
+      status:
+        type: "string"
+        enum:
+          - "Underpowered"
+          - "Adequate"
+          - "N/A"
     description: "Power analysis results"
 required:
   - model_type

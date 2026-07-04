@@ -1,0 +1,51 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "EEG Feature Vector Schema"
+type: "object"
+description: "Schema for the aggregated spectral and connectivity features per subject."
+properties:
+  subject_id:
+    type: "string"
+    description: "Unique identifier for the subject."
+  mode:
+    type: "string"
+    enum:
+      - "Primary"
+      - "Fallback"
+    description: "Operational mode of the pipeline."
+  power_features:
+    type: "object"
+    description: "Spectral power density for standard bands."
+    properties:
+      delta:
+        type: "number"
+        description: "Power in 1-4 Hz band."
+      theta:
+        type: "number"
+        description: "Power in 4-8 Hz band."
+      alpha:
+        type: "number"
+        description: "Power in 8-13 Hz band."
+      beta:
+        type: "number"
+        description: "Power in 13-30 Hz band."
+      gamma:
+        type: "number"
+        description: "Power in 30-45 Hz band."
+    required:
+      - delta
+      - theta
+      - alpha
+      - beta
+      - gamma
+  connectivity_features:
+    type: "object"
+    description: "Connectivity metrics (PLV, wPLI) for channel pairs."
+    additionalProperties:
+      type: "number"
+    description: "Map of 'channel_pair' to metric value."
+required:
+  - subject_id
+  - mode
+  - power_features
+  - connectivity_features
+additionalProperties: false

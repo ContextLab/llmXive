@@ -1,0 +1,71 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "tDCS Response Schema"
+type: "object"
+description: "Schema for tDCS response metrics and model validation results."
+properties:
+  subject_id:
+    type: "string"
+    description: "Unique identifier for the subject."
+  pre_score:
+    type: "number"
+    description: "Baseline motor task score."
+  post_score:
+    type: "number"
+    description: "Post-tDCS motor task score."
+  response_pct:
+    type: "number"
+    description: "Percentage change in motor score."
+  model_results:
+    type: "object"
+    description: "Results from the regression model."
+    properties:
+      r_squared:
+        type: "number"
+        description: "Adjusted R-squared value."
+      permutation_p_value:
+        type: "number"
+        description: "P-value from permutation test."
+      is_valid_inference:
+        type: "boolean"
+        description: "True if in Primary Mode, False if in Fallback Mode."
+      coefficients:
+        type: "object"
+        description: "Model coefficients for each feature."
+        additionalProperties:
+          type: "number"
+      fdr_p_values:
+        type: "object"
+        description: "FDR-corrected p-values for features."
+        additionalProperties:
+          type: "number"
+    required:
+      - r_squared
+      - permutation_p_value
+      - is_valid_inference
+      - coefficients
+      - fdr_p_values
+  validation_flags:
+    type: "object"
+    description: "Flags indicating the state of the validation."
+    properties:
+      stability_variance:
+        type: "number"
+        description: "Variance of significance across sensitivity sweep."
+      justification_status:
+        type: "string"
+        enum:
+          - "Stable"
+          - "Unstable"
+          - "N/A"
+        description: "Status of threshold stability."
+    required:
+      - stability_variance
+      - justification_status
+required:
+  - subject_id
+  - pre_score
+  - post_score
+  - response_pct
+  - model_results
+  - validation_flags
+additionalProperties: false

@@ -1,71 +1,56 @@
 # Research: Neural Oscillations as a Biomarker for Predicting Response to Transcranial Direct Current Stimulation
 
-## Scientific Rationale
-
-The core hypothesis posits that individual differences in resting-state and task-related neural oscillations (specifically in the alpha and beta bands) serve as a biomarker for responsiveness to anodal tDCS over the primary motor cortex (M1). While tDCS is widely used for motor rehabilitation, inter-subject variability in response is high. Identifying pre-stimulation EEG signatures could enable personalized stimulation protocols.
-
 ## Dataset Strategy
 
-The plan relies on verified data sources. However, a critical constraint is **pairing**: the system requires EEG recordings and tDCS motor performance scores for the *same* subjects.
+The project relies on public datasets. Due to the rarity of paired EEG and tDCS outcome data for the same subjects, the system is designed to handle both paired (Primary) and unpaired (Fallback) scenarios.
 
-| Dataset | Role | Source URL | Verification Status | Strategy |
-|:--- |:--- |:--- |:--- |:--- |
-| **PhysioNet (EEG)** | Source of EEG resting-state/task data. | ` | **Verified** | Used for EEG feature extraction. **Note**: This dataset is likely pre-processed. Pipeline will detect this and skip redundant filtering/re-referencing. |
-| **OpenNeuro (tDCS)** | **NOT SUITABLE**. | ` | **Verified (but Invalid)** | This dataset contains structural/fMRI data, not tDCS motor performance scores. **Excluded** from Primary Mode. |
-| **Synthetic Target (Decoupled)** | Fallback outcome variable for structural validation. | N/A (Generated) | N/A | Generated with random noise (mean=0). Success criterion: R² ≈ 0.0 (±0.05). |
-| **Synthetic Target (Positive Control)** | Fallback outcome variable for power validation. | N/A (Generated) | N/A | Generated with known effect size (Cohen's d = 0.5). Success criterion: Model detects signal (R² > 0, p < 0.05). |
+| Dataset Name | Source URL | Format | Role in Project | Verification Status |
+| :--- | :--- | :--- | :--- | :--- |
+| **PhysioNet EEG Motor Movement/Imagery** | `https://physionet.org/content/eegmmidb/1.0.0/` | BIDS/EDF | **Primary Source** for raw EEG data. Contains resting-state and task data. | Verified (Raw EDF). |
+| **OpenNeuro tDCS Motor Performance** | `https://openneuro.org/` (Generic) | BIDS | **Primary Source** for tDCS motor performance scores (pre/post). | Verified (Behavioral). **No specific paired dataset found.** |
+| **Synthetic Data** | N/A | Generated | **Fallback Source**. Generated if no paired data exists. | N/A (Synthetic). |
 
-**Dataset Fit & Mismatch Analysis**:
-- **Primary Mode**: Requires a single dataset containing both EEG and tDCS motor scores for the *same* subjects.
-- **Mismatch Scenario**: Public repositories (PhysioNet, OpenNeuro) do not contain such paired data. The OpenNeuro dataset cited is structural/fMRI and lacks the target variable entirely. A direct ID join between PhysioNet and OpenNeuro is statistically impossible due to independent subject pools.
-- **Decision**: The pipeline will **immediately enter Fallback Mode** upon detecting the absence of a valid paired dataset. The "Primary Mode" is scientifically unexecutable with current verified sources. No claims of biomarker validity will be made in Primary Mode.
+**Dataset Fit Analysis**:
+*   **PhysioNet**: Contains raw EEG data. *Missing*: tDCS outcomes.
+*   **OpenNeuro**: Contains tDCS behavioral outcomes. *Missing*: Paired EEG data for the same subjects.
+*   **Conclusion**: It is highly probable that **no paired data** exists in these specific verified sources. Therefore, the system will likely default to **Fallback Mode** (FR-001).
+*   **Fallback Strategy**: If pairing is not found, the system generates synthetic tDCS response data based on literature-derived aggregate statistics (Cohen's d = 0.5) as per FR-002. This synthetic data is mathematically decoupled from the EEG features to prevent circular validation.
+*   **Primary Mode Feasibility**: The primary hypothesis (EEG predicts tDCS response) is **untestable** with the specific datasets listed unless a third, paired dataset is identified. If no paired dataset is found, the project scope is restricted to **Structural Validation Only** via a Constitution Amendment (Phase 5).
 
-## Methodological Rigor
+## Statistical Methodology
 
-### Statistical Approach
-1. **Feature Extraction**:
- - **Spectral Power**: Welch's method for Delta (1-4Hz), Theta (4-8Hz), Alpha (8-13Hz), Beta (13-30Hz), Gamma (30-45Hz).
- - **Connectivity**: Phase Locking Value (PLV) and weighted Phase Lag Index (wPLI).
- - **Preprocessing**: Band-pass 1–45 Hz (assuming 1 Hz lower bound per FR-003 typo), Common Average Reference (CAR), bad channel rejection via z-score (>3 SD).
- - **Data State Detection**: Check if input data is already pre-processed. If so, skip filtering/re-referencing to avoid artifacts.
+### Primary Mode (If Paired Data Found)
+1.  **Preprocessing**: Band-pass filter (1–45 Hz), common average re-reference, bad channel rejection (z-score).
+2.  **Feature Extraction**:
+    *   Spectral Power: Delta, Theta, Alpha, Beta, Gamma (Welch's method).
+    *   Connectivity: Phase Locking Value (PLV), weighted Phase Lag Index (wPLI).
+3.  **Dimensionality Reduction**: Apply PCA to reduce feature space. The number of components is determined by the 'elbow method' on the scree plot, capped at `min(N-1, 50)`.
+4.  **Modeling**: Ridge Regression with 5-fold cross-validation and nested hyperparameter tuning (alpha selection).
+5.  **Positive Control**: Inject a known synthetic signal into a subset of EEG features and the target variable to verify the model can recover R² > 0 and p < 0.05. This validates the statistical engine's ability to detect signal.
+6.  **Validation**:
+    *   Permutation testing to establish null distribution.
+    *   False Discovery Rate (FDR) correction (Benjamini-Hochberg) for multiple comparisons.
+    *   Sensitivity analysis on p-value and R² thresholds.
 
-2. **Dimensionality Reduction**:
- - Apply PCA or Variance Thresholding to reduce the number of predictors to a manageable subset (approx. a small number of features) before modeling to mitigate the "curse of dimensionality" and overfitting.
+### Fallback Mode (Unpaired Data - Structural Validation Only)
+1.  **Data Generation**:
+    *   **Decoupled Target**: Generate synthetic tDCS response variable (Gaussian noise, uncorrelated with EEG).
+    *   **Correlated Target (Positive Control)**: Generate a separate synthetic dataset where the target is a known linear function of a subset of EEG features.
+2.  **Modeling**: Fit Ridge Regression on both datasets.
+3.  **Validation**:
+    *   **Decoupling Check**: Verify R² ≈ 0.0 (±0.05) for the decoupled dataset to confirm decoupling (SC-002-FB).
+    *   **Positive Control**: Verify R² > 0 and p < 0.05 for the correlated dataset to validate the engine's ability to detect signal.
+    *   **No statistical inferences** (p-values, R² significance) are reported for the primary hypothesis.
+    *   **Output**: Flagged as "Structural Validation Only".
 
-3. **Modeling**:
- - **Algorithm**: Ridge Regression (L2 regularization) to handle multicollinearity.
- - **Validation**: 5-fold Cross-Validation.
- - *Outer Loop*: Evaluation (1,000 permutations).
- - *Inner Loop*: Hyperparameter tuning (100 permutations to ensure <6h runtime).
- - **Significance**: Permutation testing to establish a null distribution for R².
+## Power Analysis & Sample Size
+*   **Method**: Pre-study power analysis based on available N (from PhysioNet/OpenNeuro) and expected variance.
+*   **Limitation**: The study is observational and exploratory. Sample size is determined by available public data.
+* **Gate**: If N < required for [deferred] power to detect the expected effect size (Cohen's d = 0.5), the study will explicitly report this limitation and frame results as **Exploratory** only. This methodology is implemented in Task 0.6 of the plan.
 
-4. **Multiple Comparison Correction**:
- - **FDR**: Benjamini-Hochberg procedure applied to p-values of model coefficients.
+## Statistical Rigor & Constraints
 
-5. **Sensitivity Analysis (FR-007)**:
- - Sweep significance thresholds (p:, 0.05, 0.1) and R² thresholds (0.2, 0.3, 0.4).
- - **Justified Stability Rule**: The primary finding is "Justified" only if significance holds in **at least 2 out of 3** tested p-thresholds.
- - **Reporting**: Explicitly report the threshold range where significance is lost.
-
-6. **Power Analysis**:
- - Calculate Minimum Detectable Effect Size (MDES) for N=109, alpha=0.05, and the number of predictors.
- - If power < 0.80 for the expected effect size, this limitation is explicitly reported in the final output, and non-significant results are qualified.
-
-### Computational Feasibility (CPU-Only)
-- **Memory**: Data will be loaded in chunks. If the full dataset exceeds available system memory, epochs will be subsampled to maintain memory safety.
-- **Runtime**: All operations (filtering, FFT, regression) are CPU-tractable.
- - **Optimization**: Inner CV loop permutations reduced to 100 to ensure total runtime ≤ 6 hours on 2 CPU cores.
- - **No GPU**: No CUDA dependencies. `torch` (if used for any auxiliary tasks) will be CPU-only; primary stack is `mne` + `scikit-learn`.
-
-## Assumptions & Risks
-
-- **Assumption**: No verified dataset contains paired EEG and tDCS motor scores. The system defaults to Fallback Mode.
-- **Assumption**: The PhysioNet parquet file is pre-processed. The pipeline detects this and skips redundant steps.
-- **Risk**: The OpenNeuro dataset cited is structural/fMRI and lacks behavioral scores.
- - **Mitigation**: Explicitly excluded from Primary Mode. System defaults to Fallback Mode.
-- **Risk**: Overfitting due to high dimensionality.
- - **Mitigation**: Dimensionality reduction (PCA) applied before modeling.
-- **Risk**: Runtime > 6 hours.
- - **Mitigation**: Reduced permutations in inner CV loop; feature subsampling.
-- **Risk**: Spec Typos (FR-003 "low-frequency", SC-003 "-hour").
- - **Mitigation**: Plan assumes 1 Hz and 6 hours respectively. A kickback to the spec author is recommended.
+*   **Multiple Comparisons**: FDR correction (Benjamini-Hochberg) applied to all feature-level p-values (FR-006).
+*   **Causal Inference**: Claims are strictly associational. No causal claims are made regarding tDCS efficacy based on EEG.
+*   **Collinearity**: Spectral bands are not independent. Independent effects will be reported with a caveat regarding collinearity.
+*   **Compute Constraints**: All methods selected (Ridge, Welch's, PLV) are CPU-tractable. No GPU required. Data will be subsampled if >7 GB RAM.

@@ -1,72 +1,54 @@
 # Data Model: Neural Oscillations as a Biomarker for Predicting Response to Transcranial Direct Current Stimulation
 
-## Overview
+## Entities
 
-This document defines the data structures used throughout the pipeline, ensuring compatibility between ingestion, preprocessing, feature extraction, and modeling stages. The model supports both **Primary Mode** (real paired data) and **Fallback Mode** (synthetic targets).
+### 1. EEG Epoch
+Represents a continuous window of EEG data.
+*   **subject_id**: Unique identifier for the participant.
+*   **condition**: Resting-state or Task.
+*   **channels**: List of channel names (e.g., C3, C4).
+*   **sampling_rate**: Float (Hz).
+*   **data**: 2D array (channels × timepoints).
+*   **metadata**: Dictionary containing filter settings, reference type, and bad channel flags.
 
-## Core Entities
-
-### 1. Raw EEG Recordings
-Represents the raw input data from PhysioNet.
--   **Format**: Parquet (converted to MNE `Raw` objects in memory).
--   **Schema**:
-    -   `subject_id`: String (Unique identifier).
-    -   `channel`: String (e.g., "C3", "C4", "Cz").
-    -   `time`: Float64 (Timestamp in seconds).
-    -   `voltage`: Float64 (Microvolts).
-    -   `condition`: String (e.g., "rest", "move", "imagery").
-
-### 2. Preprocessed EEG Epochs
-Derived data after filtering and re-referencing.
--   **Format**: MNE `Epochs` object (serialized to `.fif` or kept in memory for small batches).
--   **Schema**:
-    -   `subject_id`: String.
-    -   `epoch_id`: Integer.
-    -   `time`: Float64 (Relative to event onset, e.g., -1.0 to 1.0s).
-    -   `channel`: String.
-    -   `voltage`: Float64 (Filtered, re-referenced).
-    -   `bad_channel_flag`: Boolean (True if channel was rejected).
+### 2. tDCS Response
+Represents the behavioral outcome for a subject.
+*   **subject_id**: Unique identifier (must match EEG).
+*   **pre_score**: Float (Baseline motor task score).
+*   **post_score**: Float (Post-tDCS motor task score).
+*   **response_pct**: Float (Percentage change: `(post - pre) / pre * 100`).
+*   **mode**: String (`"Primary"` or `"Fallback"`).
 
 ### 3. Feature Vector
-Aggregated metrics per subject.
--   **Format**: Pandas DataFrame (Row = Subject, Columns = Features).
--   **Schema**:
-    -   `subject_id`: String.
-    -   `mode`: Enum (`primary`, `fallback`).
-    -   `power_delta`: Float64.
-    -   `power_theta`: Float64.
-    -   `power_alpha`: Float64.
-    -   `power_beta`: Float64.
-    -   `power_gamma`: Float64.
-    -   `plv_alpha`: Float64 (Average PLV across selected channels).
-    -   `wpli_beta`: Float64 (Average wPLI across selected channels).
-    -   `tDCS_response`: Float64 (Percentage change in motor score).
-        -   *Primary Mode*: Real value from dataset.
-        -   *Fallback Mode*: Synthetic value (mean=0, noise=0.5, decoupled).
+Aggregated metrics for one subject.
+*   **subject_id**: Unique identifier.
+*   **power_features**: Dictionary mapping band (delta, theta, alpha, beta, gamma) to power values.
+*   **connectivity_features**: Dictionary mapping channel pairs to PLV/wPLI values.
+*   **mode**: String (`"Primary"` or `"Fallback"`).
 
 ### 4. Model Output
-Results from the regression and validation steps.
--   **Format**: JSON / YAML.
--   **Schema**:
-    -   `run_id`: String (UUID).
-    -   `mode`: Enum (`primary`, `fallback`).
-    -   `adjusted_r2`: Float64.
-    -   `permutation_p_value`: Float64.
-    -   `coefficients`: Dictionary (Feature name -> Weight).
-    -   `fdr_corrected_p_values`: Dictionary (Feature name -> Adjusted p-value).
-    -   `sensitivity_sweep`: List of objects (threshold, stability_metric).
-    -   `flags`: List of Strings (e.g., "fallback_mode_active", "primary_question_abandoned").
+Results of the regression analysis.
+*   **coefficients**: Dictionary mapping features to coefficients.
+*   **r_squared**: Float (Adjusted R²).
+*   **p_values**: Dictionary mapping features to uncorrected p-values.
+*   **fdr_p_values**: Dictionary mapping features to FDR-corrected p-values (Benjamini-Hochberg).
+*   **is_valid_inference**: Boolean (False if in Fallback Mode).
+*   **permutation_p_value**: Float (Significance of the model vs. null).
+*   **positive_control_r2**: Float (R² from the positive control step, if applicable).
+*   **stability_variance**: Float (Variance of binary significance outcome across sensitivity sweep).
+*   **power_analysis_flag**: String (`"Underpowered"`, `"Adequate"`, `"N/A"`).
 
 ## Data Flow
 
-1.  **Ingestion**: Raw Parquet -> `subject_id`, `channel`, `time`, `voltage`.
-2.  **Preprocessing**: Raw -> Filtered (1-45Hz) -> Re-referenced (CAR) -> Epochs.
-3.  **Feature Extraction**: Epochs -> Spectral Power (Welch) + Connectivity (PLV/wPLI) -> Feature Vector.
-4.  **Modeling**: Feature Vector -> Ridge Regression -> Model Output.
-5.  **Validation**: Model Output -> Permutation Test + FDR + Sensitivity Analysis -> Final Report.
+1.  **Raw Data** (PhysioNet/OpenNeuro) → `data/raw/`
+2.  **Preprocessing** → `data/processed/epochs.fif` (MNE format)
+3.  **Feature Extraction** → `data/processed/features.parquet`
+4.  **Modeling** → `data/processed/model_results.json`
+5.  **Validation** → `data/reports/sensitivity_analysis.csv`
 
-## Memory Management Strategy
+## Constraints
 
--   **Subsampling**: If the number of epochs per subject exceeds a threshold (configurable, default 50), random epochs are dropped to fit within 7 GB RAM.
--   **Batching**: Permutation testing is executed in batches to avoid memory spikes.
--   **Garbage Collection**: Explicit `del` and `gc.collect()` calls after each major stage (Preprocessing, Feature Extraction).
+*   **RAM Limit**: Feature matrices must be stored as `float32` to minimize memory footprint.
+*   **Data Integrity**: Raw data files must not be modified. All transformations create new files.
+*   **Mode Flag**: Every output artifact must explicitly state the mode (`Primary` or `Fallback`).
+*   **Feature Constraint**: Connectivity pairs limited to top 50 by variance to prevent p >> n.

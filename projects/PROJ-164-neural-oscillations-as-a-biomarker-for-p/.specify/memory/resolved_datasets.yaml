@@ -1,26 +1,26 @@
-resolved_at: '2026-07-04T02:41:30.935480+00:00'
+resolved_at: '2026-07-04T10:16:28.778466+00:00'
 datasets:
 - intent: 10.1234/example
   status: unresolved
   candidates: []
   candidates_tried:
-  - url: https://figshare.com/articles/figure/Call_09060973758_University_of_Ibadan_2026_2027_Post-Utme_Form_Part-time_Form_Is_On_sales_Now_09060973758_To_apply_call_Dr_Mrs_Rita_09060973758_for_further_assistance/32898113
+  - url: https://figshare.com/articles/dataset/Nursing_Form_2026_-2027_College_of_Nursing_Sciences_Waterside_Onitsha_Anambra_State_Is_Open_Call_O7O-468-O5833_Have_begun_the_admission_exercise_O7O46805833_07046805833_Prospective_candidates_are_encouraged_to_apply_early_to_avoid_the_last-/32899322
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/media/Call_09060973758_University_of_Calabar_2026_2027_Post-Utme_Form_Part-time_Form_Is_On_sales_Now_09060973758_To_apply_call_Dr_Mrs_Rita_09060973758_for_further_assistance/32898110
+  - url: https://figshare.com/articles/poster/Nursing_Form_2026_-2027_College_of_Nursing_Sciences_Iyi-Enu_Anambra_State_Is_Open_Call_O7O-468-O5833_Have_begun_the_admission_exercise_O7O46805833_07046805833_Prospective_candidates_are_encouraged_to_apply_early_to_avoid_the_last-minute_rus/32899313
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/figure/Call_09060973758_University_of_Benin_2026_2027_Post-Utme_Form_Part-time_Form_Is_On_sales_Now_09060973758_To_apply_call_Dr_Mrs_Rita_09060973758_for_further_assistance/32898104
+  - url: https://figshare.com/articles/poster/Nursing_Form_2026_-2027_College_of_Nursing_Sciences_Ihiala_Anambra_State_Is_Open_Call_O7O-468-O5833_Have_begun_the_admission_exercise_O7O46805833_07046805833_Prospective_candidates_are_encouraged_to_apply_early_to_avoid_the_last-minute_rush/32899310
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/food_security/32898101
+  - url: https://figshare.com/articles/dataset/Nursing_Form_2026_-2027_College_of_Nursing_Sciences_Adazi-Nnukwu_Anambra_State_Is_Open_Call_O7O-468-O5833_Have_begun_the_admission_exercise_O7O46805833_07046805833_Prospective_candidates_are_encouraged_to_apply_early_to_avoid_the_last-minut/32899307
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/media/Call_09060973758_University_of_Agriculture_Makurdi_2026_2027_Post-Utme_Form_Part-time_Form_Is_On_sales_Now_09060973758_To_apply_call_Dr_Mrs_Rita_09060973758_for_further_assistance/32898092
+  - url: https://figshare.com/articles/poster/Nursing_Form_2026_-2027_College_of_Nursing_Sciences_Eket_Akwa_Ibom_State_Is_Open_Call_O7O-468-O5833_Have_begun_the_admission_exercise_O7O46805833_07046805833_Prospective_candidates_are_encouraged_to_apply_early_to_avoid_the_last-minute_rush/32899301
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -69,23 +69,23 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://figshare.com/articles/figure/Call_09060973758_University_of_Ibadan_2026_2027_Post-Utme_Form_Part-time_Form_Is_On_sales_Now_09060973758_To_apply_call_Dr_Mrs_Rita_09060973758_for_further_assistance/32898113
+  - url: https://figshare.com/articles/dataset/IJHCI_Data/32649324
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/media/Call_09060973758_University_of_Calabar_2026_2027_Post-Utme_Form_Part-time_Form_Is_On_sales_Now_09060973758_To_apply_call_Dr_Mrs_Rita_09060973758_for_further_assistance/32898110
+  - url: https://figshare.com/articles/dataset/Nursing_Form_2026_-2027_College_of_Nursing_Sciences_Waterside_Onitsha_Anambra_State_Is_Open_Call_O7O-468-O5833_Have_begun_the_admission_exercise_O7O46805833_07046805833_Prospective_candidates_are_encouraged_to_apply_early_to_avoid_the_last-/32899322
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/figure/Call_09060973758_University_of_Benin_2026_2027_Post-Utme_Form_Part-time_Form_Is_On_sales_Now_09060973758_To_apply_call_Dr_Mrs_Rita_09060973758_for_further_assistance/32898104
+  - url: https://figshare.com/articles/poster/Nursing_Form_2026_-2027_College_of_Nursing_Sciences_Iyi-Enu_Anambra_State_Is_Open_Call_O7O-468-O5833_Have_begun_the_admission_exercise_O7O46805833_07046805833_Prospective_candidates_are_encouraged_to_apply_early_to_avoid_the_last-minute_rus/32899313
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/food_security/32898101
+  - url: https://figshare.com/articles/poster/Nursing_Form_2026_-2027_College_of_Nursing_Sciences_Ihiala_Anambra_State_Is_Open_Call_O7O-468-O5833_Have_begun_the_admission_exercise_O7O46805833_07046805833_Prospective_candidates_are_encouraged_to_apply_early_to_avoid_the_last-minute_rush/32899310
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/media/Call_09060973758_University_of_Agriculture_Makurdi_2026_2027_Post-Utme_Form_Part-time_Form_Is_On_sales_Now_09060973758_To_apply_call_Dr_Mrs_Rita_09060973758_for_further_assistance/32898092
+  - url: https://figshare.com/articles/dataset/Nursing_Form_2026_-2027_College_of_Nursing_Sciences_Adazi-Nnukwu_Anambra_State_Is_Open_Call_O7O-468-O5833_Have_begun_the_admission_exercise_O7O46805833_07046805833_Prospective_candidates_are_encouraged_to_apply_early_to_avoid_the_last-minut/32899307
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -109,23 +109,23 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://osf.io/2pn7f/
+  - url: https://osf.io/ap7ws/
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://publica.fraunhofer.de/entities/publication/21c3e3c7-3d8a-4e2d-8cbe-b6e35ae43e16
+  - url: https://air.unimi.it/handle/2434/155486
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://infoscience.epfl.ch/entities/publication/86d08871-b817-41c0-9a5b-ee6480acb1f0
+  - url: https://zenodo.org/records/21188874
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://osf.io/r7s9b/
+  - url: https://zenodo.org/records/21188874
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20790145
+  - url: https://zenodo.org/records/21188819
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -170,23 +170,23 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://figshare.com/articles/figure/Call_09060973758_University_of_Ibadan_2026_2027_Post-Utme_Form_Part-time_Form_Is_On_sales_Now_09060973758_To_apply_call_Dr_Mrs_Rita_09060973758_for_further_assistance/32898113
+  - url: https://figshare.com/articles/dataset/IJHCI_Data/32649324
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/media/Call_09060973758_University_of_Calabar_2026_2027_Post-Utme_Form_Part-time_Form_Is_On_sales_Now_09060973758_To_apply_call_Dr_Mrs_Rita_09060973758_for_further_assistance/32898110
+  - url: https://figshare.com/articles/dataset/Nursing_Form_2026_-2027_College_of_Nursing_Sciences_Waterside_Onitsha_Anambra_State_Is_Open_Call_O7O-468-O5833_Have_begun_the_admission_exercise_O7O46805833_07046805833_Prospective_candidates_are_encouraged_to_apply_early_to_avoid_the_last-/32899322
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/figure/Call_09060973758_University_of_Benin_2026_2027_Post-Utme_Form_Part-time_Form_Is_On_sales_Now_09060973758_To_apply_call_Dr_Mrs_Rita_09060973758_for_further_assistance/32898104
+  - url: https://figshare.com/articles/poster/Nursing_Form_2026_-2027_College_of_Nursing_Sciences_Iyi-Enu_Anambra_State_Is_Open_Call_O7O-468-O5833_Have_begun_the_admission_exercise_O7O46805833_07046805833_Prospective_candidates_are_encouraged_to_apply_early_to_avoid_the_last-minute_rus/32899313
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/food_security/32898101
+  - url: https://figshare.com/articles/poster/Nursing_Form_2026_-2027_College_of_Nursing_Sciences_Ihiala_Anambra_State_Is_Open_Call_O7O-468-O5833_Have_begun_the_admission_exercise_O7O46805833_07046805833_Prospective_candidates_are_encouraged_to_apply_early_to_avoid_the_last-minute_rush/32899310
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/media/Call_09060973758_University_of_Agriculture_Makurdi_2026_2027_Post-Utme_Form_Part-time_Form_Is_On_sales_Now_09060973758_To_apply_call_Dr_Mrs_Rita_09060973758_for_further_assistance/32898092
+  - url: https://figshare.com/articles/dataset/Nursing_Form_2026_-2027_College_of_Nursing_Sciences_Adazi-Nnukwu_Anambra_State_Is_Open_Call_O7O-468-O5833_Have_begun_the_admission_exercise_O7O46805833_07046805833_Prospective_candidates_are_encouraged_to_apply_early_to_avoid_the_last-minut/32899307
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -210,26 +210,26 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21188874
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21188874
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21184918
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21184918
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
   - url: https://www.researchgate.net/doi/10.13140/RG.2.2.28439.94881
     source: datacite
     status: wrong_format
     reason: HTTP 403
-  - url: https://zenodo.org/records/21150322
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21150322
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21149392
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21149392
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
 - intent: OpenNeuro
   status: verified
   candidates:
@@ -256,23 +256,23 @@ datasets:
     source: huggingface
     status: verified
     format: json
-  - url: https://figshare.com/articles/figure/Call_09060973758_University_of_Ilorin_2026_2027_Post-Utme_Form_Part-time_Form_Is_On_sales_Now_09060973758_To_apply_call_Dr_Mrs_Rita_09060973758_for_further_assistance/32898119
+  - url: https://figshare.com/articles/dataset/Nursing_Form_2026_-2027_College_of_Nursing_Sciences_NAUTH_Nnewi_Anambra_State_Is_Open_Call_O7O-468-O5833_Have_begun_the_admission_exercise_O7O46805833_07046805833_Prospective_candidates_are_encouraged_to_apply_early_to_avoid_the_last-minute/32899325
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/media/Call_08132728112_Department_of_Nursing_Sciences_University_of_Nigeria_Enugu_Campus_Admission_Form_2026_2027_Post_Utme_Application_Is_Out_CALL_08132728112_Dr_Mrs_Sarah_for_admission_process_into_the_school_/32898080
+  - url: https://figshare.com/articles/dataset/IJHCI_Data/32649324
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/figure/Call_09060973758_University_of_Ibadan_2026_2027_Post-Utme_Form_Part-time_Form_Is_On_sales_Now_09060973758_To_apply_call_Dr_Mrs_Rita_09060973758_for_further_assistance/32898113
+  - url: https://figshare.com/articles/dataset/Nursing_Form_2026_-2027_College_of_Nursing_Sciences_Waterside_Onitsha_Anambra_State_Is_Open_Call_O7O-468-O5833_Have_begun_the_admission_exercise_O7O46805833_07046805833_Prospective_candidates_are_encouraged_to_apply_early_to_avoid_the_last-/32899322
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/media/Call_09060973758_University_of_Calabar_2026_2027_Post-Utme_Form_Part-time_Form_Is_On_sales_Now_09060973758_To_apply_call_Dr_Mrs_Rita_09060973758_for_further_assistance/32898110
+  - url: https://figshare.com/articles/poster/Nursing_Form_2026_-2027_College_of_Nursing_Sciences_Iyi-Enu_Anambra_State_Is_Open_Call_O7O-468-O5833_Have_begun_the_admission_exercise_O7O46805833_07046805833_Prospective_candidates_are_encouraged_to_apply_early_to_avoid_the_last-minute_rus/32899313
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/figure/Call_09060973758_University_of_Benin_2026_2027_Post-Utme_Form_Part-time_Form_Is_On_sales_Now_09060973758_To_apply_call_Dr_Mrs_Rita_09060973758_for_further_assistance/32898104
+  - url: https://figshare.com/articles/poster/Nursing_Form_2026_-2027_College_of_Nursing_Sciences_Ihiala_Anambra_State_Is_Open_Call_O7O-468-O5833_Have_begun_the_admission_exercise_O7O46805833_07046805833_Prospective_candidates_are_encouraged_to_apply_early_to_avoid_the_last-minute_rush/32899310
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -296,23 +296,23 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21161101
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21161101
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21188776
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21188776
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
   - url: https://openneuro.org/datasets/ds007626/versions/1.0.0
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21161101
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21161101
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21169036
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21169036
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -357,31 +357,31 @@ datasets:
     source: huggingface
     status: verified
     format: csv
-  - url: https://figshare.com/articles/figure/Call_09060973758_University_of_Ilorin_2026_2027_Post-Utme_Form_Part-time_Form_Is_On_sales_Now_09060973758_To_apply_call_Dr_Mrs_Rita_09060973758_for_further_assistance/32898119
+  - url: https://figshare.com/articles/dataset/Nursing_Form_2026_-2027_College_of_Nursing_Sciences_NAUTH_Nnewi_Anambra_State_Is_Open_Call_O7O-468-O5833_Have_begun_the_admission_exercise_O7O46805833_07046805833_Prospective_candidates_are_encouraged_to_apply_early_to_avoid_the_last-minute/32899325
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/media/Call_08132728112_Department_of_Nursing_Sciences_University_of_Nigeria_Enugu_Campus_Admission_Form_2026_2027_Post_Utme_Application_Is_Out_CALL_08132728112_Dr_Mrs_Sarah_for_admission_process_into_the_school_/32898080
+  - url: https://figshare.com/articles/dataset/IJHCI_Data/32649324
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/figure/Call_09060973758_University_of_Ibadan_2026_2027_Post-Utme_Form_Part-time_Form_Is_On_sales_Now_09060973758_To_apply_call_Dr_Mrs_Rita_09060973758_for_further_assistance/32898113
+  - url: https://figshare.com/articles/dataset/Nursing_Form_2026_-2027_College_of_Nursing_Sciences_Waterside_Onitsha_Anambra_State_Is_Open_Call_O7O-468-O5833_Have_begun_the_admission_exercise_O7O46805833_07046805833_Prospective_candidates_are_encouraged_to_apply_early_to_avoid_the_last-/32899322
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/media/Call_09060973758_University_of_Calabar_2026_2027_Post-Utme_Form_Part-time_Form_Is_On_sales_Now_09060973758_To_apply_call_Dr_Mrs_Rita_09060973758_for_further_assistance/32898110
+  - url: https://figshare.com/articles/poster/Nursing_Form_2026_-2027_College_of_Nursing_Sciences_Iyi-Enu_Anambra_State_Is_Open_Call_O7O-468-O5833_Have_begun_the_admission_exercise_O7O46805833_07046805833_Prospective_candidates_are_encouraged_to_apply_early_to_avoid_the_last-minute_rus/32899313
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/figure/Call_09060973758_University_of_Benin_2026_2027_Post-Utme_Form_Part-time_Form_Is_On_sales_Now_09060973758_To_apply_call_Dr_Mrs_Rita_09060973758_for_further_assistance/32898104
+  - url: https://figshare.com/articles/poster/Nursing_Form_2026_-2027_College_of_Nursing_Sciences_Ihiala_Anambra_State_Is_Open_Call_O7O-468-O5833_Have_begun_the_admission_exercise_O7O46805833_07046805833_Prospective_candidates_are_encouraged_to_apply_early_to_avoid_the_last-minute_rush/32899310
     source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/16413212
-    source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/15525595
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16413212
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -393,7 +393,7 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/3799190
+  - url: https://zenodo.org/records/19670003
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -431,23 +431,23 @@ datasets:
     source: huggingface
     status: wrong_format
     reason: HTTP 401
-  - url: https://figshare.com/articles/figure/Call_09060973758_University_of_Jos_2026_2027_Post-Utme_Form_Part-time_Form_Is_On_sales_Now_09060973758_To_apply_call_Dr_Mrs_Rita_09060973758_for_further_assistance/32898122
+  - url: https://figshare.com/articles/dataset/Nursing_Form_2026_-2027_College_of_Nursing_Sciences_NAUTH_Nnewi_Anambra_State_Is_Open_Call_O7O-468-O5833_Have_begun_the_admission_exercise_O7O46805833_07046805833_Prospective_candidates_are_encouraged_to_apply_early_to_avoid_the_last-minute/32899325
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/figure/Call_08132728112_College_of_Nursing_Sciences_Federal_Neuropsychiatric_Hospital_Enugu_Admission_Form_2026_2027_Post_Utme_Application_Is_Out_CALL_08132728112_Dr_Mrs_Sarah_for_admission_process_into_the_school_/32898125
+  - url: https://figshare.com/articles/dataset/IJHCI_Data/32649324
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/figure/Call_09060973758_University_of_Ilorin_2026_2027_Post-Utme_Form_Part-time_Form_Is_On_sales_Now_09060973758_To_apply_call_Dr_Mrs_Rita_09060973758_for_further_assistance/32898119
+  - url: https://figshare.com/articles/dataset/Nursing_Form_2026_-2027_College_of_Nursing_Sciences_Waterside_Onitsha_Anambra_State_Is_Open_Call_O7O-468-O5833_Have_begun_the_admission_exercise_O7O46805833_07046805833_Prospective_candidates_are_encouraged_to_apply_early_to_avoid_the_last-/32899322
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/media/Call_08132728112_Department_of_Nursing_Sciences_University_of_Nigeria_Enugu_Campus_Admission_Form_2026_2027_Post_Utme_Application_Is_Out_CALL_08132728112_Dr_Mrs_Sarah_for_admission_process_into_the_school_/32898080
+  - url: https://figshare.com/articles/poster/Nursing_Form_2026_-2027_College_of_Nursing_Sciences_Iyi-Enu_Anambra_State_Is_Open_Call_O7O-468-O5833_Have_begun_the_admission_exercise_O7O46805833_07046805833_Prospective_candidates_are_encouraged_to_apply_early_to_avoid_the_last-minute_rus/32899313
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/figure/Call_09060973758_University_of_Ibadan_2026_2027_Post-Utme_Form_Part-time_Form_Is_On_sales_Now_09060973758_To_apply_call_Dr_Mrs_Rita_09060973758_for_further_assistance/32898113
+  - url: https://figshare.com/articles/poster/Nursing_Form_2026_-2027_College_of_Nursing_Sciences_Ihiala_Anambra_State_Is_Open_Call_O7O-468-O5833_Have_begun_the_admission_exercise_O7O46805833_07046805833_Prospective_candidates_are_encouraged_to_apply_early_to_avoid_the_last-minute_rush/32899310
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -459,11 +459,11 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: HTTP 403
-  - url: https://zenodo.org/records/10405496
+  - url: https://zenodo.org/records/10534089
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/10534089
+  - url: https://zenodo.org/records/10405496
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -471,23 +471,23 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://publica.fraunhofer.de/entities/publication/269955fb-dd07-4266-b2d4-4436656c1ace
+  - url: https://air.unimi.it/handle/2434/169980
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21183681
+  - url: https://air.iuav.it/handle/11578/283196
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21183681
+  - url: https://aisberg.unibg.it//handle/10446/77217
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://osf.io/62ah3/
+  - url: https://zenodo.org/records/21185955
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21183502
+  - url: https://zenodo.org/records/21185955
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content

@@ -40,7 +40,7 @@ The system must compute spectral power (delta, theta, alpha, beta, gamma) and co
 
 ### User Story 3 - Validation, Sensitivity Analysis, and Reporting (Priority: P3)
 
-The system must validate the model using permutation testing (1,000 permutations), apply multiplicity correction for multiple EEG features, and perform sensitivity analysis on significance thresholds to ensure robustness. In **Fallback Mode**, these tests verify pipeline stability (execution metrics), not hypothesis validity.
+The system must validate the model using permutation testing (DOI:10.1234/example)., apply multiplicity correction for multiple EEG features, and perform sensitivity analysis on significance thresholds to ensure robustness. In **Fallback Mode**, these tests verify pipeline stability (execution metrics), not hypothesis validity.
 
 **Why this priority**: This ensures the findings are methodologically sound (controlling for false positives) and defensible (testing stability of thresholds), which is required for publication and clinical translation.
 
@@ -48,7 +48,7 @@ The system must validate the model using permutation testing (1,000 permutations
 
 **Acceptance Scenarios**:
 
-1. **Given** the fitted regression model in Primary Mode, **When** the validation module runs, **Then** it produces a sensitivity analysis table sweeping p-value thresholds {0.01, 0.05, 0.1} and variance explained thresholds (R²) {0.2, 0.3, 0.4} and reports stability.
+1. **Given** the fitted regression model in Primary Mode, **When** the validation module runs, **Then** it produces a sensitivity analysis table sweeping p-value thresholds across conventional significance levels and variance explained thresholds (R²) {, 0.3, 0.4} and reports stability.
 2. **Given** the fitted regression model in Fallback Mode, **When** the validation module runs, **Then** it outputs pipeline execution metrics (runtime, memory usage) and explicitly suppresses any statistical inference metrics (p-values, R² significance) for the abandoned hypothesis.
 3. **Given** multiple feature tests, **When** the validation module runs, **Then** it applies False Discovery Rate (FDR) correction to the final model coefficients and reports the adjusted p-value.
 
@@ -65,9 +65,9 @@ The system must validate the model using permutation testing (1,000 permutations
 
 - **FR-001**: System MUST verify that the input datasets contain paired EEG recordings and tDCS outcome scores for the same subjects. If pairing is confirmed, the system MUST proceed in **Primary Mode**. If pairing is missing, the system MUST switch to **Fallback Mode** and generate synthetic paired data for structural validation only. In Fallback Mode, the system MUST explicitly state that the primary research question (predicting individual response) is ABANDONED (See US-1).
 - **FR-002**: In **Fallback Mode**, System MUST generate a synthetic tDCS response variable based on a configurable effect size parameter (defaulting to Cohen's d = 0.5, based on meta-analyses of tDCS motor learning) and randomized individual noise, ensuring the synthetic target is mathematically decoupled from the specific EEG features being tested to prevent circular validation. The system MUST explicitly flag all outputs from this mode as 'Structural Validation Only' and MUST NOT attempt to answer the primary research question regarding individual biomarkers, as the synthetic target lacks biological correlation (See US-1, US-2).
-- **FR-003**: System MUST band-pass filter EEG data between low-frequency and 45 Hz and re-reference to common average before feature extraction (See US-1).
+- **FR-003**: System MUST band-pass filter EEG data between low-frequency and high-frequency cutoffs. and re-reference to common average before feature extraction (See US-1).
 - **FR-004**: System MUST compute spectral power density for delta, theta, alpha, beta, and gamma bands using Welch's method (See US-2).
-- **FR-005**: System MUST fit a multivariate linear regression with L regularization (ridge) using 5-fold cross-validation and nested hyperparameter tuning (inner loop for alpha selection, outer loop for evaluation) to predict tDCS response percentage change. In **Fallback Mode**, this step is strictly for validating the regression pipeline and must not produce statistical inferences (See US-2).
+- **FR-005**: System MUST fit a multivariate linear regression with L regularization (ridge) using k-fold cross-validation and nested hyperparameter tuning (inner loop for alpha selection, outer loop for evaluation) to predict tDCS response percentage change. In **Fallback Mode**, this step is strictly for validating the regression pipeline and must not produce statistical inferences (See US-2).
 - **FR-006**: System MUST apply False Discovery Rate (FDR) correction to the p-values of the final multivariate model coefficients when testing multiple EEG features to control family-wise error (See US-3).
 - **FR-007**: System MUST perform sensitivity analysis sweeping the significance threshold (p) over a configurable set and the variance explained threshold (R²) over a configurable set. The system MUST define 'justified stability' as the primary finding (p < 0.05) holding across at least out of 3 tested thresholds, or report the specific threshold range where significance is lost (See US-3).
 
@@ -96,7 +96,7 @@ The system must validate the model using permutation testing (1,000 permutations
 
 Research Question: How can memory-efficient algorithms be developed for large-scale graph processing?
 Method: Comparative analysis of algorithmic complexity and resource utilization across distributed and single-node implementations.
-References: Smith et al. (2023), DOI:10.1234/example (See NFR-001).
+References: Smith et al. (), DOI:10.1234/example (See NFR-001).
 - **SC-004**: Threshold stability is measured against the variance of the binary significance outcome (0 or 1) across the sensitivity sweep {0.01, 0.05, 0.1}. Success is defined as variance ≤ 0.05 or no change in significance status (See US-3).
 
 ## Assumptions
@@ -104,7 +104,7 @@ References: Smith et al. (2023), DOI:10.1234/example (See NFR-001).
 - The OpenNeuro dataset contains tDCS motor scores and the PhysioNet dataset contains EEG data, but explicit pairing of these two datasets for the same subjects is rare; if pairing is missing, the system defaults to Fallback Mode for structural validation only, acknowledging that individual prediction is impossible in this mode and the primary research question is abandoned.
 - The PhysioNet EEG Motor Movement/Imagery Dataset provides sufficient resting-state baseline data if OpenNeuro EEG is unavailable for baseline comparison.
 - All required Python libraries (MNE, scikit-learn, numpy, pandas) are available in the GitHub Actions environment without requiring CUDA or GPU drivers.
-- The dataset size for the target cohort fits within the 7 GB RAM constraint after epoching and filtering; if not, subsampling of epochs will be applied.
+- The dataset size for the target cohort fits within the available RAM constraint after epoching and filtering.; if not, subsampling of epochs will be applied.
 - The tDCS response metric (percentage change) is normalized and does not require imputation for missing pre/post scores.
 - No external API calls are required during the analysis phase; all data is downloaded and processed locally within the runner.
 - Synthetic data generated in Fallback Mode uses randomized individual noise and a configurable effect size (default Cohen's d = 0.5) to ensure it does not validate the specific EEG-tDCS hypothesis.

@@ -48,7 +48,7 @@ properties:
     type: "array"
     items:
       type: "string"
-    description: "List of flags (e.g., 'fallback_mode_active', 'primary_question_abandoned')."
+    description: "List of flags (e.g., 'fallback_mode_active', 'primary_question_abandoned', 'underpowered')."
 required:
   - "run_id"
   - "mode"
