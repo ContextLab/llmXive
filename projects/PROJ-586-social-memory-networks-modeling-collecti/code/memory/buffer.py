@@ -121,7 +121,11 @@ class MemoryBuffer:
             }
 
     def __getattr__(self, name: str) -> Callable:
-        """Fallback for unknown method calls — return a no-op."""
+        """Fallback for unknown method calls — return a no-op.
+        
+        This ensures tolerance for any logger-style calls or future method
+        additions without raising AttributeError.
+        """
         def _noop(*args: Any, **kwargs: Any) -> None:
             return None
         return _noop

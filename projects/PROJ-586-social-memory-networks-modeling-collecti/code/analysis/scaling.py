@@ -1,10 +1,15 @@
 """
-Scaling analysis for User Story 3: Power-law fitting for metric trends vs. agent count.
+Scaling analysis for social memory networks.
 
-This module implements power-law fitting for specialization index and retrieval efficiency
-as a function of agent count (3, 5, 7 agents). It fits the model:
-    y = a * N^b
-where N is the number of agents, and returns the exponent b with confidence intervals.
+Implements power-law fitting for metric trends (specialization index, retrieval efficiency)
+versus agent count (3, 5, 7) as required by User Story 3.
+
+Per reviewer feedback (Geoffrey West), we test whether collective remembering fidelity
+scales sublinearly (N^0.85) like urban infrastructure, or follows a different law.
+
+NOTE: With only 3 data points (N=3,5,7), power-law fitting is statistically fragile.
+The implementation includes confidence intervals and explicitly notes this limitation
+in the generated report.
 """
 from __future__ import annotations
 
@@ -14,292 +19,318 @@ from typing import Any, Dict, List, Optional, Tuple
 
 import numpy as np
 import pandas as pd
+from scipy import stats
 
-# Import real metric computation functions from existing modules
+# Import existing metrics functions from sibling modules
 from metrics.specialization import compute_specialization_index
 from metrics.retrieval import compute_retrieval_efficiency
 
 
-def power_law(N: np.ndarray, a: float, b: float) -> np.ndarray:
-    """
-    Power-law model: y = a * N^b
-
-    Args:
-        N: Number of agents (independent variable)
-        a: Scaling coefficient
-        b: Scaling exponent
-
-    Returns:
-        Predicted metric values
-    """
-    return a * np.power(N, b)
+def power_law(x: np.ndarray, a: float, b: float) -> np.ndarray:
+    """Power-law function: y = a * x^b."""
+    return a * np.power(x, b)
 
 
 def fit_power_law(
-    N: np.ndarray,
-    y: np.ndarray,
-    p0: Optional[Tuple[float, float]] = None
-) -> Tuple[float, float]:
+    x: np.ndarray, y: np.ndarray, p0: Optional[Tuple[float, float]] = None
+) -> Tuple[float, float, Dict[str, Any]]:
     """
-    Fit a power-law model y = a * N^b to data using least squares.
-
+    Fit a power-law model y = a * x^b to data using non-linear least squares.
+    
     Args:
-        N: Number of agents (independent variable)
-        y: Metric values (dependent variable)
-        p0: Initial guess for (a, b). If None, uses (1.0, 0.0).
-
+        x: Independent variable (agent counts).
+        y: Dependent variable (metric values).
+        p0: Initial guess for (a, b). If None, uses heuristic defaults.
+        
     Returns:
-        Tuple (a, b) of fitted parameters
+        Tuple of (a, b, metadata_dict).
+        metadata_dict contains covariance, r_squared, and fit diagnostics.
     """
-    from scipy.optimize import curve_fit
-
+    if len(x) < 2:
+        raise ValueError("At least 2 data points required for fitting.")
+    
+    # Default initial guess: a=1, b=0.85 (sublinear, per West's urban scaling)
     if p0 is None:
-        p0 = (1.0, 0.0)
-
-    # Use log-log transformation for better numerical stability
-    # log(y) = log(a) + b * log(N)
-    log_N = np.log(N)
-    log_y = np.log(y)
-
-    # Linear regression in log-log space
-    coeffs = np.polyfit(log_N, log_y, 1)
-    b = coeffs[0]
-    log_a = coeffs[1]
-    a = np.exp(log_a)
-
-    return a, b
+        p0 = (1.0, 0.85)
+    
+    try:
+        from scipy.optimize import curve_fit
+    except ImportError:
+        raise ImportError("scipy is required for power-law fitting.")
+    
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        try:
+            popt, pcov = curve_fit(power_law, x, y, p0=p0, maxfev=5000)
+            a, b = popt
+            perr = np.sqrt(np.diag(pcov))
+        except RuntimeError as e:
+            # Fallback: log-log linear regression if non-linear fit fails
+            # This is valid for power laws: log(y) = log(a) + b*log(x)
+            log_x = np.log(x)
+            log_y = np.log(y)
+            slope, intercept, r_val, _, _ = stats.linregress(log_x, log_y)
+            a = np.exp(intercept)
+            b = slope
+            perr = (np.nan, np.nan)  # Uncertainty unknown in fallback
+    
+    # Calculate R-squared
+    y_pred = power_law(x, a, b)
+    ss_res = np.sum((y - y_pred) ** 2)
+    ss_tot = np.sum((y - np.mean(y)) ** 2)
+    r_squared = 1 - (ss_res / ss_tot) if ss_tot != 0 else 0.0
+    
+    metadata = {
+        "a": a,
+        "b": b,
+        "a_stderr": perr[0] if not np.isnan(perr[0]) else None,
+        "b_stderr": perr[1] if not np.isnan(perr[1]) else None,
+        "r_squared": r_squared,
+        "n_points": len(x),
+        "fit_method": "nonlinear" if 'popt' in locals() else "log-linear-fallback",
+    }
+    
+    return a, b, metadata
 
 
 def fit_power_law_with_ci(
-    N: np.ndarray,
-    y: np.ndarray,
-    n_boot: int = 1000,
-    alpha: float = 0.05
-) -> Dict[str, Any]:
+    x: np.ndarray, y: np.ndarray, n_boot: int = 1000, confidence: float = 0.95
+) -> Tuple[float, float, Tuple[float, float], Tuple[float, float], Dict[str, Any]]:
     """
-    Fit power-law model with bootstrap confidence intervals.
-
+    Fit power law with bootstrap confidence intervals for the exponent.
+    
     Args:
-        N: Number of agents (independent variable)
-        y: Metric values (dependent variable)
-        n_boot: Number of bootstrap iterations
-        alpha: Significance level for confidence intervals
-
+        x: Independent variable.
+        y: Dependent variable.
+        n_boot: Number of bootstrap resamples.
+        confidence: Confidence level (e.g., 0.95 for 95% CI).
+        
     Returns:
-        Dictionary with:
-            - 'a': fitted coefficient
-            - 'b': fitted exponent
-            - 'b_ci': (lower, upper) confidence interval for exponent
-            - 'r_squared': R^2 of the fit
+        (a, b, (a_lo, a_hi), (b_lo, b_hi), metadata)
     """
-    from scipy.optimize import curve_fit
-
-    # Initial fit
-    a, b = fit_power_law(N, y)
-
-    # Bootstrap for confidence intervals
-    b_samples = []
+    a, b, meta = fit_power_law(x, y)
+    
+    if len(x) < 3:
+        # Cannot compute meaningful CI with < 3 points
+        return a, b, (np.nan, np.nan), (np.nan, np.nan), meta
+    
+    boot_a = []
+    boot_b = []
+    
     for _ in range(n_boot):
         # Resample with replacement
-        indices = np.random.choice(len(N), size=len(N), replace=True)
-        N_boot = N[indices]
+        indices = np.random.choice(len(x), size=len(x), replace=True)
+        x_boot = x[indices]
         y_boot = y[indices]
-
+        
         try:
-            a_boot, b_boot = fit_power_law(N_boot, y_boot)
-            b_samples.append(b_boot)
+            a_boot, b_boot, _ = fit_power_law(x_boot, y_boot)
+            boot_a.append(a_boot)
+            boot_b.append(b_boot)
         except Exception:
             continue
-
-    if len(b_samples) == 0:
-        b_ci = (b, b)
-    else:
-        b_samples = np.array(b_samples)
-        lower = np.percentile(b_samples, 100 * alpha / 2)
-        upper = np.percentile(b_samples, 100 * (1 - alpha / 2))
-        b_ci = (lower, upper)
-
-    # Compute R^2
-    y_pred = power_law(N, a, b)
-    ss_res = np.sum((y - y_pred) ** 2)
-    ss_tot = np.sum((y - np.mean(y)) ** 2)
-    r_squared = 1 - (ss_res / ss_tot) if ss_tot > 0 else 0.0
-
-    return {
-        'a': a,
-        'b': b,
-        'b_ci': b_ci,
-        'r_squared': r_squared
-    }
+    
+    if len(boot_b) < 10:
+        # Not enough successful fits
+        return a, b, (np.nan, np.nan), (np.nan, np.nan), meta
+    
+    b_ci = np.percentile(boot_b, [(1 - confidence) / 2 * 100, (1 + confidence) / 2 * 100])
+    a_ci = np.percentile(boot_a, [(1 - confidence) / 2 * 100, (1 + confidence) / 2 * 100])
+    
+    meta["b_ci"] = (b_ci[0], b_ci[1])
+    meta["a_ci"] = (a_ci[0], a_ci[1])
+    
+    return a, b, tuple(a_ci), tuple(b_ci), meta
 
 
 def load_scaling_data(
-    data_path: str = "data/scaling_results.csv"
-) -> pd.DataFrame:
+    results_path: pathlib.Path,
+    agent_counts: List[int] = [3, 5, 7],
+) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, pd.DataFrame]:
     """
-    Load scaling experiment results from CSV.
-
-    Expected columns: agent_count, specialization_index, retrieval_efficiency
-
-    Args:
-        data_path: Path to CSV file with scaling results
-
+    Load and aggregate scaling data from experiment results CSV.
+    
+    Expects a CSV with columns: game_id, specialization_index, retrieval_efficiency, agent_count, context_condition
+    
     Returns:
-        DataFrame with scaling data
+        Tuple of (agent_counts_arr, spec_indices, retrieval_effs, full_df)
     """
-    path = pathlib.Path(data_path)
-    if not path.exists():
-        raise FileNotFoundError(f"Scaling data file not found: {data_path}")
-
-    df = pd.read_csv(path)
-
-    # Ensure required columns exist
-    required_cols = ['agent_count', 'specialization_index', 'retrieval_efficiency']
-    for col in required_cols:
-        if col not in df.columns:
-            raise ValueError(f"Missing required column: {col}")
-
-    return df
+    if not results_path.exists():
+        raise FileNotFoundError(f"Results file not found: {results_path}")
+    
+    df = pd.read_csv(results_path)
+    
+    # Filter for requested agent counts
+    df_filtered = df[df["agent_count"].isin(agent_counts)]
+    
+    if len(df_filtered) == 0:
+        raise ValueError(f"No data found for agent counts {agent_counts} in {results_path}")
+    
+    # Aggregate by agent count (mean and std)
+    summary = df_filtered.groupby("agent_count").agg(
+        {
+            "specialization_index": ["mean", "std"],
+            "retrieval_efficiency": ["mean", "std"],
+        }
+    ).reset_index()
+    
+    # Flatten column names
+    summary.columns = [
+        "agent_count",
+        "spec_mean",
+        "spec_std",
+        "retrieval_mean",
+        "retrieval_std",
+    ]
+    
+    # Sort by agent count
+    summary = summary.sort_values("agent_count")
+    
+    x = summary["agent_count"].values.astype(float)
+    y_spec = summary["spec_mean"].values
+    y_ret = summary["retrieval_mean"].values
+    
+    return x, y_spec, y_ret, summary
 
 
 def generate_scaling_plot(
-    data_path: str = "data/scaling_results.csv",
-    output_path: str = "results/scaling_plot.pdf",
-    note_on_3pts: bool = True
+    x: np.ndarray,
+    y_spec: np.ndarray,
+    y_ret: np.ndarray,
+    output_path: pathlib.Path,
+    title: str = "Scaling of Collective Remembering Metrics",
 ) -> Dict[str, Any]:
     """
-    Generate scaling plot with power-law fits and confidence intervals.
-
+    Generate scaling plot with fitted power-law curves.
+    
     Args:
-        data_path: Path to scaling results CSV
-        output_path: Path for output PDF plot
-        note_on_3pts: Whether to add note about 3-point limitation
-
+        x: Agent counts.
+        y_spec: Specialization index means.
+        y_ret: Retrieval efficiency means.
+        output_path: Path to save the PDF.
+        title: Plot title.
+        
     Returns:
-        Dictionary with fit results for each metric
+        Dictionary containing fit results for both metrics.
     """
-    import matplotlib
-    matplotlib.use('Agg')  # Non-interactive backend
-    import matplotlib.pyplot as plt
-
-    # Load data
-    df = load_scaling_data(data_path)
-
-    # Group by agent count and compute mean metrics
-    aggregated = df.groupby('agent_count').agg({
-        'specialization_index': 'mean',
-        'retrieval_efficiency': 'mean'
-    }).reset_index()
-
-    N = aggregated['agent_count'].values.astype(float)
-    spec_mean = aggregated['specialization_index'].values
-    ret_mean = aggregated['retrieval_efficiency'].values
-
+    try:
+        import matplotlib
+        matplotlib.use("Agg")  # Non-interactive backend
+        import matplotlib.pyplot as plt
+    except ImportError:
+        raise ImportError("matplotlib is required for plotting.")
+    
     # Fit power laws
-    spec_fit = fit_power_law_with_ci(N, spec_mean)
-    ret_fit = fit_power_law_with_ci(N, ret_mean)
-
-    # Create plot
+    a_spec, b_spec, _, b_spec_ci, meta_spec = fit_power_law_with_ci(x, y_spec)
+    a_ret, b_ret, _, b_ret_ci, meta_ret = fit_power_law_with_ci(x, y_ret)
+    
+    # Create figure
     fig, ax = plt.subplots(figsize=(10, 6))
-
-    # Plot specialization index
-    N_plot = np.linspace(N.min(), N.max(), 100)
-    ax.scatter(N, spec_mean, color='blue', label='Specialization Index (mean)', zorder=5)
-    ax.plot(N_plot, power_law(N_plot, spec_fit['a'], spec_fit['b']),
-            color='blue', linestyle='-', linewidth=2,
-            label=f'Specialization fit: y = {spec_fit["a"]:.3f} * N^{spec_fit["b"]:.3f}')
-
-    # Plot retrieval efficiency
-    ax.scatter(N, ret_mean, color='red', label='Retrieval Efficiency (mean)', zorder=5)
-    ax.plot(N_plot, power_law(N_plot, ret_fit['a'], ret_fit['b']),
-            color='red', linestyle='--', linewidth=2,
-            label=f'Retrieval fit: y = {ret_fit["a"]:.3f} * N^{ret_fit["b"]:.3f}')
-
-    # Add confidence interval shading for specialization
-    N_ci = np.linspace(N.min(), N.max(), 100)
-    spec_lower = power_law(N_ci, spec_fit['a'], spec_fit['b_ci'][0])
-    spec_upper = power_law(N_ci, spec_fit['a'], spec_fit['b_ci'][1])
-    ax.fill_between(N_ci, spec_lower, spec_upper, color='blue', alpha=0.2)
-
-    # Labels and legend
-    ax.set_xlabel('Number of Agents (N)', fontsize=12)
-    ax.set_ylabel('Metric Value', fontsize=12)
-    ax.set_title('Scaling of Collective Remembering Metrics with Agent Count', fontsize=14)
-    ax.legend(loc='best', fontsize=10)
+    
+    # Plot data points
+    ax.scatter(x, y_spec, color="blue", label="Specialization Index (Observed)", zorder=5)
+    ax.scatter(x, y_ret, color="red", label="Retrieval Efficiency (Observed)", zorder=5)
+    
+    # Generate smooth curve for fitting
+    x_smooth = np.linspace(min(x), max(x), 100)
+    y_spec_fit = power_law(x_smooth, a_spec, b_spec)
+    y_ret_fit = power_law(x_smooth, a_ret, b_ret)
+    
+    ax.plot(x_smooth, y_spec_fit, "b--", label=f"Spec Fit: y = {a_spec:.2f}x^{b_spec:.2f}", alpha=0.8)
+    ax.plot(x_smooth, y_ret_fit, "r--", label=f"Ret Fit: y = {a_ret:.2f}x^{b_ret:.2f}", alpha=0.8)
+    
+    # Add annotations
+    ax.set_xlabel("Number of Agents (N)")
+    ax.set_ylabel("Metric Value")
+    ax.set_title(title)
+    ax.legend(loc="best")
     ax.grid(True, alpha=0.3)
-
-    # Add note about 3-point limitation if requested
-    if note_on_3pts:
-        note_text = "Note: Only 3 data points (N=3,5,7). Power-law reliability is limited."
-        ax.text(0.5, 0.02, note_text, transform=ax.transAxes,
-                fontsize=9, ha='center', va='bottom',
-                bbox=dict(boxstyle='round', facecolor='wheat', alpha=0.5))
-
+    
+    # Add note about data point limitation
+    note_text = (
+        "NOTE: Power-law fitting with only 3 data points (N=3,5,7) is statistically fragile.\n"
+        f"Observed exponents: Spec={b_spec:.3f} (95% CI: {b_spec_ci[0]:.3f}-{b_spec_ci[1]:.3f}), "
+        f"Ret={b_ret:.3f} (95% CI: {b_ret_ci[0]:.3f}-{b_ret_ci[1]:.3f}).\n"
+        "Compare to sublinear urban scaling (N^0.85) per Geoffrey West."
+    )
+    fig.text(0.5, -0.05, note_text, ha="center", fontsize=9, style="italic")
+    
     plt.tight_layout()
-
-    # Ensure output directory exists
-    output_dir = pathlib.Path(output_path).parent
-    output_dir.mkdir(parents=True, exist_ok=True)
-
-    # Save plot
-    plt.savefig(output_path, dpi=150, bbox_inches='tight')
+    plt.savefig(output_path, dpi=150)
     plt.close()
-
+    
     return {
-        'specialization': spec_fit,
-        'retrieval': ret_fit,
-        'n_points': len(N),
-        'output_path': str(output_path)
+        "specialization": {"a": a_spec, "b": b_spec, "ci": b_spec_ci, "meta": meta_spec},
+        "retrieval": {"a": a_ret, "b": b_ret, "ci": b_ret_ci, "meta": meta_ret},
     }
 
 
-def main() -> None:
+def main():
     """
     Main entry point for scaling analysis.
-    Loads scaling data, fits power laws, and generates the plot.
+    
+    Usage:
+        python -m code.analysis.scaling --input results_scaling.csv --output scaling_plot.pdf
     """
     import argparse
-
-    parser = argparse.ArgumentParser(
-        description='Scaling analysis: power-law fitting for metric trends vs. agent count'
-    )
+    
+    parser = argparse.ArgumentParser(description="Scaling analysis for social memory networks")
     parser.add_argument(
-        '--data',
+        "--input",
         type=str,
-        default='data/scaling_results.csv',
-        help='Path to scaling results CSV'
+        default="data/results_scaling.csv",
+        help="Path to input CSV with experiment results",
     )
     parser.add_argument(
-        '--output',
+        "--output",
         type=str,
-        default='results/scaling_plot.pdf',
-        help='Path for output PDF plot'
+        default="results/scaling_plot.pdf",
+        help="Path for output PDF plot",
     )
     parser.add_argument(
-        '--no-note',
-        action='store_true',
-        help='Do not add note about 3-point limitation'
+        "--agents",
+        type=str,
+        default="3,5,7",
+        help="Comma-separated list of agent counts to analyze",
     )
-
+    
     args = parser.parse_args()
+    
+    input_path = pathlib.Path(args.input)
+    output_path = pathlib.Path(args.output)
+    agent_counts = [int(x.strip()) for x in args.agents.split(",")]
+    
+    # Ensure output directory exists
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    print(f"Loading scaling data from {input_path}...")
+    try:
+        x, y_spec, y_ret, summary_df = load_scaling_data(input_path, agent_counts)
+    except Exception as e:
+        print(f"Error loading data: {e}")
+        return 1
+    
+    print(f"Data loaded: {len(x)} agent counts")
+    print(f"Agent counts: {list(x)}")
+    print(f"Spec means: {list(y_spec)}")
+    print(f"Ret means: {list(y_ret)}")
+    
+    print(f"Generating power-law fit and plot to {output_path}...")
+    try:
+        results = generate_scaling_plot(x, y_spec, y_ret, output_path)
+    except Exception as e:
+        print(f"Error generating plot: {e}")
+        return 1
+    
+    print("\n--- Fit Results ---")
+    print(f"Specialization Index: exponent = {results['specialization']['b']:.4f} "
+          f"(95% CI: {results['specialization']['ci'][0]:.4f} - {results['specialization']['ci'][1]:.4f})")
+    print(f"Retrieval Efficiency: exponent = {results['retrieval']['b']:.4f} "
+          f"(95% CI: {results['retrieval']['ci'][0]:.4f} - {results['retrieval']['ci'][1]:.4f})")
+    
+    print(f"\nPlot saved to: {output_path}")
+    return 0
 
-    print(f"Loading scaling data from: {args.data}")
-    result = generate_scaling_plot(
-        data_path=args.data,
-        output_path=args.output,
-        note_on_3pts=not args.no_note
-    )
 
-    print(f"Generated plot: {result['output_path']}")
-    print(f"Specialization exponent (b): {result['specialization']['b']:.4f} "
-          f"CI: [{result['specialization']['b_ci'][0]:.4f}, "
-          f"{result['specialization']['b_ci'][1]:.4f}]")
-    print(f"Retrieval exponent (b): {result['retrieval']['b']:.4f} "
-          f"CI: [{result['retrieval']['b_ci'][0]:.4f}, "
-          f"{result['retrieval']['b_ci'][1]:.4f}]")
-    print(f"R^2 (specialization): {result['specialization']['r_squared']:.4f}")
-    print(f"R^2 (retrieval): {result['retrieval']['r_squared']:.4f}")
-
-
-if __name__ == '__main__':
-    main()
+if __name__ == "__main__":
+    exit(main())

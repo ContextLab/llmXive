@@ -1,5 +1,5 @@
-'|constraint dataset game':
-  quote: agent played 10,000 games. This gives a single data point
-  source_id: '2202.05773'
-  url: https://arxiv.org/abs/2202.05773
-  value: 10,000
+10|crossing knot prime:
+  quote: 13 9988
+  source_id: A002863
+  url: https://oeis.org/A002863
+  value: '9988'
