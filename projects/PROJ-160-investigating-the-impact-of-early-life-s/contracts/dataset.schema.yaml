@@ -1,0 +1,96 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Preprocessed Dataset Schema
+description: |
+  Schema for the preprocessed dataset derived from ABCD Release 4.0.
+  Contains early life stress (ACE) scores, demographic covariates, and
+  normalized hippocampal subfield volumes.
+type: object
+required:
+  - type
+  - properties
+  - additionalProperties
+properties:
+  type:
+    type: string
+    const: object
+  properties:
+    type: object
+    properties:
+      ACE:
+        type: number
+        description: Adverse Childhood Experiences score. May be log-transformed if skewness > 1.0.
+      Age:
+        type: number
+        description: Age of participant at baseline (years).
+      Sex:
+        type: integer
+        description: Biological sex (0=Female, 1=Male) or encoded categorical value.
+      Site:
+        type: string
+        description: Scanning site identifier.
+      FamilyID:
+        type: string
+        description: Unique family identifier for random effects grouping.
+      CA3:
+        type: number
+        description: Raw volume of CA3 subfield (mm^3).
+      DG:
+        type: number
+        description: Raw volume of Dentate Gyrus subfield (mm^3).
+      Subiculum:
+        type: number
+        description: Raw volume of Subiculum subfield (mm^3).
+      ICV:
+        type: number
+        description: Intracranial Volume (mm^3) used for normalization.
+      Normalized_Volumes:
+        type: object
+        description: Dictionary containing ICV-normalized volumes for each subfield.
+        properties:
+          CA3:
+            type: number
+            description: CA3 volume / ICV.
+          DG:
+            type: number
+            description: DG volume / ICV.
+          Subiculum:
+            type: number
+            description: Subiculum volume / ICV.
+        required:
+          - CA3
+          - DG
+          - Subiculum
+      ACE_Outlier_Flag:
+        type: boolean
+        description: Flag indicating if ACE score is an extreme outlier (>3 SD).
+    required:
+      - ACE
+      - Age
+      - Sex
+      - Site
+      - FamilyID
+      - CA3
+      - DG
+      - Subiculum
+      - ICV
+      - Normalized_Volumes
+  additionalProperties:
+    type: boolean
+    const: false
+examples:
+  - type: object
+    properties:
+      ACE: 2.0
+      Age: 9.9
+      Sex: 0
+      Site: "site_01"
+      FamilyID: "fam_12345"
+      CA3: 450.5
+      DG: 620.2
+      Subiculum: 580.1
+      ICV: 1450000.0
+      Normalized_Volumes:
+        CA3: 0.00031069
+        DG: 0.00042772
+        Subiculum: 0.00040007
+      ACE_Outlier_Flag: false

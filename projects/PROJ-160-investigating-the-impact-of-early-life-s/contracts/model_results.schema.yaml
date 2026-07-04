@@ -1,0 +1,59 @@
+description: Schema for statistical model outputs from the early-life stress analysis pipeline.
+type: object
+required:
+  - model_id
+  - subfield
+  - beta
+  - ci_lower
+  - ci_upper
+  - p_value
+  - corrected_p_value
+  - n_observations
+  - n_groups
+  - covariates
+properties:
+  model_id:
+    type: string
+    description: Unique identifier for the fitted model (e.g., 'LMM_CA3_v1').
+  subfield:
+    type: string
+    description: Hippocampal subfield name (CA3, DG, Subiculum, or CA3_DG_Ratio).
+    enum:
+      - CA3
+      - DG
+      - Subiculum
+      - CA3_DG_Ratio
+  beta:
+    type: number
+    description: Estimated coefficient (β) for the ACE score predictor.
+  ci_lower:
+    type: number
+    description: Lower bound of the 95% confidence interval for β.
+  ci_upper:
+    type: number
+    description: Upper bound of the 95% confidence interval for β.
+  p_value:
+    type: number
+    description: Uncorrected p-value for the ACE score coefficient.
+  corrected_p_value:
+    type: number
+    description: Bonferroni-corrected p-value for the ACE score coefficient.
+  n_observations:
+    type: integer
+    description: Total number of observations used in the model.
+  n_groups:
+    type: integer
+    description: Number of unique family groups (random effect levels).
+  covariates:
+    type: array
+    description: List of covariates included in the fixed effects part of the model.
+    items:
+      type: string
+  formula:
+    type: string
+    description: The R-style formula used for the model.
+  timestamp:
+    type: string
+    format: date-time
+    description: ISO 8601 timestamp when the model was fitted.
+additionalProperties: false

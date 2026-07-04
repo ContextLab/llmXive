@@ -20,34 +20,34 @@
 - **Mobile**: `api/src/`, `ios/src/` or `android/src/`
 - Paths shown below assume single project - adjust based on plan.md structure
 
-<!-- 
-  ============================================================================
-  IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-  
-  The /speckit-tasks command MUST replace these with actual tasks based on:
-  - User stories from spec.md (with their priorities P1, P2, P3...)
-  - Feature requirements from plan.md
-  - Entities from data-model.md
-  - Endpoints from contracts/
-  
-  Tasks MUST be organized by user story so each story can be:
-  - Implemented independently
-  - Tested independently
-  - Delivered as an MVP increment
-  
-  DO NOT keep these sample tasks in the generated tasks.md file.
-  ============================================================================
+<!--
+ ============================================================================
+ IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
+
+ The /speckit-tasks command MUST replace these with actual tasks based on:
+ - User stories from spec.md (with their priorities P1, P2, P3...)
+ - Feature requirements from plan.md
+ - Entities from data-model.md
+ - Endpoints from contracts/
+
+ Tasks MUST be organized by user story so each story can be:
+ - Implemented independently
+ - Tested independently
+ - Delivered as an MVP increment
+
+ DO NOT keep these sample tasks in the generated tasks.md file.
+ ============================================================================
 -->
 
 ## Phase 1: Setup (Shared Infrastructure)
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001a Verify root project directory structure defined in `plan.md` exists at `projects/PROJ-160-investigating-the-impact-of-early-life-s/`; create if missing.
-- [ ] T001b [P] Create subdirectories `code/`, `data/raw/`, `data/processed/`, `tests/`, `contracts/` INSIDE the `projects/PROJ-160-investigating-the-impact-of-early-life-s/` directory created in T001a
-- [ ] T002a [P] Create `projects/PROJ-160-investigating-the-impact-of-early-life-s/requirements.txt` with dependencies: `pandas`, `numpy`, `scipy`, `statsmodels`, `scikit-learn`, `pyyaml`, `requests`, `joblib`, `pytest`
-- [ ] T002b [P] Install dependencies from `projects/PROJ-160-investigating-the-impact-of-early-life-s/requirements.txt` in an isolated virtualenv at `.venv`; verify success by running `python -m pip list` and confirming all packages are present.
-- [ ] T003 [P] Configure linting (flake8/pylint) and formatting (black/isort) tools in `.pre-commit-config.yaml`
+- [X] T001a Verify root project directory structure defined in `plan.md` exists at `projects/PROJ-160-investigating-the-impact-of-early-life-s/`; create if missing.
+- [X] T001b [P] Create subdirectories `code/`, `data/raw/`, `data/processed/`, `tests/`, `contracts/` INSIDE the `projects/PROJ-160-investigating-the-impact-of-early-life-s/` directory created in T001a
+- [X] T002a [P] Create `projects/PROJ-160-investigating-the-impact-of-early-life-s/requirements.txt` with dependencies: `pandas`, `numpy`, `scipy`, `statsmodels`, `scikit-learn`, `pyyaml`, `requests`, `joblib`, `pytest`
+- [ ] T002b [P] Install dependencies from `projects/PROJ-160-investigating-the-impact-of-early-life-s/requirements.txt` in an isolated virtualenv at `.venv`; verify success by running `python -m pip list` and confirming all packages are present. <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
+- [X] T003 [P] Configure linting (flake8/pylint) and formatting (black/isort) tools in `.pre-commit-config.yaml`
 
 ---
 
@@ -57,13 +57,13 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 Create `code/config.py` with paths, random seeds (line 12), and constants for ABCD Release 4.0
-- [ ] T005 [P] Implement data loading utilities in `code/data/loaders.py` (handling CSV/TSV parsing)
+- [X] T004 Create `code/config.py` with paths, random seeds (line 12), and constants for ABCD Release 4.0
+- [X] T005 [P] Implement data loading utilities in `code/data/loaders.py` (handling CSV/TSV parsing)
 - [ ] T006a [P] Create `contracts/dataset.schema.yaml` defining the schema for the preprocessed dataset (columns: ACE, Age, Sex, Site, FamilyID, CA3, DG, Subiculum, ICV, Normalized_Volumes)
 - [ ] T006b [P] Create `contracts/model_results.schema.yaml` defining the schema for model outputs (β, CI, p-value, corrected_p-value)
-- [ ] T007 Create base entity definitions in `code/analysis/results.py` (AnalysisResult, StatisticalModel)
+- [X] T007 Create base entity definitions in `code/analysis/results.py` (AnalysisResult, StatisticalModel)
 - [ ] T008 Configure error handling and logging infrastructure in `code/main.py`: Implement try/except blocks for all I/O operations; log errors to `logs/pipeline.log` in JSON format; raise custom exceptions on failure.
-- [ ] T009 Setup environment configuration management (`.env` support if needed, though paths are relative)
+- [~] T009 Setup environment configuration management (`.env` support if needed, though paths are relative)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -77,21 +77,28 @@
 
 ### Implementation for User Story 1
 
-- [ ] T014 [US1] Implement `code/data/acquisition.py` to download ABCD phenotypic and subcorticalSegmentationStats files from official portal, verify MD5 checksums (FR-001)
-- [ ] T015 [US1] Implement `code/data/preprocessing.py` to exclude participants with missing ACE scores or poor MRI quality flags (FR-002)
-- [ ] T016 [US1] [Depends on T015] Implement `code/data/preprocessing.py` to normalize CA3, DG, subiculum volumes by dividing by ICV, storing with ≥4 decimal precision (FR-003)
-- [ ] T017 [US1] [Depends on T016] Implement `code/data/preprocessing.py` to check ACE score skewness and apply **log-transformation** if |skewness| > 1.0 (FR-011).
-- [ ] T018 [US1] [Depends on T017] Implement `code/data/preprocessing.py` to handle extreme ACE outliers (>3 SD) by flagging them (appending a flag column to `data/processed/cleaned_dataset.csv`) for downstream sensitivity analysis, without auto-exclusion (Edge Case). This flagging supports sensitivity analysis and does not alter the FR-002 exclusion logic.
-- [ ] T019 [US1] Generate `data/processed/cleaned_dataset.csv` with all required columns (ACE, Age, Sex, Site, FamilyID, CA3, DG, Subiculum, ICV, Normalized_Volumes)
+- [~] T014 [US1] Implement `code/data/acquisition.py` to download ABCD phenotypic and subcorticalSegmentationStats files from official portal, verify MD5 checksums (FR-001)
+- [~] T015 [US1] Implement `code/data/preprocessing.py` to exclude participants with missing ACE scores or poor MRI quality flags (FR-002)
+- [~] T016 [US1] [Depends on T015] Implement `code/data/preprocessing.py` to normalize CA3, DG, subiculum volumes by dividing by ICV, storing with ≥4 decimal precision (FR-003)
+- [~] T017 [US1] [Depends on T016] Implement `code/data/preprocessing.py` to check ACE score skewness and apply **log-transformation** if |skewness| > 1.0 (FR-011).
+- [~] T018 [US1] [Depends on T017] Implement `code/data/preprocessing.py` to handle extreme ACE outliers (>3 SD) by flagging them (appending a flag column to `data/processed/cleaned_dataset.csv`) for downstream sensitivity analysis, without auto-exclusion (Edge Case). This flagging supports sensitivity analysis and does not alter the FR-002 exclusion logic.
+- [~] T019 [US1] Generate `data/processed/cleaned_dataset.csv` with all required columns (ACE, Age, Sex, Site, FamilyID, CA3, DG, Subiculum, ICV, Normalized_Volumes)
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T010 [P] [US1] Contract test for data schema in `tests/contract/test_data_schema.py`
-- [ ] T011 [P] [US1] Integration test for download and filter logic in `tests/integration/test_acquisition.py`
-- [ ] T012 [P] [US1] Unit test for ICV normalization precision in `tests/unit/test_preprocessing.py`
-- [ ] T013 [P] [US1] Unit test for log-transformation logic in `tests/unit/test_preprocessing.py`
+- [~] T010 [P] [US1] Contract test for data schema in `tests/contract/test_data_schema.py`
+- [~] T011 [P] [US1] Integration test for download and filter logic in `tests/integration/test_acquisition.py`
+- [~] T012 [P] [US1] Unit test for ICV normalization precision in `tests/unit/test_preprocessing.py`
+- [~] T013 [P] [US1] Unit test for log-transformation logic in `tests/unit/test_preprocessing.py` <!-- SKIPPED: YAML+regex parse failed (while parsing a block mapping
+ in "<unicode string>", line 1, column 1:
+ class TestMRIDetection:
+ ^
+expected <block end>, but found '<scalar>'
+ in "<unicode string>", line 2, column 13:
+ """Tests for MRI QC column detecti...
+ ^) -->
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -105,17 +112,17 @@
 
 ### Implementation for User Story 2
 
-- [ ] T024 [US2] Implement `code/analysis/modeling.py` to fit LMM with formula `subfield_vol ~ ACE_score + age + sex + scanner_site + (1|family_id)` for CA3, DG, subiculum (FR-004)
-- [ ] T025 [US2] Implement `code/analysis/modeling.py` to calculate VIF for covariates; if VIF > 5, apply residualization strategy (regress ACE on collinear covariate) before fitting (Edge Case: Multicollinearity)
-- [ ] T026 [US2] Implement `code/analysis/results.py` to extract β coefficients, 95% CIs, and uncorrected p-values from model summaries
-- [ ] T027 [US2] Implement `code/analysis/results.py` to apply Bonferroni correction (threshold) and report corrected p-values (FR-005)
-- [ ] T028 [US2] Implement `code/analysis/modeling.py` to compute CA3:DG volume ratio and fit exploratory model with same covariates (FR-006)
-- [ ] T029 [US2] Ensure all output reports explicitly frame findings as **ASSOCIATIONAL** only (FR-010)
-- [ ] T030 [US2] Save results to `data/processed/model_results.json` and `data/processed/model_results_summary.csv`
+- [~] T024 [US2] Implement `code/analysis/modeling.py` to fit LMM with formula `subfield_vol ~ ACE_score + age + sex + scanner_site + (1|family_id)` for CA3, DG, subiculum (FR-004)
+- [~] T025 [US2] Implement `code/analysis/modeling.py` to calculate VIF for covariates; if VIF > 5, apply residualization strategy (regress ACE on collinear covariate) before fitting (Edge Case: Multicollinearity)
+- [~] T026 [US2] Implement `code/analysis/results.py` to extract β coefficients, 95% CIs, and uncorrected p-values from model summaries
+- [~] T027 [US2] Implement `code/analysis/results.py` to apply Bonferroni correction (threshold) and report corrected p-values (FR-005)
+- [~] T028 [US2] Implement `code/analysis/modeling.py` to compute CA3:DG volume ratio and fit exploratory model with same covariates (FR-006)
+- [~] T029 [US2] Ensure all output reports explicitly frame findings as **ASSOCIATIONAL** only (FR-010)
+- [~] T030 [US2] Save results to `data/processed/model_results.json` and `data/processed/model_results_summary.csv`
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T020 [P] [US2] Contract test for model results schema in `tests/contract/test_model_results.py`
+- [~] T020 [P] [US2] Contract test for model results schema in `tests/contract/test_model_results.py`
 - [ ] T021 [P] [US2] Integration test for LMM fitting and formula validation in `tests/integration/test_modeling.py`
 - [ ] T022 [P] [US2] Unit test for Bonferroni correction logic (p < 0.0167) in `tests/unit/test_results.py`
 - [ ] T023 [P] [US2] Unit test for CA3:DG ratio calculation in `tests/unit/test_modeling.py`
@@ -170,8 +177,8 @@
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
-  - User stories can then proceed in parallel (if staffed)
-  - Or sequentially in priority order (P1 → P2 → P3)
+ - User stories can then proceed in parallel (if staffed)
+ - Or sequentially in priority order (P1 → P2 → P3)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
@@ -237,9 +244,9 @@ With multiple developers:
 
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
-   - Developer A: User Story 1 (Data)
-   - Developer B: User Story 2 (Modeling)
-   - Developer C: User Story 3 (Robustness)
+ - Developer A: User Story 1 (Data)
+ - Developer B: User Story 2 (Modeling)
+ - Developer C: User Story 3 (Robustness)
 3. Stories complete and integrate independently
 
 ---

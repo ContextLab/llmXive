@@ -1,0 +1,10 @@
+[flake8]
+max-line-length = 88
+extend-ignore = E203
+exclude = .git,__pycache__,venv,.venv,build,dist
+per-file-ignores =
+    # Ignore missing docstrings in tests
+    tests/*:D100,D101,D102,D103
+    # Ignore specific style issues in generated files
+    code/main.py:D103
+    
