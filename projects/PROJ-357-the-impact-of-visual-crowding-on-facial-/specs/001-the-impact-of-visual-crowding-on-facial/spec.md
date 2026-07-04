@@ -1,8 +1,8 @@
 # Feature Specification: The Impact of Visual Crowding on Facial Emotion Recognition Accuracy
 
-**Feature Branch**: `[001-visual-crowding-emotion-recognition]`
-**Created**: [DATE]
-**Status**: Draft
+**Feature Branch**: `[001-visual-crowding-emotion-recognition]`  
+**Created**: 2023-10-27  
+**Status**: Draft  
 **Input**: User description: "To what extent does increasing visual crowding density degrade the perceptual accuracy of facial emotion recognition, and does this degradation vary across specific emotion categories?"
 
 ## User Scenarios & Testing *(mandatory)*
@@ -86,7 +86,7 @@ As a researcher, I need to collect human observer recognition accuracy data for 
 - **FR-002**: System MUST generate stimuli with parametrically controlled flanker counts (1, 3, 5) and eccentricities (2°, 4°, 6°) across all 8 emotion categories from RAVDESS (See US-1)
 - **FR-003**: System MUST compute visual clutter metrics including local contrast variance and spatial frequency energy for each generated stimulus (See US-2)
 - **FR-004**: System MUST perform linear mixed-effects regression to test the association between clutter metrics and human recognition accuracy (collected via US-4), controlling for emotion category (See US-3)
-- **FR-005**: System MUST apply multiple-comparison correction (e.g., Bonferroni or Benjamini-Hochberg) when testing >1 hypothesis to control family-wise error rate (See US-3)
+- **FR-005**: System MUST apply multiple-comparison correction (e.g., Benjamini-Hochberg FDR ≤ 0.05) when testing >1 hypothesis to control family-wise error rate (See US-3)
 - **FR-006**: System MUST frame all regression findings as associational rather than causal in the final report, given the experimental design with manipulated variables (See US-3)
 
 ### Key Entities *(include if feature involves data)*
@@ -117,7 +117,7 @@ As a researcher, I need to collect human observer recognition accuracy data for 
 - The computational crowding model (texture pooling) is a CPU-tractable approximation that runs within 6 hours on a GitHub Actions free-tier runner (2 CPU, ~7 GB RAM)
 - Visual clutter metrics (local contrast variance, spatial frequency energy) are validated measures that correlate with human crowding thresholds in existing vision literature
 - The linear mixed-effects regression can be performed using Python's statsmodels or lme4-equivalent library without requiring GPU acceleration
-- Sample size for human participants will be determined by a power analysis targeting [deferred] power to detect a medium effect size (Cohen's f² ≥ 0.15) at α ≤ 0.05
+- Sample size for human participants will be determined by a power analysis targeting power ≥ 0.8 to detect a medium effect size (Cohen's f² ≥ 0.15) at α ≤ 0.05
 - The design is experimental with manipulated variables (flanker count, eccentricity); therefore all findings will be framed as associational relationships between clutter metrics and human recognition accuracy
 - Predictor collinearity will be assessed if multiple clutter metrics are used jointly; independent predictive effects will NOT be claimed for definitionally related predictors
 - Human data collection will follow IRB-approved protocols for minimal-risk behavioral research (assumed to be obtainable prior to participant recruitment)
