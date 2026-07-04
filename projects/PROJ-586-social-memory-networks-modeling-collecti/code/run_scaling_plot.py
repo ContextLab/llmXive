@@ -1,41 +1,53 @@
-"""Script to generate the scaling plot for User Story 3.
+"""
+Wrapper script to run the scaling plot generation.
 
-This script runs the scaling plot generation using real data from
-the scaling simulation results and produces scaling_plot.pdf with
-power-law fits and reliability notes.
+This script ensures the scaling data exists and then generates the plot.
+It is called by the main pipeline for Task T030.
 """
 from __future__ import annotations
 
+import argparse
 import sys
 from pathlib import Path
 
 from analysis.scaling_plot_generator import main as plot_main
 
 
-def main() -> int:
-    """Run scaling plot generation."""
-    # Determine paths relative to project root
-    project_root = Path(__file__).parent.parent
-    data_file = project_root / "data" / "scaling_results.csv"
-    output_file = project_root / "results" / "scaling_plot.pdf"
+def build_parser() -> argparse.ArgumentParser:
+    """Build argument parser."""
+    parser = argparse.ArgumentParser(
+        description='Run scaling plot generation for User Story 3.'
+    )
+    parser.add_argument(
+        '--data',
+        type=str,
+        default='data/scaling_results.csv',
+        help='Path to scaling data CSV'
+    )
+    parser.add_argument(
+        '--output',
+        type=str,
+        default='projects/PROJ-586-social-memory-networks-modeling-collecti/results/scaling_plot.pdf',
+        help='Path to output PDF'
+    )
+    return parser
 
-    # Ensure output directory exists
-    output_file.parent.mkdir(parents=True, exist_ok=True)
 
+def main():
+    """Main entry point."""
+    parser = build_parser()
+    args = parser.parse_args()
+    
+    data_path = Path(args.data)
+    output_path = Path(args.output)
+    
     # Check if data exists
-    if not data_file.exists():
-        print(f"Error: Scaling data not found at {data_file}", file=sys.stderr)
-        print("Please run the scaling simulation first to generate scaling_results.csv", file=sys.stderr)
+    if not data_path.exists():
+        print(f"Error: Scaling data not found at {data_path}", file=sys.stderr)
+        print("Please run the scaling simulation first (T027/T029).", file=sys.stderr)
         return 1
-
-    # Prepare arguments
-    sys.argv = [
-        'run_scaling_plot.py',
-        '--data', str(data_file),
-        '--output', str(output_file),
-        '--note', 'Note: 3 data points limit power-law reliability.'
-    ]
-
+    
+    # Run plot generation
     return plot_main()
 
 
