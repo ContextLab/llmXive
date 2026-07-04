@@ -1,4 +1,4 @@
-resolved_at: '2026-07-04T07:23:03.728149+00:00'
+resolved_at: '2026-07-04T22:28:15.805782+00:00'
 datasets:
 - intent: GLUE
   status: verified
@@ -45,23 +45,23 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://figshare.com/articles/dataset/_sub_strong_PET-Protocol_Data_strong_sub_/31076929
+  - url: https://figshare.com/articles/dataset/2026_2027_DIRECT_ENTRY_FORM_Nile_University_of_Nigeria_Abuja_Admission_is_out_officially_Call_ON_07036366909_DR_MRS_GRACE_to_apply/32900786
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Spiro-Confined_Br_nsted_Acid_Catalyst_for_Stereoselective_Cationic_Polymerization_of_Vinyl_Ethers_ACS_Catalysis_/29558024
+  - url: https://figshare.com/articles/dataset/2026_2027_DIRECT_ENTRY_FORM_Afe_Babalola_University_Ado-EkitiAdmission_is_out_officially_Call_ON_07036366909_DR_MRS_GRACE_to_apply/32900783
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/book/Filosofia_computa_iei_Realitate_i_calcul_Suport_de_curs_Universitatea_din_Bucure_ti_2026/32898944
+  - url: https://figshare.com/articles/media/2026_2027_DIRECT_ENTRY_FORM_Caleb_University_Lagos_Admission_is_out_officially_Call_ON_07036366909_DR_MRS_GRACE_to_apply/32900780
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/___/32898941
+  - url: https://figshare.com/articles/media/2026_2027_DIRECT_ENTRY_FORM_Achievers_University_Owo_Admission_is_out_officially_Call_ON_07036366909_DR_MRS_GRACE_to_apply/32900777
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://tandf.figshare.com/articles/journal_contribution/Social_Network_Characteristics_as_Predictors_of_Opioid_Use_Disorder_Treatment_Utilization_among_People_Who_Use_Drugs_with_Hepatitis_C_Infections_in_Baltimore_MD/32898942
+  - url: https://figshare.com/articles/media/2026_2027_DIRECT_ENTRY_FORM_Joseph_Ayo_Babalola_University_Ikeji-Arakeji_Admission_is_out_officially_Call_ON_07036366909_DR_MRS_GRACE_to_apply/32900774
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -85,23 +85,23 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://unsworks.unsw.edu.au/handle/1959.4/unsworks_84324
+  - url: https://zenodo.org/records/21195584
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21176288
+  - url: https://zenodo.org/records/21195584
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21176288
+  - url: https://zenodo.org/records/21195550
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21178360
+  - url: https://zenodo.org/records/21194780
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21178360
+  - url: https://zenodo.org/records/21194735
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -120,23 +120,23 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://figshare.com/articles/dataset/_sub_strong_PET-Protocol_Data_strong_sub_/31076929
+  - url: https://figshare.com/articles/dataset/2026_2027_DIRECT_ENTRY_FORM_Nile_University_of_Nigeria_Abuja_Admission_is_out_officially_Call_ON_07036366909_DR_MRS_GRACE_to_apply/32900786
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Spiro-Confined_Br_nsted_Acid_Catalyst_for_Stereoselective_Cationic_Polymerization_of_Vinyl_Ethers_ACS_Catalysis_/29558024
+  - url: https://figshare.com/articles/dataset/2026_2027_DIRECT_ENTRY_FORM_Afe_Babalola_University_Ado-EkitiAdmission_is_out_officially_Call_ON_07036366909_DR_MRS_GRACE_to_apply/32900783
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/book/Filosofia_computa_iei_Realitate_i_calcul_Suport_de_curs_Universitatea_din_Bucure_ti_2026/32898944
+  - url: https://figshare.com/articles/media/2026_2027_DIRECT_ENTRY_FORM_Caleb_University_Lagos_Admission_is_out_officially_Call_ON_07036366909_DR_MRS_GRACE_to_apply/32900780
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/___/32898941
+  - url: https://figshare.com/articles/media/2026_2027_DIRECT_ENTRY_FORM_Achievers_University_Owo_Admission_is_out_officially_Call_ON_07036366909_DR_MRS_GRACE_to_apply/32900777
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://tandf.figshare.com/articles/journal_contribution/Social_Network_Characteristics_as_Predictors_of_Opioid_Use_Disorder_Treatment_Utilization_among_People_Who_Use_Drugs_with_Hepatitis_C_Infections_in_Baltimore_MD/32898942
+  - url: https://figshare.com/articles/media/2026_2027_DIRECT_ENTRY_FORM_Joseph_Ayo_Babalola_University_Ikeji-Arakeji_Admission_is_out_officially_Call_ON_07036366909_DR_MRS_GRACE_to_apply/32900774
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -144,15 +144,7 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/17854610
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/10199277
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/14352943
+  - url: https://zenodo.org/records/5951740
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -160,23 +152,31 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21186371
+  - url: https://zenodo.org/records/14352943
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://kjet.kardan.edu.af/Journal?Journal=KJET&id=3183
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21148696
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/software/CudaMon_An_R_Package_to_Monitor_NVIDIA_GPUs_Showcased_by_Monitoring_a_GPU-accelerated_Single-cell_Analysis_Workflow_in_R/32153880/9
+  - url: https://zenodo.org/records/21148697
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/software/CudaMon_An_R_Package_to_Monitor_NVIDIA_GPUs_Showcased_by_Monitoring_a_GPU-accelerated_Single-cell_Analysis_Workflow_in_R/32153880/10
+  - url: https://zenodo.org/records/21148697
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/software/CudaMon_An_R_Package_to_Monitor_NVIDIA_GPUs_Showcased_by_Monitoring_a_GPU-accelerated_Single-cell_Analysis_Workflow_in_R/32153880
+  - url: https://zenodo.org/records/21198051
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/18738911
+  - url: https://zenodo.org/records/21198051
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -225,23 +225,23 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://figshare.com/articles/dataset/_sub_strong_PET-Protocol_Data_strong_sub_/31076929
+  - url: https://figshare.com/articles/dataset/2026_2027_DIRECT_ENTRY_FORM_Nile_University_of_Nigeria_Abuja_Admission_is_out_officially_Call_ON_07036366909_DR_MRS_GRACE_to_apply/32900786
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Spiro-Confined_Br_nsted_Acid_Catalyst_for_Stereoselective_Cationic_Polymerization_of_Vinyl_Ethers_ACS_Catalysis_/29558024
+  - url: https://figshare.com/articles/dataset/2026_2027_DIRECT_ENTRY_FORM_Afe_Babalola_University_Ado-EkitiAdmission_is_out_officially_Call_ON_07036366909_DR_MRS_GRACE_to_apply/32900783
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/book/Filosofia_computa_iei_Realitate_i_calcul_Suport_de_curs_Universitatea_din_Bucure_ti_2026/32898944
+  - url: https://figshare.com/articles/media/2026_2027_DIRECT_ENTRY_FORM_Caleb_University_Lagos_Admission_is_out_officially_Call_ON_07036366909_DR_MRS_GRACE_to_apply/32900780
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/___/32898941
+  - url: https://figshare.com/articles/media/2026_2027_DIRECT_ENTRY_FORM_Achievers_University_Owo_Admission_is_out_officially_Call_ON_07036366909_DR_MRS_GRACE_to_apply/32900777
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://tandf.figshare.com/articles/journal_contribution/Social_Network_Characteristics_as_Predictors_of_Opioid_Use_Disorder_Treatment_Utilization_among_People_Who_Use_Drugs_with_Hepatitis_C_Infections_in_Baltimore_MD/32898942
+  - url: https://figshare.com/articles/media/2026_2027_DIRECT_ENTRY_FORM_Joseph_Ayo_Babalola_University_Ikeji-Arakeji_Admission_is_out_officially_Call_ON_07036366909_DR_MRS_GRACE_to_apply/32900774
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
