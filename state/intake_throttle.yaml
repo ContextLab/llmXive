@@ -37,12 +37,14 @@ samples:
   backlog: 329
 - at: '2026-07-04T09:54:57.898732+00:00'
   backlog: 328
+- at: '2026-07-04T10:48:03.485885+00:00'
+  backlog: 327
 last_decision:
   requested: 5
   allowed: 0
-  backlog: 328
-  growth: 47
+  backlog: 327
+  growth: 46
   window_hours: 24.0
   kind: auto
-  reason: backlog grew by 47 over 24h (drain < intake); allowance damped to 0%
-  decided_at: '2026-07-04T09:54:57.898732+00:00'
+  reason: backlog grew by 46 over 24h (drain < intake); allowance damped to 0%
+  decided_at: '2026-07-04T10:48:03.485885+00:00'
