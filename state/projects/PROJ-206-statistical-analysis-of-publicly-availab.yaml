@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-03T14:26:11.681009Z'
-current_stage: clarified
+current_stage: analyzed
 failed_stage: null
 field: statistics
 human_escalation_reason: null
 id: PROJ-206-statistical-analysis-of-publicly-availab
-last_run_id: b44d8fb6-66e5-49d4-9b8f-dc1caf539d91
+last_run_id: f5faf1aa-4093-4969-8972-89e2ea1fbd2e
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-206-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab
 title: Statistical Analysis of Publicly Available Election Poll Aggregates
-updated_at: '2026-07-03T15:05:44.264042Z'
+updated_at: '2026-07-04T17:25:56.480839Z'

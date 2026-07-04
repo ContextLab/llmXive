@@ -22,5 +22,23 @@
         "intent": "epolls RCP Polls RealClearPolitics poll aggregates. datasets.load_dataset \"fivethirtyeight/election polls\" via HuggingFace mirror Verified Direct URL is unstable HTTP 403 . Action : Use dataset"
       }
     ]
+  },
+  {
+    "repaired_at": "2026-07-04T16:48:24.208433+00:00",
+    "project": "PROJ-206-statistical-analysis-of-publicly-availab",
+    "repairs": [
+      {
+        "dead_url": "https://datasets.realclearpolitics.com/",
+        "reason": "connection/DNS failure: [Errno -2] Name or service not known",
+        "replacement_url": "https://huggingface.co/datasets/rcp-meetings/rudialogsum_v2/resolve/main/test.jsonl",
+        "intent": "RealClearPolitics RCP Archives Programmatic loader / Archival CSV Correction : Direct scraping of is blocked HTTP 403 . The plan uses verified dataset on"
+      },
+      {
+        "dead_url": "https://www.realclearpolitics.com/epolls/",
+        "reason": "HTTP 403",
+        "replacement_url": "https://huggingface.co/datasets/rcp-meetings/rudialogsum_v2/resolve/main/test.jsonl",
+        "intent": "epolls RealClearPolitics RCP Archives Programmatic loader / Archival CSV Correction : Direct scraping of is blocked HTTP 403 . The plan uses verified dataset"
+      }
+    ]
   }
 ]

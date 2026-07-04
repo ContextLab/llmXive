@@ -21,3 +21,50 @@
   verification_status: mismatch
   verified_against_url: https://github.com/RealClearPolitics/polls
   verified_at: '2026-07-03T15:05:42.425881Z'
+- artifact_hash: ce3c50014bb5f7ddefc60e1759bbe85eb2604f3244e1bfc5c06884fc1bb4bbd7
+  artifact_path: projects/PROJ-206-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: Politics News | Breaking Political News, Video &amp; Analysis-ABC
+    News - ABC News
+  kind: url
+  value: https://projects.fivethirtyeight.com/polls/`
+  verification_status: verified
+  verified_against_url: https://abcnews.com/politics
+  verified_at: '2026-07-04T17:06:58.443464Z'
+- artifact_hash: ce3c50014bb5f7ddefc60e1759bbe85eb2604f3244e1bfc5c06884fc1bb4bbd7
+  artifact_path: projects/PROJ-206-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/research.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://electionlab.mit.edu/data`
+  verification_status: pending
+  verified_against_url: https://electionlab.mit.edu/data
+  verified_at: '2026-07-04T17:06:58.443464Z'
+- artifact_hash: 7b72f772b46c073fa3f9f0a05a4c8b9d0231b7752642cf99e1914aaa53b16d3e
+  artifact_path: projects/PROJ-206-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/data-model.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: Politics News | Breaking Political News, Video &amp; Analysis-ABC
+    News - ABC News
+  kind: url
+  value: https://projects.fivethirtyeight.com/polls/`
+  verification_status: verified
+  verified_against_url: https://abcnews.com/politics
+  verified_at: '2026-07-04T17:07:11.676069Z'
+- artifact_hash: 76dcdc8bad1894949eb4e3d89e9ce97c84592229f54dd2e414e4d988cfc528da
+  artifact_path: projects/PROJ-206-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: Politics News | Breaking Political News, Video &amp; Analysis-ABC
+    News - ABC News
+  kind: url
+  value: https://projects.fivethirtyeight.com/polls/`
+  verification_status: verified
+  verified_against_url: https://abcnews.com/politics
+  verified_at: '2026-07-04T17:25:40.419726Z'

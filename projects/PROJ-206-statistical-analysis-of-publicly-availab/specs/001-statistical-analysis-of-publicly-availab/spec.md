@@ -98,7 +98,7 @@ The system MUST fit a Bayesian hierarchical model using PyMC (NUTS sampler) to g
 
 ## Assumptions
 
-- FiveThirtyEight public repository contains complete CSV data for presidential polls covering multiple election cycles through 2020.
+- FiveThirtyEight public repository contains complete CSV data for presidential polls covering multiple election cycles through recent years.
 - GitHub Actions free-tier runner provides sufficient CPU stability for PyMC NUTS sampling, subject to the NFR-001 time limit.
 - RealClearPolitics archived data may be partial for the early 21st-century period; the system will ingest available data and flag missing cycles.
 - Election final popular vote outcomes are available from official federal election commission records for all target years.

@@ -1,0 +1,57 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: AggregationForecastSchema
+description: >
+  Schema for the output of the aggregation models (Simple, Weighted, Bayesian).
+  Used to validate the final forecast data before evaluation.
+type: object
+properties:
+  metadata:
+    type: object
+    properties:
+      method:
+        type: string
+        enum:
+          - "simple"
+          - "weighted"
+          - "bayesian"
+        description: "Aggregation method used"
+      generated_at:
+        type: string
+        format: date-time
+        description: "Timestamp of forecast generation"
+  forecasts:
+    type: array
+    items:
+      type: object
+      required:
+        - week_start
+        - point_estimate
+        - lower_ci
+        - upper_ci
+      properties:
+        week_start:
+          type: string
+          format: date
+          description: "Start date of the forecast week"
+        point_estimate:
+          type: number
+          description: "Forecasted vote share"
+        lower_ci:
+          type: number
+          description: "Lower bound of the 95% credible/confidence interval"
+        upper_ci:
+          type: number
+          description: "Upper bound of the 95% credible/confidence interval"
+        actual_outcome:
+          type: number
+          nullable: true
+          description: "Actual election outcome (if available)"
+        error:
+          type: number
+          nullable: true
+          description: "Absolute error (|forecast - actual|)"
+      additionalProperties: false
+additionalProperties: false
+required:
+  - metadata
+  - forecasts
