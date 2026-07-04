@@ -1,0 +1,59 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Dataset Schema"
+description: "Schema for the raw and processed dataset files used in the project."
+type: "object"
+properties:
+  omniglot:
+    type: "object"
+    description: "Omniglot dataset metadata and structure."
+    properties:
+      source:
+        type: "string"
+        description: "Source of the dataset (e.g., 'torchvision')."
+      version:
+        type: "string"
+        description: "Version of the dataset."
+      num_characters:
+        type: "integer"
+        description: "Number of characters in the dataset."
+      num_alphabets:
+        type: "integer"
+        description: "Number of alphabets in the dataset."
+      image_size:
+        type: "integer"
+        description: "Image size (e.g., 28)."
+    required:
+      - source
+      - version
+      - num_characters
+      - num_alphabets
+      - image_size
+  mini_imagenet:
+    type: "object"
+    description: "Mini-ImageNet dataset metadata and structure."
+    properties:
+      source:
+        type: "string"
+        description: "Source of the dataset (e.g., 'Canonical Split')."
+      version:
+        type: "string"
+        description: "Version of the dataset."
+      num_classes:
+        type: "integer"
+        description: "Number of classes in the dataset."
+      images_per_class:
+        type: "integer"
+        description: "Number of images per class."
+      image_size:
+        type: "integer"
+        description: "Image size (e.g., 84)."
+    required:
+      - source
+      - version
+      - num_classes
+      - images_per_class
+      - image_size
+required:
+  - omniglot
+  - mini_imagenet
+additionalProperties: false

@@ -2,84 +2,97 @@
 
 ## 1. Overview
 
-This document defines the data structures for the Astrocyte Meta-Learning project. It ensures that all metrics, parameters, and results are stored in a structured, reproducible format that aligns with the project's Constitution (Principle III: Data Hygiene, Principle IV: Single Source of Truth).
+This document defines the data structures, file formats, and schemas used throughout the project. All data flows from raw datasets (downloaded) to processed logs (training) and finally to aggregated results (analysis).
 
-## 2. Data Entities
+## 2. Data Flow
 
-### 2.1 Configuration (YAML/JSON)
-Stores all hyperparameters, seeds, and dataset paths.
--   **Entity**: `Config`
--   **Purpose**: Reproducible execution setup.
--   **Fields**:
-    -   `seed`: Integer (Random seed).
-    -   `dataset_seed`: Integer (Seed for dataset subsampling to ensure fairness between Baseline and Astrocyte).
-    -   `dataset`: String ("omniglot" or "mini_imagenet").
-    -   `task_shots`: Integer (e.g., 1, 5).
-    -   `task_ways`: Integer (e.g., 5).
-    -   `ode_params`: Object (decay, alpha, beta, history_buffer, tau_hist).
-    -   `homeostatic_scale`: Float (sweep parameter).
-    -   `inner_loop_steps`: Integer (15).
-    -   `num_episodes`: Integer (Total training episodes).
-    -   `stability_buffer_size`: Integer (Fixed at 5, per research design).
+1.  **Raw Data**: Downloaded from `torchvision` (Omniglot) and custom loader (Mini-ImageNet). Stored in `data/raw/`.
+2.  **Processed Data**: None. The training loop loads images on-the-fly.
+3.  **Training Logs**: Generated per episode, stored in `results/logs/`.
+4.  **Aggregated Results**: Generated per seed, stored in `results/stats/`.
+5.  **Analysis Output**: Statistical test results, stored in `results/stats/`.
 
-### 2.2 Episode Log (JSON/CSV)
-Record of a single training episode.
--   **Entity**: `EpisodeLog`
--   **Purpose**: Time-series tracking of stability and plasticity.
--   **Fields**:
-    -   `episode_id`: Integer.
-    -   `seed`: Integer.
-    -   `task_id`: String/Int.
-    -   `plasticity_scores`: List[Float] (Accuracy at steps 1, 5, 10).
-    -   `stability_scores`: List[Float] (Accuracy on buffer tasks, evaluated on pre-update parameters).
-    -   `homeostatic_factor`: Float ($h_t$).
-    -   `calcium_concentration`: Float ($Ca_t$).
-    -   `loss`: Float (Meta-loss).
-    -   `timestamp`: ISO8601 String.
-    -   `buffer_tasks`: List[String/Int] (IDs of the 5 tasks used for stability evaluation).
+## 3. Data Entities
 
-### 2.3 Aggregated Results (JSON/CSV)
-Summary of a full training run (all episodes for one seed).
--   **Entity**: `RunSummary`
--   **Purpose**: Statistical analysis input.
--   **Fields**:
-    -   `run_id`: String.
-    -   `seed`: Integer.
-    -   `model_type`: String ("astrocyte" or "baseline").
-    -   `mean_plasticity`: Float.
-    -   `mean_stability`: Float.
-    -   `std_plasticity`: Float.
-    -   `std_stability`: Float.
-    -   `total_episodes`: Integer.
-    -   `avg_homeostatic_factor`: Float.
+### 3.1 Episode
+A single execution instance of a 5-way 1-shot classification problem.
+- `episode_id`: Unique integer identifier for the episode within a run.
+- `seed`: Random seed used for this run.
+- `support_set`: List of (image, label) pairs.
+- `query_set`: List of (image, label) pairs.
 
-### 2.4 Statistical Test Output (JSON)
-Result of the paired-sample t-test.
--   **Entity**: `StatisticalTestResult`
--   **Purpose**: Final hypothesis validation.
--   **Fields**:
-    -   `test_name`: String ("Paired_T_Test").
-    -   `metric`: String ("Stability" or "Plasticity").
-    -   `t_statistic`: Float.
-    -   `p_value`: Float.
-    -   `significant`: Boolean (p < 0.025).
-    -   `degrees_of_freedom`: Integer (n-1).
-    -   `baseline_mean`: Float.
-    -   `astrocyte_mean`: Float.
-    -   `effect_size`: Float (Cohen's d).
-    -   `power_note`: String (Optional, notes on low power if n=5).
+### 3.2 Homeostatic State
+Internal state of the astrocyte module.
+- `calcium_concentration`: $Ca_t$ (float).
+- `homeostatic_factor`: $h_t$ (float).
+- `task_history_buffer`: List of past activation signals (used for ODE).
 
-## 3. File Naming Convention
+### 3.3 Performance Metric
+Record of performance for a single episode.
+- `episode_id`: ID of the episode (integer).
+- `seed`: Random seed.
+- `plasticity_score`: Accuracy on current task (after 1, 5, 10 steps). **Scalar**.
+- `stability_score`: Accuracy on **Meta-Test Buffer** (last 5 completed tasks **excluded** from the Calcium history). **Scalar**.
+- `loss`: MAML loss for the episode.
+- `timestamp`: UTC timestamp of the log.
 
--   **Config**: `config_{seed}_{dataset}.yaml`
--   **Logs**: `logs/episode_{seed}_{episode_id}.json`
--   **Summary**: `results/run_summary_{seed}_{model_type}.csv`
--   **Stats**: `results/stat_test_{dataset}_{metric}_{timestamp}.json`
+### 3.4 Statistical Result
+Result of the Permutation Test.
+- `test_name`: "Permutation Test".
+- `observed_distance`: Euclidean distance between mean vectors.
+- `p_value`: P-value from permutations.
+- `significant`: Boolean (p < 0.05).
+- `seeds_used`: Number of seeds.
+- `permutations`: Number of permutations performed.
 
-## 4. Data Flow
+## 4. File Formats
 
-1.  **Input**: `config.yaml` + `data/raw/` (datasets).
-2.  **Process**: `train.py` reads config, loads data, executes ODE/MAML loop.
-3.  **Output**: `logs/` (raw), `results/` (aggregated).
-4.  **Analysis**: `evaluate.py` reads `results/` to compute `StatisticalTestResult`.
-5.  **Storage**: All outputs checksummed and stored in `data/processed/`.
+### 4.1 Training Log (JSON Lines)
+File: `results/logs/seed_<N>_run.jsonl`
+Each line is a JSON object representing one episode.
+
+```json
+{"episode_id": 1, "seed": 42, "plasticity_score": 0.85, "stability_score": 0.72, "loss": 0.45, "timestamp": "2026-07-03T12:00:00Z"}
+```
+
+### 4.2 Aggregated Results (CSV)
+File: `results/stats/aggregated_results.csv`
+One row per seed.
+
+```csv
+seed,final_plasticity,final_stability,avg_loss
+42,0.88,0.75,0.32
+43,0.87,0.74,0.33
+...
+```
+
+### 4.3 Statistical Test Output (JSON)
+File: `results/stats/statistical_test.json`
+
+```json
+{
+  "test": "Permutation Test",
+  "observed_distance": 0.12,
+  "p_value": 0.03,
+  "significant": true,
+  "seeds_used": 5,
+  "permutations": 10000,
+  "baseline_model": "MAML",
+  "experimental_model": "Astrocyte-MAML"
+}
+```
+
+## 5. Data Hygiene & Versioning
+
+- **Checksums**: All raw data files in `data/raw/` are checksummed (SHA-256) and recorded in `state/...yaml`.
+- **Immutability**: Raw data is never modified. Derived files (logs, stats) are new files with timestamps.
+- **PII**: No personally identifiable information is present in the datasets or logs.
+- **Versioning**: Every artifact (log, result) is versioned by its content hash.
+
+## 6. Data Validation Rules
+
+- **Plasticity/Stability**: Must be in range [0.0, 1.0].
+- **Loss**: Must be non-negative.
+- **Episode ID**: Must be unique per seed and integer.
+- **Seed**: Must be an integer.
+- **Disjoint Buffer**: The `stability_score` must be calculated on a buffer of episodes explicitly excluded from the `task_history_buffer` used for the current `calcium_concentration` calculation.

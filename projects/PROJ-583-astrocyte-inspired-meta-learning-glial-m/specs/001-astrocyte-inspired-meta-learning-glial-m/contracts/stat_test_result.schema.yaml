@@ -1,50 +1,45 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "StatisticalTestResult"
-description: "Schema for the output of the paired-sample t-test comparing model performance."
+description: "Schema for the output of the Permutation Test comparing model performance."
 type: "object"
 properties:
   test_name:
     type: "string"
-    const: "Paired_T_Test"
+    const: "Permutation Test"
     description: "Name of the statistical test performed."
-  metric:
-    type: "string"
-    enum: ["Stability", "Plasticity"]
-    description: "The specific metric being tested."
-  t_statistic:
+  observed_distance:
     type: "number"
-    description: "The computed t-statistic."
+    description: "The observed Euclidean distance between mean vectors of the two groups."
   p_value:
     type: "number"
     minimum: 0
     maximum: 1
-    description: "The p-value resulting from the test."
+    description: "The p-value resulting from the permutation test."
   significant:
     type: "boolean"
-    description: "True if p_value < 0.025 (Bonferroni corrected), False otherwise."
-  degrees_of_freedom:
+    description: "True if p_value < 0.05, False otherwise."
+  permutations:
     type: "integer"
-    description: "Degrees of freedom for the test (n-1)."
+    description: "Number of permutations performed."
   baseline_mean:
-    type: "number"
-    description: "Mean value for the baseline model."
+    type: "array"
+    items:
+      type: "number"
+    description: "Mean vector [Stability, Plasticity] for the baseline model."
   astrocyte_mean:
-    type: "number"
-    description: "Mean value for the astrocyte model."
-  effect_size:
-    type: "number"
-    description: "Cohen's d effect size."
+    type: "array"
+    items:
+      type: "number"
+    description: "Mean vector [Stability, Plasticity] for the astrocyte model."
   power_note:
     type: "string"
     description: "Optional note regarding statistical power limitations (e.g., n=5)."
 required:
   - "test_name"
-  - "metric"
-  - "t_statistic"
+  - "observed_distance"
   - "p_value"
   - "significant"
-  - "degrees_of_freedom"
+  - "permutations"
   - "baseline_mean"
   - "astrocyte_mean"
-  - "effect_size"
 additionalProperties: false

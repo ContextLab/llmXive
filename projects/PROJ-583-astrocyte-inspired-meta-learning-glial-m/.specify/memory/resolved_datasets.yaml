@@ -1,4 +1,4 @@
-resolved_at: '2026-07-03T20:19:22.910807+00:00'
+resolved_at: '2026-07-04T17:35:46.772873+00:00'
 datasets:
 - intent: MAML
   status: verified
@@ -45,31 +45,31 @@ datasets:
     source: huggingface
     status: verified
     format: zip
-  - url: https://figshare.com/articles/figure/Photon_energy_resolved_trXAS_signal_/32897222
+  - url: https://figshare.com/articles/thesis/Thesis_b_Determinants_of_Digital_Transformation_and_Operational_Efficiency_Evidence_from_Pharmaceutical_Manufacturing_Companies_in_Western_Province_of_Sri_Lanka_b_/32900483
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Call_09152489563_For_Ebonyi_State_University_EBSU_2026_2027_POST_UTME_Diploma_and_Pre_Degree_forms_are_out_call_09152489563_/32897231
+  - url: https://acs.figshare.com/articles/journal_contribution/Deciphering_the_Halide_Chemistry_of_Cl_sup_sup_and_Br_sup_sup_in_Enhancing_Kinetics_of_Mg_Plating_Stripping/32900482
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Call_09152489563_For_David_Umahi_Federal_University_of_Health_Sciences_DUFUHS_2026_2027_POST_UTME_Diploma_and_Pre_Degree_forms_are_out_call_09152489563_/32897225
+  - url: https://acs.figshare.com/articles/media/Deciphering_the_Halide_Chemistry_of_Cl_sup_sup_and_Br_sup_sup_in_Enhancing_Kinetics_of_Mg_Plating_Stripping/32900479
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/figure/MCP_and_range_shift_analysis_for_museum_Texas_crayfish_species_as_seen_throughout_time/31550626
+  - url: https://acs.figshare.com/articles/media/Deciphering_the_Halide_Chemistry_of_Cl_sup_sup_and_Br_sup_sup_in_Enhancing_Kinetics_of_Mg_Plating_Stripping/32900476
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Call_09152489563_For_Alex_Ekwueme_Federal_University_Ndufu-Alike_AE-FUNAI_2026_2027_POST_UTME_Diploma_and_Pre_Degree_forms_are_out_call_09152489563_/32897219
+  - url: https://acs.figshare.com/articles/journal_contribution/Selective_Q_Band_Excitation_Modulates_Exciton_Exciton_Annihilation_in_Tetra_p_Sulfonatophenyl_porphyrin_J_Aggregates/32900473
     source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/17135584
-    source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/14830012
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17135584
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -77,11 +77,11 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/4309034
+  - url: https://zenodo.org/records/5778132
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://ojs.aaai.org/index.php/AAAI/article/view/35239
+  - url: https://zenodo.org/records/4309034
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -150,23 +150,23 @@ datasets:
     source: huggingface
     status: wrong_format
     reason: HTTP 401
-  - url: https://figshare.com/articles/dataset/Call_09152489563_For_Evangel_University_2026_2027_POST_UTME_Diploma_and_Pre_Degree_forms_are_out_call_09152489563_/32897234
+  - url: https://tandf.figshare.com/articles/dataset/Twisted_path_to_green_strategic_regulatory_spillovers_in_global_competitive_markets/32900498
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/figure/Photon_energy_resolved_trXAS_signal_/32897222
+  - url: https://figshare.com/articles/thesis/Thesis_b_Determinants_of_Digital_Transformation_and_Operational_Efficiency_Evidence_from_Pharmaceutical_Manufacturing_Companies_in_Western_Province_of_Sri_Lanka_b_/32900483
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Call_09152489563_For_Ebonyi_State_University_EBSU_2026_2027_POST_UTME_Diploma_and_Pre_Degree_forms_are_out_call_09152489563_/32897231
+  - url: https://acs.figshare.com/articles/journal_contribution/Deciphering_the_Halide_Chemistry_of_Cl_sup_sup_and_Br_sup_sup_in_Enhancing_Kinetics_of_Mg_Plating_Stripping/32900482
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Call_09152489563_For_David_Umahi_Federal_University_of_Health_Sciences_DUFUHS_2026_2027_POST_UTME_Diploma_and_Pre_Degree_forms_are_out_call_09152489563_/32897225
+  - url: https://acs.figshare.com/articles/media/Deciphering_the_Halide_Chemistry_of_Cl_sup_sup_and_Br_sup_sup_in_Enhancing_Kinetics_of_Mg_Plating_Stripping/32900479
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/figure/MCP_and_range_shift_analysis_for_museum_Texas_crayfish_species_as_seen_throughout_time/31550626
+  - url: https://acs.figshare.com/articles/media/Deciphering_the_Halide_Chemistry_of_Cl_sup_sup_and_Br_sup_sup_in_Enhancing_Kinetics_of_Mg_Plating_Stripping/32900476
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -190,36 +190,29 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21178809
+  - url: https://zenodo.org/records/21138067
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21178809
+  - url: https://zenodo.org/records/21138067
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21123209
+  - url: https://zenodo.org/records/21121973
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21170850
+  - url: https://zenodo.org/records/21121973
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21170850
+  - url: https://zenodo.org/records/21192518
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
 - intent: URLs
   status: verified
   candidates:
-  - url: https://huggingface.co/datasets/flwrlabs/fed-phishing-urls/resolve/main/data/test-00000-of-00001.parquet
-    source: huggingface
-    format: parquet
-    relevance: 1.0
-    sample_check:
-      downloaded_bytes: 262144
-      parsed: true
   - url: https://huggingface.co/datasets/FINAL-Bench/service-urls/resolve/main/urls.json
     source: huggingface
     format: json
@@ -234,11 +227,14 @@ datasets:
     sample_check:
       downloaded_bytes: 107077
       parsed: true
-  candidates_tried:
-  - url: https://huggingface.co/datasets/flwrlabs/fed-phishing-urls/resolve/main/data/test-00000-of-00001.parquet
+  - url: https://huggingface.co/datasets/joshtobin/malicious_urls/resolve/main/data/train-00000-of-00001-0ac5e739002d814a.parquet
     source: huggingface
-    status: verified
     format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 9837
+      parsed: true
+  candidates_tried:
   - url: https://huggingface.co/datasets/FINAL-Bench/service-urls/resolve/main/urls.json
     source: huggingface
     status: verified
@@ -255,23 +251,27 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://figshare.com/articles/dataset/Call_09152489563_For_Evangel_University_2026_2027_POST_UTME_Diploma_and_Pre_Degree_forms_are_out_call_09152489563_/32897234
+  - url: https://huggingface.co/datasets/jkorsvik/nowiki_abstract_urls_20230120/resolve/main/data/train-00000-of-00001-30f05e15b92b5fa5.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://tandf.figshare.com/articles/dataset/Twisted_path_to_green_strategic_regulatory_spillovers_in_global_competitive_markets/32900498
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/figure/Photon_energy_resolved_trXAS_signal_/32897222
+  - url: https://figshare.com/articles/thesis/Thesis_b_Determinants_of_Digital_Transformation_and_Operational_Efficiency_Evidence_from_Pharmaceutical_Manufacturing_Companies_in_Western_Province_of_Sri_Lanka_b_/32900483
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Call_09152489563_For_Ebonyi_State_University_EBSU_2026_2027_POST_UTME_Diploma_and_Pre_Degree_forms_are_out_call_09152489563_/32897231
+  - url: https://acs.figshare.com/articles/journal_contribution/Deciphering_the_Halide_Chemistry_of_Cl_sup_sup_and_Br_sup_sup_in_Enhancing_Kinetics_of_Mg_Plating_Stripping/32900482
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Call_09152489563_For_David_Umahi_Federal_University_of_Health_Sciences_DUFUHS_2026_2027_POST_UTME_Diploma_and_Pre_Degree_forms_are_out_call_09152489563_/32897225
+  - url: https://acs.figshare.com/articles/media/Deciphering_the_Halide_Chemistry_of_Cl_sup_sup_and_Br_sup_sup_in_Enhancing_Kinetics_of_Mg_Plating_Stripping/32900479
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/figure/MCP_and_range_shift_analysis_for_museum_Texas_crayfish_species_as_seen_throughout_time/31550626
+  - url: https://acs.figshare.com/articles/media/Deciphering_the_Halide_Chemistry_of_Cl_sup_sup_and_Br_sup_sup_in_Enhancing_Kinetics_of_Mg_Plating_Stripping/32900476
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -291,27 +291,27 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/10400987
+  - url: https://zenodo.org/records/15573303
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21176532
+  - url: https://zenodo.org/records/21188254
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21176532
+  - url: https://zenodo.org/records/21187081
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21175983
+  - url: https://unsworks.unsw.edu.au/handle/1959.4/45441
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21175983
+  - url: https://zenodo.org/records/21126405
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/19642429
+  - url: https://zenodo.org/records/21126245
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -360,23 +360,23 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://figshare.com/articles/dataset/Call_09152489563_For_Evangel_University_2026_2027_POST_UTME_Diploma_and_Pre_Degree_forms_are_out_call_09152489563_/32897234
+  - url: https://tandf.figshare.com/articles/journal_contribution/A_fuzzy_logic_mindset_agency_theory_decision_support_model_for_diagnosing_consumer_resistance_to_eco-friendly_cosmetics/32900501
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/figure/Photon_energy_resolved_trXAS_signal_/32897222
+  - url: https://tandf.figshare.com/articles/dataset/Twisted_path_to_green_strategic_regulatory_spillovers_in_global_competitive_markets/32900498
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Call_09152489563_For_Ebonyi_State_University_EBSU_2026_2027_POST_UTME_Diploma_and_Pre_Degree_forms_are_out_call_09152489563_/32897231
+  - url: https://figshare.com/articles/thesis/Thesis_b_Determinants_of_Digital_Transformation_and_Operational_Efficiency_Evidence_from_Pharmaceutical_Manufacturing_Companies_in_Western_Province_of_Sri_Lanka_b_/32900483
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Call_09152489563_For_David_Umahi_Federal_University_of_Health_Sciences_DUFUHS_2026_2027_POST_UTME_Diploma_and_Pre_Degree_forms_are_out_call_09152489563_/32897225
+  - url: https://acs.figshare.com/articles/journal_contribution/Deciphering_the_Halide_Chemistry_of_Cl_sup_sup_and_Br_sup_sup_in_Enhancing_Kinetics_of_Mg_Plating_Stripping/32900482
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/figure/MCP_and_range_shift_analysis_for_museum_Texas_crayfish_species_as_seen_throughout_time/31550626
+  - url: https://acs.figshare.com/articles/media/Deciphering_the_Halide_Chemistry_of_Cl_sup_sup_and_Br_sup_sup_in_Enhancing_Kinetics_of_Mg_Plating_Stripping/32900479
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -396,27 +396,27 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/2469796
+  - url: https://zenodo.org/records/2536630
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21167547
+  - url: https://zenodo.org/records/21194098
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21167547
+  - url: https://zenodo.org/records/21194098
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20392308
+  - url: https://zenodo.org/records/21187942
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20392308
+  - url: https://zenodo.org/records/21187942
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://arxiv.org/abs/2509.25136
+  - url: https://osf.io/qbrdm/
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -424,23 +424,23 @@ datasets:
   status: unresolved
   candidates: []
   candidates_tried:
-  - url: https://figshare.com/articles/dataset/Call_09152489563_For_Evangel_University_2026_2027_POST_UTME_Diploma_and_Pre_Degree_forms_are_out_call_09152489563_/32897234
+  - url: https://tandf.figshare.com/articles/journal_contribution/A_fuzzy_logic_mindset_agency_theory_decision_support_model_for_diagnosing_consumer_resistance_to_eco-friendly_cosmetics/32900501
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/figure/Photon_energy_resolved_trXAS_signal_/32897222
+  - url: https://tandf.figshare.com/articles/dataset/Twisted_path_to_green_strategic_regulatory_spillovers_in_global_competitive_markets/32900498
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Call_09152489563_For_Ebonyi_State_University_EBSU_2026_2027_POST_UTME_Diploma_and_Pre_Degree_forms_are_out_call_09152489563_/32897231
+  - url: https://figshare.com/articles/thesis/Thesis_b_Determinants_of_Digital_Transformation_and_Operational_Efficiency_Evidence_from_Pharmaceutical_Manufacturing_Companies_in_Western_Province_of_Sri_Lanka_b_/32900483
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Call_09152489563_For_David_Umahi_Federal_University_of_Health_Sciences_DUFUHS_2026_2027_POST_UTME_Diploma_and_Pre_Degree_forms_are_out_call_09152489563_/32897225
+  - url: https://acs.figshare.com/articles/journal_contribution/Deciphering_the_Halide_Chemistry_of_Cl_sup_sup_and_Br_sup_sup_in_Enhancing_Kinetics_of_Mg_Plating_Stripping/32900482
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/figure/MCP_and_range_shift_analysis_for_museum_Texas_crayfish_species_as_seen_throughout_time/31550626
+  - url: https://acs.figshare.com/articles/media/Deciphering_the_Halide_Chemistry_of_Cl_sup_sup_and_Br_sup_sup_in_Enhancing_Kinetics_of_Mg_Plating_Stripping/32900479
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -460,27 +460,27 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/8374848
+  - url: https://journals.uran.ua/eejet/article/view/197095
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20327777
+  - url: https://zenodo.org/records/21196097
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20327777
+  - url: https://zenodo.org/records/21196097
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20719441
+  - url: https://zenodo.org/records/21196012
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20719441
+  - url: https://zenodo.org/records/21196012
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://springernature.figshare.com/collections/TumorTwin_a_Python_framework_for_patient-specific_digital_twins_in_oncology/8573350
+  - url: https://zenodo.org/records/21195375
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -499,39 +499,31 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://figshare.com/articles/dataset/Call_09152489563_For_University_of_Ilorin_2026_2027_POST_UTME_Diploma_and_Pre_Degree_forms_are_out_call_09152489563_/32897240
+  - url: https://tandf.figshare.com/articles/journal_contribution/A_fuzzy_logic_mindset_agency_theory_decision_support_model_for_diagnosing_consumer_resistance_to_eco-friendly_cosmetics/32900501
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Call_09152489563_For_Evangel_University_2026_2027_POST_UTME_Diploma_and_Pre_Degree_forms_are_out_call_09152489563_/32897234
+  - url: https://tandf.figshare.com/articles/dataset/Twisted_path_to_green_strategic_regulatory_spillovers_in_global_competitive_markets/32900498
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/figure/Photon_energy_resolved_trXAS_signal_/32897222
+  - url: https://figshare.com/articles/thesis/Thesis_b_Determinants_of_Digital_Transformation_and_Operational_Efficiency_Evidence_from_Pharmaceutical_Manufacturing_Companies_in_Western_Province_of_Sri_Lanka_b_/32900483
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Call_09152489563_For_Ebonyi_State_University_EBSU_2026_2027_POST_UTME_Diploma_and_Pre_Degree_forms_are_out_call_09152489563_/32897231
+  - url: https://acs.figshare.com/articles/journal_contribution/Deciphering_the_Halide_Chemistry_of_Cl_sup_sup_and_Br_sup_sup_in_Enhancing_Kinetics_of_Mg_Plating_Stripping/32900482
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Call_09152489563_For_David_Umahi_Federal_University_of_Health_Sciences_DUFUHS_2026_2027_POST_UTME_Diploma_and_Pre_Degree_forms_are_out_call_09152489563_/32897225
+  - url: https://acs.figshare.com/articles/media/Deciphering_the_Halide_Chemistry_of_Cl_sup_sup_and_Br_sup_sup_in_Enhancing_Kinetics_of_Mg_Plating_Stripping/32900479
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://beei.org/index.php/EEI/article/view/1972
+  - url: https://doi.org/10.11591/eei.v9i2.1972
     source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/14352943
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/17854610
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/10199277
+    status: unreachable
+    reason: 'reachability failed: HTTP 415'
+  - url: https://zenodo.org/records/5951740
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -539,47 +531,55 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21171487
+  - url: https://zenodo.org/records/14352943
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20759590
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21167718
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21171487
+  - url: https://zenodo.org/records/21167718
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20856850
+  - url: https://zenodo.org/records/21193755
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21169299
+  - url: https://zenodo.org/records/21193755
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://doi.org/10.5281/zenodo.21157158
+  - url: https://zenodo.org/records/17071173
     source: datacite
-    status: unreachable
-    reason: 'reachability failed: HTTP 404'
+    status: wrong_format
+    reason: unrecognized/non-dataset content
 - intent: CPU-tractable
   status: unresolved
   candidates: []
   candidates_tried:
-  - url: https://figshare.com/articles/dataset/Call_09152489563_For_University_of_Ilorin_2026_2027_POST_UTME_Diploma_and_Pre_Degree_forms_are_out_call_09152489563_/32897240
+  - url: https://tandf.figshare.com/articles/journal_contribution/A_fuzzy_logic_mindset_agency_theory_decision_support_model_for_diagnosing_consumer_resistance_to_eco-friendly_cosmetics/32900501
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Call_09152489563_For_Evangel_University_2026_2027_POST_UTME_Diploma_and_Pre_Degree_forms_are_out_call_09152489563_/32897234
+  - url: https://tandf.figshare.com/articles/dataset/Twisted_path_to_green_strategic_regulatory_spillovers_in_global_competitive_markets/32900498
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/figure/Photon_energy_resolved_trXAS_signal_/32897222
+  - url: https://figshare.com/articles/thesis/Thesis_b_Determinants_of_Digital_Transformation_and_Operational_Efficiency_Evidence_from_Pharmaceutical_Manufacturing_Companies_in_Western_Province_of_Sri_Lanka_b_/32900483
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Call_09152489563_For_Ebonyi_State_University_EBSU_2026_2027_POST_UTME_Diploma_and_Pre_Degree_forms_are_out_call_09152489563_/32897231
+  - url: https://acs.figshare.com/articles/journal_contribution/Deciphering_the_Halide_Chemistry_of_Cl_sup_sup_and_Br_sup_sup_in_Enhancing_Kinetics_of_Mg_Plating_Stripping/32900482
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Call_09152489563_For_David_Umahi_Federal_University_of_Health_Sciences_DUFUHS_2026_2027_POST_UTME_Diploma_and_Pre_Degree_forms_are_out_call_09152489563_/32897225
+  - url: https://acs.figshare.com/articles/media/Deciphering_the_Halide_Chemistry_of_Cl_sup_sup_and_Br_sup_sup_in_Enhancing_Kinetics_of_Mg_Plating_Stripping/32900479
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -587,15 +587,15 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/17854610
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/10199277
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/15115020
+  - url: https://zenodo.org/records/17854610
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://kjet.kardan.edu.af/Journal?Journal=KJET&id=3183
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content

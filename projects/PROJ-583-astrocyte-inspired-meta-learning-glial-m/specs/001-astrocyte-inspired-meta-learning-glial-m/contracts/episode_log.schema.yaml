@@ -5,23 +5,16 @@ type: "object"
 properties:
   episode_id:
     type: "integer"
-    description: "Unique identifier for the episode within a run."
+    description: "Unique integer identifier for the episode within a run."
   seed:
     type: "integer"
     description: "Random seed used for this run."
-  task_id:
-    type: "string"
-    description: "Identifier for the specific task (e.g., class combination)."
-  plasticity_scores:
-    type: "array"
-    items:
-      type: "number"
+  plasticity_score:
+    type: "number"
     description: "Accuracy on the current task after 1, 5, and 10 inner-loop steps."
-  stability_scores:
-    type: "array"
-    items:
-      type: "number"
-    description: "Accuracy on a buffer of previous tasks after training on the current task."
+  stability_score:
+    type: "number"
+    description: "Accuracy on a Meta-Test Buffer of previous tasks (explicitly excluded from Calcium history) after training on the current task."
   homeostatic_factor:
     type: "number"
     description: "The scalar factor h_t applied to the learning rate."
@@ -38,9 +31,8 @@ properties:
 required:
   - "episode_id"
   - "seed"
-  - "task_id"
-  - "plasticity_scores"
-  - "stability_scores"
+  - "plasticity_score"
+  - "stability_score"
   - "homeostatic_factor"
   - "calcium_concentration"
   - "loss"

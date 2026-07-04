@@ -2,72 +2,106 @@
 
 ## 1. Prerequisites
 
--   Python 3.10+
--   pip / venv
--   Git
--   7GB+ free disk space (for datasets and logs)
+- Python 3.10 or higher
+- Git
+- Access to a Linux environment (or WSL on Windows)
+- Internet connection (for dataset downloads)
 
 ## 2. Installation
 
-1.  **Clone and Setup**:
-    ```bash
-    git clone <repo-url>
-    cd projects/PROJ-583-astrocyte-inspired-meta-learning-glial-m/code/
-    python -m venv venv
-    source venv/bin/activate  # On Windows: venv\Scripts\activate
-    ```
+### 2.1 Clone the Repository
 
-2.  **Install Dependencies**:
-    ```bash
-    pip install -r requirements.txt
-    ```
-    *Note: This installs CPU-compatible versions of PyTorch and other libraries.*
+```bash
+git clone https://github.com/your-org/astrocyte-meta-learning.git
+cd astrocyte-meta-learning
+```
+
+### 2.2 Create Virtual Environment
+
+```bash
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+```
+
+### 2.3 Install Dependencies
+
+```bash
+pip install -r requirements.txt
+```
+
+The `requirements.txt` will include:
+- `torch` (CPU version)
+- `torchvision`
+- `datasets`
+- `scipy`
+- `scikit-learn`
+- `pandas`
+- `numpy`
+- `pytest`
 
 ## 3. Data Preparation
 
-The system automatically downloads **Omniglot** via `torchvision`.
-For **Mini-ImageNet**, ensure the dataset is available locally or via a verified HuggingFace mirror.
--   If using Mini-ImageNet, place the `mini_imagenet` folder in `data/raw/`.
+The datasets will be downloaded automatically upon the first run of the training script.
+
+- **Omniglot**: Downloaded via `torchvision`.
+- **Mini-ImageNet**: Downloaded via custom loader (canonical split).
+
+No manual download is required. The scripts will handle retries and checksums.
 
 ## 4. Running the Experiments
 
-### 4.1 Core Training (Omniglot)
-Run the baseline MAML and Astrocyte-modulated MAML on Omniglot:
-```bash
-python train.py --dataset omniglot --model astrocyte --seeds 5 --episodes 100
-```
-*Output*: Logs in `results/logs/` and summaries in `results/run_summary_*.csv`.
+### 4.1 Run a Single Seed (Omniglot)
 
-### 4.2 Statistical Evaluation
-Compare the results of the Astrocyte model against the Baseline:
 ```bash
-python evaluate.py --baseline results/run_summary_baseline_*.csv --astrocyte results/run_summary_astrocyte_*.csv
-```
-*Output*: `results/stat_test_*.json` with p-values and significance verdict.
-
-### 4.3 Sensitivity Analysis
-Sweep the homeostatic scale parameter:
-```bash
-python ablation.py --dataset omniglot --scale-params 0.01 0.05 0.1
+python code/main.py --dataset omniglot --seed 42 --mode astrocyte --episodes 100
 ```
 
-### 4.4 Ablation (Constant Mode)
-Disable the dynamic ODE:
+This will:
+1. Load Omniglot.
+2. Initialize the Astrocyte-MAML model.
+3. Run 100 episodes.
+4. Log metrics to `results/logs/seed_42_run.jsonl`.
+
+### 4.2 Run the Full Experiment (5 Seeds)
+
 ```bash
-python train.py --dataset omniglot --model astrocyte --ablation-constant
+python code/main.py --dataset omniglot --mode astrocyte --seeds 42 43 44 45 46
 ```
 
-## 5. Verification
+This will run the training loop for 5 seeds and aggregate the results.
 
-To verify the installation and data integrity:
+### 4.3 Run the Baseline (Vanilla MAML)
+
 ```bash
-pytest tests/unit/
-pytest tests/integration/test_training_loop.py
+python code/main.py --dataset omniglot --mode baseline --seeds 42 43 44 45 46
 ```
-Ensure all tests pass before proceeding to full training runs.
+
+### 4.4 Run the Statistical Analysis
+
+After running both baseline and astrocyte modes, run the analysis script:
+
+```bash
+python code/main.py --mode analyze --baseline-path results/stats/baseline.csv --astrocyte-path results/stats/astrocyte.csv
+```
+
+This will perform a **Permutation Test** (10,000 permutations) and output the result to `results/stats/statistical_test.json`.
+
+### 4.5 Run Ablation Study (Sensitivity Analysis)
+
+```bash
+python code/main.py --dataset omniglot --mode astrocyte --sweep-scales 0.01 0.05 0.1 --seeds 42
+```
+
+This will run the training loop for each scale parameter and report the variation in stability/plasticity.
+
+## 5. Verifying Results
+
+- Check `results/logs/` for episode logs.
+- Check `results/stats/` for aggregated CSVs and statistical test results.
+- Ensure that `statistical_test.json` contains a `significant` boolean and a `p_value`.
 
 ## 6. Troubleshooting
 
--   **CUDA Error**: Ensure `torch` is installed without CUDA support. Use `pip install torch --index-url https://download.pytorch.org/whl/cpu`.
--   **Memory Error**: Reduce `--batch-size` or use only Omniglot.
--   **Download Failure**: Check network connectivity; the script retries automatically.
+- **Memory Error**: If you encounter a memory error, reduce the number of episodes or use a subset of Mini-ImageNet (50 classes).
+- **Download Failure**: The script will retry 3 times. If it fails, check your internet connection.
+- **CUDA Error**: Ensure you are using the CPU version of PyTorch. Do not install `torch` with CUDA support.
