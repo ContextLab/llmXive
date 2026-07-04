@@ -3119,6 +3119,39 @@ T006 [P] Implement shared external memory buffer with `<MEMORY_ACTION>` token ha
   \ --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->"
 : 1
 ? "T027 [US-3] Implement game simulation for agent counts 3, 5, 7 (The game simulation\
+  \ for User Story 3 runs 800 games per configuration. [UNRESOLVED-CLAIM: c_0a6d904f\
+  \ \u2014 status=not_enough_info] per spec US-3) in `code/run_experiment.py` <!--\
+  \ ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->\
+  \ <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified\
+  \ --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified\
+  \ --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified\
+  \ --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested\
+  \ --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified\
+  \ --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified\
+  \ --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested\
+  \ --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified\
+  \ --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested\
+  \ --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested\
+  \ --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested\
+  \ --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested\
+  \ --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified\
+  \ --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested\
+  \ --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested\
+  \ --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested\
+  \ --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested\
+  \ --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified\
+  \ --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified\
+  \ --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified\
+  \ --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested\
+  \ --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified\
+  \ --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested\
+  \ --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested\
+  \ --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested\
+  \ --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested\
+  \ --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested\
+  \ --> <!-- FAILED: unspecified -->"
+: 1
+? "T027 [US-3] Implement game simulation for agent counts 3, 5, 7 (The game simulation\
   \ for User Story 3 runs 800 games per configuration. [UNRESOLVED-CLAIM: c_13e5ac07\
   \ \u2014 status=not_enough_info] per spec US-3) in `code/run_experiment.py` <!--\
   \ ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->\
@@ -3382,6 +3415,41 @@ T006 [P] Implement shared external memory buffer with `<MEMORY_ACTION>` token ha
   \ --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested\
   \ --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested\
   \ --> <!-- ATOMIZE: requested -->"
+: 1
+? "T027 [US-3] Implement game simulation for agent counts 3, 5, 7 (The game simulation\
+  \ for User Story 3 runs 800 games per configuration. [UNRESOLVED-CLAIM: c_43f3c873\
+  \ \u2014 status=not_enough_info] per spec US-3) in `code/run_experiment.py` <!--\
+  \ ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->\
+  \ <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified\
+  \ --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified\
+  \ --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified\
+  \ --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested\
+  \ --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified\
+  \ --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified\
+  \ --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested\
+  \ --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified\
+  \ --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested\
+  \ --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested\
+  \ --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested\
+  \ --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested\
+  \ --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified\
+  \ --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested\
+  \ --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested\
+  \ --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested\
+  \ --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested\
+  \ --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified\
+  \ --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified\
+  \ --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified\
+  \ --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested\
+  \ --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified\
+  \ --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested\
+  \ --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested\
+  \ --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested\
+  \ --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested\
+  \ --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested\
+  \ --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified\
+  \ --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested\
+  \ -->"
 : 1
 ? "T027 [US-3] Implement game simulation for agent counts 3, 5, 7 (The game simulation\
   \ for User Story 3 runs 800 games per configuration. [UNRESOLVED-CLAIM: c_441b587a\
@@ -3621,6 +3689,39 @@ T006 [P] Implement shared external memory buffer with `<MEMORY_ACTION>` token ha
   \ --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested\
   \ --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested\
   \ --> <!-- FAILED: unspecified -->"
+: 1
+? "T027 [US-3] Implement game simulation for agent counts 3, 5, 7 (The game simulation\
+  \ for User Story 3 runs 800 games per configuration. [UNRESOLVED-CLAIM: c_72697e56\
+  \ \u2014 status=not_enough_info] per spec US-3) in `code/run_experiment.py` <!--\
+  \ ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->\
+  \ <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified\
+  \ --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified\
+  \ --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified\
+  \ --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested\
+  \ --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified\
+  \ --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified\
+  \ --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested\
+  \ --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified\
+  \ --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested\
+  \ --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested\
+  \ --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested\
+  \ --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested\
+  \ --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified\
+  \ --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested\
+  \ --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested\
+  \ --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested\
+  \ --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested\
+  \ --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified\
+  \ --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified\
+  \ --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified\
+  \ --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested\
+  \ --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified\
+  \ --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested\
+  \ --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested\
+  \ --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested\
+  \ --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested\
+  \ --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested\
+  \ --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested -->"
 : 1
 ? "T027 [US-3] Implement game simulation for agent counts 3, 5, 7 (The game simulation\
   \ for User Story 3 runs 800 games per configuration. [UNRESOLVED-CLAIM: c_c70bba6d\
@@ -4114,6 +4215,104 @@ T006 [P] Implement shared external memory buffer with `<MEMORY_ACTION>` token ha
   --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested
   --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested -->'
 : 2
+? 'T027 [US-3] Implement game simulation for agent counts 3, 5, 7 (The game simulation
+  for User Story 3 runs 800 games per configuration. per spec US-3) in `code/run_experiment.py`
+  <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested
+  --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified
+  --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified
+  --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified
+  --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested
+  --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified
+  --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified
+  --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested
+  --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified
+  --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested
+  --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested
+  --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested
+  --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested
+  --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified
+  --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested
+  --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested
+  --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested
+  --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested
+  --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified
+  --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified
+  --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified
+  --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested
+  --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified
+  --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested
+  --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested
+  --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested
+  --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested
+  --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested
+  -->'
+: 1
+? 'T027 [US-3] Implement game simulation for agent counts 3, 5, 7 (The game simulation
+  for User Story 3 runs 800 games per configuration. per spec US-3) in `code/run_experiment.py`
+  <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested
+  --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified
+  --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified
+  --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified
+  --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested
+  --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified
+  --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified
+  --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested
+  --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified
+  --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested
+  --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested
+  --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested
+  --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested
+  --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified
+  --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested
+  --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested
+  --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested
+  --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested
+  --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified
+  --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified
+  --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified
+  --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested
+  --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified
+  --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested
+  --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested
+  --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested
+  --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested
+  --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested
+  --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified
+  --> <!-- ATOMIZE: requested -->'
+: 1
+? 'T027 [US-3] Implement game simulation for agent counts 3, 5, 7 (The game simulation
+  for User Story 3 runs 800 games per configuration. per spec US-3) in `code/run_experiment.py`
+  <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested
+  --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified
+  --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified
+  --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified
+  --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested
+  --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified
+  --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified
+  --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested
+  --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified
+  --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested
+  --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested
+  --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested
+  --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested
+  --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified
+  --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested
+  --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested
+  --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested
+  --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested
+  --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified
+  --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified
+  --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified
+  --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested
+  --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified
+  --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested
+  --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested
+  --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested
+  --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested
+  --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested
+  --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified
+  --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->'
+: 1
 ? "T027 [US-3] Implement game simulation for agent counts 3, 5, 7 [UNRESOLVED-CLAIM:\
   \ c_382b368e \u2014 status=not_enough_info] (800 games per config per spec US-3)\
   \ in `code/run_experiment.py` <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested\
@@ -4134,6 +4333,40 @@ T006 [P] Implement shared external memory buffer with `<MEMORY_ACTION>` token ha
   \ --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested\
   \ --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested\
   \ --> <!-- ATOMIZE: requested -->"
+: 1
+? "T027 [US-3] Implement game simulation for agent counts 3, 5, 7 [UNRESOLVED-CLAIM:\
+  \ c_6d807cee \u2014 status=not_enough_info] (The game simulation for User Story\
+  \ 3 runs 800 games per configuration. [UNRESOLVED-CLAIM: c_19f2b6b4 \u2014 status=not_enough_info]\
+  \ per spec US-3) in `code/run_experiment.py` <!-- ATOMIZE: requested --> <!-- ATOMIZE:\
+  \ requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- FAILED:\
+  \ unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!--\
+  \ FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested -->\
+  \ <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified\
+  \ --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested\
+  \ --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested\
+  \ --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested\
+  \ --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested\
+  \ --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested\
+  \ --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested\
+  \ --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested\
+  \ --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested\
+  \ --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested\
+  \ --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested\
+  \ --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested\
+  \ --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested\
+  \ --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified\
+  \ --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested\
+  \ --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested\
+  \ --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested\
+  \ --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested\
+  \ --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified\
+  \ --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested\
+  \ --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified\
+  \ --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested\
+  \ --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified\
+  \ --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified\
+  \ --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified\
+  \ --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified -->"
 : 1
 ? "T027 [US-3] Implement game simulation for agent counts 3, 5, 7 [UNRESOLVED-CLAIM:\
   \ c_90f67535 \u2014 status=not_enough_info] (800 games per config [UNRESOLVED-CLAIM:\
@@ -4267,10 +4500,30 @@ T006 [P] Implement shared external memory buffer with `<MEMORY_ACTION>` token ha
 : 1
 ? "T030 [US-3] Generate `scaling_plot.pdf` with fitted power\u2011law curves and explicit\
   \ note that The scaling plot includes an explicit note that 3 data points limit\
+  \ power-law reliability. [UNRESOLVED-CLAIM: c_5730fbe4 \u2014 status=not_enough_info]\
+  \ limit power\u2011law reliability in `projects/PROJ-586-social-memory-networks-modeling-collecti/results/scaling_plot.pdf`\
+  \ <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested\
+  \ --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified\
+  \ --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified\
+  \ --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified\
+  \ --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->"
+: 1
+? "T030 [US-3] Generate `scaling_plot.pdf` with fitted power\u2011law curves and explicit\
+  \ note that The scaling plot includes an explicit note that 3 data points limit\
   \ power-law reliability. [UNRESOLVED-CLAIM: c_5a35e6fb \u2014 status=not_enough_info]\
   \ limit power\u2011law reliability in `projects/PROJ-586-social-memory-networks-modeling-collecti/results/scaling_plot.pdf`\
   \ <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested\
   \ --> <!-- FAILED: unspecified -->"
+: 1
+? "T030 [US-3] Generate `scaling_plot.pdf` with fitted power\u2011law curves and explicit\
+  \ note that The scaling plot includes an explicit note that 3 data points limit\
+  \ power-law reliability. [UNRESOLVED-CLAIM: c_5a35e6fb \u2014 status=not_enough_info]\
+  \ limit power\u2011law reliability in `projects/PROJ-586-social-memory-networks-modeling-collecti/results/scaling_plot.pdf`\
+  \ <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested\
+  \ --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified\
+  \ --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified\
+  \ --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified\
+  \ --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->"
 : 1
 ? "T030 [US-3] Generate `scaling_plot.pdf` with fitted power\u2011law curves and explicit\
   \ note that The scaling plot includes an explicit note that 3 data points limit\
@@ -4407,6 +4660,25 @@ T006 [P] Implement shared external memory buffer with `<MEMORY_ACTION>` token ha
   \ --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified\
   \ --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified\
   \ --> <!-- ATOMIZE: requested -->"
+: 2
+? "T030 [US-3] Generate `scaling_plot.pdf` with fitted power\u2011law curves and explicit\
+  \ note that The scaling plot includes an explicit note that 3 data points limit\
+  \ power-law reliability. limit power\u2011law reliability in `projects/PROJ-586-social-memory-networks-modeling-collecti/results/scaling_plot.pdf`\
+  \ <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested\
+  \ --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified\
+  \ --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified\
+  \ --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified\
+  \ --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->"
+: 1
+? "T030 [US-3] Generate `scaling_plot.pdf` with fitted power\u2011law curves and explicit\
+  \ note that The scaling plot includes an explicit note that 3 data points limit\
+  \ power-law reliability. limit power\u2011law reliability in `projects/PROJ-586-social-memory-networks-modeling-collecti/results/scaling_plot.pdf`\
+  \ <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested\
+  \ --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified\
+  \ --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified\
+  \ --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified\
+  \ --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified\
+  \ -->"
 : 2
 ? 'T031 [P] Run `quickstart.md` validation (execute all commands, verify exit code
   0 for each) in `projects/PROJ-586-social-memory-networks-modeling-collecti/code/`

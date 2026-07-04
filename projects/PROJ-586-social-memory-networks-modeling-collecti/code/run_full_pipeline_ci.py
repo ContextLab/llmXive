@@ -1,7 +1,7 @@
-"""CI Pipeline Runner with Resource Profiling.
+"""Full pipeline CI runner with resource metrics.
 
-Executes the full research pipeline on a CI runner and records
-runtime, memory usage, and disk usage for each stage.
+Executes the complete research pipeline on a CI runner (CPU or GPU) and records
+runtime, memory usage, and disk usage for reproducibility and performance analysis.
 """
 from __future__ import annotations
 
@@ -13,246 +13,295 @@ import shutil
 import subprocess
 import sys
 import time
-from dataclasses import asdict, dataclass
+from dataclasses import dataclass, asdict
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
-from utils.logging import get_logger
+# Add project root to path for imports
+PROJECT_ROOT = Path(__file__).parent.parent
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
 
-logger = get_logger(__name__)
+from utils.logging import get_logger
 
 
 @dataclass
 class ResourceMetrics:
     """Resource usage metrics for a single run."""
+    wall_clock_seconds: float
+    peak_memory_mb: float
+    disk_usage_mb: float
+    cpu_percent: float
+    timestamp: str
     script_name: str
-    start_time: str
-    end_time: str
-    duration_seconds: float
-    max_memory_mb: float
-    exit_code: int
-    output_files: List[str]
-    status: str  # "success", "failed", "timeout"
+    success: bool
+    error_message: Optional[str] = None
+
 
 @dataclass
 class PipelineReport:
-    """Full pipeline execution report."""
-    pipeline_name: str
-    start_time: str
-    end_time: str
-    total_duration_seconds: float
-    runner_environment: Dict[str, Any]
-    stage_results: List[ResourceMetrics]
-    summary: Dict[str, Any]
+    """Aggregated report for the full pipeline."""
+    runs: List[Dict[str, Any]]
+    total_wall_clock_seconds: float
+    max_memory_mb: float
+    total_disk_usage_mb: float
+    timestamp: str
+    ci_environment: str
+    python_version: str
+    platform: str
+
 
 def get_memory_usage_mb() -> float:
-    """Get current memory usage in MB using resource module."""
+    """Get current peak memory usage in MB."""
     usage = resource.getrusage(resource.RUSAGE_SELF)
-    # ru_maxrss is in KB on Linux/macOS
-    return usage.ru_maxrss / 1024.0
+    # ru_maxrss is in KB on Linux, bytes on macOS
+    # On Linux, it's KB; on macOS, it's bytes
+    if sys.platform == "darwin":
+        return usage.ru_maxrss / (1024 * 1024)
+    else:
+        return usage.ru_maxrss / 1024.0
+
 
 def get_disk_usage_mb(path: Path) -> float:
     """Get disk usage of a directory in MB."""
-    if not path.exists():
-        return 0.0
     total = 0
-    for dirpath, dirnames, filenames in os.walk(path):
-        for f in filenames:
-            fp = Path(dirpath) / f
-            try:
-                total += fp.stat().st_size
-            except OSError:
-                pass
+    if path.exists():
+        for dirpath, dirnames, filenames in os.walk(path):
+            for filename in filenames:
+                filepath = os.path.join(dirpath, filename)
+                try:
+                    total += os.path.getsize(filepath)
+                except OSError:
+                    pass
     return total / (1024 * 1024)
+
 
 def run_experiment_script(
     script_path: Path,
     args: List[str],
+    logger: Any,
     timeout_seconds: Optional[int] = None
 ) -> ResourceMetrics:
-    """Run a single experiment script and capture metrics."""
-    start_time = datetime.utcnow().isoformat()
-    start_cpu = resource.getrusage(resource.RUSAGE_SELF)
-    max_mem = 0.0
+    """Run a single experiment script and collect metrics."""
+    start_time = time.time()
+    start_mem = get_memory_usage_mb()
+    start_disk = get_disk_usage_mb(PROJECT_ROOT / "results")
 
-    cmd = [sys.executable, str(script_path)] + args
-    logger.log("run_experiment", script=str(script_path), args=args)
+    logger.info(f"Starting: {script_path.name} {' '.join(args)}")
+
+    success = False
+    error_msg = None
 
     try:
+        cmd = [sys.executable, str(script_path)] + args
         result = subprocess.run(
             cmd,
+            cwd=str(PROJECT_ROOT / "code"),
             capture_output=True,
             text=True,
-            timeout=timeout_seconds,
-            cwd=script_path.parent
+            timeout=timeout_seconds
         )
-        exit_code = result.returncode
-        status = "success" if exit_code == 0 else "failed"
 
-        # Check output files if success
-        output_files = []
-        if status == "success":
-            # Common output locations
-            for pattern in ["results/*.csv", "results/*.pdf", "results/*.md"]:
-                    import glob
-                    for f in glob.glob(str(script_path.parent.parent / pattern)):
-                        output_files.append(f)
-
-        end_time = datetime.utcnow().isoformat()
-        end_cpu = resource.getrusage(resource.RUSAGE_SELF)
-
-        duration = (
-            (end_cpu.ru_utime + end_cpu.ru_stime) -
-            (start_cpu.ru_utime + start_cpu.ru_stime)
-        )
-        max_mem = (end_cpu.ru_maxrss - start_cpu.ru_maxrss) / 1024.0
-        if max_mem < 0:
-            max_mem = end_cpu.ru_maxrss / 1024.0
-
-        return ResourceMetrics(
-            script_name=script_path.name,
-            start_time=start_time,
-            end_time=end_time,
-            duration_seconds=duration,
-            max_memory_mb=max_mem,
-            exit_code=exit_code,
-            output_files=output_files,
-            status=status
-        )
+        if result.returncode != 0:
+            error_msg = f"Script failed with code {result.returncode}: {result.stderr}"
+            logger.error(error_msg)
+        else:
+            success = True
+            logger.info(f"Completed: {script_path.name}")
 
     except subprocess.TimeoutExpired:
-        end_time = datetime.utcnow().isoformat()
-        return ResourceMetrics(
-            script_name=script_path.name,
-            start_time=start_time,
-            end_time=end_time,
-            duration_seconds=timeout_seconds,
-            max_memory_mb=get_memory_usage_mb(),
-            exit_code=-1,
-            output_files=[],
-            status="timeout"
-        )
+        error_msg = f"Script timed out after {timeout_seconds} seconds"
+        logger.error(error_msg)
     except Exception as e:
-        end_time = datetime.utcnow().isoformat()
-        logger.log("run_experiment_error", error=str(e))
-        return ResourceMetrics(
-            script_name=script_path.name,
-            start_time=start_time,
-            end_time=end_time,
-            duration_seconds=0.0,
-            max_memory_mb=get_memory_usage_mb(),
-            exit_code=-1,
-            output_files=[],
-            status="failed"
-        )
+        error_msg = f"Exception: {str(e)}"
+        logger.error(error_msg)
+
+    end_time = time.time()
+    end_mem = get_memory_usage_mb()
+    end_disk = get_disk_usage_mb(PROJECT_ROOT / "results")
+
+    # Use peak memory if available, otherwise delta
+    peak_mem = max(end_mem, start_mem)
+    if hasattr(resource, 'getrusage'):
+        usage = resource.getrusage(resource.RUSAGE_SELF)
+        if sys.platform == "darwin":
+            peak_mem = max(peak_mem, usage.ru_maxrss / (1024 * 1024))
+        else:
+            peak_mem = max(peak_mem, usage.ru_maxrss / 1024.0)
+
+    wall_clock = end_time - start_time
+    disk_delta = end_disk - start_disk
+    if disk_delta < 0:
+        disk_delta = end_disk
+
+    return ResourceMetrics(
+        wall_clock_seconds=wall_clock,
+        peak_memory_mb=peak_mem,
+        disk_usage_mb=disk_delta,
+        cpu_percent=100.0,  # Placeholder for CI runner
+        timestamp=datetime.utcnow().isoformat(),
+        script_name=script_path.name,
+        success=success,
+        error_message=error_msg
+    )
+
 
 def run_full_pipeline(
-    project_root: Path,
-    timeout_per_stage: int = 3600
-) -> PipelineReport:
-    """Run the full research pipeline and collect metrics."""
-    start_time = datetime.utcnow()
-    start_ts = start_time.isoformat()
+    scripts: List[Dict[str, Any]],
+    logger: Any
+) -> List[ResourceMetrics]:
+    """Run the full pipeline of scripts."""
+    results = []
 
-    # Define pipeline stages
-    stages = [
-        ("full_context", ["run_experiment.py", "--context", "full", "--agents", "5", "--games", "100", "--seed", "42"]),
-        ("limited_context", ["run_experiment.py", "--context", "limited", "--agents", "5", "--games", "100", "--seed", "42"]),
-        ("scaling", ["run_experiment.py", "--context", "full", "--agents", "3,5,7", "--games", "800", "--plot", "scaling"]),
-    ]
+    for step in scripts:
+        script_name = step["script"]
+        args = step.get("args", [])
+        timeout = step.get("timeout", 3600)
 
-    results: List[ResourceMetrics] = []
-    code_script = project_root / "code"
+        script_path = PROJECT_ROOT / "code" / script_name
+        if not script_path.exists():
+            logger.error(f"Script not found: {script_path}")
+            results.append(ResourceMetrics(
+                wall_clock_seconds=0,
+                peak_memory_mb=0,
+                disk_usage_mb=0,
+                cpu_percent=0,
+                timestamp=datetime.utcnow().isoformat(),
+                script_name=script_name,
+                success=False,
+                error_message=f"Script not found: {script_path}"
+            ))
+            continue
 
-    for stage_name, args in stages:
-        logger.log("stage_start", stage=stage_name)
-        metric = run_experiment_script(code_script / args[0], args[1:], timeout_per_stage)
-        results.append(metric)
-        logger.log("stage_end", stage=stage_name, status=metric.status)
+        metrics = run_experiment_script(script_path, args, logger, timeout)
+        results.append(metrics)
 
-    end_time = datetime.utcnow()
-    total_duration = (end_time - start_time).total_seconds()
+        # Stop if a critical step fails
+        if not metrics.success and step.get("critical", True):
+            logger.error("Critical step failed, stopping pipeline")
+            break
 
-    # Build summary
-    successful = sum(1 for r in results if r.status == "success")
-    total_memory = sum(r.max_memory_mb for r in results)
-    total_time = sum(r.duration_seconds for r in results)
+    return results
 
-    report = PipelineReport(
-        pipeline_name="PROJ-586-social-memory-networks-modeling-collecti",
-        start_time=start_ts,
-        end_time=end_time.isoformat(),
-        total_duration_seconds=total_duration,
-        runner_environment={
-            "python_version": sys.version,
-            "platform": sys.platform,
-            "cwd": str(Path.cwd()),
-        },
-        stage_results=results,
-        summary={
-            "total_stages": len(stages),
-            "successful_stages": successful,
-            "failed_stages": len(stages) - successful,
-            "total_memory_mb": total_memory,
-            "total_cpu_seconds": total_time,
-        }
-    )
 
-    return report
-
-def save_results(report: PipelineReport, output_dir: Path) -> None:
-    """Save pipeline report to disk."""
-    output_dir.mkdir(parents=True, exist_ok=True)
-    report_path = output_dir / "pipeline_ci_report.json"
-
-    with open(report_path, "w", encoding="utf-8") as f:
+def save_results(
+    report: PipelineReport,
+    output_path: Path
+) -> None:
+    """Save the pipeline report to JSON."""
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(output_path, "w") as f:
         json.dump(asdict(report), f, indent=2, default=str)
+    logger.info(f"Report saved to {output_path}")
 
-    logger.log("save_report", path=str(report_path))
 
 def build_parser() -> argparse.ArgumentParser:
+    """Build argument parser."""
     parser = argparse.ArgumentParser(
-        description="Run full pipeline on CI runner with resource profiling"
+        description="Run full pipeline on CI and record metrics"
     )
     parser.add_argument(
-        "--project-root",
-        type=Path,
-        default=Path("."),
-        help="Path to project root directory"
-    )
-    parser.add_argument(
-        "--output-dir",
-        type=Path,
-        default=Path("results"),
-        help="Directory to write report"
+        "--output",
+        type=str,
+        default="pipeline_metrics_report.json",
+        help="Output path for the metrics report"
     )
     parser.add_argument(
         "--timeout",
         type=int,
         default=3600,
-        help="Timeout per stage in seconds"
+        help="Default timeout per script in seconds"
     )
     return parser
 
+
 def main() -> int:
+    """Main entry point."""
+    logger = get_logger(__name__)
     parser = build_parser()
     args = parser.parse_args()
 
-    project_root = args.project_root.resolve()
-    output_dir = args.output_dir.resolve()
+    logger.info("Starting full pipeline CI run")
+    logger.info(f"Project root: {PROJECT_ROOT}")
 
-    logger.log("pipeline_start", project=str(project_root))
+    # Define the pipeline steps
+    # These scripts must exist and be runnable
+    pipeline_scripts = [
+        {
+            "script": "run_experiment.py",
+            "args": ["--context", "full", "--agents", "5", "--games", "100", "--seed", "42"],
+            "timeout": args.timeout,
+            "critical": True
+        },
+        {
+            "script": "run_experiment.py",
+            "args": ["--context", "limited", "--agents", "5", "--games", "100", "--seed", "42"],
+            "timeout": args.timeout,
+            "critical": True
+        },
+        {
+            "script": "run_scaling_experiment.py",
+            "args": ["--agents", "3", "5", "7", "--games", "200", "--seed", "42"],
+            "timeout": args.timeout,
+            "critical": True
+        },
+        {
+            "script": "analysis/anova.py",
+            "args": [],
+            "timeout": args.timeout,
+            "critical": False
+        },
+        {
+            "script": "analysis/power.py",
+            "args": [],
+            "timeout": args.timeout,
+            "critical": False
+        },
+        {
+            "script": "analysis/scaling.py",
+            "args": [],
+            "timeout": args.timeout,
+            "critical": False
+        }
+    ]
 
-    report = run_full_pipeline(project_root, args.timeout)
-    save_results(report, output_dir)
+    # Run the pipeline
+    results = run_full_pipeline(pipeline_scripts, logger)
 
-    logger.log("pipeline_complete", status="success" if report.summary["failed_stages"] == 0 else "partial")
+    # Aggregate results
+    total_wall_clock = sum(r.wall_clock_seconds for r in results)
+    max_memory = max((r.peak_memory_mb for r in results), default=0)
+    total_disk = sum(r.disk_usage_mb for r in results)
 
-    # Print summary to stdout
-    print(json.dumps(asdict(report.summary), indent=2))
+    report = PipelineReport(
+        runs=[asdict(r) for r in results],
+        total_wall_clock_seconds=total_wall_clock,
+        max_memory_mb=max_memory,
+        total_disk_usage_mb=total_disk,
+        timestamp=datetime.utcnow().isoformat(),
+        ci_environment=os.environ.get("CI", "local"),
+        python_version=sys.version,
+        platform=sys.platform
+    )
 
-    return 0 if report.summary["failed_stages"] == 0 else 1
+    # Save report
+    output_path = PROJECT_ROOT / "results" / args.output
+    save_results(report, output_path)
+
+    # Summary
+    logger.info(f"Pipeline complete. Total time: {total_wall_clock:.2f}s, "
+               f"Peak memory: {max_memory:.2f}MB, Disk: {total_disk:.2f}MB")
+
+    success_count = sum(1 for r in results if r.success)
+    logger.info(f"Successful runs: {success_count}/{len(results)}")
+
+    if success_count < len(results):
+        logger.warning("Some pipeline steps failed")
+        return 1
+
+    return 0
+
 
 if __name__ == "__main__":
     sys.exit(main())
