@@ -24,9 +24,9 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure per implementation plan: execute `mkdir -p src/models src/services src/analysis src/cli src/utils data/raw data/processed tests/unit tests/integration docs`
-- [ ] T002 Initialize Python 3.11 project with `requests`, `pandas`, `scipy`, `statsmodels`, `matplotlib`, `pyyaml` dependencies by creating `pyproject.toml` at repository root
-- [ ] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools
+- [X] T001 Create project structure per implementation plan: execute `mkdir -p src/models src/services src/analysis src/cli src/utils data/raw data/processed tests/unit tests/integration docs`
+- [X] T002 Initialize Python 3.11 project with `requests`, `pandas`, `scipy`, `statsmodels`, `matplotlib`, `pyyaml` dependencies by creating `pyproject.toml` at repository root
+- [X] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools
 
 ---
 
@@ -36,9 +36,9 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 Create data models for `Package`, `Dependency`, and `AnalysisResult` in `src/models/data_models.py` (Pydantic/Dict schemas)
-- [ ] T005 [P] Implement utility functions for exponential backoff in `src/utils/backoff.py` with EXPLICIT parameters: a limited number of retries, initial delay=1s, multiplier=2.0, max delay=60s. Also implement checksum generation in `src/utils/checksum.py`.
-- [ ] T006 [P] Setup environment configuration management in `src/config/settings.py`: create file with default values for `NPM_API_KEY`, `GITHUB_TOKEN`, and `RATE_LIMIT` (requests/min)
+- [X] T004 Create data models for `Package`, `Dependency`, and `AnalysisResult` in `src/models/data_models.py` (Pydantic/Dict schemas)
+- [X] T005 [P] Implement utility functions for exponential backoff in `src/utils/backoff.py` with EXPLICIT parameters: a limited number of retries, initial delay=1s, multiplier=2.0, max delay=60s. Also implement checksum generation in `src/utils/checksum.py`.
+- [X] T006 [P] Setup environment configuration management in `src/config/settings.py`: create file with default values for `NPM_API_KEY`, `GITHUB_TOKEN`, and `RATE_LIMIT` (requests/min)
 - [ ] T007 Create base logging infrastructure in `src/utils/logging_config.py` to track API success/failure rates (FR-009)
 - [ ] T007a [P] Implement API log aggregation utility in `src/utils/api_metrics.py` to calculate and report the success/failure ratio as required by SC-004.
 - [ ] T008 Implement local file caching mechanism to save raw API responses to `data/raw/` with immutable checksums (Constitution Principle III & VI)
@@ -63,14 +63,14 @@
 
 ### Implementation for User Story 1
 
-- [ ] T012 [P] [US1] Implement `NpmClient` in `src/services/npm_client.py` to query top packages by weekly downloads and fetch package metadata
-- [ ] T013 [P] [US1] Implement `GithubClient` in `src/services/github_client.py` to fetch `last_commit_date` and `last_release_date` for repositories
-- [ ] T014 [P] [US1] Implement `AuditClient` in `src/services/audit_client.py` to query npm audit for unpatched CVE counts
-- [ ] T015 [US1] Implement recursive dependency tree resolver in `src/services/dependency_resolver.py` to flatten direct and transitive dependencies (FR-002)
-- [ ] T016 [US1] Implement the main data collection pipeline in `src/cli/collect_data.py` that orchestrates clients, handles missing repos (null dates), and skips private packages
-- [ ] T017 [US1] Implement logic to calculate `age_in_days` and exclude dependencies with missing release metadata from age calculation but include in vulnerability counts (FR-010). **VERIFY**: rows with null release_date have age_in_days=null but non-null vulnerability_count.
-- [ ] T017a [US1] Implement calculation of the proportion of dependencies with missing release metadata and write the result to `data/processed/metrics.json` to satisfy SC-002.
-- [ ] T018 [US1] Implement data export to `data/processed/dependencies_raw.csv` with checksum generation (must contain calculated `age_in_days` from T017 and depend on T017a completion)
+- [~] T012 [P] [US1] Implement `NpmClient` in `src/services/npm_client.py` to query top packages by weekly downloads and fetch package metadata
+- [~] T013 [P] [US1] Implement `GithubClient` in `src/services/github_client.py` to fetch `last_commit_date` and `last_release_date` for repositories
+- [~] T014 [P] [US1] Implement `AuditClient` in `src/services/audit_client.py` to query npm audit for unpatched CVE counts
+- [~] T015 [US1] Implement recursive dependency tree resolver in `src/services/dependency_resolver.py` to flatten direct and transitive dependencies (FR-002)
+- [~] T016 [US1] Implement the main data collection pipeline in `src/cli/collect_data.py` that orchestrates clients, handles missing repos (null dates), and skips private packages <!-- ATOMIZE: requested -->
+- [~] T017 [US1] Implement logic to calculate `age_in_days` and exclude dependencies with missing release metadata from age calculation but include in vulnerability counts (FR-010). **VERIFY**: rows with null release_date have age_in_days=null but non-null vulnerability_count. <!-- FAILED: unspecified -->
+- [~] T017a [US1] Implement calculation of the proportion of dependencies with missing release metadata and write the result to `data/processed/metrics.json` to satisfy SC-002.
+- [~] T018 [US1] Implement data export to `data/processed/dependencies_raw.csv` with checksum generation (must contain calculated `age_in_days` from T017 and depend on T017a completion)
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -84,16 +84,16 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T019 [P] [US2] Write unit test for Spearman correlation calculation bounds in `tests/unit/test_stats.py`
-- [ ] T020 [P] [US2] Write integration test for end-to-end analysis pipeline on a small synthetic dataset in `tests/integration/test_analysis_pipeline.py`
+- [~] T019 [P] [US2] Write unit test for Spearman correlation calculation bounds in `tests/unit/test_stats.py`
+- [~] T020 [P] [US2] Write integration test for end-to-end analysis pipeline on a small synthetic dataset in `tests/integration/test_analysis_pipeline.py`
 
 ### Implementation for User Story 2
 
-- [ ] T021 [US2] Implement statistical analysis module in `src/analysis/correlation.py` to calculate Spearman rho and p-value (FR-006). **DEPENDENCY**: Must run after T018 to access `dependencies_raw.csv`.
-- [ ] T021a [US2] Document statistical power assumptions (target ≥ 0.8) and sample size justification in `data/processed/power_analysis_notes.md` to satisfy SC-006, treating it as a documented assumption rather than a verification gate.
-- [ ] T024 [US2] Create the analysis runner script in `src/cli/run_analysis.py` that loads `dependencies_raw.csv`, runs correlation, and saves results to `data/processed/results_correlation.json`
-- [ ] T023 [US2] Implement visualization generator in `src/analysis/visualizer.py` to create scatter plots (age vs. vulnerability count) (FR-008)
-- [ ] T025 [US2] Add logic to flag statistical significance (p < 0.05) in the output report (US-2 Acceptance 3)
+- [~] T021 [US2] Implement statistical analysis module in `src/analysis/correlation.py` to calculate Spearman rho and p-value (FR-006). **DEPENDENCY**: Must run after T018 to access `dependencies_raw.csv`.
+- [~] T021a [US2] Document statistical power assumptions (target ≥ 0.8) and sample size justification in `data/processed/power_analysis_notes.md` to satisfy SC-006, treating it as a documented assumption rather than a verification gate.
+- [~] T024 [US2] Create the analysis runner script in `src/cli/run_analysis.py` that loads `dependencies_raw.csv`, runs correlation, and saves results to `data/processed/results_correlation.json`
+- [~] T023 [US2] Implement visualization generator in `src/analysis/visualizer.py` to create scatter plots (age vs. vulnerability count) (FR-008)
+- [~] T025 [US2] Add logic to flag statistical significance (p < 0.05) in the output report (US-2 Acceptance 3)
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -107,17 +107,17 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T026 [P] [US3] Write unit test for category assignment logic (keyword matching vs. topology fallback) in `tests/unit/test_categorization.py`
-- [ ] T027 [P] [US3] Write integration test for stratified analysis filtering (N < 30 exclusion) in `tests/integration/test_stratification.py`
+- [~] T026 [P] [US3] Write unit test for category assignment logic (keyword matching vs. topology fallback) in `tests/unit/test_categorization.py`
+- [~] T027 [P] [US3] Write integration test for stratified analysis filtering (N < 30 exclusion) in `tests/integration/test_stratification.py`
 
 ### Implementation for User Story 3
 
-- [ ] T028 [US3] Implement category classifier in `src/analysis/categorizer.py` using package metadata keywords. **MANDATORY FALLBACK**: MUST implement a generic fallback using dependency graph topology when keywords are missing or noisy (FR-007). **DEPENDENCY**: Requires graph structure from T015.
-- [ ] T029 [US3] Implement stratified correlation logic in `src/analysis/stratified_stats.py` to compute per-category coefficients (excluding groups with N < 30)
-- [ ] T029a [US3] Implement variance calculation and comparative measurement of correlation coefficients across categories against overall dataset, appending results to `data/processed/results_correlation.json` to satisfy SC-003.
-- [ ] T032 [US3] Implement sensitivity analysis for "unmaintained" threshold (90, 180, 365 days) applied ONLY to visualization and secondary metrics (binary threshold), NOT to the primary continuous correlation. Write robustness results to `data/processed/sensitivity_analysis.json`.
-- [ ] T030 [US3] Implement histogram generator for unmaintained dependency percentages by category in `src/analysis/visualizer.py` (FR-008)
-- [ ] T031 [US3] Create the reporting script in `src/cli/generate_report.py` that aggregates US-2, US-3, and sensitivity analysis results into a final summary report generated at `docs/report.md`
+- [~] T028 [US3] Implement category classifier in `src/analysis/categorizer.py` using package metadata keywords. **MANDATORY FALLBACK**: MUST implement a generic fallback using dependency graph topology when keywords are missing or noisy (FR-007). **DEPENDENCY**: Requires graph structure from T015.
+- [~] T029 [US3] Implement stratified correlation logic in `src/analysis/stratified_stats.py` to compute per-category coefficients (excluding groups with N < 30)
+- [~] T029a [US3] Implement variance calculation and comparative measurement of correlation coefficients across categories against overall dataset, appending results to `data/processed/results_correlation.json` to satisfy SC-003.
+- [~] T032 [US3] Implement sensitivity analysis for "unmaintained" threshold (90, 180, 365 days) applied ONLY to visualization and secondary metrics (binary threshold), NOT to the primary continuous correlation. Write robustness results to `data/processed/sensitivity_analysis.json`.
+- [~] T030 [US3] Implement histogram generator for unmaintained dependency percentages by category in `src/analysis/visualizer.py` (FR-008)
+- [~] T031 [US3] Create the reporting script in `src/cli/generate_report.py` that aggregates US-2, US-3, and sensitivity analysis results into a final summary report generated at `docs/report.md`
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -127,12 +127,12 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T033 [P] Documentation updates in `docs/` including `quickstart.md` for running the pipeline
-- [ ] T034 Code cleanup and refactoring of API client error handling
-- [ ] T035 Performance optimization: ensure full pipeline runs within 6 hours on 2 vCPU (SC-005)
-- [ ] T036 [P] Additional unit tests for edge cases (private packages, rate limits) in `tests/unit/`
-- [ ] T037 Security hardening: verify no secrets are logged and API keys are handled via environment variables
-- [ ] T038 Run quickstart.md validation to ensure reproducibility
+- [~] T033 [P] Documentation updates in `docs/` including `quickstart.md` for running the pipeline
+- [~] T034 Code cleanup and refactoring of API client error handling
+- [~] T035 Performance optimization: ensure full pipeline runs within 6 hours on 2 vCPU (SC-005)
+- [~] T036 [P] Additional unit tests for edge cases (private packages, rate limits) in `tests/unit/`
+- [~] T037 Security hardening: verify no secrets are logged and API keys are handled via environment variables
+- [~] T038 Run quickstart.md validation to ensure reproducibility
 
 ---
 
@@ -143,8 +143,8 @@
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
-  - User stories can then proceed in parallel (if staffed)
-  - Or sequentially in priority order (P1 → P2 → P3)
+ - User stories can then proceed in parallel (if staffed)
+ - Or sequentially in priority order (P1 → P2 → P3)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
@@ -211,9 +211,9 @@ With multiple developers:
 
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
-   - Developer A: User Story 1
-   - Developer B: User Story 2
-   - Developer C: User Story 3
+ - Developer A: User Story 1
+ - Developer B: User Story 2
+ - Developer C: User Story 3
 3. Stories complete and integrate independently
 
 ---
