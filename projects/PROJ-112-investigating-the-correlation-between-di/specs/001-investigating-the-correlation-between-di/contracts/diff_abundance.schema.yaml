@@ -1,0 +1,47 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Validation Summary Schema"
+description: "Schema for Cross-Cohort Validation of continuous associations."
+type: object
+properties:
+  taxon:
+    type: string
+    description: "Taxon identifier."
+  cohort_agp_beta:
+    type: number
+    description: "Beta coefficient from AGP analysis."
+  cohort_ukbb_beta:
+    type: number
+    description: "Beta coefficient from UKBB analysis."
+  direction_agp:
+    type: string
+    enum:
+      - "positive"
+      - "negative"
+      - "null"
+    description: "Direction of association in AGP."
+  direction_ukbb:
+    type: string
+    enum:
+      - "positive"
+      - "negative"
+      - "null"
+    description: "Direction of association in UKBB."
+  replicable:
+    type: boolean
+    description: "True if direction is consistent and both are significant."
+  q_value_agp:
+    type: number
+    description: "Q-value from AGP."
+  q_value_ukbb:
+    type: number
+    description: "Q-value from UKBB."
+required:
+  - taxon
+  - cohort_agp_beta
+  - cohort_ukbb_beta
+  - direction_agp
+  - direction_ukbb
+  - replicable
+  - q_value_agp
+  - q_value_ukbb
+additionalProperties: false

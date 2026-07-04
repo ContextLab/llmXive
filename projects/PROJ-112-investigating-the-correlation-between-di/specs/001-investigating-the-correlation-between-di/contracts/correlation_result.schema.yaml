@@ -1,0 +1,47 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Correlation Result Schema"
+description: "Schema for MaAsLin2 association analysis output (Continuous Fiber)."
+type: object
+properties:
+  taxon:
+    type: string
+    description: "Taxon identifier (e.g., g__Bacteroides)."
+  effect_size:
+    type: number
+    description: "Beta coefficient of the association (continuous fiber)."
+  raw_p_value:
+    type: number
+    minimum: 0.0
+    maximum: 1.0
+    description: "Raw p-value."
+  q_value:
+    type: number
+    minimum: 0.0
+    maximum: 1.0
+    description: "Benjamini-Hochberg adjusted q-value."
+  std_error:
+    type: number
+    description: "Standard error of the effect size."
+  significant:
+    type: boolean
+    description: "True if q_value < 0.05."
+  cohort:
+    type: string
+    enum:
+      - "AGP"
+      - "UKBB"
+      - "Combined"
+    description: "Cohort of origin."
+  sample_id:
+    type: string
+    description: "SHA256 hash of (cohort + original_id) for traceability."
+required:
+  - taxon
+  - effect_size
+  - raw_p_value
+  - q_value
+  - std_error
+  - significant
+  - cohort
+  - sample_id
+additionalProperties: false
