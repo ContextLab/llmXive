@@ -1,19 +1,10 @@
-"""
-T032: Remove all 8-bit/4-bit quantization imports and verify no CUDA imports.
+"""Scan project for prohibited quantization and CUDA imports.
 
-This script scans all Python files in the project, identifies and removes
-prohibited imports (bitsandbytes, 8-bit/4-bit quantization, CUDA-specific),
-and generates a verification report.
+This script implements Task T032: Remove all 8-bit/4-bit quantization imports,
+verify no CUDA imports in all Python files (compute feasibility).
 
-Prohibited patterns:
-- bitsandbytes (8-bit/4-bit quantization library)
-- torch.cuda.* (explicit CUDA usage)
-- CUDA_HOME, pynvml (GPU monitoring)
-- AutoModelForCausalLM.from_pretrained(..., load_in_8bit=True/4bit=True)
-- Any import containing '8bit', '4bit', 'quantize' in the context of loading
-
-The script modifies files in-place and produces a report at:
-projects/PROJ-586-social-memory-networks-modeling-collecti/results/quantization_verification.md
+It scans all .py files in the code/ directory, identifies prohibited patterns,
+removes them, and generates a report of changes made.
 """
 from __future__ import annotations
 
@@ -23,230 +14,268 @@ import sys
 from typing import List, Dict, Set, Tuple, Optional
 from datetime import datetime
 
-# Patterns to detect prohibited imports
-PROHIBITED_IMPORT_PATTERNS = [
+
+# Prohibited import patterns (8-bit/4-bit quantization and CUDA)
+PROHIBITED_PATTERNS = [
+    # 8-bit quantization
     r'from\s+bitsandbytes\s+',
     r'import\s+bitsandbytes',
-    r'from\s+torch\.cuda\s+',
+    r'from\s+transformers\.utils\s+import.*bitsandbytes',
+    r'from\s+peft\s+import.*load_peft_model.*quantization',
+    r'from\s+peft\s+import.*AutoPeftModel.*quantization',
+    r'from\s+peft\s+import.*prepare_model_for_kbit_training',
+    r'from\s+peft\s+import.*LoraConfig.*load_in_8bit',
+    r'from\s+peft\s+import.*LoraConfig.*load_in_4bit',
+    r'load_in_8bit',
+    r'load_in_4bit',
+    r'bitsandbytes\.optim',
+    r'bnb',
+    r'NF4',
+    r'NF4Type',
+    r'Int8Params',
+    r'fp4',
+    r'fp4_config',
+    r'nf4',
+    r'nf4_config',
+    r'compute_dtype.*fp16',
+    r'compute_dtype.*bf16',
+    r'torch\.cuda\.amp',
+    r'from\s+torch\.cuda\s+import.*amp',
+    r'from\s+tqdm\s+import.*auto.*quantization',
+    # CUDA-specific imports
     r'import\s+torch\.cuda',
-    r'from\s+pynvml\s+',
-    r'import\s+pynvml',
-    r'from\s+transformers\s+.*\s+load_in_8bit',
-    r'from\s+transformers\s+.*\s+load_in_4bit',
-    r'from\s+transformers\s+.*\s+bitsandbytes',
-    r'load_in_8bit\s*=\s*True',
-    r'load_in_4bit\s*=\s*True',
-    r'quantize\s*=\s*True',
-    r'bnb\s*=\s*True',
-    r'8bit',
-    r'4bit',
+    r'from\s+torch\s+import\s+cuda',
+    r'from\s+torch\.cuda\s+import',
+    r'cuda\(\)',
+    r'torch\.cuda\.is_available',
+    r'torch\.cuda\.device_count',
+    r'torch\.cuda\.get_device_name',
+    r'torch\.cuda\.current_device',
+    r'torch\.cuda\.set_device',
+    r'torch\.cuda\.empty_cache',
+    r'torch\.cuda\.synchronize',
+    r'torch\.cuda\.memory_allocated',
+    r'torch\.cuda\.max_memory_allocated',
+    r'torch\.cuda\.memory_reserved',
+    r'torch\.cuda\.max_memory_reserved',
+    r'device.*cuda',
+    r'cuda:0',
+    r'cuda:1',
+    r'cuda:2',
+    r'cuda:3',
+    r'cuda:4',
+    r'cuda:5',
+    r'cuda:6',
+    r'cuda:7',
 ]
 
-# Patterns that are OK (CPU-only, standard usage)
+# Patterns that are OK (CPU-only or general torch)
 ALLOWED_PATTERNS = [
-    r'torch\.device\(["\']cpu["\']\)',
-    r'device\s*=\s*["\']cpu["\']',
-    r'transformers.*AutoModel',
-    r'transformers.*AutoTokenizer',
+    r'torch\.cpu',
+    r'device.*cpu',
+    r'cpu',
+    r'torch\.float32',
+    r'torch\.float64',
+    r'torch\.int32',
+    r'torch\.int64',
+    r'torch\.bool',
+    r'torch\.long',
+    r'torch\.float',
+    r'torch\.double',
+    r'torch\.half',
 ]
 
-def line_is_prohibited(line: str) -> Tuple[bool, Optional[str]]:
-    """Check if a line contains prohibited import patterns."""
-    line_lower = line.lower()
-    
-    # Skip comments and empty lines
-    if line.strip().startswith('#') or not line.strip():
-        return False, None
-    
-    for pattern in PROHIBITED_IMPORT_PATTERNS:
-        if re.search(pattern, line, re.IGNORECASE):
-            # Special case: '8bit' or '4bit' might appear in comments or variable names
-            # Only flag if it's in an import context
-            if 'import' in line_lower or 'from' in line_lower:
-                return True, pattern
-            # Check for explicit quantization flags in function calls
-            if 'load_in_8bit' in line_lower or 'load_in_4bit' in line_lower:
-                return True, pattern
-            if 'bitsandbytes' in line_lower:
-                return True, pattern
-            
-    return False, None
 
-def process_file(file_path: pathlib.Path) -> Tuple[bool, List[str], List[str]]:
-    """
-    Process a single Python file: remove prohibited imports.
-    
+def line_is_prohibited(line: str) -> Tuple[bool, List[str]]:
+    """Check if a line contains prohibited import patterns.
+
+    Args:
+        line: A line of Python code
+
     Returns:
-        (modified, removed_lines, warnings)
+        Tuple of (is_prohibited, list_of_matched_patterns)
+    """
+    matches = []
+    for pattern in PROHIBITED_PATTERNS:
+        if re.search(pattern, line, re.IGNORECASE):
+            matches.append(pattern)
+    return len(matches) > 0, matches
+
+
+def process_file(file_path: pathlib.Path) -> Tuple[bool, List[str], int]:
+    """Process a single Python file, removing prohibited imports.
+
+    Args:
+        file_path: Path to the Python file
+
+    Returns:
+        Tuple of (file_modified, list_of_removed_patterns, lines_removed)
     """
     try:
         content = file_path.read_text(encoding='utf-8')
     except Exception as e:
-        return False, [], [f"Error reading {file_path}: {e}"]
-    
+        print(f"  Error reading {file_path}: {e}")
+        return False, [], 0
+
     lines = content.splitlines()
     new_lines = []
-    removed_lines = []
-    warnings = []
-    
+    removed_patterns: Set[str] = set()
+    lines_removed = 0
+
     for i, line in enumerate(lines):
-        is_prohibited, pattern = line_is_prohibited(line)
-        
-        if is_prohibited:
-            removed_lines.append(f"Line {i+1}: {line.strip()} (pattern: {pattern})")
-            # Skip this line (remove it)
+        # Skip empty lines and comments
+        stripped = line.strip()
+        if not stripped or stripped.startswith('#'):
+            new_lines.append(line)
             continue
-        
-        new_lines.append(line)
-    
-    modified = len(removed_lines) > 0
-    
-    if modified:
+
+        is_prohibited, matches = line_is_prohibited(line)
+        if is_prohibited:
+            # Check if it's an allowed pattern (CPU-only)
+            is_allowed = False
+            for allowed in ALLOWED_PATTERNS:
+                if re.search(allowed, line, re.IGNORECASE):
+                    is_allowed = True
+                    break
+
+            if not is_allowed:
+                removed_patterns.update(matches)
+                lines_removed += 1
+                # Add a comment explaining the removal
+                new_lines.append(f"# REMOVED (T032): {line.strip()}")
+            else:
+                new_lines.append(line)
+        else:
+            new_lines.append(line)
+
+    # Write back if modified
+    file_modified = len(removed_patterns) > 0
+    if file_modified:
+        new_content = '\n'.join(new_lines)
         try:
-            file_path.write_text('\n'.join(new_lines) + '\n', encoding='utf-8')
+            file_path.write_text(new_content, encoding='utf-8')
+            print(f"  Modified: {file_path} ({lines_removed} lines removed)")
         except Exception as e:
-            warnings.append(f"Error writing {file_path}: {e}")
-    
-    return modified, removed_lines, warnings
+            print(f"  Error writing {file_path}: {e}")
+            return False, list(removed_patterns), lines_removed
 
-def scan_project(root_dir: pathlib.Path) -> Dict:
+    return file_modified, list(removed_patterns), lines_removed
+
+
+def scan_project(root_dir: pathlib.Path) -> Dict[str, Dict]:
+    """Scan all Python files in the project for prohibited imports.
+
+    Args:
+        root_dir: Root directory of the project
+
+    Returns:
+        Dictionary mapping file paths to scan results
     """
-    Scan the entire project for prohibited imports and remove them.
-    
-    Returns a report dictionary with:
-        - files_scanned: number of files checked
-        - files_modified: number of files changed
-        - removed_imports: list of (file, line) tuples
-        - warnings: any errors encountered
-    """
-    report = {
-        'timestamp': datetime.utcnow().isoformat(),
-        'files_scanned': 0,
-        'files_modified': 0,
-        'removed_imports': [],
-        'warnings': [],
-        'prohibited_files': [],
-    }
-    
-    # Find all Python files
+    results = {}
     python_files = list(root_dir.rglob('*.py'))
-    
-    # Exclude virtual environments and build directories
-    exclusions = ['.venv', 'venv', '__pycache__', 'build', 'dist', '.git', 'node_modules']
-    python_files = [
-        f for f in python_files
-        if not any(excl in str(f) for excl in exclusions)
-    ]
-    
-    for file_path in python_files:
-        report['files_scanned'] += 1
-        
-        modified, removed, warnings = process_file(file_path)
-        
-        if modified:
-            report['files_modified'] += 1
-            report['removed_imports'].extend([
-                (str(file_path.relative_to(root_dir)), line)
-                for line in removed
-            ])
-            report['prohibited_files'].append(str(file_path.relative_to(root_dir)))
-        
-        report['warnings'].extend(warnings)
-    
-    return report
 
-def generate_markdown_report(report: Dict, output_path: pathlib.Path) -> None:
-    """Generate a human-readable markdown verification report."""
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    lines = [
-        "# Quantization Import Removal Verification Report",
+    print(f"Scanning {len(python_files)} Python files in {root_dir}...")
+
+    for file_path in python_files:
+        # Skip test files and __pycache__
+        if 'test' in str(file_path) or '__pycache__' in str(file_path):
+            continue
+
+        modified, patterns, lines_removed = process_file(file_path)
+        if modified or patterns:
+            results[str(file_path)] = {
+                'modified': modified,
+                'patterns_removed': patterns,
+                'lines_removed': lines_removed,
+            }
+
+    return results
+
+
+def generate_markdown_report(results: Dict[str, Dict], output_path: pathlib.Path) -> None:
+    """Generate a markdown report of the cleanup.
+
+    Args:
+        results: Dictionary of scan results
+        output_path: Path to write the report
+    """
+    timestamp = datetime.now().isoformat()
+    total_files = len(results)
+    total_lines_removed = sum(r['lines_removed'] for r in results.values())
+
+    report_lines = [
+        "# Quantization and CUDA Import Cleanup Report",
         "",
-        f"**Generated**: {report['timestamp']}",
+        f"**Generated**: {timestamp}",
+        f"**Task**: T032 - Remove all 8-bit/4-bit quantization imports, verify no CUDA imports",
         "",
         "## Summary",
         "",
-        f"- **Files scanned**: {report['files_scanned']}",
-        f"- **Files modified**: {report['files_modified']}",
+        f"- **Files scanned**: All Python files in code/",
+        f"- **Files modified**: {total_files}",
+        f"- **Total lines removed**: {total_lines_removed}",
+        "",
+        "## Files Modified",
         "",
     ]
-    
-    if report['prohibited_files']:
-        lines.append("## Files with Prohibited Imports Removed")
-        lines.append("")
-        for file_path in report['prohibited_files']:
-            lines.append(f"- `{file_path}`")
-        lines.append("")
+
+    if not results:
+        report_lines.append("No prohibited imports found. Project is clean.")
     else:
-        lines.append("## Verification Result")
-        lines.append("")
-        lines.append("✅ **No prohibited imports found.** All Python files are compliant.")
-        lines.append("")
-        lines.append("The following patterns were checked and none were found:")
-        lines.append("")
-        for pattern in PROHIBITED_IMPORT_PATTERNS:
-            lines.append(f"- `{pattern}`")
-        lines.append("")
-    
-    if report['removed_imports']:
-        lines.append("## Removed Imports Detail")
-        lines.append("")
-        for file_path, line_detail in report['removed_imports']:
-            lines.append(f"### `{file_path}`")
-            lines.append("")
-            lines.append(f"```\n{line_detail}\n```")
-            lines.append("")
-    
-    if report['warnings']:
-        lines.append("## Warnings")
-        lines.append("")
-        for warning in report['warnings']:
-            lines.append(f"- {warning}")
-        lines.append("")
-    
-    lines.append("---")
-    lines.append("")
-    lines.append("*This report was automatically generated by T032: remove_quantization_imports.py*")
-    
-    output_path.write_text('\n'.join(lines), encoding='utf-8')
+        for file_path, details in results.items():
+            report_lines.append(f"### {file_path}")
+            report_lines.append("")
+            report_lines.append(f"- **Lines removed**: {details['lines_removed']}")
+            report_lines.append("")
+            if details['patterns_removed']:
+                report_lines.append("**Patterns removed:**")
+                report_lines.append("")
+                for pattern in sorted(set(details['patterns_removed'])):
+                    report_lines.append(f"- `{pattern}`")
+            report_lines.append("")
+
+    report_content = '\n'.join(report_lines)
+    output_path.write_text(report_content, encoding='utf-8')
+    print(f"Report written to: {output_path}")
+
 
 def main() -> int:
-    """Main entry point for the script."""
+    """Main entry point for the cleanup script."""
     # Determine project root
-    script_dir = pathlib.Path(__file__).parent
-    project_root = script_dir.parent.parent  # Go up from code/ to project root
-    
-    # Output path for the report
-    results_dir = project_root / 'results'
-    report_path = results_dir / 'quantization_verification.md'
-    
-    print(f"Scanning project at: {project_root}")
-    print(f"Output report will be written to: {report_path}")
-    print()
-    
+    current = pathlib.Path.cwd()
+    # Look for code/ directory
+    code_dir = current / 'code'
+    if not code_dir.exists():
+        # Try to find it in parent directories
+        for parent in current.parents:
+            candidate = parent / 'code'
+            if candidate.exists():
+                code_dir = candidate
+                break
+        else:
+            print("Error: Could not find code/ directory")
+            return 1
+
+    print(f"Scanning project at: {code_dir.parent}")
+
     # Scan and clean
-    report = scan_project(project_root)
-    
+    results = scan_project(code_dir.parent)
+
     # Generate report
-    generate_markdown_report(report, report_path)
-    
+    report_path = code_dir.parent / 'results' / 'quantization_cleanup_report.md'
+    report_path.parent.mkdir(parents=True, exist_ok=True)
+    generate_markdown_report(results, report_path)
+
     # Print summary
-    print(f"✅ Scanning complete!")
-    print(f"   Files scanned: {report['files_scanned']}")
-    print(f"   Files modified: {report['files_modified']}")
-    
-    if report['prohibited_files']:
-        print(f"   ⚠️  Found and removed prohibited imports from {len(report['prohibited_files'])} file(s)")
-        print(f"   See report: {report_path}")
+    total_lines = sum(r['lines_removed'] for r in results.values())
+    if total_lines > 0:
+        print(f"\nCleanup complete. {total_lines} lines removed from {len(results)} files.")
+        print(f"See {report_path} for details.")
     else:
-        print(f"   ✅ No prohibited imports found. Project is CPU-only compliant.")
-    
-    if report['warnings']:
-        print(f"   ⚠️  Warnings: {len(report['warnings'])}")
-        for w in report['warnings'][:3]:
-            print(f"      - {w}")
-    
+        print("\nNo prohibited imports found. Project is clean.")
+
     return 0
+
 
 if __name__ == '__main__':
     sys.exit(main())

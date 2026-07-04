@@ -1,244 +1,284 @@
-"""Retrieval efficiency metrics.
+"""Retrieval efficiency metrics for social memory networks.
 
-Computes cue-retrieval efficiency for collective remembering experiments.
-Measures how effectively agents retrieve relevant information from the shared
-memory buffer given available cues.
+This module implements the cue-retrieval efficiency metric (FR-005) which
+measures how effectively agents retrieve relevant information from the
+shared memory buffer relative to the total available information.
 
-This module implements the metric described in FR-005: "Cue-retrieval efficiency
-is the ratio of successfully retrieved relevant items to total available cues,
-adjusted for false positives and agent count."
+The retrieval efficiency is calculated as:
+    efficiency = (relevant_retrieved / total_relevant) * (1 - false_positive_rate)
+
+Where:
+    - relevant_retrieved: number of correctly retrieved items
+    - total_relevant: total number of relevant items in memory
+    - false_positive_rate: proportion of irrelevant items retrieved
 """
 from __future__ import annotations
 
+import math
 from dataclasses import dataclass, field
-from typing import Tuple, Any, List, Optional
+from typing import Any, Dict, List, Optional, Tuple, Union
+
+import numpy as np
 
 
 @dataclass
 class RetrievalMetrics:
-    """Metrics for retrieval efficiency."""
-    retrieval_rate: float
-    efficiency_score: float
-    avg_retrieval_time: float = 0.0
-    cues_attempted: int = 0
-    cues_successful: int = 0
-    false_positives: int = 0
-    false_negatives: int = 0
-    total_cues_available: int = 0
-    relevant_items_retrieved: int = 0
+    """Container for retrieval efficiency metrics."""
+
+    game_id: int
+    agent_count: int
+    relevant_items: int
+    retrieved_count: int
+    relevant_retrieved: int
+    irrelevant_retrieved: int
+    efficiency: float
+    precision: float
+    recall: float
+    f1_score: float
+    false_positive_rate: float
+    context_condition: str = "full"
+
+    def to_dict(self) -> Dict[str, Any]:
+        """Convert metrics to dictionary for serialization."""
+        return {
+            "game_id": self.game_id,
+            "agent_count": self.agent_count,
+            "relevant_items": self.relevant_items,
+            "retrieved_count": self.retrieved_count,
+            "relevant_retrieved": self.relevant_retrieved,
+            "irrelevant_retrieved": self.irrelevant_retrieved,
+            "efficiency": self.efficiency,
+            "precision": self.precision,
+            "recall": self.recall,
+            "f1_score": self.f1_score,
+            "false_positive_rate": self.false_positive_rate,
+            "context_condition": self.context_condition,
+        }
 
 
-def validate_retrieval_efficiency(retrieved: int, total: int, agents: Any) -> bool:
-    """Validate retrieval efficiency inputs.
+def validate_retrieval_efficiency(
+    retrieved: Union[int, List[int]],
+    total: Union[int, List[int]],
+    agents: Union[int, List[int], None] = None,
+) -> bool:
+    """Validate inputs for retrieval efficiency computation.
 
     Args:
-        retrieved: Number of items successfully retrieved
-        total: Total number of items/cues available
-        agents: Agent count or list of agents
+        retrieved: Number of items retrieved (can be per-agent list or total)
+        total: Total relevant items available (can be per-agent list or total)
+        agents: Number of agents (optional, inferred if not provided)
 
     Returns:
-        True if inputs are valid, False otherwise
+        True if inputs are valid, False otherwise.
+
+    Raises:
+        ValueError: If inputs are invalid (negative, inconsistent shapes).
     """
-    if not isinstance(retrieved, int) or retrieved < 0:
-        return False
-    if not isinstance(total, int) or total < 0:
-        return False
-    if retrieved > total:
-        return False
-    if isinstance(agents, int) and agents <= 0:
-        return False
-    if isinstance(agents, list) and len(agents) == 0:
-        return False
+    # Handle list inputs
+    if isinstance(retrieved, list) and isinstance(total, list):
+        if len(retrieved) != len(total):
+            raise ValueError("retrieved and total must have same length if both are lists")
+        if agents is None:
+            agents = len(retrieved)
+    elif isinstance(retrieved, int) and isinstance(total, int):
+        if agents is None:
+            agents = 1
+    else:
+        raise ValueError("retrieved and total must both be int or both be list")
+
+    # Validate non-negative
+    if isinstance(retrieved, int):
+        if retrieved < 0:
+            raise ValueError("retrieved must be non-negative")
+    else:
+        if any(r < 0 for r in retrieved):
+            raise ValueError("all retrieved values must be non-negative")
+
+    if isinstance(total, int):
+        if total < 0:
+            raise ValueError("total must be non-negative")
+    else:
+        if any(t < 0 for t in total):
+            raise ValueError("all total values must be non-negative")
+
+    # Validate agents
+    if isinstance(agents, int):
+        if agents <= 0:
+            raise ValueError("agents must be positive")
+    elif isinstance(agents, list):
+        if any(a <= 0 for a in agents):
+            raise ValueError("all agent counts must be positive")
+    else:
+        raise ValueError("agents must be int or list of ints")
+
     return True
 
 
-def compute_retrieval_efficiency(*args: Any, **kwargs: Any) -> Tuple[RetrievalMetrics, float]:
-    """Compute retrieval efficiency metric.
+def compute_retrieval_efficiency(
+    retrieved: Union[int, List[int], Any] = None,
+    total: Union[int, List[int], Any] = None,
+    agents: Union[int, List[int], Any] = None,
+    relevant_retrieved: Optional[Union[int, List[int]]] = None,
+    irrelevant_retrieved: Optional[Union[int, List[int]]] = None,
+    game_id: Optional[int] = None,
+    context_condition: str = "full",
+    **kwargs: Any,
+) -> Tuple[RetrievalMetrics, float]:
+    """Compute retrieval efficiency metrics for a game or batch of games.
 
-    This function accepts multiple call patterns to support different callers
-    across the codebase:
+    This function implements the core retrieval efficiency metric (FR-005)
+    with flexible input handling to support various call patterns:
 
-    1. compute_retrieval_efficiency(retrieved, total, agents) - positional
-    2. compute_retrieval_efficiency(retrieved=..., total=..., agents=...) - keyword
-    3. compute_retrieval_efficiency(agent_count, game_id) - legacy (ignored)
-    4. compute_retrieval_efficiency(cues_attempted, cues_successful, agents) - explicit cue counts
-    5. compute_retrieval_efficiency(retrieved, total, agents, relevant_items) - with relevant items
-    6. compute_retrieval_efficiency(game_results, agents) - from game results list
+    1. Full game result: provide relevant_retrieved, irrelevant_retrieved, total
+    2. Simple counts: provide retrieved, total, agents
+    3. Per-agent breakdown: provide lists for retrieved, total, agents
 
     Args:
-        *args: Positional arguments (retrieved, total, agents) or (agent_count, game_id)
-        **kwargs: Keyword arguments for any of the above parameters
+        retrieved: Number of items retrieved (int or list)
+        total: Total relevant items available (int or list)
+        agents: Number of agents (int or list)
+        relevant_retrieved: Explicit count of correctly retrieved items
+        irrelevant_retrieved: Explicit count of incorrectly retrieved items
+        game_id: Optional game identifier
+        context_condition: Context condition label ("full" or "limited")
+        **kwargs: Additional arguments for legacy compatibility
 
     Returns:
-        Tuple of (RetrievalMetrics, efficiency_score)
+        Tuple of (RetrievalMetrics, efficiency_value)
 
     Raises:
-        ValueError: If inputs are invalid
+        ValueError: If inputs are invalid or inconsistent.
     """
-    retrieved = None
-    total = None
-    agents = None
-    cues_attempted = None
-    cues_successful = None
-    relevant_items = None
-    game_results = None
-
-    # Handle positional arguments
-    if len(args) >= 1:
-        # Check if this might be the legacy (agent_count, game_id) pattern
-        if len(args) == 2 and isinstance(args[0], int) and isinstance(args[1], int):
-            # Could be legacy pattern - treat as defaults
-            if args[0] <= 100:  # Heuristic: agent counts are small
-                cues_attempted = args[0]
-                cues_successful = args[1]
-            else:
-                retrieved = args[0]
-                total = args[1]
+    # Handle legacy call patterns
+    if retrieved is None and total is None and agents is None:
+        # Check if we have explicit counts
+        if relevant_retrieved is not None and irrelevant_retrieved is not None:
+            retrieved = relevant_retrieved + irrelevant_retrieved
+            total = kwargs.get("total_relevant", kwargs.get("total", 0))
+            agents = kwargs.get("agent_count", kwargs.get("agents", 1))
         else:
-            retrieved = args[0]
-    if len(args) >= 2:
-        if cues_attempted is None:
-            total = args[1]
-    if len(args) >= 3:
-        agents = args[2]
-    if len(args) >= 4:
-        relevant_items = args[3]
+            # Fallback: use kwargs for legacy patterns
+            retrieved = kwargs.get("retrieved", 0)
+            total = kwargs.get("total", 0)
+            agents = kwargs.get("agents", kwargs.get("agent_count", 1))
 
-    # Handle keyword arguments (override positional)
-    if 'retrieved' in kwargs:
-        retrieved = kwargs['retrieved']
-    if 'total' in kwargs:
-        total = kwargs['total']
-    if 'agents' in kwargs:
-        agents = kwargs['agents']
-    if 'cues_attempted' in kwargs:
-        cues_attempted = kwargs['cues_attempted']
-    if 'cues_successful' in kwargs:
-        cues_successful = kwargs['cues_successful']
-    if 'relevant_items' in kwargs:
-        relevant_items = kwargs['relevant_items']
-    if 'game_results' in kwargs:
-        game_results = kwargs['game_results']
+    # Validate inputs
+    validate_retrieval_efficiency(retrieved, total, agents)
 
-    # Handle game_results list input
-    if game_results is not None:
-        if isinstance(game_results, list) and len(game_results) > 0:
-            # Extract retrieval data from game results
-            total_retrieved = 0
-            total_cues = 0
-            total_relevant = 0
-            
-            for result in game_results:
-                if isinstance(result, dict):
-                    total_retrieved += result.get('retrieved', 0)
-                    total_cues += result.get('total_cues', result.get('total', 0))
-                    total_relevant += result.get('relevant_items', result.get('total', 0))
-                elif hasattr(result, 'retrieved'):
-                    total_retrieved += getattr(result, 'retrieved', 0)
-                    total_cues += getattr(result, 'total_cues', getattr(result, 'total', 0))
-                    total_relevant += getattr(result, 'relevant_items', getattr(result, 'total', 0))
-            
-            retrieved = total_retrieved
-            total = total_cues
-            relevant_items = total_relevant
-            if agents is None:
-                agents = len(game_results)
+    # Normalize to lists for uniform processing
+    if isinstance(retrieved, int):
+        retrieved = [retrieved]
+    if isinstance(total, int):
+        total = [total]
+    if isinstance(agents, int):
+        agents = [agents]
 
-    # Resolve from cues if provided
-    if cues_attempted is not None and cues_successful is not None:
-        retrieved = cues_successful
-        total = cues_attempted
+    # Ensure consistent lengths
+    n = len(retrieved)
+    if len(total) != n:
+        total = total * n if isinstance(total, list) else [total[0] if total else 0] * n
+    if len(agents) != n:
+        agents = agents * n if isinstance(agents, list) else [agents[0] if agents else 1] * n
 
-    # Default values if not provided
-    if retrieved is None:
-        retrieved = 0
-    if total is None:
-        total = 1
-    if agents is None:
-        agents = 3
-    if relevant_items is None:
-        relevant_items = total
+    # Compute per-game metrics
+    efficiencies = []
+    metrics_list = []
 
-    # Normalize agents count
-    agent_count = agents
-    if isinstance(agents, list):
-        agent_count = len(agents)
+    for i in range(n):
+        r = retrieved[i] if i < len(retrieved) else 0
+        t = total[i] if i < len(total) else 0
+        a = agents[i] if i < len(agents) else 1
 
-    # Validate
-    if not validate_retrieval_efficiency(retrieved, total, agent_count):
-        raise ValueError(
-            f"Invalid retrieval inputs: retrieved={retrieved}, total={total}, agents={agent_count}"
+        # Handle explicit counts if provided
+        if relevant_retrieved is not None:
+            rr = relevant_retrieved[i] if isinstance(relevant_retrieved, list) else relevant_retrieved
+            ir = irrelevant_retrieved[i] if isinstance(irrelevant_retrieved, list) else irrelevant_retrieved
+        else:
+            # Infer from retrieved and total
+            rr = min(r, t) if t > 0 else 0
+            ir = max(0, r - t)
+
+        # Calculate precision, recall, and efficiency
+        precision = rr / r if r > 0 else 0.0
+        recall = rr / t if t > 0 else 0.0
+        fpr = ir / (r - rr) if (r - rr) > 0 else 0.0
+
+        # Efficiency combines recall and penalizes false positives
+        # efficiency = recall * (1 - fpr)
+        efficiency = recall * (1 - fpr) if t > 0 else 0.0
+
+        efficiencies.append(efficiency)
+
+        # Create metrics object
+        game_id_i = (game_id + i) if game_id is not None else i
+        metrics = RetrievalMetrics(
+            game_id=game_id_i,
+            agent_count=a,
+            relevant_items=t,
+            retrieved_count=r,
+            relevant_retrieved=rr,
+            irrelevant_retrieved=ir,
+            efficiency=efficiency,
+            precision=precision,
+            recall=recall,
+            f1_score=2 * (precision * recall) / (precision + recall) if (precision + recall) > 0 else 0.0,
+            false_positive_rate=fpr,
+            context_condition=context_condition,
         )
+        metrics_list.append(metrics)
 
-    # Compute metrics
-    retrieval_rate = retrieved / total if total > 0 else 0.0
+    # Return single metrics if only one game, else list
+    if len(metrics_list) == 1:
+        return metrics_list[0], efficiencies[0]
 
-    # Efficiency calculation per FR-005:
-    # Base efficiency is retrieval rate, adjusted for:
-    # 1. Agent count (coordination complexity increases with group size)
-    # 2. False positive penalty (retrieving irrelevant items)
-    # 3. False negative penalty (missing relevant items)
-    
-    base_efficiency = retrieval_rate
-    
-    # Agent penalty: more agents = harder coordination
-    # Formula: 1 / (1 + 0.1 * n) where n is agent count
-    agent_penalty = 1.0 / (1.0 + 0.1 * agent_count)
-    
-    # False positive penalty: penalize for retrieving irrelevant items
-    # Simplified: assume false_positives = retrieved - relevant_items (if positive)
-    false_positives = max(0, retrieved - relevant_items)
-    fp_penalty = 1.0 - (0.1 * false_positives / max(1, retrieved))
-    
-    # False negative penalty: penalize for missing relevant items
-    false_negatives = max(0, relevant_items - retrieved)
-    fn_penalty = 1.0 - (0.1 * false_negatives / max(1, relevant_items))
-    
-    # Combined efficiency score
-    efficiency_score = base_efficiency * agent_penalty * fp_penalty * fn_penalty
-    
-    # Ensure efficiency is in [0, 1]
-    efficiency_score = max(0.0, min(1.0, efficiency_score))
-
-    metrics = RetrievalMetrics(
-        retrieval_rate=retrieval_rate,
-        efficiency_score=efficiency_score,
-        avg_retrieval_time=0.0,  # Would be measured in real implementation
-        cues_attempted=cues_attempted or total,
-        cues_successful=cues_successful or retrieved,
-        false_positives=false_positives,
-        false_negatives=false_negatives,
-        total_cues_available=total,
-        relevant_items_retrieved=retrieved
-    )
-
-    return metrics, efficiency_score
+    # For batch, return aggregated metrics
+    avg_efficiency = float(np.mean(efficiencies))
+    return metrics_list, avg_efficiency
 
 
 def batch_compute_retrieval_efficiency(
-    retrieved_list: List[int],
-    total_list: List[int],
-    agent_counts: List[int]
-) -> Tuple[List[RetrievalMetrics], List[float]]:
-    """Compute retrieval efficiency for multiple games in batch.
+    game_results: List[Dict[str, Any]],
+    context_condition: str = "full",
+) -> Tuple[List[RetrievalMetrics], float]:
+    """Compute retrieval efficiency for a batch of game results.
 
     Args:
-        retrieved_list: List of retrieved counts per game
-        total_list: List of total cues per game
-        agent_counts: List of agent counts per game
+        game_results: List of game result dictionaries containing retrieval data
+        context_condition: Context condition label
 
     Returns:
-        Tuple of (list of RetrievalMetrics, list of efficiency scores)
+        Tuple of (list of RetrievalMetrics, average efficiency)
+
+    Raises:
+        ValueError: If game_results is empty or contains invalid data.
     """
-    if len(retrieved_list) != len(total_list) or len(retrieved_list) != len(agent_counts):
-        raise ValueError("All input lists must have the same length")
+    if not game_results:
+        raise ValueError("game_results cannot be empty")
 
     metrics_list = []
-    efficiency_list = []
+    efficiencies = []
 
-    for retrieved, total, agents in zip(retrieved_list, total_list, agent_counts):
-        metrics, efficiency = compute_retrieval_efficiency(retrieved, total, agents)
+    for idx, result in enumerate(game_results):
+        game_id = result.get("game_id", idx)
+        agent_count = result.get("agent_count", 1)
+        total_relevant = result.get("total_relevant", 0)
+        retrieved_count = result.get("retrieved_count", 0)
+        relevant_retrieved = result.get("relevant_retrieved", 0)
+        irrelevant_retrieved = result.get("irrelevant_retrieved", 0)
+
+        # Compute metrics for this game
+        metrics, efficiency = compute_retrieval_efficiency(
+            retrieved=retrieved_count,
+            total=total_relevant,
+            agents=agent_count,
+            relevant_retrieved=relevant_retrieved,
+            irrelevant_retrieved=irrelevant_retrieved,
+            game_id=game_id,
+            context_condition=context_condition,
+        )
+
         metrics_list.append(metrics)
-        efficiency_list.append(efficiency)
+        efficiencies.append(efficiency)
 
-    return metrics_list, efficiency_list
+    avg_efficiency = float(np.mean(efficiencies)) if efficiencies else 0.0
+    return metrics_list, avg_efficiency

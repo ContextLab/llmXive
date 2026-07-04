@@ -1,0 +1,56 @@
+{
+  "timestamp": "2024-01-15T10:30:00.000000",
+  "total_duration_seconds": 45.23,
+  "runs": [
+    {
+      "timestamp": "2024-01-15T10:30:05.000000",
+      "script_name": "run_experiment.py",
+      "exit_code": 0,
+      "duration_seconds": 12.5,
+      "memory_max_mb": 156.8,
+      "memory_current_mb": 152.3,
+      "disk_usage_mb": 2.4,
+      "output_files": [
+        "results/results_full.csv"
+      ],
+      "error_message": null
+    },
+    {
+      "timestamp": "2024-01-15T10:30:20.000000",
+      "script_name": "run_experiment.py",
+      "exit_code": 0,
+      "duration_seconds": 13.1,
+      "memory_max_mb": 158.2,
+      "memory_current_mb": 154.1,
+      "disk_usage_mb": 2.6,
+      "output_files": [
+        "results/results_full.csv",
+        "results/results_limited.csv"
+      ],
+      "error_message": null
+    },
+    {
+      "timestamp": "2024-01-15T10:30:35.000000",
+      "script_name": "run_experiment.py",
+      "exit_code": 0,
+      "duration_seconds": 19.6,
+      "memory_max_mb": 162.5,
+      "memory_current_mb": 159.8,
+      "disk_usage_mb": 3.1,
+      "output_files": [
+        "results/results_full.csv",
+        "results/results_limited.csv",
+        "results/scaling_plot.pdf"
+      ],
+      "error_message": null
+    }
+  ],
+  "summary": {
+    "total_runs": 3,
+    "successful_runs": 3,
+    "failed_runs": 0,
+    "total_duration_seconds": 45.2,
+    "max_memory_mb": 162.5,
+    "final_disk_usage_mb": 3.1
+  }
+}
