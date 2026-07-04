@@ -25,28 +25,28 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 
 - python code/run_experiment.py --context full --agents 5 --games 1000 -> rc=1
     Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/run_experiment.py", line 30, in <module>
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/run_experiment.py", line 21, in <module>
     from data.loaders import load_experiment_results, save_experiment_results, verify_datasets
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/data/__init__.py", line 4, in <module>
     from .loaders import (
 ImportError: cannot import name 'DatasetLoader' from 'data.loaders' (/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/data/loaders.py)
 - python code/run_experiment.py --context limited --agents 5 --games 1000 -> rc=1
     Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/run_experiment.py", line 30, in <module>
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/run_experiment.py", line 21, in <module>
     from data.loaders import load_experiment_results, save_experiment_results, verify_datasets
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/data/__init__.py", line 4, in <module>
     from .loaders import (
 ImportError: cannot import name 'DatasetLoader' from 'data.loaders' (/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/data/loaders.py)
 - python code/run_experiment.py --context full --agents 3,5,7 --games 800 --plot scaling -> rc=1
     Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/run_experiment.py", line 30, in <module>
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/run_experiment.py", line 21, in <module>
     from data.loaders import load_experiment_results, save_experiment_results, verify_datasets
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/data/__init__.py", line 4, in <module>
     from .loaders import (
 ImportError: cannot import name 'DatasetLoader' from 'data.loaders' (/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/data/loaders.py)
 - python code/run_experiment.py --context limited --agents 5 --games 1000 --thresholds 128,256,512 -> rc=1
     Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/run_experiment.py", line 30, in <module>
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/run_experiment.py", line 21, in <module>
     from data.loaders import load_experiment_results, save_experiment_results, verify_datasets
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/data/__init__.py", line 4, in <module>
     from .loaders import (
@@ -59,14 +59,14 @@ ImportError: cannot import name 'DatasetLoader' from 'data.loaders' (/home/runne
 ImportError: cannot import name 'DatasetLoader' from 'data.loaders' (/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/data/loaders.py)
 - python code/run_experiment.py --context full --agents 5 --games 100 --seed 42 -> rc=1
     Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/run_experiment.py", line 30, in <module>
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/run_experiment.py", line 21, in <module>
     from data.loaders import load_experiment_results, save_experiment_results, verify_datasets
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/data/__init__.py", line 4, in <module>
     from .loaders import (
 ImportError: cannot import name 'DatasetLoader' from 'data.loaders' (/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/data/loaders.py)
 - python code/run_experiment.py --context full --agents 5 --games 100 --seed 42 -> rc=1
     Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/run_experiment.py", line 30, in <module>
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/run_experiment.py", line 21, in <module>
     from data.loaders import load_experiment_results, save_experiment_results, verify_datasets
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/data/__init__.py", line 4, in <module>
     from .loaders import (
@@ -85,11 +85,16 @@ One or more failures are API-CONTRACT errors on a symbol YOUR OWN code defines a
 
 Make `__getattr__` in `code/utils/logging.py` accept ALL of the above.
 
-### `compute_retrieval_efficiency` — defined in `code/metrics/retrieval.py`; called 17 way(s):
+### `compute_retrieval_efficiency` — defined in `code/metrics/retrieval.py`; called 22 way(s):
 
-- code/run_experiment.py: retrieval_metrics, retrieval_efficiency = compute_retrieval_efficiency(
-- code/t015_generate_full_results.py: ret_metrics, ret_eff = compute_retrieval_efficiency(
+- code/run_experiment.py: retrieval_eff, _ = compute_retrieval_efficiency(retrieved_facts, num_queries, num_agents)
+- code/t015_generate_full_results.py: # compute_retrieval_efficiency(retrieved, total, agent_count)
+- code/t015_generate_full_results.py: ret_eff, _ = compute_retrieval_efficiency(retrieved_count, total_facts, agent_count)
 - code/metrics/validator.py: ret_metrics, _ = compute_retrieval_efficiency(retrieved, total, agent_count)
+- code/metrics/retrieval.py: 1. compute_retrieval_efficiency(retrieved, total, agent_count) - standard
+- code/metrics/retrieval.py: 2. compute_retrieval_efficiency(agent_list, num_agents=N) - keyword style
+- code/metrics/retrieval.py: 3. compute_retrieval_efficiency(agent_count, game_id) - legacy (agent_count as list length)
+- code/metrics/retrieval.py: 4. compute_retrieval_efficiency([]) - empty list handling
 - code/metrics/retrieval.py: metrics, efficiency = compute_retrieval_efficiency(
 - code/metrics/tests/test_retrieval.py: metrics, efficiency = compute_retrieval_efficiency(10, 10, 3)
 - code/metrics/tests/test_retrieval.py: metrics, efficiency = compute_retrieval_efficiency(1, 3, 3)
@@ -107,16 +112,15 @@ Make `__getattr__` in `code/utils/logging.py` accept ALL of the above.
 
 Make `compute_retrieval_efficiency` in `code/metrics/retrieval.py` accept ALL of the above.
 
-### `compute_specialization_index` — defined in `code/metrics/specialization.py`; called 16 way(s):
+### `compute_specialization_index` — defined in `code/metrics/specialization.py`; called 15 way(s):
 
-- code/run_experiment.py: specialization_index, _ = compute_specialization_index(agent_skills, num_agents=agent_count)
-- code/t015_generate_full_results.py: spec_idx, _ = compute_specialization_index(agent_skills, num_agents=agent_count)
-- code/metrics/specialization.py: 1. compute_specialization_index(agent_list) - list of agent skills
-- code/metrics/specialization.py: 2. compute_specialization_index(agent_list, num_agents=N) - with explicit count
-- code/metrics/specialization.py: 3. compute_specialization_index(agents=..., num_agents=...) - keyword style
-- code/metrics/specialization.py: 4. compute_specialization_index(agent_count, game_id) - legacy (uses agent_count as list length)
-- code/metrics/specialization.py: 5. compute_specialization_index([]) - empty list
-- code/metrics/specialization.py: idx, metrics = compute_specialization_index(
+- code/run_experiment.py: spec_index, _ = compute_specialization_index(skill_lengths, num_agents=num_agents)
+- code/t015_generate_full_results.py: # compute_specialization_index(agent_skills, num_agents=...)
+- code/t015_generate_full_results.py: spec_idx, _ = compute_specialization_index(agent_base_skills, num_agents=agent_count)
+- code/metrics/specialization.py: 3. Keyword style: compute_specialization_index(agent_skills=[...], num_agents=3)
+- code/metrics/specialization.py: 4. Legacy style: compute_specialization_index(agent_count, game_id) - deprecated, treated as list of length agent_count
+- code/metrics/specialization.py: idx, metrics = compute_specialization_index(agent_skills, num_agents)
+- code/metrics/specialization.py: return compute_specialization_index(skill_counts, num_agents)
 - code/metrics/validator.py: spec_metrics, _ = compute_specialization_index(agent_skills, num_agents=agent_count)
 - code/metrics/tests/test_specialization.py: index, metrics = compute_specialization_index([])
 - code/metrics/tests/test_specialization.py: index, metrics = compute_specialization_index(game_results)
@@ -170,8 +174,7 @@ Make `simulate_one_game` in `code/generate_full_results.py` accept ALL of the ab
 
 Whichever you choose, every call site of `MemoryBuffer` across the codebase must stop raising `AttributeError`/`TypeError`.
 
-`MemoryBuffer.reset` call sites (4):
-- code/run_experiment.py: buffer.reset()
+`MemoryBuffer.reset` call sites (3):
 - code/memory/buffer.py: _SHARED_BUFFER.reset()
 - code/memory/tests/test_buffer.py: result = buf.reset()
 - code/tests/unit/test_memory_buffer.py: buf.reset()  # should not raise

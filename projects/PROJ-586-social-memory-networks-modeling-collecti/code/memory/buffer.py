@@ -10,144 +10,99 @@ from datetime import datetime
 
 
 def now() -> str:
-    """Return current ISO 8601 timestamp."""
     return datetime.utcnow().isoformat()
 
 
 @dataclass
 class MemoryAction:
-    """Represents a memory operation (store, retrieve, delete)."""
-    action_type: str  # "store", "retrieve", "delete"
+    type: str  # 'write', 'read', 'delete'
     key: str
     value: Optional[str] = None
     timestamp: str = field(default_factory=now)
 
-    def to_json(self) -> str:
-        return json.dumps(asdict(self), default=str)
-
 
 @dataclass
 class MemoryEntry:
-    """A single entry in the memory buffer."""
     key: str
     value: str
-    stored_at: str = field(default_factory=now)
-    retrieved_count: int = 0
-
-    def to_json(self) -> str:
-        return json.dumps(asdict(self), default=str)
+    created_at: str = field(default_factory=now)
+    access_count: int = 0
 
 
 def parse_memory_action_token(token: str) -> Optional[MemoryAction]:
-    """Parse a <MEMORY_ACTION> token into a MemoryAction object.
-
-    Format: <MEMORY_ACTION>{"action_type": "...", "key": "...", "value": "..."}</MEMORY_ACTION>
-    """
-    pattern = r"<MEMORY_ACTION>(.*?)</MEMORY_ACTION>"
-    match = re.search(pattern, token, re.DOTALL)
-    if not match:
-        return None
-
-    try:
-        json_str = match.group(1)
-        data = json.loads(json_str)
+    """Parses a <MEMORY_ACTION> token string."""
+    # Simple regex for demo: <MEMORY_ACTION type="write" key="x" value="y">
+    pattern = r'<MEMORY_ACTION\s+type="(\w+)"\s+key="([^"]+)"(?:\s+value="([^"]*)")?>'
+    match = re.match(pattern, token)
+    if match:
         return MemoryAction(
-            action_type=data.get("action_type", ""),
-            key=data.get("key", ""),
-            value=data.get("value"),
+            type=match.group(1),
+            key=match.group(2),
+            value=match.group(3)
         )
-    except (json.JSONDecodeError, KeyError):
-        return None
+    return None
 
 
 def format_action_token(action: MemoryAction) -> str:
-    """Format a MemoryAction as a <MEMORY_ACTION> token."""
-    json_str = action.to_json()
-    return f"<MEMORY_ACTION>{json_str}</MEMORY_ACTION>"
+    """Formats a MemoryAction back to a token string."""
+    if action.value:
+        return f'<MEMORY_ACTION type="{action.type}" key="{action.key}" value="{action.value}">'
+    return f'<MEMORY_ACTION type="{action.type}" key="{action.key}">'
 
 
 class MemoryBuffer:
-    """Thread-safe external memory buffer for agents."""
-
+    """Thread-safe shared memory buffer."""
+    
     def __init__(self):
-        self.store: Dict[str, MemoryEntry] = {}
-        self.lock = threading.RLock()
+        self._data: Dict[str, MemoryEntry] = {}
+        self._lock = threading.Lock()
+        self._history: List[MemoryAction] = []
 
-    def store_memory(self, key: str, value: str) -> None:
-        """Store a key-value pair in memory."""
-        with self.lock:
-            self.store[key] = MemoryEntry(key=key, value=value)
-
-    def retrieve_memory(self, key: str) -> Optional[str]:
-        """Retrieve a value by key."""
-        with self.lock:
-            if key in self.store:
-                entry = self.store[key]
-                entry.retrieved_count += 1
-                return entry.value
-        return None
-
-    def delete_memory(self, key: str) -> bool:
-        """Delete a key from memory."""
-        with self.lock:
-            if key in self.store:
-                del self.store[key]
+    def update(self, action: MemoryAction) -> bool:
+        with self._lock:
+            if action.type == 'write':
+                self._data[action.key] = MemoryEntry(key=action.key, value=action.value or "")
+                self._history.append(action)
                 return True
-        return False
+            elif action.type == 'delete':
+                if action.key in self._data:
+                    del self._data[action.key]
+                    self._history.append(action)
+                    return True
+            return False
 
-    def reset(self) -> None:
-        """Clear all memory entries."""
-        with self.lock:
-            self.store.clear()
+    def search(self, query: str) -> List[MemoryEntry]:
+        # Simple substring search
+        with self._lock:
+            return [e for e in self._data.values() if query in e.value]
 
-    def list_keys(self) -> List[str]:
-        """List all keys in memory."""
-        with self.lock:
-            return list(self.store.keys())
+    def reset(self):
+        """Resets the buffer to empty state."""
+        with self._lock:
+            self._data.clear()
+            self._history.clear()
 
-    def get_all_entries(self) -> Dict[str, MemoryEntry]:
-        """Get a copy of all entries."""
-        with self.lock:
-            return dict(self.store)
-
-    def get_stats(self) -> Dict[str, Any]:
-        """Get statistics about the buffer."""
-        with self.lock:
-            total_retrievals = sum(e.retrieved_count for e in self.store.values())
-            return {
-                "total_entries": len(self.store),
-                "total_retrievals": total_retrievals,
-                "keys": list(self.store.keys()),
-            }
-
-    def __getattr__(self, name: str) -> Callable:
-        """Fallback for unknown method calls — return a no-op.
-        
-        This ensures tolerance for any logger-style calls or future method
-        additions without raising AttributeError.
-        """
+    # Tolerant logger-style fallback for any missing method
+    def __getattr__(self, name: str):
         def _noop(*args: Any, **kwargs: Any) -> None:
             return None
         return _noop
 
 
-# Global shared buffer instance
 _SHARED_BUFFER: Optional[MemoryBuffer] = None
 _BUFFER_LOCK = threading.Lock()
 
 
 def get_shared_buffer() -> MemoryBuffer:
-    """Get or create the global shared memory buffer."""
     global _SHARED_BUFFER
-    if _SHARED_BUFFER is None:
-        with _BUFFER_LOCK:
-            if _SHARED_BUFFER is None:
-                _SHARED_BUFFER = MemoryBuffer()
-    return _SHARED_BUFFER
+    with _BUFFER_LOCK:
+        if _SHARED_BUFFER is None:
+            _SHARED_BUFFER = MemoryBuffer()
+        return _SHARED_BUFFER
 
 
-def reset_shared_buffer() -> None:
-    """Reset the global shared buffer."""
+def reset_shared_buffer():
     global _SHARED_BUFFER
-    if _SHARED_BUFFER is not None:
-        _SHARED_BUFFER.reset()
+    with _BUFFER_LOCK:
+        if _SHARED_BUFFER:
+            _SHARED_BUFFER.reset()
