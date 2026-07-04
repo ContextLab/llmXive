@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2603.25580",
+  "judged_at": "2026-07-04T21:29:34Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"fashionchameleon: towards real-time and interactive human-garment vide\" computer science",
+  "rationale": "This paper satisfies criteria (a) and (d) as it addresses the same core mechanism (real-time human-garment video animation and deformation) and serves as a foundational or canonical reference for the specific technical domain of neural garment deformation fields, which is the direct subject of the user's \"FashionChameleon\" follow-up.",
+  "relevant": true
+}

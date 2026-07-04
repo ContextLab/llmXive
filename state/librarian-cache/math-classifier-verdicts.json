@@ -823,8 +823,16 @@
     "classified_at": "2026-07-03T18:58:54Z",
     "verdict": false
   },
+  "PROJ-829-llmxive-follow-up-extending-fashionchame::1.6.0": {
+    "classified_at": "2026-07-04T21:29:12Z",
+    "verdict": false
+  },
   "PROJ-861-llmxive-follow-up-extending-appo-agentic::1.6.0": {
     "classified_at": "2026-07-04T01:38:07Z",
+    "verdict": false
+  },
+  "PROJ-866-llmxive-follow-up-extending-foundation-p::1.6.0": {
+    "classified_at": "2026-07-04T21:38:37Z",
     "verdict": false
   },
   "PROJ-873-llmxive-follow-up-extending-active-learn::1.6.0": {
@@ -861,6 +869,10 @@
   },
   "PROJ-918-llmxive-follow-up-extending-agentic-abst::1.6.0": {
     "classified_at": "2026-07-04T10:08:59Z",
+    "verdict": false
+  },
+  "PROJ-953-llmxive-follow-up-extending-code-as-agen::1.6.0": {
+    "classified_at": "2026-07-04T21:28:03Z",
     "verdict": false
   },
   "PROJ-964-llmxive-follow-up-extending-wan-streamer::1.6.0": {

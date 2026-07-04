@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2603.03329",
+  "judged_at": "2026-07-04T21:28:19Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"code as agent harness\" linguistics",
+  "rationale": "This paper satisfies criteria (a) and (b) as it directly measures the same mechanism (using code harnesses to constrain LLM agent actions) and operates on the same domain (LLM agents in game environments) as the user's question, even though it focuses on the automated synthesis of the harness rather than the specific \"linguistics\" aspect mentioned in the user's title. It provides the canonical empirical baseline for the \"Code as Agent Harness\" concept that the user's follow-up research would nee",
+  "relevant": true
+}

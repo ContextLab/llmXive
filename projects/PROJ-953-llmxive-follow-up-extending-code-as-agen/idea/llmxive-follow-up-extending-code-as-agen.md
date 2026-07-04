@@ -5,29 +5,81 @@ submitter: llmxive-preprint-followup
 
 # llmXive follow-up: extending "Code as Agent Harness"
 
-## Summary of the prior work
-This survey establishes "code as agent harness" as a unified framework where code serves as the operational substrate for agent reasoning, acting, and verification, rather than just a final output. It structures the field into three layers: the interface connecting agents to environments, the mechanisms for planning and feedback control, and the scaling strategies for multi-agent coordination. The paper identifies critical open challenges, particularly regarding regression-free harness improvement and consistent shared state in multi-agent settings.
+**Field**: Linguistics (Computational Linguistics / Agent Systems)
 
-## Proposed extension
-**Research Question:** Can a lightweight, static-analysis-driven "harness diff" mechanism, which isolates and re-validates only the code artifacts modified by an agent's planning step, reduce the computational cost of regression verification by 90% compared to full-environment re-execution while maintaining equivalent safety guarantees? This matters because the survey highlights "regression-free harness improvement" as a bottleneck; solving this via static dependency tracking rather than dynamic re-execution would make long-horizon, multi-agent scientific discovery feasible on standard CPU hardware.
+## Research question
+
+Does a static-analysis-driven "harness diff" mechanism, which isolates and re-validates only the code artifacts modified by an agent's planning step, significantly reduce the computational cost of regression verification compared to full-environment re-execution without degrading safety guarantees?
+
+## Motivation
+
+The "Code as Agent Harness" framework identifies regression-free harness improvement as a critical bottleneck for scaling multi-agent scientific discovery. Current approaches rely on full-environment re-execution, which is computationally prohibitive for long-horizon tasks. A method that decouples verification from full execution could enable efficient, safe iteration on agent harnesses using standard CPU hardware, directly addressing the scalability constraints highlighted in recent literature.
+
+## Related work
+
+- [Code as Agent Harness](https://arxiv.org/abs/2605.18747) — Establishes the theoretical framework where code acts as the operational substrate for agent reasoning and verification, identifying the need for more efficient regression strategies.
+- [AutoHarness: improving LLM agents by automatically synthesizing a code harness](https://arxiv.org/abs/2603.03329) — Demonstrates automated harness synthesis but relies on dynamic execution for validation, highlighting the gap this project aims to fill with static analysis.
+- [Evolving Agents in the Dark: Retrospective Harness Optimization via Self-Preference](https://arxiv.org/abs/2606.05922) — Explores harness optimization via self-preference, emphasizing the necessity of continual improvement but not yet addressing the computational cost of the verification loop.
+- [Your Code Agent Can Grow Alongside You with Structured Memory](https://arxiv.org/abs/2603.13258) — Discusses the limitations of static code snapshots in agents, reinforcing the need for dynamic yet efficient tracking of code state changes for verification.
+
+## Expected results
+
+The proposed static-analysis approach is expected to reduce verification time and CPU cycles by at least 90% compared to a full re-execution baseline on a curated dataset of 500 tasks. Crucially, this efficiency gain must be achieved without a statistically significant increase in false-negative safety errors, proving that selective re-verification maintains equivalent safety guarantees.
 
 ## Methodology sketch
-**Data:** A curated dataset of 500 existing agent tasks from the survey's cited repositories (e.g., SWE-bench, AgentBench) containing known code artifacts, execution traces, and failure modes, converted into a text-based dependency graph format.
-**Procedure:** Implement a CPU-only prototype that (1) parses the agent's proposed code changes, (2) uses static analysis to identify the minimal set of dependent functions and environment states requiring re-verification, and (3) executes only this subset against the original test suite, comparing the result against a baseline that re-runs the full harness.
-**Expected Result:** The static-analysis approach will demonstrate a >90% reduction in verification time and CPU cycles with no increase in false-negative safety errors, proving that harness verification can be decoupled from full execution for efficient scaling.
 
-## Motivated by (source preprint — reviewed, not authored, by llmXive)
+- **Data Acquisition**: Download and parse the SWE-bench and AgentBench datasets (publicly available via HuggingFace/GitHub) to extract 500 agent tasks containing code artifacts, execution traces, and known failure modes.
+- **Graph Construction**: Convert the extracted code artifacts into a text-based dependency graph using a lightweight static analysis tool (e.g., `pycparser` or `tree-sitter`) to map function calls and variable dependencies.
+- **Diff Implementation**: Implement a "harness diff" algorithm that, given a proposed code change, traverses the dependency graph to identify the minimal set of dependent functions and environment states requiring re-verification.
+- **Execution Strategy**: Create a CPU-only prototype that executes only the identified minimal subset of the test suite against the modified code, while a baseline runner executes the full test suite for the same tasks.
+- **Metric Collection**: Record execution time (wall-clock) and CPU cycle counts for both the static-analysis approach and the full re-execution baseline across all 500 tasks.
+- **Safety Validation**: Compare the pass/fail outcomes of the minimal subset execution against the full suite execution to calculate the false-negative rate (cases where the minimal subset passed but the full suite failed).
+- **Statistical Analysis**: Perform a paired t-test (or Wilcoxon signed-rank test if non-normal) on the execution times to determine if the reduction is statistically significant (p < 0.05).
+- **Threshold Verification**: Confirm that the false-negative rate remains below a pre-defined safety threshold (e.g., < 0.1%) to validate that efficiency does not compromise safety.
 
-- **Code as Agent Harness** — Xuying Ning, Katherine Tieu, Dongqi Fu, Tianxin Wei, Zihao Li, Yuanchen Bei, Jiaru Zou, Mengting Ai, Zhining Liu, Ting-Wei Li, Lingjie Chen, Yanjun Zhao, Ke Yang, Bingxuan Li, Cheng Qian, Gaotang Li, Xiao Lin, Zhichen Zeng, Ruizhong Qiu, Sirui Chen, Yifan Sun, Xiyuan Yang, Ruida Wang, Rui Pan, Chenyuan Yang, Dylan Zhang, Liri Fang, Zikun Cui, Yang Cao, Pan Chen, Dorothy Sun, Ren Chen, Mahesh Srinivasan, Nipun Mathur, Yinglong Xia, Hong Li, Hong Yan, Pan Lu, Lingming Zhang, Tong Zhang, Hanghang Tong, Jingrui He. https://arxiv.org/abs/2605.18747.
+## Duplicate-check
 
-```bibtex
-@article{orig_arxiv_2605_18747,
-  title = {Code as Agent Harness},
-  author = {Xuying Ning and Katherine Tieu and Dongqi Fu and Tianxin Wei and Zihao Li and Yuanchen Bei and Jiaru Zou and Mengting Ai and Zhining Liu and Ting-Wei Li and Lingjie Chen and Yanjun Zhao and Ke Yang and Bingxuan Li and Cheng Qian and Gaotang Li and Xiao Lin and Zhichen Zeng and Ruizhong Qiu and Sirui Chen and Yifan Sun and Xiyuan Yang and Ruida Wang and Rui Pan and Chenyuan Yang and Dylan Zhang and Liri Fang and Zikun Cui and Yang Cao and Pan Chen and Dorothy Sun and Ren Chen and Mahesh Srinivasan and Nipun Mathur and Yinglong Xia and Hong Li and Hong Yan and Pan Lu and Lingming Zhang and Tong Zhang and Hanghang Tong and Jingrui He},
-  year = {2026},
-  eprint = {2605.18747},
-  archivePrefix = {arXiv},
-  journal = {arXiv preprint arXiv:2605.18747},
-  url = {https://arxiv.org/abs/2605.18747}
-}
-```
+- Reviewed existing ideas: None provided in the immediate context (assuming this is the first fleshed-out iteration of this specific extension).
+- Closest match: N/A (No prior fleshed-out ideas in the corpus to compare against).
+- Verdict: NOT a duplicate
+
+
+## Search trail
+
+**Generated by**: librarian (prompt v1.6.0) on 2026-07-04T21:28:24Z
+**Outcome**: exhausted
+**Original term**: llmXive follow-up: extending "Code as Agent Harness" linguistics
+**Verified citation count**: 4
+
+### Search terms used
+
+| Rank | Term | Hit count |
+|-|-|-|
+| 0 (initial) | llmXive follow-up: extending "Code as Agent Harness" linguistics | 0 |
+| 1 | Code as Agent Harness linguistic analysis | 5 |
+| 2 | natural language programming paradigms | 0 |
+| 3 | agent-oriented programming linguistics | 0 |
+| 4 | code generation as agent interaction | 0 |
+| 5 | semantic analysis of code-as-agent frameworks | 0 |
+| 6 | linguistic properties of agent harness systems | 0 |
+| 7 | program synthesis as natural language processing | 0 |
+| 8 | syntax and semantics of code agents | 0 |
+| 9 | human-agent communication through code | 0 |
+| 10 | computational linguistics of automated agents | 0 |
+| 11 | code interpretation as linguistic act | 0 |
+| 12 | formal linguistics of programming agents | 0 |
+| 13 | language models for agent code generation | 0 |
+| 14 | pragmatics of code-based agent control | 0 |
+| 15 | morphological analysis of agent harness code | 0 |
+| 16 | discourse analysis in code-as-agent systems | 0 |
+| 17 | linguistic frameworks for LLM agent orchestration | 0 |
+| 18 | code semantics in multi-agent systems | 0 |
+| 19 | natural language interfaces for code agents | 0 |
+| 20 | syntactic structures of agent programming languages | 0 |
+
+### Verified citations
+
+1. **Code as Agent Harness** (2026). Xuying Ning, Katherine Tieu, Dongqi Fu, Tianxin Wei, Zihao Li, et al.. arXiv. [2605.18747](https://arxiv.org/abs/2605.18747). PDF-sampled: No.
+2. **AutoHarness: improving LLM agents by automatically synthesizing a code harness** (2026). Xinghua Lou, Miguel Lázaro-Gredilla, Antoine Dedieu, Carter Wendelken, Wolfgang Lehrach, et al.. arXiv. [2603.03329](https://arxiv.org/abs/2603.03329). PDF-sampled: No.
+3. **Evolving Agents in the Dark: Retrospective Harness Optimization via Self-Preference** (2026). Wenbo Pan, Shujie Liu, Chin-Yew Lin, Jingying Zeng, Xianfeng Tang, et al.. arXiv. [2606.05922](https://arxiv.org/abs/2606.05922). PDF-sampled: No.
+4. **Your Code Agent Can Grow Alongside You with Structured Memory** (2026). Yi-Xuan Deng, Xiaoqin Liu, Yi Zhang, Guo-Wei Yang, Shuojin Yang. arXiv. [2603.13258](https://arxiv.org/abs/2603.13258). PDF-sampled: No.

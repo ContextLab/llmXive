@@ -1,0 +1,571 @@
+{
+  "fetched_at": "2026-07-04T21:29:34Z",
+  "field": "computer science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "computer science",
+      "idea_body_excerpt": "llmXive follow-up: extending \"FashionChameleon: Towards Real-Time and Interactive Human-Garment Vide\"",
+      "target_n": 5
+    },
+    "duration_seconds": 50.748,
+    "ended_at": "2026-07-04T21:29:34Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "real-time interactive garment animation"
+        ],
+        [
+          2,
+          "video-based virtual try-on systems"
+        ],
+        [
+          3,
+          "dynamic human clothing synthesis"
+        ],
+        [
+          4,
+          "interactive fashion visualization"
+        ],
+        [
+          5,
+          "real-time cloth simulation for video"
+        ],
+        [
+          6,
+          "generative models for garment transfer"
+        ],
+        [
+          7,
+          "neural rendering of human clothing"
+        ],
+        [
+          8,
+          "video garment editing and retargeting"
+        ],
+        [
+          9,
+          "interactive human-pose conditioned clothing"
+        ],
+        [
+          10,
+          "deep learning for virtual fashion try-on"
+        ],
+        [
+          11,
+          "real-time 3D garment reconstruction from video"
+        ],
+        [
+          12,
+          "video-to-video clothing style transfer"
+        ],
+        [
+          13,
+          "generative adversarial networks for virtual try-on"
+        ],
+        [
+          14,
+          "interactive 2D/3D garment manipulation"
+        ],
+        [
+          15,
+          "temporal consistency in virtual clothing generation"
+        ],
+        [
+          16,
+          "real-time human avatar clothing customization"
+        ],
+        [
+          17,
+          "neural texture synthesis for garments"
+        ],
+        [
+          18,
+          "pose-guided garment generation in video"
+        ],
+        [
+          19,
+          "interactive augmented reality fashion fitting"
+        ],
+        [
+          20,
+          "video-driven virtual clothing animation"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "llmXive follow-up: extending \"FashionChameleon: Towards Real-Time and Interactive Human-Garment Vide\" computer science": 0,
+        "real-time interactive garment animation": 4
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "real-time garment video synthesis interactive editing",
+      "FashionChameleon human pose garment generation",
+      "neural texture mapping dynamic clothing rendering",
+      "video frame interpolation clothing deformation",
+      "differentiable rendering cloth simulation physics"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2603.25580"
+      ]
+    },
+    "per_query_hit_count": {
+      "FashionChameleon human pose garment generation": 3,
+      "differentiable rendering cloth simulation physics": 3,
+      "llmXive follow-up: extending \"FashionChameleon: Towards Real-Time and Interactive Human-Garment Vide\" computer science": 3,
+      "neural texture mapping dynamic clothing rendering": 3,
+      "real-time garment video synthesis interactive editing": 3,
+      "video frame interpolation clothing deformation": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 3,
+      "rejections": [
+        {
+          "primary_pointer": "1806.09998",
+          "rationale": "The paper focuses on industrial motor fault diagnosis using LabVIEW and vibration analysis, which is an off-domain application of \"real-time monitoring\" unrelated to the user's question about extending a computer vision framework for human-garment video generation. This falls under the rejection rule for distinct constructs sharing only homonym keywords (e.g., \"real-time\" and \"monitoring\" appearing in both contexts but referring to entirely different mechanisms and domains).",
+          "title": "Real time state monitoring and fault diagnosis system for motor based on LabVIEW"
+        },
+        {
+          "primary_pointer": "2512.14002",
+          "rationale": "The paper focuses on task offloading and resource allocation in Vehicular Edge Computing (VEC), which is a distinct domain from the user's question regarding real-time human-garment video processing and interactive fashion applications. While both involve \"real-time\" systems, the paper does not measure the same biological, physical, or algorithmic mechanisms (e.g., garment segmentation, pose estimation, or interactive rendering) nor does it address the specific empirical population or variables ",
+          "title": "Real-Time Service Subscription and Adaptive Offloading Control in Vehicular Edge Computing"
+        },
+        {
+          "primary_pointer": "1802.00625",
+          "rationale": "The paper focuses on real-time sensor data analytics in industrial bulk materials handling and cyber-physical systems, which is an entirely different domain from the user's question about extending a computer vision framework for human-garment video interaction. It shares only the generic keyword \"real-time\" but addresses a distinct construct (industrial physics modeling vs. human pose/garment tracking) with no overlap in mechanism, variables, or empirical population.",
+          "title": "Real-Time-Data Analytics in Raw Materials Handling"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-07-04T21:28:43Z",
+    "term_input": {
+      "normalized": "llmxive follow-up: extending \"fashionchameleon: towards real-time and interactive human-garment vide\" computer science",
+      "raw": "llmXive follow-up: extending \"FashionChameleon: Towards Real-Time and Interactive Human-Garment Vide\" computer science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This white paper describes the LSST Dark Energy Science Collaboration (DESC), whose goal is the study of dark energy and related topics in fundamental physics with data from the Large Synoptic Survey Telescope (LSST). It provides an overview of dark energy science and describes the current and anticipated state of the field. It makes the case for the DESC by laying out a robust analytical framework for dark energy science that has been defined by its members and the comprehensive three-year work plan they have developed for implementing that framework. The analysis working groups cover five key probes of dark energy: weak lensing, large scale structure, galaxy clusters, Type Ia supernovae, and strong lensing. The computing working groups span cosmological simulations, galaxy catalogs, photon simulations and a systematic software and computational framework for LSST dark energy data analysis. The technical working groups make the connection between dark energy science and the LSST system. The working groups have close linkages, especially through the use of the photon simulations to study the impact of instrument design and survey strategy on analysis methodology and cosmological parameter estimation. The white paper describes several high priority tasks identified by each of the 16 working groups. Over the next three years these tasks will help prepare for LSST analysis, make synergistic connections with ongoing cosmological surveys and provide the dark energy community with state of the art analysis tools. Members of the community are invited to join the LSST DESC, according to the membership policies described in the white paper. Applications to sign up for associate membership may be made by submitting the Web form at http://www.slac.stanford.edu/exp/lsst/desc/signup.html with a short statement of the work they wish to pursue that is relevant to the LSST DESC.",
+          "claimed_authors": [
+            " LSST Dark Energy Science Collaboration"
+          ],
+          "claimed_title": "Large Synoptic Survey Telescope: Dark Energy Science Collaboration",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1211.0310"
+        },
+        "details": "query-relevance 0.077 < 0.3 (query='llmXive follow-up: extending \"FashionChameleon: Towards Real-Time and Interactiv', candidate_title='Large Synoptic Survey Telescope: Dark Energy Science Collaboration')",
+        "failed_at": "2026-07-04T21:29:12Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The large instantaneous sensitivity, a wide frequency coverage and flexible observation modes with large number of beams in the sky are the main features of the SKA observatory's two telescopes, the SKA-Low and the SKA-Mid, which are located on two different continents. Owing to these capabilities, the SKAO telescopes are going to be a game-changer for radio astronomy in general and pulsar astronomy in particular. The eleven articles in this special issue on pulsar science with the SKA Observatory describe its impact on different areas of pulsar science. In this lead article, a brief description of the two telescopes highlighting the relevant features for pulsar science is presented followed by an overview of each accompanying article, exploring the inter-relationship between different pulsar science use cases.",
+          "claimed_authors": [
+            "Bhal Chandra Joshi",
+            "Aris Karastergiou",
+            "Marta Burgay",
+            "The SKA pulsar science working group"
+          ],
+          "claimed_title": "Pulsar Science with the SKA Observatory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.16152"
+        },
+        "details": "query-relevance 0.077 < 0.3 (query='llmXive follow-up: extending \"FashionChameleon: Towards Real-Time and Interactiv', candidate_title='Pulsar Science with the SKA Observatory')",
+        "failed_at": "2026-07-04T21:29:12Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A Human Computer Interface (HCI) System for playing games is designed here for more natural communication with the machines. The system presented here is a vision-based system for detection of long voluntary eye blinks and interpretation of blink patterns for communication between man and machine. This system replaces the mouse with the human face as a new way to interact with the computer. Facial features (nose tip and eyes) are detected and tracked in realtime to use their actions as mouse events. The coordinates and movement of the nose tip in the live video feed are translated to become the coordinates and movement of the mouse pointer on the application. The left or right eye blinks fire left or right mouse click events. The system works with inexpensive USB cameras and runs at a frame rate of 30 frames per second.",
+          "claimed_authors": [
+            "S. Sumathi",
+            "S. K. Srivatsa",
+            "M. Uma Maheswari"
+          ],
+          "claimed_title": "Vision Based Game Development Using Human Computer Interaction",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1002.2191"
+        },
+        "details": "query-relevance 0.154 < 0.3 (query='llmXive follow-up: extending \"FashionChameleon: Towards Real-Time and Interactiv', candidate_title='Vision Based Game Development Using Human Computer Interaction')",
+        "failed_at": "2026-07-04T21:29:12Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Text-to-video diffusion models have made remarkable advancements. Driven by their ability to generate temporally coherent videos, research on zero-shot video editing using these fundamental models has expanded rapidly. To enhance editing quality, structural controls are frequently employed in video editing. Among these techniques, cross-attention mask control stands out for its effectiveness and efficiency. However, when cross-attention masks are naively applied to video editing, they can introduce artifacts such as blurring and flickering. Our experiments uncover a critical factor overlooked in previous video editing research: cross-attention masks are not consistently clear but vary with model structure and denoising timestep. To address this issue, we propose the metric Mask Matching Cost (MMC) that quantifies this variability and propose FreeMask, a method for selecting optimal masks tailored to specific video editing tasks. Using MMC-selected masks, we further improve the masked fusion mechanism within comprehensive attention features, e.g., temp, cross, and self-attention modules. Our approach can be seamlessly integrated into existing zero-shot video editing frameworks with better performance, requiring no control assistance or parameter fine-tuning but enabling adaptive decoupling of unedited semantic layouts with mask precision control. Extensive experiments demonstrate that FreeMask achieves superior semantic fidelity, temporal consistency, and editing quality compared to state-of-the-art methods.",
+          "claimed_authors": [
+            "Lingling Cai",
+            "Kang Zhao",
+            "Hangjie Yuan",
+            "Yingya Zhang",
+            "Shiwei Zhang",
+            "Kejie Huang"
+          ],
+          "claimed_title": "FreeMask: Rethinking the Importance of Attention Masks for Zero-Shot Video Editing",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2409.20500"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"FashionChameleon: Towards Real-Time and Interactiv', candidate_title='FreeMask: Rethinking the Importance of Attention Masks for Zero-Shot Video Editing')",
+        "failed_at": "2026-07-04T21:29:12Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The advent of Video Diffusion Transformers (Video DiTs) marks a milestone in video generation. However, directly applying existing video editing methods to Video DiTs often incurs substantial computational overhead, due to resource-intensive attention modification or finetuning. To alleviate this problem, we present DFVEdit, an efficient zero-shot video editing method tailored for Video DiTs. DFVEdit eliminates the need for both attention modification and fine-tuning by directly operating on clean latents via flow transformation. To be more specific, we observe that editing and sampling can be unified under the continuous flow perspective. Building upon this foundation, we propose the Conditional Delta Flow Vector (CDFV) -- a theoretically unbiased estimation of DFV -- and integrate Implicit Cross Attention (ICA) guidance as well as Embedding Reinforcement (ER) to further enhance editing quality. DFVEdit excels in practical efficiency, offering at least 20x inference speed-up and 85% memory reduction on Video DiTs compared to attention-engineering-based editing methods. Extensive quantitative and qualitative experiments demonstrate that DFVEdit can be seamlessly applied to popular Video DiTs (e.g., CogVideoX and Wan2.1), attaining state-of-the-art performance on structural fidelity, spatial-temporal consistency, and editing quality.",
+          "claimed_authors": [
+            "Lingling Cai",
+            "Kang Zhao",
+            "Hangjie Yuan",
+            "Xiang Wang",
+            "Yingya Zhang",
+            "Kejie Huang"
+          ],
+          "claimed_title": "DFVEdit: Conditional Delta Flow Vector for Zero-shot Video Editing",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2506.20967"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"FashionChameleon: Towards Real-Time and Interactiv', candidate_title='DFVEdit: Conditional Delta Flow Vector for Zero-shot Video Editing')",
+        "failed_at": "2026-07-04T21:29:12Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Large-scale text-to-image diffusion models achieve unprecedented success in image generation and editing. However, how to extend such success to video editing is unclear. Recent initial attempts at video editing require significant text-to-video data and computation resources for training, which is often not accessible. In this work, we propose vid2vid-zero, a simple yet effective method for zero-shot video editing. Our vid2vid-zero leverages off-the-shelf image diffusion models, and doesn't require training on any video. At the core of our method is a null-text inversion module for text-to-video alignment, a cross-frame modeling module for temporal consistency, and a spatial regularization module for fidelity to the original video. Without any training, we leverage the dynamic nature of the attention mechanism to enable bi-directional temporal modeling at test time. Experiments and analyses show promising results in editing attributes, subjects, places, etc., in real-world videos. Code is made available at \\url{https://github.com/baaivision/vid2vid-zero}.",
+          "claimed_authors": [
+            "Wen Wang",
+            "Yan Jiang",
+            "Kangyang Xie",
+            "Zide Liu",
+            "Hao Chen",
+            "Yue Cao",
+            "Xinlong Wang",
+            "Chunhua Shen"
+          ],
+          "claimed_title": "Zero-Shot Video Editing Using Off-The-Shelf Image Diffusion Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2303.17599"
+        },
+        "details": "query-relevance 0.154 < 0.3 (query='llmXive follow-up: extending \"FashionChameleon: Towards Real-Time and Interactiv', candidate_title='Zero-Shot Video Editing Using Off-The-Shelf Image Diffusion Models')",
+        "failed_at": "2026-07-04T21:29:12Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Multimodal foundation models have demonstrated strong generalization, yet their ability to transfer knowledge to specialized domains such as garment generation remains underexplored. We introduce VLG, a vision-language-garment model that synthesizes garments from textual descriptions and visual imagery. Our experiments assess VLG's zero-shot generalization, investigating its ability to transfer web-scale reasoning to unseen garment styles and prompts. Preliminary results indicate promising transfer capabilities, highlighting the potential for multimodal foundation models to adapt effectively to specialized domains like fashion design.",
+          "claimed_authors": [
+            "Jan Ackermann",
+            "Kiyohiro Nakayama",
+            "Guandao Yang",
+            "Tong Wu",
+            "Gordon Wetzstein"
+          ],
+          "claimed_title": "Towards Vision-Language-Garment Models for Web Knowledge Garment Understanding and Generation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2506.05210"
+        },
+        "details": "query-relevance 0.154 < 0.3 (query='llmXive follow-up: extending \"FashionChameleon: Towards Real-Time and Interactiv', candidate_title='Towards Vision-Language-Garment Models for Web Knowledge Garment Understanding and Generation')",
+        "failed_at": "2026-07-04T21:29:12Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Recent pose-transfer methods aim to generate temporally consistent and fully controllable videos of human action where the motion from a reference video is reenacted by a new identity. We evaluate three state-of-the-art pose-transfer methods -- AnimateAnyone, MagicAnimate, and ExAvatar -- by generating videos with actions and identities outside the training distribution and conducting a participant study about the quality of these videos. In a controlled environment of 20 distinct human actions, we find that participants, presented with the pose-transferred videos, correctly identify the desired action only 42.92% of the time. Moreover, the participants find the actions in the generated videos consistent with the reference (source) videos only 36.46% of the time. These results vary by method: participants find the splatting-based ExAvatar more consistent and photorealistic than the diffusion-based AnimateAnyone and MagicAnimate.",
+          "claimed_authors": [
+            "Vaclav Knapp",
+            "Matyas Bohacek"
+          ],
+          "claimed_title": "Can Pose Transfer Models Generate Realistic Human Motion?",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2501.15648"
+        },
+        "details": "query-relevance 0.154 < 0.3 (query='llmXive follow-up: extending \"FashionChameleon: Towards Real-Time and Interactiv', candidate_title='Can Pose Transfer Models Generate Realistic Human Motion?')",
+        "failed_at": "2026-07-04T21:29:12Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We have recently seen great progress in building photorealistic animatable full-body codec avatars, but generating high-fidelity animation of clothing is still difficult. To address these difficulties, we propose a method to build an animatable clothed body avatar with an explicit representation of the clothing on the upper body from multi-view captured videos. We use a two-layer mesh representation to register each 3D scan separately with the body and clothing templates. In order to improve the photometric correspondence across different frames, texture alignment is then performed through inverse rendering of the clothing geometry and texture predicted by a variational autoencoder. We then train a new two-layer codec avatar with separate modeling of the upper clothing and the inner body layer. To learn the interaction between the body dynamics and clothing states, we use a temporal convolution network to predict the clothing latent code based on a sequence of input skeletal poses. We show photorealistic animation output for three different actors, and demonstrate the advantage of our clothed-body avatars over the single-layer avatars used in previous work. We also show the benefit of an explicit clothing model that allows the clothing texture to be edited in the animation output.",
+          "claimed_authors": [
+            "Donglai Xiang",
+            "Fabian Prada",
+            "Timur Bagautdinov",
+            "Weipeng Xu",
+            "Yuan Dong",
+            "He Wen",
+            "Jessica Hodgins",
+            "Chenglei Wu"
+          ],
+          "claimed_title": "Modeling Clothing as a Separate Layer for an Animatable Human Avatar",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2106.14879"
+        },
+        "details": "query-relevance 0.077 < 0.3 (query='llmXive follow-up: extending \"FashionChameleon: Towards Real-Time and Interactiv', candidate_title='Modeling Clothing as a Separate Layer for an Animatable Human Avatar')",
+        "failed_at": "2026-07-04T21:29:12Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Clothing is an important part of human appearance but challenging to model in photorealistic avatars. In this work we present avatars with dynamically moving loose clothing that can be faithfully driven by sparse RGB-D inputs as well as body and face motion. We propose a Neural Iterative Closest Point (N-ICP) algorithm that can efficiently track the coarse garment shape given sparse depth input. Given the coarse tracking results, the input RGB-D images are then remapped to texel-aligned features, which are fed into the drivable avatar models to faithfully reconstruct appearance details. We evaluate our method against recent image-driven synthesis baselines, and conduct a comprehensive analysis of the N-ICP algorithm. We demonstrate that our method can generalize to a novel testing environment, while preserving the ability to produce high-fidelity and faithful clothing dynamics and appearance.",
+          "claimed_authors": [
+            "Donglai Xiang",
+            "Fabian Prada",
+            "Zhe Cao",
+            "Kaiwen Guo",
+            "Chenglei Wu",
+            "Jessica Hodgins",
+            "Timur Bagautdinov"
+          ],
+          "claimed_title": "Drivable Avatar Clothing: Faithful Full-Body Telepresence with Dynamic Clothing Driven by Sparse RGB-D Input",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2310.05917"
+        },
+        "details": "query-relevance 0.154 < 0.3 (query='llmXive follow-up: extending \"FashionChameleon: Towards Real-Time and Interactiv', candidate_title='Drivable Avatar Clothing: Faithful Full-Body Telepresence with Dynamic Clothing Driven by Sparse RGB-D Input')",
+        "failed_at": "2026-07-04T21:29:12Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Here we introduce a new model of natural textures based on the feature spaces of convolutional neural networks optimised for object recognition. Samples from the model are of high perceptual quality demonstrating the generative power of neural networks trained in a purely discriminative fashion. Within the model, textures are represented by the correlations between feature maps in several layers of the network. We show that across layers the texture representations increasingly capture the statistical properties of natural images while making object information more and more explicit. The model provides a new tool to generate stimuli for neuroscience and might offer insights into the deep representations learned by convolutional neural networks.",
+          "claimed_authors": [
+            "Leon A. Gatys",
+            "Alexander S. Ecker",
+            "Matthias Bethge"
+          ],
+          "claimed_title": "Texture Synthesis Using Convolutional Neural Networks",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2015,
+          "primary_pointer": "1505.07376"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"FashionChameleon: Towards Real-Time and Interactiv', candidate_title='Texture Synthesis Using Convolutional Neural Networks')",
+        "failed_at": "2026-07-04T21:29:12Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Video Frame Interpolation (VFI) is a core low-level vision task that synthesizes intermediate frames between existing ones while ensuring spatial and temporal coherence. Over the past decades, VFI methodologies have evolved from classical motion compensation-based approach to a wide spectrum of deep learning-based approaches, including kernel-, flow-, hybrid-, phase-, GAN-, Transformer-, Mamba-, and most recently, diffusion-based models. We introduce AceVFI, a comprehensive and up-to-date review of the VFI field, covering over 250 representative papers. We systematically categorize VFI methods based on their core design principles and architectural characteristics. Further, we classify them into two major learning paradigms: Center-Time Frame Interpolation (CTFI) and Arbitrary-Time Frame Interpolation (ATFI). We analyze key challenges in VFI, including large motion, occlusion, lighting variation, and non-linear motion. In addition, we review standard datasets, loss functions, evaluation metrics. We also explore VFI applications in other domains and highlight future research directions. This survey aims to serve as a valuable reference for researchers and practitioners seeking a thorough understanding of the modern VFI landscape.",
+          "claimed_authors": [
+            "Dahyeon Kye",
+            "Changhyun Roh",
+            "Sukhun Ko",
+            "Chanho Eom",
+            "Jihyong Oh"
+          ],
+          "claimed_title": "AceVFI: A Comprehensive Survey of Advances in Video Frame Interpolation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2506.01061"
+        },
+        "details": "query-relevance 0.077 < 0.3 (query='llmXive follow-up: extending \"FashionChameleon: Towards Real-Time and Interactiv', candidate_title='AceVFI: A Comprehensive Survey of Advances in Video Frame Interpolation')",
+        "failed_at": "2026-07-04T21:29:12Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Generating intermediate video content of varying lengths based on given first and last frames, along with text prompt information, offers significant research and application potential. However, traditional frame interpolation tasks primarily focus on scenarios with a small number of frames, no text control, and minimal differences between the first and last frames. Recent community developers have utilized large video models represented by Wan to endow frame-to-frame capabilities. However, these models can only generate a fixed number of frames and often fail to produce satisfactory results for certain frame lengths, while this setting lacks a clear official definition and a well-established benchmark. In this paper, we first propose a new practical Semantic Frame Interpolation (SFI) task from the perspective of academic definition, which covers the above two settings and supports inference at multiple frame rates. To achieve this goal, we propose a novel SemFi model building upon Wan2.1, which incorporates a Mixture-of-LoRA module to ensure the generation of high-consistency content that aligns with control conditions across various frame length limitations. Furthermore, we propose SFI-300K, the first general-purpose dataset and benchmark specifically designed for SFI. To support this, we collect and process data from the perspective of SFI, carefully designing evaluation metrics and methods to assess the model's performance across multiple dimensions, encompassing image and video, and various aspects, including consistency and diversity. Through extensive experiments on SFI-300K, we demonstrate that our method is particularly well-suited to meet the requirements of the SFI task.",
+          "claimed_authors": [
+            "Yijia Hong",
+            "Jiangning Zhang",
+            "Ran Yi",
+            "Yuji Wang",
+            "Weijian Cao",
+            "Xiaobin Hu",
+            "Zhucun Xue",
+            "Yabiao Wang",
+            "Chengjie Wang",
+            "Lizhuang Ma"
+          ],
+          "claimed_title": "Semantic Frame Interpolation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2507.05173"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"FashionChameleon: Towards Real-Time and Interactiv', candidate_title='Semantic Frame Interpolation')",
+        "failed_at": "2026-07-04T21:29:12Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In this paper, we propose a novel motion-compensated frame rate up-conversion (MC-FRUC) algorithm. The proposed algorithm creates interpolated frames by first estimating motion vectors using unilateral (jointing forward and backward) and bilateral motion estimation. Then motion vectors are combined based on adaptive threshold, in order to creates high-quality interpolated frames and reduce block artifacts. Since motion-compensated frame interpolation along unilateral motion trajectories yields holes, a new algorithm is introduced to resolve this problem. The experimental results show that the quality of the interpolated frames using the proposed algorithm is much higher than the existing algorithms.",
+          "claimed_authors": [
+            "Hanieh Naderi",
+            "Mohammad Rahmati"
+          ],
+          "claimed_title": "Triple Motion Estimation and Frame Interpolation based on Adaptive Threshold for Frame Rate Up-Conversion",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2203.03621"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"FashionChameleon: Towards Real-Time and Interactiv', candidate_title='Triple Motion Estimation and Frame Interpolation based on Adaptive Threshold for Frame Rate Up-Conversion')",
+        "failed_at": "2026-07-04T21:29:12Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We present a general framework for the garment animation problem through unsupervised deep learning inspired in physically based simulation. Existing trends in the literature already explore this possibility. Nonetheless, these approaches do not handle cloth dynamics. Here, we propose the first methodology able to learn realistic cloth dynamics unsupervisedly, and henceforth, a general formulation for neural cloth simulation. The key to achieve this is to adapt an existing optimization scheme for motion from simulation based methodologies to deep learning. Then, analyzing the nature of the problem, we devise an architecture able to automatically disentangle static and dynamic cloth subspaces by design. We will show how this improves model performance. Additionally, this opens the possibility of a novel motion augmentation technique that greatly improves generalization. Finally, we show it also allows to control the level of motion in the predictions. This is a useful, never seen before, tool for artists. We provide of detailed analysis of the problem to establish the bases of neural cloth simulation and guide future research into the specifics of this domain.",
+          "claimed_authors": [
+            "Hugo Bertiche",
+            "Meysam Madadi",
+            "Sergio Escalera"
+          ],
+          "claimed_title": "Neural Cloth Simulation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2212.11220"
+        },
+        "details": "query-relevance 0.077 < 0.3 (query='llmXive follow-up: extending \"FashionChameleon: Towards Real-Time and Interactiv', candidate_title='Neural Cloth Simulation')",
+        "failed_at": "2026-07-04T21:29:12Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Inverse rendering seeks to reconstruct both geometry and spatially varying BRDFs (SVBRDFs) from captured images. To address the inherent ill-posedness of inverse rendering, basis BRDF representations are commonly used, modeling SVBRDFs as spatially varying blends of a set of basis BRDFs. However, existing methods often yield basis BRDFs that lack intuitive separation and have limited scalability to scenes of varying complexity. In this paper, we introduce a differentiable inverse rendering method that produces interpretable basis BRDFs. Our approach models a scene using 2D Gaussians, where the reflectance of each Gaussian is defined by a weighted blend of basis BRDFs. We efficiently render an image from the 2D Gaussians and basis BRDFs using differentiable rasterization and impose a rendering loss with the input images. During this analysis-by-synthesis optimization process of differentiable inverse rendering, we dynamically adjust the number of basis BRDFs to fit the target scene while encouraging sparsity in the basis weights. This ensures that the reflectance of each Gaussian is represented by only a few basis BRDFs. This approach enables the reconstruction of accurate geometry and interpretable basis BRDFs that are spatially separated. Consequently, the resulting scene representation, comprising basis BRDFs and 2D Gaussians, supports physically-based novel-view relighting and intuitive scene editing.",
+          "claimed_authors": [
+            "Hoon-Gyu Chung",
+            "Seokjun Choi",
+            "Seung-Hwan Baek"
+          ],
+          "claimed_title": "Differentiable Inverse Rendering with Interpretable Basis BRDFs",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2411.17994"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"FashionChameleon: Towards Real-Time and Interactiv', candidate_title='Differentiable Inverse Rendering with Interpretable Basis BRDFs')",
+        "failed_at": "2026-07-04T21:29:12Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The European Particle Physics Strategy Update (EPPSU) process takes a bottom-up approach, whereby the community is first invited to submit proposals (also called inputs) for projects that it would like to see realised in the near-term, mid-term and longer-term future. National inputs as well as inputs from National Laboratories are also an important element of the process. All these inputs are then reviewed by the Physics Preparatory Group (PPG), whose role is to organize a Symposium around the submitted ideas and to prepare a community discussion on the importance and merits of the various proposals. The results of these discussions are then concisely summarised in this Briefing Book, prepared by the Conveners, assisted by Scientific Secretaries, and with further contributions provided by the Contributors listed on the title page. This constitutes the basis for the considerations of the European Strategy Group (ESG), consisting of scientific delegates from CERN Member States, Associate Member States, directors of major European laboratories, representatives of various European organizations as well as invitees from outside the European Community. The ESG has the mission to formulate the European Strategy Update for the consideration and approval of the CERN Council.",
+          "claimed_authors": [
+            " European Strategy for Particle Physics Preparatory Group"
+          ],
+          "claimed_title": "Physics Briefing Book",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1910.11775"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"FashionChameleon: Towards Real-Time and Interactiv', candidate_title='Physics Briefing Book')",
+        "failed_at": "2026-07-04T21:29:12Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Quanjian Song",
+            "Yefeng Shen",
+            "Mengting Chen",
+            "Hao Sun",
+            "Jinsong Lan",
+            "Xiaoyong Zhu",
+            "Bo Zheng",
+            "Liujuan Cao"
+          ],
+          "title": "FashionChameleon: Towards Real-Time and Interactive Human-Garment Video Customization",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2605.15824",
+        "summary": "Human-centric video customization, particularly at the garment level, has shown significant commercial value. However, existing approaches cannot support low-latency and interactive garment control, which is crucial for applications such as e-commerce and content creation. This paper studies how to achieve interactive multi-garment video customization while preserving motion coherence using only single-garment video data. We present FashionChameleon, a real-time and interactive framework for human-garment customization in autoregressive video generation, where users can interactively switch garment during generation. FashionChameleon consists of three key techniques: (i) Instead of training on multi-garment video data, we train a Teacher Model with In-Context Learning on a single reference-garment pair. By retaining the image-to-video training paradigm while enforcing a mismatch between the reference and garment image, the model is encouraged to implicitly preserve coherence during single-garment switching. (ii) To achieve consistency and efficiency during generation, we introduce Streaming Distillation with In-Context Learning, which fine-tunes the model with in-context teacher forcing and improves extrapolation consistency via gradient-reweighted distribution matching distillation. (iii) To extend the model for interactive multi-garment video customization, we propose Training-Free KV Cache Rescheduling, which includes garment KV refresh, historical KV withdraw, and reference KV disentangle to achieve garment switching while preserving motion coherence. Our FashionChameleon uniquely supports interactive customization and consistent long-video extrapolation, while achieving real-time generation at 23.8 FPS on a single GPU, 30-180$\\times$ faster than existing baselines.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2605.15824",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5385,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-04T21:29:12Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Chengfeng Zhao",
+            "Junbo Qi",
+            "Yulou Liu",
+            "Zhiyang Dou",
+            "Minchen Li",
+            "Taku Komura",
+            "Ziwei Liu",
+            "Wenping Wang",
+            "Yuan Liu"
+          ],
+          "title": "UNIC: Neural Garment Deformation Field for Real-time Clothed Character Animation",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2603.25580",
+        "summary": "Simulating physically realistic garment deformations is an essential task for virtual immersive experience, which is often achieved by physics simulation methods. However, these methods are typically time-consuming, computationally demanding, and require costly hardware, which is not suitable for real-time applications. Recent learning-based methods tried to resolve this problem by training graph neural networks to learn the garment deformation on vertices, which, however, fail to capture the intricate deformation of complex garment meshes with complex topologies. In this paper, we introduce a novel neural deformation field-based method, named UNIC, to animate the garments of an avatar in real time, given the motion sequences. Our key idea is to learn the instance-specific neural deformation field to animate the garment meshes. Such an instance-specific learning scheme does not require UNIC to generalize to new garments but only to new motion sequences, which greatly reduces the difficulty in training and improves the deformation quality. Moreover, neural deformation fields map the 3D points to their deformation offsets, which not only avoids handling topologies of the complex garments but also injects a natural smoothness constraint in the deformation learning. Extensive experiments have been conducted on various kinds of garment meshes to demonstrate the effectiveness and efficiency of UNIC over baseline methods, making it potentially practical and useful in real-world interactive applications like video games.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2603.25580",
+          "http_status": 200,
+          "pdf_sample_score": 0.2495,
+          "query_relevance_score": 1.0,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-04T21:29:17Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "llmxive follow-up: extending \"fashionchameleon: towards real-time and interactive human-garment vide\" computer science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

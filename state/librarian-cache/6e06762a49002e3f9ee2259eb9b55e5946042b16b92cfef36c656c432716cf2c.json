@@ -1,0 +1,606 @@
+{
+  "fetched_at": "2026-07-04T21:28:24Z",
+  "field": "linguistics",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "linguistics",
+      "idea_body_excerpt": "llmXive follow-up: extending \"Code as Agent Harness\"",
+      "target_n": 5
+    },
+    "duration_seconds": 65.348,
+    "ended_at": "2026-07-04T21:28:24Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "Code as Agent Harness linguistic analysis"
+        ],
+        [
+          2,
+          "natural language programming paradigms"
+        ],
+        [
+          3,
+          "agent-oriented programming linguistics"
+        ],
+        [
+          4,
+          "code generation as agent interaction"
+        ],
+        [
+          5,
+          "semantic analysis of code-as-agent frameworks"
+        ],
+        [
+          6,
+          "linguistic properties of agent harness systems"
+        ],
+        [
+          7,
+          "program synthesis as natural language processing"
+        ],
+        [
+          8,
+          "syntax and semantics of code agents"
+        ],
+        [
+          9,
+          "human-agent communication through code"
+        ],
+        [
+          10,
+          "computational linguistics of automated agents"
+        ],
+        [
+          11,
+          "code interpretation as linguistic act"
+        ],
+        [
+          12,
+          "formal linguistics of programming agents"
+        ],
+        [
+          13,
+          "language models for agent code generation"
+        ],
+        [
+          14,
+          "pragmatics of code-based agent control"
+        ],
+        [
+          15,
+          "morphological analysis of agent harness code"
+        ],
+        [
+          16,
+          "discourse analysis in code-as-agent systems"
+        ],
+        [
+          17,
+          "linguistic frameworks for LLM agent orchestration"
+        ],
+        [
+          18,
+          "code semantics in multi-agent systems"
+        ],
+        [
+          19,
+          "natural language interfaces for code agents"
+        ],
+        [
+          20,
+          "syntactic structures of agent programming languages"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "Code as Agent Harness linguistic analysis": 5,
+        "llmXive follow-up: extending \"Code as Agent Harness\" linguistics": 0
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "code agent harness syntactic pragmatics",
+      "LLM code generation natural language instruction",
+      "program synthesis instruction following evaluation",
+      "code generation benchmark semantic parsing accuracy",
+      "human-AI collaboration code generation linguistic framing"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2605.18747"
+      ]
+    },
+    "per_query_hit_count": {
+      "LLM code generation natural language instruction": 3,
+      "code agent harness syntactic pragmatics": 2,
+      "code generation benchmark semantic parsing accuracy": 3,
+      "human-AI collaboration code generation linguistic framing": 3,
+      "llmXive follow-up: extending \"Code as Agent Harness\" linguistics": 3,
+      "program synthesis instruction following evaluation": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 1,
+      "rejections": [
+        {
+          "primary_pointer": "2606.09682",
+          "rationale": "The paper focuses on a specific system implementation (AutoMegaKernel) for static checking and performance optimization of LLM inference, which does not address the user's question regarding the \"linguistics\" of the \"Code as Agent Harness\" framework or the theoretical/linguistic extensions of that specific prior work. While it mentions an \"agent harness,\" it uses the term in a distinct, low-level systems context (CUDA kernel scheduling) rather than the linguistic or high-level agent-architecture",
+          "title": "AutoMegaKernel: A Statically-Checked Agent Harness for Self-Retargeting Megakernel Synthesis"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-07-04T21:27:18Z",
+    "term_input": {
+      "normalized": "llmxive follow-up: extending \"code as agent harness\" linguistics",
+      "raw": "llmXive follow-up: extending \"Code as Agent Harness\" linguistics"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We provide an introductory review of Bayesian data analytical methods, with a focus on applications for linguistics, psychology, psycholinguistics, and cognitive science. The empirically oriented researcher will benefit from making Bayesian methods part of their statistical toolkit due to the many advantages of this framework, among them easier interpretation of results relative to research hypotheses, and flexible model specification. We present an informal introduction to the foundational ideas behind Bayesian data analysis, using, as an example, a linear mixed models analysis of data from a typical psycholinguistics experiment. We discuss hypothesis testing using the Bayes factor, and model selection using cross-validation. We close with some examples illustrating the flexibility of model specification in the Bayesian framework. Suggestions for further reading are also provided.",
+          "claimed_authors": [
+            "Bruno Nicenboim",
+            "Shravan Vasishth"
+          ],
+          "claimed_title": "Statistical methods for linguistic research: Foundational Ideas - Part II",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1602.00245"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='llmXive follow-up: extending \"Code as Agent Harness\" linguistics', candidate_title='Statistical methods for linguistic research: Foundational Ideas - Part II')",
+        "failed_at": "2026-07-04T21:28:04Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We present the fundamental ideas underlying statistical hypothesis testing using the frequentist framework. We begin with a simple example that builds up the one-sample t-test from the beginning, explaining important concepts such as the sampling distribution of the sample mean, and the iid assumption. Then we examine the p-value in detail, and discuss several important misconceptions about what a p-value does and does not tell us. This leads to a discussion of Type I, II error and power, and Type S and M error. An important conclusion from this discussion is that one should aim to carry out appropriately powered studies. Next, we discuss two common issues we have encountered in psycholinguistics and linguistics: running experiments until significance is reached, and the \"garden-of-forking-paths\" problem discussed by Gelman and others, whereby the researcher attempts to find statistical significance by analyzing the data in different ways. The best way to use frequentist methods is to run appropriately powered studies, check model assumptions, clearly separate exploratory data analysis from confirmatory hypothesis testing, and always attempt to replicate results.",
+          "claimed_authors": [
+            "Shravan Vasishth",
+            "Bruno Nicenboim"
+          ],
+          "claimed_title": "Statistical methods for linguistic research: Foundational Ideas - Part I",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1601.01126"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='llmXive follow-up: extending \"Code as Agent Harness\" linguistics', candidate_title='Statistical methods for linguistic research: Foundational Ideas - Part I')",
+        "failed_at": "2026-07-04T21:28:04Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Despite significant strides in language models in the last few years, when used as agents, such models often try to perform actions that are not just suboptimal for a given state, but are strictly prohibited by the external environment. For example, in the recent Kaggle GameArena chess competition, 78% of Gemini-2.5-Flash losses were attributed to illegal moves. Often people manually write \"harnesses\" around LLMs to prevent such failures. In this paper, we demonstrate that Gemini-2.5-Flash can automatically synthesize such a code harness, using a small number of rounds of iterative code refinement given feedback from the (game) environment. The resulting harness prevents all illegal moves in 145 different TextArena games (both 1-player and 2-player), enabling the smaller Gemini-2.5-Flash model to outperform larger models, such as Gemini-2.5-Pro. Pushing our technique to the limit, we can get Gemini-2.5-Flash to generate the entire policy in code, thus eliminating the need to use the LLM at decision making time. The resulting code-policy receives a higher average reward than Gemini-2.5-Pro and GPT-5.2-High on 16 TextArena 1-player games. Our results show that using a smaller model to synthesize a custom code harness (or entire policy) can outperform a much larger model, while also being more cost effective.",
+          "claimed_authors": [
+            "Xinghua Lou",
+            "Miguel Lázaro-Gredilla",
+            "Antoine Dedieu",
+            "Carter Wendelken",
+            "Wolfgang Lehrach",
+            "Kevin P. Murphy"
+          ],
+          "claimed_title": "AutoHarness: improving LLM agents by automatically synthesizing a code harness",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2603.03329"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='llmXive follow-up: extending \"Code as Agent Harness\" linguistics', candidate_title='AutoHarness: improving LLM agents by automatically synthesizing a code harness')",
+        "failed_at": "2026-07-04T21:28:04Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Java Code Generation consists in generating automatically Java code from a Natural Language Text. This NLP task helps in increasing programmers' productivity by providing them with immediate solutions to the simplest and most repetitive tasks. Code generation is a challenging task because of the hard syntactic rules and the necessity of a deep understanding of the semantic aspect of the programming language. Many works tried to tackle this task using either RNN-based, or Transformer-based models. The latter achieved remarkable advancement in the domain and they can be divided into three groups: (1) encoder-only models, (2) decoder-only models, and (3) encoder-decoder models. In this paper, we provide a comprehensive review of the evolution and progress of deep learning models in Java code generation task. We focus on the most important methods and present their merits and limitations, as well as the objective functions used by the community. In addition, we provide a detailed description of datasets and evaluation metrics used in the literature. Finally, we discuss results of different models on CONCODE dataset, then propose some future directions.",
+          "claimed_authors": [
+            "Jessica López Espejel",
+            "Mahaman Sanoussi Yahaya Alassan",
+            "El Mehdi Chouham",
+            "Walid Dahhane",
+            "El Hassane Ettifouri"
+          ],
+          "claimed_title": "A Comprehensive Review of State-of-The-Art Methods for Java Code Generation from Natural Language Text",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2306.06371"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='llmXive follow-up: extending \"Code as Agent Harness\" linguistics', candidate_title='A Comprehensive Review of State-of-The-Art Methods for Java Code Generation from Natural Language Text')",
+        "failed_at": "2026-07-04T21:28:04Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Automatic multiple-choice question generation (MCQG) is a useful yet challenging task in Natural Language Processing (NLP). It is the task of automatic generation of correct and relevant questions from textual data. Despite its usefulness, manually creating sizeable, meaningful and relevant questions is a time-consuming and challenging task for teachers. In this paper, we present an NLP-based system for automatic MCQG for Computer-Based Testing Examination (CBTE).We used NLP technique to extract keywords that are important words in a given lesson material. To validate that the system is not perverse, five lesson materials were used to check the effectiveness and efficiency of the system. The manually extracted keywords by the teacher were compared to the auto-generated keywords and the result shows that the system was capable of extracting keywords from lesson materials in setting examinable questions. This outcome is presented in a user-friendly interface for easy accessibility.",
+          "claimed_authors": [
+            "Chidinma A. Nwafor",
+            "Ikechukwu E. Onyenwe"
+          ],
+          "claimed_title": "An Automated Multiple-Choice Question Generation Using Natural Language Processing Techniques",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2103.14757"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Code as Agent Harness\" linguistics', candidate_title='An Automated Multiple-Choice Question Generation Using Natural Language Processing Techniques')",
+        "failed_at": "2026-07-04T21:28:04Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Instruction tuning significantly enhances the performance of large language models (LLMs) across various tasks. However, the procedure to optimizing the mixing of instruction datasets for LLM fine-tuning is still poorly understood. This study categorizes instructions into three primary types: NLP downstream tasks, coding, and general chat. We explore the effects of instruction tuning on different combinations of datasets on LLM performance, and find that certain instruction types are more advantageous for specific applications but can negatively impact other areas. This work provides insights into instruction mixtures, laying the foundations for future research.",
+          "claimed_authors": [
+            "Renxi Wang",
+            "Haonan Li",
+            "Minghao Wu",
+            "Yuxia Wang",
+            "Xudong Han",
+            "Chiyu Zhang",
+            "Timothy Baldwin"
+          ],
+          "claimed_title": "Demystifying Instruction Mixing for Fine-tuning Large Language Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2312.10793"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Code as Agent Harness\" linguistics', candidate_title='Demystifying Instruction Mixing for Fine-tuning Large Language Models')",
+        "failed_at": "2026-07-04T21:28:04Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Despite widespread deployment of Large Language Models, systematic evaluation of instruction-following capabilities remains challenging. While comprehensive benchmarks exist, focused assessments that quickly diagnose specific instruction adherence patterns are valuable. As newer models may be trained on existing benchmarks, novel evaluation approaches are needed to assess genuine capabilities rather than memorized performance. This paper presents a streamlined evaluation framework using twenty carefully designed prompts to assess LLM instruction-following across diverse task categories. We demonstrate this framework through a large-scale empirical study conducted on October 14, 2025, testing 256 verified working models from 331 available via OpenRouter. To ensure methodological rigor and prevent selection bias, we first verified each model's basic functionality before inclusion. Unlike large-scale benchmarks requiring extensive computational resources, our approach offers a practical diagnostic tool researchers and practitioners can readily apply. Our methodology builds upon verifiable instructions while introducing a compact test suite balancing comprehensiveness with efficiency. Each prompt targets distinct aspects of instruction following, including format compliance, content constraints, logical sequencing, and multi-step task execution. We evaluate models from major providers (OpenAI, Anthropic, Google, Meta, Mistral) and emerging implementations (Qwen, DeepSeek, community models), providing comparative performance analysis. Our findings reveal consistent failure modes and identify specific instruction types posing particular challenges. This work contributes both a practical evaluation tool and one of the most comprehensive empirical analyses of instruction-following capabilities across the contemporary LLM landscape.",
+          "claimed_authors": [
+            "Richard J. Young",
+            "Brandon Gillins",
+            "Alice M. Matthews"
+          ],
+          "claimed_title": "When Models Can't Follow: Testing Instruction Adherence Across 256 LLMs",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2510.18892"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='llmXive follow-up: extending \"Code as Agent Harness\" linguistics', candidate_title=\"When Models Can't Follow: Testing Instruction Adherence Across 256 LLMs\")",
+        "failed_at": "2026-07-04T21:28:04Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Instruction-following language models demand robust methodologies for information retrieval to augment instructions for question-answering applications. A primary challenge is the resolution of coreferences in the context of chunking strategies for long documents. The critical barrier to experimentation of handling coreferences is a lack of open source datasets, specifically in question-answering tasks that require coreference resolution. In this work we present our Coreference Resolution in Question-Answering (CRaQAn) dataset, an open-source dataset that caters to the nuanced information retrieval requirements of coreference resolution in question-answering tasks by providing over 250 question-answer pairs containing coreferences. To develop this dataset, we developed a novel approach for creating high-quality datasets using an instruction-following model (GPT-4) and a Recursive Criticism and Improvement Loop.",
+          "claimed_authors": [
+            "Rob Grzywinski",
+            "Joshua D'Arcy",
+            "Rob Naidoff",
+            "Ashish Shukla",
+            "Alex Browne",
+            "Ren Gibbons",
+            "Brinnae Bent"
+          ],
+          "claimed_title": "Releasing the CRaQAn (Coreference Resolution in Question-Answering): An open-source dataset and dataset creation methodology using instruction-following models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2311.16338"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Code as Agent Harness\" linguistics', candidate_title='Releasing the CRaQAn (Coreference Resolution in Question-Answering): An open-source dataset and dataset creation methodology using instruction-following models')",
+        "failed_at": "2026-07-04T21:28:04Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Large Language Models are traditionally finetuned on large instruction datasets. However recent studies suggest that small, high-quality datasets can suffice for general purpose instruction following. This lack of consensus surrounding finetuning best practices is in part due to rapidly diverging approaches to LLM evaluation. In this study, we ask whether a small amount of diverse finetuning samples can improve performance on both traditional perplexity-based NLP benchmarks, and on open-ended, model-based evaluation. We finetune open-source MPT-7B and MPT-30B models on instruction finetuning datasets of various sizes ranging from 1k to 60k samples. We find that subsets of 1k-6k instruction finetuning samples are sufficient to achieve good performance on both (1) traditional NLP benchmarks and (2) model-based evaluation. Finally, we show that mixing textbook-style and open-ended QA finetuning datasets optimizes performance on both evaluation paradigms.",
+          "claimed_authors": [
+            "Aditi Jha",
+            "Sam Havens",
+            "Jeremy Dohmann",
+            "Alex Trott",
+            "Jacob Portes"
+          ],
+          "claimed_title": "LIMIT: Less Is More for Instruction Tuning Across Evaluation Paradigms",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2311.13133"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Code as Agent Harness\" linguistics', candidate_title='LIMIT: Less Is More for Instruction Tuning Across Evaluation Paradigms')",
+        "failed_at": "2026-07-04T21:28:04Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Many successful approaches to semantic parsing build on top of the syntactic analysis of text, and make use of distributional representations or statistical models to match parses to ontology-specific queries. This paper presents a novel deep learning architecture which provides a semantic parsing system through the union of two neural models of language semantics. It allows for the generation of ontology-specific queries from natural language statements and questions without the need for parsing, which makes it especially suitable to grammatically malformed or syntactically atypical text, such as tweets, as well as permitting the development of semantic parsers for resource-poor languages.",
+          "claimed_authors": [
+            "Edward Grefenstette",
+            "Phil Blunsom",
+            "Nando de Freitas",
+            "Karl Moritz Hermann"
+          ],
+          "claimed_title": "A Deep Architecture for Semantic Parsing",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2014,
+          "primary_pointer": "1404.7296"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Code as Agent Harness\" linguistics', candidate_title='A Deep Architecture for Semantic Parsing')",
+        "failed_at": "2026-07-04T21:28:04Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We compare the effectiveness of four different syntactic CCG parsers for a semantic slot-filling task to explore how much syntactic supervision is required for downstream semantic analysis. This extrinsic, task-based evaluation provides a unique window to explore the strengths and weaknesses of semantics captured by unsupervised grammar induction systems. We release a new Freebase semantic parsing dataset called SPADES (Semantic PArsing of DEclarative Sentences) containing 93K cloze-style questions paired with answers. We evaluate all our models on this dataset. Our code and data are available at https://github.com/sivareddyg/graph-parser.",
+          "claimed_authors": [
+            "Yonatan Bisk",
+            "Siva Reddy",
+            "John Blitzer",
+            "Julia Hockenmaier",
+            "Mark Steedman"
+          ],
+          "claimed_title": "Evaluating Induced CCG Parsers on Grounded Semantic Parsing",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1609.09405"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='llmXive follow-up: extending \"Code as Agent Harness\" linguistics', candidate_title='Evaluating Induced CCG Parsers on Grounded Semantic Parsing')",
+        "failed_at": "2026-07-04T21:28:04Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In this work, we focus on Interactive Human Parsing (IHP), which aims to segment a human image into multiple human body parts with guidance from users' interactions. This new task inherits the class-aware property of human parsing, which cannot be well solved by traditional interactive image segmentation approaches that are generally class-agnostic. To tackle this new task, we first exploit user clicks to identify different human parts in the given image. These clicks are subsequently transformed into semantic-aware localization maps, which are concatenated with the RGB image to form the input of the segmentation network and generate the initial parsing result. To enable the network to better perceive user's purpose during the correction process, we investigate several principal ways for the refinement, and reveal that random-sampling-based click augmentation is the best way for promoting the correction effectiveness. Furthermore, we also propose a semantic-perceiving loss (SP-loss) to augment the training, which can effectively exploit the semantic relationships of clicks for better optimization. To the best knowledge, this work is the first attempt to tackle the human parsing task under the interactive setting. Our IHP solution achieves 85\\% mIoU on the benchmark LIP, 80\\% mIoU on PASCAL-Person-Part and CIHP, 75\\% mIoU on Helen with only 1.95, 3.02, 2.84 and 1.09 clicks per class respectively. These results demonstrate that we can simply acquire high-quality human parsing masks with only a few human effort. We hope this work can motivate more researchers to develop data-efficient solutions to IHP in the future.",
+          "claimed_authors": [
+            "Yutong Gao",
+            "Liqian Liang",
+            "Congyan Lang",
+            "Songhe Feng",
+            "Yidong Li",
+            "Yunchao Wei"
+          ],
+          "claimed_title": "Clicking Matters:Towards Interactive Human Parsing",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2111.06162"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Code as Agent Harness\" linguistics', candidate_title='Clicking Matters:Towards Interactive Human Parsing')",
+        "failed_at": "2026-07-04T21:28:04Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "While generative artificial intelligence (Gen AI) increasingly transforms academic environments, a critical gap exists in understanding and mitigating human biases in AI interactions, such as anchoring and confirmation bias. This position paper advocates for metacognitive AI literacy interventions to help university students critically engage with AI and address biases across the Human-AI interaction workflows. The paper presents the importance of considering (1) metacognitive support with deliberate friction focusing on human bias; (2) bi-directional Human-AI interaction intervention addressing both input formulation and output interpretation; and (3) adaptive scaffolding that responds to diverse user engagement patterns. These frameworks are illustrated through ongoing work on \"DeBiasMe,\" AIED (AI in Education) interventions designed to enhance awareness of cognitive biases while empowering user agency in AI interactions. The paper invites multiple stakeholders to engage in discussions on design and evaluation methods for scaffolding mechanisms, bias visualization, and analysis frameworks. This position contributes to the emerging field of AI-augmented learning by emphasizing the critical role of metacognition in helping students navigate the complex interaction between human, statistical, and systemic biases in AI use while highlighting how cognitive adaptation to AI systems must be explicitly integrated into comprehensive AI literacy frameworks.",
+          "claimed_authors": [
+            "Chaeyeon Lim"
+          ],
+          "claimed_title": "DeBiasMe: De-biasing Human-AI Interactions with Metacognitive AIED (AI in Education) Interventions",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2504.16770"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Code as Agent Harness\" linguistics', candidate_title='DeBiasMe: De-biasing Human-AI Interactions with Metacognitive AIED (AI in Education) Interventions')",
+        "failed_at": "2026-07-04T21:28:04Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The recent rapid advancement of LLM-based AI systems has accelerated our search and production of information. While the advantages brought by these systems seemingly improve the performance or efficiency of human activities, they do not necessarily enhance human capabilities. Recent research has started to examine the impact of generative AI on individuals' cognitive abilities, especially critical thinking. Based on definitions of critical thinking across psychology and education, this position paper proposes the distinction between demonstrated and performed critical thinking in the era of generative AI and discusses the implication of this distinction in research and development of AI systems that aim to augment human critical thinking.",
+          "claimed_authors": [
+            "Katelyn Xiaoying Mei",
+            "Nic Weber"
+          ],
+          "claimed_title": "Designing AI Systems that Augment Human Performed vs. Demonstrated Critical Thinking",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2504.14689"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Code as Agent Harness\" linguistics', candidate_title='Designing AI Systems that Augment Human Performed vs. Demonstrated Critical Thinking')",
+        "failed_at": "2026-07-04T21:28:04Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Human-AI collaborative tools attract attentions from the data storytelling community to lower the expertise barrier and streamline the workflow. The recent advance in large-scale generative AI techniques, e.g., large language models (LLMs) and text-to-image models, has the potential to enhance data storytelling with their power in visual and narration generation. After two years since these techniques were publicly available, it is important to reflect our progress of applying them and have an outlook for future opportunities. To achieve the goal, we compare the collaboration patterns of the latest tools with those of earlier ones using a dedicated framework for understanding human-AI collaboration in data storytelling. Through comparison, we identify consistently widely studied patterns, e.g., human-creator + AI-assistant, and newly explored or emerging ones, e.g., AI-creator + human-reviewer. The benefits of these AI techniques and implications to human-AI collaboration are also revealed. We further propose future directions to hopefully ignite innovations.",
+          "claimed_authors": [
+            "Haotian Li",
+            "Yun Wang",
+            "Huamin Qu"
+          ],
+          "claimed_title": "Reflection on Data Storytelling Tools in the Generative AI Era from the Human-AI Collaboration Perspective",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2503.02631"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Code as Agent Harness\" linguistics', candidate_title='Reflection on Data Storytelling Tools in the Generative AI Era from the Human-AI Collaboration Perspective')",
+        "failed_at": "2026-07-04T21:28:04Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Xuying Ning",
+            "Katherine Tieu",
+            "Dongqi Fu",
+            "Tianxin Wei",
+            "Zihao Li",
+            "Yuanchen Bei",
+            "Jiaru Zou",
+            "Mengting Ai",
+            "Zhining Liu",
+            "Ting-Wei Li",
+            "Lingjie Chen",
+            "Yanjun Zhao",
+            "Ke Yang",
+            "Bingxuan Li",
+            "Cheng Qian",
+            "Gaotang Li",
+            "Xiao Lin",
+            "Zhichen Zeng",
+            "Ruizhong Qiu",
+            "Sirui Chen",
+            "Yifan Sun",
+            "Xiyuan Yang",
+            "Ruida Wang",
+            "Rui Pan",
+            "Chenyuan Yang",
+            "Dylan Zhang",
+            "Liri Fang",
+            "Zikun Cui",
+            "Yang Cao",
+            "Pan Chen",
+            "Dorothy Sun",
+            "Ren Chen",
+            "Mahesh Srinivasan",
+            "Nipun Mathur",
+            "Yinglong Xia",
+            "Hong Li",
+            "Hong Yan",
+            "Pan Lu",
+            "Lingming Zhang",
+            "Tong Zhang",
+            "Hanghang Tong",
+            "Jingrui He"
+          ],
+          "title": "Code as Agent Harness",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2605.18747",
+        "summary": "Recent large language models (LLMs) have demonstrated strong capabilities in understanding and generating code, from competitive programming to repository-level software engineering. In emerging agentic systems, code is no longer only a target output. It increasingly serves as an operational substrate for agent reasoning, acting, environment modeling, and execution-based verification. We frame this shift through the lens of agent harnesses and introduce code as agent harness: a unified view that centers code as the basis for agent infrastructure. To systematically study this perspective, we organize the survey around three connected layers. First, we study the harness interface, where code connects agents to reasoning, action, and environment modeling. Second, we examine harness mechanisms: planning, memory, and tool use for long-horizon execution, together with feedback-driven control and optimization that make harness reliable and adaptive. Third, we discuss scaling the harness from single-agent systems to multi-agent settings, where shared code artifacts support multi-agent coordination, review, and verification. Across these layers, we summarize representative methods and practical applications of code as agent harness, spanning coding assistants, GUI/OS automation, embodied agents, scientific discovery, personalization and recommendation, DevOps, and enterprise workflows. We further outline open challenges for harness engineering, including evaluation beyond final task success, verification under incomplete feedback, regression-free harness improvement, consistent shared state across multiple agents, human oversight for safety-critical actions, and extensions to multimodal environments. By centering code as the harness of agentic AI, this survey provides a unified roadmap toward executable, verifiable, and stateful AI agent systems.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2605.18747",
+          "http_status": 200,
+          "pdf_sample_score": 0.2987,
+          "query_relevance_score": 0.4286,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-04T21:28:03Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Xinghua Lou",
+            "Miguel Lázaro-Gredilla",
+            "Antoine Dedieu",
+            "Carter Wendelken",
+            "Wolfgang Lehrach",
+            "Kevin P. Murphy"
+          ],
+          "title": "AutoHarness: improving LLM agents by automatically synthesizing a code harness",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2603.03329",
+        "summary": "Despite significant strides in language models in the last few years, when used as agents, such models often try to perform actions that are not just suboptimal for a given state, but are strictly prohibited by the external environment. For example, in the recent Kaggle GameArena chess competition, 78% of Gemini-2.5-Flash losses were attributed to illegal moves. Often people manually write \"harnesses\" around LLMs to prevent such failures. In this paper, we demonstrate that Gemini-2.5-Flash can automatically synthesize such a code harness, using a small number of rounds of iterative code refinement given feedback from the (game) environment. The resulting harness prevents all illegal moves in 145 different TextArena games (both 1-player and 2-player), enabling the smaller Gemini-2.5-Flash model to outperform larger models, such as Gemini-2.5-Pro. Pushing our technique to the limit, we can get Gemini-2.5-Flash to generate the entire policy in code, thus eliminating the need to use the LLM at decision making time. The resulting code-policy receives a higher average reward than Gemini-2.5-Pro and GPT-5.2-High on 16 TextArena 1-player games. Our results show that using a smaller model to synthesize a custom code harness (or entire policy) can outperform a much larger model, while also being more cost effective.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2603.03329",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-04T21:28:09Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Wenbo Pan",
+            "Shujie Liu",
+            "Chin-Yew Lin",
+            "Jingying Zeng",
+            "Xianfeng Tang",
+            "Xiangyang Zhou",
+            "Yan Lu",
+            "Xiaohua Jia"
+          ],
+          "title": "Evolving Agents in the Dark: Retrospective Harness Optimization via Self-Preference",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2606.05922",
+        "summary": "AI agents rely on a harness of skills, tools, and workflows to solve complex problems. Continually improving this harness is essential for adapting to new tasks. However, existing optimization methods typically require ground-truth validation sets, yet such labeled data is difficult to acquire in practical deployment settings. To address this problem, we introduce Retrospective Harness Optimization (RHO), a self-supervised method that optimizes the agent harness using only past trajectories. Specifically, RHO selects a diverse coreset of challenging tasks from past trajectories and re-solves them in parallel. The agent analyzes these rollouts using self-validation and self-consistency, then generates candidate harness updates and selects the most effective one by its own pairwise self-preference. We evaluate RHO across three diverse domains, spanning software engineering, technical work, and knowledge work. Notably, a single optimization round improves the pass rate on SWE-Bench Pro from 59% to 78% without any external grading. Furthermore, our analysis demonstrates that RHO effectively targets prior failure modes. As a result, the optimized harness alters the agent's behavior patterns and sustains higher accuracy during long-horizon sessions.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2606.05922",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-04T21:28:09Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Yi-Xuan Deng",
+            "Xiaoqin Liu",
+            "Yi Zhang",
+            "Guo-Wei Yang",
+            "Shuojin Yang"
+          ],
+          "title": "Your Code Agent Can Grow Alongside You with Structured Memory",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2603.13258",
+        "summary": "While \"Intent-oriented programming\" (or \"Vibe Coding\") redefines software engineering, existing code agents remain tethered to static code snapshots. Consequently, they struggle to model the critical information embedded in the temporal evolution of projects, failing to leverage the \"reasoning trajectories\" implicit in past successful practices. This limitation results in rigid behavioral logic and a lack of autonomous adaptability, ultimately hindering their ability to tackle complex, repository-level problems. To bridge this static-dynamic mismatch, we propose MemCoder, a framework designed to enable continual human-AI co-evolution. MemCoder first structures historical human experience to distill latent intent-to-code mappings from past commits. It then employs a self-refinement mechanism driven by verification feedback to correct agent behavior in real-time. Crucially, an experience self-internalization mechanism is introduced to crystallize human-validated solutions into long-term knowledge, thereby supporting sustained evolution. Experimental results on SWE-bench Verified demonstrate that MemCoder not only achieves State-of-the-Art (SOTA) performance but also delivers a 9.4% improvement in resolved rate over the general foundation model DeepSeek-V3.2. These findings indicate that equipping agents with the capability to co-evolve with humans via project history and real-time feedback effectively unlocks the potential of general models in complex software engineering tasks.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2603.13258",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-04T21:28:10Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "llmxive follow-up: extending \"code as agent harness\" linguistics",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

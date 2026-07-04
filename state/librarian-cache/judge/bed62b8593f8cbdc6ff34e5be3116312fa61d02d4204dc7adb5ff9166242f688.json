@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2605.15824",
+  "judged_at": "2026-07-04T21:29:22Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"fashionchameleon: towards real-time and interactive human-garment vide\" computer science",
+  "rationale": "This paper is the foundational work (\"FashionChameleon\") that the user's question explicitly references as the subject of a follow-up study, making it the canonical prior work required for any literature review on extending this specific framework. It satisfies acceptance criteria (d) as the foundational methodology paper and (e) as the empirical study of the specific system the user intends to extend.",
+  "relevant": true
+}

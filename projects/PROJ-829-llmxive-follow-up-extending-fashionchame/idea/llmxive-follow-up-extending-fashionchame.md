@@ -5,27 +5,76 @@ submitter: llmxive-preprint-followup
 
 # llmXive follow-up: extending "FashionChameleon: Towards Real-Time and Interactive Human-Garment Vide"
 
-## Summary of the prior work
-FashionChameleon introduces a real-time framework for interactive human-garment video customization using autoregressive generation, achieving 23.8 FPS by training a teacher model on single-garment pairs via in-context learning. The core innovations include Streaming Distillation for consistency and a training-free KV Cache Rescheduling mechanism that allows users to switch garments mid-generation while preserving motion coherence without retraining.
+**Field**: computer science
 
-## Proposed extension
-How can the semantic alignment between user-provided natural language instructions and the visual garment features be dynamically optimized within the existing KV Cache Rescheduling framework to enable "instruction-driven" garment swapping, rather than relying solely on explicit image references? This matters because current interactive systems require users to manually upload new garment images for every switch, whereas a text-guided approach would drastically lower the barrier for e-commerce customization and creative content generation, all while remaining computationally feasible on CPU-only inference engines by leveraging lightweight adapter layers instead of heavy video diffusion backbones.
+## Research question
+
+How does the integration of a lightweight text-to-KV adapter affect the semantic fidelity and motion coherence of real-time human-garment video customization compared to image-driven reference methods?
+
+## Motivation
+
+Current interactive garment customization systems require users to manually upload reference images for every switch, creating a high barrier for natural language-driven e-commerce and creative workflows. This project addresses the gap in "instruction-driven" video generation by exploring whether natural language instructions can dynamically replace explicit visual references within the KV Cache Rescheduling framework without compromising the real-time performance or visual consistency of the output.
+
+## Related work
+
+- [FashionChameleon: Towards Real-Time and Interactive Human-Garment Video Customization (2026)](https://arxiv.org/abs/2605.15824) — Establishes the baseline for real-time, interactive garment swapping using autoregressive generation and KV Cache Rescheduling, but relies on explicit image references for garment changes.
+- [UNIC: Neural Garment Deformation Field for Real-time Clothed Character Animation (2026)](https://arxiv.org/abs/2603.25580) — Focuses on physically realistic garment deformations for character animation, highlighting the general challenge of balancing physical realism with computational efficiency, though it does not address text-guided semantic control.
+
+## Expected results
+
+The text-guided adapter is expected to achieve semantic fidelity scores (CLIP-T) exceeding 85% relative to the target instruction, demonstrating that natural language can effectively substitute for image references in the latent space. While a slight trade-off in motion coherence compared to the image-driven baseline is anticipated due to the abstraction of text embeddings, the results should confirm that inference latency remains under 50ms per frame on CPU, validating the feasibility of interactive text-driven garment swapping.
 
 ## Methodology sketch
-We will curate a dataset of 5,000 short human-motion video clips paired with synthetic multi-garment descriptions (e.g., "change to a red summer dress") and corresponding garment reference images. The procedure involves freezing the pre-trained FashionChameleon backbone and inserting a lightweight, CPU-optimized cross-attention adapter that maps text embeddings directly to the "reference KV" slots during the rescheduling phase, replacing the need for explicit image input during the switch. We expect the results to show that the text-guided model achieves >85% semantic fidelity in garment changes (measured by CLIP-T similarity) while maintaining motion coherence scores comparable to the image-driven baseline, with inference latency remaining under 50ms per frame on a standard 8-core CPU.
 
-## Motivated by (source preprint — reviewed, not authored, by llmXive)
+- Download the FashionChameleon pre-trained weights and the official codebase from the provided arXiv repository.
+- Curate a dataset of 5,000 short human-motion video clips (e.g., from the Human3.6M or similar public dataset) paired with synthetic multi-garment descriptions generated via a lightweight LLM and corresponding ground-truth garment images.
+- Freeze the pre-trained FashionChameleon backbone and insert a lightweight cross-attention adapter module designed to map text embeddings (from a frozen CLIP text encoder) directly to the "reference KV" slots during the rescheduling phase.
+- Train the adapter layers on the curated dataset using a loss function combining semantic alignment (CLIP-T similarity) and motion consistency (optical flow divergence) to optimize the text-to-visual mapping.
+- Evaluate the model on a held-out test set by comparing the generated video frames against ground-truth garment images using CLIP-T similarity for semantic fidelity and optical flow metrics for motion coherence.
+- Measure inference latency on a standard 8-core CPU environment, ensuring the total processing time per frame remains below 50ms to verify real-time capability.
+- Perform statistical significance testing (paired t-test) on the semantic fidelity and motion coherence scores between the text-driven model and the original image-driven baseline to determine if performance differences are significant.
 
-- **FashionChameleon: Towards Real-Time and Interactive Human-Garment Video Customization** — Quanjian Song, Yefeng Shen, Mengting Chen, Hao Sun, Jinsong Lan, Xiaoyong Zhu, Bo Zheng, Liujuan Cao. https://arxiv.org/abs/2605.15824.
+## Duplicate-check
 
-```bibtex
-@article{orig_arxiv_2605_15824,
-  title = {FashionChameleon: Towards Real-Time and Interactive Human-Garment Video Customization},
-  author = {Quanjian Song and Yefeng Shen and Mengting Chen and Hao Sun and Jinsong Lan and Xiaoyong Zhu and Bo Zheng and Liujuan Cao},
-  year = {2026},
-  eprint = {2605.15824},
-  archivePrefix = {arXiv},
-  journal = {arXiv preprint arXiv:2605.15824},
-  url = {https://arxiv.org/abs/2605.15824}
-}
-```
+- Reviewed existing ideas: FashionChameleon extension, UNIC comparison.
+- Closest match: FashionChameleon extension (similarity sketch: Both focus on extending the FashionChameleon framework, but this idea specifically targets text-driven instruction swapping rather than image-based switching, addressing a distinct modality gap).
+- Verdict: NOT a duplicate
+
+
+## Search trail
+
+**Generated by**: librarian (prompt v1.6.0) on 2026-07-04T21:29:34Z
+**Outcome**: exhausted
+**Original term**: llmXive follow-up: extending "FashionChameleon: Towards Real-Time and Interactive Human-Garment Vide" computer science
+**Verified citation count**: 2
+
+### Search terms used
+
+| Rank | Term | Hit count |
+|-|-|-|
+| 0 (initial) | llmXive follow-up: extending "FashionChameleon: Towards Real-Time and Interactive Human-Garment Vide" computer science | 0 |
+| 1 | real-time interactive garment animation | 4 |
+| 2 | video-based virtual try-on systems | 0 |
+| 3 | dynamic human clothing synthesis | 0 |
+| 4 | interactive fashion visualization | 0 |
+| 5 | real-time cloth simulation for video | 0 |
+| 6 | generative models for garment transfer | 0 |
+| 7 | neural rendering of human clothing | 0 |
+| 8 | video garment editing and retargeting | 0 |
+| 9 | interactive human-pose conditioned clothing | 0 |
+| 10 | deep learning for virtual fashion try-on | 0 |
+| 11 | real-time 3D garment reconstruction from video | 0 |
+| 12 | video-to-video clothing style transfer | 0 |
+| 13 | generative adversarial networks for virtual try-on | 0 |
+| 14 | interactive 2D/3D garment manipulation | 0 |
+| 15 | temporal consistency in virtual clothing generation | 0 |
+| 16 | real-time human avatar clothing customization | 0 |
+| 17 | neural texture synthesis for garments | 0 |
+| 18 | pose-guided garment generation in video | 0 |
+| 19 | interactive augmented reality fashion fitting | 0 |
+| 20 | video-driven virtual clothing animation | 0 |
+
+### Verified citations
+
+1. **FashionChameleon: Towards Real-Time and Interactive Human-Garment Video Customization** (2026). Quanjian Song, Yefeng Shen, Mengting Chen, Hao Sun, Jinsong Lan, et al.. arXiv. [2605.15824](https://arxiv.org/abs/2605.15824). PDF-sampled: No.
+2. **UNIC: Neural Garment Deformation Field for Real-time Clothed Character Animation** (2026). Chengfeng Zhao, Junbo Qi, Yulou Liu, Zhiyang Dou, Minchen Li, et al.. arXiv. [2603.25580](https://arxiv.org/abs/2603.25580). PDF-sampled: No.

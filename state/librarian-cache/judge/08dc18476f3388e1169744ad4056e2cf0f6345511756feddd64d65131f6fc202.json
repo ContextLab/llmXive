@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2603.13258",
+  "judged_at": "2026-07-04T21:28:23Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"code as agent harness\" linguistics",
+  "rationale": "This paper satisfies criteria (a) and (b) as it investigates the same core mechanism of \"Code as Agent Harness\" by studying how code agents utilize project history, temporal evolution, and reasoning trajectories to improve performance, which directly aligns with the user's focus on extending the linguistics and capabilities of code agents.",
+  "relevant": true
+}

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2606.05922",
+  "judged_at": "2026-07-04T21:28:21Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"code as agent harness\" linguistics",
+  "rationale": "This paper satisfies criterion (a) and (b) as it directly measures the optimization of the \"agent harness\" (the core mechanism in the user's question) using self-supervised methods, providing essential prior work on the specific construct of harness evolution and optimization that the user intends to extend linguistically.",
+  "relevant": true
+}

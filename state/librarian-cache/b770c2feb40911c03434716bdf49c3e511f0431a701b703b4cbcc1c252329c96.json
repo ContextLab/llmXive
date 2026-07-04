@@ -1,0 +1,623 @@
+{
+  "fetched_at": "2026-07-04T21:38:56Z",
+  "field": "computer science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "computer science",
+      "idea_body_excerpt": "llmXive follow-up: extending \"Foundation Protocol: A Coordination Layer for Agentic Society\"",
+      "target_n": 5
+    },
+    "duration_seconds": 46.943,
+    "ended_at": "2026-07-04T21:38:56Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "multi-agent system coordination protocols"
+        ],
+        [
+          2,
+          "agentic society infrastructure"
+        ],
+        [
+          3,
+          "decentralized agent communication frameworks"
+        ],
+        [
+          4,
+          "large language model agent orchestration"
+        ],
+        [
+          5,
+          "foundation models for agent collaboration"
+        ],
+        [
+          6,
+          "distributed agent coordination mechanisms"
+        ],
+        [
+          7,
+          "LLM-based multi-agent negotiation"
+        ],
+        [
+          8,
+          "autonomous agent society governance"
+        ],
+        [
+          9,
+          "agent interaction protocols for foundation models"
+        ],
+        [
+          10,
+          "scalable coordination in agentic ecosystems"
+        ],
+        [
+          11,
+          "collective intelligence in LLM agent networks"
+        ],
+        [
+          12,
+          "semantic coordination layers for autonomous agents"
+        ],
+        [
+          13,
+          "emergent behavior in multi-agent LLM systems"
+        ],
+        [
+          14,
+          "protocol design for heterogeneous agent societies"
+        ],
+        [
+          15,
+          "coordination strategies for generative AI agents"
+        ],
+        [
+          16,
+          "agent-to-agent communication standards"
+        ],
+        [
+          17,
+          "foundation protocol for distributed AI societies"
+        ],
+        [
+          18,
+          "modular coordination architectures for agentic systems"
+        ],
+        [
+          19,
+          "trust and consensus in LLM agent societies"
+        ],
+        [
+          20,
+          "interoperability frameworks for autonomous AI agents"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "llmXive follow-up: extending \"Foundation Protocol: A Coordination Layer for Agentic Society\" computer science": 0,
+        "multi-agent system coordination protocols": 5
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "multi-agent coordination protocol emergent behavior",
+      "agentic society LLM benchmark coordination tasks",
+      "game theoretic equilibrium multi-agent systems",
+      "agent communication protocol interoperability evaluation",
+      "decentralized consensus mechanism LLM agents"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "success_after_expansion",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2401.16216"
+      ]
+    },
+    "per_query_hit_count": {
+      "agent communication protocol interoperability evaluation": 3,
+      "agentic society LLM benchmark coordination tasks": 3,
+      "decentralized consensus mechanism LLM agents": 3,
+      "game theoretic equilibrium multi-agent systems": 2,
+      "llmXive follow-up: extending \"Foundation Protocol: A Coordination Layer for Agentic Society\" computer science": 3,
+      "multi-agent coordination protocol emergent behavior": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 0,
+      "rejections": []
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-07-04T21:38:09Z",
+    "term_input": {
+      "normalized": "llmxive follow-up: extending \"foundation protocol: a coordination layer for agentic society\" computer science",
+      "raw": "llmXive follow-up: extending \"Foundation Protocol: A Coordination Layer for Agentic Society\" computer science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This white paper describes the LSST Dark Energy Science Collaboration (DESC), whose goal is the study of dark energy and related topics in fundamental physics with data from the Large Synoptic Survey Telescope (LSST). It provides an overview of dark energy science and describes the current and anticipated state of the field. It makes the case for the DESC by laying out a robust analytical framework for dark energy science that has been defined by its members and the comprehensive three-year work plan they have developed for implementing that framework. The analysis working groups cover five key probes of dark energy: weak lensing, large scale structure, galaxy clusters, Type Ia supernovae, and strong lensing. The computing working groups span cosmological simulations, galaxy catalogs, photon simulations and a systematic software and computational framework for LSST dark energy data analysis. The technical working groups make the connection between dark energy science and the LSST system. The working groups have close linkages, especially through the use of the photon simulations to study the impact of instrument design and survey strategy on analysis methodology and cosmological parameter estimation. The white paper describes several high priority tasks identified by each of the 16 working groups. Over the next three years these tasks will help prepare for LSST analysis, make synergistic connections with ongoing cosmological surveys and provide the dark energy community with state of the art analysis tools. Members of the community are invited to join the LSST DESC, according to the membership policies described in the white paper. Applications to sign up for associate membership may be made by submitting the Web form at http://www.slac.stanford.edu/exp/lsst/desc/signup.html with a short statement of the work they wish to pursue that is relevant to the LSST DESC.",
+          "claimed_authors": [
+            " LSST Dark Energy Science Collaboration"
+          ],
+          "claimed_title": "Large Synoptic Survey Telescope: Dark Energy Science Collaboration",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1211.0310"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"Foundation Protocol: A Coordination Layer for Agen', candidate_title='Large Synoptic Survey Telescope: Dark Energy Science Collaboration')",
+        "failed_at": "2026-07-04T21:38:37Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The large instantaneous sensitivity, a wide frequency coverage and flexible observation modes with large number of beams in the sky are the main features of the SKA observatory's two telescopes, the SKA-Low and the SKA-Mid, which are located on two different continents. Owing to these capabilities, the SKAO telescopes are going to be a game-changer for radio astronomy in general and pulsar astronomy in particular. The eleven articles in this special issue on pulsar science with the SKA Observatory describe its impact on different areas of pulsar science. In this lead article, a brief description of the two telescopes highlighting the relevant features for pulsar science is presented followed by an overview of each accompanying article, exploring the inter-relationship between different pulsar science use cases.",
+          "claimed_authors": [
+            "Bhal Chandra Joshi",
+            "Aris Karastergiou",
+            "Marta Burgay",
+            "The SKA pulsar science working group"
+          ],
+          "claimed_title": "Pulsar Science with the SKA Observatory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.16152"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"Foundation Protocol: A Coordination Layer for Agen', candidate_title='Pulsar Science with the SKA Observatory')",
+        "failed_at": "2026-07-04T21:38:37Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A Human Computer Interface (HCI) System for playing games is designed here for more natural communication with the machines. The system presented here is a vision-based system for detection of long voluntary eye blinks and interpretation of blink patterns for communication between man and machine. This system replaces the mouse with the human face as a new way to interact with the computer. Facial features (nose tip and eyes) are detected and tracked in realtime to use their actions as mouse events. The coordinates and movement of the nose tip in the live video feed are translated to become the coordinates and movement of the mouse pointer on the application. The left or right eye blinks fire left or right mouse click events. The system works with inexpensive USB cameras and runs at a frame rate of 30 frames per second.",
+          "claimed_authors": [
+            "S. Sumathi",
+            "S. K. Srivatsa",
+            "M. Uma Maheswari"
+          ],
+          "claimed_title": "Vision Based Game Development Using Human Computer Interaction",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1002.2191"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"Foundation Protocol: A Coordination Layer for Agen', candidate_title='Vision Based Game Development Using Human Computer Interaction')",
+        "failed_at": "2026-07-04T21:38:37Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Communication is an effective mechanism for coordinating the behaviors of multiple agents, broadening their views of the environment, and to support their collaborations. In the field of multi-agent deep reinforcement learning (MADRL), agents can improve the overall learning performance and achieve their objectives by communication. Agents can communicate various types of messages, either to all agents or to specific agent groups, or conditioned on specific constraints. With the growing body of research work in MADRL with communication (Comm-MADRL), there is a lack of a systematic and structural approach to distinguish and classify existing Comm-MADRL approaches. In this paper, we survey recent works in the Comm-MADRL field and consider various aspects of communication that can play a role in designing and developing multi-agent reinforcement learning systems. With these aspects in mind, we propose 9 dimensions along which Comm-MADRL approaches can be analyzed, developed, and compared. By projecting existing works into the multi-dimensional space, we discover interesting trends. We also propose some novel directions for designing future Comm-MADRL systems through exploring possible combinations of the dimensions.",
+          "claimed_authors": [
+            "Changxi Zhu",
+            "Mehdi Dastani",
+            "Shihan Wang"
+          ],
+          "claimed_title": "A Survey of Multi-Agent Deep Reinforcement Learning with Communication",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2203.08975"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Foundation Protocol: A Coordination Layer for Agen', candidate_title='A Survey of Multi-Agent Deep Reinforcement Learning with Communication')",
+        "failed_at": "2026-07-04T21:38:37Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This article proposes a methodology to model and simulate complex systems, based on IRM4MLS, a generic agent-based meta-model able to deal with multi-level systems. This methodology permits the engineering of dynamic multi-level agent-based models, to represent complex systems over several scales and domains of interest. Its goal is to simulate a phenomenon using dynamically the lightest representation to save computer resources without loss of information. This methodology is based on two mechanisms: (1) the activation or deactivation of agents representing different domain parts of the same phenomenon and (2) the aggregation or disaggregation of agents representing the same phenomenon at different scales.",
+          "claimed_authors": [
+            "Jean-Baptiste Soyez",
+            "Gildas Morvan",
+            "Daniel Dupont",
+            "Rochdi Merzouki"
+          ],
+          "claimed_title": "A Methodology to Engineer and Validate Dynamic Multi-level Multi-agent Based Simulations",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2013,
+          "primary_pointer": "1311.5108"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"Foundation Protocol: A Coordination Layer for Agen', candidate_title='A Methodology to Engineer and Validate Dynamic Multi-level Multi-agent Based Simulations')",
+        "failed_at": "2026-07-04T21:38:37Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Traditional AI safety evaluations on isolated LLMs are insufficient as multi-agent AI ensembles become prevalent, introducing novel emergent risks. This paper introduces the Multi-Agent Emergent Behavior Evaluation (MAEBE) framework to systematically assess such risks. Using MAEBE with the Greatest Good Benchmark (and a novel double-inversion question technique), we demonstrate that: (1) LLM moral preferences, particularly for Instrumental Harm, are surprisingly brittle and shift significantly with question framing, both in single agents and ensembles. (2) The moral reasoning of LLM ensembles is not directly predictable from isolated agent behavior due to emergent group dynamics. (3) Specifically, ensembles exhibit phenomena like peer pressure influencing convergence, even when guided by a supervisor, highlighting distinct safety and alignment challenges. Our findings underscore the necessity of evaluating AI systems in their interactive, multi-agent contexts.",
+          "claimed_authors": [
+            "Sinem Erisken",
+            "Timothy Gothard",
+            "Martin Leitgab",
+            "Ram Potham"
+          ],
+          "claimed_title": "MAEBE: Multi-Agent Emergent Behavior Framework",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2506.03053"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Foundation Protocol: A Coordination Layer for Agen', candidate_title='MAEBE: Multi-Agent Emergent Behavior Framework')",
+        "failed_at": "2026-07-04T21:38:37Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Envy, the inclination to compare rewards, can be expected to unfold when inequalities in terms of payoff differences are generated in competitive societies. It is shown that increasing levels of envy lead inevitably to a self-induced separation into a lower and an upper class. Class stratification is Nash stable and strict, with members of the same class receiving identical rewards. Upper class agents play exclusively pure strategies, all lower class agents the same mixed strategy. The fraction of upper class agents decreases progressively with larger levels of envy, until a single upper class agent is left. Numerical simulations and a complete analytic treatment of a basic reference model, the shopping trouble model, are presented. The properties of the class-stratified society are universal and only indirectly controllable through the underlying utility function, which implies that class stratified societies are intrinsically resistant to political control. Implications for human societies are discussed. It is pointed out that the repercussions of envy are amplified when societies become increasingly competitive.",
+          "claimed_authors": [
+            "Claudius Gros"
+          ],
+          "claimed_title": "Self induced class stratification in competitive societies of agents: Nash stability in the presence of envy",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2005.11966"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"Foundation Protocol: A Coordination Layer for Agen', candidate_title='Self induced class stratification in competitive societies of agents: Nash stability in the presence of envy')",
+        "failed_at": "2026-07-04T21:38:37Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Evaluating large language model (LLM)-based multi-agent systems remains a critical challenge, as these systems must exhibit reliable coordination, transparent decision-making, and verifiable performance across evolving tasks. Existing evaluation approaches often limit themselves to single-response scoring or narrow benchmarks, which lack stability, extensibility, and automation when deployed in enterprise settings at multi-agent scale. We present AEMA (Adaptive Evaluation Multi-Agent), a process-aware and auditable framework that plans, executes, and aggregates multi-step evaluations across heterogeneous agentic workflows under human oversight. Compared to a single LLM-as-a-Judge, AEMA achieves greater stability, human alignment, and traceable records that support accountable automation. Our results on enterprise-style agent workflows simulated using realistic business scenarios demonstrate that AEMA provides a transparent and reproducible pathway toward responsible evaluation of LLM-based multi-agent systems.\n  Keywords Agentic AI, Multi-Agent Systems, Trustworthy AI, Verifiable Evaluation, Human Oversight",
+          "claimed_authors": [
+            "YenTing Lee",
+            "Keerthi Koneru",
+            "Zahra Moslemi",
+            "Sheethal Kumar",
+            "Ramesh Radhakrishnan"
+          ],
+          "claimed_title": "AEMA: Verifiable Evaluation Framework for Trustworthy and Controlled Agentic LLM Systems",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2601.11903"
+        },
+        "details": "query-relevance 0.182 < 0.3 (query='llmXive follow-up: extending \"Foundation Protocol: A Coordination Layer for Agen', candidate_title='AEMA: Verifiable Evaluation Framework for Trustworthy and Controlled Agentic LLM Systems')",
+        "failed_at": "2026-07-04T21:38:37Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Identity Security Posture Management (ISPM) is a core challenge for modern enterprises operating across cloud and SaaS environments. Answering basic ISPM visibility questions, such as understanding identity inventory and configuration hygiene, requires interpreting complex identity data, motivating growing interest in agentic AI systems. Despite this interest, there is currently no standardized way to evaluate how well such systems perform ISPM visibility tasks on real enterprise data. We introduce the Sola Visibility ISPM Benchmark, the first benchmark designed to evaluate agentic AI systems on foundational ISPM visibility tasks using a live, production-grade identity environment spanning AWS, Okta, and Google Workspace. The benchmark focuses on identity inventory and hygiene questions and is accompanied by the Sola AI Agent, a tool-using agent that translates natural-language queries into executable data exploration steps and produces verifiable, evidence-backed answers. Across 77 benchmark questions, the agent achieves strong overall performance, with an expert accuracy of 0.84 and a strict success rate of 0.77. Performance is highest on AWS hygiene tasks, where expert accuracy reaches 0.94, while results on Google Workspace and Okta hygiene tasks are more moderate, yet competitive. Overall, this work provides a practical and reproducible benchmark for evaluating agentic AI systems in identity security and establishes a foundation for future ISPM benchmarks covering more advanced identity analysis and governance tasks.",
+          "claimed_authors": [
+            "Gal Engelberg",
+            "Konstantin Koutsyi",
+            "Leon Goldberg",
+            "Reuven Elezra",
+            "Idan Pinto",
+            "Tal Moalem",
+            "Shmuel Cohen",
+            "Yoni Weintrob"
+          ],
+          "claimed_title": "Sola-Visibility-ISPM: Benchmarking Agentic AI for Identity Security Posture Management Visibility",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2601.07880"
+        },
+        "details": "query-relevance 0.182 < 0.3 (query='llmXive follow-up: extending \"Foundation Protocol: A Coordination Layer for Agen', candidate_title='Sola-Visibility-ISPM: Benchmarking Agentic AI for Identity Security Posture Management Visibility')",
+        "failed_at": "2026-07-04T21:38:37Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This paper presents a hybrid adaptive Nash equilibrium solver for distributed multi-agent systems incorporating game-theoretic jump triggering mechanisms. The approach addresses fundamental scalability and computational challenges in multi-agent hybrid systems by integrating distributed game-theoretic optimization with systematic hybrid system design. A novel game-theoretic jump triggering mechanism coordinates discrete mode transitions across multiple agents while maintaining distributed autonomy. The Hybrid Adaptive Nash Equilibrium Solver (HANES) algorithm integrates these methodologies. Sufficient conditions establish exponential convergence to consensus under distributed information constraints. The framework provides rigorous stability guarantees through coupled Hamilton-Jacobi-Bellman equations while enabling rapid emergency response capabilities through coordinated jump dynamics. Simulation studies in pursuit-evasion and leader-follower consensus scenarios demonstrate significant improvements in convergence time, computational efficiency, and scalability compared to existing centralized and distributed approaches.",
+          "claimed_authors": [
+            "Qiuyu Miao",
+            "Zhigang Wu"
+          ],
+          "claimed_title": "A Hybrid Adaptive Nash Equilibrium Solver for Distributed Multi-Agent Systems with Game-Theoretic Jump Triggering",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2506.11304"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Foundation Protocol: A Coordination Layer for Agen', candidate_title='A Hybrid Adaptive Nash Equilibrium Solver for Distributed Multi-Agent Systems with Game-Theoretic Jump Triggering')",
+        "failed_at": "2026-07-04T21:38:37Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Trust region methods are widely applied in single-agent reinforcement learning problems due to their monotonic performance-improvement guarantee at every iteration. Nonetheless, when applied in multi-agent settings, the guarantee of trust region methods no longer holds because an agent's payoff is also affected by other agents' adaptive behaviors. To tackle this problem, we conduct a game-theoretical analysis in the policy space, and propose a multi-agent trust region learning method (MATRL), which enables trust region optimization for multi-agent learning. Specifically, MATRL finds a stable improvement direction that is guided by the solution concept of Nash equilibrium at the meta-game level. We derive the monotonic improvement guarantee in multi-agent settings and empirically show the local convergence of MATRL to stable fixed points in the two-player rotational differential game. To test our method, we evaluate MATRL in both discrete and continuous multiplayer general-sum games including checker and switch grid worlds, multi-agent MuJoCo, and Atari games. Results suggest that MATRL significantly outperforms strong multi-agent reinforcement learning baselines.",
+          "claimed_authors": [
+            "Ying Wen",
+            "Hui Chen",
+            "Yaodong Yang",
+            "Zheng Tian",
+            "Minne Li",
+            "Xu Chen",
+            "Jun Wang"
+          ],
+          "claimed_title": "A Game-Theoretic Approach to Multi-Agent Trust Region Optimization",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2106.06828"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Foundation Protocol: A Coordination Layer for Agen', candidate_title='A Game-Theoretic Approach to Multi-Agent Trust Region Optimization')",
+        "failed_at": "2026-07-04T21:38:37Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "One relevant aspect in the development of the Semantic Web framework is the achievement of a real inter-agents communication capability at the semantic level. Agents should be able to communicate with each other freely using different communication protocols, constituted by communication acts. For that scenario, we introduce in this paper an efficient mechanism presenting the following main features: - It promotes the description of the communication acts of protocols as classes that belong to a communication acts ontology, and associates to those acts a social commitment semantics formalized through predicates in the Event Calculus. - It is sustained on the idea that different protocols can be compared semantically by looking to the set of fluents associated to each branch of the protocols. Those sets are generated using Semantic Web technology rules. - It discovers the following types of protocol relationships: equivalence, specialization, restriction, prefix, suffix, infix and complement_to_infix.",
+          "claimed_authors": [
+            "Idoia Berges",
+            "Jesús Bermúdez",
+            "Alfredo Goñi",
+            "Arantza Illarramendi"
+          ],
+          "claimed_title": "A mechanism for discovering semantic relationships among agent communication protocols",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2401.16216"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"Foundation Protocol: A Coordination Layer for Agen', candidate_title='A mechanism for discovering semantic relationships among agent communication protocols')",
+        "failed_at": "2026-07-04T21:38:37Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "With the development of large models and autonomous decision-making AI, agents are rapidly becoming the new entities of the internet, following mobile apps. However, existing internet infrastructure is primarily designed for human interaction, creating data silos, unfriendly interfaces, and high collaboration costs among agents, making it difficult to support the needs for large-scale agent interconnection and collaboration. The internet is undergoing a profound transformation, showing four core trends: agents replacing traditional software, universal agent interconnection, native protocol-based connections, and autonomous agent organization and collaboration. To align with these trends, Agent Network Protocol (ANP) proposes a new generation of communication protocols for the Agentic Web. ANP adheres to AI-native design, maintains compatibility with existing internet protocols, adopts a modular composable architecture, follows minimalist yet extensible principles, and enables rapid deployment based on existing infrastructure. Through a three-layer protocol system--identity and encrypted communication layer, meta-protocol negotiation layer, and application protocol layer--ANP. systematically solves the problems of agent identity authentication, dynamic negotiation, and capability discovery interoperability.",
+          "claimed_authors": [
+            "Gaowei Chang",
+            "Eidan Lin",
+            "Chengxuan Yuan",
+            "Rizhao Cai",
+            "Binbin Chen",
+            "Xuan Xie",
+            "Yin Zhang"
+          ],
+          "claimed_title": "Agent Network Protocol Technical White Paper",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2508.00007"
+        },
+        "details": "query-relevance 0.273 < 0.3 (query='llmXive follow-up: extending \"Foundation Protocol: A Coordination Layer for Agen', candidate_title='Agent Network Protocol Technical White Paper')",
+        "failed_at": "2026-07-04T21:38:37Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The rapid evolution of Large Language Model (LLM)-based autonomous agents is reshaping the digital landscape toward an emerging Agentic Web, where increasingly specialized agents must collaborate to accomplish complex tasks. However, existing collaboration paradigms are constrained to message passing, leaving execution environments as isolated silos. This creates a context gap: agents cannot directly manipulate files or invoke tools in a peer's environment, and must instead resort to costly, error-prone environment reconstruction. We introduce the Agent Workspace Collaboration Protocol (AWCP), which bridges this gap through temporary workspace delegation inspired by the Unix philosophy that everything is a file. AWCP decouples a lightweight control plane from pluggable transport mechanisms, allowing a Delegator to project its workspace to a remote Executor, who then operates on the shared files directly with unmodified local toolchains. We provide a fully open-source reference implementation with MCP tool integration and validate the protocol through live demonstrations of asymmetric collaboration, where agents with complementary capabilities cooperate through delegated workspaces. By establishing the missing workspace layer in the agentic protocol stack, AWCP paves the way for a universally interoperable agent ecosystem in which collaboration transcends message boundaries. The protocol and reference implementation are publicly available at https://github.com/SII-Holos/awcp.",
+          "claimed_authors": [
+            "Xiaohang Nie",
+            "Zihan Guo",
+            "Youliang Chen",
+            "Yuanjian Zhou",
+            "Weinan Zhang"
+          ],
+          "claimed_title": "AWCP: A Workspace Delegation Protocol for Deep-Engagement Collaboration across Remote Agents",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2602.20493"
+        },
+        "details": "query-relevance 0.273 < 0.3 (query='llmXive follow-up: extending \"Foundation Protocol: A Coordination Layer for Agen', candidate_title='AWCP: A Workspace Delegation Protocol for Deep-Engagement Collaboration across Remote Agents')",
+        "failed_at": "2026-07-04T21:38:37Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Integrating large language models (LLMs) into personal assistants, like Xiao Ai and Blue Heart V, effectively enhances their ability to interact with humans, solve complex tasks, and manage IoT devices. Such assistants are also termed LLM-driven agents. Upon receiving user requests, the LLM-driven agent generates plans using an LLM, executes these plans through various tools, and then returns the response to the user. During this process, the latency for generating a plan with an LLM can reach tens of seconds, significantly degrading user experience. Real-world dataset analysis shows that about 30% of the requests received by LLM-driven agents are identical or similar, which allows the reuse of previously generated plans to reduce latency. However, it is difficult to accurately define the similarity between the request texts received by the LLM-driven agent through directly evaluating the original request texts. Moreover, the diverse expressions of natural language and the unstructured format of plan texts make implementing plan reuse challenging. To address these issues, we present and implement a plan reuse mechanism for LLM-driven agents called AgentReuse. AgentReuse leverages the similarities and differences among requests' semantics and uses intent classification to evaluate the similarities between requests and enable the reuse of plans. Experimental results based on a real-world dataset demonstrate that AgentReuse achieves a 93% effective plan reuse rate, an F1 score of 0.9718, and an accuracy of 0.9459 in evaluating request similarities, reducing latency by 93.12% compared with baselines without using the reuse mechanism.",
+          "claimed_authors": [
+            "Guopeng Li",
+            "Ruiqi Wu",
+            "Haisheng Tan"
+          ],
+          "claimed_title": "A Plan Reuse Mechanism for LLM-Driven Agent",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.21309"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Foundation Protocol: A Coordination Layer for Agen', candidate_title='A Plan Reuse Mechanism for LLM-Driven Agent')",
+        "failed_at": "2026-07-04T21:38:37Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A fundamental limitation of current LLM-based AI agents is their inability to build differentiated trust among each other at the onset of an agent-to-agent dialogue. However, autonomous and interoperable trust establishment becomes essential once agents start to operate beyond isolated environments and engage in dialogues across individual or organizational boundaries. A promising way to fill this gap in Agentic AI is to equip agents with long-lived digital identities and introduce tamper-proof and flexible identity-bound attestations of agents, provisioned by commonly trusted third parties and designed for cross-domain verifiability. This article presents a conceptual framework and a prototypical multi-agent system, where each agent is endowed with a self-sovereign digital identity. It combines a unique and ledger-anchored W3C Decentralized Identifier (DID) of an agent with a set of third-party issued W3C Verifiable Credentials (VCs). This enables agents at the start of a dialog to prove ownership of their self-controlled DIDs for authentication purposes and to establish various cross-domain trust relationships through the spontaneous exchange of their self-hosted DID-bound VCs. A comprehensive evaluation of the prototypical implementation demonstrates technical feasibility but also reveals limitations once an agent's LLM is in sole charge to control the respective security procedures.",
+          "claimed_authors": [
+            "Sandro Rodriguez Garzon",
+            "Awid Vaziry",
+            "Enis Mert Kuzu",
+            "Dennis Enrique Gehrmann",
+            "Buse Varkan",
+            "Alexander Gaballa",
+            "Axel Küpper"
+          ],
+          "claimed_title": "AI Agents with Decentralized Identifiers and Verifiable Credentials",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2511.02841"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"Foundation Protocol: A Coordination Layer for Agen', candidate_title='AI Agents with Decentralized Identifiers and Verifiable Credentials')",
+        "failed_at": "2026-07-04T21:38:37Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "LLM recommendation agents increasingly produce structured recommendation reports: sets of items accompanied by natural-language justifications. Yet existing evaluations often reduce this setting to reranking small shortlisted candidate sets or judge reports mainly by semantic plausibility. We introduce Recommendation Atlas (Agentic Tool-Level Assessment for Shopping), or RecoAtlas, a benchmark and toolkit for evaluating shopping agents with behavior-grounded metrics. RecoAtlas complements held-out interaction metrics with learned utility proxies for relevance, complementarity, and diversity derived from interaction data, while separately measuring semantic coherence and explanation quality. Its controlled tool environment exposes agents to either semantic, behavior-aligned, or faulty tools, enabling diagnosis of whether performance gains arise from stronger reasoning, better signals, or more effective tool-use policies. Across controlled experiments, we show that RecoAtlas exhibits key properties of a meaningful benchmark for agentic systems: performance scales with model capacity and test-time compute, improves with stronger and better-aligned tools, degrades under noisy or misaligned signals, and reveals that semantic plausibility does not necessarily capture behavior-grounded utility. RecoAtlas provides a foundation for developing and evaluating shopping assistants that optimize not only for plausible recommendations, but also for coherent, behaviorally grounded recommendation sets.",
+          "claimed_authors": [
+            "Imad Aouali",
+            "Flavian Vasile",
+            "Otmane Sakhi",
+            "Alexandre Gilotte",
+            "Benjamin Heymann"
+          ],
+          "claimed_title": "RecoAtlas: From Semantic Plausibility to Set-Level Utility in LLM Recommendation Agents",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2605.18805"
+        },
+        "details": "query-relevance 0.182 < 0.3 (query='llmXive follow-up: extending \"Foundation Protocol: A Coordination Layer for Agen', candidate_title='RecoAtlas: From Semantic Plausibility to Set-Level Utility in LLM Recommendation Agents')",
+        "failed_at": "2026-07-04T21:38:37Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Changxi Zhu",
+            "Mehdi Dastani",
+            "Shihan Wang"
+          ],
+          "title": "A Survey of Multi-Agent Deep Reinforcement Learning with Communication",
+          "venue": "arXiv",
+          "year": 2022
+        },
+        "primary_pointer": "2203.08975",
+        "summary": "Communication is an effective mechanism for coordinating the behaviors of multiple agents, broadening their views of the environment, and to support their collaborations. In the field of multi-agent deep reinforcement learning (MADRL), agents can improve the overall learning performance and achieve their objectives by communication. Agents can communicate various types of messages, either to all agents or to specific agent groups, or conditioned on specific constraints. With the growing body of research work in MADRL with communication (Comm-MADRL), there is a lack of a systematic and structural approach to distinguish and classify existing Comm-MADRL approaches. In this paper, we survey recent works in the Comm-MADRL field and consider various aspects of communication that can play a role in designing and developing multi-agent reinforcement learning systems. With these aspects in mind, we propose 9 dimensions along which Comm-MADRL approaches can be analyzed, developed, and compared. By projecting existing works into the multi-dimensional space, we discover interesting trends. We also propose some novel directions for designing future Comm-MADRL systems through exploring possible combinations of the dimensions.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2203.08975",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-04T21:38:42Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Jean-Baptiste Soyez",
+            "Gildas Morvan",
+            "Daniel Dupont",
+            "Rochdi Merzouki"
+          ],
+          "title": "A Methodology to Engineer and Validate Dynamic Multi-level Multi-agent Based Simulations",
+          "venue": "arXiv",
+          "year": 2013
+        },
+        "primary_pointer": "1311.5108",
+        "summary": "This article proposes a methodology to model and simulate complex systems, based on IRM4MLS, a generic agent-based meta-model able to deal with multi-level systems. This methodology permits the engineering of dynamic multi-level agent-based models, to represent complex systems over several scales and domains of interest. Its goal is to simulate a phenomenon using dynamically the lightest representation to save computer resources without loss of information. This methodology is based on two mechanisms: (1) the activation or deactivation of agents representing different domain parts of the same phenomenon and (2) the aggregation or disaggregation of agents representing the same phenomenon at different scales.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1311.5108",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-04T21:38:42Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "F. Bredell",
+            "H. A. Engelbrecht",
+            "J. C. Schoeman"
+          ],
+          "title": "Augmenting the action space with conventions to improve multi-agent cooperation in Hanabi",
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2412.06333",
+        "summary": "The card game Hanabi is considered a strong medium for the testing and development of multi-agent reinforcement learning (MARL) algorithms, due to its cooperative nature, partial observability, limited communication and remarkable complexity. Previous research efforts have explored the capabilities of MARL algorithms within Hanabi, focusing largely on advanced architecture design and algorithmic manipulations to achieve state-of-the-art performance for various number of cooperators. However, this often leads to complex solution strategies with high computational cost and requiring large amounts of training data. For humans to solve the Hanabi game effectively, they require the use of conventions, which often allows for a means to implicitly convey ideas or knowledge based on a predefined, and mutually agreed upon, set of \"rules\" or principles. Multi-agent problems containing partial observability, especially when limited communication is present, can benefit greatly from the use of implicit knowledge sharing. In this paper, we propose a novel approach to augmenting an agent's action space using conventions, which act as a sequence of special cooperative actions that span over and include multiple time steps and multiple agents, requiring agents to actively opt in for it to reach fruition. These conventions are based on existing human conventions, and result in a significant improvement on the performance of existing techniques for self-play and cross-play for various number of cooperators within Hanabi.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2412.06333",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-04T21:38:42Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Idoia Berges",
+            "Jesús Bermúdez",
+            "Alfredo Goñi",
+            "Arantza Illarramendi"
+          ],
+          "title": "A mechanism for discovering semantic relationships among agent communication protocols",
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2401.16216",
+        "summary": "One relevant aspect in the development of the Semantic Web framework is the achievement of a real inter-agents communication capability at the semantic level. Agents should be able to communicate with each other freely using different communication protocols, constituted by communication acts. For that scenario, we introduce in this paper an efficient mechanism presenting the following main features: - It promotes the description of the communication acts of protocols as classes that belong to a communication acts ontology, and associates to those acts a social commitment semantics formalized through predicates in the Event Calculus. - It is sustained on the idea that different protocols can be compared semantically by looking to the set of fluents associated to each branch of the protocols. Those sets are generated using Semantic Web technology rules. - It discovers the following types of protocol relationships: equivalence, specialization, restriction, prefix, suffix, infix and complement_to_infix.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2401.16216",
+          "http_status": 200,
+          "pdf_sample_score": 0.1917,
+          "query_relevance_score": 0.4,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-04T21:38:43Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Indraveni Chebolu",
+            "Arnab Mallick",
+            "Harmesh Rana"
+          ],
+          "title": "SPEAR: An Engineering Case Study of Multi-Agent Coordination for Smart Contract Auditing",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2602.04418",
+        "summary": "We present SPEAR, a multi-agent coordination framework for smart contract auditing that applies established MAS patterns in a realistic security analysis workflow. SPEAR models auditing as a coordinated mission carried out by specialized agents: a Planning Agent prioritizes contracts using risk-aware heuristics, an Execution Agent allocates tasks via the Contract Net protocol, and a Repair Agent autonomously recovers from brittle generated artifacts using a programmatic-first repair policy. Agents maintain local beliefs updated through AGM-compliant revision, coordinate via negotiation and auction protocols, and revise plans as new information becomes available. An empirical study compares the multi-agent design with centralized and pipeline-based alternatives under controlled failure scenarios, focusing on coordination, recovery behavior, and resource use.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2602.04418",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.8,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-04T21:38:43Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "llmxive follow-up: extending \"foundation protocol: a coordination layer for agentic society\" computer science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

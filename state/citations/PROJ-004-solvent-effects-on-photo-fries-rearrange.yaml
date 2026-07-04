@@ -65,7 +65,7 @@
   verification_status: verified
   verified_against_url: https://arxiv.org/abs/1806.02690v2
   verified_at: '2026-04-29T15:39:40.427874Z'
-- artifact_hash: 7dcd2160392bfa757267cb823fa30449d94aabfaebfc3e911711e562bf881210
+- artifact_hash: bcb020c3852f4311baea41fac163cc24d02ea2eeb348783507f88891e12fb1cb
   artifact_path: projects/PROJ-004-solvent-effects-on-photo-fries-rearrange/specs/001-solvent-effects-on-photo-fries-rearrange/spec.md
   cite_id: c-001
   cited_authors: []
@@ -77,8 +77,8 @@
   value: http://arxiv.org/abs/2512.19530v1
   verification_status: verified
   verified_against_url: https://arxiv.org/abs/2512.19530v1
-  verified_at: '2026-06-29T00:44:08.256180Z'
-- artifact_hash: 7dcd2160392bfa757267cb823fa30449d94aabfaebfc3e911711e562bf881210
+  verified_at: '2026-07-04T21:35:06.768027Z'
+- artifact_hash: bcb020c3852f4311baea41fac163cc24d02ea2eeb348783507f88891e12fb1cb
   artifact_path: projects/PROJ-004-solvent-effects-on-photo-fries-rearrange/specs/001-solvent-effects-on-photo-fries-rearrange/spec.md
   cite_id: c-002
   cited_authors: []
@@ -90,8 +90,8 @@
   value: http://arxiv.org/abs/1807.01248v1
   verification_status: verified
   verified_against_url: https://arxiv.org/abs/1807.01248v1
-  verified_at: '2026-06-29T00:44:08.256180Z'
-- artifact_hash: 7dcd2160392bfa757267cb823fa30449d94aabfaebfc3e911711e562bf881210
+  verified_at: '2026-07-04T21:35:06.768027Z'
+- artifact_hash: bcb020c3852f4311baea41fac163cc24d02ea2eeb348783507f88891e12fb1cb
   artifact_path: projects/PROJ-004-solvent-effects-on-photo-fries-rearrange/specs/001-solvent-effects-on-photo-fries-rearrange/spec.md
   cite_id: c-003
   cited_authors: []
@@ -105,8 +105,8 @@
   value: http://arxiv.org/abs/1705.03941v2
   verification_status: verified
   verified_against_url: https://arxiv.org/abs/1705.03941v2
-  verified_at: '2026-06-29T00:44:08.256180Z'
-- artifact_hash: 7dcd2160392bfa757267cb823fa30449d94aabfaebfc3e911711e562bf881210
+  verified_at: '2026-07-04T21:35:06.768027Z'
+- artifact_hash: bcb020c3852f4311baea41fac163cc24d02ea2eeb348783507f88891e12fb1cb
   artifact_path: projects/PROJ-004-solvent-effects-on-photo-fries-rearrange/specs/001-solvent-effects-on-photo-fries-rearrange/spec.md
   cite_id: c-004
   cited_authors: []
@@ -118,8 +118,8 @@
   value: http://arxiv.org/abs/2503.14134v2
   verification_status: verified
   verified_against_url: https://arxiv.org/abs/2503.14134v2
-  verified_at: '2026-06-29T00:44:08.256180Z'
-- artifact_hash: 7dcd2160392bfa757267cb823fa30449d94aabfaebfc3e911711e562bf881210
+  verified_at: '2026-07-04T21:35:06.768027Z'
+- artifact_hash: bcb020c3852f4311baea41fac163cc24d02ea2eeb348783507f88891e12fb1cb
   artifact_path: projects/PROJ-004-solvent-effects-on-photo-fries-rearrange/specs/001-solvent-effects-on-photo-fries-rearrange/spec.md
   cite_id: c-005
   cited_authors: []
@@ -131,4 +131,4 @@
   value: http://arxiv.org/abs/1806.02690v2
   verification_status: verified
   verified_against_url: https://arxiv.org/abs/1806.02690v2
-  verified_at: '2026-06-29T00:44:08.256180Z'
+  verified_at: '2026-07-04T21:35:06.768027Z'

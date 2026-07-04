@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1802.00625",
+  "judged_at": "2026-07-04T21:29:32Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"fashionchameleon: towards real-time and interactive human-garment vide\" computer science",
+  "rationale": "The paper focuses on real-time sensor data analytics in industrial bulk materials handling and cyber-physical systems, which is an entirely different domain from the user's question about extending a computer vision framework for human-garment video interaction. It shares only the generic keyword \"real-time\" but addresses a distinct construct (industrial physics modeling vs. human pose/garment tracking) with no overlap in mechanism, variables, or empirical population.",
+  "relevant": false
+}
