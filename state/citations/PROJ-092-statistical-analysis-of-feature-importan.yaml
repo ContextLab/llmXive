@@ -1,1 +1,22 @@
-[]
+- artifact_hash: a22e09ff3620bd61c16282afa0ae599b5f30360a6f970010b6f34aa2f35d7b0b
+  artifact_path: projects/PROJ-092-statistical-analysis-of-feature-importan/specs/001-statistical-analysis-of-feature-importan/spec.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: UCI Machine Learning Repository
+  kind: url
+  value: https://archive.ics.uci.edu/ml/datasets/ElectricityLoadDiagrams20112014
+  verification_status: verified
+  verified_against_url: https://archive.ics.uci.edu/dataset/321/electricityloaddiagrams20112014
+  verified_at: '2026-07-04T00:10:04.866074Z'
+- artifact_hash: 53950007cfb3c0d99c17fca48e032b2290c8b00388135d922c271cbc3a5c55c3
+  artifact_path: projects/PROJ-092-statistical-analysis-of-feature-importan/specs/001-statistical-analysis-of-feature-importan/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: UCI Machine Learning Repository
+  kind: url
+  value: https://archive.ics.uci.edu/ml/datasets/ElectricityLoadDiagrams20112014`
+  verification_status: verified
+  verified_against_url: https://archive.ics.uci.edu/dataset/321/electricityloaddiagrams20112014
+  verified_at: '2026-07-04T00:20:59.549253Z'

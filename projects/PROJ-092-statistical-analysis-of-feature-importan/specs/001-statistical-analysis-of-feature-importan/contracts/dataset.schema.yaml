@@ -1,0 +1,38 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "ElectricityLoadDiagrams Dataset Schema"
+description: "Schema for the raw and processed UCI Electricity Load Diagrams dataset."
+type: "object"
+properties:
+  metadata:
+    type: "object"
+    properties:
+      source:
+        type: "string"
+        description: "Canonical source URL or name."
+      checksum:
+        type: "string"
+        description: "SHA256 checksum of the raw file."
+      columns:
+        type: "array"
+        items:
+          type: "string"
+        description: "List of column names (timestamp + zone IDs)."
+  data:
+    type: "array"
+    description: "Rows of the dataset."
+    items:
+      type: "object"
+      properties:
+        timestamp:
+          type: "string"
+          format: "date-time"
+          description: "Hourly timestamp."
+        zones:
+          type: "object"
+          additionalProperties:
+            type: "number"
+            description: "Load value for a specific zone (MZ1, MZ2, etc.)."
+required:
+  - "metadata"
+  - "data"
+additionalProperties: false

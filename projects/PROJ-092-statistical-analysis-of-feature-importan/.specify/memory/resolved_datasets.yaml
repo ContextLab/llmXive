@@ -1,4 +1,4 @@
-resolved_at: '2026-07-03T02:24:10.643092+00:00'
+resolved_at: '2026-07-04T00:11:21.798997+00:00'
 datasets:
 - intent: UCI
   status: verified
@@ -45,23 +45,23 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://figshare.com/articles/media/Call_08132728112_Umaru_Ringim_College_of_Nursing_Sciences_Kano_Admission_Form_2026_2027_Post_Utme_Application_Is_Out_CALL_08132728112_Dr_Mrs_Sarah_for_admission_process_into_the_school/32886872
+  - url: https://figshare.com/articles/media/Call_08132728112_Department_of_Nursing_Science_Godfrey_Okoye_University_Admission_Form_2026_2027_Post_Utme_Application_Is_Out_CALL_08132728112_Dr_Mrs_Sarah_for_admission_process_into_the_school_/32897474
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/media/Call_07076040542_Gombe_State_University_of_Science_and_Technology_2026_2027_Post-Utme_Form_Part-time_Form_Is_On_sales_Now_07076040542_To_apply_call_Dr_Mrs_Rita_07076040542_for_further_assistance_/32886866
+  - url: https://figshare.com/articles/media/Call_08132728112_Department_of_Nursing_Sciences_Coal_City_University_Admission_Form_2026_2027_Post_Utme_Application_Is_Out_CALL_08132728112_Dr_Mrs_Sarah_for_admission_process_into_the_school_/32897471
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/preprint/Evaluation_Metrics_for_Augmented_Reality_User_Interfaces_A_Systematic_Framework/32873654
+  - url: https://figshare.com/articles/dataset/Dataset_and_README_file_for_paper_from_Denarie_et_al_/30699878
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/poster/Augustine_University_Admission_Form_OPEN_2026_2027_Direct_Entry_Form_is_Out_0_7040964654_JUPEB_form_See_Requirements_Courses_How_to_ApplyThe_2026_2027_University_Admission_Form_is_now_available_for_qualified_candidates_seeking_admission_int/32886860
+  - url: https://figshare.com/articles/media/Call_08132728112_Faculty_of_Nursing_Maduka_University_Admission_Form_2026_2027_Post_Utme_Application_Is_Out_CALL_08132728112_Dr_Mrs_Sarah_for_admission_process_into_the_school_/32897468
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/media/Call_08132728112_Dansharif_College_of_Nursing_Sciences_Kano_Admission_Form_2026_2027_Post_Utme_Application_Is_Out_CALL_08132728112_Dr_Mrs_Sarah_for_admission_process_into_the_school/32886869
+  - url: https://figshare.com/articles/media/Call_08132728112_Department_of_Nursing_Sciences_Olusegun_Agagu_University_Admission_Form_2026_2027_Post_Utme_Application_Is_Out_CALL_08132728112_Dr_Mrs_Sarah_for_admission_process_into_the_school_/32897465
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -81,27 +81,79 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/7383239
+  - url: https://zenodo.org/records/6592391
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://arxiv.org/abs/2606.28833
+  - url: https://osf.io/j7upd/
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21148859
+  - url: https://zenodo.org/records/21184053
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21148859
+  - url: https://zenodo.org/records/21184053
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://uregina.scholaris.ca/handle/10294/16075
+  - url: https://zenodo.org/records/21183179
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://uregina.scholaris.ca/handle/10294/9260
+  - url: https://zenodo.org/records/21183179
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: ElectricityLoadDiagrams20112014
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/media/Call_08132728112_Department_of_Nursing_Sciences_Peaceland_University_Admission_Form_2026_2027_Post_Utme_Application_Is_Out_CALL_08132728112_Dr_Mrs_Sarah_for_admission_process_into_the_school_/32897480
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/Call_08132728112_Department_of_Nursing_Science_Godfrey_Okoye_University_Admission_Form_2026_2027_Post_Utme_Application_Is_Out_CALL_08132728112_Dr_Mrs_Sarah_for_admission_process_into_the_school_/32897474
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/Call_08132728112_Department_of_Nursing_Sciences_Coal_City_University_Admission_Form_2026_2027_Post_Utme_Application_Is_Out_CALL_08132728112_Dr_Mrs_Sarah_for_admission_process_into_the_school_/32897471
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Dataset_and_README_file_for_paper_from_Denarie_et_al_/30699878
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/Call_08132728112_Faculty_of_Nursing_Maduka_University_Admission_Form_2026_2027_Post_Utme_Application_Is_Out_CALL_08132728112_Dr_Mrs_Sarah_for_admission_process_into_the_school_/32897468
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4656140
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4656141
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20906044
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20906044
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dataverse.harvard.edu/citation?persistentId=doi:10.7910/DVN/W04WWC
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ieee-dataport.org/documents/datasets-used-prior-symbolic-guided-time-frequency-kolmogorov-arnold-network
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16627581
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content

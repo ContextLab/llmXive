@@ -1,0 +1,32 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "DriftMetric"
+description: "Metrics describing drift between two adjacent time windows."
+type: "object"
+required:
+  - "window_pair"
+  - "rho"
+  - "high_drift_flag"
+  - "null_mean_rho"
+  - "null_std_rho"
+properties:
+  window_pair:
+    type: "string"
+    description: "Identifier of the adjacent windows, formatted as \"<i>-<i+1>\"."
+  rho:
+    type: "number"
+    description: "Spearman rank correlation coefficient between importance rankings."
+  high_drift_flag:
+    type: "boolean"
+    description: "True if rho falls below the 5th percentile of the Time-Permutation Null Model distribution."
+  kendall_tau:
+    type: "number"
+    description: "Kendall's Tau statistic from Mann‑Kendall test (descriptive only; not used for p-value)."
+  p_value:
+    type: "number"
+    description: "Two‑sided Time‑Permutation p‑value for trend significance (derived from shuffling window order)."
+  null_mean_rho:
+    type: "number"
+    description: "Mean rho obtained from the Time‑Permutation null‑model shuffling procedure."
+  null_std_rho:
+    type: "number"
+    description: "Standard deviation of null‑model rho values."

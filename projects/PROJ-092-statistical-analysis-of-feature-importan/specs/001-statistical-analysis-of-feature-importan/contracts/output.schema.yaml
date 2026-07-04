@@ -1,0 +1,102 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Drift Metrics Output Schema"
+description: "Schema for the final drift analysis output (CSV/JSON)."
+type: "object"
+properties:
+  drift_metrics:
+    type: "array"
+    description: "List of drift metrics between consecutive windows."
+    items:
+      type: "object"
+      properties:
+        window_t:
+          type: "integer"
+          description: "Source window ID."
+        window_t_plus_1:
+          type: "integer"
+          description: "Target window ID."
+        spearman_rho:
+          type: "number"
+          minimum: -1.0
+          maximum: 1.0
+          description: "Spearman rank correlation coefficient."
+        p_value:
+          type: "number"
+          minimum: 0.0
+          maximum: 1.0
+          description: "Block permutation p-value."
+        is_high_drift:
+          type: "boolean"
+          description: "True if p_value < 0.05."
+      required:
+        - "window_t"
+        - "window_t_plus_1"
+        - "spearman_rho"
+        - "p_value"
+        - "is_high_drift"
+  global_stats:
+    type: "object"
+    properties:
+      kendall_tau:
+        type: "number"
+        description: "Kendall's Tau statistic."
+      permutation_p_value:
+        type: "number"
+        description: "Global significance p-value."
+      trend_direction:
+        type: "string"
+        enum:
+          - "increasing"
+          - "decreasing"
+          - "no trend"
+        description: "Direction of the drift trend."
+      total_windows:
+        type: "integer"
+        minimum: 1
+      valid_windows:
+        type: "integer"
+        minimum: 0
+    required:
+      - "kendall_tau"
+      - "permutation_p_value"
+      - "trend_direction"
+      - "total_windows"
+      - "valid_windows"
+  importance_profiles:
+    type: "array"
+    description: "List of feature importance rankings per window."
+    items:
+      type: "object"
+      properties:
+        window_id:
+          type: "integer"
+          description: "Window ID."
+        timestamp_start:
+          type: "string"
+          format: "date-time"
+          description: "Start timestamp."
+        timestamp_end:
+          type: "string"
+          format: "date-time"
+          description: "End timestamp."
+        feature:
+          type: "string"
+          description: "Feature name."
+        importance_score:
+          type: "number"
+          description: "Importance score."
+        rank:
+          type: "integer"
+          description: "1-based rank."
+      required:
+        - "window_id"
+        - "timestamp_start"
+        - "timestamp_end"
+        - "feature"
+        - "importance_score"
+        - "rank"
+required:
+  - "drift_metrics"
+  - "global_stats"
+  - "importance_profiles"
+additionalProperties: false

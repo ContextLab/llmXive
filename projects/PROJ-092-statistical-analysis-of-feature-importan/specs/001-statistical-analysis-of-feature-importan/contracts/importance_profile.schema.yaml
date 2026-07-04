@@ -1,0 +1,32 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "ImportanceProfile"
+description: "Permutation importance scores and ranks for a single time window."
+type: "object"
+required:
+  - "window_id"
+  - "timestamp_start"
+  - "timestamp_end"
+  - "feature"
+  - "importance_score"
+  - "rank"
+properties:
+  window_id:
+    type: "integer"
+    description: "Sequential identifier of the 30‑day window (0‑based)."
+  timestamp_start:
+    type: "string"
+    format: "date-time"
+    description: "ISO‑8601 start time of the window."
+  timestamp_end:
+    type: "string"
+    format: "date-time"
+    description: "ISO‑8601 end time of the window."
+  feature:
+    type: "string"
+    description: "Name of the feature as present in the original dataset."
+  importance_score:
+    type: "number"
+    description: "Mean decrease in score from permutation importance."
+  rank:
+    type: "integer"
+    description: "1‑based rank (1 = most important)."
