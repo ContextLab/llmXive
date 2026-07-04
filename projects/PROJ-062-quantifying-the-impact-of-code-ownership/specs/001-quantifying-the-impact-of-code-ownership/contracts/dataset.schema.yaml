@@ -1,91 +1,125 @@
-$schema: "http://json-schema.org/draft-07/schema#"
-title: "Repository Dataset Schema"
-description: "Schema for the raw and intermediate dataset entities (Repos, Modules, Commits, Bugs)."
-type: "object"
-properties:
-  repository:
-    type: "object"
-    description: "Metadata for a single GitHub repository."
-    properties:
-      url:
-        type: "string"
-        description: "The GitHub URL of the repository."
-      clone_depth:
-        type: "integer"
-        description: "Depth of the shallow clone (must be 1000)."
-      total_commits:
-        type: "integer"
-        description: "Total number of commits in the shallow history."
-      cutoff_date:
-        type: "string"
-        format: "date-time"
-        description: "The date of the latest commit (Time T)."
-      status:
-        type: "string"
-        enum: ["valid", "invalid"]
-        description: "Whether the repo met the ≥1000 commit threshold."
-    required:
-      - url
-      - clone_depth
-      - total_commits
-      - cutoff_date
-      - status
-
-  module:
-    type: "object"
-    description: "A code file or directory within a repository."
-    properties:
-      repo_id:
-        type: "string"
-        description: "Foreign key to repository URL."
-      file_path:
-        type: "string"
-        description: "Normalized file path (lowercase, no trailing extensions)."
-      lines_of_code:
-        type: "integer"
-        description: "Lines of code in the module."
-      age_months:
-        type: "number"
-        description: "Months since the first commit for this file."
-      gini_coefficient:
-        type: "number"
-        minimum: 0.0
-        maximum: 1.0
-        description: "Gini coefficient of commit distribution (precision ≥3)."
-      bug_density:
-        type: "number"
-        description: "Bugs per KLOC for the module."
-    required:
-      - repo_id
-      - file_path
-      - lines_of_code
-      - age_months
-      - gini_coefficient
-      - bug_density
-
-  bug:
-    type: "object"
-    description: "A GitHub Issue linked to a module."
-    properties:
-      issue_id:
-        type: "string"
-        description: "GitHub Issue ID."
-      repo_id:
-        type: "string"
-        description: "Foreign key to repository URL."
-      linked_file_path:
-        type: "string"
-        description: "The file path matched by the Bug-File Proximity Heuristic."
-      created_at:
-        type: "string"
-        format: "date-time"
-        description: "Issue creation date (must be in T+1 window)."
-    required:
-      - issue_id
-      - repo_id
-      - linked_file_path
-      - created_at
+$schema: http://json-schema.org/draft-07/schema#
+title: Code Ownership Dataset Schema
+description: >
+  Schema for intermediate ownership and bug data collected from Git repositories.
+  Used by US1 (Data Collection) and consumed by US2 (Metric Calculation).
+type: object
 required:
-  - repository
-  - module
-  - bug
+  - metadata
+  - ownership_records
+  - bug_records
+properties:
+  metadata:
+    type: object
+    required:
+      - project_name
+      - schema_version
+      - generated_at
+      - cutoff_timestamp
+      - repo_count
+    properties:
+      project_name:
+        type: string
+        description: Name of the research project
+      schema_version:
+        type: string
+        description: Version of this schema
+      generated_at:
+        type: string
+        format: date-time
+        description: ISO 8601 timestamp of generation
+      cutoff_timestamp:
+        type: integer
+        description: Unix timestamp representing time T (analysis cutoff)
+      repo_count:
+        type: integer
+        minimum: 8
+        description: Number of repositories processed
+  ownership_records:
+    type: array
+    description: Aggregated ownership data per module per repository
+    items:
+      type: object
+      required:
+        - repo_id
+        - module_path
+        - committers
+        - total_commits
+        - total_lines
+        - first_commit_ts
+        - last_commit_ts
+      properties:
+        repo_id:
+          type: string
+          description: Unique identifier for the repository
+        module_path:
+          type: string
+          description: Normalized relative path to the module
+        committers:
+          type: array
+          items:
+            type: object
+            required:
+              - email
+              - commit_count
+            properties:
+              email:
+                type: string
+                format: email
+              commit_count:
+                type: integer
+                minimum: 1
+        total_commits:
+          type: integer
+          minimum: 1
+          description: Total commits touching this module in the window
+        total_lines:
+          type: integer
+          minimum: 0
+          description: Total lines of code (sum of additions) in the window
+        first_commit_ts:
+          type: integer
+          description: Unix timestamp of first commit in window
+        last_commit_ts:
+          type: integer
+          description: Unix timestamp of last commit in window
+        is_deleted:
+          type: boolean
+          default: false
+          description: Flag indicating if module was deleted between T and T+1
+  bug_records:
+    type: array
+    description: Bug metadata linked to repositories
+    items:
+      type: object
+      required:
+        - repo_id
+        - issue_number
+        - created_at
+        - state
+        - linked_files
+      properties:
+        repo_id:
+          type: string
+          description: Unique identifier for the repository
+        issue_number:
+          type: integer
+          minimum: 1
+          description: GitHub issue number
+        created_at:
+          type: string
+          format: date-time
+          description: ISO 8601 creation timestamp
+        state:
+          type: string
+          enum: [open, closed]
+        linked_files:
+          type: array
+          description: Files mentioned in the issue body (normalized paths)
+          items:
+            type: string
+        closed_at:
+          type: string
+          format: date-time
+          nullable: true
+          description: Timestamp when issue was closed, if applicable

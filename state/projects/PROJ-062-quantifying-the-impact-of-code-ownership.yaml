@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-04-30T22:26:09.850103Z'
-current_stage: planned
+current_stage: in_progress
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-062-quantifying-the-impact-of-code-ownership
-last_run_id: fc8447e6-6bbf-43ff-a69a-af1ef86458fd
+last_run_id: e67ea6f4-6e0e-46dd-b2a6-0f0f1ab6073b
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-062-quantifying-the-impact-of-code-ownership/specs/001-quantifying-the-impact-of-code-ownership
 title: Quantifying the Impact of Code Ownership on Software Quality
-updated_at: '2026-07-04T09:34:52.781636Z'
+updated_at: '2026-07-04T20:00:55.768057Z'

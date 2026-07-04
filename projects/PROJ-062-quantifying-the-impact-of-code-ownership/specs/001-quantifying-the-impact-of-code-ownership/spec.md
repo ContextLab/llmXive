@@ -9,7 +9,7 @@
 
 ### User Story 1 - Repository Data Collection and Processing (Priority: P1)
 
-The system MUST download Git repositories for multiple high-activity open-source projects, parse commit logs to identify file-level ownership from shallow history (depth 1000) up to the analysis cutoff, and extract bug counts using a path-based proximity heuristic for time window T for ownership and T+1 for bugs.
+The system MUST download Git repositories for multiple high-activity open-source projects, parse commit logs to identify file-level ownership from a limited shallow history up to the analysis cutoff, and extract bug counts using a path-based proximity heuristic for time window T for ownership and T+1 for bugs.
 
 **Why this priority**: Without baseline data collection, no subsequent analysis can occur. This is the foundational step that enables all research outcomes.
 
@@ -25,7 +25,7 @@ The system MUST download Git repositories for multiple high-activity open-source
 
 ### User Story 2 - Ownership and Quality Metric Calculation (Priority: P2)
 
-The system MUST calculate ownership concentration (Gini coefficient for commit distribution per module) using shallow history (depth 1000) up to time T, code churn (lines added/deleted) as a control variable, cyclomatic complexity using `radon`, and normalize metrics per module (bugs per KLOC) for time window T+1. Modules deleted between T and T+1 are excluded from BOTH the predictor (ownership concentration) and outcome (bug density) calculations to prevent survivorship bias.
+The system MUST calculate ownership concentration (Gini coefficient for commit distribution per module) using shallow history (a bounded depth) up to time T, code churn (lines added/deleted) as a control variable, cyclomatic complexity using `radon`, and normalize metrics per module (bugs per KLOC) for time window T+1. Modules deleted between T and T+1 are excluded from BOTH the predictor (ownership concentration) and outcome (bug density) calculations to prevent survivorship bias.
 
 **Why this priority**: This enables the core analytical relationship between ownership concentration and quality outcomes. Without these metrics, correlation analysis cannot proceed.
 
@@ -75,14 +75,14 @@ The system MUST perform Spearman rank correlation analysis between ownership Gin
 - **FR-005**: System MUST generate scatter plots with regression lines using `matplotlib` saved as PNG files (≥300 DPI) for ≥8 repositories (See US-3)
 - **FR-006**: System MUST implement exponential backoff for GitHub API rate limiting with ≤3 retries and ≥60-second delay between attempts (See US-1)
 - **FR-007**: System MUST store intermediate CSVs to disk to avoid memory accumulation, ensuring peak RAM usage ≤7 GB at any point (See US-1)
-- **FR-008**: System MUST enforce temporal separation: Ownership metrics calculated on commits from time window T (defined as T-6 months to T, where T is the date of the latest commit), and Bug counts extracted from issues reported in time window T+1 (defined as the 6 months following T). Modules deleted between T and T+1 are excluded from both predictor and outcome calculations (See US-2)
+- **FR-008**: System MUST enforce temporal separation: Ownership metrics calculated on commits from time window T (defined as T-6 months to T, where T is the date of the latest commit), and Bug counts extracted from issues reported in a subsequent time window (defined as the period following T). Modules deleted between T and T+1 are excluded from both predictor and outcome calculations (See US-2)
 - **FR-009**: System MUST link bugs to modules using a Bug-File Proximity Heuristic defined as: (1) exact match of the full filename (case-insensitive, path-normalized) of the issue title/description against the file path. Path-normalization is defined as: lowercase, remove trailing .bak/.pyc/.min.js/.lock, and normalize slashes to '/'. If the issue text contains 'src/main.py', it must match 'src/main.py' exactly (word-boundary match). Condition (2) (assignee match) is REMOVED to prevent circular validation. (See US-1)
 - **FR-010**: System MUST frame all statistical findings as associational rather than causal, explicitly noting the observational nature of the study in the final report (See US-3)
 - **FR-011**: System MUST apply multiple-comparison correction (Bonferroni or Benjamini-Hochberg) when testing >1 hypothesis to control family-wise error rate (See US-3)
 - **FR-012**: System MUST perform a sensitivity analysis on the statistical significance threshold (p-value) by sweeping values over a set of low learning rates and report how the count of significant findings varies across these cutoffs (See US-3)
 - **FR-013**: System MUST calculate Variance Inflation Factor (VIF) for predictors (Gini, Gini², Size, Age) and flag if VIF ≥5, requiring a descriptive framing of the joint relationship rather than independent effect claims. Gini² is defined as the square of the Gini coefficient (See US-3)
 - **FR-014**: System MUST validate dataset-variable fit by confirming commit history contains all required variables (committers, timestamps, file paths, line counts); if missing, the repository is skipped and logged (See US-1)
-- **FR-015**: System MUST perform a sensitivity analysis on the correlation magnitude threshold (|ρ|) by sweeping values over the set {0.2, 0.3, 0.4} and report how the count of significant findings varies across these cutoffs (See US-3)
+- **FR-015**: System MUST perform a sensitivity analysis on the correlation magnitude threshold (|ρ|) by sweeping values over the set {, 0.3, 0.4} and report how the count of significant findings varies across these cutoffs (See US-3)
 - **FR-016**: System MUST test for non-linearity by fitting a quadratic regression model (Outcome ~ Gini + Gini² + Size + Age) and report if the Gini² term is statistically significant (p < 0.05) (See US-3)
 
 ### Non-Functional Requirements
@@ -114,10 +114,10 @@ The system MUST perform Spearman rank correlation analysis between ownership Gin
 - **SC-005**: Total execution time is measured against the 6-hour GitHub Actions free-tier limit, with total runtime ≤6 hours (See US-1)
 - **SC-006**: Code churn correlation with bug density is measured and reported as a secondary outcome (See US-2)
 - **SC-007**: Bug-File linkage rate is measured against the total number of issues reported in time window T+1 that mention at least one file path in the repository, calculated as a global aggregate across all included repositories, and reported as a percentage (See US-1)
-- **SC-008**: The sensitivity analysis of the p-value threshold is measured by the variance in the count of significant findings across the sweep {0.01, 0.05, 0.1} (See US-3)
+- **SC-008**: The sensitivity analysis of the p-value threshold is measured by the variance in the count of significant findings across a sweep of conventional significance levels. (See US-3)
 - **SC-009**: The collinearity diagnostic is measured by the maximum VIF value among predictors; if VIF ≥5, the report must explicitly state that independent effects are not claimed (See US-3)
 - **SC-010**: The multiple-comparison correction is measured by the presence of adjusted p-values or a corrected significance threshold in the final statistical output (See US-3)
-- **SC-011**: The sensitivity analysis of the correlation magnitude threshold is measured by the variance in the count of significant findings across the sweep {0.2, 0.3, 0.4} (See US-3)
+- **SC-011**: The sensitivity analysis of the correlation magnitude threshold is measured by the variance in the count of significant findings across a sweep of representative values. (See US-3)
 - **SC-012**: The non-linearity test is measured by the p-value of the Gini² term in the quadratic regression model (See US-3)
 
 ## Assumptions
@@ -128,7 +128,7 @@ The system MUST perform Spearman rank correlation analysis between ownership Gin
 - `radon` library successfully parses Python files for cyclomatic complexity in all repositories; other languages are excluded from complexity analysis
 - The analysis is observational (no random assignment), so all findings are framed as associational rather than causal
 - Multiple-comparison correction is applied when testing >1 hypothesis (e.g., Bonferroni or Benjamini-Hochberg) to control family-wise error rate
-- Any threshold introduced (e.g., p <0.05, |ρ| >0.3) carries a community-standard basis (standard significance level in empirical software engineering) and requires sensitivity analysis sweeping the threshold over {0.01, 0.05, 0.1} for p-value and {0.2, 0.3, 0.4} for correlation magnitude
+- Any threshold introduced (e.g., p <0.05, |ρ| >0.3) carries a community-standard basis (standard significance level in empirical software engineering) and requires sensitivity analysis sweeping the threshold over a range of standard significance levels for p-value and {0.2, 0.3, 0.4} for correlation magnitude
 - If two predictors are definitionally related (e.g., Gini coefficient and Gini²), the analysis frames their joint relationship descriptively and requires a collinearity diagnostic (VIF ≥5 indicates problematic collinearity); Gini² is a quadratic transformation of the sole ownership metric, not a separate variable
 - No GPU/CUDA accelerators are required; all computation runs on CPU-only GitHub Actions free-tier runner
 - Intermediate CSVs are written to disk rather than retained in memory to stay within 7 GB RAM / 14 GB disk constraints

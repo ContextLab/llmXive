@@ -1,0 +1,56 @@
+[build-system]
+requires = ["setuptools>=45", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "quantifying-code-ownership"
+version = "0.1.0"
+description = "Automated science pipeline for quantifying code ownership impact"
+requires-python = ">=3.8"
+dependencies = [
+    "GitPython",
+    "scikit-learn",
+    "scipy",
+    "pandas",
+    "numpy",
+    "radon",
+    "matplotlib",
+    "pyyaml"
+]
+
+[project.optional-dependencies]
+dev = [
+    "flake8",
+    "black",
+    "isort",
+    "pytest",
+    "pytest-cov"
+]
+
+[tool.black]
+line-length = 88
+target-version = ['py38', 'py39', 'py310', 'py311']
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
+)/
+'''
+
+[tool.isort]
+profile = "black"
+line_length = 88
+known_first_party = ["setup_project", "utils", "data_collection", "metrics_calc", "statistical_analysis"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+addopts = "-v --cov=code --cov-report=term-missing"

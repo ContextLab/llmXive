@@ -1,137 +1,212 @@
-$schema: "http://json-schema.org/draft-07/schema#"
-title: "Statistical Output Schema"
-description: "Schema for the final JSON results (correlation, VIF, sensitivity analysis, linkage rate)."
-type: "object"
-properties:
-  correlation_summary:
-    type: "object"
-    description: "Primary Spearman correlation results."
-    properties:
-      rho:
-        type: "number"
-        minimum: -1.0
-        maximum: 1.0
-        description: "Spearman correlation coefficient between Gini and Bug Density."
-      p_value:
-        type: "number"
-        description: "P-value for the correlation test."
-      ci_lower:
-        type: "number"
-        description: "Lower bound of 95% confidence interval."
-      ci_upper:
-        type: "number"
-        description: "Upper bound of 95% confidence interval."
-      vif_max:
-        type: "number"
-        description: "Maximum VIF among linear predictors (Gini, Size, Age)."
-      quadratic_lrt_p_value:
-        type: "number"
-        description: "P-value from Likelihood Ratio Test for non-linearity (Quadratic vs Linear)."
-      multiple_comparison_corrected:
-        type: "boolean"
-        description: "True if Bonferroni or Benjamini-Hoch correction was applied."
-      is_observational:
-        type: "boolean"
-        description: "Always true; indicates findings are associational."
-    required:
-      - rho
-      - p_value
-      - ci_lower
-      - ci_upper
-      - vif_max
-      - quadratic_lrt_p_value
-      - multiple_comparison_corrected
-      - is_observational
-
-  secondary_outcomes:
-    type: "object"
-    description: "Secondary metrics and diagnostics."
-    properties:
-      churn_correlation:
-        type: "object"
-        description: "Spearman correlation between Code Churn and Bug Density (SC-006)."
-        properties:
-          rho:
-            type: "number"
-            description: "Spearman correlation coefficient between Code Churn and Bug Density."
-          p_value:
-            type: "number"
-            description: "P-value for the correlation test."
-        required:
-          - rho
-          - p_value
-      linkage_rate:
-        type: "number"
-        description: "Percentage of issues that successfully linked to a file path (SC-007)."
-    required:
-      - churn_correlation
-      - linkage_rate
-
-  sensitivity_analysis:
-    type: "object"
-    description: "Results of threshold sweeps."
-    properties:
-      p_value_sweep:
-        type: "object"
-        description: "Counts of significant findings for p-value thresholds (FR-012, SC-008)."
-        properties:
-          "0.01":
-            type: "integer"
-            description: "Count of significant findings at p < 0.01."
-          "0.05":
-            type: "integer"
-            description: "Count of significant findings at p < 0.05."
-          "0.1":
-            type: "integer"
-            description: "Count of significant findings at p < 0.1."
-        required:
-          - "0.01"
-          - "0.05"
-          - "0.1"
-      correlation_sweep:
-        type: "object"
-        description: "Counts of significant findings for correlation magnitude thresholds (FR-015, SC-011)."
-        properties:
-          "0.2":
-            type: "integer"
-            description: "Count of significant findings at |ρ| > 0.2."
-          "0.3":
-            type: "integer"
-            description: "Count of significant findings at |ρ| > 0.3."
-          "0.4":
-            type: "integer"
-            description: "Count of significant findings at |ρ| > 0.4."
-        required:
-          - "0.2"
-          - "0.3"
-          - "0.4"
-    required:
-      - p_value_sweep
-      - correlation_sweep
-
-  metadata:
-    type: "object"
-    description: "Execution metadata."
-    properties:
-      total_repos_processed:
-        type: "integer"
-        description: "Number of valid repositories processed."
-      total_modules_analyzed:
-        type: "integer"
-        description: "Total number of modules in the dataset."
-      execution_time_seconds:
-        type: "number"
-        description: "Total runtime in seconds."
-      peak_ram_gb:
-        type: "number"
-        description: "Peak RAM usage in GB."
-    required:
-      - total_repos_processed
-      - total_modules_analyzed
-      - execution_time_seconds
-      - peak_ram_gb
+$schema: http://json-schema.org/draft-07/schema#
+title: Code Ownership Analysis Output Schema
+description: >
+  Schema for final statistical analysis results and metrics.
+  Produced by US2 (Metrics) and US3 (Statistical Analysis).
+type: object
 required:
-  - correlation_summary
-  - secondary_outcomes
-  - sensitivity_analysis
   - metadata
+  - metrics_summary
+  - statistical_results
+properties:
+  metadata:
+    type: object
+    required:
+      - project_name
+      - schema_version
+      - generated_at
+      - analysis_window
+    properties:
+      project_name:
+        type: string
+      schema_version:
+        type: string
+      generated_at:
+        type: string
+        format: date-time
+      analysis_window:
+        type: object
+        required:
+          - t_start
+          - t_end
+        properties:
+          t_start:
+            type: integer
+            description: Unix timestamp for start of analysis window (T)
+          t_end:
+            type: integer
+            description: Unix timestamp for end of analysis window (T+1)
+  metrics_summary:
+    type: array
+    description: Aggregated metrics per module
+    items:
+      type: object
+      required:
+        - repo_id
+        - module_path
+        - gini_coefficient
+        - code_churn
+        - cyclomatic_complexity
+        - bug_density
+        - module_size_kloc
+        - module_age_days
+      properties:
+        repo_id:
+          type: string
+        module_path:
+          type: string
+        gini_coefficient:
+          type: number
+          minimum: 0.0
+          maximum: 1.0
+          description: Ownership concentration (0=equal, 1=one owner)
+        code_churn:
+          type: integer
+          description: Total lines added/deleted in window
+        cyclomatic_complexity:
+          type: number
+          description: Aggregate complexity score for the module
+        bug_density:
+          type: number
+          description: Bugs per KLOC in the window
+        module_size_kloc:
+          type: number
+          minimum: 0.0
+          description: Size in thousands of lines of code
+        module_age_days:
+          type: number
+          description: Age of the module in days
+        excluded:
+          type: boolean
+          default: false
+          description: True if module was deleted between T and T+1
+  statistical_results:
+    type: object
+    required:
+      - spearman_correlations
+      - vif_diagnostics
+      - non_linearity_test
+      - sensitivity_analysis
+      - framing_notes
+    properties:
+      spearman_correlations:
+        type: array
+        description: Correlation results between ownership and quality metrics
+        items:
+          type: object
+          required:
+            - predictor
+            - outcome
+            - coefficient
+            - p_value
+            - confidence_interval
+            - is_significant
+          properties:
+            predictor:
+              type: string
+              enum: [gini, code_churn, complexity, size, age]
+            outcome:
+              type: string
+              enum: [bug_density, bug_count]
+            coefficient:
+              type: number
+            p_value:
+              type: number
+              minimum: 0.0
+              maximum: 1.0
+            confidence_interval:
+              type: object
+              required:
+                - lower
+                - upper
+              properties:
+                lower:
+                  type: number
+                upper:
+                  type: number
+            is_significant:
+              type: boolean
+              description: After multiple-comparison correction
+      vif_diagnostics:
+        type: object
+        description: Variance Inflation Factor for predictors
+        required:
+          - values
+          - max_vif
+          - multicollinearity_flag
+        properties:
+          values:
+            type: object
+            additionalProperties:
+              type: number
+            description: VIF score for each predictor
+          max_vif:
+            type: number
+          multicollinearity_flag:
+            type: boolean
+            description: True if any VIF >= 5
+      non_linearity_test:
+        type: object
+        description: Results of quadratic model vs linear model comparison
+        required:
+          - lrt_statistic
+          - lrt_p_value
+          - quadratic_coeff_p_value
+          - is_nonlinear
+        properties:
+          lrt_statistic:
+            type: number
+            description: Likelihood Ratio Test statistic
+          lrt_p_value:
+            type: number
+          quadratic_coeff_p_value:
+            type: number
+            description: P-value for the Gini^2 coefficient
+          is_nonlinear:
+            type: boolean
+      sensitivity_analysis:
+        type: object
+        description: Sensitivity to p-value and correlation thresholds
+        properties:
+          p_value_thresholds:
+            type: object
+            additionalProperties:
+              type: integer
+            description: Map of p-value threshold to count of significant findings
+          correlation_thresholds:
+            type: object
+            additionalProperties:
+              type: integer
+            description: Map of correlation magnitude threshold to count
+      framing_notes:
+        type: array
+        items:
+          type: string
+        description: Explicit statements about associational nature of findings
+      multiple_comparison_correction:
+        type: object
+        required:
+          - method
+          - adjusted_p_values
+        properties:
+          method:
+            type: string
+            enum: [bonferroni, benjamini_hochberg]
+          adjusted_p_values:
+            type: array
+            items:
+              type: object
+              required:
+                - predictor
+                - outcome
+                - original_p
+                - adjusted_p
+              properties:
+                predictor:
+                  type: string
+                outcome:
+                  type: string
+                original_p:
+                  type: number
+                adjusted_p:
+                  type: number
