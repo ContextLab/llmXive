@@ -1,5 +1,29 @@
-? "T056 Ensure driver script creates `output/manifest.json` with SHA256 hashes for\
-  \ all generated files (via `src/utils/manifest.py`) (FR\u2011024) **and invoke T095a\
-  \ to record these hashes in the state YAML** (verify manifest exists and contains\
-  \ hashes)."
+"T043 Unit tests for binomial test and CI width \u2264 0.10 (tests/unit/test_prevalence.py) (verify test passes).": 2
+? "T043 Unit tests for binomial test and CI width \u2264 0.10 (tests/unit/test_prevalence.py)\
+  \ (verify test passes). [UNRESOLVED-CLAIM: c_ae78747a \u2014 status=not_enough_info]"
+: 1
+? "T057 Add schema validation step after audit generation to validate `audit_report.json`\
+  \ against `contracts/audit_record.schema.yaml` (FR\u2011026) (verify validation\
+  \ passes) [DEPENDS ON: T056]."
+: 2
+? 'T058 Add schema validation step for `manifest.json` against `contracts/manifest.schema.yaml`
+  (plan.md) (verify validation passes) [DEPENDS ON: T056].'
+: 2
+? "T059 Implement consistency checker in `src/audit/export_validator.py` that reads\
+  \ JSON and CSV, compares counts, and logs `ERR-201` if mismatch (plan.md) (verify\
+  \ no ERR\u2011201 logged) [DEPENDS ON: T056]."
+: 1
+? 'T060 Unit test for export validator with deliberately mismatched files (tests/unit/test_export_validator.py)
+  (verify test catches mismatch) [DEPENDS ON: T056].'
+: 1
+? "T062 Implement Monte\u2011Carlo validation module (FR\u2011026) in `src/audit/monte_carlo_validation.py`\
+  \ that runs 10\u202F000 replicates for each statistical test (z-test, Fisher's,\
+  \ Welch's, binomial) and checks the absolute difference \u2264 0.005 (constraint\u2011\
+  preservation\u2011e62a0df4) (verify module exits with status 0)."
+: 1
+? "T062 Implement Monte\u2011Carlo validation module (FR\u2011026) in `src/audit/monte_carlo_validation.py`\
+  \ that runs 10\u202F000 replicates for each statistical test (z-test, Fisher's,\
+  \ Welch's, binomial) and checks the absolute difference \u2264 0.005 [UNRESOLVED-CLAIM:\
+  \ c_7cbef01d \u2014 status=not_enough_info] (constraint\u2011preservation\u2011\
+  e62a0df4) (verify module exits with status 0)."
 : 1

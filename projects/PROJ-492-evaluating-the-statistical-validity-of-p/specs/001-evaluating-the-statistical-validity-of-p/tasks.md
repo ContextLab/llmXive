@@ -3,7 +3,7 @@
 **Input**: Design documents from `/specs/001-eval-ab-test-validity/`
 **Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
 
-**Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification. [UNRESOLVED-CLAIM: c_bbbc9874 — status=not_enough_info]
+**Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
 
 **Organization**: Tasks are grouped by user story to enable independent implementation and testing of each user story.
 
@@ -94,7 +94,7 @@
 - [X] T026 Implement synthetic dataset generator in `src/audit/synthetic.py` (FR‑030) – outputs `data/synthetic/synthetic_validation.csv` + `data/synthetic/synthetic_ground_truth.json` with at least 10 000 simulated summaries (binary AND continuous outcomes) **and verify both outcome types are present** (constraint‑preservation‑2958f04c) (verify files are created and contain ≥ 10 000 records). **DEPENDS ON:** T006‑T012.
 - [X] T028 Implement power‑analysis utility in `src/audit/power_analysis.py` (FR‑025) that computes the minimum N given baseline, detectable effect, α and power, writes result to `output/power_analysis.json`, **and asserts audited corpus meets N ≥ 300 OR N ≥ calculated_minimum ** (constraint‑preservation‑ba913176) (verify JSON file exists, contains numeric N, and satisfies condition). **DEPENDS ON:** T010.
 - [X] T029 Evaluate inconsistency‑detection component on synthetic validation dataset (FR‑031) – compute precision, recall, F1 and assert precision ≥ 90 %, recall ≥ 80 %, F1 ≥ 0.85 (depends on T026) (verify test passes, otherwise raise `ERR-800`) [DEPENDS ON: T026].
-- [X] T062 Implement Monte‑Carlo validation module (FR‑026) in `src/audit/monte_carlo_validation.py` that runs 10 000 replicates for each statistical test (z-test, Fisher's, Welch's, binomial) and checks the absolute difference ≤ 0.005 (constraint‑preservation‑e62a0df4) (verify module exits with status 0).
+- [ ] T062 Implement Monte‑Carlo validation module (FR‑026) in `src/audit/monte_carlo_validation.py` that runs 10 000 replicates for each statistical test (z-test, Fisher's, Welch's, binomial) and checks the absolute difference ≤ 0.005 (constraint‑preservation‑e62a0df4) (verify module exits with status 0).
 - [X] T031 **[P]** Run Monte‑Carlo validation (from T062) as part of pipeline start‑up; abort with `ERR-801` if any test fails the ≤ 0.005 criterion (T031 runs T062 module internally). **DEPENDS ON:** T062.
 - [X] T032 Implement end‑to‑end driver script `src/cli/run_audit.py` that orchestrates ingestion → fetch → extract → reconstruct → validate → write artifacts (verify script exits with status 0 on success). **DEPENDS ON:** T025, T028, T029, T031.
 - [X] T033 Integration test that runs driver on synthetic dataset, computes precision/recall/F1 and aborts with `ERR-800` if thresholds not met (tests/integration/test_synthetic_validation.py) (verify test passes) [DEPENDS ON: T026].
@@ -122,7 +122,7 @@
 
 - [X] T042 Implement binomial prevalence test, Wilson CI, **and sensitivity analysis** (FR‑005a & FR‑005b) in `src/audit/prevalence.py` including dynamic Bonferroni correction (α = 0.05 / number_of_subgroups) per FR‑032 (verify JSON output contains required fields including sensitivity analysis results).
 - [X] T042b **[P]** Verify that `prevalence.json` does **not** contain any entries flagged for sample‑size mismatch (cross‑check with T025c). (depends on T025c)
-- [X] T043 Unit tests for binomial test and CI width ≤ 0.10 (tests/unit/test_prevalence.py) (verify test passes).
+- [ ] T043 Unit tests for binomial test and CI width ≤ 0.10 (tests/unit/test_prevalence.py) (verify test passes).
 - [X] T044 **[P]** Domain Bias Subsampling – create a balanced subsample of the corpus so that no single domain exceeds 30 % before bias adjustment (FR‑027). (writes `data/subsampled_balanced.csv`). **DEPENDS ON:** T006‑T012.
 - [X] T045 Implement bias‑adjustment module that computes domain‑weighted prevalence using domain‑weighted averaging (FR‑027) **and either subsamples the dominant domain *or* flags a violation** per FR‑027 (constraint‑preservation‑01844dd3) in `src/audit/bias_adjustment.py` (verify bias‑adjusted rate is written and appropriate action taken when any domain exceeds 30 %). **DEPENDS ON:** T044.
 - [X] T046 Unit tests for bias‑adjustment ensuring no domain exceeds 30 % proportion (tests/unit/test_bias_adjustment.py) (verify test passes).
@@ -151,7 +151,7 @@
 
 ### Implementation for User Story 3
 
-- [ ] T056 Ensure driver script creates `output/manifest.json` with SHA256 hashes for all generated files (via `src/utils/manifest.py`) (FR‑024) **and invoke T095a to record these hashes in the state YAML** (verify manifest exists and contains hashes).
+- [X] T056 Ensure driver script creates `output/manifest.json` with SHA256 hashes for all generated files (via `src/utils/manifest.py`) (FR‑024) **and invoke T095a to record these hashes in the state YAML** (verify manifest exists and contains hashes).
 - [ ] T057 Add schema validation step after audit generation to validate `audit_report.json` against `contracts/audit_record.schema.yaml` (FR‑026) (verify validation passes) [DEPENDS ON: T056].
 - [ ] T058 Add schema validation step for `manifest.json` against `contracts/manifest.schema.yaml` (plan.md) (verify validation passes) [DEPENDS ON: T056].
 - [ ] T059 Implement consistency checker in `src/audit/export_validator.py` that reads JSON and CSV, compares counts, and logs `ERR-201` if mismatch (plan.md) (verify no ERR‑201 logged) [DEPENDS ON: T056].
@@ -244,7 +244,7 @@
 - [ ] T097b Implement documentation DOC003: Data provenance guide in `docs/data_provenance.md` (Constitution Principle VII) (verify doc exists and covers URL tracking, checksums, manifest). *(Note: T097b name retained for documentation only; no duplicate CI check.)*
 - [ ] T099 Implement governance invalidation mechanism in `src/utils/governance.py` (Constitution Principle V) **and** update `state/projects/PROJ-492-evaluating-the-statistical-validity-of-p.yaml` `updated_at` timestamp via T095a (addresses constraint‑preservation‑a5829d58) (verify code executes and doc exists).
 - [ ] T099b Verify that any artifact change triggers the `updated_at` timestamp update (see T095a) (addresses constraint‑preservation‑a5829d58).
-- [ ] T100a **[P]** Run Reference‑Validator Agent after each artifact write (e.g., after manifest generation, after checksum file creation) to ensure citations are reachable and title‑overlap ≥ 0.7; log results. (addresses Constitution checkpoint 1).
+- [ ] T100a **[P]** {{claim:c_23dc9564}}
 - [ ] T100b **[P]** Run Reference‑Validator Agent before Advancement‑Evaluator gate to re‑validate all citations; abort if any fail. (addresses Constitution checkpoint 2).
 - [ ] T100c **[P]** Run Reference‑Validator Agent at the research_review → research_accepted transition; ensure all citations pass before final acceptance. (addresses Constitution checkpoint 3).
 - [ ] T101 Implement documentation DOC004: Governance policy in `docs/governance_policy.md` (verify existence).

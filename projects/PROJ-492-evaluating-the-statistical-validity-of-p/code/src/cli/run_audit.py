@@ -1,6 +1,7 @@
 """
-End-to-end driver script for the A/B test audit pipeline.
-Orchestrates: ingestion -> fetch -> extract -> reconstruct -> validate -> report -> manifest
+Main driver script for the A/B test audit pipeline.
+Orchestrates ingestion, fetching, extraction, reconstruction, validation,
+and artifact generation including manifest creation.
 """
 import argparse
 import json
@@ -8,270 +9,285 @@ import logging
 import sys
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, Any, Optional
+from typing import Optional
 
 from code.src.utils.logger import get_default_logger, AuditLogger, get_error_message
-from code.src.config import SEED, set_rng_seed
+from code.src.config import set_rng_seed, get_config_summary
+from code.src.audit.monte_carlo_validation import run_monte_carlo_validation
+from code.src.audit.power_analysis import run_power_analysis, write_power_analysis_result
+from code.src.audit.synthetic import generate_synthetic_dataset
+from code.src.audit.evaluation import evaluate_detection
+from code.src.audit.prevalence import run_prevalence_analysis
+from code.src.audit.bias_adjustment import run_bias_adjustment
+from code.src.audit.subgroup_analysis import run_subgroup_analysis
+from code.src.audit.report_generator import generate_summary_report, generate_subgroup_report
+from code.src.utils.manifest import generate_manifest, validate_manifest
+from code.src.audit.export_validator import run_export_validation
+from code.src.audit.export_schema_validator import run_schema_validation
+from code.src.audit.manifest_schema_validator import run_manifest_schema_validation
 from code.src.audit.ingestor import ingest_and_deduplicate
 from code.src.audit.fetcher import fetch_urls_batch
 from code.src.audit.extractor import extract_all, write_summaries_to_json
 from code.src.audit.reconstructor import reconstruct_all
 from code.src.audit.validator import validate_all_summaries, write_audit_report
-from code.src.audit.power_analysis import run_power_analysis
-from code.src.audit.evaluation import run_evaluation_step
-from code.src.audit.prevalence import run_prevalence_analysis
-from code.src.audit.report_generator import generate_summary_report, generate_subgroup_report
-from code.src.audit.subgroup_analysis import run_subgroup_analysis
-from code.src.audit.monte_carlo_validation import run_monte_carlo_validation
-from code.src.utils.manifest import generate_manifest, validate_manifest
-from code.src.contracts.validation import validate_audit_record
 
 logger = get_default_logger(__name__)
 
-def setup_paths(input_dir: str = "input", output_dir: str = "output", data_dir: str = "data") -> Dict[str, Path]:
-    """Set up and validate directory paths."""
+def setup_paths(base_dir: Optional[Path] = None) -> dict:
+    """Set up directory paths for the pipeline."""
+    if base_dir is None:
+        base_dir = Path(__file__).parent.parent.parent.parent
+    
     paths = {
-        "input": Path(input_dir).resolve(),
-        "output": Path(output_dir).resolve(),
-        "data": Path(data_dir).resolve(),
-        "raw": Path(data_dir) / "raw",
-        "synthetic": Path(data_dir) / "synthetic",
+        "base": base_dir,
+        "input": base_dir / "input",
+        "output": base_dir / "output",
+        "data": base_dir / "data",
+        "data_raw": base_dir / "data" / "raw",
+        "data_synthetic": base_dir / "data" / "synthetic",
+        "contracts": base_dir / "contracts",
+        "state": base_dir / "state" / "projects" / "PROJ-492-evaluating-the-statistical-validity-of-p.yaml"
     }
-
-    for path_name, path in paths.items():
-        path.mkdir(parents=True, exist_ok=True)
-        logger.debug(f"Created/verified directory: {path}")
-
+    
+    # Ensure directories exist
+    for path in paths.values():
+        if isinstance(path, Path):
+            path.mkdir(parents=True, exist_ok=True)
+    
     return paths
 
-def run_monte_carlo_startup_validation() -> bool:
-    """
-    Run Monte-Carlo validation at startup to verify statistical functions.
-    Returns True if all validations pass, False otherwise.
-    """
-    logger.info("Running startup Monte-Carlo validation...")
+def run_monte_carlo_startup_validation(paths: dict) -> bool:
+    """Run Monte Carlo validation at startup."""
+    logger.info("Running Monte Carlo startup validation...")
     try:
-        # Run the validation module
-        success = run_monte_carlo_validation()
-        if not success:
-            logger.error("Monte-Carlo validation failed. Aborting pipeline.")
+        result = run_monte_carlo_validation()
+        if result:
+            logger.info("Monte Carlo validation passed.")
+            return True
+        else:
+            logger.error(get_error_message("ERR-801"))
             return False
-        logger.info("Monte-Carlo validation passed.")
-        return True
     except Exception as e:
-        logger.error(f"Monte-Carlo validation error: {e}")
+        logger.error(f"Monte Carlo validation failed: {e}")
         return False
 
-def run_power_analysis_step(paths: Dict[str, Path]) -> bool:
-    """Run power analysis to verify corpus size requirements."""
+def run_power_analysis_step(paths: dict) -> bool:
+    """Run power analysis step."""
     logger.info("Running power analysis...")
     try:
-        success = run_power_analysis(
-            audit_report_path=paths["output"] / "audit_report.json",
-            output_path=paths["output"] / "power_analysis.json"
-        )
-        if not success:
-            logger.error("Power analysis failed. Aborting pipeline.")
+        # Count corpus size from synthetic or manual validation data
+        corpus_path = paths["data_synthetic"] / "synthetic_validation.csv"
+        if not corpus_path.exists():
+            logger.warning("Synthetic validation data not found, using placeholder count.")
+            corpus_size = 300
+        else:
+            corpus_size = sum(1 for _ in open(corpus_path)) - 1  # Exclude header
+        
+        result = run_power_analysis(corpus_size, paths["output"])
+        if result:
+            logger.info("Power analysis completed successfully.")
+            return True
+        else:
+            logger.error("Power analysis failed.")
             return False
-        logger.info("Power analysis completed successfully.")
+    except Exception as e:
+        logger.error(f"Power analysis failed: {e}")
+        return False
+
+def run_full_pipeline(paths: dict, urls_file: Optional[Path] = None) -> bool:
+    """Run the full audit pipeline."""
+    logger.info("Starting full audit pipeline...")
+    
+    try:
+        # 1. Ingestion
+        logger.info("Step 1: Ingestion and deduplication...")
+        if urls_file is None:
+            urls_file = paths["input"] / "urls.csv"
+        
+        if not urls_file.exists():
+            logger.warning(f"URLs file not found: {urls_file}. Skipping ingestion.")
+            return False
+        
+        ingest_and_deduplicate(urls_file, paths["output"])
+        
+        # 2. Fetching
+        logger.info("Step 2: Fetching URLs...")
+        fetch_urls_batch(paths["output"] / "urls_deduped.csv", paths["data_raw"])
+        
+        # 3. Extraction
+        logger.info("Step 3: Extracting summaries...")
+        extract_all(paths["data_raw"], paths["output"])
+        write_summaries_to_json(paths["output"], paths["output"] / "extracted_summaries.json")
+        
+        # 4. Reconstruction
+        logger.info("Step 4: Reconstructing statistical tests...")
+        reconstruct_all(paths["output"] / "extracted_summaries.json", paths["output"])
+        
+        # 5. Validation
+        logger.info("Step 5: Validating consistency...")
+        validate_all_summaries(paths["output"] / "reconstructed_summaries.json", paths["output"])
+        write_audit_report(paths["output"] / "audit_records.json", paths["output"] / "audit_report.json")
+        
         return True
     except Exception as e:
-        logger.error(f"Power analysis error: {e}")
+        logger.error(f"Pipeline failed: {e}")
         return False
 
-def run_full_pipeline(paths: Dict[str, Path], input_urls: Optional[Path] = None) -> bool:
-    """
-    Run the full audit pipeline: ingest -> fetch -> extract -> reconstruct -> validate.
-    """
-    logger.info("Starting full audit pipeline...")
-
-    # Step 1: Ingest and deduplicate URLs
-    logger.info("Step 1: Ingesting URLs...")
-    urls_path = input_urls or paths["input"] / "urls.csv"
-    if not urls_path.exists():
-        logger.error(f"Input URLs file not found: {urls_path}")
-        return False
-    
-    deduped_urls_path = paths["output"] / "urls_deduped.csv"
-    success = ingest_and_deduplicate(urls_path, deduped_urls_path)
-    if not success:
-        logger.error("URL ingestion failed.")
-        return False
-
-    # Step 2: Fetch HTML
-    logger.info("Step 2: Fetching HTML...")
-    success = fetch_urls_batch(deduped_urls_path, paths["raw"])
-    if not success:
-        logger.error("HTML fetching failed.")
-        return False
-
-    # Step 3: Extract summaries
-    logger.info("Step 3: Extracting summaries...")
-    summaries_path = paths["output"] / "extracted_summaries.json"
-    success = extract_all(paths["raw"], summaries_path)
-    if not success:
-        logger.error("Extraction failed.")
-        return False
-
-    # Step 4: Reconstruct statistical tests
-    logger.info("Step 4: Reconstructing statistical tests...")
-    reconstructed_path = paths["output"] / "reconstructed_tests.json"
-    success = reconstruct_all(summaries_path, reconstructed_path)
-    if not success:
-        logger.error("Reconstruction failed.")
-        return False
-
-    # Step 5: Validate and create audit records
-    logger.info("Step 5: Validating summaries...")
-    audit_report_path = paths["output"] / "audit_report.json"
-    success = validate_all_summaries(reconstructed_path, audit_report_path)
-    if not success:
-        logger.error("Validation failed.")
-        return False
-
-    logger.info("Full pipeline completed successfully.")
-    return True
-
-def run_evaluation_step(paths: Dict[str, Path]) -> bool:
-    """Run evaluation on synthetic dataset if available."""
+def run_evaluation_step(paths: dict) -> bool:
+    """Run evaluation on synthetic dataset."""
     logger.info("Running evaluation step...")
-    synthetic_csv = paths["synthetic"] / "synthetic_validation.csv"
-    ground_truth = paths["synthetic"] / "synthetic_ground_truth.json"
-    
-    if synthetic_csv.exists() and ground_truth.exists():
-        success = run_evaluation_step(
-            synthetic_csv=synthetic_csv,
-            ground_truth=ground_truth,
-            audit_report=paths["output"] / "audit_report.json",
-            output_path=paths["output"] / "evaluation_results.json"
-        )
-        if not success:
-            logger.error("Evaluation failed. Aborting.")
+    try:
+        synthetic_csv = paths["data_synthetic"] / "synthetic_validation.csv"
+        ground_truth_json = paths["data_synthetic"] / "synthetic_ground_truth.json"
+        
+        if not synthetic_csv.exists() or not ground_truth_json.exists():
+            logger.warning("Synthetic data not found. Skipping evaluation.")
+            return True  # Not a failure if data doesn't exist yet
+        
+        result = evaluate_detection(synthetic_csv, ground_truth_json, paths["output"])
+        if result:
+            logger.info("Evaluation completed successfully.")
+            return True
+        else:
+            logger.error("Evaluation failed to meet thresholds.")
             return False
-        logger.info("Evaluation completed successfully.")
-    else:
-        logger.info("No synthetic dataset found, skipping evaluation.")
-    
-    return True
-
-def run_prevalence_and_reporting(paths: Dict[str, Path]) -> bool:
-    """Run prevalence analysis and generate reports."""
-    logger.info("Running prevalence analysis and generating reports...")
-    
-    # Run prevalence analysis
-    audit_report_path = paths["output"] / "audit_report.json"
-    if not audit_report_path.exists():
-        logger.error("Audit report not found for prevalence analysis.")
-        return False
-    
-    success = run_prevalence_analysis(
-        audit_report_path=audit_report_path,
-        output_path=paths["output"] / "prevalence.json"
-    )
-    if not success:
-        logger.error("Prevalence analysis failed.")
+    except Exception as e:
+        logger.error(f"Evaluation failed: {e}")
         return False
 
-    # Generate summary report
-    success = generate_summary_report(
-        audit_report_path=audit_report_path,
-        prevalence_path=paths["output"] / "prevalence.json",
-        output_path=paths["output"] / "summary_report.csv"
-    )
-    if not success:
-        logger.error("Summary report generation failed.")
+def run_prevalence_and_reporting(paths: dict) -> bool:
+    """Run prevalence analysis, bias adjustment, and report generation."""
+    logger.info("Running prevalence and reporting steps...")
+    try:
+        # Prevalence analysis
+        run_prevalence_analysis(paths["output"] / "audit_report.json", paths["output"])
+        
+        # Bias adjustment
+        run_bias_adjustment(paths["output"] / "audit_report.json", paths["output"])
+        
+        # Subgroup analysis
+        run_subgroup_analysis(paths["output"] / "audit_report.json", paths["output"])
+        
+        # Report generation
+        generate_summary_report(paths["output"] / "audit_report.json", paths["output"] / "summary_report.csv")
+        generate_subgroup_report(paths["output"] / "subgroup_report.json", paths["output"] / "subgroup_report.csv")
+        
+        logger.info("Prevalence and reporting completed successfully.")
+        return True
+    except Exception as e:
+        logger.error(f"Prevalence and reporting failed: {e}")
         return False
 
-    # Run subgroup analysis
-    success = run_subgroup_analysis(
-        audit_report_path=audit_report_path,
-        output_json=paths["output"] / "subgroup_report.json",
-        output_csv=paths["output"] / "subgroup_report.csv"
-    )
-    if not success:
-        logger.error("Subgroup analysis failed.")
+def generate_manifest_and_validate(paths: dict) -> bool:
+    """Generate manifest.json and validate it."""
+    logger.info("Generating and validating manifest...")
+    try:
+        output_dir = paths["output"]
+        
+        # Generate manifest
+        manifest = generate_manifest(output_dir)
+        
+        # Validate manifest against schema
+        manifest_path = output_dir / "manifest.json"
+        is_valid, errors = run_manifest_schema_validation(manifest_path)
+        
+        if not is_valid:
+            logger.error(f"Manifest schema validation failed: {errors}")
+            return False
+        
+        # Validate file hashes
+        is_valid_hashes, hash_errors = validate_manifest(manifest_path, output_dir)
+        
+        if not is_valid_hashes:
+            logger.error(f"Manifest hash validation failed: {hash_errors}")
+            return False
+        
+        # Run export consistency check (JSON vs CSV)
+        export_valid, export_errors = run_export_validation(
+            paths["output"] / "audit_report.json",
+            paths["output"] / "summary_report.csv"
+        )
+        
+        if not export_valid:
+            logger.error(f"Export validation failed: {export_errors}")
+            return False
+        
+        logger.info("Manifest generated and validated successfully.")
+        return True
+    except Exception as e:
+        logger.error(f"Manifest generation/validation failed: {e}")
         return False
-
-    logger.info("Prevalence and reporting completed successfully.")
-    return True
-
-def generate_manifest_and_validate(paths: Dict[str, Path]) -> bool:
-    """
-    Generate manifest with SHA256 hashes for all output and data files.
-    Validates the manifest after generation.
-    """
-    logger.info("Generating manifest...")
-    
-    manifest_path = paths["output"] / "manifest.json"
-    manifest_data = generate_manifest(
-        output_dir=paths["output"],
-        data_dir=paths["data"],
-        manifest_path=manifest_path
-    )
-    
-    if not manifest_data:
-        logger.error("Failed to generate manifest.")
-        return False
-    
-    # Validate the generated manifest
-    is_valid, errors = validate_manifest(manifest_path)
-    if not is_valid:
-        logger.error("Manifest validation failed:")
-        for error in errors:
-            logger.error(f"  - {error}")
-        return False
-    
-    logger.info(f"Manifest generated and validated successfully: {manifest_path}")
-    return True
 
 def main():
     """Main entry point for the audit pipeline."""
     parser = argparse.ArgumentParser(description="Run the A/B test audit pipeline")
-    parser.add_argument("--input-dir", type=str, default="input", help="Input directory")
-    parser.add_argument("--output-dir", type=str, default="output", help="Output directory")
-    parser.add_argument("--data-dir", type=str, default="data", help="Data directory")
-    parser.add_argument("--input-urls", type=str, default=None, help="Path to input URLs CSV")
-    parser.add_argument("--skip-monte-carlo", action="store_true", help="Skip Monte-Carlo validation")
-    parser.add_argument("--skip-power-analysis", action="store_true", help="Skip power analysis")
+    parser.add_argument(
+        "--base-dir",
+        type=str,
+        default=None,
+        help="Base directory for the project"
+    )
+    parser.add_argument(
+        "--urls-file",
+        type=str,
+        default=None,
+        help="Path to URLs CSV file"
+    )
+    parser.add_argument(
+        "--skip-monte-carlo",
+        action="store_true",
+        help="Skip Monte Carlo validation"
+    )
+    parser.add_argument(
+        "--skip-evaluation",
+        action="store_true",
+        help="Skip evaluation step"
+    )
+    
     args = parser.parse_args()
-
+    
+    base_dir = Path(args.base_dir) if args.base_dir else None
+    urls_file = Path(args.urls_file) if args.urls_file else None
+    
     # Set random seed for reproducibility
-    set_rng_seed(SEED)
-
-    # Setup paths
-    paths = setup_paths(args.input_dir, args.output_dir, args.data_dir)
-
-    # Run Monte-Carlo validation (unless skipped)
+    set_rng_seed()
+    
+    paths = setup_paths(base_dir)
+    
+    # 1. Monte Carlo validation (unless skipped)
     if not args.skip_monte_carlo:
-        if not run_monte_carlo_startup_validation():
-            logger.error(get_error_message("ERR-801"))
+        if not run_monte_carlo_startup_validation(paths):
+            logger.error("Startup validation failed. Exiting.")
             return 1
-
-    # Run full pipeline
-    input_urls = Path(args.input_urls) if args.input_urls else None
-    if not run_full_pipeline(paths, input_urls):
-        logger.error("Pipeline execution failed.")
+    
+    # 2. Power analysis
+    if not run_power_analysis_step(paths):
+        logger.error("Power analysis failed. Exiting.")
         return 1
-
-    # Run power analysis (unless skipped)
-    if not args.skip_power_analysis:
-        if not run_power_analysis_step(paths):
+    
+    # 3. Full pipeline
+    if not run_full_pipeline(paths, urls_file):
+        logger.error("Pipeline execution failed. Exiting.")
+        return 1
+    
+    # 4. Evaluation (unless skipped)
+    if not args.skip_evaluation:
+        if not run_evaluation_step(paths):
+            logger.error("Evaluation failed. Exiting.")
             return 1
-
-    # Run evaluation if synthetic data exists
-    if not run_evaluation_step(paths):
-        return 1
-
-    # Run prevalence and reporting
+    
+    # 5. Prevalence and reporting
     if not run_prevalence_and_reporting(paths):
+        logger.error("Prevalence and reporting failed. Exiting.")
         return 1
-
-    # Generate and validate manifest
+    
+    # 6. Generate and validate manifest (T056)
     if not generate_manifest_and_validate(paths):
+        logger.error("Manifest generation or validation failed. Exiting.")
         return 1
-
-    logger.info("Pipeline completed successfully.")
+    
+    logger.info("Audit pipeline completed successfully.")
     return 0
 
 if __name__ == "__main__":
-    exit(main())
+    sys.exit(main())

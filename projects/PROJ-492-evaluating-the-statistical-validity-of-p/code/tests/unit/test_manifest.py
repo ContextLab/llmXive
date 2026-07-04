@@ -1,183 +1,240 @@
 """
-Unit tests for manifest generation utility.
+Unit tests for manifest generation and validation.
 """
 import json
+import os
 import tempfile
-import hashlib
 from pathlib import Path
 import pytest
 
 from code.src.utils.manifest import (
     compute_sha256,
+    find_files_to_hash,
     generate_manifest,
     validate_manifest,
-    find_files_to_hash
+    main
 )
 
-def test_compute_sha256():
-    """Test SHA256 computation on a simple file."""
-    with tempfile.NamedTemporaryFile(mode='w', delete=False) as f:
-        f.write("Hello, World!")
-        temp_path = Path(f.name)
 
-    try:
-        expected_hash = hashlib.sha256(b"Hello, World!").hexdigest()
-        actual_hash = compute_sha256(temp_path)
-        assert actual_hash == expected_hash
-    finally:
-        temp_path.unlink()
-
-def test_compute_sha256_binary():
-    """Test SHA256 computation on a binary file."""
-    with tempfile.NamedTemporaryFile(mode='wb', delete=False) as f:
-        f.write(b"\x00\x01\x02\x03\x04")
-        temp_path = Path(f.name)
-
-    try:
-        expected_hash = hashlib.sha256(b"\x00\x01\x02\x03\x04").hexdigest()
-        actual_hash = compute_sha256(temp_path)
-        assert actual_hash == expected_hash
-    finally:
-        temp_path.unlink()
-
-def test_find_files_to_hash():
-    """Test file discovery with exclusions."""
-    with tempfile.TemporaryDirectory() as tmpdir:
-        tmp_path = Path(tmpdir)
+class TestComputeSha256:
+    def test_compute_sha256_known_file(self, tmp_path):
+        """Test SHA256 computation for a known file."""
+        test_file = tmp_path / "test.txt"
+        content = b"Hello, World!"
+        test_file.write_bytes(content)
         
-        # Create some files
+        hash_result = compute_sha256(test_file)
+        
+        # Known SHA256 for "Hello, World!"
+        expected_hash = "dffd6021bb2bd5b0af676290809ec3a53191dd81c7f70a4b28688a362182986f"
+        assert hash_result == expected_hash
+    
+    def test_compute_sha256_empty_file(self, tmp_path):
+        """Test SHA256 computation for an empty file."""
+        test_file = tmp_path / "empty.txt"
+        test_file.write_bytes(b"")
+        
+        hash_result = compute_sha256(test_file)
+        
+        # Known SHA256 for empty file
+        expected_hash = "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        assert hash_result == expected_hash
+    
+    def test_compute_sha256_file_not_found(self, tmp_path):
+        """Test that FileNotFoundError is raised for missing file."""
+        non_existent = tmp_path / "does_not_exist.txt"
+        with pytest.raises(FileNotFoundError):
+            compute_sha256(non_existent)
+
+
+class TestFindFilesToHash:
+    def test_find_files_basic(self, tmp_path):
+        """Test basic file discovery."""
         (tmp_path / "file1.txt").write_text("content1")
         (tmp_path / "file2.txt").write_text("content2")
-        (tmp_path / "__pycache__").mkdir()
-        (tmp_path / "__pycache__" / "cache.pyc").write_text("cache")
-        (tmp_path / "subdir").mkdir()
-        (tmp_path / "subdir" / "file3.txt").write_text("content3")
-
-        files = find_files_to_hash(tmp_path, exclude_patterns=["__pycache__", ".pyc"])
         
-        file_names = [f.name for f in files]
-        assert "file1.txt" in file_names
-        assert "file2.txt" in file_names
-        assert "file3.txt" in file_names
-        assert "cache.pyc" not in file_names
+        files = find_files_to_hash(tmp_path)
+        
+        assert len(files) == 2
+        assert all(f.name in ["file1.txt", "file2.txt"] for f in files)
+    
+    def test_find_files_recursive(self, tmp_path):
+        """Test recursive file discovery."""
+        subdir = tmp_path / "subdir"
+        subdir.mkdir()
+        (tmp_path / "file1.txt").write_text("content1")
+        (subdir / "file2.txt").write_text("content2")
+        
+        files = find_files_to_hash(tmp_path)
+        
+        assert len(files) == 2
+    
+    def test_find_files_excludes_pycache(self, tmp_path):
+        """Test that __pycache__ is excluded."""
+        pycache = tmp_path / "__pycache__"
+        pycache.mkdir()
+        (tmp_path / "file1.txt").write_text("content1")
+        (pycache / "cache.pyc").write_text("cache")
+        
+        files = find_files_to_hash(tmp_path)
+        
+        assert len(files) == 1
+        assert files[0].name == "file1.txt"
+    
+    def test_find_files_excludes_pyc(self, tmp_path):
+        """Test that .pyc files are excluded."""
+        (tmp_path / "file1.txt").write_text("content1")
+        (tmp_path / "file2.pyc").write_text("bytecode")
+        
+        files = find_files_to_hash(tmp_path)
+        
+        assert len(files) == 1
+        assert files[0].name == "file1.txt"
 
-def test_generate_manifest():
-    """Test manifest generation."""
-    with tempfile.TemporaryDirectory() as tmpdir:
-        tmp_path = Path(tmpdir)
-        output_dir = tmp_path / "output"
-        data_dir = tmp_path / "data"
+
+class TestGenerateManifest:
+    def test_generate_manifest_creates_file(self, tmp_path):
+        """Test that generate_manifest creates the manifest file."""
+        (tmp_path / "file1.txt").write_text("content1")
+        
+        manifest = generate_manifest(tmp_path)
+        
+        assert "generated_at" in manifest
+        assert "files" in manifest
+        assert "file1.txt" in manifest["files"]
+        assert "sha256" in manifest["files"]["file1.txt"]
+    
+    def test_generate_manifest_with_multiple_files(self, tmp_path):
+        """Test manifest generation with multiple files."""
+        (tmp_path / "file1.txt").write_text("content1")
+        (tmp_path / "file2.json").write_text('{"key": "value"}')
+        
+        manifest = generate_manifest(tmp_path)
+        
+        assert len(manifest["files"]) == 2
+        assert "file1.txt" in manifest["files"]
+        assert "file2.json" in manifest["files"]
+    
+    def test_generate_manifest_writes_to_disk(self, tmp_path):
+        """Test that manifest is written to disk."""
+        (tmp_path / "file1.txt").write_text("content1")
         manifest_path = tmp_path / "manifest.json"
         
-        output_dir.mkdir()
-        data_dir.mkdir()
+        generate_manifest(tmp_path, manifest_path)
         
-        # Create test files
-        (output_dir / "test1.json").write_text('{"key": "value1"}')
-        (data_dir / "test2.csv").write_text("a,b,c\n1,2,3")
-        
-        manifest_data = generate_manifest(output_dir, data_dir, manifest_path)
-        
-        assert "generated_at" in manifest_data
-        assert "version" in manifest_data
-        assert "files" in manifest_data
-        
-        # Check that both files are in the manifest
-        assert len(manifest_data["files"]) == 2
-        
-        # Verify the manifest file was written
         assert manifest_path.exists()
-        with open(manifest_path, 'r') as f:
-            loaded_manifest = json.load(f)
-        assert len(loaded_manifest["files"]) == 2
+        with open(manifest_path, "r") as f:
+            data = json.load(f)
+        assert "files" in data
+    
+    def test_generate_manifest_empty_directory(self, tmp_path):
+        """Test manifest generation for empty directory."""
+        manifest = generate_manifest(tmp_path)
+        
+        assert len(manifest["files"]) == 0
 
-def test_validate_manifest():
-    """Test manifest validation."""
-    with tempfile.TemporaryDirectory() as tmpdir:
-        tmp_path = Path(tmpdir)
-        output_dir = tmp_path / "output"
-        data_dir = tmp_path / "data"
-        manifest_path = tmp_path / "manifest.json"
-        
-        output_dir.mkdir()
-        data_dir.mkdir()
-        
-        # Create test files
-        (output_dir / "test1.json").write_text('{"key": "value1"}')
+
+class TestValidateManifest:
+    def test_validate_manifest_valid(self, tmp_path):
+        """Test validation of a valid manifest."""
+        (tmp_path / "file1.txt").write_text("content1")
         
         # Generate manifest
-        generate_manifest(output_dir, data_dir, manifest_path)
+        generate_manifest(tmp_path)
+        manifest_path = tmp_path / "manifest.json"
         
-        # Validation should pass
-        is_valid, errors = validate_manifest(manifest_path)
+        is_valid, errors = validate_manifest(manifest_path, tmp_path)
+        
         assert is_valid
         assert len(errors) == 0
-
-def test_validate_manifest_missing_file():
-    """Test manifest validation with missing file."""
-    with tempfile.TemporaryDirectory() as tmpdir:
-        tmp_path = Path(tmpdir)
-        output_dir = tmp_path / "output"
-        data_dir = tmp_path / "data"
-        manifest_path = tmp_path / "manifest.json"
-        
-        output_dir.mkdir()
-        data_dir.mkdir()
-        
-        # Create a test file
-        (output_dir / "test1.json").write_text('{"key": "value1"}')
+    
+    def test_validate_manifest_missing_file(self, tmp_path):
+        """Test validation when a file is missing."""
+        (tmp_path / "file1.txt").write_text("content1")
         
         # Generate manifest
-        generate_manifest(output_dir, data_dir, manifest_path)
+        generate_manifest(tmp_path)
+        manifest_path = tmp_path / "manifest.json"
         
         # Remove the file
-        (output_dir / "test1.json").unlink()
+        (tmp_path / "file1.txt").unlink()
         
-        # Validation should fail
-        is_valid, errors = validate_manifest(manifest_path)
+        is_valid, errors = validate_manifest(manifest_path, tmp_path)
+        
         assert not is_valid
         assert len(errors) == 1
         assert "missing" in errors[0].lower()
-
-def test_validate_manifest_hash_mismatch():
-    """Test manifest validation with hash mismatch."""
-    with tempfile.TemporaryDirectory() as tmpdir:
-        tmp_path = Path(tmpdir)
-        output_dir = tmp_path / "output"
-        data_dir = tmp_path / "data"
-        manifest_path = tmp_path / "manifest.json"
-        
-        output_dir.mkdir()
-        data_dir.mkdir()
-        
-        # Create a test file
-        test_file = output_dir / "test1.json"
-        test_file.write_text('{"key": "value1"}')
+    
+    def test_validate_manifest_hash_mismatch(self, tmp_path):
+        """Test validation when hash doesn't match."""
+        (tmp_path / "file1.txt").write_text("content1")
         
         # Generate manifest
-        generate_manifest(output_dir, data_dir, manifest_path)
+        generate_manifest(tmp_path)
         
         # Modify the file
-        test_file.write_text('{"key": "modified_value"}')
+        (tmp_path / "file1.txt").write_text("modified content")
         
-        # Validation should fail
-        is_valid, errors = validate_manifest(manifest_path)
+        manifest_path = tmp_path / "manifest.json"
+        is_valid, errors = validate_manifest(manifest_path, tmp_path)
+        
         assert not is_valid
         assert len(errors) == 1
         assert "mismatch" in errors[0].lower()
+    
+    def test_validate_manifest_missing_manifest_file(self, tmp_path):
+        """Test validation when manifest file is missing."""
+        is_valid, errors = validate_manifest(tmp_path / "nonexistent.json", tmp_path)
+        
+        assert not is_valid
+        assert len(errors) == 1
+        assert "not found" in errors[0].lower()
 
-def test_generate_manifest_empty_dirs():
-    """Test manifest generation with empty directories."""
-    with tempfile.TemporaryDirectory() as tmpdir:
-        tmp_path = Path(tmpdir)
-        output_dir = tmp_path / "output"
-        data_dir = tmp_path / "data"
-        manifest_path = tmp_path / "manifest.json"
+
+class TestMain:
+    def test_main_generate(self, tmp_path):
+        """Test main function with generate action."""
+        (tmp_path / "file1.txt").write_text("content1")
         
-        output_dir.mkdir()
-        data_dir.mkdir()
+        import sys
+        original_argv = sys.argv
+        sys.argv = ["test", "generate", "--output-dir", str(tmp_path)]
         
-        manifest_data = generate_manifest(output_dir, data_dir, manifest_path)
+        try:
+            result = main()
+            assert result == 0
+        finally:
+            sys.argv = original_argv
+    
+    def test_main_validate(self, tmp_path):
+        """Test main function with validate action."""
+        (tmp_path / "file1.txt").write_text("content1")
+        generate_manifest(tmp_path)
         
-        assert len(manifest_data["files"]) == 0
-        assert manifest_path.exists()
+        import sys
+        original_argv = sys.argv
+        sys.argv = ["test", "validate", "--output-dir", str(tmp_path)]
+        
+        try:
+            result = main()
+            assert result == 0
+        finally:
+            sys.argv = original_argv
+    
+    def test_main_validate_failure(self, tmp_path):
+        """Test main function with validate action when validation fails."""
+        (tmp_path / "file1.txt").write_text("content1")
+        generate_manifest(tmp_path)
+        
+        # Modify file to cause hash mismatch
+        (tmp_path / "file1.txt").write_text("modified")
+        
+        import sys
+        original_argv = sys.argv
+        sys.argv = ["test", "validate", "--output-dir", str(tmp_path)]
+        
+        try:
+            result = main()
+            assert result == 1
+        finally:
+            sys.argv = original_argv
