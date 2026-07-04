@@ -89,9 +89,9 @@ A researcher MUST be able to build a multivariate linear regression model using 
 > measured quantities, percentages) to the implementation/research phase.
 
 - **SC-001**: Dataset completeness rate is measured against the actual pass rate reported after filtering (See US-1)
-- **SC-002**: Conformer generation success rate is measured against the minimum threshold of 450 valid descriptors (See US-2)
+- **SC-002**: Conformer generation success rate is measured against a minimum threshold of valid descriptors. (See US-2)
 - **SC-003**: Correlation analysis is measured against completeness of reporting (r, p-value, FDR-corrected q-value for all descriptors) (See US-2)
-- **SC-004**: Model generalizability is measured against 5-fold cross-validation R² variance (standard deviation across folds) for the multivariate model (See US-3)
+- **SC-004**: Model generalizability is measured against k-fold cross-validation R² variance (standard deviation across folds) for the multivariate model (See US-3)
 - **SC-005**: Computational feasibility is measured against ≤6 hours total runtime on CPU-only GitHub Actions runner (See US-1, US-2, US-3)
 - **SC-006**: Protocol consistency is measured against the count of excluded records due to assay heterogeneity (See US-1)
 

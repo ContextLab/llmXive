@@ -1,0 +1,30 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Flexibility Descriptors Schema"
+type: object
+properties:
+  SMILES:
+    type: string
+    description: "Canonical SMILES string"
+  bond_variance:
+    type: number
+    description: "Variance of bond lengths across conformer ensemble (Å²)"
+  angle_variance:
+    type: number
+    description: "Variance of bond angles across conformer ensemble (rad²)"
+  dihedral_variance:
+    type: number
+    description: "Variance of dihedral angles across conformer ensemble (rad²)"
+  ensemble_size:
+    type: integer
+    description: "Number of conformers generated (fixed at 20)"
+  energy_window:
+    type: number
+    description: "Energy window in kcal/mol (fixed at 10)"
+required:
+  - SMILES
+  - bond_variance
+  - angle_variance
+  - dihedral_variance
+  - ensemble_size
+  - energy_window
+additionalProperties: false

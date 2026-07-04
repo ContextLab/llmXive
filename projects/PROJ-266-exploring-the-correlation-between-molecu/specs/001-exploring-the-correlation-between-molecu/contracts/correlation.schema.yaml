@@ -1,0 +1,40 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Correlation Results Schema"
+type: object
+properties:
+  descriptor_type:
+    type: string
+    enum: ["bond", "angle", "dihedral"]
+    description: "Type of flexibility descriptor"
+  method:
+    type: string
+    enum: ["Pearson", "Spearman"]
+    description: "Correlation method used"
+  r:
+    type: number
+    description: "Correlation coefficient"
+  p_value:
+    type: number
+    description: "Uncorrected p-value"
+  q_value:
+    type: number
+    description: "Benjamini-Hochberg FDR-corrected q-value"
+  ci_lower:
+    type: number
+    description: "95% confidence interval lower bound"
+  ci_upper:
+    type: number
+    description: "95% confidence interval upper bound"
+  associational_only:
+    type: boolean
+    description: "Flag indicating results are associational (not causal)"
+required:
+  - descriptor_type
+  - method
+  - r
+  - p_value
+  - q_value
+  - ci_lower
+  - ci_upper
+  - associational_only
+additionalProperties: false

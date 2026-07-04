@@ -1,0 +1,113 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "AnalysisResultsSchema"
+description: "Schema for the statistical analysis results including correlations and model performance."
+type: object
+properties:
+  correlations:
+    type: array
+    items:
+      type: object
+      properties:
+        descriptor_name:
+          type: string
+          description: "Name of the flexibility descriptor (e.g., torsional_variance_dihedral)."
+        method:
+          type: string
+          enum:
+            - "Pearson"
+            - "Spearman"
+          description: "Correlation method used."
+        correlation_coefficient:
+          type: number
+          description: "r value."
+        p_value:
+          type: number
+          description: "Raw p-value."
+        q_value:
+          type: number
+          description: "Benjamini-Hochberg corrected p-value."
+        ci_lower:
+          type: number
+          description: "Lower bound of 95% confidence interval."
+        ci_upper:
+          type: number
+          description: "Upper bound of 95% confidence interval."
+        associational_only:
+          type: boolean
+          description: "Flag indicating results are associational (not causal)."
+      required:
+        - descriptor_name
+        - method
+        - correlation_coefficient
+        - p_value
+        - q_value
+        - ci_lower
+        - ci_upper
+        - associational_only
+  model_performance:
+    type: object
+    properties:
+      r2:
+        type: object
+        properties:
+          mean_value:
+            type: number
+          std_value:
+            type: number
+          fold_scores:
+            type: array
+            items:
+              type: number
+            minItems: 5
+            maxItems: 5
+        required:
+          - mean_value
+          - std_value
+          - fold_scores
+      rmse:
+        type: object
+        properties:
+          mean_value:
+            type: number
+          std_value:
+            type: number
+          fold_scores:
+            type: array
+            items:
+              type: number
+            minItems: 5
+            maxItems: 5
+        required:
+          - mean_value
+          - std_value
+          - fold_scores
+      mae:
+        type: object
+        properties:
+          mean_value:
+            type: number
+          std_value:
+            type: number
+          fold_scores:
+            type: array
+            items:
+              type: number
+            minItems: 5
+            maxItems: 5
+        required:
+          - mean_value
+          - std_value
+          - fold_scores
+      coefficients:
+        type: object
+        additionalProperties:
+          type: number
+    required:
+      - r2
+      - rmse
+      - mae
+      - coefficients
+required:
+  - correlations
+  - model_performance
+additionalProperties: false

@@ -1,0 +1,27 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Caco-2 Permeability Dataset Schema"
+type: object
+properties:
+  SMILES:
+    type: string
+    description: "Canonical SMILES string for the molecule"
+  logPapp:
+    type: number
+    description: "Caco-2 permeability in cm/s (log-transformed)"
+  MW:
+    type: number
+    description: "Molecular weight in g/mol"
+  logP:
+    type: number
+    description: "Octanol-water partition coefficient"
+  PSA:
+    type: number
+    description: "Polar surface area in Å²"
+  standard_type:
+    type: string
+    description: "Assay protocol type (must be 'MEASUREMENT')"
+required:
+  - SMILES
+  - logPapp
+  - standard_type
+additionalProperties: false
