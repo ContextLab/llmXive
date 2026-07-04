@@ -60,11 +60,11 @@ Examples of foundational tasks (adjust based on your project):
 - [ ] T004 [P] Setup directory structure: `data/raw/`, `data/processed/`, `data/consent/`, `code/data/`, `code/analysis/`, `code/reports/`, `code/utils/`, `code/tests/`
 - [X] T005 [P] Implement `code/utils/config.py` for random seed pinning and environment configuration
 - [X] T006 [P] Setup `code/utils/logging.py` for structured logging of pipeline stages
-- [~] T007 [P] Implement classes `User`, `BehavioralLog`, and `WeeklyAggregation` in `code/data/models.py` with attributes: `user_id` (str), `gamification_status` (bool), `conscientiousness_score` (float), `date` (datetime), `event_type` (str), `week_number` (int), `adherence_flag` (int), matching the Key Entities in spec.md. **Verification**: Assert `import code.data.models` succeeds and class attributes match spec.
-- [~] T008 [P] Implement `code/utils/versioning.py` to calculate SHA-256 hashes of artifacts and update `state.yaml` (Constitution Principle V)
+- [ ] T007 [P] Implement classes `User`, `BehavioralLog`, and `WeeklyAggregation` in `code/data/models.py` with attributes: `user_id` (str), `gamification_status` (bool), `conscientiousness_score` (float), `date` (datetime), `event_type` (str), `week_number` (int), `adherence_flag` (int), matching the Key Entities in spec.md. **Verification**: Assert `import code.data.models` succeeds and class attributes match spec.
+- [X] T008 [P] Implement `code/utils/versioning.py` to calculate SHA-256 hashes of artifacts and update `state.yaml` (Constitution Principle V)
 - [~] T009 [P] Setup `contracts/dataset.schema.yaml` defining required columns (User_ID, Gamified, Adherence, etc.) for validation
 - [~] T012a [P] [US1] Implement `check_consent()` function in `code/data/validation.py`: Verify `data/consent/` exists. **Logic**: If real data is present, halt if missing (FR-010). If synthetic data is used, **generate a synthetic consent artifact** (e.g., `data/consent/synthetic_consent_record.json`) explicitly stating the data is synthetic and approved for research, then proceed. This ensures the gate is never bypassed silently. (FR-010, Constitution Principle VI)
-- [~] T013a [P] [US1] Implement `code/data/synthetic_generator.py`: Generate a dataset with N=100 users. **Mechanism**: Simulate a 'self-report' survey response for each user to determine `gamified_status` (True if they reported using gamified apps, False otherwise), ensuring at least 30 users are `gamified_status=False` (non-gamified) and 70 are `True` (gamified). Include `conscientiousness_score` and `need_for_achievement` (simulated with known correlation). Pin random seed to a fixed value. **Output**: Write to `data/raw/synthetic_data.csv` in CSV format. (FR-008, FR-011) <!-- FAILED: unspecified -->
+- [~] T013a [P] [US1] Implement `code/data/synthetic_generator.py`: Generate a dataset with N=100 users. [UNRESOLVED-CLAIM: c_bec6d9ca — status=not_enough_info] **Mechanism**: Simulate a 'self-report' survey response for each user to determine `gamified_status` (True if they reported using gamified apps, False otherwise), ensuring at least 30 users are `gamified_status=False` (non-gamified) and 70 are `True` (gamified). Include `conscientiousness_score` and `need_for_achievement` (simulated with known correlation). Pin random seed to a fixed value. **Output**: Write to `data/raw/synthetic_data.csv` in CSV format. (FR-008, FR-011) <!-- FAILED: unspecified -->
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -102,18 +102,18 @@ Examples of foundational tasks (adjust based on your project):
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T018 [P] [US2] Contract test: Add function `test_model_convergence()` in `code/tests/test_modeling.py` that asserts the mixed-effects model converges and recovers known coefficients within 0.01 variance on a synthetic test set.
-- [ ] T019 [P] [US2] Integration test: Add function `test_survival_event_count()` in `code/tests/test_survival.py` that asserts the survival analysis halts and outputs descriptive stats if dropout events < 10 per group.
+- [~] T018 [P] [US2] Contract test: Add function `test_model_convergence()` in `code/tests/test_modeling.py` that asserts the mixed-effects model converges and recovers known coefficients within 0.01 variance on a synthetic test set. [UNRESOLVED-CLAIM: c_f96e8686 — status=not_enough_info]
+- [~] T019 [P] [US2] Integration test: Add function `test_survival_event_count()` in `code/tests/test_survival.py` that asserts the survival analysis halts and outputs descriptive stats if dropout events < 10 per group.
 
 ### Implementation for User Story 2
 
-- [ ] T021 [US2] Implement VIF calculation in `code/analysis/modeling.py`: **First**, check if the `need_for_achievement` column exists in the dataset. If it does, calculate VIF for Conscientiousness and Need for Achievement. If VIF > 5, **drop "Need for Achievement"** (keeping Conscientiousness as primary moderator per Edge Cases) and log the removal. If the column does not exist, log the omission and proceed with Conscientiousness only (FR-002).
-- [ ] T021b [US2] Implement fallback model logic in `code/analysis/modeling.py`: If both traits are removed or the interaction term is undefined, re-run the model with only Conscientiousness as a fixed effect. **Output**: Log the structural change to `logs/model_fallback.log`.
-- [ ] T020 [US2] Implement `code/analysis/modeling.py`: Fit mixed-effects logistic regression (fixed effects: Gamification, Conscientiousness, Interaction; random intercepts: User) (FR-002). **Dependency**: Must run after T021 completes.
-- [ ] T022 [US2] Implement Benjamini-Hochberg (FDR) correction for multiple comparison tests. **Scope**: Apply correction strictly to the set of interaction terms and secondary personality traits (e.g., Need for Achievement interaction). Main effects (Gamification, Conscientiousness) are reported uncorrected unless they are part of the multiple comparison set defined in FR-007 (FR-007).
-- [ ] T023 [US2] Implement Leave-One-User-Out (LOUO) cross-validation in `code/analysis/modeling.py`; report average AUC and variance (US-2 Scenario 3).
-- [ ] T024 [US2] Implement `code/analysis/survival.py`: Count dropout events (consecutive weeks of non-adherence). If events < 10 per group, **generate a descriptive statistics report** and halt survival analysis (FR-009). If events ≥ 10, proceed to survival analysis.
-- [ ] T025 [US2] Implement Kaplan-Meier curves and Cox proportional hazards model in `code/analysis/survival.py`, stratified by Conscientiousness quartiles (FR-003).
+- [~] T021 [US2] Implement VIF calculation in `code/analysis/modeling.py`: **First**, check if the `need_for_achievement` column exists in the dataset. If it does, calculate VIF for Conscientiousness and Need for Achievement. If VIF > 5, **drop "Need for Achievement"** (keeping Conscientiousness as primary moderator per Edge Cases) and log the removal. If the column does not exist, log the omission and proceed with Conscientiousness only (FR-002).
+- [~] T021b [US2] Implement fallback model logic in `code/analysis/modeling.py`: If both traits are removed or the interaction term is undefined, re-run the model with only Conscientiousness as a fixed effect. **Output**: Log the structural change to `logs/model_fallback.log`. <!-- FAILED: unspecified -->
+- [~] T020 [US2] Implement `code/analysis/modeling.py`: Fit mixed-effects logistic regression (fixed effects: Gamification, Conscientiousness, Interaction; random intercepts: User) (FR-002). **Dependency**: Must run after T021 completes.
+- [~] T022 [US2] Implement Benjamini-Hochberg (FDR) correction for multiple comparison tests. **Scope**: Apply correction strictly to the set of interaction terms and secondary personality traits (e.g., Need for Achievement interaction). Main effects (Gamification, Conscientiousness) are reported uncorrected unless they are part of the multiple comparison set defined in FR-007 (FR-007).
+- [~] T023 [US2] Implement Leave-One-User-Out (LOUO) cross-validation in `code/analysis/modeling.py`; report average AUC and variance (US-2 Scenario 3).
+- [~] T024 [US2] Implement `code/analysis/survival.py`: Count dropout events (consecutive weeks of non-adherence). If events < 10 per group, **generate a descriptive statistics report** and halt survival analysis (FR-009). If events ≥ 10, proceed to survival analysis.
+- [~] T025 [US2] Implement Kaplan-Meier curves and Cox proportional hazards model in `code/analysis/survival.py`, stratified by Conscientiousness quartiles (FR-003).
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -127,8 +127,8 @@ Examples of foundational tasks (adjust based on your project):
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T027 [P] [US3] Contract test: Add function `test_bootstrap_variance` in `code/tests/test_robustness.py` that asserts the bootstrapping procedure generates [deferred] samples and reports a coefficient variance (regardless of value).
-- [ ] T028 [P] [US3] Integration test: Add function `test_report_generation()` in `code/tests/test_report.py` that asserts the generated report contains Kaplan-Meier curves, sensitivity analysis tables, and the associational disclaimer.
+- [~] T027 [P] [US3] Contract test: Add function `test_bootstrap_variance` in `code/tests/test_robustness.py` that asserts the bootstrapping procedure generates [deferred] samples and reports a coefficient variance (regardless of value).
+- [~] T028 [P] [US3] Integration test: Add function `test_report_generation()` in `code/tests/test_report.py` that asserts the generated report contains Kaplan-Meier curves, sensitivity analysis tables, and the associational disclaimer.
 
 ### Implementation for User Story 3
 

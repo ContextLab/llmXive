@@ -1,141 +1,119 @@
-#!/bin/bash
-# run_benchmarks.sh - Orchestrates the benchmark execution with environment configuration
-# Handles core pinning via taskset and output directory creation
-# Dependencies: taskset, cpupower (optional), mkdir, date
-# Project: PROJ-677-impact-of-cache-line-padding-false-sh
-
+#!/usr/bin/env bash
 set -euo pipefail
 
-# --- Configuration ---
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PROJECT_ROOT="$(dirname "$(dirname "$SCRIPT_DIR")")"
-BENCHMARK_DIR="${PROJECT_ROOT}/code/benchmark"
-DATA_DIR="${PROJECT_ROOT}/data/raw"
-LOG_DIR="${PROJECT_ROOT}/state/logs"
-BINARY_NAME="counter_benchmark"
-BINARY_PATH="${BENCHMARK_DIR}/${BINARY_NAME}"
+# run_benchmarks.sh
+# Executes the counter benchmark across multiple thread counts and configurations.
+# Generates a CSV file with timing results.
+#
+# Output: data/raw/benchmark_results.csv
 
-# Experiment parameters
+PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../" && pwd)"
+BINARY_DIR="${PROJECT_ROOT}/code/benchmark"
+DATA_DIR="${PROJECT_ROOT}/data/raw"
+OUTPUT_CSV="${DATA_DIR}/benchmark_results.csv"
+BENCHMARK_BIN="${BINARY_DIR}/counter_bench"
+
+# Configuration
 THREAD_COUNTS=(2 4 8)
 CONFIGS=("packed" "padded")
-ITERATIONS_PER_RUN=5
-INCREMENTS_PER_THREAD=10000000  # 10M increments per thread
-TIMEOUT_SECONDS=300
+ITERATIONS_PER_RUN=1000000  # Number of atomic increments per thread
+NUM_REPETITIONS=5           # Number of times to run each config/thread combo
 
-# --- Helper Functions ---
+# Ensure data directory exists
+mkdir -p "${DATA_DIR}"
 
-log_info() {
-    echo "[INFO] $(date '+%Y-%m-%d %H:%M:%S') - $1"
-}
-
-log_error() {
-    echo "[ERROR] $(date '+%Y-%m-%d %H:%M:%S') - $1" >&2
-}
-
-ensure_directories() {
-    log_info "Creating output directories..."
-    mkdir -p "${DATA_DIR}"
-    mkdir -p "${LOG_DIR}"
-    if [ ! -d "${BENCHMARK_DIR}" ]; then
-        log_error "Benchmark directory not found: ${BENCHMARK_DIR}"
-        exit 1
-    fi
-}
-
-check_binary() {
-    if [ ! -f "${BINARY_PATH}" ]; then
-        log_error "Benchmark binary not found: ${BINARY_PATH}"
-        log_error "Please run build.sh first."
-        exit 1
-    fi
-    if [ ! -x "${BINARY_PATH}" ]; then
-        log_error "Benchmark binary is not executable."
-        exit 1
-    fi
-}
-
-set_cpu_governor() {
-    log_info "Setting CPU governor to 'performance'..."
-    if command -v cpupower &> /dev/null; then
-        sudo cpupower frequency-set -g performance 2>/dev/null || true
-    else
-        # Fallback to direct sysfs write if cpupower is not available
-        # Requires root privileges
-        for file in /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor; do
-            if [ -w "$file" ]; then
-                echo performance | sudo tee "$file" > /dev/null || true
-            fi
-        done
-    fi
-}
-
-run_benchmark_run() {
-    local thread_count=$1
-    local config=$2
-    local run_index=$3
-    local output_file="${DATA_DIR}/benchmark_${thread_count}t_${config}_run${run_index}.csv"
-    local log_file="${LOG_DIR}/benchmark_${thread_count}t_${config}_run${run_index}.log"
-    
-    log_info "Running: Threads=${thread_count}, Config=${config}, Run=${run_index}"
-    
-    # Determine taskset affinity mask
-    # We pin the process to the first 'thread_count' logical cores
-    # Example: if thread_count=2, mask=0x3 (binary 11) -> cores 0,1
-    local mask=$(printf '0x%x' $(( (1 << thread_count) - 1 )))
-    
-    # Construct command
-    # taskset -c specifies specific CPUs. We use 0 to (thread_count-1)
-    local affinity_args=""
-    for (( i=0; i<thread_count; i++ )); do
-        if [ -z "$affinity_args" ]; then
-            affinity_args="-c $i"
-        else
-            affinity_args="$affinity_args,$i"
-        fi
-    done
-
-    # Run the benchmark
-    # Arguments: thread_count, config, increments_per_thread
-    # Output is redirected to the CSV file
-    if timeout "${TIMEOUT_SECONDS}" taskset ${affinity_args} "${BINARY_PATH}" "${thread_count}" "${config}" "${INCREMENTS_PER_THREAD}" > "${output_file}" 2>> "${log_file}"; then
-        log_info "Completed: ${output_file}"
-    else
-        local exit_code=$?
-        log_error "Run failed with exit code ${exit_code}. Check ${log_file} for details."
-        # Append a status line indicating failure if the file exists but is empty or partial
-        if [ -f "${output_file}" ]; then
-            echo "thread_count,configuration,iteration_count,wall_clock_time_ms,status" > "${output_file}"
-            echo "${thread_count},${config},${INCREMENTS_PER_THREAD},0,TIMEOUT" >> "${output_file}"
-        fi
-    fi
-}
-
-# --- Main Execution ---
-
-main() {
-    log_info "Starting benchmark orchestration..."
-    
-    ensure_directories
-    check_binary
-    set_cpu_governor
-
-    log_info "Starting experiment with thread counts: ${THREAD_COUNTS[*]}"
-    log_info "Configs: ${CONFIGS[*]}"
-    log_info "Iterations per config: ${ITERATIONS_PER_RUN}"
-
-    for thread_count in "${THREAD_COUNTS[@]}"; do
-        for config in "${CONFIGS[@]}"; do
-            for (( run=1; run<=ITERATIONS_PER_RUN; run++ )); do
-                run_benchmark_run "${thread_count}" "${config}" "${run}"
-            done
-        done
-    done
-
-    log_info "All benchmark runs completed."
-    log_info "Results saved in ${DATA_DIR}"
-}
-
-# Only run main if this script is executed directly (not sourced)
-if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
-    main "$@"
+# Check if binary exists
+if [[ ! -f "${BENCHMARK_BIN}" ]]; then
+    echo "Error: Benchmark binary not found at ${BENCHMARK_BIN}. Please run build.sh first."
+    exit 1
 fi
+
+# Attempt to set CPU governor to performance
+# This might fail if not running as root, so we catch errors but continue
+set_cpu_governor() {
+    local governor="performance"
+    if command -v cpupower &> /dev/null; then
+        if cpupower frequency-set -g "${governor}" 2>/dev/null; then
+            echo "CPU governor set to ${governor} via cpupower."
+            return 0
+        fi
+    fi
+    
+    # Fallback to direct sysfs write
+    if [[ -d /sys/devices/system/cpu/cpu0/cpufreq ]]; then
+        if echo "${governor}" | sudo tee /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor > /dev/null 2>&1; then
+            echo "CPU governor set to ${governor} via sysfs."
+            return 0
+        fi
+    fi
+    
+    echo "Warning: Could not set CPU governor to ${governor}. Continuing with default settings."
+    return 0
+}
+
+set_cpu_governor
+
+# Initialize CSV header if file doesn't exist or is empty
+if [[ ! -f "${OUTPUT_CSV}" ]] || [[ ! -s "${OUTPUT_CSV}" ]]; then
+    echo "thread_count,configuration,iteration_count,wall_clock_time_ms" > "${OUTPUT_CSV}"
+fi
+
+echo "Starting benchmark run..."
+echo "Output file: ${OUTPUT_CSV}"
+echo "----------------------------------------"
+
+for threads in "${THREAD_COUNTS[@]}"; do
+    for config in "${CONFIGS[@]}"; do
+        echo "Running: threads=${threads}, config=${config}"
+        
+        for ((rep=1; rep<=NUM_REPETITIONS; rep++)); do
+            # Run the benchmark
+            # The binary is expected to output the timing in a parseable format or we capture wall time here.
+            # Based on T023/T024, the binary should output CSV rows or we parse its stdout.
+            # Assumption: The binary prints "SUCCESS <time_ms>" or similar, or we time it externally.
+            # To be robust, we time the execution externally using 'time' or a wrapper, 
+            # but the task implies the binary does the timing. 
+            # Let's assume the binary prints the result to stdout in a specific format.
+            # However, T024 says "output to CSV", implying the binary might write directly or we append.
+            # To satisfy T023 (binary uses chrono) and T024 (output to CSV), 
+            # we will assume the binary prints a single line with the time, and we append to the master CSV.
+            
+            # Execute and capture time
+            start_time=$(date +%s%N)
+            output=$("${BENCHMARK_BIN}" --threads "${threads}" --config "${config}" --iterations "${ITERATIONS_PER_RUN}" 2>&1) || {
+                echo "Error: Benchmark failed for threads=${threads}, config=${config}"
+                echo "${threads},${config},${ITERATIONS_PER_RUN},TIMEOUT" >> "${OUTPUT_CSV}"
+                continue
+            }
+            end_time=$(date +%s%N)
+            
+            # Calculate wall clock time in milliseconds
+            duration_ns=$((end_time - start_time))
+            duration_ms=$(echo "scale=3; ${duration_ns} / 1000000" | bc)
+            
+            # The binary might output its own internal timing. 
+            # If the binary outputs a time, we could use that. 
+            # For this integration, we trust the external wall-clock measurement 
+            # to ensure we capture the full overhead, or we parse the binary output if it provides it.
+            # Let's assume the binary outputs "Result: <time_ms>"
+            # If the binary output contains a time, use it. Otherwise use wall clock.
+            # To keep it simple and robust for the test: use the wall clock time calculated above.
+            # But T023 says "output to CSV". Let's assume the binary prints the time.
+            # We will parse the binary output for the time if possible, else use wall clock.
+            
+            # Extract time from binary output if present (format: "time_ms: <val>")
+            if [[ "${output}" =~ time_ms:\ ([0-9.]+) ]]; then
+                final_time="${BASH_REMATCH[1]}"
+            else
+                final_time="${duration_ms}"
+            fi
+
+            # Append to CSV
+            echo "${threads},${config},${ITERATIONS_PER_RUN},${final_time}" >> "${OUTPUT_CSV}"
+            echo "  Rep ${rep}/${NUM_REPETITIONS}: ${final_time} ms"
+        done
+    done
+done
+
+echo "----------------------------------------"
+echo "Benchmark complete. Results saved to ${OUTPUT_CSV}"

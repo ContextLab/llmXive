@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2604.26483",
+  "judged_at": "2026-07-04T05:10:16Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"active learners as efficient prp rerankers\" computer science",
+  "rationale": "This paper satisfies criteria (a) and (b) as it directly addresses the core mechanism of using LLMs for reranking and investigates the efficiency trade-offs (computational cost vs. effectiveness) that are central to the user's question about \"Active Learners as Efficient PRP Rerankers.\" Although it proposes a specific compression technique (RRK) rather than the \"Active Learner\" approach, it provides essential empirical evidence on the domain of efficient LLM-based reranking, which is necessary c",
+  "relevant": true
+}

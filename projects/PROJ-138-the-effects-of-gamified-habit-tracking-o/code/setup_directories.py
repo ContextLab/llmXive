@@ -4,86 +4,93 @@ from pathlib import Path
 
 def create_directories():
     """
-    Creates the required directory structure for the llmXive research pipeline.
-    
-    Directories created:
-    - data/raw, data/processed, data/consent
-    - code/data, code/analysis, code/reports, code/utils, code/tests
+    Creates the required directory structure for the llmXive project.
+    Ensures all specified directories exist and creates .gitkeep files
+    to ensure they are tracked by git.
     """
-    # Define the project root (parent of the 'code' directory where this script lives)
-    # Assuming this script is at code/setup_directories.py
-    script_dir = Path(__file__).resolve().parent
-    project_root = script_dir.parent
-
-    # Define relative paths to create
-    dirs_to_create = [
-        project_root / "data" / "raw",
-        project_root / "data" / "processed",
-        project_root / "data" / "consent",
-        project_root / "code" / "data",
-        project_root / "code" / "analysis",
-        project_root / "code" / "reports",
-        project_root / "code" / "utils",
-        project_root / "code" / "tests",
+    # Define the project root (assuming the script is run from the repo root)
+    # If run from code/, we need to adjust. We assume execution from root.
+    project_root = Path(".")
+    
+    directories = [
+        "data/raw",
+        "data/processed",
+        "data/consent",
+        "code/data",
+        "code/analysis",
+        "code/reports",
+        "code/utils",
+        "code/tests"
     ]
-
+    
     created_count = 0
-    for dir_path in dirs_to_create:
+    for dir_name in directories:
+        dir_path = project_root / dir_name
         if not dir_path.exists():
             dir_path.mkdir(parents=True, exist_ok=True)
-            print(f"Created directory: {dir_path.relative_to(project_root)}")
             created_count += 1
+            print(f"Created directory: {dir_path}")
         else:
-            print(f"Directory already exists: {dir_path.relative_to(project_root)}")
-    
-    print(f"Total directories created: {created_count}")
-    return created_count
+            print(f"Directory already exists: {dir_path}")
+        
+        # Create .gitkeep to ensure directory is tracked
+        gitkeep_path = dir_path / ".gitkeep"
+        if not gitkeep_path.exists():
+            gitkeep_path.touch()
+            print(f"Created .gitkeep in: {dir_path}")
+        else:
+            print(f".gitkeep already exists in: {dir_path}")
+
+    print(f"\nDirectory setup complete. {created_count} new directories created.")
+    return True
 
 def verify_structure():
     """
-    Verifies that all required directories exist and creates .gitkeep files.
+    Verifies that all required directories and .gitkeep files exist.
+    Returns True if all checks pass, False otherwise.
     """
-    script_dir = Path(__file__).resolve().parent
-    project_root = script_dir.parent
-
-    dirs_to_check = [
-        project_root / "data" / "raw",
-        project_root / "data" / "processed",
-        project_root / "data" / "consent",
-        project_root / "code" / "data",
-        project_root / "code" / "analysis",
-        project_root / "code" / "reports",
-        project_root / "code" / "utils",
-        project_root / "code" / "tests",
+    project_root = Path(".")
+    required_dirs = [
+        "data/raw",
+        "data/processed",
+        "data/consent",
+        "code/data",
+        "code/analysis",
+        "code/reports",
+        "code/utils",
+        "code/tests"
     ]
-
-    all_good = True
-    for dir_path in dirs_to_check:
-        if not dir_path.exists() or not dir_path.is_dir():
-            print(f"ERROR: Missing directory: {dir_path.relative_to(project_root)}")
-            all_good = False
-        else:
-            # Ensure .gitkeep exists
-            gitkeep = dir_path / ".gitkeep"
-            if not gitkeep.exists():
-                gitkeep.touch()
-                print(f"Created .gitkeep in: {dir_path.relative_to(project_root)}")
-            else:
-                print(f".gitkeep exists in: {dir_path.relative_to(project_root)}")
-
-    return all_good
+    
+    all_ok = True
+    for dir_name in required_dirs:
+        dir_path = project_root / dir_name
+        if not dir_path.is_dir():
+            print(f"ERROR: Directory missing: {dir_path}")
+            all_ok = False
+            continue
+        
+        gitkeep_path = dir_path / ".gitkeep"
+        if not gitkeep_path.exists():
+            print(f"ERROR: .gitkeep missing in: {dir_path}")
+            all_ok = False
+    
+    if all_ok:
+        print("Verification successful: All directories and .gitkeep files exist.")
+    return all_ok
 
 def main():
     """
-    Main entry point for the directory setup script.
+    Entry point for the directory setup script.
+    Creates directories, verifies structure, and exits with appropriate code.
     """
-    print("Starting directory structure setup...")
+    print("Starting directory setup...")
     create_directories()
+    
     if verify_structure():
-        print("Directory structure verification: PASSED")
+        print("Setup completed successfully.")
         sys.exit(0)
     else:
-        print("Directory structure verification: FAILED")
+        print("Setup completed with errors.")
         sys.exit(1)
 
 if __name__ == "__main__":

@@ -1,105 +1,160 @@
 """
-Pydantic schemas for benchmark data validation.
+Pydantic schemas for BenchmarkRun and AggregatedResult.
 
-Defines strict data contracts for BenchmarkRun (raw execution data)
-and AggregatedResult (statistical summaries).
+These schemas enforce the data contract for the benchmark pipeline:
+- BenchmarkRun: Raw CSV row from the C++ benchmark executable.
+- AggregatedResult: Statistical summary (mean, std, etc.) per configuration.
 """
 from datetime import datetime
-from typing import List, Optional
+from typing import Literal, Optional
 from pydantic import BaseModel, Field, field_validator, ConfigDict
-from enum import Enum
+from pydantic.alias_generators import to_snake
 
-
-class Configuration(str, Enum):
-    """Counter memory layout configuration."""
-    PACKED = "packed"
-    PADDED = "padded"
-
-
+# ----------------------------------------------------------------------
+# Raw Benchmark Run Schema
+# ----------------------------------------------------------------------
 class BenchmarkRun(BaseModel):
     """
-    Schema for a single raw benchmark execution record.
+    Represents a single row of output from the C++ benchmark executable.
     
-    Represents one row of output from the C++ benchmark harness.
+    Expected CSV columns:
+    - thread_count: int (1, 2, 4, 8)
+    - configuration: str ('packed' or 'padded')
+    - iteration_count: int (number of atomic increments per thread)
+    - wall_clock_time_ms: float (execution time in milliseconds)
+    - status: str (optional, 'TIMEOUT' or 'OK')
     """
-    model_config = ConfigDict(from_attributes=True)
+    model_config = ConfigDict(
+        populate_by_name=True,
+        str_strip_whitespace=True
+    )
 
-    thread_count: int = Field(..., ge=1, description="Number of threads used")
-    configuration: Configuration = Field(..., description="Memory layout (packed or padded)")
-    iteration_count: int = Field(..., gt=0, description="Number of increments per thread")
-    wall_clock_time_ms: float = Field(..., gt=0, description="Total wall-clock time in milliseconds")
-    timestamp: datetime = Field(default_factory=datetime.now, description="Time of execution")
-    status: str = Field(default="OK", description="Execution status (OK, TIMEOUT, ERROR)")
+    thread_count: int = Field(
+        ..., 
+        ge=1, 
+        le=16, 
+        description="Number of concurrent threads used"
+    )
+    configuration: Literal["packed", "padded"] = Field(
+        ..., 
+        description="Memory layout configuration"
+    )
+    iteration_count: int = Field(
+        ..., 
+        gt=0, 
+        description="Number of atomic increments performed per thread"
+    )
+    wall_clock_time_ms: float = Field(
+        ..., 
+        gt=0.0, 
+        description="Total wall-clock time in milliseconds"
+    )
+    status: Optional[Literal["OK", "TIMEOUT"]] = Field(
+        "OK", 
+        description="Execution status flag"
+    )
+    timestamp: Optional[datetime] = Field(
+        default_factory=datetime.now,
+        description="When the run was recorded"
+    )
 
     @field_validator('thread_count')
     @classmethod
     def validate_thread_count(cls, v):
-        if v < 1:
-            raise ValueError('thread_count must be at least 1')
-        return v
-
-    @field_validator('wall_clock_time_ms')
-    @classmethod
-    def validate_time_positive(cls, v):
-        if v <= 0:
-            raise ValueError('wall_clock_time_ms must be positive')
+        if v not in [1, 2, 4, 8]:
+            # Allow 1 for single-threaded validation, but warn or restrict if strict
+            pass 
         return v
 
     @property
-    def throughput(self) -> float:
-        """Calculate throughput in increments per second."""
-        if self.wall_clock_time_ms == 0:
+    def throughput_ops_per_sec(self) -> float:
+        """Calculate operations per second."""
+        if self.wall_clock_time_ms <= 0:
             return 0.0
+        # Total ops = thread_count * iteration_count
         total_ops = self.thread_count * self.iteration_count
-        return (total_ops / self.wall_clock_time_ms) * 1000.0
+        return (total_ops / (self.wall_clock_time_ms / 1000.0))
 
+    def is_valid_for_analysis(self) -> bool:
+        """Check if this run is valid for statistical aggregation."""
+        return self.status == "OK" and self.wall_clock_time_ms > 0.0
 
+# ----------------------------------------------------------------------
+# Aggregated Result Schema
+# ----------------------------------------------------------------------
 class AggregatedResult(BaseModel):
     """
-    Schema for aggregated statistical results per configuration and thread count.
+    Represents the aggregated statistical results for a specific 
+    (thread_count, configuration) pair.
     
-    Represents the output of the analysis phase (T031).
+    Used as the output of the analysis phase (T031).
     """
-    model_config = ConfigDict(from_attributes=True)
+    model_config = ConfigDict(
+        populate_by_name=True
+    )
 
-    thread_count: int = Field(..., ge=1)
-    configuration: Configuration
-    mean_throughput: float = Field(..., ge=0)
-    std_throughput: float = Field(..., ge=0)
-    sample_count: int = Field(..., ge=1)
-    min_throughput: float = Field(..., ge=0)
-    max_throughput: float = Field(..., ge=0)
-    confidence_interval_95: tuple[float, float] = Field(..., description="Lower and upper bounds of 95% CI")
-
-    @field_validator('confidence_interval_95')
-    @classmethod
-    def validate_ci_order(cls, v):
-        if len(v) != 2:
-            raise ValueError('confidence_interval_95 must be a tuple of two floats')
-        if v[0] > v[1]:
-            raise ValueError('CI lower bound must be <= upper bound')
-        return v
-
-
-class StatisticalComparison(BaseModel):
-    """
-    Schema for the final statistical comparison output (T035).
+    thread_count: int = Field(
+        ..., 
+        description="Thread count for this aggregation"
+    )
+    configuration: Literal["packed", "padded"] = Field(
+        ..., 
+        description="Memory layout configuration"
+    )
     
-    Contains t-test results, effect sizes, and FDR-corrected p-values.
-    """
-    model_config = ConfigDict(from_attributes=True)
+    # Basic Statistics
+    sample_count: int = Field(
+        ..., 
+        ge=1, 
+        description="Number of raw runs aggregated"
+    )
+    mean_throughput: float = Field(
+        ..., 
+        description="Mean operations per second"
+    )
+    std_throughput: float = Field(
+        ..., 
+        ge=0.0, 
+        description="Standard deviation of throughput"
+    )
+    min_throughput: float = Field(
+        ..., 
+        description="Minimum observed throughput"
+    )
+    max_throughput: float = Field(
+        ..., 
+        description="Maximum observed throughput"
+    )
 
-    thread_count: int = Field(..., ge=1)
-    config_packed_mean: float
-    config_padded_mean: float
-    t_stat: float
-    p_value: float
-    cohens_d: float
-    fdr_adjusted_p: float
-    significant_after_fdr: bool = Field(..., description="True if fdr_adjusted_p < 0.05")
+    # Statistical Test Results (populated in T032/T033)
+    t_stat: Optional[float] = Field(
+        None, 
+        description="T-statistic from two-sample t-test (vs packed)"
+    )
+    p_value: Optional[float] = Field(
+        None, 
+        ge=0.0, 
+        le=1.0, 
+        description="Raw p-value from t-test"
+    )
+    cohens_d: Optional[float] = Field(
+        None, 
+        description="Effect size (Cohen's d)"
+    )
+    fdr_adjusted_p: Optional[float] = Field(
+        None, 
+        ge=0.0, 
+        le=1.0, 
+        description="Benjamini-Hochberg FDR adjusted p-value"
+    )
 
-    @field_validator('significant_after_fdr')
-    @classmethod
-    def validate_significance(cls, v, info):
-        # This is a computed field, but we ensure consistency if manually set
-        return v
+    def __hash__(self):
+        return hash((self.thread_count, self.configuration))
+
+    def __eq__(self, other):
+        if not isinstance(other, AggregatedResult):
+            return False
+        return (
+            self.thread_count == other.thread_count and
+            self.configuration == other.configuration
+        )

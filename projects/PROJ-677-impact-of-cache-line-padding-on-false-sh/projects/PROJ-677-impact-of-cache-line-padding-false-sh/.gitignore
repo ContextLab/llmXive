@@ -1,0 +1,42 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C/C++ build artifacts
+*.o
+*.a
+*.so
+*.out
+build/
+cmake-build-*/
+
+# Python virtual environments
+venv/
+.venv/
+env/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Test and coverage
+.coverage
+htmlcov/
+.pytest_cache/
+
+# Generated data and figures
+data/raw/
+data/processed/
+figures/
+
+# Project specific
+state/
+*.yaml
+!.github/workflows/*.yml
+
+# OS files
+.DS_Store
+Thumbs.db

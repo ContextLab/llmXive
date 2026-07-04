@@ -819,6 +819,14 @@
     "classified_at": "2026-07-04T01:38:07Z",
     "verdict": false
   },
+  "PROJ-873-llmxive-follow-up-extending-active-learn::1.6.0": {
+    "classified_at": "2026-07-04T05:09:51Z",
+    "verdict": false
+  },
+  "PROJ-876-llmxive-follow-up-extending-skillsvote-l::1.6.0": {
+    "classified_at": "2026-07-04T05:12:37Z",
+    "verdict": false
+  },
   "PROJ-883-llmxive-follow-up-extending-omniretrieva::1.6.0": {
     "classified_at": "2026-07-03T13:03:39Z",
     "verdict": false

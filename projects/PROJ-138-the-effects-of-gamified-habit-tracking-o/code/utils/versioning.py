@@ -1,6 +1,8 @@
 """
-Artifact versioning and state tracking.
-Implements Constitution Principle V: Track artifact hashes in state.yaml.
+Versioning utilities for the llmXive automated science pipeline.
+
+This module handles artifact hashing and state tracking to ensure
+reproducibility and integrity of the research pipeline.
 """
 import hashlib
 import yaml
@@ -9,17 +11,23 @@ from pathlib import Path
 from typing import Dict, List, Optional
 from datetime import datetime
 
-STATE_FILE = "state.yaml"
+# Ensure project root is in path for imports if running from submodules
+_project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
+if _project_root not in os.environ.get('PYTHONPATH', '').split(os.pathsep):
+    os.environ['PYTHONPATH'] = f"{_project_root}" + os.pathsep + os.environ.get('PYTHONPATH', '')
+
+STATE_FILE = os.path.join(_project_root, "state.yaml")
+
 
 def calculate_sha256(file_path: str) -> str:
     """
-    Calculate SHA-256 hash of a file.
+    Calculate the SHA-256 hash of a file.
     
     Args:
-        file_path: Path to the file.
+        file_path: Path to the file to hash
         
     Returns:
-        Hexadecimal string of the SHA-256 hash.
+        str: Hexadecimal SHA-256 hash string
     """
     sha256_hash = hashlib.sha256()
     with open(file_path, "rb") as f:
@@ -27,107 +35,144 @@ def calculate_sha256(file_path: str) -> str:
             sha256_hash.update(byte_block)
     return sha256_hash.hexdigest()
 
+
 def load_state() -> Dict:
-    """Load the current state from state.yaml."""
+    """
+    Load the current state from the state.yaml file.
+    
+    Returns:
+        dict: Current state dictionary, or empty dict if file doesn't exist.
+    """
     if not os.path.exists(STATE_FILE):
-        return {"artifacts": {}}
+        return {"artifacts": {}, "last_updated": None}
     
     with open(STATE_FILE, "r") as f:
-        content = yaml.safe_load(f)
-        return content if isinstance(content, dict) else {"artifacts": {}}
+        try:
+            return yaml.safe_load(f) or {"artifacts": {}, "last_updated": None}
+        except yaml.YAMLError:
+            return {"artifacts": {}, "last_updated": None}
+
 
 def save_state(state: Dict) -> None:
-    """Save the state to state.yaml."""
-    with open(STATE_FILE, "w") as f:
-        yaml.safe_dump(state, f, sort_keys=False, default_flow_style=False)
-
-def update_artifact_state(file_path: str, description: str = "") -> None:
     """
-    Calculate hash of an artifact and update state.yaml.
+    Save the state dictionary to the state.yaml file.
     
     Args:
-        file_path: Relative path to the artifact.
-        description: Optional description of the artifact.
+        state: The state dictionary to save
     """
-    if not os.path.exists(file_path):
-        raise FileNotFoundError(f"Artifact not found: {file_path}")
+    with open(STATE_FILE, "w") as f:
+        yaml.dump(state, f, default_flow_style=False, sort_keys=False)
+
+
+def update_artifact_state(artifact_path: str, state: Dict) -> None:
+    """
+    Update the state for a specific artifact.
     
-    state = load_state()
-    if "artifacts" not in state:
-        state["artifacts"] = {}
+    Args:
+        artifact_path: Relative path to the artifact
+        state: The full state dictionary to update
+    """
+    abs_path = os.path.abspath(artifact_path)
+    if not os.path.exists(abs_path):
+        raise FileNotFoundError(f"Artifact not found: {abs_path}")
     
-    abs_path = os.path.abspath(file_path)
-    hash_value = calculate_sha256(abs_path)
+    rel_path = os.path.relpath(abs_path, _project_root)
+    hash_val = calculate_sha256(abs_path)
     
-    state["artifacts"][file_path] = {
-        "hash": hash_value,
-        "description": description,
+    state["artifacts"][rel_path] = {
+        "hash": hash_val,
         "updated_at": datetime.now().isoformat()
     }
+    state["last_updated"] = datetime.now().isoformat()
     
     save_state(state)
 
-def verify_artifacts(expected_hashes: Dict[str, str]) -> bool:
+
+def verify_artifacts(artifact_paths: List[str]) -> bool:
     """
-    Verify that existing artifacts match expected hashes.
+    Verify the integrity of a list of artifacts against the stored state.
     
     Args:
-        expected_hashes: Dict mapping file paths to expected hashes.
+        artifact_paths: List of relative paths to verify
         
     Returns:
-        True if all match, False otherwise.
+        bool: True if all artifacts match their stored hashes, False otherwise.
     """
     state = load_state()
-    current_hashes = {k: v["hash"] for k, v in state.get("artifacts", {}).items()}
+    all_valid = True
     
-    for path, expected_hash in expected_hashes.items():
-        if path not in current_hashes:
-            return False
-        if current_hashes[path] != expected_hash:
-            return False
-    return True
+    for rel_path in artifact_paths:
+        abs_path = os.path.abspath(os.path.join(_project_root, rel_path))
+        
+        if not os.path.exists(abs_path):
+            print(f"[WARN] Artifact missing: {rel_path}")
+            all_valid = False
+            continue
+        
+        current_hash = calculate_sha256(abs_path)
+        stored_hash = state.get("artifacts", {}).get(rel_path, {}).get("hash")
+        
+        if stored_hash is None:
+            print(f"[WARN] No stored hash for: {rel_path}")
+            # We don't fail on missing hash, just warn
+        elif current_hash != stored_hash:
+            print(f"[ERROR] Hash mismatch for: {rel_path}")
+            print(f"  Stored: {stored_hash}")
+            print(f"  Current: {current_hash}")
+            all_valid = False
+        else:
+            print(f"[OK] Verified: {rel_path}")
+    
+    return all_valid
+
 
 def main():
     """
-    Main entry point to hash all final artifacts and update state.yaml.
-    Scans common output directories and updates state.yaml.
+    CLI entry point for versioning operations.
     """
-    print("Starting artifact versioning update...")
+    import argparse
     
-    # Define directories to scan for artifacts
-    scan_dirs = [
-        "data/processed",
-        "data/raw",
-        "data/reports",
-        "figures"
-    ]
+    parser = argparse.ArgumentParser(description="Manage artifact versioning")
+    subparsers = parser.add_subparsers(dest="command", help="Command to run")
     
-    artifacts_to_hash = []
+    # Update command
+    update_parser = subparsers.add_parser("update", help="Update state for specific artifacts")
+    update_parser.add_argument("paths", nargs="+", help="Paths to artifacts to update")
     
-    for dir_path in scan_dirs:
-        if os.path.exists(dir_path):
-            for root, _, files in os.walk(dir_path):
-                for file in files:
-                    if file.endswith(('.csv', '.json', '.html', '.png', '.pdf', '.yaml', '.yml')):
-                        full_path = os.path.join(root, file)
-                        artifacts_to_hash.append(full_path)
+    # Verify command
+    verify_parser = subparsers.add_parser("verify", help="Verify artifact integrity")
+    verify_parser.add_argument("paths", nargs="+", help="Paths to artifacts to verify")
     
-    if not artifacts_to_hash:
-        print("No artifacts found to hash in specified directories.")
-        return
+    # List command
+    list_parser = subparsers.add_parser("list", help="List current state")
     
-    print(f"Found {len(artifacts_to_hash)} artifacts to hash.")
+    args = parser.parse_args()
     
-    # Update state for each artifact
-    for artifact in artifacts_to_hash:
-        try:
-            update_artifact_state(artifact, "Auto-tracked artifact")
-            print(f"Updated: {artifact}")
-        except Exception as e:
-            print(f"Error processing {artifact}: {e}")
-    
-    print("Artifact versioning update complete.")
-    print(f"State saved to {STATE_FILE}")
+    if args.command == "update":
+        state = load_state()
+        for path in args.paths:
+            try:
+                update_artifact_state(path, state)
+            except FileNotFoundError as e:
+                print(f"[ERROR] {e}")
+        print(f"State updated. File: {STATE_FILE}")
+        
+    elif args.command == "verify":
+        if verify_artifacts(args.paths):
+            print("All verified artifacts are valid.")
+        else:
+            print("Some artifacts failed verification.")
+            
+    elif args.command == "list":
+        state = load_state()
+        print(f"Last updated: {state.get('last_updated', 'Never')}")
+        print(f"Artifacts ({len(state.get('artifacts', {}))}):")
+        for path, info in state.get("artifacts", {}).items():
+            print(f"  - {path}: {info.get('hash', 'N/A')[:16]}...")
+            
+    else:
+        parser.print_help()
+
 
 if __name__ == "__main__":
     main()

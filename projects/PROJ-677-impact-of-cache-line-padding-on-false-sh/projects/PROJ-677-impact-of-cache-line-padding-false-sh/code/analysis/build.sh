@@ -1,41 +1,35 @@
 #!/bin/bash
-# Build script for cache padding benchmark
-# Initializes C++17 build system and compiles benchmark executable
-
-set -e
+set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
+PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
+BENCHMARK_DIR="$PROJECT_ROOT/benchmark"
 BUILD_DIR="$SCRIPT_DIR/build"
-BENCHMARK_DIR="$PROJECT_ROOT/code/benchmark"
+BIN_DIR="$BUILD_DIR/bin"
 
-echo "=== Cache Padding Benchmark Build System ==="
+echo "=== Building Cache Line Padding Benchmark ==="
 echo "Project Root: $PROJECT_ROOT"
-echo "Build Directory: $BUILD_DIR"
+echo "Build Dir: $BUILD_DIR"
 
 # Create build directory
 mkdir -p "$BUILD_DIR"
 cd "$BUILD_DIR"
 
-# Configure with CMake
-echo "Configuring CMake..."
-cmake -DCMAKE_BUILD_TYPE=Release \
-      -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
-      ..
+# Run CMake configuration
+echo "Configuring with CMake..."
+cmake .. -DCMAKE_BUILD_TYPE=Release
 
 # Build
-echo "Building benchmark executable..."
-cmake --build . --config Release
+echo "Compiling..."
+make -j$(nproc)
 
-# Verify binary exists
-if [ -f "$BUILD_DIR/bin/benchmark" ]; then
-    echo "Build successful! Binary location: $BUILD_DIR/bin/benchmark"
-    echo "Binary info:"
-    ls -lh "$BUILD_DIR/bin/benchmark"
-    file "$BUILD_DIR/bin/benchmark"
-else
-    echo "ERROR: Binary not found at expected location"
+# Verify executables exist
+if [[ ! -f "$BIN_DIR/benchmark" ]] || [[ ! -f "$BIN_DIR/verify_layout" ]]; then
+    echo "ERROR: Build failed. Executables not found."
     exit 1
 fi
 
-echo "=== Build Complete ==="
+echo "=== Build Successful ==="
+echo "Executables available in: $BIN_DIR"
+echo "Run verify_layout: $BIN_DIR/verify_layout"
+echo "Run benchmark: $BIN_DIR/benchmark"

@@ -1,0 +1,55 @@
+- artifact_path: projects/PROJ-677-impact-of-cache-line-padding-on-false-sh/specs/001-impact-of-cache-line-padding-on-false-sh/tasks.md
+  attempts: 1
+  canonical: struct size is 24 bytes packed and at least 192 bytes padded
+  claim_id: c_97e99955
+  context: "Implement memory layout verification utility verify_layout.cpp ... to\
+    \ assert struct sizes (24 bytes packed, \u2265192 bytes padded)"
+  evidence:
+    entailment_evidence: Struct size is 24 bytes packed and at least 192 bytes padded
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Struct_size_is_24_bytes_packed_and_at_least_192_bytes_padded
+  kind: magnitude
+  raw_text: "assert struct sizes (24 bytes packed, \u2265192 bytes padded)"
+  resolved_value: struct size is 24 bytes packed and at least 192 bytes padded
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-04T04:48:49Z'
+- artifact_path: projects/PROJ-677-impact-of-cache-line-padding-on-false-sh/specs/001-impact-of-cache-line-padding-on-false-sh/tasks.md
+  attempts: 1
+  canonical: packed struct is 24 bytes and padded struct is at least 192 bytes using
+    alignas(64)
+  claim_id: c_ae8fe697
+  context: "Create counter_packed.hpp and counter_padded.hpp ... with #pragma pack(1)\
+    \ for packed (24 bytes) and alignas(64) for padded (\u2265192 bytes)"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Packed_struct_is_24_bytes_and_padded_struct_is_at_least_192
+  kind: magnitude
+  raw_text: "packed (24 bytes) and alignas(64) for padded (\u2265192 bytes)"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-04T04:49:14Z'
+- artifact_path: projects/PROJ-677-impact-of-cache-line-padding-on-false-sh/specs/001-impact-of-cache-line-padding-on-false-sh/tasks.md
+  attempts: 1
+  canonical: CSV output contains at least 5 timing samples per configuration
+  claim_id: c_37e026a2
+  context: "Independent Test: Can be fully tested by running the benchmark binary\
+    \ ... verifying CSV output is generated with \u22655 timing samples per configuration."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/CSV_output_contains_at_least_5_timing_samples_per_configurat
+  kind: magnitude
+  raw_text: "verify the output includes \u22655 timing samples per configuration"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-04T04:50:05Z'

@@ -1,0 +1,123 @@
+- artifact_path: projects/PROJ-138-the-effects-of-gamified-habit-tracking-o/specs/001-the-effects-of-gamified-habit-tracking-o/tasks.md
+  attempts: 1
+  canonical: synthetic dataset with 100 users
+  claim_id: c_bec6d9ca
+  context: 'T013a [P] [US1] Implement code/data/synthetic_generator.py: Generate a
+    dataset with N=100 users.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate a dataset with N=100 users.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-04T04:37:54Z'
+- artifact_path: projects/PROJ-138-the-effects-of-gamified-habit-tracking-o/specs/001-the-effects-of-gamified-habit-tracking-o/tasks.md
+  attempts: 1
+  canonical: synthetic dataset with 30 non-gamified and 70 gamified users
+  claim_id: c_a1783163
+  context: T013a [P] [US1] ... ensuring at least 30 users are gamified_status=False
+    (non-gamified) and 70 are True (gamified).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Synthetic_dataset_with_30_non-gamified_and_70_gamified_users
+  kind: magnitude
+  raw_text: ensuring at least 30 users are gamified_status=False (non-gamified) and
+    70 are True (gamified).
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-04T04:38:43Z'
+- artifact_path: projects/PROJ-138-the-effects-of-gamified-habit-tracking-o/specs/001-the-effects-of-gamified-habit-tracking-o/tasks.md
+  attempts: 1
+  canonical: halt data ingestion if valid records below 100 or non-gamified group
+    below 30
+  claim_id: c_616ae53d
+  context: T013b [US1] ... If total valid records < 100 or non-gamified group < 30,
+    log 'Data Insufficiency' or 'Group Imbalance' and halt.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If total valid records < 100 or non-gamified group < 30, log 'Data Insufficiency'
+    or 'Group Imbalance' and halt.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-04T04:38:43Z'
+- artifact_path: projects/PROJ-138-the-effects-of-gamified-habit-tracking-o/specs/001-the-effects-of-gamified-habit-tracking-o/tasks.md
+  attempts: 1
+  canonical: halt survival analysis if dropout events below 10 per group
+  claim_id: c_f6d64c03
+  context: T024 [US2] ... If events < 10 per group, generate a descriptive statistics
+    report and halt survival analysis (FR-009).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If events < 10 per group, generate a descriptive statistics report and
+    halt survival analysis.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-04T04:38:43Z'
+- artifact_path: projects/PROJ-138-the-effects-of-gamified-habit-tracking-o/specs/001-the-effects-of-gamified-habit-tracking-o/tasks.md
+  attempts: 1
+  canonical: drop Need for Achievement if VIF exceeds 5
+  claim_id: c_6e59ce5f
+  context: T021 [US2] ... If VIF > 5, drop 'Need for Achievement' (keeping Conscientiousness
+    as primary moderator per Edge Cases) and log the removal.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If VIF > 5, drop 'Need for Achievement' (keeping Conscientiousness as
+    primary moderator per Edge Cases) and log the removal.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-04T04:38:43Z'
+- artifact_path: projects/PROJ-138-the-effects-of-gamified-habit-tracking-o/specs/001-the-effects-of-gamified-habit-tracking-o/tasks.md
+  attempts: 1
+  canonical: mixed-effects model recovers coefficients within 0.01 variance
+  claim_id: c_f96e8686
+  context: 'T018 [P] [US2] Contract test: ... asserts the mixed-effects model converges
+    and recovers known coefficients within 0.01 variance on a synthetic test set.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: asserts the mixed-effects model converges and recovers known coefficients
+    within 0.01 variance on a synthetic test set.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-04T04:39:17Z'
+- artifact_path: projects/PROJ-138-the-effects-of-gamified-habit-tracking-o/specs/001-the-effects-of-gamified-habit-tracking-o/tasks.md
+  attempts: 1
+  canonical: reduce bootstrap runtime on CPU-only CI to under 30 minutes
+  claim_id: c_c0d49601
+  context: T036 [P] Optimize code/analysis/robustness.py by implementing multiprocessing
+    for a sufficient number of bootstrap iterations to reduce runtime on CPU-only
+    CI to < 30 minutes.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: optimize code/analysis/robustness.py by implementing multiprocessing for
+    a sufficient number of bootstrap iterations to reduce runtime on CPU-only CI to
+    < 30 minutes.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-04T04:39:17Z'

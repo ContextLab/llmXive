@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2302.08893",
+  "judged_at": "2026-07-04T05:10:05Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"active learners as efficient prp rerankers\" computer science",
+  "rationale": "This paper satisfies criterion (d) as a foundational methodology survey for \"active learning,\" which is the core mechanism referenced in the user's question (\"Active Learners as Efficient PRP Rerankers\"), and criterion (b) by establishing the empirical and algorithmic baseline for the independent variable (active learning strategies) within the computer science domain. Although the paper focuses on data streams rather than the specific PRP reranking application, it provides the canonical prior w",
+  "relevant": true
+}

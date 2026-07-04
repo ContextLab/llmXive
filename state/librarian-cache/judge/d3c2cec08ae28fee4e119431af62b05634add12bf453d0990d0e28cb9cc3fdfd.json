@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1208.3561",
+  "judged_at": "2026-07-04T05:10:09Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"active learners as efficient prp rerankers\" computer science",
+  "rationale": "This paper satisfies criterion (d) as a foundational methodology reference for \"active learning\" and criterion (a) by investigating the core mechanism of \"active learners\" (specifically aggressive vs. mellow approaches) which is the central component of the user's question regarding \"Active Learners as Efficient PRP Rerankers.\" Although the paper focuses on half-spaces rather than reranking, it provides the canonical theoretical and empirical baseline for the active learning strategy the user in",
+  "relevant": true
+}

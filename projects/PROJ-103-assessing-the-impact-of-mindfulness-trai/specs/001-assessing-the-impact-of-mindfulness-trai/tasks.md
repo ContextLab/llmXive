@@ -83,7 +83,7 @@
 - [~] T013 [US1] Create fMRIPrep Docker runner script at src/preprocessing/fmriprep_runner.py with appropriate thread and memory configuration settings
 - [~] T014 [US1] Implement motion parameter extraction from fMRIPrep output at src/preprocessing/extract_motion.py with output format (CSV with columns: subject_id, translation_x/y/z, rotation_x/y/z) and 6 rigid-body motion parameters
 - [~] T015 [US1] Create motion exclusion filter (>3mm translation or >3° rotation) at src/preprocessing/motion_filter.py
-- [ ] T016 [US1] Implement Nilearn lightweight preprocessing fallback (motion correction, slice timing, MNI152 normalization, 6mm smoothing, bandpass) at src/preprocessing/nilearn_fallback.py as independent alternative to T013 (not dependent on T013 completion)
+- [~] T016 [US1] Implement Nilearn lightweight preprocessing fallback (motion correction, slice timing, MNI152 normalization, 6mm smoothing, bandpass) at src/preprocessing/nilearn_fallback.py as independent alternative to T013 (not dependent on T013 completion)
 - [ ] T017 [US1] Create fMRIPrep HTML report parser for quality control at src/preprocessing/qc_parser.py with QC metrics (motion summary, SNR, temporal SNR) and output format (JSON summary + HTML report path)
 - [ ] T018 [US1] Implement dataset-variable fit verification (pre/post scans, DMN node coordinates) and document results per FR-008 at src/datasets/verify_variables.py
 - [ ] T020 [US1] Implement dataset gap logging and methods documentation for missing datasets at src/utils/gap_logging.py with log format (JSON with timestamp, dataset_id, gap_type) and documentation structure (markdown in docs/gaps.md)

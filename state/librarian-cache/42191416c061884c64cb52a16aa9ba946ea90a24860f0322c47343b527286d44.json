@@ -1,0 +1,496 @@
+{
+  "fetched_at": "2026-07-04T05:10:16Z",
+  "field": "computer science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "computer science",
+      "idea_body_excerpt": "llmXive follow-up: extending \"Active Learners as Efficient PRP Rerankers\"",
+      "target_n": 5
+    },
+    "duration_seconds": 526.616,
+    "ended_at": "2026-07-04T05:10:16Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "active learning for learning to rank reranking"
+        ],
+        [
+          2,
+          "efficient query-dependent document reranking strategies"
+        ],
+        [
+          3,
+          "active learning approaches to passage re-ranking"
+        ],
+        [
+          4,
+          "machine learning reranking for information retrieval"
+        ],
+        [
+          5,
+          "sample-efficient reranking models for search engines"
+        ],
+        [
+          6,
+          "active sampling for learning-to-rank optimization"
+        ],
+        [
+          7,
+          "lightweight rerankers for large-scale retrieval systems"
+        ],
+        [
+          8,
+          "query-specific active learning in information retrieval"
+        ],
+        [
+          9,
+          "efficient document re-ranking with limited annotation"
+        ],
+        [
+          10,
+          "active learning for neural ranking models"
+        ],
+        [
+          11,
+          "cost-effective reranking pipelines for PRP"
+        ],
+        [
+          12,
+          "selective annotation for learning to rank"
+        ],
+        [
+          13,
+          "active learning strategies for search result refinement"
+        ],
+        [
+          14,
+          "efficient neural reranking with active data selection"
+        ],
+        [
+          15,
+          "human-in-the-loop reranking for information retrieval"
+        ],
+        [
+          16,
+          "active learning for improving retrieval precision"
+        ],
+        [
+          17,
+          "low-cost reranking using active learning techniques"
+        ],
+        [
+          18,
+          "query-aware active learning for document ranking"
+        ],
+        [
+          19,
+          "iterative active learning for ranking function optimization"
+        ],
+        [
+          20,
+          "active learning for post-retrieval document filtering"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "active learning for learning to rank reranking": 3,
+        "efficient query-dependent document reranking strategies": 4,
+        "llmXive follow-up: extending \"Active Learners as Efficient PRP Rerankers\" computer science": 0
+      },
+      "total_queries_issued": 2
+    },
+    "extracted_queries": [
+      "query reranking active learning efficiency",
+      "PRP reranker LLM query expansion",
+      "retrieval augmented generation query reformulation",
+      "ranking loss function convergence speed",
+      "data efficiency information retrieval optimization"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "success_after_expansion",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2302.08893"
+      ]
+    },
+    "per_query_hit_count": {
+      "PRP reranker LLM query expansion": 0,
+      "data efficiency information retrieval optimization": 3,
+      "llmXive follow-up: extending \"Active Learners as Efficient PRP Rerankers\" computer science": 3,
+      "query reranking active learning efficiency": 0,
+      "ranking loss function convergence speed": 3,
+      "retrieval augmented generation query reformulation": 0
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 1,
+      "rejections": [
+        {
+          "primary_pointer": "2309.05503",
+          "rationale": "The paper focuses on architectural efficiency for long-document processing in Document Understanding, which is a distinct domain from the user's specific question about \"Active Learners as Efficient PRP Rerankers\" (a query retrieval/reranking mechanism). While both involve Transformers, the candidate paper does not measure the same mechanism (active learning for reranking), address the same variables (query relevance vs. document length), or provide a baseline for the specific PRP reranking task",
+          "title": "Long-Range Transformer Architectures for Document Understanding"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-07-04T05:01:30Z",
+    "term_input": {
+      "normalized": "llmxive follow-up: extending \"active learners as efficient prp rerankers\" computer science",
+      "raw": "llmXive follow-up: extending \"Active Learners as Efficient PRP Rerankers\" computer science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This white paper describes the LSST Dark Energy Science Collaboration (DESC), whose goal is the study of dark energy and related topics in fundamental physics with data from the Large Synoptic Survey Telescope (LSST). It provides an overview of dark energy science and describes the current and anticipated state of the field. It makes the case for the DESC by laying out a robust analytical framework for dark energy science that has been defined by its members and the comprehensive three-year work plan they have developed for implementing that framework. The analysis working groups cover five key probes of dark energy: weak lensing, large scale structure, galaxy clusters, Type Ia supernovae, and strong lensing. The computing working groups span cosmological simulations, galaxy catalogs, photon simulations and a systematic software and computational framework for LSST dark energy data analysis. The technical working groups make the connection between dark energy science and the LSST system. The working groups have close linkages, especially through the use of the photon simulations to study the impact of instrument design and survey strategy on analysis methodology and cosmological parameter estimation. The white paper describes several high priority tasks identified by each of the 16 working groups. Over the next three years these tasks will help prepare for LSST analysis, make synergistic connections with ongoing cosmological surveys and provide the dark energy community with state of the art analysis tools. Members of the community are invited to join the LSST DESC, according to the membership policies described in the white paper. Applications to sign up for associate membership may be made by submitting the Web form at http://www.slac.stanford.edu/exp/lsst/desc/signup.html with a short statement of the work they wish to pursue that is relevant to the LSST DESC.",
+          "claimed_authors": [
+            " LSST Dark Energy Science Collaboration"
+          ],
+          "claimed_title": "Large Synoptic Survey Telescope: Dark Energy Science Collaboration",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1211.0310"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='llmXive follow-up: extending \"Active Learners as Efficient PRP Rerankers\" comput', candidate_title='Large Synoptic Survey Telescope: Dark Energy Science Collaboration')",
+        "failed_at": "2026-07-04T05:09:51Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The large instantaneous sensitivity, a wide frequency coverage and flexible observation modes with large number of beams in the sky are the main features of the SKA observatory's two telescopes, the SKA-Low and the SKA-Mid, which are located on two different continents. Owing to these capabilities, the SKAO telescopes are going to be a game-changer for radio astronomy in general and pulsar astronomy in particular. The eleven articles in this special issue on pulsar science with the SKA Observatory describe its impact on different areas of pulsar science. In this lead article, a brief description of the two telescopes highlighting the relevant features for pulsar science is presented followed by an overview of each accompanying article, exploring the inter-relationship between different pulsar science use cases.",
+          "claimed_authors": [
+            "Bhal Chandra Joshi",
+            "Aris Karastergiou",
+            "Marta Burgay",
+            "The SKA pulsar science working group"
+          ],
+          "claimed_title": "Pulsar Science with the SKA Observatory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.16152"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='llmXive follow-up: extending \"Active Learners as Efficient PRP Rerankers\" comput', candidate_title='Pulsar Science with the SKA Observatory')",
+        "failed_at": "2026-07-04T05:09:51Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A Human Computer Interface (HCI) System for playing games is designed here for more natural communication with the machines. The system presented here is a vision-based system for detection of long voluntary eye blinks and interpretation of blink patterns for communication between man and machine. This system replaces the mouse with the human face as a new way to interact with the computer. Facial features (nose tip and eyes) are detected and tracked in realtime to use their actions as mouse events. The coordinates and movement of the nose tip in the live video feed are translated to become the coordinates and movement of the mouse pointer on the application. The left or right eye blinks fire left or right mouse click events. The system works with inexpensive USB cameras and runs at a frame rate of 30 frames per second.",
+          "claimed_authors": [
+            "S. Sumathi",
+            "S. K. Srivatsa",
+            "M. Uma Maheswari"
+          ],
+          "claimed_title": "Vision Based Game Development Using Human Computer Interaction",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1002.2191"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='llmXive follow-up: extending \"Active Learners as Efficient PRP Rerankers\" comput', candidate_title='Vision Based Game Development Using Human Computer Interaction')",
+        "failed_at": "2026-07-04T05:09:51Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Here we survey the compactness and geometric stability conjectures formulated by the participants at the 2018 IAS Emerging Topics Workshop on {\\em Scalar Curvature and Convergence}. We have tried to survey all the progress towards these conjectures as well as related examples, although it is impossible to cover everything. We focus primarily on sequences of compact Riemannian manifolds with nonnegative scalar curvature and their limit spaces. Christina Sormani is grateful to have had the opportunity to write up our ideas and has done her best to credit everyone involved within the paper even though she is the only author listed above. In truth we are a team of over thirty people working together and apart on these deep questions and we welcome everyone who is interested in these conjectures to join us.",
+          "claimed_authors": [
+            "Christina Sormani",
+            "Participants at the IAS Emerging Topics Workshop on Scalar Curvature",
+            " Convergence"
+          ],
+          "claimed_title": "Conjectures on Convergence and Scalar Curvature",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2103.10093"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Active Learners as Efficient PRP Rerankers\" comput', candidate_title='Conjectures on Convergence and Scalar Curvature')",
+        "failed_at": "2026-07-04T05:09:51Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "It is known that windowed decoding (WD) can effectively balance the performance and complexity of spatially coupled low-density parity-check (LDPC) codes. In this study, we show that information can propagate in a wave-like manner at a constant speed under WD. Additionally, we provide an upper bound for the information propagation speed on the binary erasure channel, which can assist in designing the number of iterations required within each window.",
+          "claimed_authors": [
+            "Qingqing Peng",
+            "Dongxu Chang",
+            "Guanghui Wang",
+            "Guiying Yan"
+          ],
+          "claimed_title": "On the Convergence Speed of Spatially Coupled LDPC Ensembles Under Window Decoding",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2507.06635"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Active Learners as Efficient PRP Rerankers\" comput', candidate_title='On the Convergence Speed of Spatially Coupled LDPC Ensembles Under Window Decoding')",
+        "failed_at": "2026-07-04T05:09:51Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The use of contrastive loss for representation learning has become prominent in computer vision, and it is now getting attention in Natural Language Processing (NLP). Here, we explore the idea of using a batch-softmax contrastive loss when fine-tuning large-scale pre-trained transformer models to learn better task-specific sentence embeddings for pairwise sentence scoring tasks. We introduce and study a number of variations in the calculation of the loss as well as in the overall training procedure; in particular, we find that data shuffling can be quite important. Our experimental results show sizable improvements on a number of datasets and pairwise sentence scoring tasks including classification, ranking, and regression. Finally, we offer detailed analysis and discussion, which should be useful for researchers aiming to explore the utility of contrastive loss in NLP.",
+          "claimed_authors": [
+            "Anton Chernyavskiy",
+            "Dmitry Ilvovsky",
+            "Pavel Kalinin",
+            "Preslav Nakov"
+          ],
+          "claimed_title": "Batch-Softmax Contrastive Loss for Pairwise Sentence Scoring Tasks",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2110.15725"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='llmXive follow-up: extending \"Active Learners as Efficient PRP Rerankers\" comput', candidate_title='Batch-Softmax Contrastive Loss for Pairwise Sentence Scoring Tasks')",
+        "failed_at": "2026-07-04T05:09:51Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Generative information retrieval (GenIR) is a promising neural retrieval paradigm that formulates document retrieval as a document identifier (docid) generation task, allowing for end-to-end optimization toward a unified global retrieval objective. However, existing GenIR models suffer from token-level misalignment, where models trained to predict the next token often fail to capture document-level relevance effectively. While reinforcement learning-based methods, such as reinforcement learning from relevance feedback (RLRF), aim to address this misalignment through reward modeling, they introduce significant complexity, requiring the optimization of an auxiliary reward function followed by reinforcement fine-tuning, which is computationally expensive and often unstable. To address these challenges, we propose direct document relevance optimization (DDRO), which aligns token-level docid generation with document-level relevance estimation through direct optimization via pairwise ranking, eliminating the need for explicit reward modeling and reinforcement learning. Experimental results on benchmark datasets, including MS MARCO document and Natural Questions, show that DDRO outperforms reinforcement learning-based methods, achieving a 7.4% improvement in MRR@10 for MS MARCO and a 19.9% improvement for Natural Questions. These findings highlight DDRO's potential to enhance retrieval effectiveness with a simplified optimization approach. By framing alignment as a direct optimization problem, DDRO simplifies the ranking optimization pipeline of GenIR models while offering a viable alternative to reinforcement learning-based methods.",
+          "claimed_authors": [
+            "Kidist Amde Mekonnen",
+            "Yubao Tang",
+            "Maarten de Rijke"
+          ],
+          "claimed_title": "Lightweight and Direct Document Relevance Optimization for Generative Information Retrieval",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2504.05181"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Active Learners as Efficient PRP Rerankers\" comput', candidate_title='Lightweight and Direct Document Relevance Optimization for Generative Information Retrieval')",
+        "failed_at": "2026-07-04T05:09:51Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We study distributed optimization in the presence of Byzantine adversaries, where both data and computation are distributed among $m$ worker machines, $t$ of which may be corrupt. The compromised nodes may collaboratively and arbitrarily deviate from their pre-specified programs, and a designated (master) node iteratively computes the model/parameter vector for generalized linear models. In this work, we primarily focus on two iterative algorithms: Proximal Gradient Descent (PGD) and Coordinate Descent (CD). Gradient descent (GD) is a special case of these algorithms. PGD is typically used in the data-parallel setting, where data is partitioned across different samples, whereas, CD is used in the model-parallelism setting, where data is partitioned across the parameter space.\n  In this paper, we propose a method based on data encoding and error correction over real numbers to combat adversarial attacks. We can tolerate up to $t\\leq \\lfloor\\frac{m-1}{2}\\rfloor$ corrupt worker nodes, which is information-theoretically optimal. We give deterministic guarantees, and our method does not assume any probability distribution on the data. We develop a {\\em sparse} encoding scheme which enables computationally efficient data encoding and decoding. We demonstrate a trade-off between the corruption threshold and the resource requirements (storage, computational, and communication complexity). As an example, for $t\\leq\\frac{m}{3}$, our scheme incurs only a {\\em constant} overhead on these resources, over that required by the plain distributed PGD/CD algorithms which provide no adversarial protection. To the best of our knowledge, ours is the first paper that makes CD secure against adversarial attacks.\n  Our encoding scheme extends efficiently to the data streaming model and for stochastic gradient descent (SGD). We also give experimental results to show the efficacy of our proposed schemes.",
+          "claimed_authors": [
+            "Deepesh Data",
+            "Linqi Song",
+            "Suhas Diggavi"
+          ],
+          "claimed_title": "Data Encoding for Byzantine-Resilient Distributed Optimization",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1907.02664"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='llmXive follow-up: extending \"Active Learners as Efficient PRP Rerankers\" comput', candidate_title='Data Encoding for Byzantine-Resilient Distributed Optimization')",
+        "failed_at": "2026-07-04T05:09:51Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Many questions cannot be answered simply; their answers must include numerous nuanced details and additional context. Complex Answer Retrieval (CAR) is the retrieval of answers to such questions. In their simplest form, these questions are constructed from a topic entity (e.g., `cheese') and a facet (e.g., `health effects'). While topic matching has been thoroughly explored, we observe that some facets use general language that is unlikely to appear verbatim in answers. We call these low-utility facets. In this work, we present an approach to CAR that identifies and addresses low-utility facets. We propose two estimators of facet utility. These include exploiting the hierarchical structure of CAR queries and using facet frequency information from training data. To improve the retrieval performance on low-utility headings, we also include entity similarity scores using knowledge graph embeddings. We apply our approaches to a leading neural ranking technique, and evaluate using the TREC CAR dataset. We find that our approach perform significantly better than the unmodified neural ranker and other leading CAR techniques. We also provide a detailed analysis of our results, and verify that low-utility facets are indeed more difficult to match, and that our approach improves the performance for these difficult queries.",
+          "claimed_authors": [
+            "Sean MacAvaney",
+            "Andrew Yates",
+            "Arman Cohan",
+            "Luca Soldaini",
+            "Kai Hui",
+            "Nazli Goharian",
+            "Ophir Frieder"
+          ],
+          "claimed_title": "Overcoming low-utility facets for complex answer retrieval",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1811.08772"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Active Learners as Efficient PRP Rerankers\" comput', candidate_title='Overcoming low-utility facets for complex answer retrieval')",
+        "failed_at": "2026-07-04T05:09:51Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Davide Cacciarelli",
+            "Murat Kulahci"
+          ],
+          "title": "Active learning for data streams: a survey",
+          "venue": "arXiv",
+          "year": 2023
+        },
+        "primary_pointer": "2302.08893",
+        "summary": "Online active learning is a paradigm in machine learning that aims to select the most informative data points to label from a data stream. The problem of minimizing the cost associated with collecting labeled observations has gained a lot of attention in recent years, particularly in real-world applications where data is only available in an unlabeled form. Annotating each observation can be time-consuming and costly, making it difficult to obtain large amounts of labeled data. To overcome this issue, many active learning strategies have been proposed in the last decades, aiming to select the most informative observations for labeling in order to improve the performance of machine learning models. These approaches can be broadly divided into two categories: static pool-based and stream-based active learning. Pool-based active learning involves selecting a subset of observations from a closed pool of unlabeled data, and it has been the focus of many surveys and literature reviews. However, the growing availability of data streams has led to an increase in the number of approaches that focus on online active learning, which involves continuously selecting and labeling observations as they arrive in a stream. This work aims to provide an overview of the most recently proposed approaches for selecting the most informative observations from data streams in real time. We review the various techniques that have been proposed and discuss their strengths and limitations, as well as the challenges and opportunities that exist in this area of research.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2302.08893",
+          "http_status": 200,
+          "pdf_sample_score": 0.3247,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-04T05:09:57Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Leonardo Rigutini",
+            "Tiziano Papini",
+            "Marco Maggini",
+            "Franco Scarselli"
+          ],
+          "title": "SortNet: Learning To Rank By a Neural-Based Sorting Algorithm",
+          "venue": "arXiv",
+          "year": 2023
+        },
+        "primary_pointer": "2311.01864",
+        "summary": "The problem of relevance ranking consists of sorting a set of objects with respect to a given criterion. Since users may prefer different relevance criteria, the ranking algorithms should be adaptable to the user needs. Two main approaches exist in literature for the task of learning to rank: 1) a score function, learned by examples, which evaluates the properties of each object yielding an absolute relevance value that can be used to order the objects or 2) a pairwise approach, where a \"preference function\" is learned using pairs of objects to define which one has to be ranked first. In this paper, we present SortNet, an adaptive ranking algorithm which orders objects using a neural network as a comparator. The neural network training set provides examples of the desired ordering between pairs of items and it is constructed by an iterative procedure which, at each iteration, adds the most informative training examples. Moreover, the comparator adopts a connectionist architecture that is particularly suited for implementing a preference function. We also prove that such an architecture has the universal approximation property and can implement a wide class of functions. Finally, the proposed algorithm is evaluated on the LETOR dataset showing promising performances in comparison with other state of the art algorithms.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2311.01864",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-04T05:09:58Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Alon Gonen",
+            "Sivan Sabato",
+            "Shai Shalev-Shwartz"
+          ],
+          "title": "Efficient Active Learning of Halfspaces: an Aggressive Approach",
+          "venue": "arXiv",
+          "year": 2012
+        },
+        "primary_pointer": "1208.3561",
+        "summary": "We study pool-based active learning of half-spaces. We revisit the aggressive approach for active learning in the realizable case, and show that it can be made efficient and practical, while also having theoretical guarantees under reasonable assumptions. We further show, both theoretically and experimentally, that it can be preferable to mellow approaches. Our efficient aggressive active learner of half-spaces has formal approximation guarantees that hold when the pool is separable with a margin. While our analysis is focused on the realizable setting, we show that a simple heuristic allows using the same algorithm successfully for pools with low error as well. We further compare the aggressive approach to the mellow approach, and prove that there are cases in which the aggressive approach results in significantly better label complexity compared to the mellow approach. We demonstrate experimentally that substantial improvements in label complexity can be achieved using the aggressive approach, for both realizable and low-error settings.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1208.3561",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-04T05:09:58Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Prasann Singhal",
+            "Jiacheng Xu",
+            "Xi Ye",
+            "Greg Durrett"
+          ],
+          "title": "EEL: Efficiently Encoding Lattices for Reranking",
+          "venue": "arXiv",
+          "year": 2023
+        },
+        "primary_pointer": "2306.00947",
+        "summary": "Standard decoding approaches for conditional text generation tasks typically search for an output hypothesis with high model probability, but this may not yield the best hypothesis according to human judgments of quality. Reranking to optimize for \"downstream\" metrics can better optimize for quality, but many metrics of interest are computed with pre-trained language models, which are slow to apply to large numbers of hypotheses. We explore an approach for reranking hypotheses by using Transformers to efficiently encode lattices of generated outputs, a method we call EEL. With a single Transformer pass over the entire lattice, we can approximately compute a contextualized representation of each token as if it were only part of a single hypothesis in isolation. We combine this approach with a new class of token-factored rerankers (TFRs) that allow for efficient extraction of high reranker-scoring hypotheses from the lattice. Empirically, our approach incurs minimal degradation error compared to the exponentially slower approach of encoding each hypothesis individually. When applying EEL with TFRs across three text generation tasks, our results show both substantial speedup compared to naive reranking and often better performance on downstream metrics than comparable approaches.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2306.00947",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-04T05:10:00Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Zhiyuan Peng",
+            "Xuyang Wu",
+            "Qifan Wang",
+            "Sravanthi Rajanala",
+            "Yi Fang"
+          ],
+          "title": "Q-PEFT: Query-dependent Parameter Efficient Fine-tuning for Text Reranking with Large Language Models",
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2404.04522",
+        "summary": "Parameter Efficient Fine-Tuning (PEFT) methods have been extensively utilized in Large Language Models (LLMs) to improve the down-streaming tasks without the cost of fine-tuing the whole LLMs. Recent studies have shown how to effectively use PEFT for fine-tuning LLMs in ranking tasks with convincing performance; there are some limitations, including the learned prompt being fixed for different documents, overfitting to specific tasks, and low adaptation ability. In this paper, we introduce a query-dependent parameter efficient fine-tuning (Q-PEFT) approach for text reranking to leak the information of the true queries to LLMs and then make the generation of true queries from input documents much easier. Specifically, we utilize the query to extract the top-$k$ tokens from concatenated documents, serving as contextual clues. We further augment Q-PEFT by substituting the retrieval mechanism with a multi-head attention layer to achieve end-to-end training and cover all the tokens in the documents, guiding the LLMs to generate more document-specific synthetic queries, thereby further improving the reranking performance. Extensive experiments are conducted on four public datasets, demonstrating the effectiveness of our proposed approach.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2404.04522",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.8333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-04T05:10:03Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Hervé Déjean",
+            "Stéphane Clinchant"
+          ],
+          "title": "Efficient Listwise Reranking with Compressed Document Representations",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2604.26483",
+        "summary": "Reranking, the process of refining the output from a first-stage retriever, is often considered computationally expensive, especially when using Large Language Models (LLMs). A common approach to mitigate this cost involves utilizing smaller LLMs or controlling input length. Inspired by recent advances in document compression for retrieval-augmented generation (RAG), we introduce RRK, an efficient and effective listwise reranker compressing documents into multi-token fixed-size embedding representations. Our simple training via distillation shows that this combination of rich compressed representations and listwise reranking yields a highly efficient and effective system. In particular, our 8B-parameter model runs 3x-18x faster than smaller rerankers (0.6-4B parameters) while matching or outperforming them in effectiveness. The efficiency gains are even more striking on long-document benchmarks, where RRK widens its advantage further.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2604.26483",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-04T05:10:03Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "llmxive follow-up: extending \"active learners as efficient prp rerankers\" computer science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

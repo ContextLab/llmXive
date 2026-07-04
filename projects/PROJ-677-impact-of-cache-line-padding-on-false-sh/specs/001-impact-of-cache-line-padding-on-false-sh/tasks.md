@@ -58,7 +58,7 @@
 Examples of foundational tasks (adjust based on your project):
 
 - [ ] T004 [FR-002] [Plan-Principle-VII] Create `hardware_spec.yaml` generator script in `projects/PROJ-677-impact-of-cache-line-padding-false-sh/code/analysis/hardware_detect.py` to detect core count, cache line size, and set CPU governor to 'performance'
-- [ ] T005 [US1] Implement memory layout verification utility `verify_layout.cpp` in `projects/PROJ-677-impact-of-cache-line-padding-false-sh/code/benchmark/` to assert struct sizes (24 bytes packed, ≥192 bytes padded)
+- [ ] T005 [US1] Implement memory layout verification utility `verify_layout.cpp` in `projects/PROJ-677-impact-of-cache-line-padding-false-sh/code/benchmark/` to {{claim:c_97e99955}}
  - **DEPENDS_ON**: T007
 - [ ] T006 [P] Create Pydantic schemas in `projects/PROJ-677-impact-of-cache-line-padding-false-sh/code/analysis/contracts/` for `BenchmarkRun` and `AggregatedResult`
 - [~] T007 [P] [FR-002] Create `counter_packed.hpp` and `counter_padded.hpp` in `projects/PROJ-677-impact-of-cache-line-padding-false-sh/code/benchmark/` with `#pragma pack(1)` for packed (24 bytes) and `alignas(64)` for padded (≥192 bytes)
@@ -89,7 +89,7 @@ Examples of foundational tasks (adjust based on your project):
 - [~] T014 [P] [US1] Implement `main.cpp` in `projects/PROJ-677-impact-of-cache-line-padding-false-sh/code/benchmark/` with argument parsing for thread count and configuration (packed/padded)
 - [~] T015 [US1] Implement `build.sh` in `projects/PROJ-677-impact-of-cache-line-padding-false-sh/code/scripts/` to compile `main.cpp` with `-O3 -march=native` and `verify_layout.cpp`
 - [~] T016 [US1] Add single-threaded validation logic in `main.cpp` to ensure atomic increments are not optimized away (FR-004)
-- [ ] T017 [US1] Add logging for compilation warnings and errors in `build.sh` and exit with code 1 on failure
+- [~] T017 [US1] Add logging for compilation warnings and errors in `build.sh` and exit with code 1 on failure
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -103,12 +103,12 @@ Examples of foundational tasks (adjust based on your project):
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T019 [P] [US2] Contract test for CSV output schema in `projects/PROJ-677-impact-of-cache-line-padding-false-sh/tests/contract/test_csv_schema.py`
-- [ ] T020 [P] [US2] Integration test for `run_benchmarks.sh` generating a set of samples in `projects/PROJ-677-impact-of-cache-line-padding-false-sh/tests/integration/test_benchmark_run.sh`
+- [~] T019 [P] [US2] Contract test for CSV output schema in `projects/PROJ-677-impact-of-cache-line-padding-false-sh/tests/contract/test_csv_schema.py`
+- [~] T020 [P] [US2] Integration test for `run_benchmarks.sh` generating a set of samples in `projects/PROJ-677-impact-of-cache-line-padding-false-sh/tests/integration/test_benchmark_run.sh`
 
 ### Implementation for User Story 2
 
-- [ ] T021 [P] [US2] Implement multi-threaded worker logic in `main.cpp` using `std::thread` and `std::atomic<long>` for a large number of increments per thread, allocating a shared array of structs where each thread writes to a distinct element (FR-004, FR-010)
+- [~] T021 [P] [US2] Implement multi-threaded worker logic in `main.cpp` using `std::thread` and `std::atomic<long>` for a large number of increments per thread, allocating a shared array of structs where each thread writes to a distinct element (FR-004, FR-010)
 - [ ] T022 [US2] Implement `run_benchmarks.sh` in `projects/PROJ-677-impact-of-cache-line-padding-false-sh/code/scripts/` to iterate thread counts {2, 4, 8} and configs {packed, padded}
 - [ ] T023 [US2] Implement wall-clock timing logic in `main.cpp` using `std::chrono::high_resolution_clock` and output to CSV (FR-006)
 - [ ] T024 [US2] Implement CSV writer in `main.cpp` or `run_benchmarks.sh` to append rows with `thread_count, configuration, iteration_count, wall_clock_time_ms`

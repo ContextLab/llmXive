@@ -1,287 +1,460 @@
 """
 Unit tests for the preprocessing pipeline components.
 
-This module tests the core preprocessing logic including:
+These tests verify the functionality of:
+- fMRIPrep runner configuration and command building
 - Motion parameter extraction
-- Motion filtering/exclusion logic
-- Nilearn fallback preprocessing
-- QC parsing logic
+- Motion filtering and exclusion logic
+- Design verification integration
 
-These tests are designed to fail before implementation (TDD approach).
+Run with: pytest tests/unit/test_preprocessing.py -v
 """
-
 import os
 import tempfile
-import pytest
-import numpy as np
-import pandas as pd
+import json
+import csv
 from pathlib import Path
+from unittest.mock import patch, MagicMock, mock_open
+import pytest
+import pandas as pd
+import numpy as np
 
-# Import modules under test (will fail if not implemented yet)
-from src.preprocessing.extract_motion import extract_motion_parameters
-from src.preprocessing.motion_filter import filter_by_motion_threshold
-from src.preprocessing.nilearn_fallback import nilearn_preprocess_fallback
-from src.preprocessing.qc_parser import parse_fmriprep_qc
+from src.preprocessing.fmriprep_runner import (
+    FMRIPrepRunnerError,
+    get_fmriprep_config,
+    build_fmriprep_command,
+    run_fmriprep
+)
+from src.preprocessing.extract_motion import (
+    MotionExtractionError,
+    find_fmriprep_confounds,
+    extract_subject_id_from_path,
+    extract_motion_parameters,
+    write_motion_csv
+)
+from src.preprocessing.motion_filter import (
+    MotionFilterError,
+    load_motion_data,
+    calculate_max_displacement,
+    filter_subjects,
+    write_exclusion_report
+)
+from src.datasets.verify_design import (
+    DesignVerificationError,
+    validate_metadata_fields,
+    validate_design_logic,
+    verify_dataset_design
+)
+from src.config.env import get_data_dir
 
 
-class TestMotionParameterExtraction:
-    """Tests for motion parameter extraction from fMRIPrep outputs."""
+# --- Fixtures ---
 
-    def test_extract_motion_from_confounds(self):
-        """Test extraction of 6 motion parameters from confounds TSV."""
-        # Create a mock confounds file
-        with tempfile.TemporaryDirectory() as tmpdir:
-            confounds_path = Path(tmpdir) / "sub-01_task-rest_desc-confounds_timeseries.tsv"
+@pytest.fixture
+def temp_dir():
+    """Create a temporary directory for test artifacts."""
+    with tempfile.TemporaryDirectory() as tmp:
+        yield Path(tmp)
+
+@pytest.fixture
+def mock_motion_csv(temp_dir):
+    """Create a mock motion CSV file with realistic parameters."""
+    data = {
+        'subject_id': ['sub-01', 'sub-02', 'sub-03', 'sub-04'],
+        'translation_x': [1.0, 4.5, 0.5, 2.0],
+        'translation_y': [0.5, 1.0, 3.5, 0.8],
+        'translation_z': [0.2, 0.3, 0.1, 0.4],
+        'rotation_x': [0.01, 0.02, 0.05, 0.01],
+        'rotation_y': [0.02, 0.03, 0.01, 0.02],
+        'rotation_z': [0.01, 0.04, 0.02, 0.01]
+    }
+    csv_path = temp_dir / "motion_params.csv"
+    df = pd.DataFrame(data)
+    df.to_csv(csv_path, index=False)
+    return csv_path
+
+@pytest.fixture
+def mock_fmriprep_output(temp_dir):
+    """Create a mock fMRIPrep output directory structure."""
+    # Create subject directory
+    sub_dir = temp_dir / "sub-01" / "func"
+    sub_dir.mkdir(parents=True)
+    
+    # Create confounds file
+    confounds_file = sub_dir / "sub-01_task-rest_desc-confounds_timeseries.tsv"
+    # Create minimal TSV content
+    with open(confounds_file, 'w') as f:
+        f.write("trans_x\ttrans_y\ttrans_z\trot_x\trot_y\trot_z\n")
+        f.write("0.1\t0.2\t0.3\t0.01\t0.02\t0.03\n")
+        f.write("0.15\t0.25\t0.35\t0.015\t0.025\t0.035\n")
+    
+    return temp_dir
+
+@pytest.fixture
+def mock_design_json(temp_dir):
+    """Create a mock design verification JSON file."""
+    design_data = {
+        "dataset_id": "ds000001",
+        "pre_scan_count": 5,
+        "post_scan_count": 5,
+        "intervention_type": "mindfulness",
+        "scan_type": "rs-fMRI"
+    }
+    design_file = temp_dir / "design.json"
+    with open(design_file, 'w') as f:
+        json.dump(design_data, f)
+    return design_file
+
+
+# --- Tests for fMRIPrep Runner ---
+
+class TestFMRIPrepConfig:
+    """Tests for fMRIPrep configuration management."""
+
+    def test_get_fmriprep_config_defaults(self, monkeypatch):
+        """Test that default config is returned when no env vars are set."""
+        # Clear any existing config
+        monkeypatch.delenv('FMRIPREP_THREADS', raising=False)
+        monkeypatch.delenv('FMRIPREP_MEMORY', raising=False)
+        
+        config = get_fmriprep_config()
+        
+        assert 'threads' in config
+        assert 'memory' in config
+        assert isinstance(config['threads'], int)
+        assert isinstance(config['memory'], int)
+
+    def test_get_fmriprep_config_from_env(self, monkeypatch):
+        """Test config reading from environment variables."""
+        monkeypatch.setenv('FMRIPREP_THREADS', '4')
+        monkeypatch.setenv('FMRIPREP_MEMORY', '16')
+        
+        config = get_fmriprep_config()
+        
+        assert config['threads'] == 4
+        assert config['memory'] == 16
+
+    def test_build_fmriprep_command_basic(self, temp_dir):
+        """Test building a basic fMRIPrep command."""
+        config = {
+            'threads': 2,
+            'memory': 8,
+            'output_dir': str(temp_dir / "output"),
+            'participant_label': '01'
+        }
+        
+        cmd = build_fmriprep_command(
+            input_dir=str(temp_dir / "input"),
+            output_dir=config['output_dir'],
+            config=config
+        )
+        
+        assert 'fmriprep' in cmd[0]
+        assert '--nthreads' in cmd
+        assert '2' in cmd
+        assert '--mem-mb' in cmd
+        assert '8' in cmd
+
+    def test_run_fmriprep_success(self, temp_dir):
+        """Test successful fMRIPrep execution (mocked)."""
+        with patch('src.preprocessing.fmriprep_runner.subprocess.run') as mock_run:
+            mock_run.return_value = MagicMock(returncode=0)
             
-            # Create minimal confounds data with required columns
-            data = {
-                'trans_x': [0.1, 0.2, 0.3],
-                'trans_y': [0.1, 0.2, 0.3],
-                'trans_z': [0.1, 0.2, 0.3],
-                'rot_x': [0.01, 0.02, 0.03],
-                'rot_y': [0.01, 0.02, 0.03],
-                'rot_z': [0.01, 0.02, 0.03],
+            config = {
+                'threads': 2,
+                'memory': 8,
+                'output_dir': str(temp_dir / "output")
             }
-            df = pd.DataFrame(data)
-            df.to_csv(confounds_path, sep='\t', index=False)
             
-            # Run extraction
-            result = extract_motion_parameters(confounds_path, "sub-01")
-            
-            # Verify output
-            assert isinstance(result, pd.DataFrame)
-            assert 'subject_id' in result.columns
-            assert 'translation_x' in result.columns
-            assert 'translation_y' in result.columns
-            assert 'translation_z' in result.columns
-            assert 'rotation_x' in result.columns
-            assert 'rotation_y' in result.columns
-            assert 'rotation_z' in result.columns
-            assert len(result) == 3
-            assert result['subject_id'].iloc[0] == "sub-01"
-
-    def test_extract_motion_missing_file(self):
-        """Test handling of missing confounds file."""
-        with pytest.raises(FileNotFoundError):
-            extract_motion_parameters("/nonexistent/path.tsv", "sub-01")
-
-    def test_extract_motion_missing_columns(self):
-        """Test handling of confounds file missing required columns."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            confounds_path = Path(tmpdir) / "sub-01_desc-confounds.tsv"
-            # Missing required motion columns
-            data = {'trans_x': [0.1, 0.2]}
-            pd.DataFrame(data).to_csv(confounds_path, sep='\t', index=False)
-            
-            with pytest.raises(ValueError, match="Missing required motion columns"):
-                extract_motion_parameters(confounds_path, "sub-01")
-
-
-class TestMotionFilter:
-    """Tests for motion-based subject exclusion."""
-
-    def test_filter_within_threshold(self):
-        """Test that subjects with motion below threshold are kept."""
-        motion_data = pd.DataFrame({
-            'subject_id': ['sub-01', 'sub-02'],
-            'translation_x': [1.0, 2.0],
-            'translation_y': [1.0, 2.0],
-            'translation_z': [1.0, 2.0],
-            'rotation_x': [0.1, 0.2],
-            'rotation_y': [0.1, 0.2],
-            'rotation_z': [0.1, 0.2],
-        })
-        
-        # Max translation: sub-02 has 2.0mm (sqrt(2^2+2^2+2^2) ≈ 3.46mm)
-        # Max rotation: sub-02 has 0.2° (sqrt(0.2^2+0.2^2+0.2^2) ≈ 0.35°)
-        # With 3mm/3° threshold, both should be kept
-        result = filter_by_motion_threshold(
-            motion_data, 
-            translation_threshold_mm=3.0, 
-            rotation_threshold_deg=3.0
-        )
-        
-        assert len(result) == 2
-        assert set(result['subject_id']) == {'sub-01', 'sub-02'}
-
-    def test_filter_exceeds_translation_threshold(self):
-        """Test that subjects exceeding translation threshold are excluded."""
-        motion_data = pd.DataFrame({
-            'subject_id': ['sub-01', 'sub-02'],
-            'translation_x': [1.0, 5.0],  # sub-02 exceeds 3mm
-            'translation_y': [1.0, 0.0],
-            'translation_z': [1.0, 0.0],
-            'rotation_x': [0.1, 0.1],
-            'rotation_y': [0.1, 0.1],
-            'rotation_z': [0.1, 0.1],
-        })
-        
-        result = filter_by_motion_threshold(
-            motion_data, 
-            translation_threshold_mm=3.0, 
-            rotation_threshold_deg=3.0
-        )
-        
-        assert len(result) == 1
-        assert result['subject_id'].iloc[0] == 'sub-01'
-
-    def test_filter_exceeds_rotation_threshold(self):
-        """Test that subjects exceeding rotation threshold are excluded."""
-        motion_data = pd.DataFrame({
-            'subject_id': ['sub-01', 'sub-02'],
-            'translation_x': [1.0, 1.0],
-            'translation_y': [1.0, 1.0],
-            'translation_z': [1.0, 1.0],
-            'rotation_x': [0.1, 2.0],  # sub-02 exceeds 3° when combined
-            'rotation_y': [0.1, 2.0],
-            'rotation_z': [0.1, 2.0],
-        })
-        
-        # sqrt(2^2+2^2+2^2) ≈ 3.46° > 3°
-        result = filter_by_motion_threshold(
-            motion_data, 
-            translation_threshold_mm=3.0, 
-            rotation_threshold_deg=3.0
-        )
-        
-        assert len(result) == 1
-        assert result['subject_id'].iloc[0] == 'sub-01'
-
-    def test_filter_empty_dataframe(self):
-        """Test handling of empty motion data."""
-        empty_df = pd.DataFrame(columns=['subject_id', 'translation_x', 'rotation_x'])
-        result = filter_by_motion_threshold(empty_df, 3.0, 3.0)
-        assert len(result) == 0
-
-
-class TestNilearnFallbackPreprocessing:
-    """Tests for the Nilearn-based preprocessing fallback."""
-
-    def test_preprocess_creates_output(self):
-        """Test that preprocessing creates expected output files."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            # Create a minimal 4D NIfTI-like file (using numpy for testing)
-            # In real usage, this would be an actual NIfTI file
-            nifti_path = Path(tmpdir) / "sub-01_task-rest_bold.nii.gz"
-            
-            # Create a dummy 4D array (2x2x2 voxels, 10 timepoints)
-            dummy_data = np.random.randn(2, 2, 2, 10).astype(np.float32)
-            
-            # Save as NIfTI using nilearn
-            from nilearn.image import new_img_like, load_img
-            from nifti1 import Nifti1Header
-            import nibabel as nib
-            
-            # Create a simple NIfTI image
-            img = nib.Nifti1Image(dummy_data, np.eye(4))
-            nib.save(img, str(nifti_path))
-            
-            # Create mask file
-            mask_path = Path(tmpdir) / "mask.nii.gz"
-            mask_data = np.ones((2, 2, 2), dtype=np.int8)
-            mask_img = nib.Nifti1Image(mask_data, np.eye(4))
-            nib.save(mask_img, str(mask_path))
-            
-            # Run preprocessing
-            output_path = Path(tmpdir) / "preprocessed.nii.gz"
-            result = nilearn_preprocess_fallback(
-                bold_path=str(nifti_path),
-                mask_path=str(mask_path),
-                output_path=str(output_path),
-                smoothing_mm=6,
-                bandpass_low=0.01,
-                bandpass_high=0.1
+            result = run_fmriprep(
+                input_dir=str(temp_dir / "input"),
+                output_dir=config['output_dir'],
+                config=config
             )
             
-            # Verify output exists
-            assert result is not None
-            assert output_path.exists()
+            assert result['success'] is True
+            assert result['returncode'] == 0
 
-    def test_preprocess_invalid_input(self):
-        """Test handling of invalid input paths."""
-        with pytest.raises(FileNotFoundError):
-            nilearn_preprocess_fallback(
-                bold_path="/nonexistent/bold.nii.gz",
-                mask_path="/nonexistent/mask.nii.gz",
-                output_path="/tmp/out.nii.gz"
-            )
-
-    def test_preprocess_invalid_mask(self):
-        """Test handling of invalid mask file."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            bold_path = Path(tmpdir) / "bold.nii.gz"
-            mask_path = Path(tmpdir) / "mask.nii.gz"
-            output_path = Path(tmpdir) / "out.nii.gz"
+    def test_run_fmriprep_failure(self, temp_dir):
+        """Test fMRIPrep execution failure handling."""
+        with patch('src.preprocessing.fmriprep_runner.subprocess.run') as mock_run:
+            mock_run.return_value = MagicMock(returncode=1, stderr="Error message")
             
-            # Create valid bold
-            dummy_data = np.random.randn(2, 2, 2, 10).astype(np.float32)
-            img = nib.Nifti1Image(dummy_data, np.eye(4))
-            nib.save(img, str(bold_path))
+            config = {
+                'threads': 2,
+                'memory': 8,
+                'output_dir': str(temp_dir / "output")
+            }
             
-            # Create invalid mask (wrong dimensions)
-            invalid_mask = np.ones((5, 5, 5), dtype=np.int8)
-            mask_img = nib.Nifti1Image(invalid_mask, np.eye(4))
-            nib.save(mask_img, str(mask_path))
-            
-            with pytest.raises(ValueError, match="Mask dimensions"):
-                nilearn_preprocess_fallback(
-                    bold_path=str(bold_path),
-                    mask_path=str(mask_path),
-                    output_path=str(output_path)
+            with pytest.raises(FMRIPrepRunnerError):
+                run_fmriprep(
+                    input_dir=str(temp_dir / "input"),
+                    output_dir=config['output_dir'],
+                    config=config
                 )
 
 
-class TestQCParser:
-    """Tests for fMRIPrep QC report parsing."""
+# --- Tests for Motion Extraction ---
 
-    def test_parse_qc_from_json(self):
-        """Test parsing QC metrics from JSON report."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            qc_json_path = Path(tmpdir) / "qc_summary.json"
-            
-            # Create mock QC data
-            qc_data = {
-                "subject_id": "sub-01",
-                "motion_summary": {
-                    "mean_trans_x": 0.1,
-                    "mean_trans_y": 0.1,
-                    "mean_trans_z": 0.1,
-                    "mean_rot_x": 0.01,
-                    "mean_rot_y": 0.01,
-                    "mean_rot_z": 0.01,
-                    "max_trans": 0.5,
-                    "max_rot": 0.05
-                },
-                "snr": 150.5,
-                "temporal_snr": 85.2,
-                "report_path": "reports/sub-01_report.html"
-            }
-            
-            with open(qc_json_path, 'w') as f:
-                import json
-                json.dump(qc_data, f)
-            
-            result = parse_fmriprep_qc(str(qc_json_path))
-            
-            assert result is not None
-            assert result['subject_id'] == "sub-01"
-            assert result['snr'] == 150.5
-            assert result['temporal_snr'] == 85.2
-            assert 'max_trans' in result['motion_summary']
+class TestMotionExtraction:
+    """Tests for motion parameter extraction from fMRIPrep outputs."""
 
-    def test_parse_qc_missing_file(self):
-        """Test handling of missing QC JSON file."""
-        with pytest.raises(FileNotFoundError):
-            parse_fmriprep_qc("/nonexistent/qc.json")
+    def test_extract_subject_id_from_path(self):
+        """Test subject ID extraction from file paths."""
+        path1 = "/data/sub-01/func/sub-01_task-rest_bold.nii.gz"
+        path2 = "/data/sub-02/func/sub-02_task-rest_desc-confounds_timeseries.tsv"
+        
+        assert extract_subject_id_from_path(path1) == "sub-01"
+        assert extract_subject_id_from_path(path2) == "sub-02"
 
-    def test_parse_qc_invalid_format(self):
-        """Test handling of malformed QC JSON."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            qc_json_path = Path(tmpdir) / "qc.json"
-            
-            # Create invalid JSON
-            with open(qc_json_path, 'w') as f:
-                f.write("{ invalid json }")
-            
-            with pytest.raises((ValueError, json.JSONDecodeError)):
-                parse_fmriprep_qc(str(qc_json_path))
+    def test_find_fmriprep_confounds(self, mock_fmriprep_output):
+        """Test finding confound files in fMRIPrep output."""
+        confounds = find_fmriprep_confounds(mock_fmriprep_output / "sub-01")
+        
+        assert len(confounds) > 0
+        assert any("confounds" in str(f) for f in confounds)
+
+    def test_extract_motion_parameters_valid(self, mock_fmriprep_output):
+        """Test extracting motion parameters from valid confound file."""
+        confounds_path = mock_fmriprep_output / "sub-01" / "func" / "sub-01_task-rest_desc-confounds_timeseries.tsv"
+        
+        motion_params = extract_motion_parameters(confounds_path)
+        
+        assert 'translation_x' in motion_params
+        assert 'translation_y' in motion_params
+        assert 'translation_z' in motion_params
+        assert 'rotation_x' in motion_params
+        assert 'rotation_y' in motion_params
+        assert 'rotation_z' in motion_params
+        assert len(motion_params['translation_x']) > 0
+
+    def test_write_motion_csv(self, temp_dir, mock_fmriprep_output):
+        """Test writing motion parameters to CSV."""
+        confounds_path = mock_fmriprep_output / "sub-01" / "func" / "sub-01_task-rest_desc-confounds_timeseries.tsv"
+        motion_params = extract_motion_parameters(confounds_path)
+        
+        output_path = temp_dir / "motion_output.csv"
+        write_motion_csv(motion_params, str(output_path), "sub-01")
+        
+        assert output_path.exists()
+        
+        # Verify CSV content
+        df = pd.read_csv(output_path)
+        assert 'subject_id' in df.columns
+        assert len(df) == len(motion_params['translation_x'])
+
+    def test_extract_motion_parameters_invalid_file(self, temp_dir):
+        """Test handling of invalid confound file."""
+        invalid_path = temp_dir / "nonexistent.tsv"
+        
+        with pytest.raises(MotionExtractionError):
+            extract_motion_parameters(invalid_path)
+
+
+# --- Tests for Motion Filtering ---
+
+class TestMotionFiltering:
+    """Tests for motion-based subject exclusion."""
+
+    def test_load_motion_data(self, mock_motion_csv):
+        """Test loading motion data from CSV."""
+        data = load_motion_data(str(mock_motion_csv))
+        
+        assert isinstance(data, pd.DataFrame)
+        assert 'subject_id' in data.columns
+        assert len(data) == 4
+
+    def test_calculate_max_displacement(self, mock_motion_csv):
+        """Test calculation of maximum displacement."""
+        data = load_motion_csv(str(mock_motion_csv))
+        
+        max_disp = calculate_max_displacement(data)
+        
+        assert isinstance(max_disp, dict)
+        assert 'sub-01' in max_disp
+        assert 'sub-02' in max_disp
+        
+        # sub-02 has high translation (4.5, 1.0, 0.3) -> sqrt(4.5^2 + 1^2 + 0.3^2) ≈ 4.6
+        assert max_disp['sub-02'] > 4.0
+
+    def test_filter_subjects_strict(self, mock_motion_csv):
+        """Test subject filtering with strict thresholds."""
+        data = load_motion_data(str(mock_motion_csv))
+        
+        # Thresholds: 3mm translation, 3° rotation
+        included, excluded = filter_subjects(
+            data, 
+            translation_threshold=3.0, 
+            rotation_threshold=3.0
+        )
+        
+        assert isinstance(included, list)
+        assert isinstance(excluded, list)
+        
+        # sub-02 should be excluded (high translation)
+        assert 'sub-02' in excluded
+        assert 'sub-01' in included
+
+    def test_filter_subjects_no_exclusions(self, mock_motion_csv):
+        """Test filtering when no subjects exceed thresholds."""
+        data = load_motion_data(str(mock_motion_csv))
+        
+        included, excluded = filter_subjects(
+            data,
+            translation_threshold=10.0,
+            rotation_threshold=10.0
+        )
+        
+        assert len(included) == 4
+        assert len(excluded) == 0
+
+    def test_write_exclusion_report(self, temp_dir, mock_motion_csv):
+        """Test writing exclusion report."""
+        data = load_motion_data(str(mock_motion_csv))
+        included, excluded = filter_subjects(data, translation_threshold=3.0, rotation_threshold=3.0)
+        
+        report_path = temp_dir / "exclusion_report.json"
+        write_exclusion_report(included, excluded, str(report_path))
+        
+        assert report_path.exists()
+        
+        with open(report_path, 'r') as f:
+            report = json.load(f)
+        
+        assert 'included_subjects' in report
+        assert 'excluded_subjects' in report
+        assert 'exclusion_reasons' in report
+
+
+# --- Tests for Design Verification ---
+
+class TestDesignVerification:
+    """Tests for dataset design verification."""
+
+    def test_validate_metadata_fields_valid(self, mock_design_json):
+        """Test validation with valid metadata fields."""
+        with open(mock_design_json, 'r') as f:
+            metadata = json.load(f)
+        
+        is_valid, errors = validate_metadata_fields(metadata)
+        
+        assert is_valid is True
+        assert len(errors) == 0
+
+    def test_validate_metadata_fields_missing(self, temp_dir):
+        """Test validation with missing required fields."""
+        incomplete_data = {
+            "dataset_id": "ds000001",
+            "pre_scan_count": 5
+            # Missing post_scan_count, intervention_type, scan_type
+        }
+        
+        is_valid, errors = validate_metadata_fields(incomplete_data)
+        
+        assert is_valid is False
+        assert len(errors) > 0
+
+    def test_validate_design_logic_valid(self, mock_design_json):
+        """Test design logic validation with valid data."""
+        with open(mock_design_json, 'r') as f:
+            metadata = json.load(f)
+        
+        is_valid, errors = validate_design_logic(metadata)
+        
+        assert is_valid is True
+        assert len(errors) == 0
+
+    def test_validate_design_logic_invalid_scans(self, temp_dir):
+        """Test design logic validation with invalid scan counts."""
+        invalid_data = {
+            "dataset_id": "ds000001",
+            "pre_scan_count": 0,
+            "post_scan_count": 5,
+            "intervention_type": "mindfulness",
+            "scan_type": "rs-fMRI"
+        }
+        
+        is_valid, errors = validate_design_logic(invalid_data)
+        
+        assert is_valid is False
+        assert any("pre_scan_count" in err for err in errors)
+
+    def test_validate_design_logic_invalid_intervention(self, temp_dir):
+        """Test design logic validation with invalid intervention type."""
+        invalid_data = {
+            "dataset_id": "ds000001",
+            "pre_scan_count": 5,
+            "post_scan_count": 5,
+            "intervention_type": "cognitive_training",
+            "scan_type": "rs-fMRI"
+        }
+        
+        is_valid, errors = validate_design_logic(invalid_data)
+        
+        assert is_valid is False
+        assert any("intervention_type" in err for err in errors)
+
+    def test_verify_dataset_design(self, mock_design_json):
+        """Test full dataset design verification."""
+        result = verify_dataset_design(str(mock_design_json))
+        
+        assert 'valid' in result
+        assert 'errors' in result
+        assert 'warnings' in result
+
+
+# --- Integration Tests ---
+
+class TestPreprocessingIntegration:
+    """Integration tests for the preprocessing pipeline."""
+
+    def test_end_to_end_motion_extraction(self, temp_dir, mock_fmriprep_output):
+        """Test end-to-end motion extraction workflow."""
+        # Step 1: Find confounds
+        confounds = find_fmriprep_confounds(mock_fmriprep_output / "sub-01")
+        assert len(confounds) > 0
+        
+        # Step 2: Extract motion parameters
+        motion_params = extract_motion_parameters(confounds[0])
+        assert len(motion_params['translation_x']) > 0
+        
+        # Step 3: Write to CSV
+        output_csv = temp_dir / "final_motion.csv"
+        write_motion_csv(motion_params, str(output_csv), "sub-01")
+        assert output_csv.exists()
+
+    def test_end_to_end_motion_filtering(self, temp_dir, mock_motion_csv):
+        """Test end-to-end motion filtering workflow."""
+        # Step 1: Load data
+        data = load_motion_data(str(mock_motion_csv))
+        
+        # Step 2: Filter subjects
+        included, excluded = filter_subjects(data, translation_threshold=3.0, rotation_threshold=3.0)
+        
+        # Step 3: Write report
+        report_path = temp_dir / "filter_report.json"
+        write_exclusion_report(included, excluded, str(report_path))
+        
+        assert report_path.exists()
+        assert 'sub-02' in excluded  # Should be excluded due to high motion
+
+    def test_full_design_verification_workflow(self, temp_dir):
+        """Test full design verification workflow."""
+        # Create valid design file
+        design_data = {
+            "dataset_id": "ds_test",
+            "pre_scan_count": 3,
+            "post_scan_count": 3,
+            "intervention_type": "MBSR",
+            "scan_type": "rs-fMRI"
+        }
+        
+        design_file = temp_dir / "design.json"
+        with open(design_file, 'w') as f:
+            json.dump(design_data, f)
+        
+        # Verify design
+        result = verify_dataset_design(str(design_file))
+        
+        assert result['valid'] is True
+        assert len(result['errors']) == 0

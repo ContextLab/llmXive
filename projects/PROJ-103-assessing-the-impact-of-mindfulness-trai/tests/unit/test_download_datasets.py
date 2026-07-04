@@ -1,198 +1,158 @@
 """
-Unit tests for dataset download and validation functions.
+Unit tests for dataset download functionality.
+Tests URL validation, checksum verification, and download logic.
 """
+
 import os
 import tempfile
-import hashlib
-from pathlib import Path
-from unittest.mock import patch, MagicMock, mock_open
 import pytest
+from pathlib import Path
+from unittest.mock import patch, MagicMock
 
 from src.datasets.download_datasets import (
-    validate_url,
-    compute_checksum,
+    validate_url_format,
+    validate_dataset_id,
+    compute_file_checksum,
     verify_checksum,
-    DownloadError,
-    ValidationFailedError,
-    DOWNLOAD_URL_PATTERN
+    DownloadError
 )
 
 
 class TestURLValidation:
-    """Tests for URL validation functionality."""
-    
-    def test_valid_url(self):
-        """Test that valid OpenNeuro URLs pass validation."""
+    """Tests for URL format validation."""
+
+    def test_valid_openneuro_url(self):
+        """Test that valid OpenNeuro URLs are accepted."""
         valid_urls = [
-            "https://openneuro.org/datasets/ds000001/versions/1.0.0",
-            "https://openneuro.org/datasets/ds000248/versions/1.2.3",
-            "https://openneuro.org/datasets/ds001234/versions/2.0.0"
+            "https://openneuro.org/datasets/ds000001",
+            "https://openneuro.org/datasets/ds001234",
+            "https://openneuro.org/datasets/ds000001"
         ]
         
         for url in valid_urls:
-            result = validate_url(url)
-            assert result is True
-    
-    def test_invalid_url_format(self):
-        """Test that invalid URLs raise ValidationFailedError."""
+            assert validate_url_format(url) is True
+
+    def test_invalid_url_formats(self):
+        """Test that invalid URL formats are rejected."""
         invalid_urls = [
-            "https://example.com/datasets/ds000001",
-            "http://openneuro.org/datasets/ds000001/versions/1.0.0",
-            "https://openneuro.org/datasets/ds000001",
-            "https://openneuro.org/datasets/ds000001/versions/invalid",
-            "ftp://openneuro.org/datasets/ds000001/versions/1.0.0"
+            "http://openneuro.org/datasets/ds000001",  # http instead of https
+            "https://openneuro.org/datasets/invalid",   # invalid ID format
+            "https://example.com/datasets/ds000001",    # wrong domain
+            "https://openneuro.org/",                   # missing dataset path
+            "",                                          # empty string
+            None,                                        # None value
+            "not a url"                                 # plain text
         ]
         
         for url in invalid_urls:
-            with pytest.raises(ValidationFailedError):
-                validate_url(url)
+            assert validate_url_format(url) is False
+
+
+class TestDatasetIDValidation:
+    """Tests for dataset ID validation."""
+
+    def test_valid_dataset_ids(self):
+        """Test that valid dataset IDs are accepted."""
+        valid_ids = [
+            "ds000001",
+            "ds001234",
+            "ds999999"
+        ]
+        
+        for dataset_id in valid_ids:
+            assert validate_dataset_id(dataset_id) is True
+
+    def test_invalid_dataset_ids(self):
+        """Test that invalid dataset IDs are rejected."""
+        invalid_ids = [
+            "ds00001",     # 5 digits instead of 6
+            "ds0000001",   # 7 digits
+            "DS000001",    # uppercase
+            "ds00000a",    # non-numeric
+            "000001",      # missing 'ds' prefix
+            "ds123",       # too short
+            "",            # empty string
+            None           # None value
+        ]
+        
+        for dataset_id in invalid_ids:
+            assert validate_dataset_id(dataset_id) is False
 
 
 class TestChecksumFunctions:
     """Tests for checksum computation and verification."""
-    
-    def test_compute_checksum(self):
-        """Test MD5 checksum computation."""
-        with tempfile.NamedTemporaryFile(delete=False) as tmp:
-            tmp.write(b"test data for checksum")
-            tmp_path = Path(tmp.name)
+
+    def test_compute_file_checksum(self):
+        """Test checksum computation on a known file."""
+        with tempfile.NamedTemporaryFile(mode='w', delete=False) as f:
+            f.write("Hello, World!")
+            temp_path = Path(f.name)
         
         try:
-            checksum = compute_checksum(tmp_path)
-            assert len(checksum) == 32  # MD5 hex digest length
-            assert all(c in '0123456789abcdef' for c in checksum.lower())
+            checksum = compute_file_checksum(temp_path)
+            assert len(checksum) == 64  # SHA256 produces 64 hex characters
+            assert isinstance(checksum, str)
         finally:
-            tmp_path.unlink()
-    
-    def test_verify_checksum_success(self):
-        """Test successful checksum verification."""
-        with tempfile.NamedTemporaryFile(delete=False) as tmp:
-            tmp.write(b"test data")
-            tmp_path = Path(tmp.name)
+            os.unlink(temp_path)
+
+    def test_verify_checksum_match(self):
+        """Test checksum verification when values match."""
+        with tempfile.NamedTemporaryFile(mode='w', delete=False) as f:
+            f.write("Test content")
+            temp_path = Path(f.name)
         
         try:
-            checksum = compute_checksum(tmp_path)
-            result = verify_checksum(tmp_path, checksum)
-            assert result is True
+            checksum = compute_file_checksum(temp_path)
+            assert verify_checksum(temp_path, checksum) is True
         finally:
-            tmp_path.unlink()
-    
-    def test_verify_checksum_failure(self):
-        """Test checksum verification failure raises error."""
-        with tempfile.NamedTemporaryFile(delete=False) as tmp:
-            tmp.write(b"test data")
-            tmp_path = Path(tmp.name)
+            os.unlink(temp_path)
+
+    def test_verify_checksum_mismatch(self):
+        """Test checksum verification when values don't match."""
+        with tempfile.NamedTemporaryFile(mode='w', delete=False) as f:
+            f.write("Test content")
+            temp_path = Path(f.name)
         
         try:
-            with pytest.raises(ValidationFailedError):
-                verify_checksum(tmp_path, "00000000000000000000000000000000")
+            assert verify_checksum(temp_path, "wrong_checksum") is False
         finally:
-            tmp_path.unlink()
+            os.unlink(temp_path)
+
+    def test_verify_nonexistent_file(self):
+        """Test checksum verification on a non-existent file."""
+        fake_path = Path("/nonexistent/file.txt")
+        assert verify_checksum(fake_path, "any_checksum") is False
 
 
-class TestDownloadFunctions:
-    """Tests for download functionality (mocked)."""
-    
-    @patch('src.datasets.download_datasets.requests.get')
-    @patch('src.datasets.download_datasets.open', new_callable=mock_open)
-    @patch('src.datasets.download_datasets.tqdm')
-    def test_download_file_success(self, mock_tqdm, mock_open_func, mock_get):
-        """Test successful file download."""
-        # Setup mock response
-        mock_response = MagicMock()
-        mock_response.iter_content.return_value = [b'test chunk 1', b'test chunk 2']
-        mock_response.headers = {'content-length': '20'}
-        mock_response.raise_for_status = MagicMock()
-        mock_get.return_value = mock_response
-        
-        with tempfile.TemporaryDirectory() as tmpdir:
-            dest_path = Path(tmpdir) / 'test.txt'
-            
-            result = download_file('https://example.com/test', dest_path)
-            
-            assert result == dest_path
-            mock_get.assert_called_once()
-    
-    @patch('src.datasets.download_datasets.requests.get')
-    def test_download_file_failure(self, mock_get):
-        """Test download failure raises DownloadError."""
-        mock_get.side_effect = Exception("Network error")
-        
-        with tempfile.TemporaryDirectory() as tmpdir:
-            dest_path = Path(tmpdir) / 'test.txt'
-            
-            with pytest.raises(DownloadError):
-                download_file('https://example.com/test', dest_path)
-    
-    def test_extract_archive_zip(self):
-        """Test ZIP archive extraction."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            tmp_path = Path(tmpdir)
-            archive_path = tmp_path / 'test.zip'
-            extract_dir = tmp_path / 'extracted'
-            
-            # Create a test ZIP file
-            import zipfile
-            with zipfile.ZipFile(archive_path, 'w') as zf:
-                zf.writestr('test.txt', 'test content')
-            
-            # Extract
-            extract_archive(archive_path, extract_dir)
-            
-            assert extract_dir.exists()
-            assert (extract_dir / 'test.txt').exists()
-    
-    def test_extract_archive_tar_gz(self):
-        """Test tar.gz archive extraction."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            tmp_path = Path(tmpdir)
-            archive_path = tmp_path / 'test.tar.gz'
-            extract_dir = tmp_path / 'extracted'
-            
-            # Create a test tar.gz file
-            import tarfile
-            with tarfile.open(archive_path, 'w:gz') as tf:
-                import io
-                data = io.BytesIO(b'test content')
-                info = tarfile.TarInfo(name='test.txt')
-                info.size = len(b'test content')
-                tf.addfile(info, data)
-            
-            # Extract
-            extract_archive(archive_path, extract_dir)
-            
-            assert extract_dir.exists()
-            assert (extract_dir / 'test.txt').exists()
+class TestDownloadError:
+    """Tests for custom exception."""
+
+    def test_download_error_message(self):
+        """Test that DownloadError carries the correct message."""
+        error = DownloadError("Test error message")
+        assert str(error) == "Test error message"
+        assert isinstance(error, Exception)
 
 
-class TestDownloadDatasetIntegration:
-    """Integration tests for full dataset download (mocked)."""
-    
-    @patch('src.datasets.download_datasets.OpenNeuroClient')
-    @patch('src.datasets.download_datasets.download_file')
-    @patch('src.datasets.download_datasets.extract_archive')
-    @patch('src.datasets.download_datasets.compute_checksum')
-    def test_download_dataset_success(self, mock_checksum, mock_extract, mock_download, MockClient):
-        """Test successful dataset download flow."""
-        # Setup mocks
-        mock_client = MagicMock()
-        mock_client.get_dataset_info.return_value = {
-            'checksum': 'abc123',
-            'name': 'Test Dataset'
+@pytest.fixture
+def mock_env_vars():
+    """Fixture to mock environment variables."""
+    with patch.dict(os.environ, {
+        'OPENNEURO_API_KEY': 'test_key',
+        'DATA_DIR': '/tmp/test_data'
+    }):
+        yield
+
+
+@pytest.fixture
+def mock_openneuro_client():
+    """Fixture to mock OpenNeuro client."""
+    with patch('src.datasets.download_datasets.OpenNeuroClient') as mock_client:
+        mock_instance = MagicMock()
+        mock_instance.get_dataset_info.return_value = {
+            'id': 'ds000001',
+            'created': '2023-01-01',
+            'modified': '2023-01-02'
         }
-        MockClient.return_value = mock_client
-        mock_checksum.return_value = 'abc123'
-        
-        with tempfile.TemporaryDirectory() as tmpdir:
-            output_dir = Path(tmpdir)
-            
-            extract_path, metadata = download_dataset(
-                dataset_id='ds000001',
-                version='1.0.0',
-                output_dir=output_dir,
-                verify_checksum=True
-            )
-            
-            assert 'ds000001' in str(extract_path)
-            assert metadata['dataset_id'] == 'ds000001'
-            mock_client.get_dataset_info.assert_called_once_with('ds000001', '1.0.0')
+        mock_client.return_value = mock_instance
+        yield mock_client

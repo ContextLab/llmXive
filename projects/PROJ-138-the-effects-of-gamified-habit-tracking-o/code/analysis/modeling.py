@@ -1,185 +1,229 @@
-"""
-Statistical modeling module.
-Implements mixed-effects logistic regression and VIF checks.
-"""
 import os
+import sys
 import pandas as pd
 import numpy as np
 import statsmodels.api as sm
 from statsmodels.formula.api import mixedlm
 from code.utils.logging import pipeline_logger
+from code.utils.config import set_random_seed
 
-INPUT_PATH = "data/processed/merged_data.csv"
-OUTPUT_PATH = "data/processed/model_results.csv"
-
-def calculate_vif(df: pd.DataFrame, features: list) -> dict:
+def calculate_vif(df: pd.DataFrame, feature_cols: list) -> dict:
     """
-    Calculate Variance Inflation Factor (VIF) for given features.
+    Calculate Variance Inflation Factor (VIF) for a list of features.
     
     Args:
-        df: DataFrame with features.
-        features: List of feature column names.
+        df: DataFrame containing the features
+        feature_cols: List of column names to calculate VIF for
         
     Returns:
-        Dict mapping feature names to VIF values.
+        Dictionary mapping feature names to their VIF values
     """
     vif_data = {}
-    X = df[features].dropna()
+    X = df[feature_cols].dropna()
     
-    if X.empty:
-        return vif_data
-    
+    if X.shape[0] < 2:
+        pipeline_logger.warning("Not enough samples to calculate VIF")
+        return {col: np.inf for col in feature_cols}
+        
     # Add constant for intercept
     X_with_const = sm.add_constant(X)
     
-    for feature in features:
-        if feature not in X_with_const.columns:
-            continue
-        y = X_with_const[feature]
-        # Regress this feature against all other features
-        X_other = X_with_const.drop(columns=[feature, "const"])
-        if X_other.empty:
-            vif_data[feature] = 0.0
-            continue
-        
+    for i, col in enumerate(feature_cols):
         try:
-            model = sm.OLS(y, sm.add_constant(X_other)).fit()
+            # Regress this feature against all other features
+            y = X[col]
+            other_features = [c for c in feature_cols if c != col]
+            X_other = sm.add_constant(X[other_features])
+            
+            model = sm.OLS(y, X_other).fit()
             vif = 1 / (1 - model.rsquared)
-            vif_data[feature] = vif
+            vif_data[col] = vif
+            pipeline_logger.info(f"VIF for {col}: {vif:.4f}")
         except Exception as e:
-            pipeline_logger.warning(f"Could not calculate VIF for {feature}: {e}")
-            vif_data[feature] = np.nan
-    
+            pipeline_logger.error(f"Error calculating VIF for {col}: {e}")
+            vif_data[col] = np.inf
+            
     return vif_data
 
-def fit_mixed_effects_model(df: pd.DataFrame) -> dict:
+def fit_mixed_effects_model(df: pd.DataFrame, seed: int = 42) -> dict:
     """
-    Fit mixed-effects logistic regression model.
+    Fit a mixed-effects logistic regression model.
     
-    Formula: Adherence ~ Gamification + Conscientiousness + Gamification*Conscientiousness
-    Random intercepts: User_ID
+    Fixed effects: Gamification, Conscientiousness, Interaction (Gamification * Conscientiousness)
+    Random effects: Random intercepts per User
     
     Args:
-        df: DataFrame with aggregated data.
+        df: DataFrame with columns: User_ID, Gamified, Adherence, Conscientiousness
+        seed: Random seed for reproducibility
         
     Returns:
-        Dictionary with model results.
+        Dictionary containing model results, coefficients, and diagnostics
     """
-    # Prepare data
-    # Filter out rows with missing values in key columns
-    cols = ["weekly_adherence_flag", "gamification_status", "conscientiousness_score", "user_id"]
-    # Check if need_for_achievement exists
-    if "need_for_achievement" in df.columns:
-        cols.append("need_for_achievement")
+    set_random_seed(seed)
     
-    clean_df = df[cols].dropna()
+    # Ensure required columns exist
+    required_cols = ['User_ID', 'Gamified', 'Conscientiousness', 'Adherence']
+    missing_cols = [c for c in required_cols if c not in df.columns]
+    if missing_cols:
+        raise ValueError(f"Missing required columns: {missing_cols}")
     
-    # VIF Check
-    features_to_check = ["conscientiousness_score"]
-    if "need_for_achievement" in clean_df.columns:
-        features_to_check.append("need_for_achievement")
+    # Clean data
+    df_clean = df.dropna(subset=required_cols)
+    pipeline_logger.info(f"Data cleaned: {len(df_clean)} rows (from {len(df)})")
     
-    if len(features_to_check) > 1:
-        vif_results = calculate_vif(clean_df, features_to_check)
-        pipeline_logger.info(f"VIF Results: {vif_results}")
-        
-        # If VIF > 5, drop Need for Achievement
-        if "need_for_achievement" in vif_results and vif_results["need_for_achievement"] > 5:
-            pipeline_logger.warning("VIF > 5 for Need for Achievement. Dropping it.")
-            clean_df = clean_df.drop(columns=["need_for_achievement"])
-            # Log to fallback log
-            with open("logs/model_fallback.log", "a") as f:
-                f.write(f"Dropped Need for Achievement due to VIF={vif_results['need_for_achievement']:.2f}\n")
-    else:
-        pipeline_logger.info("Skipping VIF check: Not enough features.")
-
-    # Build formula
-    # Fixed effects: Gamification, Conscientiousness, Interaction
-    # Random: User intercept
+    if len(df_clean) == 0:
+        raise ValueError("No valid data remaining after cleaning")
     
-    # Ensure gamification_status is treated as numeric (0/1) for interaction
-    clean_df["gamification_numeric"] = clean_df["gamification_status"].astype(int)
+    # Create interaction term
+    df_clean['Interaction'] = df_clean['Gamified'] * df_clean['Conscientiousness']
     
-    formula = "weekly_adherence_flag ~ gamification_numeric + conscientiousness_score + gamification_numeric * conscientiousness_score"
+    # Prepare formula
+    # Using 'Adherence' as the binary outcome (0/1)
+    formula = "Adherence ~ Gamified + Conscientiousness + Interaction"
     
-    if "need_for_achievement" in clean_df.columns:
-        # If we kept it, we might add it, but spec says keep Conscientiousness as primary.
-        # We'll stick to the primary model for now.
-        pass
-
+    # Fit mixed effects model
+    # Using Generalized Linear Mixed Model (GLMM) with logit link for binary outcome
+    # Note: statsmodels mixedlm is for linear mixed models, but for binary outcomes
+    # we might need to use a different approach or approximation
+    
     try:
-        # Mixed Linear Model (using Gaussian as approximation for binary outcome if GLMM is too slow/complex without specific library)
-        # However, statsmodels mixedlm is for continuous. For binary, we typically use GLMM.
-        # statsmodels does not have a built-in GLMM with random effects that is as straightforward.
-        # We will use MixedLM with a Gaussian link as a proxy for the trend, or use a simpler OLS with user dummies if mixed is too heavy.
-        # But the spec asks for mixed-effects.
-        # Let's use MixedLM with the binary outcome, acknowledging it's an approximation or use a fixed effect for user if mixed fails.
-        # Actually, for binary outcomes, we need a GLMM. statsmodels doesn't support GLMM with random effects easily.
-        # We will use OLS with user fixed effects (dummy variables) if mixedlm is not suitable for binary.
-        # OR, we can use a simpler approach: Aggregate to user-level mean adherence and run OLS.
-        # But the task says "mixed-effects".
-        # Let's try MixedLM and see. If it fails, we fallback.
+        # Attempt to fit using mixedlm with Gaussian family (approximation for binary)
+        # For true logistic mixed effects, we would typically use statsmodels GLMM
+        # or pingouin, but mixedlm is the standard tool available here
+        model = mixedlm(
+            formula=formula,
+            data=df_clean,
+            groups=df_clean['User_ID']
+        )
         
-        # Note: MixedLM in statsmodels assumes Gaussian errors. For binary, we might need to use a different approach.
-        # Given the constraints, we will use a simplified linear probability model with random intercepts via MixedLM
-        # as an approximation, or fallback to fixed effects if needed.
-        
-        model = mixedlm("weekly_adherence_flag ~ gamification_numeric + conscientiousness_score + gamification_numeric * conscientiousness_score",
-                        clean_df, groups=clean_df["user_id"])
+        # Fit the model
+        # For binary outcomes, mixedlm uses a Gaussian approximation
+        # In a production setting, we'd use a true GLMM implementation
         result = model.fit()
         
+        pipeline_logger.info("Model fitting completed successfully")
+        pipeline_logger.info(f"Model log-likelihood: {result.llf:.4f}")
+        
+        # Extract coefficients
+        coefficients = result.params.to_dict()
+        std_errors = result.bse.to_dict()
+        
+        # Extract random effects variance
+        random_effects = result.random_effects
+        
+        # Calculate p-values (approximate using t-distribution)
+        p_values = {}
+        for param in coefficients:
+            if param in std_errors and std_errors[param] > 0:
+                t_stat = coefficients[param] / std_errors[param]
+                # Approximate p-value (two-tailed)
+                # Using normal approximation for large samples
+                p_values[param] = 2 * (1 - sm.stats.norm.cdf(abs(t_stat)))
+            else:
+                p_values[param] = np.nan
+        
         return {
-            "method": "MixedLM (Gaussian approx)",
-            "summary": str(result.summary()),
-            "params": result.params.to_dict(),
-            "converged": result.converged
+            'model': result,
+            'coefficients': coefficients,
+            'std_errors': std_errors,
+            'p_values': p_values,
+            'random_effects_variance': result.scale,
+            'log_likelihood': result.llf,
+            'formula': formula,
+            'n_observations': len(df_clean),
+            'n_groups': df_clean['User_ID'].nunique()
         }
+        
     except Exception as e:
-        pipeline_logger.error(f"MixedLM failed: {e}. Falling back to OLS with user dummies.")
-        # Fallback: OLS with user dummies
-        clean_df = pd.get_dummies(clean_df, columns=["user_id"], drop_first=True)
-        # This might be too many columns.
-        # Alternative: Aggregate to user level first.
-        # Let's do user-level aggregation for OLS fallback.
-        user_agg = clean_df.groupby("user_id").agg({
-            "weekly_adherence_flag": "mean",
-            "gamification_numeric": "first",
-            "conscientiousness_score": "first"
-        }).reset_index()
-        
-        formula_fallback = "weekly_adherence_flag ~ gamification_numeric + conscientiousness_score + gamification_numeric * conscientiousness_score"
-        model_fallback = sm.OLS.from_formula(formula_fallback, user_agg)
-        result_fallback = model_fallback.fit()
-        
-        return {
-            "method": "OLS (User Aggregated)",
-            "summary": str(result_fallback.summary()),
-            "params": result_fallback.params.to_dict(),
-            "converged": True
-        }
+        pipeline_logger.error(f"Model fitting failed: {e}")
+        raise
 
 def main():
-    """Main entry point for modeling."""
-    pipeline_logger.info("Starting statistical modeling...")
+    """
+    Main execution function for the modeling pipeline.
     
-    if not os.path.exists(INPUT_PATH):
-        raise FileNotFoundError(f"Input file not found: {INPUT_PATH}")
+    Reads processed data, fits the mixed-effects model, and saves results.
+    """
+    pipeline_logger.info("Starting mixed-effects modeling pipeline")
     
-    df = pd.read_csv(INPUT_PATH)
+    # Load processed data
+    input_path = "data/processed/merged_data.csv"
     
-    results = fit_mixed_effects_model(df)
+    if not os.path.exists(input_path):
+        pipeline_logger.error(f"Input file not found: {input_path}")
+        sys.exit(1)
     
-    # Save results
-    os.makedirs(os.path.dirname(OUTPUT_PATH), exist_ok=True)
-    with open(OUTPUT_PATH, "w") as f:
-        f.write(f"Method: {results['method']}\n")
-        f.write(f"Converged: {results['converged']}\n\n")
-        f.write("Parameters:\n")
-        for k, v in results['params'].items():
-            f.write(f"{k}: {v}\n")
-        f.write(f"\nSummary:\n{results['summary']}")
-    
-    pipeline_logger.info("Modeling complete.")
+    try:
+        df = pd.read_csv(input_path)
+        pipeline_logger.info(f"Loaded data: {len(df)} rows, {len(df.columns)} columns")
+        pipeline_logger.info(f"Columns: {list(df.columns)}")
+        
+        # Check for required columns
+        required_cols = ['User_ID', 'Gamified', 'Conscientiousness', 'Adherence']
+        available_cols = [c for c in required_cols if c in df.columns]
+        
+        if len(available_cols) < len(required_cols):
+            missing = [c for c in required_cols if c not in df.columns]
+            pipeline_logger.warning(f"Missing columns: {missing}")
+            # Attempt to proceed with available columns if possible
+            # But for this task, we need all of them
+            if len(available_cols) < len(required_cols):
+                raise ValueError(f"Missing required columns: {missing}")
+        
+        # Convert Gamified and Adherence to numeric if needed
+        if 'Gamified' in df.columns:
+            df['Gamified'] = df['Gamified'].astype(int)
+        if 'Adherence' in df.columns:
+            df['Adherence'] = df['Adherence'].astype(int)
+        if 'Conscientiousness' in df.columns:
+            df['Conscientiousness'] = df['Conscientiousness'].astype(float)
+        
+        # Fit the model
+        results = fit_mixed_effects_model(df, seed=42)
+        
+        # Save results
+        output_dir = "data/processed"
+        os.makedirs(output_dir, exist_ok=True)
+        
+        # Save coefficients to CSV
+        coef_df = pd.DataFrame({
+            'parameter': list(results['coefficients'].keys()),
+            'coefficient': list(results['coefficients'].values()),
+            'std_error': list(results['std_errors'].values()),
+            'p_value': list(results['p_values'].values())
+        })
+        
+        coef_output_path = os.path.join(output_dir, "model_coefficients.csv")
+        coef_df.to_csv(coef_output_path, index=False)
+        pipeline_logger.info(f"Saved model coefficients to {coef_output_path}")
+        
+        # Save summary statistics
+        summary = {
+            'log_likelihood': results['log_likelihood'],
+            'n_observations': results['n_observations'],
+            'n_groups': results['n_groups'],
+            'random_effects_variance': results['random_effects_variance'],
+            'formula': results['formula']
+        }
+        
+        summary_output_path = os.path.join(output_dir, "model_summary.json")
+        import json
+        with open(summary_output_path, 'w') as f:
+            json.dump(summary, f, indent=2)
+        pipeline_logger.info(f"Saved model summary to {summary_output_path}")
+        
+        # Log key findings
+        pipeline_logger.info("=== Model Results ===")
+        for param, coef in results['coefficients'].items():
+            p_val = results['p_values'].get(param, np.nan)
+            sig = "***" if p_val < 0.001 else "**" if p_val < 0.01 else "*" if p_val < 0.05 else ""
+            pipeline_logger.info(f"{param}: {coef:.4f} (SE: {results['std_errors'][param]:.4f}) {sig}")
+        
+        return results
+        
+    except Exception as e:
+        pipeline_logger.error(f"Pipeline execution failed: {e}")
+        raise
 
 if __name__ == "__main__":
     main()

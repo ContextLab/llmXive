@@ -1,82 +1,84 @@
-"""
-Script to initialize the project directory structure for llmXive research pipeline.
-Creates required directories and .gitkeep files to ensure they are tracked by git.
-"""
 import os
 import sys
+from pathlib import Path
 
-def create_directories():
-    """Create the required project directory structure."""
-    # Define relative paths based on project requirements
-    # Paths are relative to the repository root
-    directories = [
-        "code/data",
-        "code/analysis",
-        "code/reports",
-        "code/utils",
-        "code/tests",
-        "data/raw",
-        "data/processed",
-        "data/consent"
-    ]
+# Define the required directory structure relative to the project root
+REQUIRED_DIRS = [
+    "code/data",
+    "code/analysis",
+    "code/reports",
+    "code/utils",
+    "code/tests",
+    "data/raw",
+    "data/processed",
+    "data/consent"
+]
 
-    created_count = 0
-    existing_count = 0
-
-    for dir_path in directories:
-        if os.path.exists(dir_path):
-            existing_count += 1
-            print(f"Directory exists: {dir_path}")
-        else:
-            os.makedirs(dir_path, exist_ok=True)
-            created_count += 1
+def create_directories(base_path: Path) -> bool:
+    """
+    Creates all required directories under base_path.
+    Returns True if all directories were created successfully.
+    """
+    success = True
+    for dir_name in REQUIRED_DIRS:
+        dir_path = base_path / dir_name
+        try:
+            dir_path.mkdir(parents=True, exist_ok=True)
             print(f"Created directory: {dir_path}")
+        except OSError as e:
+            print(f"Error creating directory {dir_path}: {e}")
+            success = False
+    return success
 
-        # Create .gitkeep file to ensure directory is tracked by git
-        gitkeep_path = os.path.join(dir_path, ".gitkeep")
-        if not os.path.exists(gitkeep_path):
-            with open(gitkeep_path, "w") as f:
-                f.write("# Keep this directory tracked by git\n")
-            print(f"Created .gitkeep: {gitkeep_path}")
+def verify_structure(base_path: Path) -> bool:
+    """
+    Verifies that all required directories exist and contain a .gitkeep file.
+    Returns True if verification passes.
+    """
+    all_ok = True
+    for dir_name in REQUIRED_DIRS:
+        dir_path = base_path / dir_name
+        gitkeep_path = dir_path / ".gitkeep"
+        
+        if not dir_path.exists():
+            print(f"FAIL: Directory missing: {dir_path}")
+            all_ok = False
+            continue
+        
+        if not gitkeep_path.exists():
+            print(f"FAIL: .gitkeep missing in {dir_path}, creating it...")
+            try:
+                gitkeep_path.touch()
+                print(f"Created .gitkeep in {dir_path}")
+            except OSError as e:
+                print(f"FAIL: Could not create .gitkeep in {dir_path}: {e}")
+                all_ok = False
         else:
-            print(f".gitkeep already exists: {gitkeep_path}")
-
-    return created_count, existing_count
-
-def verify_structure():
-    """Verify all required directories exist."""
-    required_dirs = [
-        "code/data",
-        "code/analysis",
-        "code/reports",
-        "code/utils",
-        "code/tests",
-        "data/raw",
-        "data/processed",
-        "data/consent"
-    ]
-
-    missing_dirs = []
-    for dir_path in required_dirs:
-        if not os.path.isdir(dir_path):
-            missing_dirs.append(dir_path)
-
-    if missing_dirs:
-        print(f"ERROR: Missing directories: {missing_dirs}")
-        return False
-    return True
+            print(f"OK: {dir_path} exists with .gitkeep")
+    
+    return all_ok
 
 def main():
-    """Main entry point for the script."""
-    print("Starting project structure setup...")
-    created, existing = create_directories()
-    print(f"\nSummary: Created {created} directories, {existing} already existed.")
+    """
+    Entry point for the project structure setup script.
+    """
+    # Determine project root (assumed to be the directory containing this script's parent)
+    # Since this script is in code/, the root is two levels up from the script file location
+    script_dir = Path(__file__).resolve().parent
+    project_root = script_dir.parent
 
-    if verify_structure():
-        print("Verification successful: All required directories exist.")
+    print(f"Project root detected at: {project_root}")
+    print("Starting directory creation and verification...")
+
+    if not create_directories(project_root):
+        print("Directory creation failed. Aborting verification.")
+        sys.exit(1)
+
+    if verify_structure(project_root):
+        print("\nVerification successful: All required directories and .gitkeep files exist.")
         sys.exit(0)
     else:
-        print("Verification failed: Some directories are missing.")
+        print("\nVerification failed: Some directories or .gitkeep files are missing.")
         sys.exit(1)
 
 if __name__ == "__main__":

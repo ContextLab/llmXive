@@ -1,88 +1,142 @@
 """
 Unit tests for the OpenNeuro API client.
 """
+
 import pytest
 from unittest.mock import Mock, patch, MagicMock
-from src.datasets.openneuro_client import OpenNeuroClient, create_client
+from src.datasets.openneuro_client import OpenNeuroClient, OpenNeuroClientError, create_client
 
 
 @pytest.fixture
 def mock_response():
     """Mock response object for requests."""
-    response = Mock()
-    response.json.return_value = {
-        "datasets": [
-            {"id": "ds000001", "label": "Test Dataset", "description": {"Name": "Test"}}
-        ],
-        "count": 1
+    mock = Mock()
+    mock.status_code = 200
+    mock.json.return_value = {
+        "data": {
+            "datasets": [
+                {
+                    "id": "ds000001",
+                    "label": "ds000001",
+                    "name": "Example Dataset",
+                    "created": "2020-01-01T00:00:00Z",
+                    "snapshot": {
+                        "id": "1.0.0",
+                        "tag": "1.0.0",
+                        "summary": {
+                            "modalities": ["fMRI"],
+                            "subjects": 10
+                        }
+                    }
+                }
+            ]
+        }
     }
-    response.raise_for_status = Mock()
-    return response
+    return mock
 
 
 @pytest.fixture
-def client():
-    """Create a client instance with a mock API key."""
-    return OpenNeuroClient(api_key="test-key")
+def client(monkeypatch):
+    """Create a client with a mocked API key."""
+    monkeypatch.setenv("OPENNEURO_API_KEY", "test_key_123")
+    return OpenNeuroClient()
+
+
+class TestCreateClient:
+    def test_create_client_with_key(self):
+        client = create_client(api_key="my_key")
+        assert client.api_key == "my_key"
+
+    def test_create_client_from_env(self, monkeypatch):
+        monkeypatch.setenv("OPENNEURO_API_KEY", "env_key")
+        client = create_client()
+        assert client.api_key == "env_key"
+
+    def test_create_client_no_key_raises(self, monkeypatch):
+        monkeypatch.delenv("OPENNEURO_API_KEY", raising=False)
+        with pytest.raises(OpenNeuroClientError):
+            create_client()
 
 
 class TestOpenNeuroClient:
-    def test_init_default_api_key(self, monkeypatch):
-        """Test initialization with environment variable."""
-        monkeypatch.setenv("OPENNEURO_API_KEY", "env-key")
-        client = OpenNeuroClient()
-        assert client.api_key == "env-key"
+    @patch('src.datasets.openneuro_client.requests.Session.post')
+    def test_list_datasets_success(self, mock_post, client, mock_response):
+        mock_post.return_value = mock_response
+        
+        datasets = client.list_datasets(limit=5)
+        
+        assert isinstance(datasets, list)
+        assert len(datasets) == 1
+        assert datasets[0]["id"] == "ds000001"
+        assert datasets[0]["name"] == "Example Dataset"
+        mock_post.assert_called_once()
 
-    def test_init_custom_api_key(self):
-        """Test initialization with custom API key."""
-        client = OpenNeuroClient(api_key="custom-key")
-        assert client.api_key == "custom-key"
+    @patch('src.datasets.openneuro_client.requests.Session.post')
+    def test_list_datasets_with_filter(self, mock_post, client, mock_response):
+        mock_post.return_value = mock_response
+        
+        datasets = client.list_datasets(dataset_id="ds000001")
+        
+        # Verify the variable was passed correctly
+        call_args = mock_post.call_args
+        assert call_args[1]["json"]["variables"]["datasetId"] == "ds000001"
 
-    @patch('src.datasets.openneuro_client.requests.Session')
-    def test_list_datasets(self, mock_session_class, client, mock_response):
-        """Test listing datasets."""
-        mock_session = Mock()
-        mock_session.get.return_value = mock_response
-        mock_session_class.return_value = mock_session
+    @patch('src.datasets.openneuro_client.requests.Session.post')
+    def test_get_dataset_info_success(self, mock_post, client):
+        mock_response_info = Mock()
+        mock_response_info.status_code = 200
+        mock_response_info.json.return_value = {
+            "data": {
+                "dataset": {
+                    "id": "ds000001",
+                    "name": "Example Dataset",
+                    "description": "A test dataset",
+                    "license": "MIT",
+                    "created": "2020-01-01T00:00:00Z",
+                    "modified": "2020-01-02T00:00:00Z",
+                    "downloads": 100,
+                    "snapshots": [],
+                    "analytics": {}
+                }
+            }
+        }
+        mock_post.return_value = mock_response_info
+        
+        info = client.get_dataset_info("ds000001")
+        
+        assert info["id"] == "ds000001"
+        assert info["name"] == "Example Dataset"
+        assert info["description"] == "A test dataset"
 
-        result = client.list_datasets(limit=10)
+    @patch('src.datasets.openneuro_client.requests.Session.post')
+    def test_get_dataset_info_not_found(self, mock_post, client):
+        mock_response_error = Mock()
+        mock_response_error.status_code = 200
+        mock_response_error.json.return_value = {
+            "data": {
+                "dataset": None
+            }
+        }
+        mock_post.return_value = mock_response_error
+        
+        with pytest.raises(OpenNeuroClientError, match="not found"):
+            client.get_dataset_info("ds999999")
 
-        mock_session.get.assert_called_once()
-        call_args = mock_session.get.call_args
-        assert "datasets" in call_args[0][0]
-        assert call_args[1]["params"]["limit"] == 10
-        assert result["count"] == 1
+    @patch('src.datasets.openneuro_client.requests.Session.post')
+    def test_api_error_handling(self, mock_post, client):
+        mock_response_error = Mock()
+        mock_response_error.status_code = 200
+        mock_response_error.json.return_value = {
+            "errors": [{"message": "Permission denied"}]
+        }
+        mock_post.return_value = mock_response_error
+        
+        with pytest.raises(OpenNeuroClientError, match="Permission denied"):
+            client.list_datasets()
 
-    @patch('src.datasets.openneuro_client.requests.Session')
-    def test_get_dataset_info(self, mock_session_class, client, mock_response):
-        """Test retrieving dataset info."""
-        mock_session = Mock()
-        mock_session.get.return_value = mock_response
-        mock_session_class.return_value = mock_session
-
-        result = client.get_dataset_info("ds000001")
-
-        mock_session.get.assert_called_once()
-        call_args = mock_session.get.call_args
-        assert "datasets/ds000001" in call_args[0][0]
-        assert result["datasets"][0]["id"] == "ds000001"
-
-    @patch('src.datasets.openneuro_client.requests.Session')
-    def test_http_error(self, mock_session_class, client):
-        """Test handling of HTTP errors."""
-        mock_session = Mock()
-        error_response = Mock()
-        error_response.raise_for_status.side_effect = Exception("404 Not Found")
-        mock_session.get.return_value = error_response
-        mock_session_class.return_value = mock_session
-
-        with pytest.raises(Exception, match="404 Not Found"):
-            client.get_dataset_info("nonexistent")
-
-class TestCreateClient:
-    def test_create_client_instance(self, monkeypatch):
-        """Test factory function creates client."""
-        monkeypatch.setenv("OPENNEURO_API_KEY", "test-key")
-        client = create_client()
-        assert isinstance(client, OpenNeuroClient)
-        assert client.api_key == "test-key"
+    @patch('src.datasets.openneuro_client.requests.Session.post')
+    def test_network_error_handling(self, mock_post, client):
+        mock_post.side_effect = Exception("Network failed")
+        
+        with pytest.raises(OpenNeuroClientError, match="Network error"):
+            client.list_datasets()
