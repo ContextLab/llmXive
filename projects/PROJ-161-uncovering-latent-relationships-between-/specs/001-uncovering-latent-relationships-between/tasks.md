@@ -20,32 +20,32 @@
 - **Mobile**: `api/src/`, `ios/src/` or `android/src/`
 - Paths shown below assume single project - adjust based on plan.md structure
 
-<!-- 
-  ============================================================================
-  IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-  
-  The /speckit-tasks command MUST replace these with actual tasks based on:
-  - User stories from spec.md (with their priorities P1, P2, P3...)
-  - Feature requirements from plan.md
-  - Entities from data-model.md
-  - Endpoints from contracts/
-  
-  Tasks MUST be organized by user story so each story can be:
-  - Implemented independently
-  - Tested independently
-  - Delivered as an MVP increment
-  
-  DO NOT keep these sample tasks in the generated tasks.md file.
-  ============================================================================
+<!--
+ ============================================================================
+ IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
+
+ The /speckit-tasks command MUST replace these with actual tasks based on:
+ - User stories from spec.md (with their priorities P1, P2, P3...)
+ - Feature requirements from plan.md
+ - Entities from data-model.md
+ - Endpoints from contracts/
+
+ Tasks MUST be organized by user story so each story can be:
+ - Implemented independently
+ - Tested independently
+ - Delivered as an MVP increment
+
+ DO NOT keep these sample tasks in the generated tasks.md file.
+ ============================================================================
 -->
 
 ## Phase 1: Setup (Shared Infrastructure)
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure per implementation plan (`src/data`, `src/analysis`, `src/viz`, `tests/`, `data/`)
-- [ ] T002 Initialize Python 3 project with dependencies (`rdkit`, `scikit-learn`, `umap-learn`, `scipy`, `pandas`, `numpy`, `matplotlib`, `seaborn`) in `requirements.txt`
-- [ ] T003 [P] Configure linting (flake8/black) and formatting tools
+- [X] T001 Create project structure per implementation plan (`src/data`, `src/analysis`, `src/viz`, `tests/`, `data/`)
+- [X] T002 Initialize Python 3 project with dependencies (`rdkit`, `scikit-learn`, `umap-learn`, `scipy`, `pandas`, `numpy`, `matplotlib`, `seaborn`) in `requirements.txt`
+- [X] T003 [P] Configure linting (flake8/black) and formatting tools
 
 ---
 
@@ -55,13 +55,13 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 [P] Implement `src/config.py` with pinned random seeds (numpy, python, rdkit), file paths, and `PERMUTATION_ITERATIONS=1000`
-- [ ] T005 [P] Create `src/data/__init__.py` and `src/analysis/__init__.py` to expose module interfaces
-- [ ] T006 [P] Setup `tests/unit/test_config.py` to verify seed pinning and configuration loading
-- [ ] T007a [P] Define `data_version.json` schema (fields: `source_url`, `checksum_sha256`, `timestamp`)
-- [ ] T007b [P] Implement logging infrastructure in `src/main.py` to write to `data_version.json`
-- [ ] T008 Implement error handling wrapper for API/FTP fetches (exponential backoff) in `src/data/utils.py`
-- [ ] T009 Setup `contracts/` directory with `dataset.schema.yaml` and `output.schema.yaml` based on plan requirements
+- [X] T004 [P] Implement `src/config.py` with pinned random seeds (numpy, python, rdkit), file paths, and `PERMUTATION_ITERATIONS=1000`
+- [X] T005 [P] Create `src/data/__init__.py` and `src/analysis/__init__.py` to expose module interfaces
+- [X] T006 [P] Setup `tests/unit/test_config.py` to verify seed pinning and configuration loading
+- [~] T007a [P] Define `data_version.json` schema (fields: `source_url`, `checksum_sha256`, `timestamp`)
+- [~] T007b [P] Implement logging infrastructure in `src/main.py` to write to `data_version.json`
+- [~] T008 Implement error handling wrapper for API/FTP fetches (exponential backoff) in `src/data/utils.py`
+- [~] T009 Setup `contracts/` directory with `dataset.schema.yaml` and `output.schema.yaml` based on plan requirements
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -77,17 +77,17 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T010 [P] [US1] Unit test for SMILES canonicalization and invalid SMILES exclusion in `tests/unit/test_data.py`
-- [ ] T011 [P] [US1] Unit test for merge logic on InChIKey (handling missing data/NaNs) in `tests/unit/test_data.py`
-- [ ] T012 [P] [US1] Integration test for end-to-end fetch and descriptor calculation on a small sample of compounds in `tests/integration/test_data.py`
+- [~] T010 [P] [US1] Unit test for SMILES canonicalization and invalid SMILES exclusion in `tests/unit/test_data.py`
+- [~] T011 [P] [US1] Unit test for merge logic on InChIKey (handling missing data/NaNs) in `tests/unit/test_data.py`
+- [~] T012 [P] [US1] Integration test for end-to-end fetch and descriptor calculation on a small sample of compounds in `tests/integration/test_data.py`
 
 ### Implementation for User Story 1
 
-- [ ] T013 [US1] Implement `src/data/download.py` with functions to fetch ChEMBL/ZINC15 SMILES and NCBI Pathogen Detection frequencies (with backoff)
-- [ ] T014 [US1] Implement `src/data/process.py` to canonicalize SMILES, calculate standardized set of RDKit descriptors using `rdkit.Chem.Descriptors.descList`, and exclude invalid compounds
-- [ ] T015 [US1] Implement merge logic in `src/data/process.py` to join structure and resistance data on InChIKey, flagging missing resistance as NaN
-- [ ] T016 [US1] Generate `merge_metrics.json` in `data/processed/` reporting `total_requested`, `matches`, and `fraction` (SC-001)
-- [ ] T017 [P] [US1] Implement checksum verification (SHA256) for downloaded raw files in `src/data/download.py` and log to `data_version.json` using the schema fields defined in T007a (`source_url`, `checksum_sha256`, `timestamp`)
+- [~] T013 [US1] Implement `src/data/download.py` with functions to fetch ChEMBL/ZINC15 SMILES and NCBI Pathogen Detection frequencies (with backoff)
+- [~] T014 [US1] Implement `src/data/process.py` to canonicalize SMILES, calculate standardized set of RDKit descriptors using `rdkit.Chem.Descriptors.descList`, and exclude invalid compounds
+- [~] T015 [US1] Implement merge logic in `src/data/process.py` to join structure and resistance data on InChIKey, flagging missing resistance as NaN
+- [~] T016 [US1] Generate `merge_metrics.json` in `data/processed/` reporting `total_requested`, `matches`, and `fraction` (SC-001)
+- [~] T017 [P] [US1] Implement checksum verification (SHA256) for downloaded raw files in `src/data/download.py` and log to `data_version.json` using the schema fields defined in T007a (`source_url`, `checksum_sha256`, `timestamp`)
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -101,15 +101,15 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T018 [P] [US2] Unit test for UMAP parameter application (n_neighbors=15, min_dist=0.1) in `tests/unit/test_dimensionality.py`
-- [ ] T019 [P] [US2] Unit test for DBSCAN clustering logic and "noise" handling in `tests/unit/test_clustering.py`
-- [ ] T020 [P] [US2] Unit test for Fisher's exact test implementation and permutation validation in `tests/unit/test_permutation_validation.py`
-- [ ] T021 [P] [US2] Integration test for full UMAP -> DBSCAN -> Fisher pipeline in `tests/integration/test_clustering.py`
+- [~] T018 [P] [US2] Unit test for UMAP parameter application (n_neighbors=15, min_dist=0.1) in `tests/unit/test_dimensionality.py`
+- [~] T019 [P] [US2] Unit test for DBSCAN clustering logic and "noise" handling in `tests/unit/test_clustering.py`
+- [~] T020 [P] [US2] Unit test for Fisher's exact test implementation and permutation validation in `tests/unit/test_permutation_validation.py`
+- [~] T021 [P] [US2] Integration test for full UMAP -> DBSCAN -> Fisher pipeline in `tests/integration/test_clustering.py`
 
 ### Implementation for User Story 2
 
-- [ ] T022 [US2] Implement `src/analysis/dimensionality.py` to apply UMAP to the descriptor matrix and save 2D embedding to `data/processed/umap_embedding.csv`
-- [ ] T023 [US2] Implement `src/viz/plots.py` to generate UMAP scatter plot colored by resistance phenotype and save to `data/processed/umap_scatter.png`
+- [~] T022 [US2] Implement `src/analysis/dimensionality.py` to apply UMAP to the descriptor matrix and save 2D embedding to `data/processed/umap_embedding.csv`
+- [~] T023 [US2] Implement `src/viz/plots.py` to generate UMAP scatter plot colored by resistance phenotype and save to `data/processed/umap_scatter.png`
 - [ ] T023b [US2] Calculate silhouette score for the UMAP embedding generated in T022 and log the score to `clustering_results.json` for internal verification (not a required output artifact)
 - [ ] T024 [US2] Implement `src/analysis/clustering.py` to run DBSCAN (eps=0.5, min_samples=10) on UMAP coordinates
 - [ ] T027 [US2] Add logic to exclude clusters with <10 samples from enrichment ranking (flag as "insufficient power")
@@ -172,8 +172,8 @@
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
-  - User stories can then proceed in parallel (if staffed)
-  - Or sequentially in priority order (P1 → P2 → P3)
+ - User stories can then proceed in parallel (if staffed)
+ - Or sequentially in priority order (P1 → P2 → P3)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
@@ -181,7 +181,7 @@
 - **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
 - **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Requires output from US1 (descriptors)
 - **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Requires output from US1 (descriptors)
-  - *Note: US2 and US3 can run in parallel as they both consume US1 output but do not depend on each other*
+ - *Note: US2 and US3 can run in parallel as they both consume US1 output but do not depend on each other*
 
 ### Within Each User Story
 
@@ -239,9 +239,9 @@ With multiple developers:
 
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
-   - Developer A: User Story 1
-   - Developer B: User Story 2
-   - Developer C: User Story 3
+ - Developer A: User Story 1
+ - Developer B: User Story 2
+ - Developer C: User Story 3
 3. Stories complete and integrate independently
 
 ---

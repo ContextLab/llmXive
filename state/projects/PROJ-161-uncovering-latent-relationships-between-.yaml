@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-02T17:22:36.291024Z'
-current_stage: analyzed
+current_stage: in_progress
 failed_stage: null
 field: chemistry
 human_escalation_reason: null
 id: PROJ-161-uncovering-latent-relationships-between-
-last_run_id: c791a62b-0fb1-41f4-9413-5fb8951af47f
+last_run_id: 4139bc8c-0a10-4646-a866-f4c393162a9d
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-161-uncovering-latent-relationships-between-/specs/001-uncovering-latent-relationships-between
 title: Uncovering Latent Relationships Between Molecular Descriptors and Antibiotic
   Resistance
-updated_at: '2026-07-04T11:40:11.929586Z'
+updated_at: '2026-07-04T13:23:54.864844Z'

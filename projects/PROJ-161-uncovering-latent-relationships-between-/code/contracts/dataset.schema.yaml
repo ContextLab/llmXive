@@ -1,0 +1,84 @@
+%YAML 1.2
+---
+# Dataset Schema Definition for Molecular Descriptor & Resistance Pipeline
+# Defines the structure of raw and processed input datasets
+$schema: http://json-schema.org/draft-07/schema#
+title: MolecularDataset
+type: object
+description: Schema for the unified molecular descriptor and antibiotic resistance dataset
+
+properties:
+  metadata:
+    type: object
+    properties:
+      source_urls:
+        type: array
+        items:
+          type: string
+          format: uri
+        description: URLs of original data sources (ChEMBL, ZINC15, NCBI)
+      created_at:
+        type: string
+        format: date-time
+        description: ISO 8601 timestamp of dataset creation
+      data_version:
+        type: string
+        description: Version string for reproducibility
+      total_compounds:
+        type: integer
+        minimum: 0
+        description: Total number of unique compounds in the dataset
+      match_rate:
+        type: number
+        minimum: 0.0
+        maximum: 1.0
+        description: Fraction of requested compounds that matched resistance data
+
+  compounds:
+    type: array
+    items:
+      type: object
+      required:
+        - inchikey
+        - smiles
+        - descriptors
+      properties:
+        inchikey:
+          type: string
+          pattern: '^[A-Z]{14}-[A-Z]{10}-[A-Z]$'
+          description: Standard InChIKey for the compound
+        smiles:
+          type: string
+          description: Canonical SMILES representation
+        molecular_weight:
+          type: number
+          description: Calculated molecular weight (g/mol)
+        descriptors:
+          type: object
+          additionalProperties:
+            type: number
+          description: Map of RDKit descriptor names to values
+        resistance_data:
+          type: object
+          required:
+            - organism
+            - frequency
+          properties:
+            organism:
+              type: string
+              description: Pathogen name (e.g., "Escherichia coli")
+            frequency:
+              type: number
+              minimum: 0.0
+              maximum: 1.0
+              description: Observed resistance frequency (0.0 to 1.0)
+            mechanism:
+              type: string
+              nullable: true
+              description: Known resistance mechanism if available
+
+required:
+  - metadata
+  - compounds
+
+additionalProperties: false

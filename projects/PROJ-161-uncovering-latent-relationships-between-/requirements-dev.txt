@@ -1,0 +1,7 @@
+# Development and Linting Dependencies
+flake8>=4.0.0
+black>=22.0.0
+isort>=5.10.0
+pytest>=7.0.0
+mypy>=0.950
+pre-commit>=2.19.0
