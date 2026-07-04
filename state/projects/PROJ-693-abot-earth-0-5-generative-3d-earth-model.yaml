@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-06-11T11:34:02.892217Z'
-current_stage: paper_ingested
+current_stage: reviewed_preprint
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-693-abot-earth-0-5-generative-3d-earth-model
-last_run_id: 1067d0a9-a0e9-43c0-a7b0-775a2c741ad6
+last_run_id: 547eb752-e215-4e3c-8200-f4456fb15965
 last_run_status: null
 points_paper: {}
 points_research: {}
