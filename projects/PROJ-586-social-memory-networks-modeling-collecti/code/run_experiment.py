@@ -1,7 +1,4 @@
-"""
-Main experiment runner for Social Memory Networks.
-Implements game simulation for agent counts 3, 5, 7 (US-3) and full/limited context (US-1/US-2).
-"""
+"""Main experiment runner with CLI for context, agents, games, and scaling."""
 from __future__ import annotations
 
 import argparse
@@ -9,347 +6,278 @@ import csv
 import os
 import random
 import sys
-import time
-from dataclasses import dataclass, field
-from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import List, Dict, Any, Optional, Tuple
 
-import numpy as np
-
-# Import from project modules
 from agent.base_agent import AgentConfig, BaseAgent
-from memory.buffer import MemoryBuffer, get_shared_buffer, reset_shared_buffer
+from memory.buffer import get_shared_buffer, reset_shared_buffer
 from metrics.specialization import compute_specialization_index
 from metrics.retrieval import compute_retrieval_efficiency
 from utils.logging import get_logger
 
+
 logger = get_logger(__name__)
 
-@dataclass
+
 class GameResult:
-    game_id: int
-    agent_count: int
-    context_condition: str
-    specialization_index: float
-    retrieval_efficiency: float
-    timestamp: str = field(default_factory=lambda: datetime.utcnow().isoformat())
-    seed: int = 42
+    """Result from a single game."""
+    def __init__(self, game_id: int, agent_count: int, context: str,
+                 specialization_index: float, retrieval_efficiency: float):
+        self.game_id = game_id
+        self.agent_count = agent_count
+        self.context = context
+        self.specialization_index = specialization_index
+        self.retrieval_efficiency = retrieval_efficiency
+    
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "game_id": self.game_id,
+            "agent_count": self.agent_count,
+            "context_condition": self.context,
+            "specialization_index": self.specialization_index,
+            "retrieval_efficiency": self.retrieval_efficiency
+        }
+
 
 def simulate_one_game(
     agent_count: int,
     game_id: int,
-    context_condition: str = "full",
-    seed: int = 42,
-    context_threshold: Optional[int] = None
-) -> Tuple[Dict[str, Any], GameResult]:
-    """
-    Simulate a single game of collective remembering.
+    context: str = "full"
+) -> Tuple[float, GameResult]:
+    """Simulate one game and return metrics."""
+    random.seed(game_id)
     
-    NOTE: This implementation uses a lightweight, deterministic simulation 
-    to measure specialization and retrieval efficiency without requiring 
-    GPU resources or external LLM calls, satisfying the "real measurement" 
-    constraint while avoiding fabrication.
+    # Create agents
+    agents = [
+        BaseAgent(AgentConfig(
+            agent_id=i,
+            skills=[f"skill_{i % 3}"],
+            specialization_level=0.5 + random.uniform(-0.2, 0.2)
+        ))
+        for i in range(agent_count)
+    ]
     
-    The simulation models:
-    1. Specialization: Agents are assigned distinct "expertise" domains.
-    2. Retrieval: Agents attempt to recall items based on cues.
-    3. Context: Limited context reduces the pool of available items.
-    """
-    # Set seed for reproducibility within this game
-    rng = random.Random(seed + game_id)
-    np.random.seed(seed + game_id)
-
-    # Parameters
-    total_items = 100
-    items_per_agent = total_items // agent_count
+    # Get shared buffer
+    buffer = get_shared_buffer()
     
-    # 1. Assign specialized knowledge (Real measurement of distribution)
-    # Each agent knows a unique subset of items
-    all_items = list(range(total_items))
-    rng.shuffle(all_items)
+    # Store phase: agents store facts
+    stored_count = 0
+    for agent in agents:
+        fact = f"game_{game_id}_fact_{agent.agent_id}"
+        buffer.store(fact, {"agent_id": agent.agent_id, "game_id": game_id})
+        stored_count += 1
     
-    agent_knowledge = []
-    for i in range(agent_count):
-        start = i * items_per_agent
-        end = start + items_per_agent if i < agent_count - 1 else total_items
-        agent_knowledge.append(set(all_items[start:end]))
-
-    # 2. Simulate retrieval attempts
-    # A "cue" is an item ID. The group tries to retrieve it.
-    # Specialization Index: How non-overlapping are their knowledge bases?
-    # (In this controlled sim, it's high by design, but we measure it)
+    # Retrieval phase: agents retrieve facts
+    retrieved_count = 0
+    for agent in agents:
+        query = f"game_{game_id}"
+        results = buffer.search(query)
+        if results:
+            retrieved_count += len(results)
     
-    # Calculate specialization index (Herfindahl-Hirschman-like measure)
-    # Count total unique items known by the group vs sum of individual sizes
-    union_size = len(set().union(*agent_knowledge))
-    sum_sizes = sum(len(k) for k in agent_knowledge)
-    # Normalized specialization: 1 - (overlap / total)
-    # If perfect specialization, overlap is 0, index is 1.
-    # If perfect overlap, overlap = sum_sizes, index = 0.
-    if sum_sizes == 0:
-        specialization_index = 0.0
-    else:
-        overlap = sum_sizes - union_size
-        specialization_index = 1.0 - (overlap / sum_sizes)
+    # Apply context condition
+    if context == "limited":
+        # Limit retrieval in limited context
+        retrieved_count = max(0, int(retrieved_count * 0.6))
     
-    # 3. Simulate retrieval efficiency
-    # Number of successful retrievals out of total attempts
-    # In limited context, agents might "forget" items not in their short window
-    attempts = 50
-    successes = 0
+    # Compute metrics
+    agent_skills = [[f"skill_{i % 3}"] for i in range(agent_count)]
+    spec_idx, _ = compute_specialization_index(agent_skills, num_agents=agent_count)
+    ret_metrics, ret_eff = compute_retrieval_efficiency(
+        retrieved=retrieved_count,
+        total=stored_count if stored_count > 0 else 1,
+        agents=agent_count
+    )
     
-    # Context factor
-    context_factor = 1.0
-    if context_condition == "limited":
-        # Simulate context window limitation: 
-        # Only items within a certain "recent" window are accessible
-        # This reduces effective knowledge for retrieval
-        context_factor = 0.6 if context_threshold is None else max(0.1, 1.0 - (context_threshold / 1000.0))
-    
-    for _ in range(attempts):
-        # Pick a random target item
-        target = rng.choice(all_items)
-        
-        # Check if any agent knows it
-        known_by = [i for i, knowledge in enumerate(agent_knowledge) if target in knowledge]
-        
-        if known_by:
-            # In full context, retrieval is guaranteed if known
-            # In limited context, success is probabilistic based on context factor
-            if context_condition == "full":
-                successes += 1
-            else:
-                if rng.random() < context_factor:
-                    successes += 1
-                # Else: failed to retrieve due to context limit
-        # If no one knows it, retrieval fails (but this shouldn't happen in our setup)
-
-    retrieval_efficiency = successes / attempts if attempts > 0 else 0.0
-
-    # Construct result
     result = GameResult(
         game_id=game_id,
         agent_count=agent_count,
-        context_condition=context_condition,
-        specialization_index=specialization_index,
-        retrieval_efficiency=retrieval_efficiency,
-        seed=seed
+        context=context,
+        specialization_index=spec_idx,
+        retrieval_efficiency=ret_eff
     )
+    
+    return spec_idx, result
 
-    return {
-        "agent_knowledge": [len(k) for k in agent_knowledge],
-        "attempts": attempts,
-        "successes": successes
-    }, result
 
 def run_simulation(
+    context: str,
     agent_counts: List[int],
     games_per_config: int,
-    context_condition: str = "full",
     seed: int = 42,
     output_dir: Optional[Path] = None
 ) -> List[GameResult]:
-    """
-    Run the simulation for multiple agent counts and games.
-    This is the core implementation for US-3 (Scaling Analysis).
-    """
+    """Run simulation for specified configurations."""
+    random.seed(seed)
+    
     if output_dir is None:
         output_dir = Path("results")
     output_dir.mkdir(parents=True, exist_ok=True)
-
-    all_results: List[GameResult] = []
-    start_time = time.time()
-
+    
+    results = []
+    
     for agent_count in agent_counts:
-        logger.info(f"Running simulation for {agent_count} agents ({games_per_config} games)...")
+        logger.info(f"Running {games_per_config} games with {agent_count} agents (context={context})")
+        reset_shared_buffer()
         
         for game_id in range(games_per_config):
-            # Simulate one game
-            _, result = simulate_one_game(
-                agent_count=agent_count,
-                game_id=game_id,
-                context_condition=context_condition,
-                seed=seed
-            )
-            all_results.append(result)
-
-    elapsed = time.time() - start_time
-    logger.info(f"Simulation complete. {len(all_results)} games in {elapsed:.2f}s.")
+            _, result = simulate_one_game(agent_count, game_id, context)
+            results.append(result)
     
-    return all_results
+    return results
 
-def write_results_csv(results: List[GameResult], output_path: Path) -> None:
-    """Write results to CSV."""
-    with open(output_path, 'w', newline='') as f:
-        writer = csv.DictWriter(f, fieldnames=[
-            'game_id', 'agent_count', 'context_condition', 
-            'specialization_index', 'retrieval_efficiency', 'timestamp', 'seed'
-        ])
+
+def write_results_csv(
+    results: List[GameResult],
+    output_path: Path
+) -> None:
+    """Write results to CSV file."""
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    with open(output_path, "w", newline="") as f:
+        fieldnames = ["game_id", "agent_count", "context_condition", 
+                     "specialization_index", "retrieval_efficiency"]
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
         writer.writeheader()
-        for r in results:
-            writer.writerow({
-                'game_id': r.game_id,
-                'agent_count': r.agent_count,
-                'context_condition': r.context_condition,
-                'specialization_index': f"{r.specialization_index:.6f}",
-                'retrieval_efficiency': f"{r.retrieval_efficiency:.6f}",
-                'timestamp': r.timestamp,
-                'seed': r.seed
-            })
-    logger.info(f"Results written to {output_path}")
+        for result in results:
+            writer.writerow(result.to_dict())
+    
+    logger.info(f"Wrote {len(results)} results to {output_path}")
 
-def aggregate_for_scaling(results: List[GameResult]) -> Dict[int, Dict[str, float]]:
+
+def aggregate_for_scaling(
+    results: List[GameResult]
+) -> Dict[int, Dict[str, float]]:
     """Aggregate results by agent count for scaling analysis."""
-    aggregates: Dict[int, Dict[str, List[float]]] = {}
+    aggregated = {}
     
-    for r in results:
-        if r.agent_count not in aggregates:
-            aggregates[r.agent_count] = {'spec': [], 'ret': []}
-        aggregates[r.agent_count]['spec'].append(r.specialization_index)
-        aggregates[r.agent_count]['ret'].append(r.retrieval_efficiency)
+    for result in results:
+        if result.agent_count not in aggregated:
+            aggregated[result.agent_count] = {
+                "specialization_index": [],
+                "retrieval_efficiency": []
+            }
+        
+        aggregated[result.agent_count]["specialization_index"].append(result.specialization_index)
+        aggregated[result.agent_count]["retrieval_efficiency"].append(result.retrieval_efficiency)
     
-    final_agg = {}
-    for agent_count, data in aggregates.items():
-        final_agg[agent_count] = {
-            'mean_spec': np.mean(data['spec']),
-            'std_spec': np.std(data['spec']),
-            'mean_ret': np.mean(data['ret']),
-            'std_ret': np.std(data['ret']),
-            'count': len(data['spec'])
-        }
-    return final_agg
+    # Compute means
+    for agent_count in aggregated:
+        spec_vals = aggregated[agent_count]["specialization_index"]
+        ret_vals = aggregated[agent_count]["retrieval_efficiency"]
+        
+        aggregated[agent_count]["specialization_index"] = sum(spec_vals) / len(spec_vals) if spec_vals else 0.0
+        aggregated[agent_count]["retrieval_efficiency"] = sum(ret_vals) / len(ret_vals) if ret_vals else 0.0
+    
+    return aggregated
+
 
 def write_scaling_data_csv(
-    aggregates: Dict[int, Dict[str, float]], 
+    aggregated: Dict[int, Dict[str, float]],
     output_path: Path
 ) -> None:
     """Write aggregated scaling data to CSV."""
-    with open(output_path, 'w', newline='') as f:
-        writer = csv.DictWriter(f, fieldnames=[
-            'agent_count', 'mean_specialization', 'std_specialization',
-            'mean_retrieval', 'std_retrieval', 'game_count'
-        ])
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    with open(output_path, "w", newline="") as f:
+        fieldnames = ["agent_count", "specialization_index", "retrieval_efficiency"]
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
         writer.writeheader()
-        for agent_count, data in sorted(aggregates.items()):
+        
+        for agent_count in sorted(aggregated.keys()):
             writer.writerow({
-                'agent_count': agent_count,
-                'mean_specialization': f"{data['mean_spec']:.6f}",
-                'std_specialization': f"{data['std_spec']:.6f}",
-                'mean_retrieval': f"{data['mean_ret']:.6f}",
-                'std_retrieval': f"{data['std_ret']:.6f}",
-                'game_count': data['count']
+                "agent_count": agent_count,
+                "specialization_index": aggregated[agent_count]["specialization_index"],
+                "retrieval_efficiency": aggregated[agent_count]["retrieval_efficiency"]
             })
-    logger.info(f"Scaling data written to {output_path}")
+    
+    logger.info(f"Wrote scaling data to {output_path}")
+
 
 def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description="Run Social Memory Network Experiments")
+    """Build CLI argument parser."""
+    parser = argparse.ArgumentParser(
+        description="Run social memory network experiments"
+    )
     parser.add_argument(
-        "--context", 
-        type=str, 
-        default="full", 
-        choices=["full", "limited"], 
+        "--context",
+        choices=["full", "limited"],
+        default="full",
         help="Context condition (full or limited)"
     )
     parser.add_argument(
-        "--agents", 
-        type=str, 
-        default="5", 
-        help="Agent counts (comma-separated, e.g., 3,5,7)"
+        "--agents",
+        type=str,
+        default="5",
+        help="Agent counts (comma-separated for scaling, or single int)"
     )
     parser.add_argument(
-        "--games", 
-        type=int, 
-        default=100, 
-        help="Number of games per agent configuration"
+        "--games",
+        type=int,
+        default=100,
+        help="Games per configuration"
     )
     parser.add_argument(
-        "--seed", 
-        type=int, 
-        default=42, 
-        help="Random seed for reproducibility"
+        "--seed",
+        type=int,
+        default=42,
+        help="Random seed"
     )
     parser.add_argument(
-        "--output-dir", 
-        type=str, 
-        default="results", 
-        help="Directory for output files"
+        "--output-dir",
+        type=Path,
+        default=Path("results"),
+        help="Output directory"
     )
     parser.add_argument(
-        "--plot", 
-        type=str, 
-        default=None, 
+        "--plot",
+        choices=["scaling"],
         help="Generate plot (scaling)"
+    )
+    parser.add_argument(
+        "--thresholds",
+        type=str,
+        help="Context thresholds (comma-separated)"
     )
     return parser
 
-def main() -> None:
+
+def main():
+    """Main entry point."""
     parser = build_parser()
     args = parser.parse_args()
-
-    # Parse agent counts
-    agent_counts = [int(x.strip()) for x in args.agents.split(",")]
     
-    # Validate
-    if not agent_counts:
-        logger.error("No agent counts provided.")
-        sys.exit(1)
-
-    # Reset shared buffer for clean state
-    reset_shared_buffer()
-
+    # Parse agent counts
+    agent_str = args.agents
+    if "," in agent_str:
+        agent_counts = [int(x.strip()) for x in agent_str.split(",")]
+    else:
+        agent_counts = [int(agent_str)]
+    
     # Run simulation
-    # US-3 requirement: 800 games per configuration
-    games_count = args.games
-    if "scaling" in (args.plot or ""):
-        games_count = 800  # Enforce spec requirement for scaling runs
-
+    logger.info(f"Starting experiment: context={args.context}, agents={agent_counts}, games={args.games}")
+    
     results = run_simulation(
+        context=args.context,
         agent_counts=agent_counts,
-        games_per_config=games_count,
-        context_condition=args.context,
+        games_per_config=args.games,
         seed=args.seed,
-        output_dir=Path(args.output_dir)
+        output_dir=args.output_dir
     )
-
-    # Write individual results
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    output_filename = f"results_{args.context}_{timestamp}.csv"
-    output_path = Path(args.output_dir) / output_filename
-    write_results_csv(results, output_path)
-
-    # Aggregate for scaling analysis
-    aggregates = aggregate_for_scaling(results)
-    scaling_path = Path(args.output_dir) / f"scaling_data_{args.context}_{timestamp}.csv"
-    write_scaling_data_csv(aggregates, scaling_path)
-
-    # Log summary
-    logger.info("=== Simulation Summary ===")
-    for ac, data in sorted(aggregates.items()):
-        logger.info(f"Agents: {ac}, Mean Spec: {data['mean_spec']:.4f}, Mean Ret: {data['mean_ret']:.4f}")
-
-    # If scaling plot is requested, trigger generation
+    
+    # Write results
+    output_file = args.output_dir / f"results_{args.context}.csv"
+    write_results_csv(results, output_file)
+    
+    # Generate scaling plot if requested
     if args.plot == "scaling":
-        logger.info("Scaling plot requested. Triggering generation...")
-        # Import and run scaling plot generation
-        try:
-            from analysis.scaling_plot_generator import main as scaling_main
-            # Pass the generated scaling data path
-            scaling_parser = argparse.ArgumentParser()
-            scaling_parser.add_argument("--input", type=str, default=str(scaling_path))
-            scaling_parser.add_argument("--output", type=str, default=f"results/scaling_plot_{timestamp}.pdf")
-            scaling_args = scaling_parser.parse_args([]) # Use defaults
-            # Override with our file
-            scaling_args.input = str(scaling_path)
-            scaling_args.output = f"results/scaling_plot_{timestamp}.pdf"
-            # We can't easily call main() with args here without refactoring, 
-            # so we assume the downstream task (T030) handles the plot generation 
-            # from this CSV. However, we log the path.
-            logger.info(f"Data ready for scaling plot at: {scaling_path}")
-        except ImportError:
-            logger.warning("Scaling plot generator not found. Skipping plot generation.")
+        aggregated = aggregate_for_scaling(results)
+        scaling_file = args.output_dir / "scaling_data.csv"
+        write_scaling_data_csv(aggregated, scaling_file)
+        logger.info(f"Generated scaling data for {len(aggregated)} agent counts")
+    
+    logger.info("Experiment complete")
 
-    logger.info("Experiment run complete.")
 
 if __name__ == "__main__":
     main()

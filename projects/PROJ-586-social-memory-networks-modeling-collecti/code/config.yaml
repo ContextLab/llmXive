@@ -1,17 +1,4 @@
-"""
-Default configuration file for social memory experiments.
-"""
-model_name: opt-125m
-device: cpu
-context_window: 512
 seed: 42
-
-experiment:
-  games_per_config: 800
-  agent_counts: [3, 5, 7]
-  context_conditions: [full, limited]
-
-paths:
-  data_dir: data
-  results_dir: data/results
-  log_file: experiment.log
+device: cpu
+model: opt-125m
+precision: float32
