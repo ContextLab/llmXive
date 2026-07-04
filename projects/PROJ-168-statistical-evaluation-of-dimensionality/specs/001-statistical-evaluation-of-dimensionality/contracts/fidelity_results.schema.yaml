@@ -1,0 +1,38 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: Fidelity Results Schema
+description: "Schema for the CSV table that records ARI and NMI fidelity metrics for each embedding."
+type: object
+properties:
+  embedding_id:
+    type: string
+    description: "Unique identifier for the embedding (e.g., dataset1_PCA)."
+  method:
+    type: string
+    enum: ["PCA", "tSNE", "UMAP"]
+    description: "Dimensionality reduction method."
+  dataset_id:
+    type: string
+    description: "Identifier of the source dataset (e.g., GSE131907)."
+  ari:
+    type: number
+    minimum: 0.0
+    maximum: 1.0
+    description: "Adjusted Rand Index between Leiden clusters and ground‑truth labels."
+  nmi:
+    type: number
+    minimum: 0.0
+    maximum: 1.0
+    description: "Normalized Mutual Information between Leiden clusters and ground‑truth labels."
+  silhouette_threshold:
+    type: number
+    minimum: 0.0
+    maximum: 1.0
+    description: "Silhouette Score threshold used for sensitivity sweep (0.4, 0.5, or 0.6)."
+required:
+  - embedding_id
+  - method
+  - dataset_id
+  - ari
+  - nmi
+  - silhouette_threshold
+additionalProperties: false

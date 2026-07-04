@@ -1,0 +1,51 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Fidelity Metrics Schema"
+description: "Schema for the fidelity metrics output (ARI, NMI) per dataset and method."
+type: object
+properties:
+  metrics:
+    type: array
+    items:
+      type: object
+      properties:
+        dataset_id:
+          type: string
+          description: "Identifier of the dataset"
+        method:
+          type: string
+          enum:
+            - "PCA"
+            - "t-SNE"
+            - "UMAP"
+          description: "Dimensionality reduction method used"
+        metric_type:
+          type: string
+          enum:
+            - "ARI"
+            - "NMI"
+          description: "Type of fidelity metric"
+        value:
+          type: number
+          description: "Calculated metric value (0.0 to 1.0)"
+        silhouette_score:
+          type: number
+          description: "Silhouette score of the clustering used for this metric"
+        resolution:
+          type: number
+          description: "Leiden resolution parameter that maximized the silhouette score"
+      required:
+        - dataset_id
+        - method
+        - metric_type
+        - value
+        - silhouette_score
+        - resolution
+    required:
+      - metrics
+  generated_at:
+    type: string
+    format: date-time
+    description: "ISO 8601 timestamp of metrics generation"
+required:
+  - metrics
+  - generated_at

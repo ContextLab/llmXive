@@ -1,93 +1,74 @@
 # Quickstart: Statistical Evaluation of Dimensionality Reduction Techniques on Gene Expression Data
 
-## Prerequisites
+## 1. Prerequisites
 
-- **Python**: 3.10+
-- **Conda/Mamba**: Recommended for environment management.
-- **Git**: For cloning the repository.
-- **Internet Access**: To download datasets from GEO.
+* Python 3.11+
+* Git
+* Access to a GitHub Actions runner (or local environment with ≤7 GB RAM, ≤14 GB disk)
 
-## Installation
-
-1. **Clone the repository**:
- ```bash
- git clone
- cd 001-gene-regulation
- ```
-
-2. **Create the environment**:
- ```bash
- conda env create -f environment.yml
- conda activate gene-regulation
- ```
-
-3. **Verify dependencies**:
- ```bash
- python -c "import scanpy; import umap; import leidenalg; import statsmodels; print('All imports successful')"
- ```
-
-## Running the Pipeline
-
-### Full Run (Recommended)
-
-Execute the full Snakemake workflow:
+## 2. Installation
 
 ```bash
-snakemake --cores 2 --use-conda
+git clone <repo-url>
+cd projects/PROJ-168-statistical-evaluation-of-dimensionality
+pip install -r code/requirements.txt
 ```
 
-- **Cores**: 2 (matches GitHub Actions limit).
-- **Conda**: Automatically creates isolated environments for each rule.
+**Key Dependencies** (pinned in `code/requirements.txt`):
+* `scikit-learn==1.5.0`
+* `scanpy==1.10.2`
+* `umap-learn==0.5.6`
+* `leidenalg==0.10.2`
+* `scipy==1.14.0`
+* `pandas==2.2.2`
+* `numpy==2.0.0`
+* `psutil==6.0.0`
 
-### Dry Run (Validation)
+## 3. Pre‑run Specification Check (NEW)
 
-To check the workflow without executing:
+Before executing the main pipeline, run the **spec‑gap resolver** to ensure all required raw‑count sources are available:
 
 ```bash
-snakemake --dry-run
+python code/spec_gap_resolver.py
 ```
 
-### Resource Monitoring
+* This script implements Phase 0 (Data‑Gap Resolution).  
+* If it exits with code 0, the spec has been updated to *Case‑Study* mode (or all raw counts were found) and the pipeline may proceed.  
+* If it exits with code 1, the pipeline will abort automatically; see the logged error for details.
 
-The pipeline automatically logs resource usage. To view logs after execution:
+## 4. Running the Pipeline
 
 ```bash
-cat logs/resource_usage.log
+python code/main.py
 ```
 
-### Individual Steps
+### Configuration (handled automatically)
 
-If you wish to run a specific step:
+1. Downloads datasets from verified URLs (or alternatives found in Phase 0).  
+2. Skips unavailable datasets with a warning; aborts if **no** dataset provides raw counts.  
+3. Applies the **5 000‑cell sampling rule** for any dataset > 10 000 cells.  
+4. Computes geometric diagnostics on the sampled high‑dimensional matrix, then generates embeddings.  
+5. Runs the Fixed‑Effects ANOVA (descriptive only) and the Leiden‑resolution sensitivity sweep.  
+6. Saves results under `data/results/`.
+
+### Output Artifacts
+
+* `data/results/summary.json` – high‑level overview (datasets processed, memory, runtime, exit code).  
+* `data/results/statistical_report.yaml` – full model summary, VIFs, adjusted p‑values.  
+* `data/results/sensitivity_plot.png` – variance of ARI/NMI across resolution sweep.
+
+## 5. Verification
 
 ```bash
-# Download and preprocess (with deterministic sampling)
-snakemake data/processed/GSE131907_hvg.csv
-
-# Generate embeddings
-snakemake data/processed/GSE131907_umap_embedding.csv
-
-# Run statistical model (or descriptive mode if <2 datasets)
-snakemake data/results/model_summary.csv
+pytest -v tests/
 ```
 
-## Expected Outputs
+* **Contract tests** validate JSON/YAML outputs against the schemas in `contracts/`.  
+* **Unit tests** verify ARI/NMI calculations on a synthetic mini‑dataset.
 
-- **Data**: `data/processed/` (filtered matrices, embeddings).
-- **Metrics**: `data/results/{accession}_metrics.csv`.
-- **Model**: `data/results/model_summary.csv` (coefficients, p-values, F-statistics) OR `data/results/descriptive_report.md` if <2 datasets.
-- **Logs**: `logs/` (download errors, QC warnings, resource usage).
+## 6. Troubleshooting
 
-## Troubleshooting
-
-- **Memory Error**: If you encounter `MemoryError`, the pipeline automatically samples cells. If this fails, reduce `max_cells` in `code/config.py`.
-- **Download Failure**: If GEO download fails, check the `logs/download_errors.log` and verify the accession ID.
-- **Model Convergence**: If the LMM fails to converge, the pipeline logs a warning and attempts a simplified model (removing random effects) or reverts to Descriptive Mode.
-- **Descriptive Mode**: If the pipeline runs in descriptive mode, it will generate a report instead of a model summary. This is expected if <2 verified datasets are found (e.g., only GSE131907 is available).
-
-## Reproducibility
-
-To ensure reproducibility:
-- Always run with `--use-conda`.
-- Do not modify `environment.yml` without updating the version hash in `state/`.
-- Use `snakemake --rerun-incomplete` to resume interrupted runs.
-- **Deterministic Sampling**: The `random_state` for cell sampling is fixed per dataset accession, ensuring identical results across runs.
+* **Memory Error** – If the pipeline hits > 7 GB RSS, it will exit with code 1 (SC‑003). Reduce the sampling size or run on a machine with more RAM.  
+* **Dataset Missing** – If `spec_gap_resolver.py` cannot locate raw counts for any required dataset, the pipeline aborts with exit code 1 and logs “No Data”.  
+* **Convergence Failure** – If Leiden fails twice, the result is marked “Unavailable” and the pipeline continues.  
+* **Time Limit** – If total runtime exceeds 21 600 s, the pipeline aborts with exit code 1 (SC‑004).

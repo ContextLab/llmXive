@@ -1,92 +1,95 @@
 # Research: Statistical Evaluation of Dimensionality Reduction Techniques on Gene Expression Data
 
-## Overview
+## 1. Dataset Strategy
 
-This research phase investigates the relationship between the geometric properties of scRNA-seq data manifolds (global linearity, local density) and the fidelity of cell-type recovery achieved by different dimensionality reduction techniques (PCA, t-SNE, UMAP). The study aims to validate the hypothesis that linear methods fail on high-curvature manifolds, while non-linear methods may underperform on highly linear, noisy data.
+The project requires three specific scRNA‑seq datasets: **GSE131907**, **GSE111322**, and **GSE150728**.
 
-## Dataset Strategy
+### Verified Sources & Access Strategy
 
-The study utilizes scRNA-seq datasets with **verified direct download URLs** for raw count matrices. Per the project constitution, datasets without verified URLs are excluded to ensure reproducibility.
+| Dataset ID | Verified URL | Access Method | Notes |
+|:--- |:--- |:--- |:--- |
+| **GSE131907** | ` | Direct Download (CSV) | **Critical**: This file contains only cluster marker statistics, **not** the raw count matrix required for log‑CPM transformation and geometric diagnostics. No alternative verified raw‑count source exists in the allowed block. |
+| **GSE111322** | **NO verified source found** | **Blocker** | Must be skipped; cannot satisfy FR‑001 without a verified raw‑count URL. |
+| **GSE150728** | **NO verified source found** | **Blocker** | Same as above. |
 
-| Dataset | Accession | Verified Source URL | Status | Notes |
-|:--- |:--- |:--- |:--- |:--- |
-| Lung Adenocarcinoma | GSE131907 | ` | **Verified** | Direct Series Matrix link. Contains counts and labels. |
-| Unknown 2 | GSE150728 | **NO verified source found** | **Excluded** | No direct raw count URL found. Excluded per 'Verified Accuracy' principle. |
-| Unknown 3 | GSE176078 | **NO verified source found** | **Excluded** | No direct raw count URL found. Excluded per 'Verified Accuracy' principle. |
+> **Data‑Gap Resolution** (Phase 0) will attempt to locate alternative raw‑count sources via GEO (programmatic query). If no raw counts are found for any required dataset, the pipeline **aborts with exit code 1** and logs “No Data”. If at least GSE131907 raw counts become available, the study proceeds as a **single‑dataset case study**; the spec must be updated accordingly before any analysis.
 
-**Dataset Variable Fit Assessment**:
-- **Required Variables**: Raw gene counts, Cell-type labels (ground truth).
-- **GSE131907**: The Series Matrix URL provides raw counts and metadata. **Action**: Parse matrix for counts and metadata for labels.
-- **Fallback Strategy**:
- 1. Attempt to download raw counts via the verified Series Matrix URL.
- 2. If download fails or data is missing, log error and skip.
- 3. **Critical**: If fewer than 2 verified datasets remain after processing, the pipeline **MUST** switch to **Descriptive Mode** (no LMM, no p-values) to avoid statistical invalidity.
+### Data Preprocessing Plan
 
-*Note: The `# Verified datasets` block contains URLs for "GEO (csv)" that appear to be unrelated to the specific GSE accessions. These are NOT used.*
+1. **Ingestion**: Download raw files from verified URLs (or alternative found in Phase 0).
+2. **Validation**: Confirm presence of a count matrix and cell‑type label column.
+3. **Sampling strategy** (explicit to satisfy FR‑002/FR‑003):
+ * If `n_cells > 10,000`, **randomly sample [deferred] cells** (maintaining all genes).
+ * If `n_cells ≤ 10,000`, use the full cell set.
+ * The same sampled subset is used for **all downstream steps** (geometric diagnostics, embeddings, clustering) to maintain construct validity.
+4. **Transformation**:
+ * **Log‑CPM**: `log2(CPM + 1)`, where CPM = `counts / (total_counts * 1e6)`.
+ * **HVG selection**: variance‑stabilizing method retaining the top N genes where N is the elbow point of the variance curve (dynamic).
+5. **Geometric Diagnostics** (corrected from original spec):
+ * Compute **Trustworthiness (k=15)** and **Local Continuity (LCA, k=15)** **on the sampled high‑dimensional matrix** (relative to the sampled embeddings). This satisfies FR‑002 and FR‑003 while keeping the computation feasible and construct valid.
 
-## Geometric Metrics & Embedding Strategy
+### Edge‑case handling
 
-### Global Linearity (Revised)
-- **Definition**: **Variance Explained Ratio** (Sum of variance explained by top 10 PCs / Total variance of all PCs).
-- **Rationale**: Measures the proportion of data structure captured by a linear subspace. A ratio near 1.0 indicates high linearity; a lower ratio indicates significant non-linear structure (curvature) not captured by linear PCA. This is a valid, standard proxy for manifold linearity.
-- **Method**: Perform PCA on the HVG matrix, calculate the ratio of the sum of the first 10 eigenvalues to the sum of all eigenvalues.
+* If a dataset has **< 500 cells**, the pipeline logs a warning and **skips geometric diagnostics** for that dataset.
+* If ground‑truth labels are missing, fidelity calculation for that dataset is **aborted** and recorded as “Unavailable”.
+* If Leiden fails to converge twice, the result is marked “Unavailable” and the pipeline continues.
 
-### Local Density (Revised)
-- **Definition**: **Local PCA Reconstruction Error** (Average error of reconstructing k=30 neighbors using local PCA).
-- **Rationale**: Measures how well a local linear model fits the data. High error indicates high local non-linearity or density heterogeneity. Avoids the "curse of dimensionality" in raw k-NN distance.
-- **Method**: For each cell, fit a local PCA on its k=30 neighbors, calculate the reconstruction error, and average across all cells.
+## 2. Embedding Strategy
 
-### Embedding Methods
-1. **PCA**: Linear. 30 components.
-2. **t-SNE**: Non-linear. Perplexity=30, **n_iter=1000** (fixed to satisfy FR-005), metric=euclidean.
-3. **UMAP**: Non-linear. n_neighbors=15, min_dist=0.1, n_components=2.
+Three embeddings will be generated per valid dataset **on the sampled subset**:
 
-**Compute Feasibility**:
-- All methods will be run on a **deterministically sampled** subset of cells (max [deferred]) if the dataset exceeds this limit.
-- `scikit-learn` (PCA, t-SNE) and `umap-learn` (UMAP) will be used with default CPU settings. No GPU acceleration.
-- **t-SNE Warning**: t-SNE is computationally expensive. `n_iter=1000` is the minimum for convergence; if runtime > 1 hour, the pipeline logs a warning but continues (as per spec).
+| Method | Parameters | Constraints |
+|:--- |:--- |:--- |
+| **PCA** | `n_components=30` | CPU‑native, fast. |
+| **t‑SNE** | `perplexity=30`, `n_iter=1000` | CPU‑only; if sampled subset > 20,000 cells (not the case with our [deferred]‑cell sample), further down‑sample to [deferred]. |
+| **UMAP** | `n_neighbors=15`, `min_dist=0.1` | CPU‑only; same sampling rule as t‑SNE. |
 
-## Statistical Modeling Strategy
+**Geometric diagnostics** (Trustworthiness, LCA) are computed **on the sampled high-dimensional space relative to the embeddings**, providing a distortion measure that complements the high-dimensional diagnostics.
 
-### Model Specification (Revised: Descriptive Focus)
-Given the **n=3 dataset** limitation (only 1 verified dataset currently), the primary analysis is **Descriptive Stratified Analysis**.
-- **Primary Output**: Plots of Fidelity (ARI/NMI) vs. Global Linearity and Local Density, stratified by Method.
-- **Secondary Output (Conditional)**: If >=2 verified datasets are found, fit a **Linear Mixed-Effects Model (LMM)** on **cell-level silhouette scores** (not dataset-level ARI/NMI).
- - **Formula**: `silhouette_score ~ method + global_linearity + local_density + method:global_linearity + method:local_density + (1 | dataset)`
- - **Rationale**: Silhouette score is a valid cell-level metric of clustering quality, allowing for N >> 3 observations.
-- **Interaction**: `method:global_linearity` and `method:local_density` are the primary hypotheses.
+## 3. Fidelity & Statistical Strategy
 
-### Statistical Rigor & Limitations
-- **Power Analysis**: With n=3 datasets, **dataset-level** inference is impossible. The study relies on **cell-level** inference (N >> 3) using Silhouette Scores as the outcome **only if** >=2 datasets are available.
-- **Multiple Comparisons**: Bonferroni correction (α = 0.025) for ARI vs NMI (if both tested) or Silhouette vs others.
-- **Collinearity**: VIF calculated for linearity and density. If VIF > 5, simplify model.
-- **Causal Inference**: Observational. Claims framed as associational.
-- **Measurement Validity**: Metrics validated against synthetic manifolds.
+### Clustering & Fidelity Metrics
+* **Algorithm**: Leiden clustering on each embedding.
+* **Optimization**: Sweep Leiden **resolution** from 0.1 to 1.0 (step 0.1); for each resolution compute Silhouette Score; select resolution with maximal Silhouette.
+* **Metrics**:
+ * **ARI** and **NMI** between Leiden clusters (at optimal resolution) and ground‑truth labels.
+* **Edge case**: If Leiden fails twice, record “Unavailable”.
 
-### Fallback: Descriptive Mode
-If < 2 verified datasets are found:
-1. Calculate metrics for available datasets.
-2. Generate plots (Linearity vs Fidelity by Method).
-3. **Do NOT** fit a statistical model.
-4. Report: "Insufficient verified datasets for inferential statistics. Descriptive analysis only."
+### Statistical Modeling (FR‑006 – corrected)
 
-## Compute Feasibility Plan
+* **Model**: **Fixed‑Effects ANOVA** (or Kruskal‑Wallis if normality fails) with formula `fidelity ~ method`.
+* **Dataset scope**: **Descriptive comparison within the available dataset(s) only**; no inference about general method superiority across datasets. Mixed-Effects Model is invalid with N≤3 datasets.
+* **Assumption checks**:
+ * **Normality** via Shapiro‑Wilk; fallback to Kruskal‑Wallis.
+ * **Collinearity**: VIF for method dummy variables; abort if any VIF ≥ 5 (SC‑005).
+* **Multiple‑comparison correction**: Benjamini‑Hochberg (FDR < 0.05) applied to all post‑hoc p‑values (SC‑002).
 
-- **Hardware**: GitHub Actions `ubuntu-latest` (2 CPU, 7GB RAM).
-- **Memory Management**:
- - Data loaded in chunks if > 5GB.
- - **Deterministic Sampling**: Max [deferred] cells. `random_state` derived from dataset accession hash.
- - `scikit-learn` uses `n_jobs=1`.
-- **Runtime**:
- - Target: < 6 hours total.
- - Monitoring: `/usr/bin/time -v` used to log peak RAM.
- - Fallback: If a step exceeds a predefined duration threshold, log warning.
+### Sensitivity Analysis (FR‑007 – corrected)
 
-## Decision/Rationale
+* **Sweep**: Leiden **resolution** values {0.1, 0.2, … 1.0}.
+* **Output**: Variance of ARI and NMI across the sweep.
+* **Success criterion**: Variance < 0.05 (SC‑001).
+* **Rationale**: This sweep tests **stability of the clustering solution against ground‑truth** while **decoupling** the unsupervised Silhouette optimization from the supervised fidelity evaluation.
 
-- **Why Cell-Level?** To overcome n=3 dataset limitation (if applicable).
-- **Why Silhouette Score?** A valid cell-level proxy for clustering fidelity, unlike ARI/NMI.
-- **Why Descriptive Fallback?** To prevent invalid statistical claims when data is insufficient.
-- **Why CPU-only?** To ensure reproducibility on free-tier CI.
-- **Why Variance Explained Ratio?** A standard, valid measure of global linearity, replacing the flawed Pearson correlation metric.
-- **Why Local PCA Error?** A robust measure of local density/non-linearity, replacing the flawed k-NN distance metric.
+## 4. Compute Feasibility & Constraints
+
+* **Hardware**: GitHub Actions Free Tier (2 CPU, 7 GB RAM, 14 GB Disk).
+* **Memory Management**:
+ * Data loaded as `scipy.sparse` matrices.
+ * `psutil` records peak RSS; if > 7,000,000,000 bytes → **exit code 1** (SC‑003).
+* **Time Limit**: 6 h ([deferred] s).
+ * Total wall‑clock time measured from start of Phase 0 to end of Phase 3; if > 21,600 s → **exit code 1** (SC‑004).
+* **Sampling** guarantees that t‑SNE/UMAP fit comfortably within the runtime budget.
+
+## 5. Decision Log
+
+| Decision | Rationale |
+|:--- |:--- |
+| **Use Fixed‑Effects ANOVA** | Mixed‑effects invalid with N≤3 datasets; ANOVA provides a descriptive within‑dataset comparison. |
+| **Sample large datasets** | Guarantees CPU feasibility; [deferred]‑cell sample retains biological signal while keeping runtime < 6 h. |
+| **Skip GSE111322/GSE150728** | No verified source; cannot fabricate URLs (Constitution II). |
+| **Compute Diagnostics on Sampled High‑D Space (relative to embeddings)** | Satisfies FR‑002/FR‑003 while keeping construct validity with embeddings. |
+| **Sweep Leiden Resolution** | Removes circularity of Silhouette‑threshold sweep and decouples optimization from evaluation. |
+| **Exit Code 1 on Limits** | Meets SC‑003 and SC‑004 hard‑stop requirements. |
+| **Case‑Study Framing** | Only one dataset available (if any); results are dataset‑specific and not generalizable. |
+| **Abort on Missing Data** | If required raw counts are not found, the pipeline aborts with exit code 1 to prevent invalid analysis. |

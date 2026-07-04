@@ -1,24 +1,218 @@
-resolved_at: '2026-07-04T11:46:16.278227+00:00'
+resolved_at: '2026-07-04T12:34:03.938340+00:00'
 datasets:
-- intent: GEO
+- intent: ARI
   status: verified
   candidates:
-  - url: https://huggingface.co/datasets/GeorgiaTech/HERCULES/resolve/main/Australia
-      Center Sequence/data/label_color_map_ausenv_roadseq.csv
-    source: huggingface
-    format: csv
-    relevance: 0.0
-    sample_check:
-      downloaded_bytes: 14725
-      parsed: true
-  - url: https://huggingface.co/datasets/georghess/pandaset/resolve/main/pandaset.zip
+  - url: https://huggingface.co/datasets/Rolv-Arild/hlrlrd-parsed/resolve/main/data/00/00002ebd-4c8c-4d14-847f-eecc91d64e48.npz
     source: huggingface
     format: zip
     relevance: 0.0
     sample_check:
       downloaded_bytes: 262144
       parsed: true
-  - url: https://huggingface.co/datasets/hiyouga/geometry3k/resolve/main/data/test-00000-of-00001.parquet
+  - url: https://huggingface.co/datasets/arianaazarbal/sycophancy_dataset/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/AxiomicLabs/ArithMark/resolve/main/mathmark.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/Rolv-Arild/hlrlrd-parsed/resolve/main/data/00/00002ebd-4c8c-4d14-847f-eecc91d64e48.npz
+    source: huggingface
+    status: verified
+    format: zip
+  - url: https://huggingface.co/datasets/arianaazarbal/sycophancy_dataset/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/AxiomicLabs/ArithMark/resolve/main/mathmark.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/GODELEV/Arithmetic-XL/resolve/main/arithmark_curriculum.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://us.aws.cdn.hf.co/xet-bridge-us/621ffdd236468d709f1834ef/7021d9b73f6864a123eb7a70cf8c6af11af84910149c5d71819fac283c201e44?response-content-type=application%2Fjson&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27datasets.json%3B+filename%3D%22datasets.json%22%3B&user_id=public&X-Xet-Cas-Uid=public&Expires=1783171759&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjIxZmZkZDIzNjQ2OGQ3MDlmMTgzNGVmLzcwMjFkOWI3M2Y2ODY0YTEyM2ViN2E3MGNmOGM2YWYxMWFmODQ5MTAxNDljNWQ3MTgxOWZhYzI4M2MyMDFlNDRcXD9yZXNwb25zZS1jb250ZW50LXR5cGU9YXBwbGljYXRpb24lMkZqc29uJnJlc3BvbnNlLWNvbnRlbnQtZGlzcG9zaXRpb249aW5saW5lJTNCK2ZpbGVuYW1lJTJBJTNEVVRGLTglMjclMjdkYXRhc2V0cy5qc29uJTNCK2ZpbGVuYW1lJTNEJTIyZGF0YXNldHMuanNvbiUyMiUzQiZ1c2VyX2lkPXB1YmxpYyZYLVhldC1DYXMtVWlkPXB1YmxpYyIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzgzMTcxNzU5fX19XX0_&Signature=MEUCIF5FLvNdYj-IkQzp9Ysrr3XQJK0Dx1dI2x8m-Li9h~nyAiEAibYy8sjfkk5UMobGspTC~CJYMknPYmG1TcCOA4Tz6JU_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/The_wage_structure_of_white_female_graduates_in_1981_Die_loonstruktuur_van_gegradueerde_blanke_vroue_in_1981/32366076
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/Comparative_Finite_Element_Analysis_of_Different_Internal_Connection_Designs_of_Two_Dental_Implant_Systems_Restored_with_30_Angled_Multi-Unit_Abutments_All_data_of_the_research_that_has_been_done_/32899634
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/book/Expansion_and_Automation_of_the_Unified_Import_System_for_Composite_Skulls_in_OrtogOnBlender_XP/32899760
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Dataset_for_Cefiderocol_Susceptibility_in_Japanese_Clinical_i_Enterobacterales_i_i_Isolates_i_and_the_Impact_of_IMP_on_Resistance_/32446335
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/Nursing_Form_2026_-2027_College_of_Nursing_Sciences_Bida_Niger_State_Is_Open_Call_O7O-468-O5833_Have_begun_the_admission_exercise_O7O46805833_07046805833_Prospective_candidates_are_encouraged_to_apply_early_to_avoid_the_last-minute_rush_and/32899748
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18474375
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3284585
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3350922
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15784872
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7476195
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.repository.cam.ac.uk/handle/1810/405620
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://unsworks.unsw.edu.au/handle/1959.4/unsworks_42505
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21133187
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21133187
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20616820
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: NMI
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/Rutson/NMIXX/resolve/main/Lily - NMIXX.zip
+    source: huggingface
+    format: zip
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/lilyftyunjin/nmixx/resolve/main/Archive 2.zip
+    source: huggingface
+    format: zip
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://us.aws.cdn.hf.co/xet-bridge-us/64f23705407c838f1a75a776/acb2d6530032b0b81d41fc38037919b7095135c0fd6c8261c890b7e2d4204fe8?X-Xet-Cas-Uid=public&user_id=public&response-content-type=application%2Fjson&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27i2b2.json%3B+filename%3D%22i2b2.json%22%3B&Expires=1783171788&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjRmMjM3MDU0MDdjODM4ZjFhNzVhNzc2L2FjYjJkNjUzMDAzMmIwYjgxZDQxZmMzODAzNzkxOWI3MDk1MTM1YzBmZDZjODI2MWM4OTBiN2UyZDQyMDRmZThcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZ1c2VyX2lkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LXR5cGU9YXBwbGljYXRpb24lMkZqc29uJnJlc3BvbnNlLWNvbnRlbnQtZGlzcG9zaXRpb249aW5saW5lJTNCK2ZpbGVuYW1lJTJBJTNEVVRGLTglMjclMjdpMmIyLmpzb24lM0IrZmlsZW5hbWUlM0QlMjJpMmIyLmpzb24lMjIlM0IiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkVwb2NoVGltZSI6MTc4MzE3MTc4OH19fV19&Signature=MEUCIQCXXadt8Wt7EpSOJH8J1zAwu1PA2dKOBt5Zn10NdeJ0XAIgAv0BmeOA1vKZ4eNBV3aKpkcKlLBRrFKW~20EVsmlSc4_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/Rutson/NMIXX/resolve/main/Lily - NMIXX.zip
+    source: huggingface
+    status: verified
+    format: zip
+  - url: https://huggingface.co/datasets/lilyftyunjin/nmixx/resolve/main/Archive 2.zip
+    source: huggingface
+    status: verified
+    format: zip
+  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/The_wage_structure_of_white_female_graduates_in_1981_Die_loonstruktuur_van_gegradueerde_blanke_vroue_in_1981/32366076
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/Comparative_Finite_Element_Analysis_of_Different_Internal_Connection_Designs_of_Two_Dental_Implant_Systems_Restored_with_30_Angled_Multi-Unit_Abutments_All_data_of_the_research_that_has_been_done_/32899634
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/book/Expansion_and_Automation_of_the_Unified_Import_System_for_Composite_Skulls_in_OrtogOnBlender_XP/32899760
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Dataset_for_Cefiderocol_Susceptibility_in_Japanese_Clinical_i_Enterobacterales_i_i_Isolates_i_and_the_Impact_of_IMP_on_Resistance_/32446335
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/Nursing_Form_2026_-2027_College_of_Nursing_Sciences_Bida_Niger_State_Is_Open_Call_O7O-468-O5833_Have_begun_the_admission_exercise_O7O46805833_07046805833_Prospective_candidates_are_encouraged_to_apply_early_to_avoid_the_last-minute_rush_and/32899748
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4588999
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8265474
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4728031
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/159148
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/12551551
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21183075
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21183075
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2607.00064
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21063910
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21063910
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: GSE
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/hustvl/GSEval/resolve/main/GroundingSuite-Eval.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/erickdp/data-gsemodel/resolve/main/processed/dataset_dict.json
+    source: huggingface
+    format: json
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 30
+      parsed: true
+  - url: https://huggingface.co/datasets/shaunliu82714/GSEN/resolve/main/data/train-00000-of-00053.parquet
     source: huggingface
     format: parquet
     relevance: 0.0
@@ -26,84 +220,232 @@ datasets:
       downloaded_bytes: 262144
       parsed: true
   candidates_tried:
-  - url: https://huggingface.co/datasets/GeorgiaTech/HERCULES/resolve/main/Australia
-      Center Sequence/data/label_color_map_ausenv_roadseq.csv
-    source: huggingface
-    status: verified
-    format: csv
-  - url: https://huggingface.co/datasets/georghess/pandaset/resolve/main/pandaset.zip
-    source: huggingface
-    status: verified
-    format: zip
-  - url: https://huggingface.co/datasets/hiyouga/geometry3k/resolve/main/data/test-00000-of-00001.parquet
-    source: huggingface
-    status: verified
-    format: parquet
-  - url: https://huggingface.co/datasets/geoskyr/COCO-Counterfactual/resolve/main/data/train-00000-of-00013.parquet
-    source: huggingface
-    status: verified
-    format: parquet
-  - url: https://huggingface.co/datasets/cyborvirtue/Geoaux/resolve/main/metadata.jsonl
+  - url: https://huggingface.co/datasets/hustvl/GSEval/resolve/main/GroundingSuite-Eval.jsonl
     source: huggingface
     status: verified
     format: jsonl
-  - url: https://figshare.com/articles/poster/Nursing_Form_2026_-2027_Nigerian_Airforce_College_of_Nursing_Sciences_Kaduna_Is_Open_Call_O7O-468-O5833_Have_begun_the_admission_exercise_O7O46805833_07046805833_Prospective_candidates_are_encouraged_to_apply_early_to_avoid_the_last-minute_/32899664
+  - url: https://huggingface.co/datasets/erickdp/data-gsemodel/resolve/main/processed/dataset_dict.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://huggingface.co/api/resolve-cache/datasets/gserafico/imdb_reviews/f23b5e9f057b3fc3d577b3f41881a4c452696627/imdb_reviews.csv?%2Fdatasets%2Fgserafico%2Fimdb_reviews%2Fresolve%2Fmain%2Fimdb_reviews.csv=&etag=%2221b4fbab49eed03991bed49c1c629097a1fcfa37%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://us.aws.cdn.hf.co/xet-bridge-us/65c3680670b1fe3392ca2e37/68babe22dd3fc12bd8210997833d54e68cca8ea564072cbad8b34809be18c9b4?user_id=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27IMDB_Dataset.csv%3B+filename%3D%22IMDB_Dataset.csv%22%3B&response-content-type=text%2Fcsv&X-Xet-Cas-Uid=public&Expires=1783171817&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjVjMzY4MDY3MGIxZmUzMzkyY2EyZTM3LzY4YmFiZTIyZGQzZmMxMmJkODIxMDk5NzgzM2Q1NGU2OGNjYThlYTU2NDA3MmNiYWQ4YjM0ODA5YmUxOGM5YjRcXD91c2VyX2lkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3SU1EQl9EYXRhc2V0LmNzdiUzQitmaWxlbmFtZSUzRCUyMklNREJfRGF0YXNldC5jc3YlMjIlM0ImcmVzcG9uc2UtY29udGVudC10eXBlPXRleHQlMkZjc3YmWC1YZXQtQ2FzLVVpZD1wdWJsaWMiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkVwb2NoVGltZSI6MTc4MzE3MTgxN319fV19&Signature=MEUCIFmReKtYNxAzk0DWvKZRWiJdFXgn-SGP5M42uD-v-FbOAiEAuGsPEAOUYs1IQSAJDslzlFwzfUCcIojnmfwZA4gDILU_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/shaunliu82714/GSEN/resolve/main/data/train-00000-of-00053.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/The_wage_structure_of_white_female_graduates_in_1981_Die_loonstruktuur_van_gegradueerde_blanke_vroue_in_1981/32366076
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/media/Nursing_Form_2026_-2027_College_of_Nursing_Sciences_Tudun_Wada_Kaduna_State_Is_Open_Call_O7O-468-O5833_Have_begun_the_admission_exercise_O7O46805833_07046805833_Prospective_candidates_are_encouraged_to_apply_early_to_avoid_the_last-minute_r/32899661
+  - url: https://figshare.com/articles/figure/Comparative_Finite_Element_Analysis_of_Different_Internal_Connection_Designs_of_Two_Dental_Implant_Systems_Restored_with_30_Angled_Multi-Unit_Abutments_All_data_of_the_research_that_has_been_done_/32899634
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/preprint/_b_Design_Implementation_and_Evaluation_of_a_Low-Cost_Stereo_Oto-Endoscope_for_3D_Ear_Examination_and_Treatment_b_/32899640
+  - url: https://figshare.com/articles/book/Expansion_and_Automation_of_the_Unified_Import_System_for_Composite_Skulls_in_OrtogOnBlender_XP/32899760
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Nursing_Form_2026_-2027_College_of_Nursing_Sciences_National_Eye_Centre_Kaduna_Is_Open_Call_O7O-468-O5833_Have_begun_the_admission_exercise_O7O46805833_07046805833_Prospective_candidates_are_encouraged_to_apply_early_to_avoid_the_last-minut/32899658
+  - url: https://figshare.com/articles/dataset/Dataset_for_Cefiderocol_Susceptibility_in_Japanese_Clinical_i_Enterobacterales_i_i_Isolates_i_and_the_Impact_of_IMP_on_Resistance_/32446335
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/preprint/Zero-Infinity_Dimensional_Recursion_ZIDR_A_Conceptual_and_Mathematical_Framework_for_a_Static_Universe/32899571
+  - url: https://figshare.com/articles/poster/Nursing_Form_2026_-2027_College_of_Nursing_Sciences_Bida_Niger_State_Is_Open_Call_O7O-468-O5833_Have_begun_the_admission_exercise_O7O46805833_07046805833_Prospective_candidates_are_encouraged_to_apply_early_to_avoid_the_last-minute_rush_and/32899748
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://meetingorganizer.copernicus.org/iag-comm4-2022/iag-comm4-2022-15.html
+  - url: https://zenodo.org/records/5286634
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/19467316
+  - url: https://zenodo.org/records/5286630
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/7603435
+  - url: https://zenodo.org/records/4763138
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/19603782
+  - url: https://zenodo.org/records/5286628
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20798419
+  - url: https://zenodo.org/records/5286636
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://usiena-air.unisi.it//handle/11365/1139948
+  - url: https://springernature.figshare.com/articles/dataset/Additional_file_3_of_Exploring_the_interplay_between_tinder_use_general_self-esteem_and_sexual_self-esteem_among_European_emerging_adults/32887723
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21191938
+  - url: https://springernature.figshare.com/articles/dataset/Additional_file_3_of_Exploring_the_interplay_between_tinder_use_general_self-esteem_and_sexual_self-esteem_among_European_emerging_adults/32887723/1
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21191938
+  - url: https://springernature.figshare.com/articles/dataset/Additional_file_2_of_Exploring_the_interplay_between_tinder_use_general_self-esteem_and_sexual_self-esteem_among_European_emerging_adults/32887720/1
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/ScRNA-seq_data_of_seven_reproductive-axis_tissues_in_Baoshan_pig/31884982/1
+  - url: https://springernature.figshare.com/articles/dataset/Additional_file_2_of_Exploring_the_interplay_between_tinder_use_general_self-esteem_and_sexual_self-esteem_among_European_emerging_adults/32887720
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/ScRNA-seq_data_of_seven_reproductive-axis_tissues_in_Baoshan_pig/31884982
+  - url: https://talkbank.org/childes/access/Eng-NA/Harvard.html
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: GSE111322
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/The_wage_structure_of_white_female_graduates_in_1981_Die_loonstruktuur_van_gegradueerde_blanke_vroue_in_1981/32366076
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/Comparative_Finite_Element_Analysis_of_Different_Internal_Connection_Designs_of_Two_Dental_Implant_Systems_Restored_with_30_Angled_Multi-Unit_Abutments_All_data_of_the_research_that_has_been_done_/32899634
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/book/Expansion_and_Automation_of_the_Unified_Import_System_for_Composite_Skulls_in_OrtogOnBlender_XP/32899760
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Dataset_for_Cefiderocol_Susceptibility_in_Japanese_Clinical_i_Enterobacterales_i_i_Isolates_i_and_the_Impact_of_IMP_on_Resistance_/32446335
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/Nursing_Form_2026_-2027_College_of_Nursing_Sciences_Bida_Niger_State_Is_Open_Call_O7O-468-O5833_Have_begun_the_admission_exercise_O7O46805833_07046805833_Prospective_candidates_are_encouraged_to_apply_early_to_avoid_the_last-minute_rush_and/32899748
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: GSE150728
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/The_wage_structure_of_white_female_graduates_in_1981_Die_loonstruktuur_van_gegradueerde_blanke_vroue_in_1981/32366076
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/Comparative_Finite_Element_Analysis_of_Different_Internal_Connection_Designs_of_Two_Dental_Implant_Systems_Restored_with_30_Angled_Multi-Unit_Abutments_All_data_of_the_research_that_has_been_done_/32899634
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/book/Expansion_and_Automation_of_the_Unified_Import_System_for_Composite_Skulls_in_OrtogOnBlender_XP/32899760
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Dataset_for_Cefiderocol_Susceptibility_in_Japanese_Clinical_i_Enterobacterales_i_i_Isolates_i_and_the_Impact_of_IMP_on_Resistance_/32446335
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/Nursing_Form_2026_-2027_College_of_Nursing_Sciences_Bida_Niger_State_Is_Open_Call_O7O-468-O5833_Have_begun_the_admission_exercise_O7O46805833_07046805833_Prospective_candidates_are_encouraged_to_apply_early_to_avoid_the_last-minute_rush_and/32899748
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: CPM
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/jay401521/cpm_train/resolve/main/data/train-00000-of-00001-a8767175d47b0a5c.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/jay401521/cpm_test/resolve/main/data/train-00000-of-00001-9500925726f08eff.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/Fabricioalan/cpmarselo/resolve/main/cpmarselo.zip
+    source: huggingface
+    format: zip
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/jay401521/cpm_train/resolve/main/data/train-00000-of-00001-a8767175d47b0a5c.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/jay401521/cpm_test/resolve/main/data/train-00000-of-00001-9500925726f08eff.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/AnonymousSite/QA_dataset_for_CPM/resolve/main/CPM-QA%20testing%20set.csv
+    source: huggingface
+    status: wrong_format
+    reason: HTTP 401
+  - url: https://huggingface.co/datasets/Fabricioalan/cpmarselo/resolve/main/cpmarselo.zip
+    source: huggingface
+    status: verified
+    format: zip
+  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/The_wage_structure_of_white_female_graduates_in_1981_Die_loonstruktuur_van_gegradueerde_blanke_vroue_in_1981/32366076
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/Comparative_Finite_Element_Analysis_of_Different_Internal_Connection_Designs_of_Two_Dental_Implant_Systems_Restored_with_30_Angled_Multi-Unit_Abutments_All_data_of_the_research_that_has_been_done_/32899634
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/book/Expansion_and_Automation_of_the_Unified_Import_System_for_Composite_Skulls_in_OrtogOnBlender_XP/32899760
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Dataset_for_Cefiderocol_Susceptibility_in_Japanese_Clinical_i_Enterobacterales_i_i_Isolates_i_and_the_Impact_of_IMP_on_Resistance_/32446335
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/Nursing_Form_2026_-2027_College_of_Nursing_Sciences_Bida_Niger_State_Is_Open_Call_O7O-468-O5833_Have_begun_the_admission_exercise_O7O46805833_07046805833_Prospective_candidates_are_encouraged_to_apply_early_to_avoid_the_last-minute_rush_and/32899748
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.59890/ijebma.v4i2.923
+    source: zenodo
+    status: unreachable
+    reason: 'reachability failed: HTTP 404'
+  - url: https://zenodo.org/records/322483
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18178386
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15651536
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://scidoc.org/articlepdfs/IJST/IJST-2328-3548-04-101.pdf
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/r2t5w/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.repository.cam.ac.uk/handle/1810/403739
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21187490
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21187490
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://publica.fraunhofer.de/entities/publication/e850ac99-baed-48b0-9bc8-c5a6bb8440f0
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -133,23 +475,23 @@ datasets:
     source: huggingface
     status: verified
     format: csv
-  - url: https://figshare.com/articles/poster/Nursing_Form_2026_-2027_Nigerian_Airforce_College_of_Nursing_Sciences_Kaduna_Is_Open_Call_O7O-468-O5833_Have_begun_the_admission_exercise_O7O46805833_07046805833_Prospective_candidates_are_encouraged_to_apply_early_to_avoid_the_last-minute_/32899664
+  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/The_wage_structure_of_white_female_graduates_in_1981_Die_loonstruktuur_van_gegradueerde_blanke_vroue_in_1981/32366076
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/media/Nursing_Form_2026_-2027_College_of_Nursing_Sciences_Tudun_Wada_Kaduna_State_Is_Open_Call_O7O-468-O5833_Have_begun_the_admission_exercise_O7O46805833_07046805833_Prospective_candidates_are_encouraged_to_apply_early_to_avoid_the_last-minute_r/32899661
+  - url: https://figshare.com/articles/figure/Comparative_Finite_Element_Analysis_of_Different_Internal_Connection_Designs_of_Two_Dental_Implant_Systems_Restored_with_30_Angled_Multi-Unit_Abutments_All_data_of_the_research_that_has_been_done_/32899634
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/preprint/_b_Design_Implementation_and_Evaluation_of_a_Low-Cost_Stereo_Oto-Endoscope_for_3D_Ear_Examination_and_Treatment_b_/32899640
+  - url: https://figshare.com/articles/book/Expansion_and_Automation_of_the_Unified_Import_System_for_Composite_Skulls_in_OrtogOnBlender_XP/32899760
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Nursing_Form_2026_-2027_College_of_Nursing_Sciences_National_Eye_Centre_Kaduna_Is_Open_Call_O7O-468-O5833_Have_begun_the_admission_exercise_O7O46805833_07046805833_Prospective_candidates_are_encouraged_to_apply_early_to_avoid_the_last-minut/32899658
+  - url: https://figshare.com/articles/dataset/Dataset_for_Cefiderocol_Susceptibility_in_Japanese_Clinical_i_Enterobacterales_i_i_Isolates_i_and_the_Impact_of_IMP_on_Resistance_/32446335
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/preprint/Zero-Infinity_Dimensional_Recursion_ZIDR_A_Conceptual_and_Mathematical_Framework_for_a_Static_Universe/32899571
+  - url: https://figshare.com/articles/poster/Nursing_Form_2026_-2027_College_of_Nursing_Sciences_Bida_Niger_State_Is_Open_Call_O7O-468-O5833_Have_begun_the_admission_exercise_O7O46805833_07046805833_Prospective_candidates_are_encouraged_to_apply_early_to_avoid_the_last-minute_rush_and/32899748
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -165,31 +507,31 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/14224621
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/15823600
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://unige.iris.cineca.it/handle/11567/929289
+  - url: https://zenodo.org/records/2554646
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20312956
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://fair.unifg.it//handle/11369/382362
+  - url: https://zenodo.org/records/20312956
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21188316
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21188316
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://iris.unitn.it/handle/11572/242659
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21191746
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21191746
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -211,7 +553,7 @@ datasets:
       downloaded_bytes: 10154
       parsed: true
   candidates_tried:
-  - url: https://us.aws.cdn.hf.co/xet-bridge-us/641153174792d950fb0a99c0/9b5f2cd9efd6e74c5e3561551506afccb19b6bf5a6e83d1465693b2977f64570?X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27OAS_pair_sequence.csv%3B+filename%3D%22OAS_pair_sequence.csv%22%3B&user_id=public&response-content-type=text%2Fcsv&Expires=1783169027&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjQxMTUzMTc0NzkyZDk1MGZiMGE5OWMwLzliNWYyY2Q5ZWZkNmU3NGM1ZTM1NjE1NTE1MDZhZmNjYjE5YjZiZjVhNmU4M2QxNDY1NjkzYjI5NzdmNjQ1NzBcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3T0FTX3BhaXJfc2VxdWVuY2UuY3N2JTNCK2ZpbGVuYW1lJTNEJTIyT0FTX3BhaXJfc2VxdWVuY2UuY3N2JTIyJTNCJnVzZXJfaWQ9cHVibGljJnJlc3BvbnNlLWNvbnRlbnQtdHlwZT10ZXh0JTJGY3N2IiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3ODMxNjkwMjd9fX1dfQ__&Signature=MEYCIQDhWrNND4Ytkti~mWswstSG15OsOXYtKS0zT4djMFeOgAIhANk9RusJlb2BBFH8OdbN5i2saSLRyp8GwiMrPCGG44ao&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+  - url: https://us.aws.cdn.hf.co/xet-bridge-us/641153174792d950fb0a99c0/9b5f2cd9efd6e74c5e3561551506afccb19b6bf5a6e83d1465693b2977f64570?response-content-disposition=inline%3B+filename*%3DUTF-8%27%27OAS_pair_sequence.csv%3B+filename%3D%22OAS_pair_sequence.csv%22%3B&user_id=public&X-Xet-Cas-Uid=public&response-content-type=text%2Fcsv&Expires=1783171920&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjQxMTUzMTc0NzkyZDk1MGZiMGE5OWMwLzliNWYyY2Q5ZWZkNmU3NGM1ZTM1NjE1NTE1MDZhZmNjYjE5YjZiZjVhNmU4M2QxNDY1NjkzYjI5NzdmNjQ1NzBcXD9yZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3T0FTX3BhaXJfc2VxdWVuY2UuY3N2JTNCK2ZpbGVuYW1lJTNEJTIyT0FTX3BhaXJfc2VxdWVuY2UuY3N2JTIyJTNCJnVzZXJfaWQ9cHVibGljJlgtWGV0LUNhcy1VaWQ9cHVibGljJnJlc3BvbnNlLWNvbnRlbnQtdHlwZT10ZXh0JTJGY3N2IiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3ODMxNzE5MjB9fX1dfQ__&Signature=MEUCIQCgEBw2Zm2BqZIZSi8Sm-aD2wzvYEjdxcUf-~yJDrw9pwIgSLnlHMqQD-u1xjhh8RRWE4At~kw4fyIUtDRzjdf4IHc_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
     source: huggingface
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -223,23 +565,23 @@ datasets:
     source: huggingface
     status: verified
     format: json
-  - url: https://figshare.com/articles/dataset/Nursing_Form_2026_-2027_College_of_Nursing_Sciences_Madobi_Campus_Kano_State_Is_Open_Call_O7O-468-O5833_Have_begun_the_admission_exercise_O7O46805833_07046805833_Prospective_candidates_are_encouraged_to_apply_early_to_avoid_the_last-minute_/32899667
+  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/The_wage_structure_of_white_female_graduates_in_1981_Die_loonstruktuur_van_gegradueerde_blanke_vroue_in_1981/32366076
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/poster/Nursing_Form_2026_-2027_Nigerian_Airforce_College_of_Nursing_Sciences_Kaduna_Is_Open_Call_O7O-468-O5833_Have_begun_the_admission_exercise_O7O46805833_07046805833_Prospective_candidates_are_encouraged_to_apply_early_to_avoid_the_last-minute_/32899664
+  - url: https://figshare.com/articles/figure/Comparative_Finite_Element_Analysis_of_Different_Internal_Connection_Designs_of_Two_Dental_Implant_Systems_Restored_with_30_Angled_Multi-Unit_Abutments_All_data_of_the_research_that_has_been_done_/32899634
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/media/Nursing_Form_2026_-2027_College_of_Nursing_Sciences_Tudun_Wada_Kaduna_State_Is_Open_Call_O7O-468-O5833_Have_begun_the_admission_exercise_O7O46805833_07046805833_Prospective_candidates_are_encouraged_to_apply_early_to_avoid_the_last-minute_r/32899661
+  - url: https://figshare.com/articles/book/Expansion_and_Automation_of_the_Unified_Import_System_for_Composite_Skulls_in_OrtogOnBlender_XP/32899760
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/preprint/_b_Design_Implementation_and_Evaluation_of_a_Low-Cost_Stereo_Oto-Endoscope_for_3D_Ear_Examination_and_Treatment_b_/32899640
+  - url: https://figshare.com/articles/dataset/Dataset_for_Cefiderocol_Susceptibility_in_Japanese_Clinical_i_Enterobacterales_i_i_Isolates_i_and_the_Impact_of_IMP_on_Resistance_/32446335
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Nursing_Form_2026_-2027_College_of_Nursing_Sciences_National_Eye_Centre_Kaduna_Is_Open_Call_O7O-468-O5833_Have_begun_the_admission_exercise_O7O46805833_07046805833_Prospective_candidates_are_encouraged_to_apply_early_to_avoid_the_last-minut/32899658
+  - url: https://figshare.com/articles/poster/Nursing_Form_2026_-2027_College_of_Nursing_Sciences_Bida_Niger_State_Is_Open_Call_O7O-468-O5833_Have_begun_the_admission_exercise_O7O46805833_07046805833_Prospective_candidates_are_encouraged_to_apply_early_to_avoid_the_last-minute_rush_and/32899748
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -251,11 +593,11 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/7311056
+  - url: https://zenodo.org/records/15765561
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/15765561
+  - url: https://zenodo.org/records/7311056
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -324,23 +666,23 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://figshare.com/articles/dataset/Nursing_Form_2026_-2027_College_of_Nursing_Sciences_Madobi_Campus_Kano_State_Is_Open_Call_O7O-468-O5833_Have_begun_the_admission_exercise_O7O46805833_07046805833_Prospective_candidates_are_encouraged_to_apply_early_to_avoid_the_last-minute_/32899667
+  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/The_wage_structure_of_white_female_graduates_in_1981_Die_loonstruktuur_van_gegradueerde_blanke_vroue_in_1981/32366076
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/poster/Nursing_Form_2026_-2027_Nigerian_Airforce_College_of_Nursing_Sciences_Kaduna_Is_Open_Call_O7O-468-O5833_Have_begun_the_admission_exercise_O7O46805833_07046805833_Prospective_candidates_are_encouraged_to_apply_early_to_avoid_the_last-minute_/32899664
+  - url: https://figshare.com/articles/figure/Comparative_Finite_Element_Analysis_of_Different_Internal_Connection_Designs_of_Two_Dental_Implant_Systems_Restored_with_30_Angled_Multi-Unit_Abutments_All_data_of_the_research_that_has_been_done_/32899634
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/media/Nursing_Form_2026_-2027_College_of_Nursing_Sciences_Tudun_Wada_Kaduna_State_Is_Open_Call_O7O-468-O5833_Have_begun_the_admission_exercise_O7O46805833_07046805833_Prospective_candidates_are_encouraged_to_apply_early_to_avoid_the_last-minute_r/32899661
+  - url: https://figshare.com/articles/book/Expansion_and_Automation_of_the_Unified_Import_System_for_Composite_Skulls_in_OrtogOnBlender_XP/32899760
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/preprint/_b_Design_Implementation_and_Evaluation_of_a_Low-Cost_Stereo_Oto-Endoscope_for_3D_Ear_Examination_and_Treatment_b_/32899640
+  - url: https://figshare.com/articles/dataset/Dataset_for_Cefiderocol_Susceptibility_in_Japanese_Clinical_i_Enterobacterales_i_i_Isolates_i_and_the_Impact_of_IMP_on_Resistance_/32446335
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Nursing_Form_2026_-2027_College_of_Nursing_Sciences_National_Eye_Centre_Kaduna_Is_Open_Call_O7O-468-O5833_Have_begun_the_admission_exercise_O7O46805833_07046805833_Prospective_candidates_are_encouraged_to_apply_early_to_avoid_the_last-minut/32899658
+  - url: https://figshare.com/articles/poster/Nursing_Form_2026_-2027_College_of_Nursing_Sciences_Bida_Niger_State_Is_Open_Call_O7O-468-O5833_Have_begun_the_admission_exercise_O7O46805833_07046805833_Prospective_candidates_are_encouraged_to_apply_early_to_avoid_the_last-minute_rush_and/32899748
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -356,11 +698,11 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/5123024
+  - url: https://zenodo.org/records/3665743
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/3665743
+  - url: https://zenodo.org/records/5123024
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -384,17 +726,25 @@ datasets:
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-- intent: PCs
+- intent: GEO
   status: verified
   candidates:
-  - url: https://huggingface.co/datasets/Patsagorn/pcshsbr-music-request/resolve/main/song-request_may23-mar24_cleaned.csv
+  - url: https://huggingface.co/datasets/GeorgiaTech/HERCULES/resolve/main/Australia
+      Center Sequence/data/label_color_map_ausenv_roadseq.csv
     source: huggingface
     format: csv
     relevance: 0.0
     sample_check:
+      downloaded_bytes: 14725
+      parsed: true
+  - url: https://huggingface.co/datasets/georghess/pandaset/resolve/main/pandaset.zip
+    source: huggingface
+    format: zip
+    relevance: 0.0
+    sample_check:
       downloaded_bytes: 262144
       parsed: true
-  - url: https://huggingface.co/datasets/SeaLab/shapenet_pcsam/resolve/main/data/train-00000-of-00011.parquet
+  - url: https://huggingface.co/datasets/hiyouga/geometry3k/resolve/main/data/test-00000-of-00001.parquet
     source: huggingface
     format: parquet
     relevance: 0.0
@@ -402,71 +752,84 @@ datasets:
       downloaded_bytes: 262144
       parsed: true
   candidates_tried:
-  - url: https://huggingface.co/datasets/Patsagorn/pcshsbr-music-request/resolve/main/song-request_may23-mar24_cleaned.csv
+  - url: https://huggingface.co/datasets/GeorgiaTech/HERCULES/resolve/main/Australia
+      Center Sequence/data/label_color_map_ausenv_roadseq.csv
     source: huggingface
     status: verified
     format: csv
-  - url: https://huggingface.co/datasets/SeaLab/shapenet_pcsam/resolve/main/data/train-00000-of-00011.parquet
+  - url: https://huggingface.co/datasets/georghess/pandaset/resolve/main/pandaset.zip
+    source: huggingface
+    status: verified
+    format: zip
+  - url: https://huggingface.co/datasets/hiyouga/geometry3k/resolve/main/data/test-00000-of-00001.parquet
     source: huggingface
     status: verified
     format: parquet
-  - url: https://figshare.com/articles/dataset/Nursing_Form_2026_-2027_College_of_Nursing_Sciences_Madobi_Campus_Kano_State_Is_Open_Call_O7O-468-O5833_Have_begun_the_admission_exercise_O7O46805833_07046805833_Prospective_candidates_are_encouraged_to_apply_early_to_avoid_the_last-minute_/32899667
+  - url: https://huggingface.co/datasets/geoskyr/COCO-Counterfactual/resolve/main/data/train-00000-of-00013.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/cyborvirtue/Geoaux/resolve/main/metadata.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/The_wage_structure_of_white_female_graduates_in_1981_Die_loonstruktuur_van_gegradueerde_blanke_vroue_in_1981/32366076
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/poster/Nursing_Form_2026_-2027_Nigerian_Airforce_College_of_Nursing_Sciences_Kaduna_Is_Open_Call_O7O-468-O5833_Have_begun_the_admission_exercise_O7O46805833_07046805833_Prospective_candidates_are_encouraged_to_apply_early_to_avoid_the_last-minute_/32899664
+  - url: https://figshare.com/articles/figure/Comparative_Finite_Element_Analysis_of_Different_Internal_Connection_Designs_of_Two_Dental_Implant_Systems_Restored_with_30_Angled_Multi-Unit_Abutments_All_data_of_the_research_that_has_been_done_/32899634
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/media/Nursing_Form_2026_-2027_College_of_Nursing_Sciences_Tudun_Wada_Kaduna_State_Is_Open_Call_O7O-468-O5833_Have_begun_the_admission_exercise_O7O46805833_07046805833_Prospective_candidates_are_encouraged_to_apply_early_to_avoid_the_last-minute_r/32899661
+  - url: https://figshare.com/articles/book/Expansion_and_Automation_of_the_Unified_Import_System_for_Composite_Skulls_in_OrtogOnBlender_XP/32899760
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/preprint/_b_Design_Implementation_and_Evaluation_of_a_Low-Cost_Stereo_Oto-Endoscope_for_3D_Ear_Examination_and_Treatment_b_/32899640
+  - url: https://figshare.com/articles/dataset/Dataset_for_Cefiderocol_Susceptibility_in_Japanese_Clinical_i_Enterobacterales_i_i_Isolates_i_and_the_Impact_of_IMP_on_Resistance_/32446335
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Nursing_Form_2026_-2027_College_of_Nursing_Sciences_National_Eye_Centre_Kaduna_Is_Open_Call_O7O-468-O5833_Have_begun_the_admission_exercise_O7O46805833_07046805833_Prospective_candidates_are_encouraged_to_apply_early_to_avoid_the_last-minut/32899658
+  - url: https://figshare.com/articles/poster/Nursing_Form_2026_-2027_College_of_Nursing_Sciences_Bida_Niger_State_Is_Open_Call_O7O-468-O5833_Have_begun_the_admission_exercise_O7O46805833_07046805833_Prospective_candidates_are_encouraged_to_apply_early_to_avoid_the_last-minute_rush_and/32899748
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/17352343
+  - url: https://meetingorganizer.copernicus.org/iag-comm4-2022/iag-comm4-2022-15.html
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/19567761
+  - url: https://zenodo.org/records/19467316
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/2170152
+  - url: https://zenodo.org/records/7603435
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/5096410
+  - url: https://zenodo.org/records/20798419
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/19537187
+  - url: https://zenodo.org/records/19603782
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21187391
+  - url: https://zenodo.org/records/21192499
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21187391
+  - url: https://zenodo.org/records/21192499
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21185133
+  - url: https://usiena-air.unisi.it//handle/11365/1139948
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21185133
+  - url: https://zenodo.org/records/21191938
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://unsworks.unsw.edu.au/handle/1959.4/unsworks_48458
+  - url: https://zenodo.org/records/21191938
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -485,23 +848,23 @@ datasets:
     source: huggingface
     status: verified
     format: csv
-  - url: https://figshare.com/articles/software/Discovering_Early-Stage_Gas_Generation_Kinetics_Enables_Thermal_Runaway_Early_Warning_in_Lithium-Ion_Batteries/31208395
+  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/The_wage_structure_of_white_female_graduates_in_1981_Die_loonstruktuur_van_gegradueerde_blanke_vroue_in_1981/32366076
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Nursing_Form_2026_-2027_College_of_Nursing_Sciences_Madobi_Campus_Kano_State_Is_Open_Call_O7O-468-O5833_Have_begun_the_admission_exercise_O7O46805833_07046805833_Prospective_candidates_are_encouraged_to_apply_early_to_avoid_the_last-minute_/32899667
+  - url: https://figshare.com/articles/figure/Comparative_Finite_Element_Analysis_of_Different_Internal_Connection_Designs_of_Two_Dental_Implant_Systems_Restored_with_30_Angled_Multi-Unit_Abutments_All_data_of_the_research_that_has_been_done_/32899634
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/poster/Nursing_Form_2026_-2027_Nigerian_Airforce_College_of_Nursing_Sciences_Kaduna_Is_Open_Call_O7O-468-O5833_Have_begun_the_admission_exercise_O7O46805833_07046805833_Prospective_candidates_are_encouraged_to_apply_early_to_avoid_the_last-minute_/32899664
+  - url: https://figshare.com/articles/book/Expansion_and_Automation_of_the_Unified_Import_System_for_Composite_Skulls_in_OrtogOnBlender_XP/32899760
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/media/Nursing_Form_2026_-2027_College_of_Nursing_Sciences_Tudun_Wada_Kaduna_State_Is_Open_Call_O7O-468-O5833_Have_begun_the_admission_exercise_O7O46805833_07046805833_Prospective_candidates_are_encouraged_to_apply_early_to_avoid_the_last-minute_r/32899661
+  - url: https://figshare.com/articles/dataset/Dataset_for_Cefiderocol_Susceptibility_in_Japanese_Clinical_i_Enterobacterales_i_i_Isolates_i_and_the_Impact_of_IMP_on_Resistance_/32446335
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/preprint/_b_Design_Implementation_and_Evaluation_of_a_Low-Cost_Stereo_Oto-Endoscope_for_3D_Ear_Examination_and_Treatment_b_/32899640
+  - url: https://figshare.com/articles/poster/Nursing_Form_2026_-2027_College_of_Nursing_Sciences_Bida_Niger_State_Is_Open_Call_O7O-468-O5833_Have_begun_the_admission_exercise_O7O46805833_07046805833_Prospective_candidates_are_encouraged_to_apply_early_to_avoid_the_last-minute_rush_and/32899748
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -542,94 +905,6 @@ datasets:
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/19556878
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-- intent: GSE150728
-  status: unresolved
-  candidates: []
-  candidates_tried:
-  - url: https://figshare.com/articles/software/Discovering_Early-Stage_Gas_Generation_Kinetics_Enables_Thermal_Runaway_Early_Warning_in_Lithium-Ion_Batteries/31208395
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Nursing_Form_2026_-2027_College_of_Nursing_Sciences_Madobi_Campus_Kano_State_Is_Open_Call_O7O-468-O5833_Have_begun_the_admission_exercise_O7O46805833_07046805833_Prospective_candidates_are_encouraged_to_apply_early_to_avoid_the_last-minute_/32899667
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/poster/Nursing_Form_2026_-2027_Nigerian_Airforce_College_of_Nursing_Sciences_Kaduna_Is_Open_Call_O7O-468-O5833_Have_begun_the_admission_exercise_O7O46805833_07046805833_Prospective_candidates_are_encouraged_to_apply_early_to_avoid_the_last-minute_/32899664
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/media/Nursing_Form_2026_-2027_College_of_Nursing_Sciences_Tudun_Wada_Kaduna_State_Is_Open_Call_O7O-468-O5833_Have_begun_the_admission_exercise_O7O46805833_07046805833_Prospective_candidates_are_encouraged_to_apply_early_to_avoid_the_last-minute_r/32899661
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/preprint/_b_Design_Implementation_and_Evaluation_of_a_Low-Cost_Stereo_Oto-Endoscope_for_3D_Ear_Examination_and_Treatment_b_/32899640
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-- intent: GSE176078
-  status: unresolved
-  candidates: []
-  candidates_tried:
-  - url: https://figshare.com/articles/poster/Nursing_Form_2026_-2027_College_of_Nursing_Sciences_Birnin-Kebbi_Kebbi_State_Is_Open_Call_O7O-468-O5833_Have_begun_the_admission_exercise_O7O46805833_07046805833_Prospective_candidates_are_encouraged_to_apply_early_to_avoid_the_last-minute_/32899670
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/software/Discovering_Early-Stage_Gas_Generation_Kinetics_Enables_Thermal_Runaway_Early_Warning_in_Lithium-Ion_Batteries/31208395
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Nursing_Form_2026_-2027_College_of_Nursing_Sciences_Madobi_Campus_Kano_State_Is_Open_Call_O7O-468-O5833_Have_begun_the_admission_exercise_O7O46805833_07046805833_Prospective_candidates_are_encouraged_to_apply_early_to_avoid_the_last-minute_/32899667
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/poster/Nursing_Form_2026_-2027_Nigerian_Airforce_College_of_Nursing_Sciences_Kaduna_Is_Open_Call_O7O-468-O5833_Have_begun_the_admission_exercise_O7O46805833_07046805833_Prospective_candidates_are_encouraged_to_apply_early_to_avoid_the_last-minute_/32899664
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/media/Nursing_Form_2026_-2027_College_of_Nursing_Sciences_Tudun_Wada_Kaduna_State_Is_Open_Call_O7O-468-O5833_Have_begun_the_admission_exercise_O7O46805833_07046805833_Prospective_candidates_are_encouraged_to_apply_early_to_avoid_the_last-minute_r/32899661
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/11073129
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/12176330
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/18894332
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/18890832
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/18891771
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://dataverse.harvard.edu/citation?persistentId=doi:10.7910/DVN/T7YK0O
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/18894393
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/18894393
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/18894332
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/18894332
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content

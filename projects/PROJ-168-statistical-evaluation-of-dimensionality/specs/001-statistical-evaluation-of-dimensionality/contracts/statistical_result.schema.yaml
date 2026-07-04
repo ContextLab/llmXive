@@ -1,0 +1,100 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Statistical Result Schema"
+description: "Schema for the final statistical analysis results including Fixed-Effects ANOVA and sensitivity analysis."
+type: object
+properties:
+  model_summary:
+    type: object
+    properties:
+      formula:
+        type: string
+        description: "The Fixed-Effects ANOVA model formula used (e.g., 'fidelity ~ method')"
+      fixed_effects:
+        type: array
+        items:
+          type: object
+          properties:
+            term:
+              type: string
+            estimate:
+              type: number
+            std_error:
+              type: number
+            p_value:
+              type: number
+            p_value_fdr:
+              type: number
+              description: "Benjamini-Hochberg adjusted p-value"
+          required:
+            - term
+            - estimate
+            - std_error
+            - p_value
+            - p_value_fdr
+      random_effects_variance:
+        type: "null"
+        description: "Null for Fixed-Effects ANOVA (no random effect)"
+      vif_values:
+        type: object
+        description: "Variance Inflation Factor for predictors"
+        additionalProperties:
+          type: number
+      collinearity_passed:
+        type: boolean
+        description: "True if all VIF < 5"
+    required:
+      - formula
+      - fixed_effects
+      - random_effects_variance
+      - vif_values
+      - collinearity_passed
+  sensitivity_analysis:
+    type: object
+    properties:
+      thresholds:
+        type: array
+        items:
+          type: number
+        description: "Leiden resolution thresholds swept (e.g., 0.1, 0.2, ... 1.0)"
+      variance_ari:
+        type: number
+        description: "Variance in ARI across thresholds"
+      variance_nmi:
+        type: number
+        description: "Variance in NMI across thresholds"
+      stability_passed:
+        type: boolean
+        description: "True if variance < 0.05"
+    required:
+      - thresholds
+      - variance_ari
+      - variance_nmi
+      - stability_passed
+  execution_metadata:
+    type: object
+    properties:
+      peak_memory_bytes:
+        type: integer
+        description: "Peak RSS observed during execution"
+      total_runtime_seconds:
+        type: number
+        description: "Total wall-clock time"
+      datasets_processed:
+        type: integer
+        description: "Number of datasets successfully processed"
+      datasets_skipped:
+        type: integer
+        description: "Number of datasets skipped due to errors or missing sources"
+      exit_code:
+        type: integer
+        description: "Exit code of the pipeline (0 for success, 1 for failure)"
+    required:
+      - peak_memory_bytes
+      - total_runtime_seconds
+      - datasets_processed
+      - datasets_skipped
+      - exit_code
+required:
+  - model_summary
+  - sensitivity_analysis
+  - execution_metadata

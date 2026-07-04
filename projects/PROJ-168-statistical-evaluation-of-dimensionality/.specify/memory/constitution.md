@@ -37,31 +37,13 @@ Advancement-Evaluator Agent invalidates stale review records when the
 hashed artifact changes. Every research-stage artifact change updates this
 project's `state/projects/PROJ-168-statistical-evaluation-of-dimensionality.yaml` `updated_at` timestamp.
 
-### VI. Geometric Fidelity & Statistical Rigor
+### VI. Geometric Characterization Protocol
 
-The evaluation of dimensionality reduction methods MUST explicitly correlate
-embedding fidelity (measured by ARI or similar metrics) against computed
-geometric descriptors of the raw high-dimensional space: specifically global
-linearity and local density. As the project hypothesis states, linear methods
-are expected to fail on high-curvature manifolds, while non-linear methods
-may underperform on highly linear, noisy data; therefore, the statistical
-model must treat data geometry as the independent variable and method
-performance as the dependent variable to identify precise breakdown thresholds.
-No method comparison is valid unless it is stratified by these geometric
-properties to distinguish between algorithmic failure and data-structure
-incompatibility.
+The project MUST compute and report specific geometric diagnostics—global linearity and local density—directly from the high-dimensional raw gene expression space prior to any dimensionality reduction. These metrics serve as the predictor variables for the study, ensuring that the evaluation of embedding classes (linear vs. non-linear) is grounded in the intrinsic geometric properties of the data manifold rather than arbitrary hyperparameter tuning.
 
-### VII. Manifold-Independent Ground Truth Validation
+### VII. Ground-Truth Fidelity Validation
 
-Ground-truth cell-type labels used to calculate embedding fidelity MUST be
-independent of the high-dimensional expression space used to compute geometric
-predictors. The project design ensures that predictors (linearity, density)
-are derived from raw expression data, while the outcome (fidelity) is derived
-from the relationship between the low-dimensional embedding and these
-independent labels. This separation prevents circularity where the predictor
-and outcome are derived from the same processed signal, ensuring that
-statistical correlations reflect genuine data-structure effects rather than
-mechanical artifacts of the processing pipeline.
+All performance evaluations of dimensionality reduction techniques MUST utilize cell-type recovery fidelity as the primary outcome metric, derived by comparing low-dimensional embeddings against independent ground-truth biological labels. This ensures that the statistical analysis distinguishes between the quality of the geometric transformation and the specific algorithmic implementation, maintaining a clear separation between input manifold diagnostics and output biological utility.
 
 ## Reproducibility Requirements
 

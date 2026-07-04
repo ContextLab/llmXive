@@ -1,0 +1,50 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Dataset Manifest Schema"
+description: "Schema for the dataset manifest file tracking raw and processed data artifacts."
+type: object
+properties:
+  datasets:
+    type: array
+    items:
+      type: object
+      properties:
+        dataset_id:
+          type: string
+          description: "Unique identifier for the dataset (e.g., GSE131907)"
+        source_url:
+          type: string
+          description: "Verified URL from which the data was downloaded"
+        status:
+          type: string
+          enum:
+            - "Available"
+            - "Unavailable"
+            - "Error"
+          description: "Current status of the dataset in the pipeline"
+        error_message:
+          type: string
+          description: "Reason for Unavailable or Error status, if applicable"
+        checksum:
+          type: string
+          description: "SHA-256 checksum of the raw downloaded file"
+        raw_file_path:
+          type: string
+          description: "Relative path to the raw data file in data/raw/"
+        processed_file_path:
+          type: string
+          description: "Relative path to the processed data file in data/processed/, or null if unavailable"
+      required:
+        - dataset_id
+        - source_url
+        - status
+        - checksum
+        - raw_file_path
+    required:
+      - datasets
+  generated_at:
+    type: string
+    format: date-time
+    description: "ISO 8601 timestamp of manifest generation"
+required:
+  - datasets
+  - generated_at

@@ -1,22 +1,11 @@
-- artifact_hash: 20330072ab06100bf454282c06eed00ad4e39d206af5af163341c4c461559ee3
+- artifact_hash: 89d903ea44fe6c4ea510724dbfef13d7fa2eeff6710553e8ea7c4f1cf44f85a2
   artifact_path: projects/PROJ-168-statistical-evaluation-of-dimensionality/specs/001-statistical-evaluation-of-dimensionality/research.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
-  fetched_title: GSE131907_series_matrix.txt.gz
+  fetched_title: cluster_markers.csv
   kind: url
-  value: https://ftp.ncbi.nlm.nih.gov/geo/series/GSE131nnn/GSE131907/matrix/GSE131907_series_matrix.txt.gz`
+  value: https://huggingface.co/datasets/mukul54/LUAD_GSE131907/resolve/main/analysis/cluster_markers.csv`
   verification_status: verified
-  verified_against_url: https://ftp.ncbi.nlm.nih.gov/geo/series/GSE131nnn/GSE131907/matrix/GSE131907_series_matrix.txt.gz
-  verified_at: '2026-07-04T12:02:37.982218Z'
-- artifact_hash: 7f06a4e15a7ac9e658076ea548a7db737d32277102d1d8bf28cc4b59db0effde
-  artifact_path: projects/PROJ-168-statistical-evaluation-of-dimensionality/specs/001-statistical-evaluation-of-dimensionality/quickstart.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: url
-  value: https://github.com/your-org/001-gene-regulation.git
-  verification_status: mismatch
-  verified_against_url: https://github.com/your-org/001-gene-regulation
-  verified_at: '2026-07-04T12:02:57.033339Z'
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/67dc3c09d00dc2861897c9e9/5eeedd7227ff3141875145a89d467a41b84f953904b33a5cf0390f4f588a46cd?user_id=public&response-content-type=text%2Fcsv&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27cluster_markers.csv%3B+filename%3D%22cluster_markers.csv%22%3B&X-Xet-Cas-Uid=public&Expires=1783174091&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjdkYzNjMDlkMDBkYzI4NjE4OTdjOWU5LzVlZWVkZDcyMjdmZjMxNDE4NzUxNDVhODlkNDY3YTQxYjg0Zjk1MzkwNGIzM2E1Y2YwMzkwZjRmNTg4YTQ2Y2RcXD91c2VyX2lkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LXR5cGU9dGV4dCUyRmNzdiZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3Y2x1c3Rlcl9tYXJrZXJzLmNzdiUzQitmaWxlbmFtZSUzRCUyMmNsdXN0ZXJfbWFya2Vycy5jc3YlMjIlM0ImWC1YZXQtQ2FzLVVpZD1wdWJsaWMiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkVwb2NoVGltZSI6MTc4MzE3NDA5MX19fV19&Signature=MEUCIFKeCXhA9xKBJERTwEYTyEZu8zYBB0XfbBX1IbKa0ILMAiEAgIr8sGJD7qxS3ywQU5OkNRUJFY4jcvdto9VwGLVRp6M_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+  verified_at: '2026-07-04T13:08:10.959811Z'
