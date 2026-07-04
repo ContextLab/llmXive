@@ -1,0 +1,87 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Model Performance Metrics Schema
+description: >
+  Schema for validating the model performance metrics artifact (performance_metrics.json).
+  This artifact contains regression metrics, statistical significance tests, and
+  collinearity diagnostics as specified in the project plan.
+type: object
+required:
+  - rmse
+  - r2
+  - baseline_rmse
+  - baseline_r2
+  - vif
+  - ci_lower
+  - ci_upper
+  - is_significant
+  - collinearity_mitigation
+  - mdes
+  - power_limitation_message
+  - transferability_flags
+properties:
+  rmse:
+    type: number
+    description: Root Mean Squared Error of the Gradient Boosting model on the test set.
+    minimum: 0
+  r2:
+    type: number
+    description: R-squared coefficient of determination for the Gradient Boosting model.
+  baseline_rmse:
+    type: number
+    description: Root Mean Squared Error of the Linear Regression baseline on the test set.
+    minimum: 0
+  baseline_r2:
+    type: number
+    description: R-squared coefficient of determination for the Linear Regression baseline.
+  vif:
+    type: object
+    description: Variance Inflation Factors for compositional descriptors.
+    additionalProperties:
+      type: number
+      minimum: 0
+    minProperties: 1
+  ci_lower:
+    type: number
+    description: Lower bound of the 95% bootstrapped confidence interval for the difference
+      in mean absolute SHAP values between chemical heterogeneity and mean coordination number.
+  ci_upper:
+    type: number
+    description: Upper bound of the 95% bootstrapped confidence interval.
+  is_significant:
+    type: boolean
+    description: True if the confidence interval does not include zero (statistically significant).
+  collinearity_mitigation:
+    type: string
+    enum:
+      - residualization
+      - none
+      - pca
+    description: Strategy used to mitigate collinearity if VIF >= 5.
+  mdes:
+    type: number
+    description: Minimum Detectable Effect Size calculated during power analysis.
+    minimum: 0
+  power_limitation_message:
+    type: string
+    description: Message indicating power limitations if statistical power < 0.80.
+  transferability_flags:
+    type: object
+    description: Flags indicating model performance when tested on held-out chemical families (LOFO).
+    additionalProperties:
+      type: object
+      properties:
+        test_family:
+          type: string
+        test_rmse:
+          type: number
+          minimum: 0
+        test_r2:
+          type: number
+        feature_importance_shift:
+          type: number
+      required:
+        - test_family
+        - test_rmse
+        - test_r2
+        - feature_importance_shift
+additionalProperties: false

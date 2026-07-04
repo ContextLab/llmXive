@@ -20,32 +20,32 @@
 - **Mobile**: `api/src/`, `ios/src/` or `android/src/`
 - Paths shown below assume single project - adjust based on plan.md structure
 
-<!-- 
-  ============================================================================
-  IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-  
-  The /speckit-tasks command MUST replace these with actual tasks based on:
-  - User stories from spec.md (with their priorities P1, P2, P3...)
-  - Feature requirements from plan.md
-  - Entities from data-model.md
-  - Endpoints from contracts/
-  
-  Tasks MUST be organized by user story so each story can be:
-  - Implemented independently
-  - Tested independently
-  - Delivered as an MVP increment
-  
-  DO NOT keep these sample tasks in the generated tasks.md file.
-  ============================================================================
+<!--
+ ============================================================================
+ IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
+
+ The /speckit-tasks command MUST replace these with actual tasks based on:
+ - User stories from spec.md (with their priorities P1, P2, P3...)
+ - Feature requirements from plan.md
+ - Entities from data-model.md
+ - Endpoints from contracts/
+
+ Tasks MUST be organized by user story so each story can be:
+ - Implemented independently
+ - Tested independently
+ - Delivered as an MVP increment
+
+ DO NOT keep these sample tasks in the generated tasks.md file.
+ ============================================================================
 -->
 
 ## Phase 1: Setup (Shared Infrastructure)
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure per implementation plan
-- [ ] T002 Initialize Python 3.11 project with `pandas`, `scikit-learn`, `shap`, `mendeleev`, `requests`, `numpy`, `pytest`, `statsmodels` dependencies in `requirements.txt`
-- [ ] T003 [P] Configure linting (flake8/black) and formatting tools
+- [X] T001 Create project structure per implementation plan
+- [X] T002 Initialize Python 3.11 project with `pandas`, `scikit-learn`, `shap`, `mendeleev`, `requests`, `numpy`, `pytest`, `statsmodels` dependencies in `requirements.txt`
+- [X] T003 [P] Configure linting (flake8/black) and formatting tools
 
 ---
 
@@ -55,14 +55,14 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 Setup `data/`, `artifacts/`, `state/` directory structure
-- [ ] T005 [P] Implement `state/manifest.json` initialization logic to track artifact hashes
-- [ ] T006 [P] Create `src/utils/constants.py` with periodic property helpers (coordination numbers, electronegativity, atomic radii) using `mendeleev`
+- [X] T004 Setup `data/`, `artifacts/`, `state/` directory structure
+- [X] T005 [P] Implement `state/manifest.json` initialization logic to track artifact hashes
+- [X] T006 [P] Create `src/utils/constants.py` with periodic property helpers (coordination numbers, electronegativity, atomic radii) using `mendeleev`
 - [ ] T007a [P] Create `contracts/chalcogenide_sample.schema.yaml` per plan.md specification
 - [ ] T007b [P] Create `contracts/model_performance.schema.yaml` per plan.md specification
 - [ ] T007c [P] Create `contracts/shap_importance.schema.yaml` per plan.md specification
 - [ ] T007d [P] Create `contracts/shap_report.schema.yaml` per plan.md specification
-- [ ] T008 Configure error handling and logging infrastructure in `src/utils/logger.py`
+- [ ] T008 Configure error handling and logging infrastructure in `src/utils/logger.py` <!-- SKIPPED: non-mapping output -->
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -79,16 +79,16 @@
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
 - [ ] T009 [P] [US1] Unit test for data download retry logic in `tests/unit/test_download.py`
-- [ ] T010 [P] [US1] Unit test for feature engineering (MCN, electronegativity variance) in `tests/unit/test_feature_engineering.py`
-- [ ] T011 [P] [US1] Integration test for stratified split logic in `tests/integration/test_split.py`
+- [~] T010 [P] [US1] Unit test for feature engineering (MCN, electronegativity variance) in `tests/unit/test_feature_engineering.py` <!-- SKIPPED: non-mapping output -->
+- [~] T011 [P] [US1] Integration test for stratified split logic in `tests/integration/test_split.py`
 
 ### Implementation for User Story 1
 
-- [ ] T012 [US1] Implement `src/data/download.py` to fetch dataset from supplementary repository URL, validate columns (composition, Tg), handle HTTP errors with 3 retries, and **explicitly generate the marker string `DATA_MISSING: Required column [column_name] not found`** (writing to log and `state/manifest.json`) if any required column is missing (per SC-005), then compute checksums for `state/manifest.json`
-- [ ] T013 [US1] Implement `src/data/preprocess.py` to compute mean coordination number, electronegativity variance, and atomic radius variance using `mendeleev`, excluding samples with incomplete formulas. **If predictors are present, explicitly write the success marker `Dataset variable availability is confirmed...` to `state/variable_fit.log`. If predictors are missing, write `DATA_MISSING: Predictor [name] not found`.** (per SC-008).
-- [ ] T014 [US1] Implement `src/data/split.py` to perform stratified split (≥80% train) by chemical family. **If any chemical family in the split has <10 samples, the system MUST switch to full Leave-One-Family-Out (LOFO) cross-validation for the entire dataset, replacing the stratified split entirely**, and log this decision (per Constitution Principle VII).
-- [ ] T015 [US1] Implement power analysis in `src/data/preprocess.py` to estimate Minimum Detectable Effect Size (MDES). **If power < 0.80, write a JSON artifact to `state/power_analysis.json` with schema `{"power": <float>, "power_limitation_message": "Power Limitation: Insufficient power to detect small effects"}`** (per SC context).
-- [ ] T016 [US1] Add validation to ensure all derived features are recorded in `data/processed/` with content hashes in `state/manifest.json`
+- [~] T012 [US1] Implement `src/data/download.py` to fetch dataset from supplementary repository URL, validate columns (composition, Tg), handle HTTP errors with 3 retries, and **explicitly generate the marker string `DATA_MISSING: Required column [column_name] not found`** (writing to log and `state/manifest.json`) if any required column is missing (per SC-005), then compute checksums for `state/manifest.json`
+- [~] T013 [US1] Implement `src/data/preprocess.py` to compute mean coordination number, electronegativity variance, and atomic radius variance using `mendeleev`, excluding samples with incomplete formulas. **If predictors are present, explicitly write the success marker `Dataset variable availability is confirmed...` to `state/variable_fit.log`. If predictors are missing, write `DATA_MISSING: Predictor [name] not found`.** (per SC-008).
+- [~] T014 [US1] Implement `src/data/split.py` to perform stratified split (≥80% train) by chemical family. **If any chemical family in the split has <10 samples, the system MUST switch to full Leave-One-Family-Out (LOFO) cross-validation for the entire dataset, replacing the stratified split entirely**, and log this decision (per Constitution Principle VII).
+- [~] T015 [US1] Implement power analysis in `src/data/preprocess.py` to estimate Minimum Detectable Effect Size (MDES). **If power < 0.80, write a JSON artifact to `state/power_analysis.json` with schema `{"power": <float>, "power_limitation_message": "Power Limitation: Insufficient power to detect small effects"}`** (per SC context).
+- [~] T016 [US1] Add validation to ensure all derived features are recorded in `data/processed/` with content hashes in `state/manifest.json`
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -102,21 +102,21 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T017 [P] [US2] Unit test for model training (CPU-only check) in `tests/unit/test_train.py`
-- [ ] T018 [P] [US2] Integration test for cross-validation timing and metrics in `tests/integration/test_pipeline.py`
+- [~] T017 [P] [US2] Unit test for model training (CPU-only check) in `tests/unit/test_train.py`
+- [~] T018 [P] [US2] Integration test for cross-validation timing and metrics in `tests/integration/test_pipeline.py`
 
 ### Implementation for User Story 2
 
-- [ ] T022 [US2] Implement `src/utils/metrics.py` to compute Variance Inflation Factors (VIF) for compositional descriptors. **If VIF ≥ 5, trigger residualization logic and document the specific mitigation strategy in `performance_metrics.json` using the key `collinearity_mitigation` with value `residualization`** (per SC-007).
-- [ ] T023 [US2] Implement `src/models/train.py` to generate residualized features (orthogonalized heterogeneity descriptors) **conditionally** if T022 detects VIF ≥ 5, and save to `data/residualized/` with checksums in `state/manifest.json`.
-- [ ] T019 [US2] Implement `src/models/train.py` to train Linear Regression baseline and Gradient Boosting Regressor using `scikit-learn` (default float64, no quantization) with 5-fold CV. **This task must run AFTER T022/T023 to ensure it uses residualized features if collinearity is detected.**
-- [ ] T020 [US2] Implement hyperparameter tuning for Gradient Boosting within `src/models/train.py`, ensuring search space is constrained to meet 6-hour CI limit
+- [~] T022 [US2] Implement `src/utils/metrics.py` to compute Variance Inflation Factors (VIF) for compositional descriptors. **If VIF ≥ 5, trigger residualization logic and document the specific mitigation strategy in `performance_metrics.json` using the key `collinearity_mitigation` with value `residualization`** (per SC-007).
+- [~] T023 [US2] Implement `src/models/train.py` to generate residualized features (orthogonalized heterogeneity descriptors) **conditionally** if T022 detects VIF ≥ 5, and save to `data/residualized/` with checksums in `state/manifest.json`.
+- [~] T019 [US2] Implement `src/models/train.py` to train Linear Regression baseline and Gradient Boosting Regressor using `scikit-learn` (default float64, no quantization) with 5-fold CV. **This task must run AFTER T022/T023 to ensure it uses residualized features if collinearity is detected.**
+- [~] T020 [US2] Implement hyperparameter tuning for Gradient Boosting within `src/models/train.py`, ensuring search space is constrained to meet 6-hour CI limit
 
 #### Sub-phase: Analysis & Mitigation (Conditional on Data)
 *These tasks depend on the output of T019 and must run before final evaluation if collinearity is detected.*
 
-- [ ] T021 [US2] Implement `src/models/evaluate.py` to compute RMSE and R² for both models on the held-out test set and log results
-- [ ] T024 [US2] Implement a utility function in `src/utils/metrics.py` to generate the explicit "ASSOCIATIONAL, NOT CAUSAL" disclaimer text, **writing it to `artifacts/causal_disclaimer.txt`** (per FR-008), to be consumed by T031.
+- [~] T021 [US2] Implement `src/models/evaluate.py` to compute RMSE and R² for both models on the held-out test set and log results
+- [~] T024 [US2] Implement a utility function in `src/utils/metrics.py` to generate the explicit "ASSOCIATIONAL, NOT CAUSAL" disclaimer text, **writing it to `artifacts/causal_disclaimer.txt`** (per FR-008), to be consumed by T031.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -130,19 +130,19 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T025 [P] [US3] Unit test for SHAP value computation (CPU-only) in `tests/unit/test_explain.py`
-- [ ] T026 [P] [US3] Integration test for bootstrapped confidence interval calculation in `tests/integration/test_metrics.py`
+- [~] T025 [P] [US3] Unit test for SHAP value computation (CPU-only) in `tests/unit/test_explain.py`
+- [~] T026 [P] [US3] Integration test for bootstrapped confidence interval calculation in `tests/integration/test_metrics.py`
 
 ### Implementation for User Story 3
 
-- [ ] T027 [US3] Implement `src/models/explain.py` to sample dataset to ≤5000 samples if necessary (per SC-006) and use `shap.TreeExplainer` for Gradient Boosting model
-- [ ] T028 [US3] Compute mean absolute SHAP values for all features and rank them in `src/models/explain.py`
-- [ ] T029 [US3] Implement 95% bootstrapped confidence intervals for the difference in mean absolute SHAP values between chemical heterogeneity and mean coordination number in `src/utils/metrics.py`. **Apply family-wise error rate control (e.g., Bonferroni or Holm-Bonferroni) for multiple-comparison correction when testing >1 hypothesis (per SC-009)**. **Write `ci_lower`, `ci_upper`, and `is_significant` fields to `performance_metrics.json`** (per SC-006).
-- [ ] T025 [US3] **Train N-1 distinct Gradient Boosting models**, each excluding one chemical family from the training set, and save these artifacts to `data/models/lofo_models/` with checksums. **This task is a prerequisite for T030.**
-- [ ] T030 [US3] Implement Cross-Family Transferability Test in `src/models/explain.py` (train on N-1 families, test on held-out) and compare feature importances. **Explicitly depend on the completion of T025 (N-1 model training artifacts) before computing SHAP for comparison.**
-- [ ] T031 [US3] Generate `shap_report.md` in `artifacts/` including: feature importance ranking, CI results, transferability metrics. **Must read `state/power_analysis.json`, extract the `power_limitation_message` field, and include it in the report under the heading "Power Analysis". Must also read `artifacts/causal_disclaimer.txt` and insert it into a dedicated section titled "Causal Disclaimer" (per FR-008).**
-- [ ] T032 [US3] Generate `performance_metrics.json` in `artifacts/` with RMSE, R², MDES, VIF, CI lower/upper bounds, `is_significant`, and transferability flags (per SC-006, SC-007)
-- [ ] T033 [US3] Record all SHAP subset hashes and report artifacts in `state/manifest.json`
+- [~] T027 [US3] Implement `src/models/explain.py` to sample dataset to ≤5000 samples if necessary (per SC-006) and use `shap.TreeExplainer` for Gradient Boosting model
+- [~] T028 [US3] Compute mean absolute SHAP values for all features and rank them in `src/models/explain.py`
+- [~] T029 [US3] Implement 95% bootstrapped confidence intervals for the difference in mean absolute SHAP values between chemical heterogeneity and mean coordination number in `src/utils/metrics.py`. **Apply family-wise error rate control (e.g., Bonferroni or Holm-Bonferroni) for multiple-comparison correction when testing >1 hypothesis (per SC-009)**. **Write `ci_lower`, `ci_upper`, and `is_significant` fields to `performance_metrics.json`** (per SC-006).
+- [~] T025 [US3] **Train N-1 distinct Gradient Boosting models**, each excluding one chemical family from the training set, and save these artifacts to `data/models/lofo_models/` with checksums. **This task is a prerequisite for T030.**
+- [~] T030 [US3] Implement Cross-Family Transferability Test in `src/models/explain.py` (train on N-1 families, test on held-out) and compare feature importances. **Explicitly depend on the completion of T025 (N-1 model training artifacts) before computing SHAP for comparison.**
+- [~] T031 [US3] Generate `shap_report.md` in `artifacts/` including: feature importance ranking, CI results, transferability metrics. **Must read `state/power_analysis.json`, extract the `power_limitation_message` field, and include it in the report under the heading "Power Analysis". Must also read `artifacts/causal_disclaimer.txt` and insert it into a dedicated section titled "Causal Disclaimer" (per FR-008).**
+- [~] T032 [US3] Generate `performance_metrics.json` in `artifacts/` with RMSE, R², MDES, VIF, CI lower/upper bounds, `is_significant`, and transferability flags (per SC-006, SC-007)
+- [~] T033 [US3] Record all SHAP subset hashes and report artifacts in `state/manifest.json`
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -152,12 +152,12 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T034 [P] Documentation updates in `docs/` including run instructions and data dictionary
-- [ ] T035 Code cleanup and refactoring to ensure CPU-only compliance
-- [ ] T036 Performance optimization: verify 5-fold CV completes within 6 hours on free-tier runner
-- [ ] T037 [P] Additional unit tests for edge cases (missing columns, small strata) in `tests/unit/`
-- [ ] T038 Run `quickstart.md` validation to ensure full pipeline reproducibility
-- [ ] T039 Final verification of `state/manifest.json` integrity and artifact checksums
+- [~] T034 [P] Documentation updates in `docs/` including run instructions and data dictionary
+- [~] T035 Code cleanup and refactoring to ensure CPU-only compliance
+- [~] T036 Performance optimization: verify 5-fold CV completes within 6 hours on free-tier runner
+- [~] T037 [P] Additional unit tests for edge cases (missing columns, small strata) in `tests/unit/`
+- [~] T038 Run `quickstart.md` validation to ensure full pipeline reproducibility
+- [~] T039 Final verification of `state/manifest.json` integrity and artifact checksums
 
 ---
 
@@ -168,8 +168,8 @@
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
-  - User stories can then proceed in parallel (if staffed)
-  - Or sequentially in priority order (P1 → P2 → P3)
+ - User stories can then proceed in parallel (if staffed)
+ - Or sequentially in priority order (P1 → P2 → P3)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
@@ -236,9 +236,9 @@ With multiple developers:
 
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
-   - Developer A: User Story 1
-   - Developer B: User Story 2
-   - Developer C: User Story 3
+ - Developer A: User Story 1
+ - Developer B: User Story 2
+ - Developer C: User Story 3
 3. Stories complete and integrate independently
 
 ---

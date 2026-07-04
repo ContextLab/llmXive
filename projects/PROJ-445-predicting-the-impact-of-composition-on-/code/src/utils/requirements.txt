@@ -1,0 +1,6 @@
+# Additional requirements for CPU compliance utilities
+# Note: torch is included to enable GPU detection and CPU enforcement
+# but the pipeline is designed to run CPU-only
+torch>=2.0.0
+# All other dependencies are inherited from main requirements.txt
+# which includes: pandas, scikit-learn, shap, mendeleev, requests, numpy, pytest, statsmodels
