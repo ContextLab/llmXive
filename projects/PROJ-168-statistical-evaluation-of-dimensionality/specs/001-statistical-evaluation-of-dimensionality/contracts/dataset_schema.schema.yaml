@@ -1,0 +1,54 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "scRNA-seq Dataset Schema"
+description: "Schema for raw and processed scRNA-seq count matrices"
+type: "object"
+properties:
+  metadata:
+    type: "object"
+    properties:
+      accession:
+        type: "string"
+        description: "GEO accession ID (e.g., GSE131907)"
+      source_url:
+        type: "string"
+        format: "uri"
+        description: "Verified URL for the dataset source"
+      cell_count:
+        type: "integer"
+        minimum: 1
+        description: "Number of cells in the dataset"
+      gene_count:
+        type: "integer"
+        minimum: 1
+        description: "Number of genes in the dataset"
+      processing_date:
+        type: "string"
+        format: "date-time"
+        description: "ISO 8601 timestamp of processing"
+  counts:
+    type: "array"
+    description: "2D array of raw counts (cells x genes)"
+    items:
+      type: "array"
+      items:
+        type: "integer"
+        minimum: 0
+    minItems: 1
+  cell_labels:
+    type: "array"
+    description: "Ground-truth cell-type labels"
+    items:
+      type: "string"
+    minItems: 1
+  gene_names:
+    type: "array"
+    description: "Gene identifiers (Ensembl or Symbol)"
+    items:
+      type: "string"
+    minItems: 1
+required:
+  - "metadata"
+  - "counts"
+  - "cell_labels"
+  - "gene_names"
+additionalProperties: false

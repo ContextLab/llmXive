@@ -1,0 +1,58 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Embedding Metrics Schema"
+description: "Schema for geometric and fidelity metrics per dataset/method"
+type: "object"
+properties:
+  dataset_id:
+    type: "string"
+    description: "GEO accession ID"
+  method:
+    type: "string"
+    enum:
+      - "PCA"
+      - "t-SNE"
+      - "UMAP"
+    description: "Dimensionality reduction method used"
+  global_linearity:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Variance Explained Ratio (Sum of top 10 PC variance / Total variance)"
+  local_density:
+    type: "number"
+    minimum: 0.0
+    description: "Local PCA Reconstruction Error (k=30 neighbors)"
+  ari:
+    type: "number"
+    minimum: -1.0
+    maximum: 1.0
+    description: "Adjusted Rand Index against ground truth"
+  nmi:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Normalized Mutual Information against ground truth"
+  silhouette_score:
+    type: "number"
+    minimum: -1.0
+    maximum: 1.0
+    description: "Mean silhouette score (cell-level fidelity proxy)"
+  runtime_seconds:
+    type: "number"
+    minimum: 0.0
+    description: "Wall-clock time for embedding generation"
+  peak_ram_gb:
+    type: "number"
+    minimum: 0.0
+    description: "Peak RAM usage in GB"
+required:
+  - "dataset_id"
+  - "method"
+  - "global_linearity"
+  - "local_density"
+  - "ari"
+  - "nmi"
+  - "silhouette_score"
+  - "runtime_seconds"
+  - "peak_ram_gb"
+additionalProperties: false
