@@ -1,0 +1,37 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: RecoveryMetric
+description: >-
+  Schema for recovery metrics derived from plant stress experiments,
+  normalized to a 0-1 scale (Recovery Index).
+type: object
+required:
+  - accession_id
+  - recovery_index
+  - original_metric_name
+  - original_value
+properties:
+  accession_id:
+    type: string
+    description: Unique identifier for the sample.
+    minLength: 1
+  recovery_index:
+    type: number
+    description: >-
+      Normalized recovery score between 0 (no recovery/death) and 1 (full recovery).
+    minimum: 0.0
+    maximum: 1.0
+  original_metric_name:
+    type: string
+    description: Name of the raw metric used (e.g., 'biomass_change', 'survival_rate').
+    minLength: 1
+  original_value:
+    type: number
+    description: The raw value before normalization.
+  normalization_method:
+    type: string
+    description: Method used for normalization (e.g., 'min-max', 'z-score').
+  days_post_stress:
+    type: integer
+    description: Number of days after stress application when the metric was measured.
+    minimum: 0
+additionalProperties: false

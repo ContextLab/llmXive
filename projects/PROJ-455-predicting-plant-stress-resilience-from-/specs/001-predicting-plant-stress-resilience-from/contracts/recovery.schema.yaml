@@ -1,0 +1,32 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "RecoveryMetric"
+description: "Schema for the outcome variable representing plant recovery."
+type: object
+properties:
+  SampleID:
+    type: string
+    description: "Links to the MetabolomicProfile."
+  RecoveryType:
+    type: string
+    description: "Original metric type (e.g., biomass, survival)."
+  RawValue:
+    type: number
+    description: "The measured recovery value."
+  ControlValue:
+    type: number
+    description: "The value of the control group for normalization."
+  RecoveryIndex:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: "Normalized value (0-1 scale)."
+  TimePostStress:
+    type: integer
+    description: "Days post-stress (must be >= 7)."
+required:
+  - SampleID
+  - RecoveryType
+  - RawValue
+  - ControlValue
+  - RecoveryIndex
+  - TimePostStress

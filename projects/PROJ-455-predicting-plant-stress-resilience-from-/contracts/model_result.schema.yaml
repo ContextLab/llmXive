@@ -1,0 +1,69 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: ModelResult
+description: >-
+  Schema for the output of a predictive model training run, including
+  performance metrics, feature importance, and model metadata.
+type: object
+required:
+  - model_type
+  - metrics
+  - feature_importance
+  - timestamp
+properties:
+  model_type:
+    type: string
+    description: Type of model trained (e.g., 'RandomForest', 'SVM').
+    minLength: 1
+  dataset_id:
+    type: string
+    description: Identifier of the dataset used for training.
+  metrics:
+    type: object
+    description: Performance metrics calculated on the validation set.
+    required:
+      - score_type
+      - value
+    properties:
+      score_type:
+        type: string
+        description: Type of metric (e.g., 'R2', 'Pearson_r').
+        enum:
+          - R2
+          - Pearson_r
+          - MAE
+          - RMSE
+      value:
+        type: number
+        description: The calculated metric value.
+      cv_scores:
+        type: array
+        description: Optional cross-validation scores.
+        items:
+          type: number
+  feature_importance:
+    type: array
+    description: List of top features and their importance scores.
+    items:
+      type: object
+      required:
+        - feature_name
+        - importance
+      properties:
+        feature_name:
+          type: string
+          description: Name or ID of the metabolite.
+        importance:
+          type: number
+          description: Importance score (e.g., Gini importance, coefficient magnitude).
+  hyperparameters:
+    type: object
+    description: Hyperparameters used for the model.
+    additionalProperties: true
+  timestamp:
+    type: string
+    format: date-time
+    description: ISO 8601 timestamp of when the model was trained.
+  validation_method:
+    type: string
+    description: Method used for validation (e.g., 'k-fold', 'LODO').
+additionalProperties: true

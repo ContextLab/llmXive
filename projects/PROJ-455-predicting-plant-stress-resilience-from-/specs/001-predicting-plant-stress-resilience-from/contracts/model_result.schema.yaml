@@ -1,0 +1,53 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "ModelResult"
+description: "Schema for the output of the predictive modeling phase."
+type: object
+properties:
+  ModelType:
+    type: string
+    enum:
+      - "RandomForest"
+      - "SVM"
+    description: "Type of model used."
+  StressType:
+    type: string
+    description: "Training stress type."
+  Metrics:
+    type: object
+    properties:
+      R2:
+        type: number
+        description: "Coefficient of determination (individual level)."
+      PearsonR:
+        type: number
+        description: "Pearson correlation coefficient (population level)."
+      RMSE:
+        type: number
+        description: "Root Mean Square Error."
+    description: "Performance metrics."
+  FeatureImportance:
+    type: array
+    items:
+      type: object
+      properties:
+        metabolite:
+          type: string
+        score:
+          type: number
+      required:
+        - metabolite
+        - score
+    description: "Ranked list of predictive metabolites."
+  PValue:
+    type: number
+    description: "Result of permutation test."
+  GeneralizabilityScore:
+    type: number
+    description: "R2_drop or r_drop for cross-stress evaluation."
+required:
+  - ModelType
+  - StressType
+  - Metrics
+  - FeatureImportance
+  - PValue
+  - GeneralizabilityScore

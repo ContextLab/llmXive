@@ -1,0 +1,52 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: MetabolomicProfile
+description: >-
+  Schema for a single plant metabolomic profile containing pre-stress and
+  post-stress metabolite abundances along with metadata required for
+  resilience analysis.
+type: object
+required:
+  - accession_id
+  - organism
+  - stress_type
+  - time_point
+  - metabolite_data
+properties:
+  accession_id:
+    type: string
+    description: Unique identifier for the sample (e.g., GEO accession).
+    minLength: 1
+  organism:
+    type: string
+    description: Scientific name of the plant (e.g., 'Arabidopsis thaliana').
+    minLength: 1
+  stress_type:
+    type: string
+    description: Type of stress applied (e.g., 'drought', 'heat', 'salt').
+    enum:
+      - drought
+      - heat
+      - cold
+      - salt
+      - oxidative
+      - pathogen
+      - other
+  time_point:
+    type: string
+    description: Time relative to stress application (e.g., 'pre-stress', '7d_post', '14d_post').
+    minLength: 1
+  replicate_id:
+    type: string
+    description: Optional identifier for biological replicate.
+  metabolite_data:
+    type: object
+    description: >-
+      Map of metabolite identifiers (KEGG ID or common name) to abundance values.
+      Values must be numeric.
+    additionalProperties:
+      type: number
+  metadata:
+    type: object
+    description: Optional free-form metadata fields.
+    additionalProperties: true
+additionalProperties: false

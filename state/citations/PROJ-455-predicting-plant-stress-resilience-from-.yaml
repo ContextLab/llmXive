@@ -1,0 +1,121 @@
+- artifact_hash: 95d567a2fbee96a74c801e6a78f7fa822a78e5074571e336751ac2ddb6556994
+  artifact_path: projects/PROJ-455-predicting-plant-stress-resilience-from-/specs/001-predicting-plant-stress-resilience-from/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: "pie/ncbi_disease \xB7 Datasets at Hugging Face"
+  kind: url
+  value: https://huggingface.co/datasets/pie/ncbi_disease/...`
+  verification_status: verified
+  verified_against_url: https://huggingface.co/datasets/pie/ncbi_disease
+  verified_at: '2026-07-04T10:09:17.812563Z'
+- artifact_hash: 95d567a2fbee96a74c801e6a78f7fa822a78e5074571e336751ac2ddb6556994
+  artifact_path: projects/PROJ-455-predicting-plant-stress-resilience-from-/specs/001-predicting-plant-stress-resilience-from/research.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: "GeorgiaTech/HERCULES \xB7 Datasets at Hugging Face"
+  kind: url
+  value: https://huggingface.co/datasets/GeorgiaTech/HERCULES/...`
+  verification_status: verified
+  verified_against_url: https://huggingface.co/datasets/GeorgiaTech/HERCULES
+  verified_at: '2026-07-04T10:09:17.812563Z'
+- artifact_hash: 95d567a2fbee96a74c801e6a78f7fa822a78e5074571e336751ac2ddb6556994
+  artifact_path: projects/PROJ-455-predicting-plant-stress-resilience-from-/specs/001-predicting-plant-stress-resilience-from/research.md
+  cite_id: c-003
+  cited_authors: []
+  cited_title: null
+  fetched_title: "georghess/pandaset \xB7 Datasets at Hugging Face"
+  kind: url
+  value: https://huggingface.co/datasets/georghess/pandaset/...`
+  verification_status: verified
+  verified_against_url: https://huggingface.co/datasets/georghess/pandaset
+  verified_at: '2026-07-04T10:09:17.812563Z'
+- artifact_hash: 95d567a2fbee96a74c801e6a78f7fa822a78e5074571e336751ac2ddb6556994
+  artifact_path: projects/PROJ-455-predicting-plant-stress-resilience-from-/specs/001-predicting-plant-stress-resilience-from/research.md
+  cite_id: c-004
+  cited_authors: []
+  cited_title: null
+  fetched_title: "hiyouga/geometry3k \xB7 Datasets at Hugging Face"
+  kind: url
+  value: https://huggingface.co/datasets/hiyouga/geometry3k/...`
+  verification_status: verified
+  verified_against_url: https://huggingface.co/datasets/hiyouga/geometry3k
+  verified_at: '2026-07-04T10:09:17.812563Z'
+- artifact_hash: 95d567a2fbee96a74c801e6a78f7fa822a78e5074571e336751ac2ddb6556994
+  artifact_path: projects/PROJ-455-predicting-plant-stress-resilience-from-/specs/001-predicting-plant-stress-resilience-from/research.md
+  cite_id: c-005
+  cited_authors: []
+  cited_title: null
+  fetched_title: KisanVaani (KisanVaani AI)
+  kind: url
+  value: https://huggingface.co/datasets/KisanVaani/...`
+  verification_status: verified
+  verified_against_url: https://huggingface.co/KisanVaani/datasets
+  verified_at: '2026-07-04T10:09:17.812563Z'
+- artifact_hash: 95d567a2fbee96a74c801e6a78f7fa822a78e5074571e336751ac2ddb6556994
+  artifact_path: projects/PROJ-455-predicting-plant-stress-resilience-from-/specs/001-predicting-plant-stress-resilience-from/research.md
+  cite_id: c-006
+  cited_authors: []
+  cited_title: null
+  fetched_title: bs-modeling-metadata (Big Science - Modeling Metadata)
+  kind: url
+  value: https://huggingface.co/datasets/bs-modeling-metadata/...`
+  verification_status: verified
+  verified_against_url: https://huggingface.co/bs-modeling-metadata/datasets
+  verified_at: '2026-07-04T10:09:17.812563Z'
+- artifact_hash: 95d567a2fbee96a74c801e6a78f7fa822a78e5074571e336751ac2ddb6556994
+  artifact_path: projects/PROJ-455-predicting-plant-stress-resilience-from-/specs/001-predicting-plant-stress-resilience-from/research.md
+  cite_id: c-007
+  cited_authors: []
+  cited_title: null
+  fetched_title: kudo-research (KUDO-Research)
+  kind: url
+  value: https://huggingface.co/datasets/kudo-research/...`
+  verification_status: verified
+  verified_against_url: https://huggingface.co/kudo-research/datasets
+  verified_at: '2026-07-04T10:09:17.812563Z'
+- artifact_hash: 95d567a2fbee96a74c801e6a78f7fa822a78e5074571e336751ac2ddb6556994
+  artifact_path: projects/PROJ-455-predicting-plant-stress-resilience-from-/specs/001-predicting-plant-stress-resilience-from/research.md
+  cite_id: c-008
+  cited_authors: []
+  cited_title: null
+  fetched_title: TheNoob3131 (Aswin Surya)
+  kind: url
+  value: https://huggingface.co/datasets/TheNoob3131/...`
+  verification_status: verified
+  verified_against_url: https://huggingface.co/TheNoob3131/datasets
+  verified_at: '2026-07-04T10:09:17.812563Z'
+- artifact_hash: 95d567a2fbee96a74c801e6a78f7fa822a78e5074571e336751ac2ddb6556994
+  artifact_path: projects/PROJ-455-predicting-plant-stress-resilience-from-/specs/001-predicting-plant-stress-resilience-from/research.md
+  cite_id: c-009
+  cited_authors: []
+  cited_title: null
+  fetched_title: thennal (Thennal)
+  kind: url
+  value: https://huggingface.co/datasets/thennal/...`
+  verification_status: verified
+  verified_against_url: https://huggingface.co/thennal/datasets
+  verified_at: '2026-07-04T10:09:17.812563Z'
+- artifact_hash: 95d567a2fbee96a74c801e6a78f7fa822a78e5074571e336751ac2ddb6556994
+  artifact_path: projects/PROJ-455-predicting-plant-stress-resilience-from-/specs/001-predicting-plant-stress-resilience-from/research.md
+  cite_id: c-010
+  cited_authors: []
+  cited_title: null
+  fetched_title: orieg (Nicolas Brousse)
+  kind: url
+  value: https://huggingface.co/datasets/orieg/...`
+  verification_status: verified
+  verified_against_url: https://huggingface.co/orieg/datasets
+  verified_at: '2026-07-04T10:09:17.812563Z'
+- artifact_hash: 95d567a2fbee96a74c801e6a78f7fa822a78e5074571e336751ac2ddb6556994
+  artifact_path: projects/PROJ-455-predicting-plant-stress-resilience-from-/specs/001-predicting-plant-stress-resilience-from/research.md
+  cite_id: c-011
+  cited_authors: []
+  cited_title: null
+  fetched_title: "lodosNova (Emre Can K\u0131z\u0131late\u015F)"
+  kind: url
+  value: https://huggingface.co/datasets/lodosNova/...`
+  verification_status: verified
+  verified_against_url: https://huggingface.co/lodosNova/datasets
+  verified_at: '2026-07-04T10:09:17.812563Z'

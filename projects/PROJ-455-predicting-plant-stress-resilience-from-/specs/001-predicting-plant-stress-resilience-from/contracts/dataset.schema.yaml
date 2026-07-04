@@ -1,0 +1,31 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "MetabolomicProfile"
+description: "Schema for a single sample's pre-stress metabolomic profile and metadata."
+type: object
+properties:
+  SampleID:
+    type: string
+    description: "Unique identifier for the sample."
+  Species:
+    type: string
+    description: "Plant species name (e.g., Arabidopsis thaliana)."
+  StressType:
+    type: string
+    description: "Type of stress applied (e.g., drought, salinity, heat)."
+  TimePoint:
+    type: string
+    description: "Time relative to stress (e.g., 't=0')."
+  Metabolites:
+    type: object
+    additionalProperties:
+      type: number
+      description: "Concentration of a specific metabolite."
+  Metadata:
+    type: object
+    description: "Additional context (e.g., temperature, light)."
+required:
+  - SampleID
+  - Species
+  - StressType
+  - TimePoint
+  - Metabolites
