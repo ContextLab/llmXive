@@ -23307,3 +23307,18 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-04T11:35:53Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: Power analysis requires N=1000
+  claim_id: c_9d7b5178
+  context: 'Power Analysis: N={{claim:c_10d5c9c0}} (FR-009 spec requirement)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Power analysis requires N=1000
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-04T11:55:41Z'

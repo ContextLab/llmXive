@@ -27,7 +27,7 @@ This project implements a multi-agent LLM simulation framework to test transacti
 
 | Constitution Principle | Compliance Status | Implementation Note |
 |------------------------|-------------------|---------------------|
-| I. Reproducibility | PASS | Random seed pinned (42); `requirements.txt` at `code/`; isolated venv per task |
+| I. Reproducibility | PASS | Random seed pinned (); `requirements.txt` at `code/`; isolated venv per task |
 | II. Verified Accuracy | PASS | All dataset URLs from verified block only; Reference-Validator gate at research_review→research_accepted |
 | III. Data Hygiene | PASS | Raw data checksummed under `data/`; derivations written to new files with documented derivation |
 | IV. Single Source of Truth | PASS | All figures/statistics trace to one row in `data/` and one block in `code/`; no hand-typed numbers |
@@ -125,11 +125,11 @@ projects/PROJ-586-social-memory-networks-modeling-collecti/results/
 | FR-001 | CLI `run_experiment.py` with flags | Phase 0 | `code/run_experiment.py` |
 | FR-002 | Multiple decoder-only LLMs via `transformers` | Phase 1 | `code/agent/base_agent.py` |
 | FR-003 | Shared external memory buffer with `<MEMORY_ACTION>` tokens | Phase 1 | `code/memory/buffer.py`, `code/agent/memory_actions.py` |
-| FR-004 | Specialization index (0 to log₂(N_agents)) | Phase 2, 3, 7 | `code/metrics/specialization.py` |
+| FR-004 | Specialization index (to log₂(N_agents)) | Phase 2, 3, 7 | `code/metrics/specialization.py` |
 | FR-005 | Cue-retrieval efficiency (proportion vs. 1/N_agents baseline) | Phase 2, 3, 7 | `code/metrics/retrieval.py` |
 | FR-006 | Separate ANOVAs per metric (Context) with p-values | Phase 4 | `code/analysis/anova.py` |
 | FR-007 | Bonferroni correction for family-wise tests | Phase 4 | `code/analysis/anova.py` |
-| FR-008 | Sensitivity analysis (128, 256, 512 tokens) | Phase 5 | `code/analysis/sensitivity.py` |
+| FR-008 | Sensitivity analysis (various token lengths) | Phase 5 | `code/analysis/sensitivity.py` |
 | FR-009 | Power analysis report (N=500-1000, α=0.05, power=0.80; flag if <0.70) | Phase 6 | `code/analysis/power.py` |
 | FR-010 | Error logging to `experiment.log` with timestamps | Phase 8 | `code/utils/logging.py` |
 | FR-011 | Synthetic cue generator fallback | Phase 0 | `code/data/synthetic.py` |

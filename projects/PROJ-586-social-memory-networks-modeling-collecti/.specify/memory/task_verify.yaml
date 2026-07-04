@@ -678,6 +678,10 @@ T006 [P] Implement shared external memory buffer with `<MEMORY_ACTION>` token ha
   \ in `code/metrics/validator.py`"
 : 1
 "T014 [P] [US-1] Implement validation logic for metrics (\u226595% games produce metrics, SC-001) in `code/metrics/validator.py`": 1
+? T015 [US-1] Output `results_full.csv` to `projects/PROJ-586-social-memory-networks-modeling-collecti/results/`
+  with `game_id`, `specialization_index`, `retrieval_efficiency`, `context_condition`,
+  `agent_count` for [deferred] games. (US-1, FR-004, FR-005, SC-001)
+: 2
 ? "T015 [US-1] Output `results_full.csv` with `game_id`, `specialization_index`, `retrieval_efficiency`,\
   \ `context_condition`, `agent_count` to `projects/PROJ-586-social-memory-networks-modeling-collecti/results/`\
   \ for 1000 games [UNRESOLVED-CLAIM: c_1618f9ba \u2014 status=not_enough_info]"
@@ -3153,47 +3157,6 @@ T006 [P] Implement shared external memory buffer with `<MEMORY_ACTION>` token ha
   --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified
   -->'
 : 1
-? 'T018 [US-2] {{claim:c_504902df}} (2503.02686, https://arxiv.org/abs/2503.02686,
-  https://arxiv.org/abs/2503.02686, https://arxiv.org/abs/2503.02686) in `code/run_experiment.py`
-  <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified
-  --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified
-  --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified
-  --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified
-  --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested
-  --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested
-  --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified
-  --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified
-  --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified
-  --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested
-  --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified
-  --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified
-  --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested
-  --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested
-  --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified
-  --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested
-  --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested
-  --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested
-  --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested
-  --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested
-  --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified
-  --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified
-  --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified
-  --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified
-  --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested
-  --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified
-  --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified
-  --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified
-  --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested
-  --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested
-  --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified
-  --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified
-  --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested
-  --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested
-  --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested
-  --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified
-  --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified
-  --> <!-- ATOMIZE: requested -->'
-: 1
 ? "T018 [US-2] {{claim:c_504902df}} [UNRESOLVED-CLAIM: c_92671d95 \u2014 status=refuted]\
   \ (2503.02686, https://arxiv.org/abs/2503.02686) in `code/run_experiment.py` <!--\
   \ FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified\
@@ -3206,6 +3169,9 @@ T006 [P] Implement shared external memory buffer with `<MEMORY_ACTION>` token ha
   \ --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified\
   \ --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->"
 : 1
+? T020 [P] [US-2] Implement a two-way independent-samples ANOVA in `code/analysis/anova.py`
+  using `statsmodels.stats.anova.anova_lm`.
+: 2
 ? "T020 [P] [US-2] Implement two\u2011way independent\u2011samples ANOVA with factors\
   \ Context \xD7 Metric (single ANOVA, not separate) [UNRESOLVED-CLAIM: c_be7b7c1e\
   \ \u2014 status=not_enough_info] in `code/analysis/anova.py` (FR-006)"
@@ -6522,6 +6488,10 @@ T006 [P] Implement shared external memory buffer with `<MEMORY_ACTION>` token ha
 : 1
 ? 'T028 [P] [US-3] Implement power-law fitting for metric trends vs. agent count (3,
   5, 7) in `code/analysis/scaling.py` (US-3) <!-- FAILED: unspecified -->'
+: 2
+? T029 [P] [US-3] Compute 95% confidence intervals for fitted exponents using bootstrapping
+  (1000 resamples) and output results to `projects/PROJ-586-social-memory-networks-modeling-collecti/results/scaling_confidence_intervals.json`.
+  (US-3, SC-005)
 : 2
 ? "T029 [P] [US-3] {{claim:c_9aceca76}} [UNRESOLVED-CLAIM: c_824a75ef \u2014 status=not_enough_info]\
   \ (Wikidata Q26876, https://www.wikidata.org/wiki/Q26876)"

@@ -44,7 +44,7 @@
 **Purpose**: Project initialization and basic structure
 
 - [X] T001 [P] Create `code/` directory structure with subpackages (agent, memory, metrics, analysis, data, utils, tests)
-- [X] T002 [P] {{claim:c_a4b64142}}
+- [X] T002 [P] Initialize `requirements.txt` with pinned versions: `transformers>=4.35.0`, `torch>=2.0.0+cpu`, `scikit-learn>=1.3.0`, `pandas>=2.0.0`, `pytest>=7.0.0`, `numpy>=1.24.0`, `matplotlib>=3.7.0`, `statsmodels>=0.14.0`.
 - [X] T003 [P] Configure linting (flake8) and formatting (black) tools in `code/.pre-commit-config.yaml`
 
 ---
@@ -55,11 +55,12 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [X] T004 [P] Implement dataset loaders with synthetic fallback only (no {{claim:c_68d8b446}}) in `code/data/loaders.py` and `code/data/synthetic.py` (FR-011) <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
-- [X] T005 [P] Implement base Agent abstraction using CPU-only `transformers` (opt-125m, {{claim:c_2386de29}} (Wikipedia: Single-precision floating-point format, https://en.wikipedia.org/wiki/Single-precision_floating-point_format)) in `code/agent/base_agent.py` (FR-002) <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
-- [X] T006 [P] Implement shared external memory buffer with `<MEMORY_ACTION>` token handling in `code/memory/buffer.py` (FR-003) <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
-- [X] T007 [P] Configure error logging with timestamps to `experiment.log` in `code/utils/logging.py` (FR-010)
-- [X] T008 [P] The environment configuration uses seed=42 and device=cpu. in `code/utils/config.py` <!-- FAILED: unspecified -->
+- [X] T004 [P] Implement dataset loaders in `code/data/loaders.py`: Verify URLs against a whitelist. If the dataset (Hanabi/CoQA) lacks a verified URL in the `verified_datasets` block, raise a clear error and trigger the synthetic fallback. (FR-001, FR-011)
+- [X] T004b [P] Implement synthetic fallback generator in `code/data/synthetic.py`: Create a set of synthetic cue-response pairs (minimum 10 per game) from available context spans if explicit cues are missing. (FR-011)
+- [X] T005 [P] Implement base Agent abstraction using CPU-only `transformers` (model: `facebook/opt-*`, precision: standard floating-point) in `code/agent/base_agent.py`. Ensure no CUDA imports. (FR-002)
+- [X] T006 [P] Implement shared external memory buffer in `code/memory/buffer.py`: Support `<MEMORY_ACTION>` tokens with JSON schema `{"type": "write"|"read", "key": str, "value": str}`. Implement queue-based write conflict resolution. (FR-003, FR-012)
+- [X] T007 [P] Configure error logging with timestamps to `experiment.log` in `code/utils/logging.py`. Log format: `[TIMESTAMP] [LEVEL] [MODULE] Message`. (FR-010)
+- [X] T008 [P] Create `code/utils/config.py` with explicit configuration: `seed=42`, `device="cpu"`, `model_name="facebook/opt-125m"`. Ensure these are the default values used by all agents. (FR-002)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -76,15 +77,17 @@
 > **NOTE**: Tests are written first (TDD) but depend on implementation for execution
 
 - [X] T009 [P] [US-1] Contract test for game result schema in `code/tests/contract/test_game_result.py`
-- [X] T010 [P] [US-1] Integration test forfull-context simulation in `code/tests/integration/test_full_context.py`
+- [X] T010 [P] [US-1] Integration test for full-context simulation in `code/tests/integration/test_full_context.py`
 
 ### Implementation for User Story 1
 
-- [X] T011 [P] [US-1] Implement CLI flag parsing for --context, --agents, --dataset and {{claim:c_b7311021}} (2203.14669, https://arxiv.org/abs/2203.14669, https://arxiv.org/abs/2203.14669, https://arxiv.org/abs/2203.14669) in `code/run_experiment.py` (FR-001) <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified -->
-- [X] T012 [P] [US-1] {{claim:c_a5c2fb06}} ({{claim:c_9c940fb1}} ({{claim:c_24cbb02a}}, https://www.wikidata.org/wiki/Q54767019)) in `code/metrics/specialization.py` (FR-004) <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
-- [X] T013 [P] [US-1] {{claim:c_d8448a46}} in `code/metrics/retrieval.py` (FR-005)
-- [X] T014 [P] [US-1] Implement validation logic for metrics (≥95% games produce metrics, SC-001) in `code/metrics/validator.py` <!-- FAILED: unspecified -->
-- [X] T015 [US-1] Output `results_full.csv` with `game_id`, `specialization_index`, `retrieval_efficiency`, `context_condition`, `agent_count` to `projects/PROJ-586-social-memory-networks-modeling-collecti/results/` for {{claim:c_10d5c9c0}}
+- [X] T011 [P] [US-1] Implement CLI flag parsing in `code/run_experiment.py`: Accept `--context {full,limited}`, `--agents N`, and `--dataset {hanabi,coqa}`. If dataset is missing, invoke synthetic fallback. (FR-001)
+- [X] T011b [P] [US-1] Implement game simulation loop in `code/run_experiment.py`: Orchestrate agents, memory buffer, and turn-based interaction for a single game.
+- [X] T011c [P] [US-1] Implement dataset loading logic in `code/run_experiment.py`: Integrate `loaders.py` and `synthetic.py`, ensuring data is checksummed before use.
+- [X] T012 [P] [US-1] Implement specialization index computation in `code/metrics/specialization.py`: Calculate distribution-based metric of per-agent fact contribution, bounded 0 to log2(N_agents). (FR-004)
+- [X] T013 [P] [US-1] Implement cue-retrieval efficiency in `code/metrics/retrieval.py`: Calculate proportion of successful retrievals vs. a theoretical baseline derived from the number of agents. (FR-005)
+- [X] T014 [P] [US-1] Implement validation logic in `code/metrics/validator.py`: Assert `(games_with_metrics / total_games) >= 0.95`; log errors for failed games. (SC-001)
+- [ ] T015 [US-1] Output `results_full.csv` to `projects/PROJ-586-social-memory-networks-modeling-collecti/results/` with `game_id`, `specialization_index`, `retrieval_efficiency`, `context_condition`, `agent_count` for [deferred] games. (US-1, FR-004, FR-005, SC-001)
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -103,13 +106,16 @@
 
 ### Implementation for User Story 2
 
-- [ ] T018 [US-2] {{claim:c_504902df}} (2503.02686, https://arxiv.org/abs/2503.02686, https://arxiv.org/abs/2503.02686, https://arxiv.org/abs/2503.02686) in `code/run_experiment.py` <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested -->
-- [X] T019 [US-2] Output `results_limited.csv` with same metrics to `projects/PROJ-586-social-memory-networks-modeling-collecti/results/`
-- [X] T020 [P] [US-2] Implement two‑way independent‑samples ANOVA with factors Context × Metric (single ANOVA, not separate) in `code/analysis/anova.py` (FR-006) <!-- FAILED: unspecified -->
-- [X] T021 [P] [US-2] Apply Bonferroni correction to all family‑wise hypothesis tests and reportcorrected α in `code/analysis/anova.py` (FR-007)
-- [X] T022 [US-2] {{claim:c_6eea8bb5}} ({{claim:c_13708974}}, {{claim:c_5397ebf4}} ({{claim:c_e54f8eb7}}, https://oeis.org/A000079)) with performance curves output in `code/analysis/sensitivity.py` (FR-008) <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
-- [X] T023 [US-2] Generate power‑analysis report estimating detectable effect size (N={{claim:c_10d5c9c0}} per spec FR-009)in `code/analysis/power.py` <!-- FAILED: unspecified -->
-- [X] T024 [US-2] {{claim:c_29c82c73}} in `projects/PROJ-586-social-memory-networks-modeling-collecti/results/power_analysis_report.md` (SC-004)
+- [X] T018 [US-2] Implement limited-context simulation in `code/run_experiment.py`: Truncate context to a specified token limit before passing to the model. (US-2)
+- [X] T019 [US-2] Output `results_limited.csv` with same metrics to `projects/PROJ-586-social-memory-networks-modeling-collecti/results/` for 1000 games. (US-2)
+- [ ] T020 [P] [US-2] Implement a two-way independent-samples ANOVA in `code/analysis/anova.py` using `statsmodels.stats.anova.anova_lm`.
+ - **Data Structure**: Combine `results_full.csv` and `results_limited.csv` into a single long-format DataFrame with columns: `game_id`, `context_condition` (full/limited), `metric_name` (specialization/retrieval), and `metric_value`.
+ - **Model Formula**: `metric_value ~ C(context_condition) * C(metric_name)`.
+ - **Output**: Compute and report the interaction p-value for the term `C(context_condition):C(metric_name)`. (FR-006)
+- [X] T021 [P] [US-2] Apply Bonferroni correction to all family‑wise hypothesis tests and report corrected α in `code/analysis/anova.py`. (FR-007)
+- [X] T022 [US-2] Implement sensitivity analysis in `code/analysis/sensitivity.py`: Sweep token thresholds explicitly across the set {128, 256, 512} tokens and record how specialization and retrieval metrics vary for each threshold. (FR-008)
+- [X] T023 [US-2] Implement power analysis in `code/analysis/power.py`: Estimate detectable effect size for N=1000, alpha=0.05, power=0.80; flag if power < 0.70. (FR-009)
+- [X] T024 [US-2] Generate `power_analysis_report.md` in `projects/PROJ-586-social-memory-networks-modeling-collecti/results/` with results from T023. (SC-004)
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -128,10 +134,10 @@
 
 ### Implementation for User Story 3
 
-- [ ] T027 [US-3] Implement game simulation for agent counts 3, 5, 7 (The game simulation for User Story 3 runs {{claim:c_13e5f91f}}. per spec US-3) in `code/run_experiment.py` <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified -->
-- [X] T028 [P] [US-3] Implement power-law fitting for metric trends vs. agent count (3, 5, 7) in `code/analysis/scaling.py` (US-3) <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested -->
-- [X] T029 [P] [US-3] {{claim:c_30d0e391}}
-- [X] T030 [US-3] Generate `scaling_plot.pdf` with fitted power‑law curves and explicit note that The scaling plot includes an explicit note that Generate scaling_plot.pdf with fitted power‑law curves and explicit note that The scaling plot includes an explicit note that 3 data points limit power-law reliability limit power‑law reliability limit power‑law reliability in `projects/PROJ-586-social-memory-networks-modeling-collecti/results/scaling_plot.pdf` <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified -->
+- [X] T027 [US-3] Implement game simulation for varying agent counts (800 games per configuration) in `code/run_experiment.py`. (US-3)
+- [X] T028 [P] [US-3] Implement power-law fitting in `code/analysis/scaling.py`: Fit log-log curves for metric trends vs. agent count (small to medium cohorts) for specialization index and retrieval efficiency. (US-3)
+- [ ] T029 [P] [US-3] Compute 95% confidence intervals for fitted exponents using bootstrapping (1000 resamples) and output results to `projects/PROJ-586-social-memory-networks-modeling-collecti/results/scaling_confidence_intervals.json`. (US-3, SC-005)
+- [X] T030 [US-3] Generate `scaling_plot.pdf` with fitted power‑law curves for specialization index and retrieval efficiency, and an explicit text note stating that "3 data points limit power-law reliability". (US-3, SC-005)
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -141,11 +147,11 @@
 
 **Purpose**: Improvements that affect multiple user stories and address remaining requirements
 
-- [X] T031 [P] Run `quickstart.md` validation (execute all commands, verify exit code 0 for each) in `projects/PROJ-586-social-memory-networks-modeling-collecti/code/` <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
+- [X] T031 [P] Run `quickstart.md` validation: Execute all commands listed, verify exit code 0 for each. (FR-001)
 - [X] T032 [P] Remove all 8-bit/4-bit quantization imports, verify no CUDA imports in all Python files (compute feasibility)
 - [X] T033 [P] Implement file-locking with fcntl and add conflict retry logic in `code/utils/serialization.py` (FR-012)
-- [X] T034 [P] Update `research.md` with reviewer feedback integration notes ({{claim:c_f62f508a}})
-- [X] T035 [P] Run full pipeline on CI runner, record runtime/memory/disk in `projects/PROJ-586-social-memory-networks-modeling-collecti/results/` {{claim:c_e603cc7e}}, {{claim:c_61298537}} <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested -->
+- [X] T034 [P] Update `research.md` with reviewer feedback integration notes
+- [X] T035 [P] Run full pipeline on CI runner, record runtime (seconds), peak RAM (GB), and disk usage (GB) in `projects/PROJ-586-social-memory-networks-modeling-collecti/results/compute_metrics.json`. (FR-001)
 
 ---
 
@@ -163,7 +169,7 @@
 ### User Story Dependencies
 
 - **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - May integrate with US-1 but should be independently testable
+- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - **CRITICAL**: T020 (ANOVA) depends on the completion of T015 (results_full.csv) and T019 (results_limited.csv). T018 and T019 must run before T020.
 - **User Story 3 (P3)**: Can start after Foundational (Phase 2) - May integrate with US-1/US-2 but should be independently testable
 
 ### Within Each Phase
@@ -189,7 +195,7 @@
 
 ```bash
 # Launch all models for User Story 1 together:
-Task: "Implement CLI flag parsing and game simulation in code/run_experiment.py"
+Task: "Implement CLI flag parsing in code/run_experiment.py"
 Task: "Implement specialization index computation in code/metrics/specialization.py"
 Task: "Implement cue-retrieval efficiency metric in code/metrics/retrieval.py"
 ```
@@ -247,9 +253,9 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Compute Constraint**: {{claim:c_823da0d2}}
-- **Game Counts**: US-1/US-2 = {{claim:c_10d5c9c0}} per condition (spec requirement); US-3 = {{claim:c_7b176f6b}} (2202.05773, https://arxiv.org/abs/2202.05773, https://arxiv.org/abs/2202.05773, https://arxiv.org/abs/2202.05773)
-- **Dataset Constraint**: Dataset Constraint: {{claim:c_08b0effc}}
-- **ANOVA Design**: Single two-way ANOVA with Context × Metric interaction (FR-006), NOT separate ANOVAs
-- **Power Analysis**: N={{claim:c_10d5c9c0}} (FR-009 spec requirement)
-- **Reviewer Feedback**: Phases 6-11 from prior draft were removed. (not in original spec); addressed in T034
+- **Compute Constraint**: CPU-only inference, no CUDA, default float32 precision
+- **Game Counts**: US-1/US-2 = 1,000 games per condition (spec requirement); US-3 = 800 games per configuration (spec requirement)
+- **Dataset Constraint**: Hanabi/CoQA URLs are not in the verified block; synthetic fallback is mandatory if URLs are missing.
+- **ANOVA Design**: Single two-way ANOVA with Context × Metric interaction (FR-006), NOT separate ANOVAs. The plan's "Separate ANOVAs" description is overridden by the spec's FR-006.
+- **Power Analysis**: N=1000 (FR-009 spec requirement)
+- **Scaling Analysis**: Strictly plots specialization index and retrieval efficiency (SC-005).

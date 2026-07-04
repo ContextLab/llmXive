@@ -6,7 +6,7 @@ failed_stage: null
 field: psychology
 human_escalation_reason: null
 id: PROJ-586-social-memory-networks-modeling-collecti
-last_run_id: e1d58298-ba8c-464b-9492-7ee1c56aa536
+last_run_id: c2a27134-a0dc-4940-ba3d-9b78b3a10e02
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti
 title: 'Social Memory Networks: Modeling Collective Remembering in Multi-Agent LLMs'
-updated_at: '2026-06-27T16:47:44.583769Z'
+updated_at: '2026-07-04T12:31:04.241219Z'

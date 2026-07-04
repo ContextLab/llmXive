@@ -37,7 +37,7 @@ A researcher wants to compare the baseline metrics against a limited‑context c
 
 A researcher wants to investigate how the fidelity of collective remembering scales when the number of agents varies (e.g., across different counts).
 
-**Why this priority**: Extends the findings, satisfies reviewer suggestions about scaling laws, and tests methodological robustness. Note: Power‑law fitting with only 3 data points is statistically underpowered; this limitation is acknowledged in the analysis plan.
+**Why this priority**: Extends the findings, satisfies reviewer suggestions about scaling laws, and tests methodological robustness. Note: Power‑law fitting with a limited number of data points is statistically underpowered; this limitation is acknowledged in the analysis plan.
 
 **Independent Test**: Run the experiment for each specified agent count and produce a plot of specialization index and retrieval efficiency versus number of agents, along with a fitted power‑law exponent.
 

@@ -12,7 +12,7 @@
     "python code/run_experiment.py --context full --agents 5 --games 100 --seed 42 -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/run_experiment.py\", line 21, in <module>\n    from data.loaders import load_experiment_results, save_experiment_results, verify_datasets\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/data/__init__.py\", line 4, in <module>\n    from .loaders import (\nImportError: cannot import name 'DatasetLoader' from 'data.lo",
     "python code/run_experiment.py --context full --agents 5 --games 100 --seed 42 -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/run_experiment.py\", line 21, in <module>\n    from data.loaders import load_experiment_results, save_experiment_results, verify_datasets\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/data/__init__.py\", line 4, in <module>\n    from .loaders import (\nImportError: cannot import name 'DatasetLoader' from 'data.lo"
   ],
-  "fix_rounds": 12,
-  "model_tier": 2,
-  "updated_at": "2026-07-04T11:07:15Z"
+  "fix_rounds": 0,
+  "model_tier": 0,
+  "updated_at": "2026-07-04T12:04:25Z"
 }

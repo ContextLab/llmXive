@@ -1,4 +1,4 @@
-"""Specialization index metrics for transactive memory systems."""
+"""Specialization metrics computation."""
 from __future__ import annotations
 
 import math
@@ -11,127 +11,98 @@ import numpy as np
 
 @dataclass
 class SpecializationMetrics:
-    """Metrics related to knowledge specialization."""
-    gini_coefficient: float = 0.0
-    shannon_entropy: float = 0.0
+    gini: float = 0.0
+    entropy: float = 0.0
     specialization_index: float = 0.0
-    skill_variance: float = 0.0
 
 
 def compute_gini_coefficient(values: List[float]) -> float:
-    """Computes the Gini coefficient for a list of values."""
-    if not values or len(values) == 0:
+    """Compute Gini coefficient for a list of values."""
+    if not values or sum(values) == 0:
         return 0.0
-    
-    n = len(values)
-    if n == 1:
-        return 0.0
-    
     sorted_values = sorted(values)
+    n = len(sorted_values)
     cumsum = np.cumsum(sorted_values)
-    
-    # Gini formula: (2 * sum(i * x_i) - (n+1) * sum(x_i)) / (n * sum(x_i))
-    numerator = 2 * np.sum((np.arange(1, n + 1) * sorted_values))
-    denominator = n * cumsum[-1]
-    
-    if denominator == 0:
-        return 0.0
-        
-    gini = (numerator - (n + 1) * cumsum[-1]) / denominator
-    return float(gini)
+    return (n + 1 - 2 * np.sum(cumsum) / cumsum[-1]) / n
 
 
 def compute_shannon_entropy(values: List[float]) -> float:
-    """Computes Shannon entropy for a distribution of values."""
-    if not values or sum(values) == 0:
-        return 0.0
-    
+    """Compute Shannon entropy for a list of values."""
     total = sum(values)
+    if total == 0:
+        return 0.0
     probs = [v / total for v in values if v > 0]
-    
-    entropy = 0.0
-    for p in probs:
-        if p > 0:
-            entropy -= p * math.log(p)
-    
-    return entropy
+    if not probs:
+        return 0.0
+    return -sum(p * math.log(p) for p in probs)
 
 
 def compute_specialization_index(
-    agent_skills: Union[List[int], List[float], int],
+    agent_skills: Union[List[int], List[float]], 
     num_agents: Optional[int] = None
 ) -> Tuple[float, SpecializationMetrics]:
     """
-    Computes the specialization index based on the distribution of skills/knowledge.
+    Compute the specialization index based on the distribution of facts/skills.
     
-    Handles multiple call signatures:
-    1. compute_specialization_index(agent_skills, num_agents=N) - standard
-    2. compute_specialization_index(agent_skills=[...], num_agents=3) - keyword
-    3. Legacy: if agent_skills is an int, treat as count (deprecated, returns 0)
-    
-    Returns:
-        Tuple of (specialization_index, SpecializationMetrics)
+    Handles multiple call signatures for compatibility.
     """
-    # Handle legacy call: compute_specialization_index(5, 10) -> agent_skills=5, num_agents=10
-    # This is ambiguous. If agent_skills is int, assume it's a count of something else?
-    # The spec says agent_skills is a list. If it's an int, we treat it as a degenerate case.
+    # Normalize input
     if isinstance(agent_skills, int):
-        # Legacy/erroneous call: treat as 0 specialization
-        return 0.0, SpecializationMetrics()
-        
-    if not isinstance(agent_skills, list):
-        return 0.0, SpecializationMetrics()
-
+        # Legacy: treat as count, generate dummy distribution
+        agent_skills = [1] * agent_skills
+    
     if not agent_skills:
         return 0.0, SpecializationMetrics()
-
-    # If num_agents is not provided, infer from list length
+    
     if num_agents is None:
         num_agents = len(agent_skills)
     
-    # Ensure we only use the first num_agents if list is longer
-    skills = agent_skills[:num_agents]
+    # Ensure list length matches num_agents if provided
+    if len(agent_skills) != num_agents:
+        # If lengths differ, pad or truncate (simulation behavior)
+        if len(agent_skills) < num_agents:
+            agent_skills = list(agent_skills) + [0] * (num_agents - len(agent_skills))
+        else:
+            agent_skills = agent_skills[:num_agents]
     
-    # Calculate metrics
-    gini = compute_gini_coefficient(skills)
-    entropy = compute_shannon_entropy(skills)
+    # Compute metrics
+    gini = compute_gini_coefficient(agent_skills)
+    entropy = compute_shannon_entropy(agent_skills)
     
-    # Specialization Index: A weighted combination.
-    # High Gini = High specialization (unequal distribution)
-    # Low Entropy = High specialization (predictable distribution)
-    # We normalize entropy by max possible entropy (log(N))
+    # Specialization Index: 1 - (Entropy / Max_Entropy)
+    # Max entropy for N agents is log(N)
     max_entropy = math.log(num_agents) if num_agents > 1 else 1.0
-    normalized_entropy = entropy / max_entropy if max_entropy > 0 else 0.0
+    if max_entropy == 0:
+        max_entropy = 1.0
     
-    # Index = Gini * (1 - Normalized_Entropy)
-    # If Gini is high (0-1) and Entropy is low (0-1), Index is high.
-    spec_index = gini * (1.0 - normalized_entropy)
+    norm_entropy = entropy / max_entropy
+    spec_index = 1.0 - norm_entropy
     
     # Clamp to [0, 1]
     spec_index = max(0.0, min(1.0, spec_index))
     
     metrics = SpecializationMetrics(
-        gini_coefficient=gini,
-        shannon_entropy=entropy,
-        specialization_index=spec_index,
-        skill_variance=float(np.var(skills)) if skills else 0.0
+        gini=gini,
+        entropy=entropy,
+        specialization_index=spec_index
     )
     
     return spec_index, metrics
 
 
-def validate_specialization_index(index: float) -> Tuple[bool, str]:
-    if not (0.0 <= index <= 1.0):
-        return False, f"Specialization index {index} out of range [0, 1]"
-    return True, "OK"
+def validate_specialization_index(index: float) -> bool:
+    """Validate that the index is in [0, 1]."""
+    return 0.0 <= index <= 1.0
 
 
 def batch_compute_specialization(results: List[Dict[str, Any]]) -> List[float]:
-    """Computes specialization index for a batch of game results."""
+    """Compute specialization index for a list of game results."""
     indices = []
     for res in results:
-        skills = res.get("agent_skills", [])
-        n = res.get("agent_count", len(skills))
-        idx, _ = compute_specialization_index(skills, num_agents=n)
-        indices.append(idx)
+        # Assume 'facts_per_agent' is in the result
+        if "facts_per_agent" in res:
+            idx, _ = compute_specialization_index(res["facts_per_agent"])
+            indices.append(idx)
+        else:
+            indices.append(0.0)
     return indices
