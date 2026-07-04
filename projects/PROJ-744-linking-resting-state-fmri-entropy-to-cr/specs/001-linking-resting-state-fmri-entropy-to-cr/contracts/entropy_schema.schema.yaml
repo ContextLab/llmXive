@@ -1,0 +1,89 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Aggregated Entropy Metrics Schema
+description: Schema for the output of the entropy computation module. Contains global and network-specific entropy values per subject.
+type: object
+properties:
+  subject_id:
+    type: string
+    description: "Unique identifier for the subject (e.g., '100106')."
+  age:
+    type: integer
+    description: "Age of the subject in years."
+  sex:
+    type: string
+    enum:
+      - "M"
+      - "F"
+    description: "Sex of the subject."
+  mean_framewise_displacement:
+    type: number
+    description: "Mean framewise displacement in mm."
+  global_mean_entropy:
+    type: number
+    description: "Mean entropy across all 360 HCP parcels."
+  network_avg_entropy:
+    type: object
+    description: "Average entropy for each canonical network."
+    properties:
+      DMN:
+        type: number
+        description: "Default Mode Network average entropy."
+      FPN:
+        type: number
+        description: "Fronto-Parietal Network average entropy."
+      CON:
+        type: number
+        description: "Cingulo-Opercular Network average entropy."
+      Visual:
+        type: number
+        description: "Visual Network average entropy."
+      Somatomotor:
+        type: number
+        description: "Somatomotor Network average entropy."
+      DorsalAttention:
+        type: number
+        description: "Dorsal Attention Network average entropy."
+      Salience:
+        type: number
+        description: "Salience Network average entropy."
+    required:
+      - DMN
+      - FPN
+      - CON
+      - Visual
+      - Somatomotor
+      - DorsalAttention
+      - Salience
+  parameters:
+    type: object
+    description: "Parameters used for entropy calculation."
+    properties:
+      m:
+        type: integer
+        description: "Embedding dimension."
+      r_factor:
+        type: number
+        description: "Tolerance factor (r) as a fraction of SD."
+      scale_range:
+        type: string
+        description: "Range of scales used (e.g., '1-20')."
+    required:
+      - m
+      - r_factor
+      - scale_range
+  status:
+    type: string
+    enum:
+      - "included"
+      - "excluded_motion"
+      - "excluded_frames"
+    description: "Processing status of the subject."
+required:
+  - subject_id
+  - age
+  - sex
+  - mean_framewise_displacement
+  - global_mean_entropy
+  - network_avg_entropy
+  - parameters
+  - status

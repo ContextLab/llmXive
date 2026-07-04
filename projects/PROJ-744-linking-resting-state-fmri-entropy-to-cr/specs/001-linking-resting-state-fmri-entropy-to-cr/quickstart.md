@@ -3,71 +3,76 @@
 ## Prerequisites
 
 - Python 3.11+
-- 8 GB RAM (recommended for full cohort processing)
-- Internet access for initial dataset download (subsequent runs use local cache)
+- Access to HCP pre-processed 4-D NIfTI files (downloaded automatically via script from OpenNeuro/HCP S3 bucket).
+- `Creative_Problem_Solving.csv` (phenotype file) in `data/raw/` (if not bundled with the automated download).
 
 ## Installation
 
-1. **Clone and Setup Environment**
-   ```bash
-   cd projects/PROJ-744-linking-resting-state-fmri-entropy-to-cr
-   python -m venv venv
-   source venv/bin/activate
-   pip install -r code/requirements.txt
-   ```
+1.  **Clone the repository** and navigate to the project root.
+2.  **Create a virtual environment**:
+    ```bash
+    python -m venv venv
+    source venv/bin/activate  # On Windows: venv\Scripts\activate
+    ```
+3.  **Install dependencies**:
+    ```bash
+    pip install -r requirements.txt
+    ```
+    *Note: `requirements.txt` pins CPU-only versions of `numpy`, `scipy`, `scikit-learn`, `statsmodels`, `nibabel`.*
 
-2. **Verify Dependencies**
-   ```bash
-   python -c "import nibabel, pandas, statsmodels, numpy; print('All dependencies OK')"
-   ```
+## Data Preparation
+
+The pipeline automatically downloads pre-processed fMRI data from the verified OpenNeuro/HCP S3 bucket (ds000030) to `data/raw/`.
+```text
+data/
+└── raw/
+    ├── HCP_Subject_001.nii.gz
+    ├── HCP_Subject_002.nii.gz
+    ...
+    └── Creative_Problem_Solving.csv  # (Optional: if not bundled)
+```
+*If the `Creative_Problem_Solving.csv` is missing, the pipeline will halt with a clear error message.*
 
 ## Running the Pipeline
 
-### 1. Download Data
-Fetch the HCP data from the verified OpenNeuro S3 bucket (ds000114).
+### 1. Standard Execution
+Run the main pipeline to compute entropy, fit models, and generate results:
 ```bash
-python code/ingestion/download_hcp.py --batch-size 50
+python code/main.py
 ```
-*Output*: `data/raw/hcp_fMRI.nii.gz` (or CIFTI), `data/raw/phenotypes.csv`.
+*This will:*
+- Load and scrub data (including automated S3 download if needed).
+- Compute MSE (Global + Networks).
+- Fit OLS models with Robust SEs.
+- Apply FDR correction.
+- Generate `data/processed/entropy_metrics.csv` and `data/processed/model_results.csv`.
 
-### 2. Parcellation & Entropy
-Extract time series and compute MSE.
+### 2. Sensitivity Analysis
+To run the full sensitivity sweep (re-computing AUC for `r` ∈ {0.15, 0.20, 0.25}):
 ```bash
-python code/entropy/aggregate.py --scales 1-20 --r 0.2
+python code/sensitivity.py --sweep
 ```
-*Output*: `data/results/entropy_metrics.csv`.
+*This will instrument RAM and runtime for each iteration and output `data/processed/sensitivity_results.csv`.*
 
-### 3. Statistical Modeling
-Run RLM and BH-FDR correction.
+### 3. Validation
+To check data quality and sample size constraints:
 ```bash
-python code/modeling/robust_regression.py --permutations 0
+python code/utils.py --validate
 ```
-*Output*: `data/results/association_results.csv`, `reports/summary.json`.
+*This checks for N < 30 and reports peak RAM usage.*
 
-### 4. Sensitivity Analysis (Optional)
-Run the r-sweep.
-```bash
-python code/modeling/sensitivity.py --r-values 0.15,0.20,0.25
-```
+## Output Files
 
-### 5. Performance Verification
-Run the full benchmark on the CI runner.
-```bash
-bash code/benchmark/benchmark.sh
-```
-*Output*: `reports/benchmark_log.txt` (pass/fail status).
-
-## Verification
-
-Run the test suite to ensure correctness:
-```bash
-pytest tests/
-```
-*Expected*: All tests pass, including `test_mse_reference` (tolerance 1e-6) and `test_pipeline_flow`.
+| File | Description |
+| :--- | :--- |
+| `data/processed/entropy_metrics.csv` | Parcel-level and network-level entropy values. |
+| `data/processed/model_results.csv` | OLS coefficients, p-values, and FDR-adjusted p-values. |
+| `data/logs/motion_exclusions.log` | Subjects excluded due to high motion (FD > 0.2mm). |
+| `data/logs/missing_data.log` | Subjects excluded due to < 100 frames or missing phenotype. |
+| `data/processed/sensitivity_results.csv` | Results of the `r` parameter sweep. |
 
 ## Troubleshooting
 
-- **Memory Error**: Reduce `--batch-size` in `download_hcp.py` or process subjects in smaller chunks in `aggregate.py`.
-- **Missing Data**: Check `data/processed/excluded_subjects.log` for subjects dropped due to missing scores or motion.
-- **NaN Entropy**: Verify that the `time_series` column in `parcel_timeseries.csv` does not contain flat lines (constant values).
-- **Performance Failure**: If benchmark fails, check `reports/benchmark_log.txt` for memory/time bottlenecks and optimize batch sizes.
+- **Error: "Missing phenotype file"**: Ensure `Creative_Problem_Solving.csv` exists in `data/raw/`.
+- **Error: "Insufficient RAM"**: The pipeline is optimized for a specific memory constraint. If this occurs, reduce the number of scales or subjects in `config.py`.
+- **Error: "N < 30"**: The analysis has halted due to insufficient sample size after motion exclusion. Check `missing_data.log`.

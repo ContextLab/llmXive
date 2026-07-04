@@ -1,23 +1,22 @@
 # Implementation Plan: Linking Resting‑State fMRI Entropy to Creative Problem Solving
 
-**Branch**: `001-linking-resting-state-fmri-entropy-to-creative-problem-solving` | **Date**: 2026-06-25 | **Spec**: `spec.md`
-**Input**: Feature specification from `specs/001-linking-resting-state-fmri-entropy-to-creative-problem-solving/spec.md`
+**Branch**: `001-linking-resting-state-fmri-entropy` | **Date**: 2026-06-25 | **Spec**: `specs/001-linking-resting-state-fmri-entropy/spec.md`
+**Input**: Feature specification from `/specs/001-linking-resting-state-fmri-entropy/spec.md`
 
 ## Summary
-
-This feature implements a computational neuroscience pipeline to test the association between resting-state fMRI entropy (Multiscale Sample Entropy) and creative problem-solving ability (NIH Toolbox Creativity Composite). The approach involves ingesting pre-processed HCP data from the OpenNeuro S bucket, parcellating time series using the HCP 360-parcel atlas, computing entropy metrics, and performing robust linear regression with Benjamini-Hochberg FDR correction. The entire pipeline is optimized to run on a CPU-only GitHub Actions runner (2 cores, 7 GB RAM) within 45 minutes.
+This project implements a computational pipeline to compute Multiscale Sample Entropy (MSE) from pre-processed HCP resting-state fMRI data and test its association with Alternative Uses Test scores. The pipeline strictly adheres to data hygiene, motion exclusion criteria (FD > 0.2mm or < 100 frames), and statistical rigor (Ordinary Least Squares with Robust Standard Errors, Benjamini-Hochberg FDR, and sensitivity analysis on tolerance `r` including surrogate data validation). The implementation is constrained to CPU-only execution on GitHub Actions free-tier runners (limited CPU, 7GB RAM).
 
 ## Technical Context
 
 **Language/Version**: Python 3.11  
-**Primary Dependencies**: `numpy`, `pandas`, `scikit-learn`, `statsmodels`, `nibabel`, `requests`, `tqdm`, `h5py`  
-**Storage**: Local filesystem (`data/`, `results/`); CSV/Parquet for intermediate artifacts.  
-**Testing**: `pytest` (unit tests for entropy logic, integration tests for pipeline flow).  
-**Target Platform**: Linux (GitHub Actions Free Tier: 2 CPU, 7 GB RAM, no GPU).  
-**Project Type**: Computational Research Pipeline / CLI  
-**Performance Goals**: ≤45 minutes wall-clock time for N=1000 subjects; memory usage <6 GB peak.  
-**Constraints**: No GPU/CUDA; no external API calls during runtime (data pre-fetched); strict adherence to spec-defined parameters (m=2, r=0.2, scales 1-20).  
-**Scale/Scope**: N=1000 subjects, 360 parcels, Benjamini-Hochberg FDR for network-level tests.
+**Primary Dependencies**: `numpy`, `pandas`, `nibabel`, `scikit-learn`, `statsmodels`, `scipy`, `nilearn`, `tqdm` (all CPU-optimized, no CUDA).  
+**Storage**: Local filesystem (`data/raw`, `data/processed`, `data/logs`).  
+**Testing**: `pytest` (unit tests for entropy calculation, integration tests for pipeline flow).  
+**Target Platform**: Linux (GitHub Actions `ubuntu-latest` runner).  
+**Project Type**: Computational Research Pipeline / CLI.  
+**Performance Goals**: Process full cohort within 6 hours; peak RAM < 7GB.  
+**Constraints**: No GPU; strict exclusion logic for motion artifacts; sensitivity analysis must re-compute full multiscale AUC for each `r` value.  
+**Scale/Scope**: A large cohort of subjects (HCP), 360 parcels, 7 canonical networks.
 
 > Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
 
@@ -25,106 +24,130 @@ This feature implements a computational neuroscience pipeline to test the associ
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-- **I. Reproducibility**: Plan mandates pinned `requirements.txt`, random seed initialization in `code/`, and checksum verification of downloaded data (FR-001).
-- **II. Verified Accuracy**: All dataset references in `research.md` are restricted to the verified URLs provided in the project context (OpenNeuro/HCP S3). No external URLs (e.g., UK Biobank) are cited.
-- **III. Data Hygiene**: Plan includes explicit steps for checksumming raw downloads and creating derivative files with new names (no in-place modification).
-- **IV. Single Source of Truth**: Output schemas (`contracts/`) define the exact structure of `AssociationResult` and `EntropyMetric` to ensure paper figures trace back to `data/`.
-- **V. Versioning Discipline**: Plan requires content hashing of artifacts; the pipeline explicitly writes these hashes to `state/projects/PROJ-744-linking-resting-state-fmri-entropy-to-cr.yaml` to ensure full compliance with the Constitution. Every artifact (e.g., `data/results/association_results.csv`) is hashed and recorded in this state file.
-- **VI. Neuroimaging Data Integrity**: Plan explicitly retrieves data from OpenNeuro/HCP S (ds000114) and preserves raw 4-D volumes. No HuggingFace parquet files are used for raw fMRI data.
-- **VII. Statistical Modeling Transparency**: 
-  - *Amendment Note*: The Constitution Principle VII grounds methodology in "linear mixed-effects models" and "Benjamini-Hochberg FDR". 
-  - *Deviation*: This study uses **Robust Linear Regression (RLM)** instead of LMM because the data is cross-sectional (no repeated measures) and low-dimensional (6 networks), making LMMs over-parameterized and statistically unstable. 
-  - *Deviation*: The plan replaces "Permutation-based cluster correction" (which was methodologically invalid for 6 data points) with **Benjamini-Hochberg FDR**, which is the standard and appropriate correction for this low-dimensional multiple comparison problem. 
-  - *Action*: This deviation is flagged for Constitution amendment ratification to align the governing document with the scientifically valid methodology required for this specific study design.
+| Principle | Status | Reference / Action |
+| :--- | :--- | :--- |
+| **I. Reproducibility** | **PASS** | Plan mandates pinned `requirements.txt`, random seeds, and deterministic pipeline execution. |
+| **II. Verified Accuracy** | **PASS** | Plan restricts dataset citations to the "Verified datasets" block in the prompt; no invented URLs. Phenotype data sourced from verified HCP release. |
+| **III. Data Hygiene** | **PASS** | Plan includes checksumming raw data, logging exclusions to `missing_data.log` and `motion_exclusions.log`, and preserving raw data unchanged. |
+| **IV. Single Source of Truth** | **PASS** | All results trace to `data/processed/entropy_metrics*.csv` and `data/processed/model_results.csv`. |
+| **V. Versioning Discipline** | **PASS** | Plan mandates content hashing of artifacts in `state/` and versioned `constitution.md`. |
+| **VI. Neuroimaging Data Integrity** | **PASS** | Plan explicitly downloads pre-processed HCP 4-D volumes from OpenNeuro S3 bucket (ds000030), stores in `data/raw`, and logs derivation. |
+| **VII. Statistical Modeling Transparency** | **PASS** | Plan mandates OLS with Robust SEs (per Spec US-2), FDR correction, and logging of all model specifications and sensitivity parameters. |
 
 ## Project Structure
 
 ### Documentation (this feature)
 
 ```text
-specs/001-linking-resting-state-fmri-entropy-to-creative-problem-solving/
+specs/001-linking-resting-state-fmri-entropy/
 ├── plan.md              # This file
 ├── research.md          # Phase 0 output
 ├── data-model.md        # Phase 1 output
 ├── quickstart.md        # Phase 1 output
-├── contracts/           # Phase 1 output
-│   ├── dataset.schema.yaml
-│   ├── entropy_output.schema.yaml
-│   └── association_result.schema.yaml
-└── tasks.md             # Phase 2 output
+└── contracts/           # Phase 1 output
+    ├── dataset.schema.yaml
+    └── entropy_output.schema.yaml
 ```
 
 ### Source Code (repository root)
 
 ```text
 code/
-├── ingestion/
-│   ├── download_hcp.py       # FR-001: Download & checksum (OpenNeuro S3)
-│   └── parcellate.py         # FR-002: Apply atlas (nibabel)
-├── entropy/
-│   ├── mse.py                # FR-003: Vectorized MSE
-│   └── aggregate.py          # FR-004: Global/Network averages + CV (SC-006)
-├── modeling/
-│   ├── robust_regression.py  # FR-005: RLM + HC3
-│   ├── fdr_correction.py     # FR-006: BH-FDR correction
-│   └── sensitivity.py        # FR-007: R-sweep (SC-003)
-├── utils/
-│   ├── logging.py
-│   └── motion_check.py       # Edge case: motion flagging
-├── benchmark/
-│   └── benchmark.sh          # FR-008: Performance verification
-└── main.py                   # Pipeline orchestration
+├── __init__.py
+├── config.py            # Paths, parameters (m, r, scales)
+├── data_loader.py       # HCP loading (S3), phenotype merging, motion scrubbing
+├── entropy.py           # MSE computation, AUC aggregation, parcel loop
+├── models.py            # OLS fitting, robust SEs, FDR correction
+├── sensitivity.py       # Sweep logic, RAM/Runtime instrumentation, Surrogate generation
+├── utils.py             # Logging, validation helpers
+└── main.py              # Orchestration script
 
 tests/
-├── unit/
-│   ├── test_mse.py           # US-2 Test 1
-│   └── test_aggregation.py   # US-2 Test 2
-└── integration/
-    └── test_pipeline.py      # US-1, US-3 acceptance
+├── test_entropy.py
+├── test_models.py
+└── test_pipeline.py
+
+data/
+├── raw/                 # Downloaded HCP 4-D volumes, phenotypes (checksummed)
+├── processed/           # Entropy CSVs, model results, logs
+└── logs/                # motion_exclusions.log, missing_data.log, invalid_parcels.log
+
+requirements.txt
 ```
 
-**Structure Decision**: Single `code/` directory with modular sub-packages (`ingestion`, `entropy`, `modeling`) to maintain a linear data flow and facilitate isolated unit testing of computationally intensive steps (entropy) vs. statistical steps (modeling).
+**Structure Decision**: Single-project structure (`code/`, `data/`, `tests/`) selected to minimize overhead and ensure all scripts run sequentially in a single environment, fitting the GitHub Actions free-tier constraints.
 
 ## Complexity Tracking
 
 | Violation | Why Needed | Simpler Alternative Rejected Because |
 |-----------|------------|-------------------------------------|
-| Benjamini-Hochberg FDR | Required by FR-006 (revised) to control FDR across 6 network tests. Cluster correction is invalid for N=6. | Permutation cluster correction is statistically undefined for 6 data points; BH-FDR is the gold standard for low-dimensional multiple comparisons. |
-| Vectorized MSE Implementation | Required by FR-008 to meet 45-min runtime on 2-core CPU. | Naive Python loops for Sample Entropy are too slow for large-scale datasets involving many subjects, numerous parcels, and multiple scales. |
-| Robust Regression (RLM) | Required by FR-005 to handle heteroscedasticity in behavioral data. | OLS would produce biased standard errors if variance is non-constant; LMM is inappropriate for cross-sectional data. |
-| Symmetry Check (Reverse Causality) | Required by FR-009 to test association symmetry. | Swapping X/Y in cross-sectional data does not prove causality; it only tests correlation symmetry. Explicitly disclaimed as non-causal. |
+| **Sensitivity Sweep (Re-computation)** | FR-005 & SC-002 require re-computing the *full* Multiscale (AUC) profile for `r` ∈ {0.15, 0.20, 0.25}. | A single-scale sensitivity check would violate the definition of MSE and the spec's requirement to validate the "Multiscale" metric. |
+| **Motion Exclusion Logic** | Spec Edge Cases require two-tier exclusion: FD > 0.2mm (log) AND < 100 frames (exclude). | A single threshold check would fail to handle subjects with low motion but insufficient time points, violating data quality standards. |
+| **RAM Instrumentation** | SC-003 requires peak RAM reporting to validate compute feasibility. | Standard logging does not capture peak memory usage; explicit instrumentation is required to prevent silent OOM failures on the 7GB runner. |
+| **Surrogate Validation** | Scientific Soundness requires ensuring entropy captures non-linear structure, not noise. | Single-parameter sweeps are insufficient; phase-randomized surrogates are needed to rule out noise artifacts. |
+| **OLS with Robust SEs** | Spec US-2 explicitly states LMM is invalid for cross-sectional data (1 obs/subject); OLS with Robust SEs is the correct approach. | LMM assumes multiple observations per subject; using it here would violate the statistical assumptions of the study design. |
 
-## Performance Verification (FR-008)
+## Implementation Phases & Tasks
 
-To ensure compliance with the 45-minute wall-clock time constraint on the target hardware:
-1. **Benchmark Script**: A dedicated `benchmark.sh` script will be executed in the CI pipeline.
-2. **Full Cohort Run**: The benchmark runs the **full N=1000 cohort** (not an extrapolation) on the GitHub Actions runner.
-3. **Measurement**: The script measures total wall-clock time and peak memory usage.
-4. **Pass/Fail**: If time > 45 minutes or memory > 7 GB, the build fails with a detailed error log.
-5. **Optimization**: If the benchmark fails, the pipeline must be optimized (e.g., increased batch size, more aggressive streaming) until it passes.
+### Phase 0: Initialization & Data Acquisition
+- **T001**: Create project structure.
+  - **Action**: Create directories: `code/`, `data/raw`, `data/processed`, `data/logs`, `tests/`, `docs/`.
+  - **Output**: Directory structure.
+- **T001b**: Download Raw Data.
+  - **Action**: Download pre-processed 4-D fMRI volumes from OpenNeuro/HCP S3 bucket (ds000030) and phenotype data from HCP-1200 release. Verify checksums.
+  - **Output**: `data/raw/*.nii.gz`, `data/raw/phenotypes.csv`.
+  - **Constraint**: Must fail if download integrity check fails.
 
-This mandatory verification ensures that the performance claim is not theoretical but empirically validated on the target infrastructure.
+### Phase 1: Data Preprocessing & Motion Scrubbing
+- **T006**: Load Data.
+  - **Action**: Load raw NIfTI volumes and phenotype CSV.
+  - **Output**: In-memory dataframes/arrays.
+- **T007**: Motion Scrubbing & Exclusion.
+  - **Action**: Compute Mean Framewise Displacement (FD).
+  - **Action**: Exclude subjects with Mean FD > 0.2mm (log to `motion_exclusions.log`).
+  - **Action**: **Exclude subjects with < 100 remaining frames after scrubbing** (log to `missing_data.log`).
+  - **Action**: Generate a list of `valid_subjects`.
+  - **Output**: List of valid subjects.
 
-## Data Completeness & Reporting
+### Phase 2: Entropy Computation
+- **T013**: Load Valid Subjects.
+  - **Action**: Load **scrubbed** time series for **valid subjects only** (from T007).
+- **T015**: Parcel-Level Entropy Loop.
+  - **Action**: Iterate over valid subjects and 360 parcels.
+  - **Action**: Compute Multiscale Sample Entropy (MSE) for a range of coarse-graining scales.
+  - **Action**: Aggregate as Area Under the Curve (AUC).
+  - **Action**: Handle NaNs: If >10% of parcels are invalid for a subject, **flag the subject for manual review** (log to `invalid_parcels.log`).
+  - **Output**: `data/processed/entropy_metrics.csv`.
+- **T015c**: Invalid Parcel Flagging.
+  - **Action**: Implement specific logic to flag subjects with >10% invalid parcels.
+  - **Output**: `invalid_parcels.log`.
 
-- **Completeness Metric**: A `Data Completeness Report` will be generated after entropy computation, calculating the percentage of subjects with valid entropy for all 360 parcels.
-- **Threshold**: The report must confirm ≥95% completeness (SC-005).
-- **Output**: The report includes `valid_parcel_count` and `completeness_pct` fields in the `dataset.schema.yaml` output.
-- **CV Metric**: The `aggregate.py` script calculates the Coefficient of Variation (CV) of parcel-wise entropies for every subject to satisfy SC-006.
+### Phase 3: Primary Modeling
+- **T022**: Load Merged Data.
+  - **Action**: Join `entropy_metrics.csv` with Phenotype data.
+  - **Constraint**: Must consume only the **filtered** subject list from T007 (excluding FD > 0.2mm and < 100 frames).
+  - **Output**: Merged analysis dataframe.
+- **T025**: Sample Size Validation.
+  - **Action**: Check if N < 30.
+  - **Action**: **If N < 30, halt execution immediately** and log critical warning. Do not proceed to modeling.
+  - **Output**: Halt signal or proceed.
+- **T026**: Fit OLS Models with Robust SEs.
+  - **Action**: Fit **Ordinary Least Squares (OLS)** models with **Robust Standard Errors** (HC1) to test association between entropy and AUT scores, controlling for age, sex, and motion.
+  - **Action**: Apply Rank-Based Inverse Normal Transformation (INT) to AUT scores if residuals are skewed.
+  - **Action**: Compute FDR-corrected p-values.
+  - **Output**: `data/processed/model_results.csv`.
 
-## Sensitivity Analysis Reporting
-
-- **Metric**: The sensitivity analysis (FR-007) will report `sensitivity_delta_p` (change in p-value across r-sweep) and a `stability_score` (variance of p-values).
-- **Output**: These metrics are added to the `association_result.schema.yaml` to ensure the variation in association rates is explicitly captured.
-
-## Computational Task Ordering
-
-1. **Data Ingestion**: Download raw 4-D volumes from OpenNeuro S3 (FR-001).
-2. **Parcellation**: Extract time series using `nibabel` (FR-002).
-3. **Entropy Computation**: Compute MSE and aggregate metrics (FR-003, FR-004).
-4. **Completeness Check**: Verify ≥95% valid parcels (SC-005).
-5. **Modeling**: Fit RLM models and apply BH-FDR correction (FR-005, FR-006).
-6. **Sensitivity**: Run r-sweep and calculate stability scores (FR-007).
-7. **Symmetry Check**: Run reverse-causality check (FR-009).
-8. **Benchmark**: Verify runtime constraints (FR-008).
-9. **Reporting**: Generate final CSVs and JSON reports.
+### Phase 4: Sensitivity Analysis
+- **T030a**: Re-compute Entropy (Sensitivity).
+  - **Action**: **Re-compute Multiscale Sample Entropy (AUC across scales 1-20)** for each `r` value in {0.15, 0.20, 0.25}.
+  - **Output**: `data/processed/entropy_metrics_r015.csv`, `entropy_metrics_r020.csv`, `entropy_metrics_r025.csv`.
+- **T030b**: Re-model (Sensitivity).
+  - **Action**: Fit OLS models for each sensitivity dataset.
+  - **Output**: `data/processed/model_results_r*.csv`.
+- **T030c**: Surrogate Validation.
+  - **Action**: Generate phase-randomized surrogates of fMRI time series.
+  - **Action**: Compute entropy and model on surrogates to validate non-linear structure.
+  - **Output**: `data/processed/surrogate_results.csv`.
+- **T030d**: Instrumentation.
+  - **Action**: **Log peak RAM usage and runtime** for each sensitivity sweep iteration.
+  - **Output**: `data/processed/sensitivity_metrics.log`.

@@ -1,86 +1,90 @@
 # Feature Specification: Linking Resting‑State fMRI Entropy to Creative Problem Solving
 
-**Feature Branch**: `001-linking-resting-state-fmri-entropy-to-creative-problem-solving`  
+**Feature Branch**: `001-linking-resting-state-fmri-entropy`  
 **Created**: 2026-06-20  
 **Status**: Draft  
 **Input**: User description: "Linking Resting‑State fMRI Entropy to Creative Problem Solving"
 
 ## User Scenarios & Testing
 
-### User Story 1 - Data Ingestion and Preprocessing (Priority: P1)
+### User Story 1 - Compute Global and Network-Specific Entropy Metrics (Priority: P1)
 
-The researcher MUST be able to download pre-processed resting-state fMRI 4-D volumes and associated behavioral phenotypes (NIH Toolbox Creativity Composite scores) from the Human Connectome Project (HCP) via the OpenNeuro/HCP S3 bucket, apply the HCP multimodal cortical atlas (360 parcels) to extract voxel time series, and compute covariates (age, sex, head-motion) from the phenotypic file.
+The research pipeline MUST successfully ingest pre-processed HCP resting-state fMRI 4-D volumes and compute Multiscale Sample Entropy (MSE) for the whole brain and specific canonical networks (DMN, FPN, CON). This is the foundational data generation step; without accurate entropy values, no statistical analysis can occur.
 
-**Why this priority**: Without reliable data ingestion and parcellation, no entropy calculation or statistical modeling can occur. This is the foundational step that determines data validity.
+**Why this priority**: This is the core computational task that transforms raw neuroimaging data into the predictor variables required for the study. It is the prerequisite for all subsequent modeling and validation steps.
 
-**Independent Test**: The system can be tested by verifying that the script successfully retrieves a sample of subjects, extracts parcel time series per subject, and outputs a clean CSV containing the global mean entropy and all covariates, without requiring any downstream statistical modeling.
+**Independent Test**: The system can be tested by running the entropy computation module on a subset of subjects, verifying that the output CSV contains non-null MSE values for all HCP atlas parcels and that the aggregated global mean and network averages are calculated correctly against a manual spot-check of one subject's data.
 
 **Acceptance Scenarios**:
 
-1. **Given** a valid OpenNeuro/HCP S3 access configuration, **When** the ingestion script runs for a batch of 50 subjects, **Then** the script outputs a structured dataset containing time-series data for all 360 parcels and behavioral scores for all 50 subjects.
-2. **Given** a subject with excessive head motion (>0.2 mm framewise displacement), **When** the preprocessing step calculates motion metrics, **Then** the subject is flagged in the output log but included in the dataset for subsequent robustness checks, rather than being silently dropped.
-3. **Given** the HCP 4-D volume files, **When** the parcellation step applies the 360-parcel atlas, **Then** the output time series for each parcel matches the expected dimension (timepoints × 360) and contains no NaN values due to atlas misalignment.
+1. **Given** a valid 4-D fMRI NIfTI file and the HCP 360-parcel atlas, **When** the entropy module processes the file, **Then** it outputs a CSV row containing the global mean entropy and 7 network-specific average entropy values.
+2. **Given** a time series with excessive motion artifacts (mean framewise displacement > 0.2 mm) OR insufficient frames (< 100 frames remaining after motion scrubbing), **When** the module processes the data, **Then**:
+   - If > 100 frames remain: It computes entropy on the remaining contiguous time series and flags the subject for exclusion from the primary model in `motion_exclusions.log` (for robustness logging only).
+   - If ≤ 100 frames remain: It excludes the subject entirely (no entropy computed) and logs the exclusion ID and reason in `missing_data.log`.
+3. **Given** the default template length (m=2) and tolerance (r=0.2*SD), **When** the module runs, **Then** it completes the calculation for all 360 parcels.
 
 ---
 
-### User Story 2 - Entropy Computation and Aggregation (Priority: P2)
+### User Story 2 - Fit Linear Regression Models with Covariates (Priority: P2)
 
-The researcher MUST be able to compute Multiscale Sample Entropy (MSE) for each parcel's time series using a vectorized Python implementation, including a coarse-graining procedure for a range of scale factors, and derive two aggregate metrics: (a) a global mean entropy across all 360 parcels, and (b) network-specific averages for canonical networks (DMN, FPN, CON, VAN, SMN, VN).
+The system MUST fit a Linear Regression (Ordinary Least Squares) model with robust standard errors to test the association between entropy metrics (predictor) and Alternative Uses Test scores (outcome), controlling for age, sex, and head motion. This step translates the computed metrics into statistical evidence regarding the research question.
 
-**Why this priority**: This step transforms raw time-series data into the primary predictor variables required for the research question. It is computationally intensive but distinct from the statistical modeling phase.
+**Why this priority**: This implements the primary hypothesis testing mechanism. It is the analytical core that answers the research question, distinguishing the project from a mere data processing script. Note: A Linear Mixed-Effects model with a random intercept is statistically invalid for cross-sectional data (1 observation per subject); OLS with robust SEs is the correct approach.
 
-**Independent Test**: The system can be tested by running the entropy calculation on a fixed subset of subjects with known parameters, verifying that the computed MSE values match a pre-calculated reference file within an appropriate tolerance, and that network aggregation correctly averages the parcel values.
+**Independent Test**: The system can be tested by running the modeling script on a synthetic dataset with known coefficients, verifying that the fitted model recovers the input coefficients within an acceptable margin of error and correctly reports p-values for the fixed effects.
 
 **Acceptance Scenarios**:
 
-1. **Given** a time series of length 1000 for a single parcel, **When** the MSE algorithm runs with default parameters (template length m=2, tolerance r=0.2, scale factors 1-20), **Then** the output entropy value matches the pre-calculated reference file within a tolerance of 1e-6.
-2. **Given** the global mean entropy and network-specific averages for 100 subjects, **When** the aggregation step runs, **Then** the network-specific average for the DMN is exactly the arithmetic mean of the 60 DMN parcel entropies for that subject.
-3. **Given** a request to compute entropy with alternative parameters (r over {0.15, 0.20, 0.25}), **When** the robustness check runs, **Then** the system outputs a separate set of entropy metrics without overwriting the primary results.
+1. **Given** a dataset of entropy metrics and behavioral scores, **When** the modeling script executes, **Then** it outputs a summary table containing the fixed effect coefficient, standard error, t-statistic, and p-value for the global entropy predictor.
+2. **Given** a model specification including age, sex, and framewise displacement, **When** the model is fitted, **Then** these variables are included as fixed effects in the output.
+3. **Given** a dataset where the entropy predictor has no relationship with the outcome, **When** the model is fitted, **Then** the p-value for the entropy coefficient is > 0.05, correctly indicating a null finding.
 
 ---
 
-### User Story 3 - Statistical Modeling and Inference (Priority: P3)
+### User Story 3 - Apply Multiple-Comparison Correction and Sensitivity Analysis (Priority: P3)
 
-The researcher MUST be able to fit robust linear regression models (RLM) with entropy metrics as the predictor and the NIH Toolbox Creativity Composite as the outcome, using HC3 robust standard errors to account for heteroscedasticity, followed by a permutation-based cluster correction for network-specific tests, and generate a summary report of associations. Additionally, the researcher MUST perform a reverse-causality check by swapping the predictor and outcome variables.
+The system MUST apply Benjamini-Hochberg FDR correction to the set of network-specific hypothesis tests and perform a sensitivity analysis sweeping the entropy tolerance parameter (r) over a defined range for BOTH global and network-specific metrics. This ensures the robustness of findings and controls for false positives inherent in testing multiple networks.
 
-**Why this priority**: This step directly answers the research question by testing the association between entropy and creativity. It relies on the successful completion of the previous two steps and ensures statistical validity for cross-sectional data.
+**Why this priority**: This addresses methodological rigor. Without correction for multiple comparisons, the risk of false positives is high; without sensitivity analysis, the results may be artifacts of arbitrary parameter choices.
 
-**Independent Test**: The system can be tested by running the modeling pipeline on a synthetic dataset where the relationship between entropy and creativity is known (e.g., a generated positive correlation), and verifying that the model recovers a statistically significant positive coefficient with the correct p-value range.
+**Independent Test**: The system can be tested by running the correction module on a set of p-values (one per network) and verifying the adjusted p-values match the Benjamini-Hochberg calculation manually. The sensitivity analysis can be tested by verifying that the output includes results for r ∈ {, 0.20, 0.25}.
 
 **Acceptance Scenarios**:
 
-1. **Given** a dataset of 100 subjects with global entropy and NIH Toolbox Creativity scores, **When** the robust linear regression model runs, **Then** the output includes a fixed effect coefficient for entropy, a robust p-value, and a 95% confidence interval.
-2. **Given** p-values from 6 network-specific tests, **When** the permutation-based cluster correction (10,000 permutations) runs, **Then** the output includes adjusted p-values where the number of significant findings (p < 0.05) is controlled for spatial autocorrelation.
-3. **Given** a null dataset where entropy and creativity scores are uncorrelated, **When** the model runs 1000 Monte Carlo iterations, **Then** the proportion of runs yielding p < 0.05 is ≤ 0.05, correctly indicating no association.
-4. **Given** the primary model results, **When** the reverse-causality check runs (swapping entropy and creativity), **Then** the coefficient for the reversed model is non-significant (p > 0.05), confirming the directionality of the primary finding.
+1. **Given** a list of 7 unadjusted p-values from network-specific models, **When** the FDR correction module runs, **Then** it outputs 7 adjusted p-values where the false discovery rate is controlled at q < 0.05.
+2. **Given** a baseline tolerance parameter of r=0.2*SD, **When** the sensitivity analysis runs, **Then** it re-computes global and network-specific entropy and model statistics for r values of 0.15*SD, 0.20*SD, and 0.25*SD, and reports the variation in the headline p-value.
+3. **Given** a model result where the p-value is significant at r=0.2 but not at r=0.15, **When** the analysis completes, **Then** the output report explicitly flags this sensitivity and indicates the result is not robust across the tested range.
+
+---
 
 ### Edge Cases
 
-- What happens when the S3 bucket is temporarily unavailable or the download rate is throttled below 1 MB/s? (System must retry up to 3 times with exponential backoff, then fail gracefully with a clear error message).
-- How does the system handle subjects with missing NIH Toolbox scores or incomplete fMRI scans? (Subjects with missing primary outcome or predictor data are excluded from the main analysis but logged in a separate "excluded" report).
-- What happens if the entropy calculation returns NaN for a specific parcel due to a flat time series? (The system replaces NaN with the median entropy of that parcel across all subjects and logs a warning).
+- **What happens when** the HCP dataset contains a subject with missing behavioral scores (Alternative Uses Test)?
+  - **System handles**: The pipeline automatically excludes the subject from the statistical modeling phase but logs the exclusion ID and reason in a `missing_data.log` file.
+- **How does system handle** a runtime error during entropy computation for a specific parcel due to NaN values in the time series?
+  - **System handles**: The module catches the error, sets the specific parcel's entropy to `NaN`, continues processing the remaining parcels, and aggregates the result only from valid parcels, flagging the subject for manual review if >10% of parcels are invalid.
+- **What happens when** the sample size is too small to support the regression model (N < 30)?
+  - **System handles**: The script detects the low sample size, halts the primary analysis, and logs a critical warning that the sample size is insufficient for reliable inference, preventing the generation of a potentially misleading p-value.
 
 ## Requirements
 
 ### Functional Requirements
 
-- **FR-001**: System MUST download pre-processed resting-state fMRI volumes and behavioral phenotypes (NIH Toolbox Creativity Composite) from the HCP OpenNeuro bucket, ensuring data integrity via checksum verification. (See US-1)
-- **FR-002**: System MUST apply the HCP multimodal cortical atlas to extract voxel time series per parcel for every subject in the dataset. (See US-1)
-- **FR-003**: System MUST compute Multiscale Sample Entropy (MSE) for each parcel's time series using a vectorized Python implementation, including a coarse-graining procedure for a range of scale factors, with configurable parameters (m, r). (See US-2)
-- **FR-004**: System MUST derive (a) a global mean entropy (arithmetic mean across parcels) and (b) network-specific averages for canonical networks (DMN, FPN, CON, VAN, SMN, VN) for each subject. This aggregation method is chosen as the standard convention for global complexity metrics in fMRI literature when parcels are of equal size. (See US-2)
-- **FR-005**: System MUST fit robust linear regression (RLM) models with entropy metrics as predictors and the NIH Toolbox Creativity Composite as the outcome, using HC3 robust standard errors. (See US-3)
-- **FR-006**: System MUST apply permutation-based cluster correction (10,000 permutations) to the p-values of all network-specific association tests to control for spatial autocorrelation and network dependence. (See US-3)
-- **FR-007**: System MUST perform a sensitivity analysis sweeping the entropy tolerance parameter (r) over {0.15, 0.20, 0.25} and report the variation in headline association rates. (See US-3)
-- **FR-008**: System MUST execute the entire pipeline on a CPU-only environment (no GPU/CUDA) within 45 minutes of wall-clock time for the full HCP S1200 cohort subset (N=1000 subjects) on a 2-core CPU runner with 7 GB RAM. (See US-1, US-2, US-3)
-- **FR-009**: System MUST perform a reverse-causality robustness check by swapping the entropy predictor and creativity outcome variables and reporting the resulting p-values. (See US-3)
+- **FR-001**: System MUST compute Multiscale Sample Entropy (MSE) for each of the HCP atlas parcels from pre-processed 4-D fMRI volumes using a vectorized Python implementation. (See US-1)
+- **FR-002**: System MUST aggregate parcel-level entropy into a global mean and network-specific averages for the DMN, FPN, CON, and other canonical networks defined by the HCP atlas. (See US-1)
+- **FR-003**: System MUST fit a Linear Regression (OLS) model with robust standard errors, using entropy metrics as predictors, age/sex/motion as covariates, and creativity scores as the outcome. (See US-2)
+- **FR-004**: System MUST apply Benjamini-Hochberg FDR correction to the set of p-values generated from the network-specific model tests. (See US-3)
+- **FR-005**: System MUST execute a sensitivity analysis that sweeps the entropy tolerance parameter `r` over the set {0.15*SD, 0.20*SD, 0.25*SD} and reports the stability of the primary association for both global and network metrics. (See US-3)
+- **FR-006**: System MUST exclude participants with mean framewise displacement > 0.2 mm from the primary analysis and log the exclusion ID, reason, and FD value to `motion_exclusions.log`. (See US-1)
+- **FR-007**: System MUST output a final results table containing coefficients, standard errors, unadjusted p-values, and FDR-adjusted p-values for all tested models. (See US-2)
+- **FR-008**: System MUST validate that all input fMRI volumes and the phenotype file `Creative_Problem_Solving.csv` exist in the directory specified by the `PHENOTYPE_PATH` environment variable (default `./data/phenotypes/`) before starting computation. (See US-1)
+- **FR-009**: System MUST compute Multiscale Sample Entropy across multiple scales and aggregate the result as the Area Under the Curve (AUC) of the entropy-vs-scale profile. (See US-1)
 
 ### Key Entities
 
-- **Subject**: Represents an individual participant, containing attributes: `subject_id`, `age`, `sex`, `framewise_displacement`, `nih_creativity_score`.
-- **ParcelTimeSeries**: Represents the extracted BOLD signal for a specific parcel, containing attributes: `subject_id`, `parcel_id`, `network_name`, `time_series_values`.
-- **EntropyMetric**: Represents a computed entropy value, containing attributes: `subject_id`, `parcel_id` (or `network_name`), `entropy_value`, `scale_factor`, `parameters_used`.
-- **AssociationResult**: Represents a statistical test outcome, containing attributes: `network_name`, `coefficient`, `standard_error`, `p_value`, `adjusted_p_value`.
-- **CanonicalNetwork**: Defines the set of canonical networks: DMN (Default Mode Network), FPN (Frontoparietal Network), CON (Cingulo-Opercular Network), VAN (Ventral Attention Network), SMN (Somatomotor Network), VN (Visual Network).
+- **Subject**: Represents an individual participant in the HCP dataset, containing attributes: `subject_id`, `age`, `sex`, `mean_framewise_displacement`, `alternative_uses_score`.
+- **EntropyMetric**: Represents the computed complexity measure, containing attributes: `subject_id`, `parcel_id`, `network_name`, `global_mean_entropy`, `network_avg_entropy`, `entropy_parameters` (m, r, scale_range, AUC).
+- **ModelResult**: Represents the output of the statistical test, containing attributes: `network_name`, `coefficient`, `std_error`, `t_stat`, `p_value`, `p_value_fdr`, `covariate_effects`.
 
 ## Success Criteria
 
@@ -90,23 +94,18 @@ The researcher MUST be able to fit robust linear regression models (RLM) with en
 > measured against; defer specific empirical values (counts, dataset sizes,
 > measured quantities, percentages) to the implementation/research phase.
 
-- **SC-001**: The association between global entropy and NIH Toolbox Creativity scores is measured against the null hypothesis of zero correlation using a robust linear regression model with HC3 standard errors. (See US-3)
-- **SC-002**: The false discovery rate of network-specific associations is measured against the permutation-based cluster correction (10,000 permutations) threshold of 0.05. (See US-3)
-- **SC-003**: The robustness of the entropy-creativity association is measured against the variation in p-values when the tolerance parameter (r) is swept across {0.15, 0.20, 0.25}. (See US-3)
-- **SC-004**: The computational feasibility is measured against the constraint of ≤45 minutes total wall-clock time on a 2-core CPU runner with 7 GB RAM for N=1000 subjects. (See US-1, US-2, US-3)
-- **SC-005**: The data completeness is measured against the requirement that ≥95% of the N=1000 subjects in the initial HCP S1200 cohort download have valid entropy values for all 360 parcels. (See US-1)
-- **SC-006**: The stability of the global mean entropy metric is measured against the Coefficient of Variation (CV) of parcel-wise entropies, which must be reported for every subject. (See US-2)
+- **SC-001**: The association between global resting-state entropy and divergent-thinking performance is measured against the null hypothesis (p > 0.05) using the FDR-corrected p-value from the OLS regression model. (See US-2)
+- **SC-002**: The robustness of the primary finding is measured against the sensitivity analysis sweep, specifically the variation in the p-value across the tolerance parameter set {0.15, 0.20, 0.25} *SD for both global and network metrics. (See US-3)
+- **SC-003**: The validity of the entropy measure is measured against the requirement that the computation completes without memory errors and reports peak RAM usage and runtime for the full dataset. (See US-1)
+- **SC-004**: The control for multiple comparisons is measured against the Benjamini-Hochberg procedure, ensuring the false discovery rate is maintained at q < 0.05 across all network tests. (See US-3)
+- **SC-005**: The data quality control is measured by the system reporting the final valid N and flagging if N < 30, ensuring the sample size is sufficient for the regression model. (See US-2)
 
 ## Assumptions
 
-- The Human Connectome Project (HCP) OpenNeuro bucket provides stable, public access to pre-processed 4-D fMRI volumes and phenotypic files without requiring additional authentication beyond standard S3 permissions.
-- The HCP multimodal cortical atlas (a set of cortical parcels) is spatially aligned with the pre-processed fMRI data such that no additional registration or resampling is required.
-- The `pyentropy` library (or equivalent vectorized Python implementation) is available in the GitHub Actions environment and can compute Multiscale Sample Entropy on CPU within the 45-minute runtime limit.
-- The relationship between resting-state fMRI entropy and creative problem solving is purely associational; no causal claims are made as the study design is observational.
-- The HCP S1200 cohort (N=1000) provides sufficient statistical power to detect a moderate effect size (Cohen's f² ≥ 0.15) at α = 0.05 after permutation correction; if power is insufficient, the limitation will be explicitly reported.
-- The NIH Toolbox Creativity Composite (derived from Flanker and DCCS tests) is a valid and reliable proxy for executive function and creative control, consistent with standard scoring protocols, in the absence of direct Alternative Uses Test scores.
-- Head motion (framewise displacement) is an adequate proxy for motion artifacts in the fMRI signal, and controlling for it statistically is sufficient to mitigate motion-related confounds.
-- The default parameters for Multiscale Sample Entropy (m=2, r=0.2, scales 1-20) are appropriate for fMRI time series of the HCP data length; alternative parameters will be tested in sensitivity analysis but are not required for the primary result.
-- The arithmetic mean of parcel-wise entropies is the standard convention for deriving a "global brain complexity" metric in fMRI literature when parcels are of equal size.
-- The GitHub Actions free-tier runner (2 CPU, 7 GB RAM) can handle the memory requirements of storing 360 time series per subject for the full cohort without swapping to disk.
-- No GPU acceleration is available or required; all computations (entropy, regression) are performed using standard CPU-based floating-point arithmetic.
+- **Dataset-variable fit**: It is assumed that the pre-processed HCP resting-state fMRI data and the associated behavioral phenotype file (`Creative_Problem_Solving.csv`) are available and linked by subject ID in the `PHENOTYPE_PATH` directory. If the public HCP release lacks this specific file, the pipeline MUST halt with a clear error suggesting manual data injection.
+- **Inference framing**: The study design is observational; therefore, all findings regarding the relationship between entropy and creativity will be framed as associational, not causal, in the final report.
+- **Compute feasibility**: The analysis assumes that the vectorized Python implementation of Multiscale Sample Entropy for a set of parcels across a large cohort of subjects fits within the available RAM limit of the GitHub Actions free-tier runner and completes within the 6-hour job limit on a 2-core CPU.
+- **Threshold justification**: The tolerance parameter `r` for Sample Entropy is set to 0.2 * SD as a community standard default; the sensitivity analysis (FR-005) is required to validate this choice rather than asserting it as fixed.
+- **Measurement validity**: The Alternative Uses Test scores in the HCP dataset are assumed to be a valid measure of divergent thinking, consistent with standard psychometric definitions.
+- **Predictor collinearity**: Age, sex, and head motion are assumed to be distinct from the entropy metric; however, a collinearity diagnostic (VIF) will be run, and if VIF > 5, the model will be re-specified to avoid inflated standard errors.
+- **Multiplicity & power**: The sample size of the HCP dataset is assumed to provide sufficient power for the OLS models, though the power calculation is deferred to the analysis phase.

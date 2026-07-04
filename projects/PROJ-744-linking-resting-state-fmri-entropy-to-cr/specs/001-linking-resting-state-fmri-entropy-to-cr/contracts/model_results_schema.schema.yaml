@@ -1,0 +1,61 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Model Results Schema
+description: Schema for the output of the statistical modeling module. Contains OLS regression coefficients, p-values, and FDR corrections.
+type: object
+properties:
+  model_id:
+    type: string
+    description: "Unique identifier for the model run (e.g., 'global_r0.2_m2')."
+  network_name:
+    type: string
+    description: "Name of the network or 'Global' for whole-brain analysis."
+  coefficient:
+    type: number
+    description: "Beta coefficient for the entropy predictor."
+  std_error:
+    type: number
+    description: "Robust standard error of the coefficient (HC1)."
+  t_stat:
+    type: number
+    description: "T-statistic."
+  p_value:
+    type: number
+    description: "Unadjusted p-value."
+  p_value_fdr:
+    type: number
+    description: "Benjamini-Hochberg adjusted p-value."
+  covariate_effects:
+    type: object
+    description: "Coefficients for covariates (age, sex, FD)."
+    properties:
+      age:
+        type: number
+      sex_M:
+        type: number
+      mean_framewise_displacement:
+        type: number
+    required:
+      - age
+      - sex_M
+      - mean_framewise_displacement
+  sensitivity_r:
+    type: number
+    description: "The tolerance factor (r) used for this specific run."
+  sensitivity_m:
+    type: integer
+    description: "The embedding dimension (m) used for this specific run."
+  sample_size:
+    type: integer
+    description: "Number of subjects included in this model."
+required:
+  - model_id
+  - network_name
+  - coefficient
+  - std_error
+  - t_stat
+  - p_value
+  - p_value_fdr
+  - covariate_effects
+  - sensitivity_r
+  - sensitivity_m
+  - sample_size

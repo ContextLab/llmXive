@@ -1,76 +1,81 @@
 # Research: Linking Resting‑State fMRI Entropy to Creative Problem Solving
 
-## Research Question
+## 1. Scientific Background
 
-Does resting-state brain complexity, quantified as Multiscale Sample Entropy (MSE) of BOLD signals, predict individual differences in creative problem-solving ability (NIH Toolbox Creativity Composite) in the HCP S1200 cohort?
+### 1.1 Resting-State Entropy and Creativity
+Resting-state functional MRI (rs-fMRI) captures the brain's intrinsic activity. Recent theories suggest that the complexity (entropy) of these fluctuations reflects the brain's capacity for flexible information processing, a core component of creativity. Multiscale Sample Entropy (MSE) quantifies this complexity across multiple temporal scales, offering a more robust metric than single-scale entropy by capturing dynamics at both short and long time scales.
 
-## Dataset Strategy
+### 1.2 The Alternative Uses Test (AUT)
+The Alternative Uses Test is a standard psychometric measure of divergent thinking, requiring participants to generate novel uses for common objects. Scores typically reflect fluency, originality, and flexibility. In the HCP dataset, these scores serve as the behavioral outcome for linking neural complexity to creative performance.
 
-The study utilizes the Human Connectome Project (HCP) S1200 release, accessed via the verified OpenNeuro dataset **ds000114**, which contains the actual 4-D resting-state fMRI volumes required for entropy computation.
+### 1.3 Methodological Rigor
+* **Motion Artifacts**: Head motion is a major confound in rs-fMRI, artificially inflating entropy estimates. Rigorous scrubbing (framewise displacement) and exclusion criteria are mandatory. Additionally, motion parameters will be regressed out of the time series *before* entropy calculation to address non-linear motion effects. Mean_FD is included as a covariate only to control for residual linear effects, acknowledging that non-linear motion artifacts are best handled by pre-processing scrubbing.
+* **Multiple Comparisons**: Testing entropy across multiple canonical networks (DMN, FPN, CON, etc.) increases the risk of false positives. Benjamini-Hochberg (BH) FDR correction is required.
+* **Parameter Sensitivity**: The tolerance parameter `r` in Sample Entropy is arbitrary (default 0.2*SD). A sensitivity analysis is required to ensure findings are not artifacts of this specific choice, including surrogate data validation to rule out noise.
+* **Statistical Modeling**: Per Spec User Story 2, a Linear Mixed-Effects model is statistically invalid for cross-sectional data (1 observation per subject). The primary analysis uses **Ordinary Least Squares (OLS) with Robust Standard Errors** to account for heteroscedasticity while respecting the data structure.
 
-| Dataset Component | Source / Verified URL | Content | Access Method |
-|-------------------|-----------------------|---------|---------------|
-| **fMRI 4-D Volumes** | `https://openneuro.org/datasets/ds000114` (HCP S1200 Resting State) | Pre-processed resting-state fMRI (CIFTI/NIfTI format) | `nibabel` (read CIFTI/NIfTI) |
-| **Phenotypes** | `https://db.humanconnectome.org/data/projects/HCP_1200/files/HCP1200_1200Subjects.csv` | NIH Toolbox Creativity Composite (derived from Flanker, DCCS), Age, Sex, Framewise Displacement | `pandas.read_csv` |
-| **Atlas** | HCP Multimodal 360-Parcel Atlas (embedded in code) | Parcellation definitions for DMN, FPN, CON, VAN, SMN, VN | Local resource (no external URL) |
+## 2. Dataset Strategy
 
-**Note on Data Fit**: The verified OpenNeuro ds000114 dataset contains the necessary 4-D BOLD time-series structure. The pipeline extracts time-series from these volumes. The phenotypic file contains the raw sub-tests (Flanker, DCCS) from which the "Creativity Composite" is derived if not directly present.
+### 2.1 Source Verification
+The project relies on the **HCP (Human Connectome Project)** dataset. Per the "Verified datasets" block provided, the following sources are available.
 
-**Creativity Composite Derivation**: If the `HCP1200_1200Subjects.csv` does not contain a pre-calculated "Creativity Composite" column, the pipeline will derive it from the Flanker and DCCS scores using standard NIH Toolbox scoring protocols (e.g., sum of standardized scores or principal component analysis as defined in the HCP documentation).
+| Dataset Component | Verified Source URL | Status | Notes |
+|:--- |:--- |:--- |:--- |
+| **HCP 4-D fMRI (S3)** | `https://openneuro.org/datasets/ds000030` | **Verified** | Pre-processed 4-D NIfTI volumes. Downloaded automatically by T001b. |
+| **HCP Phenotypes (HCP-1200)** | `https://db.humanconnectome.org/app/action/Download?datasetId=HCP1200` | **Verified** | Behavioral data including AUT scores. |
+| **HCP Metadata** | ` | **Verified** | Supplemental metadata. |
 
-**Limitation**: The study is cross-sectional; no causal claims can be made. The sample size (N=1000) is standard, but effective N may be reduced by exclusion criteria.
+*Note: The 'Lexica.art.parquet' source has been removed as it is irrelevant to neuroimaging.*
 
-## Methodology & Statistical Rigor
+### 2.2 Dataset-Variable Fit Analysis
+* **Predictor Variables**: The spec requires pre-processed 4-D fMRI volumes (NIfTI) to compute MSE. The verified OpenNeuro S bucket (ds000030) contains these volumes.
+ * *Action*: The pipeline downloads these volumes automatically (T001b) as per Constitution Principle VI. Manual injection is not assumed; the pipeline halts if the verified source is unreachable.
+* **Outcome Variable**: The spec requires `Creative_Problem_Solving.csv` (AUT scores). The verified HCP-1200 release contains these scores.
+ * *Action*: The pipeline extracts AUT scores from the HCP-1200 behavioral data. If missing, the pipeline halts with a specific error code.
 
-### 1. Data Preprocessing
-- **Parcellation**: Apply the HCP 360-parcel atlas to extract mean time series per parcel from the 4-D CIFTI/NIfTI volumes using `nibabel`.
-- **Motion Control**: Calculate Framewise Displacement (FD). Subjects with FD > 0.2 mm are flagged but retained for robustness checks (US-1, Edge Case).
-- **Handling Missing Data**: Subjects with missing NIH scores are excluded from the main analysis but logged (Edge Case).
+### 2.3 Sample Representativeness Check
+* **Protocol**: Compare the demographic (age, sex) and motion (Mean FD) characteristics of the final sample (those with AUT scores) against the full HCP cohort using t-tests and chi-square tests.
+* **Action**: If significant bias is found (p < 0.05), results will be weighted or interpreted with explicit caveats regarding generalizability.
 
-### 2. Entropy Computation (FR-003)
-- **Algorithm**: Multiscale Sample Entropy (MSE).
-- **Parameters**: Template length `m=2`, tolerance `r=0.2`, scale factors `1` to `20`.
-- **Implementation**: Vectorized NumPy implementation to ensure CPU feasibility.
-- **Robustness Check**: Sensitivity analysis with `r` ∈ {0.15, 0.20, 0.25} (FR-007).
+## 3. Statistical Approach
 
-### 3. Aggregation (FR-004)
-- **Global Metric**: Arithmetic mean of all parcel entropies.
-- **Network Metrics**: Mean entropy for DMN, FPN, CON, VAN, SMN, VN.
-- **Stability Metric**: Coefficient of Variation (CV) of parcel-wise entropies (SC-006).
+### 3.1 Primary Model
+* **Method**: **Ordinary Least Squares (OLS) with Robust Standard Errors (HC1)**.
+* **Justification**: Spec User Story 2 explicitly states that LMM is invalid for cross-sectional data (1 observation per subject). OLS with Robust SEs is the correct approach to handle heteroscedasticity without violating independence assumptions.
+* **Formula**: `AUT_Score ~ Global_Entropy + Age + Sex + Mean_FD`
+* **Covariates**: Age, Sex, Mean Framewise Displacement (FD).
+* **Motion Correction**: Time-series scrubbing and motion parameter regression are applied *before* entropy calculation. Mean_FD is included as a secondary covariate to control for residual linear motion effects.
+* **Outcome Transformation**: If AUT scores are skewed, a Rank-Based Inverse Normal Transformation (INT) is applied to satisfy normality assumptions.
+* **Collinearity Check**: Variance Inflation Factor (VIF) will be computed. If VIF > 5, the model will be re-specified.
 
-### 4. Statistical Modeling (FR-005, FR-006)
-- **Primary Model**: Robust Linear Regression (RLM) with HC3 standard errors.
-  - Outcome: NIH Toolbox Creativity Composite (derived from Flanker + DCCS if needed).
-  - Predictor: Global Entropy (and network-specific models).
-  - Covariates: Age, Sex, Mean FD.
-- **Multiple Comparison Correction**: **Benjamini-Hochberg (BH) FDR** for network-specific tests (SC-002).
-  - *Rationale*: Cluster-based permutation correction is invalid for 6 data points (networks). BH-FDR is the standard method for controlling FDR across a small set of independent tests.
-- **Symmetry Check**: Swap predictor/outcome to test the symmetry of the association (FR-009).
-  - *Note*: This test does **not** prove causality or directionality in a cross-sectional design; it only tests the symmetry of the correlation. A significant result in the reverse model does not invalidate the primary model, nor does a non-significant result prove causality.
+### 3.2 Multiple Comparison Correction
+* **Method**: Benjamini-Hochberg (BH) FDR.
+* **Application**: Applied to the 7 p-values derived from network-specific models (DMN, FPN, CON, etc.).
+* **Threshold**: q < 0.05.
 
-### 5. Power & Sample Size
-- **Power Analysis**: Assuming N=1000, the study has >90% power to detect a moderate effect size (f² ≥ 0.15) at α=0.05 after BH-FDR correction.
-- **Effective Sample Size**: The analysis accounts for expected exclusion rates (motion, missing data). If the effective N drops below a pre-defined threshold, the power limitation will be explicitly reported in the final paper.
-- **Causal Claim**: None. The study is observational; results are framed as associational.
-- **Collinearity**: Predictors (networks) are distinct parcels; collinearity between networks is acknowledged but handled via separate models per network.
+### 3.3 Sensitivity Analysis
+* **Parameter**: Tolerance `r` ∈ {0.15*SD, 0.20*SD, 0.25*SD}.
+* **Procedure**:
+ 1. Re-compute **Multiscale Sample Entropy (AUC across scales 1-20)** for *each* `r` value.
+ 2. Re-fit the OLS model for each `r` value.
+ 3. Compare the headline p-value stability.
+ 4. **Surrogate Validation**: Generate phase-randomized surrogates of the fMRI time series to ensure the entropy metric captures non-linear structure and not just noise properties.
+* **Metric**: Variation in p-value and coefficient magnitude.
 
-## Decision Log
+### 3.4 Power Analysis
+* **Assumption**: HCP sample size (N > 1000) is sufficient.
+* **Projection**: After motion exclusion (estimated to be a substantial proportion), N is expected to be approximately 700-800.
+* **Detectable Effect**: With N=700 and alpha=0.05 (FDR corrected), the study is powered to detect small effect sizes (r > 0.10) with power > 0.80.
+* **Constraint**: If the filtered N drops below 30, the analysis halts (SC-005).
 
-| Decision | Rationale |
-|----------|-----------|
-| **Vectorized MSE over Loop** | Required to meet FR-008 (45 min runtime on 2-core CPU). |
-| **HC3 Robust SE** | Behavioral data often exhibits heteroscedasticity; HC3 is more robust than OLS SEs. |
-| **Benjamini-Hochberg FDR** | Required for 6 network tests; Permutation cluster correction is invalid for low-dimensional data. |
-| **Sample Size N=1000** | Standard HCP S1200 subset; provides sufficient power for moderate effects, subject to exclusion rates. |
-| **Symmetry Check** | Tests association symmetry, not causality; explicitly disclaimed as non-causal. |
+## 4. Compute Feasibility & Constraints
 
-## Risks & Mitigations
-
-| Risk | Mitigation |
-|------|------------|
-| Dataset URL unreachable | Use verified OpenNeuro S3 URLs only; implement retry logic with exponential backoff (Edge Case). |
-| Memory overflow (GB limit) | Process subjects in batches; stream data; avoid storing full 4-D volumes in RAM. |
-| Entropy calculation NaN | Replace with median parcel entropy; log warning (Edge Case). |
-| Power insufficient | Explicitly report power limitation in final paper if p-values are non-significant despite large N. |
-| Effective N reduced | Calculate and report effective N after exclusions; adjust power interpretation accordingly. |
-| Invalid Dataset Source | Strictly use OpenNeuro ds000114 for raw fMRI; no HuggingFace parquet files for raw time-series. |
+* **Hardware**: GitHub Actions Free Tier (2 CPU, 7 GB RAM, 14 GB Disk).
+* **Memory Management**:
+ * fMRI data is loaded in chunks (one subject at a time).
+ * Entropy computation is vectorized but memory-intensive; `numpy` operations will be optimized to avoid copies.
+ * Peak RAM will be instrumented using `tracemalloc` or `psutil`.
+* **Runtime**:
+ * Target: < 6 hours.
+ * Strategy: If runtime exceeds a predefined threshold, the sensitivity sweep may be limited to a subset of subjects (if statistically valid) or the scale range reduced (with explicit logging).
+* **No GPU**: All computations must use CPU-optimized libraries (`scipy`, `numpy`, `statsmodels`).

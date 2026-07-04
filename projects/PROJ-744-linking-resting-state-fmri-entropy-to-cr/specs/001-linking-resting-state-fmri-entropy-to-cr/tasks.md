@@ -1,6 +1,6 @@
 # Tasks: Linking Resting‑State fMRI Entropy to Creative Problem Solving
 
-**Input**: Design documents from `/specs/001-linking-resting-state-fmri-entropy-to-cr/`
+**Input**: Design documents from `/specs/001-linking-resting-state-fmri-entropy/`
 **Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
 
 **Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
@@ -43,8 +43,9 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001a [P] Create project directory structure: `code/`, `tests/`, `data/`, `results/`, `docs/`, `specs/`
-- [ ] T001b [P] Create sub-directories: `code/ingestion`, `code/entropy`, `code/modeling`, `code/utils`, `code/benchmark`
+- [ ] T001 Create project directories: `code/`, `data/raw`, `data/processed`, `data/logs`, `tests/`, `docs/` per implementation plan
+- [ ] T002 Initialize Python 3.11 project with pinned dependencies (`numpy`, `scipy`, `pandas`, `statsmodels`, `nibabel`, `scikit-learn`, `tqdm`, `requests`, `pytest`) in `requirements.txt`
+- [ ] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools
 
 ---
 
@@ -54,105 +55,101 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T002 [P] Initialize Python 3.11 project with `requirements.txt` (numpy, pandas, scikit-learn, statsmodels, nibabel, requests, tqdm, h5py, pytest)
-- [ ] T003 [P] Configure linting (ruff) and formatting (black) tools
-- [ ] T004 [P] Setup data directory structure (`data/raw`, `data/processed`, `results/`) and `.gitignore` for large files
-- [ ] T005 [P] Implement robust logging infrastructure in `code/utils/logging.py` (JSON formatted, file + console handlers)
-- [ ] T006 [P] Create base configuration manager for parameters (m, r, scales) in `code/utils/config.py`
-- [ ] T007 [P] Implement checksum verification utility in `code/utils/checksum.py` for FR-001
-- [ ] T008 [P] Setup environment variable management for S3 credentials in `code/utils/env_loader.py`
-- [ ] T009 [P] Create base schema definitions in `specs/contracts/` (dataset, entropy, association result)
+- [ ] T004 Implement `code/config.py` to manage paths (`PHENOTYPE_PATH`, `RAW_DATA_DIR`), entropy parameters (`m=2`, `r=0.2*SD`), and motion thresholds (`FD > 0.2mm`)
+- [ ] T005 Implement `code/utils.py` for logging infrastructure, file I/O helpers, and VIF (Variance Inflation Factor) calculation logic
+- [ ] T006 Create `code/data_loader.py` with functions to validate existence of `Creative_Problem_Solving.csv` and load NIfTI volumes using `nibabel`
+- [ ] T007 [P] [US1] Implement motion scrubbing in `code/data_loader.py` to filter time series based on FD, **exclude subjects with <100 remaining frames** (logging to `data/logs/missing_data.log`), and log FD-based exclusions to `data/logs/motion_exclusions.log` per FR-006
+- [ ] T008 Setup `tests/` directory structure and `conftest.py` for shared fixtures (sample data paths, mock entropy vectors)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
 ---
 
-## Phase 3: User Story 1 - Data Ingestion and Preprocessing (Priority: P1) 🎯 MVP
+## Phase 3: User Story 1 - Compute Global and Network-Specific Entropy Metrics (Priority: P1) 🎯 MVP
 
-**Goal**: Download pre-processed HCP fMRI data and phenotypes, apply atlas, and extract clean time series.
+**Goal**: Ingest pre-processed HCP fMRI data and compute Multiscale Sample Entropy (MSE) for whole brain and canonical networks (DMN, FPN, CON).
 
-**Independent Test**: The system can be tested by verifying that the script successfully retrieves a sample of subjects, extracts parcel time series per subject, and outputs a clean CSV containing the global mean entropy and all covariates, without requiring any downstream statistical modeling.
+**Independent Test**: Run entropy module on a subset of subjects; verify output CSV contains non-null MSE values for all parcels and correct aggregation; verify motion-excluded subjects are logged.
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T010 [P] [US1] Unit test for S3 download retry logic with exponential backoff (max 3 retries) in `tests/unit/test_download_hcp.py`
-- [ ] T011 [P] [US1] Integration test for parcellation dimensionality check in `tests/integration/test_parcellate.py`
-- [ ] T012 [P] [US1] Test for motion flagging logic (FD > 0.2mm) in `tests/unit/test_motion_check.py`
+- [ ] T010 [P] [US1] Unit test for vectorized Sample Entropy calculation in `tests/test_entropy.py` (verify against known small matrix)
+- [ ] T011 [P] [US1] Integration test for motion exclusion logic in `tests/test_data_loader.py` (verify subjects with FD > 0.2mm and <100 frames are skipped)
+- [ ] T012 [P] [US1] Integration test for AUC aggregation in `tests/test_entropy.py` (verify Area Under Curve calculation across scales)
 
 ### Implementation for User Story 1
 
-- [ ] T013 [US1] Implement `code/ingestion/download_hcp.py` to fetch 4-D volumes and phenotypes from OpenNeuro S3 with SHA-256 checksum verification (via manifest) and exponential backoff retry logic (max 3 times) per Edge Cases. Tested by T010.
-- [ ] T014 [US1] Implement `code/ingestion/parcellate.py` to apply HCP 360-parcel atlas using `nibabel` (FR-002)
-- [ ] T015 [US1] Implement `code/utils/motion_check.py` to calculate Framewise Displacement and flag subjects with threshold > 0.2 mm (Edge Case)
-- [ ] T016 [US1] Implement data cleaning pipeline in `code/ingestion/clean.py` to consume the output of T013 (phenotypes) and T014 (time series), excluding rows with missing NIH Toolbox scores or incomplete fMRI scans (Edge Case), and logging excluded subjects to a separate report.
-- [ ] T017 [US1] Create output CSV generator for `data/processed/subject_timeseries.csv` with columns: subject_id, age, sex, FD, nih_score, and flattened parcel values
+- [ ] T013 [P] [US1] Implement vectorized `compute_sample_entropy` function in `code/entropy.py` (CPU-optimized, no GPU dependencies, default precision)
+- [ ] T014 [P] [US1] Implement `compute_multiscale_entropy` in `code/entropy.py` to calculate entropy across multiple scales and aggregate via AUC
+- [ ] T015 [US1] Implement parcel-level processing loop in `code/entropy.py` to iterate over HCP 360-parcel atlas using **scrubbed time series from T007**, handling NaNs per FR-001
+- [ ] T015b [US1] Implement logic in `code/entropy.py` to **flag subjects for manual review if >10% of parcels are invalid** (NaN) and log to `data/logs/invalid_parcels.log` per Edge Cases
+- [ ] T016 [P] [US1] Implement `aggregate_networks` function in `code/aggregation.py` to map parcels to DMN, FPN, CON, and other networks using HCP atlas definitions
+- [ ] T017 [US1] Implement main entropy orchestration in `code/entropy.py` to process all valid subjects, handle chunking for memory constraints (<7GB RAM), and output `data/processed/entropy_metrics.csv`
+- [ ] T018 [US1] Implement logging logic to write exclusion reasons to `data/logs/motion_exclusions.log` and `data/logs/missing_data.log` as per FR-006
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
 ---
 
-## Phase 4: User Story 2 - Entropy Computation and Aggregation (Priority: P2)
+## Phase 4: User Story 2 - Fit Linear Regression Models with Covariates (Priority: P2)
 
-**Goal**: Compute Multiscale Sample Entropy (MSE) for each parcel and derive global/network metrics.
+**Goal**: Fit OLS models with robust standard errors to test entropy vs. creativity associations, controlling for age, sex, and motion.
 
-**Independent Test**: The system can be tested by running the entropy calculation on a fixed subset of subjects with known parameters, verifying that the computed MSE values match a pre-calculated reference file within an appropriate tolerance, and that network aggregation correctly averages the parcel values.
+**Independent Test**: Run modeling script on synthetic data with known coefficients; verify recovery of coefficients and p-values; verify sample size check (N < 30) halts execution.
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T018 [P] [US2] Unit test for MSE vectorized algorithm against **pre-calculated reference file** within **tolerance 1e-6** in `tests/unit/test_mse.py`
-- [ ] T019 [P] [US2] Test for network aggregation logic (DMN mean of 60 parcels) in `tests/unit/test_aggregation.py`
-- [ ] T020 [P] [US2] Test for NaN handling (median replacement) in `tests/unit/test_entropy_cleaning.py`
+- [ ] T019 [P] [US2] Unit test for OLS coefficient recovery in `tests/test_modeling.py` (synthetic data with known slope)
+- [ ] T020 [P] [US2] Unit test for robust standard error calculation (HC1) in `tests/test_modeling.py`
+- [ ] T021 [P] [US2] Integration test for sample size guard in `tests/test_modeling.py` (verify N < 30 raises critical warning)
 
 ### Implementation for User Story 2
 
-- [ ] T021 [US2] Implement `code/entropy/mse.py` with vectorized Sample Entropy algorithm (m=2, r=0.2, scales 1-20) optimized for CPU (FR-003). Must generate and use a pre-calculated reference file for verification.
-- [ ] T022 [US2] Implement `code/entropy/aggregate.py` to compute global mean and network-specific averages (DMN, FPN, etc.) (FR-004)
-- [ ] T023 [US2] Implement Coefficient of Variation (CV) calculation per subject for SC-006 in `code/entropy/aggregate.py`
-- [ ] T024 [US2] Implement robust NaN handling: replace flat-time-series NaNs with parcel median across subjects
-- [ ] T025 [US2] Generate `data/processed/entropy_metrics.csv` with columns: subject_id, global_entropy, network_entropy_*
+- [ ] T022 [P] [US2] Implement `load_merged_data` in `code/modeling.py` to join `entropy_metrics.csv` with `Creative_Problem_Solving.csv` on subject ID, **filtering out subjects excluded in T007/T018** using the filtered subject list from T007
+- [ ] T023 [US2] Implement VIF check in `code/modeling.py` to detect collinearity (VIF > 5) among predictors (age, sex, motion, entropy)
+- [ ] T024 [US2] Implement OLS model fitting with `statsmodels` using `HC1` robust standard errors in `code/modeling.py`
+- [ ] T025 [US2] Implement sample size validation logic to **HALT primary analysis** and log critical warning if N < 30 per Edge Cases (preventing misleading p-values)
+- [ ] T026 [US2] Implement result extraction to generate `data/processed/model_results.csv` containing coefficients, SEs, t-stats, and raw p-values per FR-007
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
 ---
 
-## Phase 5: User Story 3 - Statistical Modeling and Inference (Priority: P3)
+## Phase 5: User Story 3 - Apply Multiple-Comparison Correction and Sensitivity Analysis (Priority: P3)
 
-**Goal**: Fit robust linear regression models, apply FDR correction, and perform sensitivity/reverse checks.
+**Goal**: Apply Benjamini-Hochberg FDR correction and perform sensitivity analysis on entropy tolerance parameter `r`.
 
-**Independent Test**: The system can be tested by running the modeling pipeline on a synthetic dataset where the relationship between entropy and creativity is known, and verifying that the model recovers a statistically significant positive coefficient with the correct p-value range.
+**Independent Test**: Verify FDR adjusted p-values match manual calculation; verify sensitivity sweep output includes results for r={0.15, 0.20, 0.25}*SD.
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T026 [P] [US3] Unit test for RLM HC3 standard errors against statsmodels reference in `tests/unit/test_robust_regression.py`
-- [ ] T027 [P] [US3] Test for Benjamini-Hochberg FDR correction logic in `tests/unit/test_fdr_correction.py`
-- [ ] T028 [P] [US3] Test for reverse-causality check (non-significant result) in `tests/unit/test_reverse_causality.py`
+- [ ] T027 [P] [US3] Unit test for Benjamini-Hochberg FDR implementation in `tests/test_modeling.py`
+- [ ] T028 [P] [US3] Unit test for sensitivity sweep logic in `tests/test_modeling.py`
 
 ### Implementation for User Story 3
 
-- [ ] T029 [US3] Implement `code/modeling/robust_regression.py` using `statsmodels` RLM with HC3 SE (FR-005). **Staged Deviation**: Replaces Constitution Principle VII (LMM) with RLM as documented in plan.md; pending formal amendment ratification.
-- [ ] T030 [US3] Implement `code/modeling/fdr_correction.py` for Benjamini-Hochberg correction on network p-values. **Replaces FR-006**: This task implements BH-FDR instead of the Spec's 'permutation-based cluster correction' as documented in plan.md (Constitution Check) due to methodological invalidity for N=6. **Staged Deviation** from Spec FR-006.
-- [ ] T031 [US3] Implement `code/modeling/sensitivity.py` to sweep r parameter {0.15, 0.20, 0.25} and compute stability scores (FR-007)
-- [ ] T032 [US3] Implement reverse-causality check in `code/modeling/reverse_check.py` (swap X/Y) (FR-009). **Note**: This tests correlation symmetry, not causality. The Spec's 'confirm directionality' is interpretive; output must report p-values to show symmetry, not causal proof.
-- [ ] T033 [US3] Generate final `results/association_results.csv` with coefficient, SE, p-value, adjusted p-value, and stability metrics
-- [ ] T034 [US3] Generate `results/data_completeness_report.json` confirming ≥95% valid parcels (SC-005). Must exit with code 1 if threshold < 95%.
-- [ ] T035 [US3] Implement `code/modeling/enforce_completeness.py` to trigger exclusion logic and halt pipeline if `data_completeness_report.json` indicates <95% validity (SC-005 enforcement).
+- [ ] T029 [P] [US3] Implement `apply_fdr_correction` in `code/modeling.py` using Benjamini-Hochberg procedure on network-specific p-values per FR-004
+- [ ] T030a [US3] Implement sensitivity entropy re-computation in `code/modeling.py` to **re-compute Multiscale Sample Entropy (AUC across scales)** for each `r` value in {0.15*SD, 0.20*SD, 0.25*SD} and output `data/processed/entropy_sensitivity_r{r}.csv`
+- [ ] T030b [US3] Implement sensitivity modeling in `code/modeling.py` to re-fit OLS models using the sensitivity entropy artifacts from T030a and store results
+- [ ] T031 [US3] Implement stability analysis logic to compare p-values across `r` sweeps and flag non-robust findings per FR-005
+- [ ] T032 [US3] Generate final results table in `data/processed/final_results.csv` containing both unadjusted and FDR-adjusted p-values, and sensitivity metrics per FR-007
+- [ ] T033 [US3] Implement instrumentation in `code/modeling.py` to **log peak RAM usage and runtime** for each sensitivity sweep iteration to verify SC-003 and SC-005
 
 **Checkpoint**: All user stories should now be independently functional
 
 ---
 
-## Phase 6: Polish, Benchmarking & Reporting
+## Phase N: Polish & Cross-Cutting Concerns
 
-**Purpose**: Performance verification, documentation, and final artifact generation
+**Purpose**: Improvements that affect multiple user stories
 
-- [ ] T036 [P] Implement `code/benchmark/benchmark.sh` to measure wall-clock time and memory for N=1000 subjects (FR-008)
-- [ ] T037 [P] Run full pipeline on N=1000 subset in CI and verify ≤45 min runtime (SC-004). Note: This depends on completion of all prior phases.
-- [ ] T038 [P] Update `specs/contracts/` schemas with final output fields from `association_results.csv`
-- [ ] T039 [P] Generate `docs/quickstart.md` with step-by-step execution guide
-- [ ] T040 [P] Update `docs/research.md` with empirical findings and limitations
-- [ ] T041 [P] Write final `README.md` section for this feature branch
+- [ ] T034 [P] Documentation updates in `docs/` (README, usage examples)
+- [ ] T035 Code cleanup and refactoring for memory efficiency (ensure no peak RAM > 6GB)
+- [ ] T036 Performance optimization: profile entropy calculation and optimize vectorization if needed
+- [ ] T037 [P] Additional unit tests for edge cases (NaN handling, empty datasets) in `tests/`
+- [ ] T038 Run `quickstart.md` validation to ensure full pipeline execution on CPU-only runner
 
 ---
 
@@ -170,13 +167,13 @@
 ### User Story Dependencies
 
 - **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Depends on US1 output (time series)
-- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on US2 output (entropy metrics)
+- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Depends on US1 output (entropy metrics)
+- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on US2 output (model results) and US1 output
 
 ### Within Each User Story
 
 - Tests (if included) MUST be written and FAIL before implementation
-- Models/Utilities before services
+- Models before services
 - Services before endpoints
 - Core implementation before integration
 - Story complete before moving to next priority
@@ -196,12 +193,12 @@
 
 ```bash
 # Launch all tests for User Story 1 together (if tests requested):
-Task: "Unit test for S3 download retry logic in tests/unit/test_download_hcp.py"
-Task: "Integration test for parcellation dimensionality check in tests/integration/test_parcellate.py"
+Task: "Unit test for vectorized Sample Entropy calculation in tests/test_entropy.py"
+Task: "Integration test for motion exclusion logic in tests/test_data_loader.py"
 
 # Launch all models for User Story 1 together:
-Task: "Implement code/ingestion/download_hcp.py"
-Task: "Implement code/ingestion/parcellate.py"
+Task: "Implement vectorized compute_sample_entropy function in code/entropy.py"
+Task: "Implement parcel-level processing loop in code/entropy.py"
 ```
 
 ---
@@ -246,6 +243,5 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **CRITICAL**: All entropy calculations must use CPU-only, vectorized implementations to meet FR-008 (45 min limit). No GPU/CUDA allowed.
-- **CRITICAL**: Ensure data flow: Download (US1) → Parcellation (US1) → Entropy (US2) → Modeling (US3). Do not reorder.
-- **Staged Deviations**: Tasks T029, T030, and T032 contain explicit notes where the Plan deviates from the Spec or Constitution. These deviations are documented as necessary scientific corrections and are pending formal amendment ratification.
+- **Compute Constraint**: All entropy tasks must run on CPU-only (cores, 7GB RAM); no GPU, no 8-bit quantization, no large model loading.
+- **Data Constraint**: All data must be real (HCP/OpenNeuro); no synthetic/fake data generation for final results.
