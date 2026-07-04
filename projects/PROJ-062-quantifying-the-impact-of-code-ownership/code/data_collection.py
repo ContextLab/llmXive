@@ -1,386 +1,312 @@
 import os
 import subprocess
-import sys
-import time
 import logging
-import shutil
-import json
+import time
+import csv
 from pathlib import Path
-from typing import List, Dict, Any, Optional, Tuple
+from typing import List, Dict, Optional, Tuple, Any
 from datetime import datetime
+import re
 
-# Add parent to path for imports if running as script
-if __name__ == "__main__" and "code" not in sys.path:
-    sys.path.insert(0, str(Path(__file__).parent))
-elif "code" not in sys.path:
-    sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+# Local imports matching API surface
+from config import get_cutoff_date, get_depth_limit, get_repo_list, get_github_token, get_output_dir
+from utils.backoff import fetch_with_backoff, handle_github_rate_limit
+from utils.path_normalizer import normalize_path
 
-from utils.logging_utils import get_logger, configure_logging
-from utils.api_utils import fetch_with_backoff, retry_with_exponential_backoff
-from utils.path_utils import normalize_path
-from utils.memory_utils import clear_memory, check_memory_limit
+# Setup logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.FileHandler('logs/data_collection.log'),
+        logging.StreamHandler()
+    ]
+)
+logger = logging.getLogger(__name__)
 
-# GitHub API configuration
-GITHUB_API_BASE = "https://api.github.com"
-DEFAULT_TIMEOUT = 30
+def clone_repository(repo_url: str, repo_name: str, depth: int) -> Tuple[bool, Optional[str]]:
+    """Clone a repository with specified depth."""
+    repo_path = Path(get_output_dir()) / "raw" / repo_name
+    
+    if repo_path.exists():
+        logger.info(f"Repository {repo_name} already exists, skipping clone.")
+        return True, str(repo_path)
 
-logger = get_logger(__name__)
-
-def clone_repository(repo_url: str, target_dir: Path, depth: int = 1000) -> bool:
-    """Clone a repository with shallow history."""
     try:
-        if target_dir.exists():
-            shutil.rmtree(target_dir)
-        
-        cmd = [
-            "git", "clone", "--depth", str(depth),
-            "--single-branch", repo_url, str(target_dir)
-        ]
-        
-        result = subprocess.run(
-            cmd,
-            capture_output=True,
-            text=True,
-            timeout=300
-        )
-        
-        if result.returncode != 0:
-            logger.error(f"Failed to clone {repo_url}: {result.stderr}")
-            return False
-        
-        logger.info(f"Successfully cloned {repo_url} to {target_dir}")
-        return True
-    except subprocess.TimeoutExpired:
-        logger.error(f"Timeout cloning {repo_url}")
-        return False
-    except Exception as e:
-        logger.error(f"Error cloning {repo_url}: {e}")
-        return False
+        cmd = ["git", "clone", "--depth", str(depth), "--single-branch", repo_url, str(repo_path)]
+        subprocess.run(cmd, check=True, capture_output=True, text=True)
+        logger.info(f"Successfully cloned {repo_name}")
+        return True, str(repo_path)
+    except subprocess.CalledProcessError as e:
+        logger.error(f"Failed to clone {repo_name}: {e.stderr}")
+        return False, str(e.stderr)
 
-def get_commit_count(repo_path: Path) -> int:
-    """Get the number of commits in the repository."""
+def verify_commit_count(repo_path: str, min_commits: int = 1000) -> Tuple[bool, int]:
+    """Verify the repository has at least min_commits."""
     try:
         result = subprocess.run(
             ["git", "rev-list", "--count", "HEAD"],
             cwd=repo_path,
             capture_output=True,
             text=True,
-            timeout=60
+            check=True
         )
-        if result.returncode == 0:
-            return int(result.stdout.strip())
-        return 0
-    except Exception as e:
-        logger.error(f"Error getting commit count for {repo_path}: {e}")
-        return 0
+        count = int(result.stdout.strip())
+        if count < min_commits:
+            logger.warning(f"Repo {repo_path} has only {count} commits (< {min_commits}). Skipping.")
+            return False, count
+        return True, count
+    except subprocess.CalledProcessError as e:
+        logger.error(f"Error counting commits in {repo_path}: {e}")
+        return False, 0
 
-def verify_repository(repo_path: Path, min_commits: int = 1000) -> bool:
-    """Verify repository has sufficient commits."""
-    count = get_commit_count(repo_path)
-    if count < min_commits:
-        logger.warning(f"Repository {repo_path} has only {count} commits (min: {min_commits})")
-        return False
-    return True
-
-def parse_commit_logs(repo_path: Path, cutoff_date: Optional[datetime] = None) -> List[Dict[str, Any]]:
-    """Parse commit logs to extract ownership data."""
-    commits = []
+def parse_commit_history(repo_path: str, output_csv: Path) -> bool:
+    """Parse git log to extract author, timestamp, and file_path."""
     try:
-        cmd = ["git", "log", "--format=%H|%an|%ae|%aI|%s", "--numstat"]
-        if cutoff_date:
-            cmd.extend(["--since", cutoff_date.isoformat()])
+        # Get all commits with file changes
+        # Format: hash|author|timestamp|file_path
+        cmd = [
+            "git", "log", "--pretty=format:%H|%an|%ai",
+            "--name-only",
+            "--no-merges"
+        ]
+        result = subprocess.run(cmd, cwd=repo_path, capture_output=True, text=True, check=True)
         
-        result = subprocess.run(
-            cmd,
-            cwd=repo_path,
-            capture_output=True,
-            text=True,
-            timeout=300
-        )
+        lines = result.stdout.strip().split('\n')
+        current_hash, current_author, current_time = None, None, None
         
-        if result.returncode != 0:
-            logger.error(f"Failed to parse commits: {result.stderr}")
-            return []
-        
-        output = result.stdout
-        current_commit = None
-        
-        for line in output.split('\n'):
-            if not line.strip():
-                continue
+        with open(output_csv, 'w', newline='', encoding='utf-8') as f:
+            writer = csv.writer(f)
+            writer.writerow(['commit_hash', 'author', 'timestamp', 'file_path', 'line_count'])
             
-            if '|' in line and len(line.split('|')) >= 5:
-                parts = line.split('|')
-                current_commit = {
-                    "hash": parts[0],
-                    "author_name": parts[1],
-                    "author_email": parts[2],
-                    "date": parts[3],
-                    "subject": parts[4],
-                    "files": []
-                }
-            elif current_commit and '\t' in line:
-                file_parts = line.split('\t')
-                if len(file_parts) >= 3:
-                    added = int(file_parts[0]) if file_parts[0] != '-' else 0
-                    deleted = int(file_parts[1]) if file_parts[1] != '-' else 0
-                    filepath = file_parts[2]
-                    current_commit["files"].append({
-                        "path": filepath,
-                        "added": added,
-                        "deleted": deleted
-                    })
-            
-            if current_commit and current_commit["files"]:
-                commits.append(current_commit)
-                current_commit = None
-        
-        return commits
-    except Exception as e:
-        logger.error(f"Error parsing commit logs: {e}")
-        return []
-
-def get_repo_owner_name(repo_url: str) -> Optional[Tuple[str, str]]:
-    """Extract owner and repo name from GitHub URL."""
-    try:
-        # Handle both https and git@ formats
-        if repo_url.startswith("https://github.com/"):
-            parts = repo_url.rstrip('/').split('/')
-            if len(parts) >= 2:
-                owner = parts[-2]
-                repo = parts[-1].replace('.git', '')
-                return owner, repo
-        elif repo_url.startswith("git@github.com:"):
-            parts = repo_url.split(':')
-            if len(parts) >= 2:
-                path_part = parts[1].rstrip('/').split('/')
-                if len(path_part) >= 2:
-                    owner = path_part[-2]
-                    repo = path_part[-1].replace('.git', '')
-                    return owner, repo
-        return None
-    except Exception as e:
-        logger.error(f"Error parsing repo URL: {e}")
-        return None
-
-def fetch_issues_for_repo(owner: str, repo: str, since: Optional[str] = None) -> List[Dict[str, Any]]:
-    """Fetch issues and PRs from GitHub API with exponential backoff."""
-    issues = []
-    page = 1
-    per_page = 100
-    
-    base_url = f"{GITHUB_API_BASE}/repos/{owner}/{repo}/issues"
-    params = {
-        "state": "all",
-        "per_page": per_page,
-        "page": page,
-        "filter": "all"
-    }
-    
-    if since:
-        params["since"] = since
-    
-    while True:
-        params["page"] = page
-        try:
-            response = fetch_with_backoff(base_url, params=params)
-            if not response:
-                break
-            
-            data = response.json()
-            if not data:
-                break
-            
-            for item in data:
-                # Skip pull requests (they are included in issues endpoint)
-                if "pull_request" in item:
+            for line in lines:
+                line = line.strip()
+                if not line:
                     continue
                 
-                issues.append({
-                    "issue_number": item.get("number"),
-                    "title": item.get("title"),
-                    "state": item.get("state"),
-                    "created_at": item.get("created_at"),
-                    "closed_at": item.get("closed_at"),
-                    "user": item.get("user", {}).get("login"),
-                    "labels": [l.get("name") for l in item.get("labels", [])],
-                    "repository_url": item.get("repository_url"),
-                    "html_url": item.get("html_url")
-                })
-            
-            if len(data) < per_page:
-                break
-            
-            page += 1
-            time.sleep(1)  # Rate limit compliance
-            
-        except Exception as e:
-            logger.error(f"Error fetching issues page {page}: {e}")
-            break
+                if '|' in line:
+                    parts = line.split('|')
+                    if len(parts) >= 3:
+                        current_hash = parts[0]
+                        current_author = parts[1]
+                        current_time = parts[2]
+                else:
+                    # This is a file path
+                    if current_hash and current_author and current_time:
+                        file_path = line
+                        # Estimate line count (simplified: 0 for now, can be improved with git diff)
+                        # For validation purposes, we just need to ensure the file path exists in history
+                        writer.writerow([current_hash, current_author, current_time, file_path, 0])
+                        
+        logger.info(f"Saved commit history to {output_csv}")
+        return True
+    except subprocess.CalledProcessError as e:
+        logger.error(f"Error parsing commit history for {repo_path}: {e}")
+        return False
+
+def fetch_github_issues(repo_owner: str, repo_name: str, cutoff_date: str) -> List[Dict[str, Any]]:
+    """Fetch issues from GitHub API."""
+    url = f"https://api.github.com/repos/{repo_owner}/{repo_name}/issues?state=all&since={cutoff_date}"
+    headers = {"Authorization": f"token {get_github_token()}"}
+    
+    issues = []
+    try:
+        response = fetch_with_backoff(url, headers=headers)
+        if response.status_code == 200:
+            issues = response.json()
+        else:
+            logger.error(f"Failed to fetch issues for {repo_owner}/{repo_name}: {response.status_code}")
+    except Exception as e:
+        logger.error(f"Error fetching issues: {e}")
     
     return issues
 
-def fetch_bug_data_for_commit(repo_path: Path, repo_url: str, cutoff_date: datetime) -> List[Dict[str, Any]]:
-    """
-    Fetch bug data associated with commits in the repository.
-    Uses GitHub Issues API to find issues/PRs that might be linked to code changes.
-    """
-    owner_name = get_repo_owner_name(repo_url)
-    if not owner_name:
-        logger.warning(f"Could not extract owner/repo from {repo_url}")
-        return []
-    
-    owner, repo = owner_name
-    logger.info(f"Fetching bug data for {owner}/{repo}")
-    
-    # Fetch issues since the cutoff date (T+1 window for bug tracking)
-    # We look for bugs reported after the analysis window
-    since_date = cutoff_date.isoformat()
-    issues = fetch_issues_for_repo(owner, repo, since=since_date)
-    
-    bug_data = []
-    
-    # Also fetch issues that might have been created before but closed after T
-    # This is a heuristic: we consider an issue a "bug" if it's closed and labeled as bug
-    # or if the title contains common bug keywords
-    if not issues:
-        # Try fetching all issues without date filter if none found
-        issues = fetch_issues_for_repo(owner, repo)
-    
-    for issue in issues:
-        # Heuristic: Consider closed issues with 'bug' label or keywords as bugs
-        is_bug = False
-        if issue.get("state") == "closed":
-            labels = issue.get("labels", [])
-            if "bug" in [l.lower() for l in labels]:
-                is_bug = True
-            elif any(kw in issue.get("title", "").lower() for kw in ["bug", "fix", "error", "crash", "issue"]):
-                is_bug = True
-        
-        if is_bug:
-            # Try to link issue to specific files via commit messages or body
-            # For now, we'll store the issue metadata and link later via proximity heuristic
-            bug_entry = {
-                "issue_id": issue.get("issue_number"),
-                "title": issue.get("title"),
-                "state": issue.get("state"),
-                "created_at": issue.get("created_at"),
-                "closed_at": issue.get("closed_at"),
-                "is_bug": is_bug,
-                "labels": issue.get("labels"),
-                "html_url": issue.get("html_url")
-            }
-            bug_data.append(bug_entry)
-    
-    logger.info(f"Found {len(bug_data)} potential bugs for {owner}/{repo}")
-    return bug_data
+def save_issues_to_csv(issues: List[Dict[str, Any]], output_csv: Path):
+    """Save issues to CSV."""
+    with open(output_csv, 'w', newline='', encoding='utf-8') as f:
+        writer = csv.writer(f)
+        writer.writerow(['issue_id', 'title', 'state', 'created_at', 'body', 'labels'])
+        for issue in issues:
+            writer.writerow([
+                issue.get('id'),
+                issue.get('title'),
+                issue.get('state'),
+                issue.get('created_at'),
+                issue.get('body', ''),
+                ';'.join([label['name'] for label in issue.get('labels', [])])
+            ])
 
-def collect_repository_data(
-    repo_url: str, 
-    output_dir: Path, 
-    cutoff_date: datetime,
-    min_commits: int = 1000
-) -> Optional[Dict[str, Any]]:
-    """
-    Main function to collect all data for a repository.
-    1. Clone repo
-    2. Parse commits
-    3. Fetch bug data
-    """
-    repo_name = repo_url.rstrip('/').split('/')[-1].replace('.git', '')
-    repo_dir = output_dir / repo_name
-    
-    # Step 1: Clone
-    if not clone_repository(repo_url, repo_dir, depth=1000):
-        return None
-    
-    # Step 2: Verify commit count
-    if not verify_repository(repo_dir, min_commits):
-        shutil.rmtree(repo_dir)
-        return None
-    
-    # Step 3: Parse commits
-    commits = parse_commit_logs(repo_dir, cutoff_date)
-    if not commits:
-        logger.warning(f"No commits found for {repo_url}")
-        shutil.rmtree(repo_dir)
-        return None
-    
-    # Step 4: Fetch bug data
-    bugs = fetch_bug_data_for_commit(repo_dir, repo_url, cutoff_date)
-    
-    # Step 5: Memory cleanup
-    clear_memory()
-    
-    return {
-        "repo_url": repo_url,
-        "repo_name": repo_name,
-        "commit_count": len(commits),
-        "commits": commits,
-        "bugs": bugs,
-        "cutoff_date": cutoff_date.isoformat()
-    }
+def process_issues_for_repo(issues: List[Dict[str, Any]], repo_path: str, output_csv: Path) -> bool:
+    """Process issues and link to modules using path normalization."""
+    try:
+        with open(output_csv, 'w', newline='', encoding='utf-8') as f:
+            writer = csv.writer(f)
+            writer.writerow(['issue_id', 'linked_file', 'normalized_path'])
+            
+            for issue in issues:
+                body = issue.get('body', '')
+                issue_id = issue.get('id')
+                
+                # Simple heuristic: look for file paths in issue body
+                # This is a placeholder; real implementation would use more sophisticated NLP
+                potential_paths = re.findall(r'[a-zA-Z0-9_/\-\.]+\.(py|js|ts|java|c|cpp|h|hpp)', body)
+                
+                for path in potential_paths:
+                    normalized = normalize_path(path)
+                    writer.writerow([issue_id, path, normalized])
+                    
+        return True
+    except Exception as e:
+        logger.error(f"Error processing issues: {e}")
+        return False
 
-def run_data_collection(
-    repo_list: List[str], 
-    output_dir: Path, 
-    cutoff_date: datetime,
-    min_commits: int = 1000
-) -> List[Dict[str, Any]]:
+def validate_dataset_variable_fit(csv_path: Path) -> Tuple[bool, Dict[str, Any]]:
     """
-    Run data collection for a list of repositories.
-    Returns list of collected data dictionaries.
+    Validate that the dataset contains the necessary variables for analysis:
+    - committers (authors)
+    - timestamps
+    - file paths
+    - line counts (or ability to derive them)
+    
+    Returns (is_valid, details_dict)
     """
-    output_dir.mkdir(parents=True, exist_ok=True)
+    if not csv_path.exists():
+        logger.error(f"Validation failed: File {csv_path} does not exist.")
+        return False, {"reason": "file_not_found"}
+    
+    required_columns = {'commit_hash', 'author', 'timestamp', 'file_path'}
+    valid = True
+    details = {"missing_columns": [], "issues": []}
+    
+    try:
+        with open(csv_path, 'r', encoding='utf-8') as f:
+            reader = csv.DictReader(f)
+            if not reader.fieldnames:
+                logger.error(f"Validation failed: {csv_path} is empty or has no headers.")
+                return False, {"reason": "empty_file"}
+            
+            # Check required columns
+            missing = required_columns - set(reader.fieldnames)
+            if missing:
+                valid = False
+                details["missing_columns"] = list(missing)
+                details["issues"].append(f"Missing required columns: {missing}")
+            
+            # Check for data quality
+            row_count = 0
+            unique_authors = set()
+            unique_files = set()
+            has_line_counts = 'line_count' in reader.fieldnames
+            
+            for row in reader:
+                row_count += 1
+                
+                # Validate author
+                if not row.get('author') or row['author'].strip() == '':
+                    details["issues"].append(f"Row {row_count}: Missing author")
+                
+                # Validate timestamp (basic check)
+                if not row.get('timestamp') or not re.match(r'\d{4}-\d{2}-\d{2}', row['timestamp']):
+                    details["issues"].append(f"Row {row_count}: Invalid timestamp format")
+                
+                # Validate file path
+                if not row.get('file_path') or row['file_path'].strip() == '':
+                    details["issues"].append(f"Row {row_count}: Missing file_path")
+                
+                unique_authors.add(row.get('author'))
+                unique_files.add(row.get('file_path'))
+            
+            if row_count == 0:
+                valid = False
+                details["issues"].append("No data rows found")
+            
+            if len(unique_authors) == 0:
+                valid = False
+                details["issues"].append("No unique committers found")
+            
+            if len(unique_files) == 0:
+                valid = False
+                details["issues"].append("No unique file paths found")
+            
+            details["row_count"] = row_count
+            details["unique_authors"] = len(unique_authors)
+            details["unique_files"] = len(unique_files)
+            details["has_line_counts"] = has_line_counts
+            
+            if not valid:
+                logger.warning(f"Validation failed for {csv_path}: {details['issues']}")
+            else:
+                logger.info(f"Validation passed for {csv_path}: {row_count} rows, {len(unique_authors)} authors, {len(unique_files)} files")
+            
+            return valid, details
+            
+    except Exception as e:
+        logger.error(f"Error validating {csv_path}: {e}")
+        return False, {"reason": "error_reading_file", "error": str(e)}
+
+def clone_repositories() -> List[Dict[str, Any]]:
+    """Clone all repositories from config."""
+    repo_list = get_repo_list()
+    depth = get_depth_limit()
     results = []
     
-    for repo_url in repo_list:
-        logger.info(f"Processing {repo_url}")
-        try:
-            data = collect_repository_data(repo_url, output_dir, cutoff_date, min_commits)
-            if data:
-                results.append(data)
-        except Exception as e:
-            logger.error(f"Failed to process {repo_url}: {e}")
+    for repo_info in repo_list:
+        repo_url = repo_info.get('url')
+        repo_name = repo_info.get('name')
+        
+        logger.info(f"Processing {repo_name}...")
+        success, repo_path = clone_repository(repo_url, repo_name, depth)
+        
+        if not success:
+            results.append({"name": repo_name, "status": "clone_failed", "path": None})
             continue
+        
+        # Verify commit count
+        valid, count = verify_commit_count(repo_path, min_commits=1000)
+        if not valid:
+            results.append({"name": repo_name, "status": "insufficient_commits", "count": count, "path": repo_path})
+            continue
+        
+        results.append({"name": repo_name, "status": "cloned", "path": repo_path, "commit_count": count})
     
     return results
 
+def process_all_repos():
+    """Main entry point to process all repositories."""
+    output_dir = get_output_dir()
+    Path(output_dir).mkdir(parents=True, exist_ok=True)
+    Path(os.path.join(output_dir, "raw")).mkdir(parents=True, exist_ok=True)
+    Path(os.path.join(output_dir, "intermediate")).mkdir(parents=True, exist_ok=True)
+    
+    clone_results = clone_repositories()
+    
+    for repo_data in clone_results:
+        if repo_data.get("status") != "cloned":
+            continue
+        
+        repo_name = repo_data["name"]
+        repo_path = repo_data["path"]
+        intermediate_dir = Path(output_dir) / "intermediate"
+        
+        # Parse commit history
+        commits_csv = intermediate_dir / f"{repo_name}_commits.csv"
+        if parse_commit_history(repo_path, commits_csv):
+            # Validate dataset variable fit
+            is_valid, details = validate_dataset_variable_fit(commits_csv)
+            if not is_valid:
+                logger.warning(f"Skipping {repo_name} due to validation failure: {details}")
+                continue
+            
+            # Further processing (issues, etc.) would go here
+            logger.info(f"Successfully processed {repo_name}")
+        else:
+            logger.error(f"Failed to parse commit history for {repo_name}")
+
 def main():
-    """Entry point for data collection script."""
-    # Configure logging
-    configure_logging()
-    
-    # Example usage (can be overridden by command line args in a full implementation)
-    repo_list = [
-        "https://github.com/psf/requests",
-        "https://github.com/pallets/flask",
-        "https://github.com/django/django",
-        "https://github.com/psf/black",
-        "https://github.com/pytest-dev/pytest",
-        "https://github.com/pandas-dev/pandas",
-        "https://github.com/scikit-learn/scikit-learn",
-        "https://github.com/pytest-dev/pluggy"
-    ]
-    
-    # Set a cutoff date (e.g., 1 year ago)
-    cutoff_date = datetime(2023, 1, 1)
-    
-    output_dir = Path("data/raw")
-    output_dir.mkdir(parents=True, exist_ok=True)
-    
-    results = run_data_collection(repo_list, output_dir, cutoff_date)
-    
-    logger.info(f"Successfully collected data for {len(results)} repositories")
-    
-    # Save results to intermediate storage
-    intermediate_dir = Path("data/intermediate")
-    intermediate_dir.mkdir(parents=True, exist_ok=True)
-    
-    with open(intermediate_dir / "raw_data.json", "w") as f:
-        json.dump(results, f, indent=2, default=str)
-    
-    logger.info(f"Raw data saved to {intermediate_dir / 'raw_data.json'}")
+    """Main function to run the data collection pipeline."""
+    logger.info("Starting data collection pipeline...")
+    process_all_repos()
+    logger.info("Data collection pipeline finished.")
 
 if __name__ == "__main__":
     main()

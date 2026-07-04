@@ -1,30 +1,27 @@
 # PROJ-062: Quantifying the Impact of Code Ownership on Software Quality
 
 ## Overview
-This project analyzes the relationship between code ownership (concentration of commits by developers) and software quality metrics (bugs, complexity, churn).
+This project analyzes the relationship between code ownership (measured via Gini coefficient) and software quality (bug density) across multiple open-source repositories.
 
 ## Project Structure
-- `code/`: Python implementation scripts and utilities.
-- `data/`:
- - `raw/`: Raw data from GitHub (cloned repos, API dumps).
- - `intermediate/`: Processed ownership data, bug metadata, and calculated metrics.
- - `results/`: Final statistical summaries and visualizations.
-- `tests/`: Unit, integration, and contract tests.
-- `specs/`: Design documents and data schemas.
-- `logs/`: Pipeline execution logs.
-- `state/`: Versioning artifacts and hashes.
+- `code/`: Source code for data collection, metrics calculation, and statistical analysis
+- `data/`: Raw, intermediate, and results data directories
+- `tests/`: Unit and integration tests
+- `specs/`: Feature specifications and design documents
+- `figures/`: Generated visualizations
+- `state/`: State management snapshots
 
-## Getting Started
-1. Ensure Python 3.8+ is installed.
-2. Install dependencies: `pip install -r code/requirements.txt` (after T002).
-3. Run the setup script (if not already run): `python code/setup_project.py`.
-4. Follow the `quickstart.md` for the pipeline execution flow.
+## Prerequisites
+- Python 3.11+
+- Git
+- GitHub API token (for rate limit access)
 
-## Execution Constraints
-- Max RAM: 7 GB
-- Max Disk: 14 GB (log rotation)
-- No GPU acceleration.
-- Real data only from GitHub.
+## Quick Start
+1. Install dependencies: `pip install -r requirements.txt`
+2. Set environment variables (see `code/config.py`)
+3. Run the pipeline: `python code/main.py`
 
-## Status
-Phase 1 (Setup) - T001 Complete.
+## Key Outputs
+- `data/results/final_report.json`: Statistical analysis results
+- `data/results/linkage_rate.json`: Bug-file linkage metrics
+- `figures/*.png`: Scatter plots and visualizations

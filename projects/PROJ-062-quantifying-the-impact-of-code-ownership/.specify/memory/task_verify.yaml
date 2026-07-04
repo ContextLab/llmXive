@@ -1,8 +1,6 @@
-T001 Create project structure per implementation plan in `projects/PROJ-062-quantifying-the-impact-of-code-ownership/`: 1
-T003 [P] Configure linting (flake8/black) and formatting tools in `code/`: 1
-? 'T004 Create directory structure: `data/raw`, `data/intermediate`, `data/results`,
-  `tests/contract`, `tests/integration`, `tests/unit`, `docs` in `projects/PROJ-062-quantifying-the-impact-of-code-ownership/`'
-: 1
-? T005 [P] Implement logging infrastructure with file rotation to `logs/pipeline.log`
-  ensuring disk usage stays within 14 GB limit
-: 1
+T001 Create project structure per implementation plan (`projects/PROJ-062-quantifying-the-impact-of-code-ownership/`): 2
+? T002 Initialize Python 3.11 project with `requirements.txt` (GitPython, scikit-learn,
+  scipy, pandas, numpy, radon, matplotlib, pyyaml)
+: 2
+T003 [P] Configure linting (flake8/black) and formatting tools: 2
+T004 Setup `data/raw/`, `data/intermediate/`, `data/results/` directory structure with `.gitkeep`: 2

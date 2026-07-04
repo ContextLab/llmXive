@@ -1,0 +1,55 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual Environment
+venv/
+ENV/
+env/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Data Directories (Raw and Intermediate are ignored, but ownership metrics are kept)
+data/raw/
+data/intermediate/
+
+# Keep ownership metrics (as per Constitution Principle VI deviation)
+!data/ownership_metrics/*.csv
+!data/ownership_metrics/
+
+# Logs
+*.log
+data/pipeline.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Project specific
+state/
+figures/
+data/results/*.json
+!data/results/
+!data/results/.gitkeep

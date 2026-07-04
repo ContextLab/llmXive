@@ -17,7 +17,7 @@ This plan implements an observational study to quantify the correlation between 
 **Primary Dependencies**: `GitPython`, `scikit-learn`, `scipy`, `pandas`, `numpy`, `radon`, `matplotlib`, `pyyaml`  
 **Storage**: Local filesystem (intermediate CSVs), GitHub API (read-only)  
 **Testing**: `pytest` (contract and unit tests)  
-**Target Platform**: Linux (GitHub Actions free-tier runner: 2 CPU, 7 GB RAM)  
+**Target Platform**: Linux (GitHub Actions free-tier runner: CPU, 7 GB RAM)  
 **Project Type**: Data analysis pipeline / CLI  
 **Performance Goals**: Total runtime ≤6 hours; Peak RAM ≤7 GB; Disk usage ≤14 GB  
 **Constraints**: No GPU; Shallow clone depth; Exponential backoff for API rate limits; Observational framing only.  
@@ -81,7 +81,7 @@ projects/PROJ-062-quantifying-the-impact-of-code-ownership/
 
 | Violation | Why Needed | Simpler Alternative Rejected Because |
 |-----------|------------|-------------------------------------|
-| **Shallow Clone + Depth** | Required for FR-001 to limit disk/RAM while ensuring sufficient history for Gini. | Full clone exceeds GB disk and 6h time limit for large repos. |
+| **Shallow Clone + Depth** | Required for FR-001 to limit disk/RAM while ensuring sufficient history for Gini. | Full clone exceeds 14 GB disk and 6h time limit for large repos. |
 | **Path-Based Proximity Heuristic** | Required by FR-009 to link bugs to modules without API circularity. | Assignee-based linking (removed in spec) creates circular validation; full NLP is too heavy for CPU-only. |
 | **Quadratic Regression (Gini²)** | Required by FR-016 to test non-linearity. | Linear-only model fails to capture potential U-shaped ownership effects. |
 | **Sensitivity Analysis (Sweeps)** | Required by FR-012 and FR-015 to validate robustness of thresholds. | Single-threshold reporting is fragile and violates SC-008/SC-011. |
