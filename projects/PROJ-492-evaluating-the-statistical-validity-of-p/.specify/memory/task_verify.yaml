@@ -26,10 +26,25 @@
   \ c_26bd3e2b \u2014 status=not_enough_info], and runs audit pipeline (verify workflow\
   \ runs and respects limits) [DEPENDS ON: T010]."
 : 1
+? "T012 Create CI workflow file `.github/workflows/audit.yml` that installs dependencies,\
+  \ enforces CPU \u2264 2 vCPU, RAM \u2264 2 GB, timeout a predefined duration, and\
+  \ runs audit pipeline (verify workflow runs and respects limits) [DEPENDS ON: T010]."
+: 2
+? T020d **[P]** Verify that every row in `data/provenance_log.csv` contains URL, repository
+  identifier, and fetch timestamp (run validation script `tests/unit/test_provenance_schema.py`).
+  **DEPENDS ON:** T020c.
+: 1
 ? "T020d **[P]** Verify that every row in `data/provenance_log.csv` contains URL,\
   \ repository identifier, and fetch timestamp [UNRESOLVED-CLAIM: c_3afd62b7 \u2014\
   \ status=not_enough_info] (run validation script `tests/unit/test_provenance_schema.py`).\
   \ **DEPENDS ON:** T020c."
+: 1
+? "T026 Implement synthetic dataset generator in `src/audit/synthetic.py` (FR\u2011\
+  030) \u2013 outputs `data/synthetic/synthetic_validation.csv` + `data/synthetic/synthetic_ground_truth.json`\
+  \ with at least 10\u202F000 simulated summaries (binary AND continuous outcomes)\
+  \ **and verify both outcome types are present** (constraint\u2011preservation\u2011\
+  2958f04c) (verify files are created and contain \u2265\u202F10\u202F000 records).\
+  \ **DEPENDS ON:** T006\u2011T012."
 : 1
 ? "T026 Implement synthetic dataset generator in `src/audit/synthetic.py` (FR\u2011\
   030) \u2013 outputs `data/synthetic/synthetic_validation.csv` + `data/synthetic/synthetic_ground_truth.json`\
@@ -54,6 +69,21 @@
   \ types are present** (constraint\u2011preservation\u20112958f04c) (verify files\
   \ are created and contain \u2265\u202F10\u202F000 records). **DEPENDS ON:** T006\u2011\
   T012."
+: 1
+? "T028 Implement power\u2011analysis utility in `src/audit/power_analysis.py` (FR\u2011\
+  025) that computes the minimum N given baseline, detectable effect, \u03B1 and power,\
+  \ writes result to `output/power_analysis.json`, **and asserts audited corpus meets\
+  \ N \u2265 300 OR N \u2265 calculated_minimum ** (constraint\u2011preservation\u2011\
+  ba913176) (verify JSON file exists, contains numeric N, and satisfies condition).\
+  \ **DEPENDS ON:** T010."
+: 1
+? "T028 Implement power\u2011analysis utility in `src/audit/power_analysis.py` (FR\u2011\
+  025) that computes the minimum N given baseline, detectable effect, \u03B1 and power,\
+  \ writes result to `output/power_analysis.json`, **and asserts audited corpus meets\
+  \ N \u2265 300 OR N \u2265 calculated_minimum [UNRESOLVED-CLAIM: c_3b567611 \u2014\
+  \ status=not_enough_info] ** (constraint\u2011preservation\u2011ba913176) (verify\
+  \ JSON file exists, contains numeric N, and satisfies condition). **DEPENDS ON:**\
+  \ T010."
 : 1
 ? "T029 Evaluate inconsistency\u2011detection component on synthetic validation dataset\
   \ (FR\u2011031) \u2013 compute precision, recall, F1 and assert precision \u2265\
@@ -91,6 +121,13 @@
   \ c_c95cee25 \u2014 status=not_enough_info] (coverage\u2011executability\u201108d5764f)\
   \ (verify test passes)."
 : 1
+? "T038 FR\u2011004 Verification: Run `tests/integration/test_validator_thresholds.py`\
+  \ to assert flags correspond to defined thresholds (coverage\u2011executability\u2011\
+  08d5764f) (verify test passes)."
+: 1
+? "T042b **[P]** Verify that `prevalence.json` does **not** contain any entries flagged\
+  \ for sample\u2011size mismatch (cross\u2011check with T025c). (depends on T025c)"
+: 1
 "T043 Unit tests for binomial test and CI width \u2264 0.10 (tests/unit/test_prevalence.py) (verify test passes).": 2
 ? "T043 Unit tests for binomial test and CI width \u2264 0.10 (tests/unit/test_prevalence.py)\
   \ (verify test passes). [UNRESOLVED-CLAIM: c_ae78747a \u2014 status=not_enough_info]"
@@ -102,10 +139,17 @@
   \ corpus so that no single domain exceeds 30\u202F% before bias adjustment (FR\u2011\
   027). (writes `data/subsampled_balanced.csv`). **DEPENDS ON:** T006\u2011T012."
 : 1
+? "T046 Unit tests for bias\u2011adjustment ensuring no domain exceeds 30\u202F% proportion\
+  \ (tests/unit/test_bias_adjustment.py) (verify test passes)."
+: 1
 ? "T049 Add Quickstart guide `docs/README_QUICKSTART.md` covering execution on 30\
   \ URLs within 30 minutes [UNRESOLVED-CLAIM: c_cf59c7a8 \u2014 status=not_enough_info]\
   \ (FR\u2011028) **and include novice\u2011user verification step with written confirmation\
   \ log** (see T095b) (verify guide file exists and includes novice verification instructions)."
+: 1
+? T050b **[P]** Verify that the publication year is extracted for each summary during
+  extraction (T020c) and present in the input to `subgroup_analysis.py`. (depends
+  on T020c)
 : 1
 ? "T062 Implement Monte\u2011Carlo validation module (FR\u2011026) in `src/audit/monte_carlo_validation.py`\
   \ that runs 10\u202F000 replicates for each statistical test (z-test, Fisher's,\

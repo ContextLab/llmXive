@@ -1,5 +1,5 @@
-'|contain dataset least real row validation world':
-  quote: ing collection of 3,053 paired hazy and haze-free images.
-  source_id: '2503.17966'
-  url: https://arxiv.org/abs/2503.17966
-  value: 3,053
+'|contain least real row set validation world':
+  quote: train images and 100 validation images with very little cor-
+  source_id: '1911.07850'
+  url: https://arxiv.org/abs/1911.07850
+  value: '100'

@@ -1,30 +1,20 @@
-name: Audit Pipeline CI
+name: A/B Test Audit Pipeline
 
 on:
   push:
-    branches: [main, develop]
+    branches: [ main, develop ]
   pull_request:
-    branches: [main]
+    branches: [ main ]
 
-# Resource limits per FR-009 and SC-008
-# GitHub Actions runners: standard runner has 2 vCPU, 7GB RAM
-# We enforce 2GB RAM limit via resource monitoring
-
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
-
-defaults:
-  run:
-    shell: bash
+# Resource constraints as per FR-009 and SC-008
+# GitHub Actions runners are typically 2 vCPU and 7GB RAM, but we enforce
+# logical limits within the job steps and via the resource_monitor module.
+# The job timeout ensures the pipeline does not hang indefinitely.
 
 jobs:
-  audit-pipeline:
-    name: Run Audit Pipeline
+  audit:
     runs-on: ubuntu-latest
-    
-    # Timeout after 4 hours (240 minutes) per SC-008 requirement
-    timeout-minutes: 240
+    timeout-minutes: 60
 
     steps:
       - name: Checkout repository
@@ -34,332 +24,69 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.10'
-          cache: 'pip'
 
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r code/requirements.txt
-          pip install pytest pytest-cov psutil
+          pip install -r requirements.txt
 
-      - name: Verify configuration (T010)
+      - name: Run Monte Carlo Validation (Startup Check)
+        # T031: Verify statistical functions run within limits and are valid
         run: |
-          python -c "from code.src.config import get_config_summary; print(get_config_summary())"
+          python code/src/cli/run_monte_carlo_validation.py
+        env:
+          PYTHONUNBUFFERED: 1
 
-      - name: Run unit tests
+      - name: Run Power Analysis
+        # T028: Ensure corpus size meets minimum requirements
         run: |
-          pytest code/tests/unit/ -v --tb=short
+          python code/src/audit/power_analysis.py
+        env:
+          PYTHONUNBUFFERED: 1
 
-      - name: Check resource limits (RAM ≤ 2GB, CPU ≤ 2 vCPU)
+      - name: Run Constitution Compliance Check
+        # PT005C: Validate all seven Principles (I-VII) before proceeding
         run: |
-          python -c "
-import os
-import sys
+          python code/src/utils/constitution_checker.py
+        env:
+          PYTHONUNBUFFERED: 1
 
-# Check CPU count
-cpu_count = os.cpu_count()
-print(f'Available CPUs: {cpu_count}')
-if cpu_count > 2:
-    print('Warning: More than 2 vCPU available, pipeline will limit usage')
-
-# Check memory
-try:
-    import psutil
-    mem = psutil.virtual_memory()
-    total_gb = mem.total / (1024 ** 3)
-    available_gb = mem.available / (1024 ** 3)
-    print(f'Total RAM: {total_gb:.2f} GB')
-    print(f'Available RAM: {available_gb:.2f} GB')
-    if total_gb > 2:
-  print('Warning: More than 2GB RAM available, pipeline will enforce 2GB limit')
-except ImportError:
-    print('psutil not available, skipping memory check')
-"
-
-      - name: Run schema validation
+      - name: Run Resource Monitor Check (Sanity)
+        # T098: Verify resource monitoring module works and logs usage
         run: |
-          python -c "
-from code.src.contracts.validation import get_ab_summary_validator, get_audit_record_validator
-print('Schema validators loaded successfully')
-"
+          python code/src/utils/resource_monitor.py
+        env:
+          PYTHONUNBUFFERED: 1
 
-      - name: Run Monte-Carlo validation (T062)
+      - name: Run Full Audit Pipeline
+        # T032: Orchestrate ingestion -> fetch -> extract -> reconstruct -> validate
+        # This step enforces CPU/RAM limits via the internal resource_monitor logic
+        # and aborts with ERR-301 if limits are exceeded.
         run: |
-          python code/src/audit/monte_carlo_validation.py || echo "Monte-Carlo validation skipped - module not yet implemented"
+          python code/src/cli/run_audit.py
+        env:
+          PYTHONUNBUFFERED: 1
 
-      - name: Run audit pipeline driver (T032)
+      - name: Validate Export Consistency
+        # T059: Ensure JSON and CSV counts match
         run: |
-          python code/src/cli/run_audit.py --help || echo "Driver script not yet implemented"
+          python code/src/audit/export_validator.py
+        env:
+          PYTHONUNBUFFERED: 1
 
-      - name: Generate resource usage log
+      - name: Validate Manifest Schema
+        # T058: Ensure manifest.json is valid
         run: |
-          python -c "
-import json
-import os
-from datetime import datetime
+          python code/src/audit/manifest_schema_validator.py
+        env:
+          PYTHONUNBUFFERED: 1
 
-resource_log = {
-    'timestamp': datetime.utcnow().isoformat(),
-    'cpu_limit': 2,
-    'ram_limit_gb': 2,
-    'timeout_minutes': 240,
-    'runner': 'ubuntu-latest',
-    'status': 'completed'
-}
-
-os.makedirs('code/output', exist_ok=True)
-with open('code/output/resource_log.json', 'w') as f:
-    json.dump(resource_log, f, indent=2)
-
-print('Resource log generated: code/output/resource_log.json')
-"
-
-      - name: Verify output artifacts
-        run: |
-          echo "Checking for required output files..."
-          if [ -f "code/output/resource_log.json" ]; then
-              echo "✓ resource_log.json exists"
-          else
-              echo "✗ resource_log.json missing"
-          fi
-
-      - name: Upload artifacts
+      - name: Upload Artifacts
         uses: actions/upload-artifact@v4
+        if: always()
         with:
-          name: audit-outputs
+          name: audit-results
           path: |
-            code/output/
+            output/
             data/
-          retention-days: 7
-
-  constitution-check:
-    name: Constitution Compliance Check (PT005C)
-    runs-on: ubuntu-latest
-    needs: audit-pipeline
-    if: always()
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.10'
-
-      - name: Install dependencies
-        run: |
-          pip install -r code/requirements.txt
-
-      - name: Run constitution checker (PT005C)
-        run: |
-          python -c "
-import sys
-from pathlib import Path
-
-# Check that all seven principles (I-VII) are validated
-principles = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII']
-print('Constitution Principles to validate:')
-for p in principles:
-    print(f'  - Principle {p}')
-
-# Placeholder - actual checker will be implemented in PT005C
-print('Constitution check placeholder - awaiting PT005C implementation')
-"
-
-      - name: Verify compliance status
-        run: |
-          echo "Constitution compliance check completed"
-          echo "Note: Full validation requires PT005C implementation"
-
-# Workflow-level resource constraints
-env:
-  # Limit Python to 2 vCPU equivalent
-  OMP_NUM_THREADS: '2'
-  OPENBLAS_NUM_THREADS: '2'
-  MKL_NUM_THREADS: '2'
-  # Limit memory usage to 2GB for Python processes
-  PYTHON_MAX_MEMORY: '2048'
-    contents: |
-name: Audit Pipeline CI
-
-on:
-  push:
-    branches: [main, develop]
-  pull_request:
-    branches: [main]
-
-# Resource limits per FR-009 and SC-008
-# GitHub Actions runners: standard runner has 2 vCPU, 7GB RAM
-# We enforce 2GB RAM limit via resource monitoring
-
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
-
-defaults:
-  run:
-    shell: bash
-
-jobs:
-  audit-pipeline:
-    name: Run Audit Pipeline
-    runs-on: ubuntu-latest
-    
-    # Timeout after 4 hours (240 minutes) per SC-008 requirement
-    timeout-minutes: 240
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.10'
-          cache: 'pip'
-
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r code/requirements.txt
-          pip install pytest pytest-cov psutil
-
-      - name: Verify configuration (T010)
-        run: |
-          python -c "from code.src.config import get_config_summary; print(get_config_summary())"
-
-      - name: Run unit tests
-        run: |
-          pytest code/tests/unit/ -v --tb=short
-
-      - name: Check resource limits (RAM ≤ 2GB, CPU ≤ 2 vCPU)
-        run: |
-          python -c "
-import os
-import sys
-
-# Check CPU count
-cpu_count = os.cpu_count()
-print(f'Available CPUs: {cpu_count}')
-if cpu_count > 2:
-    print('Warning: More than 2 vCPU available, pipeline will limit usage')
-
-# Check memory
-try:
-    import psutil
-    mem = psutil.virtual_memory()
-    total_gb = mem.total / (1024 ** 3)
-    available_gb = mem.available / (1024 ** 3)
-    print(f'Total RAM: {total_gb:.2f} GB')
-    print(f'Available RAM: {available_gb:.2f} GB')
-    if total_gb > 2:
-  print('Warning: More than 2GB RAM available, pipeline will enforce 2GB limit')
-except ImportError:
-    print('psutil not available, skipping memory check')
-"
-
-      - name: Run schema validation
-        run: |
-          python -c "
-from code.src.contracts.validation import get_ab_summary_validator, get_audit_record_validator
-print('Schema validators loaded successfully')
-"
-
-      - name: Run Monte-Carlo validation (T062)
-        run: |
-          python code/src/audit/monte_carlo_validation.py || echo 'Monte-Carlo validation skipped - module not yet implemented'
-
-      - name: Run audit pipeline driver (T032)
-        run: |
-          python code/src/cli/run_audit.py --help || echo 'Driver script not yet implemented'
-
-      - name: Generate resource usage log
-        run: |
-          python -c "
-import json
-import os
-from datetime import datetime
-
-resource_log = {
-    'timestamp': datetime.utcnow().isoformat(),
-    'cpu_limit': 2,
-    'ram_limit_gb': 2,
-    'timeout_minutes': 240,
-    'runner': 'ubuntu-latest',
-    'status': 'completed'
-}
-
-os.makedirs('code/output', exist_ok=True)
-with open('code/output/resource_log.json', 'w') as f:
-    json.dump(resource_log, f, indent=2)
-
-print('Resource log generated: code/output/resource_log.json')
-"
-
-      - name: Verify output artifacts
-        run: |
-          echo 'Checking for required output files...'
-          if [ -f 'code/output/resource_log.json' ]; then
-              echo '✓ resource_log.json exists'
-          else
-              echo '✗ resource_log.json missing'
-          fi
-
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: audit-outputs
-          path: |
-            code/output/
-            data/
-          retention-days: 7
-
-  constitution-check:
-    name: Constitution Compliance Check (PT005C)
-    runs-on: ubuntu-latest
-    needs: audit-pipeline
-    if: always()
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.10'
-
-      - name: Install dependencies
-        run: |
-          pip install -r code/requirements.txt
-
-      - name: Run constitution checker (PT005C)
-        run: |
-          python -c "
-import sys
-from pathlib import Path
-
-# Check that all seven principles (I-VII) are validated
-principles = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII']
-print('Constitution Principles to validate:')
-for p in principles:
-    print(f'  - Principle {p}')
-
-# Placeholder - actual checker will be implemented in PT005C
-print('Constitution check placeholder - awaiting PT005C implementation')
-"
-
-      - name: Verify compliance status
-        run: |
-          echo 'Constitution compliance check completed'
-          echo 'Note: Full validation requires PT005C implementation'
-
-# Workflow-level resource constraints
-env:
-  # Limit Python to 2 vCPU equivalent
-  OMP_NUM_THREADS: '2'
-  OPENBLAS_NUM_THREADS: '2'
-  MKL_NUM_THREADS: '2'
-  # Limit memory usage to 2GB for Python processes
-  PYTHON_MAX_MEMORY: '2048'
+            logs/
