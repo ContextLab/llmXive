@@ -1,184 +1,121 @@
-# Quickstart Guide: Evaluating the Statistical Validity of Public A/B Test Summaries
+# Quickstart Guide: Evaluating Statistical Validity of A/B Test Summaries
 
-**Target:** Complete audit of 30 URLs within 30 minutes on default GitHub Actions runner (2 vCPU, 7 GB RAM)
-
-**Version:** 1.0.0 | **Last Updated:** 2026-06-27
-
----
-
-## Overview
-
-This project validates whether publicly available A/B test summaries report statistically consistent results. The pipeline:
-
-1. Ingests URLs from a CSV file
-2. Fetches and extracts A/B test metrics (p-values, effect sizes, sample sizes)
-3. Reconstructs statistical tests independently
-4. Flags inconsistencies exceeding defined thresholds
-5. Produces audit artifacts (JSON report, CSV summary, manifest)
-
----
+This guide provides instructions for running the automated audit pipeline on a sample of 30 public A/B test summaries within 30 minutes on a standard GitHub Actions runner (2 vCPU, 7 GB RAM).
 
 ## Prerequisites
 
-### System Requirements
+- Python 3.9+
+- Git
+- Access to the project repository
+- A list of 30 public A/B test summary URLs (provided in `data/sample_urls.csv` or create your own)
 
-- Python 3.9 or higher
-- 2 GB RAM minimum (7 GB recommended)
-- 2 vCPU minimum
-- Internet access for URL fetching
+## Installation
 
-### Dependencies
+1. Clone the repository:
+ ```bash
+ git clone
+ cd proj-492-evaluating-statistical-validity
+ ```
 
-Install all required packages:
+2. Create and activate a virtual environment:
+ ```bash
+ python -m venv venv
+ source venv/bin/activate # On Windows: venv\Scripts\activate
+ ```
 
-```bash
-pip install -r requirements.txt
-```
+3. Install dependencies:
+ ```bash
+ pip install -r requirements.txt
+ ```
 
-Dependencies include: `requests`, `beautifulsoup4`, `pandas`, `numpy`, `scipy`, `statsmodels`, `tqdm`, `pyyaml`, `jsonschema`, `psutil`
+## Configuration
 
----
-
-## Quick Start (30 URLs in ≤30 Minutes)
-
-### Step 1: Prepare Input URLs
-
-Create or verify `input/urls.csv` exists with at least 30 URLs:
+Ensure your `input/urls.csv` file contains exactly 30 URLs for this quickstart test. If you need to create one:
 
 ```csv
 url
 
 
-...
+#... add 28 more URLs
 ```
 
-Each row must contain a valid URL pointing to an A/B test summary page.
+## Execution
 
-### Step 2: Run the Pipeline
-
-Execute the main audit driver:
+Run the full audit pipeline:
 
 ```bash
-python code/src/cli/run_audit.py --input input/urls.csv --output output/
+python -m code.src.cli.run_audit --input input/urls.csv --output output/ --timeout 1800
 ```
 
-The pipeline will:
-- Deduplicate URLs
-- Fetch HTML (with retries and timeout)
-- Extract A/B test metrics
-- Reconstruct statistical tests
-- Validate consistency
-- Generate reports
+**Note:** The `--timeout 1800` flag ensures the process aborts if it exceeds 30 minutes (1800 seconds).
 
-### Step 3: Verify Outputs
+## Expected Outputs
 
-After completion, confirm these artifacts exist:
+Upon successful completion, the following files will be generated in the `output/` directory:
 
-| File | Location | Description |
-|------|----------|-------------|
-| `audit_report.json` | `output/` | Full audit records with consistency flags |
-| `summary_report.csv` | `output/` | Aggregated statistics |
-| `manifest.json` | `output/` | SHA256 hashes of all artifacts |
-| `power_analysis.json` | `output/` | Sample size analysis results |
-| `resource_log.json` | `output/` | CPU/memory usage during execution |
+- `audit_report.json`: Detailed audit records for each URL
+- `summary_report.csv`: Aggregated statistics and inconsistency rates
+- `manifest.json`: SHA256 checksums of all generated artifacts
+- `resource_log.json`: CPU and memory usage metrics
 
----
+## Performance Expectations
+
+- **Runtime:** ≤ 30 minutes for 30 URLs on a 2 vCPU, 7 GB RAM runner
+- **Memory Usage:** ≤ 2 GB peak RAM
+- **CPU Usage:** ≤ 2 vCPU cores
 
 ## Novice-User Verification Step
 
-**Requirement:** Complete the verification log below and save it as `data/manual_validation/novice_verification_log.csv` to confirm successful execution.
+To verify the pipeline works correctly on your environment, follow these steps:
 
-### Verification Checklist
-
-Run through each item and mark completion:
-
-| # | Verification Item | Status | Notes |
-|---|-------------------|--------|-------|
-| 1 | Python 3.9+ installed and accessible | ☐ | |
-| 2 | All dependencies installed via `pip install -r requirements.txt` | ☐ | |
-| 3 | `input/urls.csv` exists with ≥30 URLs | ☐ | |
-| 4 | Pipeline runs without errors (exit code 0) | ☐ | |
-| 5 | `output/audit_report.json` created | ☐ | |
-| 6 | `output/summary_report.csv` created | ☐ | |
-| 7 | `output/manifest.json` created | ☐ | |
-| 8 | Execution time ≤30 minutes | ☐ | |
-| 9 | RAM usage ≤2 GB (check `output/resource_log.json`) | ☐ | |
-| 10 | No `ERR-###` error codes in logs | ☐ | |
+1. **Run the pipeline** using the command above.
+2. **Check for errors:** Ensure the exit code is 0 and no `ERR-###` codes appear in the logs.
+3. **Verify outputs:** Confirm that `output/audit_report.json` contains at least 25 records (allowing for 5 failed fetches/extracts).
+4. **Check resource usage:** Open `output/resource_log.json` and verify that `peak_memory_gb` is ≤ 2.0 and `peak_cpu_cores` is ≤ 2.0.
+5. **Run the validation script:**
+ ```bash
+ python -m code.tests.integration.test_quickstart_validation
+ ```
+ This script will automatically check all the above conditions.
 
 ### Written Confirmation Log
 
-Create `data/manual_validation/novice_verification_log.csv` with the following structure:
+After completing the verification, create a file named `verification_log.txt` in the project root with the following content:
 
-```csv
-verification_id,timestamp,verification_item,status,notes,verifier_name
-VER-001,2026-06-27T10:00:00Z,Python version check,pass,"Python 3.10.4",user@example.com
-VER-002,2026-06-27T10:00:30Z,Dependencies installed,pass,"All packages installed",user@example.com
-...
+```
+Verification Log - Quickstart T049
+====================================
+Date: [YYYY-MM-DD HH:MM:SS]
+Environment: [GitHub Actions Runner / Local Machine]
+OS: [Linux/Windows/macOS]
+Python Version: [X.Y.Z]
+Runner Type: [e.g., ubuntu-latest, 2 vCPU, 7 GB RAM]
+
+Results:
+- Pipeline Exit Code: [0 or non-zero]
+- Records Processed: [N]
+- Records Failed: [M]
+- Peak Memory (GB): [X.XX]
+- Peak CPU Cores: [X.X]
+- Total Runtime (seconds): [X]
+
+Verification Status: [PASS/FAIL]
+Notes: [Any additional observations or issues encountered]
 ```
 
-**Required fields:**
-- `verification_id`: Unique identifier (VER-001, VER-002, etc.)
-- `timestamp`: ISO 8601 format timestamp
-- `verification_item`: Description of what was verified
-- `status`: `pass` or `fail`
-- `notes`: Any relevant details
-- `verifier_name`: Name or email of person completing verification
-
-### Confirmation Script
-
-Run this script to auto-generate the verification log:
-
-```bash
-python code/src/audit/quickstart_verification.py --output data/manual_validation/novice_verification_log.csv
-```
-
-This script will:
-1. Check Python version
-2. Verify dependencies
-3. Confirm input file exists
-4. Run a dry-run of the pipeline
-5. Record all results in the CSV log
-
----
+Submit this log as evidence of successful execution.
 
 ## Troubleshooting
 
-### Common Issues
-
-| Error | Cause | Solution |
-|-------|-------|----------|
-| `ERR-001` | Missing metric in extraction | Check HTML structure; update extractor regex |
-| `ERR-301` | Resource limit exceeded | Reduce batch size; check RAM usage |
-| `ERR-800` | Validation thresholds not met | Review synthetic dataset; adjust thresholds |
-| `ERR-950` | Constitution principle violation | Review `src/utils/constitution_checker.py` |
-
-### Getting Help
-
-1. Check `output/resource_log.json` for resource usage details
-2. Review logs in `logs/audit.log` for error codes
-3. Verify `data/provenance_log.csv` contains all URL tracking entries
-4. Run `python code/src/cli/run_audit.py --help` for usage information
-
----
+- **Timeout errors:** If the pipeline exceeds 30 minutes, check for slow network connections or large HTML pages. Consider reducing the number of URLs.
+- **Memory errors:** If you encounter `ERR-301`, your environment may not meet the 2 GB RAM limit. Reduce the batch size or upgrade resources.
+- **Extraction failures:** If many records fail to extract, verify that the URLs are accessible and the HTML structure matches expected patterns.
 
 ## Next Steps
 
-After successful quickstart:
+Once verified, you can:
+- Scale to larger datasets (100+ URLs)
+- Customize the audit thresholds in `src/config.py`
+- Integrate with your CI/CD pipeline using `.github/workflows/audit.yml`
 
-1. **Full Pipeline:** Increase URL count for production runs
-2. **Manual Validation:** See `docs/annotation_protocol.md` for human annotation process
-3. **CI Execution:** Review `.github/workflows/audit.yml` for automated runs
-4. **Subgroup Analysis:** See `src/audit/subgroup_analysis.py` for domain/year breakdowns
-
----
-
-## References
-
-- **FR-028:** Quickstart must enable audit of 30 URLs in ≤30 minutes
-- **T095b:** Quickstart Docker guide must reproduce environment via `requirements.txt`
-- **T095c:** CI must verify all seven Constitution Principles (I-VII)
-- **T049b:** Verify Quickstart execution runs on default GitHub Actions runner
-
----
-
-*This guide satisfies Constitution Principle VII (Provenance): All verification steps are logged with timestamps and verifier identifiers.*
+For more details, refer to the full documentation in `docs/`.

@@ -1,8 +1,6 @@
 """
-Export Schema Validator Module (T057)
-
-Validates the generated audit_report.json against the contracts/audit_record.schema.yaml
-schema as required by FR-026.
+Schema validation for audit_report.json against contracts/audit_record.schema.yaml.
+Implements FR-026: Add schema validation step after audit generation.
 """
 import json
 import logging
@@ -15,164 +13,192 @@ from code.src.contracts.validation import (
     get_audit_record_validator,
     get_default_logger,
 )
-from code.src.utils.logger import AuditLogger, get_error_message
+from code.src.utils.logger import get_error_message, AuditLogger
 
-def load_audit_records_from_json(
-    file_path: Path, logger: Optional[AuditLogger] = None
-) -> List[Dict[str, Any]]:
+# Error codes for schema validation failures
+ERR_SCHEMA_MISSING = "ERR-200"
+ERR_SCHEMA_INVALID = "ERR-201"
+ERR_FILE_NOT_FOUND = "ERR-202"
+ERR_FILE_READ = "ERR-203"
+
+def load_audit_records_from_json(file_path: Path) -> Tuple[List[Dict[str, Any]], Optional[str]]:
     """
     Load audit records from a JSON file.
-
+    
     Args:
-        file_path: Path to the audit_report.json file.
-        logger: Optional logger instance.
-
+        file_path: Path to the JSON file containing audit records.
+        
     Returns:
-        List of audit record dictionaries.
-
-    Raises:
-        FileNotFoundError: If the file does not exist.
-        json.JSONDecodeError: If the file is not valid JSON.
+        Tuple of (records_list, error_message).
+        If successful, error_message is None.
     """
-    if logger is None:
-        logger = get_default_logger()
-
+    logger = get_default_logger()
+    
     if not file_path.exists():
-        logger.error("ERR-202", f"Audit report file not found: {file_path}")
-        raise FileNotFoundError(f"Audit report file not found: {file_path}")
-
-    with open(file_path, "r", encoding="utf-8") as f:
-        data = json.load(f)
-
-    if isinstance(data, list):
-        return data
-    elif isinstance(data, dict) and "records" in data:
-        return data["records"]
-    else:
-        logger.error("ERR-203", "Invalid audit report structure: expected list or dict with 'records' key")
-        raise ValueError("Invalid audit report structure")
+        error_msg = get_error_message(ERR_FILE_NOT_FOUND)
+        logger.error(f"{error_msg}: {file_path}")
+        return [], error_msg
+    
+    try:
+        with open(file_path, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+            
+        # Handle both single record and list of records
+        if isinstance(data, list):
+            return data, None
+        elif isinstance(data, dict):
+            # If it's a single record wrapped in an object, extract the list
+            if 'records' in data:
+                return data['records'], None
+            else:
+                # Assume it's a single record
+                return [data], None
+        else:
+            error_msg = get_error_message(ERR_SCHEMA_INVALID) + " Invalid JSON structure"
+            logger.error(error_msg)
+            return [], error_msg
+            
+    except json.JSONDecodeError as e:
+        error_msg = get_error_message(ERR_FILE_READ) + f" JSON decode error: {str(e)}"
+        logger.error(error_msg)
+        return [], error_msg
+    except Exception as e:
+        error_msg = get_error_message(ERR_FILE_READ) + f" Unexpected error: {str(e)}"
+        logger.error(error_msg)
+        return [], error_msg
 
 def validate_audit_report_schema(
-    audit_records: List[Dict[str, Any]],
-    schema_path: Optional[Path] = None,
-    logger: Optional[AuditLogger] = None,
+    records: List[Dict[str, Any]], 
+    schema_path: Optional[Path] = None
 ) -> Tuple[bool, List[str]]:
     """
     Validate audit records against the audit_record schema.
-
+    
     Args:
-        audit_records: List of audit record dictionaries to validate.
-        schema_path: Optional path to the schema file. If None, uses default.
-        logger: Optional logger instance.
-
+        records: List of audit record dictionaries to validate.
+        schema_path: Optional path to the schema file. If None, uses the default.
+        
     Returns:
         Tuple of (is_valid, list_of_error_messages).
     """
-    if logger is None:
-        logger = get_default_logger()
-
-    if schema_path is None:
-        schema_path = Path("code/contracts/audit_record.schema.yaml")
-
-    if not schema_path.exists():
-        error_msg = f"Schema file not found: {schema_path}"
-        logger.error("ERR-204", error_msg)
-        return False, [error_msg]
-
-    try:
-        validator = get_audit_record_validator(schema_path)
-    except Exception as e:
-        error_msg = f"Failed to load schema validator: {str(e)}"
-        logger.error("ERR-205", error_msg)
-        return False, [error_msg]
-
+    logger = get_default_logger()
     errors = []
-    for i, record in enumerate(audit_records):
-        is_valid, validation_errors = validator.validate(record)
+    
+    if not records:
+        logger.warning("No records to validate")
+        return True, []
+    
+    # Get the validator for audit records
+    validator, err = get_audit_record_validator(schema_path)
+    if err:
+        error_msg = get_error_message(ERR_SCHEMA_MISSING) + f" Schema validation setup failed: {err}"
+        logger.error(error_msg)
+        return False, [error_msg]
+    
+    # Validate each record
+    for i, record in enumerate(records):
+        is_valid, record_errors = validator.validate(record)
         if not is_valid:
-            for err in validation_errors:
-                errors.append(f"Record {i}: {err}")
-
+            for error in record_errors:
+                errors.append(f"Record {i}: {error}")
+            logger.error(f"Validation failed for record {i}: {record_errors}")
+    
     if errors:
-        logger.error("ERR-206", f"Schema validation failed with {len(errors)} errors")
+        error_msg = get_error_message(ERR_SCHEMA_INVALID) + f" Found {len(errors)} validation errors"
+        logger.error(error_msg)
         return False, errors
-
-    logger.info("Schema validation passed successfully")
+    
+    logger.info(f"Successfully validated {len(records)} audit records")
     return True, []
 
 def run_schema_validation(
     audit_report_path: Path,
     schema_path: Optional[Path] = None,
-    exit_on_failure: bool = True,
-) -> int:
+    strict_mode: bool = True
+) -> Tuple[bool, str]:
     """
     Run schema validation on the audit report.
-
+    
     Args:
         audit_report_path: Path to the audit_report.json file.
-        schema_path: Optional path to the schema file.
-        exit_on_failure: If True, exit with code 1 on validation failure.
-
+        schema_path: Optional path to the schema file. If None, uses the default.
+        strict_mode: If True, fail on any validation error.
+        
     Returns:
-        Exit code (0 for success, 1 for failure).
+        Tuple of (success, message).
     """
     logger = get_default_logger()
+    audit_logger = AuditLogger(logger)
+    
     logger.info(f"Starting schema validation for {audit_report_path}")
-
-    try:
-        records = load_audit_records_from_json(audit_report_path, logger)
-        logger.info(f"Loaded {len(records)} audit records")
-    except Exception as e:
-        logger.error("ERR-207", f"Failed to load audit report: {str(e)}")
-        if exit_on_failure:
-            sys.exit(1)
-        return 1
-
-    is_valid, errors = validate_audit_report_schema(records, schema_path, logger)
-
+    
+    # Load the records
+    records, load_error = load_audit_records_from_json(audit_report_path)
+    if load_error:
+        audit_logger.error(load_error)
+        return False, load_error
+    
+    if not records:
+        logger.warning("No records found in audit report")
+        return True, "No records to validate"
+    
+    # Validate against schema
+    is_valid, validation_errors = validate_audit_report_schema(records, schema_path)
+    
     if not is_valid:
-        logger.error("ERR-208", "Schema validation failed")
-        for error in errors:
-            logger.error("ERR-208", error)
-        if exit_on_failure:
-            sys.exit(1)
-        return 1
-
-    logger.info("Schema validation completed successfully")
-    return 0
+        error_details = "\n".join(validation_errors[:10])  # Show first 10 errors
+        full_message = f"Schema validation failed with {len(validation_errors)} errors:\n{error_details}"
+        audit_logger.error(get_error_message(ERR_SCHEMA_INVALID))
+        return False, full_message
+    
+    logger.info("Schema validation passed")
+    return True, "Schema validation successful"
 
 def main() -> int:
-    """Main entry point for schema validation."""
+    """
+    Main entry point for schema validation.
+    
+    Returns:
+        Exit code: 0 for success, 1 for failure.
+    """
     import argparse
-
+    
     parser = argparse.ArgumentParser(
         description="Validate audit_report.json against the audit_record schema"
     )
     parser.add_argument(
-        "--audit-report",
-        type=Path,
-        default=Path("code/output/audit_report.json"),
-        help="Path to the audit report JSON file",
+        "--input", 
+        type=Path, 
+        default=Path("output/audit_report.json"),
+        help="Path to audit_report.json file"
     )
     parser.add_argument(
         "--schema",
         type=Path,
-        default=None,
-        help="Path to the schema file (default: contracts/audit_record.schema.yaml)",
+        default=Path("contracts/audit_record.schema.yaml"),
+        help="Path to the schema file"
     )
     parser.add_argument(
-        "--no-exit",
+        "--strict",
         action="store_true",
-        help="Do not exit with code 1 on validation failure",
+        default=True,
+        help="Fail on any validation error (default: True)"
     )
-
+    
     args = parser.parse_args()
-
-    return run_schema_validation(
-        args.audit_report,
+    
+    success, message = run_schema_validation(
+        args.input,
         args.schema,
-        exit_on_failure=not args.no_exit,
+        args.strict
     )
+    
+    if success:
+        print(f"SUCCESS: {message}")
+        return 0
+    else:
+        print(f"FAILED: {message}")
+        return 1
 
 if __name__ == "__main__":
     sys.exit(main())

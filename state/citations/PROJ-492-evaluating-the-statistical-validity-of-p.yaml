@@ -32,9 +32,20 @@
   verification_status: mismatch
   verified_against_url: https://example.com/ab-test-2
   verified_at: '2026-06-26T16:18:59.020483Z'
-- artifact_hash: 31ca2602b0cb69b9eac3b04e00f56dc84ed05d0bbb33e602e023232d4c7a137d
+- artifact_hash: 6c7a63d22e098a9711860864841b8a1c6eab04658c1c761f0560ab7eefb04950
   artifact_path: projects/PROJ-492-evaluating-the-statistical-validity-of-p/docs/README_QUICKSTART.md
   cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://github.com/llmXive/proj-492-evaluating-statistical-validity.git
+  verification_status: mismatch
+  verified_against_url: https://github.com/llmXive/proj-492-evaluating-statistical-validity
+  verified_at: '2026-07-04T15:36:43.274180Z'
+- artifact_hash: 6c7a63d22e098a9711860864841b8a1c6eab04658c1c761f0560ab7eefb04950
+  artifact_path: projects/PROJ-492-evaluating-the-statistical-validity-of-p/docs/README_QUICKSTART.md
+  cite_id: c-002
   cited_authors: []
   cited_title: null
   fetched_title: null
@@ -42,10 +53,10 @@
   value: https://example.com/ab-test-1
   verification_status: mismatch
   verified_against_url: https://example.com/ab-test-1
-  verified_at: '2026-06-29T01:19:10.086570Z'
-- artifact_hash: 31ca2602b0cb69b9eac3b04e00f56dc84ed05d0bbb33e602e023232d4c7a137d
+  verified_at: '2026-07-04T15:36:43.274180Z'
+- artifact_hash: 6c7a63d22e098a9711860864841b8a1c6eab04658c1c761f0560ab7eefb04950
   artifact_path: projects/PROJ-492-evaluating-the-statistical-validity-of-p/docs/README_QUICKSTART.md
-  cite_id: c-002
+  cite_id: c-003
   cited_authors: []
   cited_title: null
   fetched_title: null
@@ -53,4 +64,4 @@
   value: https://example.com/ab-test-2
   verification_status: mismatch
   verified_against_url: https://example.com/ab-test-2
-  verified_at: '2026-06-29T01:19:10.086570Z'
+  verified_at: '2026-07-04T15:36:43.274180Z'

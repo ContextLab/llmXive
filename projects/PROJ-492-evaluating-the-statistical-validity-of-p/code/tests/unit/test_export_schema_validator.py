@@ -1,193 +1,315 @@
 """
-Unit tests for the Export Schema Validator (T057)
-
-Tests validation of audit_report.json against the audit_record schema.
+Unit tests for export_schema_validator module.
+Tests schema validation functionality for audit_report.json.
 """
 import json
 import tempfile
 from pathlib import Path
-from typing import Dict, Any, List
-
+from unittest.mock import patch, MagicMock
 import pytest
 
 from code.src.audit.export_schema_validator import (
     load_audit_records_from_json,
     validate_audit_report_schema,
     run_schema_validation,
+    ERR_SCHEMA_MISSING,
+    ERR_SCHEMA_INVALID,
+    ERR_FILE_NOT_FOUND,
+    ERR_FILE_READ,
 )
-from code.src.utils.logger import get_default_logger
-
-
-@pytest.fixture
-def valid_audit_record() -> Dict[str, Any]:
-    """Create a valid audit record matching the schema."""
-    return {
-        "url": "https://example.com/test",
-        "domain": "example.com",
-        "extraction_timestamp": "2023-01-01T00:00:00Z",
-        "baseline_n": 1000,
-        "baseline_successes": 100,
-        "treatment_n": 1000,
-        "treatment_successes": 120,
-        "reported_p_value": 0.03,
-        "reported_effect_size": 0.02,
-        "reconstructed_p_value": 0.028,
-        "reconstructed_effect_size": 0.02,
-        "p_value_difference": 0.002,
-        "effect_size_difference": 0.0,
-        "is_inconsistent": False,
-        "sample_size_mismatch": False,
-        "data_quality_warning": None,
-        "inconsistency_reason": None,
-    }
-
-
-@pytest.fixture
-def invalid_audit_record() -> Dict[str, Any]:
-    """Create an invalid audit record missing required fields."""
-    return {
-        "url": "https://example.com/test",
-        # Missing required fields: domain, extraction_timestamp, etc.
-        "baseline_n": "not_a_number",  # Wrong type
-    }
-
-
-@pytest.fixture
-def audit_report_with_valid_records(
-    valid_audit_record: Dict[str, Any],
-) -> Path:
-    """Create a temporary audit report file with valid records."""
-    with tempfile.NamedTemporaryFile(
-        mode="w", suffix=".json", delete=False
-    ) as f:
-        json.dump([valid_audit_record], f)
-        return Path(f.name)
-
-
-@pytest.fixture
-def audit_report_with_invalid_records(
-    invalid_audit_record: Dict[str, Any],
-) -> Path:
-    """Create a temporary audit report file with invalid records."""
-    with tempfile.NamedTemporaryFile(
-        mode="w", suffix=".json", delete=False
-    ) as f:
-        json.dump([invalid_audit_record], f)
-        return Path(f.name)
-
-
-@pytest.fixture
-def schema_path() -> Path:
-    """Return the path to the audit_record schema."""
-    return Path("code/contracts/audit_record.schema.yaml")
-
+from code.src.contracts.validation import get_audit_record_validator
 
 class TestLoadAuditRecordsFromJson:
-    def test_load_valid_json_file(
-        self,
-        audit_report_with_valid_records: Path,
-    ):
-        """Test loading a valid JSON file."""
-        records = load_audit_records_from_json(audit_report_with_valid_records)
-        assert len(records) == 1
-        assert records[0]["url"] == "https://example.com/test"
-
-    def test_load_nonexistent_file(self):
-        """Test loading a nonexistent file raises FileNotFoundError."""
-        with pytest.raises(FileNotFoundError):
-            load_audit_records_from_json(Path("nonexistent.json"))
-
-    def test_load_invalid_json_file(self):
-        """Test loading an invalid JSON file raises JSONDecodeError."""
-        with tempfile.NamedTemporaryFile(
-            mode="w", suffix=".json", delete=False
-        ) as f:
-            f.write("not valid json")
-            temp_path = Path(f.name)
-
-        with pytest.raises(json.JSONDecodeError):
-            load_audit_records_from_json(temp_path)
-
-        temp_path.unlink()
-
-    def test_load_dict_with_records_key(self):
-        """Test loading a JSON file with a 'records' key."""
-        with tempfile.NamedTemporaryFile(
-            mode="w", suffix=".json", delete=False
-        ) as f:
-            json.dump(
-                {"records": [{"url": "test"}]},
-                f,
-            )
-            temp_path = Path(f.name)
-
-        records = load_audit_records_from_json(temp_path)
-        assert len(records) == 1
-        assert records[0]["url"] == "test"
-
-        temp_path.unlink()
-
+    """Tests for load_audit_records_from_json function."""
+    
+    def test_load_valid_list(self, tmp_path: Path):
+        """Test loading a valid list of records."""
+        records = [
+            {"id": "1", "is_inconsistent": True},
+            {"id": "2", "is_inconsistent": False}
+        ]
+        
+        json_file = tmp_path / "audit_report.json"
+        with open(json_file, 'w') as f:
+            json.dump(records, f)
+        
+        loaded_records, error = load_audit_records_from_json(json_file)
+        
+        assert error is None
+        assert len(loaded_records) == 2
+        assert loaded_records[0]["id"] == "1"
+    
+    def test_load_valid_single_record(self, tmp_path: Path):
+        """Test loading a single record wrapped in an object."""
+        records = {
+            "records": [
+                {"id": "1", "is_inconsistent": True}
+            ]
+        }
+        
+        json_file = tmp_path / "audit_report.json"
+        with open(json_file, 'w') as f:
+            json.dump(records, f)
+        
+        loaded_records, error = load_audit_records_from_json(json_file)
+        
+        assert error is None
+        assert len(loaded_records) == 1
+    
+    def test_load_single_record_direct(self, tmp_path: Path):
+        """Test loading a single record directly."""
+        record = {"id": "1", "is_inconsistent": True}
+        
+        json_file = tmp_path / "audit_report.json"
+        with open(json_file, 'w') as f:
+            json.dump(record, f)
+        
+        loaded_records, error = load_audit_records_from_json(json_file)
+        
+        assert error is None
+        assert len(loaded_records) == 1
+        assert loaded_records[0]["id"] == "1"
+    
+    def test_load_nonexistent_file(self, tmp_path: Path):
+        """Test loading from a non-existent file."""
+        json_file = tmp_path / "nonexistent.json"
+        
+        loaded_records, error = load_audit_records_from_json(json_file)
+        
+        assert error is not None
+        assert ERR_FILE_NOT_FOUND in error
+        assert len(loaded_records) == 0
+    
+    def test_load_invalid_json(self, tmp_path: Path):
+        """Test loading invalid JSON."""
+        json_file = tmp_path / "invalid.json"
+        with open(json_file, 'w') as f:
+            f.write("not valid json {")
+        
+        loaded_records, error = load_audit_records_from_json(json_file)
+        
+        assert error is not None
+        assert ERR_FILE_READ in error
+        assert len(loaded_records) == 0
 
 class TestValidateAuditReportSchema:
-    def test_validate_valid_records(
-        self,
-        audit_report_with_valid_records: Path,
-        schema_path: Path,
-    ):
-        """Test validating records that conform to the schema."""
-        records = load_audit_records_from_json(audit_report_with_valid_records)
-        is_valid, errors = validate_audit_report_schema(records, schema_path)
+    """Tests for validate_audit_record_schema function."""
+    
+    def test_validate_empty_list(self):
+        """Test validation of an empty list."""
+        is_valid, errors = validate_audit_report_schema([])
+        
         assert is_valid is True
         assert len(errors) == 0
-
-    def test_validate_invalid_records(
-        self,
-        audit_report_with_invalid_records: Path,
-        schema_path: Path,
-    ):
-        """Test validating records that do not conform to the schema."""
-        records = load_audit_records_from_json(audit_report_with_invalid_records)
-        is_valid, errors = validate_audit_report_schema(records, schema_path)
+    
+    def test_validate_valid_records(self, tmp_path: Path):
+        """Test validation of valid records."""
+        # Create a minimal valid schema file for testing
+        schema_content = """
+        type: object
+        properties:
+          id:
+            type: string
+          is_inconsistent:
+            type: boolean
+        required:
+          - id
+          - is_inconsistent
+        """
+        
+        schema_file = tmp_path / "test_schema.yaml"
+        with open(schema_file, 'w') as f:
+            f.write(schema_content)
+        
+        records = [
+            {"id": "1", "is_inconsistent": True},
+            {"id": "2", "is_inconsistent": False}
+        ]
+        
+        is_valid, errors = validate_audit_report_schema(records, schema_file)
+        
+        assert is_valid is True
+        assert len(errors) == 0
+    
+    def test_validate_invalid_records(self, tmp_path: Path):
+        """Test validation of invalid records (missing required field)."""
+        schema_content = """
+        type: object
+        properties:
+          id:
+            type: string
+          is_inconsistent:
+            type: boolean
+        required:
+          - id
+          - is_inconsistent
+        """
+        
+        schema_file = tmp_path / "test_schema.yaml"
+        with open(schema_file, 'w') as f:
+            f.write(schema_content)
+        
+        records = [
+            {"id": "1", "is_inconsistent": True},
+            {"id": "2"}  # Missing is_inconsistent
+        ]
+        
+        is_valid, errors = validate_audit_report_schema(records, schema_file)
+        
         assert is_valid is False
         assert len(errors) > 0
-
-    def test_validate_with_missing_schema(self):
-        """Test validation when schema file is missing."""
-        valid_record = {"url": "test"}
-        is_valid, errors = validate_audit_report_schema(
-            [valid_record], Path("nonexistent_schema.yaml")
-        )
-        assert is_valid is False
-        assert len(errors) == 1
-        assert "not found" in errors[0].lower()
-
+        assert any("Record 1" in error for error in errors)
 
 class TestRunSchemaValidation:
-    def test_run_validation_on_valid_report(
-        self,
-        audit_report_with_valid_records: Path,
-        schema_path: Path,
-    ):
-        """Test running validation on a valid report."""
-        exit_code = run_schema_validation(
-            audit_report_with_valid_records, schema_path, exit_on_failure=False
-        )
+    """Tests for run_schema_validation function."""
+    
+    def test_run_validation_success(self, tmp_path: Path):
+        """Test successful schema validation."""
+        schema_content = """
+        type: object
+        properties:
+          id:
+            type: string
+          is_inconsistent:
+            type: boolean
+        required:
+          - id
+          - is_inconsistent
+        """
+        
+        schema_file = tmp_path / "test_schema.yaml"
+        with open(schema_file, 'w') as f:
+            f.write(schema_content)
+        
+        records = [
+            {"id": "1", "is_inconsistent": True},
+            {"id": "2", "is_inconsistent": False}
+        ]
+        
+        json_file = tmp_path / "audit_report.json"
+        with open(json_file, 'w') as f:
+            json.dump(records, f)
+        
+        success, message = run_schema_validation(json_file, schema_file)
+        
+        assert success is True
+        assert "successful" in message.lower()
+    
+    def test_run_validation_failure(self, tmp_path: Path):
+        """Test failed schema validation."""
+        schema_content = """
+        type: object
+        properties:
+          id:
+            type: string
+          is_inconsistent:
+            type: boolean
+        required:
+          - id
+          - is_inconsistent
+        """
+        
+        schema_file = tmp_path / "test_schema.yaml"
+        with open(schema_file, 'w') as f:
+            f.write(schema_content)
+        
+        records = [
+            {"id": "1", "is_inconsistent": True},
+            {"id": "2"}  # Missing is_inconsistent
+        ]
+        
+        json_file = tmp_path / "audit_report.json"
+        with open(json_file, 'w') as f:
+            json.dump(records, f)
+        
+        success, message = run_schema_validation(json_file, schema_file)
+        
+        assert success is False
+        assert "failed" in message.lower()
+    
+    def test_run_validation_file_not_found(self, tmp_path: Path):
+        """Test validation when file doesn't exist."""
+        schema_file = tmp_path / "test_schema.yaml"
+        json_file = tmp_path / "nonexistent.json"
+        
+        success, message = run_schema_validation(json_file, schema_file)
+        
+        assert success is False
+        assert ERR_FILE_NOT_FOUND in message
+
+class TestMainFunction:
+    """Tests for the main function."""
+    
+    def test_main_success(self, tmp_path: Path):
+        """Test main function with successful validation."""
+        schema_content = """
+        type: object
+        properties:
+          id:
+            type: string
+          is_inconsistent:
+            type: boolean
+        required:
+          - id
+          - is_inconsistent
+        """
+        
+        schema_file = tmp_path / "test_schema.yaml"
+        with open(schema_file, 'w') as f:
+            f.write(schema_content)
+        
+        records = [
+            {"id": "1", "is_inconsistent": True}
+        ]
+        
+        json_file = tmp_path / "audit_report.json"
+        with open(json_file, 'w') as f:
+            json.dump(records, f)
+        
+        with patch('sys.argv', ['export_schema_validator', '--input', str(json_file), '--schema', str(schema_file)]):
+            exit_code = main()
+        
         assert exit_code == 0
-
-    def test_run_validation_on_invalid_report(
-        self,
-        audit_report_with_invalid_records: Path,
-        schema_path: Path,
-    ):
-        """Test running validation on an invalid report."""
-        exit_code = run_schema_validation(
-            audit_report_with_invalid_records, schema_path, exit_on_failure=False
-        )
+    
+    def test_main_failure(self, tmp_path: Path):
+        """Test main function with failed validation."""
+        schema_content = """
+        type: object
+        properties:
+          id:
+            type: string
+          is_inconsistent:
+            type: boolean
+        required:
+          - id
+          - is_inconsistent
+        """
+        
+        schema_file = tmp_path / "test_schema.yaml"
+        with open(schema_file, 'w') as f:
+            f.write(schema_content)
+        
+        records = [
+            {"id": "1"}  # Missing is_inconsistent
+        ]
+        
+        json_file = tmp_path / "audit_report.json"
+        with open(json_file, 'w') as f:
+            json.dump(records, f)
+        
+        with patch('sys.argv', ['export_schema_validator', '--input', str(json_file), '--schema', str(schema_file)]):
+            exit_code = main()
+        
+        assert exit_code == 1
+    
+    def test_main_file_not_found(self, tmp_path: Path):
+        """Test main function when file doesn't exist."""
+        non_existent_file = tmp_path / "nonexistent.json"
+        
+        with patch('sys.argv', ['export_schema_validator', '--input', str(non_existent_file)]):
+            exit_code = main()
+        
         assert exit_code == 1
 
-    def test_run_validation_on_nonexistent_report(self):
-        """Test running validation on a nonexistent report."""
-        exit_code = run_schema_validation(
-            Path("nonexistent.json"), exit_on_failure=False
-        )
-        assert exit_code == 1
+# Import main for testing
+from code.src.audit.export_schema_validator import main
