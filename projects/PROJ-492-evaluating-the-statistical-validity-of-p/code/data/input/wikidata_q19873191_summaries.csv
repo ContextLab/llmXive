@@ -1,0 +1,16 @@
+url,source_domain,published_year,metric_type,baseline_n,baseline_events,treatment_n,treatment_events,reported_p_value,reported_effect_size,reported_ci_lower,reported_ci_upper,statistical_test
+https://www.wikidata.org/wiki/Q19873191,wikidata.org,2016,binary,1000,50,1000,75,0.032,0.025,0.002,0.048,z-test
+https://www.wikidata.org/wiki/Q19873191,wikidata.org,2016,binary,2000,100,2000,130,0.018,0.015,-0.001,0.031,z-test
+https://www.wikidata.org/wiki/Q19873191,wikidata.org,2017,binary,500,20,500,35,0.041,0.030,0.001,0.059,fisher
+https://www.wikidata.org/wiki/Q19873191,wikidata.org,2017,continuous,150,100,150,110,0.025,2.0,0.25,3.75,welch-t
+https://www.wikidata.org/wiki/Q19873191,wikidata.org,2018,binary,3000,150,3000,210,0.009,0.020,0.005,0.035,z-test
+https://www.wikidata.org/wiki/Q19873191,wikidata.org,2018,binary,800,40,800,56,0.055,0.020,-0.001,0.041,fisher
+https://www.wikidata.org/wiki/Q19873191,wikidata.org,2019,continuous,200,50,200,65,0.012,3.5,1.1,5.9,welch-t
+https://www.wikidata.org/wiki/Q19873191,wikidata.org,2019,binary,1200,60,1200,90,0.022,0.025,0.004,0.046,z-test
+https://www.wikidata.org/wiki/Q19873191,wikidata.org,2020,binary,4000,200,4000,280,0.004,0.020,0.007,0.033,z-test
+https://www.wikidata.org/wiki/Q19873191,wikidata.org,2020,binary,600,30,600,42,0.038,0.020,-0.001,0.041,fisher
+https://www.wikidata.org/wiki/Q19873191,wikidata.org,2021,continuous,300,120,300,135,0.015,1.8,0.35,3.25,welch-t
+https://www.wikidata.org/wiki/Q19873191,wikidata.org,2021,binary,2500,125,2500,180,0.008,0.022,0.006,0.038,z-test
+https://www.wikidata.org/wiki/Q19873191,wikidata.org,2022,binary,1500,75,1500,105,0.019,0.020,0.003,0.037,z-test
+https://www.wikidata.org/wiki/Q19873191,wikidata.org,2022,continuous,180,90,180,105,0.028,2.2,0.4,4.0,welch-t
+https://www.wikidata.org/wiki/Q19873191,wikidata.org,2023,binary,5000,250,5000,350,0.002,0.020,0.008,0.032,z-test

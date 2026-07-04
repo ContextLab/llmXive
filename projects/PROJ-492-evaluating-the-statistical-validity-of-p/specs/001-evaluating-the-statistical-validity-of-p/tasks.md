@@ -17,8 +17,8 @@
 
 - [X] T000 Create CLI interface skeleton (`src/cli/main.py`) – verify script runs with `--help`. *(Alias of PT000)*
 - [X] T001 Set up GitHub Actions workflow (`.github/workflows/audit.yml`) – verify CI triggers on push. *(Alias of PT001)*
-- [ ] T002 Implement Monte‑Carlo framework core (`src/audit/monte_carlo_core.py`) – verify core functions importable. *(Alias of PT002)*
-- [ ] T003 {{claim:c_ef1634da}} (Wikidata Q19873191, https://www.wikidata.org/wiki/Q19873191) *(Alias of PT003)*
+- [X] T002 Implement Monte‑Carlo framework core (`src/audit/monte_carlo_core.py`) – verify core functions importable. *(Alias of PT002)*
+- [X] T003 {{claim:c_ef1634da}} (Wikidata Q19873191, https://www.wikidata.org/wiki/Q19873191) *(Alias of PT003)*
 - [X] T004 Implement power‑analysis utility (`src/audit/power_analysis.py`) – verify it outputs JSON with required fields. *(Alias of PT004)*
 - [ ] T005C **[P]** Implement Constitution compliance checker in `src/utils/constitution_checker.py` that validates all seven Principles (I–VII). Run this checker in CI and abort with an error if any principle fails. (verify checker script exists, runs in CI, and passes all seven checks). *(Alias of PT005C)*
 
@@ -91,16 +91,16 @@
 - [X] T025b **[P]** Run `tests/unit/test_missing_baseline_flag.py` to verify that any entry with a missing baseline conversion rate is flagged in the audit notes as required by FR‑012. **DEPENDS ON:** T025.
 - [X] T025c **[P]** Run `tests/unit/test_sample_size_exclusion.py` to verify that summaries flagged for sample‑size mismatch are not included in `output/prevalence.json`. **DEPENDS ON:** T025.
 - [X] T027 Unit tests for validator covering absolute p‑difference > 0.05, effect‑size > 5 %, inequality handling, sample‑size mismatch with data_quality_warning generation (tests/unit/test_validator.py) (verify all tests pass) [DEPENDS ON: T025].
-- [X] T026 Implement synthetic dataset generator in `src/audit/synthetic.py` (FR‑030) – outputs `data/synthetic/synthetic_validation.csv` + `data/synthetic/synthetic_ground_truth.json` with at least 10 000 simulated summaries (binary AND continuous outcomes) **and verify both outcome types are present** (constraint‑preservation‑2958f04c) (verify files are created and contain ≥ 10 000 records). **DEPENDS ON:** T006‑T012.
+- [ ] T026 Implement synthetic dataset generator in `src/audit/synthetic.py` (FR‑030) – outputs `data/synthetic/synthetic_validation.csv` + `data/synthetic/synthetic_ground_truth.json` with at least 10 000 simulated summaries (binary AND continuous outcomes) **and verify both outcome types are present** (constraint‑preservation‑2958f04c) (verify files are created and contain ≥ 10 000 records). **DEPENDS ON:** T006‑T012.
 - [X] T028 Implement power‑analysis utility in `src/audit/power_analysis.py` (FR‑025) that computes the minimum N given baseline, detectable effect, α and power, writes result to `output/power_analysis.json`, **and asserts audited corpus meets N ≥ 300 OR N ≥ calculated_minimum ** (constraint‑preservation‑ba913176) (verify JSON file exists, contains numeric N, and satisfies condition). **DEPENDS ON:** T010.
-- [X] T029 Evaluate inconsistency‑detection component on synthetic validation dataset (FR‑031) – compute precision, recall, F1 and assert precision ≥ 90 %, recall ≥ 80 %, F1 ≥ 0.85 (depends on T026) (verify test passes, otherwise raise `ERR-800`) [DEPENDS ON: T026].
+- [ ] T029 Evaluate inconsistency‑detection component on synthetic validation dataset (FR‑031) – compute precision, recall, F1 and assert precision ≥ 90 %, recall ≥ 80 %, F1 ≥ 0.85 (depends on T026) (verify test passes, otherwise raise `ERR-800`) [DEPENDS ON: T026].
 - [X] T062 Implement Monte‑Carlo validation module (FR‑026) in `src/audit/monte_carlo_validation.py` that runs 10 000 replicates for each statistical test (z-test, Fisher's, Welch's, binomial) and checks the absolute difference ≤ 0.005 (constraint‑preservation‑e62a0df4) (verify module exits with status 0).
 - [X] T031 **[P]** Run Monte‑Carlo validation (from T062) as part of pipeline start‑up; abort with `ERR-801` if any test fails the ≤ 0.005 criterion (T031 runs T062 module internally). **DEPENDS ON:** T062.
 - [X] T032 Implement end‑to‑end driver script `src/cli/run_audit.py` that orchestrates ingestion → fetch → extract → reconstruct → validate → write artifacts (verify script exits with status 0 on success). **DEPENDS ON:** T025, T028, T029, T031.
 - [X] T033 Integration test that runs driver on synthetic dataset, computes precision/recall/F1 and aborts with `ERR-800` if thresholds not met (tests/integration/test_synthetic_validation.py) (verify test passes) [DEPENDS ON: T026].
 - [X] T034 Create analysis notebook `notebooks/statistical_consistency_verification.ipynb` that documents any p‑value discrepancies >0.05 with justification per Constitution Principle VI; run as part of pipeline acceptance (depends on T025) (verify notebook exists and contains discrepancy justifications) [DEPENDS ON: T025].
 - [X] T035 FR‑001 Verification: Run `tests/integration/test_url_ingestion.py` to assert `input/urls.csv` processing completes without error (coverage‑executability‑08d5764f) (verify test passes).
-- [X] T036 FR‑002 Verification: Run `tests/integration/test_extractor_accuracy.py` to assert extracted fields exist for > 95 % of valid pages (coverage‑executability‑08d5764f) (verify test passes).
+- [ ] T036 FR‑002 Verification: Run `tests/integration/test_extractor_accuracy.py` to assert extracted fields exist for > 95 % of valid pages (coverage‑executability‑08d5764f) (verify test passes).
 - [X] T037 FR‑003 Verification: Run `tests/integration/test_reconstructor_completeness.py` to assert reconstructed p‑values computed for all records (coverage‑executability‑08d5764f) (verify test passes).
 - [X] T038 FR‑004 Verification: Run `tests/integration/test_validator_thresholds.py` to assert flags correspond to defined thresholds (coverage‑executability‑08d5764f) (verify test passes).
 
@@ -123,7 +123,7 @@
 - [X] T042 Implement binomial prevalence test, Wilson CI, **and sensitivity analysis** (FR‑005a & FR‑005b) in `src/audit/prevalence.py` including dynamic Bonferroni correction (α = 0.05 / number_of_subgroups) per FR‑032 (verify JSON output contains required fields including sensitivity analysis results).
 - [X] T042b **[P]** Verify that `prevalence.json` does **not** contain any entries flagged for sample‑size mismatch (cross‑check with T025c). (depends on T025c)
 - [ ] T043 Unit tests for binomial test and CI width ≤ 0.10 (tests/unit/test_prevalence.py) (verify test passes).
-- [X] T044 **[P]** Domain Bias Subsampling – create a balanced subsample of the corpus so that no single domain exceeds 30 % before bias adjustment (FR‑027). (writes `data/subsampled_balanced.csv`). **DEPENDS ON:** T006‑T012.
+- [ ] T044 **[P]** Domain Bias Subsampling – create a balanced subsample of the corpus so that no single domain exceeds 30 % before bias adjustment (FR‑027). (writes `data/subsampled_balanced.csv`). **DEPENDS ON:** T006‑T012.
 - [X] T045 Implement bias‑adjustment module that computes domain‑weighted prevalence using domain‑weighted averaging (FR‑027) **and either subsamples the dominant domain *or* flags a violation** per FR‑027 (constraint‑preservation‑01844dd3) in `src/audit/bias_adjustment.py` (verify bias‑adjusted rate is written and appropriate action taken when any domain exceeds 30 %). **DEPENDS ON:** T044.
 - [X] T046 Unit tests for bias‑adjustment ensuring no domain exceeds 30 % proportion (tests/unit/test_bias_adjustment.py) (verify test passes).
 - [X] T047 Implement CSV summary generator in `src/audit/report_generator.py` that reads `output/audit_report.json` and writes `output/summary_report.csv` with required columns (`total_summaries`, `inconsistent_count`, `inconsistent_rate`, `bias_adjusted_rate`, `wilson_ci_lower`, `wilson_ci_upper`) (verify CSV file exists and column headers match) [DEPENDS ON: T042, T045].
@@ -174,7 +174,7 @@
 
 - [X] T098 Add resource‑monitoring module `src/utils/resource_monitor.py` that records peak CPU & memory, writes to `output/resource_log.json` (SC‑008) **and aborts with `ERR-301` when limits exceeded per FR‑009** (verify log file exists, records within limits, and abort logic triggers on breach).
 - [ ] T063 Modify `src/cli/run_audit.py` to invoke `resource_monitor` and abort with `ERR-301` if limits exceeded (plan.md) (run AFTER T098) (verify script aborts on limit breach) [DEPENDS ON: T098].
-- [ ] T064 Update `.github/workflows/audit.yml` to include steps: (a) schema validation, (b) synthetic validation (ensure precision/recall thresholds), (c) resource‑monitor check, (d) main pipeline run (verify workflow runs all steps) [DEPENDS ON: T098]. <!-- ATOMIZE: requested -->
+- [ ] T064 Update `.github/workflows/audit.yml` to include steps: (a) schema validation, (b) synthetic validation (ensure precision/recall thresholds), (c) resource‑monitor check, (d) main pipeline run (verify workflow runs all steps) [DEPENDS ON: T098]. <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
 - [ ] T065 Add CI step that caches `pip` packages to stay within 6 hour total runtime (plan.md) (verify cache hit on subsequent runs).
 - [ ] T066 Add unit test for resource monitor parsing of `/proc` (tests/unit/test_resource_monitor.py) (verify test passes) [DEPENDS ON: T098].
 - [ ] T095b Verify Quickstart Docker guide also reproduces environment via `requirements.txt` and isolated venv (Constitution Principle I) (verify Dockerfile runs `pip install -r requirements.txt` and that a venv is created) (addresses ordering‑28dea5aa).
@@ -244,7 +244,7 @@
 - [ ] T097b Implement documentation DOC003: Data provenance guide in `docs/data_provenance.md` (Constitution Principle VII) (verify doc exists and covers URL tracking, checksums, manifest). *(Note: T097b name retained for documentation only; no duplicate CI check.)*
 - [ ] T099 Implement governance invalidation mechanism in `src/utils/governance.py` (Constitution Principle V) **and** update `state/projects/PROJ-492-evaluating-the-statistical-validity-of-p.yaml` `updated_at` timestamp via T095a (addresses constraint‑preservation‑a5829d58) (verify code executes and doc exists).
 - [ ] T099b Verify that any artifact change triggers the `updated_at` timestamp update (see T095a) (addresses constraint‑preservation‑a5829d58).
-- [ ] T100a **[P]** {{claim:c_23dc9564}}
+- [ ] T100a **[P]** {{claim:c_23dc9564}} [UNRESOLVED-CLAIM: c_2bf2da2d — status=not_enough_info]
 - [ ] T100b **[P]** Run Reference‑Validator Agent before Advancement‑Evaluator gate to re‑validate all citations; abort if any fail. (addresses Constitution checkpoint 2).
 - [ ] T100c **[P]** Run Reference‑Validator Agent at the research_review → research_accepted transition; ensure all citations pass before final acceptance. (addresses Constitution checkpoint 3).
 - [ ] T101 Implement documentation DOC004: Governance policy in `docs/governance_policy.md` (verify existence).
