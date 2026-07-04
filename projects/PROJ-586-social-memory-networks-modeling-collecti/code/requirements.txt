@@ -7,3 +7,8 @@ torch>=1.12.0
 pytest>=7.0.0
 black>=22.0.0
 flake8>=4.0.0
+check_power_limitation  # auto-added: imported by run-book but missing from venv
+psutil  # auto-added: imported by run-book but missing from venv
+requests  # auto-added: imported by run-book but missing from venv
+statsmodels  # auto-added: imported by run-book but missing from venv
+pyyaml  # auto-added: imported by run-book but missing from venv

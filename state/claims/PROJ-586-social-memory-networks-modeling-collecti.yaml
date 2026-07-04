@@ -18135,25 +18135,6 @@
   updated_at: '2026-07-03T21:00:54Z'
 - artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
   attempts: 1
-  canonical: ANOVA design uses single two-way ANOVA with Context times Metric interaction
-  claim_id: c_9e341db1
-  context: "ANOVA Design: Single two-way ANOVA with Context \xD7 Metric interaction\
-    \ (FR-006), NOT separate ANOVAs"
-  evidence:
-    entailment_status: not_found
-    reason: source found but does not address entity claim
-    source_url: https://en.wikipedia.org/wiki/ANOVA_design_uses_single_two-way_ANOVA_with_Context_times_Me
-  kind: entity_fact
-  raw_text: "The ANOVA design uses a single two-way ANOVA with Context \xD7 Metric\
-    \ interaction."
-  resolved_value: null
-  resolver: resolve_entity_fact
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-03T21:06:09Z'
-- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
-  attempts: 1
   canonical: Power analysis requires N equals 800
   claim_id: c_45f87737
   context: 'Power Analysis: N={{claim:c_10d5c9c0}} (FR-009 spec requirement)'
@@ -20126,24 +20107,6 @@
   updated_at: '2026-07-04T02:34:28Z'
 - artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
   attempts: 1
-  canonical: 3 data points limit power-law reliability in scaling plot
-  claim_id: c_c6b1a23b
-  context: "Generate scaling_plot.pdf with fitted power\u2011law curves and explicit\
-    \ note that The scaling plot includes an explicit note that 3 data points limit\
-    \ power-law reliability."
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: The scaling plot includes an explicit note that 3 data points limit power-law
-    reliability.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-04T02:34:32Z'
-- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
-  attempts: 1
   canonical: Base Agent uses opt-125m with float32 precision on CPU
   claim_id: c_8682bc5d
   context: Implement base Agent abstraction using CPU-only `transformers` (opt-125m,
@@ -21479,3 +21442,213 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-04T04:58:18Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: 3 data points limit power-law reliability in scaling plot
+  claim_id: c_eb41dc9a
+  context: "T030 [US-3] Generate scaling_plot.pdf with fitted power\u2011law curves\
+    \ and explicit note that The scaling plot includes an explicit note that Generate\
+    \ scaling_plot.pdf with fitted power\u2011law curves and explicit note that The\
+    \ scaling plot includes an explicit note that 3 data points limit power-law reliability.\
+    \ limit power\u2011law reliability limit power\u2011law reliability in projects/PROJ-586-social-memory-networks-modeling-collecti/results/scaling_plot.pdf"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The scaling plot includes an explicit note that 3 data points limit power-law
+    reliability.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-04T05:42:31Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 2
+  canonical: 3 data points limit power-law reliability in scaling plot
+  claim_id: c_c6b1a23b
+  context: "Generate scaling_plot.pdf with fitted power\u2011law curves and explicit\
+    \ note that The scaling plot includes an explicit note that 3 data points limit\
+    \ power-law reliability."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The scaling plot includes an explicit note that 3 data points limit power-law
+    reliability.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-04T05:46:27Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: User Story 3 game simulation runs for 3, 5, and 7 agents
+  claim_id: c_614b08eb
+  context: Implement game simulation for agent counts 3, 5, 7 (The game simulation
+    for User Story 3 runs {{claim:c_13e5f91f}}. per spec US-3)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The game simulation for User Story 3 runs 3, 5, 7 agents.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-04T05:46:53Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: game simulation for user story 3 runs specific number of times
+  claim_id: c_f91d11e9
+  context: T027 [US-3] Implement game simulation for agent counts 3, 5, 7 (The game
+    simulation for User Story 3 runs {{claim:c_13e5f91f}}. per spec US-3) in code/run_experiment.py
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The game simulation for User Story 3 runs {{claim:c_13e5f91f}}.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-04T05:49:34Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: User Story 3 game simulation runs 2202.05773
+  claim_id: c_2196458d
+  context: T027 [US-3] Implement game simulation for agent counts 3, 5, 7 (The game
+    simulation for User Story 3 runs {{claim:c_13e5f91f}}. per spec US-3) in code/run_experiment.py
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The game simulation for User Story 3 runs 2202.05773.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-04T06:04:24Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: 'Scaling plot note: 3 data points limit power-law reliability'
+  claim_id: c_437b619a
+  context: "T030 [US-3] Generate scaling_plot.pdf with fitted power\u2011law curves\
+    \ and explicit note that The scaling plot includes an explicit note that Generate\
+    \ scaling_plot.pdf with fitted power\u2011law curves and explicit note that The\
+    \ scaling plot includes an explicit note that 3 data points limit power-law reliability.\
+    \ limit power\u2011law reliability limit power\u2011law reliability"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The scaling plot includes an explicit note that 3 data points limit power-law
+    reliability.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-04T06:04:27Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: Scaling plot notes 3 data points limit power-law reliability
+  claim_id: c_47741e3f
+  context: "Generate scaling_plot.pdf with fitted power\u2011law curves and explicit\
+    \ note that The scaling plot includes an explicit note that 3 data points limit\
+    \ power\u2011law reliability in projects/PROJ-586-social-memory-networks-modeling-collecti/results/scaling_plot.pdf"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The scaling plot includes an explicit note that 3 data points limit power-law
+    reliability
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-04T06:08:45Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: Base Agent abstraction uses opt-125m
+  claim_id: c_1c751139
+  context: 'Implement base Agent abstraction using CPU-only transformers (opt-125m,
+    {{claim:c_2386de29}} (Wikipedia: Single-precision floating-point format, https://en.wikipedia.org/wiki/Single-precision_floating-point_format))
+    in code/agent/base_agent.py'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The base Agent abstraction uses opt-125m
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-04T06:09:01Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: Base Agent abstraction uses single-precision floating-point format
+  claim_id: c_9ca22429
+  context: 'Implement base Agent abstraction using CPU-only transformers (opt-125m,
+    {{claim:c_2386de29}} (Wikipedia: Single-precision floating-point format, https://en.wikipedia.org/wiki/Single-precision_floating-point_format))
+    in code/agent/base_agent.py'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Base_Agent_abstraction_uses_single-precision_floating-point
+  kind: entity_fact
+  raw_text: The base Agent abstraction uses single-precision floating-point format
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-04T06:09:26Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: Scaling analysis uses agent counts 3, 5, 7
+  claim_id: c_0af4c9f9
+  context: Implement game simulation for agent counts 3, 5, 7 ... in code/run_experiment.py
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The scaling analysis uses agent counts 3, 5, and 7
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-04T06:09:49Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: Validation logic requires 95% of games to produce metrics
+  claim_id: c_eebcceb6
+  context: "Implement validation logic for metrics (\u226595% games produce metrics,\
+    \ SC-001) in code/metrics/validator.py"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Validation logic requires 95% of games to produce metrics
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-04T06:09:53Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 2
+  canonical: ANOVA design uses single two-way ANOVA with Context times Metric interaction
+  claim_id: c_9e341db1
+  context: "ANOVA Design: Single two-way ANOVA with Context \xD7 Metric interaction\
+    \ (FR-006), NOT separate ANOVAs"
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/ANOVA_design_uses_single_two-way_ANOVA_with_Context_times_Me
+  kind: entity_fact
+  raw_text: "The ANOVA design uses a single two-way ANOVA with Context \xD7 Metric\
+    \ interaction."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-04T06:10:15Z'
