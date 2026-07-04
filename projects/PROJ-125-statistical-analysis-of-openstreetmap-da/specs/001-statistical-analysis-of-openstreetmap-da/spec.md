@@ -1,7 +1,7 @@
 # Feature Specification: Statistical Analysis of OpenStreetMap Data for Urban Heat Island Effects
 
-**Feature Branch**: `001-statistical-analysis-urban-heat`  
-**Created**: 2024-05-22  
+**Feature Branch**: `001-urban-heat-osm`  
+**Created**: 2024-05-21  
 **Status**: Draft  
 **Input**: User description: "Statistical Analysis of OpenStreetMap Data for Urban Heat Island Effects"
 
@@ -9,91 +9,99 @@
 
 ### User Story 1 - Data Ingestion and Rasterization (Priority: P1)
 
-The system MUST download vector data from OpenStreetMap and satellite thermal data, then align them into a unified high-resolution raster grid for three diverse cities (New York, Chicago, Los Angeles).
+The system must ingest raw vector data from OpenStreetMap (OSM) and satellite thermal imagery (MODIS/Landsat) for selected cities, align them to a common coordinate reference system (CRS), and generate aligned 30m resolution raster covariates and target variables.
 
-**Why this priority**: Without aligned, high-quality input data, no statistical modeling can occur. This is the foundational dependency for all subsequent analysis.
+**Why this priority**: This is the foundational step; without aligned, high-quality data, no statistical modeling can occur. It delivers the primary dataset required for all subsequent analysis.
 
-**Independent Test**: Can be fully tested by verifying that the output directory contains a single NetCDF or GeoTIFF file per city where the spatial intersection of valid temperature pixels and valid OSM-derived covariate pixels is >99% of their union, and that coordinate reference systems (CRS) are identical within a specified tolerance.
+**Independent Test**: Can be fully tested by running the data pipeline for a single city (e.g., New York) and verifying that the output GeoTIFFs have matching dimensions, CRS, and non-null values in the overlap region.
 
 **Acceptance Scenarios**:
 
-1. **Given** a city boundary shapefile exists, **When** the ingestion script runs, **Then** OSM building footprints, road networks, and tree nodes are converted into grid-aligned density/coverage rasters matching the Landsat/MODIS resolution.. Tree nodes are aggregated as 'count per pixel' (density) or buffered area, explicitly acknowledged as a proxy for 'tree presence' rather than direct canopy coverage.
-2. **Given** raw MODIS/Landsat thermal files exist, **When** the preprocessing step runs, **Then** surface temperature is computed as daytime land-surface temperature composites for summer months and masked to the city extent.
-3. **Given** multiple data sources with different projections, **When** the alignment step completes, **Then** all layers share a common CRS (e.g., EPSG:3857 or local UTM) and have identical dimensions with no NaN mismatches in the mask.
+1. **Given** a city boundary shapefile and OSM raw data, **When** the ingestion script runs, **Then** a rasterized GeoTIFF for building density is created with a 30m resolution and valid CRS.
+2. **Given** raw MODIS/Landsat thermal data, **When** the ingestion script runs, **Then** a land-surface temperature raster is generated covering the same extent as the OSM covariates.
+3. **Given** multiple input sources, **When** the alignment process completes, **Then** all output rasters share identical dimensions, origin, and CRS, allowing direct pixel-wise stacking.
 
 ---
 
-### User Story 2 - Exploratory Analysis and Spatial Autocorrelation (Priority: P2)
+### User Story 2 - Exploratory Spatial Analysis and Autocorrelation Check (Priority: P2)
 
-The system MUST generate statistical summaries and spatial diagnostics (Moran's I, variograms) to quantify the relationship between OSM features and temperature before modeling.
+The system must perform exploratory data analysis (EDA) to quantify relationships between OSM-derived features and temperature, including calculating correlation matrices, variograms, and spatial autocorrelation metrics (Moran's I).
 
-**Why this priority**: This step validates the "dataset-variable fit" and informs the choice of spatial model. It determines if the data supports the research hypothesis.
+**Why this priority**: This step validates the data quality and informs the choice of statistical models (e.g., confirming the need for spatial regression). It provides immediate scientific insight into the raw data.
 
-**Independent Test**: Can be fully tested by running the exploratory script and verifying that it outputs a summary table of correlation coefficients and a set of variogram plots showing spatial structure in the residuals.
+**Independent Test**: Can be tested by running the EDA module on the aligned rasters and verifying the generation of a correlation matrix and a Moran's I statistic report.
 
 **Acceptance Scenarios**:
 
-1. **Given** the aligned raster stack, **When** the exploratory analysis runs, **Then** Pearson and Spearman correlations are calculated for each OSM covariate against temperature, and a summary table is generated.
-2. **Given** the temperature residuals from a simple mean model, **When** the spatial diagnostic runs, **Then** Moran's I is calculated and reported, and a variogram is plotted to confirm the presence of spatial autocorrelation.
-3. **Given** a covariate with high spatial clustering, **When** the analysis runs, **Then** the system flags the variable as potentially collinear if the Variance Inflation Factor (VIF) exceeds 5, indicating empirical collinearity rather than definitional identity.
+1. **Given** the aligned raster stack, **When** the EDA module runs, **Then** a Pearson/Spearman correlation matrix between covariates and temperature is generated.
+2. **Given** the temperature raster, **When** the spatial analysis runs, **Then** a variogram is computed and a Moran's I statistic is reported to quantify spatial autocorrelation.
+3. **Given** the analysis results, **When** the report is generated, **Then** it includes a summary of the strength and direction of linear relationships between key predictors (e.g., vegetation, impervious surface) and temperature.
 
 ---
 
-### User Story 3 - Spatial Modeling and Validation (Priority: P3)
+### User Story 3 - Spatial Regression Modeling and Validation (Priority: P3)
 
-The system MUST fit at least three spatial models (OLS, GWR, SAR) using k-fold spatial cross-validation and report performance metrics (RMSE, R²) to determine if OSM data predicts temperature.
+The system must fit multiple spatial regression models (OLS, GWR, SAR) to predict temperature from OSM features, perform spatial cross-validation to prevent leakage, and evaluate performance using RMSE and R².
 
-**Why this priority**: This delivers the core research answer: "Can OSM features predict UHI?" It directly addresses the research question.
+**Why this priority**: This delivers the core research output: the predictive model and its validation. It tests the hypothesis that OSM data can predict UHI effects.
 
-**Independent Test**: Can be fully tested by executing the model training pipeline and verifying that the output JSON contains RMSE and R² values for each model, with the spatial GWR model showing a statistically significant improvement over OLS if the hypothesis holds.
+**Independent Test**: Can be tested by executing the modeling pipeline on the dataset, ensuring models are trained, cross-validated using spatial blocks, and that performance metrics are logged.
 
 **Acceptance Scenarios**:
 
-1. **Given** the aligned data and exploratory results, **When** the modeling script runs, **Then** an OLS baseline, a Geographically Weighted Regression (GWR) model, and a Spatial Lag/Error (SAR) model are fitted.
-2. **Given** the fitted models, **When** spatial cross-validation (spatial blocks) is executed, **Then** out-of-sample RMSE and R² are calculated for each model to prevent spatial leakage.
-3. **Given** the model results, **When** the permutation test runs, **Then** the system reports the p-value (p < 0.05) of the observed R² against the null distribution generated by permuting OSM features to falsify the null hypothesis that OSM data is non-predictive.
+1. **Given** the prepared dataset, **When** the modeling pipeline runs, **Then** an Ordinary Least Squares (OLS) baseline model is fitted and its coefficients are recorded.
+2. **Given** the dataset and OLS results, **When** the spatial modeling step runs, **Then** a Geographically Weighted Regression (GWR) and/or Spatial Lag/Error (SAR) model is fitted.
+3. **Given** the fitted models, **When** the validation step runs, **Then** a 5-fold spatial cross-validation is performed, and RMSE and R² metrics are reported for each model.
 
 ### Edge Cases
 
-- What happens when a specific city has missing OSM data for a specific land-use category (e.g., no "tree" nodes tagged in a dense downtown area)? The system must impute with a zero or flag the pixel as low-confidence rather than crashing.
-- How does the system handle satellite data gaps (cloud cover) in the thermal composite? The system must exclude pixels with >50% cloud cover in the source imagery from the analysis.
-- What happens if the spatial autocorrelation is negligible? The system must fall back to the OLS baseline and report that spatial models provided no significant gain.
+- **Missing Data**: If the percentage of missing data (null values) in a city boundary exceeds **[deferred]**, the system MUST log a WARNING message to stdout and continue processing with a masked dataset. If missing data is ≤10%, the system proceeds without warning.
+- **Cloud Cover**: If the cloud cover percentage for a satellite scene exceeds **[deferred]**, the system MUST generate a multi-date composite to ensure valid temperature values. If cloud cover is ≤20%, the system MUST exclude pixels with cloud flags and use the single-date composite.
+- **Resolution Mismatch**: If the OSM data resolution is insufficient for 30m rasterization (requiring upsampling), the system MUST use bilinear interpolation for continuous data and nearest neighbor for categorical data. If the upsampling error exceeds **0.1** (calculated as the absolute difference between the original vector area and the rasterized area), the system MUST log an ERROR message to stderr and exit with code 1.
 
 ## Requirements
 
 ### Functional Requirements
 
-- **FR-001**: System MUST download and process OSM vector data (buildings, roads, trees) for New York, Chicago, and Los Angeles using the Overpass API and convert them to 30m rasters. Tree data MUST be aggregated as 'count per pixel' (density) or buffered area, explicitly acknowledging this as a proxy for 'tree presence' (See US-1).
-- **FR-002**: System MUST acquire and process MODIS (MODIS Land Surface Temperature) and Landsat thermal data for summer months 2018-2022, computing daytime land-surface temperature composites aligned to the 30m grid (See US-1).
-- **FR-003**: System MUST calculate Pearson/Spearman correlations and Moran's I statistics to assess spatial autocorrelation and variable relationships (See US-2).
-- **FR-004**: System MUST fit Ordinary Least Squares (OLS), Geographically Weighted Regression (GWR), and Spatial Lag/Error (SAR) models using the `mgwr` and `spreg` libraries (See US-3).
-- **FR-005**: System MUST perform spatial cross-validation with spatial blocks to prevent leakage and report RMSE and R² for each model (See US-3).
-- **FR-006**: System MUST implement the Benjamini-Hochberg procedure for False Discovery Rate control at α ≤ 0.05 for all hypothesis tests regarding variable significance (See US-3).
-- **FR-007**: System MUST perform a sensitivity analysis on the spatial bandwidth parameter for GWR, sweeping values covering [deferred] to [deferred] of the city's effective search radius and selecting the optimal bandwidth via AICc minimization (See US-3).
-- **FR-008**: System MUST frame all reported findings as ASSOCIATIONAL relationships due to the observational nature of the data, explicitly avoiding causal language (See US-3).
+- **FR-001**: System MUST download OSM vector data (buildings, land-use, trees, roads) via the Overpass API for specified city boundaries. (See US-1)
+- **FR-002**: System MUST ingest satellite thermal data (MODIS/Landsat) and compute daytime land-surface temperature composites for the most recent 5-year period available. (See US-1)
+- **FR-003**: System MUST reproject all raster layers to a common CRS and resample them to a uniform 30m resolution. (See US-1)
+- **FR-004**: System MUST calculate spatial autocorrelation (Moran's I) and variograms for the target temperature variable. (See US-2)
+- **FR-005**: System MUST fit at least three distinct spatial models: Ordinary Least Squares (OLS), Geographically Weighted Regression (GWR), and a Spatial Lag/Error model (SAR). (See US-3)
+- **FR-006**: System MUST perform 5-fold spatial cross-validation using spatial blocks to prevent data leakage. (See US-3)
+- **FR-007**: System MUST report model performance metrics (RMSE, MAE, R²) for each fitted model AND output adjusted p-values for all predictors. (See US-3)
+- **FR-008**: System MUST apply multiple-comparison correction (e.g., Bonferroni or FDR) to predictor significance using spatially robust standard errors (e.g., HAC) or permutation-based inference. (See US-3)
+- **FR-009**: System MUST conduct a sensitivity analysis on the spatial bandwidth parameter for GWR, sweeping over a configurable set of values defined in the implementation plan to assess stability. (See US-3)
 
 ### Key Entities
 
-- **City Grid**: A 30m resolution raster grid covering a specific city boundary, containing temperature values and derived OSM covariates.
-- **Model Result**: A structured record containing model type, coefficients, RMSE, R², and cross-validation metrics.
-- **Spatial Diagnostic**: A record containing Moran's I, variogram parameters, and collinearity metrics (VIF) for the dataset.
+- **CityBoundary**: Defines the spatial extent of the study area (e.g., New York, Chicago).
+- **RasterCovariate**: A 30m resolution grid representing an OSM-derived feature (e.g., building density, tree canopy).
+- **TemperatureRaster**: A 30m resolution grid representing land-surface temperature.
+- **SpatialModel**: A statistical object containing coefficients, diagnostics, and performance metrics.
+- **CrossValidationFold**: A partition of the data used for spatially blocked validation.
 
 ## Success Criteria
 
 ### Measurable Outcomes
 
-> Planning docs state *what* will be measured and the *source/reference* it is measured against.
+> Planning docs state *what* will be measured and the *source/reference* it is
+> measured against; defer specific empirical values (counts, dataset sizes,
+> measured quantities, percentages) to the implementation/research phase.
 
-- **SC-001**: Out-of-sample R² is measured against the baseline OLS model performance to determine if spatial models (GWR/SAR) provide a statistically significant improvement (See US-3).
-- **SC-002**: The proportion of variance explained by OSM covariates is measured against the observed R² of the baseline OLS model, and the result is reported as a hypothesis test of whether R² > 0.30 (See US-3).
-- **SC-003**: The stability of model performance is measured against the sensitivity analysis sweep of the GWR bandwidth parameter (values covering [deferred] to [deferred] of effective search radius) to ensure results are not artifact of a single arbitrary cutoff (See US-3).
-- **SC-004**: The false-positive rate of variable significance is measured against the family-wise error rate corrected by the Benjamini-Hochberg procedure at α ≤ 0.05 (See US-3).
-- **SC-005**: The computational feasibility is measured against the GitHub Actions free-tier constraints (≤6h runtime, ~7GB RAM, no GPU) to ensure the analysis completes without resource exhaustion (See FR-004).
+- **SC-001**: The system MUST output the proportion of variance explained (R²) by the best spatial model. (See FR-007)
+- **SC-002**: The system MUST output the Root Mean Square Error (RMSE) for both the GWR and OLS models. (See FR-007)
+- **SC-003**: The system MUST output adjusted p-values for all predictors after multiple-comparison correction. (See FR-008)
+- **SC-004**: The stability of the GWR bandwidth parameter is measured by the variation in R² across the sensitivity sweep. (See FR-009)
+- **SC-005**: The system MUST output the Moran's I value for model residuals to quantify remaining spatial autocorrelation. (See FR-004)
 
 ## Assumptions
 
-- **Assumption about data availability**: OpenStreetMap data for New York, Chicago, and Los Angeles is sufficiently complete and accurate to derive building density, impervious surface fraction, and tree canopy cover at a fine spatial resolution without significant manual curation.
-- **Assumption about satellite data**: MODIS (MOD11) and Landsat 8 (LC08) Level-2 products are available on AWS Open Data for the specified time range (2018-2022) and can be downloaded and processed within the 6-hour CI job limit.
-- **Assumption about methodological fit**: The chosen spatial models (GWR, SAR) are computationally tractable on a CPU-only runner for the sample size of 30m pixels across 3 cities, assuming the data is subset or processed in tiles if necessary.
-- **Assumption about inference framing**: The research design is purely observational; therefore, all results will be interpreted as associational correlations, and no causal claims will be made regarding OSM features causing temperature changes.
-- **Assumption about variable validity**: The derived OSM rasters (e.g., tree canopy cover from point data) are valid proxies for the physical phenomena they represent, acknowledging that point-based tree nodes may under-represent canopy cover compared to satellite-derived vegetation indices.
+- The OpenStreetMap data for the selected cities contains sufficient detail (building footprints, land-use tags) to derive meaningful 30m resolution covariates.
+- MODIS/Landsat thermal data for the most recent 5-year period is available via AWS Open Data and can be downloaded without excessive bandwidth costs or time delays.
+- The computational environment (GitHub Actions free tier) provides sufficient CPU and memory (≤7 GB RAM) to process the rasterized data for 3 cities without out-of-memory errors.
+- The relationship between OSM features and temperature is primarily linear or locally linear, making GWR and SAR models appropriate.
+- Cloud cover in satellite imagery is sufficiently low in the selected summer months to allow for valid temperature composites.
+- The "spatial blocks" cross-validation strategy is feasible to implement given the raster grid structure.
+- No GPU acceleration is available; all models must run in default precision on CPU.
+- The dataset variables (building density, impervious surface, tree cover) are the primary drivers of UHI at the 30m scale, and other factors (albedo, anthropogenic heat) are secondary or correlated with these proxies.

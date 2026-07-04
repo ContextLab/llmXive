@@ -4,67 +4,67 @@
 
 - Python 3.11+
 - `pip` or `conda`
-- Access to AWS Open Data (for MODIS/Landsat) - No API key required for public datasets, but credentials may be needed for some tools.
-- Internet access (for Overpass API).
+- Access to the internet (for Overpass API and AWS data)
 
 ## Installation
 
-1.  **Clone the repository**:
-    ```bash
-    git clone <repo-url>
-    cd <project-dir>
-    ```
-
-2.  **Create and activate a virtual environment**:
+1.  **Clone the repository** and navigate to the project directory.
+2.  **Create a virtual environment**:
     ```bash
     python -m venv venv
     source venv/bin/activate  # On Windows: venv\Scripts\activate
     ```
-
 3.  **Install dependencies**:
     ```bash
-    pip install -r code/requirements.txt
+    pip install -r requirements.txt
     ```
-    *Note: This installs `rasterio`, `geopandas`, `pysal`, `mgwr`, `overpy`, `xarray`, `netCDF4`, `scikit-learn`, `statsmodels`.*
+    *Note: `requirements.txt` pins versions for `osmnx`, `geopandas`, `rasterio`, `pysal`, `statsmodels`.*
+
+## Configuration
+
+Edit `code/config.py` to define:
+- `CITIES`: List of cities to analyze (e.g., `["New York", "Chicago"]`).
+- `CRS`: Target projection (default: EPSG:3857).
+- `RESOLUTION`: Default 30.
 
 ## Running the Pipeline
 
-The pipeline is executed in sequential phases. Ensure you have sufficient disk space and RAM.
-
-### Phase 1: Data Ingestion and Alignment
-Downloads OSM data and satellite thermal imagery, then aligns them to a 30m grid.
+### 1. Ingest and Align Data
+Download OSM data and Landsat thermal rasters, then align them to 30m.
 ```bash
-python code/01_ingest/fetch_osm.py --cities NYC,CHI,LA
-python code/01_ingest/fetch_thermal.py --years 2018,2019,2020,2021,2022
-python code/01_ingest/align_rasters.py --output data/processed/aligned_grid
+python code/main.py --step ingest --city "New York"
 ```
+*Output*: `data/processed/new_york_aligned.tif`
 
-### Phase 2: Exploratory Data Analysis (EDA)
-Calculates correlations, Moran's I, and VIF.
+### 2. Exploratory Data Analysis (EDA)
+Calculate Moran's I and correlation matrices.
 ```bash
-python code/02_eda/spatial_stats.py --input data/processed/aligned_grid --output data/processed/eda_results.json
+python code/main.py --step eda --input data/processed/new_york_aligned.tif
 ```
+*Output*: `data/results/eda_report.json`, `data/results/moran_i.png`
 
-### Phase 3: Spatial Modeling
-Fits OLS, GWR, and SAR models with spatial cross-validation.
+### 3. Spatial Modeling
+Fit OLS, GWR, and SAR models with spatial cross-validation.
 ```bash
-python code/03_modeling/fit_models.py --input data/processed/aligned_grid --output data/processed/model_results.json
+python code/main.py --step model --input data/processed/new_york_aligned.tif --cv-folds 5
 ```
+*Output*: `data/results/model_metrics.csv`, `data/results/model_coefficients.json`
 
-### Phase 4: Validation and Reporting
-Performs permutation tests and generates final metrics.
+### 4. Sensitivity Analysis
+Run GWR bandwidth sweep.
 ```bash
-python code/04_validation/perm_test.py --input data/processed/model_results.json --output data/processed/final_report.json
+python code/main.py --step sensitivity --input data/processed/new_york_aligned.tif --bandwidths 100,200,500,1000
 ```
+*Output*: `data/results/sensitivity_analysis.csv`
 
-## Verifying Results
+## Verification
 
-1.  Check `data/processed/final_report.json` for R² and RMSE values.
-2.  Verify that `GWR` shows a statistically significant improvement over `OLS` (if the hypothesis holds).
-3.  Ensure all p-values are corrected using Benjamini-Hochberg.
+- Check `data/results/model_metrics.csv` for RMSE and R² values.
+- Verify `data/results/eda_report.json` contains a non-zero Moran's I.
+- Ensure no `ERROR` logs regarding resolution mismatch or cloud cover thresholds.
 
 ## Troubleshooting
 
-- **Memory Error**: If the process exceeds 7GB RAM, reduce the tile size in `code/01_ingest/align_rasters.py`.
-- **Overpass API Timeout**: The script includes retries. If it fails, check network connectivity or reduce the query area.
-- **Missing Satellite Data**: The script skips pixels with >50% cloud cover. Ensure the `data/raw/thermal` directory contains valid files.
+- **Memory Error**: Reduce the study area or enable subsampling in `config.py`.
+- **Overpass API Timeout**: Increase `TIMEOUT` in `config.py` or retry.
+- **Cloud Cover**: If the single date has >20% cloud, the pipeline will attempt to fetch a composite (ensure `MULTI_DATE` is enabled).

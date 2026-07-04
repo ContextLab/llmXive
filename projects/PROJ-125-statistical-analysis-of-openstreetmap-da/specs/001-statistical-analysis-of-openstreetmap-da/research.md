@@ -2,72 +2,123 @@
 
 ## Executive Summary
 
-This research validates the feasibility of using OpenStreetMap (OSM) vector data as predictors for Land Surface Temperature (LST) in urban environments. The study focuses on New York, Chicago, and Los Angeles, utilizing a high-resolution grid. The primary challenge is the "dataset-variable fit": ensuring OSM features (buildings, roads, trees) and satellite thermal data (Landsat/MODIS) are spatially aligned and temporally consistent. The plan adopts a CPU-tractable approach using `pysal` and `mgwr` libraries, avoiding GPU dependencies, and employs **stratified sampling** to fit complex spatial models (GWR/SAR) within resource constraints.
+This research phase validates the feasibility of using OpenStreetMap (OSM) vector data as a proxy for urban thermal characteristics and defines the statistical strategy for modeling Land Surface Temperature (LST). The primary challenge is the "dataset-variable fit": confirming that available satellite thermal data and OSM tags align with the study's requirements for 30m resolution analysis. The methodology explicitly addresses confounding, spatial autocorrelation, and memory constraints.
 
 ## Dataset Strategy
 
-The analysis relies on two primary data sources. The OSM data provides urban morphology features, while satellite data provides the target variable (LST).
+The study requires two primary data sources:
+1.  **Vector Data**: OSM features (buildings, roads, vegetation) for specific city boundaries.
+2.  **Raster Data**: Satellite-derived Land Surface Temperature (LST) at 30m resolution.
 
-| Dataset Name | Source Type | Verified URL / Access Method | Variable Fit Check |
-|:--- |:--- |:--- |:--- |
-| **OpenStreetMap** | Vector (API) | **Overpass API** (via `overpy` library). *Note: Direct URL references to the API endpoint are dynamic; the library handles routing. No static raw URL exists for the full dataset.* | **Valid**. Contains building footprints, road networks, and tree nodes. **Caveat**: Tree nodes are point data; must be aggregated to density/area proxy (30m raster) as per FR-001. **Correction**: Missing tree data in dense cores will be imputed using Landsat-derived NDVI (see Methodological Rigor). |
-| **MODIS (MOD11A1)** | Satellite (LST) | **AWS Open Data Registry**: `s3://nasa-modis/MODIS/061/MOD11A1` (via `earthaccess` or direct S3 access). | **Valid**. Provides daily LST. Used primarily for **temporal compositing** to fill Landsat gaps. **Correction**: MODIS is at a coarse native resolution; upscaling to 30m is avoided for primary analysis, used only for gap-filling via nearest-neighbor interpolation where Landsat is missing. |
-| **Landsat 8 (LC08)** | Satellite (LST) | **AWS Open Data Registry**: `s3://landsat-pds/c1/L8/` (specifically Level-2 Surface Temperature products `LC08_L2SP_*`). | **Valid**. Higher resolution (30m) LST derived from TIRS Band 10. Primary source for LST. Must be filtered for daytime, summer months (Jun-Aug), and cloud cover < 50%. |
-| **VIF (Validation)** | Reference (Parquet) | ` | **Not Used for Analysis**. This dataset is for reference validation of citations, not for the statistical modeling of UHI. |
+### Verified Datasets & Sources
 
-**Dataset-Variable Fit Analysis**:
-- **Predictors**: OSM Building Density, Road Density, Tree Node Density (Proxy), **Land-Use Covariates** (Impervious Surface Fraction).
- - *Fit*: OSM data is available for all three cities. Tree nodes are sparse in dense downtowns; the plan explicitly handles this by imputing missing values using **NDVI from Landsat** (where OSM is 0 but NDVI > threshold) to correct for underestimation in high-UHI zones.
-- **Outcome**: Land Surface Temperature (LST).
- - *Fit*: Landsat surface reflectance data is available for 2018-2022. Cloud cover gaps are handled by masking pixels with >50% cloud cover. MODIS is used only to fill remaining gaps.
-- **Alignment**: Both sources must be reprojected to a common CRS (e.g., EPSG:3857 or local UTM) and resampled to 30m. This is the critical step (FR-001).
+Based on the project constraints and verified sources list:
 
-**Constraint Check**: The plan avoids GPU usage. `pysal` and `mgwr` support CPU execution. Large rasters will be processed in tiles for aggregation, but **modeling is performed on a stratified sample** to fit within 7GB RAM and 6h runtime.
+| Dataset Name | Source Type | Verified URL / Loader | Status | Notes |
+| :--- | :--- | :--- | :--- | :--- |
+| **OpenStreetMap (OSM)** | Vector (API) | `overpass-api` (Programmatic) | **Verified** | Data is fetched dynamically via Overpass API (FR-001). No static URL exists; the API is the canonical source. |
+| **MODIS LST** | Satellite (Raster) | AWS Open Data (Programmatic) | **Verified** | MODIS (MODA) available via AWS. Resolution ~1km. *Note: Requires aggregation/downscaling or use of Landsat.* |
+| **Landsat 8/9** | Satellite (Raster) | AWS Open Data / USGS EarthExplorer | **Verified** | Landsat provides 30m thermal bands (TIRS). This is the primary source for 30m LST (FR-002). |
+| **UH-I (Urban Heat Island)** | Study Data | **NO verified source found** | **Gap** | No pre-existing "UH-I" dataset URL is available. The project must *generate* this dataset from OSM + Landsat. |
 
-## Methodological Rigor
+**Critical Note on Dataset Fit**:
+The spec requires 30m resolution. MODIS is ~1km. **Landsat 8/9 TIRS** is the required source for 30m LST.
+- **Action**: The `ingest.py` module must target Landsat 8/9 thermal bands (Band 10/11) from the AWS Open Data registry.
+- **Action**: OSM data will be downloaded via Overpass API for the specific city boundaries.
+- **Gap**: If the spec implies a pre-packaged "UH-I" dataset, it does not exist in the verified list. The pipeline must construct the dataset from raw sources.
 
-### Statistical Approach
-1. **Exploratory Analysis**: Calculate Pearson/Spearman correlations and Moran's I to detect spatial autocorrelation (FR-003).
-2. **Collinearity Check**: Compute Variance Inflation Factor (VIF). If VIF > 5, flag as collinear (US-2).
-3. **Sampling Strategy**:
- - **Stratified Random Sampling**: Select [deferred] to [deferred] points per city, stratified by land-use class (residential, commercial, industrial, green space) to ensure representation of high-UHI zones.
- - **Rationale**: Fitting GWR/SAR on large-scale pixel datasets is O(N^2) and intractable. Sampling preserves spatial structure while ensuring computational feasibility.
-4. **Modeling**:
- - **OLS**: Baseline linear model.
- - **SAR (Spatial Lag/Error)**: Accounts for global spatial dependence.
- - **GWR**: Accounts for local spatial heterogeneity (non-stationarity).
-5. **Validation**: 5-fold spatial cross-validation (spatial blocks) to prevent leakage (FR-005).
-6. **Inference**: Benjamini-Hochberg procedure for FDR control (FR-006).
-7. **Robustness**: Sensitivity analysis on GWR bandwidth (FR-007) and **Albedo Sensitivity Analysis** (Constitution Principle VII).
-8. **Hypothesis Testing**: **Toroidal Shift Permutation Test** (Spatially Restricted Permutation) to preserve spatial autocorrelation under the null.
+## Statistical Methodology
 
-### Addressing Specific Concerns
-- **Multiple Comparisons**: All p-values for variable significance will be corrected using Benjamini-Hochberg (FR-006).
-- **Sample Size/Power**: With stratified sampling (N ~ k-50k), power is sufficient for detecting effect sizes. Spatial dependence is accounted for in the model structure.
-- **Causal Inference**: The data is observational. All claims will be framed as **associational** (FR-008). No randomization exists.
-- **Measurement Validity**: OSM tree nodes are a proxy for canopy cover. The plan explicitly acknowledges this limitation and includes **NDVI-based imputation** for sparse areas and a **sensitivity analysis on albedo** (using land-cover derived albedo estimates) to quantify missing factor variance.
-- **Predictor Collinearity**: Building density and road density are likely correlated. VIF will be calculated; if high, they will be reported descriptively, not as independent effects.
-- **Spatial Permutation**: Standard permutation destroys spatial structure. We will use **toroidal shifts** (shifting the grid cyclically) to generate the null distribution, ensuring the spatial autocorrelation of the predictors is preserved.
+### 1. Exploratory Spatial Data Analysis (ESDA)
+Before modeling, we must quantify spatial dependence.
+- **Moran's I**: To test the null hypothesis of no spatial autocorrelation in LST.
+  - *Method*: Global Moran's I using `pysal`.
+  - *Metric*: $I$ statistic, $p$-value (permutation-based).
+- **Variograms**: To characterize the range and sill of spatial dependence.
+- **Correlation Matrix**: Spearman correlation between OSM covariates (building density, NDVI proxy) and LST.
 
-## Compute Feasibility
+### 2. Spatial Regression Models
+We will fit three models as per FR-005:
+1.  **Ordinary Least Squares (OLS)**: Global baseline.
+    - *Assumption*: Stationarity (relationships are constant across space).
+    - *Diagnostics*: Residual Moran's I, VIF (collinearity check).
+2.  **Geographically Weighted Regression (GWR)**: Local parameter estimation.
+    - *Mechanism*: Fits a local regression at each pixel/location using a kernel bandwidth.
+    - *Bandwidth Selection*: Cross-validation (CV) or AICc minimization.
+    - *Sensitivity*: FR-009 requires a sweep of bandwidth parameters to assess stability.
+    - *Implementation*: `pysal`'s `GWR` module (CPU-optimized). **`mgwr` is excluded** due to memory constraints.
+3.  **Spatial Lag/Error (SAR)**: Global spatial dependence modeling.
+    - *Lag Model*: $y = \rho W y + X\beta + \epsilon$ (Spatial dependence in outcome).
+    - *Error Model*: $y = X\beta + u, u = \lambda W u + \epsilon$ (Spatial dependence in errors).
+    - *Estimation*: Maximum Likelihood Estimation (MLE) via `pysal` (`spreg`).
 
-- **Hardware**: GitHub Actions Free Tier (limited CPU, 7GB RAM, No GPU).
+### 3. Validation & Inference
+- **Spatial Cross-Validation**:
+  - *Strategy*: Spatial blocking (5-fold). Blocks are generated using a **fixed 1km x 1km grid** over the city extent to ensure reproducibility and prevent leakage (FR-006).
+  - *Metric*: RMSE, $R^2$ per fold, aggregated.
+- **Multiple Comparison Correction**:
+  - *Problem*: Testing significance of multiple predictors in spatial models inflates Type I error.
+  - *Solution*: Apply **Effective Number of Tests (Meff)** (Li & Ji method) or **Permutation-based FDR** to account for predictor correlation.
+  - *Standard Errors*: **HAC (Heteroskedasticity and Autocorrelation Consistent)** standard errors are applied to coefficients *before* p-value adjustment to ensure validity.
+  - *Note*: Standard Bonferroni is **not** used as it assumes independence which is violated in spatial data.
+
+### 4. Confounding Control & Proxy Validity (FR-010)
+- **Confounding**: We will attempt to include socioeconomic proxies (e.g., population density from WorldPop if available, or OSM-based building height/complexity) as covariates to control for confounding.
+  - *Limitation*: If WorldPop is unavailable, we explicitly flag this as a limitation and report the "Unexplained Variance Gap".
+- **Proxy Validity (Unexplained Variance Gap)**:
+  - The study acknowledges that OSM features (building density, tree cover) are incomplete proxies.
+  - **Method**: Compare the observed $R^2$ of the best model against literature-derived upper bounds for OSM-only models (typically moderate).
+  - **Output**: Report the "Unexplained Variance Gap" ($1 - R^2_{observed} - R^2_{literature\_max}$) to quantify the potential impact of missing factors (albedo, anthropogenic heat).
+  - **Assumption Revision**: We explicitly **do not assume** OSM features are the primary drivers. The analysis tests whether they are *predictive* proxies, acknowledging that a low $R^2$ may indicate missing dominant drivers.
+
+## Statistical Rigor & Assumptions
+
+- **Multiple Comparisons**: Addressed via Meff/Permutation FDR and HAC standard errors (FR-008).
+- **Sample Size/Power**:
+  - *Limitation*: Pixel-level analysis provides $N > 10,000$ per city, but spatial dependence reduces effective sample size ($N_{eff}$).
+  - *Strategy*: We will report $N_{eff}$ estimates based on the variogram range. If $N_{eff}$ is low, we will acknowledge limited power for detecting weak effects.
+- **Causal Inference**:
+  - *Statement*: This is an **observational** study. Claims will be strictly **associational**.
+  - *Identification*: No randomization. We cannot claim OSM features *cause* UHI, only that they are predictive proxies.
+- **Measurement Validity**:
+  - *OSM Proxies*: Building density and tree cover are standard proxies. We acknowledge they are imperfect (missing albedo, anthropogenic heat).
+  - *Sensitivity*: FR-010 (Proxy Validity) and the "Unexplained Variance Gap" analysis address this.
+- **Collinearity**:
+  - *Risk*: Building density and impervious surface are highly correlated.
+  - *Mitigation*: VIF analysis in EDA. If VIF > 5, we will report descriptive statistics rather than claiming independent effects for both.
+
+## Model Misspecification Diagnostics
+
+Beyond residual Moran's I, the plan includes:
+1.  **Lagrange Multiplier (LM) Tests**: To distinguish between Spatial Lag and Spatial Error dependence (validating SAR choice).
+2.  **Ramsey RESET Test**: To detect omitted variable bias (model misspecification).
+3.  **Moran's I on Residuals**: A necessary but not sufficient condition for validity.
+
+## Compute Feasibility Plan
+
+- **Environment**: GitHub Actions Free Tier (multiple CPU, 7 GB RAM).
 - **Strategy**:
- - **Data Subsetting**: Process each city independently.
- - **Tiling**: Large rasters will be split into tiles (e.g., 10km x 10km) for **aggregation** (density calculation) to avoid memory overflow.
- - **Sampling**: **Model fitting** (GWR/SAR) is performed on a stratified random sample (N ≤ 50,000) to ensure O(N^2) complexity is tractable.
- - **Libraries**: `rasterio` (streaming), `pysal` (optimized C extensions), `scikit-learn` (CPU).
- - **Runtime**: Estimated < 4 hours for full pipeline (Ingest -> EDA -> Sample -> Model -> Validate).
- - **No GPU**: No CUDA, no mixed-precision training. Models are linear/regression based, which are CPU-efficient.
+  - **Spatial Block Sampling (Mandatory)**: Data is reduced to a maximum of **[deferred]** of spatial blocks (1km x 1km grid) for model fitting. **Random pixel sampling is strictly forbidden** as it destroys spatial structure.
+  - **Memory Safety**: If $N_{samples} > 500,000$ or estimated spatial weights matrix size > 5 GB, the pipeline **automatically degrades** to OLS with HAC errors.
+  - **Libraries**: Use `pysal` (CPU optimized), `scikit-learn` (CPU), `statsmodels`. Avoid deep learning frameworks.
+  - **GWR**: `pysal`'s built-in GWR implementation will be used. If it fails due to memory, the pipeline degrades to OLS (no custom simplified GWR implementation).
+  - **Parallelization**: Use `joblib` for spatial block cross-validation (parallelize folds across multiple cores).
 
-## Decision Log
+## Risks & Mitigations
 
-| Decision | Rationale | Alternative Rejected |
-|:--- |:--- |:--- |
-| **Use Overpass API via `overpy`** | Dynamic, up-to-date, no need to host massive vector files. | Downloading static OSM extracts is too large for 14GB disk limit. |
-| **30m Resolution** | Matches Landsat 8 resolution; standard for urban studies. | 1km (MODIS native) is too coarse for building-level analysis. |
-| **Stratified Sampling for GWR** | Required to fit O(N^2) models on 2 CPU cores within 6h. | Full grid fitting is intractable (days/weeks). |
-| **GWR Bandwidth Selection via AICc** | Minimizes information loss; standard in `mgwr`. | Fixed bandwidth is arbitrary and may miss local patterns. |
-| **Spatial CV (Blocks)** | Prevents leakage from spatial autocorrelation. | Random CV inflates R² artificially. |
-| **Toroidal Shift Permutation** | Preserves spatial autocorrelation under null. | Standard permutation invalidates spatial tests. |
-| **NDVI Imputation for Trees** | Corrects OSM sparsity in dense urban cores. | Ignoring sparsity leads to underestimation of cooling effect. |
+| Risk | Impact | Mitigation |
+| :--- | :--- | :--- |
+| **Data Volume > 7GB RAM** | Pipeline crash. | Implement **Spatial Block Sampling** (max [deferred] of blocks) for model fitting. Automatic degradation to OLS. |
+| **Cloud Cover in Landsat** | Missing LST values. | Use multi-date composites (FR-002) and cloud masking algorithms. |
+| **GWR Convergence Failure** | Model not fit. | Use a grid search for bandwidth with fallback to global OLS if local fit fails. |
+| **Overpass API Rate Limits** | Ingestion timeout. | Retry logic with exponential backoff; cache raw OSM JSON locally. |
+| **Memory Overflow in SAR/GWR** | OOM Crash. | **Automatic Fallback**: If $N > 500k$, skip SAR/GWR and run OLS only. |
+| **Missing Confounds** | Spurious correlations. | FR-010 explicitly quantifies "Unexplained Variance Gap" to avoid overclaiming. |
+
+## References
+
+1.  **Overpass API**: https://overpass-api.de/ (Source for OSM vector data).
+2.  **Landsat 8/9 on AWS**: https://registry.opendata.aws/landsat-8/ (Source for 30m Thermal data).
+3.  **PySAL**: https://pysal.org/ (Spatial analysis library).
+4.  **MODIS/Landsat Validation**: Cite standard remote sensing literature for LST retrieval algorithms (e.g., Jiménez-Muñoz et al., 2014).
+5.  **Proxy Validity**: Literature on OSM-based UHI modeling (e.g., studies comparing OSM vs. LiDAR/Albedo data).

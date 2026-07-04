@@ -1,6 +1,6 @@
 # Tasks: Statistical Analysis of OpenStreetMap Data for Urban Heat Island Effects
 
-**Input**: Design documents from `/specs/001-statistical-analysis-urban-heat/`
+**Input**: Design documents from `/specs/001-urban-heat-osm/`
 **Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
 
 **Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
@@ -15,9 +15,7 @@
 
 ## Path Conventions
 
-- **Single project**: `src/`, `tests/` at repository root
-- **Web app**: `backend/src/`, `frontend/src/`
-- **Mobile**: `api/src/`, `ios/src/` or `android/src/`
+- **Single project**: `code/`, `tests/` at repository root
 - Paths shown below assume single project - adjust based on plan.md structure
 
 <!-- 
@@ -43,9 +41,9 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure per implementation plan (`code/`, `tests/`, `data/raw`, `data/processed`)
-- [ ] T002 Initialize Python 3.11 project with `requirements.txt` pinning (`rasterio`, `geopandas`, `overpy`, `xarray`, `netCDF4`, `scikit-learn`, `pysal`, `mgwr`, `statsmodels`, `pyproj`, `earthaccess`)
-- [ ] T003 [P] Configure linting (ruff) and formatting (black) tools
+- [ ] T001a Create project directory structure (`code/`, `data/`, `tests/`, `docs/`, `data/raw/`, `data/processed/`, `data/results/`)
+- [ ] T001b Create `requirements.txt` with pinned versions (osmnx, geopandas, rasterio, xarray, scikit-learn, pysal, statsmodels, numpy, pandas, joblib, pytest)
+- [ ] T001c Create `.gitignore` and `.env.example` files
 
 ---
 
@@ -55,11 +53,11 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 Setup `utils/config.py` for city boundaries, CRS (EPSG:3857), and 30m grid parameters
-- [ ] T005 [P] Implement `utils/io_helpers.py` for NetCDF/GeoTIFF reading/writing and checksumming
-- [ ] T006 [P] Create `contracts/dataset.schema.yaml` and `contracts/model_output.schema.yaml`
-- [ ] T007 Setup `pytest` configuration and contract test framework (`tests/contract/test_schemas.py`)
-- [ ] T008 Implement random seed setting utility (`utils/random_seed.py`) for reproducibility
+- [ ] T004 Create `code/config.py` with city definitions, CRS settings (EPSG:3857/Local UTM), path constants, and MAX_BLOCKS=100
+- [ ] T005 [P] Implement memory safety utilities (`code/utils/memory.py`) for matrix size estimation and spatial block sampling logic
+- [ ] T006 [P] Setup logging infrastructure in `code/utils/logging.py` with file and stdout handlers
+- [ ] T007 Create base data models and schema validation in `code/models/` (CityBoundary, RasterCovariate, TemperatureRaster)
+- [ ] T008 Configure environment variable management (`.env` support) for API keys (Overpass/AWS)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -67,97 +65,115 @@
 
 ## Phase 3: User Story 1 - Data Ingestion and Rasterization (Priority: P1) 🎯 MVP
 
-**Goal**: Download vector OSM data and satellite thermal data for NYC, Chicago, LA, and align them into a unified 30m raster grid.
+**Goal**: Ingest raw vector data from OpenStreetMap (OSM) and satellite thermal imagery (MODIS/Landsat), align them to a common CRS, and generate aligned 30m resolution raster covariates and target variables.
 
-**Independent Test**: Verify output directory contains a single NetCDF/GeoTIFF per city where spatial intersection of valid temp and OSM covariate pixels is >99% of union, and CRS matches.
+**Independent Test**: Run the data pipeline for New York City and verify that output GeoTIFFs have matching dimensions, CRS, and non-null values in the overlap region.
 
-### Tests for User Story 1
+### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T009 [P] [US1] Contract test for aligned raster schema in `tests/contract/test_aligned_raster.py`
-- [ ] T010 [P] [US1] Integration test for data alignment pipeline in `tests/integration/test_ingest_pipeline.py`
+> **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
+
+- [ ] T009 [P] [US1] Unit test for Overpass API query construction in `tests/unit/test_ingest.py`
+- [ ] T010 [P] [US1] Unit test for raster reprojection and resampling logic in `tests/unit/test_ingest.py`
+- [ ] T011 [P] [US1] Integration test for end-to-end ingestion of a single city in `tests/integration/test_ingest_pipeline.py`
 
 ### Implementation for User Story 1
 
-- [ ] T011 [P] [US1] Implement `code/01_ingest/fetch_osm.py` using Overpass API to download buildings, roads, and trees for NYC, Chicago, LA
-- [ ] T012 [P] [US1] Implement `code/01_ingest/fetch_thermal.py` to download MODIS (MODIS thermal) and Landsat 8 thermal data from AWS Open Data for summer 2018-2022
-- [ ] T012b [US1] Implement `code/01_ingest/fetch_albedo.py` to download NASA NLCD land-cover data (https://www.mrlc.gov/data) and derive `albedo.tif` (30m) for NYC, Chicago, LA. **Output**: Save the derived albedo raster specifically to `data/processed/aligned_grid/albedo.tif` to support downstream sensitivity analysis. **Depends on T011**.
-- [ ] T013 [US1] Implement `code/01_ingest/align_rasters.py` as a SINGLE atomic script:
-  - **Reproject**: Align OSM vectors and thermal rasters to common CRS (EPSG:3857).
-  - **Aggregate**: Convert OSM building/road nodes to 30m density rasters.
-  - **Aggregate**: Convert OSM tree nodes to 30m 'count per pixel' (proxy for tree presence).
-  - **Compute**: Generate daytime LST composites from thermal data.
-  - **Mask**: Exclude pixels with >50% cloud cover and handle missing OSM categories (impute zero/flag).
-  - **Save**: Output final aligned NetCDF/GeoTIFF per city. **Depends on T011, T012, T012b**.
-- [ ] T014 [US1] Add error handling for Overpass timeouts and missing satellite tiles
-- [ ] T015 [US1] Add logging for data ingestion steps and checksum verification
+- [ ] T012 [US1] Implement OSM vector download via Overpass API in `code/ingest.py` (FR-001)
+  - Download buildings, land-use, trees, roads for specified city boundaries.
+  - Handle rate limits with exponential backoff and local caching.
+- [ ] T013 [US1] Implement satellite thermal data ingestion in `code/ingest.py` (FR-002)
+  - Fetch MODIS/Landsat data for a recent multi-year period.
+  - Compute daytime land-surface temperature composites.
+  - Implement cloud masking and multi-date composite generation if cloud cover > 20%.
+- [ ] T014 [US1] Implement raster alignment and resampling in `code/ingest.py` (FR-003)
+  - Reproject all layers to a common CRS.
+  - Resample to a standardized coarse resolution (bilinear for continuous, nearest for categorical).
+  - Validate upsampling error < 0.1; exit with code 1 if exceeded.
+  - Handle missing data: Proceed without warning if ≤10%; Log WARNING if > 10%.
+- [ ] T015 [US1] Create aligned GeoTIFF stack output in `data/processed/`
+  - Ensure all output rasters share identical dimensions, origin, and CRS.
+  - Generate `data/metadata.json` with fetch timestamps and checksums.
+- [ ] T015a [US1] Write `data-model.md` documenting reprojection and resampling methods (SC-007)
+- [ ] T016 [US1] Add validation logic to verify non-null overlap region in `code/ingest.py`
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
 ---
 
-## Phase 4: User Story 2 - Exploratory Analysis and Spatial Autocorrelation (Priority: P2)
+## Phase 4: User Story 2 - Exploratory Spatial Analysis and Autocorrelation Check (Priority: P2)
 
-**Goal**: Generate statistical summaries and spatial diagnostics (Moran's I, variograms) to assess data-variable fit.
+**Goal**: Perform exploratory data analysis (EDA) to quantify relationships between OSM-derived features and temperature, including correlation matrices, variograms, and spatial autocorrelation metrics (Moran's I).
 
-**Independent Test**: Verify script outputs correlation summary table and variogram plots confirming spatial autocorrelation.
+**Independent Test**: Run the EDA module on the aligned rasters and verify the generation of a correlation matrix and a Moran's I statistic report.
 
-### Tests for User Story 2
+### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T016 [P] [US2] Contract test for spatial diagnostic schema in `tests/contract/test_spatial_diag.py`
-- [ ] T017 [P] [US2] Integration test for EDA pipeline in `tests/integration/test_eda_pipeline.py`
+- [ ] T017 [P] [US2] Unit test for Moran's I calculation in `tests/unit/test_eda.py`
+- [ ] T018 [P] [US2] Unit test for variogram computation in `tests/unit/test_eda.py`
 
 ### Implementation for User Story 2
 
-- [ ] T018 [P] [US2] Implement `code/02_eda/spatial_stats.py`:
-  - Calculate Pearson/Spearman correlations between OSM covariates and temperature
-  - Compute Moran's I on temperature residuals
-  - Calculate Variance Inflation Factor (VIF) and flag collinear variables (VIF > 5)
-- [ ] T019 [US2] Implement `code/02_eda/plots.py` to generate variogram plots and correlation heatmaps
-- [ ] T020 [US2] Implement logic to handle negligible spatial autocorrelation (Spec Edge Cases):
-  - **Trigger**: If Moran's I p-value > 0.05.
-  - **Action**: Log "Spatial autocorrelation negligible" to `results/diagnostics.json`. **DO NOT SKIP** GWR/SAR fitting. The stratified sample (N ≤ 50,000) ensures tractability regardless of autocorrelation strength. Proceed to fit GWR/SAR models as required by FR-004.
-  - **Output**: Write `results/diagnostics.json` with message "Spatial autocorrelation negligible; proceeding with OLS, GWR, and SAR models". **Depends on T018**.
-- [ ] T021 [US2] Add output generation for summary tables and diagnostic reports
+- [ ] T019 [US2] Implement correlation matrix generation in `code/eda.py` (FR-004)
+  - Calculate Pearson/Spearman correlations between covariates and temperature.
+  - Output to `data/results/correlation_matrix.csv`.
+- [ ] T020 [US2] Implement spatial autocorrelation analysis in `code/eda.py` (FR-004)
+  - Compute Moran's I for the temperature raster.
+  - Compute variograms for the target variable.
+  - Output statistics to `data/results/spatial_stats.json`.
+- [ ] T021 [US2] Generate EDA summary report in `data/results/eda_report.md`
+  - Attempt to ingest socioeconomic proxies (WorldPop/OSM height) as described in Plan Phase 2.
+  - If ingestion fails or data is missing, flag as a limitation in the report.
+  - Include summary of strength and direction of linear relationships.
+- [ ] T022 [US2] Visualize variogram and correlation heatmaps (optional, if matplotlib available)
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
 ---
 
-## Phase 5: User Story 3 - Spatial Modeling and Validation (Priority: P3)
+## Phase 5: User Story 3 - Spatial Regression Modeling and Validation (Priority: P3)
 
-**Goal**: Fit OLS, GWR, and SAR models on a stratified random sample (N ≤ 50,000) with spatial cross-validation and permutation testing.
+**Goal**: Fit multiple spatial regression models (OLS, GWR, SAR), perform spatial cross-validation to prevent leakage, evaluate performance, conduct sensitivity analysis, and validate proxy validity.
 
-**Independent Test**: Verify JSON output contains RMSE/R² for each model, with GWR showing significant improvement over OLS if hypothesis holds.
+**Independent Test**: Execute the modeling pipeline on the dataset, ensuring models are trained, cross-validated using spatial blocks, and that performance metrics are logged.
 
-### Tests for User Story 3
+### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T022 [P] [US3] Contract test for model output schema in `tests/contract/test_model_output.py`
-- [ ] T023 [P] [US3] Integration test for model training and validation in `tests/integration/test_modeling_pipeline.py`
+- [ ] T023 [P] [US3] Unit test for spatial block generation in `tests/unit/test_modeling.py`
+- [ ] T024 [P] [US3] Unit test for spatial cross-validation logic in `tests/unit/test_modeling.py`
+- [ ] T025 [P] [US3] Integration test for full modeling pipeline in `tests/integration/test_modeling_pipeline.py`
 
 ### Implementation for User Story 3
 
-- [ ] T024 [P] [US3] Implement `code/03_modeling/sample_data.py` to perform stratified random sampling (N ≤ 50,000) from the aligned grid
-- [ ] T025a [US3] Implement `code/03_modeling/fit_models.py` (Part 1): Fit OLS baseline using `statsmodels` and save coefficients/metrics. **Depends on T024**.
-- [ ] T025b [US3] Implement `code/03_modeling/fit_models.py` (Part 2): Fit GWR using `mgwr` with a **fixed default bandwidth** (e.g., 500m) for baseline comparison. **Depends on T024**.
-- [ ] T025c [US3] Implement `code/03_modeling/fit_models.py` (Part 3): Fit SAR (Lag/Error) using `pysal.spreg`. **Depends on T024**.
-- [ ] T026 [US3] Implement `code/03_modeling/cross_val.py` for spatial k-fold cross-validation (spatial blocks) to prevent leakage. **Depends on T025a, T025b, T025c**.
-- [ ] T027 [US3] Implement `code/04_validation/perm_test.py` for toroidal shift permutation test:
-  - Apply toroidal shift to **spatial block indices** to preserve block structure and prevent leakage (FR-005).
-  - Generate null distribution by permuting OSM features within shifted blocks.
-  - Report p-value of observed R² against null distribution. **Depends on T025a, T025b, T025c**.
-- [ ] T028 [US3] Implement `code/04_validation/report_metrics.py`:
-  - Report RMSE and R² for all models.
-  - Apply Benjamini-Hochberg procedure (α ≤ 0.05) for FDR control on p-values.
-  - **Hypothesis Test**: Implement a **Bootstrap percentile test (1000 iterations) on residuals** to test H0: R² ≤ 0.30. Write `results/r2_threshold_test.json` with pass/fail.
-  - Frame all results as associational (no causal claims).
-  - Compare GWR/SAR performance against OLS baseline (SC-001, SC-002).
-  - Write `results/fdr_corrected_significance.csv` with adjusted p-values. **Depends on T025a, T025b, T025c, T026, T027**.
-- [ ] T029a [US3] Implement `code/03_modeling/sensitivity.py` (Part 1): Calculate 'effective search radius' (median nearest-neighbor distance) from the sample data. **Define the sweep range** for FR-007 as [0.5x, 2.0x] of this calculated radius, explicitly recording these multipliers as the determined bounds for the '[deferred]' requirement. **Depends on T024**.
-- [ ] T029b [US3] Implement `code/03_modeling/sensitivity.py` (Part 2): Execute GWR bandwidth sweep using the range from T029a and select optimal bandwidth via AICc minimization. Write `results/gwr_sensitivity.json` and `results/gwr_sensitivity.png`. **Depends on T025b, T029a**.
-- [ ] T030 [US3] Implement `code/03_modeling/sensitivity.py` (Part 3): Sensitivity analysis on 'material albedo' (Plan Constitution Check item 7).
-  - **Input**: Use land-cover derived albedo estimates from `data/processed/aligned_grid/albedo.tif` (from T012b).
-  - **Action**: Re-run model sensitivity with albedo as a covariate.
-  - **Output**: Write `results/albedo_sensitivity.json` quantifying variance explained by missing factors. **Depends on T025a, T025b, T025c, T012b**.
+- [ ] T026 [US3] Implement Spatial Block Sampling in `code/modeling.py` (Memory Safety)
+  - Reduce data to a maximum of MAX_BLOCKS (default 100) spatial blocks (1km x 1km) by default, configurable in `code/config.py`.
+  - Enforce strict random seed for reproducibility.
+- [ ] T027 [US3] Implement OLS baseline model in `code/modeling.py` (FR-005)
+  - Fit OLS with spatially robust standard errors (HAC).
+  - Record coefficients and diagnostics.
+- [ ] T028 [US3] Implement SAR (Spatial Lag/Error) model in `code/modeling.py` (FR-005)
+  - Fit SAR model if memory footprint < 5GB and N < 500k.
+  - If memory constraints exceeded, degrade to OLS with HAC and log `model_type: "OLS_DEGRADED"`.
+- [ ] T029 [US3] Implement GWR model in `code/modeling.py` (FR-005)
+  - Fit GWR if memory constraints allow.
+  - If convergence fails, fallback to global OLS.
+- [ ] T030 [US3] Implement configurable k-fold Spatial Cross-Validation in `code/modeling.py` (FR-006)
+  - Use spatial blocks to prevent data leakage.
+  - Default k=5 (as per Spec FR-006), but configurable to match Plan's k-fold requirement.
+  - Calculate RMSE, MAE, R² for each fold.
+- [ ] T031 [US3] Implement Multiple-Comparison Correction in `code/modeling.py` (FR-008)
+  - Apply Permutation-based FDR with Meff adjustment for p-values.
+  - Output adjusted p-values for all predictors.
+- [ ] T032a [US3] Fetch literature-derived upper bounds for OSM-only models (e.g., EPA UHI Review 2023) and store in `data/literature_bounds.json`
+- [ ] T032 [US3] Implement Proxy Validity Sensitivity (FR-010)
+  - Calculate "Unexplained Variance Gap" = Literature_Max_R2 (from T032a) - Observed_R2 (from T030/T031).
+  - Output gap to `data/results/metrics.csv` as SC-006.
+- [ ] T034 [US3] Implement GWR bandwidth sweep in `code/modeling.py` (FR-009)
+  - Sweep over a configurable set of bandwidth values immediately after GWR fitting.
+  - Record R² variation across the sweep.
+- [ ] T035 [US3] Generate sensitivity report in `data/results/sensitivity_report.md` (SC-004)
+  - Visualize stability of R² across bandwidths using standard deviation of R².
+- [ ] T033 [US3] Output all metrics to `data/results/metrics.csv` (SC-001, SC-002, SC-003, SC-005, SC-006)
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -167,11 +183,15 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T031 [P] Documentation updates in `docs/` and `README.md`
-- [ ] T032 Code cleanup and refactoring for CPU efficiency (tiling for raster aggregation)
-- [ ] T033 Performance optimization to ensure ≤6h runtime on GitHub Actions free-tier
-- [ ] T034 [P] Additional unit tests in `tests/unit/`
-- [ ] T035 Run `quickstart.md` validation and verify all artifacts are reproducible
+- [ ] T036a [P] Update README.md with CLI usage examples and installation instructions
+- [ ] T036b [P] Create `docs/quickstart.md` with step-by-step pipeline guide
+- [ ] T037a Run `ruff` and `black` to fix linting and formatting issues across `code/`
+- [ ] T037b Remove unused imports and dead code identified by linters in `code/`
+- [ ] T038a Profile memory usage of `code/ingest.py` and `code/modeling.py` using `memory_profiler`
+- [ ] T038b Tune MAX_BLOCKS in `config.py` to ensure peak memory < 6GB
+- [ ] T039 [P] Add unit tests for `config.py` and `utils/memory.py` in `tests/unit/`
+- [ ] T040 [P] Implement API key rotation logic and secure storage in `code/config.py`
+- [ ] T041 Run quickstart.md validation
 
 ---
 
@@ -181,6 +201,7 @@
 
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
+  - **CRITICAL**: T007 (Create base data models) MUST complete before any US1 task (T012-T016) can start.
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
   - User stories can then proceed in parallel (if staffed)
   - Or sequentially in priority order (P1 → P2 → P3)
@@ -189,8 +210,10 @@
 ### User Story Dependencies
 
 - **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Depends on US1 completion (requires aligned raster data)
-- **User Story 3 (P3)**: Depends on US1 and US2 completion (requires data and diagnostics)
+- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Depends on US1 data output
+- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on US1 data output
+- **Phase 5 Tasks (T032a)**: Must complete before T032 (Proxy Validity)
+- **Phase 5 Tasks (T030/T031)**: Must complete before T034/T035 (Sensitivity)
 
 ### Within Each User Story
 
@@ -206,7 +229,7 @@
 - All Foundational tasks marked [P] can run in parallel (within Phase 2)
 - Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
 - All tests for a user story marked [P] can run in parallel
-- Models within a story marked [P] can run in parallel (e.g., T025a, T025c)
+- Models within a story marked [P] can run in parallel
 - Different user stories can be worked on in parallel by different team members
 
 ---
@@ -214,14 +237,13 @@
 ## Parallel Example: User Story 1
 
 ```bash
-# Launch all tests for User Story 1 together:
-Task: "Contract test for aligned raster schema in tests/contract/test_aligned_raster.py"
-Task: "Integration test for data alignment pipeline in tests/integration/test_ingest_pipeline.py"
+# Launch all tests for User Story 1 together (if tests requested):
+Task: "Unit test for Overpass API query construction in tests/unit/test_ingest.py"
+Task: "Unit test for raster reprojection and resampling logic in tests/unit/test_ingest.py"
 
-# Launch all ingestion scripts together:
-Task: "Implement code/01_ingest/fetch_osm.py"
-Task: "Implement code/01_ingest/fetch_thermal.py"
-Task: "Implement code/01_ingest/fetch_albedo.py"
+# Launch all models for User Story 1 together:
+Task: "Implement OSM vector download via Overpass API in code/ingest.py"
+Task: "Implement satellite thermal data ingestion in code/ingest.py"
 ```
 
 ---
@@ -250,9 +272,9 @@ With multiple developers:
 
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
-   - Developer A: User Story 1 (Data Ingestion)
-   - Developer B: User Story 2 (EDA) - *Note: Can start only after US1 data is available or with mocks*
-   - Developer C: User Story 3 (Modeling) - *Note: Can start only after US1/US2 data is available or with mocks*
+   - Developer A: User Story 1
+   - Developer B: User Story 2
+   - Developer C: User Story 3
 3. Stories complete and integrate independently
 
 ---
@@ -266,6 +288,4 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Critical Constraint**: All modeling tasks (US3) MUST use the stratified random sample (N ≤ 50,000) to ensure CPU tractability on cores/GB RAM. Do NOT attempt full grid GWR/SAR.
-- **Data Integrity**: Do NOT fabricate data. Use real URLs from AWS/Overpass/NASA. If a dataset is missing, task obtaining a real alternative or flag the gap.
-- **Dependency Note**: Tasks marked [P] can run in parallel ONLY if they do not consume the output of another task in the same phase. Explicit dependencies (e.g., "Depends on T024") override the [P] tag for execution order.
+- **Critical Constraint**: All modeling tasks must respect the 7GB RAM limit via Spatial Block Sampling (MAX_BLOCKS=100) and automatic degradation to OLS if N > 500k. No GPU usage allowed.

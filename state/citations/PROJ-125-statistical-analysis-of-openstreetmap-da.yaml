@@ -1,22 +1,33 @@
-- artifact_hash: 5b85ebc9e718ebd453e0de5948d7627784666348bb17f2fc058d1ce78958e33d
+- artifact_hash: 5e34b6e00e6505be61f7c9d46584714fea9963b29745c896594ed104acdb9e3d
   artifact_path: projects/PROJ-125-statistical-analysis-of-openstreetmap-da/specs/001-statistical-analysis-of-openstreetmap-da/research.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
-  fetched_title: dev-00000-of-00001.parquet
+  fetched_title: Overpass API
   kind: url
-  value: https://huggingface.co/datasets/tranthaihoa/vifactcheck/resolve/main/data/dev-00000-of-00001.parquet`
+  value: https://overpass-api.de/
   verification_status: verified
-  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/666687c79b7d75d2ed608051/9c7a32a40bb8c5b3c639bfa4d4cfca52f356c530dba1c3fb3343af47a39457c3?response-content-disposition=inline%3B+filename*%3DUTF-8%27%27dev-00000-of-00001.parquet%3B+filename%3D%22dev-00000-of-00001.parquet%22%3B&user_id=public&X-Xet-Cas-Uid=public&Expires=1783169881&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjY2Njg3Yzc5YjdkNzVkMmVkNjA4MDUxLzljN2EzMmE0MGJiOGM1YjNjNjM5YmZhNGQ0Y2ZjYTUyZjM1NmM1MzBkYmExYzNmYjMzNDNhZjQ3YTM5NDU3YzNcXD9yZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3ZGV2LTAwMDAwLW9mLTAwMDAxLnBhcnF1ZXQlM0IrZmlsZW5hbWUlM0QlMjJkZXYtMDAwMDAtb2YtMDAwMDEucGFycXVldCUyMiUzQiZ1c2VyX2lkPXB1YmxpYyZYLVhldC1DYXMtVWlkPXB1YmxpYyIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzgzMTY5ODgxfX19XX0_&Signature=MEUCIA%7EdxGVFKRu3uCSMvZwiRPiWGIP1lK9ZFfSFt47wBC1HAiEApf6X1el90aOxtjEbPUXgCXyQoW8yk1ssRkVxiySI2MM_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
-  verified_at: '2026-07-04T11:58:01.124376Z'
-- artifact_hash: 61322e1d4fdb4aa75ed9f586661c0ed3bf22d797e3164519bea04b8050cc7827
-  artifact_path: projects/PROJ-125-statistical-analysis-of-openstreetmap-da/specs/001-statistical-analysis-of-openstreetmap-da/tasks.md
-  cite_id: c-001
+  verified_against_url: https://overpass-api.de/
+  verified_at: '2026-07-04T12:54:40.005180Z'
+- artifact_hash: 5e34b6e00e6505be61f7c9d46584714fea9963b29745c896594ed104acdb9e3d
+  artifact_path: projects/PROJ-125-statistical-analysis-of-openstreetmap-da/specs/001-statistical-analysis-of-openstreetmap-da/research.md
+  cite_id: c-002
   cited_authors: []
   cited_title: null
-  fetched_title: Data | Multi-Resolution Land Characteristics (MRLC) Consortium
+  fetched_title: Registry of Open Data on AWS
   kind: url
-  value: https://www.mrlc.gov/data
+  value: https://registry.opendata.aws/landsat-8/
   verification_status: verified
-  verified_against_url: https://www.mrlc.gov/data
-  verified_at: '2026-07-04T12:30:31.825505Z'
+  verified_against_url: https://registry.opendata.aws/landsat-8/
+  verified_at: '2026-07-04T12:54:40.005180Z'
+- artifact_hash: 5e34b6e00e6505be61f7c9d46584714fea9963b29745c896594ed104acdb9e3d
+  artifact_path: projects/PROJ-125-statistical-analysis-of-openstreetmap-da/specs/001-statistical-analysis-of-openstreetmap-da/research.md
+  cite_id: c-003
+  cited_authors: []
+  cited_title: null
+  fetched_title: PySAL
+  kind: url
+  value: https://pysal.org/
+  verification_status: pending
+  verified_against_url: https://pysal.org/
+  verified_at: '2026-07-04T12:54:40.005180Z'

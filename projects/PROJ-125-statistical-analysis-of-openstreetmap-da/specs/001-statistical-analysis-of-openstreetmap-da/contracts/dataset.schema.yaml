@@ -1,73 +1,87 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "CityGridDatasetSchema"
-description: "Schema for the aligned 30m raster dataset for a single city."
-type: "object"
+title: "Aligned Raster Dataset Schema"
+description: "Schema for the aligned 30m raster stack used in spatial regression."
+type: object
 properties:
-  city_id:
-    type: "string"
-    description: "Unique identifier for the city (e.g., 'NYC', 'CHI', 'LA')."
-  crs:
-    type: "string"
-    description: "Coordinate Reference System (e.g., 'EPSG:3857')."
-  resolution_meters:
-    type: "number"
-    description: "Resolution of the grid in meters."
-    const: 30.0
-  dimensions:
-    type: "object"
+  metadata:
+    type: object
     properties:
-      rows:
-        type: "integer"
-        minimum: 1
-      cols:
-        type: "integer"
-        minimum: 1
+      city_name:
+        type: string
+        description: "Name of the city analyzed."
+      crs:
+        type: string
+        description: "Coordinate Reference System (e.g., EPSG:3857)."
+      resolution_meters:
+        type: integer
+        description: "Resolution in meters."
+      nodata_value:
+        type: number
+        description: "Value used for no-data pixels."
+      data_source_landsat:
+        type: string
+        description: "Source identifier for the Landsat scene."
+      data_source_osm:
+        type: string
+        description: "Query timestamp and Overpass API version."
+      fetch_timestamp:
+        type: string
+        format: date-time
+        description: "ISO 8601 timestamp of data ingestion."
+      sampling_strategy:
+        type: string
+        description: "Strategy used for data reduction (e.g., 'spatial_block_sampling')."
+      sampling_percentage:
+        type: number
+        description: "Percentage of blocks sampled."
+      block_size_meters:
+        type: integer
+        description: "Size of spatial blocks in meters (e.g., 1000)."
+      block_count:
+        type: integer
+        description: "Total number of blocks generated."
+      sampled_block_count:
+        type: integer
+        description: "Number of blocks selected for analysis."
+      random_seed:
+        type: integer
+        description: "Seed used for block sampling."
     required:
-      - rows
-      - cols
-  bounds:
-    type: "array"
-    items:
-      type: "number"
-    minItems: 4
-    maxItems: 4
-    description: "Bounding box [min_x, min_y, max_x, max_y]."
+      - city_name
+      - crs
+      - resolution_meters
+      - nodata_value
+      - sampling_strategy
+      - block_size_meters
   layers:
-    type: "array"
+    type: array
+    description: "List of raster layers included in the stack."
     items:
-      type: "string"
-      enum:
-        - "temperature"
-        - "building_density"
-        - "road_density"
-        - "tree_density"
-    description: "List of variable layers present in the dataset."
-  data_quality:
-    type: "object"
-    properties:
-      temperature_valid_pixels_ratio:
-        type: "number"
-        minimum: 0.0
-        maximum: 1.0
-        description: "Ratio of valid temperature pixels (target: >=0.95)."
-      covariate_valid_pixels_ratio:
-        type: "number"
-        minimum: 0.0
-        maximum: 1.0
-        description: "Ratio of valid covariate pixels (target: >=0.95)."
-      alignment_tolerance_degrees:
-        type: "number"
-        maximum:
-        description: "Tolerance for CRS alignment."
-    required:
-      - temperature_valid_pixels_ratio
-      - covariate_valid_pixels_ratio
-      - alignment_tolerance_degrees
+      type: object
+      properties:
+        name:
+          type: string
+          description: "Layer name (e.g., 'building_density', 'lst')."
+        band_index:
+          type: integer
+          description: "Band index in the GeoTIFF (1-based)."
+        unit:
+          type: string
+          description: "Physical unit of the layer."
+        min_value:
+          type: number
+          description: "Minimum valid value in the layer."
+        max_value:
+          type: number
+          description: "Maximum valid value in the layer."
+        missing_percentage:
+          type: number
+          description: "Percentage of pixels with nodata value."
+      required:
+        - name
+        - band_index
+        - unit
+        - missing_percentage
 required:
-  - city_id
-  - crs
-  - resolution_meters
-  - dimensions
-  - bounds
+  - metadata
   - layers
-  - data_quality

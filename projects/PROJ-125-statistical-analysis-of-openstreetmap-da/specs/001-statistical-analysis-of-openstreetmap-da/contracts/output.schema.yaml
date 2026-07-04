@@ -1,0 +1,131 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Spatial Model Output Schema"
+description: "Schema for the results of OLS, GWR, and SAR models."
+type: object
+properties:
+  model_info:
+    type: object
+    properties:
+      model_type:
+        type: string
+        enum: ["OLS", "GWR", "SAR", "OLS_DEGRADED"]
+        description: "Type of spatial model fitted."
+      city_name:
+        type: string
+        description: "City analyzed."
+      cv_folds:
+        type: integer
+        description: "Number of spatial cross-validation folds."
+      random_seed:
+        type: integer
+        description: "Random seed used for reproducibility."
+      degradation_reason:
+        type: string
+        nullable: true
+        description: "Reason for model degradation (e.g., 'Memory Limit Exceeded')."
+    required:
+      - model_type
+      - city_name
+      - cv_folds
+      - random_seed
+  performance_metrics:
+    type: object
+    properties:
+      rmse:
+        type: number
+        description: "Root Mean Square Error."
+      mae:
+        type: number
+        description: "Mean Absolute Error."
+      r_squared:
+        type: number
+        description: "Coefficient of determination (R²)."
+      adjusted_r_squared:
+        type: number
+        description: "Adjusted R²."
+      cv_rmse_mean:
+        type: number
+        description: "Mean RMSE across CV folds."
+      cv_r2_mean:
+        type: number
+        description: "Mean R² across CV folds."
+    required:
+      - rmse
+      - r_squared
+      - cv_rmse_mean
+      - cv_r2_mean
+  coefficients:
+    type: object
+    description: "Model coefficients and significance."
+    additionalProperties:
+      type: object
+      properties:
+        estimate:
+          type: number
+          description: "Coefficient estimate."
+        std_error:
+          type: number
+          description: "Standard error (HAC corrected if applicable)."
+        p_value_raw:
+          type: number
+          description: "Raw p-value."
+        p_value_adjusted:
+          type: number
+          description: "Adjusted p-value (Permutation-based FDR)."
+        significant:
+          type: boolean
+          description: "True if adjusted p-value < 0.05."
+      required:
+        - estimate
+        - p_value_adjusted
+        - significant
+  diagnostics:
+    type: object
+    properties:
+      moran_i_residuals:
+        type: number
+        description: "Moran's I of model residuals."
+      p_value_moran_i:
+        type: number
+        description: "P-value for Moran's I test."
+      vif_max:
+        type: number
+        description: "Maximum Variance Inflation Factor."
+      lm_lag_stat:
+        type: number
+        nullable: true
+        description: "Lagrange Multiplier test for spatial lag."
+      lm_error_stat:
+        type: number
+        nullable: true
+        description: "Lagrange Multiplier test for spatial error."
+      reset_stat:
+        type: number
+        nullable: true
+        description: "Ramsey RESET test statistic."
+    required:
+      - moran_i_residuals
+      - p_value_moran_i
+  proxy_validity:
+    type: object
+    nullable: true
+    description: "Results of FR-010 Proxy Validity Sensitivity."
+    properties:
+      observed_r2:
+        type: number
+        description: "Observed R² of the best model."
+      literature_upper_bound:
+        type: number
+        description: "Literature-derived upper bound for OSM-only models."
+      unexplained_variance_gap:
+        type: number
+        description: "Difference between observed R² and literature bound."
+    required:
+      - observed_r2
+      - literature_upper_bound
+      - unexplained_variance_gap
+required:
+  - model_info
+  - performance_metrics
+  - coefficients
+  - diagnostics
