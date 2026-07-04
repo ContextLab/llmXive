@@ -1,79 +1,190 @@
-$schema: "http://json-schema.org/draft-07/schema#"
-title: "Gene Expression Prediction Dataset Schema"
-description: "Schema for the preprocessed gene expression and accessibility matrices."
-type: "object"
+# Dataset Schema Contract for Gene Expression Prediction Pipeline
+# Generated based on data-model.md definitions
+# This schema defines the structure for input datasets (RNA-seq and ATAC-seq/DNase-seq)
+
+$schema: http://json-schema.org/draft-07/schema#
+title: MultiomicDatasetSchema
+description: Schema for paired RNA-seq and chromatin accessibility data
+
+type: object
+required:
+  - metadata
+  - genes
+  - peaks
+  - counts_matrix
+  - accessibility_matrix
+
 properties:
   metadata:
-    type: "object"
+    type: object
+    required:
+      - project_id
+      - cell_lines
+      - assay_types
+      - generation_timestamp
+      - seed
     properties:
-      cell_line_id:
-        type: "string"
-        description: "Identifier for the cell line (e.g., GM12878)."
+      project_id:
+        type: string
+        description: Unique identifier for the project
+      cell_lines:
+        type: array
+        items:
+          type: string
+        description: List of cell line identifiers (e.g., GM12878, K562)
+      assay_types:
+        type: array
+        items:
+          type: string
+        description: Types of assays used (e.g., RNA-seq, ATAC-seq, DNase-seq)
+      generation_timestamp:
+        type: string
+        format: date-time
+        description: ISO 8601 timestamp of data generation
+      seed:
+        type: integer
+        description: Random seed used for reproducibility (if applicable)
       source:
-        type: "string"
-        description: "Source of the data (e.g., Synthetic, ENCODE)."
-      preprocessing_version:
-        type: "string"
-        description: "Version of the preprocessing script used."
+        type: string
+        description: Data source (e.g., ENCODE, synthetic)
+
   genes:
-    type: "array"
-    description: "List of gene identifiers and their coordinates."
+    type: array
+    description: List of gene coordinates and identifiers
     items:
-      type: "object"
-      properties:
-        gene_id:
-          type: "string"
-        symbol:
-          type: "string"
-        tss_start:
-          type: "integer"
-        tss_end:
-          type: "integer"
-        chromosome:
-          type: "string"
+      type: object
       required:
         - gene_id
-        - tss_start
-        - tss_end
-  peaks:
-    type: "array"
-    description: "List of accessible peaks mapped to genes."
-    items:
-      type: "object"
+        - gene_name
+        - chromosome
+        - start
+        - end
+        - strand
       properties:
-        peak_id:
-          type: "string"
-        chromosome:
-          type: "string"
-        start:
-          type: "integer"
-        end:
-          type: "integer"
-        distance_to_tss:
-          type: "integer"
         gene_id:
-          type: "string"
-          description: "The gene this peak is associated with."
+          type: string
+          description: Ensembl or RefSeq gene ID
+        gene_name:
+          type: string
+          description: Gene symbol
+        chromosome:
+          type: string
+          description: Chromosome name (e.g., chr1, chrX)
+        start:
+          type: integer
+          description: 1-based start position
+        end:
+          type: integer
+          description: 1-based end position
+        strand:
+          type: string
+          enum: ["+", "-"]
+          description: Strand orientation
+
+  peaks:
+    type: array
+    description: List of chromatin accessibility peaks
+    items:
+      type: object
       required:
         - peak_id
         - chromosome
         - start
         - end
-        - gene_id
-  expression_matrix:
-    type: "object"
-    description: "Log-transformed expression values (genes x cell lines)."
-    additionalProperties:
-      type: "number"
+        - score
+      properties:
+        peak_id:
+          type: string
+          description: Unique peak identifier
+        chromosome:
+          type: string
+          description: Chromosome name
+        start:
+          type: integer
+          description: 1-based start position
+        end:
+          type: integer
+          description: 1-based end position
+        score:
+          type: number
+          description: Peak score (e.g., -log10(p-value) or signal intensity)
+        strand:
+          type: string
+          enum: ["+", "-", "."]
+          description: Strand (usually '.' for peaks)
+
+  counts_matrix:
+    type: object
+    description: RNA-seq count matrix
+    required:
+      - rows
+      - columns
+      - data
+    properties:
+      rows:
+        type: array
+        items:
+          type: string
+        description: Gene IDs (matching genes.gene_id)
+      columns:
+        type: array
+        items:
+          type: string
+        description: Sample identifiers (format: cell_line_assay)
+      data:
+        type: array
+        items:
+          type: integer
+          minimum: 0
+        description: Flattened count matrix (row-major order)
+      shape:
+        type: object
+        required:
+          - n_genes
+          - n_samples
+        properties:
+          n_genes:
+            type: integer
+            minimum: 1
+          n_samples:
+            type: integer
+            minimum: 1
+
   accessibility_matrix:
-    type: "object"
-    description: "Aggregated accessibility values (peaks x cell lines)."
-    additionalProperties:
-      type: "number"
-required:
-  - metadata
-  - genes
-  - peaks
-  - expression_matrix
-  - accessibility_matrix
+    type: object
+    description: Chromatin accessibility count matrix
+    required:
+      - rows
+      - columns
+      - data
+    properties:
+      rows:
+        type: array
+        items:
+          type: string
+        description: Peak IDs (matching peaks.peak_id)
+      columns:
+        type: array
+        items:
+          type: string
+        description: Sample identifiers (format: cell_line_assay)
+      data:
+        type: array
+        items:
+          type: integer
+          minimum: 0
+        description: Flattened accessibility matrix (row-major order)
+      shape:
+        type: object
+        required:
+          - n_peaks
+          - n_samples
+        properties:
+          n_peaks:
+            type: integer
+            minimum: 1
+          n_samples:
+            type: integer
+            minimum: 1
+
 additionalProperties: false

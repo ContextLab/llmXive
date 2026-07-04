@@ -1,80 +1,176 @@
-$schema: "http://json-schema.org/draft-07/schema#"
-title: "Model Output Schema"
-description: "Schema for the trained model metrics and feature importance results."
-type: "object"
-properties:
-  model_info:
-    type: "object"
-    properties:
-      cell_line_id:
-        type: "string"
-      model_type:
-        type: "string"
-        const: "ElasticNet"
-      alpha:
-        type: "number"
-        const: 0.5
-      l1_ratio:
-        type: "number"
-        const: 0.5
-    required:
-      - cell_line_id
-      - model_type
-      - alpha
-      - l1_ratio
-  metrics:
-    type: "object"
-    description: "Performance metrics for the model."
-    properties:
-      r_squared:
-        type: "number"
-        description: "R² score on the test set."
-      mean_cv_r_squared:
-        type: "number"
-        description: "Mean R² from 5-fold cross-validation."
-      pearson_correlation:
-        type: "number"
-        description: "Pearson correlation between predicted and actual expression."
-      p_value_raw:
-        type: "number"
-        description: "Raw p-value for the correlation."
-      p_value_bonferroni:
-        type: "number"
-        description: "Bonferroni-corrected p-value."
-      significant:
-        type: "boolean"
-        description: "True if p_value_bonferroni < 0.05."
-    required:
-      - r_squared
-      - mean_cv_r_squared
-      - pearson_correlation
-      - p_value_raw
-      - p_value_bonferroni
-      - significant
-  feature_importance:
-    type: "array"
-    description: "Top 100 most important peaks."
-    items:
-      type: "object"
-      properties:
-        peak_id:
-          type: "string"
-        gene_id:
-          type: "string"
-        coefficient:
-          type: "number"
-        absolute_coefficient:
-          type: "number"
-        distance_to_tss:
-          type: "integer"
-      required:
-        - peak_id
-        - gene_id
-        - coefficient
-        - absolute_coefficient
-        - distance_to_tss
+# Output Schema Contract for Gene Expression Prediction Pipeline
+# Generated based on data-model.md definitions
+# This schema defines the structure for all pipeline outputs
+
+$schema: http://json-schema.org/draft-07/schema#
+title: PipelineOutputSchema
+description: Schema for all pipeline output artifacts
+
+type: object
 required:
-  - model_info
-  - metrics
-  - feature_importance
-additionalProperties: false
+  - version
+  - artifacts
+
+properties:
+  version:
+    type: string
+    description: Schema version identifier
+    pattern: '^\d+\.\d+\.\d+$'
+
+  artifacts:
+    type: object
+    description: Collection of output artifacts by category
+    required:
+      - processed_data
+      - models
+      - evaluations
+      - interpretations
+
+    properties:
+      processed_data:
+        type: object
+        description: Processed data files
+        properties:
+          tss_aggregated_features:
+            type: object
+            required:
+              - file_path
+              - schema_ref
+              - checksum
+            properties:
+              file_path:
+                type: string
+                description: Relative path to the file
+              schema_ref:
+                type: string
+                description: Reference to the schema used
+              checksum:
+                type: string
+                description: SHA256 checksum of the file
+          filtered_expression:
+            type: object
+            required:
+              - file_path
+              - schema_ref
+              - checksum
+          imputed_expression:
+            type: object
+            required:
+              - file_path
+              - schema_ref
+              - checksum
+          variable_peaks:
+            type: object
+            required:
+              - file_path
+              - schema_ref
+              - checksum
+          housekeeping_genes:
+            type: object
+            required:
+              - file_path
+              - schema_ref
+              - checksum
+          cell_type_specific_genes:
+            type: object
+            required:
+              - file_path
+              - schema_ref
+              - checksum
+        
+      models:
+        type: object
+        description: Trained model artifacts
+        properties:
+          elastic_net_models:
+            type: array
+            items:
+              type: object
+              required:
+                - cell_line
+                - file_path
+                - checksum
+                - hyperparameters
+              properties:
+                cell_line:
+                  type: string
+                file_path:
+                  type: string
+                checksum:
+                  type: string
+                hyperparameters:
+                  type: object
+                  required:
+                    - alpha
+                    - l1_ratio
+                  properties:
+                    alpha:
+                      type: number
+                    l1_ratio:
+                      type: number
+      
+      evaluations:
+        type: object
+        description: Evaluation metrics and results
+        properties:
+          cv_scores:
+            type: object
+            required:
+              - file_path
+              - schema_ref
+              - checksum
+          correlations:
+            type: object
+            required:
+              - file_path
+              - schema_ref
+              - checksum
+          pvalues_corrected:
+            type: object
+            required:
+              - file_path
+              - schema_ref
+              - checksum
+          housekeeping_r2:
+            type: object
+            required:
+              - file_path
+              - schema_ref
+              - checksum
+          external_validation_r2:
+            type: object
+            required:
+              - file_path
+              - schema_ref
+              - checksum
+      
+      interpretations:
+        type: object
+        description: Interpretation and feature importance results
+        properties:
+          feature_importance:
+            type: object
+            required:
+              - file_path
+              - schema_ref
+              - checksum
+          peak_annotations:
+            type: object
+            required:
+              - file_path
+              - schema_ref
+              - checksum
+          tss_proximity_stats:
+            type: object
+            required:
+              - file_path
+              - schema_ref
+              - checksum
+          performance_gap:
+            type: object
+            required:
+              - file_path
+              - schema_ref
+              - checksum
+
+additionalProperties: true

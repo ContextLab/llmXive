@@ -1,0 +1,56 @@
+# Configuration for pre-commit hooks
+# This file configures flake8 for linting and black for code formatting
+# Install with: pre-commit install
+# Run manually with: pre-commit run --all-files
+
+fail_fast: false
+minimum_pre_commit_version: "2.9.0"
+
+repos:
+  - repo: https://github.com/psf/black
+    rev: 24.3.0
+    hooks:
+      - id: black
+        name: Black Code Formatter
+        language_version: python3.11
+        args:
+          - "--line-length=88"
+          - "--target-version=py311"
+
+  - repo: https://github.com/PyCQA/flake8
+    rev: 7.0.0
+    hooks:
+      - id: flake8
+        name: Flake8 Linter
+        additional_dependencies: []
+        args:
+          - "--max-line-length=88"
+          - "--extend-ignore=E203,W503"
+          - "--exclude=venv,build,dist,.git"
+
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      - id: trailing-whitespace
+        name: Trim Trailing Whitespace
+      - id: end-of-file-fixer
+        name: Fix End of Files
+      - id: check-yaml
+        name: Check YAML Syntax
+        args:
+          - "--unsafe"
+      - id: check-json
+        name: Check JSON Syntax
+      - id: check-added-large-files
+        name: Check for Large Files
+        args:
+          - "--maxkb=5000"
+
+  - repo: local
+    hooks:
+      - id: check-requirements
+        name: Check Requirements Consistency
+        entry: python -c "import sys; print('Requirements check placeholder - implement specific validation if needed')"
+        language: system
+        pass_filenames: false
+        always_run: true

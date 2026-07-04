@@ -13,7 +13,7 @@ This feature implements a pipeline to predict steady-state gene expression level
 **Primary Dependencies**: `scikit-learn==1.4.0`, `pandas==2.2.0`, `numpy==1.26.0`, `requests==2.31.0`, `pyyaml==6.0.1`  
 **Storage**: Local filesystem (`data/` for raw and processed artifacts, `code/` for scripts)  
 **Testing**: `pytest` with contract validation against YAML schemas  
-**Target Platform**: Linux server (GitHub Actions free-tier: 2 CPU, 7GB RAM)  
+**Target Platform**: Linux server (GitHub Actions free-tier: multiple CPU cores, 7GB RAM)  
 **Project Type**: computational biology pipeline / CLI  
 **Performance Goals**: Total runtime ≤ 6 hours; RAM usage ≤ 7 GB; model training ≤ 2 hours per cell line  
 **Constraints**: No GPU/CUDA; no deep learning training from scratch; deterministic reproducibility; data must be subsetted to fit memory; all citations must be verified.  

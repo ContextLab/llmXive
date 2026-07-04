@@ -1,0 +1,15 @@
+? 'T004b [P] Fix corrupted SC-005 text in `spec.md` by replacing the unrelated text
+  with the measurable resource thresholds (Several CPU, sufficient RAM, 6h) defined
+  in the Constitution. **Deliverable**: Valid `spec.md` with corrected SC-005. <!--
+  FAILED: unspecified -->'
+: 1
+? 'T004b [P] Fix corrupted SC-005 text in `spec.md` by replacing the unrelated text
+  with the measurable resource thresholds (Several CPU, sufficient RAM, 6h) defined
+  in the Constitution. **Deliverable**: Valid `spec.md` with corrected SC-005. <!--
+  FAILED: unspecified --> <!-- FAILED: unspecified -->'
+: 1
+? 'T004b [P] Fix corrupted SC-005 text in `spec.md` by replacing the unrelated text
+  with the measurable resource thresholds (Several CPU, sufficient RAM, 6h) defined
+  in the Constitution. **Deliverable**: Valid `spec.md` with corrected SC-005. <!--
+  FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->'
+: 1
