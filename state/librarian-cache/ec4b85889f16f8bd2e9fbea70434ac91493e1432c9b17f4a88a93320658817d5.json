@@ -1,0 +1,620 @@
+{
+  "fetched_at": "2026-07-04T15:35:35Z",
+  "field": "psychology",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "psychology",
+      "idea_body_excerpt": "The Impact of Ambient Noise on Cognitive Flexibility in Remote Workers",
+      "target_n": 5
+    },
+    "duration_seconds": 94.318,
+    "ended_at": "2026-07-04T15:35:35Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "Effects of background noise on executive function in remote work settings"
+        ],
+        [
+          2,
+          "Ambient sound and cognitive flexibility in telecommuting"
+        ],
+        [
+          3,
+          "Noise distraction and mental adaptability for remote employees"
+        ],
+        [
+          4,
+          "Impact of auditory environment on cognitive switching in home offices"
+        ],
+        [
+          5,
+          "Background noise and task switching performance in virtual work"
+        ],
+        [
+          6,
+          "Environmental noise and cognitive control in remote professionals"
+        ],
+        [
+          7,
+          "Acoustic distractions and cognitive flexibility during telework"
+        ],
+        [
+          8,
+          "Sound levels and adaptive thinking in remote work environments"
+        ],
+        [
+          9,
+          "Relationship between ambient noise and cognitive agility in telecommuters"
+        ],
+        [
+          10,
+          "Auditory interference and executive flexibility in home-based work"
+        ],
+        [
+          11,
+          "Cognitive flexibility under noisy conditions for remote workers"
+        ],
+        [
+          12,
+          "Impact of office noise versus home noise on cognitive flexibility"
+        ],
+        [
+          13,
+          "Sensory distraction and cognitive switching in distributed teams"
+        ],
+        [
+          14,
+          "Noise exposure and cognitive resilience in remote work"
+        ],
+        [
+          15,
+          "Effects of open-plan noise simulation on remote worker cognition"
+        ],
+        [
+          16,
+          "Background auditory stimuli and mental flexibility in telework"
+        ],
+        [
+          17,
+          "Cognitive performance and noise tolerance in remote settings"
+        ],
+        [
+          18,
+          "Environmental factors affecting cognitive flexibility in telecommuting"
+        ],
+        [
+          19,
+          "Noise-induced cognitive load and flexibility in remote employees"
+        ],
+        [
+          20,
+          "Auditory environment and executive function in home office contexts"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "Acoustic distractions and cognitive flexibility during telework": 1,
+        "Ambient sound and cognitive flexibility in telecommuting": 0,
+        "Background noise and task switching performance in virtual work": 0,
+        "Effects of background noise on executive function in remote work settings": 1,
+        "Environmental noise and cognitive control in remote professionals": 0,
+        "Impact of auditory environment on cognitive switching in home offices": 1,
+        "Noise distraction and mental adaptability for remote employees": 1,
+        "Sound levels and adaptive thinking in remote work environments": 1,
+        "The Impact of Ambient Noise on Cognitive Flexibility in Remote Workers psychology": 0
+      },
+      "total_queries_issued": 8
+    },
+    "extracted_queries": [
+      "noise distraction attention switching remote work",
+      "open-plan office acoustic environment telecommuting",
+      "cognitive control set-shifting task switching",
+      "flexibility performance accuracy reaction time",
+      "auditory masking attentional resources cognitive load"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "success_after_expansion",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2603.20227"
+      ]
+    },
+    "per_query_hit_count": {
+      "The Impact of Ambient Noise on Cognitive Flexibility in Remote Workers psychology": 3,
+      "auditory masking attentional resources cognitive load": 2,
+      "cognitive control set-shifting task switching": 3,
+      "flexibility performance accuracy reaction time": 3,
+      "noise distraction attention switching remote work": 2,
+      "open-plan office acoustic environment telecommuting": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": true,
+      "rejected_count": 5,
+      "rejections": [
+        {
+          "primary_pointer": "2603.16835",
+          "rationale": "The paper addresses \"label noise\" (data labeling errors) in the context of remote sensing and machine learning, which is a distinct technical construct sharing only the keyword \"noise\" with the user's question about \"ambient noise\" (acoustic environmental factors) in human psychology. This falls under the rejection rule for distinct constructs sharing only homonym keywords.",
+          "title": "An assessment of data-centric methods for label noise identification in remote sensing data sets"
+        },
+        {
+          "primary_pointer": "2003.05870",
+          "rationale": "The paper focuses on human-robot interaction and mental models in high-stakes industrial settings, which is an entirely different domain from the user's question about ambient noise and cognitive flexibility in remote workers. It shares no measurable connection to the specific mechanism (noise), variables (cognitive flexibility), or empirical population (remote workers) required by the user's research question.",
+          "title": "Natural Language Interaction to Facilitate Mental Models of Remote Robots"
+        },
+        {
+          "primary_pointer": "2202.05332",
+          "rationale": "The paper focuses on the engineering design of an artificial auditory system for AI cognitive architectures, which is an off-domain topic distinct from the user's question about the psychological impact of ambient noise on human cognitive flexibility in remote workers. It shares the keyword \"cognitive\" but addresses a different construct (machine perception vs. human psychology) and lacks any measurable connection to the user's variables, mechanism, or empirical population.",
+          "title": "An Initial Description of Capabilities and Constraints for a Computational Auditory System (an Artificial Ear) for Cognitive Architectures"
+        },
+        {
+          "primary_pointer": "2603.20227",
+          "rationale": "The paper focuses on the prevalence and labor market dynamics of telework for people with disabilities, which is an off-domain topic relative to the user's specific question about the causal mechanism of ambient noise on cognitive flexibility. It does not measure noise levels, cognitive flexibility, or the psychological impact of environmental factors on remote workers, failing to satisfy any of the inclusion criteria (a-f).",
+          "title": "Telework during the Pandemic: Patterns, Challenges, and Opportunities for People with Disabilities"
+        },
+        {
+          "primary_pointer": "2309.07524",
+          "rationale": "The paper focuses on computer vision and image processing algorithms for remote sensing, which is an entirely different domain from the user's question regarding human psychology and cognitive flexibility. The shared term \"flexibility\" refers to algorithmic robustness in the paper, not the psychological construct, and \"remote\" refers to satellite data rather than remote workers, constituting a distinct construct sharing only homonym keywords.",
+          "title": "A Multi-scale Generalized Shrinkage Threshold Network for Image Blind Deblurring in Remote Sensing"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-07-04T15:34:00Z",
+    "term_input": {
+      "normalized": "the impact of ambient noise on cognitive flexibility in remote workers psychology",
+      "raw": "The Impact of Ambient Noise on Cognitive Flexibility in Remote Workers psychology"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This paper attempts to undertake the study of three types of noise such as Salt and Pepper (SPN), Random variation Impulse Noise (RVIN), Speckle (SPKN). Different noise densities have been removed between 10% to 60% by using five types of filters as Mean Filter (MF), Adaptive Wiener Filter (AWF), Gaussian Filter (GF), Standard Median Filter (SMF) and Adaptive Median Filter (AMF). The same is applied to the Saturn remote sensing image and they are compared with one another. The comparative study is conducted with the help of Mean Square Errors (MSE) and Peak-Signal to Noise Ratio (PSNR). So as to choose the base method for removal of noise from remote sensing image.",
+          "claimed_authors": [
+            "Salem Saleh Al-amri",
+            "N. V. Kalyankar",
+            "S. D. Khamitkar"
+          ],
+          "claimed_title": "A Comparative Study of Removal Noise from Remote Sensing Image",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1002.1148"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='The Impact of Ambient Noise on Cognitive Flexibility in Remote Workers psycholog', candidate_title='A Comparative Study of Removal Noise from Remote Sensing Image')",
+        "failed_at": "2026-07-04T15:34:27Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Understanding mind-brain-environment relations is one of the key topics in psychology. Kurt Lewin, inspired by theoretical physics, tried to establish topological and vector psychology analyzing patterns of interaction between the individual and her/his environment. The time is ripe to reformulate his ambitious goals, searching for ways to interpret objectively measured brain processes in terms of suitable psychological constructs. Connecting cognitive and social psychology constructs to neurophenomics, as it is done now in psychiatry, should ground them in physical reality.",
+          "claimed_authors": [
+            "Włodzisław Duch"
+          ],
+          "claimed_title": "Kurt Lewin, psychological constructs and sources of brain cognitive activity",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1711.01767"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='The Impact of Ambient Noise on Cognitive Flexibility in Remote Workers psycholog', candidate_title='Kurt Lewin, psychological constructs and sources of brain cognitive activity')",
+        "failed_at": "2026-07-04T15:34:27Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "There are numerous opportunities for engaging in research at the intersection of psychology and visualization. While most opportunities taken up by the VIS community will likely focus on the psychology of users, there are also opportunities for studying the psychology of designers. In this position paper, I argue the importance of studying design cognition as a necessary component of a holistic program of research on visualization psychology. I provide a brief overview of research on design cognition in other disciplines, and discuss opportunities for VIS to build an analogous research program. Doing so can lead to a stronger integration of research and design practice, can provide a better understanding of how to educate and train future designers, and will likely surface both challenges and opportunities for future research.",
+          "claimed_authors": [
+            "Paul Parsons"
+          ],
+          "claimed_title": "How do Visualization Designers Think? Design Cognition as a Core Aspect of Visualization Psychology",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2009.13758"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='The Impact of Ambient Noise on Cognitive Flexibility in Remote Workers psycholog', candidate_title='How do Visualization Designers Think? Design Cognition as a Core Aspect of Visualization Psychology')",
+        "failed_at": "2026-07-04T15:34:27Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Semantic segmentation is an essential part of deep learning. In recent years, with the development of remote sensing big data, semantic segmentation has been increasingly used in remote sensing. Deep convolutional neural networks (DCNNs) face the challenge of feature fusion: very-high-resolution remote sensing image multisource data fusion can increase the network's learnable information, which is conducive to correctly classifying target objects by DCNNs; simultaneously, the fusion of high-level abstract features and low-level spatial features can improve the classification accuracy at the border between target objects. In this paper, we propose a multipath encoder structure to extract features of multipath inputs, a multipath attention-fused block module to fuse multipath features, and a refinement attention-fused block module to fuse high-level abstract features and low-level spatial features. Furthermore, we propose a novel convolutional neural network architecture, named attention-fused network (AFNet). Based on our AFNet, we achieve state-of-the-art performance with an overall accuracy of 91.7% and a mean F1 score of 90.96% on the ISPRS Vaihingen 2D dataset and an overall accuracy of 92.1% and a mean F1 score of 93.44% on the ISPRS Potsdam 2D dataset.",
+          "claimed_authors": [
+            "Xuan Yang",
+            "Shanshan Li",
+            "Zhengchao Chen",
+            "Jocelyn Chanussot",
+            "Xiuping Jia",
+            "Bing Zhang",
+            "Baipeng Li",
+            "Pan Chen"
+          ],
+          "claimed_title": "An Attention-Fused Network for Semantic Segmentation of Very-High-Resolution Remote Sensing Imagery",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2105.04132"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='The Impact of Ambient Noise on Cognitive Flexibility in Remote Workers psycholog', candidate_title='An Attention-Fused Network for Semantic Segmentation of Very-High-Resolution Remote Sensing Imagery')",
+        "failed_at": "2026-07-04T15:34:27Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Remote Sensing Image Retrieval remains a challenging topic due to the special nature of Remote Sensing Imagery. Such images contain various different semantic objects, which clearly complicates the retrieval task. In this paper, we present an image retrieval pipeline that uses attentive, local convolutional features and aggregates them using the Vector of Locally Aggregated Descriptors (VLAD) to produce a global descriptor. We study various system parameters such as the multiplicative and additive attention mechanisms and descriptor dimensionality. We propose a query expansion method that requires no external inputs. Experiments demonstrate that even without training, the local convolutional features and global representation outperform other systems. After system tuning, we can achieve state-of-the-art or competitive results. Furthermore, we observe that our query expansion method increases overall system performance by about 3%, using only the top-three retrieved images. Finally, we show how dimensionality reduction produces compact descriptors with increased retrieval performance and fast retrieval computation times, e.g. 50% faster than the current systems.",
+          "claimed_authors": [
+            "Raffaele Imbriaco",
+            "Clint Sebastian",
+            "Egor Bondarev",
+            "Peter H. N. de With"
+          ],
+          "claimed_title": "Aggregated Deep Local Features for Remote Sensing Image Retrieval",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1903.09469"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='The Impact of Ambient Noise on Cognitive Flexibility in Remote Workers psycholog', candidate_title='Aggregated Deep Local Features for Remote Sensing Image Retrieval')",
+        "failed_at": "2026-07-04T15:34:27Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Within the soundscapes of open-plan offices, irrelevant speech has consistently been reported as the most distracting, and causing performance decrements for workers. Notwithstanding this generalization, the 'babble' created by multiple simultaneously active talkers can sometimes provide beneficial sound masking, but due to spatial release from masking (SRM), speech may still be sufficiently intelligible up to a certain number of talkers (estimated to be about four). This was explored within a highly-realistic office simulation, where the cognitive performance, and subjective distraction of participants were tested. The experimental design was a 4x2 factorial (4 talker numbers, 2 levels of broadband sound masking, as the factors). The results indicated that within lower sound pressure level (SPL) of broadband sound masking, multi-talker sound environments degraded cognitive tasks performance more than those with a single talker, suggesting SRM effects. For higher SPL broadband sound masking, the cognitive test scores were similar within the different talker numbers. The subjective distraction increased monotonically with the number of talkers, with higher distraction within lower SPL broadband sound masking. Overall, the results call into question the single talker assumption (being the most distracting) within the international standard for measuring open-plan office acoustic environments (ISO 3382-3:2012). Soundscapes with 4 simultaneous talkers were still not adequately providing beneficial 'babble' masking, and were more distracting than 1 active talker. In conclusion, it is suggested that the acoustics environment of open-plan offices needs better characterization by incorporating some of the complexity and psychoacoustics of multi-talker scenarios.",
+          "claimed_authors": [
+            "Manuj Yadav",
+            "Jungsoo Kim",
+            "Densil Cabrera",
+            "Richard de Dear"
+          ],
+          "claimed_title": "Auditory distraction in open-plan office environments: The effect of multi-talker acoustics",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2304.12817"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='The Impact of Ambient Noise on Cognitive Flexibility in Remote Workers psycholog', candidate_title='Auditory distraction in open-plan office environments: The effect of multi-talker acoustics')",
+        "failed_at": "2026-07-04T15:34:27Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Open-plan offices are well-known to be adversely affected by acoustic issues. This study aims to model acoustic dissatisfaction using measurements of room acoustics, sound environment during occupancy, and occupant surveys (n = 349) in 28 offices representing a diverse range of workplace parameters. As latent factors, the contribution of $\\textit{lack of privacy}$ (LackPriv) was 25% higher than $\\textit{noise disturbance}$ (NseDstrb) in predicting $\\textit{acoustic dissatisfaction}$ (AcDsat). Room acoustic metrics based on sound pressure level (SPL) decay of speech ($L_{\\text{p,A,s,4m}}$ and $r_{\\text{C}}$) were better in predicting these factors than distraction distance ($r_{\\text{D}}$) based on speech transmission index. This contradicts previous findings, and the trends for SPL-based metrics in predicting AcDsat and LackPriv go against expectations based on ISO 3382-3. For sound during occupation, $L_{\\text{A,90}}$ and psychoacoustic loudness ($N_{\\text{90}}$) predicted AcDsat, and a SPL fluctuation metric ($M_{\\text{A,eq}}$) predicted LackPriv. However, these metrics were weaker predictors than ISO 3382-3 metrics. Medium-sized offices exhibited higher dissatisfaction than larger ($\\geq$50 occupants) offices. Dissatisfaction varied substantially across parameters including ceiling heights, number of workstations, and years of work, but not between offices with fixed seating compared to more flexible and activity-based working configurations. Overall, these findings highlight the complexities in characterizing occupants' perceptions using instrumental acoustic measurements.",
+          "claimed_authors": [
+            "Manuj Yadav",
+            "Jungsoo Kim",
+            "Valtteri Hongisto",
+            "Densil Cabrera",
+            "Richard de Dear"
+          ],
+          "claimed_title": "Noise disturbance and lack of privacy: Modeling acoustic dissatisfaction in open-plan offices",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2501.15744"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='The Impact of Ambient Noise on Cognitive Flexibility in Remote Workers psycholog', candidate_title='Noise disturbance and lack of privacy: Modeling acoustic dissatisfaction in open-plan offices')",
+        "failed_at": "2026-07-04T15:34:27Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Astrotourism has emerged as a powerful cross sectoral tool to promote science education, sustainable economic development, and cultural exchange. Recognising its potential, the International Astronomical Union's Office of Astronomy for Development (IAU OAD) has developed a suite of openly accessible resources to support individuals and institutions interested in implementing astrotourism initiatives globally. These resources also encourage individuals and existing businesses to broaden their offerings to include activities that use the night sky as a backdrop, such as food experiences, wellness practices, and cultural exploration. This paper offers a comprehensive summary of these resources, available on the OAD's Astrotourism Portal, and situates them within the broader context of astronomy for development work. The paper is targeted at educators, policymakers, tourism operators, grassroots organisers, and entrepreneurs, providing guidance on how they can foster inclusive, locally grounded, and sustainable astrotourism efforts, particularly in underresourced or emerging contexts.",
+          "claimed_authors": [
+            "Joyful E. Mdhluli",
+            "IAU Office of Astronomy for Development"
+          ],
+          "claimed_title": "Astrotourism for Development: An Overview of Resources from the IAU Office of Astronomy for Development",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2507.15827"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='The Impact of Ambient Noise on Cognitive Flexibility in Remote Workers psycholog', candidate_title='Astrotourism for Development: An Overview of Resources from the IAU Office of Astronomy for Development')",
+        "failed_at": "2026-07-04T15:34:27Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This paper is concerned with cost optimization of an insurance company. The surplus of the insurance company is modeled by a controlled regime switching diffusion, where the regime switching mechanism provides the fluctuations of the random environment. The goal is to find an optimal control that minimizes the total cost up to a stochastic exit time. A weaker sufficient condition than that of (Fleming and Soner 2006, Section V.2) for the continuity of the value function is obtained. Further, the value function is shown to be a viscosity solution of a Hamilton-Jacobian-Bellman equation.",
+          "claimed_authors": [
+            "Chao Zhu"
+          ],
+          "claimed_title": "Optimal control of risk process in a regime-switching environment",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1009.3247"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='The Impact of Ambient Noise on Cognitive Flexibility in Remote Workers psycholog', candidate_title='Optimal control of risk process in a regime-switching environment')",
+        "failed_at": "2026-07-04T15:34:27Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The primary tasks of a cognitive system is to survive and to maximize a life-long utility function, like the number of offsprings. A direct computational maximization of life-long utility is however not possible in complex environments, especially in the context, of real-world time constraints. The central role of emotions is to serve as an intermediate layer in the space of policies available to agents and animals, leading to a large dimensional reduction of complexity.\n  We review our current understanding of the functional role of emotions, stressing the role of the neuromodulators mediating emotions for the diffusive homeostatic control system of the brain. We discuss a recent proposal, that emotional diffusive control is characterized, in contrast to neutral diffusive control, by interaction effects, viz by interferences between emotional arousal and reward signaling. Several proposals for the realization of synthetic emotions are discussed in this context, together with key open issues regarding the interplay between emotional motivational drives and diffusive control.",
+          "claimed_authors": [
+            "Claudius Gros"
+          ],
+          "claimed_title": "Cognition and Emotion: Perspectives of a Closing Gap",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1002.3035"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='The Impact of Ambient Noise on Cognitive Flexibility in Remote Workers psycholog', candidate_title='Cognition and Emotion: Perspectives of a Closing Gap')",
+        "failed_at": "2026-07-04T15:34:27Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The problem of step tracking control with a switching input and without any continuous-valued inputs is considered. The control objective is to reduce the number of switchings to a minimal value. This approach finds interesting applications when switching comprises costs and should be avoided. To solve the problem, a state dependent switching strategy should be designed and the resulting closed loop is indeed a hybrid system. Therefore, first we investigate the conditions on a hybrid system for being the desired solution. Then, we propose a method for designing the switching strategy such that the closed loop as a hybrid system solves the problem. The proposed method is applied to the induction motor control problem which results in relatively simple and efficient control algorithm. Comparison with the direct torque control for induction motors show that our method has a superior performance in reducing the number of mode switches.",
+          "claimed_authors": [
+            "Babak Tavassoli"
+          ],
+          "claimed_title": "Minimal Switch Step Tracking Control of Switched Systems with Application to Induction Motor Control",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2015,
+          "primary_pointer": "1502.06104"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='The Impact of Ambient Noise on Cognitive Flexibility in Remote Workers psycholog', candidate_title='Minimal Switch Step Tracking Control of Switched Systems with Application to Induction Motor Control')",
+        "failed_at": "2026-07-04T15:34:27Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The space-time foliation Sigma compatible with the gravitational field g on a 4-manifold M determines a fibration pi of M, pi : M -> N is a surjective submersion over the 1-dimensional leaves space N. M is then written as a disjoint union of the leaves of Sigma, which are 3-dimensional spacelike surfaces on M.\n  The decomposition, TM=Sigma + T^0 M, also implies that we can define a lift of the curves on N to curves (non-spacelike) on M.\n  The stable causality condition M coincides with Sigma being a causal space-time distribution, generated by an exact timelike 1-form omega^0 = dt where t is some real function on M. In this case M is written as a disjoint union of a family of spacelike 3-surfaces of constant t, which cover D^+(S) of a initial 3-surface S of M.",
+          "claimed_authors": [
+            "Mihaela Time"
+          ],
+          "claimed_title": "Space-time distributions",
+          "claimed_venue": "arXiv",
+          "claimed_year": 1998,
+          "primary_pointer": "gr-qc/9810059"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='The Impact of Ambient Noise on Cognitive Flexibility in Remote Workers psycholog', candidate_title='Space-time distributions')",
+        "failed_at": "2026-07-04T15:34:27Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Software systems continuously evolve due to new functionalities, requirements, or maintenance activities. In the context of software evolution, software refactoring has gained a strategic relevance. The space of possible software refactoring is usually very large, as it is given by the combinations of different refactoring actions that can produce software system alternatives. Multi-objective algorithms have shown the ability to discover alternatives by pursuing different objectives simultaneously. Performance of such algorithms in the context of software model refactoring is of paramount importance. Therefore, in this paper, we conduct a performance analysis of three genetic algorithms to compare them in terms of performance and quality of solutions. Our results show that there are significant differences in performance among the algorithms (e.g., PESA2 seems to be the fastest one, while NSGA-II shows the least memory usage).",
+          "claimed_authors": [
+            "Vittorio Cortellessa",
+            "Daniele Di Pompeo",
+            "Michele Tucci"
+          ],
+          "claimed_title": "Performance of Genetic Algorithms in the Context of Software Model Refactoring",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2308.13875"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='The Impact of Ambient Noise on Cognitive Flexibility in Remote Workers psycholog', candidate_title='Performance of Genetic Algorithms in the Context of Software Model Refactoring')",
+        "failed_at": "2026-07-04T15:34:27Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Time-dependent Hartree-Fock (TDHF) theory has achieved a remarkable success in describing and understanding nuclear many-body dynamics from nucleons' degrees of freedom. We here report our investigation of multinucleon transfer (MNT) processes employing the TDHF theory. To calculate transfer probabilities for channels specified by the number of protons and neutrons included in reaction products, a particle-number projection (PNP) method has been developed. The PNP method is also used to calculate excitation energies of reaction products. Combined use of the PNP method with a statistical model, we can evaluate MNT cross sections taking account of effects of particle evaporation. Using these methods, we evaluate MNT cross sections for $^{40,48}$Ca+$^{124}$Sn, $^{40}$Ca+$^{208}$Pb, and $^{58}$Ni+$^{208}$Pb reactions. From systematic analyses, we find that cross sections for channels with a large reaction probability are in good agreement with experimental data. However, the agreement becomes less accurate as the number of transferred nucleons increases. Possible directions to improve the description are discussed.",
+          "claimed_authors": [
+            "Kazuyuki Sekizawa",
+            "Kazuhiro Yabana"
+          ],
+          "claimed_title": "Multinucleon transfer reaction in time-dependent Hartree-Fock theory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2015,
+          "primary_pointer": "1511.08322"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='The Impact of Ambient Noise on Cognitive Flexibility in Remote Workers psycholog', candidate_title='Multinucleon transfer reaction in time-dependent Hartree-Fock theory')",
+        "failed_at": "2026-07-04T15:34:27Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We present an initial set of factors, features, and constraints for developing a Computational Auditory System (CAS, aka less formally an artificial ear, AE) for use by cognitive architectures. We start to define a CAS and what tasks it should be able to perform. We then outline the features of a CAS for use by a cognitive architecture and factors that influence its performance. We conclude with an update on what has been created so far and insights on how to create and use a CAS in a cognitive architecture and include a set of functionalities for an artificial ear.",
+          "claimed_authors": [
+            "Frank E. Ritter",
+            "Mathieu Brener"
+          ],
+          "claimed_title": "An Initial Description of Capabilities and Constraints for a Computational Auditory System (an Artificial Ear) for Cognitive Architectures",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2202.05332"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='The Impact of Ambient Noise on Cognitive Flexibility in Remote Workers psycholog', candidate_title='An Initial Description of Capabilities and Constraints for a Computational Auditory System (an Artificial Ear) for Cognitive Architectures')",
+        "failed_at": "2026-07-04T15:34:27Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "With increasing automation, drivers' roles transition from active operators to passive system supervisors, affecting their behaviour and cognitive processes. This study addresses the attentional resource allocation and subjective cognitive load during manual, SAE Level 2, and SAE Level 3 driving in a realistic environment. An experiment was conducted on a test track with 30 participants using a prototype automated vehicle. While driving, participants were subjected to a passive auditory oddball task and their electroencephalogram was recorded. The study analysed the amplitude of the P3a event-related potential component elicited by novel environmental stimuli, an objective measure of attentional resource allocation. The subjective cognitive load was assessed using the NASA Task Load Index. Results showed no significant difference in subjective cognitive load between manual and Level 2 driving, but a decrease in subjective cognitive load in Level 3 driving. The P3a amplitude was highest during manual driving, indicating increased attentional resource allocation to environmental sounds compared to Level 2 and Level 3 driving. This may suggest that during automated driving, drivers allocate fewer attentional resources to processing environmental information. It remains unclear whether the decreased processing of environmental stimuli in automated driving is due to top-down attention control (leading to attention withdrawal) or bottom-up competition for resources induced by cognitive load. This study provides novel empirical evidence on resource allocation and subjective cognitive load in automated driving. The findings highlight the importance of managing drivers' attention and cognitive load with implications for enhancing automation safety and the design of user interfaces.",
+          "claimed_authors": [
+            "Nikol Figalová",
+            "Hans-Joachim Bieg",
+            "Julian Elias Reiser",
+            "Yuan-Cheng Liu",
+            "Martin Baumann",
+            "Lewis Chuang",
+            "Olga Pollatos"
+          ],
+          "claimed_title": "From Driver to Supervisor: Comparing Cognitive Load and EEG-based Attentional Resource Allocation across Automation Levels",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2306.08477"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='The Impact of Ambient Noise on Cognitive Flexibility in Remote Workers psycholog', candidate_title='From Driver to Supervisor: Comparing Cognitive Load and EEG-based Attentional Resource Allocation across Automation Levels')",
+        "failed_at": "2026-07-04T15:34:27Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Felix Kröber",
+            "Genc Hoxha",
+            "Ribana Roscher"
+          ],
+          "title": "An assessment of data-centric methods for label noise identification in remote sensing data sets",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2603.16835",
+        "summary": "Label noise in the sense of incorrect labels is present in many real-world data sets and is known to severely limit the generalizability of deep learning models. In the field of remote sensing, however, automated treatment of label noise in data sets has received little attention to date. In particular, there is a lack of systematic analysis of the performance of data-centric methods that not only cope with label noise but also explicitly identify and isolate noisy labels. In this paper, we examine three such methods and evaluate their behavior under different label noise assumptions. To do this, we inject different types of label noise with noise levels ranging from 10 to 70% into two benchmark data sets, followed by an analysis of how well the selected methods filter the label noise and how this affects task performances. With our analyses, we clearly prove the value of data-centric methods for both parts - label noise identification and task performance improvements. Our analyses provide insights into which method is the best choice depending on the setting and objective. Finally, we show in which areas there is still a need for research in the transfer of data-centric label noise methods to remote sensing data. As such, our work is a step forward in bridging the methodological establishment of data-centric label noise methods and their usage in practical settings in the remote sensing domain.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2603.16835",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5714,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-04T15:34:42Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Francisco J. Chiyah Garcia",
+            "José Lopes",
+            "Helen Hastie"
+          ],
+          "title": "Natural Language Interaction to Facilitate Mental Models of Remote Robots",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2020
+        },
+        "primary_pointer": "2003.05870",
+        "summary": "Increasingly complex and autonomous robots are being deployed in real-world environments with far-reaching consequences. High-stakes scenarios, such as emergency response or offshore energy platform and nuclear inspections, require robot operators to have clear mental models of what the robots can and can't do. However, operators are often not the original designers of the robots and thus, they do not necessarily have such clear mental models, especially if they are novice users. This lack of mental model clarity can slow adoption and can negatively impact human-machine teaming. We propose that interaction with a conversational assistant, who acts as a mediator, can help the user with understanding the functionality of remote robots and increase transparency through natural language explanations, as well as facilitate the evaluation of operators' mental models.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2003.05870",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-04T15:34:52Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Frank E. Ritter",
+            "Mathieu Brener"
+          ],
+          "title": "An Initial Description of Capabilities and Constraints for a Computational Auditory System (an Artificial Ear) for Cognitive Architectures",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2022
+        },
+        "primary_pointer": "2202.05332",
+        "summary": "We present an initial set of factors, features, and constraints for developing a Computational Auditory System (CAS, aka less formally an artificial ear, AE) for use by cognitive architectures. We start to define a CAS and what tasks it should be able to perform. We then outline the features of a CAS for use by a cognitive architecture and factors that influence its performance. We conclude with an update on what has been created so far and insights on how to create and use a CAS in a cognitive architecture and include a set of functionalities for an artificial ear.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2202.05332",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-04T15:34:57Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Mason Ameri",
+            "Douglas Kruse",
+            "So Ri Park",
+            "Yana Rodgers",
+            "Lisa Schur"
+          ],
+          "title": "Telework during the Pandemic: Patterns, Challenges, and Opportunities for People with Disabilities",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2603.20227",
+        "summary": "Background: Telework has benefits for many people with disabilities. The pandemic may create new employment opportunities for people with disabilities by increasing employer acceptance of telework, but this crucially depends on the occupational structure. Objective: We compare people with and without disabilities in the expansion of telework as the pandemic began, and the evolution of telework during the pandemic. Methods: We use U.S. data from the American Community Survey from 2008 to 2020 and the Current Population Survey over the May 2020 to April 2022 period. Prevalence and trends are analyzed using linear probability and multinomial logit regressions. Results: While workers with disabilities were more likely than those without disabilities to telework before the pandemic, they were less likely to telework during the pandemic. The occupational distribution accounts for most of this difference. Tight labor markets, as measured by state unemployment rates, particularly favor people with disabilities obtaining telework jobs. While people with cognitive/mental health and mobility impairments were the most likely to telework during the pandemic, tight labor markets especially favored the expansion of telework for people with vision impairments and difficulty with daily activities inside the home. Conclusions: Many people with disabilities benefit from working at home, and the pandemic has increased employer acceptance of telework, but the current occupational distribution limits this potential. Tighter labor markets during the recovery offer hope that employers will increasingly hire people with disabilities in both telework and non-telework jobs.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2603.20227",
+          "http_status": 200,
+          "pdf_sample_score": 0.2717,
+          "query_relevance_score": 0.4,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-04T15:35:12Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Yujie Feng",
+            "Yin Yang",
+            "Xiaohong Fan",
+            "Zhengpeng Zhang",
+            "Jianping Zhang"
+          ],
+          "title": "A Multi-scale Generalized Shrinkage Threshold Network for Image Blind Deblurring in Remote Sensing",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2023
+        },
+        "primary_pointer": "2309.07524",
+        "summary": "Remote sensing images are essential for many applications of the earth's sciences, but their quality can usually be degraded due to limitations in sensor technology and complex imaging environments. To address this, various remote sensing image deblurring methods have been developed to restore sharp and high-quality images from degraded observational data. However, most traditional model-based deblurring methods usually require predefined {hand-crafted} prior assumptions, which are difficult to handle in complex applications. On the other hand, deep learning-based deblurring methods are often considered as black boxes, lacking transparency and interpretability. In this work, we propose a new blind deblurring learning framework that utilizes alternating iterations of shrinkage thresholds. This framework involves updating blurring kernels and images, with a theoretical foundation in network design. Additionally, we propose a learnable blur kernel proximal mapping module to improve the accuracy of the blur kernel reconstruction. Furthermore, we propose a deep proximal mapping module in the image domain, which combines a generalized shrinkage threshold with a multi-scale prior feature extraction block. This module also incorporates an attention mechanism to learn adaptively the importance of prior information, improving the flexibility and robustness of prior terms, and avoiding limitations similar to hand-crafted image prior terms. Consequently, we design a novel multi-scale generalized shrinkage threshold network (MGSTNet) that focuses specifically on learning deep geometric prior features to enhance image restoration. Experimental results on real and synthetic remote sensing image datasets demonstrate the superiority of our MGSTNet framework compared to existing deblurring methods.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2309.07524",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4286,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-04T15:35:17Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "the impact of ambient noise on cognitive flexibility in remote workers psychology",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

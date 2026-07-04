@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2003.05870",
+  "judged_at": "2026-07-04T15:35:27Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "the impact of ambient noise on cognitive flexibility in remote workers psychology",
+  "rationale": "The paper focuses on human-robot interaction and mental models in high-stakes industrial settings, which is an entirely different domain from the user's question about ambient noise and cognitive flexibility in remote workers. It shares no measurable connection to the specific mechanism (noise), variables (cognitive flexibility), or empirical population (remote workers) required by the user's research question.",
+  "relevant": false
+}

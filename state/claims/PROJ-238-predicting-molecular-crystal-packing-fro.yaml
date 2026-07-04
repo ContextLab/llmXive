@@ -1,0 +1,161 @@
+- artifact_path: projects/PROJ-238-predicting-molecular-crystal-packing-fro/results/sensitivity_report.md
+  attempts: 1
+  canonical: "Maximum R\xB2 change when removing top 5 features is 0.0150"
+  claim_id: c_7772db0a
+  context: "This analysis evaluates the impact of removing individual features on\
+    \ the model's predictive performance (R\xB2). The maximum R\xB2 change observed\
+    \ when removing any of the top 5 most critical features is 0.0150."
+  evidence:
+    candidates:
+    - - ''
+      - 5.0
+    - - ''
+      - 0.015
+    ordering_correct: true
+    source_url: https://en.wikipedia.org/wiki/Maximum_R%C2%B2_change_when_removing_top_5_features_is_0.0150
+  kind: magnitude
+  raw_text: "The maximum R\xB2 change observed when removing any of the top 5 most\
+    \ critical features is 0.0150."
+  resolved_value: "Maximum R\xB2 change when removing top 5 features is 0.0150"
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-04T15:49:48Z'
+- artifact_path: projects/PROJ-238-predicting-molecular-crystal-packing-fro/results/sensitivity_report.md
+  attempts: 1
+  canonical: "Baseline R\xB2 is 0.6500"
+  claim_id: c_3dfaee94
+  context: "Date: 2023-10-27 10:00:00 Baseline R\xB2: 0.6500"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The baseline R\xB2 is 0.6500."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-04T15:50:59Z'
+- artifact_path: projects/PROJ-238-predicting-molecular-crystal-packing-fro/results/sensitivity_report.md
+  attempts: 1
+  canonical: "Volume feature removal results in R\xB2 0.6350 and delta R\xB2 -0.0150"
+  claim_id: c_d36c8c6c
+  context: "Detailed Results table showing Volume R\xB2 (Subset) 0.6350 and \u0394\
+    \ R\xB2 -0.0150."
+  evidence:
+    entailment_evidence: "Volume feature removal results in R\xB2 0.6350 and delta\
+      \ R\xB2 -0."
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Volume_feature_removal_results_in_R%C2%B2_0.6350_and_delta_R%C2%B2_-0.
+  kind: causal
+  raw_text: "Removing the Volume feature results in an R\xB2 of 0.6350 and a \u0394\
+    \ R\xB2 of -0.0150."
+  resolved_value: "Volume feature removal results in R\xB2 0.6350 and delta R\xB2\
+    \ -0.0150"
+  resolver: resolve_causal
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-04T15:51:01Z'
+- artifact_path: projects/PROJ-238-predicting-molecular-crystal-packing-fro/results/sensitivity_report.md
+  attempts: 1
+  canonical: "SurfaceArea feature removal results in R\xB2 0.6400 and delta R\xB2\
+    \ -0.0100"
+  claim_id: c_0ce22d51
+  context: "Detailed Results table showing SurfaceArea R\xB2 (Subset) 0.6400 and \u0394\
+    \ R\xB2 -0.0100."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address causal claim
+    source_url: https://en.wikipedia.org/wiki/SurfaceArea_feature_removal_results_in_R%C2%B2_0.6400_and_delta_R
+  kind: causal
+  raw_text: "Removing the SurfaceArea feature results in an R\xB2 of 0.6400 and a\
+    \ \u0394 R\xB2 of -0.0100."
+  resolved_value: null
+  resolver: resolve_causal
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-04T15:51:04Z'
+- artifact_path: projects/PROJ-238-predicting-molecular-crystal-packing-fro/results/sensitivity_report.md
+  attempts: 1
+  canonical: "PSA feature removal results in R\xB2 0.6450 and delta R\xB2 -0.0050"
+  claim_id: c_33c9882c
+  context: "Detailed Results table showing PSA R\xB2 (Subset) 0.6450 and \u0394 R\xB2\
+    \ -0.0050."
+  evidence:
+    entailment_evidence: "PSA feature removal results in R\xB2 0.6450 and delta R\xB2\
+      \ -0.005"
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/PSA_feature_removal_results_in_R%C2%B2_0.6450_and_delta_R%C2%B2_-0.005
+  kind: causal
+  raw_text: "Removing the PSA feature results in an R\xB2 of 0.6450 and a \u0394 R\xB2\
+    \ of -0.0050."
+  resolved_value: "PSA feature removal results in R\xB2 0.6450 and delta R\xB2 -0.0050"
+  resolver: resolve_causal
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-04T15:51:06Z'
+- artifact_path: projects/PROJ-238-predicting-molecular-crystal-packing-fro/results/sensitivity_report.md
+  attempts: 1
+  canonical: "Dipole feature removal results in R\xB2 0.6480 and delta R\xB2 -0.0020"
+  claim_id: c_7f768671
+  context: "Detailed Results table showing Dipole R\xB2 (Subset) 0.6480 and \u0394\
+    \ R\xB2 -0.0020."
+  evidence:
+    entailment_evidence: "Dipole feature removal results in R\xB2 0.6480 and delta\
+      \ R\xB2 -0."
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Dipole_feature_removal_results_in_R%C2%B2_0.6480_and_delta_R%C2%B2_-0.
+  kind: causal
+  raw_text: "Removing the Dipole feature results in an R\xB2 of 0.6480 and a \u0394\
+    \ R\xB2 of -0.0020."
+  resolved_value: "Dipole feature removal results in R\xB2 0.6480 and delta R\xB2\
+    \ -0.0020"
+  resolver: resolve_causal
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-04T15:51:08Z'
+- artifact_path: projects/PROJ-238-predicting-molecular-crystal-packing-fro/results/sensitivity_report.md
+  attempts: 1
+  canonical: "HBA feature removal results in R\xB2 0.6490 and delta R\xB2 -0.0010"
+  claim_id: c_4fb0524a
+  context: "Detailed Results table showing HBA R\xB2 (Subset) 0.6490 and \u0394 R\xB2\
+    \ -0.0010."
+  evidence:
+    entailment_evidence: "HBA feature removal results in R\xB2 0.6490 and delta R\xB2\
+      \ -0.001"
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/HBA_feature_removal_results_in_R%C2%B2_0.6490_and_delta_R%C2%B2_-0.001
+  kind: causal
+  raw_text: "Removing the HBA feature results in an R\xB2 of 0.6490 and a \u0394 R\xB2\
+    \ of -0.0010."
+  resolved_value: "HBA feature removal results in R\xB2 0.6490 and delta R\xB2 -0.0010"
+  resolver: resolve_causal
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-04T15:51:11Z'
+- artifact_path: projects/PROJ-238-predicting-molecular-crystal-packing-fro/results/sensitivity_report.md
+  attempts: 1
+  canonical: "HBD feature removal results in R\xB2 0.6495 and delta R\xB2 -0.0005"
+  claim_id: c_37047e70
+  context: "Detailed Results table showing HBD R\xB2 (Subset) 0.6495 and \u0394 R\xB2\
+    \ -0.0005."
+  evidence:
+    entailment_evidence: "HBD feature removal results in R\xB2 0.6495 and delta R\xB2\
+      \ -0.000"
+    entailment_status: contradicted
+    source_url: https://en.wikipedia.org/wiki/HBD_feature_removal_results_in_R%C2%B2_0.6495_and_delta_R%C2%B2_-0.000
+  kind: causal
+  raw_text: "Removing the HBD feature results in an R\xB2 of 0.6495 and a \u0394 R\xB2\
+    \ of -0.0005."
+  resolved_value: null
+  resolver: resolve_causal
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-07-04T15:51:13Z'

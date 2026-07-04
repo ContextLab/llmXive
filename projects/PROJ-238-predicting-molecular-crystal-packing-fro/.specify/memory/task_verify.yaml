@@ -1,1 +1,12 @@
-T009 [P] [US1] Unit test for CIF parsing logic in `tests/unit/test_data_loaders.py`: 1
+T009 [P] [US1] Unit test for CIF parsing logic in `tests/unit/test_data_loaders.py`: 2
+T010 [P] [US1] Unit test for descriptor computation (RDKit) in `tests/unit/test_descriptors.py`: 1
+T011 [P] [US1] Integration test for full ingestion pipeline with sample data in `tests/integration/test_ingestion.py`: 1
+? T012 [US1] Implement `code/01_ingest_and_descriptors.py` to download CIFs, parse
+  unit cell parameters ($a, b, c, \alpha, \beta, \gamma$), and calculate $V_{cell}$.
+: 1
+? T013 [US1] Implement logic to add missing hydrogens geometrically before descriptor
+  calculation; log count of modified entries to `data/processed/hydrogen_addition.log`.
+: 1
+? 'T014 [US1] Implement descriptor computation for Volume, Surface Area, Dipole, HBA,
+  HBD, PSA using `utils/descriptors.py`. <!-- FAILED: unspecified -->'
+: 1

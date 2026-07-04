@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2603.16835",
+  "judged_at": "2026-07-04T15:35:24Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "the impact of ambient noise on cognitive flexibility in remote workers psychology",
+  "rationale": "The paper addresses \"label noise\" (data labeling errors) in the context of remote sensing and machine learning, which is a distinct technical construct sharing only the keyword \"noise\" with the user's question about \"ambient noise\" (acoustic environmental factors) in human psychology. This falls under the rejection rule for distinct constructs sharing only homonym keywords.",
+  "relevant": false
+}

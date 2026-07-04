@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2603.20227",
+  "judged_at": "2026-07-04T15:35:31Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "the impact of ambient noise on cognitive flexibility in remote workers psychology",
+  "rationale": "The paper focuses on the prevalence and labor market dynamics of telework for people with disabilities, which is an off-domain topic relative to the user's specific question about the causal mechanism of ambient noise on cognitive flexibility. It does not measure noise levels, cognitive flexibility, or the psychological impact of environmental factors on remote workers, failing to satisfy any of the inclusion criteria (a-f).",
+  "relevant": false
+}

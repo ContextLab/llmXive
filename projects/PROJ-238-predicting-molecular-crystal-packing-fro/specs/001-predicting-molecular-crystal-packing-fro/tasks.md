@@ -93,16 +93,16 @@
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
 - [ ] T009 [P] [US1] Unit test for CIF parsing logic in `tests/unit/test_data_loaders.py`
-- [~] T010 [P] [US1] Unit test for descriptor computation (RDKit) in `tests/unit/test_descriptors.py`
-- [~] T011 [P] [US1] Integration test for full ingestion pipeline with sample data in `tests/integration/test_ingestion.py`
+- [ ] T010 [P] [US1] Unit test for descriptor computation (RDKit) in `tests/unit/test_descriptors.py`
+- [ ] T011 [P] [US1] Integration test for full ingestion pipeline with sample data in `tests/integration/test_ingestion.py`
 
 ### Implementation for User Story 1
 
-- [~] T012 [US1] Implement `code/01_ingest_and_descriptors.py` to download CIFs, parse unit cell parameters ($a, b, c, \alpha, \beta, \gamma$), and calculate $V_{cell}$.
+- [ ] T012 [US1] Implement `code/01_ingest_and_descriptors.py` to download CIFs, parse unit cell parameters ($a, b, c, \alpha, \beta, \gamma$), and calculate $V_{cell}$.
  **Deliverable**: Generate `data/descriptors/raw_descriptors.csv` with columns `[ID, Volume, SurfaceArea, Dipole, HBD, HBA, PSA, packing_coefficient]`.
  **Verification**: File exists with **≥ 50** rows and all listed columns present.
-- [~] T013 [US1] Implement logic to add missing hydrogens geometrically before descriptor calculation; log count of modified entries to `data/processed/hydrogen_addition.log`.
-- [~] T014 [US1] Implement descriptor computation for Volume, Surface Area, Dipole, HBA, HBD, PSA using `utils/descriptors.py`. <!-- FAILED: unspecified -->
+- [ ] T013 [US1] Implement logic to add missing hydrogens geometrically before descriptor calculation; log count of modified entries to `data/processed/hydrogen_addition.log`.
+- [ ] T014 [US1] Implement descriptor computation for Volume, Surface Area, Dipole, HBA, HBD, PSA using `utils/descriptors.py`. <!-- FAILED: unspecified -->
 - [~] T015 [US1] Derive `packing_coefficient = V_mol / V_cell` and **filter out physically impossible values** (`packing_coefficient < 0` or `> 1`).
  **Log**: Write number of excluded rows to `data/processed/filter_log.txt`.
 - [~] T016 [US1] Implement missing‑data handling: impute auxiliary descriptors (e.g., Dipole) with the training‑set median and flag the row in `data/descriptors/raw_descriptors.csv` with a boolean column `dipole_imputed`. Exclude rows with missing target and log count to `data/processed/missing_target.log`.
@@ -127,23 +127,23 @@
 
 ### Tests for User Story 2
 
-- [ ] T020 [P] [US2] Unit test for model training convergence within 30 mins on 2‑CPU in `tests/unit/test_training.py`
-- [ ] T021 [P] [US2] Integration test for paired t‑test against mean baseline in `tests/integration/test_model_evaluation.py`
+- [~] T020 [P] [US2] Unit test for model training convergence within 30 mins on 2‑CPU in `tests/unit/test_training.py`
+- [~] T021 [P] [US2] Integration test for paired t‑test against mean baseline in `tests/integration/test_model_evaluation.py`
 
 ### Implementation for User Story 2
 
-- [ ] T022 [US2] Implement `code/02_train_models.py` to load pre‑split data from `data/processed/`.
+- [~] T022 [US2] Implement `code/02_train_models.py` to load pre‑split data from `data/processed/`.
  **Verification**: Files `train.csv`, `val.csv`, `test.csv` exist, have non‑overlapping IDs, and contain the required columns.
-- [ ] T023 [US2] Train Random Forest regressor with default hyperparameters and `random_state=42`.
-- [ ] T024 [US2] Train Gradient Boosting regressor with default hyperparameters and `random_state=42`.
-- [ ] T025 [US2] Implement Mean Predictor baseline (predicts the training‑set mean of `packing_coefficient`).
-- [ ] T026 [US2] Implement Control Analysis: train secondary RF/GB models **excluding** Volume and Surface Area descriptors to probe the contribution of interaction‑related features.
+- [~] T023 [US2] Train Random Forest regressor with default hyperparameters and `random_state=42`.
+- [~] T024 [US2] Train Gradient Boosting regressor with default hyperparameters and `random_state=42`.
+- [~] T025 [US2] Implement Mean Predictor baseline (predicts the training‑set mean of `packing_coefficient`).
+- [~] T026 [US2] Implement Control Analysis: train secondary RF/GB models **excluding** Volume and Surface Area descriptors to probe the contribution of interaction‑related features.
  **Deliverable**: Save results to `results/control_analysis_metrics.json`.
-- [ ] T027 [US2] Evaluate all models on the test set; compute R², MAE, RMSE.
-- [ ] T028 [US2] Perform paired t‑tests of each primary model (RF, GB) against the baseline.
+- [~] T027 [US2] Evaluate all models on the test set; compute R², MAE, RMSE.
+- [~] T028 [US2] Perform paired t‑tests of each primary model (RF, GB) against the baseline.
  **Statistical correction**: Calculate `alpha_corrected = 0.05 / 2` (N_models = 2, excluding control analysis) and apply Bonferroni correction.
  **Output**: Write corrected p‑values, `alpha_corrected`, and a flag indicating significance to `results/metrics.json`.
-- [ ] T029 [US2] Save a consolidated metrics summary (R², MAE, RMSE, corrected p‑values, significance flags) to `results/metrics.json`.
+- [~] T029 [US2] Save a consolidated metrics summary (R², MAE, RMSE, corrected p‑values, significance flags) to `results/metrics.json`.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -157,14 +157,14 @@
 
 ### Tests for User Story 3
 
-- [ ] T030 [P] [US3] Unit test for permutation importance calculation in `tests/unit/test_feature_importance.py`
-- [ ] T031 [P] [US3] Unit test for LOFO sensitivity analysis in `tests/unit/test_sensitivity.py`
+- [~] T030 [P] [US3] Unit test for permutation importance calculation in `tests/unit/test_feature_importance.py`
+- [~] T031 [P] [US3] Unit test for LOFO sensitivity analysis in `tests/unit/test_sensitivity.py`
 
 ### Implementation for User Story 3
 
-- [ ] T032 [US3] Implement `code/03_evaluate_and_report.py` to calculate **Permutation Importance** (not Gini) for the trained Random Forest model.
-- [ ] T033 [US3] Generate `results/feature_importance.png` identifying the top 3 features and showing their cumulative importance (> 60 % total).
-- [ ] T034 [US3] Perform Leave‑One‑Feature‑Out (LOFO) analysis; document R² variation across feature subsets in `results/sensitivity_report.md`.
+- [~] T032 [US3] Implement `code/03_evaluate_and_report.py` to calculate **Permutation Importance** (not Gini) for the trained Random Forest model.
+- [~] T033 [US3] Generate `results/feature_importance.png` identifying the top 3 features and showing their cumulative importance (> 60 % total).
+- [~] T034 [US3] Perform Leave‑One‑Feature‑Out (LOFO) analysis; document R² variation across feature subsets in `results/sensitivity_report.md`.
  **Requirement**: Report that removing the top 5 features changes R² by no more than ±0.02.
 - [ ] T035.1 [US3] Extract geometric interaction criteria from the original CIF files (e.g., H‑bond distance < 3.5 Å and angle > 150°) and create a temporary table `data/interactions/raw_interactions.csv`.
  **Verification**: File exists with columns `[CIF_ID, interaction_type, confidence]`.

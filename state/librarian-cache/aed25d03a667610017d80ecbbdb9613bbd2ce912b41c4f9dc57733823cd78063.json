@@ -1,0 +1,477 @@
+{
+  "fetched_at": "2026-07-04T15:38:22Z",
+  "field": "computer science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "computer science",
+      "idea_body_excerpt": "llmXive follow-up: extending \"Gamma-World: Generative Multi-Agent World Modeling Beyond Two Players\"",
+      "target_n": 5
+    },
+    "duration_seconds": 52.356,
+    "ended_at": "2026-07-04T15:38:22Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "generative multi-agent world modeling"
+        ],
+        [
+          2,
+          "multi-agent generative world models"
+        ],
+        [
+          3,
+          "scalable multi-agent simulation with LLMs"
+        ],
+        [
+          4,
+          "agent-based generative world construction"
+        ],
+        [
+          5,
+          "large language model multi-agent environments"
+        ],
+        [
+          6,
+          "emergent behavior in generative multi-agent systems"
+        ],
+        [
+          7,
+          "LLM-driven multi-agent interaction modeling"
+        ],
+        [
+          8,
+          "generative simulation for multi-agent games"
+        ],
+        [
+          9,
+          "autonomous agent world modeling beyond dyads"
+        ],
+        [
+          10,
+          "multi-player generative environment synthesis"
+        ],
+        [
+          11,
+          "LLM-based social simulation for multiple agents"
+        ],
+        [
+          12,
+          "generative agents in complex multi-agent worlds"
+        ],
+        [
+          13,
+          "scalable world generation for autonomous agents"
+        ],
+        [
+          14,
+          "multi-agent coordination in generative worlds"
+        ],
+        [
+          15,
+          "language model agents in simulated environments"
+        ],
+        [
+          16,
+          "generative world models for game theory"
+        ],
+        [
+          17,
+          "multi-agent emergent dynamics in LLM simulations"
+        ],
+        [
+          18,
+          "procedural generation of multi-agent scenarios"
+        ],
+        [
+          19,
+          "LLM-powered multi-agent environment dynamics"
+        ],
+        [
+          20,
+          "beyond two-player generative agent modeling"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "generative multi-agent world modeling": 5,
+        "llmXive follow-up: extending \"Gamma-World: Generative Multi-Agent World Modeling Beyond Two Players\" computer science": 0
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "generative world models multi-agent simulation",
+      "Gamma-World multi-agent environment generation",
+      "emergent behavior multi-agent generative modeling",
+      "multi-agent world modeling scalability benchmark",
+      "procedural content generation multi-agent systems"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2510.13343"
+      ]
+    },
+    "per_query_hit_count": {
+      "Gamma-World multi-agent environment generation": 1,
+      "emergent behavior multi-agent generative modeling": 1,
+      "generative world models multi-agent simulation": 3,
+      "llmXive follow-up: extending \"Gamma-World: Generative Multi-Agent World Modeling Beyond Two Players\" computer science": 3,
+      "multi-agent world modeling scalability benchmark": 0,
+      "procedural content generation multi-agent systems": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 1,
+      "rejections": [
+        {
+          "primary_pointer": "2604.03350",
+          "rationale": "The paper focuses on sensitivity analysis and surrogate modeling for stochastic Agent-Based Models (ABMs) in a general simulation context (predator-prey), whereas the user's question specifically targets \"Generative Multi-Agent World Modeling\" using LLMs (implied by \"llmXive\" and the \"Gamma-World\" title). While both involve multi-agent systems, the candidate paper does not address the specific mechanism of generative world modeling, LLM-based agents, or the \"beyond two players\" scalability chall",
+          "title": "From Model-Based Screening to Data-Driven Surrogates: A Multi-Stage Workflow for Exploring Stochastic Agent-Based Models"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-07-04T15:37:30Z",
+    "term_input": {
+      "normalized": "llmxive follow-up: extending \"gamma-world: generative multi-agent world modeling beyond two players\" computer science",
+      "raw": "llmXive follow-up: extending \"Gamma-World: Generative Multi-Agent World Modeling Beyond Two Players\" computer science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This white paper describes the LSST Dark Energy Science Collaboration (DESC), whose goal is the study of dark energy and related topics in fundamental physics with data from the Large Synoptic Survey Telescope (LSST). It provides an overview of dark energy science and describes the current and anticipated state of the field. It makes the case for the DESC by laying out a robust analytical framework for dark energy science that has been defined by its members and the comprehensive three-year work plan they have developed for implementing that framework. The analysis working groups cover five key probes of dark energy: weak lensing, large scale structure, galaxy clusters, Type Ia supernovae, and strong lensing. The computing working groups span cosmological simulations, galaxy catalogs, photon simulations and a systematic software and computational framework for LSST dark energy data analysis. The technical working groups make the connection between dark energy science and the LSST system. The working groups have close linkages, especially through the use of the photon simulations to study the impact of instrument design and survey strategy on analysis methodology and cosmological parameter estimation. The white paper describes several high priority tasks identified by each of the 16 working groups. Over the next three years these tasks will help prepare for LSST analysis, make synergistic connections with ongoing cosmological surveys and provide the dark energy community with state of the art analysis tools. Members of the community are invited to join the LSST DESC, according to the membership policies described in the white paper. Applications to sign up for associate membership may be made by submitting the Web form at http://www.slac.stanford.edu/exp/lsst/desc/signup.html with a short statement of the work they wish to pursue that is relevant to the LSST DESC.",
+          "claimed_authors": [
+            " LSST Dark Energy Science Collaboration"
+          ],
+          "claimed_title": "Large Synoptic Survey Telescope: Dark Energy Science Collaboration",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1211.0310"
+        },
+        "details": "query-relevance 0.071 < 0.3 (query='llmXive follow-up: extending \"Gamma-World: Generative Multi-Agent World Modeling', candidate_title='Large Synoptic Survey Telescope: Dark Energy Science Collaboration')",
+        "failed_at": "2026-07-04T15:37:58Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The large instantaneous sensitivity, a wide frequency coverage and flexible observation modes with large number of beams in the sky are the main features of the SKA observatory's two telescopes, the SKA-Low and the SKA-Mid, which are located on two different continents. Owing to these capabilities, the SKAO telescopes are going to be a game-changer for radio astronomy in general and pulsar astronomy in particular. The eleven articles in this special issue on pulsar science with the SKA Observatory describe its impact on different areas of pulsar science. In this lead article, a brief description of the two telescopes highlighting the relevant features for pulsar science is presented followed by an overview of each accompanying article, exploring the inter-relationship between different pulsar science use cases.",
+          "claimed_authors": [
+            "Bhal Chandra Joshi",
+            "Aris Karastergiou",
+            "Marta Burgay",
+            "The SKA pulsar science working group"
+          ],
+          "claimed_title": "Pulsar Science with the SKA Observatory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.16152"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='llmXive follow-up: extending \"Gamma-World: Generative Multi-Agent World Modeling', candidate_title='Pulsar Science with the SKA Observatory')",
+        "failed_at": "2026-07-04T15:37:58Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A Human Computer Interface (HCI) System for playing games is designed here for more natural communication with the machines. The system presented here is a vision-based system for detection of long voluntary eye blinks and interpretation of blink patterns for communication between man and machine. This system replaces the mouse with the human face as a new way to interact with the computer. Facial features (nose tip and eyes) are detected and tracked in realtime to use their actions as mouse events. The coordinates and movement of the nose tip in the live video feed are translated to become the coordinates and movement of the mouse pointer on the application. The left or right eye blinks fire left or right mouse click events. The system works with inexpensive USB cameras and runs at a frame rate of 30 frames per second.",
+          "claimed_authors": [
+            "S. Sumathi",
+            "S. K. Srivatsa",
+            "M. Uma Maheswari"
+          ],
+          "claimed_title": "Vision Based Game Development Using Human Computer Interaction",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1002.2191"
+        },
+        "details": "query-relevance 0.071 < 0.3 (query='llmXive follow-up: extending \"Gamma-World: Generative Multi-Agent World Modeling', candidate_title='Vision Based Game Development Using Human Computer Interaction')",
+        "failed_at": "2026-07-04T15:37:58Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This article proposes a methodology to model and simulate complex systems, based on IRM4MLS, a generic agent-based meta-model able to deal with multi-level systems. This methodology permits the engineering of dynamic multi-level agent-based models, to represent complex systems over several scales and domains of interest. Its goal is to simulate a phenomenon using dynamically the lightest representation to save computer resources without loss of information. This methodology is based on two mechanisms: (1) the activation or deactivation of agents representing different domain parts of the same phenomenon and (2) the aggregation or disaggregation of agents representing the same phenomenon at different scales.",
+          "claimed_authors": [
+            "Jean-Baptiste Soyez",
+            "Gildas Morvan",
+            "Daniel Dupont",
+            "Rochdi Merzouki"
+          ],
+          "claimed_title": "A Methodology to Engineer and Validate Dynamic Multi-level Multi-agent Based Simulations",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2013,
+          "primary_pointer": "1311.5108"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='llmXive follow-up: extending \"Gamma-World: Generative Multi-Agent World Modeling', candidate_title='A Methodology to Engineer and Validate Dynamic Multi-level Multi-agent Based Simulations')",
+        "failed_at": "2026-07-04T15:37:58Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Systematic exploration of Agent-Based Models (ABMs) is challenged by the curse of dimensionality and their inherent stochasticity. We present a multi-stage pipeline integrating the systematic design of experiments with machine learning surrogates. Using a predator-prey case study, our methodology proceeds in two steps. First, an automated model-based screening identifies dominant variables, assesses outcome variability, and segments the parameter space. Second, we train Machine Learning models to map the remaining nonlinear interaction effects. This approach automates the discovery of unstable regions where system outcomes are highly dependent on nonlinear interactions between many variables. Thus, this work provides modelers with a rigorous, hands-off framework for sensitivity analysis and policy testing, even when dealing with high-dimensional stochastic simulators.",
+          "claimed_authors": [
+            "Paul Saves",
+            "Matthieu Mastio",
+            "Nicolas Verstaevel",
+            "Benoit Gaudou"
+          ],
+          "claimed_title": "From Model-Based Screening to Data-Driven Surrogates: A Multi-Stage Workflow for Exploring Stochastic Agent-Based Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2604.03350"
+        },
+        "details": "query-relevance 0.214 < 0.3 (query='llmXive follow-up: extending \"Gamma-World: Generative Multi-Agent World Modeling', candidate_title='From Model-Based Screening to Data-Driven Surrogates: A Multi-Stage Workflow for Exploring Stochastic Agent-Based Models')",
+        "failed_at": "2026-07-04T15:37:58Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Communication is an effective mechanism for coordinating the behaviors of multiple agents, broadening their views of the environment, and to support their collaborations. In the field of multi-agent deep reinforcement learning (MADRL), agents can improve the overall learning performance and achieve their objectives by communication. Agents can communicate various types of messages, either to all agents or to specific agent groups, or conditioned on specific constraints. With the growing body of research work in MADRL with communication (Comm-MADRL), there is a lack of a systematic and structural approach to distinguish and classify existing Comm-MADRL approaches. In this paper, we survey recent works in the Comm-MADRL field and consider various aspects of communication that can play a role in designing and developing multi-agent reinforcement learning systems. With these aspects in mind, we propose 9 dimensions along which Comm-MADRL approaches can be analyzed, developed, and compared. By projecting existing works into the multi-dimensional space, we discover interesting trends. We also propose some novel directions for designing future Comm-MADRL systems through exploring possible combinations of the dimensions.",
+          "claimed_authors": [
+            "Changxi Zhu",
+            "Mehdi Dastani",
+            "Shihan Wang"
+          ],
+          "claimed_title": "A Survey of Multi-Agent Deep Reinforcement Learning with Communication",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2203.08975"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='llmXive follow-up: extending \"Gamma-World: Generative Multi-Agent World Modeling', candidate_title='A Survey of Multi-Agent Deep Reinforcement Learning with Communication')",
+        "failed_at": "2026-07-04T15:37:58Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Multi-agent reinforcement learning focuses on training the behaviors of multiple learning agents that coexist in a shared environment. Recently, MARL models, such as the Multi-Agent Transformer (MAT) and ACtion dEpendent deep Q-learning (ACE), have significantly improved performance by leveraging sequential decision-making processes. Although these models can enhance performance, they do not explicitly consider the importance of the order in which agents make decisions. In this paper, we propose an Agent Order of Action Decisions-MAT (AOAD-MAT), a novel MAT model that considers the order in which agents make decisions. The proposed model explicitly incorporates the sequence of action decisions into the learning process, allowing the model to learn and predict the optimal order of agent actions. The AOAD-MAT model leverages a Transformer-based actor-critic architecture that dynamically adjusts the sequence of agent actions. To achieve this, we introduce a novel MARL architecture that cooperates with a subtask focused on predicting the next agent to act, integrated into a Proximal Policy Optimization based loss function to synergistically maximize the advantage of the sequential decision-making. The proposed method was validated through extensive experiments on the StarCraft Multi-Agent Challenge and Multi-Agent MuJoCo benchmarks. The experimental results show that the proposed AOAD-MAT model outperforms existing MAT and other baseline models, demonstrating the effectiveness of adjusting the AOAD order in MARL.",
+          "claimed_authors": [
+            "Shota Takayama",
+            "Katsuhide Fujita"
+          ],
+          "claimed_title": "AOAD-MAT: Transformer-based multi-agent deep reinforcement learning model considering agents' order of action decisions",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2510.13343"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='llmXive follow-up: extending \"Gamma-World: Generative Multi-Agent World Modeling', candidate_title=\"AOAD-MAT: Transformer-based multi-agent deep reinforcement learning model considering agents' order of action decisions\")",
+        "failed_at": "2026-07-04T15:37:58Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Traditional AI safety evaluations on isolated LLMs are insufficient as multi-agent AI ensembles become prevalent, introducing novel emergent risks. This paper introduces the Multi-Agent Emergent Behavior Evaluation (MAEBE) framework to systematically assess such risks. Using MAEBE with the Greatest Good Benchmark (and a novel double-inversion question technique), we demonstrate that: (1) LLM moral preferences, particularly for Instrumental Harm, are surprisingly brittle and shift significantly with question framing, both in single agents and ensembles. (2) The moral reasoning of LLM ensembles is not directly predictable from isolated agent behavior due to emergent group dynamics. (3) Specifically, ensembles exhibit phenomena like peer pressure influencing convergence, even when guided by a supervisor, highlighting distinct safety and alignment challenges. Our findings underscore the necessity of evaluating AI systems in their interactive, multi-agent contexts.",
+          "claimed_authors": [
+            "Sinem Erisken",
+            "Timothy Gothard",
+            "Martin Leitgab",
+            "Ram Potham"
+          ],
+          "claimed_title": "MAEBE: Multi-Agent Emergent Behavior Framework",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2506.03053"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='llmXive follow-up: extending \"Gamma-World: Generative Multi-Agent World Modeling', candidate_title='MAEBE: Multi-Agent Emergent Behavior Framework')",
+        "failed_at": "2026-07-04T15:37:58Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Tabletop roleplaying games (TTRPGs) and procedural content generators can both be understood as systems of rules for producing content. In this paper, we argue that TTRPG design can usefully be viewed as procedural content generator design. We present several case studies linking key concepts from PCG research -- including possibility spaces, expressive range analysis, and generative pipelines -- to key concepts in TTRPG design. We then discuss the implications of these relationships and suggest directions for future work uniting research in TTRPGs and PCG.",
+          "claimed_authors": [
+            "Matthew Guzdial",
+            "Devi Acharya",
+            "Max Kreminski",
+            "Michael Cook",
+            "Mirjam Eladhari",
+            "Antonios Liapis",
+            "Anne Sullivan"
+          ],
+          "claimed_title": "Tabletop Roleplaying Games as Procedural Content Generators",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2007.06108"
+        },
+        "details": "query-relevance 0.071 < 0.3 (query='llmXive follow-up: extending \"Gamma-World: Generative Multi-Agent World Modeling', candidate_title='Tabletop Roleplaying Games as Procedural Content Generators')",
+        "failed_at": "2026-07-04T15:37:58Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Co-creative Procedural Content Generation via Machine Learning (PCGML) refers to systems where a PCGML agent and a human work together to produce output content. One of the limitations of co-creative PCGML is that it requires co-creative training data for a PCGML agent to learn to interact with humans. However, acquiring this data is a difficult and time-consuming process. In this work, we propose approximating human-AI interaction data and employing transfer learning to adapt learned co-creative knowledge from one game to a different game. We explore this approach for co-creative Zelda dungeon room generation.",
+          "claimed_authors": [
+            "Zisen Zhou",
+            "Matthew Guzdial"
+          ],
+          "claimed_title": "Toward Co-creative Dungeon Generation via Transfer Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2107.12533"
+        },
+        "details": "query-relevance 0.071 < 0.3 (query='llmXive follow-up: extending \"Gamma-World: Generative Multi-Agent World Modeling', candidate_title='Toward Co-creative Dungeon Generation via Transfer Learning')",
+        "failed_at": "2026-07-04T15:37:58Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Procedural content generation via machine learning (PCGML) is the process of procedurally generating game content using models trained on existing game content. PCGML methods can struggle to capture the true variance present in underlying data with a single model. In this paper, we investigated the use of ensembles of Markov chains for procedurally generating \\emph{Mega Man} levels. We conduct an initial investigation of our approach and evaluate it on measures of playability and stylistic similarity in comparison to a non-ensemble, existing Markov chain approach.",
+          "claimed_authors": [
+            "Bowei Li",
+            "Ruohan Chen",
+            "Yuqing Xue",
+            "Ricky Wang",
+            "Wenwen Li",
+            "Matthew Guzdial"
+          ],
+          "claimed_title": "Ensemble Learning For Mega Man Level Generation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2107.12524"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Gamma-World: Generative Multi-Agent World Modeling', candidate_title='Ensemble Learning For Mega Man Level Generation')",
+        "failed_at": "2026-07-04T15:37:58Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Changxi Zhu",
+            "Mehdi Dastani",
+            "Shihan Wang"
+          ],
+          "title": "A Survey of Multi-Agent Deep Reinforcement Learning with Communication",
+          "venue": "arXiv",
+          "year": 2022
+        },
+        "primary_pointer": "2203.08975",
+        "summary": "Communication is an effective mechanism for coordinating the behaviors of multiple agents, broadening their views of the environment, and to support their collaborations. In the field of multi-agent deep reinforcement learning (MADRL), agents can improve the overall learning performance and achieve their objectives by communication. Agents can communicate various types of messages, either to all agents or to specific agent groups, or conditioned on specific constraints. With the growing body of research work in MADRL with communication (Comm-MADRL), there is a lack of a systematic and structural approach to distinguish and classify existing Comm-MADRL approaches. In this paper, we survey recent works in the Comm-MADRL field and consider various aspects of communication that can play a role in designing and developing multi-agent reinforcement learning systems. With these aspects in mind, we propose 9 dimensions along which Comm-MADRL approaches can be analyzed, developed, and compared. By projecting existing works into the multi-dimensional space, we discover interesting trends. We also propose some novel directions for designing future Comm-MADRL systems through exploring possible combinations of the dimensions.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2203.08975",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-04T15:38:03Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Jean-Baptiste Soyez",
+            "Gildas Morvan",
+            "Daniel Dupont",
+            "Rochdi Merzouki"
+          ],
+          "title": "A Methodology to Engineer and Validate Dynamic Multi-level Multi-agent Based Simulations",
+          "venue": "arXiv",
+          "year": 2013
+        },
+        "primary_pointer": "1311.5108",
+        "summary": "This article proposes a methodology to model and simulate complex systems, based on IRM4MLS, a generic agent-based meta-model able to deal with multi-level systems. This methodology permits the engineering of dynamic multi-level agent-based models, to represent complex systems over several scales and domains of interest. Its goal is to simulate a phenomenon using dynamically the lightest representation to save computer resources without loss of information. This methodology is based on two mechanisms: (1) the activation or deactivation of agents representing different domain parts of the same phenomenon and (2) the aggregation or disaggregation of agents representing the same phenomenon at different scales.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1311.5108",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-04T15:38:04Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Shota Takayama",
+            "Katsuhide Fujita"
+          ],
+          "title": "AOAD-MAT: Transformer-based multi-agent deep reinforcement learning model considering agents' order of action decisions",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2510.13343",
+        "summary": "Multi-agent reinforcement learning focuses on training the behaviors of multiple learning agents that coexist in a shared environment. Recently, MARL models, such as the Multi-Agent Transformer (MAT) and ACtion dEpendent deep Q-learning (ACE), have significantly improved performance by leveraging sequential decision-making processes. Although these models can enhance performance, they do not explicitly consider the importance of the order in which agents make decisions. In this paper, we propose an Agent Order of Action Decisions-MAT (AOAD-MAT), a novel MAT model that considers the order in which agents make decisions. The proposed model explicitly incorporates the sequence of action decisions into the learning process, allowing the model to learn and predict the optimal order of agent actions. The AOAD-MAT model leverages a Transformer-based actor-critic architecture that dynamically adjusts the sequence of agent actions. To achieve this, we introduce a novel MARL architecture that cooperates with a subtask focused on predicting the next agent to act, integrated into a Proximal Policy Optimization based loss function to synergistically maximize the advantage of the sequential decision-making. The proposed method was validated through extensive experiments on the StarCraft Multi-Agent Challenge and Multi-Agent MuJoCo benchmarks. The experimental results show that the proposed AOAD-MAT model outperforms existing MAT and other baseline models, demonstrating the effectiveness of adjusting the AOAD order in MARL.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2510.13343",
+          "http_status": 200,
+          "pdf_sample_score": 0.2742,
+          "query_relevance_score": 0.4,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-04T15:38:04Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "F. Bredell",
+            "H. A. Engelbrecht",
+            "J. C. Schoeman"
+          ],
+          "title": "Augmenting the action space with conventions to improve multi-agent cooperation in Hanabi",
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2412.06333",
+        "summary": "The card game Hanabi is considered a strong medium for the testing and development of multi-agent reinforcement learning (MARL) algorithms, due to its cooperative nature, partial observability, limited communication and remarkable complexity. Previous research efforts have explored the capabilities of MARL algorithms within Hanabi, focusing largely on advanced architecture design and algorithmic manipulations to achieve state-of-the-art performance for various number of cooperators. However, this often leads to complex solution strategies with high computational cost and requiring large amounts of training data. For humans to solve the Hanabi game effectively, they require the use of conventions, which often allows for a means to implicitly convey ideas or knowledge based on a predefined, and mutually agreed upon, set of \"rules\" or principles. Multi-agent problems containing partial observability, especially when limited communication is present, can benefit greatly from the use of implicit knowledge sharing. In this paper, we propose a novel approach to augmenting an agent's action space using conventions, which act as a sequence of special cooperative actions that span over and include multiple time steps and multiple agents, requiring agents to actively opt in for it to reach fruition. These conventions are based on existing human conventions, and result in a significant improvement on the performance of existing techniques for self-play and cross-play for various number of cooperators within Hanabi.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2412.06333",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-04T15:38:05Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "llmxive follow-up: extending \"gamma-world: generative multi-agent world modeling beyond two players\" computer science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

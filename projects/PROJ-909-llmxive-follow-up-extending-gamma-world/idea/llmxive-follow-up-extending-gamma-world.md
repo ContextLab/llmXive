@@ -5,27 +5,78 @@ submitter: llmxive-preprint-followup
 
 # llmXive follow-up: extending "Gamma-World: Generative Multi-Agent World Modeling Beyond Two Players"
 
-## Summary of the prior work
-Gamma-World introduces a generative multi-agent world model that scales beyond two players by using Simplex Rotary Agent Encoding for permutation-symmetric identity and Sparse Hub Attention to reduce cross-agent computational complexity. The system distills a full-context diffusion teacher into a causal student, enabling real-time, action-responsive video generation at 24 FPS with consistent inter-agent interactions.
+**Field**: Computer Science (Multi-Agent Systems / Generative Modeling)
 
-## Proposed extension
-Can we replace the learned "Sparse Hub Attention" mechanism with a deterministic, topology-aware routing protocol based on agent proximity to achieve comparable inter-agent consistency while eliminating all learnable cross-agent parameters for CPU-tractable inference? This extension matters because it would determine if the current performance gains stem from the learned hub's ability to model complex dependencies or simply from the architectural reduction of quadratic attention, potentially enabling multi-agent simulation on edge devices without GPUs.
+## Research question
+
+Does replacing learned cross-agent attention hubs with deterministic, proximity-based routing protocols preserve inter-agent consistency in generative world models while enabling real-time, GPU-free inference?
+
+## Motivation
+
+Current multi-agent world models rely on learnable attention mechanisms to manage complex inter-agent dependencies, which imposes significant computational overhead and requires GPU acceleration. Determining whether geometric priors (agent proximity) can substitute for learned attention without degrading video fidelity would unlock real-time, edge-device capable multi-agent simulations for robotics and training environments.
+
+## Related work
+
+- [A Survey of Multi-Agent Deep Reinforcement Learning with Communication (2022)](https://arxiv.org/abs/2203.08975) — Establishes that communication mechanisms are critical for coordinating multi-agent behaviors and broadening environmental awareness, though it focuses on reinforcement learning rather than generative video modeling.
+- [AOAD-MAT: Transformer-based multi-agent deep reinforcement learning model considering agents' order of action decisions (2025)](https://arxiv.org/abs/2510.13343) — Demonstrates the use of Transformer-based architectures for multi-agent coordination, highlighting the trade-offs between action-order modeling and computational complexity in shared environments.
+
+## Expected results
+
+We expect the deterministic "Static-Topo" model to achieve sub-100ms inference latency on a standard CPU with a marginal (<5%) drop in video fidelity compared to the learned hub baseline. This would confirm that explicit geometric priors are sufficient for local multi-agent interactions in generative settings, proving that the performance gains of Gamma-World stem primarily from architectural sparsity rather than the learned capacity of the hub.
 
 ## Methodology sketch
-We will utilize the existing Minecraft and RealOmin-Open datasets to train a modified Gamma-World student model where the learnable hub tokens are replaced by a fixed, distance-based routing graph that only connects agents within a 5-meter radius. The procedure involves training this "Static-Topo" variant on a single CPU core using the same distillation pipeline, then comparing its inference latency, memory footprint, and action-controllability scores against the original Sparse Hub model on a held-out test set of 4-player scenarios. We expect the Static-Topo model to achieve sub-100ms inference latency on a standard CPU with only a marginal (<5%) drop in video fidelity, proving that explicit geometric priors can substitute for learned attention hubs in local multi-agent interactions.
 
-## Motivated by (source preprint — reviewed, not authored, by llmXive)
+- **Data Acquisition**: Download the Minecraft and RealOmin-Open datasets (4-player scenarios) from their public repositories to serve as the training and test bed.
+- **Model Modification**: Implement a "Static-Topo" variant of the Gamma-World student model where the learnable Sparse Hub Attention layer is replaced by a fixed adjacency matrix derived from agent Euclidean distance (connecting only agents within a 5-meter radius).
+- **Training Protocol**: Train both the original Sparse Hub model and the Static-Topo variant using the same distillation pipeline on a single CPU core (simulating the 2-core GHA runner constraint) for a fixed number of epochs.
+- **Inference Benchmarking**: Measure inference latency (ms/frame) and peak memory usage (GB) for both models on the held-out test set using only CPU resources.
+- **Fidelity Evaluation**: Compute action-controllability scores and video fidelity metrics (e.g., FID, SSIM) on the generated sequences to quantify the drop in quality.
+- **Statistical Analysis**: Apply a paired t-test to compare the latency and fidelity metrics between the two models to determine if the performance difference is statistically significant.
+- **Validation Independence**: Ensure the evaluation metrics (latency, fidelity) are measured against independent ground-truth video frames and system logs, not derived from the model's own attention weights.
 
-- **Gamma-World: Generative Multi-Agent World Modeling Beyond Two Players** — Fangfu Liu, Kai He, Tianchang Shen, Tianshi Cao, Sanja Fidler, Yueqi Duan, Jun Gao, Igor Gilitschenski, Zian Wang, Xuanchi Ren. https://arxiv.org/abs/2605.28816.
+## Duplicate-check
 
-```bibtex
-@article{orig_arxiv_2605_28816,
-  title = {Gamma-World: Generative Multi-Agent World Modeling Beyond Two Players},
-  author = {Fangfu Liu and Kai He and Tianchang Shen and Tianshi Cao and Sanja Fidler and Yueqi Duan and Jun Gao and Igor Gilitschenski and Zian Wang and Xuanchi Ren},
-  year = {2026},
-  eprint = {2605.28816},
-  archivePrefix = {arXiv},
-  journal = {arXiv preprint arXiv:2605.28816},
-  url = {https://arxiv.org/abs/2605.28816}
-}
-```
+- Reviewed existing ideas: None found in the provided corpus.
+- Closest match: None (similarity sketch: N/A).
+- Verdict: NOT a duplicate.
+
+
+## Search trail
+
+**Generated by**: librarian (prompt v1.6.0) on 2026-07-04T15:38:22Z
+**Outcome**: exhausted
+**Original term**: llmXive follow-up: extending "Gamma-World: Generative Multi-Agent World Modeling Beyond Two Players" computer science
+**Verified citation count**: 4
+
+### Search terms used
+
+| Rank | Term | Hit count |
+|-|-|-|
+| 0 (initial) | llmXive follow-up: extending "Gamma-World: Generative Multi-Agent World Modeling Beyond Two Players" computer science | 0 |
+| 1 | generative multi-agent world modeling | 5 |
+| 2 | multi-agent generative world models | 0 |
+| 3 | scalable multi-agent simulation with LLMs | 0 |
+| 4 | agent-based generative world construction | 0 |
+| 5 | large language model multi-agent environments | 0 |
+| 6 | emergent behavior in generative multi-agent systems | 0 |
+| 7 | LLM-driven multi-agent interaction modeling | 0 |
+| 8 | generative simulation for multi-agent games | 0 |
+| 9 | autonomous agent world modeling beyond dyads | 0 |
+| 10 | multi-player generative environment synthesis | 0 |
+| 11 | LLM-based social simulation for multiple agents | 0 |
+| 12 | generative agents in complex multi-agent worlds | 0 |
+| 13 | scalable world generation for autonomous agents | 0 |
+| 14 | multi-agent coordination in generative worlds | 0 |
+| 15 | language model agents in simulated environments | 0 |
+| 16 | generative world models for game theory | 0 |
+| 17 | multi-agent emergent dynamics in LLM simulations | 0 |
+| 18 | procedural generation of multi-agent scenarios | 0 |
+| 19 | LLM-powered multi-agent environment dynamics | 0 |
+| 20 | beyond two-player generative agent modeling | 0 |
+
+### Verified citations
+
+1. **A Survey of Multi-Agent Deep Reinforcement Learning with Communication** (2022). Changxi Zhu, Mehdi Dastani, Shihan Wang. arXiv. [2203.08975](https://arxiv.org/abs/2203.08975). PDF-sampled: No.
+2. **A Methodology to Engineer and Validate Dynamic Multi-level Multi-agent Based Simulations** (2013). Jean-Baptiste Soyez, Gildas Morvan, Daniel Dupont, Rochdi Merzouki. arXiv. [1311.5108](https://arxiv.org/abs/1311.5108). PDF-sampled: No.
+3. **AOAD-MAT: Transformer-based multi-agent deep reinforcement learning model considering agents' order of action decisions** (2025). Shota Takayama, Katsuhide Fujita. arXiv. [2510.13343](https://arxiv.org/abs/2510.13343). PDF-sampled: No.
+4. **Augmenting the action space with conventions to improve multi-agent cooperation in Hanabi** (2024). F. Bredell, H. A. Engelbrecht, J. C. Schoeman. arXiv. [2412.06333](https://arxiv.org/abs/2412.06333). PDF-sampled: No.

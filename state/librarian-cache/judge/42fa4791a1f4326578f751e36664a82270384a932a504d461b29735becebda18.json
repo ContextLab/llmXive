@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2202.05332",
+  "judged_at": "2026-07-04T15:35:29Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "the impact of ambient noise on cognitive flexibility in remote workers psychology",
+  "rationale": "The paper focuses on the engineering design of an artificial auditory system for AI cognitive architectures, which is an off-domain topic distinct from the user's question about the psychological impact of ambient noise on human cognitive flexibility in remote workers. It shares the keyword \"cognitive\" but addresses a different construct (machine perception vs. human psychology) and lacks any measurable connection to the user's variables, mechanism, or empirical population.",
+  "relevant": false
+}
