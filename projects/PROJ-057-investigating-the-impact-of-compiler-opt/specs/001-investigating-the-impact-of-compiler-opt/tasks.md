@@ -43,9 +43,9 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure per `plan.md` by executing `mkdir -p projects/PROJ-057-investigating-the-impact-of-compiler-opt/{code/{kernels,benchmarks,analysis,utils},data/{raw,intermediates,results},tests/{unit,integration}}`
-- [ ] T002 Create `code/requirements.txt` containing: `numpy`, `scipy`, `matplotlib`, `pyyaml`, `pytest`, `pandas`, `pandas-stubs`
-- [ ] T003 Create `code/.flake8` and `code/pyproject.toml` with black formatting configuration for the compiler optimization project.
+- [X] T001 Create project structure per `plan.md` by executing `mkdir -p projects/PROJ-057-investigating-the-impact-of-compiler-opt/{code/{kernels,benchmarks,analysis,utils},data/{raw,intermediates,results},tests/{unit,integration}}`
+- [X] T002 Create `code/requirements.txt` containing: `numpy`, `scipy`, `matplotlib`, `pyyaml`, `pytest`, `pandas`, `pandas-stubs`
+- [X] T003 Create `code/.flake8` and `code/pyproject.toml` with black formatting configuration for the compiler optimization project.
 
 ---
 
@@ -55,10 +55,10 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 Create directory structure: `code/kernels/`, `code/benchmarks/`, `code/analysis/`, `data/raw/`, `data/intermediates/`, `data/results/`, `tests/`
-- [ ] T005 [P] Implement deterministic synthetic tensor generator in `code/benchmarks/tensor_generator.py` using fixed seeds (e.g., arbitrary integers) and varied distributions (Normal, Uniform) to ensure construct validity; output to `data/raw/`
-- [ ] T006 [P] Implement high-precision reference engine in `code/benchmarks/reference.py` using Python `decimal` module (arbitrary precision) for MatMul, Softmax, and LayerNorm; output to `data/raw/`
-- [ ] T007 Create base configuration manager in `code/benchmarks/config.py` to handle compiler flags (`-O0` to `-O3`, `-Os`, `-march=native`, `-ffast-math`, `-funroll-loops`) and tensor dimensions (768x768, 512x512)
+- [X] T004 Create directory structure: `code/kernels/`, `code/benchmarks/`, `code/analysis/`, `data/raw/`, `data/intermediates/`, `data/results/`, `tests/`
+- [X] T005 [P] Implement deterministic synthetic tensor generator in `code/benchmarks/tensor_generator.py` using fixed seeds (e.g., arbitrary integers) and varied distributions (Normal, Uniform) to ensure construct validity; output to `data/raw/`
+- [X] T006 [P] Implement high-precision reference engine in `code/benchmarks/reference.py` using Python `decimal` module (arbitrary precision) for MatMul, Softmax, and LayerNorm; output to `data/raw/`
+- [X] T007 Create base configuration manager in `code/benchmarks/config.py` to handle compiler flags (`-O0` to `-O3`, `-Os`, `-march=native`, `-ffast-math`, `-funroll-loops`) and tensor dimensions (768x768, 512x512)
 - [ ] T008 Setup logging infrastructure in `code/utils/logger.py` to record compiler versions, flag combinations, and runtime warnings (NaN detection)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -73,8 +73,8 @@
 
 ### Implementation for User Story 1
 
-- [ ] T011 [P] [US1] Implement C++ MatMul kernel in `code/kernels/matmul.cpp` (C++17, float32)
-- [ ] T012 [P] [US1] Implement C++ Softmax kernel in `code/kernels/softmax.cpp`
+- [X] T011 [P] [US1] Implement C++ MatMul kernel in `code/kernels/matmul.cpp` (C++17, float32)
+- [X] T012 [P] [US1] Implement C++ Softmax kernel in `code/kernels/softmax.cpp`
 - [ ] T013 [P] [US1] Implement C++ LayerNorm kernel in `code/kernels/layernorm.cpp`
 - [ ] T014 [US1] Implement `code/benchmarks/compile_runner.py` to orchestrate `g++`/`clang++` compilation with dynamic flag injection and SHA-256 hashing of binaries; **Verify by running `python code/benchmarks/compile_runner.py --test` which outputs a SHA-256 hash of a dummy binary**
 - [ ] T015 [US1] Implement `code/benchmarks/executor.py` to run binaries and measure latency using `std::chrono` (via subprocess). **Enforce a fixed iteration count of 1000 per configuration as mandated by Constitution Principle VII. Implement memory fallback: if 768x768 allocation fails, auto-downsample to 512x512, log 'Memory Pressure' with the new dimension ID, and continue execution. Only exit if the downsampled run also fails. Include a secondary adaptive stop if CV ≤ 1% after 30 iterations, but only as a safety check, not the primary termination condition. Output results to `data/intermediates/raw_logs/{config_id}.jsonl` with fields: `median`, `p95`, `iterations`, `config_id`, `downsampled_flag`**
@@ -84,8 +84,8 @@
 
 > **NOTE: Write these tests AFTER implementation to ensure they FAIL initially (Red-Green-Refactor)**
 
-- [ ] T009 [P] [US1] Add `tests/unit/test_config.py::test_validate_flags_rejects_invalid` to verify invalid flag rejection
-- [ ] T010 [P] [US1] Add `tests/integration/test_compile_run.py::test_compile_and_run_matmul` to verify GCC 11+/Clang 14+ availability and execution
+- [~] T009 [P] [US1] Add `tests/unit/test_config.py::test_validate_flags_rejects_invalid` to verify invalid flag rejection
+- [~] T010 [P] [US1] Add `tests/integration/test_compile_run.py::test_compile_and_run_matmul` to verify GCC 11+/Clang 14+ availability and execution
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -101,16 +101,16 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T018 [P] [US2] Add `tests/unit/test_stability.py::test_l2_norm_calculation` to verify L2 norm and MaxDiff calculation
-- [ ] T019 [P] [US2] Add `tests/integration/test_stability_flow.py::test_compare_O3_vs_O0` to verify comparison logic against reference
+- [~] T018 [P] [US2] Add `tests/unit/test_stability.py::test_l2_norm_calculation` to verify L2 norm and MaxDiff calculation
+- [~] T019 [P] [US2] Add `tests/integration/test_stability_flow.py::test_compare_O3_vs_O0` to verify comparison logic against reference
 
 ### Implementation for User Story 2
 
-- [ ] T020 [US2] [Depends: T011-T017] Implement `code/analysis/stability_check.py` to load binary outputs and reference results
-- [ ] T021 [US2] [Depends: T011-T017] Implement L2 relative error and Maximum Absolute Difference calculation logic in `code/analysis/stability_check.py`
-- [ ] T022 [US2] [Depends: T011-T017] Implement threshold flagging (error > 1e-5) and exclusion logic from statistical analysis while recording as "stability failure"
-- [ ] T023 [US2] [Depends: T011-T017] Aggregate results into `data/results/stability_metrics.csv` with columns: `config_id`, `kernel_type`, `l2_error`, `max_diff`, `status`
-- [ ] T024 [US2] [Depends: T011-T017] Add visualization helper to plot error distribution per optimization level
+- [~] T020 [US2] [Depends: T011-T017] Implement `code/analysis/stability_check.py` to load binary outputs and reference results
+- [~] T021 [US2] [Depends: T011-T017] Implement L2 relative error and Maximum Absolute Difference calculation logic in `code/analysis/stability_check.py`
+- [~] T022 [US2] [Depends: T011-T017] Implement threshold flagging (error > 1e-5) and exclusion logic from statistical analysis while recording as "stability failure"
+- [~] T023 [US2] [Depends: T011-T017] Aggregate results into `data/results/stability_metrics.csv` with columns: `config_id`, `kernel_type`, `l2_error`, `max_diff`, `status`
+- [~] T024 [US2] [Depends: T011-T017] Add visualization helper to plot error distribution per optimization level
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -126,17 +126,17 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T025 [P] [US3] Add `tests/unit/test_stats.py::test_welch_ttest_significance` to verify Welch's t-test implementation
-- [ ] T026 [P] [US3] Add `tests/integration/test_viz.py::test_pareto_frontier_generation` to verify Pareto frontier generation
+- [~] T025 [P] [US3] Add `tests/unit/test_stats.py::test_welch_ttest_significance` to verify Welch's t-test implementation
+- [~] T026 [P] [US3] Add `tests/integration/test_viz.py::test_pareto_frontier_generation` to verify Pareto frontier generation
 
 ### Implementation for User Story 3
 
-- [ ] T027 [US3] [Depends: T023, T015] Implement block-averaging logic (block size sufficient for statistical power) for latency distributions in `code/analysis/stats.py`
-- [ ] T028 [US3] [Depends: T023, T015] Implement **Welch's Independent Samples t-test** logic in `code/analysis/stats.py` to compare optimization levels (p<0.05 threshold) for independent binaries (different compilers/flags); **Note: This corrects Spec FR-004's 'paired' wording to match the Plan's explicit requirement for independent samples. Include null hypothesis rejection/retention logging. The Spec must be updated to reflect 'Welch's t-test' to maintain Single Source of Truth.**
-- [ ] T029 [US3] [Depends: T023, T015] Implement null hypothesis rejection/retention logic and logging in `code/analysis/stats.py`
-- [ ] T030 [US3] [Depends: T023, T015] Implement `code/analysis/viz.py` to generate `data/results/pareto_frontier_exploration.png` including **ALL numerically stable configurations** (stable AND downsampled, but EXCLUDING unstable ones with error > 1e-5). **Explicitly mark downsampled configurations with a distinct visual indicator (e.g., different color or shape) to distinguish them from standard runs. x-axis=median_latency, y-axis=max_abs_diff. The Spec's FR-005 should be clarified to define 'valid' as 'stable' for exploration.**
-- [ ] T031 [US3] [Depends: T023, T015] Implement `code/analysis/viz.py` to generate `data/results/pareto_frontier_final.png` strictly **excluding** configurations with error > 1e-5 (Constitution Principle VI); **Output to `data/results/pareto_frontier_final.png`. This plot represents the final, validated Pareto frontier.**
-- [ ] T032 [US3] [Depends: T023, T015] Generate final `data/results/aggregated.csv` and `data/results/pareto_frontier_final.png`
+- [~] T027 [US3] [Depends: T023, T015] Implement block-averaging logic (block size sufficient for statistical power) for latency distributions in `code/analysis/stats.py`
+- [~] T028 [US3] [Depends: T023, T015] Implement **Welch's Independent Samples t-test** logic in `code/analysis/stats.py` to compare optimization levels (p<0.05 threshold) for independent binaries (different compilers/flags); **Note: This corrects Spec FR-004's 'paired' wording to match the Plan's explicit requirement for independent samples. Include null hypothesis rejection/retention logging. The Spec must be updated to reflect 'Welch's t-test' to maintain Single Source of Truth.**
+- [~] T029 [US3] [Depends: T023, T015] Implement null hypothesis rejection/retention logic and logging in `code/analysis/stats.py`
+- [~] T030 [US3] [Depends: T023, T015] Implement `code/analysis/viz.py` to generate `data/results/pareto_frontier_exploration.png` including **ALL numerically stable configurations** (stable AND downsampled, but EXCLUDING unstable ones with error > 1e-5). **Explicitly mark downsampled configurations with a distinct visual indicator (e.g., different color or shape) to distinguish them from standard runs. x-axis=median_latency, y-axis=max_abs_diff. The Spec's FR-005 should be clarified to define 'valid' as 'stable' for exploration.**
+- [~] T031 [US3] [Depends: T023, T015] Implement `code/analysis/viz.py` to generate `data/results/pareto_frontier_final.png` strictly **excluding** configurations with error > 1e-5 (Constitution Principle VI); **Output to `data/results/pareto_frontier_final.png`. This plot represents the final, validated Pareto frontier.**
+- [~] T032 [US3] [Depends: T023, T015] Generate final `data/results/aggregated.csv` and `data/results/pareto_frontier_final.png`
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -146,9 +146,9 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T033 [P] Implement `code/main.py` entry point to orchestrate full experiment flow (Gen → Compile → Run → Analyze → Viz)
-- [ ] T034 [P] Implement `data/manifest.json` generation with SHA-256 hashes for binaries, raw logs, CSVs, and plots (Constitution Principle V)
-- [ ] T035 [P] Documentation updates in `docs/` and `README.md` explaining the benchmark suite
+- [~] T033 [P] Implement `code/main.py` entry point to orchestrate full experiment flow (Gen → Compile → Run → Analyze → Viz)
+- [~] T034 [P] Implement `data/manifest.json` generation with SHA-256 hashes for binaries, raw logs, CSVs, and plots (Constitution Principle V)
+- [~] T035 [P] Documentation updates in `docs/` and `README.md` explaining the benchmark suite
 - [ ] T036 Run `quickstart.md` validation to ensure reproducibility on fresh runners
 - [ ] T037 Code cleanup and refactoring to ensure modularity
 

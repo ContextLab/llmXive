@@ -1,0 +1,8 @@
+numpy
+scipy
+matplotlib
+pyyaml
+pytest
+pandas
+pandas-stubs
+struct

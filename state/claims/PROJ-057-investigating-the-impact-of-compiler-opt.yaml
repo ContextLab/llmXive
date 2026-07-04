@@ -1,0 +1,110 @@
+- artifact_path: projects/PROJ-057-investigating-the-impact-of-compiler-opt/docs/FAQ.md
+  attempts: 1
+  canonical: decimal module allows 512-bit arbitrary-precision arithmetic in this
+    project
+  claim_id: c_157374a1
+  context: The `decimal` module allows for arbitrary-precision arithmetic (512-bit
+    in this project), which is necessary to establish a high-precision ground truth
+    against which the floating-point (float32) optimized kernels can be compared.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The `decimal` module allows for arbitrary-precision arithmetic (512-bit
+    in this project)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-04T01:28:37Z'
+- artifact_path: projects/PROJ-057-investigating-the-impact-of-compiler-opt/docs/FAQ.md
+  attempts: 1
+  canonical: final plot excludes configurations with L2 error greater than 1e-5
+  claim_id: c_e1f8cf61
+  context: The exploration plot includes all numerically stable configurations, including
+    those that were downsampled due to memory pressure (marked distinctly). The final
+    plot strictly excludes any configuration with an L2 error > 1e-5, representing
+    the validated Pareto frontier.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Final_plot_excludes_configurations_with_L2_error_greater_tha
+  kind: magnitude
+  raw_text: The final plot strictly excludes any configuration with an L2 error >
+    1e-5
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-04T01:29:12Z'
+- artifact_path: projects/PROJ-057-investigating-the-impact-of-compiler-opt/docs/FAQ.md
+  attempts: 1
+  canonical: fixed count of 1000 iterations is mandatory per configuration
+  claim_id: c_ebec3121
+  context: "A fixed count of 1000 iterations is mandatory (Constitution Principle\
+    \ VII). An adaptive stop condition (CV \u2264 1% after 30 iterations) is implemented\
+    \ as a secondary safety check but does not override the fixed count."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: A fixed count of 1000 iterations is mandatory
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-04T01:29:57Z'
+- artifact_path: projects/PROJ-057-investigating-the-impact-of-compiler-opt/docs/FAQ.md
+  attempts: 1
+  canonical: adaptive stop condition implemented for CV less than or equal to 1% after
+    30 iterations
+  claim_id: c_b157f941
+  context: "A fixed count of 1000 iterations is mandatory (Constitution Principle\
+    \ VII). An adaptive stop condition (CV \u2264 1% after 30 iterations) is implemented\
+    \ as a secondary safety check but does not override the fixed count."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Adaptive_stop_condition_implemented_for_CV_less_than_or_equa
+  kind: magnitude
+  raw_text: "An adaptive stop condition (CV \u2264 1% after 30 iterations) is implemented"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-04T01:30:57Z'
+- artifact_path: projects/PROJ-057-investigating-the-impact-of-compiler-opt/docs/FAQ.md
+  attempts: 1
+  canonical: GCC 11 or Clang 14 or higher required for compilation
+  claim_id: c_7a7e8b5c
+  context: Ensure you have GCC 11+ or Clang 14+ installed and that the compiler is
+    in your `PATH`. Check the error message in the logs for specific compiler errors.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Ensure you have GCC 11+ or Clang 14+ installed
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-04T01:31:45Z'
+- artifact_path: projects/PROJ-057-investigating-the-impact-of-compiler-opt/docs/FAQ.md
+  attempts: 1
+  canonical: configuration marked unstable if L2 relative error exceeds 1e-5
+  claim_id: c_0c44e8e6
+  context: A configuration is marked unstable if its L2 relative error exceeds 1e-5
+    or if it produces NaN values. This indicates that the optimization flags caused
+    significant numerical drift.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: A configuration is marked unstable if its L2 relative error exceeds 1e-5
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-04T01:32:06Z'
