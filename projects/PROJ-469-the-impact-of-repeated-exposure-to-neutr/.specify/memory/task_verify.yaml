@@ -1,12 +1,4 @@
-'T001 Create project structure per implementation plan: `mkdir -p code/ data/raw/ data/processed/ results/ logs/`': 2
-? 'T002 Initialize Python 3.11 project: Create `requirements.txt` with pinned versions
-  for `pandas`, `scikit-learn`, `statsmodels`, `seaborn`, `matplotlib`, `scipy`, `jinja2`,
-  `pyyaml`, `pytest`'
-: 2
-T003 [P] Configure linting (flake8/black) and formatting tools in `code/`: 2
-? 'T006 Implement `code/preprocessing.py` skeleton: Define function signatures `load_data`,
-  `impute_mice`, `derive_variables` and raise `NotImplementedError` in placeholders'
-: 1
 ? T007 Create `contracts/dataset.schema.yaml` defining columns `IAT_D_score`, `political_ideology`,
   `news_exposure_freq` and validation logic
-: 1
+: 2
+T008 Configure error handling and logging infrastructure in `code/` (logging to `logs/` and console): 1

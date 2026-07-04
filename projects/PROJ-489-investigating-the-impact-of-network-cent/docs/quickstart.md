@@ -1,22 +1,23 @@
-# Quickstart Guide
+# Quickstart Guide: Network Centrality & Neural Synchrony Analysis
 
-This guide provides step-by-step instructions to set up and run the **llmXive** pipeline for investigating the impact of network centrality on neural synchrony during sleep stages.
+This guide walks you through setting up the environment, downloading the Sleep-EDF dataset, running the full preprocessing pipeline, computing metrics, and generating the final statistical report.
 
 ## Prerequisites
 
-- Python 3.11 or higher
+- Python 3.11+
 - pip (Python package installer)
-- Access to the internet (for initial dataset download)
+- At least 4GB of RAM available for processing
+- Internet connection (required for initial dataset download)
 
 ## Installation
 
-1. **Clone the repository** (if not already done):
+1. **Clone the repository**:
  ```bash
- git clone <repository-url>
- cd <project-directory>
+ git clone
+ cd PROJ-489-investigating-the-impact-of-network-cent
  ```
 
-2. **Create a virtual environment** (recommended):
+2. **Create and activate a virtual environment**:
  ```bash
  python -m venv venv
  source venv/bin/activate # On Windows: venv\Scripts\activate
@@ -27,111 +28,90 @@ This guide provides step-by-step instructions to set up and run the **llmXive** 
  pip install -r code/requirements.txt
  ```
 
-## Project Structure
-
-The project follows this directory structure:
-
-```
-.
-├── code/ # Python source code
-│ ├── main.py # Entry point
-│ ├── download.py # Data acquisition
-│ ├── preprocess.py # Signal preprocessing
-│ ├── metrics.py # Centrality & synchrony metrics
-│ ├── analysis.py # Statistical analysis
-│ ├── report.py # Report generation
-│ └──...
-├── data/
-│ ├── raw/ # Raw EDF files (downloaded)
-│ ├── processed/ # Preprocessed data
-│ ├── metrics/ # Computed metrics (SubjectMetrics.csv)
-│ └── results/ # Analysis results
-├── tests/ # Unit and integration tests
-├── docs/ # Documentation
-└── README.md # Project overview
-```
-
 ## Usage
 
-### 1. Data Acquisition and Preprocessing (User Story 1)
+The pipeline is modular. You can run individual stages or the full validation script.
 
-Download the Sleep-EDF dataset and preprocess the EEG signals:
+### Option 1: Run the Full Validation Script (Recommended)
+
+The `quickstart_validator.py` script automates the entire flow: downloading data, preprocessing, computing metrics, running analysis, and generating reports.
 
 ```bash
+python code/quickstart_validator.py
+```
+
+**Expected Output**:
+- `data/raw/`: Downloaded Sleep-EDF `.edf` files.
+- `data/processed/`: Cleaned EEG epochs and metadata.
+- `data/metrics/SubjectMetrics.csv`: Centrality and synchrony scores.
+- `data/results/analysis_results.json`: Statistical analysis output.
+- `reports/final_report.md`: Human-readable summary.
+
+### Option 2: Run Stages Individually
+
+If you prefer to run stages manually:
+
+#### 1. Download Data
+Fetches Sleep-EDF data from PhysioNet.
+```bash
 python code/download.py
+```
+
+#### 2. Preprocess Data
+Applies bandpass filtering, ICA artifact removal, and epoching.
+```bash
 python code/preprocess.py
 ```
 
-This will populate `data/raw` with the dataset and `data/processed` with cleaned, epoch-labeled data.
-
-### 2. Metric Computation (User Story 2)
-
-Compute network centrality and neural synchrony metrics:
-
+#### 3. Compute Metrics
+Calculates network centrality and neural synchrony (PLI).
 ```bash
 python code/metrics.py
 ```
 
-Output: `data/metrics/SubjectMetrics.csv`
-
-### 3. Statistical Analysis and Reporting (User Story 3)
-
-Perform LME analysis, apply FDR correction, and generate the final report:
-
+#### 4. Statistical Analysis
+Runs Linear Mixed Effects (LME) models and FDR correction.
 ```bash
 python code/analysis.py
+```
+
+#### 5. Generate Report
+Creates the final JSON and Markdown reports.
+```bash
 python code/report.py
 ```
 
-Output:
-- `data/results/analysis_results.json`
-- `reports/final_report.md`
+## Data Model Overview
 
-### Running the Full Pipeline
+The project follows a strict data flow:
 
-To execute the entire pipeline in sequence:
-
-```bash
-python code/main.py
+```mermaid
+graph LR
+ A[Raw EDF Files<br/>data/raw] --> B[Preprocessing<br/>code/preprocess.py]
+ B --> C[Cleaned Epochs<br/>data/processed]
+ C --> D[Metric Computation<br/>code/metrics.py]
+ D --> E[SubjectMetrics.csv<br/>data/metrics]
+ E --> F[Statistical Analysis<br/>code/analysis.py]
+ F --> G[Results JSON<br/>data/results]
+ G --> H[Final Report<br/>reports/final_report.md]
 ```
 
-Ensure you have sufficient disk space and memory (recommended: ≥4GB RAM).
+### Key Entities
 
-## Testing
-
-Run the test suite to verify the installation:
-
-```bash
-python -m pytest tests/ -v
-```
-
-## Configuration
-
-Edit `code/config.yaml` to adjust:
-- Signal processing parameters (filter cutoffs, ICA thresholds)
-- Band definitions (theta, alpha, etc.)
-- Random seed for reproducibility
-- Output paths
+- **Subject**: A single participant in the Sleep-EDF dataset.
+- **Epoch**: A 30-second segment of EEG data labeled with a sleep stage.
+- **Connectivity Matrix**: A symmetric matrix representing functional connectivity (coherence) between EEG channels.
+- **Centrality**: Network metrics (Degree, Betweenness, Eigenvector) derived from the connectivity matrix.
+- **Synchrony (PLI)**: Phase Lag Index, measuring the consistency of phase differences between channels.
 
 ## Troubleshooting
 
-- **Missing dependencies**: Ensure all packages in `requirements.txt` are installed.
-- **Data download fails**: Check internet connection and verify PhysioNet access.
-- **Memory errors**: Reduce the number of subjects or epochs processed at once.
-
-## Data Model
-
-The pipeline processes EEG data from the Sleep-EDF dataset. Key entities:
-- **Subject**: Individual participant with waking and sleep recordings.
-- **Epoch**: Segmented time window labeled by sleep stage.
-- **Connectivity Matrix**: Functional connectivity between electrode pairs.
-- **Centrality Metrics**: Degree, betweenness, eigenvector centrality.
-- **Synchrony Score**: Mean Phase Lag Index (PLI) per sleep stage.
-
-For a detailed data model diagram, see `docs/data_model.md`.
+- **Memory Errors**: Ensure you have at least 4GB of RAM. Close other applications if the pipeline fails with an OOM error.
+- **Missing Dependencies**: If `mne` or `statsmodels` cannot be imported, verify that `code/requirements.txt` was installed correctly.
+- **Download Failures**: The script relies on PhysioNet. If downloads fail, check your internet connection or try running `python code/download.py` again.
 
 ## Next Steps
 
-- Explore the generated reports in `reports/`.
-- Modify `code/config.yaml` to experiment with different parameters.
-- Contribute to the project by implementing additional tasks or improving documentation.
+- Review `reports/final_report.md` for the study findings.
+- Check `data/results/analysis_results.json` for detailed statistical coefficients.
+- Consult `docs/` for deeper documentation on specific modules.

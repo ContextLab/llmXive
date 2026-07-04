@@ -1,25 +1,14 @@
 """
-Linting and Formatting utilities for the project.
-
-This module provides functions to run flake8 and black checks/formats
-on the codebase.
+Utility script to run linting (flake8) and formatting (black) checks.
+This script is used to verify code quality before submission.
 """
 import subprocess
 import sys
 import os
 from pathlib import Path
 
-def run_command(cmd, description):
-    """
-    Run a shell command and report the result.
-    
-    Args:
-        cmd (list): Command and arguments as a list.
-        description (str): Description of the action for logging.
-        
-    Returns:
-        bool: True if command succeeded, False otherwise.
-    """
+def run_command(cmd: list, description: str):
+    """Run a shell command and print the result."""
     print(f"Running: {description}")
     print(f"Command: {' '.join(cmd)}")
     
@@ -29,70 +18,52 @@ def run_command(cmd, description):
             check=True,
             capture_output=True,
             text=True,
-            cwd=Path(__file__).parent
+            cwd=Path(__file__).parent.parent
         )
         if result.stdout:
             print(result.stdout)
         if result.stderr:
-            print(result.stderr, file=sys.stderr)
-        print(f"✓ {description} completed successfully.\n")
+            print(result.stderr)
+        print(f"✓ {description} passed.\n")
         return True
     except subprocess.CalledProcessError as e:
-        print(f"✗ {description} failed with return code {e.returncode}.")
+        print(f"✗ {description} failed.")
         if e.stdout:
             print(e.stdout)
         if e.stderr:
-            print(e.stderr, file=sys.stderr)
-        return False
-    except FileNotFoundError:
-        print(f"✗ {description} failed: Command not found. Ensure the tool is installed.")
+            print(e.stderr)
+        print(f"Error code: {e.returncode}\n")
         return False
 
 def main():
-    """
-    Main entry point for linting and formatting.
+    """Main entry point for linting and formatting."""
+    project_root = Path(__file__).parent.parent
+    code_dir = project_root / "code"
     
-    Parses command line arguments to determine which tools to run:
-    - 'check': Run flake8 and black (check only)
-    - 'format': Run black (format)
-    - 'all': Run flake8 check and black format
-    """
-    import argparse
-    
-    parser = argparse.ArgumentParser(description="Run linting and formatting tools.")
-    parser.add_argument(
-        "mode",
-        choices=["check", "format", "all"],
-        help="Mode to run: 'check' (lint only), 'format' (black only), 'all' (both)"
+    print("=" * 60)
+    print("Running Code Quality Checks")
+    print("=" * 60 + "\n")
+
+    # 1. Check Black Formatting
+    # We run black in check mode (diff only) to ensure code is formatted
+    black_check_passed = run_command(
+        ["python", "-m", "black", "--check", "--diff", str(code_dir)],
+        "Black Format Check"
     )
-    args = parser.parse_args()
-    
-    # Ensure we are running from the code directory context
-    os.chdir(Path(__file__).parent)
-    
-    success = True
-    
-    if args.mode in ["check", "all"]:
-        # Run flake8
-        if not run_command(
-            ["flake8", "."],
-            "Flake8 Linting"
-        ):
-            success = False
-    
-    if args.mode in ["format", "all"]:
-        # Run black
-        if not run_command(
-            ["black", "."],
-            "Black Formatting"
-        ):
-            # Black might return non-zero if it changes files, 
-            # but we treat it as success if it runs, unless it crashes.
-            # However, for 'check' mode, we want to fail if formatting is needed.
-            # Since 'format' mode is requested, we assume success if the command runs.
-            pass
-    
-    if args.mode == "check" and not success:
+
+    # 2. Check Flake8 Linting
+    # We run flake8 on the code directory
+    flake8_check_passed = run_command(
+        ["python", "-m", "flake8", str(code_dir)],
+        "Flake8 Lint Check"
+    )
+
+    if black_check_passed and flake8_check_passed:
+        print("All code quality checks passed!")
+        sys.exit(0)
+    else:
+        print("Some code quality checks failed. Please fix the issues above.")
         sys.exit(1)
-        
-    print("All requested checks/formats completed.")
+
+if __name__ == "__main__":
+    main()

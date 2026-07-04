@@ -5,6 +5,7 @@ import json
 from pathlib import Path
 import sys
 import os
+import tempfile
 
 # Add parent directory to path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
@@ -75,18 +76,43 @@ def test_apply_benjamini_hochberg():
     assert all(v <= 1.0 for v in corrected_ns.values())
 
 def test_run_shapiro_wilk():
+    """
+    Unit test for residual diagnostics JSON generation.
+    
+    Verifies that run_shapiro_wilk returns a dictionary compatible with JSON
+    serialization, containing 'statistic' and 'pvalue' keys with valid numeric values.
+    This ensures the diagnostic output can be correctly written to 
+    data/results/residuals_diagnostics.json as required by T036.
+    """
     # Generate synthetic residuals for testing the diagnostic function
     # In real usage, these would come from the LME model residuals
     np.random.seed(42)
     residuals = np.random.normal(0, 1, 100)
     df = pd.DataFrame({'residuals': residuals})
+    
+    # Execute the function
     res = run_shapiro_wilk(df)
-    assert 'statistic' in res
-    assert 'pvalue' in res
-    assert 0 <= res['statistic'] <= 1
-    # Verify output structure matches expected JSON serialization
-    assert isinstance(res['statistic'], (float, int))
-    assert isinstance(res['pvalue'], (float, int))
+    
+    # Verify structure
+    assert 'statistic' in res, "Result missing 'statistic' key"
+    assert 'pvalue' in res, "Result missing 'pvalue' key"
+    
+    # Verify value constraints for Shapiro-Wilk
+    # Statistic should be between 0 and 1
+    assert 0 <= res['statistic'] <= 1, f"Statistic {res['statistic']} out of range [0, 1]"
+    
+    # P-value should be between 0 and 1
+    assert 0 <= res['pvalue'] <= 1, f"P-value {res['pvalue']} out of range [0, 1]"
+    
+    # Verify types are JSON serializable (float/int)
+    assert isinstance(res['statistic'], (float, int)), "Statistic must be numeric"
+    assert isinstance(res['pvalue'], (float, int)), "P-value must be numeric"
+    
+    # Verify JSON serializability explicitly
+    json_str = json.dumps(res)
+    parsed_back = json.loads(json_str)
+    assert parsed_back['statistic'] == res['statistic']
+    assert parsed_back['pvalue'] == res['pvalue']
 
 def test_generate_analysis_report():
     # Mock LME result object is complex, so we test the dict generation logic

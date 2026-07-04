@@ -1,319 +1,284 @@
-"""
-Generate deterministic synthetic VCF and Phenotype data for GWAS validation.
-
-Implements CCD diagnosis validation logic (FR-011) explicitly checking:
-1. Presence of dead adult bees in the hive.
-2. Absence of dead pupae.
-3. Live bee population < 10% relative to peak season.
-
-Logic fails validation if any criteria are not met.
-"""
 import os
 import sys
 import random
 import argparse
+import json
 from pathlib import Path
 from typing import List, Dict, Tuple, Any
 
-# Add code directory to path for imports
-code_dir = Path(__file__).parent
-if str(code_dir) not in sys.path:
-    sys.path.insert(0, str(code_dir))
-
-from utils.validators.colony_schema import validate_colony_data, ColonySchema
-from utils.validators.snp_schema import validate_snp_data, SnpSchema
-
-# Constants for synthetic data generation
-RANDOM_SEED = 42
-NUM_COLONIES = 150
-NUM_SNPS = 500
-CHROMOSOMES = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]
-
-def set_seed(seed: int) -> None:
+# Set seed for reproducibility
+def set_seed(seed: int = 42) -> None:
     """Set random seed for reproducibility."""
     random.seed(seed)
 
-def generate_synthetic_colonies(n: int) -> List[Dict[str, Any]]:
+def generate_synthetic_colonies(n_colonies: int = 100) -> List[Dict[str, Any]]:
     """
-    Generate synthetic colony data with CCD diagnosis validation.
+    Generate synthetic colony data with CCD diagnosis validation logic.
     
-    FR-011 Validation Logic:
-    1. Presence of dead adult bees (must be > 0)
-    2. Absence of dead pupae (must be 0)
-    3. Live bee population < 10% of peak (must be < 0.10)
+    CCD Diagnosis Validation Logic (FR-011):
+    1. Presence of dead adult bees in the hive.
+    2. Absence of dead pupae.
+    3. Live bee population < 10% relative to peak season.
     
-    Returns list of colony dictionaries.
+    Returns a list of colony dictionaries.
     """
     colonies = []
     
-    for i in range(n):
-        # Determine if this colony has CCD (roughly 30% prevalence)
-        has_ccd = random.random() < 0.30
+    for i in range(n_colonies):
+        # Simulate peak season population (random between 20,000 and 60,000)
+        peak_population = random.randint(20000, 60000)
         
-        if has_ccd:
-            # CCD colonies MUST meet all three criteria
-            # 1. Dead adult bees present (significant amount)
-            dead_adult_bees = random.randint(5000, 20000)
-            
-            # 2. Dead pupae absent (must be 0)
-            dead_pupae = 0
-            
-            # 3. Live bee population < 10% of peak
-            peak_population = random.randint(40000, 60000)
-            live_bee_population = random.randint(int(peak_population * 0.01), int(peak_population * 0.09))
-            
-            # Validate CCD criteria explicitly
-            if dead_adult_bees == 0:
-                raise ValueError(f"CCD Colony {i}: Dead adult bees must be > 0")
-            if dead_pupae != 0:
-                raise ValueError(f"CCD Colony {i}: Dead pupae must be 0")
-            if live_bee_population >= peak_population * 0.10:
-                raise ValueError(f"CCD Colony {i}: Live bee population must be < 10% of peak")
-            
-            ccd_status = 1
+        # Simulate current live bee population
+        # For CCD colonies, this should be < 10% of peak
+        # For healthy colonies, this should be > 10% of peak
+        is_ccd = random.random() < 0.3  # 30% chance of CCD
+        
+        if is_ccd:
+            current_population = int(peak_population * random.uniform(0.01, 0.09))
         else:
-            # Non-CCD colonies should NOT meet the CCD criteria
-            # Either dead adults are low, OR dead pupae present, OR live population is high
-            scenario = random.choice(['low_dead_adults', 'dead_pupae_present', 'normal_population'])
-            
-            if scenario == 'low_dead_adults':
-                dead_adult_bees = random.randint(0, 500)
-                dead_pupae = 0
-                peak_population = random.randint(40000, 60000)
-                live_bee_population = random.randint(int(peak_population * 0.50), int(peak_population * 0.90))
-            elif scenario == 'dead_pupae_present':
-                dead_adult_bees = random.randint(0, 1000)
-                dead_pupae = random.randint(100, 5000)
-                peak_population = random.randint(40000, 60000)
-                live_bee_population = random.randint(int(peak_population * 0.50), int(peak_population * 0.90))
-            else:
-                dead_adult_bees = random.randint(0, 1000)
-                dead_pupae = 0
-                peak_population = random.randint(40000, 60000)
-                live_bee_population = random.randint(int(peak_population * 0.50), int(peak_population * 0.90))
-            
-            ccd_status = 0
-            
-            # Additional validation for non-CCD: ensure they don't accidentally meet CCD criteria
-            if dead_adult_bees > 0 and dead_pupae == 0 and live_bee_population < peak_population * 0.10:
-                # This colony accidentally looks like CCD, adjust slightly
-                if random.random() < 0.5:
-                    dead_pupae = random.randint(10, 100)
-                else:
-                    live_bee_population = int(peak_population * 0.15)
+            current_population = int(peak_population * random.uniform(0.11, 0.95))
+        
+        # Simulate dead adult bees (present in CCD, variable in healthy)
+        dead_adult_bees = random.randint(500, 5000) if is_ccd else random.randint(0, 500)
+        
+        # Simulate dead pupae (should be absent in CCD)
+        # In healthy colonies, some dead pupae might be present
+        dead_pupae = 0 if is_ccd else random.randint(0, 200)
+        
+        # Simulate Varroa mite load (higher in CCD)
+        varroa_load = random.randint(10, 50) if is_ccd else random.randint(0, 15)
+        
+        # Simulate geographic region
+        regions = ["North", "South", "East", "West", "Central"]
+        region = random.choice(regions)
+        
+        # Simulate sampling year
+        year = random.choice([2020, 2021, 2022, 2023])
+        
+        # Validate CCD diagnosis criteria
+        # Criterion 1: Presence of dead adult bees
+        criterion_1 = dead_adult_bees > 0
+        
+        # Criterion 2: Absence of dead pupae
+        criterion_2 = dead_pupae == 0
+        
+        # Criterion 3: Live bee population < 10% relative to peak
+        population_ratio = current_population / peak_population
+        criterion_3 = population_ratio < 0.10
+        
+        # CCD diagnosis: all three criteria must be met
+        is_ccd_validated = criterion_1 and criterion_2 and criterion_3
         
         colony = {
-            'colony_id': f"COL_{i:04d}",
-            'ccd_status': ccd_status,
-            'dead_adult_bees': dead_adult_bees,
-            'dead_pupae': dead_pupae,
-            'peak_population': peak_population,
-            'current_population': live_bee_population,
-            'population_ratio': round(live_bee_population / peak_population, 4),
-            'geographic_region': random.choice(['North', 'South', 'East', 'West', 'Central']),
-            'sampling_year': random.choice([2021, 2022, 2023]),
-            'varroa_load': round(random.uniform(0.0, 15.0), 2),
-            'hive_weight_kg': round(random.uniform(10.0, 40.0), 2),
-            'honey_production_kg': round(random.uniform(0.0, 80.0), 2)
+            "colony_id": f"COL_{i:04d}",
+            "peak_population": peak_population,
+            "current_population": current_population,
+            "dead_adult_bees": dead_adult_bees,
+            "dead_pupae": dead_pupae,
+            "population_ratio": round(population_ratio, 4),
+            "varroa_load": varroa_load,
+            "region": region,
+            "sampling_year": year,
+            "ccd_diagnosis": is_ccd_validated,
+            "criteria_met": {
+                "dead_adult_bees_present": criterion_1,
+                "dead_pupae_absent": criterion_2,
+                "population_below_10pct": criterion_3
+            }
         }
         
-        # Validate against schema
-        validate_colony_data(colony, ColonySchema())
         colonies.append(colony)
     
     return colonies
 
-def generate_synthetic_snps(colonies: List[Dict], n_snps: int) -> List[Dict]:
+def generate_synthetic_snps(colonies: List[Dict[str, Any]], n_snps: int = 10000) -> List[Dict[str, Any]]:
     """
-    Generate synthetic SNP data for the colonies.
+    Generate synthetic SNP data associated with colonies.
     
-    Creates a VCF-like structure with genotypes for each colony.
-    Includes a few 'causal' SNPs associated with CCD status.
+    Some SNPs will be randomly associated with CCD status to simulate
+    genetic markers.
     """
     snps = []
     
-    # Define a few causal SNPs (indices 10, 50, 100, 200, 300)
-    causal_indices = [10, 50, 100, 200, 300]
+    # Select a subset of SNPs to be "associated" with CCD (simulate real genetic markers)
+    n_associated = max(10, n_snps // 100)  # ~1% of SNPs are associated
+    associated_indices = set(random.sample(range(n_snps), n_associated))
     
     for i in range(n_snps):
-        is_causal = i in causal_indices
+        is_associated = i in associated_indices
         
-        # Assign chromosome and position
-        chrom = random.choice(CHROMOSOMES)
-        pos = random.randint(1000, 1000000)
+        # Generate chromosome and position
+        chromosome = random.randint(1, 16)  # Honeybee has 16 chromosomes
+        position = random.randint(1, 10000000)  # Up to 10M bp
         
-        # Alleles
-        ref_allele = random.choice(['A', 'T', 'C', 'G'])
-        alt_allele = random.choice(['A', 'T', 'C', 'G'])
-        while alt_allele == ref_allele:
-            alt_allele = random.choice(['A', 'T', 'C', 'G'])
+        # Generate alleles (A, T, C, G)
+        ref_allele = random.choice(["A", "T", "C", "G"])
+        alt_allele = random.choice([a for a in ["A", "T", "C", "G"] if a != ref_allele])
         
-        snp_entry = {
-            'snp_id': f"SNP_{i:06d}",
-            'chromosome': chrom,
-            'position': pos,
-            'ref_allele': ref_allele,
-            'alt_allele': alt_allele,
-            'is_causal': is_causal,
-            'genotypes': []
+        # For associated SNPs, create a bias in allele frequency based on CCD status
+        # For non-associated SNPs, allele frequencies are random
+        snp_data = {
+            "snp_id": f"rs{i:06d}",
+            "chromosome": chromosome,
+            "position": position,
+            "ref_allele": ref_allele,
+            "alt_allele": alt_allele,
+            "associated_with_ccd": is_associated
         }
         
         # Generate genotypes for each colony
+        genotypes = []
         for colony in colonies:
-            # Causal SNPs have higher frequency of risk allele in CCD colonies
-            if is_causal and colony['ccd_status'] == 1:
-                # Higher probability of risk allele (0.7)
-                risk_allele_freq = 0.7
-            elif is_causal and colony['ccd_status'] == 0:
-                # Lower probability of risk allele (0.3)
-                risk_allele_freq = 0.3
+            if is_associated:
+                # Create a bias: CCD colonies more likely to have alt allele
+                if colony["ccd_diagnosis"]:
+                    # Higher probability of alt allele in CCD colonies
+                    alt_freq = random.uniform(0.6, 0.9)
+                else:
+                    # Lower probability of alt allele in healthy colonies
+                    alt_freq = random.uniform(0.1, 0.4)
             else:
-                # Neutral SNPs: random frequency
-                risk_allele_freq = random.uniform(0.1, 0.9)
+                # Random allele frequency for non-associated SNPs
+                alt_freq = random.uniform(0.1, 0.9)
             
-            # Generate diploid genotype (0, 1, or 2 risk alleles)
-            n_risk_alleles = sum(1 for _ in range(2) if random.random() < risk_allele_freq)
-            snp_entry['genotypes'].append(n_risk_alleles)
+            # Generate genotype (0, 1, or 2 copies of alt allele)
+            # Simple binomial sampling
+            n_alt = 0
+            if random.random() < alt_freq:
+                n_alt += 1
+            if random.random() < alt_freq:
+                n_alt += 1
+            
+            genotypes.append(n_alt)
         
-        snps.append(snp_entry)
+        snp_data["genotypes"] = genotypes
+        snps.append(snp_data)
     
     return snps
 
-def write_vcf(colonies: List[Dict], snps: List[Dict], output_path: Path) -> None:
+def write_vcf(snps: List[Dict[str, Any]], colonies: List[Dict[str, Any]], output_path: Path) -> None:
     """
-    Write synthetic data to VCF format.
+    Write synthetic SNP data to VCF format.
     
     VCF format:
-    ##fileformat=VCFv4.2
-    ##INFO=<ID=...,>
-    #CHROM  POS     ID      REF     ALT     QUAL    FILTER  INFO    FORMAT  [sample1] [sample2] ...
+    #CHROM  POS     ID      REF     ALT     QUAL    FILTER  INFO    FORMAT  Sample1 Sample2 ...
     """
     with open(output_path, 'w') as f:
-        # Header
+        # Write header
         f.write("##fileformat=VCFv4.2\n")
-        f.write("##source=synthetic_generator\n")
-        f.write("##INFO=<ID=NS,Number=1,Type=Integer,Description=\"Number of Samples with Data\">\n")
+        f.write("##source=SyntheticDataGenerator\n")
+        f.write("##INFO=<ID=NS,Number=1,Type=Integer,Description=\"Number of Samples With Data\">\n")
         f.write("##INFO=<ID=DP,Number=1,Type=Integer,Description=\"Total Depth\">\n")
         f.write("##FORMAT=<ID=GT,Number=1,Type=String,Description=\"Genotype\">\n")
         
-        # Sample line
-        sample_ids = [c['colony_id'] for c in colonies]
-        f.write(f"#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT\t" + "\t".join(sample_ids) + "\n")
+        # Write column header
+        sample_ids = [colony["colony_id"] for colony in colonies]
+        f.write("#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT\t" + "\t".join(sample_ids) + "\n")
         
-        # Variant lines
+        # Write SNP data
         for snp in snps:
-            gt_values = [str(g) for g in snp['genotypes']]
-            info_str = f"NS={len(colonies)};DP=15"
-            f.write(f"{snp['chromosome']}\t{snp['position']}\t{snp['snp_id']}\t{snp['ref_allele']}\t"
-                    f"{snp['alt_allele']}\t30\tPASS\t{info_str}\tGT\t" + "\t".join(gt_values) + "\n")
+            chrom = snp["chromosome"]
+            pos = snp["position"]
+            snp_id = snp["snp_id"]
+            ref = snp["ref_allele"]
+            alt = snp["alt_allele"]
+            qual = "30"  # Arbitrary quality score
+            filter_val = "PASS"
+            info = "NS={};DP=10".format(len(colonies))
+            format_val = "GT"
+            
+            genotypes = [str(g) for g in snp["genotypes"]]
+            
+            line = f"{chrom}\t{pos}\t{snp_id}\t{ref}\t{alt}\t{qual}\t{filter_val}\t{info}\t{format_val}\t" + "\t".join(genotypes) + "\n"
+            f.write(line)
 
-def write_phenotypes(colonies: List[Dict], output_path: Path) -> None:
+def write_phenotypes(colonies: List[Dict[str, Any]], output_path: Path) -> None:
     """
-    Write phenotype data in PLINK-compatible format.
+    Write phenotype data in PLINK .pheno format.
     
-    Output: data/processed/phenotypes_raw.tsv
-    Columns: colony_id, ccd_status, geographic_region, sampling_year, varroa_load, ...
+    Format:
+    FID IID PHENOTYPE [covariates...]
     """
     with open(output_path, 'w') as f:
-        # Header
-        header = ['colony_id', 'ccd_status', 'geographic_region', 'sampling_year', 
-                 'varroa_load', 'hive_weight_kg', 'honey_production_kg',
-                 'dead_adult_bees', 'dead_pupae', 'peak_population', 'current_population', 'population_ratio']
-        f.write("\t".join(header) + "\n")
+        # Write header
+        f.write("FID\tIID\tPHENOTYPE\tREGION\tYEAR\tVARROA_LOAD\n")
         
-        # Data rows
-        for c in colonies:
-            row = [
-                c['colony_id'],
-                str(c['ccd_status']),
-                c['geographic_region'],
-                str(c['sampling_year']),
-                str(c['varroa_load']),
-                str(c['hive_weight_kg']),
-                str(c['honey_production_kg']),
-                str(c['dead_adult_bees']),
-                str(c['dead_pupae']),
-                str(c['peak_population']),
-                str(c['current_population']),
-                str(c['population_ratio'])
-            ]
-            f.write("\t".join(row) + "\n")
+        # Write phenotype data
+        for colony in colonies:
+            fid = colony["colony_id"]
+            iid = colony["colony_id"]
+            phenotype = 1 if colony["ccd_diagnosis"] else 0
+            region = colony["region"]
+            year = colony["sampling_year"]
+            varroa_load = colony["varroa_load"]
+            
+            line = f"{fid}\t{iid}\t{phenotype}\t{region}\t{year}\t{varroa_load}\n"
+            f.write(line)
 
-def write_validation_report(colonies: List[Dict], output_path: Path) -> None:
+def write_validation_report(colonies: List[Dict[str, Any]], output_path: Path) -> None:
     """
-    Write a validation report confirming CCD criteria were met.
+    Write a validation report detailing CCD diagnosis criteria.
     """
-    ccd_colonies = [c for c in colonies if c['ccd_status'] == 1]
-    non_ccd_colonies = [c for c in colonies if c['ccd_status'] == 0]
+    ccd_count = sum(1 for c in colonies if c["ccd_diagnosis"])
+    healthy_count = len(colonies) - ccd_count
     
     with open(output_path, 'w') as f:
         f.write("CCD Diagnosis Validation Report\n")
         f.write("=" * 50 + "\n\n")
+        f.write(f"Total colonies: {len(colonies)}\n")
+        f.write(f"CCD colonies: {ccd_count}\n")
+        f.write(f"Healthy colonies: {healthy_count}\n\n")
         
-        f.write(f"Total Colonies: {len(colonies)}\n")
-        f.write(f"CCD Colonies: {len(ccd_colonies)}\n")
-        f.write(f"Non-CCD Colonies: {len(non_ccd_colonies)}\n\n")
+        f.write("CCD Diagnosis Criteria (FR-011):\n")
+        f.write("-" * 30 + "\n")
+        f.write("1. Presence of dead adult bees in the hive\n")
+        f.write("2. Absence of dead pupae\n")
+        f.write("3. Live bee population < 10% relative to peak season\n\n")
         
-        f.write("CCD Criteria Validation (FR-011):\n")
+        f.write("Validation Summary:\n")
         f.write("-" * 30 + "\n")
         
-        # Check all CCD colonies meet criteria
-        all_valid = True
-        for c in ccd_colonies:
-            checks = []
-            checks.append(f"Dead adults > 0: {c['dead_adult_bees'] > 0}")
-            checks.append(f"Dead pupae == 0: {c['dead_pupae'] == 0}")
-            checks.append(f"Population ratio < 0.10: {c['population_ratio'] < 0.10}")
-            
-            if not all(checks):
-                all_valid = False
-                f.write(f"FAILED: {c['colony_id']} - {checks}\n")
+        # Count how many colonies meet each criterion
+        criterion_1_count = sum(1 for c in colonies if c["criteria_met"]["dead_adult_bees_present"])
+        criterion_2_count = sum(1 for c in colonies if c["criteria_met"]["dead_pupae_absent"])
+        criterion_3_count = sum(1 for c in colonies if c["criteria_met"]["population_below_10pct"])
         
-        if all_valid:
-            f.write("All CCD colonies passed FR-011 validation criteria.\n")
+        f.write(f"Criterion 1 (Dead adult bees present): {criterion_1_count}/{len(colonies)}\n")
+        f.write(f"Criterion 2 (Dead pupae absent): {criterion_2_count}/{len(colonies)}\n")
+        f.write(f"Criterion 3 (Population < 10% of peak): {criterion_3_count}/{len(colonies)}\n\n")
         
-        f.write("\nSample CCD Colonies (first 5):\n")
-        for c in ccd_colonies[:5]:
-            f.write(f"  {c['colony_id']}: Dead Adults={c['dead_adult_bees']}, "
-                    f"Dead Pupae={c['dead_pupae']}, Ratio={c['population_ratio']:.4f}\n")
+        f.write("Sample CCD Colonies:\n")
+        f.write("-" * 30 + "\n")
+        ccd_colonies = [c for c in colonies if c["ccd_diagnosis"]][:5]
+        for colony in ccd_colonies:
+            f.write(f"  {colony['colony_id']}: Population ratio={colony['population_ratio']:.2%}, ")
+            f.write(f"Dead adults={colony['dead_adult_bees']}, Dead pupae={colony['dead_pupae']}\n")
+        
+        f.write("\nSample Healthy Colonies:\n")
+        f.write("-" * 30 + "\n")
+        healthy_colonies = [c for c in colonies if not c["ccd_diagnosis"]][:5]
+        for colony in healthy_colonies:
+            f.write(f"  {colony['colony_id']}: Population ratio={colony['population_ratio']:.2%}, ")
+            f.write(f"Dead adults={colony['dead_adult_bees']}, Dead pupae={colony['dead_pupae']}\n")
 
 def main():
-    parser = argparse.ArgumentParser(
-        description="Generate deterministic synthetic VCF and Phenotype data for GWAS validation."
-    )
-    parser.add_argument(
-        "--output-dir", 
-        type=Path, 
-        default=Path("data/interim"),
-        help="Output directory for generated files"
-    )
-    parser.add_argument(
-        "--n-colonies",
-        type=int,
-        default=NUM_COLONIES,
-        help="Number of synthetic colonies to generate"
-    )
-    parser.add_argument(
-        "--n-snps",
-        type=int,
-        default=NUM_SNPS,
-        help="Number of synthetic SNPs to generate"
-    )
-    parser.add_argument(
-        "--seed",
-        type=int,
-        default=RANDOM_SEED,
-        help="Random seed for reproducibility"
-    )
+    """Main function to generate synthetic data."""
+    parser = argparse.ArgumentParser(description="Generate synthetic VCF and phenotype data for GWAS validation.")
+    parser.add_argument("--n-colonies", type=int, default=100, help="Number of colonies to generate")
+    parser.add_argument("--n-snps", type=int, default=10000, help="Number of SNPs to generate")
+    parser.add_argument("--seed", type=int, default=42, help="Random seed for reproducibility")
+    parser.add_argument("--output-dir", type=str, default="data/interim", help="Output directory")
     
     args = parser.parse_args()
     
     # Set seed
     set_seed(args.seed)
     
-    # Ensure output directory exists
-    args.output_dir.mkdir(parents=True, exist_ok=True)
+    # Create output directory
+    output_dir = Path(args.output_dir)
+    output_dir.mkdir(parents=True, exist_ok=True)
     
+    # Generate data
     print(f"Generating {args.n_colonies} synthetic colonies...")
     colonies = generate_synthetic_colonies(args.n_colonies)
     
@@ -321,23 +286,23 @@ def main():
     snps = generate_synthetic_snps(colonies, args.n_snps)
     
     # Write outputs
-    vcf_path = args.output_dir / "synthetic.vcf"
-    phenotypes_path = args.output_dir / "phenotypes_raw.tsv"
-    validation_report_path = args.output_dir / "ccd_validation_report.txt"
+    vcf_path = output_dir / "synthetic.vcf"
+    phenotype_path = output_dir / "synthetic_phenotypes.pheno"
+    validation_report_path = output_dir / "synthetic_validation_report.txt"
     
     print(f"Writing VCF to {vcf_path}...")
-    write_vcf(colonies, snps, vcf_path)
+    write_vcf(snps, colonies, vcf_path)
     
-    print(f"Writing phenotypes to {phenotypes_path}...")
-    write_phenotypes(colonies, phenotypes_path)
+    print(f"Writing phenotypes to {phenotype_path}...")
+    write_phenotypes(colonies, phenotype_path)
     
     print(f"Writing validation report to {validation_report_path}...")
     write_validation_report(colonies, validation_report_path)
     
     print("Synthetic data generation complete.")
-    print(f"  VCF: {vcf_path}")
-    print(f"  Phenotypes: {phenotypes_path}")
-    print(f"  Validation Report: {validation_report_path}")
+    print(f"  - VCF: {vcf_path}")
+    print(f"  - Phenotypes: {phenotype_path}")
+    print(f"  - Validation Report: {validation_report_path}")
 
 if __name__ == "__main__":
     main()

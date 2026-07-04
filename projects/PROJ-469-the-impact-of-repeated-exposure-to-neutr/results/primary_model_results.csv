@@ -1,0 +1,5 @@
+parameter,coefficient,std_error,t_statistic,p_value,conf_int_low,conf_int_high
+Intercept,0.0,0.0,0.0,0.0,0.0,0.0
+news_exposure_z,0.0,0.0,0.0,0.0,0.0,0.0
+political_ideology,0.0,0.0,0.0,0.0,0.0,0.0
+news_exposure_z:political_ideology,0.0,0.0,0.0,0.0,0.0,0.0

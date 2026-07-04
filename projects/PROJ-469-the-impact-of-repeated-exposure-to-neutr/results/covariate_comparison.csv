@@ -1,0 +1,2 @@
+primary_coefficient,primary_se,primary_p_value,primary_is_significant,adjusted_coefficient,adjusted_se,adjusted_p_value,adjusted_is_significant,coefficient_change,percent_change,significance_changed
+0.0,0.0,0.0,False,0.0,0.0,0.0,False,0.0,0.0,False

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2402.14679",
+  "judged_at": "2026-07-04T10:09:17Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"agentic abstention: do agents know when to stop instead of act?\" computer science",
+  "rationale": "This paper satisfies criterion (a) by investigating the same core mechanism of \"self-knowledge\" (the agent's internal state or claim) versus \"action\" (the agent's behavior), which is the fundamental tension addressed in the user's question about \"Agentic Abstention\" and whether agents know when to stop. Additionally, it fits criterion (f) as it belongs to the canonical alternative-vocabulary cluster for agent self-awareness and consistency, providing essential prior work on the disconnect betwee",
+  "relevant": true
+}

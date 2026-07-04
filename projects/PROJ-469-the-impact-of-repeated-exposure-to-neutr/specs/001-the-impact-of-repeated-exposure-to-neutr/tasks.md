@@ -43,9 +43,9 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure per implementation plan: `mkdir -p code/ data/raw/ data/processed/ results/ logs/`
-- [ ] T002 Initialize Python 3.11 project: Create `requirements.txt` with pinned versions for `pandas`, `scikit-learn`, `statsmodels`, `seaborn`, `matplotlib`, `scipy`, `jinja2`, `pyyaml`, `pytest`
-- [ ] T003 [P] Configure linting (flake8/black) and formatting tools in `code/`
+- [X] T001 Create project structure per implementation plan: `mkdir -p code/ data/raw/ data/processed/ results/ logs/`
+- [X] T002 Initialize Python 3.11 project: Create `requirements.txt` with pinned versions for `pandas`, `scikit-learn`, `statsmodels`, `seaborn`, `matplotlib`, `scipy`, `jinja2`, `pyyaml`, `pytest`
+- [X] T003 [P] Configure linting (flake8/black) and formatting tools in `code/`
 
 ---
 
@@ -58,9 +58,9 @@
 - [X] T004 Create `code/config.py` defining seeds, paths, alpha thresholds (0.01, 0.05, 0.10), and bootstrap count (n=1000)
 - [X] T005 [P] Implement `code/data_loader.py` skeleton to load CSV, validate existence of `data/raw/`, and raise `ValueError` if no data found
 - [X] T005b [P] Document IAT Protocol: Extract and record the specific IAT stimulus set and software version from the dataset's source metadata into `code/iat_protocol.md` to satisfy Constitution Principle VI for static data analysis. <!-- FAILED: unspecified -->
-- [ ] T006 Implement `code/preprocessing.py` skeleton: Define function signatures `load_data`, `impute_mice`, `derive_variables` and raise `NotImplementedError` in placeholders
+- [X] T006 Implement `code/preprocessing.py` skeleton: Define function signatures `load_data`, `impute_mice`, `derive_variables` and raise `NotImplementedError` in placeholders
 - [ ] T007 Create `contracts/dataset.schema.yaml` defining columns `IAT_D_score`, `political_ideology`, `news_exposure_freq` and validation logic
-- [~] T008 Configure error handling and logging infrastructure in `code/` (logging to `logs/` and console)
+- [ ] T008 Configure error handling and logging infrastructure in `code/` (logging to `logs/` and console)
 - [~] T009 Setup environment configuration management (`.env` or `config.yaml` for data paths)
 - [~] T017a [P] **A Priori Power Analysis**: Create `code/power.py` to calculate the minimum sample size required to detect the interaction effect with power ≥ 0.80 at α = 0.05 using literature-based effect sizes. Output `results/power_design.csv` with `required_n` and `met_target` status. This task MUST complete before US1.
 - [~] T038 [P] **Data Acquisition**: Implement `code/data_fetcher.py` to fetch the "Political IAT" dataset from the Project Implicit canonical source. **If the specific dataset URL is unknown or unavailable, the script MUST halt with a clear `ValueError` stating "Real data source not found." DO NOT use fallback datasets (e.g., NAB) or generate synthetic data.** <!-- FAILED: unspecified -->
@@ -112,16 +112,16 @@ could not find expected ':'
 ### Tests for User Story 2 (OPTIONAL) ⚠️
 
 - [~] T019 [P] [US2] Unit test for bootstrap resampling loop (1000 iterations) and Monte Carlo SE calculation in `tests/unit/test_robustness.py`
-- [ ] T020 [P] [US2] Unit test for alpha sweep logic (0.01, 0.05, 0.10) in `tests/unit/test_robustness.py`
+- [~] T020 [P] [US2] Unit test for alpha sweep logic (0.01, 0.05, 0.10) in `tests/unit/test_robustness.py`
 
 ### Implementation for User Story 2
 
-- [ ] T024b [US2] **Binary Model Fit**: Re-fit linear regression using `ideology_binary` (from T016) instead of continuous ideology; report results (coefficient/significance) and save to `results/binary_model.csv`. **Must complete before T021-T023.**
-- [ ] T021 [US2] Implement `code/robustness.py` bootstrap procedure (1000 resamples); calculate Monte Carlo SE and confidence interval for interaction term; ensure resamples complete without partial state logic
-- [ ] T022 [US2] Implement alpha sweep in `code/robustness.py` to re-evaluate significance at thresholds **{0.01, 0.05, 0.10}**; report variation in significance status; save results to `results/alpha_sweep.csv`
-- [ ] T023 [US2] Implement covariate adjustment model in `code/models.py`: Re-fit model from scratch using imputed data and added covariates (`age`, `gender`, `education`); compare interaction coefficient magnitude/significance to primary model
-- [ ] T025 [US2] Integrate robustness checks into `code/main.py` pipeline after primary model
-- [ ] T026 [US2] Save robustness metrics (bootstrap CI, alpha sweep results, covariate comparison, binary model results) to `results/robustness_metrics.csv`
+- [~] T024b [US2] **Binary Model Fit**: Re-fit linear regression using `ideology_binary` (from T016) instead of continuous ideology; report results (coefficient/significance) and save to `results/binary_model.csv`. **Must complete before T021-T023.**
+- [~] T021 [US2] Implement `code/robustness.py` bootstrap procedure (1000 resamples); calculate Monte Carlo SE and confidence interval for interaction term; ensure resamples complete without partial state logic
+- [~] T022 [US2] Implement alpha sweep in `code/robustness.py` to re-evaluate significance at thresholds **{0.01, 0.05, 0.10}**; report variation in significance status; save results to `results/alpha_sweep.csv`
+- [~] T023 [US2] Implement covariate adjustment model in `code/models.py`: Re-fit model from scratch using imputed data and added covariates (`age`, `gender`, `education`); compare interaction coefficient magnitude/significance to primary model
+- [~] T025 [US2] Integrate robustness checks into `code/main.py` pipeline after primary model
+- [~] T026 [US2] Save robustness metrics (bootstrap CI, alpha sweep results, covariate comparison, binary model results) to `results/robustness_metrics.csv`
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -135,7 +135,7 @@ could not find expected ':'
 
 ### Tests for User Story 3 (OPTIONAL) ⚠️
 
-- [ ] T027 [P] [US3] Integration test for report generation (file existence and size check) in `tests/integration/test_reporting.py`
+- [~] T027 [P] [US3] Integration test for report generation (file existence and size check) in `tests/integration/test_reporting.py`
 
 ### Implementation for User Story 3
 

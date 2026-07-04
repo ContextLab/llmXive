@@ -1,0 +1,554 @@
+{
+  "fetched_at": "2026-07-04T10:09:23Z",
+  "field": "computer science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "computer science",
+      "idea_body_excerpt": "llmXive follow-up: extending \"Agentic Abstention: Do Agents Know When to Stop Instead of Act?\"",
+      "target_n": 5
+    },
+    "duration_seconds": 54.396,
+    "ended_at": "2026-07-04T10:09:23Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "agentic abstention in large language models"
+        ],
+        [
+          2,
+          "when should AI agents stop acting"
+        ],
+        [
+          3,
+          "LLM agent termination criteria"
+        ],
+        [
+          4,
+          "optimal stopping for autonomous agents"
+        ],
+        [
+          5,
+          "agent self-correction and early stopping"
+        ],
+        [
+          6,
+          "confidence-based agent halting mechanisms"
+        ],
+        [
+          7,
+          "preventing agent overthinking and loops"
+        ],
+        [
+          8,
+          "LLM agent refusal strategies"
+        ],
+        [
+          9,
+          "decision boundaries for AI agent actions"
+        ],
+        [
+          10,
+          "uncertainty estimation in agentic workflows"
+        ],
+        [
+          11,
+          "stopping rules for generative AI agents"
+        ],
+        [
+          12,
+          "agent action suppression techniques"
+        ],
+        [
+          13,
+          "metacognition in large language model agents"
+        ],
+        [
+          14,
+          "adaptive termination for LLM-based systems"
+        ],
+        [
+          15,
+          "agent behavior control and intervention"
+        ],
+        [
+          16,
+          "cost-benefit analysis in agent decision making"
+        ],
+        [
+          17,
+          "detecting agent hallucination via abstention"
+        ],
+        [
+          18,
+          "recursive agent termination protocols"
+        ],
+        [
+          19,
+          "human-aligned agent stopping behavior"
+        ],
+        [
+          20,
+          "reinforcement learning for agent stopping policies"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "agentic abstention in large language models": 5,
+        "llmXive follow-up: extending \"Agentic Abstention: Do Agents Know When to Stop Instead of Act?\" computer science": 0
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "refusal generation selective prediction uncertainty calibration",
+      "LLM agent tool use termination halting conditions",
+      "policy optimization abstention reward shaping",
+      "decision boundary false positive rate agent evaluation",
+      "epistemic uncertainty calibration confidence thresholding"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2402.14679"
+      ]
+    },
+    "per_query_hit_count": {
+      "LLM agent tool use termination halting conditions": 3,
+      "decision boundary false positive rate agent evaluation": 3,
+      "epistemic uncertainty calibration confidence thresholding": 2,
+      "llmXive follow-up: extending \"Agentic Abstention: Do Agents Know When to Stop Instead of Act?\" computer science": 3,
+      "policy optimization abstention reward shaping": 3,
+      "refusal generation selective prediction uncertainty calibration": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 3,
+      "rejections": [
+        {
+          "primary_pointer": "2504.19565",
+          "rationale": "The paper focuses on using multi-agent systems for data distillation and training biomedical LLMs, which is a distinct application from the user's question about \"Agentic Abstention\" (the mechanism of an agent deciding when to stop acting). While both involve \"agents,\" the paper does not measure the specific mechanism of abstention, the conditions for stopping, or the trade-offs between acting and abstaining, nor does it establish a baseline for that specific behavior.",
+          "title": "Knowledge-Driven Agentic Scientific Corpus Distillation Framework for Biomedical Large Language Models Training"
+        },
+        {
+          "primary_pointer": "2501.05032",
+          "rationale": "The paper focuses on general \"human-like\" attributes such as emotional intelligence and conversational coherence, which is a distinct construct from the specific mechanism of \"agentic abstention\" (the decision to stop acting rather than continue). It does not measure the same biological pathway, physical observable, or algorithmic property regarding the agent's self-knowledge of when to stop, nor does it establish a baseline for abstention behavior.",
+          "title": "Enhancing Human-Like Responses in Large Language Models"
+        },
+        {
+          "primary_pointer": "2405.11357",
+          "rationale": "The paper investigates a fundamental limitation of LLMs regarding character-level understanding, which is a distinct construct from the user's question about \"agentic abstention\" (the mechanism of an agent deciding when to stop acting). While both topics concern LLM capabilities, the paper does not measure the same mechanism, variables, or empirical setting related to agent decision-making or stopping criteria, and thus fails to meet any of the inclusion criteria (a-f).",
+          "title": "Large Language Models Lack Understanding of Character Composition of Words"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-07-04T10:08:29Z",
+    "term_input": {
+      "normalized": "llmxive follow-up: extending \"agentic abstention: do agents know when to stop instead of act?\" computer science",
+      "raw": "llmXive follow-up: extending \"Agentic Abstention: Do Agents Know When to Stop Instead of Act?\" computer science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This white paper describes the LSST Dark Energy Science Collaboration (DESC), whose goal is the study of dark energy and related topics in fundamental physics with data from the Large Synoptic Survey Telescope (LSST). It provides an overview of dark energy science and describes the current and anticipated state of the field. It makes the case for the DESC by laying out a robust analytical framework for dark energy science that has been defined by its members and the comprehensive three-year work plan they have developed for implementing that framework. The analysis working groups cover five key probes of dark energy: weak lensing, large scale structure, galaxy clusters, Type Ia supernovae, and strong lensing. The computing working groups span cosmological simulations, galaxy catalogs, photon simulations and a systematic software and computational framework for LSST dark energy data analysis. The technical working groups make the connection between dark energy science and the LSST system. The working groups have close linkages, especially through the use of the photon simulations to study the impact of instrument design and survey strategy on analysis methodology and cosmological parameter estimation. The white paper describes several high priority tasks identified by each of the 16 working groups. Over the next three years these tasks will help prepare for LSST analysis, make synergistic connections with ongoing cosmological surveys and provide the dark energy community with state of the art analysis tools. Members of the community are invited to join the LSST DESC, according to the membership policies described in the white paper. Applications to sign up for associate membership may be made by submitting the Web form at http://www.slac.stanford.edu/exp/lsst/desc/signup.html with a short statement of the work they wish to pursue that is relevant to the LSST DESC.",
+          "claimed_authors": [
+            " LSST Dark Energy Science Collaboration"
+          ],
+          "claimed_title": "Large Synoptic Survey Telescope: Dark Energy Science Collaboration",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1211.0310"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Agentic Abstention: Do Agents Know When to Stop In', candidate_title='Large Synoptic Survey Telescope: Dark Energy Science Collaboration')",
+        "failed_at": "2026-07-04T10:08:59Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The large instantaneous sensitivity, a wide frequency coverage and flexible observation modes with large number of beams in the sky are the main features of the SKA observatory's two telescopes, the SKA-Low and the SKA-Mid, which are located on two different continents. Owing to these capabilities, the SKAO telescopes are going to be a game-changer for radio astronomy in general and pulsar astronomy in particular. The eleven articles in this special issue on pulsar science with the SKA Observatory describe its impact on different areas of pulsar science. In this lead article, a brief description of the two telescopes highlighting the relevant features for pulsar science is presented followed by an overview of each accompanying article, exploring the inter-relationship between different pulsar science use cases.",
+          "claimed_authors": [
+            "Bhal Chandra Joshi",
+            "Aris Karastergiou",
+            "Marta Burgay",
+            "The SKA pulsar science working group"
+          ],
+          "claimed_title": "Pulsar Science with the SKA Observatory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.16152"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Agentic Abstention: Do Agents Know When to Stop In', candidate_title='Pulsar Science with the SKA Observatory')",
+        "failed_at": "2026-07-04T10:08:59Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A Human Computer Interface (HCI) System for playing games is designed here for more natural communication with the machines. The system presented here is a vision-based system for detection of long voluntary eye blinks and interpretation of blink patterns for communication between man and machine. This system replaces the mouse with the human face as a new way to interact with the computer. Facial features (nose tip and eyes) are detected and tracked in realtime to use their actions as mouse events. The coordinates and movement of the nose tip in the live video feed are translated to become the coordinates and movement of the mouse pointer on the application. The left or right eye blinks fire left or right mouse click events. The system works with inexpensive USB cameras and runs at a frame rate of 30 frames per second.",
+          "claimed_authors": [
+            "S. Sumathi",
+            "S. K. Srivatsa",
+            "M. Uma Maheswari"
+          ],
+          "claimed_title": "Vision Based Game Development Using Human Computer Interaction",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1002.2191"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Agentic Abstention: Do Agents Know When to Stop In', candidate_title='Vision Based Game Development Using Human Computer Interaction')",
+        "failed_at": "2026-07-04T10:08:59Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "CIPM published the Supplement I for GUM in 2008 as not only an alternative approach to estimate the uncertainty for a given calibration measurement but also as a proper uncertainty estimation one, whenever any of the conditions imposed in GUM which must be satisfied does not hold [1, 2]. Before the introduction of the new approach in the Supplement I, namely Monte Carlo (MC) method, the GUM rules have been always applied even if in cases where the mentioned conditions were not fulfilled. After or even before the official introduction of this MC method, a number of published papers in uncertainty estimation by using MC method had been shown up, giving more insight for the ways the uncertainties estimated and also for the specific calibration measurements under investigation themselves [3 - 16]. However, in most of those published papers, the application conditions required before a method selection should be analyzed, in fact, has been ignored. In our uncertainty study for wavelength calibration by using beat frequency technique, the application conditions have not been ignored but analyzed carefully and it was found that a GUM application condition was unsatisfactory. However, all the MC method conditions for this calibration problem have been well fulfilled. A computer program was then coded [17] following the steps in the Supplement I. The resultant outputs showed difference in statistical nature and suggested to replace the MC method to the GUM one as soon as possible for this case.",
+          "claimed_authors": [
+            "Thang H. L.",
+            "Nguyen D. D.",
+            "Dung D. N."
+          ],
+          "claimed_title": "Monte Carlo uncertainty estimation for wavelength calibration",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1012.2631"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Agentic Abstention: Do Agents Know When to Stop In', candidate_title='Monte Carlo uncertainty estimation for wavelength calibration')",
+        "failed_at": "2026-07-04T10:08:59Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This study proposes a linear approach for propagating uncertainties in the multiline thru-reflect-line (TRL) calibration method for vector network analyzers. The multiline TRL formulation we are proposing applies the law of uncertainty propagation as outlined in the ISO Guide to the Expression of Uncertainty in Measurement (GUM) to both measurement and model uncertainties. In addition, we conducted a Monte Carlo analysis using a combination of measured and synthetic data to model various uncertainties, such as additive noise, reflect asymmetry, line mismatch, and line length offset. The results of our linear uncertainty formulation demonstrate agreement with the Monte Carlo method and provide a more efficient means of assessing the uncertainty budget of the multiline TRL calibration.",
+          "claimed_authors": [
+            "Ziad Hatab",
+            "Michael Ernst Gadringer",
+            "Wolfgang Bösch"
+          ],
+          "claimed_title": "Propagation of Linear Uncertainties through Multiline Thru-Reflect-Line Calibration",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2301.09126"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Agentic Abstention: Do Agents Know When to Stop In', candidate_title='Propagation of Linear Uncertainties through Multiline Thru-Reflect-Line Calibration')",
+        "failed_at": "2026-07-04T10:08:59Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Image-based environment perception is an important component especially for driver assistance systems or autonomous driving. In this scope, modern neuronal networks are used to identify multiple objects as well as the according position and size information within a single frame. The performance of such an object detection model is important for the overall performance of the whole system. However, a detection model might also predict these objects under a certain degree of uncertainty. [...]\n  In this work, we examine the semantic uncertainty (which object type?) as well as the spatial uncertainty (where is the object and how large is it?). We evaluate if the predicted uncertainties of an object detection model match with the observed error that is achieved on real-world data. In the first part of this work, we introduce the definition for confidence calibration of the semantic uncertainty in the context of object detection, instance segmentation, and semantic segmentation. We integrate additional position information in our examinations to evaluate the effect of the object's position on the semantic calibration properties. Besides measuring calibration, it is also possible to perform a post-hoc recalibration of semantic uncertainty that might have turned out to be miscalibrated. [...]\n  The second part of this work deals with the spatial uncertainty obtained by a probabilistic detection model. [...] We review and extend common calibration methods so that it is possible to obtain parametric uncertainty distributions for the position information in a more flexible way.\n  In the last part, we demonstrate a possible use-case for our derived calibration methods in the context of object tracking. [...] We integrate our previously proposed calibration techniques and demonstrate the usefulness of semantic and spatial uncertainty calibration in a subsequent process. [...]",
+          "claimed_authors": [
+            "Fabian Küppers"
+          ],
+          "claimed_title": "Uncertainty Calibration and its Application to Object Detection",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2302.02622"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Agentic Abstention: Do Agents Know When to Stop In', candidate_title='Uncertainty Calibration and its Application to Object Detection')",
+        "failed_at": "2026-07-04T10:08:59Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "As LLM agents increasingly select tools autonomously, their choices among tools with different privileges become safety-relevant. However, prior tool-selection studies focus on safety-agnostic metadata preferences, leaving privilege-sensitive choices underexplored. To address this gap, we study over-privileged tool selection, in which an agent selects or escalates to a higher-privilege tool despite a sufficient lower-privilege alternative. We introduce ToolPrivBench to evaluate whether agents choose higher-privilege tools despite sufficient lower-privilege alternatives, measuring both initial selection and escalation after transient tool failures. Across eight domains and five recurring risk patterns, we find that over-privileged tool selection is common among mainstream LLM agents and is further amplified by transient failures. We further find that general safety alignment does not reliably transfer to least-privilege tool choice, while prompt-level controls provide only limited mitigation under transient failures. We therefore introduce a privilege-aware post-training defense that teaches agents to prefer sufficient lower-privilege tools and escalate only when necessary. Our mitigation experiments show that this defense substantially reduces unnecessary high-privilege tool use while preserving general capabilities.",
+          "claimed_authors": [
+            "Kaiyue Yang",
+            "Yuyan Bu",
+            "Jingwei Yi",
+            "Yuchi Wang",
+            "Biyu Zhou",
+            "Juntao Dai",
+            "Songlin Hu",
+            "Yaodong Yang"
+          ],
+          "claimed_title": "When Lower Privileges Suffice: Investigating Over-Privileged Tool Selection in LLM Agents",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2606.20023"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Agentic Abstention: Do Agents Know When to Stop In', candidate_title='When Lower Privileges Suffice: Investigating Over-Privileged Tool Selection in LLM Agents')",
+        "failed_at": "2026-07-04T10:08:59Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Large Language Model (LLM) agents significantly extend the capabilities of standalone LLMs, empowering them to interact with external tools (e.g., APIs, functions) and complete various tasks in a self-directed fashion. The challenge of tool use demands that LLMs not only understand user queries and generate answers accurately but also excel in task planning, tool invocation, and result summarization. While traditional works focus on training a single LLM with all these capabilities, performance limitations become apparent, particularly with smaller models. To overcome these challenges, we propose a novel approach that decomposes the aforementioned capabilities into a planner, caller, and summarizer. Each component is implemented by a single LLM that focuses on a specific capability and collaborates with others to accomplish the task. This modular framework facilitates individual updates and the potential use of smaller LLMs for building each capability. To effectively train this framework, we introduce a two-stage training paradigm. First, we fine-tune a backbone LLM on the entire dataset without discriminating sub-tasks, providing the model with a comprehensive understanding of the task. Second, the fine-tuned LLM is used to instantiate the planner, caller, and summarizer respectively, which are continually fine-tuned on respective sub-tasks. Evaluation across various tool-use benchmarks illustrates that our proposed multi-LLM framework surpasses the traditional single-LLM approach, highlighting its efficacy and advantages in tool learning.",
+          "claimed_authors": [
+            "Weizhou Shen",
+            "Chenliang Li",
+            "Hongzhan Chen",
+            "Ming Yan",
+            "Xiaojun Quan",
+            "Hehong Chen",
+            "Ji Zhang",
+            "Fei Huang"
+          ],
+          "claimed_title": "Small LLMs Are Weak Tool Learners: A Multi-LLM Agent",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2401.07324"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Agentic Abstention: Do Agents Know When to Stop In', candidate_title='Small LLMs Are Weak Tool Learners: A Multi-LLM Agent')",
+        "failed_at": "2026-07-04T10:08:59Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Complex physical models are the most advanced tools available for producing realistic simulations of the climate system. However, such levels of realism imply high computational cost and restrictions on their use for policymaking and risk assessment. Two central characteristics of climate change are uncertainty and that it is a dynamic problem in which international actions can significantly alter climate projections and information needs, including partial and full compliance of global climate goals. Here we present AIRCC-Clim, a simple climate model emulator that produces regional probabilistic climate change projections of monthly and annual temperature and precipitation, as well as risk measures, based both on standard and user-defined emissions scenarios for six greenhouse gases. AIRCC-Clim emulates 37 atmosphere-ocean coupled general circulation models with low computational and technical requirements for the user. This standalone, user-friendly software is designed for a variety of applications including impact assessments, climate policy evaluation and integrated assessment modelling.",
+          "claimed_authors": [
+            "Francisco Estrada",
+            "Oscar Calderón-Bustamante",
+            "Wouter Botzen",
+            "Julián A. Velasco",
+            "Richard S. J. Tol"
+          ],
+          "claimed_title": "AIRCC-Clim: a user-friendly tool for generating regional probabilistic climate change scenarios and risk measures",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2111.01762"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Agentic Abstention: Do Agents Know When to Stop In', candidate_title='AIRCC-Clim: a user-friendly tool for generating regional probabilistic climate change scenarios and risk measures')",
+        "failed_at": "2026-07-04T10:08:59Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Q-shaping is an extension of Q-value initialization and serves as an alternative to reward shaping for incorporating domain knowledge to accelerate agent training, thereby improving sample efficiency by directly shaping Q-values. This approach is both general and robust across diverse tasks, allowing for immediate impact assessment while guaranteeing optimality. We evaluated Q-shaping across 20 different environments using a large language model (LLM) as the heuristic provider. The results demonstrate that Q-shaping significantly enhances sample efficiency, achieving a \\textbf{16.87\\%} improvement over the best baseline in each environment and a \\textbf{253.80\\%} improvement compared to LLM-based reward shaping methods. These findings establish Q-shaping as a superior and unbiased alternative to conventional reward shaping in reinforcement learning.",
+          "claimed_authors": [
+            "Xiefeng Wu"
+          ],
+          "claimed_title": "From Reward Shaping to Q-Shaping: Achieving Unbiased Learning with LLM-Guided Knowledge",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2410.01458"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Agentic Abstention: Do Agents Know When to Stop In', candidate_title='From Reward Shaping to Q-Shaping: Achieving Unbiased Learning with LLM-Guided Knowledge')",
+        "failed_at": "2026-07-04T10:08:59Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Reinforcement Learning (RL) models have continually evolved to navigate the exploration - exploitation trade-off in uncertain Markov Decision Processes (MDPs). In this study, I leverage the principles of stochastic thermodynamics and system dynamics to explore reward shaping via diffusion processes. This provides an elegant framework as a way to think about exploration-exploitation trade-off. This article sheds light on relationships between information entropy, stochastic system dynamics, and their influences on entropy production. This exploration allows us to construct a dual-pronged framework that can be interpreted as either a maximum entropy program for deriving efficient policies or a modified cost optimization program accounting for informational costs and benefits. This work presents a novel perspective on the physical nature of information and its implications for online learning in MDPs, consequently providing a better understanding of information-oriented formulations in RL.",
+          "claimed_authors": [
+            "Peeyush Kumar"
+          ],
+          "claimed_title": "Reward Shaping via Diffusion Process in Reinforcement Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2306.11885"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Agentic Abstention: Do Agents Know When to Stop In', candidate_title='Reward Shaping via Diffusion Process in Reinforcement Learning')",
+        "failed_at": "2026-07-04T10:08:59Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Large Language Models (LLMs) consistently benefit from scaled Chain-of-Thought (CoT) reasoning, but also suffer from heavy computational overhead. To address this issue, efficient reasoning aims to incentivize short yet accurate thinking trajectories, typically through reward shaping with Reinforcement Learning (RL). In this paper, we systematically investigate the mechanics of efficient reasoning for LLMs. For comprehensive evaluation, we advocate for more fine-grained metrics, including length distribution conditioned on correctness and performance across a wide spectrum of token budgets ranging from 2k to 32k. First, we reveal that the training process follows a two-stage paradigm: length adaptation and reasoning refinement. Through extensive experiments (about 0.2 million GPU hours) in a unified protocol, we deconstruct training prompts and rollouts, reward shaping, and optimization strategies. A central finding is to maintain a sufficient density of positive reward signals and avoid the short-is-correct trap. Moreover, the learned length bias generalizes across domains and difficulty levels. We distill these findings into valuable insights and practical guidelines, and validate them across the Qwen3 models ranging from 0.6B to 30B, demonstrating the robustness and generalization. Weights are available at https://wutaiqiang.github.io/project/Art",
+          "claimed_authors": [
+            "Taiqiang Wu",
+            "Zenan Xu",
+            "Bo Zhou",
+            "Ngai Wong"
+          ],
+          "claimed_title": "The Art of Efficient Reasoning: Data, Reward, and Optimization",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2602.20945"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Agentic Abstention: Do Agents Know When to Stop In', candidate_title='The Art of Efficient Reasoning: Data, Reward, and Optimization')",
+        "failed_at": "2026-07-04T10:08:59Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Recent advancements in visual generative models have enabled high-quality image and video generation, opening diverse applications. However, evaluating these models often demands sampling hundreds or thousands of images or videos, making the process computationally expensive, especially for diffusion-based models with inherently slow sampling. Moreover, existing evaluation methods rely on rigid pipelines that overlook specific user needs and provide numerical results without clear explanations. In contrast, humans can quickly form impressions of a model's capabilities by observing only a few samples. To mimic this, we propose the Evaluation Agent framework, which employs human-like strategies for efficient, dynamic, multi-round evaluations using only a few samples per round, while offering detailed, user-tailored analyses. It offers four key advantages: 1) efficiency, 2) promptable evaluation tailored to diverse user needs, 3) explainability beyond single numerical scores, and 4) scalability across various models and tools. Experiments show that Evaluation Agent reduces evaluation time to 10% of traditional methods while delivering comparable results. The Evaluation Agent framework is fully open-sourced to advance research in visual generative models and their efficient evaluation.",
+          "claimed_authors": [
+            "Fan Zhang",
+            "Shulin Tian",
+            "Ziqi Huang",
+            "Yu Qiao",
+            "Ziwei Liu"
+          ],
+          "claimed_title": "Evaluation Agent: Efficient and Promptable Evaluation Framework for Visual Generative Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2412.09645"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Agentic Abstention: Do Agents Know When to Stop In', candidate_title='Evaluation Agent: Efficient and Promptable Evaluation Framework for Visual Generative Models')",
+        "failed_at": "2026-07-04T10:08:59Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The influence of additional information on the decision making of agents, who are interacting members of a society, is analyzed within the mathematical framework based on the use of quantum probabilities. The introduction of social interactions, which influence the decisions of individual agents, leads to a generalization of the quantum decision theory developed earlier by the authors for separate individuals. The generalized approach is free of the standard paradoxes of classical decision theory. This approach also explains the error-attenuation effects observed for the paradoxes occurring when decision makers, who are members of a society, consult with each other, increasing in this way the available mutual information. A precise correspondence between quantum decision theory and classical utility theory is formulated via the introduction of an intermediate probabilistic version of utility theory of a novel form, which obeys the requirement that zero-utility prospects should have zero probability weights.",
+          "claimed_authors": [
+            "V. I. Yukalov",
+            "D. Sornette"
+          ],
+          "claimed_title": "Quantum decision making by social agents",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1202.4918"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Agentic Abstention: Do Agents Know When to Stop In', candidate_title='Quantum decision making by social agents')",
+        "failed_at": "2026-07-04T10:08:59Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Understanding the properties of well-generalizing minima is at the heart of deep learning research. On the one hand, the generalization of neural networks has been connected to the decision boundary complexity, which is hard to study in the high-dimensional input space. Conversely, the flatness of a minimum has become a controversial proxy for generalization. In this work, we provide the missing link between the two approaches and show that the Hessian top eigenvectors characterize the decision boundary learned by the neural network. Notably, the number of outliers in the Hessian spectrum is proportional to the complexity of the decision boundary. Based on this finding, we provide a new and straightforward approach to studying the complexity of a high-dimensional decision boundary; show that this connection naturally inspires a new generalization measure; and finally, we develop a novel margin estimation technique which, in combination with the generalization measure, precisely identifies minima with simple wide-margin boundaries. Overall, this analysis establishes the connection between the Hessian and the decision boundary and provides a new method to identify minima with simple wide-margin decision boundaries.",
+          "claimed_authors": [
+            "Mahalakshmi Sabanayagam",
+            "Freya Behrens",
+            "Urte Adomaityte",
+            "Anna Dawid"
+          ],
+          "claimed_title": "Unveiling the Hessian's Connection to the Decision Boundary",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2306.07104"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Agentic Abstention: Do Agents Know When to Stop In', candidate_title=\"Unveiling the Hessian's Connection to the Decision Boundary\")",
+        "failed_at": "2026-07-04T10:08:59Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The precision of contouring target structures and organs-at-risk (OAR) in radiotherapy planning is crucial for ensuring treatment efficacy and patient safety. Recent advancements in deep learning (DL) have significantly improved OAR contouring performance, yet the reliability of these models, especially in the presence of out-of-distribution (OOD) scenarios, remains a concern in clinical settings. This application study explores the integration of epistemic uncertainty estimation within the OAR contouring workflow to enable OOD detection in clinically relevant scenarios, using specifically compiled data. Furthermore, we introduce an advanced statistical method for OOD detection to enhance the methodological framework of uncertainty estimation. Our empirical evaluation demonstrates that epistemic uncertainty estimation is effective in identifying instances where model predictions are unreliable and may require an expert review. Notably, our approach achieves an AUC-ROC of 0.95 for OOD detection, with a specificity of 0.95 and a sensitivity of 0.92 for implant cases, underscoring its efficacy. This study addresses significant gaps in the current research landscape, such as the lack of ground truth for uncertainty estimation and limited empirical evaluations. Additionally, it provides a clinically relevant application of epistemic uncertainty estimation in an FDA-approved and widely used clinical solution for OAR segmentation from Varian, a Siemens Healthineers company, highlighting its practical benefits.",
+          "claimed_authors": [
+            "Marvin Tom Teichmann",
+            "Manasi Datar",
+            "Lisa Kratzke",
+            "Fernando Vega",
+            "Florin C. Ghesu"
+          ],
+          "claimed_title": "Towards Integrating Epistemic Uncertainty Estimation into the Radiotherapy Workflow",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2409.18628"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Agentic Abstention: Do Agents Know When to Stop In', candidate_title='Towards Integrating Epistemic Uncertainty Estimation into the Radiotherapy Workflow')",
+        "failed_at": "2026-07-04T10:08:59Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Automated segmentation of BUS images is important for precise lesion delineation and tumor characterization, but is challenged by inherent artifacts and dataset inconsistencies. In this work, we evaluate the use of a modified Residual Encoder U-Net for breast ultrasound segmentation, with a focus on uncertainty quantification. We identify and correct for data duplication in the BUSI dataset, and use a deduplicated subset for more reliable estimates of generalization performance. Epistemic uncertainty is quantified using Monte Carlo dropout, deep ensembles, and their combination. Models are benchmarked on both in-distribution and out-of-distribution datasets to demonstrate how they generalize to unseen cross-domain data. Our approach achieves state-of-the-art segmentation accuracy on the Breast-Lesion-USG dataset with in-distribution validation, and provides calibrated uncertainty estimates that effectively signal regions of low model confidence. Performance declines and increased uncertainty observed in out-of-distribution evaluation highlight the persistent challenge of domain shift in medical imaging, and the importance of integrated uncertainty modeling for trustworthy clinical deployment. \\footnote{Code available at: https://github.com/toufiqmusah/nn-uncertainty.git}",
+          "claimed_authors": [
+            "Toufiq Musah",
+            "Chinasa Kalaiwo",
+            "Maimoona Akram",
+            "Ubaida Napari Abdulai",
+            "Maruf Adewole",
+            "Farouk Dako",
+            "Adaobi Chiazor Emegoakor",
+            "Udunna C. Anazodo",
+            "Prince Ebenezer Adjei",
+            "Confidence Raymond"
+          ],
+          "claimed_title": "Towards Trustworthy Breast Tumor Segmentation in Ultrasound using Monte Carlo Dropout and Deep Ensembles for Epistemic Uncertainty Estimation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2508.17768"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Agentic Abstention: Do Agents Know When to Stop In', candidate_title='Towards Trustworthy Breast Tumor Segmentation in Ultrasound using Monte Carlo Dropout and Deep Ensembles for Epistemic Uncertainty Estimation')",
+        "failed_at": "2026-07-04T10:08:59Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Yiming Ai",
+            "Zhiwei He",
+            "Ziyin Zhang",
+            "Wenhong Zhu",
+            "Hongkun Hao",
+            "Kai Yu",
+            "Lingjun Chen",
+            "Rui Wang"
+          ],
+          "title": "Is Self-knowledge and Action Consistent or Not: Investigating Large Language Model's Personality",
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2402.14679",
+        "summary": "In this study, we delve into the validity of conventional personality questionnaires in capturing the human-like personality traits of Large Language Models (LLMs). Our objective is to assess the congruence between the personality traits LLMs claim to possess and their demonstrated tendencies in real-world scenarios. By conducting an extensive examination of LLM outputs against observed human response patterns, we aim to understand the disjunction between self-knowledge and action in LLMs.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2402.14679",
+          "http_status": 200,
+          "pdf_sample_score": 0.1092,
+          "query_relevance_score": 0.6,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-04T10:09:06Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Md Rashadul Islam"
+          ],
+          "title": "An Explainable Agentic AI Framework for Uncertainty-Aware and Abstention-Enabled Acute Ischemic Stroke Imaging Decisions",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2601.01008",
+        "summary": "Artificial intelligence models have shown strong potential in acute ischemic stroke imaging, particularly for lesion detection and segmentation using computed tomography and magnetic resonance imaging. However, most existing approaches operate as black box predictors, producing deterministic outputs without explicit uncertainty awareness or structured mechanisms to abstain under ambiguous conditions. This limitation raises serious safety and trust concerns in high risk emergency radiology settings. In this paper, we propose an explainable agentic AI framework for uncertainty aware and abstention enabled decision support in acute ischemic stroke imaging. The framework follows a modular agentic pipeline in which a perception agent performs lesion aware image analysis, an uncertainty estimation agent computes slice level predictive reliability, and a decision agent determines whether to issue a prediction or abstain based on predefined uncertainty thresholds. Unlike prior stroke imaging systems that primarily focus on improving segmentation or classification accuracy, the proposed framework explicitly prioritizes clinical safety, transparency, and clinician aligned decision behavior. Qualitative and case based analyses across representative stroke imaging scenarios demonstrate that uncertainty driven abstention naturally emerges in diagnostically ambiguous regions and low information slices. The framework further integrates visual explanation mechanisms to support both predictive and abstention decisions, addressing a key limitation of existing uncertainty aware medical imaging systems. Rather than introducing a new performance benchmark, this work presents agentic control, uncertainty awareness, and selective abstention as essential design principles for developing safe and trustworthy medical imaging AI systems.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2601.01008",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-04T10:09:07Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "llmxive follow-up: extending \"agentic abstention: do agents know when to stop instead of act?\" computer science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

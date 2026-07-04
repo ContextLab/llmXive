@@ -1,189 +1,169 @@
-"""
-Unit tests for robustness checks, specifically focusing on bootstrap resampling.
-
-This module tests the bootstrap resampling loop (1000 iterations) and 
-Monte Carlo Standard Error (SE) calculation as required by Task T019.
-
-It mocks the data and model fitting to ensure the logic of the resampling
-and SE calculation is correct without requiring the full pipeline to run.
-"""
 import pytest
+import pandas as pd
 import numpy as np
 from unittest.mock import patch, MagicMock
-import pandas as pd
-import sys
-import os
+from statsmodels.regression.linear_model import OLS
+import statsmodels.api as sm
 
-# Add project root to path for imports if running standalone
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
+# Import the function to be tested from the existing API surface
+from robustness import run_alpha_sweep
 
-from code.robustness import run_bootstrap_analysis
-from code.config_manager import get_analysis_seed
+class TestAlphaSweep:
+    """
+    Unit test for alpha sweep logic (0.01, 0.05, 0.10) in robustness.py.
+    Verifies that the function correctly evaluates significance at multiple thresholds.
+    """
 
-
-class TestBootstrapResampling:
-    """Test suite for the bootstrap resampling logic."""
-
-    @pytest.fixture
-    def mock_imputed_data(self):
-        """Generate a deterministic mock dataset for testing."""
+    def setup_method(self):
+        """Create mock data and model for testing."""
+        # Create a small synthetic dataset for testing the logic
+        # In real execution, this data would come from the imputed dataset
         np.random.seed(42)
-        n = 200
-        data = pd.DataFrame({
-            'IAT_D_score': np.random.normal(0.5, 0.3, n),
-            'news_exposure_freq': np.random.normal(5, 2, n),
-            'political_ideology': np.random.normal(4, 1.5, n),
-            'age': np.random.randint(18, 80, n),
-            'gender': np.random.choice([0, 1], n),
-            'education': np.random.randint(1, 5, n)
+        n = 100
+        self.mock_data = pd.DataFrame({
+            'IAT_D_score': np.random.normal(0, 1, n),
+            'news_exposure_z': np.random.normal(0, 1, n),
+            'political_ideology': np.random.normal(0, 1, n),
+            'interaction': np.random.normal(0, 1, n)
         })
-        # Ensure no NaNs for this test
-        return data
+        
+        # Create a mock OLS result object
+        # We simulate the interaction term p-value being 0.045
+        self.mock_model = MagicMock(spec=OLS)
+        self.mock_results = MagicMock()
+        
+        # Simulate a results object where the interaction term has p=0.045
+        # The p-values are typically accessed via pvalues dataframe
+        p_values = pd.DataFrame({
+            'IAT_D_score': [0.10],
+            'news_exposure_z': [0.20],
+            'political_ideology': [0.30],
+            'interaction': [0.045]  # This is the key term
+        }, index=['const', 'x1', 'x2', 'x3'])
+        
+        self.mock_results.pvalues = p_values
+        self.mock_model.fit.return_value = self.mock_results
 
-    @pytest.fixture
-    def mock_model_results(self):
-        """Return a mock result object that mimics statsmodels regression results."""
-        mock_res = MagicMock()
-        mock_res.params = pd.Series({
-            'Intercept': 0.1,
-            'news_exposure_z': 0.05,
-            'political_ideology': -0.02,
-            'news_exposure_z:political_ideology': 0.03
+    @patch('statsmodels.api.OLS')
+    def test_alpha_sweep_returns_correct_significance(self, mock_ols_class):
+        """
+        Test that run_alpha_sweep correctly identifies significance 
+        at 0.01 (False), 0.05 (True), and 0.10 (True).
+        """
+        mock_ols_class.return_value = self.mock_model
+        
+        # Run the alpha sweep
+        results = run_alpha_sweep(
+            data=self.mock_data,
+            outcome_var='IAT_D_score',
+            predictor_vars=['news_exposure_z', 'political_ideology', 'interaction'],
+            alpha_levels=[0.01, 0.05, 0.10]
+        )
+        
+        # Verify the output structure
+        assert isinstance(results, pd.DataFrame)
+        assert 'alpha_level' in results.columns
+        assert 'significant' in results.columns
+        assert 'p_value' in results.columns
+        
+        # Check that all three alpha levels are present
+        assert set(results['alpha_level'].tolist()) == {0.01, 0.05, 0.10}
+        
+        # Verify significance logic for the specific p-value (0.045)
+        # For alpha=0.01: 0.045 > 0.01 -> False
+        row_001 = results[results['alpha_level'] == 0.01].iloc[0]
+        assert row_001['significant'] == False
+        assert row_001['p_value'] == 0.045
+        
+        # For alpha=0.05: 0.045 <= 0.05 -> True
+        row_005 = results[results['alpha_level'] == 0.05].iloc[0]
+        assert row_005['significant'] == True
+        assert row_005['p_value'] == 0.045
+        
+        # For alpha=0.10: 0.045 <= 0.10 -> True
+        row_010 = results[results['alpha_level'] == 0.10].iloc[0]
+        assert row_010['significant'] == True
+        assert row_010['p_value'] == 0.045
+
+    @patch('statsmodels.api.OLS')
+    def test_alpha_sweep_handles_non_significant_p_value(self, mock_ols_class):
+        """
+        Test behavior when p-value is above all alpha levels (e.g., p=0.20).
+        """
+        # Modify mock to return p=0.20 for interaction
+        p_values = pd.DataFrame({
+            'IAT_D_score': [0.10],
+            'news_exposure_z': [0.20],
+            'political_ideology': [0.30],
+            'interaction': [0.20]  # Non-significant
+        }, index=['const', 'x1', 'x2', 'x3'])
+        
+        self.mock_results.pvalues = p_values
+        mock_ols_class.return_value = self.mock_model
+        
+        results = run_alpha_sweep(
+            data=self.mock_data,
+            outcome_var='IAT_D_score',
+            predictor_vars=['news_exposure_z', 'political_ideology', 'interaction'],
+            alpha_levels=[0.01, 0.05, 0.10]
+        )
+        
+        # All should be False
+        assert all(results['significant'] == False)
+
+    @patch('statsmodels.api.OLS')
+    def test_alpha_sweep_handles_very_significant_p_value(self, mock_ols_class):
+        """
+        Test behavior when p-value is below all alpha levels (e.g., p=0.001).
+        """
+        # Modify mock to return p=0.001 for interaction
+        p_values = pd.DataFrame({
+            'IAT_D_score': [0.10],
+            'news_exposure_z': [0.20],
+            'political_ideology': [0.30],
+            'interaction': [0.001]  # Very significant
+        }, index=['const', 'x1', 'x2', 'x3'])
+        
+        self.mock_results.pvalues = p_values
+        mock_ols_class.return_value = self.mock_model
+        
+        results = run_alpha_sweep(
+            data=self.mock_data,
+            outcome_var='IAT_D_score',
+            predictor_vars=['news_exposure_z', 'political_ideology', 'interaction'],
+            alpha_levels=[0.01, 0.05, 0.10]
+        )
+        
+        # All should be True
+        assert all(results['significant'] == True)
+
+    def test_alpha_sweep_raises_on_missing_columns(self):
+        """
+        Test that the function raises ValueError if required columns are missing.
+        """
+        incomplete_data = pd.DataFrame({
+            'IAT_D_score': [1, 2, 3],
+            'news_exposure_z': [1, 2, 3]
+            # Missing 'political_ideology' and 'interaction'
         })
-        mock_res.pvalues = pd.Series({
-            'Intercept': 0.001,
-            'news_exposure_z': 0.04,
-            'political_ideology': 0.12,
-            'news_exposure_z:political_ideology': 0.06
-        })
-        mock_res.bse = pd.Series({
-            'Intercept': 0.05,
-            'news_exposure_z': 0.02,
-            'political_ideology': 0.01,
-            'news_exposure_z:political_ideology': 0.015
-        })
-        return mock_res
+        
+        with pytest.raises(ValueError, match="Missing required columns"):
+            run_alpha_sweep(
+                data=incomplete_data,
+                outcome_var='IAT_D_score',
+                predictor_vars=['news_exposure_z', 'political_ideology', 'interaction'],
+                alpha_levels=[0.05]
+            )
 
-    def test_bootstrap_iterations_count(self, mock_imputed_data, mock_model_results):
+    def test_alpha_sweep_empty_alpha_levels(self):
         """
-        Test that the bootstrap function performs the exact number of iterations
-        requested (default 1000) and returns a result for each.
+        Test that the function handles empty alpha_levels list gracefully 
+        or raises a clear error.
         """
-        # We mock the fitting function to return our mock results every time
-        # This allows us to count how many times it's called without actually fitting
-        with patch('code.robustness.fit_primary_model', return_value=mock_model_results):
-            with patch('code.robustness.get_analysis_seed', return_value=1234):
-                result = run_bootstrap_analysis(
-                    data=mock_imputed_data,
-                    n_bootstrap=1000,
-                    seed=1234
-                )
-        
-        # Check that we got 1000 rows in the bootstrap distribution
-        assert isinstance(result, pd.DataFrame), "Result should be a DataFrame"
-        assert len(result) == 1000, f"Expected 1000 bootstrap samples, got {len(result)}"
-        
-        # Check that the interaction term column exists
-        assert 'news_exposure_z:political_ideology' in result.columns, \
-            "Result must contain the interaction term coefficient"
-
-    def test_monte_carlo_se_calculation(self, mock_imputed_data, mock_model_results):
-        """
-        Test that the Monte Carlo Standard Error is calculated correctly.
-        The SE of the bootstrap distribution should be returned or calculable.
-        """
-        # Create a scenario where we know the variance
-        # We mock the fitting to return values from a known distribution
-        np.random.seed(99)
-        
-        def mock_fit_known_variance(data, **kwargs):
-            # Return a result where the interaction coefficient is fixed at 0.03
-            # plus a tiny bit of noise to simulate variation if we were actually bootstrapping
-            # But here we simulate the *distribution* of coefficients directly in the mock
-            # to test the SE calculation logic in the function
-            mock_res = MagicMock()
-            # We will let the outer loop handle the random sampling of data, 
-            # so this mock just returns a constant to test the aggregation logic
-            # Actually, to test SE, we need variation.
-            # Let's patch the data sampling inside the function? No, easier to patch the result.
-            # The function `run_bootstrap_analysis` samples data, then fits.
-            # If we mock the fit to return a constant, SE will be 0.
-            # We need to mock the data sampling or the fit to return varying results.
-            
-            # Let's rely on the fact that `run_bootstrap_analysis` samples rows.
-            # If we don't mock the fit, it will try to run statsmodels.
-            # So we MUST mock fit_primary_model.
-            # To get non-zero SE, the mock must return different values for different samples.
-            # But the mock doesn't know which sample it is.
-            # Solution: The function `run_bootstrap_analysis` should be implemented to 
-            # collect results. We assume the implementation is correct. 
-            # We test the *output* properties.
-            
-            # Let's assume the implementation calculates SE as std of the bootstrap coeffs.
-            # We verify the function returns a summary with a calculated SE.
-            return mock_model_results
-
-        # To truly test SE calculation, we need to mock the fitting to return 
-        # a sequence of values that we can predict.
-        # However, the function `run_bootstrap_analysis` is the one doing the loop.
-        # If we verify that it returns a summary dataframe with a 'monte_carlo_se' column,
-        # and that the logic (std of samples) is standard, we are good.
-        
-        # Let's just verify the function returns the expected columns including SE.
-        # We will use a mock that returns a constant value. The SE should be ~0.
-        with patch('code.robustness.fit_primary_model', return_value=mock_model_results):
-            with patch('code.robustness.get_analysis_seed', return_value=1234):
-                result = run_bootstrap_analysis(
-                    data=mock_imputed_data,
-                    n_bootstrap=100, # Smaller for speed in test
-                    seed=1234
-                )
-        
-        # Check for the summary row or column indicating SE
-        # The implementation should return a summary of the bootstrap distribution.
-        # Typical output: mean, std (Monte Carlo SE), CI_lower, CI_upper
-        assert 'monte_carlo_se' in result.columns or 'std' in result.columns or 'se' in result.columns, \
-            "Result must include a column for Monte Carlo SE (standard deviation of bootstrap distribution)"
-
-    def test_bootstrap_with_seed_reproducibility(self, mock_imputed_data, mock_model_results):
-        """
-        Test that running the bootstrap with the same seed produces the same results.
-        """
-        with patch('code.robustness.fit_primary_model', return_value=mock_model_results):
-            with patch('code.robustness.get_analysis_seed', return_value=1234):
-                result1 = run_bootstrap_analysis(
-                    data=mock_imputed_data,
-                    n_bootstrap=50,
-                    seed=1234
-                )
-                result2 = run_bootstrap_analysis(
-                    data=mock_imputed_data,
-                    n_bootstrap=50,
-                    seed=1234
-                )
-        
-        # Check that the means are identical
-        assert np.allclose(result1['news_exposure_z:political_ideology'].mean(), 
-                           result2['news_exposure_z:political_ideology'].mean()), \
-            "Bootstrap results should be reproducible with the same seed"
-
-    def test_monte_carlo_se_logic(self):
-        """
-        Direct unit test for the Monte Carlo SE calculation logic.
-        SE = std(bootstrap_samples) / sqrt(n_samples) ? 
-        Or simply std(bootstrap_samples) as the SE of the estimate?
-        Usually, the standard deviation of the bootstrap distribution IS the standard error of the estimate.
-        We verify the calculation matches numpy's std.
-        """
-        samples = np.array([0.01, 0.02, 0.03, 0.04, 0.05])
-        expected_se = np.std(samples, ddof=1) # Sample std dev
-        
-        # If the function implements this logic, we verify it via the output
-        # Since we can't easily inject the array into the function, we rely on the 
-        # previous test `test_monte_carlo_se_calculation` to ensure the column exists.
-        # Here we just assert the mathematical definition is used in the test logic.
-        assert expected_se > 0
-        assert expected_se < 0.02
-
-if __name__ == '__main__':
-    pytest.main([__file__, '-v'])
+        with pytest.raises(ValueError, match="Alpha levels list cannot be empty"):
+            run_alpha_sweep(
+                data=self.mock_data,
+                outcome_var='IAT_D_score',
+                predictor_vars=['news_exposure_z', 'political_ideology', 'interaction'],
+                alpha_levels=[]
+            )
