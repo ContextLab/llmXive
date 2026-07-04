@@ -1,0 +1,24 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Processed TimeSeries Schema"
+type: "object"
+properties:
+  date:
+    type: "string"
+    format: "date"
+    description: "Aligned daily date"
+  news_sentiment_z:
+    type: "number"
+    description: "Z-score normalized GDELT AVGTONE"
+  anxiety_search_z:
+    type: "number"
+    description: "Z-score normalized Google Trends value"
+  completeness_flag:
+    type: "boolean"
+    description: "True if no imputation was needed for this row"
+required:
+  - date
+  - news_sentiment_z
+  - anxiety_search_z
+  - completeness_flag
+additionalProperties: false
+description: "Schema for the final aligned and normalized time-series dataset."

@@ -1,0 +1,17 @@
+? 'T001 Create project structure per `plan.md` (directories: `code/`, `data/raw/`,
+  `data/processed/`, `output/reports/`, `tests/`)'
+: 1
+? T002 Initialize Python 3.11 project with pinned dependencies in `code/requirements.txt`
+  (pandas, numpy, scikit-learn, statsmodels, requests, matplotlib, seaborn, pyyaml)
+: 1
+T003 [P] Configure linting (flake8/black) and formatting tools in `code/`: 1
+? 'T004a [P] Implement data schema validation logic for `raw_news.schema.yaml` (GDELT)
+  in `code/` using the following inline schema definition: `{"type": "object", "required":
+  ["date", "value", "source"], "properties": {"date": {"type": "string", "format":
+  "date"}, "value": {"type": "number"}, "source": {"type": "string"}}}`'
+: 1
+? 'T004b [P] Implement data schema validation logic for `raw_trends.schema.yaml` (Trends)
+  in `code/` using the following inline schema definition: `{"type": "object", "required":
+  ["date", "value", "source"], "properties": {"date": {"type": "string", "format":
+  "date"}, "value": {"type": "number"}, "source": {"type": "string"}}}`'
+: 1

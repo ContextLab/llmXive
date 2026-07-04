@@ -1,0 +1,20 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Raw GDELT News Sentiment Schema"
+type: "object"
+properties:
+  date:
+    type: "string"
+    format: "date"
+    description: "ISO8601 date string (YYYY-MM-DD)"
+  AVGTONE:
+    type: "number"
+    description: "Average sentiment tone (-100 to +100)"
+  source:
+    type: "string"
+    const: "GDELT"
+required:
+  - date
+  - AVGTONE
+  - source
+additionalProperties: false
+description: "Schema for raw GDELT AVGTONE data fetched for the doomscrolling study."

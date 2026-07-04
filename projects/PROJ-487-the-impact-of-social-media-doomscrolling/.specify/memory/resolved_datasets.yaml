@@ -1,0 +1,107 @@
+resolved_at: '2026-07-04T12:27:43.229412+00:00'
+datasets:
+- intent: CSVs
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/sulaimank/swahili-csvs/resolve/main/all_audios_ALFFA.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/Thorkage/icebridge_arcticseaice_csvs/resolve/main/unified_20090331.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/AstraTeam/generated-csvs/resolve/main/ER-all.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/api/resolve-cache/datasets/vhada/Roco-csvs/5983bc5817e2c88e9185350e715d1e6503083d65/test.csv?%2Fdatasets%2Fvhada%2FRoco-csvs%2Fresolve%2Fmain%2Ftest.csv=&etag=%22a066c1958bf6911561f708219c010eea4bd1a16c%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/sulaimank/swahili-csvs/resolve/main/all_audios_ALFFA.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/Thorkage/icebridge_arcticseaice_csvs/resolve/main/unified_20090331.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/AstraTeam/generated-csvs/resolve/main/ER-all.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/api/resolve-cache/datasets/aq1048576/red_team_agent_analysis_rl_csvs_bob/8c941b057af1518c76681e928665e7f23d85bec7/data.csv?%2Fdatasets%2Faq1048576%2Fred_team_agent_analysis_rl_csvs_bob%2Fresolve%2Fmain%2Fdata.csv=&etag=%221863f480f208f098af760a80cdd7e5470d19fcb8%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/book/Expansion_and_Automation_of_the_Unified_Import_System_for_Composite_Skulls_in_OrtogOnBlender_XP/32899760
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Dataset_for_Cefiderocol_Susceptibility_in_Japanese_Clinical_i_Enterobacterales_i_i_Isolates_i_and_the_Impact_of_IMP_on_Resistance_/32446335
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/Nursing_Form_2026_-2027_College_of_Nursing_Sciences_Bida_Niger_State_Is_Open_Call_O7O-468-O5833_Have_begun_the_admission_exercise_O7O46805833_07046805833_Prospective_candidates_are_encouraged_to_apply_early_to_avoid_the_last-minute_rush_and/32899748
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Rall_data_Data_bse_of_mosquitoes_collected_during_the_study_implementation/32899568
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Nursing_Form_2026_-2027_College_of_Nursing_Sciences_Minna_Niger_State_Is_Open_Call_O7O-468-O5833_Have_begun_the_admission_exercise_O7O46805833_07046805833_Prospective_candidates_are_encouraged_to_apply_early_to_avoid_the_last-minute_rush_an/32899745
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3659329
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5695654
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/1402269
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17709462
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8087474
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21192772
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21192772
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21185404
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21185404
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21135375
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

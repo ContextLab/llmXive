@@ -1,0 +1,24 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Raw Google Trends Schema"
+type: "object"
+properties:
+  date:
+    type: "string"
+    format: "date"
+    description: "ISO8601 date string (YYYY-MM-DD)"
+  value:
+    type: "number"
+    description: "Relative search volume (0-100)"
+  keyword:
+    type: "string"
+    description: "Search keyword used"
+  source:
+    type: "string"
+    const: "GOOGLE_TRENDS"
+required:
+  - date
+  - value
+  - keyword
+  - source
+additionalProperties: false
+description: "Schema for raw Google Trends search volume data."
