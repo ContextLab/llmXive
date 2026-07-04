@@ -1,0 +1,506 @@
+resolved_at: '2026-07-04T15:25:52.512989+00:00'
+datasets:
+- intent: UCI
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/udayl/UCI_HAR/resolve/main/csv_files/test.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/jlh/uci-shopper/resolve/main/data/train-00000-of-00001-3316810f8df41d3a.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/ucinlp/drop/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/ucinlp/drop/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/ucirvine/reuters21578/resolve/main/data/reuters21578.tar.gz
+    source: huggingface
+    status: verified
+    format: gzip
+  - url: https://huggingface.co/datasets/ucirvine/sms_spam/resolve/main/plain_text/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/udayl/UCI_HAR/resolve/main/csv_files/test.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/jlh/uci-shopper/resolve/main/data/train-00000-of-00001-3316810f8df41d3a.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/figure/Upregulation_of_renal_SPRED1_contributes_to_insulin_resistance_by_inhibiting_insulin_receptor_and_downstream_signaling_pathways/32900204
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Microstreaming_of_a_Pneumatically_Controlled_Bubble_under_Hydrostatic_Pressure_and_Crossflow/32900228
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Alternating-Polarity_Electrolysis_Enables_Efficient_Enantioselective_Semipinacol_Rearrangement_Using_Sodium_Chloride/32900222
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Spider-Web_Topological_Design_of_a_Microchannel_Reactor_for_Ammonia_Decomposition/32900216
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/dataset/Alpha-Particle_Therapy_with_an_Actinium-225_Labeled_Bivalent_Inhibitor_of_Prostate-Specific_Membrane_Antigen_is_Therapeutically_Efficacious_in_a_Mouse_Model_of_Prostate_Cancer/32900213
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7950533
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/61452
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7681792
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10685355
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4432825
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21194656
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21194656
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21193124
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21193124
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/q568n/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: GLM
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/AletheiaResearch/GLM-5.2-Agent/resolve/main/2026-06-19T19-53-37-440Z_019ee172-2f9f-7341-8125-4e5d535d9e56.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 19819
+      parsed: true
+  - url: https://huggingface.co/datasets/Jackrong/GLM-5.1-Reasoning-1M-Cleaned/resolve/main/Math.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/hotdogs/uka-glm-5.2/resolve/main/test.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/AletheiaResearch/GLM-5.2-Agent/resolve/main/2026-06-19T19-53-37-440Z_019ee172-2f9f-7341-8125-4e5d535d9e56.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/Jackrong/GLM-5.1-Reasoning-1M-Cleaned/resolve/main/Math.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/hotdogs/uka-glm-5.2/resolve/main/test.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/VINAY-UMRETHE/Sonnet-Opus-4.5-4.6-Gemini-3.0-3.1-Pro-GPT-5-5.1-5.2-GLM-4.7-MiniMax-M2.1-DeepSeek-V3.2-High/resolve/main/full/train-00000-of-00002.parquet
+    source: huggingface
+    status: wrong_format
+    reason: HTTP 401
+  - url: https://huggingface.co/datasets/Jimbock/GLM_5.2_Dataset/resolve/main/DATASET.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://figshare.com/articles/figure/Upregulation_of_renal_SPRED1_contributes_to_insulin_resistance_by_inhibiting_insulin_receptor_and_downstream_signaling_pathways/32900204
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Microstreaming_of_a_Pneumatically_Controlled_Bubble_under_Hydrostatic_Pressure_and_Crossflow/32900228
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Alternating-Polarity_Electrolysis_Enables_Efficient_Enantioselective_Semipinacol_Rearrangement_Using_Sodium_Chloride/32900222
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Spider-Web_Topological_Design_of_a_Microchannel_Reactor_for_Ammonia_Decomposition/32900216
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/dataset/Alpha-Particle_Therapy_with_an_Actinium-225_Labeled_Bivalent_Inhibitor_of_Prostate-Specific_Membrane_Antigen_is_Therapeutically_Efficacious_in_a_Mouse_Model_of_Prostate_Cancer/32900213
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/61936
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10512240
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21110429
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7350724
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14705514
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21133826
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21133826
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21189344
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21189344
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21187030
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: NaNs
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/polinaeterna/delays_nans/resolve/main/data/train-00000-of-00001-0331bc7d6e79f01d.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/Nanshine/evolve_ben_train/resolve/main/data/train-00000-of-00001-62ffd01042e9828d.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 125811
+      parsed: true
+  - url: https://huggingface.co/datasets/NanSah/test_mini_platypus/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/polinaeterna/delays_nans/resolve/main/data/train-00000-of-00001-0331bc7d6e79f01d.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/Nanshine/evolve_ben_train/resolve/main/data/train-00000-of-00001-62ffd01042e9828d.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/NanSah/test_mini_platypus/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/api/resolve-cache/datasets/xia10/nansha613/31ba242002540f92233dd10bb4813ff8c8675da5/fintech.json?%2Fdatasets%2Fxia10%2Fnansha613%2Fresolve%2Fmain%2Ffintech.json=&etag=%22639f5f0f9d807189f47ced9ad7444480608808d4%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/formospeech/hat_asr_nansixian_reading_clean/resolve/main/Hakka_NanSixian/train-00000-of-00017.parquet
+    source: huggingface
+    status: wrong_format
+    reason: HTTP 401
+  - url: https://figshare.com/articles/figure/Upregulation_of_renal_SPRED1_contributes_to_insulin_resistance_by_inhibiting_insulin_receptor_and_downstream_signaling_pathways/32900204
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Microstreaming_of_a_Pneumatically_Controlled_Bubble_under_Hydrostatic_Pressure_and_Crossflow/32900228
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Alternating-Polarity_Electrolysis_Enables_Efficient_Enantioselective_Semipinacol_Rearrangement_Using_Sodium_Chloride/32900222
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Spider-Web_Topological_Design_of_a_Microchannel_Reactor_for_Ammonia_Decomposition/32900216
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/dataset/Alpha-Particle_Therapy_with_an_Actinium-225_Labeled_Bivalent_Inhibitor_of_Prostate-Specific_Membrane_Antigen_is_Therapeutically_Efficacious_in_a_Mouse_Model_of_Prostate_Cancer/32900213
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/1476811
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5727455
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3518227
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/13479506
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10303516
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21182173
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21182173
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21169815
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21169815
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21159373
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: CoverageResult
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/figure/Upregulation_of_renal_SPRED1_contributes_to_insulin_resistance_by_inhibiting_insulin_receptor_and_downstream_signaling_pathways/32900204
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Microstreaming_of_a_Pneumatically_Controlled_Bubble_under_Hydrostatic_Pressure_and_Crossflow/32900228
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Alternating-Polarity_Electrolysis_Enables_Efficient_Enantioselective_Semipinacol_Rearrangement_Using_Sodium_Chloride/32900222
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Spider-Web_Topological_Design_of_a_Microchannel_Reactor_for_Ammonia_Decomposition/32900216
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/dataset/Alpha-Particle_Therapy_with_an_Actinium-225_Labeled_Bivalent_Inhibitor_of_Prostate-Specific_Membrane_Antigen_is_Therapeutically_Efficacious_in_a_Mouse_Model_of_Prostate_Cancer/32900213
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: NoiseProfile
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/figure/Upregulation_of_renal_SPRED1_contributes_to_insulin_resistance_by_inhibiting_insulin_receptor_and_downstream_signaling_pathways/32900204
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Microstreaming_of_a_Pneumatically_Controlled_Bubble_under_Hydrostatic_Pressure_and_Crossflow/32900228
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Alternating-Polarity_Electrolysis_Enables_Efficient_Enantioselective_Semipinacol_Rearrangement_Using_Sodium_Chloride/32900222
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Spider-Web_Topological_Design_of_a_Microchannel_Reactor_for_Ammonia_Decomposition/32900216
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/dataset/Alpha-Particle_Therapy_with_an_Actinium-225_Labeled_Bivalent_Inhibitor_of_Prostate-Specific_Membrane_Antigen_is_Therapeutically_Efficacious_in_a_Mouse_Model_of_Prostate_Cancer/32900213
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3673797
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dl.acm.org/doi/10.1145/3038912.3052641
+    source: zenodo
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://zenodo.org/records/21157323
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: AdjustmentMethod
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/figure/Upregulation_of_renal_SPRED1_contributes_to_insulin_resistance_by_inhibiting_insulin_receptor_and_downstream_signaling_pathways/32900204
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Microstreaming_of_a_Pneumatically_Controlled_Bubble_under_Hydrostatic_Pressure_and_Crossflow/32900228
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Alternating-Polarity_Electrolysis_Enables_Efficient_Enantioselective_Semipinacol_Rearrangement_Using_Sodium_Chloride/32900222
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Spider-Web_Topological_Design_of_a_Microchannel_Reactor_for_Ammonia_Decomposition/32900216
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/dataset/Alpha-Particle_Therapy_with_an_Actinium-225_Labeled_Bivalent_Inhibitor_of_Prostate-Specific_Membrane_Antigen_is_Therapeutically_Efficacious_in_a_Mouse_Model_of_Prostate_Cancer/32900213
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: URLs
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/FINAL-Bench/service-urls/resolve/main/urls.json
+    source: huggingface
+    format: json
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 911
+      parsed: true
+  - url: https://huggingface.co/datasets/marksverdhei/reddit-syac-urls/resolve/main/test.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 107077
+      parsed: true
+  - url: https://huggingface.co/datasets/joshtobin/malicious_urls/resolve/main/data/train-00000-of-00001-0ac5e739002d814a.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 9837
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/FINAL-Bench/service-urls/resolve/main/urls.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://huggingface.co/datasets/marksverdhei/reddit-syac-urls/resolve/main/test.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/api/resolve-cache/datasets/AmirulOm/lottie-urls/709fd56c19915e82eafc9bc39780e078daee5e00/data%2Flots%2Furls.csv?%2Fdatasets%2FAmirulOm%2Flottie-urls%2Fresolve%2Fmain%2Fdata%2Flots%2Furls.csv=&etag=%226b32914e2f563eb13122769f44977e30c2b266f8%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/joshtobin/malicious_urls/resolve/main/data/train-00000-of-00001-0ac5e739002d814a.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/jkorsvik/nowiki_abstract_urls_20230120/resolve/main/data/train-00000-of-00001-30f05e15b92b5fa5.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/figure/Upregulation_of_renal_SPRED1_contributes_to_insulin_resistance_by_inhibiting_insulin_receptor_and_downstream_signaling_pathways/32900204
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Microstreaming_of_a_Pneumatically_Controlled_Bubble_under_Hydrostatic_Pressure_and_Crossflow/32900228
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Alternating-Polarity_Electrolysis_Enables_Efficient_Enantioselective_Semipinacol_Rearrangement_Using_Sodium_Chloride/32900222
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Spider-Web_Topological_Design_of_a_Microchannel_Reactor_for_Ammonia_Decomposition/32900216
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/dataset/Alpha-Particle_Therapy_with_an_Actinium-225_Labeled_Bivalent_Inhibitor_of_Prostate-Specific_Membrane_Antigen_is_Therapeutically_Efficacious_in_a_Mouse_Model_of_Prostate_Cancer/32900213
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/50969
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8371046
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21014453
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10622995
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7226602
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21188254
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21188254
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21187081
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://unsworks.unsw.edu.au/handle/1959.4/45441
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21126405
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

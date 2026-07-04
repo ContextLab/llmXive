@@ -1,0 +1,37 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Synthetic Dataset Configuration"
+description: "Schema for the configuration of synthetic population generation."
+type: object
+properties:
+  dataset_name:
+    type: string
+    description: "Name of the dataset being simulated (e.g., 'Adult', 'Iris')."
+  target_distribution:
+    type: string
+    description: "Type of distribution to simulate (e.g., 'Normal', 'MultivariateNormal')."
+  parameters:
+    type: object
+    description: "Dictionary of parameters for the distribution (means, covariances)."
+    additionalProperties: true
+  sample_size:
+    type: integer
+    description: "Size of the sample to draw from the population."
+  ground_truth:
+    type: object
+    description: "Known parameters for coverage calculation."
+    properties:
+      true_mean:
+        type: number
+      true_coefficients:
+        type: array
+        items:
+          type: number
+    required:
+      - true_mean
+required:
+  - dataset_name
+  - target_distribution
+  - parameters
+  - sample_size
+  - ground_truth
+additionalProperties: false

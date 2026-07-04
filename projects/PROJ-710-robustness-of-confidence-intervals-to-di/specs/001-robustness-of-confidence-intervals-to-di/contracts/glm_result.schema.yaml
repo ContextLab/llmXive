@@ -1,0 +1,45 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "GLM Result"
+description: "Schema for the aggregated GLM analysis results."
+type: object
+properties:
+  model_id:
+    type: string
+    description: "Unique identifier for the model."
+  formula:
+    type: string
+    description: "The GLM formula used (e.g., 'covered ~ epsilon + noise_type')."
+  p_value_epsilon:
+    type: number
+    description: "P-value for the epsilon factor."
+    minimum: 0
+    maximum: 1
+  p_value_noise_type:
+    type: number
+    description: "P-value for the noise type factor."
+    minimum: 0
+    maximum: 1
+  p_value_interaction:
+    type: number
+    description: "P-value for the interaction term."
+    minimum: 0
+    maximum: 1
+  coefficient_epsilon:
+    type: number
+    description: "Coefficient for epsilon."
+  deviance:
+    type: number
+    description: "Model deviance."
+  aic:
+    type: number
+    description: "Akaike Information Criterion."
+required:
+  - model_id
+  - formula
+  - p_value_epsilon
+  - p_value_noise_type
+  - p_value_interaction
+  - coefficient_epsilon
+  - deviance
+  - aic
+additionalProperties: false
