@@ -1,0 +1,73 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "SimulationResultSchema"
+description: "Schema for simulation result records (one row per simulation run)."
+type: "object"
+properties:
+  simulation_id:
+    type: "string"
+    description: "Unique identifier for the simulation run."
+  dataset_id:
+    type: "integer"
+    description: "OpenML dataset ID."
+  dataset_name:
+    type: "string"
+    description: "Name of the OpenML dataset."
+  snr_level:
+    type: "number"
+    description: "Signal-to-Noise Ratio level."
+  sparsity_level:
+    type: "number"
+    description: "Proportion of non-zero coefficients."
+  alpha_threshold:
+    type: "number"
+    description: "Significance threshold used."
+  method:
+    type: "string"
+    enum:
+      - "Forward"
+      - "Backward"
+      - "LASSO"
+    description: "Variable selection method used."
+  seed:
+    type: "integer"
+    description: "Random seed for reproducibility."
+  true_nonzero_count:
+    type: "integer"
+    description: "Number of true non-zero coefficients."
+  selected_count:
+    type: "integer"
+    description: "Number of variables selected by the method."
+  true_positives:
+    type: "integer"
+    description: "Number of true non-zero coefficients correctly identified as significant."
+  selection_recovery:
+    type: "number"
+    minimum: 0
+    maximum: 1
+    description: "Binary indicator for selection (1 if selected, 0 otherwise)."
+  inference_power:
+    type: "number"
+    minimum: 0
+    maximum: 1
+    description: "Binary indicator for inference power (1 if selected AND p < alpha, 0 otherwise)."
+  condition_number:
+    type: "number"
+    description: "Condition number of the predictor matrix."
+  max_vif:
+    type: "number"
+    description: "Maximum Variance Inflation Factor."
+required:
+  - simulation_id
+  - dataset_id
+  - dataset_name
+  - snr_level
+  - sparsity_level
+  - alpha_threshold
+  - method
+  - seed
+  - true_nonzero_count
+  - selected_count
+  - true_positives
+  - selection_recovery
+  - inference_power
+additionalProperties: false

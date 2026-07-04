@@ -6,6 +6,9 @@ properties:
   dataset_id:
     type: "integer"
     description: "The OpenML dataset ID this aggregate belongs to."
+  dataset_name:
+    type: "string"
+    description: "Name of the OpenML dataset."
   method:
     type: "string"
     description: "The variable selection method used."
@@ -24,11 +27,16 @@ properties:
     maximum: 1.0
   n_simulations:
     type: "integer"
- description: "Number of simulations aggregated in this record ([deferred])."
+    description: "Number of simulations aggregated in this record ([deferred])."
     minimum: 1
   mean_recovery:
     type: "number"
     description: "Selection Recovery Rate (proportion of true positives selected)."
+    minimum: 0.0
+    maximum: 1.0
+  mean_inference_power:
+    type: "number"
+    description: "Mean Inference Power (proportion of true positives selected AND p < alpha)."
     minimum: 0.0
     maximum: 1.0
   std_recovery:
@@ -59,11 +67,13 @@ properties:
     nullable: true
 required:
   - dataset_id
+  - dataset_name
   - method
   - snr_level
   - sparsity_level
   - n_simulations
   - mean_recovery
+  - mean_inference_power
   - std_recovery
   - ci_lower
   - ci_upper

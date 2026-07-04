@@ -62,7 +62,7 @@ Examples of foundational tasks (adjust based on your project):
 - [ ] T006 [P] Create base configuration loader in `code/config.py` to manage seeds and paths; must load keys: `seed`, `openml_ids`, `snr_levels`, `sparsity_levels`, `output_path` (FR-006)
 - [ ] T007 Create base data models in `code/models.py`: `SimulatedDataset` (fields: X, Y, true_coefficients, snr, sparsity, seed, dataset_id) and `PowerMetric` (fields: method, snr, sparsity, alpha, power_rate, ci_lower, ci_upper) (FR-007)
 - [ ] T008 Setup error handling and logging infrastructure in `code/utils/logger.py`
-- [ ] T009 Setup environment configuration management for CI limits (limited CPU, 7GB RAM)
+- [ ] T009 Setup environment configuration management for CI limits (limited CPU, constrained RAM)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -74,23 +74,22 @@ Examples of foundational tasks (adjust based on your project):
 
 **Independent Test**: Verify that 10 datasets with ≥100 rows and ≥3 predictors are loaded, and that A substantial number of synthetic outcome vectors per (dataset, SNR, Sparsity) tuple are generated and stored in `data/simulated/` with correct metadata.
 
-### Implementation for User Story 1
-
-- [ ] T013 [P] [US1] Implement `code/data/downloader.py` to fetch regression datasets from OpenML with retry logic and checksumming; validate ≥ 100 rows and ≥ 3 predictors (FR-001)
-- [ ] T014 [P] [US1] Implement `code/data/downloader.py` logic to skip datasets with condition number > 10^10 and log warning to `code/utils/logger.py` (FR-001)
-- [ ] T015 [US1] Implement `code/data/simulators.py` to generate synthetic Y vectors using real X covariance and ground-truth coefficients (FR-002)
-- [ ] T016 [US1] Implement `code/data/simulators.py` to support SNR levels ranging from low to high and Sparsity levels including and 0.4. (FR-002)
-- [ ] T017 [US1] Implement `code/data/simulators.py` to record true coefficients and simulation metadata for every run (FR-002)
-- [ ] T018 [US1] Implement memory-efficient chunking in `code/data/simulators.py`: process simulations in batches of varying sizes, monitor memory via `psutil.Process(memory_info).rss` every iteration, and abort if RAM exceeds a high threshold to ensure peak usage stays ≤ 7 GB (SC-004)
-- [ ] T019 [US1] Create `data/simulated/` storage logic to save results as Parquet/CSV with deterministic seeds (FR-002)
-
-### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
+### Tests for User Story 1 (TDD-First) ⚠️
 
 > **NOTE: Write these tests FIRST (TDD-First), ensure they FAIL before implementation**
 
 - [ ] T010 [TDD-First] [P] [US1] Unit test for OpenML downloader in `tests/unit/test_downloader.py`: function `test_downloader_fetches_10_datasets` asserts `len(datasets) == 10` and `all(d.n_rows >= 100)` (FR-001)
 - [ ] T011 [TDD-First] [P] [US1] Unit test for simulator in `tests/unit/test_simulators.py`: function `test_simulator_generates_correct_snr` asserts generated Y variance matches SNR target within tolerance (FR-002)
-- [ ] T012 [TDD-First] [P] [US1] Integration test for full download+simulate pipeline in `tests/integration/test_pipeline.py`: function `test_pipeline_generates_120k_rows` asserts `results.csv` has A large-scale dataset and no memory overflow (FR-008)
+- [ ] T012 [TDD-First] [P] [US1] Integration test for full download+simulate pipeline in `tests/integration/test_pipeline.py`: function `test_pipeline_generates_24000_rows` asserts `len(results_df) == 24000` (Plan target: Multiple datasets × multiple SNR levels × 3 Sparsity × 200 sims) (FR-002, US-1)
+
+### Implementation for User Story 1
+
+- [ ] T013 [P] [US1] Implement `code/data/downloader.py` to fetch regression datasets from OpenML with retry logic and checksumming; validate ≥ 100 rows and ≥ 3 predictors (FR-001)
+- [ ] T014 [P] [US1] Implement `code/data/downloader.py` logic to skip datasets with condition number > 10^10 and log warning to `code/utils/logger.py` (FR-001)
+- [ ] T016 [US1] Implement `code/data/simulators.py` configuration to support SNR levels {, 1.0, 2.0, 5.0} and Sparsity levels including 0.2 and 0.4, and other representative values (FR-002)
+- [ ] T015 [US1] Implement `code/data/simulators.py` to generate synthetic Y vectors using real X covariance and ground-truth coefficients; includes memory-efficient chunking (process a batch of simulations) and monitoring via `psutil` to abort if RAM exceeds a predefined high threshold (FR-002, SC-004)
+- [ ] T017 [US1] Implement `code/data/simulators.py` to record true coefficients and simulation metadata for every run (FR-002)
+- [ ] T019 [US1] Create `data/simulated/` storage logic to save results as Parquet/CSV with deterministic seeds (FR-002)
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -98,27 +97,26 @@ Examples of foundational tasks (adjust based on your project):
 
 ## Phase 4: User Story 2 - Power Metric Computation (Priority: P2)
 
-**Goal**: Apply Forward Stepwise, Backward Elimination, and LASSO selection methods to each simulated dataset, refit OLS, and calculate empirical power (Selection Recovery Rate) based on ground truth.
+**Goal**: Apply Forward Stepwise, Backward Elimination, and LASSO selection methods to each simulated dataset, refit OLS, and calculate empirical power (proportion of true non-zero coefficients selected AND significant).
 
 **Independent Test**: Run selection methods on a subset of simulations and verify that Power = (True Positives / Total True Non-Zero Coefficients) matches expected values within ±0.01 tolerance.
 
-### Implementation for User Story 2 (Implementation MUST precede tests)
+### Tests for User Story 2 (TDD-First) ⚠️
+
+- [ ] T020 [TDD-First] [P] [US2] Unit test for selection methods in `tests/unit/test_selectors.py`: function `test_forward_stepwise_selects_correct_vars`
+- [ ] T021 [TDD-First] [P] [US2] Unit test for power calculation in `tests/unit/test_metrics.py`: function `test_power_calculation_matches_ground_truth`
+- [ ] T022 [TDD-First] [P] [US2] Integration test for selection+refit pipeline in `tests/integration/test_selectors.py`: function `test_full_selection_pipeline`
+
+### Implementation for User Story 2 (Implementation MUST follow tests)
 
 - [ ] T023 [P] [US2] Implement `code/analysis/selectors.py` for Forward Stepwise selection using CPU-only execution (FR-003)
 - [ ] T024 [P] [US2] Implement `code/analysis/selectors.py` for Backward Elimination selection using CPU-only execution (FR-003)
 - [ ] T025 [P] [US2] Implement `code/analysis/selectors.py` for LASSO selection using CPU-only execution (FR-003)
 - [ ] T026 [US2] Implement `code/analysis/selectors.py` to record selected variables and decision thresholds (p-value/lambda) for every run; output format: append to a JSONL file at `results/selection_log.jsonl` with keys `variable_name`, `selected`, `threshold_value`, `method` (FR-003)
-- [ ] T027 [US2] Implement `code/analysis/metrics.py` to refit OLS on LASSO-selected variables; calculate p-values for *secondary* sensitivity analysis and diagnostic reporting, while primary metric remains Selection Recovery Rate (FR-009)
-- [ ] T028 [US2] Implement `code/analysis/metrics.py` to calculate empirical power as proportion of true non-zero coefficients selected AND significant (p < 0.05) per Spec FR-004 (FR-004)
+- [ ] T027 [US2] Implement `code/analysis/metrics.py` to refit OLS on LASSO-selected variables; calculate p-values for power determination; **PRIMARY METRIC**: Empirical Power (proportion of true non-zero coefficients selected AND significant with p < 0.05) (FR-004, FR-009)
+- [ ] T028 [US2] Implement `code/analysis/metrics.py` to calculate empirical power as proportion of true non-zero coefficients selected AND significant (p < 0.05) per Spec FR-004; includes logic to filter `true_coefficients != 0` before calculating the denominator (FR-004)
 - [ ] T029 [US2] Implement `code/analysis/metrics.py` to calculate VIF or condition number for all datasets as collinearity diagnostics (FR-007)
-- [ ] T030 [US2] Implement logic in `code/analysis/metrics.py` inside the `calculate_power` function to filter `true_coefficients != 0` before calculating the power denominator (handling zero coefficients as true negatives) (FR-004)
 - [ ] T031 [US2] Save aggregated power metrics to `results/simulation_results.csv` with method, SNR, Sparsity, and alpha metadata (FR-004)
-
-### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
-
-- [ ] T020 [P] [US2] Unit test for selection methods in `tests/unit/test_selectors.py`: function `test_forward_stepwise_selects_correct_vars`
-- [ ] T021 [P] [US2] Unit test for power calculation in `tests/unit/test_metrics.py`: function `test_power_calculation_matches_ground_truth`
-- [ ] T022 [P] [US2] Integration test for selection+refit pipeline in `tests/integration/test_selectors.py`: function `test_full_selection_pipeline`
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -130,20 +128,19 @@ Examples of foundational tasks (adjust based on your project):
 
 **Independent Test**: Provide a CSV of simulation-level mean power and verify that p-values are corrected (Holm) and plots are generated for all SNR/Sparsity/Alpha combinations.
 
-- [ ] T034a [US3] Validate `results/simulation_results.csv` contains A substantial dataset of rows and required columns (method, snr, sparsity, power_rate) to ensure simulation-level granularity is preserved for T035 (FR-005)
-- [ ] T034b [US3] Implement aggregation logic in `code/analysis/comparators.py` to compute dataset-level mean power per method/SNR/Sparsity combination for diagnostic reporting (Required input for T036)
+### Tests for User Story 3 (TDD-First) ⚠️
 
-### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
-
-- [ ] T032 [P] [US3] Unit test for Kruskal-Wallis and Dunn's test in `tests/unit/test_comparators.py`: function `test_kruskal_wallis_correctness`
-- [ ] T033 [P] [US3] Unit test for plot generation in `tests/unit/test_plots.py`: function `test_plot_generation_saves_file`
-- [ ] T034 [P] [US3] Integration test for statistical analysis pipeline in `tests/integration/test_comparators.py`: function `test_full_statistical_pipeline`
+- [ ] T032 [TDD-First] [P] [US3] Unit test for Kruskal-Wallis and Dunn's test in `tests/unit/test_comparators.py`: function `test_kruskal_wallis_correctness`
+- [ ] T033 [TDD-First] [P] [US3] Unit test for plot generation in `tests/unit/test_plots.py`: function `test_plot_generation_saves_file`
+- [ ] T034 [TDD-First] [P] [US3] Integration test for statistical analysis pipeline in `tests/integration/test_comparators.py`: function `test_full_statistical_pipeline`
 
 ### Implementation for User Story 3
 
-- [ ] T035 [P] [US3] Implement `code/analysis/comparators.py` to perform Kruskal-Wallis tests on the full simulation-level dataset (n=120,000 rows from `results/simulation_results.csv`) per Spec FR-005 (FR-005)
+- [ ] T034a [US3] Validate `results/simulation_results.csv` contains required columns (method, snr, sparsity, power_rate) and sufficient rows to ensure simulation-level granularity is preserved for T035 (FR-005)
+- [ ] T034b [US3] Implement aggregation logic in `code/analysis/comparators.py` to compute dataset-level mean power per method/SNR/Sparsity combination for diagnostic reporting (Required input for T036)
+- [ ] T035 [P] [US3] Implement `code/analysis/comparators.py` to perform Kruskal-Wallis tests on the **simulation-level mean power** (aggregated per condition) from `results/simulation_results.csv` per Spec FR-005 (FR-005)
 - [ ] T036 [US3] Implement `code/analysis/comparators.py` to run Dunn's post-hoc analysis with Holm correction for multiplicity on simulation-level data per Spec FR-005 (FR-005)
-- [ ] T037 [US3] Implement `code/analysis/comparators.py` to perform sensitivity analysis on Alpha ∈ {low, moderate} (FR-006)
+- [ ] T037 [US3] Implement `code/analysis/comparators.py` to perform sensitivity analysis on Alpha across a range of low values (FR-006)
 - [ ] T038 [US3] Implement `code/viz/plots.py` to generate Power vs. SNR curves for each selection method and sparsity level (FR-003)
 - [ ] T039 [US3] Implement `code/viz/plots.py` to save all plots to `results/plots/`
 - [ ] T040 [US3] Generate final summary report as Markdown at `results/final_report.md` with sections: 'Executive Summary', 'Statistical Results (Kruskal-Wallis, Dunn)', 'Power Curves', and 'Methodology Notes' (FR-005)
@@ -158,7 +155,7 @@ Examples of foundational tasks (adjust based on your project):
 
 - [ ] T041 [P] Documentation updates in `README.md` and `docs/`
 - [ ] T042 Code cleanup and refactoring in `code/`
-- [ ] T043 Performance optimization to ensure completion within 6 hours on 2 vCPUs (FR-008); parallelize SNR/Sparsity loops and profile execution time
+- [ ] T043 Performance optimization to ensure completion within 6 hours on 2 vCPUs (FR-008); parallelize SNR/Sparsity loops using `joblib.Parallel` with `n_jobs=2` and profile execution time
 - [ ] T044 [P] Additional unit tests in `tests/unit/`
 - [ ] T045 Run quickstart.md validation
 - [ ] T046 Verify reproducibility by re-running pipeline with pinned seeds and comparing checksums

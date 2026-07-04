@@ -2,79 +2,80 @@
 
 ## Prerequisites
 
-*   Python 3.11 or higher.
-*   `pip` and `virtualenv` (or `conda`).
-*   Access to the OpenML API (no key required for public datasets, but rate limits apply).
+- Python 3.11+
+- Git
+- Access to GitHub Actions (for CI) or a local environment with sufficient RAM.
 
 ## Installation
 
-1.  **Clone the repository** and navigate to the project directory:
-    ```bash
-    git clone <repo-url>
-    cd projects/PROJ-504-evaluating-the-impact-of-variable-select
-    ```
+1. **Clone the repository**:
+   ```bash
+   git clone <repo-url>
+   cd projects/PROJ-504-evaluating-the-impact-of-variable-select
+   ```
 
-2.  **Create a virtual environment**:
-    ```bash
-    python -m venv venv
-    source venv/bin/activate  # On Windows: venv\Scripts\activate
-    ```
+2. **Create virtual environment**:
+   ```bash
+   python -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   ```
 
-3.  **Install dependencies**:
-    ```bash
-    pip install -r code/requirements.txt
-    ```
-    *Note: `requirements.txt` pins versions for reproducibility (e.g., `scikit-learn==1.4.0`, `statsmodels==0.14.1`).*
+3. **Install dependencies**:
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+## Configuration
+
+Edit `code/config.py` to set:
+- `RANDOM_SEED`: Fixed seed for reproducibility (default: 42).
+- `SIMULATION_COUNT`: Number of sims per tuple (default: 200).
+- `SNR_LEVELS`: List of SNR values (default: [0.5, 1.0, 2.0, 5.0]).
+- `SPARSITY_LEVELS`: List of sparsity values (default: [0.1, 0.2, 0.4]).
+- `ALPHA_THRESHOLDS`: List of alpha values (default: [0.01, 0.05, 0.10]).
+- `MAX_PREDICTORS`: Max predictors for stepwise (default: 200).
 
 ## Running the Pipeline
 
-The main execution script is `code/main.py`.
-
-### Step 1: Download Datasets
-This step fetches 10 valid regression datasets from OpenML and saves them to `data/raw/`.
+### 1. Download Datasets
 ```bash
-python code/main.py --action download
+python code/downloader.py
 ```
-*   **Output**: `data/raw/datasets.json` and `data/raw/openml_*.csv`.
-*   **Verification**: Check `data/raw/datasets.json` to ensure 10 datasets are marked "valid".
+This fetches a set of datasets from OpenML (IDs -1599) and stores them in `data/raw/`.
 
-### Step 2: Run Simulations
-This step generates synthetic outcomes and runs the variable selection methods.
+### 2. Run Simulations
 ```bash
-python code/main.py --action simulate --workers 2 --seed 42
+python code/main.py --mode simulate
 ```
-*   **Parameters**:
-    *   `--workers`: Number of parallel processes (default 2, matches CI).
-    *   `--seed`: Base seed for reproducibility (default). **This seed is passed to `simulators.py` to ensure deterministic outcome generation.**
-*   **Output**: Chunked Parquet files in `data/simulated/` and a summary log.
-*   **Note**: This is the most time-consuming step (approx. several hours on CI).
+This generates synthetic outcomes, runs selection methods, and calculates power. Output saved to `data/processed/simulation_results.csv`.
 
-### Step 3: Aggregate & Analyze
-This step computes recovery metrics, runs Friedman/Mixed-Effects tests, and generates plots.
+### 3. Analyze Results
 ```bash
-python code/main.py --action analyze
+python code/main.py --mode analyze
 ```
-*   **Output**:
-    *   `results/simulation_results.csv` (Dataset-level aggregates)
-    *   `results/plots/recovery_curve_snr.png`
-    *   `results/plots/recovery_curve_sparsity.png`
-    *   `results/statistical_tests.json`
+This performs Kruskal-Wallis tests, Dunn's post-hoc, and generates plots. Output saved to `data/processed/power_metrics.csv` and `figures/`.
 
-### Step 4: Verify Results
-Run the test suite to ensure the pipeline executed correctly.
+### 4. Generate Paper Draft
+```bash
+python code/main.py --mode paper
+```
+This generates a draft paper text based on the results.
+
+## Verification
+
+Run tests:
 ```bash
 pytest tests/ -v
 ```
 
-## Reproducibility
-
-To reproduce the exact results of a previous run:
-1.  Ensure the same `requirements.txt` is used.
-2.  Set the `--seed` flag to the original seed value.
-3.  The `download` action will re-fetch the same OpenML datasets (canonical sources).
+Check data integrity:
+```bash
+python code/verify.py --check-memory --check-runtime
+```
 
 ## Troubleshooting
 
-*   **API Timeout**: If `download` fails, check your internet connection. The script includes retry logic, but persistent failures may require manual dataset download.
-*   **Memory Error**: If `simulate` crashes with OOM, reduce the number of parallel workers (`--workers 1`) or process datasets sequentially.
-*   **Singular Matrix**: If a specific dataset causes errors, it may be skipped automatically due to collinearity. Check `data/raw/datasets.json` for the "skipped_collinearity" status.
+- **Memory Error**: Reduce `SIMULATION_COUNT` or process in smaller chunks.
+- **OpenML Timeout**: Check network; increase retry limit in `config.py`.
+- **Collinearity Warning**: Dataset skipped; check `logs/download.log`.
+- **Runtime Exceeded**: Check `logs/runtime.log` for profiling data; reduce `SIMULATION_COUNT`.

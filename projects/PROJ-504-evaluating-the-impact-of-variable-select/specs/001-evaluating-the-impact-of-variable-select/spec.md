@@ -98,7 +98,7 @@ The system MUST compare power rates across methods using Kruskal-Wallis tests on
 - OpenML API remains accessible and rate-limits are respected during 10 dataset downloads.
 - Selected OpenML datasets contain ≤ 50,000 rows to ensure covariance matrices fit within 7 GB RAM.
 - Python `scikit-learn` and `statsmodels` libraries are available for LASSO and OLS refitting on CPU without CUDA dependencies.
-- The CI runner environment provides at least vCPUs (2.0 GHz base clock) and 7 GB RAM as specified.
+- The CI runner environment provides at least vCPUs with a base clock frequency and 7 GB RAM as specified.
 - Sparsity levels are explicitly varied across a range of low-to-moderate values. to evaluate the impact of variable selection across different signal densities.
 - SNR levels are fixed at a range of low to moderate values. to provide a standard range for power curve generation.
 - Simulation count is fixed at a constant number per tuple to ensure statistical stability of the power estimates.

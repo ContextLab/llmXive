@@ -1,0 +1,65 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "PowerMetricSchema"
+description: "Schema for aggregated power metrics."
+type: "object"
+properties:
+  dataset_id:
+    type: "integer"
+    description: "OpenML dataset ID."
+  dataset_name:
+    type: "string"
+    description: "Name of the OpenML dataset."
+  snr_level:
+    type: "number"
+    description: "Signal-to-Noise Ratio level."
+  sparsity_level:
+    type: "number"
+    description: "Proportion of non-zero coefficients."
+  alpha_threshold:
+    type: "number"
+    description: "Significance threshold used."
+  method:
+    type: "string"
+    enum:
+      - "Forward"
+      - "Backward"
+      - "LASSO"
+    description: "Variable selection method used."
+  n_sims:
+    type: "integer"
+    description: "Number of simulations aggregated."
+  empirical_power:
+    type: "number"
+    minimum: 0
+    maximum: 1
+    description: "Mean empirical power (Inference Power)."
+  selection_recovery_rate:
+    type: "number"
+    minimum: 0
+    maximum: 1
+    description: "Mean selection recovery rate."
+  ci_lower:
+    type: "number"
+    description: "Lower bound of 95% confidence interval."
+  ci_upper:
+    type: "number"
+    description: "Upper bound of 95% confidence interval."
+  kruskal_wallis_pvalue:
+    type: "number"
+    description: "P-value from Kruskal-Wallis test (if applicable)."
+  dunn_posthoc_pvalue:
+    type: "number"
+    description: "Holm-corrected p-value from Dunn's post-hoc test (if applicable)."
+required:
+  - dataset_id
+  - dataset_name
+  - snr_level
+  - sparsity_level
+  - alpha_threshold
+  - method
+  - n_sims
+  - empirical_power
+  - selection_recovery_rate
+  - ci_lower
+  - ci_upper
+additionalProperties: false

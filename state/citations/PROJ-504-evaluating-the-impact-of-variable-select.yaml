@@ -1,11 +1,11 @@
-- artifact_hash: 42b90fb805a20440c1819e668134a212366fda7794a83e1bdcc0625b29ce763d
-  artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/specs/001-evaluating-the-impact-of-variable-select/research.md
+- artifact_hash: c93ba9014e8360d45cacaf825356c4be37dff9d993dc7a371a101a6c47383a2c
+  artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/specs/001-evaluating-the-impact-of-variable-select/tasks.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
-  fetched_title: OpenML
-  kind: url
-  value: https://www.openml.org/
+  fetched_title: Welcome to the Tidyverse
+  kind: doi
+  value: 10.21105/joss.01686
   verification_status: verified
-  verified_against_url: https://www.openml.org/
-  verified_at: '2026-07-03T13:30:39.982174Z'
+  verified_against_url: https://doi.org/10.21105/joss.01686
+  verified_at: '2026-07-04T07:32:03.350680Z'

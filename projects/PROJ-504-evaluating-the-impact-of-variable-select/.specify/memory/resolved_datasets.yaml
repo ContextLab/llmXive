@@ -1,4 +1,4 @@
-resolved_at: '2026-07-03T13:20:11.181471+00:00'
+resolved_at: '2026-07-04T06:52:15.525295+00:00'
 datasets:
 - intent: SNR
   status: verified
@@ -29,10 +29,10 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://us.aws.cdn.hf.co/xet-bridge-us/6a47ae9e949ea933a89592e2/a853d7fbabc97bdbf35bfa16c48626153481429433493fe76bee35006c5553d2?response-content-disposition=inline%3B+filename*%3DUTF-8%27%27shard_00000.ids.npy%3B+filename%3D%22shard_00000.ids.npy%22%3B&X-Xet-Cas-Uid=public&user_id=public&Expires=1783088225&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNmE0N2FlOWU5NDllYTkzM2E4OTU5MmUyL2E4NTNkN2ZiYWJjOTdiZGJmMzViZmExNmM0ODYyNjE1MzQ4MTQyOTQzMzQ5M2ZlNzZiZWUzNTAwNmM1NTUzZDJcXD9yZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3c2hhcmRfMDAwMDAuaWRzLm5weSUzQitmaWxlbmFtZSUzRCUyMnNoYXJkXzAwMDAwLmlkcy5ucHklMjIlM0ImWC1YZXQtQ2FzLVVpZD1wdWJsaWMmdXNlcl9pZD1wdWJsaWMiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkVwb2NoVGltZSI6MTc4MzA4ODIyNX19fV19&Signature=MEYCIQCYQ5XPDqAoCyuhQqbCFJSoGE3GFaud43RxPZgsZJWNXAIhAJ6NT3GwPkxfidQvaCPoY8~C2FuY~s0C51EvaY7f8I1z&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+  - url: https://huggingface.co/datasets/snrax/raw-qwythos-teacher-cache/resolve/main/meta.json
     source: huggingface
-    status: wrong_format
-    reason: unrecognized/non-dataset content
+    status: verified
+    format: json
   - url: https://huggingface.co/datasets/marccgrau/sbbdata_snr_none/resolve/main/data/test-00000-of-00001-7c1590c94db52498.parquet
     source: huggingface
     status: verified
@@ -45,23 +45,23 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://frontiersin.figshare.com/articles/dataset/Data_Sheet_1_Utilization_of_Madhuca_indica_ash_as_a_green_catalyst_for_transesterification_of_Madhuca_indica_oil_process_optimization_and_engine_analysis_docx/32896043
+  - url: https://figshare.com/articles/dataset/_sub_strong_PET-Protocol_Data_strong_sub_/31076929
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Data_set/32895989
+  - url: https://figshare.com/articles/dataset/Spiro-Confined_Br_nsted_Acid_Catalyst_for_Stereoselective_Cationic_Polymerization_of_Vinyl_Ethers_ACS_Catalysis_/29558024
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/online_resource/Matbench_MD/32896037
+  - url: https://figshare.com/articles/book/Filosofia_computa_iei_Realitate_i_calcul_Suport_de_curs_Universitatea_din_Bucure_ti_2026/32898944
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://tandf.figshare.com/articles/journal_contribution/Systematic_investigation_of_coordination_compounds_in_the_CuCl_DABCO_HCl_composition_space_diagram/32896036
+  - url: https://figshare.com/articles/dataset/___/32898941
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/_b_From_discovery_to_decision_b_b_What_does_it_take_to_move_from_scientific_evidence_to_environmental_policy_and_action_b_/29596967
+  - url: https://tandf.figshare.com/articles/journal_contribution/Social_Network_Characteristics_as_Predictors_of_Opioid_Use_Disorder_Treatment_Utilization_among_People_Who_Use_Drugs_with_Hepatitis_C_Infections_in_Baltimore_MD/32898942
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -81,27 +81,29 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://beei.org/index.php/EEI/article/view/1167
+  - url: https://doi.org/10.11591/eei.v7i2.1167
     source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21159629
+    status: unreachable
+    reason: 'reachability failed: HTTP 415'
+  - url: https://zenodo.org/records/21186645
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21159629
+  - url: https://zenodo.org/records/21186645
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://doi.org/10.34726/hss.2026.137124
+  - url: https://doi.org/10.24406/publica-633
     source: datacite
     status: unreachable
-    reason: 'reachability failed: HTTP 503'
-  - url: https://depositonce.tu-berlin.de/handle/11303/27214
+    reason: 'reachability failed: ConnectionError: (''Connection aborted.'', RemoteDisconnected(''Remote
+      end closed connection without response''))'
+  - url: https://doi.org/10.24406/publica-4445
     source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21157369
+    status: unreachable
+    reason: 'reachability failed: ReadTimeout: HTTPSConnectionPool(host=''publica.fraunhofer.de'',
+      port=443): Read timed out. (read timeout=20.0)'
+  - url: https://zenodo.org/records/21185408
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -131,23 +133,23 @@ datasets:
     source: huggingface
     status: verified
     format: json
-  - url: https://frontiersin.figshare.com/articles/dataset/Data_Sheet_1_Utilization_of_Madhuca_indica_ash_as_a_green_catalyst_for_transesterification_of_Madhuca_indica_oil_process_optimization_and_engine_analysis_docx/32896043
+  - url: https://figshare.com/articles/dataset/_sub_strong_PET-Protocol_Data_strong_sub_/31076929
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Data_set/32895989
+  - url: https://figshare.com/articles/dataset/Spiro-Confined_Br_nsted_Acid_Catalyst_for_Stereoselective_Cationic_Polymerization_of_Vinyl_Ethers_ACS_Catalysis_/29558024
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/online_resource/Matbench_MD/32896037
+  - url: https://figshare.com/articles/book/Filosofia_computa_iei_Realitate_i_calcul_Suport_de_curs_Universitatea_din_Bucure_ti_2026/32898944
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://tandf.figshare.com/articles/journal_contribution/Systematic_investigation_of_coordination_compounds_in_the_CuCl_DABCO_HCl_composition_space_diagram/32896036
+  - url: https://figshare.com/articles/dataset/___/32898941
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/_b_From_discovery_to_decision_b_b_What_does_it_take_to_move_from_scientific_evidence_to_environmental_policy_and_action_b_/29596967
+  - url: https://tandf.figshare.com/articles/journal_contribution/Social_Network_Characteristics_as_Predictors_of_Opioid_Use_Disorder_Treatment_Utilization_among_People_Who_Use_Drugs_with_Hepatitis_C_Infections_in_Baltimore_MD/32898942
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -163,31 +165,31 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17398400
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/4385774
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20838824
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://unige.iris.cineca.it/handle/11567/941700
+  - url: https://osf.io/emakt/
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://air.unimi.it/handle/2434/153099
+  - url: https://osf.io/y6cb7/
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21159094
+  - url: https://osf.io/m6jkw/
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21159094
+  - url: https://osf.io/9y8sx/
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21160476
+  - url: https://zenodo.org/records/21183293
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -236,23 +238,23 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://frontiersin.figshare.com/articles/dataset/Data_Sheet_1_Utilization_of_Madhuca_indica_ash_as_a_green_catalyst_for_transesterification_of_Madhuca_indica_oil_process_optimization_and_engine_analysis_docx/32896043
+  - url: https://figshare.com/articles/dataset/_sub_strong_PET-Protocol_Data_strong_sub_/31076929
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Data_set/32895989
+  - url: https://figshare.com/articles/dataset/Spiro-Confined_Br_nsted_Acid_Catalyst_for_Stereoselective_Cationic_Polymerization_of_Vinyl_Ethers_ACS_Catalysis_/29558024
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/online_resource/Matbench_MD/32896037
+  - url: https://figshare.com/articles/book/Filosofia_computa_iei_Realitate_i_calcul_Suport_de_curs_Universitatea_din_Bucure_ti_2026/32898944
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://tandf.figshare.com/articles/journal_contribution/Systematic_investigation_of_coordination_compounds_in_the_CuCl_DABCO_HCl_composition_space_diagram/32896036
+  - url: https://figshare.com/articles/dataset/___/32898941
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/_b_From_discovery_to_decision_b_b_What_does_it_take_to_move_from_scientific_evidence_to_environmental_policy_and_action_b_/29596967
+  - url: https://tandf.figshare.com/articles/journal_contribution/Social_Network_Characteristics_as_Predictors_of_Opioid_Use_Disorder_Treatment_Utilization_among_People_Who_Use_Drugs_with_Hepatitis_C_Infections_in_Baltimore_MD/32898942
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -264,15 +266,15 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/3365578
+  - url: https://zenodo.org/records/5336041
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/5336157
+  - url: https://zenodo.org/records/3380311
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/3367816
+  - url: https://zenodo.org/records/5336182
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -306,23 +308,23 @@ datasets:
     source: huggingface
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://tandf.figshare.com/articles/journal_contribution/Design_of_thioether-functionalized_carboxylate_linked_nickel-MOF_for_versatile_electrochemical_and_biological_application/32896051
+  - url: https://figshare.com/articles/dataset/_sub_strong_PET-Protocol_Data_strong_sub_/31076929
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/dataset/Data_Sheet_1_Utilization_of_Madhuca_indica_ash_as_a_green_catalyst_for_transesterification_of_Madhuca_indica_oil_process_optimization_and_engine_analysis_docx/32896043
+  - url: https://figshare.com/articles/dataset/Spiro-Confined_Br_nsted_Acid_Catalyst_for_Stereoselective_Cationic_Polymerization_of_Vinyl_Ethers_ACS_Catalysis_/29558024
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Data_set/32895989
+  - url: https://figshare.com/articles/book/Filosofia_computa_iei_Realitate_i_calcul_Suport_de_curs_Universitatea_din_Bucure_ti_2026/32898944
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/online_resource/Matbench_MD/32896037
+  - url: https://figshare.com/articles/dataset/___/32898941
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://tandf.figshare.com/articles/journal_contribution/Systematic_investigation_of_coordination_compounds_in_the_CuCl_DABCO_HCl_composition_space_diagram/32896036
+  - url: https://tandf.figshare.com/articles/journal_contribution/Social_Network_Characteristics_as_Predictors_of_Opioid_Use_Disorder_Treatment_Utilization_among_People_Who_Use_Drugs_with_Hepatitis_C_Infections_in_Baltimore_MD/32898942
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -346,23 +348,23 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://air.unimi.it/handle/2434/150109
+  - url: https://osf.io/fq9jw/
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://datadryad.org/dataset/doi:10.5061/dryad.n5tb2rcbd
+  - url: https://zenodo.org/records/21186763
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://iris.unimore.it/handle/11380/605164
+  - url: https://zenodo.org/records/21186763
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://iris.unimore.it/handle/11380/619459
+  - url: https://zenodo.org/records/21178155
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21155399
+  - url: https://zenodo.org/records/21178155
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -385,35 +387,35 @@ datasets:
     source: huggingface
     status: wrong_format
     reason: HTTP 401
-  - url: https://us.aws.cdn.hf.co/xet-bridge-us/66d42cebcf97d88019c1c54d/e794cd49b01e2c46b3321bf498b047ffc0aeffb59911b11c645521b4581f9d82?user_id=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27gpt4_single_multi_autoif_sharegpt_rag_mix.json%3B+filename%3D%22gpt4_single_multi_autoif_sharegpt_rag_mix.json%22%3B&response-content-type=application%2Fjson&X-Xet-Cas-Uid=public&Expires=1783088342&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjZkNDJjZWJjZjk3ZDg4MDE5YzFjNTRkL2U3OTRjZDQ5YjAxZTJjNDZiMzMyMWJmNDk4YjA0N2ZmYzBhZWZmYjU5OTExYjExYzY0NTUyMWI0NTgxZjlkODJcXD91c2VyX2lkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3Z3B0NF9zaW5nbGVfbXVsdGlfYXV0b2lmX3NoYXJlZ3B0X3JhZ19taXguanNvbiUzQitmaWxlbmFtZSUzRCUyMmdwdDRfc2luZ2xlX211bHRpX2F1dG9pZl9zaGFyZWdwdF9yYWdfbWl4Lmpzb24lMjIlM0ImcmVzcG9uc2UtY29udGVudC10eXBlPWFwcGxpY2F0aW9uJTJGanNvbiZYLVhldC1DYXMtVWlkPXB1YmxpYyIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzgzMDg4MzQyfX19XX0_&Signature=MEYCIQCnpNmxBG~fFNpMv-cM~Dmp4MKfJsIf~5uOyA-ydZm4bQIhAILWp5d63y7H-yC4DASWEa4TLZrwwZ6hpup7abhLANMw&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+  - url: https://us.aws.cdn.hf.co/xet-bridge-us/66d42cebcf97d88019c1c54d/e794cd49b01e2c46b3321bf498b047ffc0aeffb59911b11c645521b4581f9d82?X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27gpt4_single_multi_autoif_sharegpt_rag_mix.json%3B+filename%3D%22gpt4_single_multi_autoif_sharegpt_rag_mix.json%22%3B&user_id=public&response-content-type=application%2Fjson&Expires=1783151488&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjZkNDJjZWJjZjk3ZDg4MDE5YzFjNTRkL2U3OTRjZDQ5YjAxZTJjNDZiMzMyMWJmNDk4YjA0N2ZmYzBhZWZmYjU5OTExYjExYzY0NTUyMWI0NTgxZjlkODJcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3Z3B0NF9zaW5nbGVfbXVsdGlfYXV0b2lmX3NoYXJlZ3B0X3JhZ19taXguanNvbiUzQitmaWxlbmFtZSUzRCUyMmdwdDRfc2luZ2xlX211bHRpX2F1dG9pZl9zaGFyZWdwdF9yYWdfbWl4Lmpzb24lMjIlM0ImdXNlcl9pZD1wdWJsaWMmcmVzcG9uc2UtY29udGVudC10eXBlPWFwcGxpY2F0aW9uJTJGanNvbiIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzgzMTUxNDg4fX19XX0_&Signature=MEYCIQCZH~wpTMHTtwinj4pXosvce2P2kHmJF0bt6BrgUKjnGQIhAMKp244fzS63hmPWmAH8gDdY0L2WI3vrrDWON4OdnEev&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
     source: huggingface
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://tandf.figshare.com/articles/journal_contribution/Design_of_thioether-functionalized_carboxylate_linked_nickel-MOF_for_versatile_electrochemical_and_biological_application/32896051
+  - url: https://figshare.com/articles/dataset/_sub_strong_PET-Protocol_Data_strong_sub_/31076929
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/dataset/Data_Sheet_1_Utilization_of_Madhuca_indica_ash_as_a_green_catalyst_for_transesterification_of_Madhuca_indica_oil_process_optimization_and_engine_analysis_docx/32896043
+  - url: https://figshare.com/articles/dataset/Spiro-Confined_Br_nsted_Acid_Catalyst_for_Stereoselective_Cationic_Polymerization_of_Vinyl_Ethers_ACS_Catalysis_/29558024
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Data_set/32895989
+  - url: https://figshare.com/articles/book/Filosofia_computa_iei_Realitate_i_calcul_Suport_de_curs_Universitatea_din_Bucure_ti_2026/32898944
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/online_resource/Matbench_MD/32896037
+  - url: https://figshare.com/articles/dataset/___/32898941
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://tandf.figshare.com/articles/journal_contribution/Systematic_investigation_of_coordination_compounds_in_the_CuCl_DABCO_HCl_composition_space_diagram/32896036
+  - url: https://tandf.figshare.com/articles/journal_contribution/Social_Network_Characteristics_as_Predictors_of_Opioid_Use_Disorder_Treatment_Utilization_among_People_Who_Use_Drugs_with_Hepatitis_C_Infections_in_Baltimore_MD/32898942
     source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20926278
-    source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/19154354
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20926278
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -429,26 +431,23 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://doi.org/10.26262/heal.auth.ir.374612
-    source: datacite
-    status: unreachable
-    reason: 'reachability failed: ConnectTimeout: HTTPConnectionPool(host=''ikee.lib.auth.gr'',
-      port=80): Max retries exceeded with url: /record/374612 (Caused by ConnectTimeoutError(<HTTPConnection(host=''ikee.lib.auth.gr'',
-      port=80) at 0x7fd4573a5790>, ''Connection to ikee.lib.auth.gr timed out. (connect
-      timeout=20.0)''))'
-  - url: https://springernature.figshare.com/articles/journal_contribution/Additional_file_1_of_How_environmental_health_burdens_shape_physical_activity_patterns_age-specific_evidence_from_OECD_countries/32887920
+  - url: https://unsworks.unsw.edu.au/handle/1959.4/resource/collection/resdatac_1101/1
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://springernature.figshare.com/articles/journal_contribution/Additional_file_1_of_How_environmental_health_burdens_shape_physical_activity_patterns_age-specific_evidence_from_OECD_countries/32887920/1
+  - url: https://zenodo.org/records/21184122
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://datadryad.org/dataset/doi:10.5061/dryad.2ngf1vj37
+  - url: https://zenodo.org/records/21184122
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21131138
+  - url: https://data.sciencespo.fr
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://data.sciencespo.fr
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -456,23 +455,23 @@ datasets:
   status: unresolved
   candidates: []
   candidates_tried:
-  - url: https://tandf.figshare.com/articles/journal_contribution/Design_of_thioether-functionalized_carboxylate_linked_nickel-MOF_for_versatile_electrochemical_and_biological_application/32896051
+  - url: https://figshare.com/articles/dataset/_sub_strong_PET-Protocol_Data_strong_sub_/31076929
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/dataset/Data_Sheet_1_Utilization_of_Madhuca_indica_ash_as_a_green_catalyst_for_transesterification_of_Madhuca_indica_oil_process_optimization_and_engine_analysis_docx/32896043
+  - url: https://figshare.com/articles/dataset/Spiro-Confined_Br_nsted_Acid_Catalyst_for_Stereoselective_Cationic_Polymerization_of_Vinyl_Ethers_ACS_Catalysis_/29558024
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Data_set/32895989
+  - url: https://figshare.com/articles/book/Filosofia_computa_iei_Realitate_i_calcul_Suport_de_curs_Universitatea_din_Bucure_ti_2026/32898944
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/online_resource/Matbench_MD/32896037
+  - url: https://figshare.com/articles/dataset/___/32898941
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://tandf.figshare.com/articles/journal_contribution/Systematic_investigation_of_coordination_compounds_in_the_CuCl_DABCO_HCl_composition_space_diagram/32896036
+  - url: https://tandf.figshare.com/articles/journal_contribution/Social_Network_Characteristics_as_Predictors_of_Opioid_Use_Disorder_Treatment_Utilization_among_People_Who_Use_Drugs_with_Hepatitis_C_Infections_in_Baltimore_MD/32898942
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
