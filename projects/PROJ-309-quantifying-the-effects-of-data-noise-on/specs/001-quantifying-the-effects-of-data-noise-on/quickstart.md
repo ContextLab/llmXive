@@ -2,17 +2,16 @@
 
 ## Prerequisites
 
-- Python 3.11+
-- Git
-- 7GB RAM (minimum)
-- 2 CPU cores
+-   Python 3.11+
+-   Git
+-   2 CPU cores, 7GB RAM (standard GitHub Actions runner)
 
 ## Installation
 
 1.  **Clone the repository**:
     ```bash
     git clone <repo-url>
-    cd <project-root>
+    cd projects/PROJ-309-quantifying-the-effects-of-data-noise-on
     ```
 
 2.  **Create a virtual environment**:
@@ -23,50 +22,52 @@
 
 3.  **Install dependencies**:
     ```bash
-    pip install -r code/requirements.txt
+    pip install -r requirements.txt
     ```
+    *Note: `requirements.txt` pins exact versions to ensure reproducibility.*
 
 ## Running the Pipeline
 
-To execute the full analysis (Lorenz and Rössler systems, all SNR levels, both noise types, N=50 realizations):
-
+### 1. Generate Clean Data
 ```bash
-python code/main.py --systems lorenz rossler --noise gaussian quantization --snr 0 5 10 15 20 25 30 --realizations 50
+python code/generators.py --system Lorenz --steps 5000 --seed 42 --replicates 10
+python code/generators.py --system Rössler --steps 5000 --seed 42 --replicates 10
 ```
+*Output: `data/raw/clean/` (files named `<system_type>_<uuid>.npz`)*
 
-### Arguments
-
-- `--systems`: List of systems to simulate (`lorenz`, `rossler`).
-- `--noise`: List of noise types to apply (`gaussian`, `quantization`).
-- `--snr`: List of SNR levels in dB.
-- `--bits`: (Optional) Quantization bits for quantization noise (default: 8).
-- `--seed`: (Optional) Random seed for reproducibility (default: 42).
-- `--realizations`: Number of independent trajectory realizations per condition (default: 50).
-
-## Output
-
-Results are saved to the `results/` directory:
-
-- `lookup_table.csv`: The primary output containing mean error rates and confidence intervals across SNR levels.
-- `plots/error_vs_snr.png`: Visualization of metric degradation with confidence bands.
-- `data/processed/`: Intermediate data files (noisy trajectories, metric results).
-
-### Viewing Results
-
+### 2. Inject Noise
 ```bash
-# View the lookup table
-cat results/lookup_table.csv
-
-# View the plots (requires a GUI or image viewer)
-xdg-open results/plots/error_vs_snr.png
+python code/noise.py --input data/raw/clean/ --snr_levels 0 5 10 15 20 25 30 --noise_types Gaussian Quantization
 ```
+*Output: `data/raw/noisy/` (files named `<system_type>_<noise_type>_<snr>_<replicate_id>.npz`)*
 
-## Verification
-
-To verify the pipeline against known ground truth (Lorenz clean data, N=50 realizations):
-
+### 3. Compute Metrics
 ```bash
-python code/main.py --systems lorenz --noise none --verify --realizations 50
+python code/metrics.py --input data/raw/noisy/ --algorithm GP Rosenstein FNN
 ```
+*Output: `data/processed/metrics/`*
 
-This will run the metric computation on clean data, compare the mean against literature values, and print a pass/fail status.
+### 4. Analyze & Visualize
+```bash
+python code/analysis.py --input data/processed/metrics/ --threshold 30
+python code/visualize.py --input data/results/error_vs_snr.csv --output data/results/plots/
+```
+*Output: `data/results/error_vs_snr.csv`, `data/results/plots/`*
+
+### 5. Run Tests
+```bash
+pytest tests/
+```
+*Validates unit tests, contract schemas, and integration flows.*
+
+## Expected Outputs
+
+-   **Lookup Table**: `data/results/error_vs_snr.csv` containing SNR, noise type, metric, and error rate.
+-   **Plots**: Line plots showing error vs. SNR with critical threshold markers.
+-   **Logs**: Console output detailing runtime, SNR accuracy, and any warnings (e.g., "Insufficient data").
+
+## Troubleshooting
+
+-   **Runtime Error**: If the pipeline exceeds 2 hours, reduce `--steps` to 5000 in `generators.py` (already default).
+-   **SNR Mismatch**: If measured SNR deviates >0.5dB, check `noise.py` for variance calculation errors.
+-   **Memory Error**: If OOM occurs, process trajectories in batches (modify `metrics.py`).

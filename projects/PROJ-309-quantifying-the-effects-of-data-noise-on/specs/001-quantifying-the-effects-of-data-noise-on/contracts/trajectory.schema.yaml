@@ -1,49 +1,66 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "ChaoticTrajectory"
-description: "Schema for ground-truth chaotic trajectory data."
-type: object
+description: "Schema for clean or noisy chaotic trajectory data."
+type: "object"
 properties:
   trajectory_id:
-    type: string
-    description: "Unique identifier for the trajectory."
+    type: "string"
+    description: "Unique identifier (UUID) for the trajectory."
   system_type:
-    type: string
-    enum:
-      - "LORENZ"
-      - "ROSSLER"
+    type: "string"
+    enum: ["Lorenz", "Rössler"]
     description: "Type of chaotic system."
   parameters:
-    type: object
-    description: "System parameters used for generation."
-    additionalProperties: true
-  time_steps:
-    type: array
+    type: "object"
+    description: "System parameters (e.g., sigma, rho, beta)."
+  time_points:
+    type: "array"
     items:
-      type: number
-    description: "Array of time points."
+      type: "number"
+    description: "Array of time values."
   state_values:
-    type: array
-    description: "2D array of state values (x, y, z)."
+    type: "array"
     items:
-      type: array
+      type: "array"
       items:
-        type: number
+        type: "number"
+    description: "2D array of state variables (x, y, z)."
   ground_truth_metrics:
-    type: object
-    description: "Literature-verified ground truth metrics (for validation only)."
+    type: "object"
+    description: "Pre-computed metrics for clean trajectories."
     properties:
-      lyapunov_exponent:
-        type: number
       correlation_dimension:
-        type: number
+        type: "number"
+      lyapunov_exponent:
+        type: "number"
+      fnn_rate:
+        type: "number"
   checksum:
-    type: string
-    description: "SHA-256 hash of the raw data."
+    type: "string"
+    description: "SHA-256 hash of the file content."
+  noise_type:
+    type: "string"
+    enum: ["Gaussian", "Quantization", "None"]
+    description: "Type of noise applied (None for clean)."
+  snr_db:
+    type: "number"
+    description: "Signal-to-Noise Ratio in dB (for noisy trajectories)."
+  quantization_bits:
+    type: "integer"
+    minimum: 4
+    maximum: 16
+    description: "Bit resolution for quantization noise."
+  replicate_id:
+    type: "integer"
+    minimum: 1
+    maximum: 10
+    description: "Identifier for the specific replicate (1-10)."
 required:
-  - trajectory_id
-  - system_type
-  - parameters
-  - time_steps
-  - state_values
-  - ground_truth_metrics
-  - checksum
+  - "trajectory_id"
+  - "system_type"
+  - "parameters"
+  - "time_points"
+  - "state_values"
+  - "checksum"
+  - "replicate_id"
+additionalProperties: false

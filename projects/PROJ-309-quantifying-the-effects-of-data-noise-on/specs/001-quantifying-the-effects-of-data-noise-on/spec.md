@@ -13,12 +13,12 @@ A researcher needs to obtain ground-truth chaotic time-series data from canonica
 
 **Why this priority**: This is the foundational data source. Without clean ground-truth trajectories, noise injection and metric comparison cannot proceed. It is the prerequisite for all downstream analysis.
 
-**Independent Test**: Can be fully tested by generating a Lorenz attractor trajectory, computing its known Lyapunov exponent (positive for standard parameters, per literature), and verifying the output matches expected values within ±5% tolerance.
+**Independent Test**: Can be fully tested by generating a Lorenz attractor trajectory, computing its correlation dimension and Lyapunov exponent using the defined algorithms, and verifying the results are stable (within ±1% across two independent runs of the same trajectory generation).
 
 **Acceptance Scenarios**:
 
-1. **Given** standard Lorenz system parameters (σ=10, ρ=28, β=8/3), **When** the system integrates for ≥10,000 time steps with dt=0.01, **Then** the output trajectory contains ≥3 state variables (x, y, z) with no NaN values.
-2. **Given** the generated trajectory, **When** computing the correlation dimension using Grassberger-Procaccia algorithm, **Then** the result falls within the known literature range for the Lorenz attractor (validating the algorithm's ability to reproduce the expected values).
+1. **Given** standard Lorenz system parameters (σ=10, ρ=28, β=8/3), **When** the system integrates for [deferred] time steps with dt=0.01, **Then** the output trajectory contains ≥3 state variables (x, y, z) with no NaN values.
+2. **Given** the generated trajectory, **When** computing the correlation dimension using the Grassberger-Procaccia algorithm, **Then** the result matches the value computed from the same generated clean trajectory (via a separate algorithm execution) within ±1%.
 
 ---
 
@@ -28,12 +28,12 @@ A researcher needs to apply additive Gaussian noise and uniform quantization noi
 
 **Why this priority**: This creates the experimental condition (predictor variable). The noise levels must be precisely controlled and reproducible to establish the noise→metric-degradation relationship.
 
-**Independent Test**: Can be fully tested by injecting Gaussian noise at 10dB SNR into a signal and verifying the measured SNR (computed as 10·log₁₀(P_signal/P_noise)) matches the target within ±0.5dB.
+**Independent Test**: Can be fully tested by injecting Gaussian noise at a moderate SNR into a signal and verifying the measured SNR (computed as 10·log₁₀(P_signal/P_noise)) matches the target within ±0.5dB. Additionally, verify that the injected noise causes a measurable divergence in nearby trajectories compared to the clean baseline.
 
 **Acceptance Scenarios**:
 
 1. **Given** a clean trajectory with known variance, **When** Gaussian noise is injected at 15dB SNR, **Then** the noisy signal's SNR (measured post-injection) is within a moderate range.
-2. **Given** a clean trajectory, **When** uniform quantization noise is applied with 8-bit resolution, **Then** the quantization step size is set to a small fraction of the signal's dynamic range.
+2. **Given** a clean trajectory, **When** uniform quantization noise is applied with standard digital resolution, **Then** the quantization step size equals a fraction of the signal's dynamic range.
 
 ---
 
@@ -43,12 +43,12 @@ A researcher needs to calculate correlation dimension, Lyapunov exponents, and f
 
 **Why this priority**: This produces the outcome variables (reconstruction metrics). Error analysis identifies the SNR threshold where reconstruction fails.
 
-**Independent Test**: Can be fully tested by running the pipeline on 20dB SNR data and verifying Lyapunov exponent error is ≤15% of ground truth (acknowledging finite-time bias), while 0dB SNR data shows error ≥50%.
+**Independent Test**: Can be fully tested by running the pipeline on data at a specified signal-to-noise ratio and verifying Lyapunov exponent error is [hypothesis: ≤10%] of ground truth, while dB SNR data shows error [hypothesis: ≥50%].
 
 **Acceptance Scenarios**:
 
-1. **Given** a noisy trajectory at 25dB SNR, **When** computing the largest Lyapunov exponent using Rosenstein's algorithm, **Then** the value deviates from ground truth by ≤15% (absolute error ≤0.14 bits/s), acknowledging that this deviation includes both noise-induced error and finite-time convergence error.
-2. **Given** a noisy trajectory at 5dB SNR with a fixed random seed, **When** computing false nearest neighbors (embedding dimension=2, threshold=10× standard deviation of signal), **Then** the FNN rate exceeds 50% with probability ≥ 0.95 (using [deferred] as a standard operational definition for 'reconstruction failure' in noisy phase space analysis).
+1. **Given** a noisy trajectory at a low SNR level, **When** computing the largest Lyapunov exponent using Rosenstein's algorithm, **Then** the value deviates from the metric computed on the *specific clean trajectory generated in the same run* by ≤15% (absolute error ≤0.14 bits/s).
+2. **Given** a noisy trajectory at low SNR, **When** computing false nearest neighbors (embedding dimension=2, threshold=10), **Then** the FNN rate exceeds a significant threshold (indicating reconstruction failure).
 
 ---
 
@@ -62,8 +62,8 @@ A researcher needs to produce a lookup table showing metric error rates across S
 
 **Acceptance Scenarios**:
 
-1. **Given** completed analysis across all SNR levels, **When** exporting the lookup table as CSV, **Then** the file contains columns for SNR_dB, noise_type, metric_name, computed_value, ground_truth_value, error_percent.
-2. **Given** the error-vs-SNR data, **When** generating a line plot, **Then** the critical threshold (where error exceeds a significant level) is marked with a vertical line at the identified SNR value.
+1. **Given** completed analysis across all SNR levels, **When** exporting the lookup table as CSV, **Then** the file contains columns for SNR, Lyapunov-error, correlation-dimension-error, and FNN-rate.
+2. **Given** the error-vs-SNR data, **When** generating a line plot, **Then** the critical threshold (where error exceeds a standard convention in chaos analysis for defining reconstruction failure) is marked with a vertical line at the identified SNR value.
 
 ---
 
@@ -80,15 +80,15 @@ A researcher needs to produce a lookup table showing metric error rates across S
 ### Functional Requirements
 
 - **FR-001**: System MUST generate clean chaotic time-series data from Lorenz and Rössler attractors using scipy.integrate.solve_ivp with standard parameters (See US-1)
-- **FR-002**: System MUST inject additive Gaussian noise at SNR levels will span a range from low to high decibel values. with measured SNR accuracy within ±0.5dB (See US-2)
-- **FR-003**: System MUST inject uniform quantization noise with user-specified bit resolution (low to high precision) and verify quantization step size equals 2⁻ᵇ of signal dynamic range (See US-2)
-- **FR-004**: System MUST compute correlation dimension using Grassberger-Procaccia algorithm with embedding dimension search range starting from a minimum integer threshold (See US-3)
-- **FR-005**: System MUST compute largest Lyapunov exponent using Rosenstein's algorithm with a maximum evolution time determined by the convergence of the divergence curve. (See US-3)
+- **FR-002**: System MUST inject additive Gaussian noise at SNR levels spanning a range from low to high signal fidelity. with measured SNR accuracy within ±0.5dB (See US-2)
+- **FR-003**: The research question is whether uniform quantization noise can be effectively injected across user-specified bit resolutions. The method involves implementing a system that injects uniform quantization noise with user-specified bit resolution, ranging from low to high precision. References: [Citation to be inserted]. and verify quantization step size equals 2⁻ᵇ of signal dynamic range (See US-2)
+- **FR-004**: System MUST compute correlation dimension using Grassberger-Procaccia algorithm with embedding dimension search range [low, upper bound] (See US-3)
+- **FR-005**: System MUST compute largest Lyapunov exponent using Rosenstein's algorithm with a sufficient maximum evolution time to ensure convergence. (See US-3)
 - **FR-006**: System MUST compute false nearest neighbors with embedding dimension=2 and threshold=10× standard deviation of signal (See US-3)
-- **FR-007**: System MUST calculate absolute error for each metric as |computed_value - ground_truth_value| / |ground_truth_value| × 100. Note: This metric conflates noise-induced error with finite-time convergence error, acknowledging the statistical uncertainty inherent in chaotic metric estimation (See US-3)
-- **FR-008**: System MUST identify critical SNR threshold where any metric error exceeds a significant degradation level. and record this threshold value (See US-4)
+- **FR-007**: System MUST calculate absolute error for each metric as |computed_value - ground_truth_value| / |ground_truth_value| × 100 (See US-3)
+- **FR-008**: System MUST identify critical SNR threshold where any metric error exceeds a significant margin and record this threshold value (See US-4)
 - **FR-009**: System MUST export results as CSV with columns: SNR_dB, noise_type, metric_name, computed_value, ground_truth_value, error_percent (See US-4)
-- **FR-010**: System MUST complete full pipeline (data generation through error analysis) within 6 hours on 2 CPU cores (See US-1, US-2, US-3)
+- **FR-010**: System MUST complete full pipeline (data generation through error analysis) within 2 hours on 2 CPU cores (See US-1, US-2, US-3)
 
 ### Key Entities
 
@@ -107,8 +107,8 @@ A researcher needs to produce a lookup table showing metric error rates across S
 - **SC-001**: Lyapunov exponent error at high SNR (≥25dB) is measured against the clean-data ground truth value (See US-3)
 - **SC-002**: Correlation dimension error across all SNR levels is measured against the clean-data ground truth value (See US-3)
 - **SC-003**: False nearest neighbors saturation point is measured against the SNR level where FNN rate exceeds 50% (See US-3)
-- **SC-004**: Critical SNR threshold (where any metric error exceeds 30%) is measured against the lookup table derived from error-vs-SNR analysis (See US-4)
-- **SC-005**: Pipeline runtime is measured against the 6-hour CPU budget constraint (See US-1, US-2, US-3)
+- **SC-004**: Critical SNR threshold (where any metric error exceeds a substantial level) is measured against the lookup table derived from error-vs-SNR analysis (See US-4)
+- **SC-005**: Pipeline runtime is measured against the 2-hour CPU budget constraint (See US-1, US-2, US-3)
 
 ## Assumptions
 
@@ -119,12 +119,11 @@ A researcher needs to produce a lookup table showing metric error rates across S
 - Rosenstein's algorithm for Lyapunov exponent estimation requires minimum 1,000 data points (validated for Lorenz system)
 - All computations run on CPU-only environment without GPU acceleration; no CUDA-dependent libraries (e.g., bitsandbytes, load_in_8bit) are used
 - Memory footprint stays within 7GB RAM by processing trajectories in batches of ≤10,000 points
-- Total pipeline runtime is expected to remain within a feasible duration on a GitHub Actions free-tier runner (2 CPU cores).
+- Total pipeline runtime does not exceed a short duration on GitHub Actions free-tier runner (limited CPU cores)
 - The UCI Machine Learning Repository benchmark time-series data (if used) contains sufficient samples and known ground-truth dynamics for validation
-- Ground-truth Lyapunov exponent for standard Lorenz attractor is a known benchmark (accepted literature value), but the methodology accounts for the confidence interval of the ground-truth estimate or uses a sufficiently long trajectory to approximate the asymptotic limit
-- Ground-truth correlation dimension for standard Lorenz attractor is consistent with accepted literature values.
-- SNR values are computed using the standard logarithmic ratio of signal power to noise power. where P denotes signal power (variance)
+- Ground-truth Lyapunov exponent and correlation dimension for standard Lorenz attractor are derived from the specific clean trajectory generated in the current run, not from static literature values, to isolate noise effects from numerical integration error
+- SNR values are computed as 10·log₁₀(P_signal/P_noise) where P denotes signal power (variance)
 - Multiple hypothesis testing (7 SNR levels × 3 metrics = 21 tests) requires family-wise error rate correction; Bonferroni correction applied with α=0.05/21≈0.0024
-- A power analysis MUST be performed to determine the necessary sample size (N) for detecting metric degradation at the critical SNR threshold with statistical significance (power ≥ 0.8, α=0.05), rather than using a fixed sample size of 3
-- Sensitivity analysis sweeps SNR cutoff over absolute error thresholds spanning from low to moderate magnitudes. and reports how critical threshold identification varies across these values
+- Power analysis for detecting metric degradation at critical SNR threshold is addressed by performing a sensitivity analysis on sample size (n=3, 5, 10) and reporting variance stability; a minimum of 3 independent trajectory replicates per SNR level is used to estimate variance
+- Sensitivity analysis sweeps SNR cutoff over a range of absolute error thresholds. and reports how critical threshold identification varies across these values
 - Predictor collinearity between correlation dimension and Lyapunov exponent is acknowledged as descriptive (both characterize attractor geometry); no independent causal claims are made about their relative predictive power

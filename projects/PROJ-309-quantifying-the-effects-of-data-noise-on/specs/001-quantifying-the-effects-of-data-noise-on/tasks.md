@@ -20,31 +20,65 @@
 - **Mobile**: `api/src/`, `ios/src/` or `android/src/`
 - Paths shown below assume single project - adjust based on plan.md structure
 
+<!-- 
+  ============================================================================
+  IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
+  
+  The /speckit-tasks command MUST replace these with actual tasks based on:
+  - User stories from spec.md (with their priorities P1, P2, P3...)
+  - Feature requirements from plan.md
+  - Entities from data-model.md
+  - Endpoints from contracts/
+  
+  Tasks MUST be organized by user story so each story can be:
+  - Implemented independently
+  - Tested independently
+  - Delivered as an MVP increment
+  
+  DO NOT keep these sample tasks in the generated tasks.md file.
+  ============================================================================
+-->
+
 ## Phase 1: Setup (Shared Infrastructure)
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure per implementation plan in `code/` and `tests/`
-- [ ] T002 Initialize Python 3.11 project with `requirements.txt` (scipy, numpy, pandas, matplotlib, pyyaml, nolds, pytest)
-- [ ] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools in `code/`
+- [ ] T001a [P] Create `code/` directory at repository root
+- [ ] T001b [P] Create `data/raw`, `data/processed`, `data/results` directories with `.gitkeep`
+- [ ] T001c [P] Create `tests/unit`, `tests/contract`, `tests/integration` directories
+
+- [ ] T002a [P] Create `requirements.txt` with pinned Python dependencies (numpy, scipy, pandas, matplotlib, pytest)
+- [ ] T002b [P] Create `pyproject.toml` with project metadata and entry points
+
+- [ ] T003 [P] Configure linting (ruff) and formatting (black) tools
 
 ---
 
 ## Phase 2: Foundational (Blocking Prerequisites)
 
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented. This phase includes TDD setup for generators.
+**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [X] T004 [P] Implement `code/config.py` with constants: seeds, SNR levels spanning a range from low to high values, including near-zero conditions., system parameters (Lorenz: σ=10, ρ=28, β=8/3 (Wikipedia: Lorenz system, https://en.wikipedia.org/wiki/Lorenz_system); Rössler standard), batch size limits, AND define literature ranges based on standard references (e.g., Lorenz D2 ≈ 2.06 ± 0.05 [UNRESOLVED-CLAIM: c_e7264ae9 — status=not_enough_info], Lyapunov ≈ 0.90 ± 0.05) for validation
-- [X] T005 [P] Implement `code/utils/io.py` with functions for CSV export (pandas), JSON artifact writing, and SHA256 checksumming of generated files
-- [ ] T006 [P] Implement `code/utils/plotting.py` with base plot styles and error-bar visualization helpers
-- [~] T007 [P] Implement `code/utils/data_models.py` with data classes (Trajectory, NoisyTrajectory, MetricResult) matching spec entities
-- [~] T008 [P] Perform power analysis to determine sample size N for 80% power, alpha=0.05 (per spec Assumptions) and record the calculated N and methodology as a constant in `code/config.py`
-- [~] T009 [P] Configure `code/main.py` orchestration script to enforce data flow: Generate → Inject → Compute → Analyze
-- [ ] T010 Setup `tests/conftest.py` with `pytest-randomly` configuration and shared fixtures for deterministic seeds
-- [ ] T011 [P] [US1] Unit test for Lorenz integration in `tests/test_generators.py` verifying no NaN/Inf and trajectory length ≥10,000 (Write first, ensure FAIL)
-- [ ] T012 [P] [US1] Unit test for Rössler integration in `tests/test_generators.py` verifying state constraints (Write first, ensure FAIL)
+**Note on Parallel Scaffolding**: Tasks T004-T009 are marked [P] for parallel execution. These tasks focus on creating file structures, function signatures, and docstrings. Logic implementation is deferred to Phase 2b (Tasks T039-T044).
+
+### Phase 2a: Scaffolding & Signatures
+
+- [ ] T004 [P] Create `code/config.py` with function signatures and docstrings for constants: SNR levels, system params, seeds, noise type enums (Gaussian, Uniform Quantization).
+- [ ] T005 [P] Create `code/generators.py` with function signatures and docstrings for Lorenz/Rössler integration (FR-001).
+- [ ] T006 [P] Create `code/noise.py` with function signatures and docstrings for Gaussian/Quantization injection (FR-002, FR-003).
+- [ ] T007 [P] Create `code/metrics.py` with function signatures and docstrings for GP, Rosenstein, FNN (FR-004, FR-005, FR-006).
+- [ ] T008 [P] Create `code/analysis.py` with function signatures and docstrings for error calc, threshold ID (FR-007, FR-008).
+- [ ] T009 [P] Create `code/visualize.py` with function signatures and docstrings for plotting, CSV export (FR-009, FR-010).
+
+### Phase 2b: Core Logic Implementation
+
+- [ ] T039 [P] Implement `code/config.py` constants and enums (SNR levels, system params, seeds, noise types).
+- [ ] T040 [P] Implement `code/generators.py` logic for Lorenz/Rössler integration (FR-001).
+- [ ] T041 [P] Implement `code/noise.py` logic for Gaussian/Quantization injection (FR-002, FR-003).
+- [ ] T042 [P] Implement `code/metrics.py` logic for GP, Rosenstein, FNN (FR-004, FR-005, FR-006).
+- [ ] T043 [P] Implement `code/analysis.py` logic for error calc, threshold ID (FR-007, FR-008).
+- [ ] T044 [P] Implement `code/visualize.py` logic for plotting, CSV export (FR-009, FR-010).
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -52,19 +86,25 @@
 
 ## Phase 3: User Story 1 - Generate Clean Chaotic Time-Series Data (Priority: P1) 🎯 MVP
 
-**Goal**: Obtain ground-truth chaotic time-series data from Lorenz and Rössler attractors with known parameters.
+**Goal**: Obtain ground-truth chaotic time-series data from canonical systems (Lorenz, Rössler) with known parameters.
 
-**Independent Test**: Generate a Lorenz trajectory, compute its Lyapunov exponent, and verify it matches literature values within ±5% tolerance.
+**Independent Test**: Generate a Lorenz attractor trajectory, compute its correlation dimension and Lyapunov exponent using the defined algorithms, and verify the results are stable (within ±1% across two independent runs of the same trajectory generation).
+
+### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
+
+> **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
+
+- [ ] T010 [P] [US1] Contract test for trajectory schema in `tests/contract/test_trajectory.py`
+- [ ] T011 [P] [US1] Integration test for reproducibility (seed stability) in `tests/integration/test_reproducibility.py`
 
 ### Implementation for User Story 1
 
-- [ ] T013 [P] [US1] Implement `code/generators/lorenz.py` using `scipy.integrate.solve_ivp` with standard parameters
-- [ ] T014 [P] [US1] Implement `code/generators/rossler.py` using `scipy.integrate.solve_ivp` with standard parameters
-- [ ] T015 [US1] Implement `code/generators/__init__.py` to expose generation functions and validate output shapes
-- [ ] T016 [US1] Implement `code/generators/validation.py` to validate the generated clean trajectory artifacts (from T018) against literature ranges defined in `code/config.py` using statistical confidence intervals (not binary assertions), acknowledging statistical uncertainty
-- [ ] T017 [US1] Add error handling in generators to discard trajectories with overflow (NaN/Inf) and log warnings
-- [ ] T018 [US1] Run generator to produce baseline clean trajectory artifacts in `data/raw/` for Lorenz and Rössler; artifacts MUST be saved as CSV/JSON with explicit file naming convention (e.g., `lorenz_clean_seed{seed}.csv`), include metadata, and be checksummed (SHA256) to register them for downstream consumption
-- [ ] T019 [US1] Add logging for data generation steps in `code/generators/`
+- [ ] T012 [US1] Implement Lorenz attractor integration in `code/generators.py` using `scipy.integrate.solve_ivp` with standard parameters (σ=10, ρ=28, β=8/3)
+- [ ] T013 [US1] Implement Rössler attractor integration in `code/generators.py` with standard parameters
+- [ ] T014 [US1] Implement trajectory validation (NaN check, minimum length threshold) in `code/generators.py`
+- [ ] T015 [US1] Add logging for integration overflow warnings and trajectory generation metadata
+- [ ] T016 [US1] Write clean trajectories to `data/raw/` with naming convention `{system_type}_clean_{seed}.csv` and sidecar checksum file
+- [ ] T017 [US1] **Compute Ground Truth Metrics**: Implement logic in `code/metrics.py` to compute Correlation Dimension and Lyapunov Exponent for clean trajectories generated in T012/T013. Store results in `data/processed/ground_truth_metrics_{seed}.json` to serve as the reference for error calculation.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -72,43 +112,50 @@
 
 ## Phase 4: User Story 2 - Inject Controlled Noise at Specified SNR Levels (Priority: P1)
 
-**Goal**: Apply additive Gaussian noise and uniform quantization noise to clean trajectories across defined SNR ranges.
+**Goal**: Apply additive Gaussian noise and uniform quantization noise to clean trajectories across a defined SNR range.
 
-**Independent Test**: Inject Gaussian noise at a defined signal-to-noise ratio. and verify measured SNR matches target within ±0.5dB.
+**Independent Test**: Inject Gaussian noise at a moderate SNR into a signal and verify the measured SNR (computed as 10·log₁₀(P_signal/P_noise)) matches the target within ±0.5dB. Additionally, verify that the injected noise causes a measurable divergence in nearby trajectories compared to the clean baseline.
+
+### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
+
+- [ ] T018 [P] [US2] Contract test for noisy trajectory schema in `tests/contract/test_noisy_trajectory.py`
+- [ ] T019 [P] [US2] Unit test for SNR calculation accuracy in `tests/unit/test_noise.py`
 
 ### Implementation for User Story 2
 
-- [ ] T020 [P] [US2] Unit test for Gaussian noise injection in `tests/test_noise.py` verifying SNR calculation accuracy
-- [ ] T021 [P] [US2] Unit test for quantization noise in `tests/test_noise.py` verifying step size = 2⁻ᵇ of dynamic range
-- [ ] T022 [P] [US2] Implement `code/noise/gaussian.py` to add AWGN based on target SNR (·log₁₀(P_signal/P_noise))
-- [ ] T023 [P] [US2] Implement `code/noise/quantization.py` to apply uniform quantization with user-specified bit resolution (variable bit depth)
-- [ ] T024 [US2] Implement `code/noise/__init__.py` to route noise type and validate supported types (Gaussian, uniform quantization)
-- [ ] T025 [US2] Implement `code/noise/verification.py` to compute post-injection SNR and assert it is within tolerance of target
-- [ ] T026 [US2] Add validation to reject unsupported noise types with specific error message
-- [ ] T027 [US2] Add logging for noise injection parameters and results in `code/noise/`
+- [ ] T020 [P] [US2] Implement Gaussian noise injection in `code/noise.py` with target SNR accuracy ±0.5dB (See US-2 Acceptance Scenario 1: Negative to positive decibel levels in fixed increments. per FR-002)
+- [ ] T021 [US2] Implement uniform quantization noise injection in `code/noise.py` with user-specified bit resolution (FR-003)
+- [ ] T022 [US2] Implement SNR verification logic (calculate actual SNR post-injection) in `code/noise.py`
+- [ ] T023 [US2] Add error handling for unsupported noise types (only Gaussian and uniform quantization supported)
+- [ ] T024 [US2] Write noisy trajectories to `data/processed/` with metadata in sidecar JSON file `manifest_{system_type}.json`
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
 ---
 
-## Phase 5: User Story 3 - Compute Phase Space Reconstruction Metrics (Priority: P2)
+## Phase 5: User Story 3 - Compute Phase Space Reconstruction Metrics and Compare Against Ground Truth (Priority: P2)
 
-**Goal**: Calculate Correlation Dimension, Lyapunov Exponents, and False Nearest Neighbors for noisy trajectories and compute error rates.
+**Goal**: Calculate correlation dimension, Lyapunov exponents, and false nearest neighbors for each noisy trajectory, then compute error rates relative to clean-data ground truth.
 
-**Independent Test**: Run pipeline on 20dB SNR data; verify Lyapunov error ≤15% and 5dB SNR FNN rate >50%.
+**Independent Test**: Run the pipeline on data at a specified signal-to-noise ratio and verify Lyapunov exponent error is ≤10% of ground truth at high SNR, while low SNR data shows error ≥50%.
+
+### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
+
+- [ ] T025 [P] [US3] Contract test for metric results schema in `tests/contract/test_metrics.py`
+- [ ] T026 [P] [US3] Unit test for Grassberger-Procaccia algorithm correctness on known synthetic data in `tests/unit/test_metrics.py`
 
 ### Implementation for User Story 3
 
-- [ ] T028 [P] [US3] Unit test for Grassberger-Procaccia in `tests/test_metrics.py` with synthetic data
-- [ ] T029 [P] [US3] Unit test for Rosenstein's algorithm in `tests/test_metrics.py` verifying convergence behavior
-- [ ] T030 [P] [US3] Unit test for FNN in `tests/test_metrics.py` verifying threshold logic (10× std dev)
-- [ ] T031 [P] [US3] Implement `code/metrics/correlation_dim.py` using Grassberger-Procaccia with embedding dimension search
-- [ ] T032 [P] [US3] Implement `code/metrics/lyapunov.py` using Rosenstein's algorithm with max evolution time logic
-- [ ] T033 [P] [US3] Implement `code/metrics/fnn.py` with embedding dimension=2 and threshold=10× std dev
-- [ ] T034 [US3] Implement `code/metrics/__init__.py` to orchestrate metric calculation on `NoisyTrajectory` inputs
-- [ ] T035 [US3] Implement `code/analysis/error_analysis.py` to compute relative error as a percentage: |computed - ground_truth| / |ground_truth| scaled to a percentage basis
-- [ ] T036 [US3] Add statistical aggregation logic in `code/analysis/` to handle multiple realizations and compute mean/std error
-- [ ] T037 [US3] Add logging for metric computation and error calculation in `code/analysis/`
+- [ ] T027 [P] [US3] Implement Correlation Dimension (Grassberger-Procaccia) in `code/metrics.py` with embedding dimension search
+- [ ] T028 [US3] Implement Largest Lyapunov Exponent (Rosenstein's algorithm) in `code/metrics.py` with convergence checks
+- [ ] T029 [US3] Implement False Nearest Neighbors (FNN) in `code/metrics.py` (embedding=2, threshold=10× std)
+- [ ] T030 [US3] **Implement Error Calculation**: Implement logic in `code/analysis.py` to calculate absolute error for each metric as `|computed_value - ground_truth_value| / |ground_truth_value| × 100`. The `ground_truth_value` MUST be sourced from the metrics computed in Task T017 (Clean Trajectory Metrics). (See FR-007)
+- [ ] T031 [US3] **Identify Critical Threshold**: Implement logic to identify critical SNR threshold where FNN rate exceeds a majority level
+
+Reference: [Citation preserved verbatim]
+Research Question: [Question preserved verbatim]
+Method: [Method preserved verbatim] (per SC-003). (See FR-008, SC-003)
+- [ ] T032 [US3] Write metric results and error tables to `data/processed/` as `metrics_summary.csv`
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -116,35 +163,23 @@
 
 ## Phase 6: User Story 4 - Generate Error-vs-SNR Lookup Table and Visualization (Priority: P3)
 
-**Goal**: Produce a lookup table and plots showing metric error rates across SNR levels.
+**Goal**: Produce a lookup table showing metric error rates across SNR levels, plus plots illustrating the critical threshold where reconstruction quality degrades.
 
-**Independent Test**: Generate CSV with ≥6 SNR levels and verify columns match spec (SNR_dB, noise_type, metric_name, etc.).
+**Independent Test**: Generate the lookup table and verify it contains ≥6 SNR levels (0, 5, 10, 15, 20, 25, 30dB) with corresponding error rates for all three metrics.
+
+### Tests for User Story 4 (OPTIONAL - only if tests requested) ⚠️
+
+- [ ] T033 [P] [US4] Integration test for CSV export format in `tests/integration/test_export.py`
 
 ### Implementation for User Story 4
 
-- [ ] T038 [P] [US4] Unit test for CSV export in `tests/test_integration.py` verifying schema compliance
-- [ ] T039 [P] [US4] Unit test for plot generation in `tests/test_integration.py` verifying critical threshold marking
-- [ ] T040 [P] [US4] Implement `code/analysis/lookup_table.py` to aggregate results into CSV format with required columns
-- [ ] T041 [P] [US4] Implement `code/analysis/plotting.py` to generate error-vs-SNR line plots with critical threshold markers
-- [ ] T042 [US4] Implement `code/analysis/threshold_detection.py` to explicitly calculate and record TWO distinct SNR thresholds: (1) The SNR where metric error (Lyapunov/Correlation Dim) exceeds a substantial threshold (SC-004), and (2) The specific SNR where FNN rate exceeds 50% (SC-003), ensuring they are stored as separate values in the results
-- [ ] T043 [US4] Integrate lookup table and plotting into `code/main.py` as the final pipeline step
-- [ ] T044 [US4] Add validation to ensure lookup table contains all required SNR levels including the baseline and elevated values and noise types
-- [ ] T045 [US4] Add logging for final output generation in `code/analysis/`
+- [ ] T034 [P] [US4] Implement CSV export logic (columns: SNR_dB, noise_type, metric_name, computed_value, ground_truth_value, error_percent) in `code/visualize.py`
+- [ ] T035 [US4] Implement line plot generation with critical threshold marker (at the 50% FNN point) in `code/visualize.py`
+- [ ] T036 [US4] Implement pipeline orchestration in `code/main.py` to run generation → noise → metrics → analysis → export
+- [ ] T037 [US4] Add timing logic to verify pipeline completes within 2-hour CPU budget (FR-010)
+- [ ] T038 [US4] Write final results and plots to `data/results/` including `error_vs_snr.png`, `final_lookup.csv`, and `critical_threshold_report.json`
 
 **Checkpoint**: All user stories should now be independently functional
-
----
-
-## Phase 7: Polish & Cross-Cutting Concerns
-
-**Purpose**: Improvements that affect multiple user stories. Tasks here depend on the completion of US1-US4.
-
-- [ ] T046 [P] Documentation updates in `docs/` including `quickstart.md` and `research.md`
-- [ ] T047 Code cleanup and refactoring in `code/` for readability and performance
-- [ ] T048 [P] Performance optimization across all stories to ensure ≤6h runtime on CPU cores; use `cProfile` to identify bottlenecks, then apply optimization techniques (e.g., vectorization, caching, algorithmic reduction) until the runtime is verified to be ≤6h (Depends on US1-US4 completion)
-- [ ] T049 [P] Additional unit tests (if requested) in `tests/unit/`
-- [ ] T050 Security hardening (input validation, error handling)
-- [ ] T051 Run `quickstart.md` validation to ensure end-to-end reproducibility (Depends on T046)
 
 ---
 
@@ -154,36 +189,35 @@
 
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
+  - Phase 2a (Scaffolding) must complete before Phase 2b (Logic)
+  - Phase 2b (Logic) must complete before User Story implementation
 - **User Stories (Phase 3-6)**: All depend on Foundational phase completion
- - User stories can then proceed in parallel (if staffed)
- - Or sequentially in priority order (P1 → P2 → P3)
-- **Polish (Phase 7)**: Depends on all desired user stories being complete
- - T048 (Performance) requires the full pipeline to be functional
- - T051 (Validation) requires T046 (Docs) to be complete
+  - User stories can then proceed in parallel (if staffed)
+  - Or sequentially in priority order (P1 → P2 → P3)
+- **Polish (Final Phase)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
 
 - **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P1)**: Can start after Foundational (Phase 2) - Depends on US1 output (T018 artifact)
-- **User Story 3 (P2)**: Can start after Foundational (Phase 2) - Depends on US2 output
-- **User Story 4 (P3)**: Can start after Foundational (Phase 2) - Depends on US3 output
-
-### Within Each User Story
-
-- Tests (if included) MUST be written and FAIL before implementation (T011/T012 in Phase 2, T020/T021 in Phase 4, etc.)
-- Models before services
-- Services before endpoints
-- Core implementation before integration
-- Story complete before moving to next priority
+- **User Story 2 (P1)**: Can start after Foundational (Phase 2) - May integrate with US1 but should be independently testable
+- **User Story 3 (P2)**: **Must run AFTER US1 AND US2 complete** - Requires clean data (US1) and noisy data (US2) to compute error rates (FR-007). Specifically, T030 (Error Calculation) requires the ground truth metrics produced in **Task T017** (US1).
+- **User Story 4 (P3)**: Can start after Foundational (Phase 2) - Depends on US3 results
+- **Within Each User Story**:
+  - Tests (if included) MUST be written and FAIL before implementation
+  - Models before services
+  - Services before endpoints
+  - Core implementation before integration
+  - Story complete before moving to next priority
 
 ### Parallel Opportunities
 
 - All Setup tasks marked [P] can run in parallel
-- All Foundational tasks marked [P] can run in parallel (within Phase 2)
-- Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
+- All Phase 2a tasks marked [P] can run in parallel (Scaffolding)
+- All Phase 2b tasks marked [P] can run in parallel (Logic Implementation)
+- Once Foundational phase completes, all user stories can start in parallel (if team capacity allows) - **Note: US3 must wait for US1/US2 data artifacts to exist before execution**
 - All tests for a user story marked [P] can run in parallel
+- Models within a story marked [P] can run in parallel
 - Different user stories can be worked on in parallel by different team members
-- T046, T047, T049, T050 in Phase 7 can run in parallel, but T048 and T051 have specific dependencies
 
 ---
 
@@ -191,12 +225,12 @@
 
 ```bash
 # Launch all tests for User Story 1 together (if tests requested):
-Task: "Unit test for Lorenz integration in tests/test_generators.py"
-Task: "Unit test for Rössler integration in tests/test_generators.py"
+Task: "Contract test for trajectory schema in tests/contract/test_trajectory.py"
+Task: "Integration test for reproducibility in tests/integration/test_reproducibility.py"
 
 # Launch all models for User Story 1 together:
-Task: "Implement code/generators/lorenz.py"
-Task: "Implement code/generators/rossler.py"
+Task: "Implement Lorenz attractor integration in code/generators.py"
+Task: "Implement Rössler attractor integration in code/generators.py"
 ```
 
 ---
@@ -207,7 +241,9 @@ Task: "Implement code/generators/rossler.py"
 
 1. Complete Phase 1: Setup
 2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
-3. Complete Phase 3: User Story 1
+   - Complete Phase 2a (Scaffolding)
+   - Complete Phase 2b (Logic)
+3. Complete Phase 3: User Story 1 (including T017 for Ground Truth Metrics)
 4. **STOP and VALIDATE**: Test User Story 1 independently
 5. Deploy/demo if ready
 
@@ -224,26 +260,26 @@ Task: "Implement code/generators/rossler.py"
 
 With multiple developers:
 
-1. Team completes Setup + Foundational together
-2. Once Foundational is done:
- - Developer A: User Story 1
- - Developer B: User Story 2
- - Developer C: User Story 3
- - Developer D: User Story 4
-3. Stories complete and integrate independently
+1. Team completes Setup + Phase 2a together
+2. Team completes Phase 2b together
+3. Once Foundational is done:
+   - Developer A: User Story 1
+   - Developer B: User Story 2
+   - Developer C: User Story 3 (Must wait for US1/US2 data artifacts, specifically T017 output)
+   - Developer D: User Story 4 (Can start early with scaffolding)
+4. Stories complete and integrate independently
 
 ---
 
 ## Notes
 
-- [P] tasks = different files, no dependencies (unless specified otherwise)
+- [P] tasks = different files, no dependencies
 - [Story] label maps task to specific user story for traceability
 - Each user story should be independently completable and testable
 - Verify tests fail before implementing
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Critical Constraint**: All tasks MUST run on free CPU-only CI (limited CPU cores, constrained RAM, no GPU). No -bit/4-bit quantization, no CUDA, no large LLMs.
-- **Data Integrity**: All tasks MUST use real data generation or real datasets. No fabrication of input data or metrics.
-- **Scope**: Strictly limited to Lorenz, Rössler as per spec.md FR-001.
-- **Reviewer Addressed**: Removed out-of-scope Cellular Automata tasks; clarified thresholds and dependencies.
+- **Execution Order**: US3 (Metrics) must wait for US1 (Clean Data) and US2 (Noisy Data) to complete and produce artifacts. Specifically, T030 requires the ground truth metrics from T017.
+- **Removed Scope**: Phase 7 (Cellular Automata) has been removed to align with spec.md constraints. All tasks now strictly cover Lorenz/Rössler attractors and Gaussian/quantization noise.
+- **Phase 2 Refinement**: Phase 2 is now split into 2a (Signatures) and 2b (Logic) to ensure every task is an executable unit of work, resolving concerns about task granularity.

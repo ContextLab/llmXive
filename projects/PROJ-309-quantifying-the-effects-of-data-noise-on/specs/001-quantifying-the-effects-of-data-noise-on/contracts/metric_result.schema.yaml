@@ -1,42 +1,33 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "MetricResult"
-description: "Schema for computed phase space reconstruction metrics."
-type: object
+description: "Schema for a single computed metric result."
+type: "object"
 properties:
-  result_id:
-    type: string
-    description: "Unique identifier for the result."
   trajectory_id:
-    type: string
-    description: "Reference to the source trajectory."
+    type: "string"
+    description: "Reference to the trajectory (UUID)."
   metric_name:
-    type: string
-    enum:
-      - "CORRELATION_DIMENSION"
-      - "LYAPUNOV_EXPONENT"
-      - "FNN_RATE"
+    type: "string"
+    enum: ["correlation_dimension", "lyapunov_exponent", "fnn_rate"]
     description: "Name of the computed metric."
-  computed_value:
-    type: number
-    description: "The computed value of the metric."
-  ground_truth_value:
-    type: number
-    description: "The ground truth value (mean of clean realizations) for comparison."
+  value:
+    type: "number"
+    description: "Computed value."
   error_percent:
-    type: number
-    description: "Percentage error relative to ground truth."
-  status:
-    type: string
-    enum:
-      - "SUCCESS"
-      - "FAILED"
-      - "INSUFFICIENT_DATA"
-    description: "Status of the computation."
+    type: "number"
+    description: "Absolute error relative to ground truth."
+  algorithm_version:
+    type: "string"
+    description: "Version of the algorithm used."
+  replicate_id:
+    type: "integer"
+    minimum: 1
+    description: "Identifier for the specific replicate (1-10)."
 required:
-  - result_id
-  - trajectory_id
-  - metric_name
-  - computed_value
-  - ground_truth_value
-  - error_percent
-  - status
+  - "trajectory_id"
+  - "metric_name"
+  - "value"
+  - "error_percent"
+  - "algorithm_version"
+  - "replicate_id"
+additionalProperties: false

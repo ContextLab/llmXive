@@ -1,0 +1,38 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "AnalysisResult"
+description: "Schema for aggregated error analysis results."
+type: "object"
+properties:
+  snr_db:
+    type: "number"
+    description: "Signal-to-Noise Ratio in dB."
+  noise_type:
+    type: "string"
+    enum: ["Gaussian", "Quantization"]
+    description: "Type of noise applied."
+  metric_name:
+    type: "string"
+    enum: ["correlation_dimension", "lyapunov_exponent", "fnn_rate"]
+    description: "Name of the metric."
+  mean_error:
+    type: "number"
+    description: "Mean error percentage across replicates."
+  std_error:
+    type: "number"
+    description: "Standard deviation of error."
+  n_replicates:
+    type: "integer"
+    minimum: 1
+    description: "Number of replicates."
+  critical_threshold_flag:
+    type: "boolean"
+    description: "True if error exceeds 30%."
+required:
+  - "snr_db"
+  - "noise_type"
+  - "metric_name"
+  - "mean_error"
+  - "std_error"
+  - "n_replicates"
+  - "critical_threshold_flag"
+additionalProperties: false

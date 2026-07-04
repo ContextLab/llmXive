@@ -2,67 +2,83 @@
 
 ## Overview
 
-This document defines the data structures for the noise-degradation analysis pipeline. The model is designed to be immutable, checksum-verified, and directly mappable to the CSV output schema.
+This document defines the data structures, schemas, and file formats used in the project. All data is stored in local files (`data/raw`, `data/processed`, `data/results`) with checksums recorded for reproducibility.
 
-## Core Entities
+## Entities
 
 ### 1. ChaoticTrajectory
-Represents the ground-truth state of a chaotic system.
+Represents a clean time-series from a chaotic system.
 
-- **Attributes**:
-  - `trajectory_id`: Unique identifier (UUID).
-  - `system_type`: Enum (`LORENZ`, `ROSSLER`).
-  - `parameters`: Dict of system parameters (e.g., `{"sigma": 10, "rho": 28}`).
-  - `time_steps`: Array of float64 (time points).
-  - `state_values`: 2D array (3 × N) of float64 (x, y, z).
-  - `ground_truth_metrics`: Dict containing literature-verified values for $D_2$ and $\lambda_1$ (for validation only).
-  - `checksum`: SHA-256 hash of the raw data.
+**Attributes**:
+- `trajectory_id`: Unique identifier (UUID).
+- `system_type`: Enum ["Lorenz", "Rössler"].
+- `parameters`: Dictionary of system parameters (e.g., `{"sigma": 10, "rho": 28, "beta": 8/3}`).
+- `time_points`: 1D array of time values.
+- `state_values`: 2D array (3 × N) of state variables (x, y, z).
+- `ground_truth_metrics`: Dictionary of pre-computed metrics (correlation_dim, lyapunov_exp, fnn_rate).
+- `checksum`: SHA-256 hash of the file content.
+- `replicate_id`: Integer (1-10) identifying the specific replicate of this trajectory.
+
+**File Format**: `.npz` (NumPy).
+**Location**: `data/raw/clean/<system_type>_<trajectory_id>.npz`
+*Note: The filename includes the `trajectory_id` (UUID) to ensure unique identification. The `replicate_id` is stored within the file metadata.*
 
 ### 2. NoisyTrajectory
 Represents a trajectory with injected noise.
 
-- **Attributes**:
-  - `source_trajectory_id`: FK to `ChaoticTrajectory`.
-  - `noise_type`: Enum (`GAUSSIAN`, `QUANTIZATION`).
-  - `snr_db`: Float (target SNR in dB).
-  - `quantization_bits`: Int (if noise_type is QUANTIZATION, else null).
-  - `noisy_values`: 2D array (3 × N) of float64.
-  - `measured_snr_db`: Float (actual SNR calculated post-injection).
-  - `checksum`: SHA-256 hash.
+**Attributes**:
+- `source_trajectory_id`: Reference to the clean trajectory (UUID).
+- `noise_type`: Enum ["Gaussian", "Quantization"].
+- `snr_db`: Target SNR in dB.
+- `quantization_bits`: Integer (4-16) if noise_type is Quantization.
+- `noisy_values`: 2D array (3 × N).
+- `measured_snr`: Actual SNR measured post-injection.
+- `checksum`: SHA-256 hash.
+- `replicate_id`: Integer (1-10) identifying the specific replicate.
+
+**File Format**: `.npz`.
+**Location**: `data/raw/noisy/<system_type>_<noise_type>_<snr>_<replicate_id>.npz`
+*Note: The filename includes `replicate_id` to distinguish multiple replicates of the same system/noise/SNR combination.*
 
 ### 3. MetricResult
 Represents a computed metric for a specific trajectory.
 
-- **Attributes**:
-  - `result_id`: Unique identifier.
-  - `trajectory_id`: FK to `NoisyTrajectory`.
-  - `metric_name`: Enum (`CORRELATION_DIMENSION`, `LYAPUNOV_EXPONENT`, `FNN_RATE`).
-  - `computed_value`: Float.
-  - `ground_truth_value`: Float (from the **mean of clean realizations**, not literature).
-  - `error_percent`: Float.
-  - `status`: Enum (`SUCCESS`, `FAILED`, `INSUFFICIENT_DATA`).
+**Attributes**:
+- `trajectory_id`: Reference to the trajectory (UUID).
+- `metric_name`: Enum ["correlation_dimension", "lyapunov_exponent", "fnn_rate"].
+- `value`: Float.
+- `error_percent`: Float (calculated against ground truth).
+- `algorithm_version`: String (e.g., "GP-v1", "Rosenstein-v1").
+- `replicate_id`: Integer (1-10) identifying the replicate source. **Critical for aggregation.**
 
-### 4. LookupTableEntry
-Aggregated result for a specific SNR/Noise/Metric combination.
+**File Format**: `.csv` (aggregated) or `.json` (individual).
+**Location**: `data/processed/metrics/<trajectory_id>_<metric>.csv`
 
-- **Attributes**:
-  - `snr_db`: Float.
-  - `noise_type`: String.
-  - `metric_name`: String.
-  - `mean_error_percent`: Float.
-  - `std_error_percent`: Float.
-  - `n_samples`: Int.
-  - `critical_threshold_flag`: Boolean (True if mean error > 30%).
+### 4. AnalysisResult
+Aggregated results for error analysis and visualization.
+
+**Attributes**:
+- `snr_db`: Float.
+- `noise_type`: String.
+- `metric_name`: String.
+- `mean_error`: Float.
+- `std_error`: Float.
+- `n_replicates`: Integer.
+- `critical_threshold_flag`: Boolean (if error > 30%).
+
+**File Format**: `.csv`.
+**Location**: `data/results/error_vs_snr.csv`
 
 ## Data Flow
 
-1.  **Generation**: `ChaoticTrajectory` created (N=50 per system) → Checksummed → Saved to `data/raw/` as `.npy`.
-2.  **Noise Injection**: `NoisyTrajectory` created from source → Checksummed → Saved to `data/processed/` as `.npy`.
-3.  **Metric Computation**: `MetricResult` created → Saved to `data/processed/metrics/` as `.json`.
-4.  **Aggregation**: `LookupTableEntry` created from `MetricResult` using **pandas** for statistical aggregation (mean, std, CI) → Exported to `results/lookup_table.csv`.
+1.  **Generation**: `code/generators.py` → `data/raw/clean/` (Clean Trajectories, includes `trajectory_id` and `replicate_id` in metadata).
+2.  **Noise Injection**: `code/noise.py` → `data/raw/noisy/` (Noisy Trajectories, includes `replicate_id` in filename).
+3.  **Metric Computation**: `code/metrics.py` → `data/processed/metrics/` (Metric Results, includes `replicate_id`).
+4.  **Error Analysis**: `code/analysis.py` → `data/results/error_vs_snr.csv` (Analysis Results).
+5.  **Visualization**: `code/visualize.py` → `data/results/plots/` (PNG files).
 
-## Storage Format
+## Checksumming & Hygiene
 
-- **Raw/Processed Data**: `.npy` (NumPy binary) for efficiency, accompanied by `.json` metadata files.
-- **Results**: `.csv` for portability and `lookup_table.schema.yaml` validation. **Pandas** is used for all aggregation and CSV export operations.
-- **Logs**: `.log` files with timestamped events and checksums.
+-   Every file written to `data/` is checksummed using SHA-256.
+-   Checksums are recorded in `state/projects/PROJ-309-quantifying-the-effects-of-data-noise-on.yaml` under `artifact_hashes`.
+-   Raw data is never modified; derivations create new files.

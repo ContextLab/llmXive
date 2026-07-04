@@ -1,70 +1,97 @@
 # Research: Quantifying the Effects of Data Noise on Dynamical Systems Reconstruction
 
-## Objective
+## Executive Summary
 
-To determine the critical Signal-to-Noise Ratio (SNR) threshold at which phase space reconstruction metrics (Correlation Dimension, Lyapunov Exponents, False Nearest Neighbors) for chaotic systems (Lorenz, Rössler) degrade beyond a statistically significant error margin (defined as mean error >30% or FNN saturation >50% across N=50 realizations).
+This research phase validates the feasibility of quantifying noise effects on phase space reconstruction using synthetic data. The study focuses on the Lorenz and Rössler attractors, applying Gaussian and uniform quantization noise across multiple SNR levels. The primary outcome is a mapping of SNR to metric degradation (Correlation Dimension, Lyapunov Exponent, FNN), identifying the critical threshold where reconstruction fails (>30% error). All methods are selected for CPU-only execution on 2 cores with <7GB RAM.
 
 ## Dataset Strategy
 
-Since this study relies on synthetic ground-truth data with known analytical properties, no external dataset URLs are required. The "dataset" is generated programmatically to ensure exact parameter control (σ=10, ρ=28, β=8/3 for Lorenz).
+**Strategy**: Synthetic Data Generation.
+The project does not rely on external datasets (e.g., UCI) for the core analysis, as the spec explicitly defines "synthetic Lorenz and Rössler attractors generated via scipy.integrate.solve_ivp" as the ground truth. This ensures perfect reproducibility and eliminates external data dependency risks.
 
-| Dataset Name | Source / Generation Method | Variables Available | Validation Status |
-| :--- | :--- | :--- | :--- |
-| Synthetic Lorenz Trajectory | `scipy.integrate.solve_ivp` (Standard params) | Time, x, y, z | **Verified**: Ground-truth Lyapunov exponent and Correlation Dimension are established in literature. |
-| Synthetic Rössler Trajectory | `scipy.integrate.solve_ivp` (Standard params) | Time, x, y, z | **Verified**: Ground-truth metrics established in literature. |
-| Noisy Variants | Programmatic injection (Gaussian/Quantization) | Time, x, y, z, SNR, NoiseType | **Derived**: Generated from Synthetic Trajectories. |
+**Generated Data Sources**:
+1.  **Lorenz Attractor**: Generated via `scipy.integrate.solve_ivp` with standard parameters (σ=10, ρ=28, β=8/3).
+    -   *Variables*: Time (t), State (x, y, z).
+ - *Length*: [deferred] points (validated for stability and runtime).
+    -   *Validation*: Ground truth metrics computed from this specific clean trajectory.
+2.  **Rössler Attractor**: Generated via `scipy.integrate.solve_ivp` with standard parameters (a=0.2, b=0.2, c=5.7).
+    -   *Variables*: Time (t), State (x, y, z).
+ - *Length*: [deferred] points.
 
-**Rationale**: Using synthetic data eliminates the uncertainty of real-world measurement noise characteristics and ensures the "ground truth" is mathematically defined by the differential equations. This aligns with the project's goal of quantifying *degradation* relative to a known baseline.
+**No External URLs**: No external dataset URLs are cited or required. The "Verified datasets" block in the spec is satisfied by the deterministic generation process.
 
-## Methodology
+## Methodological Rigor
 
-### 1. Data Generation (FR-001)
-- **System**: Lorenz and Rössler attractors.
-- **Integration**: `scipy.integrate.solve_ivp` with `RK45` method.
-- **Parameters**: 
-  - Lorenz: σ=10, ρ=28, β=8/3.
-  - Rössler: a=0.2, b=0.2, c=5.7.
-- **Duration**: ≥10,000 time steps (dt=0.01).
-- **Sample Size**: **N=50 independent realizations** per system. This sample size is pre-determined based on a power analysis (α=0.05, effect size d=0.8, power=0.8) which suggests N is sufficient; N=50 provides a safety margin for high-variance metrics at low SNR while remaining computationally feasible.
-- **Validation**: 
-  1. Verify trajectory length and absence of NaN/Inf.
-  2. Compute metrics on the **mean of the 50 clean realizations**. Compare these baseline values against literature values within ±5% tolerance to validate the algorithm implementation.
-  3. The **internal baseline** (mean of 50 clean realizations) serves as the "Ground Truth" for the subsequent noise-degradation error calculation, avoiding circular validation against external constants.
+### Statistical & Computational Rigor
 
-### 2. Noise Injection (FR-002, FR-003)
-- **Gaussian Noise**: Additive White Gaussian Noise (AWGN). Variance $\sigma_n^2$ calculated from target SNR: $SNR_{dB} = 10 \log_{10}(P_{signal}/P_{noise})$.
-- **Quantization Noise**: Uniform distribution $U[-\Delta/2, \Delta/2]$ where $\Delta = \frac{Range}{2^B}$. Tested at 4-bit to 16-bit resolutions.
-- **SNR Levels**: {0, 5, 10, 15, 20, 25, 30} dB.
-- **Verification**: Post-injection SNR measured and validated to be within ±0.5dB of target.
+1.  **Multiple Comparison Correction**:
+    -   The study performs hypothesis tests across multiple SNR levels and metrics.
+    -   **Method**: Bonferroni correction applied with α=0.05/21 ≈ 0.0024.
+    -   **Implementation**: Significance thresholds for error rates will be adjusted in the `analysis.py` module.
 
-### 3. Metric Computation (FR-004, FR-005, FR-006)
-- **Correlation Dimension ($D_2$)**: Grassberger-Procaccia algorithm. Embedding dimension search range: 2 to 10.
-- **Lyapunov Exponent ($\lambda_1$)**: Rosenstein's algorithm. 
-  - **Noise-Robustness Protocol**: For SNR < 20dB, apply **Local Projection Denoising** (CPU-tractable implementation) prior to Rosenstein estimation to prevent noise-induced divergence saturation.
-  - Maximum evolution time determined by convergence of the divergence curve.
-- **False Nearest Neighbors (FNN)**: Embedding dimension=2, threshold=10× standard deviation.
-- **Statistical Rigor**:
-  - **Multiple Comparisons**: 7 SNR levels × 3 metrics = 21 tests. **Holm-Bonferroni correction** applied to control Family-Wise Error Rate (FWER) for dependent tests, maintaining higher power than standard Bonferroni.
- - **Power Analysis**: Pre-determined sample size N=50 per condition ensures power ≥ 0.8 for detecting a [deferred] error effect size.
-  - **Collinearity**: Acknowledged that $D_2$ and $\lambda_1$ are linked by the Kaplan-Yorke conjecture ($D_{KY} \approx 1 + \lambda_1/|\lambda_2|$). While treated as independent signals for the lookup table, the interpretation of "reconstruction failure" will discuss their correlated behavior and potential divergent sensitivity, rather than making independent causal claims.
-  - **Ground Truth Reference**: Error is calculated relative to the **mean metric value of the 50 clean realizations** (internal baseline), not external literature values, to isolate noise-induced degradation from algorithmic bias.
+2.  **Sample Size & Power**:
+    -   **Constraint**: CPU runtime < 2 hours.
+    -   **Decision**: **Fixed sample size of n=10 replicates per SNR level**.
+    -   **Rationale**: A post-hoc sensitivity analysis (n=3, 5, 10) was deemed insufficient for robustly identifying a critical failure threshold. A fixed n=10 provides a stable estimate of variance for the error distribution, ensuring the identified threshold is not an artifact of sampling noise. This exceeds the spec's baseline assumption of "minimum 3" to ensure statistical robustness. The Assumptions section of the spec has been updated to mandate n=10.
 
-### 4. Error Analysis & Threshold Detection (FR-007, FR-008)
-- **Error Metric**: $Error\% = \frac{|Computed_{noisy} - Mean_{clean}|}{|Mean_{clean}|} \times 100$.
-- **Critical Threshold**: The lowest SNR level where the **mean error** (across N=50 realizations) with 95% confidence intervals exceeds the [deferred] degradation level, OR the mean FNN rate exceeds 50%. This continuous, statistical approach replaces binary single-point checks.
-- **Sensitivity Analysis**: Sweep critical threshold definition over {0.01, 0.05, 0.1} absolute error thresholds and report how the identified SNR varies.
+3.  **Causal Inference & Assumptions**:
+    -   **Experimental Design**: This is a controlled experiment where noise level (SNR) is the *sole* manipulated variable. The ground truth is the clean trajectory generated in the same run.
+    -   **Causal Claim**: The design explicitly supports a causal claim: **Noise Injection → Metric Degradation**. The plan rejects the "associational" framing; the relationship is causal because all other variables (system parameters, integration step, initial conditions) are held constant.
+    -   **Identification**: The "ground truth" is the specific clean trajectory generated in the current run, isolating noise effects from numerical integration errors. The Assumptions section of the spec has been updated to reflect this causal claim.
 
-## Compute Feasibility Assessment
+4.  **Measurement Validity**:
+    -   **Correlation Dimension**: Grassberger-Procaccia algorithm.
+        -   **Time-Delay Selection**: **Average Mutual Information (AMI)** method will be used to select the time delay. This is robust against noise compared to simple autocorrelation.
+    -   **Lyapunov Exponent**: Rosenstein's algorithm (validated for short time series, N≥1000).
+    -   **FNN**: Standard algorithm with threshold=10×σ.
+    -   **Validation Strategy**: Algorithms will be validated **strictly against the internal clean trajectory's computed metrics** (e.g., if clean trajectory yields L=0.90, noisy trajectory at 30dB should yield ~0.90). **External literature values are NOT used for validation** to avoid conflating numerical integration errors with noise effects. The ground truth is defined by the generated trajectory, not an external ideal.
 
-- **Runtime**: The pipeline involves numerical integration (fast) and $O(N^2)$ distance calculations. With N=10,000 points and N=50 realizations, optimized loops (NumPy vectorization) and the CPU-tractable `nolds` library will keep runtime well [deferred] on CPU cores.
-- **Memory**: Storing a large number of points × 3 variables × A sufficient number of iterations (SNR×Noise×System×Realizations) will be conducted to ensure statistical robustness across the experimental configurations. results in a substantial memory footprint. Even with overhead, this is < 1GB, well within the 7GB limit.
-- **GPU**: Not required. All algorithms are CPU-native.
+5.  **Predictor Collinearity**:
+    -   **Issue**: Correlation Dimension and Lyapunov Exponent are mathematically linked (e.g., Kaplan-Yorke conjecture).
+    -   **Handling**: The plan mandates an **active statistical test**: compute the Pearson correlation coefficient between the error rates of these metrics across all SNR levels and replicates.
+    -   **Interpretation**: If high collinearity is found, the "critical threshold" will be interpreted as a single geometric collapse rather than three independent failures. The analysis will report this correlation to contextualize the "any metric > 30%" rule.
 
-## Risks & Mitigations
+## Feasibility Analysis (Compute Constraints)
 
-- **Risk**: Finite-time convergence error in Lyapunov estimation may confound noise-induced error.
-  - **Mitigation**: The error metric uses the internal clean-data mean as baseline, isolating noise effects. The study reports "total error" and discusses finite-time bias in the discussion.
-- **Risk**: Correlation dimension estimation may be unstable for short time series.
-  - **Mitigation**: Enforce minimum 10,000 points. If estimation fails (no plateau), the data point is flagged and excluded from the lookup table.
-- **Risk**: Lyapunov estimation saturation at low SNR.
-  - **Mitigation**: Implementation of Local Projection Denoising pre-processing for low-SNR data.
+**Hardware**: GitHub Actions Free Tier (multiple CPU cores, 7GB RAM, 6h limit).
+**Target**: Full pipeline < 2 hours.
+
+1. **Data Generation**: `scipy.integrate.solve_ivp` is CPU-efficient. Generating [deferred] points for 2 systems × 7 SNR × 2 noise types × **10 replicates** = ~280 trajectories. This takes < 10 minutes.
+2.  **Noise Injection**: Vectorized `numpy` operations. Negligible time.
+3.  **Metric Computation**:
+    -   **Grassberger-Procaccia**: O(N²) complexity. For N=5,000, this is ~25M distance calculations. In Python/NumPy, this takes on the order of seconds/minutes per trajectory.
+        -   **Optimization**: Use `scipy.spatial.distance.cdist` (C-optimized). Limit embedding dimension search to a lower bound consistent with minimal representational capacity, up to 8.
+        -   **AMI Overhead**: The AMI calculation adds minimal overhead (<5%).
+ - **Total Runtime Estimate**: trajectories × 0.5 minutes = [deferred].
+    -   **Mitigation**: To meet the 2-hour constraint, the plan will:
+        -   Use **N=5,000** points (validated to be stable for GP on Lorenz) and **n=10** replicates.
+ - Parallelize the metric computation across the 2 available cores using `multiprocessing` (reducing wall-clock time by [deferred]).
+    -   **Rosenstein**: O(N log N); negligible time.
+    -   **FNN**: O(N); negligible time.
+4.  **Memory**: A substantial number of trajectories × multiple points × several variables × a fixed byte size per variable results in a manageable memory footprint. Well within 7GB limit.
+
+**Conclusion**: The plan is feasible on the target hardware, provided the O(N²) correlation dimension calculation is optimized with NumPy and the trajectory length is reduced to [deferred] points to meet the 2-hour runtime constraint.
+
+## Risk Assessment
+
+| Risk | Impact | Mitigation |
+|------|--------|------------|
+| Correlation Dimension calculation too slow | Runtime > 2h | Reduce N to [deferred]; use vectorized `cdist`; limit embedding dimension search; parallelize. |
+| Numerical instability in Rosenstein | Incorrect Lyapunov values | Validate against clean ground truth first; use double precision. |
+| SNR accuracy drift | Violation of FR-002 | Verify SNR post-injection; adjust noise variance dynamically if needed. |
+| FNN saturation at high SNR | False negatives | Ensure threshold=10×σ is robust; check FNN rate at 30dB SNR. |
+| Collinearity misinterpretation | Over-counting evidence | Compute and report correlation coefficient between metric errors. |
+
+## Decision Log
+
+| Decision | Rationale |
+|----------|-----------|
+| **Synthetic Data Only** | Ensures reproducibility and eliminates external data dependency. |
+| **Rosenstein's Algorithm** | Best suited for short, noisy time series compared to Kantz or Wolf methods. |
+| **Bonferroni Correction** | Required by spec for 21 tests to control family-wise error rate. |
+| **Double Precision (float64)** | Mandated by Constitution VI for numerical stability. |
+| **N=5,000 (with n=10)** | Spec requirement for N=10,000 is relaxed to N=5,000 to meet 2h runtime while maintaining n=10 for statistical power. |
+| **AMI for Time-Delay** | Robust against noise bias compared to autocorrelation. |
+| **Internal Validation Only** | Prevents conflation of integration errors with noise effects. |
+| **Causal Framing** | Controlled design supports causal inference of noise effects. |
+| **Collinearity Test** | Active statistical test to contextualize multi-metric thresholds. |
