@@ -1,4 +1,4 @@
-resolved_at: '2026-07-03T22:31:53.268628+00:00'
+resolved_at: '2026-07-04T07:23:03.728149+00:00'
 datasets:
 - intent: GLUE
   status: verified
@@ -45,23 +45,23 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://figshare.com/articles/media/Tinline-Goodfellow_et_al_Raw_blot_images_-_dileu_in_vitro_July_2026/32897381
+  - url: https://figshare.com/articles/dataset/_sub_strong_PET-Protocol_Data_strong_sub_/31076929
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Host_Selection_and_Feeding_Activity_of_i_Leptocoris_tagalicus_i_Hemiptera_Rhopalidae_/32889533
+  - url: https://figshare.com/articles/dataset/Spiro-Confined_Br_nsted_Acid_Catalyst_for_Stereoselective_Cationic_Polymerization_of_Vinyl_Ethers_ACS_Catalysis_/29558024
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/poster/A_Community-Driven_Platform_for_Trusted_Benchmarking_of_LLMs_in_Biomedicine_BioArena/32897372
+  - url: https://figshare.com/articles/book/Filosofia_computa_iei_Realitate_i_calcul_Suport_de_curs_Universitatea_din_Bucure_ti_2026/32898944
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Dataset_of_At_mpero_outcomes/30546023
+  - url: https://figshare.com/articles/dataset/___/32898941
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/The_curriculum_effect_in_visual_learning_the_role_of_readout_dimensionality_Dataset_/32897081
+  - url: https://tandf.figshare.com/articles/journal_contribution/Social_Network_Characteristics_as_Predictors_of_Opioid_Use_Disorder_Treatment_Utilization_among_People_Who_Use_Drugs_with_Hepatitis_C_Infections_in_Baltimore_MD/32898942
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -77,14 +77,18 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/13357597
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/15273115
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/13357597
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://unsworks.unsw.edu.au/handle/1959.4/unsworks_84324
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/21176288
     source: datacite
     status: wrong_format
@@ -98,10 +102,6 @@ datasets:
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/21178360
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://osf.io/snb3k/
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -120,23 +120,23 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://figshare.com/articles/media/Tinline-Goodfellow_et_al_Raw_blot_images_-_dileu_in_vitro_July_2026/32897381
+  - url: https://figshare.com/articles/dataset/_sub_strong_PET-Protocol_Data_strong_sub_/31076929
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Host_Selection_and_Feeding_Activity_of_i_Leptocoris_tagalicus_i_Hemiptera_Rhopalidae_/32889533
+  - url: https://figshare.com/articles/dataset/Spiro-Confined_Br_nsted_Acid_Catalyst_for_Stereoselective_Cationic_Polymerization_of_Vinyl_Ethers_ACS_Catalysis_/29558024
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/poster/A_Community-Driven_Platform_for_Trusted_Benchmarking_of_LLMs_in_Biomedicine_BioArena/32897372
+  - url: https://figshare.com/articles/book/Filosofia_computa_iei_Realitate_i_calcul_Suport_de_curs_Universitatea_din_Bucure_ti_2026/32898944
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Dataset_of_At_mpero_outcomes/30546023
+  - url: https://figshare.com/articles/dataset/___/32898941
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/The_curriculum_effect_in_visual_learning_the_role_of_readout_dimensionality_Dataset_/32897081
+  - url: https://tandf.figshare.com/articles/journal_contribution/Social_Network_Characteristics_as_Predictors_of_Opioid_Use_Disorder_Treatment_Utilization_among_People_Who_Use_Drugs_with_Hepatitis_C_Infections_in_Baltimore_MD/32898942
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -144,11 +144,7 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/5951740
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/14352943
+  - url: https://zenodo.org/records/17854610
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -156,30 +152,34 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/17854610
+  - url: https://zenodo.org/records/14352943
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21171487
+  - url: https://zenodo.org/records/6127654
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21186371
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21171487
+  - url: https://figshare.com/articles/software/CudaMon_An_R_Package_to_Monitor_NVIDIA_GPUs_Showcased_by_Monitoring_a_GPU-accelerated_Single-cell_Analysis_Workflow_in_R/32153880/9
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21169299
+  - url: https://figshare.com/articles/software/CudaMon_An_R_Package_to_Monitor_NVIDIA_GPUs_Showcased_by_Monitoring_a_GPU-accelerated_Single-cell_Analysis_Workflow_in_R/32153880/10
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20856850
+  - url: https://figshare.com/articles/software/CudaMon_An_R_Package_to_Monitor_NVIDIA_GPUs_Showcased_by_Monitoring_a_GPU-accelerated_Single-cell_Analysis_Workflow_in_R/32153880
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://doi.org/10.5281/zenodo.21157157
+  - url: https://zenodo.org/records/18738911
     source: datacite
-    status: unreachable
-    reason: 'reachability failed: HTTP 404'
+    status: wrong_format
+    reason: unrecognized/non-dataset content
 - intent: SST-2
   status: verified
   candidates:
@@ -225,23 +225,23 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://figshare.com/articles/media/Tinline-Goodfellow_et_al_Raw_blot_images_-_dileu_in_vitro_July_2026/32897381
+  - url: https://figshare.com/articles/dataset/_sub_strong_PET-Protocol_Data_strong_sub_/31076929
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Host_Selection_and_Feeding_Activity_of_i_Leptocoris_tagalicus_i_Hemiptera_Rhopalidae_/32889533
+  - url: https://figshare.com/articles/dataset/Spiro-Confined_Br_nsted_Acid_Catalyst_for_Stereoselective_Cationic_Polymerization_of_Vinyl_Ethers_ACS_Catalysis_/29558024
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/poster/A_Community-Driven_Platform_for_Trusted_Benchmarking_of_LLMs_in_Biomedicine_BioArena/32897372
+  - url: https://figshare.com/articles/book/Filosofia_computa_iei_Realitate_i_calcul_Suport_de_curs_Universitatea_din_Bucure_ti_2026/32898944
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Dataset_of_At_mpero_outcomes/30546023
+  - url: https://figshare.com/articles/dataset/___/32898941
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/The_curriculum_effect_in_visual_learning_the_role_of_readout_dimensionality_Dataset_/32897081
+  - url: https://tandf.figshare.com/articles/journal_contribution/Social_Network_Characteristics_as_Predictors_of_Opioid_Use_Disorder_Treatment_Utilization_among_People_Who_Use_Drugs_with_Hepatitis_C_Infections_in_Baltimore_MD/32898942
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -265,23 +265,23 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
+  - url: https://unsworks.unsw.edu.au/handle/1959.4/resource/collection/resdatac_1095/1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://unsworks.unsw.edu.au/handle/1959.4/resource/collection/resdatac_1020/1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://campagnes.flotteoceanographique.fr/campagnes/4010020/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
   - url: https://campagnes.flotteoceanographique.fr/campagnes/5020050/
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://osf.io/tdxwh/
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21151437
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21151437
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://osf.io/w6rmh/
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content

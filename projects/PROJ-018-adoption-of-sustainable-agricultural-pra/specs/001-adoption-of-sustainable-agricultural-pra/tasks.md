@@ -141,7 +141,7 @@ could not find expected ':'
 - [ ] T040 [US3] Implement mediation analysis in `code/04_model_analysis.py`: (1) Baron & Kenny approach with bootstrap CI (≥1000 resamples) for indirect effects; (2) Sensitivity analysis using E-values (via `evalues` library) and Rosenbaum bounds (calculate for gamma values in a range including 2.5); (3) Document interpretation as "exploratory" (FR-012, FR-010, Plan Phase 3)
 - [ ] T041 [US3] [DEPRECATED - Merged into T040]
 - [ ] T042 [US3] Implement `code/05_generate_report.py` to produce a PDF report containing descriptives, regression table, VIF diagnostics, ROC plot, mediation results, sensitivity analysis, and validity metrics (consuming `results/validity_metrics.yaml`) (FR-010)
-- [ ] T043 [US3] Ensure all results are saved to `results/` and `modeling_log.yaml` is updated with seeds and choices (Constitution IV, VII)
+- [~] T043 [US3] Ensure all results are saved to `results/` and `modeling_log.yaml` is updated with seeds and choices (Constitution IV, VII)
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -151,10 +151,10 @@ could not find expected ':'
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T044 [P] Documentation updates: Create `docs/README.md` with data provenance section and update `docs/METHODOLOGY.md` with methodology notes
-- [ ] T045 [P] Define abstract base class interface for data sources in `code/interfaces.py`: Class `DataSource` with methods `fetch_data(country_codes: List[str]) -> pd.DataFrame` and `validate_schema(df: pd.DataFrame) -> bool`
-- [ ] T046 [P] Additional unit tests for statistical functions in `tests/unit/`
-- [ ] T047 Run quickstart.md validation to ensure end-to-end reproducibility
+- [~] T044 [P] Documentation updates: Create `docs/README.md` with data provenance section and update `docs/METHODOLOGY.md` with methodology notes
+- [~] T045 [P] Define abstract base class interface for data sources in `code/interfaces.py`: Class `DataSource` with methods `fetch_data(country_codes: List[str]) -> pd.DataFrame` and `validate_schema(df: pd.DataFrame) -> bool`
+- [~] T046 [P] Additional unit tests for statistical functions in `tests/unit/`
+- [~] T047 Run quickstart.md validation to ensure end-to-end reproducibility
 
 ---
 
