@@ -1,6 +1,6 @@
-$schema: "http://json-schema.org/draft-07/schema#"
-title: "Manifest Schema"
-description: "Schema for validating the project manifest file containing artifact hashes and metadata."
+$schema: http://json-schema.org/draft-07/schema#
+title: Manifest Schema
+description: Schema for validating the project manifest file containing artifact hashes and metadata.
 type: object
 required:
   - version
@@ -9,46 +9,31 @@ required:
 properties:
   version:
     type: string
-    description: "Version of the manifest schema (e.g., '1.0.0')"
+    description: Schema version of the manifest format.
     pattern: "^\\d+\\.\\d+\\.\\d+$"
   generated_at:
     type: string
-    description: "ISO 8601 timestamp of when the manifest was generated"
+    description: ISO 8601 timestamp of when the manifest was generated.
     format: date-time
   project_id:
     type: string
-    description: "Identifier of the project (e.g., 'PROJ-492-evaluating-the-statistical-validity-of-p')"
+    description: Identifier of the project this manifest belongs to.
   artifacts:
-    type: array
-    description: "List of artifact entries with paths and SHA256 hashes"
-    items:
-      type: object
-      required:
-        - path
-        - hash
-        - algorithm
-      properties:
-        path:
-          type: string
-          description: "Relative path to the artifact from project root"
-        hash:
-          type: string
-          description: "SHA256 hash of the file content"
-          pattern: "^[a-f0-9]{64}$"
-        algorithm:
-          type: string
-          description: "Hashing algorithm used"
-          const: "sha256"
-        size_bytes:
-          type: integer
-          description: "File size in bytes"
-          minimum: 0
-        description:
-          type: string
-          description: "Optional description of the artifact"
-    minItems: 1
+    type: object
+    description: Map of file paths to their SHA256 checksums.
+    additionalProperties:
+      type: string
+      pattern: "^[a-f0-9]{64}$"
+      description: SHA256 hash of the file content (lowercase hex).
   metadata:
     type: object
-    description: "Optional additional metadata"
+    description: Optional additional metadata about the manifest generation.
+    properties:
+      python_version:
+        type: string
+      platform:
+        type: string
+      seed:
+        type: integer
     additionalProperties: true
 additionalProperties: false

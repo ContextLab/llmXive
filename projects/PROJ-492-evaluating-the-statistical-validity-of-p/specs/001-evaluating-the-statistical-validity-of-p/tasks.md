@@ -128,7 +128,7 @@
 - [X] T046 Unit tests for bias‑adjustment ensuring no domain exceeds 30 % proportion (tests/unit/test_bias_adjustment.py) (verify test passes).
 - [X] T047 Implement CSV summary generator in `src/audit/report_generator.py` that reads `output/audit_report.json` and writes `output/summary_report.csv` with required columns (`total_summaries`, `inconsistent_count`, `inconsistent_rate`, `bias_adjusted_rate`, `wilson_ci_lower`, `wilson_ci_upper`) (verify CSV file exists and column headers match) [DEPENDS ON: T042, T045].
 - [X] T048 Unit test that validates CSV values exactly match JSON‑derived aggregates (tests/unit/test_report_generator.py) (verify test passes) [DEPENDS ON: T047].
-- [ ] T049 Add Quickstart guide `docs/README_QUICKSTART.md` covering execution on 30 URLs within 30 minutes (FR‑028) **and include novice‑user verification step with written confirmation log** (see T095b) (verify guide file exists and includes novice verification instructions).
+- [X] T049 Add Quickstart guide `docs/README_QUICKSTART.md` covering execution on 30 URLs within 30 minutes (FR‑028) **and include novice‑user verification step with written confirmation log** (see T095b) (verify guide file exists and includes novice verification instructions).
 - [X] T049b **[P]** Verify that the Quickstart execution in T049 actually runs on the default GitHub Actions runner (2 vCPU, 7 GB RAM) and records the runner environment. (depends on T049)
 - [X] T050 Implement subgroup prevalence and Fisher's exact‑test analysis (FR‑032) in `src/audit/subgroup_analysis.py` that produces `output/subgroup_report.json` with domain, year, counts, prevalence, and p‑value **and verify Bonferroni correction is applied dynamically** (constraint‑preservation‑925e1e46) (verify JSON file exists).
 - [X] T050b **[P]** Verify that the publication year is extracted for each summary during extraction (T020c) and present in the input to `subgroup_analysis.py`. (depends on T020c)
@@ -153,9 +153,9 @@
 
 - [X] T056 Ensure driver script creates `output/manifest.json` with SHA256 hashes for all generated files (via `src/utils/manifest.py`) (FR‑024) **and invoke T095a to record these hashes in the state YAML** (verify manifest exists and contains hashes).
 - [X] T057 Add schema validation step after audit generation to validate `audit_report.json` against `contracts/audit_record.schema.yaml` (FR‑026) (verify validation passes) [DEPENDS ON: T056].
-- [ ] T058 Add schema validation step for `manifest.json` against `contracts/manifest.schema.yaml` (plan.md) (verify validation passes) [DEPENDS ON: T056].
-- [ ] T059 Implement consistency checker in `src/audit/export_validator.py` that reads JSON and CSV, compares counts, and logs `ERR-201` if mismatch (plan.md) (verify no ERR‑201 logged) [DEPENDS ON: T056].
-- [ ] T060 Unit test for export validator with deliberately mismatched files (tests/unit/test_export_validator.py) (verify test catches mismatch) [DEPENDS ON: T056].
+- [X] T058 Add schema validation step for `manifest.json` against `contracts/manifest.schema.yaml` (plan.md) (verify validation passes) [DEPENDS ON: T056].
+- [X] T059 Implement consistency checker in `src/audit/export_validator.py` that reads JSON and CSV, compares counts, and logs `ERR-201` if mismatch (plan.md) (verify no ERR‑201 logged) [DEPENDS ON: T056].
+- [X] T060 Unit test for export validator with deliberately mismatched files (tests/unit/test_export_validator.py) (verify test catches mismatch) [DEPENDS ON: T056].
 
 ### Tests for User Story 3 (OPTIONAL)
 

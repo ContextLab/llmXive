@@ -1,25 +1,16 @@
+? "T030 Integration test that checks JSON \u2194 CSV count consistency (tests/integration/test_export_consistency.py)\
+  \ (run AFTER T056\u2011T060) (verify counts match) [DEPENDS ON: T056]."
+: 1
 ? "T043 Unit tests for binomial test and CI width \u2264 0.10 (tests/unit/test_prevalence.py)\
   \ (verify test passes). [UNRESOLVED-CLAIM: c_ae78747a \u2014 status=not_enough_info]"
 : 1
-? "T049 Add Quickstart guide `docs/README_QUICKSTART.md` covering execution on 30\
-  \ URLs within 30 minutes (FR\u2011028) **and include novice\u2011user verification\
-  \ step with written confirmation log** (see T095b) (verify guide file exists and\
-  \ includes novice verification instructions)."
-: 2
 ? "T049 Add Quickstart guide `docs/README_QUICKSTART.md` covering execution on 30\
   \ URLs within 30 minutes [UNRESOLVED-CLAIM: c_cf59c7a8 \u2014 status=not_enough_info]\
   \ (FR\u2011028) **and include novice\u2011user verification step with written confirmation\
   \ log** (see T095b) (verify guide file exists and includes novice verification instructions)."
 : 1
-? 'T058 Add schema validation step for `manifest.json` against `contracts/manifest.schema.yaml`
-  (plan.md) (verify validation passes) [DEPENDS ON: T056].'
-: 2
-? "T059 Implement consistency checker in `src/audit/export_validator.py` that reads\
-  \ JSON and CSV, compares counts, and logs `ERR-201` if mismatch (plan.md) (verify\
-  \ no ERR\u2011201 logged) [DEPENDS ON: T056]."
-: 1
-? 'T060 Unit test for export validator with deliberately mismatched files (tests/unit/test_export_validator.py)
-  (verify test catches mismatch) [DEPENDS ON: T056].'
+? T061 Contract test for manifest schema in `tests/contract/test_manifest_schema.py`
+  (run AFTER T056 completes) (verify schema compliance).
 : 1
 ? "T062 Implement Monte\u2011Carlo validation module (FR\u2011026) in `src/audit/monte_carlo_validation.py`\
   \ that runs 10\u202F000 replicates for each statistical test (z-test, Fisher's,\
