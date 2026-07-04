@@ -1,59 +1,95 @@
 # Data Model: Evaluating the Impact of Code Generation Models on Code Testability
 
-## Entities
+## Overview
 
-### CodeSample
-Represents a single unit of code (human or LLM generated) for a specific task.
-- `task_id`: str (Unique identifier from HumanEval)
-- `source_type`: str ("human" or "llm")
-- `model_name`: str (e.g., "codegen-350M-mono", "human")
-- `raw_code`: str (The Python source code)
-- `generation_status`: str ("success", "timeout", "syntax_error")
-- `error_log`: str (Optional error message)
+This document defines the data structures used throughout the pipeline, ensuring type safety and reproducibility. All data flows from `raw` (HumanEval) to `generated` (LLM code) to `analysis` (metrics) and finally to `results` (report data).
 
-### MetricResult
-Computed structural and dynamic properties for a `CodeSample`.
-- `sample_id`: str (Foreign key to CodeSample)
-- `cyclomatic_complexity`: int
-- `halstead_volume`: float
-- `halstead_difficulty`: float
-- `halstead_effort`: float
-- `dynamic_branch_coverage`: float (0.0 – 1.0, measured via **execution**; nullable if execution fails)
-- `pass_rate`: float (0.0 or 1.0)
-- `analysis_timestamp`: str (ISO 8601)
+## Entity Definitions
 
-### StatisticalTest
-Result of hypothesis testing.
-- `metric_name`: str (e.g., "cyclomatic_complexity")
-- `test_type`: str ("wilcoxon_signed_rank", "fisher_exact")
-- `test_statistic`: float
-- `p_value`: float
-- `significant`: bool
-- `effect_size`: float (r for Wilcoxon, odds ratio for Fisher)
-- `power`: float (Post‑hoc power)
-- `correction_method`: str (e.g., "none")
+### 1. CodeSample
+Represents a single unit of code (human or LLM) linked to a specific HumanEval task.
 
-### DecouplingResult
-Result of the independence analysis.
-- `predictor`: str (e.g., "cyclomatic_complexity")
-- `outcome`: str (e.g., "pass_rate")
-- `control_variable`: str (e.g., "source_type")
-- `partial_correlation`: float
-- `regression_coefficient`: float
-- `p_value`: float
+| Attribute | Type | Description |
+|-----------|------|-------------|
+| `task_id` | `str` | Unique identifier from HumanEval (e.g., "HumanEval/0"). |
+| `source_type` | `str` | Enum: `"human"`, `"codegen-350M"`, `"codellama-7b"`, `"codellama-3b"`. |
+| `raw_code` | `str` | The raw Python code string. |
+| `status` | `str` | Enum: `"success"`, `"failed_generation"`, `"failed_execution"`, `"failed_coverage"`. |
+| `error_log` | `str` | Optional error message if status is not "success". |
 
-## Data Flow
+### 2. MetricResult
+Computed static and dynamic analysis metrics for a `CodeSample`.
 
-1. **Raw Data**: `data/raw/humaneval.parquet` (downloaded, checksummed).
-2. **Generated Data**: `data/generated/{task_id}_{source}.py` (code files).
-3. **Analysis Data**: `data/analysis/metrics.json` (aggregated `MetricResult`s).
-4. **Results**: `results/stats.json` (StatisticalTest outcomes).
-5. **Decoupling**: `results/decoupling.json` (DecouplingResult outcomes).
-6. **Report**: `results/results_report.md` (Final human‑readable report).
+| Attribute | Type | Description |
+|-----------|------|-------------|
+| `task_id` | `str` | Links to `CodeSample`. |
+| `source_type` | `str` | Links to `CodeSample`. |
+| `cyclomatic_complexity` | `float` | From `radon`. `[deferred]` if execution fails. |
+| `halstead_volume` | `float` | From `radon`. `[deferred]` if execution fails. |
+| `branch_coverage_pct` | `float` | From `coverage.py` (0.0 to 100.0). `[deferred]` if execution fails. |
+| `pass_rate` | `int` | Binary: 1 (all tests pass), 0 (any failure). |
 
-## Constraints
+### 3. StatisticalTestResult
+Output of hypothesis testing.
 
-- All `CodeSample` entries with `generation_status != "success"` are excluded from statistical analysis but must appear in `errors.log`.
-- `MetricResult` entries must be non‑null for successful samples; `dynamic_branch_coverage` may be null only when execution fails.
-- `pass_rate` is binary (0.0 or 1.0) based on the all‑or‑nothing test harness.
-- Analysis is strictly **paired**: only tasks with valid human and LLM samples are included.
+| Attribute | Type | Description |
+|-----------|------|-------------|
+| `test_name` | `str` | e.g., "Wilcoxon Signed-Rank", "McNemar". |
+| `metric` | `str` | The metric being tested (e.g., "cyclomatic_complexity"). |
+| `statistic` | `float` | The test statistic value. |
+| `p_value` | `float` | The p-value. |
+| `significant` | `bool` | True if $p < 0.05$ (after correction). |
+| `null_hypothesis` | `str` | Text description of $H_0$. |
+| `conclusion` | `str` | Text interpretation of the result. |
+
+### 4. PowerAnalysisResult
+Output of power analysis.
+
+| Attribute | Type | Description |
+|-----------|------|-------------|
+| `analysis_type` | `str` | "a_priori" or "post_hoc". |
+| `effect_size` | `float` | Observed or assumed effect size (Cohen's d). |
+| `sample_size` | `int` | Number of paired samples. |
+| `power` | `float` | Achieved or target power. |
+| `alpha` | `float` | Significance threshold (0.05). |
+| `status` | `str` | "PASS" or "FAIL" based on power threshold. |
+
+## File Formats
+
+### `data/analysis/metrics.json`
+A list of `MetricResult` objects.
+```json
+[
+  {
+    "task_id": "HumanEval/0",
+    "source_type": "human",
+    "cyclomatic_complexity": 2.0,
+    "halstead_volume": 15.5,
+    "branch_coverage_pct": 85.0,
+    "pass_rate": 1
+  },
+  {
+    "task_id": "HumanEval/0",
+    "source_type": "codegen-350M",
+    "cyclomatic_complexity": 3.0,
+    "halstead_volume": 18.2,
+    "branch_coverage_pct": 70.0,
+    "pass_rate": 0
+  }
+]
+```
+
+### `data/analysis/statistical_results.json`
+A list of `StatisticalTestResult` objects.
+
+### `state/artifact_hashes.yaml`
+Tracking file for reproducibility.
+```yaml
+dataset:
+  source: "openai/openai_humaneval"
+  hash: "sha256:..."
+  commit: "..."
+artifacts:
+  codegen_samples: "sha256:..."
+  codellama_samples: "sha256:..."
+```

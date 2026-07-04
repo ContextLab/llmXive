@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-02T12:28:55.953044Z'
-current_stage: flesh_out_in_progress
+current_stage: flesh_out_complete
 failed_stage: null
 field: psychology
 human_escalation_reason: null
 id: PROJ-146-the-effect-of-sensory-deprivation-on-dre
-last_run_id: d2ccebc2-fa40-48b2-b7ca-a34b41353195
+last_run_id: 0b39dacc-224c-400a-a60c-3ede90773001
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: null
 title: The Effect of Sensory Deprivation on Dream Recall and Bizarreness
-updated_at: '2026-06-13T04:06:26.571729Z'
+updated_at: '2026-07-04T18:53:09.514309Z'

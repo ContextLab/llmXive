@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2512.14002",
+  "judged_at": "2026-07-04T18:41:53Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"wan-streamer v0.1: end-to-end real-time interactive foundation models\" computer science",
+  "rationale": "The paper focuses on task offloading and resource allocation in Vehicular Edge Computing (VEC) for intelligent transportation systems, which is a distinct domain from the user's question regarding real-time interactive foundation models (LLMs). While both involve \"real-time\" and \"computing,\" the paper does not measure the same biological, physical, or algorithmic mechanisms (a), nor does it study the same empirical population or system type (e), as VEC infrastructure is not the canonical setting",
+  "relevant": false
+}

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2506.13817",
+  "judged_at": "2026-07-04T18:41:55Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"wan-streamer v0.1: end-to-end real-time interactive foundation models\" computer science",
+  "rationale": "The paper focuses on applying generative AI to single-cell RNA sequencing data labeling in the biological domain, which is entirely off-domain from the user's question regarding real-time interactive foundation models for computer science systems. It shares no measurable connection to the specific mechanism, variables, or empirical setting of \"Wan-Streamer\" or real-time interactive streaming architectures.",
+  "relevant": false
+}

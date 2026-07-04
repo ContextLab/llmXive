@@ -155,3 +155,137 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-04T12:46:19Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: merged CSV contains at least 90% of expected monthly rows with no NaN
+    values in primary columns
+  claim_id: c_908c5f9c
+  context: "Independent Test: Can be fully tested by executing the data pipeline script\
+    \ and verifying the output contains a merged CSV with \u2265 90% of expected monthly\
+    \ rows and no NaN values in the primary columns"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Merged_CSV_contains_at_least_90%25_of_expected_monthly_rows_wi
+  kind: magnitude
+  raw_text: "The data pipeline script should verify the output contains a merged CSV\
+    \ with \u2265 90% of expected monthly rows and no NaN values in the primary columns."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-04T18:34:20Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: bootstrap resampling uses 1000 iterations and seed 42
+  claim_id: c_9333ef40
+  context: 'Goal: Compute Pearson correlation between AR intensity and gravity anomalies
+    across lag windows 0-3 months, apply bootstrap resampling (1000 iterations, seed=42),
+    multiple-comparison correction, and control region validation'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The correlation analysis implements bootstrap resampling with 1000 iterations
+    and a seed of 42.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-04T18:34:45Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: Bonferroni method used for multiple-comparison correction
+  claim_id: c_ec7b9f87
+  context: T021 [US2] Create bootstrap correction script... (2) implements multiple-comparison
+    correction (Bonferroni method selected for reproducibility) for p-values
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Bonferroni_method_used_for_multiple-comparison_correction
+  kind: entity_fact
+  raw_text: The bootstrap correction script implements multiple-comparison correction
+    using the Bonferroni method.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-04T18:35:04Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: signal magnitude comparison to GRACE-FO measurement noise floor uses
+    at least 3 sigma threshold
+  claim_id: c_49065aef
+  context: "T022 [US2] Create control validation script... (4) implements signal magnitude\
+    \ comparison to GRACE-FO measurement noise floor (\u2265 3\u03C3 threshold per\
+    \ FR-004)"
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Signal_magnitude_comparison_to_GRACE-FO_measurement_noise_fl
+  kind: magnitude
+  raw_text: "The control validation script implements a signal magnitude comparison\
+    \ to the GRACE-FO measurement noise floor with a threshold of \u2265 3\u03C3."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-04T18:37:12Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: sensitivity report sweeps correlation thresholds at 0.4, 0.5, and 0.6
+  claim_id: c_0931bcf3
+  context: 'Goal: Generate time-series overlays, scatter plots with regression lines,
+    spatial anomaly maps, and sensitivity report sweeping correlation thresholds (0.4,
+    0.5, 0.6)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity report sweeps correlation thresholds at 0.4, 0.5, and
+    0.6.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-04T18:37:31Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: West Coast NA region defined as 35 degrees North to 50 degrees North
+    and 120 degrees West to 125 degrees West
+  claim_id: c_cf5d4f1a
+  context: "Goal: Retrieve GRACE-FO mascon and NOAA AR catalog data, align to monthly\
+    \ resolution for West Coast NA region (35\xB0N-50\xB0N, 120\xB0W-125\xB0W), apply\
+    \ GRACE-FO preprocessing"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The project targets the West Coast NA region defined as 35\xB0N-50\xB0\
+    N, 120\xB0W-125\xB0W."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-04T18:37:45Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 2
+  canonical: effective sample size formula n_eff equals n times (1 minus rho) divided
+    by (1 plus rho)
+  claim_id: c_2ad51b64
+  context: "T020 [US2] Create correlation computation script... (4) implements effective\
+    \ sample size calculation (n_eff = n \xD7 (1-\u03C1)/(1+\u03C1))"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The effective sample size calculation uses the formula n_eff = n \xD7\
+    \ (1-\u03C1)/(1+\u03C1)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-04T18:37:45Z'

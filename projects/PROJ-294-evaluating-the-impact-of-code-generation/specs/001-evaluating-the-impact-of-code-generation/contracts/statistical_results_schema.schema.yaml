@@ -1,0 +1,35 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Statistical Test Results Schema"
+description: "Schema for hypothesis test outputs."
+type: object
+properties:
+  test_name:
+    type: string
+    description: "Name of the statistical test (e.g., Wilcoxon Signed-Rank)."
+  metric:
+    type: string
+    description: "The metric being compared (e.g., cyclomatic_complexity)."
+  statistic:
+    type: number
+    description: "Test statistic value."
+  p_value:
+    type: number
+    description: "P-value."
+  significant:
+    type: boolean
+    description: "True if p < 0.05 (after correction)."
+  null_hypothesis:
+    type: string
+    description: "Text description of H0."
+  conclusion:
+    type: string
+    description: "Interpretation of the result."
+required:
+  - test_name
+  - metric
+  - statistic
+  - p_value
+  - significant
+  - null_hypothesis
+  - conclusion
+additionalProperties: false

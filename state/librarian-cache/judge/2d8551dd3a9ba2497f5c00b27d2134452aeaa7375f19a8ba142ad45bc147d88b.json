@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2105.01933",
+  "judged_at": "2026-07-04T18:52:22Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "the effect of sensory deprivation on dream recall and bizarreness psychology",
+  "rationale": "The paper focuses on automated sleep-stage scoring methodology in mice and does not measure sensory deprivation, dream recall, or dream bizarreness, failing to satisfy any inclusion criteria (a-f) as it addresses a distinct construct (sleep staging accuracy) rather than the user's specific psychological variables or mechanism.",
+  "relevant": false
+}

@@ -107,6 +107,10 @@
     "classified_at": "2026-06-26T21:29:48Z",
     "verdict": false
   },
+  "PROJ-146-the-effect-of-sensory-deprivation-on-dre::1.6.0": {
+    "classified_at": "2026-07-04T18:51:43Z",
+    "verdict": false
+  },
   "PROJ-159-predicting-molecular-permeability-throug::1.6.0": {
     "classified_at": "2026-06-26T06:12:18Z",
     "verdict": false
@@ -857,6 +861,10 @@
   },
   "PROJ-918-llmxive-follow-up-extending-agentic-abst::1.6.0": {
     "classified_at": "2026-07-04T10:08:59Z",
+    "verdict": false
+  },
+  "PROJ-964-llmxive-follow-up-extending-wan-streamer::1.6.0": {
+    "classified_at": "2026-07-04T18:41:34Z",
     "verdict": false
   },
   "PROJ-978-llmxive-follow-up-extending-transitlm-a::1.6.0": {

@@ -1,34 +1,26 @@
-"""
-Script to create the data/processed/ directory for the project.
-"""
 import os
 from pathlib import Path
 
-def ensure_processed_directory(root_path: Path) -> Path:
+def ensure_processed_directory():
     """
-    Ensure the 'data/processed' directory exists within the project root.
-
-    Args:
-        root_path: The project root directory path.
-
-    Returns:
-        The path to the created or existing 'data/processed' directory.
+    Creates the 'data/processed' directory if it does not exist.
+    Returns the Path object of the created directory.
     """
-    processed_dir = root_path / "data" / "processed"
-    processed_dir.mkdir(parents=True, exist_ok=True)
+    # Determine project root relative to this script's location
+    # Assuming script is in code/, root is parent of code/
+    project_root = Path(__file__).resolve().parent.parent
+    processed_dir = project_root / "data" / "processed"
+
+    if not processed_dir.exists():
+        processed_dir.mkdir(parents=True, exist_ok=True)
+        print(f"Created directory: {processed_dir}")
+    else:
+        print(f"Directory already exists: {processed_dir}")
+
     return processed_dir
 
 def main():
-    """
-    Main entry point to create the processed directory.
-    """
-    # Determine project root based on script location
-    # Assuming script is at code/create_processed_directory.py
-    script_path = Path(__file__).resolve()
-    project_root = script_path.parent.parent
-
-    processed_dir = ensure_processed_directory(project_root)
-    print(f"Created/Verified directory: {processed_dir}")
+    ensure_processed_directory()
 
 if __name__ == "__main__":
     main()

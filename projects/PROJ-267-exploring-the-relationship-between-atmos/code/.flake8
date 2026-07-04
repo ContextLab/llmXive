@@ -1,12 +1,13 @@
 [flake8]
 max-line-length = 100
-ignore = E203, E266, W503
+ignore = E203, E266, W503, E501
+select = B,C,E,F,W,T4,B9
 per-file-ignores =
-    */__init__.py:F401
+    __init__.py: F401
 exclude =
     .git,
     __pycache__,
     build,
     dist,
-    .eggs,
     *.egg-info
+max-complexity = 15

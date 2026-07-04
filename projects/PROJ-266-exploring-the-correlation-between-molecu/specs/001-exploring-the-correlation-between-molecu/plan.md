@@ -4,7 +4,7 @@
 
 ## Summary
 
-This project investigates the associational relationship between molecular flexibility (quantified as internal-coordinate variance from 3D conformer ensembles) and Caco-2 permeability (logPapp). The technical approach involves: (1) retrieving and filtering Caco-2 data from ChEMBL; (2) generating 3D conformer ensembles using RDKit with CPU-tractable constraints (20 conformers); (3) computing flexibility descriptors (bond, angle, dihedral variance) and correlating them with permeability; (4) building a multivariate linear regression model with confounders (logP, MW, PSA) and validating via scaffold-based 5-fold cross-validation; and (5) generating publication-quality visualizations. All analysis is framed as associational (observational) to avoid causal claims.
+This project investigates the associational relationship between molecular flexibility (quantified as internal-coordinate variance from 3D conformer ensembles) and Caco-2 permeability (logPapp). The technical approach involves: (1) retrieving and filtering Caco-2 data from ChEMBL; (2) generating 3D conformer ensembles using RDKit with CPU-tractable constraints (a computationally feasible set of conformers); (3) computing flexibility descriptors (bond, angle, dihedral variance) and correlating them with permeability; (4) building a multivariate linear regression model with confounders (logP, MW, PSA) and validating via scaffold-based 5-fold cross-validation; and (5) generating publication-quality visualizations. All analysis is framed as associational (observational) to avoid causal claims.
 
 ## Technical Context
 
@@ -16,7 +16,7 @@ This project investigates the associational relationship between molecular flexi
 **Project Type**: Computational chemistry research pipeline  
 **Performance Goals**: Total runtime ≤ 6 hours on CPU-only runner; memory ≤ 7 GB  
 **Constraints**: No GPU/CUDA; conformer ensemble size capped at a computationally feasible limit for CPU resources; dataset sampled to ≤1000 molecules if needed  
-**Scale/Scope**: ~600 raw records → ~500 valid → ~450 with valid flexibility descriptors
+**Scale/Scope**: A subset of raw records will be filtered to identify valid entries, which will then be screened for the presence of valid flexibility descriptors.
 
 > Note: The spec's requirement for 50 conformers (FR-003) is infeasible on the target runner. The plan explicitly constrains this to 20 conformers per molecule to ensure runtime completion within 6 hours, as documented in `research.md` (Decision/Rationale) and the Spec Deviation & Governance section. This is a feasibility adaptation, not a spec change.
 

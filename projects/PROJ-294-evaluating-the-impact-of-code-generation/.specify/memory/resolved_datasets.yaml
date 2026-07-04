@@ -1,4 +1,4 @@
-resolved_at: '2026-07-03T20:34:19.464829+00:00'
+resolved_at: '2026-07-04T18:55:44.602851+00:00'
 datasets:
 - intent: HumanEval
   status: verified
@@ -45,23 +45,23 @@ datasets:
     source: huggingface
     status: verified
     format: jsonl
-  - url: https://figshare.com/articles/dataset/Call_09152489563_For_Bayero_University_Kano_BUK_2026_2027_POST_UTME_Diploma_and_Pre_Degree_forms_are_out_call_09152489563_/32897267
+  - url: https://figshare.com/articles/preprint/Vorticity_in_the_Quark-Gluon_Plasma_Volumetric_Expansion_Regularization_and_Spin_Signatures/32900537
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Call_09152489563_For_Ojaja_University_2026_2027_POST_UTME_Diploma_and_Pre_Degree_forms_are_out_call_09152489563_/32897264
+  - url: https://figshare.com/articles/thesis/Supplementary_files_for_Erik_Johan_M_ller_s_PhD_thesis/32780721
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Dual-Atom_Catalysis_on_Defective_Graphene_CO_sub_2_sub_Reduction_to_Ethanol_at_Oxygen-Bridged_Binuclear_Sites/32897262
+  - url: https://figshare.com/articles/dataset/High-temperature_superconductivity_at_100_K_in_La3-xNdxNi2O7/32896412
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Call_09152489563_For_Crown_Hill_University_2026_2027_POST_UTME_Diploma_and_Pre_Degree_forms_are_out_call_09152489563_/32897261
+  - url: https://tandf.figshare.com/articles/dataset/Risk_factors_for_adverse_events_or_use_of_high-potency_corticosteroids_in_non-infectious_uveitis_a_Japan_claims_database_study_J-CAT2_/32900535
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Call_09152489563_For_Lens_University_2026_2027_POST_UTME_Diploma_and_Pre_Degree_forms_are_out_call_09152489563_/32897258
+  - url: https://figshare.com/articles/dataset/_b_Peripheral_blood_LCK_and_PPP1R3D_as_candidate_biomarkers_associated_with_heart_failure_an_integrated_bioinformatics_and_preliminary_validation_study_b_/32900351
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -102,6 +102,255 @@ datasets:
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/21154221
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: McNemar
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/preprint/Vorticity_in_the_Quark-Gluon_Plasma_Volumetric_Expansion_Regularization_and_Spin_Signatures/32900537
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/thesis/Supplementary_files_for_Erik_Johan_M_ller_s_PhD_thesis/32780721
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/High-temperature_superconductivity_at_100_K_in_La3-xNdxNi2O7/32896412
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/dataset/Risk_factors_for_adverse_events_or_use_of_high-potency_corticosteroids_in_non-infectious_uveitis_a_Japan_claims_database_study_J-CAT2_/32900535
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/_b_Peripheral_blood_LCK_and_PPP1R3D_as_candidate_biomarkers_associated_with_heart_failure_an_integrated_bioinformatics_and_preliminary_validation_study_b_/32900351
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3526809
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18631054
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6491277
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19654752
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21102156
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21157045
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21157045
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21158324
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21158324
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21157629
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: SHA256
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/bshepp/round-reduced-sha256-learnability/resolve/main/bounded_null.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 10280
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/api/resolve-cache/datasets/PolloLOL/SHA-256-Proyect/ea3e28aa90a17aa505e01b25d38fb805e298431f/collisions.csv?%2Fdatasets%2FPolloLOL%2FSHA-256-Proyect%2Fresolve%2Fmain%2Fcollisions.csv=&etag=%22132eda3ab509aeb0ec46ba19933e01f792e7e5dd%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/bshepp/round-reduced-sha256-learnability/resolve/main/bounded_null.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/journal_contribution/Beweis_der_Collatz-Vermutung_mit_einer_intuitiven_Erkl_rung_/27872430
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/Vorticity_in_the_Quark-Gluon_Plasma_Volumetric_Expansion_Regularization_and_Spin_Signatures/32900537
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/thesis/Supplementary_files_for_Erik_Johan_M_ller_s_PhD_thesis/32780721
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/High-temperature_superconductivity_at_100_K_in_La3-xNdxNi2O7/32896412
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/dataset/Risk_factors_for_adverse_events_or_use_of_high-potency_corticosteroids_in_non-infectious_uveitis_a_Japan_claims_database_study_J-CAT2_/32900535
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15493277
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20597711
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19323092
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19426733
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19898770
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21196564
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21196564
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.5281/zenodo.20752194
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: HTTP 410'
+  - url: https://zenodo.org/records/21130901
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21130901
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: CodeLlama
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/mlabonne/CodeLlama-2-20k/resolve/main/data/train-00000-of-00001-aa7b6a5bb57fd1c0.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/open-llm-leaderboard-old/details_codellama__CodeLlama-13b-Python-hf/resolve/main/2023-08-25T16:41:17.923081/details_harness|arc:challenge|25_2023-08-25T16:41:17.923081.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/open-llm-leaderboard-old/details_codellama__CodeLlama-7b-Instruct-hf/resolve/main/2023-08-25T17:04:00.078187/details_harness|arc:challenge|25_2023-08-25T17:04:00.078187.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/mlabonne/CodeLlama-2-20k/resolve/main/data/train-00000-of-00001-aa7b6a5bb57fd1c0.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://us.aws.cdn.hf.co/xet-bridge-us/64e7b96e6f5b10625f92a6c1/17994cc8de23e01cd26b212174a04849cfeb64c5157b3e2e37c039c178d67c70?response-content-disposition=inline%3B+filename*%3DUTF-8%27%27data-00000-of-00001.arrow%3B+filename%3D%22data-00000-of-00001.arrow%22%3B&user_id=public&X-Xet-Cas-Uid=public&Expires=1783194883&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjRlN2I5NmU2ZjViMTA2MjVmOTJhNmMxLzE3OTk0Y2M4ZGUyM2UwMWNkMjZiMjEyMTc0YTA0ODQ5Y2ZlYjY0YzUxNTdiM2UyZTM3YzAzOWMxNzhkNjdjNzBcXD9yZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3ZGF0YS0wMDAwMC1vZi0wMDAwMS5hcnJvdyUzQitmaWxlbmFtZSUzRCUyMmRhdGEtMDAwMDAtb2YtMDAwMDEuYXJyb3clMjIlM0ImdXNlcl9pZD1wdWJsaWMmWC1YZXQtQ2FzLVVpZD1wdWJsaWMiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkVwb2NoVGltZSI6MTc4MzE5NDg4M319fV19&Signature=MEYCIQCD5c7z6f7pMpYKCZX40iDyvlO5~i8LjNCj8VrnIWi57wIhAN-vkwn8F6Evp5wzCyz8ciVThHAHoCN2zF6F6rofLOIY&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/open-llm-leaderboard-old/details_codellama__CodeLlama-13b-Python-hf/resolve/main/2023-08-25T16:41:17.923081/details_harness|arc:challenge|25_2023-08-25T16:41:17.923081.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/open-llm-leaderboard-old/details_codellama__CodeLlama-7b-Instruct-hf/resolve/main/2023-08-25T17:04:00.078187/details_harness|arc:challenge|25_2023-08-25T17:04:00.078187.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/open-llm-leaderboard-old/details_codellama__CodeLlama-13b-Instruct-hf/resolve/main/2023-08-25T17:15:30.693025/details_harness|arc:challenge|25_2023-08-25T17:15:30.693025.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/journal_contribution/Beweis_der_Collatz-Vermutung_mit_einer_intuitiven_Erkl_rung_/27872430
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/Vorticity_in_the_Quark-Gluon_Plasma_Volumetric_Expansion_Regularization_and_Spin_Signatures/32900537
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/thesis/Supplementary_files_for_Erik_Johan_M_ller_s_PhD_thesis/32780721
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/High-temperature_superconductivity_at_100_K_in_La3-xNdxNi2O7/32896412
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/dataset/Risk_factors_for_adverse_events_or_use_of_high-potency_corticosteroids_in_non-infectious_uveitis_a_Japan_claims_database_study_J-CAT2_/32900535
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/12771266
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/11062815
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10390998
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/13921403
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17204500
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://researchrepository.ul.ie/entities/publication/221e8475-686d-4cf6-af18-4976404edaff
+    source: datacite
+    status: wrong_format
+    reason: 'HTTPSConnectionPool(host=''researchrepository.ul.ie'', port=443): Read
+      timed out.'
+  - url: https://figshare.com/articles/preprint/JavaVulBench_A_Java_Vulnerability_Benchmark_with_Realistic_Splits_a_Unified_Multi-Backend_Harness_and_a_Leakage-Aware_Evaluation_Mode/32885981/1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/JavaVulBench_A_Java_Vulnerability_Benchmark_with_Realistic_Splits_a_Unified_Multi-Backend_Harness_and_a_Leakage-Aware_Evaluation_Mode/32885981
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2606.29733
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://underline.io/lecture/95626-hierarchynet-learning-to-summarize-source-code-with-heterogeneous-representations
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content

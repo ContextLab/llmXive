@@ -1,0 +1,653 @@
+{
+  "fetched_at": "2026-07-04T18:52:33Z",
+  "field": "psychology",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "psychology",
+      "idea_body_excerpt": "The Effect of Sensory Deprivation on Dream Recall and Bizarreness",
+      "target_n": 5
+    },
+    "duration_seconds": 79.79,
+    "ended_at": "2026-07-04T18:52:33Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "sensory deprivation and dream frequency"
+        ],
+        [
+          2,
+          "float tank effects on dream content"
+        ],
+        [
+          3,
+          "REM sleep characteristics under isolation"
+        ],
+        [
+          4,
+          "sensory reduction and dream vividness"
+        ],
+        [
+          5,
+          "floating tank dream recall studies"
+        ],
+        [
+          6,
+          "perceptual isolation and dream narrative"
+        ],
+        [
+          7,
+          "dream bizarreness in low-stimulation environments"
+        ],
+        [
+          8,
+          "sensory deprivation sleep laboratory results"
+        ],
+        [
+          9,
+          "floating therapy and dream intensity"
+        ],
+        [
+          10,
+          "reduced sensory input and dream imagery"
+        ],
+        [
+          11,
+          "isolation tank sleep architecture"
+        ],
+        [
+          12,
+          "dream content analysis after sensory deprivation"
+        ],
+        [
+          13,
+          "sensory monotony and dream recall rates"
+        ],
+        [
+          14,
+          "psychological effects of sensory isolation on sleep"
+        ],
+        [
+          15,
+          "altered states of consciousness in float tanks"
+        ],
+        [
+          16,
+          "dream complexity following sensory restriction"
+        ],
+        [
+          17,
+          "floating and hypnagogic imagery"
+        ],
+        [
+          18,
+          "sensory deprivation and sleep stage distribution"
+        ],
+        [
+          19,
+          "dream reporting accuracy in isolation"
+        ],
+        [
+          20,
+          "sensory deprivation and nightmare frequency"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "REM sleep characteristics under isolation": 3,
+        "The Effect of Sensory Deprivation on Dream Recall and Bizarreness psychology": 0,
+        "float tank effects on dream content": 1,
+        "floating tank dream recall studies": 0,
+        "perceptual isolation and dream narrative": 1,
+        "sensory deprivation and dream frequency": 0,
+        "sensory reduction and dream vividness": 0
+      },
+      "total_queries_issued": 6
+    },
+    "extracted_queries": [
+      "sleep paralysis hypnagogic imagery lucid dreaming",
+      "floatation tank REST sensory isolation chamber",
+      "REM sleep architecture sleep stage scoring",
+      "dream content analysis bizarreness frequency recall rate",
+      "sensory gating dream generation oneirology mechanisms"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "success_after_expansion",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2105.01933"
+      ]
+    },
+    "per_query_hit_count": {
+      "REM sleep architecture sleep stage scoring": 2,
+      "The Effect of Sensory Deprivation on Dream Recall and Bizarreness psychology": 3,
+      "dream content analysis bizarreness frequency recall rate": 3,
+      "floatation tank REST sensory isolation chamber": 3,
+      "sensory gating dream generation oneirology mechanisms": 3,
+      "sleep paralysis hypnagogic imagery lucid dreaming": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": true,
+      "rejected_count": 5,
+      "rejections": [
+        {
+          "primary_pointer": "2409.14279",
+          "rationale": "The paper investigates the relationship between affect (valence/arousal) and dream structure/content, but it does not measure or discuss \"sensory deprivation\" as an independent variable or experimental condition. While it addresses the dependent variables (dream structure/bizarreness proxies), it fails to satisfy the criteria for the specific mechanism (sensory deprivation) or the empirical population (sensory-deprived individuals) required for inclusion under rules (a), (b), or (e).",
+          "title": "The content and structure of dreams are coupled to affect"
+        },
+        {
+          "primary_pointer": "2105.01933",
+          "rationale": "The paper focuses on automated sleep-stage scoring methodology in mice and does not measure sensory deprivation, dream recall, or dream bizarreness, failing to satisfy any inclusion criteria (a-f) as it addresses a distinct construct (sleep staging accuracy) rather than the user's specific psychological variables or mechanism.",
+          "title": "Automated scoring of pre-REM sleep in mice with deep learning"
+        },
+        {
+          "primary_pointer": "2602.09793",
+          "rationale": "The paper focuses on automated sleep staging algorithms for Parkinson's disease and REM sleep behavior disorder, which is an off-domain application of sleep technology that does not measure the psychological constructs of dream recall, dream bizarreness, or the effects of sensory deprivation. While it involves sleep (REM), it lacks any connection to the specific independent variable (sensory deprivation) or dependent variables (dream content metrics) required by the user's question, failing all ",
+          "title": "Fully-automated sleep staging: multicenter validation of a generalizable deep neural network for Parkinson's disease and isolated REM sleep behavior disorder"
+        },
+        {
+          "primary_pointer": "2604.01252",
+          "rationale": "The paper focuses on the physiological mechanisms of REM sleep propensity and cycle timing across species, but it does not measure the user's specific dependent variables (dream recall frequency or dream bizarreness) nor does it study the specific independent variable of sensory deprivation. While it addresses the broader domain of sleep, it fails to meet the criteria for measuring the relevant psychological constructs or the specific experimental condition required for inclusion in a literature",
+          "title": "A Data-Driven Measure of REM Sleep Propensity for Human and Rodent Sleep"
+        },
+        {
+          "primary_pointer": "1306.5308",
+          "rationale": "The paper focuses on computational models for machine vision and smart environments (AI/robotics), which is an off-domain topic entirely unrelated to the user's question about human psychology, sensory deprivation, and dream recall. It shares only the keyword \"perceptual\" in a distinct technical context (computer vision vs. human sensory processing), satisfying the rejection rule for distinct constructs sharing homonym keywords.",
+          "title": "Cognitive Interpretation of Everyday Activities: Toward Perceptual Narrative Based Visuo-Spatial Scene Interpretation"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-07-04T18:51:13Z",
+    "term_input": {
+      "normalized": "the effect of sensory deprivation on dream recall and bizarreness psychology",
+      "raw": "The Effect of Sensory Deprivation on Dream Recall and Bizarreness psychology"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Understanding mind-brain-environment relations is one of the key topics in psychology. Kurt Lewin, inspired by theoretical physics, tried to establish topological and vector psychology analyzing patterns of interaction between the individual and her/his environment. The time is ripe to reformulate his ambitious goals, searching for ways to interpret objectively measured brain processes in terms of suitable psychological constructs. Connecting cognitive and social psychology constructs to neurophenomics, as it is done now in psychiatry, should ground them in physical reality.",
+          "claimed_authors": [
+            "Włodzisław Duch"
+          ],
+          "claimed_title": "Kurt Lewin, psychological constructs and sources of brain cognitive activity",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1711.01767"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='The Effect of Sensory Deprivation on Dream Recall and Bizarreness psychology', candidate_title='Kurt Lewin, psychological constructs and sources of brain cognitive activity')",
+        "failed_at": "2026-07-04T18:51:43Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Visualization is a useful technology in health science, and especially for community network analysis. Because visualization applications in healthcare are typically risk-averse, health psychologists can play a significant role in ensuring appropriate and effective uses of visualization techniques in healthcare. In this paper, we examine the role of health psychologists in the triangle of \"health science\", \"visualization technology\", and \"visualization psychology\". We conclude that health psychologists can use visualization to aid data intelligence workflows in healthcare and health psychology, while researching into visualization psychology to aid the improvement and optimization of data visualization processes.",
+          "claimed_authors": [
+            "Darren J. Edwards",
+            "Min Chen"
+          ],
+          "claimed_title": "Developing Effective Community Network Analysis Tools According to Visualization Psychology",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2010.00488"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='The Effect of Sensory Deprivation on Dream Recall and Bizarreness psychology', candidate_title='Developing Effective Community Network Analysis Tools According to Visualization Psychology')",
+        "failed_at": "2026-07-04T18:51:43Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The aim of this paper is to promote quantum logic as one of the basic tools for analyzing human reasoning. We compare it with classical (Boolean) logic and highlight the role of violation of the distributive law for conjunction and disjunction. It is well known that nondistributivity is equivalent to incompatibility of logical variables -- the impossibility to assign jointly the two-valued truth values to these variables. A natural question arises as to whether quantum logical nondistributivity in human logic can be tested experimentally. We show that testing the response replicability effect (RRE) in cognitive psychology is equivalent to testing nondistributivity -- under the prevailing conjecture that the mental state update generated by observation is described as orthogonal projection of the mental state vector (the projective update conjecture of Wang and Busemeyer). A simple test of RRE is suggested. In contrast to the previous works in quantum-like modeling, we proceed in the state-dependent framework; in particular, distributivity, compatibility, and RRE are considered in a fixed mental state. In this framework, we improve the previous result on the impossibility to combine question order and response replicability effects by using (von Neumann-Lüders) projective measurements.",
+          "claimed_authors": [
+            "Masanao Ozawa",
+            "Andrei Khrennikov"
+          ],
+          "claimed_title": "Nondistributivity of human logic and violation of response replicability effect in cognitive psychology",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2208.12946"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='The Effect of Sensory Deprivation on Dream Recall and Bizarreness psychology', candidate_title='Nondistributivity of human logic and violation of response replicability effect in cognitive psychology')",
+        "failed_at": "2026-07-04T18:51:43Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Study Objectives: Fetal sleep is a vital yet underexplored aspect of prenatal neurodevelopment. Its cyclic organization reflects the maturation of central neural circuits, and disturbances in these patterns may offer some of the earliest detectable signs of neurological compromise. This is the first review to integrate more than seven decades of research into a unified, cross-species synthesis of fetal sleep. We examine: (i) Physiology and Ontogeny-comparing human fetuses with animal models; and (ii) Methodological Evolution-transitioning from invasive neurophysiology to non-invasive monitoring and deep learning frameworks.\n  Methods: A structured narrative synthesis was guided by a systematic literature search across four databases (PubMed, Scopus, IEEE Xplore, and Google Scholar). From 2,925 identified records, 171 studies involving fetal sleep-related physiology, sleep-state classification, or signal-based monitoring were included in this review.\n  Results: Across the 171 studies, fetal sleep states become clearly observable as the brain matures. In fetal sheep and baboons, organized cycling between active and quiet sleep emerges at approximately 80%-90% gestation. In humans, this differentiation occurs later, around 95% gestation, with full maturation reached near term. Despite extensive animal research, no unified, clinically validated framework exists for defining fetal sleep states, limiting translation into routine obstetric practice.\n  Conclusions: By integrating evidence across species, methodologies, and clinical contexts, this review provides the scientific foundation for developing objective, multimodal, and non-invasive fetal sleep monitoring technologies-tools that may ultimately support earlier detection of neurological compromise and guide timely prenatal intervention.",
+          "claimed_authors": [
+            "Weitao Tang",
+            "Johann Vargas-Calixto",
+            "Nasim Katebi",
+            "Robert Galinsky",
+            "Gari D. Clifford",
+            "Faezeh Marzbanrad"
+          ],
+          "claimed_title": "Fetal Sleep: A Cross-Species Review of Physiology, Measurement, and Classification",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2506.21828"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='The Effect of Sensory Deprivation on Dream Recall and Bizarreness psychology', candidate_title='Fetal Sleep: A Cross-Species Review of Physiology, Measurement, and Classification')",
+        "failed_at": "2026-07-04T18:51:43Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Sleep paralysis is an experience of being temporarily unable to move or talk during the transitional periods between sleep and wakefulness: at sleep onset or upon awakening. Feeling of paralysis may be accompanied by a variety of vivid and intense sensory experiences, including mentation in visual, auditory, and tactile modalities, as well as a distinct feeling of presence. This chapter discusses a variety of sleep paralysis experiences from the perspective of enactive cognition and cultural neurophenomenology. Current knowledge of neurophysiology and associated conditions is presented, and some techniques for coping with sleep paralysis are proposed. As an experience characterized by a hybrid state of dreaming and waking, sleep paralysis offers a unique window into phenomenology of spontaneous thought in sleep.",
+          "claimed_authors": [
+            "Elizaveta Solomonova"
+          ],
+          "claimed_title": "Sleep Paralysis: phenomenology, neurophysiology and treatment",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1704.02342"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='The Effect of Sensory Deprivation on Dream Recall and Bizarreness psychology', candidate_title='Sleep Paralysis: phenomenology, neurophysiology and treatment')",
+        "failed_at": "2026-07-04T18:51:43Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "All varieties of dreaming remain a mystery. Lucid dreams in particular, or those characterized by awareness of the dream, are notoriously difficult to study. Their scarce prevalence and resistance to deliberate induction make it difficult to obtain a sizeable corpus of lucid dream reports. The consequent lack of clarity around lucid dream phenomenology has left the many purported applications of lucidity under-realized. Here, a large corpus of 55k dream reports from 5k contributors is curated, described, and validated for future research. Ten years of publicly available dream reports were scraped from an online forum where users share anonymous dream journals. Importantly, users optionally categorize their dream as lucid, non-lucid, or a nightmare, offering a user-provided labeling system that includes 10k lucid and 25k non-lucid, and 2k nightmare labels. After characterizing the corpus with descriptive statistics and visualizations, construct validation shows that language patterns in lucid-labeled reports are consistent with known characteristics of lucid dreams. While the entire corpus has broad value for dream science, the labeled subset is particularly powerful for new discoveries in lucid dream studies.",
+          "claimed_authors": [
+            "Remington Mallett"
+          ],
+          "claimed_title": "A large corpus of lucid and non-lucid dream reports",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2603.26992"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='The Effect of Sensory Deprivation on Dream Recall and Bizarreness psychology', candidate_title='A large corpus of lucid and non-lucid dream reports')",
+        "failed_at": "2026-07-04T18:51:43Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "After some recollections of the early bubble chamber times, a brief overview of the golden age of the field is made, including its legacy and the use of bubble chamber events for the popularization of science.",
+          "claimed_authors": [
+            "Giorgio Giacomelli"
+          ],
+          "claimed_title": "Introduction to the Workshop \"30 years of bubble chamber physics\"",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2006,
+          "primary_pointer": "physics/0604152"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='The Effect of Sensory Deprivation on Dream Recall and Bizarreness psychology', candidate_title='Introduction to the Workshop \"30 years of bubble chamber physics\"')",
+        "failed_at": "2026-07-04T18:51:43Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A novel sensory substitution technique is presented. Kinesthetic and cutaneous force feedback are substituted by cutaneous feedback (CF) only, provided by two wearable devices able to apply forces to the index finger and the thumb, while holding a handle during a teleoperation task. The force pattern, fed back to the user while using the cutaneous devices, is similar, in terms of intensity and area of application, to the cutaneous force pattern applied to the finger pad while interacting with a haptic device providing both cutaneous and kinesthetic force feedback. The pattern generated using the cutaneous devices can be thought as a subtraction between the complete haptic feedback (HF) and the kinesthetic part of it. For this reason, we refer to this approach as sensory subtraction instead of sensory substitution. A needle insertion scenario is considered to validate the approach. The haptic device is connected to a virtual environment simulating a needle insertion task. Experiments show that the perception of inserting a needle using the cutaneous-only force feedback is nearly indistinguishable from the one felt by the user while using both cutaneous and kinesthetic feedback. As most of the sensory substitution approaches, the proposed sensory subtraction technique also has the advantage of not suffering from stability issues of teleoperation systems due, for instance, to communication delays. Moreover, experiments show that the sensory subtraction technique outperforms sensory substitution with more conventional visual feedback (VF).",
+          "claimed_authors": [
+            "Domenico Prattichizzo",
+            "Claudio Pacchierotti",
+            "Giulio Rosati"
+          ],
+          "claimed_title": "Cutaneous Force Feedback as a Sensory Subtraction Technique in Haptics",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2011,
+          "primary_pointer": "1108.1464"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='The Effect of Sensory Deprivation on Dream Recall and Bizarreness psychology', candidate_title='Cutaneous Force Feedback as a Sensory Subtraction Technique in Haptics')",
+        "failed_at": "2026-07-04T18:51:43Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The effective cone of a Mori dream space admits two wall-and-chamber decompositions called Mori chamber and stable base locus decompositions. In general the former is a non trivial refinement of the latter. We investigate, from both the geometrical and the combinatorial viewpoints, the differences between these decompositions. Furthermore, we provide a criterion to establish whether the two decompositions coincide for a Mori dream space of Picard rank two, and we construct an explicit example of a Mori dream space of Picard rank two for which the decompositions are different, showing that our criterion is sharp. Finally, we classify the smooth toric 3-folds of Picard rank three for which the two decompositions are different.",
+          "claimed_authors": [
+            "Antonio Laface",
+            "Alex Massarenti",
+            "Rick Rischter"
+          ],
+          "claimed_title": "On Mori chamber and stable base locus decompositions",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1805.10925"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='The Effect of Sensory Deprivation on Dream Recall and Bizarreness psychology', candidate_title='On Mori chamber and stable base locus decompositions')",
+        "failed_at": "2026-07-04T18:51:43Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Study Objective: Sleep is reflected not only in the electroencephalogram but also in heart rhythms and breathing patterns. Therefore, we hypothesize that it is possible to accurately stage sleep based on the electrocardiogram (ECG) and respiratory signals. Methods: Using a dataset including 8,682 polysomnographs, we develop deep neural networks to stage sleep from ECG and respiratory signals. Five deep neural networks consisting of convolutional networks and long short-term memory networks are trained to stage sleep using heart and breathing, including the timing of R peaks from ECG, abdominal and chest respiratory effort, and the combinations of these signals. Results: ECG in combination with the abdominal respiratory effort achieve the best performance for staging all five sleep stages with a Cohen's kappa of 0.600 (95% confidence interval 0.599 -- 0.602); and 0.762 (0.760 -- 0.763) for discriminating awake vs. rapid eye movement vs. non-rapid eye movement sleep. The performance is better for young participants and for those with a low apnea-hypopnea index, while it is robust for commonly used outpatient medications. Conclusions: Our results validate that ECG and respiratory effort provide substantial information about sleep stages in a large population. It opens new possibilities in sleep research and applications where electroencephalography is not readily available or may be infeasible, such as in critically ill patients.",
+          "claimed_authors": [
+            "Haoqi Sun",
+            "Wolfgang Ganglberger",
+            "Ezhil Panneerselvam",
+            "Michael J. Leone",
+            "Syed A. Quadri",
+            "Balaji Goparaju",
+            "Ryan A. Tesh",
+            "Oluwaseun Akeju",
+            "Robert J. Thomas",
+            "M. Brandon Westover"
+          ],
+          "claimed_title": "Sleep Staging from Electrocardiography and Respiration with Deep Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1908.11463"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='The Effect of Sensory Deprivation on Dream Recall and Bizarreness psychology', candidate_title='Sleep Staging from Electrocardiography and Respiration with Deep Learning')",
+        "failed_at": "2026-07-04T18:51:43Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Time irreversibility (TIR) refers to the manifestation of nonequilibrium brain activity influenced by various physiological conditions; however, the influence of sleep on electroencephalogram (EEG) TIR has not been sufficiently investigated. In this paper, a comprehensive study on permutation TIR (pTIR) of EEG data under different sleep stages is conducted. Two basic ordinal patterns (i.e., the original and amplitude permutations) are distinguished to simplify sleep EEGs, and then the influences of equal values and forbidden permutation on pTIR are elucidated. To detect pTIR of brain electric signals, 5 groups of EEGs in the awake, stages I, II, III, and rapid eye movement (REM) stages are collected from the public Polysomnographic Database in PhysioNet. Test results suggested that the pTIR of sleep EEGs significantly decreases as the sleep stage increases (p<0.001), with the awake and REM EEGs, demonstrating greater differences than others. Comparative analysis and numerical simulations support the importance of equal values. Distribution of equal states, a simple quantification of amplitude fluctuations, significantly increases with the sleep stage (p<0.001). If these equalities are ignored, incorrect probabilistic differences may arise in the forward-backward and symmetric permutations of TIR, leading to contradictory results; moreover, the ascending and descending orders for symmetric permutations also lead different outcomes in sleep EEGs. Overall, pTIR in sleep EEGs contributes to our understanding of quantitative TIR and classification of sleep EEGs.",
+          "claimed_authors": [
+            "Wenpo Yao"
+          ],
+          "claimed_title": "Permutation time irreversibility in sleep electroencephalograms: Dependence on sleep stage and the effect of equal values",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2405.02802"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='The Effect of Sensory Deprivation on Dream Recall and Bizarreness psychology', candidate_title='Permutation time irreversibility in sleep electroencephalograms: Dependence on sleep stage and the effect of equal values')",
+        "failed_at": "2026-07-04T18:51:43Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Preprint for a book chapter introducing Audio Content Analysis. With a focus on Music Information Retrieval systems, this chapter defines musical audio content, introduces the general process of audio content analysis, and surveys basic approaches to audio content analysis. The various tasks in Audio Content Analysis are categorized into three classes: music transcription, music performance analysis, and music identification and categorization. The examples for music transcription systems include music key detection, fundamental frequency detection, and music structure detection. Music performance analysis systems feature an overview of beat and tempo detection approaches as well as music performance assessment. The covered music classification systems are audio fingerprinting, music genre classification, and music emotion recognition. The chapter concludes with a discussion and current challenges in the field and a speculation on future perspectives.",
+          "claimed_authors": [
+            "Alexander Lerch"
+          ],
+          "claimed_title": "Audio Content Analysis",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2101.00132"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='The Effect of Sensory Deprivation on Dream Recall and Bizarreness psychology', candidate_title='Audio Content Analysis')",
+        "failed_at": "2026-07-04T18:51:43Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Tabletop roleplaying games (TTRPGs) and procedural content generators can both be understood as systems of rules for producing content. In this paper, we argue that TTRPG design can usefully be viewed as procedural content generator design. We present several case studies linking key concepts from PCG research -- including possibility spaces, expressive range analysis, and generative pipelines -- to key concepts in TTRPG design. We then discuss the implications of these relationships and suggest directions for future work uniting research in TTRPGs and PCG.",
+          "claimed_authors": [
+            "Matthew Guzdial",
+            "Devi Acharya",
+            "Max Kreminski",
+            "Michael Cook",
+            "Mirjam Eladhari",
+            "Antonios Liapis",
+            "Anne Sullivan"
+          ],
+          "claimed_title": "Tabletop Roleplaying Games as Procedural Content Generators",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2007.06108"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='The Effect of Sensory Deprivation on Dream Recall and Bizarreness psychology', candidate_title='Tabletop Roleplaying Games as Procedural Content Generators')",
+        "failed_at": "2026-07-04T18:51:43Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Factor structure of heart rate periodogram has been detected with factor analysis.  The results showed that there are at least four periodical phenomena of HRV. Two of them have not been discovered and physiologically explained yet. Their frequency ranges are 0.21 to 0.31 1/beat with the peak at 0.26 1/beat and 0.25 to 0.5 1/beat with the peak 0.35 1/beat. Despite of differences of the peak frequencies the frequency rages of the factors are overlapped. Therefore, power of spectral density within any frequency range could not be a measure of a modulating physiological mechanism activity.",
+          "claimed_authors": [
+            "V. Mukhin"
+          ],
+          "claimed_title": "Frequency Structure of Heart Rate Variability",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1005.0776"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='The Effect of Sensory Deprivation on Dream Recall and Bizarreness psychology', candidate_title='Frequency Structure of Heart Rate Variability')",
+        "failed_at": "2026-07-04T18:51:43Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In this paper we study effective, nef and semiample cones of minimal surfaces of general type with $p_g=0.$ We provide examples of minimal surfaces of general type with $p_g=0, 2 \\leq K^2 \\leq 9$ which are Mori dream spaces. On these examples we also give explicit description of effective cones and all irreducible reduced curves of negative self-intersection. We also present non-minimal surfaces of general type with $p_g=0$ that are not Mori dream surfaces.",
+          "claimed_authors": [
+            "JongHae Keum",
+            "Kyoung-Seog Lee"
+          ],
+          "claimed_title": "Examples of Mori dream surfaces of general type with $p_g=0$",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1804.08382"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='The Effect of Sensory Deprivation on Dream Recall and Bizarreness psychology', candidate_title='Examples of Mori dream surfaces of general type with $p_g=0$')",
+        "failed_at": "2026-07-04T18:51:43Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "An intense controversy has surrounded the mechanism of voltage-gating in ion channels. We interpreted the two leading models of voltage-gating with respect to the thermodynamic energetics of membrane insertion of the voltage-sensing 'module' from a comprehensive set of potassium channels. KvAP is an archaeal voltage-gated potassium channel whose x-ray structure was the basis for determining the general mechanism of voltage-gating. The free energy of membrane insertion of the KvAP voltage sensor was revealed to be a single outlier. This was due to its unusual sequence that facilitated large gating movements in its native lipid membrane. This degree of free energy was the least typical of the other voltage sensors, including the Shaker potassium channel. We inferred that the two leading models of voltage-gating referred to alternative mechanisms of voltage-gating: each is applicable to an independent set of ion channels. The large motion of the voltage-sensor during gating proposed by the KvAP-paddle model of gating is unlikely to be mirrored by the majority of ion channels whose voltage sensors are not located at the membrane-cytoplasm interface in the channel closed state.",
+          "claimed_authors": [
+            "Ashok Palaniappan"
+          ],
+          "claimed_title": "A Surprising Clarification of the Mechanism of Ion-channel Voltage-Gating",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2006,
+          "primary_pointer": "q-bio/0604011"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='The Effect of Sensory Deprivation on Dream Recall and Bizarreness psychology', candidate_title='A Surprising Clarification of the Mechanism of Ion-channel Voltage-Gating')",
+        "failed_at": "2026-07-04T18:51:43Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In this work we present DREAM, an fMRI-to-image method for reconstructing viewed images from brain activities, grounded on fundamental knowledge of the human visual system. We craft reverse pathways that emulate the hierarchical and parallel nature of how humans perceive the visual world. These tailored pathways are specialized to decipher semantics, color, and depth cues from fMRI data, mirroring the forward pathways from visual stimuli to fMRI recordings. To do so, two components mimic the inverse processes within the human visual system: the Reverse Visual Association Cortex (R-VAC) which reverses pathways of this brain region, extracting semantics from fMRI data; the Reverse Parallel PKM (R-PKM) component simultaneously predicting color and depth from fMRI signals. The experiments indicate that our method outperforms the current state-of-the-art models in terms of the consistency of appearance, structure, and semantics. Code will be made publicly available to facilitate further research in this field.",
+          "claimed_authors": [
+            "Weihao Xia",
+            "Raoul de Charette",
+            "Cengiz Öztireli",
+            "Jing-Hao Xue"
+          ],
+          "claimed_title": "DREAM: Visual Decoding from Reversing Human Visual System",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2310.02265"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='The Effect of Sensory Deprivation on Dream Recall and Bizarreness psychology', candidate_title='DREAM: Visual Decoding from Reversing Human Visual System')",
+        "failed_at": "2026-07-04T18:51:43Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Luke Leckie",
+            "Anya K. Bershad",
+            "Jes Heppler",
+            "Mason McClay",
+            "Sofiia Rappe",
+            "Jacob G. Foster"
+          ],
+          "title": "The content and structure of dreams are coupled to affect",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2409.14279",
+        "summary": "Dreams offer a unique window into the cognitive and affective dynamics of the sleeping and the waking mind. Recent quantitative linguistic approaches have shown promise in obtaining corpus-level measures of dream sentiment and topic occurrence. However, it is currently unclear how the affective content of individual dreams relates to their semantic content and structure. Here, we combine word embedding, topic modeling, and network analysis to investigate this relationship. By applying Discourse Atom Topic Modeling (DATM) to the DreamBank corpus of >18K dream reports, we represent the latent themes arising within dream reports as a sparse dictionary of topics and identify the affective associations of those topics. We show that variation in dream report affect (valence and arousal) is associated with changes in topical content. By representing each dream report as a network of topics, we demonstrate that the affective content of dream narratives is also coupled to semantic structure. Positively valenced dream reports exhibit more coherent, structured, and linear narratives, whilst negatively valenced dreams have more narrative loops and dominant topics. Topic networks of high arousal dream reports are structurally dominated by few high arousal topics and incoherent topical connections, whereas low arousal dream reports contain more loops. These findings suggest that affective processes are associated with both the content and structure of dreams. Our approach showcases the potential of integrating natural language processing and network analysis with psychology to elucidate the interplay of affect, cognition and narrative in dreams. This methodology has broad applications for the study of narrated experience and psychiatric symptomatology.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2409.14279",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-04T18:51:52Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Niklas Grieger",
+            "Justus T. C. Schwabedal",
+            "Stefanie Wendel",
+            "Yvonne Ritze",
+            "Stephan Bialonski"
+          ],
+          "title": "Automated scoring of pre-REM sleep in mice with deep learning",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2021
+        },
+        "primary_pointer": "2105.01933",
+        "summary": "Reliable automation of the labor-intensive manual task of scoring animal sleep can facilitate the analysis of long-term sleep studies. In recent years, deep-learning-based systems, which learn optimal features from the data, increased scoring accuracies for the classical sleep stages of Wake, REM, and Non-REM. Meanwhile, it has been recognized that the statistics of transitional stages such as pre-REM, found between Non-REM and REM, may hold additional insight into the physiology of sleep and are now under vivid investigation. We propose a classification system based on a simple neural network architecture that scores the classical stages as well as pre-REM sleep in mice. When restricted to the classical stages, the optimized network showed state-of-the-art classification performance with an out-of-sample F1 score of 0.95 in male C57BL/6J mice. When unrestricted, the network showed lower F1 scores on pre-REM (0.5) compared to the classical stages. The result is comparable to previous attempts to score transitional stages in other species such as transition sleep in rats or N1 sleep in humans. Nevertheless, we observed that the sequence of predictions including pre-REM typically transitioned from Non-REM to REM reflecting sleep dynamics observed by human scorers. Our findings provide further evidence for the difficulty of scoring transitional sleep stages, likely because such stages of sleep are under-represented in typical data sets or show large inter-scorer variability. We further provide our source code and an online platform to run predictions with our trained network.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2105.01933",
+          "http_status": 200,
+          "pdf_sample_score": 0.2805,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-04T18:51:57Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Jesper Strøm",
+            "Casper Skjærbæk",
+            "Natasha Becker Bertelsen",
+            "Steffen Torpe Simonsen",
+            "Niels Okkels",
+            "David Bertram",
+            "Sinah Röttgen",
+            "Konstantin Kufer",
+            "Kaare B. Mikkelsen",
+            "Marit Otto",
+            "Poul Jørgen Jennum",
+            "Per Borghammer",
+            "Michael Sommerauer",
+            "Preben Kidmose"
+          ],
+          "title": "Fully-automated sleep staging: multicenter validation of a generalizable deep neural network for Parkinson's disease and isolated REM sleep behavior disorder",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2602.09793",
+        "summary": "Isolated REM sleep behavior disorder (iRBD) is a key prodromal marker of Parkinson's disease (PD), and video-polysomnography (vPSG) remains the diagnostic gold standard. However, manual sleep staging is particularly challenging in neurodegenerative diseases due to EEG abnormalities and fragmented sleep, making PSG assessments a bottleneck for deploying new RBD screening technologies at scale. We adapted U-Sleep, a deep neural network, for generalizable sleep staging in PD and iRBD. A pretrained U-Sleep model, based on a large, multisite non-neurodegenerative dataset (PUB; 19,236 PSGs across 12 sites), was fine-tuned on research datasets from two centers (Lundbeck Foundation Parkinson's Disease Research Center (PACE) and the Cologne-Bonn Cohort (CBC); 112 PD, 138 iRBD, 89 age-matched controls. The resulting model was evaluated on an independent dataset from the Danish Center for Sleep Medicine (DCSM; 81 PD, 36 iRBD, 87 sleep-clinic controls). A subset of PSGs with low agreement between the human rater and the model (Cohen's $κ$ < 0.6) was re-scored by a second blinded human rater to identify sources of disagreement. Finally, we applied confidence-based thresholds to optimize REM sleep staging. The pretrained model achieved mean $κ$ = 0.81 in PUB, but $κ$ = 0.66 when applied directly to PACE/CBC. By fine-tuning the model, we developed a generalized model with $κ$ = 0.74 on PACE/CBC (p < 0.001 vs. the pretrained model). In DCSM, mean and median $κ$ increased from 0.60 to 0.64 (p < 0.001) and 0.64 to 0.69 (p < 0.001), respectively. In the interrater study, PSGs with low agreement between the model and the initial scorer showed similarly low agreement between human scorers. Applying a confidence threshold increased the proportion of correctly identified REM sleep epochs from 85% to 95.5%, while preserving sufficient (> 5 min) REM sleep for 95% of subjects.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2602.09793",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-04T18:51:57Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Naghmeh Akhavan",
+            "Alexander G. Ginsberg",
+            "Madelyn E. C. Cruz",
+            "Yunxi Yan",
+            "Shelby R. Stowe",
+            "Dinesh Pal",
+            "Franz Weber",
+            "Cecilia G. Diniz Behn",
+            "Victoria Booth"
+          ],
+          "title": "A Data-Driven Measure of REM Sleep Propensity for Human and Rodent Sleep",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2604.01252",
+        "summary": "Mammalian sleep is characterized by multiple alternations between episodes of rapid-eye-movement sleep (REMS) and non-REM sleep (NREMS). While the mechanisms governing the timing of these ultradian NREMS-REMS cycles remain poorly understood, the phenomenon of REMS pressure, namely a drive for REMS that builds up between REMS episodes, is thought to be a contributing factor. Prior analyses of NREMS-REMS cycles in mice has suggested that time in NREMS is a primary contributor to REMS pressure. Building on that finding, we previously introduced a REMS propensity measure defined as the probability to enter REMS before the accumulation of an additional amount of NREMS. Analyzing mouse ultradian cycle data, we showed that REMS propensity at REMS onset was positively correlated with REMS bout duration and with the probability of the occurrence of a REMS bout followed by a short inter-REMS interval, called a sequential REMS cycle. In this paper, we extend our analyses of REMS propensity to human and rat ultradian NREMS-REMS cycle data. We show that, as in mice, human and rat sleep contain both short NREMS-REMS sequential cycles and longer single NREMS-REMS cycles, though there are some differences in the relative distributions of cycle durations. Although rodents exhibit polyphasic sleep in contrast with the consolidated sleep of humans, the calculated REMS propensity measures in all three species show similar profiles as functions of time spent in NREMS: specifically, REMS propensity increases with time spent in NREMS until it reaches a peak value, and then it decays with additional time in NREMS. Positive correlations of REMS propensity at REMS onset with REMS bout duration were present in both human and rat data as in mouse data, suggesting that time spent in NREMS also influences REMS duration in these species.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2604.01252",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-04T18:51:58Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Mehul Bhatt",
+            "Jakob Suchan",
+            "Carl Schultz"
+          ],
+          "title": "Cognitive Interpretation of Everyday Activities: Toward Perceptual Narrative Based Visuo-Spatial Scene Interpretation",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2013
+        },
+        "primary_pointer": "1306.5308",
+        "summary": "We position a narrative-centred computational model for high-level knowledge representation and reasoning in the context of a range of assistive technologies concerned with \"visuo-spatial perception and cognition\" tasks. Our proposed narrative model encompasses aspects such as \\emph{space, events, actions, change, and interaction} from the viewpoint of commonsense reasoning and learning in large-scale cognitive systems. The broad focus of this paper is on the domain of \"human-activity interpretation\" in smart environments, ambient intelligence etc. In the backdrop of a \"smart meeting cinematography\" domain, we position the proposed narrative model, preliminary work on perceptual narrativisation, and the immediate outlook on constructing general-purpose open-source tools for perceptual narrativisation.\n  ACM Classification: I.2 Artificial Intelligence: I.2.0 General -- Cognitive Simulation, I.2.4 Knowledge Representation Formalisms and Methods, I.2.10 Vision and Scene Understanding: Architecture and control structures, Motion, Perceptual reasoning, Shape, Video analysis\n  General keywords: cognitive systems; human-computer interaction; spatial cognition and computation; commonsense reasoning; spatial and temporal reasoning; assistive technologies",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1306.5308",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-04T18:52:12Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "the effect of sensory deprivation on dream recall and bizarreness psychology",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

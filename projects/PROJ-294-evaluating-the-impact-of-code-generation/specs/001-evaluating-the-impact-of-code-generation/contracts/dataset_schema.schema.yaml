@@ -1,0 +1,27 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "HumanEval Dataset Subset Schema"
+description: "Schema for the downloaded and processed HumanEval dataset subset."
+type: object
+properties:
+  task_id:
+    type: string
+    description: "Unique identifier for the task (e.g., HumanEval/0)."
+  prompt:
+    type: string
+    description: "The problem description/prompt."
+  canonical_solution:
+    type: string
+    description: "The human reference solution code."
+  test:
+    type: string
+    description: "The test suite code."
+  entry_point:
+    type: string
+    description: "The name of the function to test."
+required:
+  - task_id
+  - prompt
+  - canonical_solution
+  - test
+  - entry_point
+additionalProperties: false

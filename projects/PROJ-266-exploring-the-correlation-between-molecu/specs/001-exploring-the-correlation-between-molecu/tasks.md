@@ -57,7 +57,7 @@
 
 - [ ] T004 Implement `code/utils/config.py` for random seeds, paths, and constants
 - [ ] T005 [P] Implement `code/utils/logging.py` for standardized logging
-- [ ] T006 [P] Implement `code/utils/versioning.py` for state file updates (Principle V). **Requirement**: Document the "Computational Method Transparency" decision in `research.md` with the exact text: "Plan explicitly rejects Normal Mode Analysis (PyVib) in favor of RDKit geometric proxies for CPU feasibility, as documented in the Technical Context."
+- [ ] T006 [P] Implement `code/utils/versioning.py` for state file updates (Principle V). **Requirement**: Generate the "Computational Method Transparency" section in `research.md` dynamically by reading the Plan's deviation record (`state/projects/PROJ-266-exploring-the-correlation-between-molecu.yaml`) and execution logs. The narrative must explain the decision to use RDKit geometric proxies (20 conformers) instead of Normal Mode Analysis (PyVib) based on CPU feasibility constraints documented in the deviation record, rather than hardcoding a static string.
 - [ ] T007 Create base data schemas in `specs/001-molecular-flexibility-permeability/contracts/` (dataset.schema.yaml, analysis_output.schema.yaml)
 - [ ] T008 Setup directory structure for `data/raw/` and `data/processed/` with checksum generation utility
 
@@ -90,9 +90,9 @@
 
 ### Implementation for User Story 2
 
-- [ ] T013 [US2] Implement `code/data/descriptors.py` to generate 3D conformer ensembles using RDKit. **Requirement**: Must generate ≥ 50 conformers per molecule as per FR-003. **Constraint Override**: This task overrides the plan's previous "20 conformers" constraint; the spec's requirement of ≥50 is mandatory. **Resource Management**: If RAM usage exceeds a high threshold during batch processing, the script MUST reduce the input dataset size (N) by removing molecules with the highest molecular weight. (to minimize memory footprint) and retry, ensuring ≥50 conformers are generated for every remaining molecule. The task fails only if N drops below a critical threshold after downsampling.
-- [ ] T013b [P] [US2] Implement resource management logic in `code/data/descriptors.py` to handle memory constraints. **Logic**: If RAM > 6GB, reduce the input dataset size (N) by removing heaviest molecules and retry. **Failure Condition**: If downsampling reduces N below 450 molecules, log a critical error and fail the task, as this violates FR-003 (≥450 molecules with ≥50 conformers).
-- [ ] T014a [US2] Implement torsional variance calculation for **bond, angle, and dihedral** (in rad²) in `code/data/descriptors.py`. **Requirement**: Compute ALL three variance components as mandated by FR-004. **Note**: While dihedral variance is the primary predictor for the regression model (FR-007), bond and angle variances are REQUIRED outputs for dataset completeness per FR-004 and will be stored in the output file, but only dihedral_variance is used as the primary predictor in T019.
+- [ ] T013 [US2] Implement `code/data/descriptors.py` to generate 3D conformer ensembles using RDKit. **Requirement**: Generate a sufficient number of conformers per molecule as per Plan.md Deviation DEV-001 (overriding Spec FR-003's 50 due to CPU feasibility). **Constraint**: The task MUST NOT fail if RAM is exceeded; instead, it must dynamically sample the input dataset to ensure the *output* contains ≥450 valid descriptors with 20 conformers each. If the full dataset cannot be processed within memory limits, reduce the input batch size (N) until the target output count is met, logging the sampling strategy used.
+- [ ] T013b [P] [US2] Implement resource management logic in `code/data/descriptors.py` to handle memory constraints. **Logic**: Pre-check RAM availability; if insufficient for the full dataset, iteratively reduce the input batch size (N) by removing the heaviest molecules until the 20-conformer generation succeeds for ≥450 molecules. **Failure Condition**: The task fails only if the dataset is too small to produce ≥450 valid descriptors even after full sampling, not if N drops below 450 during the process. The goal is to ensure the *output* meets the spec target.
+- [ ] T014a [US2] Implement torsional variance calculation for **bond, angle, and dihedral** (in rad²) in `code/data/descriptors.py`. **Requirement**: Compute ALL three variance components as mandated by FR-004. **Note**: While dihedral variance is the primary predictor for the regression model (FR-007), bond and angle variances are REQUIRED outputs for dataset completeness per FR-004 and will be stored in the output file.
 - [ ] T014b [P] [US2] Implement outlier flagging logic in `code/data/descriptors.py` using the interquartile range method (IQR > 1.5 × Q1) for the computed variance columns.
 - [ ] T014c [P] [US2] Implement output formatting in `code/data/descriptors.py` to save results as a CSV/Parquet file with explicit columns: `smiles`, `bond_variance`, `angle_variance`, `dihedral_variance` (primary), and `is_outlier`.
 - [ ] T015 [US2] Implement `code/data/analysis.py` to compute Pearson and Spearman correlations between **each** flexibility descriptor (bond, angle, dihedral) and logPapp with p-values. **Note**: All three correlations are computed for completeness, but the primary hypothesis focuses on dihedral_variance.
@@ -112,7 +112,7 @@
 
 ### Implementation for User Story 3
 
-- [ ] T019 [US3] Implement multivariate linear regression model in `code/data/analysis.py` using the **dihedral_variance** descriptor as the primary predictor and confounders (logP, MW, PSA, rotatable bonds). **Clarification**: Although T014a computes bond and angle variances for dataset completeness (FR-004), this model specifically uses only `dihedral_variance` as the flexibility predictor, aligning with the Plan's summary focus on dihedral angles as the primary metric. Bond and angle variances are excluded from this specific regression model but remain available for exploratory analysis.
+- [ ] T019 [US3] Implement multivariate linear regression model in `code/data/analysis.py` using **all computed flexibility descriptors** (bond, angle, dihedral) as predictors and confounders (logP, MW, PSA, rotatable bonds). **Requirement**: The model MUST utilize the full set of flexibility descriptors as mandated by FR-007 ("using flexibility descriptors" plural). If collinearity is detected (VIF > 5), apply Ridge regression or drop the least significant descriptor, but document the exclusion. The primary hypothesis focuses on dihedral_variance, but the model construction must accept and process the full descriptor set.
 - [ ] T020 [US3] Implement scaffold-based cross-validation in `code/data/analysis.py` to assess generalizability.
 - [ ] T021 [US3] Implement VIF (Variance Inflation Factor) diagnosis for predictor collinearity in `code/data/analysis.py`.
 - [ ] T022a [US3] Implement scatter plot logic in `code/data/analysis.py` to generate plots with regression line and confidence interval.
@@ -129,11 +129,11 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T033 [P] Update `specs/001-molecular-flexibility-permeability/research.md` with final results, methodology justification, and explicit documentation of the "Computational Method Transparency" decision (RDKit vs PyVib) as required by Constitution Principle VI and Plan constraints.
-- [ ] T034 [P] Update `specs/001-molecular-flexibility-permeability/plan.md` to reflect any deviations or confirmed constraints.
-- [ ] T035 Refactor `code/data/analysis.py` to reduce cyclomatic complexity < 10.
-- [ ] T036 Optimize `code/data/descriptors.py` to ensure total runtime ≤ 6 hours on CPU-only runner.
-- [ ] T037 Run `quickstart.md` validation.
+- [ ] T026 [P] Update `specs/001-molecular-flexibility-permeability/research.md` with final results, methodology justification, and explicit documentation of the "Computational Method Transparency" decision (RDKit vs PyVib) as required by Constitution Principle VI and Plan constraints.
+- [ ] T027 [P] Update `specs/001-molecular-flexibility-permeability/plan.md` to reflect any deviations or confirmed constraints.
+- [ ] T028 Refactor `code/data/analysis.py` to reduce cyclomatic complexity < 10.
+- [ ] T029 Optimize `code/data/descriptors.py` to ensure total runtime ≤ 6 hours on CPU-only runner.
+- [ ] T030 Run `quickstart.md` validation.
 
 ---
 
@@ -146,7 +146,7 @@
 - **User Stories (Phase 3-5)**: All depend on Foundational phase completion
   - User stories can then proceed in parallel (if staffed)
   - Or sequentially in priority order (P1 → P2 → P3)
-- **Phase N (Polish)**: Depends on all desired user stories being complete
+- **Phase N (Polish)**: Depends on all desired user stories being complete.
 
 ### User Story Dependencies
 
@@ -227,7 +227,6 @@ With multiple developers:
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
 - **Crucial**: All tasks must run on free CPU-only CI with limited CPU resources, constrained RAM, and no GPU. No 8-bit/4-bit quantization or large model training.
 - **Data Integrity**: All data must be real (ChEMBL API) or fetched via verified Python packages. No synthetic/fake data generation.
-- **Scope**: Phase 6 (Scaling Law Analysis) has been explicitly removed from this project scope. The scope is strictly limited to the flexibility vs. permeability correlation as defined in spec.md. Any work related to "Scaling Law Analysis" or "membrane network topology" is out of scope and not approved. Tasks T026-T032 (previously referenced in concerns) have been permanently removed and do not exist in this artifact.
-- **Reviewer Concern Addressed**: The contradiction between spec.md (size ≥ 50) and plan.md (size 20) in T013 is resolved by enforcing the spec's requirement (≥50) as mandatory. The plan's constraint is overridden by the spec. Memory constraints are handled by downsampling the dataset (N) via T013b, NOT by reducing the ensemble size. If N < 450, the task fails.
-- **Clarity**: T014 and T019 now clearly distinguish between the mandatory outputs (bond, angle, dihedral variances for dataset completeness) and the primary predictor used in the regression model (dihedral_variance only). T015 computes correlations for all three, but T019 specifically uses dihedral_variance as the primary predictor, aligning with the Plan's focus on dihedral angles.
-- **Feasibility**: T013 explicitly implements a fallback strategy to reduce N (molecule count) if RAM exceeds 6GB, ensuring the spec's ≥50 conformers requirement is always met for the remaining molecules.
+- **Spec Deviation**: Conformer ensemble size is fixed per Plan.md to ensure CPU feasibility (DEV-001). Spec FR-003's 50 conformers is overridden by this approved deviation.
+- **Model Scope**: The multivariate model (T019) must use all computed flexibility descriptors (bond, angle, dihedral) as per FR-007, with collinearity handling (VIF) documented.
+- **Documentation**: Research narratives (T006, T026) must be generated dynamically from logs and deviation records, not hardcoded.

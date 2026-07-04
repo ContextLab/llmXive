@@ -1,0 +1,49 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Analysis Metrics Schema"
+description: "Schema for computed static and dynamic analysis metrics."
+type: object
+properties:
+  task_id:
+    type: string
+    description: "Task ID from HumanEval."
+  source_type:
+    type: string
+    enum:
+      - human
+      - codegen-350M
+      - codellama-7b
+      - codellama-3b
+    description: "Origin of the code sample."
+  cyclomatic_complexity:
+    type: number
+    description: "Cyclomatic complexity from radon. Use null if failed."
+    nullable: true
+  halstead_volume:
+    type: number
+    description: "Halstead volume from radon. Use null if failed."
+    nullable: true
+  branch_coverage_pct:
+    type: number
+    minimum: 0
+    maximum: 100
+    description: "Branch coverage percentage. Use null if failed."
+    nullable: true
+  pass_rate:
+    type: integer
+    enum:
+      - 0
+      - 1
+    description: "Binary pass rate (1=pass, 0=fail)."
+  status:
+    type: string
+    enum:
+      - success
+      - failed_generation
+      - failed_execution
+      - failed_coverage
+    description: "Status of the analysis."
+required:
+  - task_id
+  - source_type
+  - status
+additionalProperties: false

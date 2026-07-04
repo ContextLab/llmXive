@@ -3,29 +3,28 @@ requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "atmospheric-river-gravity-correlation"
+name = "atmos-gravity-correlation"
 version = "0.1.0"
-description = "Analysis of the relationship between atmospheric rivers and gravity anomalies using GRACE-FO data."
+description = "Analysis of Atmospheric River and Gravity Anomaly Correlation"
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
-    "pandas>=2.0.0",
-    "numpy>=1.24.0",
-    "scipy>=1.10.0",
-    "statsmodels>=0.14.0",
-    "requests>=2.31.0",
-    "matplotlib>=3.7.0",
-    "seaborn>=0.12.0",
-    "pyyaml>=6.0",
-    "flake8>=6.0.0",
-    "black>=23.0.0",
-    "isort>=5.12.0",
+    "pandas",
+    "numpy",
+    "scipy",
+    "statsmodels",
+    "requests",
+    "matplotlib",
+    "seaborn",
+    "pyyaml"
 ]
 
 [project.optional-dependencies]
 dev = [
-    "pytest>=7.0.0",
-    "pytest-cov>=4.0.0",
+    "flake8",
+    "black",
+    "pytest",
+    "pytest-cov"
 ]
 
 [tool.black]
@@ -46,39 +45,15 @@ exclude = '''
 )/
 '''
 
-[tool.isort]
-profile = "black"
-line_length = 100
-known_first_party = []
-known_third_party = [
-    "matplotlib",
-    "numpy",
-    "pandas",
-    "pytest",
-    "requests",
-    "scipy",
-    "seaborn",
-    "statsmodels",
-    "yaml",
-]
-
 [tool.pytest.ini_options]
 testpaths = [
-    "tests",
+    "tests"
 ]
 python_files = [
-    "test_*.py",
+    "test_*.py"
 ]
-python_classes = [
-    "Test*",
-]
-python_functions = [
-    "test_*",
-]
-addopts = [
-    "-v",
-    "--tb=short",
-]
-filterwarnings = [
-    "ignore::DeprecationWarning",
-]
+addopts = "-v --tb=short"
+
+[tool.setuptools]
+packages = ["."]
+package-dir = {"" = "."}
