@@ -1,0 +1,63 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Unified Reef-Species Dataset Schema"
+type: "object"
+properties:
+  reef_id:
+    type: "string"
+    description: "Unique identifier for the reef location."
+  species_id:
+    type: "string"
+    description: "Unique identifier for the coral species."
+  latitude:
+    type: "number"
+    description: "Latitude of the reef center."
+  longitude:
+    type: "number"
+    description: "Longitude of the reef center."
+  region:
+    type: "string"
+    description: "Geographic region: 'Western_Pacific' or 'Eastern_Pacific'."
+    enum:
+      - "Western_Pacific"
+      - "Eastern_Pacific"
+  sst_mean_30d:
+    type: "number"
+    description: "30-day rolling mean Sea Surface Temperature (°C)."
+  dhw_max:
+    type: "number"
+    description: "Maximum Degree Heating Weeks observed."
+  dhw_mean_30d:
+    type: "number"
+    description: "30-day rolling mean Degree Heating Weeks."
+  thermal_tolerance:
+    type: "number"
+    description: "Species-level thermal tolerance threshold (°C). Required for real data mode."
+  bleached:
+    type: "integer"
+    description: "Binary label: 1 if bleached, 0 otherwise. Required for real data mode."
+    enum:
+      - 0
+      - 1
+  is_imputed:
+    type: "boolean"
+    description: "True if any environmental feature was imputed."
+  data_availability_status:
+    type: "string"
+    description: "Status of data completeness: 'complete', 'missing_traits', 'missing_labels'."
+    enum:
+      - "complete"
+      - "missing_traits"
+      - "missing_labels"
+required:
+  - "reef_id"
+  - "species_id"
+  - "latitude"
+  - "longitude"
+  - "region"
+  - "sst_mean_30d"
+  - "dhw_max"
+  - "thermal_tolerance"
+  - "bleached"
+  - "is_imputed"
+  - "data_availability_status"
+

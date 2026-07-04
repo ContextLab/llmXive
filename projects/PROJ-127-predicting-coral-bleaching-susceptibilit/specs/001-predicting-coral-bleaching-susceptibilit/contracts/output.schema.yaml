@@ -1,0 +1,120 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Model Evaluation and Risk Map Output Schema"
+type: "object"
+properties:
+  metrics:
+    type: "object"
+    description: "Primary evaluation metrics."
+    properties:
+      roc_auc:
+        type: "number"
+        description: "ROC-AUC score on the held-out geographic test set. Null if real data unavailable."
+      auprc:
+        type: "number"
+        description: "Area Under the Precision-Recall Curve. Null if independent validation data unavailable."
+      calibration_slope:
+        type: "number"
+        description: "Slope of the calibration curve."
+    required:
+      - "roc_auc"
+      - "auprc"
+      - "calibration_slope"
+  feature_importance:
+    type: "array"
+    description: "Permutation importance with FDR-corrected p-values. Empty if real data unavailable."
+    items:
+      type: "object"
+      properties:
+        feature:
+          type: "string"
+        importance:
+          type: "number"
+        p_value:
+          type: "number"
+        p_value_fdr:
+          type: "number"
+        is_significant:
+          type: "boolean"
+      required:
+        - "feature"
+        - "importance"
+        - "p_value"
+        - "p_value_fdr"
+        - "is_significant"
+  bootstrap_stability:
+    type: "array"
+    description: "Ranking stability of top-3 predictors from 100 bootstrap resamples (SC-002)."
+    items:
+      type: "object"
+      properties:
+        feature:
+          type: "string"
+        rank_mean:
+          type: "number"
+        rank_std:
+          type: "number"
+      required:
+        - "feature"
+        - "rank_mean"
+        - "rank_std"
+  threshold_sensitivity:
+    type: "array"
+    description: "False positive and false negative rates for different thresholds, plus variation metric."
+    items:
+      type: "object"
+      properties:
+        threshold:
+          type: "number"
+        false_positive_rate:
+          type: "number"
+        false_negative_rate:
+          type: "number"
+        variation_metric:
+          type: "number"
+          description: "The calculated delta/range of FP/FN rates across thresholds (SC-005)."
+      required:
+        - "threshold"
+        - "false_positive_rate"
+        - "false_negative_rate"
+        - "variation_metric"
+  risk_map:
+    type: "object"
+    description: "Metadata for the generated GeoTIFF."
+    properties:
+      file_path:
+        type: "string"
+        description: "Path to the GeoTIFF file."
+      format:
+        type: "string"
+        description: "File format."
+        enum:
+          - "GeoTIFF"
+      resolution_km:
+        type: "number"
+        description: "Spatial resolution in kilometers."
+      value_range:
+        type: "array"
+        items:
+          type: "number"
+        description: "Min and max probability values."
+        minItems: 2
+        maxItems: 2
+    required:
+      - "file_path"
+      - "format"
+      - "resolution_km"
+      - "value_range"
+  data_gap_status:
+    type: "string"
+    description: "Status of data availability. 'complete' if all data present, 'missing' if pipeline halted."
+    enum:
+      - "complete"
+      - "missing"
+required:
+  - "metrics"
+  - "feature_importance"
+  - "bootstrap_stability"
+  - "threshold_sensitivity"
+  - "risk_map"
+  - "data_gap_status"
+

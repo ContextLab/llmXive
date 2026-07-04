@@ -1,0 +1,11 @@
+xgboost
+scikit-learn
+pandas
+geopandas
+rasterio
+numpy
+requests
+pyyaml
+shap
+joblib
+scipy

@@ -1,0 +1,65 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "llmxive-coral-bleaching"
+version = "0.1.0"
+description = "Predicting Coral Bleaching Susceptibility from Environmental Data"
+requires-python = ">=3.11"
+dependencies = [
+    "xgboost",
+    "scikit-learn",
+    "pandas",
+    "geopandas",
+    "rasterio",
+    "numpy",
+    "requests",
+    "pyyaml",
+]
+
+[project.optional-dependencies]
+dev = [
+    "ruff>=0.1.0",
+    "black>=23.0.0",
+    "pytest>=7.0.0",
+    "pytest-cov>=4.0.0",
+]
+
+[tool.black]
+line-length = 88
+target-version = ['py311']
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
+  | data
+)/
+'''
+
+[tool.ruff]
+# Configuration is also in code/ruff.toml for IDE compatibility
+# This section mirrors code/ruff.toml for local CLI usage
+target-version = "py311"
+line-length = 88
+extend-exclude = ["data", "venv", ".venv", "__pycache__"]
+
+[tool.ruff.lint]
+select = ["E", "W", "F", "I", "B", "C4", "UP"]
+ignore = ["E501"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["setup_project", "config", "ingest", "features", "train", "evaluate", "map", "main", "data_gap_report"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+addopts = "-v --tb=short"
