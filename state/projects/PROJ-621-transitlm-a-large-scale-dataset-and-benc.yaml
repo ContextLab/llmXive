@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-23T08:43:44.888553Z'
-current_stage: paper_ingested
+current_stage: reviewed_preprint
 failed_stage: null
 field: linguistics
 human_escalation_reason: null
 id: PROJ-621-transitlm-a-large-scale-dataset-and-benc
-last_run_id: 8f64c45b-fb65-40b2-882a-e234c21f5775
+last_run_id: e4071702-9d2d-48d6-a0d4-14276015d70b
 last_run_status: null
 points_paper: {}
 points_research: {}

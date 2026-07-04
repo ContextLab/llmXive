@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-06-02T09:29:10.585976Z'
-current_stage: paper_ingested
+current_stage: reviewed_preprint
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-649-trust-region-behavior-blending-for-on-po
-last_run_id: 0bdebd01-ea2c-48c4-a840-05deef81c613
+last_run_id: 9d0928ca-fa95-4824-8ac2-0b1bf2990bd7
 last_run_status: null
 points_paper: {}
 points_research: {}

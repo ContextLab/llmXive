@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-19T09:11:18.281578Z'
-current_stage: paper_ingested
+current_stage: reviewed_preprint
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-599-mmskills-towards-multimodal-skills-for-g
-last_run_id: 8e350f8a-c336-4208-bb97-ef6136af3005
+last_run_id: 055e0b3c-853e-40e3-ac2c-fef5040b1ee7
 last_run_status: null
 points_paper: {}
 points_research: {}
