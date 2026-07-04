@@ -1,143 +1,184 @@
 """
-Data Acquisition Module for Election Poll Aggregation.
+T009a: Data Acquisition Module for US1.
 
-This module fetches raw poll data from FiveThirtyEight and election outcomes
-from the MIT Election Data and Science Lab (MEDSL).
-
-Constraints:
-- RealClearPolitics (RCP) data is explicitly excluded per the 'Verified Accuracy' principle.
-- All data is fetched programmatically at runtime.
+Fetches raw poll data from FiveThirtyEight and election outcomes from MEDSL.
+Explicitly excludes RealClearPolitics (RCP) per project constraints.
 """
-
 import os
 import sys
 import logging
+import hashlib
+import json
 from pathlib import Path
-from typing import Optional, List, Dict, Any
+from typing import Optional, Dict, Any
 
 import pandas as pd
 import requests
+from tqdm import tqdm
 
-# Project internal imports
-from src.utils.config import get_project_root, get_raw_data_path, get_data_processed_path
-from src.utils.logging import get_logger
+# Import project utilities
+# Ensure we can import from src/ even if running from root
+if "code" in os.getcwd():
+    sys.path.insert(0, os.path.join(os.getcwd(), "src"))
+elif os.getcwd().endswith("PROJ-206-statistical-analysis-of-publicly-availab"):
+    sys.path.insert(0, os.path.join(os.getcwd(), "src"))
 
-# Constants
-FIVETHIRYEIGHT_BASE_URL = "https://projects.fivethirtyeight.com/polls/"
-# MEDSL provides state-level and national results. We use the state-level dataset for consistency.
-# Direct CSV link for state election results (US House/Senate/Governor)
-MEDSL_STATE_RESULTS_URL = "https://electionlab.mit.edu/sites/default/files/2021-04-01_state_results.csv"
-# Fallback for National results if needed, but state is preferred for granular poll matching
-MEDSL_NATIONAL_RESULTS_URL = "https://electionlab.mit.edu/sites/default/files/2021-04-01_national_results.csv"
+from utils.config import (
+    get_project_root, 
+    get_data_root, 
+    get_state_root, 
+    compute_file_hash,
+    ensure_dir
+)
+from utils.logging import get_logger
 
-# Logger setup
 logger = get_logger(__name__)
 
+# Constants
+FIVETHIRTYEIGHT_BASE_URL = "https://projects.fivethirtyeight.com/polls/"
+# MEDSL General Election Data URL (CSV format)
+# Using the most recent general election data available via MEDSL
+MEDSL_URL = "https://electionlab.mit.edu/sites/default/files/2021-09-24_general_election_results.csv"
 
-def fetch_url_content(url: str, timeout: int = 60) -> Optional[pd.DataFrame]:
+# Output paths relative to project root
+RAW_DIR = "data/raw"
+PROCESSED_DIR = "data/processed"
+STATE_FILE = "state/projects/PROJ-206-statistical-analysis-of-publicly-availab.yaml"
+
+def fetch_fivethirtyeight_polls() -> Optional[pd.DataFrame]:
     """
-    Fetches a CSV from a URL and returns it as a DataFrame.
-
-    Args:
-        url: The URL to fetch.
-        timeout: Request timeout in seconds.
-
-    Returns:
-        DataFrame if successful, None otherwise.
+    Fetches the latest US House/Governor/Senate polls from FiveThirtyEight.
+    Returns a DataFrame or None if fetch fails.
     """
+    logger.info(f"Fetching FiveThirtyEight polls from {FIVETHIRTYEIGHT_BASE_URL}")
+    
+    # FiveThirtyEight provides specific CSV endpoints. 
+    # For House polls (most common for aggregation), we use the specific CSV.
+    # If generic, we might need to parse HTML, but they usually host a direct CSV.
+    # URL pattern: https://projects.fivethirtyeight.com/polls/house-polls.csv
+    csv_url = f"{FIVETHIRTYEIGHT_BASE_URL}house-polls.csv"
+    
     try:
-        logger.info(f"Fetching data from: {url}")
-        response = requests.get(url, timeout=timeout)
+        response = requests.get(csv_url, timeout=30)
         response.raise_for_status()
-        # FiveThirtyEight and MEDSL usually serve CSVs directly
+        
+        # Parse CSV from content
         df = pd.read_csv(pd.io.common.StringIO(response.text))
-        logger.info(f"Successfully fetched {len(df)} rows from {url}")
+        
+        logger.info(f"Successfully downloaded {len(df)} rows from FiveThirtyEight.")
         return df
     except requests.exceptions.RequestException as e:
-        logger.error(f"Failed to fetch {url}: {e}")
+        logger.error(f"Failed to fetch FiveThirtyEight data: {e}")
         return None
-    except pd.errors.EmptyDataError:
-        logger.error(f"Received empty data from {url}")
+    except Exception as e:
+        logger.error(f"Error parsing FiveThirtyEight data: {e}")
         return None
 
-
-def download_fivethirtyeight_polls() -> Optional[pd.DataFrame]:
+def fetch_medsl_outcomes() -> Optional[pd.DataFrame]:
     """
-    Downloads the latest FiveThirtyEight poll aggregate CSV.
-    URL: https://projects.fivethirtyeight.com/polls/poll-data.csv
+    Fetches historical election outcomes from MIT Election Data and Science Lab (MEDSL).
+    Returns a DataFrame or None if fetch fails.
     """
-    # The main poll data file
-    url = f"{FIVETHIRYEIGHT_BASE_URL}poll-data.csv"
-    return fetch_url_content(url)
-
-
-def download_election_outcomes() -> Optional[pd.DataFrame]:
-    """
-    Downloads election outcomes from MEDSL.
-    Prefers state-level results to match with state polls, falling back to national if needed.
-    """
-    # Try state results first (more granular)
-    df = fetch_url_content(MEDSL_STATE_RESULTS_URL)
-    if df is not None:
-        logger.info("Using MEDSL State Results.")
+    logger.info(f"Fetching MEDSL election outcomes from {MEDSL_URL}")
+    
+    try:
+        response = requests.get(MEDSL_URL, timeout=30)
+        response.raise_for_status()
+        
+        df = pd.read_csv(pd.io.common.StringIO(response.text))
+        
+        logger.info(f"Successfully downloaded {len(df)} rows from MEDSL.")
         return df
+    except requests.exceptions.RequestException as e:
+        logger.error(f"Failed to fetch MEDSL data: {e}")
+        return None
+    except Exception as e:
+        logger.error(f"Error parsing MEDSL data: {e}")
+        return None
 
-    # Fallback to national if state fails
-    logger.warning("State results failed, trying National results.")
-    return fetch_url_content(MEDSL_NATIONAL_RESULTS_URL)
-
-
-def run_download_pipeline():
+def save_raw_data(df: pd.DataFrame, source: str, filename: str) -> str:
     """
-    Orchestrates the download of all required raw data sources.
-    Saves raw data to data/raw/ directory.
+    Saves the dataframe to the raw data directory and returns the file path.
     """
-    project_root = get_project_root()
-    raw_data_dir = get_raw_data_path()
+    data_root = get_data_root()
+    raw_path = data_root / RAW_DIR
+    ensure_dir(raw_path)
+    
+    file_path = raw_path / filename
+    df.to_csv(file_path, index=False)
+    
+    logger.info(f"Saved raw data to {file_path} ({len(df)} rows)")
+    return str(file_path)
 
-    # Ensure directory exists
-    os.makedirs(raw_data_dir, exist_ok=True)
-
-    logger.info("Starting data acquisition pipeline...")
-
-    # 1. Download FiveThirtyEight Polls
-    polls_df = download_fivethirtyeight_polls()
-    if polls_df is None:
-        logger.critical("Failed to download FiveThirtyEight polls. Aborting pipeline.")
-        return False
-
-    # Save raw polls
-    raw_polls_path = raw_data_dir / "fivethirtyeight_polls_raw.csv"
-    polls_df.to_csv(raw_polls_path, index=False)
-    logger.info(f"Saved raw polls to {raw_polls_path}")
-
-    # 2. Download Election Outcomes
-    outcomes_df = download_election_outcomes()
-    if outcomes_df is None:
-        logger.critical("Failed to download election outcomes. Aborting pipeline.")
-        return False
-
-    # Save raw outcomes
-    raw_outcomes_path = raw_data_dir / "medsl_outcomes_raw.csv"
-    outcomes_df.to_csv(raw_outcomes_path, index=False)
-    logger.info(f"Saved raw outcomes to {raw_outcomes_path}")
-
-    logger.info("Data acquisition pipeline completed successfully.")
-    return True
-
+def update_state_file(file_path: str, source: str):
+    """
+    Updates the project state file with the hash of the new artifact.
+    """
+    state_root = get_state_root()
+    ensure_dir(state_root)
+    
+    state_path = state_root / STATE_FILE
+    
+    # Load existing state or create new
+    state_data = {}
+    if state_path.exists():
+        try:
+            import yaml
+            with open(state_path, 'r') as f:
+                state_data = yaml.safe_load(f) or {}
+        except Exception as e:
+            logger.warning(f"Could not load existing state file: {e}")
+            state_data = {}
+    
+    # Compute hash
+    file_hash = compute_file_hash(file_path)
+    
+    # Update state
+    if "artifacts" not in state_data:
+        state_data["artifacts"] = {}
+    
+    state_data["artifacts"][source] = {
+        "path": file_path,
+        "hash": file_hash,
+        "updated_at": pd.Timestamp.now().isoformat()
+    }
+    
+    # Write back
+    import yaml
+    with open(state_path, 'w') as f:
+        yaml.dump(state_data, f, default_flow_style=False, sort_keys=False)
+    
+    logger.info(f"Updated state file: {state_path}")
 
 def main():
-    """Entry point for the download script."""
-    # Initialize logging
-    # Note: init_logging is called in main.py usually, but safe to call again or rely on config
-    # We assume logging is configured elsewhere or default to basicConfig if not
-    if not logging.getLogger().handlers:
-        logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-
-    success = run_download_pipeline()
-    if not success:
+    """
+    Main entry point for T009a.
+    Fetches data, saves to raw/, and updates state.
+    """
+    logger.info("Starting T009a: Data Acquisition")
+    
+    # 1. Fetch FiveThirtyEight Polls
+    polls_df = fetch_fivethirtyeight_polls()
+    if polls_df is None:
+        logger.error("Critical: Failed to fetch FiveThirtyEight data. Aborting.")
         sys.exit(1)
-
+    
+    # Save raw polls
+    polls_path = save_raw_data(polls_df, "five_thirty_eight", "raw_polls.csv")
+    update_state_file(polls_path, "raw_polls")
+    
+    # 2. Fetch MEDSL Outcomes
+    outcomes_df = fetch_medsl_outcomes()
+    if outcomes_df is None:
+        logger.error("Critical: Failed to fetch MEDSL data. Aborting.")
+        sys.exit(1)
+    
+    # Save raw outcomes
+    outcomes_path = save_raw_data(outcomes_df, "medsl_outcomes", "raw_outcomes.csv")
+    update_state_file(outcomes_path, "raw_outcomes")
+    
+    logger.info("T009a completed successfully. Data saved to data/raw/.")
+    return 0
 
 if __name__ == "__main__":
     main()

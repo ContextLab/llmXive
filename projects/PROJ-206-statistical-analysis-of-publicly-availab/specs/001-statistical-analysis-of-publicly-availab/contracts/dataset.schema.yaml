@@ -6,133 +6,98 @@
 
 $schema: http://json-schema.org/draft-07/schema#
 title: Poll Dataset Schema
-description: Schema for the cleaned poll dataset used in statistical analysis
-
+description: >
+  Schema for the harmonized poll dataset produced by src/data/harmonize.py.
+  Defines the structure of data/processed/poll_data_cleaned.csv.
 type: object
+required:
+  - columns
+  - column_types
+  - constraints
 properties:
+  columns:
+    type: array
+    description: Ordered list of column names in the final dataset.
+    items:
+      type: string
+    example:
+      - date
+      - pollster
+      - candidate
+      - vote_share
+      - sample_size
+      - mode
+      - historical_rmse
+  column_types:
+    type: object
+    description: Mapping of column name to expected data type.
+    properties:
+      date:
+        type: string
+        format: date
+        description: ISO 8601 date string (YYYY-MM-DD).
+      pollster:
+        type: string
+        description: Name of the polling organization.
+      candidate:
+        type: string
+        description: Candidate name (e.g., 'Democrat', 'Republican', 'Other').
+      vote_share:
+        type: number
+        description: Percentage of vote share (0.0 to 100.0).
+      sample_size:
+        type: integer
+        description: Number of respondents.
+      mode:
+        type: string
+        description: Polling mode (e.g., 'Live Phone', 'Online').
+      historical_rmse:
+        type: number
+        description: Historical RMSE weight for this pollster (non-negative).
+    required:
+      - date
+      - pollster
+      - candidate
+      - vote_share
+      - sample_size
+      - historical_rmse
+  constraints:
+    type: object
+    description: Business logic constraints enforced during validation.
+    properties:
+      unique_pollster_date:
+        type: boolean
+        description: True if (pollster, date) must be unique.
+        default: true
+      vote_share_range:
+        type: array
+        minItems: 2
+        maxItems: 2
+        items:
+          type: number
+        description: Allowed range [min, max] for vote_share.
+        example: [0.0, 100.0]
+      sample_size_positive:
+        type: boolean
+        description: True if sample_size must be > 0.
+        default: true
+      rmse_non_negative:
+        type: boolean
+        description: True if historical_rmse must be >= 0.
+        default: true
   metadata:
     type: object
-    required:
-      - poll_id
-      - pollster
-      - start_date
-      - end_date
-      - population
-      - method
-      - candidate_votes
+    description: Provenance and generation metadata.
     properties:
       poll_id:
         type: string
-        description: "Data source (e.g., FiveThirtyEight)"
-      ingestion_date:
+        description: Original data source (e.g., 'FiveThirtyEight').
+      generated_at:
         type: string
         format: date-time
-        description: "Timestamp of data ingestion"
+        description: ISO 8601 timestamp of generation.
       version:
         type: string
-        description: "Schema version"
-      total_records:
-        type: integer
-        minimum: 0
-        description: "Total number of records"
-    required:
-      - source
-      - ingestion_date
-      - version
-      - total_records
-
-  columns:
-    type: array
-    items:
-      type: object
-      properties:
-        name:
-          type: string
-        dtype:
-          type: string
-          enum: [date, string, float, integer]
-        description:
-          type: string
-        required:
-          type: boolean
-      required:
-        - name
-        - dtype
-        - description
-        - required
-
-  constraints:
-    type: object
-    properties:
-      unique_keys:
-        type: array
-        items:
-          type: array
-          items:
-            type: string
-        description: "Combinations of columns that must be unique"
-      date_range:
-        type: object
-        properties:
-          min:
-            type: string
-            format: date
-          max:
-            type: string
-            format: date
-      sample_size_min:
-        type: integer
-        minimum: 1
-      vote_share_range:
-        type: object
-        properties:
-          min:
-            type: number
-            minimum: 0
-            maximum: 100
-          max:
-            type: number
-            minimum: 0
-            maximum: 100
-    required:
-      - unique_keys
-
-# Specific column definitions for the cleaned dataset
-expected_columns:
-  - name: date
-    dtype: date
-    description: "Date of the poll (ISO 8601)"
-    required: true
-  - name: pollster
-    dtype: string
-    description: "Name of the polling organization"
-    required: true
-  - name: candidate
-    dtype: string
-    description: "Candidate name"
-    required: true
-  - name: vote_share
-    dtype: float
-    description: "Percentage of vote share (0-100)"
-    required: true
-  - name: sample_size
-    dtype: integer
-    description: "Number of respondents"
-    required: true
-  - name: election_cycle
-    dtype: string
-    description: "Election year or cycle identifier"
-    required: true
-  - name: historical_rmse
-    dtype: float
-    description: "Historical RMSE weight for this pollster"
-    required: false
-  - name: weight
-    dtype: float
-    description: "Calculated weight for aggregation"
-    required: false
-
-required:
-  - metadata
-  - columns
-  - constraints
+        description: Schema version.
+        default: "1.0.0"
+additionalProperties: false

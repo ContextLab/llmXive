@@ -1,108 +1,67 @@
 """
-Unit tests for the data download module.
+Unit tests for T009a: Data Acquisition.
 """
-
-import os
 import sys
-import unittest
+import os
+import pytest
 from unittest.mock import patch, MagicMock
-from pathlib import Path
 import pandas as pd
+import io
 
-# Add src to path if running directly
-sys.path.insert(0, str(Path(__file__).parent.parent.parent))
+# Add src to path if running from root
+if "code" in os.getcwd():
+    sys.path.insert(0, os.path.join(os.getcwd(), "src"))
+elif os.getcwd().endswith("PROJ-206-statistical-analysis-of-publicly-availab"):
+    sys.path.insert(0, os.path.join(os.getcwd(), "src"))
 
-from src.data import download
-from src.utils.config import get_project_root
+from data.download import fetch_fivethirtyeight_polls, fetch_medsl_outcomes
 
+@patch('data.download.requests.get')
+def test_fetch_fivethirtyeight_success(mock_get):
+    # Mock response
+    mock_response = MagicMock()
+    mock_response.status_code = 200
+    mock_response.text = "date,pollster,vote_share,sample_size\n2023-01-01,ABC,45.5,1000\n2023-01-02,XYZ,46.2,1200"
+    mock_get.return_value = mock_response
 
-class TestDownloadModule(unittest.TestCase):
+    df = fetch_fivethirtyeight_polls()
 
-    @patch('src.data.download.fetch_url_content')
-    def test_download_fivethirtyeight_polls_success(self, mock_fetch):
-        """Test successful download of FiveThirtyEight polls."""
-        mock_df = pd.DataFrame({'date': ['2020-10-01'], 'pollster': ['ABC']})
-        mock_fetch.return_value = mock_df
+    assert df is not None
+    assert len(df) == 2
+    assert "date" in df.columns
+    assert "vote_share" in df.columns
+    mock_get.assert_called_once()
 
-        result = download.download_fivethirtyeight_polls()
+@patch('data.download.requests.get')
+def test_fetch_fivethirtyeight_failure(mock_get):
+    # Mock request exception
+    mock_get.side_effect = Exception("Network error")
 
-        mock_fetch.assert_called_once_with(download.FIVETHIRYEIGHT_BASE_URL + "poll-data.csv")
-        self.assertIsInstance(result, pd.DataFrame)
-        self.assertEqual(len(result), 1)
+    df = fetch_fivethirtyeight_polls()
 
-    @patch('src.data.download.fetch_url_content')
-    def test_download_fivethirtyeight_polls_failure(self, mock_fetch):
-        """Test handling of download failure."""
-        mock_fetch.return_value = None
+    assert df is None
 
-        result = download.download_fivethirtyeight_polls()
+@patch('data.download.requests.get')
+def test_fetch_medsl_success(mock_get):
+    # Mock response
+    mock_response = MagicMock()
+    mock_response.status_code = 200
+    mock_response.text = "state,candidate,party,votes,percent\nMA,Joe B,D,123,55\nNY,Joe B,D,456,60"
+    mock_get.return_value = mock_response
 
-        self.assertIsNone(result)
+    df = fetch_medsl_outcomes()
 
-    @patch('src.data.download.fetch_url_content')
-    def test_download_election_outcomes_state_success(self, mock_fetch):
-        """Test successful download of state outcomes."""
-        mock_df = pd.DataFrame({'state': ['NY'], 'result': ['D']})
-        # First call (State) returns data
-        mock_fetch.side_effect = [mock_df, None]
+    assert df is not None
+    assert len(df) == 2
+    assert "state" in df.columns
+    assert "percent" in df.columns
+    mock_get.assert_called_once()
 
-        result = download.download_election_outcomes()
+@patch('data.download.requests.get')
+def test_fetch_medsl_failure(mock_get):
+    # Mock request exception
+    mock_get.side_effect = Exception("Network error")
 
-        # Should call State URL first
-        self.assertEqual(mock_fetch.call_count, 1)
-        self.assertIn('state_results', mock_fetch.call_args_list[0][0][0])
-        self.assertIsInstance(result, pd.DataFrame)
+    df = fetch_medsl_outcomes()
 
-    @patch('src.data.download.fetch_url_content')
-    def test_download_election_outcomes_fallback_to_national(self, mock_fetch):
-        """Test fallback to national outcomes when state fails."""
-        mock_state_df = None
-        mock_national_df = pd.DataFrame({'result': ['D']})
-        # First call (State) returns None, second (National) returns data
-        mock_fetch.side_effect = [mock_state_df, mock_national_df]
-
-        result = download.download_election_outcomes()
-
-        self.assertEqual(mock_fetch.call_count, 2)
-        self.assertIn('national_results', mock_fetch.call_args_list[1][0][0])
-        self.assertIsInstance(result, pd.DataFrame)
-
-    @patch('src.data.download.get_raw_data_path')
-    @patch('src.data.download.os.makedirs')
-    @patch('src.data.download.download_fivethirtyeight_polls')
-    @patch('src.data.download.download_election_outcomes')
-    def test_run_download_pipeline(self, mock_outcomes, mock_polls, mock_makedirs, mock_get_path):
-        """Test the full pipeline execution."""
-        # Setup mocks
-        mock_polls_df = pd.DataFrame({'col': [1]})
-        mock_outcomes_df = pd.DataFrame({'col': [2]})
-        mock_polls.return_value = mock_polls_df
-        mock_outcomes.return_value = mock_outcomes_df
-        mock_get_path.return_value = Path("/tmp/raw")
-
-        success = download.run_download_pipeline()
-
-        self.assertTrue(success)
-        mock_makedirs.assert_called_once()
-        # Verify save calls (mocked via to_csv on the dataframe)
-        # We can't easily mock the file write without more complex setup, 
-        # but we verify the logic flow.
-        mock_polls.assert_called_once()
-        mock_outcomes.assert_called_once()
-
-    @patch('src.data.download.fetch_url_content')
-    def test_run_download_pipeline_failure_polls(self, mock_fetch):
-        """Test pipeline failure when polls cannot be downloaded."""
-        mock_fetch.return_value = None
-        
-        # We need to patch get_raw_data_path and makedirs too
-        with patch('src.data.download.get_raw_data_path') as mock_path, \
-             patch('src.data.download.os.makedirs'):
-            mock_path.return_value = Path("/tmp/raw")
-            
-            success = download.run_download_pipeline()
-            self.assertFalse(success)
-
-
-if __name__ == '__main__':
-    unittest.main()
+    assert df is None

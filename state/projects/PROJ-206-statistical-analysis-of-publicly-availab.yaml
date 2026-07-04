@@ -6,7 +6,7 @@ failed_stage: null
 field: statistics
 human_escalation_reason: null
 id: PROJ-206-statistical-analysis-of-publicly-availab
-last_run_id: 6d79855d-89c5-4775-b157-0523fdf255bf
+last_run_id: c9a128b3-4af3-4146-a2eb-7517aec8b1dd
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-206-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab
 title: Statistical Analysis of Publicly Available Election Poll Aggregates
-updated_at: '2026-07-04T17:53:08.717038Z'
+updated_at: '2026-07-04T18:31:31.689706Z'

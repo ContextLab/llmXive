@@ -1,153 +1,111 @@
 """
 Logging infrastructure for the llmXive statistical analysis pipeline.
 
-Provides a centralized logging configuration that ensures consistent
-formatting, log levels, and file output across all pipeline components.
+This module configures a centralized logging system that writes to both
+console and a timestamped log file within the project's state directory.
+It respects the seed and configuration settings from config.py.
 """
-
 import logging
+import os
 import sys
+from datetime import datetime
 from pathlib import Path
 from typing import Optional
 
-# Default configuration
-DEFAULT_LOG_LEVEL = logging.INFO
-DEFAULT_LOG_FORMAT = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-DEFAULT_DATE_FORMAT = "%Y-%m-%d %H:%M:%S"
+from .config import get_state_root, get_project_root, ensure_dir
 
-# Singleton pattern to ensure single configuration instance
-_logger_initialized = False
-_root_logger: Optional[logging.Logger] = None
+# Global logger instance
+_logger: Optional[logging.Logger] = None
+_initialized: bool = False
 
+LOG_FORMAT = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+DATE_FORMAT = "%Y-%m-%d %H:%M:%S"
 
-def get_logger(name: str) -> logging.Logger:
+def get_logger(name: Optional[str] = None) -> logging.Logger:
     """
-    Get a logger instance with the specified name.
-
-    If the root logger hasn't been configured yet, this function will
-    configure it with default settings.
+    Retrieves or creates the project logger.
 
     Args:
-        name: The name for the logger (typically __name__ of the module)
+        name: Optional name for the logger. If None, uses the project root name.
 
     Returns:
-        A configured Logger instance
+        Configured logging.Logger instance.
     """
-    global _logger_initialized, _root_logger
+    global _logger, _initialized
 
-    if not _logger_initialized:
-        configure_logging()
+    if not _initialized:
+        _setup_logging()
+
+    if name is None:
+        # Default to project root name if no name provided
+        project_root = get_project_root()
+        name = project_root.name if project_root else "llmXive"
 
     return logging.getLogger(name)
 
-
-def configure_logging(
-    log_level: int = DEFAULT_LOG_LEVEL,
-    log_file: Optional[str] = None,
-    log_format: str = DEFAULT_LOG_FORMAT,
-    date_format: str = DEFAULT_DATE_FORMAT,
-    project_root: Optional[str] = None
-) -> None:
+def _setup_logging() -> None:
     """
-    Configure the root logger with the specified settings.
-
-    This function sets up:
-    - Console handler with colored output (if supported)
-    - Optional file handler for persistent logging
-    - Consistent formatting across all handlers
-
-    Args:
-        log_level: The logging level (e.g., logging.DEBUG, logging.INFO)
-        log_file: Optional path to a log file. If None, no file handler is created.
-        log_format: Format string for log messages
-        date_format: Format string for timestamps
-        project_root: Optional path to the project root. Used to resolve relative
-                     log file paths. If None, uses current working directory.
+    Configures the root logger with file and console handlers.
+    Ensures log files are written to the state directory.
     """
-    global _logger_initialized, _root_logger
+    global _logger, _initialized
 
-    # Prevent reconfiguration
-    if _logger_initialized:
+    if _initialized:
         return
 
-    # Get the root logger
-    root_logger = logging.getLogger()
-    root_logger.setLevel(log_level)
+    # Ensure state directory exists
+    state_root = get_state_root()
+    if state_root:
+        ensure_dir(state_root)
+        log_dir = state_root / "logs"
+        ensure_dir(log_dir)
+    else:
+        # Fallback if state root is not configured yet
+        log_dir = Path("state/logs")
+        ensure_dir(log_dir)
 
-    # Clear any existing handlers
+    # Create timestamped log file
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    log_file = log_dir / f"pipeline_{timestamp}.log"
+
+    # Configure root logger
+    root_logger = logging.getLogger()
+    root_logger.setLevel(logging.INFO)
+
+    # Clear existing handlers to prevent duplicates
     root_logger.handlers.clear()
 
-    # Create formatter
-    formatter = logging.Formatter(log_format, date_format)
+    # File Handler
+    file_handler = logging.FileHandler(log_file, mode='a', encoding='utf-8')
+    file_handler.setLevel(logging.DEBUG)
+    file_formatter = logging.Formatter(LOG_FORMAT, DATE_FORMAT)
+    file_handler.setFormatter(file_formatter)
 
-    # Console handler
+    # Console Handler
     console_handler = logging.StreamHandler(sys.stdout)
-    console_handler.setLevel(log_level)
-    console_handler.setFormatter(formatter)
+    console_handler.setLevel(logging.INFO)
+    console_formatter = logging.Formatter("%(levelname)s: %(message)s")
+    console_handler.setFormatter(console_formatter)
+
+    # Add handlers
+    root_logger.addHandler(file_handler)
     root_logger.addHandler(console_handler)
 
-    # File handler (optional)
-    if log_file:
-        # Resolve path relative to project root if provided
-        if project_root:
-            log_path = Path(project_root) / log_file
-        else:
-            log_path = Path(log_file)
+    _initialized = True
+    get_logger().info("Logging infrastructure initialized. Log file: %s", log_file)
 
-        # Ensure the directory exists
-        log_path.parent.mkdir(parents=True, exist_ok=True)
-
-        file_handler = logging.FileHandler(log_path)
-        file_handler.setLevel(log_level)
-        file_handler.setFormatter(formatter)
-        root_logger.addHandler(file_handler)
-
-    _logger_initialized = True
-    _root_logger = root_logger
-
-
-def get_log_file_path(log_file: str, project_root: Optional[str] = None) -> Path:
+def set_log_level(level: Union[str, int]) -> None:
     """
-    Resolve the absolute path for a log file.
+    Sets the logging level for the console and file handlers.
 
     Args:
-        log_file: The log file path (can be relative or absolute)
-        project_root: Optional project root directory
-
-    Returns:
-        The resolved absolute Path
+        level: Logging level (e.g., 'DEBUG', 'INFO', 'WARNING', 'ERROR') or integer constant.
     """
-    if project_root:
-        return Path(project_root) / log_file
-    return Path(log_file).resolve()
+    if isinstance(level, str):
+        level = getattr(logging, level.upper(), logging.INFO)
 
+    root_logger = logging.getLogger()
+    for handler in root_logger.handlers:
+        handler.setLevel(level)
 
-# Convenience functions for common log levels
-def debug(msg: str, logger_name: Optional[str] = None) -> None:
-    """Log a debug message."""
-    logger = get_logger(logger_name or __name__)
-    logger.debug(msg)
-
-
-def info(msg: str, logger_name: Optional[str] = None) -> None:
-    """Log an info message."""
-    logger = get_logger(logger_name or __name__)
-    logger.info(msg)
-
-
-def warning(msg: str, logger_name: Optional[str] = None) -> None:
-    """Log a warning message."""
-    logger = get_logger(logger_name or __name__)
-    logger.warning(msg)
-
-
-def error(msg: str, logger_name: Optional[str] = None) -> None:
-    """Log an error message."""
-    logger = get_logger(logger_name or __name__)
-    logger.error(msg)
-
-
-def critical(msg: str, logger_name: Optional[str] = None) -> None:
-    """Log a critical message."""
-    logger = get_logger(logger_name or __name__)
-    logger.critical(msg)
+    get_logger().info("Log level set to %s", logging.getLevelName(level))

@@ -1,1 +1,2 @@
-# This directory contains project state files (hashes, metadata).
+# This file ensures the `code/state/` directory exists in version control.
+# This directory will store project state, hashes, and metadata.

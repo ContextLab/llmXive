@@ -1,184 +1,192 @@
 """
-Configuration management module for the statistical poll aggregation pipeline.
+Configuration management for the statistical analysis pipeline.
 
-Responsibilities:
+Handles:
 - Seed pinning for reproducibility
-- Path resolution for project directories (data, state, src)
+- Path resolution relative to project root
 - Environment variable overrides
 """
-
 import os
 import random
+import hashlib
 from pathlib import Path
-from typing import Optional, Dict, Any
+from typing import Any, Dict, Optional, Union
+
+# Project root is assumed to be the parent of 'code' directory
+# Adjust if project structure differs
+_PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+_DATA_ROOT = _PROJECT_ROOT / "data"
+_STATE_ROOT = _PROJECT_ROOT / "state"
+_CODE_ROOT = _PROJECT_ROOT / "code"
+_FIGURES_ROOT = _PROJECT_ROOT / "figures"
+_SPEC_ROOT = _PROJECT_ROOT / "specs"
 
 # Default seed for reproducibility
 DEFAULT_SEED = 42
 
-# Project root detection
-def get_project_root() -> Path:
-    """
-    Detect the project root directory.
-    Assumes the code is running from within the project tree.
-    Looks for the 'data' directory or 'requirements.txt' to anchor the root.
-    """
-    current = Path.cwd()
-    # Check if running from code/ or src/ or root
-    candidates = [current, current.parent, current.parent.parent]
-    
-    for candidate in candidates:
-        if (candidate / "requirements.txt").exists() or (candidate / "data").exists():
-            return candidate
-    
-    # Fallback to current directory if no marker found
-    return current
 
-def resolve_paths(project_root: Optional[Path] = None) -> Dict[str, Path]:
+def get_project_root() -> Path:
+    """Return the absolute path to the project root directory."""
+    return _PROJECT_ROOT
+
+
+def get_data_root() -> Path:
+    """Return the absolute path to the data directory."""
+    return _DATA_ROOT
+
+
+def get_state_root() -> Path:
+    """Return the absolute path to the state directory."""
+    return _STATE_ROOT
+
+
+def get_code_root() -> Path:
+    """Return the absolute path to the code directory."""
+    return _CODE_ROOT
+
+
+def get_figures_root() -> Path:
+    """Return the absolute path to the figures directory."""
+    return _FIGURES_ROOT
+
+
+def get_spec_root() -> Path:
+    """Return the absolute path to the specs directory."""
+    return _SPEC_ROOT
+
+
+def resolve_path(base: str, relative: str) -> Path:
     """
-    Resolve absolute paths for all critical project directories.
+    Resolve a relative path against a base directory.
     
-    Returns a dictionary with keys:
-    - 'root': Project root
-    - 'data_raw': data/raw
-    - 'data_processed': data/processed
-    - 'state': state/projects
-    - 'src': src (source code)
-    - 'specs': specs
+    Args:
+        base: Base directory name (e.g., 'data', 'state', 'code')
+        relative: Relative path within that base directory
+        
+    Returns:
+        Absolute Path object
+        
+    Raises:
+        ValueError: If base directory is not recognized
     """
-    root = project_root or get_project_root()
-    
-    paths = {
-        'root': root,
-        'data_raw': root / 'data' / 'raw',
-        'data_processed': root / 'data' / 'processed',
-        'state': root / 'state' / 'projects',
-        'src': root / 'src',
-        'specs': root / 'specs',
-        'code': root / 'code', # For scripts in code/
-        'tests': root / 'tests',
+    base_paths = {
+        'data': get_data_root(),
+        'state': get_state_root(),
+        'code': get_code_root(),
+        'figures': get_figures_root(),
+        'specs': get_spec_root(),
     }
     
-    # Ensure directories exist (creation handled by setup tasks, but safe to ensure)
-    for key, path in paths.items():
-        if key in ['data_raw', 'data_processed', 'state']:
-            path.mkdir(parents=True, exist_ok=True)
-    
-    return paths
+    if base not in base_paths:
+        raise ValueError(f"Unknown base directory: {base}. Must be one of {list(base_paths.keys())}")
+        
+    return base_paths[base] / relative
+
 
 def set_seed(seed: Optional[int] = None) -> int:
     """
-    Set the random seed for reproducibility across numpy, random, and torch (if available).
+    Set random seeds for reproducibility.
     
     Args:
-        seed: Optional seed integer. If None, uses DEFAULT_SEED.
-    
+        seed: Random seed value. If None, uses DEFAULT_SEED.
+            
     Returns:
-        The seed value that was set.
+        The seed value that was set
     """
-    effective_seed = seed if seed is not None else DEFAULT_SEED
+    if seed is None:
+        seed = DEFAULT_SEED
+        
+    # Set seeds for standard libraries
+    random.seed(seed)
     
-    # Set for Python standard library
-    random.seed(effective_seed)
-    
-    # Set for NumPy if available
+    # Try to set numpy seed if available
     try:
         import numpy as np
-        np.random.seed(effective_seed)
+        np.random.seed(seed)
     except ImportError:
         pass
-    
-    # Set for PyTorch if available
+        
+    # Try to set torch seed if available
     try:
         import torch
-        torch.manual_seed(effective_seed)
+        torch.manual_seed(seed)
         if torch.cuda.is_available():
-            torch.cuda.manual_seed_all(effective_seed)
+            torch.cuda.manual_seed_all(seed)
     except ImportError:
         pass
-    
-    # Set for PyMC if available
-    try:
-        import pymc as pm
-        # PyMC often uses numpy random state, but explicit setting is good practice
-        pm.set_seed(effective_seed)
-    except ImportError:
-        pass
-    
-    return effective_seed
+        
+    return seed
 
-def get_config_value(key: str, default: Any = None) -> Any:
+
+def get_seed() -> int:
     """
-    Retrieve a configuration value from environment variables.
+    Get the current seed value from environment or default.
     
-    Priority:
-    1. Environment variable
-    2. Default value
+    Returns:
+        Seed value as integer
+    """
+    env_seed = os.environ.get("LLMXIVE_SEED")
+    if env_seed is not None:
+        try:
+            return int(env_seed)
+        except ValueError:
+            pass
+    return DEFAULT_SEED
+
+
+def compute_file_hash(file_path: Union[str, Path]) -> str:
+    """
+    Compute SHA-256 hash of a file for integrity verification.
     
     Args:
-        key: The environment variable name (e.g., 'POLL_DATA_SOURCE')
-        default: The default value if the env var is not set
+        file_path: Path to the file
+        
+    Returns:
+        Hexadecimal hash string
+        
+    Raises:
+        FileNotFoundError: If file does not exist
+    """
+    file_path = Path(file_path)
+    if not file_path.exists():
+        raise FileNotFoundError(f"File not found: {file_path}")
+        
+    sha256_hash = hashlib.sha256()
+    with open(file_path, "rb") as f:
+        for byte_block in iter(lambda: f.read(4096), b""):
+            sha256_hash.update(byte_block)
+    return sha256_hash.hexdigest()
+
+
+def ensure_dir(dir_path: Union[str, Path]) -> Path:
+    """
+    Ensure a directory exists, creating it if necessary.
+    
+    Args:
+        dir_path: Path to the directory
+        
+    Returns:
+        The absolute Path object
+    """
+    path = Path(dir_path)
+    path.mkdir(parents=True, exist_ok=True)
+    return path
+
+
+def get_config() -> Dict[str, Any]:
+    """
+    Get the full configuration dictionary.
     
     Returns:
-        The value from the environment or the default.
+        Dictionary containing all configuration values
     """
-    return os.getenv(key, default)
-
-def validate_environment(paths: Dict[str, Path]) -> bool:
-    """
-    Validate that the resolved paths are writable and exist.
-    
-    Returns:
-        True if validation passes, False otherwise.
-    """
-    required_dirs = ['data_raw', 'data_processed', 'state', 'src']
-    for key in required_dirs:
-        if key not in paths:
-            continue
-        path = paths[key]
-        if not path.exists():
-            # Attempt to create if missing (setup task should have done this, but defensive)
-            try:
-                path.mkdir(parents=True, exist_ok=True)
-            except OSError:
-                return False
-        if not os.access(path, os.W_OK):
-            return False
-    return True
-
-# Singleton-like configuration holder (optional, for easy access)
-_config_cache: Optional[Dict[str, Path]] = None
-_seed_set: bool = False
-
-def get_config() -> Dict[str, Path]:
-    """
-    Get the global configuration paths. Initializes if not already set.
-    """
-    global _config_cache
-    if _config_cache is None:
-        _config_cache = resolve_paths()
-        validate_environment(_config_cache)
-    return _config_cache
-
-def reset_config() -> None:
-    """
-    Reset the configuration cache. Useful for testing.
-    """
-    global _config_cache
-    _config_cache = None
-
-# Convenience functions for common paths
-def get_data_processed_path() -> Path:
-    """Get the path to the processed data directory."""
-    return get_config()['data_processed']
-
-def get_state_path() -> Path:
-    """Get the path to the state directory."""
-    return get_config()['state']
-
-def get_raw_data_path() -> Path:
-    """Get the path to the raw data directory."""
-    return get_config()['data_raw']
-
-def get_src_path() -> Path:
-    """Get the path to the source code directory."""
-    return get_config()['src']
+    return {
+        "project_root": str(get_project_root()),
+        "data_root": str(get_data_root()),
+        "state_root": str(get_state_root()),
+        "code_root": str(get_code_root()),
+        "figures_root": str(get_figures_root()),
+        "spec_root": str(get_spec_root()),
+        "seed": get_seed(),
+        "default_seed": DEFAULT_SEED,
+    }

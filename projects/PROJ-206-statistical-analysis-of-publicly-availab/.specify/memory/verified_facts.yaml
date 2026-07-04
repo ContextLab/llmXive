@@ -1,6 +1,5 @@
-'|account applied comparison correction down max multiple permutation step using westfall young':
-  quote: "arate set of 1000 simulations, and the Westfall\u2013Young metho d is using\
-    \ 1000"
-  source_id: '1106.2068'
-  url: https://arxiv.org/abs/1106.2068
-  value: '1000'
+'|against alpha binomial hypothesi level null significance test use':
+  quote: '0.05'
+  source_id: One- and two-tailed tests
+  url: https://en.wikipedia.org/wiki/One-_and_two-tailed_tests
+  value: '0.05'

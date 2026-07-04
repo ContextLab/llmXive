@@ -5,222 +5,100 @@
 # Used for validation in src/models/frequentist.py and src/models/bayesian.py
 
 $schema: http://json-schema.org/draft-07/schema#
-title: Forecast Dataset Schema
-description: Schema for forecast outputs including point estimates and uncertainty intervals
-
+title: Forecast Output Schema
+description: >
+  Schema for the forecast outputs produced by src/models/frequentist.py
+  and src/models/bayesian.py. Defines the structure of data/processed/frequentist_forecasts.csv
+  and data/processed/bayesian_forecasts.csv.
 type: object
+required:
+  - columns
+  - column_types
+  - constraints
 properties:
-  metadata:
-    type: object
-    required:
+  columns:
+    type: array
+    description: Ordered list of column names in the forecast dataset.
+    items:
+      type: string
+    example:
       - date
       - candidate
       - simple_avg_forecast
       - weighted_avg_forecast
+      - bayesian_median
+      - bayesian_ci_lower
+      - bayesian_ci_upper
+      - model_type
+  column_types:
+    type: object
+    description: Mapping of column name to expected data type.
     properties:
       date:
         type: string
         format: date
-        description: Forecast date (weekly bin)
+        description: ISO 8601 date string (YYYY-MM-DD) for the forecast bin.
       candidate:
         type: string
+        description: Candidate name (e.g., 'Democrat', 'Republican').
       simple_avg_forecast:
         type: number
-        description: Simple unweighted average forecast
+        description: Arithmetic mean vote share (0.0 to 100.0).
       weighted_avg_forecast:
         type: number
-        description: Accuracy-weighted average forecast
-      ci_lower_95:
+        description: Inverse-RMSE weighted mean vote share (0.0 to 100.0).
+      bayesian_median:
         type: number
-        description: Lower bound of 95% confidence interval
-      ci_upper_95:
+        description: Posterior median vote share.
+      bayesian_ci_lower:
         type: number
-        description: Upper bound of 95% confidence interval
-      n_polls:
-        type: integer
-        minimum: 1
-        description: Number of polls used in aggregation
-
-  bayesian_forecast:
-    type: object
+        description: Lower bound of the 95% credible interval.
+      bayesian_ci_upper:
+        type: number
+        description: Upper bound of the 95% credible interval.
+      model_type:
+        type: string
+        description: Type of model used (e.g., 'frequentist', 'bayesian').
     required:
       - date
       - candidate
-      - posterior_mean
-      - ci_lower_95
-      - ci_upper_95
-      - r_hat
-    properties:
-      date:
-        type: string
-        format: date
-      candidate:
-        type: string
-      posterior_mean:
-        type: number
-      posterior_median:
-        type: number
-      ci_lower_95:
-        type: number
-      ci_upper_95:
-        type: number
-      r_hat:
-        type: number
-        maximum: 1.05
-        description: Convergence diagnostic (R-hat)
-      effective_sample_size:
-        type: integer
-      predicted_winner:
-        type: string
-      win_probability:
-        type: number
-        minimum: 0
-        maximum: 1
-
-  evaluation_metrics:
-    type: object
-    required:
-      - method
-      - rmse
-      - mae
-    properties:
-      model_type:
-        type: string
-        enum: [frequentist_simple, frequentist_weighted, bayesian_random_walk]
-        description: "Type of model used"
-      generation_date:
-        type: string
-        format: date-time
-        description: "Timestamp of forecast generation"
-      version:
-        type: string
-        description: "Schema version"
-      election_target:
-        type: string
-        description: "Target election date or cycle"
-    required:
       - model_type
-      - generation_date
-      - version
-      - election_target
-
-  columns:
-    type: array
-    items:
-      type: object
-      properties:
-        name:
-          type: string
-        dtype:
-          type: string
-          enum: [date, string, float, integer]
-        description:
-          type: string
-        required:
-          type: boolean
-      required:
-        - name
-        - dtype
-        - description
-        - required
-
-  forecast_types:
-    type: object
-    properties:
-      simple_avg_forecast:
-        type: object
-        properties:
-          description:
-            type: string
-          columns:
-            type: array
-            items:
-              type: string
-      weighted_avg_forecast:
-        type: object
-        properties:
-          description:
-            type: string
-          columns:
-            type: array
-            items:
-              type: string
-      bayesian_forecast:
-        type: object
-        properties:
-          description:
-            type: string
-          columns:
-            type: array
-            items:
-              type: string
-          requires_mcmc:
-            type: boolean
-    required:
-      - simple_avg_forecast
-
   constraints:
     type: object
+    description: Business logic constraints enforced during validation.
     properties:
-      date_granularity:
+      forecast_range:
+        type: array
+        minItems: 2
+        maxItems: 2
+        items:
+          type: number
+        description: Allowed range [min, max] for all forecast values.
+        example: [0.0, 100.0]
+      ci_ordering:
+        type: boolean
+        description: True if bayesian_ci_lower <= bayesian_median <= bayesian_ci_upper.
+        default: true
+      unique_date_candidate_model:
+        type: boolean
+        description: True if (date, candidate, model_type) must be unique.
+        default: true
+  metadata:
+    type: object
+    description: Provenance and generation metadata.
+    properties:
+      model_version:
         type: string
-        enum: [daily, weekly, monthly]
-        description: "Time binning for forecasts"
-      vote_share_range:
-        type: object
-        properties:
-          min:
-            type: number
-            minimum: 0
-            maximum: 100
-          max:
-            type: number
-            minimum: 0
-            maximum: 100
-      credible_interval_level:
-        type: number
-        minimum: 0
-        maximum: 1
-        description: "Confidence level for intervals (e.g., 0.95)"
-    required:
-      - date_granularity
-
-# Specific column definitions for forecast outputs
-expected_columns:
-  - name: date
-    dtype: date
-    description: "Forecast date (binned)"
-    required: true
-  - name: candidate
-    dtype: string
-    description: "Candidate name"
-    required: true
-  - name: simple_avg_forecast
-    dtype: float
-    description: "Simple unweighted average forecast"
-    required: false
-  - name: weighted_avg_forecast
-    dtype: float
-    description: "Accuracy-weighted average forecast"
-    required: false
-  - name: lower_95_ci
-    dtype: float
-    description: "Lower bound of 95% credible/confidence interval"
-    required: false
-  - name: upper_95_ci
-    dtype: float
-    description: "Upper bound of 95% credible/confidence interval"
-    required: false
-  - name: std_dev
-    dtype: float
-    description: "Standard deviation of the forecast"
-    required: false
-  - name: n_polls
-    dtype: integer
-    description: "Number of polls included in this bin"
-    required: false
-
-required:
-  - metadata
-  - columns
-  - constraints
+        description: Version of the model code used.
+      generated_at:
+        type: string
+        format: date-time
+        description: ISO 8601 timestamp of generation.
+      seed:
+        type: integer
+        description: Random seed used for reproducibility.
+      version:
+        type: string
+        description: Schema version.
+        default: "1.0.0"
+additionalProperties: false

@@ -1,171 +1,183 @@
-import os
-import sys
-import csv
 import logging
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
+from typing import List, Optional, Tuple
+import numpy as np
+import pandas as pd
+from src.utils.config import get_data_root, resolve_path
 
-# Add project root to path for imports if running as script
-project_root = Path(__file__).resolve().parents[2]
-if str(project_root) not in sys.path:
-    sys.path.insert(0, str(project_root))
+logger = logging.getLogger(__name__)
 
-from src.utils.logging import get_logger, configure_logging
-from src.utils.state_manager import compute_file_hash, update_state_artifact
-
-logger = get_logger(__name__)
-
-def simple_average(polls: List[Dict[str, float]]) -> float:
+def simple_average(df: pd.DataFrame, date_col: str = 'date', value_col: str = 'vote_share') -> pd.DataFrame:
     """
-    Calculate the arithmetic mean of vote shares per weekly bin.
-    FR-003: Simple Unweighted Averaging.
-
+    Calculate arithmetic mean of vote shares per weekly bin.
+    
     Args:
-        polls: List of dictionaries containing 'vote_share' keys.
-
+        df: DataFrame with columns including date_col and value_col.
+        date_col: Name of the date column.
+        value_col: Name of the vote share column.
+        
     Returns:
-        float: The arithmetic mean of vote shares.
+        DataFrame with weekly bins and simple average forecast.
     """
-    if not polls:
-        logger.warning("No polls provided for simple average calculation.")
-        return 0.0
+    if df.empty:
+        logger.warning("Input DataFrame is empty. Returning empty result.")
+        return pd.DataFrame(columns=['week_start', 'simple_avg_forecast'])
 
-    total = sum(p.get('vote_share', 0.0) for p in polls)
-    count = len(polls)
-    return total / count
+    # Ensure date column is datetime
+    df = df.copy()
+    df[date_col] = pd.to_datetime(df[date_col], errors='coerce')
+    
+    # Drop rows with invalid dates
+    valid_df = df.dropna(subset=[date_col])
+    
+    if valid_df.empty:
+        logger.warning("No valid dates found after conversion. Returning empty result.")
+        return pd.DataFrame(columns=['week_start', 'simple_avg_forecast'])
 
-def weighted_average(polls: List[Dict[str, float]]) -> float:
+    # Bin to weekly intervals (Monday start)
+    valid_df['week_start'] = valid_df[date_col].dt.to_period('W').dt.start_time
+    
+    # Group by week and calculate simple average
+    result = valid_df.groupby('week_start')[value_col].mean().reset_index()
+    result.columns = ['week_start', 'simple_avg_forecast']
+    
+    logger.info(f"Simple average calculated for {len(result)} weekly bins.")
+    return result
+
+def weighted_average(df: pd.DataFrame, value_col: str = 'vote_share', weight_col: str = 'historical_rmse') -> pd.DataFrame:
     """
-    Calculate the inverse-RMSE weighted mean, normalizing weights to sum to 1.0.
-    FR-004: Accuracy-Weighted Averaging.
-
-    The weight for each poll is calculated as 1 / (historical_rmse + epsilon).
-    If historical_rmse is missing or zero, a small epsilon prevents division by zero.
-    Weights are then normalized so their sum equals 1.0.
-
+    Calculate inverse-RMSE weighted mean, normalizing weights to sum to 1.0.
+    
+    This implements FR-004: Accuracy-Weighted Averaging.
+    The weight for each poll is calculated as 1 / RMSE.
+    These weights are then normalized so they sum to 1.0.
+    The forecast is the weighted sum of vote shares.
+    
     Args:
-        polls: List of dictionaries containing 'vote_share' and 'historical_rmse' keys.
-
+        df: DataFrame containing vote shares and historical RMSE weights.
+        value_col: Name of the vote share column.
+        weight_col: Name of the historical RMSE column.
+        
     Returns:
-        float: The weighted average vote share.
+        DataFrame with weekly bins and weighted average forecast.
+        
+    Raises:
+        ValueError: If weights are invalid (all zero or negative).
     """
-    if not polls:
-        logger.warning("No polls provided for weighted average calculation.")
-        return 0.0
+    if df.empty:
+        logger.warning("Input DataFrame is empty. Returning empty result.")
+        return pd.DataFrame(columns=['week_start', 'weighted_avg_forecast'])
 
-    weights = []
-    values = []
-    epsilon = 1e-9
+    df = df.copy()
+    df['date'] = pd.to_datetime(df['date'], errors='coerce')
+    
+    # Drop rows with invalid dates or missing values
+    valid_df = df.dropna(subset=['date', value_col, weight_col])
+    
+    if valid_df.empty:
+        logger.warning("No valid data found after filtering. Returning empty result.")
+        return pd.DataFrame(columns=['week_start', 'weighted_avg_forecast'])
 
-    for poll in polls:
-        vote_share = poll.get('vote_share', 0.0)
-        rmse = poll.get('historical_rmse', 0.0)
+    # Bin to weekly intervals
+    valid_df['week_start'] = valid_df['date'].dt.to_period('W').dt.start_time
 
-        # Ensure RMSE is positive to avoid division by zero
-        if rmse <= 0:
-            rmse = epsilon
+    # Calculate inverse RMSE weights and normalize per group
+    def calculate_weighted_mean(group):
+        rmse = group[weight_col].values
+        votes = group[value_col].values
+        
+        # Handle edge case: zero or negative RMSE
+        # Replace zero/negative RMSE with a large value to minimize their weight
+        # or handle as specified in weights.py (default median weight logic)
+        # For this implementation, we'll use a small epsilon to avoid division by zero
+        epsilon = 1e-10
+        inv_rmse = 1.0 / (np.maximum(rmse, epsilon))
+        
+        # Normalize weights to sum to 1.0
+        weight_sum = np.sum(inv_rmse)
+        if weight_sum == 0:
+            # If all weights are effectively zero, fall back to simple average
+            logger.warning(f"Zero weight sum for week {group.name}. Using simple average.")
+            return np.nanmean(votes)
+        
+        normalized_weights = inv_rmse / weight_sum
+        
+        # Calculate weighted mean
+        weighted_mean = np.sum(votes * normalized_weights)
+        return weighted_mean
 
-        # Calculate inverse RMSE weight
-        w = 1.0 / rmse
-        weights.append(w)
-        values.append(vote_share)
+    result = valid_df.groupby('week_start').apply(calculate_weighted_mean).reset_index()
+    result.columns = ['week_start', 'weighted_avg_forecast']
+    
+    # Handle any NaN results (e.g., from groups with all invalid data)
+    result['weighted_avg_forecast'] = result['weighted_avg_forecast'].fillna(np.nan)
+    
+    logger.info(f"Weighted average calculated for {len(result)} weekly bins.")
+    return result
 
-    # Normalize weights to sum to 1.0
-    total_weight = sum(weights)
-    if total_weight == 0:
-        logger.warning("Total weight is zero. Falling back to simple average.")
-        return simple_average(polls)
-
-    normalized_weights = [w / total_weight for w in weights]
-
-    # Calculate weighted sum
-    weighted_sum = sum(v * w for v, w in zip(values, normalized_weights))
-
-    return weighted_sum
+def run_frequentist_analysis(input_path: Optional[str] = None, output_path: Optional[str] = None) -> pd.DataFrame:
+    """
+    Run the full frequentist analysis pipeline:
+    1. Load cleaned poll data
+    2. Calculate simple average forecasts
+    3. Calculate weighted average forecasts
+    4. Merge results into a single output file
+    
+    Args:
+        input_path: Path to input cleaned poll data CSV. If None, uses default path.
+        output_path: Path to output forecasts CSV. If None, uses default path.
+        
+    Returns:
+        DataFrame containing both simple and weighted average forecasts.
+    """
+    data_root = get_data_root()
+    
+    if input_path is None:
+        input_path = resolve_path("data/processed/poll_data_cleaned.csv", root=data_root)
+    else:
+        input_path = resolve_path(input_path, root=data_root)
+        
+    if output_path is None:
+        output_path = resolve_path("data/processed/frequentist_forecasts.csv", root=data_root)
+    else:
+        output_path = resolve_path(output_path, root=data_root)
+    
+    logger.info(f"Loading data from {input_path}")
+    
+    if not Path(input_path).exists():
+        raise FileNotFoundError(f"Input file not found: {input_path}")
+    
+    df = pd.read_csv(input_path)
+    
+    # Calculate simple average
+    simple_df = simple_average(df)
+    
+    # Calculate weighted average
+    weighted_df = weighted_average(df)
+    
+    # Merge results on week_start
+    result = simple_df.merge(weighted_df, on='week_start', how='outer')
+    
+    # Ensure output directory exists
+    output_dir = Path(output_path).parent
+    output_dir.mkdir(parents=True, exist_ok=True)
+    
+    # Save to CSV
+    result.to_csv(output_path, index=False)
+    logger.info(f"Frequentist forecasts saved to {output_path}")
+    
+    return result
 
 def main():
-    """
-    Main entry point to run the frequentist aggregation on processed data.
-    Reads data/processed/poll_data_cleaned.csv, calculates forecasts,
-    and writes to data/processed/frequentist_forecasts.csv.
-    """
-    configure_logging()
-    logger.info("Starting Frequentist Aggregation (Weighted Average)")
-
-    input_path = project_root / "data" / "processed" / "poll_data_cleaned.csv"
-    output_path = project_root / "data" / "processed" / "frequentist_forecasts.csv"
-
-    if not input_path.exists():
-        logger.error(f"Input file not found: {input_path}")
-        sys.exit(1)
-
-    # Read data
-    polls = []
-    with open(input_path, 'r', newline='', encoding='utf-8') as f:
-        reader = csv.DictReader(f)
-        for row in reader:
-            # Convert string values to float
-            try:
-                vote_share = float(row['vote_share'])
-                rmse = float(row['historical_rmse']) if 'historical_rmse' in row and row['historical_rmse'] else 0.0
-                # Grouping key (e.g., week_bin) is assumed to be present for aggregation
-                # For this specific task implementation, we assume the data is pre-binned
-                # or we aggregate by a key if present. The task description implies
-                # calculating the metric for the bins.
-                # We will read the row and store the relevant fields.
-                # If the file contains multiple rows per bin, we need to group them.
-                # Assuming the file is already binned by 'week_bin' or similar.
-                polls.append({
-                    'vote_share': vote_share,
-                    'historical_rmse': rmse,
-                    'week_bin': row.get('week_bin', 'unknown'),
-                    'pollster': row.get('pollster', 'unknown')
-                })
-            except (ValueError, KeyError) as e:
-                logger.warning(f"Skipping invalid row: {row}. Error: {e}")
-
-    if not polls:
-        logger.error("No valid poll data found in input file.")
-        sys.exit(1)
-
-    # Group polls by week_bin
-    from collections import defaultdict
-    bins = defaultdict(list)
-    for poll in polls:
-        bins[poll['week_bin']].append(poll)
-
-    # Calculate forecasts
-    results = []
-    for week_bin, bin_polls in sorted(bins.items()):
-        simple_avg = simple_average(bin_polls)
-        weighted_avg = weighted_average(bin_polls)
-
-        results.append({
-            'week_bin': week_bin,
-            'simple_avg_forecast': simple_avg,
-            'weighted_avg_forecast': weighted_avg,
-            'poll_count': len(bin_polls)
-        })
-
-    # Write output
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(output_path, 'w', newline='', encoding='utf-8') as f:
-        fieldnames = ['week_bin', 'simple_avg_forecast', 'weighted_avg_forecast', 'poll_count']
-        writer = csv.DictWriter(f, fieldnames=fieldnames)
-        writer.writeheader()
-        writer.writerows(results)
-
-    logger.info(f"Forecasts written to {output_path}")
-
-    # Update state manager
-    update_state_artifact(
-        project_root,
-        "PROJ-206",
-        output_path,
-        "frequentist_forecasts.csv"
-    )
-
-    logger.info("Frequentist Aggregation completed successfully.")
+    """Main entry point for the frequentist analysis script."""
+    logging.basicConfig(level=logging.INFO)
+    try:
+        result = run_frequentist_analysis()
+        print(f"Analysis complete. Processed {len(result)} weekly bins.")
+        print(result.head())
+    except Exception as e:
+        logger.error(f"Error during frequentist analysis: {e}")
+        raise
 
 if __name__ == "__main__":
     main()

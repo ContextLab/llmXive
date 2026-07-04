@@ -56,19 +56,19 @@
   verification_status: verified
   verified_against_url: https://abcnews.com/politics
   verified_at: '2026-07-04T17:07:11.676069Z'
-- artifact_hash: 482b8475fd88aef8e9c5e5b0db7a8c1b669001c5882e4819402ab19601a4e56a
-  artifact_path: projects/PROJ-206-statistical-analysis-of-publicly-availab/research.md
+- artifact_hash: eb54f8de3e04552cc31c2834dd411e2f2bfd2d8efec19daef15f5dd587a6c1cd
+  artifact_path: projects/PROJ-206-statistical-analysis-of-publicly-availab/code/research.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
   fetched_title: Politics News | Breaking Political News, Video &amp; Analysis-ABC
     News - ABC News
   kind: url
-  value: https://projects.fivethirtyeight.com/polls/`
+  value: https://projects.fivethirtyeight.com/polls/
   verification_status: verified
   verified_against_url: https://abcnews.com/politics
-  verified_at: '2026-07-04T18:26:45.089366Z'
-- artifact_hash: 21310860ce57bd165d95b0023aba0f8d94aa06f8941eb57eed55e1759d01ddf2
+  verified_at: '2026-07-04T18:28:11.812036Z'
+- artifact_hash: 75ed516bf7d029221aaf894a4372d6ef6a65e9db022550dbf337c8fad074d4ae
   artifact_path: projects/PROJ-206-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -79,4 +79,15 @@
   value: https://projects.fivethirtyeight.com/polls/`
   verification_status: verified
   verified_against_url: https://abcnews.com/politics
-  verified_at: '2026-07-04T18:26:45.710709Z'
+  verified_at: '2026-07-04T19:05:08.227242Z'
+- artifact_hash: 75ed516bf7d029221aaf894a4372d6ef6a65e9db022550dbf337c8fad074d4ae
+  artifact_path: projects/PROJ-206-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: One- and two-tailed tests - Wikipedia
+  kind: url
+  value: https://en.wikipedia.org/wiki/One-_and_two-tailed_tests
+  verification_status: verified
+  verified_against_url: https://en.wikipedia.org/wiki/One-_and_two-tailed_tests
+  verified_at: '2026-07-04T19:05:08.227242Z'
