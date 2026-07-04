@@ -1,0 +1,72 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "ModelPerformance"
+description: "Schema for model evaluation results."
+type: "object"
+properties:
+  model_type:
+    type: "string"
+    description: "Type of model (e.g., 'GradientBoosting', 'LinearRegression')."
+  rmse:
+    type: "number"
+    description: "Root Mean Squared Error on the test set."
+  r_squared:
+    type: "number"
+    description: "Coefficient of determination (R²) on the test set."
+  cv_fold_scores:
+    type: "array"
+    items:
+      type: "number"
+    description: "Scores from each cross-validation fold."
+  training_time_seconds:
+    type: "number"
+    description: "Total time taken for training in seconds."
+  ci_lower:
+    type: "number"
+    description: "Lower bound of the 95% bootstrapped confidence interval for the difference in mean absolute SHAP values (SC-006)."
+  ci_upper:
+    type: "number"
+    description: "Upper bound of the 95% bootstrapped confidence interval for the difference in mean absolute SHAP values (SC-006)."
+  is_significant:
+    type: "boolean"
+    description: "True if the confidence interval excludes zero, indicating a significant difference (SC-006)."
+  mdes:
+    type: "number"
+    description: "Minimum Detectable Effect Size for the heterogeneity term (Power Analysis)."
+  power_achieved:
+    type: "number"
+    description: "Estimated statistical power for the MDES."
+  transferability_metrics:
+    type: "object"
+    additionalProperties:
+      type: "object"
+      properties:
+        family_name:
+          type: "string"
+        feature_importance_diff:
+          type: "number"
+        ci_lower:
+          type: "number"
+        ci_upper:
+          type: "number"
+        is_significant:
+          type: "boolean"
+      required:
+        - "family_name"
+        - "feature_importance_diff"
+        - "ci_lower"
+        - "ci_upper"
+        - "is_significant"
+    description: "Cross-family transferability metrics (Feature Importance Differences)."
+required:
+  - "model_type"
+  - "rmse"
+  - "r_squared"
+  - "cv_fold_scores"
+  - "training_time_seconds"
+  - "ci_lower"
+  - "ci_upper"
+  - "is_significant"
+  - "mdes"
+  - "power_achieved"
+  - "transferability_metrics"
+additionalProperties: false

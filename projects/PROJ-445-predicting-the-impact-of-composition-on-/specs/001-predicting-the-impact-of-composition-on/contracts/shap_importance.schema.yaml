@@ -1,0 +1,30 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "SHAPImportance"
+description: "Schema for SHAP feature attribution results."
+type: "object"
+properties:
+  feature_name:
+    type: "string"
+    description: "Name of the feature (e.g., 'mean_coordination_number')."
+  mean_absolute_shap_value:
+    type: "number"
+    description: "Mean absolute SHAP value indicating feature importance."
+  shap_value_distribution:
+    type: "object"
+    properties:
+      min:
+        type: "number"
+      max:
+        type: "number"
+      mean:
+        type: "number"
+    required:
+      - "min"
+      - "max"
+      - "mean"
+    description: "Distribution statistics of SHAP values for the feature."
+required:
+  - "feature_name"
+  - "mean_absolute_shap_value"
+  - "shap_value_distribution"
+additionalProperties: false

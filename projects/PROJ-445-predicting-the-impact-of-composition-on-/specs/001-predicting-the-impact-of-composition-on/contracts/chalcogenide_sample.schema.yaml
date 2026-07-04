@@ -1,0 +1,37 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "ChalcogenideSample"
+description: "Schema for a single glass composition sample with derived features."
+type: "object"
+properties:
+  elemental_formula:
+    type: "string"
+    description: "Chemical formula of the glass (e.g., 'Ge20Se80')."
+  mean_coordination_number:
+    type: "number"
+    description: "Average coordination number of atoms in the network."
+  electronegativity_variance:
+    type: "number"
+    description: "Variance of electronegativity values across constituent elements."
+  atomic_radius_variance:
+    type: "number"
+    description: "Variance of atomic radii values across constituent elements."
+  residualized_electronegativity_variance:
+    type: "number"
+    description: "Electronegativity variance orthogonalized against MCN (used if VIF > 5)."
+  residualized_atomic_radius_variance:
+    type: "number"
+    description: "Atomic radius variance orthogonalized against MCN (used if VIF > 5)."
+  Tg_value:
+    type: "number"
+    description: "Glass transition temperature in Kelvin."
+  chemical_family:
+    type: "string"
+    description: "Classification of the glass (e.g., 'Ge-Se', 'As-S')."
+required:
+  - "elemental_formula"
+  - "mean_coordination_number"
+  - "electronegativity_variance"
+  - "atomic_radius_variance"
+  - "Tg_value"
+  - "chemical_family"
+additionalProperties: false
