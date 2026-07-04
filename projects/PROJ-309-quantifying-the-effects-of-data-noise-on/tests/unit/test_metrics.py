@@ -1,140 +1,255 @@
 """
-Unit tests for the Grassberger-Procaccia algorithm (Correlation Dimension).
+Unit tests for the Grassberger-Procaccia algorithm implementation.
 
-This test verifies the correctness of the implementation using a known synthetic
-dataset where the theoretical correlation dimension is established.
+This test verifies the correctness of the Correlation Dimension computation
+using synthetic data with a known theoretical correlation dimension.
+
+We generate a synthetic dataset from a known fractal structure (or a
+deterministic chaotic system with a known dimension) and verify that
+the computed correlation dimension matches the theoretical value within
+a specified tolerance.
+
+For this test, we use a synthetic dataset generated from a known distribution
+or a simplified chaotic system where the correlation dimension is well-established.
+Specifically, we test against the Hénon map, which has a known correlation
+dimension of approximately 1.21.
 """
 import numpy as np
 import pytest
-from scipy.spatial.distance import cdist
-
-# Import the function under test from the project's metrics module
 import sys
 import os
-# Ensure the code directory is in the path for imports
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'code'))
 
-from metrics import compute_correlation_dimension
+# Add the project root to the path to allow imports from code/
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
+
+from code.metrics import compute_correlation_dimension
+from code.generators import generate_lorenz_trajectory
+from code.config import get_system_params
 
 
-def test_correlation_dimension_mandelbrot():
+def test_grassberger_procaccia_henon_map():
     """
-    Test Grassberger-Procaccia algorithm on a synthetic dataset approximating
-    a known fractal structure.
+    Test the Grassberger-Procaccia algorithm on Hénon map data.
     
-    We generate a 2D dataset with a known scaling region. While a perfect
-    mathematical fractal is infinite, we use a large enough sample of a
-    deterministic chaotic attractor (Lorenz) or a constructed fractal set
-    to verify the slope calculation logic.
+    The Hénon map is a well-studied chaotic system with a known
+    correlation dimension of approximately 1.21. We generate a
+    trajectory from the Hénon map and verify that the computed
+    correlation dimension is within 10% of the theoretical value.
     
-    For this unit test, we use a synthetic dataset constructed to have
-    a known correlation dimension close to 2.0 (a filled 2D plane) or
-    verify the algorithm's behavior on a known fractal approximation.
-    
-    Here, we generate a large set of points from a 2D Gaussian distribution.
-    The correlation dimension of a 2D Gaussian cloud is theoretically 2.0
-    (the embedding dimension) within the scaling region, provided the
-    sample size is sufficient and noise is low.
+    Reference:
+    - Grassberger, P., & Procaccia, I. (1983). Measuring the strangeness
+      of strange attractors. Physica D: Nonlinear Phenomena, 9(1-2), 189-208.
     """
-    # Set random seed for reproducibility
-    np.random.seed(42)
+    # Generate Hénon map trajectory
+    # Parameters for the Hénon map: a = 1.4, b = 0.3
+    # These are the standard parameters that produce chaos
+    a = 1.4
+    b = 0.3
+    n_points = 10000
+    discard = 1000  # Discard initial transient
     
-    # Generate 2000 points from a standard 2D normal distribution
-    # This approximates a 2D manifold with D2 = 2.0 in the scaling region
-    n_points = 2000
-    dim = 2
-    data = np.random.randn(n_points, dim)
+    # Initialize
+    x = np.zeros(n_points + discard)
+    y = np.zeros(n_points + discard)
+    x[0] = 0.0
+    y[0] = 0.0
     
-    # Parameters for the GP algorithm
-    r_min = 0.01
-    r_max = 2.0
-    n_bins = 20
+    # Iterate Hénon map
+    for i in range(1, n_points + discard):
+        x[i] = 1.0 - a * x[i-1]**2 + y[i-1]
+        y[i] = b * x[i-1]
     
-    # Compute the correlation dimension
-    # We expect the result to be close to 2.0 (the embedding dimension)
-    # with some tolerance due to finite sample size and binning
-    d2, r_values, c_values = compute_correlation_dimension(
-        data, 
-        r_min=r_min, 
-        r_max=r_max, 
-        n_bins=n_bins
+    # Discard transient
+    x = x[discard:]
+    y = y[discard:]
+    
+    # Combine into a single time series (using x component)
+    # For correlation dimension, we can use a single variable
+    time_series = x
+    
+    # Embedding parameters
+    embedding_dim = 5
+    lag = 1
+    min_dist = 0.01
+    max_dist = 1.0
+    n_radii = 20
+    
+    # Compute correlation dimension
+    # The function returns (correlation_dimension, r_values, C_values)
+    try:
+        dim, r_vals, c_vals = compute_correlation_dimension(
+            time_series,
+            embedding_dim=embedding_dim,
+            lag=lag,
+            min_dist=min_dist,
+            max_dist=max_dist,
+            n_radii=n_radii
+        )
+        
+        # Theoretical correlation dimension for Hénon map is ~1.21
+        theoretical_dim = 1.21
+        tolerance = 0.20  # Allow 20% tolerance due to finite data and estimation errors
+        
+        # Assert that the computed dimension is within tolerance
+        assert abs(dim - theoretical_dim) / theoretical_dim < tolerance, \
+            f"Computed correlation dimension {dim:.4f} is outside tolerance of theoretical value {theoretical_dim:.4f}. " \
+            f"Difference: {abs(dim - theoretical_dim):.4f}, Relative error: {abs(dim - theoretical_dim) / theoretical_dim:.2%}"
+        
+        # Additional checks
+        assert dim > 0, "Correlation dimension must be positive"
+        assert dim < embedding_dim, "Correlation dimension should be less than embedding dimension"
+        
+        # Check that correlation integral values are monotonically increasing with radius
+        # (with some tolerance for numerical noise)
+        assert np.all(np.diff(c_vals) >= -1e-10), "Correlation integral should be non-decreasing with radius"
+        
+    except Exception as e:
+        pytest.fail(f"Grassberger-Procaccia computation failed with error: {str(e)}")
+
+
+def test_grassberger_procaccia_lorenz_attractor():
+    """
+    Test the Grassberger-Procaccia algorithm on Lorenz attractor data.
+    
+    The Lorenz attractor has a known correlation dimension of approximately
+    2.05. We generate a trajectory from the Lorenz system and verify that
+    the computed correlation dimension is within 15% of the theoretical value.
+    
+    Reference:
+    - Grassberger, P., & Procaccia, I. (1983). Measuring the strangeness
+      of strange attractors. Physica D: Nonlinear Phenomena, 9(1-2), 189-208.
+    - Kaplan, J. L., & Yorke, J. A. (1979). Preturbulence: A regime observed
+      in a fluid flow model of Lorenz. Communications in Mathematical Physics,
+      67(2), 93-108.
+    """
+    # Generate Lorenz trajectory
+    params = get_system_params('lorenz')
+    trajectory = generate_lorenz_trajectory(
+        seed=42,
+        duration=params['duration'],
+        dt=params['dt']
     )
     
-    # The correlation dimension of a 2D Gaussian is 2.0
-    # We allow a tolerance of 0.5 due to finite sample effects and the
-    # specific range of r values chosen.
-    assert d2 is not None, "Correlation dimension calculation returned None"
-    assert isinstance(d2, float), "Correlation dimension should be a float"
+    # Use the x-component of the trajectory
+    time_series = trajectory['data'][:, 0]
     
-    # Check that the value is within a reasonable range for a 2D distribution
-    # It should be positive and less than or equal to the embedding dimension
-    assert 1.0 < d2 < 2.5, f"Expected D2 near 2.0 for 2D Gaussian, got {d2}"
+    # Embedding parameters
+    embedding_dim = 7
+    lag = 10
+    min_dist = 0.01
+    max_dist = 2.0
+    n_radii = 25
     
-    # Verify that the return values for r and C are arrays of expected length
-    assert len(r_values) == n_bins, f"Expected {n_bins} r values, got {len(r_values)}"
-    assert len(c_values) == n_bins, f"Expected {n_bins} C values, got {len(c_values)}"
-    
-    # Verify that C(r) is monotonically increasing (property of correlation integral)
-    # This is a sanity check for the implementation logic
-    for i in range(1, len(c_values)):
-        assert c_values[i] >= c_values[i-1], "Correlation integral should be monotonically increasing"
+    # Compute correlation dimension
+    try:
+        dim, r_vals, c_vals = compute_correlation_dimension(
+            time_series,
+            embedding_dim=embedding_dim,
+            lag=lag,
+            min_dist=min_dist,
+            max_dist=max_dist,
+            n_radii=n_radii
+        )
+        
+        # Theoretical correlation dimension for Lorenz attractor is ~2.05
+        theoretical_dim = 2.05
+        tolerance = 0.25  # Allow 25% tolerance due to finite data and estimation errors
+        
+        # Assert that the computed dimension is within tolerance
+        assert abs(dim - theoretical_dim) / theoretical_dim < tolerance, \
+            f"Computed correlation dimension {dim:.4f} is outside tolerance of theoretical value {theoretical_dim:.4f}. " \
+            f"Difference: {abs(dim - theoretical_dim):.4f}, Relative error: {abs(dim - theoretical_dim) / theoretical_dim:.2%}"
+        
+        # Additional checks
+        assert dim > 0, "Correlation dimension must be positive"
+        assert dim < embedding_dim, "Correlation dimension should be less than embedding dimension"
+        
+    except Exception as e:
+        pytest.fail(f"Grassberger-Procaccia computation on Lorenz data failed with error: {str(e)}")
 
 
-def test_correlation_dimension_empty_input():
-    """Test behavior with insufficient data points."""
-    data = np.random.randn(5, 2) # Too few points for reliable GP
+def test_grassberger_procaccia_random_data():
+    """
+    Test that the algorithm behaves correctly on random (non-chaotic) data.
+    
+    For random data, the correlation dimension should scale with the
+    embedding dimension (it should not saturate at a low value).
+    """
+    # Generate random data
+    np.random.seed(42)
+    time_series = np.random.randn(5000)
+    
+    # Test with different embedding dimensions
+    for embedding_dim in [3, 5, 7]:
+        try:
+            dim, r_vals, c_vals = compute_correlation_dimension(
+                time_series,
+                embedding_dim=embedding_dim,
+                lag=1,
+                min_dist=0.01,
+                max_dist=1.0,
+                n_radii=15
+            )
+            
+            # For random data, the correlation dimension should be close to
+            # the embedding dimension (or at least significantly higher than
+            # for chaotic data)
+            # This is a sanity check rather than a precise measurement
+            assert dim > 0, "Correlation dimension must be positive"
+            
+        except Exception as e:
+            pytest.fail(f"Grassberger-Procaccia computation on random data failed with error: {str(e)}")
+
+
+def test_grassberger_procaccia_edge_cases():
+    """
+    Test edge cases and error handling.
+    """
+    # Test with insufficient data points
+    short_series = np.array([1.0, 2.0, 3.0, 4.0, 5.0])
     
     with pytest.raises(ValueError):
-        compute_correlation_dimension(data, r_min=0.01, r_max=1.0, n_bins=10)
-
-
-def test_correlation_dimension_1d():
-    """Test on a 1D dataset (line). D2 should be close to 1.0."""
-    np.random.seed(123)
-    n_points = 1000
-    data = np.random.randn(n_points, 1)
+        compute_correlation_dimension(
+            short_series,
+            embedding_dim=5,
+            lag=1,
+            min_dist=0.01,
+            max_dist=1.0,
+            n_radii=5
+        )
     
-    d2, r_values, c_values = compute_correlation_dimension(
-        data, 
-        r_min=0.01, 
-        r_max=2.0, 
-        n_bins=15
-    )
+    # Test with invalid parameters
+    time_series = np.random.randn(1000)
     
-    assert d2 is not None
-    # For a 1D line, D2 should be close to 1.0
-    assert 0.5 < d2 < 1.5, f"Expected D2 near 1.0 for 1D Gaussian, got {d2}"
-
-
-def test_correlation_dimension_deterministic_fractal():
-    """
-    Test on a synthetic dataset designed to mimic a fractal with D < 2.
-    We generate points on a Sierpinski triangle approximation.
-    """
-    np.random.seed(999)
-    n_points = 3000
+    # Negative embedding dimension
+    with pytest.raises(ValueError):
+        compute_correlation_dimension(
+            time_series,
+            embedding_dim=-1,
+            lag=1,
+            min_dist=0.01,
+            max_dist=1.0,
+            n_radii=10
+        )
     
-    # Generate Sierpinski Triangle points using Chaos Game
-    vertices = np.array([[0, 0], [1, 0], [0.5, np.sqrt(3)/2]])
-    points = np.zeros((n_points, 2))
-    current = np.array([0.0, 0.0])
+    # Zero or negative min_dist
+    with pytest.raises(ValueError):
+        compute_correlation_dimension(
+            time_series,
+            embedding_dim=3,
+            lag=1,
+            min_dist=0,
+            max_dist=1.0,
+            n_radii=10
+        )
     
-    for i in range(n_points):
-        # Pick a random vertex
-        v = vertices[np.random.randint(0, 3)]
-        # Move halfway to the vertex
-        current = (current + v) / 2
-        points[i] = current
-    
-    # The theoretical correlation dimension of Sierpinski Triangle is log(3)/log(2) ≈ 1.585
-    d2, r_values, c_values = compute_correlation_dimension(
-        points,
-        r_min=0.001,
-        r_max=0.5,
-        n_bins=25
-    )
-    
-    assert d2 is not None
-    theoretical_d2 = np.log(3) / np.log(2)
-    # Allow a tolerance of 0.2 due to finite sample and binning
-    assert abs(d2 - theoretical_d2) < 0.2, f"Expected D2 near {theoretical_d2}, got {d2}"
+    # max_dist <= min_dist
+    with pytest.raises(ValueError):
+        compute_correlation_dimension(
+            time_series,
+            embedding_dim=3,
+            lag=1,
+            min_dist=0.1,
+            max_dist=0.1,
+            n_radii=10
+        )

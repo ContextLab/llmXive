@@ -1,1 +1,3 @@
-# Source code directory.
+# This directory contains the implementation code for the llmXive automated science pipeline.
+# It serves as the root for all Python modules (config.py, generators.py, noise.py, etc.)
+# defined in the project specifications.

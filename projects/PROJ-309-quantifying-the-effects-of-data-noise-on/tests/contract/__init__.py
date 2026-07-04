@@ -1,1 +1,1 @@
-"""Contract tests verifying API schemas and interfaces."""
+"""Contract tests for data schemas and interfaces."""

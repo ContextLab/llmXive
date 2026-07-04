@@ -1,1 +1,1 @@
-"""Integration tests package for PROJ-309."""
+"""Integration tests for end-to-end workflows."""

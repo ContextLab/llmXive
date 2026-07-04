@@ -3,7 +3,7 @@ requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "quantifying-data-noise-effects"
+name = "quantifying-noise-effects"
 version = "0.1.0"
 description = "Quantifying the effects of data noise on dynamical systems reconstruction"
 readme = "README.md"
@@ -14,23 +14,24 @@ dependencies = [
     "pandas>=2.0.0",
     "matplotlib>=3.7.0",
     "pytest>=7.3.0",
-    "ruff>=0.1.0",
 ]
 
 [project.optional-dependencies]
 dev = [
-    "black>=23.0.0",
     "ruff>=0.1.0",
-    "pytest>=7.3.0",
-    "pytest-cov>=4.0.0",
+    "black>=23.0.0",
 ]
 
 [project.scripts]
 run-pipeline = "main:main"
 
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["code*"]
+
 [tool.black]
 line-length = 88
-target-version = ['py39']
+target-version = ['py39', 'py310', 'py311']
 include = '\.pyi?$'
 exclude = '''
 /(
@@ -49,13 +50,23 @@ exclude = '''
 [tool.ruff]
 line-length = 88
 target-version = "py39"
-src = ["code", "tests"]
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # pyflakes
+    "I",   # isort
+    "C",   # flake8-comprehensions
+    "B",   # flake8-bugbear
+]
+ignore = [
+    "E501", # line too long (handled by black)
+    "B008", # do not perform function calls in argument defaults
+    "C901", # too complex
+]
 
-[tool.ruff.lint]
-select = ["E", "W", "F", "I", "C", "B"]
-ignore = ["E501"]
+[tool.ruff.per-file-ignores]
+"__init__.py" = ["F401"]
 
-[tool.pytest.ini_options]
-testpaths = ["tests"]
-python_files = ["test_*.py"]
-addopts = "-v --tb=short"
+[tool.ruff.isort]
+known-first-party = ["code", "utils"]
+force-sort-within-sections = true

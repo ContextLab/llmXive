@@ -1,61 +1,96 @@
 """
-Configuration constants and enums for the project.
+Configuration module for the quantifying noise effects project.
 
-Defines:
+Contains constants, enums, and configuration functions for:
 - SNR levels
 - System parameters (Lorenz, Rössler)
-- Seeds
-- Noise type enums
-- Algorithm parameters (FNN_THRESHOLD_FACTOR, etc.)
+- Random seeds
+- Noise types
 """
 import numpy as np
 from scipy.stats import t, norm
 from enum import Enum
-from typing import List, Dict, Any, Optional
-
+from typing import List, Dict, Any, Tuple
 
 class NoiseType(Enum):
-    """Enumeration of supported noise types."""
+    """Enum for supported noise types."""
     GAUSSIAN = "gaussian"
-    UNIFORM_QUANTIZATION = "uniform_quantization"
+    QUANTIZATION = "quantization"
 
-
-# System Parameters
+# System parameters
 LORENZ_PARAMS = {
-    'sigma': 10.0,
-    'rho': 28.0,
-    'beta': 8.0/3.0
+    "sigma": 10.0,
+    "rho": 28.0,
+    "beta": 8.0/3.0,
+    "dt": 0.01,
+    "t_max": 100.0,
+    "initial_state": [1.0, 1.0, 1.0]
 }
 
 ROSSLER_PARAMS = {
-    'a': 0.2,
-    'b': 0.2,
-    'c': 5.7
+    "a": 0.2,
+    "b": 0.2,
+    "c": 5.7,
+    "dt": 0.01,
+    "t_max": 100.0,
+    "initial_state": [1.0, 1.0, 1.0]
 }
 
-# Integration Parameters
-DT = 0.01
-T_MAX = 100.0
-SAVE_FREQ = 10  # Save every 10 time steps
+# SNR levels (in dB)
+DEFAULT_SNR_LEVELS = [0, 5, 10, 15, 20, 25, 30]
 
-# Noise Parameters
-SNR_LEVELS = [0, 5, 10, 15, 20, 25, 30]  # dB
-QUANTIZATION_BITS = [8, 10, 12, 14, 16]
+# Random seeds for reproducibility
+DEFAULT_SEEDS = [42, 123, 456]
 
-# Algorithm Parameters
-FNN_THRESHOLD_FACTOR = 10.0  # Threshold for FNN is 10 * std
-FNN_EMBEDDING_START = 1
-FNN_EMBEDDING_MAX = 10
-FNN_DELAY = 1
+# Noise types available
+DEFAULT_NOISE_TYPES = [NoiseType.GAUSSIAN, NoiseType.QUANTIZATION]
 
-# Random Seeds
-BASE_SEED = 42
-SEEDS = [42, 123, 456, 789, 101112]
+def get_snr_levels() -> List[float]:
+    """Get the list of SNR levels to test."""
+    return DEFAULT_SNR_LEVELS.copy()
 
-# Metric Parameters
-CORRELATION_DIM_R_MIN = 0.01
-CORRELATION_DIM_R_MAX = 1.0
-CORRELATION_DIM_N_BINS = 20
+def get_seeds() -> List[int]:
+    """Get the list of random seeds for reproducibility."""
+    return DEFAULT_SEEDS.copy()
 
-LYAPUNOV_T_MAX = 100
-LYAPUNOV_MIN_SEPARATION = 10
+def get_system_params(system_type: str) -> Dict[str, Any]:
+    """Get system parameters for a given system type."""
+    if system_type == "lorenz":
+        return LORENZ_PARAMS.copy()
+    elif system_type == "rossler":
+        return ROSSLER_PARAMS.copy()
+    else:
+        raise ValueError(f"Unknown system type: {system_type}")
+
+def get_noise_types() -> List[NoiseType]:
+    """Get the list of available noise types."""
+    return DEFAULT_NOISE_TYPES.copy()
+
+def get_literature_bounds(metric_name: str) -> Tuple[float, float]:
+    """
+    Get literature bounds for a given metric.
+    
+    Args:
+        metric_name: Name of the metric (e.g., "correlation_dimension", "lyapunov_exponent")
+        
+    Returns:
+        Tuple of (lower_bound, upper_bound)
+    """
+    bounds = {
+        "correlation_dimension_lorenz": (1.9, 2.1),
+        "correlation_dimension_rossler": (2.0, 2.2),
+        "lyapunov_exponent_lorenz": (0.8, 0.9),
+        "lyapunov_exponent_rossler": (0.07, 0.09)
+    }
+    
+    key = f"{metric_name}_{system_type}" if "correlation" in metric_name or "lyapunov" in metric_name else metric_name
+    if key in bounds:
+        return bounds[key]
+    else:
+        # Default wide bounds if not found
+        return (-np.inf, np.inf)
+
+# Additional configuration for analysis thresholds
+FNN_THRESHOLD_MULTIPLIER = 10.0  # FNN threshold = multiplier * std
+MIN_TRAJECTORY_LENGTH = 1000  # Minimum number of points for valid analysis
+EMBEDDING_DIM_RANGE = range(1, 11)  # Range of embedding dimensions to test

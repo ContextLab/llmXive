@@ -1,1 +1,2 @@
-# Directory for processed noisy trajectories and intermediate metrics.
+# This file ensures the data/processed directory exists in version control.
+# It is a placeholder for processed noisy trajectories and metrics.

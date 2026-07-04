@@ -64,9 +64,9 @@
 
 ### Phase 2a: Scaffolding & Signatures
 
-- [ ] T004 [P] Create `code/config.py` with function signatures and docstrings for constants: SNR levels, system params, seeds, noise type enums (Gaussian, Uniform Quantization).
+- [X] T004 [P] Create `code/config.py` with function signatures and docstrings for constants: SNR levels, system params, seeds, noise type enums (Gaussian, Uniform Quantization).
 - [X] T005 [P] Create `code/generators.py` with function signatures and docstrings for Lorenz/Rössler integration (FR-001).
-- [ ] T006 [P] Create `code/noise.py` with function signatures and docstrings for Gaussian/Quantization injection (FR-002, FR-003). <!-- FAILED: unspecified -->
+- [ ] T006 [P] Create `code/noise.py` with function signatures and docstrings for Gaussian/Quantization injection (FR-002, FR-003).
 - [ ] T007 [P] Create `code/metrics.py` with function signatures and docstrings for GP, Rosenstein, FNN (FR-004, FR-005, FR-006).
 - [X] T008 [P] Create `code/analysis.py` with function signatures and docstrings for error calc, threshold ID (FR-007, FR-008).
 - [X] T009 [P] Create `code/visualize.py` with function signatures and docstrings for plotting, CSV export (FR-009, FR-010).
@@ -150,14 +150,7 @@
 - [~] T028 [US3] Implement Largest Lyapunov Exponent (Rosenstein's algorithm) in `code/metrics.py` with convergence checks
 - [~] T029 [US3] Implement False Nearest Neighbors (FNN) in `code/metrics.py` (embedding=2, threshold=10× std)
 - [~] T030 [US3] **Implement Error Calculation**: Implement logic in `code/analysis.py` to calculate absolute error for each metric as `|computed_value - ground_truth_value| / |ground_truth_value| × 100`. The `ground_truth_value` MUST be sourced from the metrics computed in Task T017 (Clean Trajectory Metrics). (See FR-007)
-- [~] T031 [US3] **Identify Critical Threshold**: Implement logic to identify critical SNR threshold where FNN rate exceeds a majority level <!-- SKIPPED: YAML+regex parse failed (while scanning a simple key
- in "<unicode string>", line 3, column 1:
- 1. **Loads metric results** from...
- ^
-could not find expected ':'
- in "<unicode string>", line 4, column 1:
- 2. **Computes FNN errors** relat...
- ^) -->
+- [~] T031 [US3] **Identify Critical Threshold**: Implement logic to identify critical SNR threshold where FNN rate exceeds a majority level <!-- ATOMIZE: requested -->
 
 Reference: [Citation preserved verbatim]
 Research Question: [Question preserved verbatim]

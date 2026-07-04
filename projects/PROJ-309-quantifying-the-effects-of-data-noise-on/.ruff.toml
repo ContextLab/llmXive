@@ -1,21 +1,31 @@
-# Ruff configuration for linting
+# Ruff configuration for PROJ-309
+# Enforces PEP 8 style guide with project-specific overrides
+
 line-length = 88
+indent-width = 4
 target-version = "py310"
 
 [lint]
-select = [
-    "E",  # pycodestyle errors
-    "F",  # Pyflakes
-    "W",  # pycodestyle warnings
-    "I",  # isort
-    "N",  # pep8-naming
-    "UP", # pyupgrade
-    "B",  # flake8-bugbear
-    "C4", # flake8-comprehensions
-]
+# Enable pycodestyle (E), Pyflakes (F), and isort (I) rules
+select = ["E", "F", "W", "I", "N", "UP", "B", "C4", "SIM"]
 ignore = [
-    "E501", # line too long (handled by black)
+  "E501",  # Line too long (handled by formatter)
+  "F403",  # 'from module import *' used; unable to detect undefined names
+  "N806",  # Variable in function should be lowercase (relaxed for scientific vars)
 ]
 
-[lint.per-file-ignores]
-"__init__.py" = ["F401"] # Allow unused imports in __init__.py
+# Allow unused variables for pattern matching or future use in research scripts
+dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+
+[lint.isort]
+force-single-line = false
+force-sort-within-sections = false
+known-first-party = ["config", "generators", "noise", "metrics", "analysis", "visualize", "utils"]
+lines-after-imports = 2
+
+[format]
+# Black-compatible formatting settings
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"

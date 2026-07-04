@@ -4,71 +4,65 @@ import json
 import os
 from pathlib import Path
 from typing import Any, Dict, Optional, Union
-import logging
-import numpy as np
-from code.utils.data_models import Trajectory
 
-logger = logging.getLogger(__name__)
+def compute_file_checksum(file_path: Union[str, Path], algorithm: str = "sha256") -> str:
+    """
+    Compute a checksum for a file.
 
-def export_csv(data: Union[np.ndarray, list], path: Union[str, Path], headers: Optional[list] = None):
-    """Export data to CSV."""
-    path = Path(path)
-    path.parent.mkdir(parents=True, exist_ok=True)
-    
-    with open(path, 'w', newline='') as f:
-        writer = csv.writer(f)
-        if headers:
-            writer.writerow(headers)
-        if isinstance(data, np.ndarray):
-            for row in data:
-                writer.writerow(row)
-        else:
-            for row in data:
-                writer.writerow(row)
-    logger.info(f"Exported CSV to {path}")
+    Args:
+        file_path: Path to the file.
+        algorithm: Hash algorithm to use (e.g., 'sha256', 'md5').
 
-def write_json_artifact(data: Dict[str, Any], path: Union[str, Path]):
-    """Write a dictionary to a JSON file."""
-    path = Path(path)
-    path.parent.mkdir(parents=True, exist_ok=True)
-    
-    with open(path, 'w') as f:
-        json.dump(data, f, indent=2)
-    logger.info(f"Written JSON artifact to {path}")
+    Returns:
+        Hex digest of the file checksum.
+    """
+    path = Path(file_path)
+    if not path.exists():
+        raise FileNotFoundError(f"File not found: {file_path}")
 
-def compute_file_checksum(path: Union[str, Path]) -> str:
-    """Compute MD5 checksum of a file."""
-    path = Path(path)
-    hash_md5 = hashlib.md5()
+    hash_func = hashlib.new(algorithm)
     with open(path, "rb") as f:
         for chunk in iter(lambda: f.read(4096), b""):
-            hash_md5.update(chunk)
-    return hash_md5.hexdigest()
+            hash_func.update(chunk)
+    return hash_func.hexdigest()
 
-def load_trajectory(path: Union[str, Path]) -> Trajectory:
+def write_json_artifact(data: Any, file_path: Union[str, Path], indent: int = 2) -> None:
     """
-    Load a trajectory from a CSV file.
-    Expected format: header row, then rows of floats.
-    Assumes columns correspond to state dimensions.
+    Write data to a JSON file.
+
+    Args:
+        data: Data to serialize to JSON.
+        file_path: Destination file path.
+        indent: Indentation level for pretty-printing.
     """
-    path = Path(path)
-    if not path.exists():
-        raise FileNotFoundError(f"Trajectory file not found: {path}")
-    
-    data = np.loadtxt(path, delimiter=',', skiprows=1)
-    # Ensure 2D
-    if data.ndim == 1:
-        data = data.reshape(-1, 1)
-        
-    # Extract metadata if available in sidecar? 
-    # For now, assume standard load.
-    # Create a Trajectory object
-    # We need to infer system_type and seed from filename or pass them?
-    # The function signature in the prompt implies we just load data.
-    # We'll create a basic Trajectory object.
-    # The actual metadata (system, seed) should be passed or derived.
-    # Let's assume the caller handles metadata or we store it in the object if possible.
-    # Since Trajectory is a dataclass, we can add metadata fields if needed, 
-    # but for now we just return the object with state.
-    # To be safe, we return a Trajectory with state and empty metadata.
-    return Trajectory(state=data, system_type="unknown", seed=0)
+    path = Path(file_path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with open(path, "w", encoding="utf-8") as f:
+        json.dump(data, f, indent=indent)
+
+def export_csv(
+    data: Union[list[Dict[str, Any]], list[list[Any]]],
+    file_path: Union[str, Path],
+    fieldnames: Optional[list[str]] = None
+) -> None:
+    """
+    Export data to a CSV file.
+
+    Args:
+        data: List of dictionaries or list of lists.
+        file_path: Destination file path.
+        fieldnames: Column headers if data is a list of dicts.
+    """
+    path = Path(file_path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+
+    with open(path, "w", newline="", encoding="utf-8") as f:
+        if isinstance(data, list) and data and isinstance(data[0], dict):
+            if not fieldnames:
+                fieldnames = list(data[0].keys())
+            writer = csv.DictWriter(f, fieldnames=fieldnames)
+            writer.writeheader()
+            writer.writerows(data)
+        else:
+            writer = csv.writer(f)
+            writer.writerows(data)

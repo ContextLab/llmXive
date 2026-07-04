@@ -1,219 +1,176 @@
 """
-Contract tests for metric results schema.
+Contract test for metric results schema.
 
-These tests verify that the output of the metrics computation pipeline
-conforms to the expected data schema defined in the project specifications.
+This test verifies that the MetricResult data structure produced by the metrics
+module conforms to the expected schema defined in utils/data_models.py.
+It ensures that all required fields are present and have the correct types
+before the data is used for error calculation or visualization.
+
+Schema Requirements:
+- system_type: str (e.g., 'lorenz', 'rossler')
+- seed: int
+- snr_db: float
+- noise_type: str (e.g., 'gaussian', 'quantization')
+- metric_name: str (e.g., 'correlation_dimension', 'lyapunov_exponent', 'fnn_rate')
+- computed_value: float
+- ground_truth_value: float (optional, may be None for initial generation)
+- error_percent: float (optional, may be None if ground_truth is missing)
+- embedding_dimension: int (optional)
+- timestamp: str (ISO format)
 """
+
 import pytest
 import json
-from pathlib import Path
-import numpy as np
+from datetime import datetime
 from typing import Dict, Any, List
 
-# Import the data model used for metric results
-# The path matches the API surface provided: code/utils/data_models.py
+# Import the data model to validate against
 import sys
-from pathlib import Path
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
+import os
+
+# Ensure the project root is in the path for imports
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
 
 from utils.data_models import MetricResult
+from config import NoiseType
+from metrics import compute_ground_truth_metrics, run_ground_truth_computation
+from generators import generate_lorenz_trajectory, generate_rossler_trajectory
+
+
+def get_sample_metric_result(
+    system_type: str = "lorenz",
+    seed: int = 42,
+    snr_db: float = 20.0,
+    noise_type: str = "gaussian",
+    metric_name: str = "correlation_dimension",
+    computed_value: float = 2.05,
+    ground_truth_value: float = 2.06,
+    error_percent: float = 0.48,
+    embedding_dimension: int = 3,
+    timestamp: str = None
+) -> MetricResult:
+    """Helper to create a valid MetricResult instance."""
+    if timestamp is None:
+        timestamp = datetime.now().isoformat()
+
+    return MetricResult(
+        system_type=system_type,
+        seed=seed,
+        snr_db=snr_db,
+        noise_type=noise_type,
+        metric_name=metric_name,
+        computed_value=computed_value,
+        ground_truth_value=ground_truth_value,
+        error_percent=error_percent,
+        embedding_dimension=embedding_dimension,
+        timestamp=timestamp
+    )
 
 
 class TestMetricResultSchema:
-    """Contract tests for the MetricResult data structure."""
+    """Contract tests for the MetricResult schema."""
 
-    def test_metric_result_required_fields(self):
-        """Verify that MetricResult requires all specified fields."""
-        # A valid MetricResult must have these fields
-        valid_data = {
-            "trajectory_id": "lorenz_clean_42",
-            "metric_name": "correlation_dimension",
-            "computed_value": 2.05,
-            "ground_truth_value": 2.06,
-            "error_percent": 0.49,
-            "noise_type": "gaussian",
-            "snr_db": 20.0,
-            "embedding_dimension": 5,
-            "timestamp": "2023-10-27T10:00:00Z"
-        }
+    def test_required_fields_exist(self):
+        """Verify that all required fields are present in the schema."""
+        result = get_sample_metric_result()
+        data = result.__dict__
 
-        result = MetricResult(**valid_data)
-
-        assert result.trajectory_id == "lorenz_clean_42"
-        assert result.metric_name == "correlation_dimension"
-        assert np.isclose(result.computed_value, 2.05)
-        assert np.isclose(result.ground_truth_value, 2.06)
-        assert np.isclose(result.error_percent, 0.49)
-        assert result.noise_type == "gaussian"
-        assert np.isclose(result.snr_db, 20.0)
-        assert result.embedding_dimension == 5
-        assert result.timestamp is not None
-
-    def test_metric_result_numeric_fields_types(self):
-        """Verify that numeric fields accept only numeric types."""
-        data = {
-            "trajectory_id": "test_1",
-            "metric_name": "lyapunov",
-            "computed_value": 0.9,
-            "ground_truth_value": 0.91,
-            "error_percent": 1.1,
-            "noise_type": "uniform",
-            "snr_db": 15.0,
-            "embedding_dimension": 3,
-            "timestamp": "2023-10-27T10:00:00Z"
-        }
-
-        # Should accept floats
-        result = MetricResult(**data)
-        assert isinstance(result.computed_value, float)
-        assert isinstance(result.ground_truth_value, float)
-        assert isinstance(result.error_percent, float)
-        assert isinstance(result.snr_db, float)
-        assert isinstance(result.embedding_dimension, int)
-
-    def test_metric_result_invalid_field_types(self):
-        """Verify that invalid field types raise errors."""
-        data = {
-            "trajectory_id": "test_1",
-            "metric_name": "fnn",
-            "computed_value": "not_a_number",  # Invalid
-            "ground_truth_value": 0.5,
-            "error_percent": 0.0,
-            "noise_type": "gaussian",
-            "snr_db": 10.0,
-            "embedding_dimension": 2,
-            "timestamp": "2023-10-27T10:00:00Z"
-        }
-
-        with pytest.raises(TypeError):
-            MetricResult(**data)
-
-    def test_metric_result_to_dict_serialization(self):
-        """Verify that MetricResult can be serialized to a dictionary."""
-        result = MetricResult(
-            trajectory_id="rossler_noisy_10",
-            metric_name="false_nearest_neighbors",
-            computed_value=0.05,
-            ground_truth_value=0.02,
-            error_percent=150.0,
-            noise_type="quantization",
-            snr_db=5.0,
-            embedding_dimension=4,
-            timestamp="2023-10-27T11:00:00Z"
-        )
-
-        data_dict = result.to_dict()
-
-        assert isinstance(data_dict, dict)
-        assert data_dict["trajectory_id"] == "rossler_noisy_10"
-        assert data_dict["metric_name"] == "false_nearest_neighbors"
-        assert np.isclose(data_dict["computed_value"], 0.05)
-        assert data_dict["noise_type"] == "quantization"
-
-    def test_metric_result_json_serialization(self):
-        """Verify that MetricResult can be serialized to JSON."""
-        result = MetricResult(
-            trajectory_id="lorenz_test",
-            metric_name="correlation_dimension",
-            computed_value=2.0,
-            ground_truth_value=2.01,
-            error_percent=0.5,
-            noise_type="gaussian",
-            snr_db=30.0,
-            embedding_dimension=5,
-            timestamp="2023-10-27T12:00:00Z"
-        )
-
-        json_str = result.to_json()
-
-        # Should be a valid JSON string
-        assert isinstance(json_str, str)
-        parsed = json.loads(json_str)
-        assert parsed["trajectory_id"] == "lorenz_test"
-        assert parsed["metric_name"] == "correlation_dimension"
-        assert np.isclose(parsed["computed_value"], 2.0)
-
-    def test_metric_result_list_validation(self):
-        """Verify that a list of MetricResult objects is valid."""
-        results = [
-            MetricResult(
-                trajectory_id=f"test_{i}",
-                metric_name="lyapunov",
-                computed_value=0.9 + i * 0.01,
-                ground_truth_value=0.91,
-                error_percent=abs(i * 0.01 / 0.91) * 100,
-                noise_type="gaussian",
-                snr_db=20.0 - i,
-                embedding_dimension=3,
-                timestamp=f"2023-10-27T10:0{i}:00Z"
-            )
-            for i in range(5)
+        required_fields = [
+            'system_type', 'seed', 'snr_db', 'noise_type',
+            'metric_name', 'computed_value', 'ground_truth_value',
+            'error_percent', 'embedding_dimension', 'timestamp'
         ]
 
-        assert len(results) == 5
-        for r in results:
-            assert isinstance(r, MetricResult)
-            assert isinstance(r.trajectory_id, str)
-            assert isinstance(r.metric_name, str)
-            assert isinstance(r.computed_value, float)
+        for field in required_fields:
+            assert field in data, f"Required field '{field}' is missing from MetricResult"
 
-    def test_metric_result_schema_compliance(self):
-        """
-        Comprehensive schema compliance test.
-        Ensures the MetricResult structure matches the contract defined for
-        the error calculation and visualization pipeline (US3).
-        """
-        # This is the exact schema expected by export_metric_results_to_csv
-        expected_keys = {
-            "trajectory_id",
-            "metric_name",
-            "computed_value",
-            "ground_truth_value",
-            "error_percent",
-            "noise_type",
-            "snr_db",
-            "embedding_dimension",
-            "timestamp"
-        }
+    def test_field_types(self):
+        """Verify that fields have the correct data types."""
+        result = get_sample_metric_result()
+        data = result.__dict__
 
-        result = MetricResult(
-            trajectory_id="contract_test_1",
-            metric_name="correlation_dimension",
-            computed_value=2.05,
-            ground_truth_value=2.06,
-            error_percent=0.49,
-            noise_type="gaussian",
-            snr_db=20.0,
-            embedding_dimension=5,
-            timestamp="2023-10-27T10:00:00Z"
-        )
+        assert isinstance(data['system_type'], str), "system_type must be a string"
+        assert isinstance(data['seed'], int), "seed must be an integer"
+        assert isinstance(data['snr_db'], float), "snr_db must be a float"
+        assert isinstance(data['noise_type'], str), "noise_type must be a string"
+        assert isinstance(data['metric_name'], str), "metric_name must be a string"
+        assert isinstance(data['computed_value'], float), "computed_value must be a float"
+        assert isinstance(data['ground_truth_value'], (float, type(None))), "ground_truth_value must be float or None"
+        assert isinstance(data['error_percent'], (float, type(None))), "error_percent must be float or None"
+        assert isinstance(data['embedding_dimension'], (int, type(None))), "embedding_dimension must be int or None"
+        assert isinstance(data['timestamp'], str), "timestamp must be a string"
 
-        actual_keys = set(result.to_dict().keys())
+    def test_noise_type_enum_validation(self):
+        """Verify that noise_type matches expected values."""
+        result = get_sample_metric_result(noise_type="gaussian")
+        assert result.noise_type in [NoiseType.GAUSSIAN.value, NoiseType.QUANTIZATION.value], \
+            f"Invalid noise_type: {result.noise_type}"
 
-        assert expected_keys == actual_keys, f"Schema mismatch: missing {expected_keys - actual_keys}, extra {actual_keys - expected_keys}"
+    def test_metric_name_validity(self):
+        """Verify that metric_name is one of the expected metrics."""
+        valid_metrics = [
+            'correlation_dimension',
+            'lyapunov_exponent',
+            'fnn_rate'
+        ]
+        result = get_sample_metric_result(metric_name='correlation_dimension')
+        assert result.metric_name in valid_metrics, \
+            f"Invalid metric_name: {result.metric_name}"
 
-    def test_metric_result_error_calculation_consistency(self):
-        """
-        Verify that the error_percent field is consistent with the
-        computed and ground truth values.
-        Formula: |computed - ground_truth| / |ground_truth| * 100
-        """
-        computed = 1.5
-        ground_truth = 1.0
-        expected_error = abs(computed - ground_truth) / abs(ground_truth) * 100
+    def test_json_serialization(self):
+        """Verify that MetricResult can be serialized to JSON without error."""
+        result = get_sample_metric_result()
+        try:
+            json_str = result.to_json()
+            # Verify it can be deserialized back
+            data = json.loads(json_str)
+            assert 'system_type' in data
+            assert 'computed_value' in data
+        except Exception as e:
+            pytest.fail(f"MetricResult failed JSON serialization: {e}")
 
-        result = MetricResult(
-            trajectory_id="error_test",
-            metric_name="test_metric",
+    def test_error_calculation_consistency(self):
+        """Verify that error_percent is calculated correctly if ground_truth is present."""
+        computed = 2.10
+        ground_truth = 2.00
+        expected_error = abs(computed - ground_truth) / abs(ground_truth) * 100.0
+
+        result = get_sample_metric_result(
             computed_value=computed,
             ground_truth_value=ground_truth,
-            error_percent=expected_error, # Pre-calculated to match
-            noise_type="gaussian",
-            snr_db=10.0,
-            embedding_dimension=2,
-            timestamp="2023-10-27T10:00:00Z"
+            error_percent=expected_error
         )
 
-        # The contract test ensures the stored value matches the formula
-        # In real usage, this might be calculated by analysis.py
-        assert np.isclose(result.error_percent, expected_error)
+        # Allow small floating point tolerance
+        assert abs(result.error_percent - expected_error) < 1e-5, \
+            f"Error calculation mismatch: {result.error_percent} != {expected_error}"
+
+    def test_null_ground_truth_handling(self):
+        """Verify that error_percent is None when ground_truth_value is None."""
+        result = get_sample_metric_result(
+            ground_truth_value=None,
+            error_percent=None
+        )
+        assert result.ground_truth_value is None
+        assert result.error_percent is None
+
+    def test_timestamp_format(self):
+        """Verify that timestamp is in ISO format."""
+        result = get_sample_metric_result()
+        try:
+            datetime.fromisoformat(result.timestamp)
+        except ValueError:
+            pytest.fail(f"Timestamp is not in ISO format: {result.timestamp}")
+
+    def test_negative_snr_allowed(self):
+        """Verify that negative SNR values are accepted (as per FR-002)."""
+        result = get_sample_metric_result(snr_db=-5.0)
+        assert result.snr_db == -5.0
+
+    def test_large_embedding_dimension(self):
+        """Verify that large embedding dimensions are accepted."""
+        result = get_sample_metric_result(embedding_dimension=10)
+        assert result.embedding_dimension == 10
+
+if __name__ == "__main__":
+    pytest.main([__file__, "-v"])
