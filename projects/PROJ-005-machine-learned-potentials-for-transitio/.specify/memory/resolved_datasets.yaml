@@ -1,0 +1,515 @@
+resolved_at: '2026-07-04T20:14:18.241379+00:00'
+datasets:
+- intent: SchNet
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/colabfit/cG-SchNet/resolve/main/co/co_0.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/colabfit/cG-SchNet/resolve/main/co/co_0.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/figure/A_system_dynamics_model_to_estimate_energy_temperature_and_particle_size_in_planetary_ball_milling_https_doi_org_10_1016_j_jallcom_2012_12_035_/32900594
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/GenoAgent_Benchmark_Hard_A_Phenotype-Similar_Distractor_Variant_of_the_Stratified_Rare-Disease_Cohort_for_Literature-Based_Causal_Gene_Prioritization_n_1_047_/32816468
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/Aqueous_sol_gel_synthesis_of_zirconium_titanate_ZrTiO_sub_4_sub_nanoparticles_using_chloride_precursors_https_doi_org_10_1016_j_ceramint_2012_04_064_/32900591
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/GenoAgent_Benchmark_A_Stratified_Rare-Disease_Benchmark_Cohort_for_Literature-Based_Causal_Gene_Prioritization_n_1_047_/32814449
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Comprehensive_Market_Profile_and_Analytical_Evaluation_of_Rotexmedica_Ketamine_Distribution_Frameworks/32900576
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6204145
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17202891
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4057261
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17172652
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dl.acm.org/doi/10.1145/3549737.3549793
+    source: zenodo
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://zenodo.org/records/21182530
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21182530
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://data.mendeley.com/datasets/46pcdd5gdv/1
+    source: datacite
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://data.mendeley.com/datasets/46pcdd5gdv
+    source: datacite
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://zenodo.org/records/20733474
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: GNNs
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/mariolinov/equivariant_gnns/resolve/main/IncompEllipseAoA15.h5
+    source: huggingface
+    format: hdf5
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/mariolinov/equivariant_gnns/resolve/main/IncompEllipseAoA15.h5
+    source: huggingface
+    status: verified
+    format: hdf5
+  - url: https://figshare.com/articles/figure/A_system_dynamics_model_to_estimate_energy_temperature_and_particle_size_in_planetary_ball_milling_https_doi_org_10_1016_j_jallcom_2012_12_035_/32900594
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/GenoAgent_Benchmark_Hard_A_Phenotype-Similar_Distractor_Variant_of_the_Stratified_Rare-Disease_Cohort_for_Literature-Based_Causal_Gene_Prioritization_n_1_047_/32816468
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/Aqueous_sol_gel_synthesis_of_zirconium_titanate_ZrTiO_sub_4_sub_nanoparticles_using_chloride_precursors_https_doi_org_10_1016_j_ceramint_2012_04_064_/32900591
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/GenoAgent_Benchmark_A_Stratified_Rare-Disease_Benchmark_Cohort_for_Literature-Based_Causal_Gene_Prioritization_n_1_047_/32814449
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Comprehensive_Market_Profile_and_Analytical_Evaluation_of_Rotexmedica_Ketamine_Distribution_Frameworks/32900576
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7845451
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dl.acm.org/doi/10.1145/3564625.3567999
+    source: zenodo
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://zenodo.org/records/8344605
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10911783
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/13755810
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/AI_and_Analytics_for_Detecting_Fraud_and_Financial_Risks/32900582/1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/AI_and_Analytics_for_Detecting_Fraud_and_Financial_Risks/32900582
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21187038
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21187038
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://publica.fraunhofer.de/entities/publication/036775c0-8e48-4aab-9f15-cfe52614839a
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: DFT
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/bio-datasets/dft23-full/resolve/main/data/test-00000-of-00001-a791a8874f9adf69.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 180247
+      parsed: true
+  - url: https://huggingface.co/datasets/sdmattpotter/dftest61523/resolve/main/data/train-00000-of-00001-17dbf6e61ca73a23.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/sdmattpotter/dftest61623/resolve/main/data/train-00000-of-00001-17dbf6e61ca73a23.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/bio-datasets/dft23-full/resolve/main/data/test-00000-of-00001-a791a8874f9adf69.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/sdmattpotter/dftest61523/resolve/main/data/train-00000-of-00001-17dbf6e61ca73a23.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/sdmattpotter/dftest61623/resolve/main/data/train-00000-of-00001-17dbf6e61ca73a23.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: "https://huggingface.co/datasets/youngwoo3283/df_transportation_keyword/resolve/main/df_\uAD50\
+      \uD1B5.csv"
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/api/resolve-cache/datasets/youngwoo3283/df_text_generation_20k/a7593f2818c220c3b12d23877708bb4487e29232/df_text_generateion_20k.csv?%2Fdatasets%2Fyoungwoo3283%2Fdf_text_generation_20k%2Fresolve%2Fmain%2Fdf_text_generateion_20k.csv=&etag=%229ff9a2b9e7682fdb9c25dbfa6ac91cb66bade221%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/A_system_dynamics_model_to_estimate_energy_temperature_and_particle_size_in_planetary_ball_milling_https_doi_org_10_1016_j_jallcom_2012_12_035_/32900594
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/GenoAgent_Benchmark_Hard_A_Phenotype-Similar_Distractor_Variant_of_the_Stratified_Rare-Disease_Cohort_for_Literature-Based_Causal_Gene_Prioritization_n_1_047_/32816468
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/Aqueous_sol_gel_synthesis_of_zirconium_titanate_ZrTiO_sub_4_sub_nanoparticles_using_chloride_precursors_https_doi_org_10_1016_j_ceramint_2012_04_064_/32900591
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/GenoAgent_Benchmark_A_Stratified_Rare-Disease_Benchmark_Cohort_for_Literature-Based_Causal_Gene_Prioritization_n_1_047_/32814449
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Comprehensive_Market_Profile_and_Analytical_Evaluation_of_Rotexmedica_Ketamine_Distribution_Frameworks/32900576
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6417557
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8401258
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3771172
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7861665
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14186325
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://opendata.uni-halle.de//handle/1981185920/126065
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21196288
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21196288
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://unige.iris.cineca.it/handle/11567/941624
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://air.unimi.it/handle/2434/215539
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: LOOCV
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/figure/Characterization_of_Fe_Cr_Mn_N_amorphous_powders_with_a_wide_supercooled_liquid_region_developed_by_mechanical_alloying_https_doi_org_10_1016_j_msea_2009_09_061_/32900600
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/A_system_dynamics_model_to_estimate_energy_temperature_and_particle_size_in_planetary_ball_milling_https_doi_org_10_1016_j_jallcom_2012_12_035_/32900594
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/GenoAgent_Benchmark_Hard_A_Phenotype-Similar_Distractor_Variant_of_the_Stratified_Rare-Disease_Cohort_for_Literature-Based_Causal_Gene_Prioritization_n_1_047_/32816468
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/Aqueous_sol_gel_synthesis_of_zirconium_titanate_ZrTiO_sub_4_sub_nanoparticles_using_chloride_precursors_https_doi_org_10_1016_j_ceramint_2012_04_064_/32900591
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/GenoAgent_Benchmark_A_Stratified_Rare-Disease_Benchmark_Cohort_for_Literature-Based_Causal_Gene_Prioritization_n_1_047_/32814449
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4317158
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5733366
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18375139
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15319409
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19546367
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2607.02032
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://publica.fraunhofer.de/entities/publication/ebf17d6f-6729-422d-99ff-8ee96be6b808
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/j8mg6/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18894072
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21070363
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: OC20
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/nimashoghi/oc20_s2ef_train_2M/resolve/main/data/train-00000-of-00014.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/nimashoghi/oc20-s2ef/resolve/main/data/2M-00000-of-00014.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/nimashoghi/oc20-s2ef-perfdev/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/nimashoghi/oc20_s2ef_train_2M/resolve/main/data/train-00000-of-00014.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/nimashoghi/oc20-s2ef/resolve/main/data/2M-00000-of-00014.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/nimashoghi/oc20-s2ef-perfdev/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/colabfit/OC20_S2EF_train_200K/resolve/main/co/co_0.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/colabfit/OC20_S2EF_val_id/resolve/main/co/co_0.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/figure/Characterization_of_Fe_Cr_Mn_N_amorphous_powders_with_a_wide_supercooled_liquid_region_developed_by_mechanical_alloying_https_doi_org_10_1016_j_msea_2009_09_061_/32900600
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/A_system_dynamics_model_to_estimate_energy_temperature_and_particle_size_in_planetary_ball_milling_https_doi_org_10_1016_j_jallcom_2012_12_035_/32900594
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/GenoAgent_Benchmark_Hard_A_Phenotype-Similar_Distractor_Variant_of_the_Stratified_Rare-Disease_Cohort_for_Literature-Based_Causal_Gene_Prioritization_n_1_047_/32816468
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/Aqueous_sol_gel_synthesis_of_zirconium_titanate_ZrTiO_sub_4_sub_nanoparticles_using_chloride_precursors_https_doi_org_10_1016_j_ceramint_2012_04_064_/32900591
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/GenoAgent_Benchmark_A_Stratified_Rare-Disease_Benchmark_Cohort_for_Literature-Based_Causal_Gene_Prioritization_n_1_047_/32814449
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/12200723
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7613165
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14406696
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/12104162
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14504779
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2607.01408
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20814633
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20814633
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2606.21632
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://materials.colabfit.org/id/DS_lob79won5rp2_0
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: GNN
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/winfried/gnn_bvp_solver/resolve/main/ElasticityFixedLineGenerator/norm_test_shape/1O2JC0RZQ19OZULQ.gz
+    source: huggingface
+    format: gzip
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 165737
+      parsed: true
+  - url: https://huggingface.co/datasets/TuringsSolutions/GNN400ANDPFAF400/resolve/main/GNN400+PFAF400
+      - Sheet1.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/winfried/gnn_bvp_solver/resolve/main/ElasticityFixedLineGenerator/norm_test_shape/1O2JC0RZQ19OZULQ.gz
+    source: huggingface
+    status: verified
+    format: gzip
+  - url: https://huggingface.co/datasets/TuringsSolutions/GNN400ANDPFAF400/resolve/main/GNN400+PFAF400
+      - Sheet1.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://figshare.com/articles/figure/Characterization_of_Fe_Cr_Mn_N_amorphous_powders_with_a_wide_supercooled_liquid_region_developed_by_mechanical_alloying_https_doi_org_10_1016_j_msea_2009_09_061_/32900600
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/A_system_dynamics_model_to_estimate_energy_temperature_and_particle_size_in_planetary_ball_milling_https_doi_org_10_1016_j_jallcom_2012_12_035_/32900594
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/GenoAgent_Benchmark_Hard_A_Phenotype-Similar_Distractor_Variant_of_the_Stratified_Rare-Disease_Cohort_for_Literature-Based_Causal_Gene_Prioritization_n_1_047_/32816468
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/Aqueous_sol_gel_synthesis_of_zirconium_titanate_ZrTiO_sub_4_sub_nanoparticles_using_chloride_precursors_https_doi_org_10_1016_j_ceramint_2012_04_064_/32900591
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/GenoAgent_Benchmark_A_Stratified_Rare-Disease_Benchmark_Cohort_for_Literature-Based_Causal_Gene_Prioritization_n_1_047_/32814449
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7803328
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/2703306
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.ijies.org/portfolio-item/B114213020226/
+    source: zenodo
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://zenodo.org/records/6798322
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6785285
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21196225
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21196225
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21192165
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21192165
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ieee-dataport.org/documents/beijing-city-transport-road-network-data
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
