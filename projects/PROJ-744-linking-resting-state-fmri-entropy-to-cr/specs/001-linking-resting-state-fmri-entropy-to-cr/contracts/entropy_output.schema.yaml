@@ -1,0 +1,49 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Entropy Output Schema
+description: Schema for computed Multiscale Sample Entropy metrics.
+type: object
+properties:
+  subject_id:
+    type: string
+    description: "Subject identifier."
+  metric_type:
+    type: string
+    enum:
+      - "global"
+      - "network"
+      - "parcel"
+    description: "Type of entropy metric."
+  target_id:
+    type: string
+    description: "Target identifier (e.g., 'DMN', 'parcel_42', 'global')."
+  entropy_value:
+    type: number
+    description: "Computed entropy value."
+  scale_factor:
+    type: integer
+    minimum: 1
+    maximum: 20
+    description: "Scale factor used in coarse-graining."
+  parameters:
+    type: object
+    properties:
+      m:
+        type: integer
+        description: "Template length."
+      r:
+        type: number
+        description: "Tolerance threshold."
+    required:
+      - m
+      - r
+  coefficient_of_variation:
+    type: number
+    description: "Coefficient of Variation of parcel-wise entropies for the subject."
+required:
+  - subject_id
+  - metric_type
+  - target_id
+  - entropy_value
+  - scale_factor
+  - parameters
+  - coefficient_of_variation

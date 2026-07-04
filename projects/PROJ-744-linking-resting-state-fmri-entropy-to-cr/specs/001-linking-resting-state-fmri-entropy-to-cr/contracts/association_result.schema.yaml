@@ -1,0 +1,54 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Association Result Schema
+description: Schema for statistical modeling results.
+type: object
+properties:
+  network_name:
+    type: string
+    description: "Name of the network (or 'global')."
+  coefficient:
+    type: number
+    description: "Regression coefficient."
+  standard_error:
+    type: number
+    description: "Robust standard error (HC3)."
+  p_value:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: "Raw p-value."
+  adjusted_p_value:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: "BH-FDR corrected p-value."
+  model_type:
+    type: string
+    enum:
+      - "primary"
+      - "symmetry_check"
+      - "sensitivity"
+    description: "Type of model run."
+  sensitivity_delta_p:
+    type: number
+    description: "Change in p-value across r-sweep (for sensitivity models)."
+  stability_score:
+    type: number
+    description: "Variance of p-values across r-sweep."
+  valid_parcel_count:
+    type: integer
+    description: "Number of valid parcels used for this subject."
+  completeness_pct:
+    type: number
+    minimum: 0
+    maximum: 100
+    description: "Percentage of valid parcels."
+required:
+  - network_name
+  - coefficient
+  - standard_error
+  - p_value
+  - adjusted_p_value
+  - model_type
+  - valid_parcel_count
+  - completeness_pct

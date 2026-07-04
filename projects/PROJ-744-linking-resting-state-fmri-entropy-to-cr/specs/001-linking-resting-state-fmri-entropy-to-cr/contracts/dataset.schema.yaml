@@ -1,0 +1,42 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: HCP Dataset Schema
+description: Schema for the raw and processed HCP dataset files.
+type: object
+properties:
+  subject_id:
+    type: string
+    description: "Unique identifier for the subject (e.g., '100106')."
+  age:
+    type: number
+    description: "Age of the subject in years."
+  sex:
+    type: string
+    enum:
+      - "M"
+      - "F"
+    description: "Biological sex of the subject."
+  framewise_displacement:
+    type: number
+    description: "Mean head motion metric (mm)."
+  nih_creativity_score:
+    type: number
+    description: "NIH Toolbox Creativity Composite score."
+  exclusion_reason:
+    type: ["string", "null"]
+    description: "Reason for exclusion if applicable."
+  valid_parcel_count:
+    type: integer
+    description: "Number of valid parcels with entropy computed."
+  completeness_pct:
+    type: number
+    minimum: 0
+    maximum: 100
+    description: "Percentage of valid parcels (target: ≥95%)."
+required:
+  - subject_id
+  - age
+  - sex
+  - framewise_displacement
+  - nih_creativity_score
+  - valid_parcel_count
+  - completeness_pct
