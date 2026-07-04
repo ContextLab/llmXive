@@ -1,0 +1,73 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "AntibioticCompoundDataset"
+description: "Schema for the merged dataset of molecular descriptors and resistance phenotypes."
+type: object
+properties:
+  inchi_key:
+    type: string
+    pattern: "^[A-Z]{14}-[A-Z]{10}-[A-Z]$"
+    description: "Canonical InChIKey for the compound."
+  smiles:
+    type: string
+    description: "Canonicalized SMILES string."
+  source:
+    type: string
+    enum:
+      - "chembl"
+      - "zinc15"
+      - "ncbi"
+    description: "Origin of the compound data."
+  resistance_frequency:
+    type: number
+    minimum: 0.0
+    maximum: 1.0
+    description: "Aggregated resistance frequency from NCBI (resistant_isolates / total_tested_isolates)."
+  observation_count:
+    type: integer
+    minimum: 5
+    description: "Number of organism-strain observations used for aggregation."
+  resistance_label:
+    type: string
+    enum:
+      - "High"
+      - "Low"
+      - "Unknown"
+      - "Continuous"
+    description: "Binary label derived from quartiles or GMM, or 'Continuous' if no bimodality."
+  logP:
+    type: number
+    description: "Octanol-water partition coefficient."
+  TPSA:
+    type: number
+    description: "Topological Polar Surface Area."
+  HBD:
+    type: integer
+    minimum: 0
+    description: "Number of Hydrogen Bond Donors."
+  HBA:
+    type: integer
+    minimum: 0
+    description: "Number of Hydrogen Bond Acceptors."
+  RotBonds:
+    type: integer
+    minimum: 0
+    description: "Number of Rotatable Bonds."
+  valid:
+    type: boolean
+    description: "True if all descriptors calculated successfully."
+required:
+  - inchi_key
+  - smiles
+  - source
+  - resistance_frequency
+  - observation_count
+  - resistance_label
+  - logP
+  - TPSA
+  - HBD
+  - HBA
+  - RotBonds
+  - valid
+additionalProperties: true
+description: "Additional molecular descriptors calculated by RDKit."
+

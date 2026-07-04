@@ -1,0 +1,106 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "StatisticalAnalysisOutput"
+description: "Schema for the final statistical ranking and cluster enrichment results."
+type: object
+properties:
+  descriptor_ranking:
+    type: array
+    items:
+      type: object
+      properties:
+        descriptor_name:
+          type: string
+        raw_p_value:
+          type: number
+        fdr_adjusted_p_value:
+          type: number
+        cohen_d:
+          type: number
+        effect_direction:
+          type: string
+          enum:
+            - "positive"
+            - "negative"
+          description: "Positive if High resistance has higher values."
+      required:
+        - descriptor_name
+        - raw_p_value
+        - fdr_adjusted_p_value
+        - cohen_d
+        - effect_direction
+    description: "List of descriptors ranked by effect size."
+  cluster_enrichment:
+    type: array
+    items:
+      type: object
+      properties:
+        cluster_id:
+          type: integer
+        size:
+          type: integer
+        enrichment_p_value:
+          type: number
+        fdr_adjusted_p_value:
+          type: number
+        is_significant:
+          type: boolean
+      required:
+        - cluster_id
+        - size
+        - enrichment_p_value
+        - fdr_adjusted_p_value
+        - is_significant
+    description: "Enrichment results for each DBSCAN cluster."
+  sensitivity_analysis:
+    type: object
+    properties:
+      binary_test:
+        type: string
+        description: "Method used (e.g., Mann-Whitney U)."
+      continuous_test:
+        type: string
+        description: "Method used (e.g., Spearman)."
+      correlation_coefficient:
+        type: number
+        description: "Correlation between binary and continuous test statistics."
+    required:
+      - binary_test
+      - continuous_test
+      - correlation_coefficient
+    description: "Comparison of binary vs continuous models."
+  merge_metrics:
+    type: object
+    properties:
+      total_requested:
+        type: integer
+      successful_matches:
+        type: integer
+      merge_fraction:
+        type: number
+    required:
+      - total_requested
+      - successful_matches
+      - merge_fraction
+    description: "Metrics for data merge success (SC-001)."
+  runtime_metrics:
+    type: object
+    properties:
+      total_duration_seconds:
+        type: number
+      status:
+        type: string
+        enum:
+          - "success"
+          - "timeout"
+          - "error"
+    required:
+      - total_duration_seconds
+      - status
+    description: "Metrics for runtime feasibility (SC-004)."
+required:
+  - descriptor_ranking
+  - cluster_enrichment
+  - sensitivity_analysis
+  - merge_metrics
+  - runtime_metrics
+additionalProperties: false
