@@ -1,0 +1,45 @@
+# Virtual environment
+venv/
+.venv/
+env/
+.env/
+
+# Data directories (raw and processed)
+data/raw/
+data/processed/
+data/simulations/
+data/results/
+
+# Python cache and bytecode
+*.pyc
+__pycache__/
+*.pyo
+*.pyd
+.Python
+
+# IDE and editor files
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Logs and temporary files
+*.log
+*.tmp
+.cache/
+
+# Test and coverage
+.coverage
+htmlcov/
+.pytest_cache/
+
+# Build artifacts
+build/
+dist/
+*.egg-info/
+.eggs/

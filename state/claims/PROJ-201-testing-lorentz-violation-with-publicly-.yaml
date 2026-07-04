@@ -1,0 +1,482 @@
+- artifact_path: projects/PROJ-201-testing-lorentz-violation-with-publicly-/specs/001-testing-lorentz-violation-with-publicly/tasks.md
+  attempts: 1
+  canonical: Python 3.11 project requirement
+  claim_id: c_46278546
+  context: 'Initialize Python 3.11 project: Run python -m venv venv and create pyproject.toml'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project requires Python 3.11.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-04T21:15:34Z'
+- artifact_path: projects/PROJ-201-testing-lorentz-violation-with-publicly-/specs/001-testing-lorentz-violation-with-publicly/tasks.md
+  attempts: 1
+  canonical: healpy version 1.16.2 requirement
+  claim_id: c_63aacfae
+  context: 'Create requirements.txt with pinned versions: healpy==1.16.2'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project requires healpy version 1.16.2.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-04T21:15:48Z'
+- artifact_path: projects/PROJ-201-testing-lorentz-violation-with-publicly-/specs/001-testing-lorentz-violation-with-publicly/tasks.md
+  attempts: 1
+  canonical: numpy version 1.24.0 requirement
+  claim_id: c_057d4e8b
+  context: 'Create requirements.txt with pinned versions: numpy==1.24.0'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project requires numpy version 1.24.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-04T21:16:05Z'
+- artifact_path: projects/PROJ-201-testing-lorentz-violation-with-publicly-/specs/001-testing-lorentz-violation-with-publicly/tasks.md
+  attempts: 1
+  canonical: scipy version 1.10.0 requirement
+  claim_id: c_145c38b6
+  context: 'Create requirements.txt with pinned versions: scipy==1.10.0'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project requires scipy version 1.10.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-04T21:16:19Z'
+- artifact_path: projects/PROJ-201-testing-lorentz-violation-with-publicly-/specs/001-testing-lorentz-violation-with-publicly/tasks.md
+  attempts: 1
+  canonical: emcee version 3.1.3 requirement
+  claim_id: c_df96fc13
+  context: 'Create requirements.txt with pinned versions: emcee==3.1.3'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project requires emcee version 3.1.3.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-04T21:16:35Z'
+- artifact_path: projects/PROJ-201-testing-lorentz-violation-with-publicly-/specs/001-testing-lorentz-violation-with-publicly/tasks.md
+  attempts: 1
+  canonical: requests version 2.31.0 requirement
+  claim_id: c_20115db2
+  context: 'Create requirements.txt with pinned versions: requests==2.31.0'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project requires requests version 2.31.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-04T21:16:54Z'
+- artifact_path: projects/PROJ-201-testing-lorentz-violation-with-publicly-/specs/001-testing-lorentz-violation-with-publicly/tasks.md
+  attempts: 1
+  canonical: astropy version 5.2.0 requirement
+  claim_id: c_8fd80911
+  context: 'Create requirements.txt with pinned versions: astropy==5.2.0'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project requires astropy version 5.2.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-04T21:17:10Z'
+- artifact_path: projects/PROJ-201-testing-lorentz-violation-with-publicly-/specs/001-testing-lorentz-violation-with-publicly/tasks.md
+  attempts: 1
+  canonical: pyyaml version 6.0.1 requirement
+  claim_id: c_04cdd3be
+  context: 'Create requirements.txt with pinned versions: pyyaml==6.0.1'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project requires pyyaml version 6.0.1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-04T21:17:24Z'
+- artifact_path: projects/PROJ-201-testing-lorentz-violation-with-publicly-/specs/001-testing-lorentz-violation-with-publicly/tasks.md
+  attempts: 1
+  canonical: 200 FITS files generated with Nside 256
+  claim_id: c_6bdde462
+  context: Implement inject_sme_coefficient() in code/data/simulation.py to produce
+    200 FITS files in data/simulations/ with Nside=256
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Simulation generation produces 200 FITS files with Nside=256.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-04T21:17:47Z'
+- artifact_path: projects/PROJ-201-testing-lorentz-violation-with-publicly-/specs/001-testing-lorentz-violation-with-publicly/tasks.md
+  attempts: 1
+  canonical: 200 isotropic FITS files generated with Nside 256
+  claim_id: c_cc4520d2
+  context: Implement generate_isotropic_null() in code/data/simulation.py to produce
+    200 FITS files in data/simulations/ with Nside=256
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Null hypothesis simulation generation produces 200 FITS files with Nside=256.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-04T21:18:18Z'
+- artifact_path: projects/PROJ-201-testing-lorentz-violation-with-publicly-/specs/001-testing-lorentz-violation-with-publicly/tasks.md
+  attempts: 1
+  canonical: Processed data Nside 2048 resolution
+  claim_id: c_8659cf1b
+  context: Verify output files exist in data/processed/, have Nside=2048
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Processed data maps must have Nside=2048 resolution.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-04T21:18:21Z'
+- artifact_path: projects/PROJ-201-testing-lorentz-violation-with-publicly-/specs/001-testing-lorentz-violation-with-publicly/tasks.md
+  attempts: 1
+  canonical: Angular power spectra computed for l less than 200
+  claim_id: c_078f0ceb
+  context: Compute angular power spectra (TT, EE, TE) for l < 200
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Angular_power_spectra_computed_for_l_less_than_200
+  kind: magnitude
+  raw_text: Angular power spectra are computed for multipoles l < 200.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-04T21:18:30Z'
+- artifact_path: projects/PROJ-201-testing-lorentz-violation-with-publicly-/specs/001-testing-lorentz-violation-with-publicly/tasks.md
+  attempts: 1
+  canonical: BipoSH coefficients calculated for L 2 and L 3
+  claim_id: c_aad17ec6
+  context: Calculate BipoSH coefficients (L=2,3)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: BipoSH coefficients are calculated for L=2 and L=3 modes.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-04T21:18:34Z'
+- artifact_path: projects/PROJ-201-testing-lorentz-violation-with-publicly-/specs/001-testing-lorentz-violation-with-publicly/tasks.md
+  attempts: 1
+  canonical: MCMC uses 100 walkers
+  claim_id: c_555fd80b
+  context: Run MCMC sampling (100 walkers, 2000 burn-in, 8000 samples total) using
+    emcee
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: MCMC sampling uses 100 walkers.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-04T21:18:43Z'
+- artifact_path: projects/PROJ-201-testing-lorentz-violation-with-publicly-/specs/001-testing-lorentz-violation-with-publicly/tasks.md
+  attempts: 1
+  canonical: MCMC uses 2000 burn-in steps
+  claim_id: c_d9434ef8
+  context: Run MCMC sampling (100 walkers, 2000 burn-in, 8000 samples total) using
+    emcee
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: MCMC sampling uses 2000 burn-in steps.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-04T21:18:47Z'
+- artifact_path: projects/PROJ-201-testing-lorentz-violation-with-publicly-/specs/001-testing-lorentz-violation-with-publicly/tasks.md
+  attempts: 1
+  canonical: MCMC produces 8000 total samples
+  claim_id: c_be1189bb
+  context: Run MCMC sampling (100 walkers, 2000 burn-in, 8000 samples total) using
+    emcee
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: MCMC sampling produces 8000 total samples.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-04T21:18:53Z'
+- artifact_path: projects/PROJ-201-testing-lorentz-violation-with-publicly-/specs/001-testing-lorentz-violation-with-publicly/tasks.md
+  attempts: 1
+  canonical: MCMC ESS threshold 200
+  claim_id: c_92b9aa49
+  context: Check ESS; if < 200, issue warning and save trace plot
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/MCMC_ESS_threshold_200
+  kind: magnitude
+  raw_text: MCMC convergence requires an Effective Sample Size (ESS) of at least 200.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-04T21:18:59Z'
+- artifact_path: projects/PROJ-201-testing-lorentz-violation-with-publicly-/specs/001-testing-lorentz-violation-with-publicly/tasks.md
+  attempts: 1
+  canonical: Result classification p-value threshold 0.05
+  claim_id: c_afbd1e22
+  context: 'Implement result classification logic: consistent with isotropy vs anomalous
+    based on corrected p-value < 0.05'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Result classification uses a corrected p-value threshold of 0.05.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-04T21:19:04Z'
+- artifact_path: projects/PROJ-201-testing-lorentz-violation-with-publicly-/specs/001-testing-lorentz-violation-with-publicly/tasks.md
+  attempts: 1
+  canonical: Execution time 6 hours on 2 CPU cores
+  claim_id: c_0c16042f
+  context: Ensure execution completes within 6 hours on 2 CPU cores
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Data acquisition and processing is expected to complete within 6 hours
+    on 2 CPU cores.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-04T21:19:09Z'
+- artifact_path: projects/PROJ-201-testing-lorentz-violation-with-publicly-/specs/001-testing-lorentz-violation-with-publicly/tasks.md
+  attempts: 1
+  canonical: Initialize Python 3.11 project with venv and pyproject.toml
+  claim_id: c_38fc1423
+  context: 'T002 [P] Initialize Python 3.11 project: Run `python -m venv venv` and
+    create `pyproject.toml` with `[build-system]` section'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run `python -m venv venv` and create `pyproject.toml` with `[build-system]`
+    section
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-04T21:21:13Z'
+- artifact_path: projects/PROJ-201-testing-lorentz-violation-with-publicly-/specs/001-testing-lorentz-violation-with-publicly/tasks.md
+  attempts: 1
+  canonical: Requirements pinned to healpy 1.16.2, numpy 1.24.0, scipy 1.10.0, emcee
+    3.1.3, requests 2.31.0, astropy 5.2.0, pyyaml 6.0.1
+  claim_id: c_5a05bff5
+  context: 'T009 [P] Create `requirements.txt` with pinned versions: `healpy==1.16.2`,
+    `numpy==1.24.0`, `scipy==1.10.0`, `emcee==3.1.3`, `requests==2.31.0`, `astropy==5.2.0`,
+    `pyyaml==6.0.1`'
+  evidence:
+    asserted: '1.16'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: 'Create `requirements.txt` with pinned versions: `healpy==1.16.2`, `numpy==1.24.0`,
+    `scipy==1.10.0`, `emcee==3.1.3`, `requests==2.31.0`, `astropy==5.2.0`, `pyyaml==6.0.1`'
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-07-04T21:21:13Z'
+- artifact_path: projects/PROJ-201-testing-lorentz-violation-with-publicly-/specs/001-testing-lorentz-violation-with-publicly/tasks.md
+  attempts: 1
+  canonical: Generate 200 FITS files with Nside 256 for SME coefficient injection
+  claim_id: c_c0f63a7d
+  context: T018 [US2] Implement `inject_sme_coefficient()` in `code/data/simulation.py`
+    to produce 200 FITS files in `data/simulations/` with **Nside=256** (sub-sampled
+    for RAM), injecting specific k values (Plan Task 1.3)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement `inject_sme_coefficient()` in `code/data/simulation.py` to produce
+    200 FITS files in `data/simulations/` with **Nside=256**
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-04T21:21:47Z'
+- artifact_path: projects/PROJ-201-testing-lorentz-violation-with-publicly-/specs/001-testing-lorentz-violation-with-publicly/tasks.md
+  attempts: 1
+  canonical: Generate 200 FITS files with Nside 256 for isotropic null hypothesis
+  claim_id: c_ae0c745b
+  context: T019 [US2] Implement `generate_isotropic_null()` in `code/data/simulation.py`
+    to produce 200 FITS files in `data/simulations/` with **Nside=256** and realistic
+    noise (using config-defined noise models) (Plan Task 1.3)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement `generate_isotropic_null()` in `code/data/simulation.py` to
+    produce 200 FITS files in `data/simulations/` with **Nside=256**
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-04T21:21:53Z'
+- artifact_path: projects/PROJ-201-testing-lorentz-violation-with-publicly-/specs/001-testing-lorentz-violation-with-publicly/tasks.md
+  attempts: 1
+  canonical: Verify processed files have Nside 2048 and no NaNs in unmasked regions
+  claim_id: c_e07939cf
+  context: 'Independent Test: Execute `code/data/downloader.py` and `code/data/processor.py`;
+    verify output files exist in `data/processed/`, have Nside=2048, contain no NaNs
+    in unmasked regions, and match expected file sizes.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify output files exist in `data/processed/`, have Nside=2048, contain
+    no NaNs in unmasked regions, and match expected file sizes
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-04T21:21:55Z'
+- artifact_path: projects/PROJ-201-testing-lorentz-violation-with-publicly-/specs/001-testing-lorentz-violation-with-publicly/tasks.md
+  attempts: 1
+  canonical: Compute angular power spectra for l less than 200
+  claim_id: c_4b464947
+  context: "Goal: Compute angular power spectra (TT, EE, TE) for \u2113 < 200, perform\
+    \ dipole modulation analysis, calculate BipoSH coefficients (L=2,3), and implement\
+    \ Minkowski functional checks for non-Gaussianity."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Compute_angular_power_spectra_for_l_less_than_200
+  kind: magnitude
+  raw_text: "Compute angular power spectra (TT, EE, TE) for \u2113 < 200"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-04T21:22:01Z'
+- artifact_path: projects/PROJ-201-testing-lorentz-violation-with-publicly-/specs/001-testing-lorentz-violation-with-publicly/tasks.md
+  attempts: 1
+  canonical: Calculate BipoSH coefficients for L 2 and L 3
+  claim_id: c_73081990
+  context: "Goal: Compute angular power spectra (TT, EE, TE) for \u2113 < 200, perform\
+    \ dipole modulation analysis, calculate BipoSH coefficients (L=2,3), and implement\
+    \ Minkowski functional checks for non-Gaussianity."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Calculate BipoSH coefficients (L=2,3)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-04T21:22:04Z'
+- artifact_path: projects/PROJ-201-testing-lorentz-violation-with-publicly-/specs/001-testing-lorentz-violation-with-publicly/tasks.md
+  attempts: 1
+  canonical: Execution completes within 6 hours on 2 CPU cores
+  claim_id: c_a7220796
+  context: 'Independent Test: Run diagnostics on generated isotropic simulations;
+    verify p-value > 0.05 for null hypothesis and correct recovery of injected signal
+    in anisotropic simulations. Ensure execution completes within 6 hours on 2 CPU
+    cores.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Ensure execution completes within 6 hours on 2 CPU cores
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-04T21:22:10Z'
+- artifact_path: projects/PROJ-201-testing-lorentz-violation-with-publicly-/specs/001-testing-lorentz-violation-with-publicly/tasks.md
+  attempts: 1
+  canonical: Run MCMC with 100 walkers, 2000 burn-in, and 8000 total samples
+  claim_id: c_4b9003b3
+  context: 'T046 [US3] Implement `code/analysis/inference.py`: Run MCMC sampling (100
+    walkers, 2000 burn-in, **8000 samples total**) using `emcee` to derive posterior
+    for \(k_{(V)00}^{(5)}\)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run MCMC sampling (100 walkers, 2000 burn-in, **8000 samples total**)
+    using `emcee`
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-04T21:22:13Z'
+- artifact_path: projects/PROJ-201-testing-lorentz-violation-with-publicly-/specs/001-testing-lorentz-violation-with-publicly/tasks.md
+  attempts: 1
+  canonical: Issue warning if Effective Sample Size is less than 200
+  claim_id: c_53a776c6
+  context: 'T047 [US3] Implement convergence monitoring in `code/analysis/inference.py`:
+    Check ESS; if < 200, issue warning and save trace plot'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Issue_warning_if_Effective_Sample_Size_is_less_than_200
+  kind: magnitude
+  raw_text: Check ESS; if < 200, issue warning and save trace plot
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-04T21:22:16Z'

@@ -20,34 +20,34 @@
 - **Mobile**: `api/src/`, `ios/src/` or `android/src/`
 - Paths shown below assume single project - adjust based on plan.md structure
 
-<!-- 
-  ============================================================================
-  IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-  
-  The /speckit-tasks command MUST replace these with actual tasks based on:
-  - User stories from spec.md (with their priorities P1, P2, P3...)
-  - Feature requirements from plan.md
-  - Entities from data-model.md
-  - Endpoints from contracts/
-  
-  Tasks MUST be organized by user story so each story can be:
-  - Implemented independently
-  - Tested independently
-  - Delivered as an MVP increment
-  
-  DO NOT keep these sample tasks in the generated tasks.md file.
-  ============================================================================
+<!--
+ ============================================================================
+ IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
+
+ The /speckit-tasks command MUST replace these with actual tasks based on:
+ - User stories from spec.md (with their priorities P1, P2, P3...)
+ - Feature requirements from plan.md
+ - Entities from data-model.md
+ - Endpoints from contracts/
+
+ Tasks MUST be organized by user story so each story can be:
+ - Implemented independently
+ - Tested independently
+ - Delivered as an MVP increment
+
+ DO NOT keep these sample tasks in the generated tasks.md file.
+ ============================================================================
 -->
 
 ## Phase 1: Setup (Shared Infrastructure)
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 [P] Create project directory structure: `mkdir -p code/data code/analysis code/utils data/raw data/processed data/simulations data/results tests`
-- [ ] T002 [P] Initialize Python 3.11 project: Run `python -m venv venv` and create `pyproject.toml` with `[build-system]` section
-- [ ] T003 [P] Configure linting: Create `.flake8` file and add `[tool.black]` section to `pyproject.toml`
-- [ ] T004 [P] Create `config.yaml` template with keys: `paths` (raw, processed, results), `seeds` (random, numpy), `constants` (sme_coefficient, l_max)
-- [ ] T005 [P] Create `.gitignore` to exclude `venv/`, `data/raw/`, `data/processed/`, `*.pyc`, `__pycache__/`
+- [X] T001 [P] Create project directory structure: `mkdir -p code/data code/analysis code/utils data/raw data/processed data/simulations data/results tests`
+- [X] T002 [P] Initialize Python 3.11 project: Run `python -m venv venv` and create `pyproject.toml` with `[build-system]` section
+- [X] T003 [P] Configure linting: Create `.flake8` file and add `[tool.black]` section to `pyproject.toml`
+- [X] T004 [P] Create `config.yaml` template with keys: `paths` (raw, processed, results), `seeds` (random, numpy), `constants` (sme_coefficient, l_max)
+- [X] T005 [P] Create `.gitignore` to exclude `venv/`, `data/raw/`, `data/processed/`, `*.pyc`, `__pycache__/`
 
 ---
 
@@ -57,12 +57,12 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T006 [P] Implement `code/config.py` function `load_config()`: Parse `config.yaml`, validate keys, return dict
-- [ ] T007 [P] Implement `code/config.py` function `enforce_seeds()`: Set `random.seed`, `numpy.random.seed` from config
-- [ ] T008 [P] Implement `code/utils/logging.py`: Create `setup_logger()` function returning a configured `logging.Logger`
-- [ ] T009 [P] Create `requirements.txt` with pinned versions: `healpy==1.16.2`, `numpy==1.24.0`, `scipy==1.10.0`, `emcee==3.1.3`, `requests==2.31.0`, `astropy==5.2.0`, `pyyaml==6.0.1`
-- [ ] T010 [P] Setup `tests/__init__.py` and `pytest.ini` configuration
-- [ ] T011 [P] Create `code/__init__.py` to expose public API
+- [X] T006 [P] Implement `code/config.py` function `load_config()`: Parse `config.yaml`, validate keys, return dict
+- [X] T007 [P] Implement `code/config.py` function `enforce_seeds()`: Set `random.seed`, `numpy.random.seed` from config
+- [X] T008 [P] Implement `code/utils/logging.py`: Create `setup_logger()` function returning a configured `logging.Logger`
+- [X] T009 [P] {{claim:c_5a05bff5}}
+- [X] T010 [P] Setup `tests/__init__.py` and `pytest.ini` configuration
+- [X] T011 [P] Create `code/__init__.py` to expose public API
 - [ ] T012 [P] Create `data/raw/.gitkeep` and `data/processed/.gitkeep`
 - [ ] T013 [P] Create `code/data/simulation.py` skeleton with `inject_sme_coefficient()` function signature (Plan Task 1.2)
 - [ ] T014 [P] Create `code/analysis/anisotropy.py` skeleton with `calculate_biposh()` function signature
@@ -176,8 +176,8 @@
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
-  - User stories can then proceed in parallel (if staffed)
-  - Or sequentially in priority order (P1 → P2 → P3)
+ - User stories can then proceed in parallel (if staffed)
+ - Or sequentially in priority order (P1 → P2 → P3)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
@@ -243,9 +243,9 @@ With multiple developers:
 
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
-   - Developer A: User Story 1
-   - Developer B: User Story 2
-   - Developer C: User Story 3
+ - Developer A: User Story 1
+ - Developer B: User Story 2
+ - Developer C: User Story 3
 3. Stories complete and integrate independently
 
 ---
