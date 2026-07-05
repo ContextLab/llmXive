@@ -1,18 +1,8 @@
 """
-CSV summary generator for the A/B test audit pipeline.
+Report Generator Module for T047.
 
-Reads the audit report JSON produced by the validator and generates a
-summary CSV report containing aggregate statistics required for the
-final deliverable.
-
-Outputs:
-    output/summary_report.csv: Contains columns:
-        - total_summaries
-        - inconsistent_count
-        - inconsistent_rate
-        - bias_adjusted_rate
-        - wilson_ci_lower
-        - wilson_ci_upper
+Implements the CSV summary generator that reads the audit report JSON
+and writes the summary report CSV with required statistical columns.
 """
 
 import csv
@@ -27,142 +17,131 @@ from code.src.utils.logger import get_default_logger
 logger = get_default_logger(__name__)
 
 
-def load_audit_records(json_path: Path) -> List[Dict[str, Any]]:
+def load_audit_records(input_path: Path) -> List[Dict[str, Any]]:
     """
-    Load audit records from the JSON report file.
+    Load audit records from the JSON audit report.
 
     Args:
-        json_path: Path to the audit_report.json file.
+        input_path: Path to audit_report.json
 
     Returns:
         List of audit record dictionaries.
-
-    Raises:
-        FileNotFoundError: If the JSON file does not exist.
-        json.JSONDecodeError: If the JSON is malformed.
     """
-    if not json_path.exists():
-        raise FileNotFoundError(f"Audit report not found at {json_path}")
+    if not input_path.exists():
+        raise FileNotFoundError(f"Audit report not found at {input_path}")
 
-    with open(json_path, 'r', encoding='utf-8') as f:
+    logger.info(f"Loading audit records from {input_path}")
+    with open(input_path, 'r', encoding='utf-8') as f:
         data = json.load(f)
 
     # Handle both list format and dict with 'records' key
     if isinstance(data, list):
-        return data
+        records = data
     elif isinstance(data, dict) and 'records' in data:
-        return data['records']
+        records = data['records']
     else:
-        # Fallback: treat the whole dict as a single record or empty list
-        logger.warning(f"Unexpected JSON structure in {json_path}, attempting to process as list")
-        return [data] if isinstance(data, dict) else []
+        records = [data] if data else []
+
+    logger.info(f"Loaded {len(records)} audit records")
+    return records
 
 
-def load_prevalence_data(json_path: Path) -> Dict[str, float]:
+def load_prevalence_data(prevalence_path: Path) -> Optional[Dict[str, Any]]:
     """
-    Load prevalence and bias-adjusted data from the prevalence JSON file.
-
-    Expected keys in the JSON:
-        - 'bias_adjusted_rate': float
-        - 'wilson_ci_lower': float
-        - 'wilson_ci_upper': float
+    Load prevalence analysis results from the prevalence JSON file.
 
     Args:
-        json_path: Path to the prevalence.json file.
+        prevalence_path: Path to prevalence.json
 
     Returns:
-        Dictionary containing the required fields.
-
-    Raises:
-        FileNotFoundError: If the file does not exist.
-        KeyError: If required fields are missing.
+        Prevalence data dictionary or None if file doesn't exist.
     """
-    if not json_path.exists():
-        raise FileNotFoundError(f"Prevalence data not found at {json_path}")
+    if not prevalence_path.exists():
+        logger.warning(f"Prevalence file not found at {prevalence_path}. "
+                     "Wilson CI values will be set to 0.0.")
+        return None
 
-    with open(json_path, 'r', encoding='utf-8') as f:
-        data = json.load(f)
-
-    required_fields = ['bias_adjusted_rate', 'wilson_ci_lower', 'wilson_ci_upper']
-    missing = [field for field in required_fields if field not in data]
-    if missing:
-        raise KeyError(f"Missing required fields in prevalence data: {missing}")
-
-    return {
-        'bias_adjusted_rate': float(data['bias_adjusted_rate']),
-        'wilson_ci_lower': float(data['wilson_ci_lower']),
-        'wilson_ci_upper': float(data['wilson_ci_upper'])
-    }
+    logger.info(f"Loading prevalence data from {prevalence_path}")
+    with open(prevalence_path, 'r', encoding='utf-8') as f:
+        return json.load(f)
 
 
-def calculate_summary_statistics(audit_records: List[Dict[str, Any]]) -> Dict[str, Any]:
+def calculate_summary_statistics(
+    audit_records: List[Dict[str, Any]],
+    prevalence_data: Optional[Dict[str, Any]] = None
+) -> Dict[str, Any]:
     """
-    Calculate summary statistics from audit records.
+    Calculate summary statistics from audit records and prevalence data.
 
     Args:
         audit_records: List of audit record dictionaries.
+        prevalence_data: Optional prevalence analysis results.
 
     Returns:
-        Dictionary with total count and inconsistent count.
+        Dictionary containing summary statistics.
     """
-    total = len(audit_records)
-    inconsistent = sum(1 for r in audit_records if r.get('is_inconsistent', False))
+    total_summaries = len(audit_records)
+    inconsistent_count = sum(
+        1 for record in audit_records
+        if record.get('is_inconsistent', False)
+    )
 
-    rate = inconsistent / total if total > 0 else 0.0
+    # Calculate inconsistent rate
+    if total_summaries > 0:
+        inconsistent_rate = inconsistent_count / total_summaries
+    else:
+        inconsistent_rate = 0.0
+
+    # Get bias-adjusted rate and Wilson CI from prevalence data
+    bias_adjusted_rate = 0.0
+    wilson_ci_lower = 0.0
+    wilson_ci_upper = 0.0
+
+    if prevalence_data:
+        # Extract bias-adjusted rate
+        bias_adjusted_rate = prevalence_data.get('bias_adjusted_rate', 0.0)
+
+        # Extract Wilson CI bounds
+        wilson_ci_lower = prevalence_data.get('wilson_ci_lower', 0.0)
+        wilson_ci_upper = prevalence_data.get('wilson_ci_upper', 0.0)
+
+        # Validate CI bounds
+        if not (0.0 <= wilson_ci_lower <= 1.0):
+            logger.warning(f"Invalid Wilson CI lower bound: {wilson_ci_lower}")
+            wilson_ci_lower = 0.0
+        if not (0.0 <= wilson_ci_upper <= 1.0):
+            logger.warning(f"Invalid Wilson CI upper bound: {wilson_ci_upper}")
+            wilson_ci_upper = 0.0
+
+    logger.info(f"Calculated summary statistics: "
+              f"total={total_summaries}, inconsistent={inconsistent_count}, "
+              f"rate={inconsistent_rate:.4f}")
 
     return {
-        'total_summaries': total,
-        'inconsistent_count': inconsistent,
-        'inconsistent_rate': rate
+        'total_summaries': total_summaries,
+        'inconsistent_count': inconsistent_count,
+        'inconsistent_rate': inconsistent_rate,
+        'bias_adjusted_rate': bias_adjusted_rate,
+        'wilson_ci_lower': wilson_ci_lower,
+        'wilson_ci_upper': wilson_ci_upper
     }
 
 
 def generate_summary_report(
-    audit_json_path: Path,
-    prevalence_json_path: Path,
-    output_csv_path: Path
-) -> Path:
+    statistics: Dict[str, Any],
+    output_path: Path
+) -> None:
     """
-    Generate the summary CSV report.
-
-    Reads the audit report and prevalence data, calculates aggregates,
-    and writes the summary CSV.
+    Write summary statistics to a CSV file.
 
     Args:
-        audit_json_path: Path to audit_report.json.
-        prevalence_json_path: Path to prevalence.json.
-        output_csv_path: Path where the summary CSV will be written.
-
-    Returns:
-        Path to the generated CSV file.
-
-    Raises:
-        FileNotFoundError: If input files are missing.
-        KeyError: If required data fields are missing.
+        statistics: Dictionary containing summary statistics.
+        output_path: Path to the output CSV file.
     """
-    logger.info(f"Generating summary report from {audit_json_path} and {prevalence_json_path}")
-
-    # Load data
-    audit_records = load_audit_records(audit_json_path)
-    prevalence_data = load_prevalence_data(prevalence_json_path)
-
-    # Calculate statistics
-    stats = calculate_summary_statistics(audit_records)
-
-    # Prepare row data
-    row = {
-        'total_summaries': stats['total_summaries'],
-        'inconsistent_count': stats['inconsistent_count'],
-        'inconsistent_rate': round(stats['inconsistent_rate'], 6),
-        'bias_adjusted_rate': round(prevalence_data['bias_adjusted_rate'], 6),
-        'wilson_ci_lower': round(prevalence_data['wilson_ci_lower'], 6),
-        'wilson_ci_upper': round(prevalence_data['wilson_ci_upper'], 6)
-    }
-
     # Ensure output directory exists
-    output_csv_path.parent.mkdir(parents=True, exist_ok=True)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
 
-    # Write CSV
+    # Define required columns in exact order
     fieldnames = [
         'total_summaries',
         'inconsistent_count',
@@ -172,48 +151,58 @@ def generate_summary_report(
         'wilson_ci_upper'
     ]
 
-    with open(output_csv_path, 'w', newline='', encoding='utf-8') as f:
+    logger.info(f"Writing summary report to {output_path}")
+    with open(output_path, 'w', newline='', encoding='utf-8') as f:
         writer = csv.DictWriter(f, fieldnames=fieldnames)
         writer.writeheader()
-        writer.writerow(row)
+        writer.writerow(statistics)
 
-    logger.info(f"Summary report written to {output_csv_path}")
-    return output_csv_path
+    logger.info(f"Successfully wrote summary report with {len(fieldnames)} columns")
 
 
 def main() -> int:
     """
     Main entry point for the report generator script.
 
-    Reads from default paths:
-        - output/audit_report.json
-        - output/prevalence.json
-    Writes to:
-        - output/summary_report.csv
+    Reads output/audit_report.json and output/prevalence.json,
+    computes summary statistics, and writes output/summary_report.csv.
 
     Returns:
-        0 on success, 1 on failure.
+        Exit code (0 for success, non-zero for failure).
     """
-    base_dir = Path(__file__).resolve().parent.parent.parent
-    output_dir = base_dir / 'output'
-
-    audit_json = output_dir / 'audit_report.json'
-    prevalence_json = output_dir / 'prevalence.json'
-    output_csv = output_dir / 'summary_report.csv'
-
     try:
-        generate_summary_report(audit_json, prevalence_json, output_csv)
-        logger.info("Report generation completed successfully.")
+        # Define paths relative to project root
+        base_path = Path(__file__).resolve().parent.parent.parent.parent
+        audit_report_path = base_path / 'output' / 'audit_report.json'
+        prevalence_path = base_path / 'output' / 'prevalence.json'
+        output_path = base_path / 'output' / 'summary_report.csv'
+
+        logger.info("Starting report generation for T047")
+
+        # Load audit records
+        audit_records = load_audit_records(audit_report_path)
+
+        # Load prevalence data (may be optional)
+        prevalence_data = load_prevalence_data(prevalence_path)
+
+        # Calculate summary statistics
+        statistics = calculate_summary_statistics(audit_records, prevalence_data)
+
+        # Generate CSV report
+        generate_summary_report(statistics, output_path)
+
+        logger.info("Report generation completed successfully")
         return 0
+
     except FileNotFoundError as e:
-        logger.error(f"Input file missing: {e}")
+        logger.error(f"Required input file not found: {e}")
         return 1
-    except KeyError as e:
-        logger.error(f"Missing required data field: {e}")
-        return 1
+    except json.JSONDecodeError as e:
+        logger.error(f"Invalid JSON format in input file: {e}")
+        return 2
     except Exception as e:
         logger.error(f"Unexpected error during report generation: {e}")
-        return 1
+        return 3
 
 
 if __name__ == '__main__':

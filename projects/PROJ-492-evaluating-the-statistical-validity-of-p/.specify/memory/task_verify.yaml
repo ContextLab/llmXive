@@ -83,6 +83,21 @@
   \ **DEPENDS ON:** T023."
 : 1
 ? "T026 Implement synthetic dataset generator in `src/audit/synthetic.py` (FR\u2011\
+  030) \u2013 The synthetic dataset generator outputs at least 10\u202F000 simulated\
+  \ summaries (binary AND continuous outcomes). (binary AND continuous outcomes) **and\
+  \ verify both outcome types are present** (constraint\u2011preservation\u20112958f04c)\
+  \ (verify files are created and contain \u2265\u202F10\u202F000 records). **DEPENDS\
+  \ ON:** T006\u2011T012."
+: 1
+? "T026 Implement synthetic dataset generator in `src/audit/synthetic.py` (FR\u2011\
+  030) \u2013 The synthetic dataset generator outputs at least 10\u202F000 simulated\
+  \ summaries (binary AND continuous outcomes). [UNRESOLVED-CLAIM: c_9a39a793 \u2014\
+  \ status=not_enough_info] (binary AND continuous outcomes) **and verify both outcome\
+  \ types are present** (constraint\u2011preservation\u20112958f04c) (verify files\
+  \ are created and contain \u2265\u202F10\u202F000 records). **DEPENDS ON:** T006\u2011\
+  T012."
+: 1
+? "T026 Implement synthetic dataset generator in `src/audit/synthetic.py` (FR\u2011\
   030) \u2013 outputs `data/synthetic/synthetic_validation.csv` + `data/synthetic/synthetic_ground_truth.json`\
   \ with at least 10\u202F000 simulated summaries [UNRESOLVED-CLAIM: c_15e13729 \u2014\
   \ status=not_enough_info] (binary AND continuous outcomes) **and verify both outcome\
@@ -173,6 +188,10 @@
   \ c_8b9cf4c7 \u2014 status=not_enough_info] (coverage\u2011executability\u201108d5764f)\
   \ (verify test passes)."
 : 1
+? "T036 FR\u2011002 Verification: Extracted fields exist for >\u202F95\u202F% of valid\
+  \ pages. [UNRESOLVED-CLAIM: c_962bb9e3 \u2014 status=not_enough_info] (coverage\u2011\
+  executability\u201108d5764f) (verify test passes)."
+: 1
 ? "T036 FR\u2011002 Verification: Run `tests/integration/test_extractor_accuracy.py`\
   \ to assert extracted fields exist for >\u202F95\u202F% of valid pages [UNRESOLVED-CLAIM:\
   \ c_cc811205 \u2014 status=not_enough_info] (coverage\u2011executability\u201108d5764f)\
@@ -183,11 +202,12 @@
   \ c_c95cee25 \u2014 status=not_enough_info] (coverage\u2011executability\u201108d5764f)\
   \ (verify test passes)."
 : 1
-? "T043 Unit tests for binomial test and CI width \u2264 0.10 (1807.00365, https://arxiv.org/abs/1807.00365)\
-  \ (tests/unit/test_prevalence.py) (verify test passes)."
-: 2
 ? "T043 Unit tests for binomial test and CI width \u2264 0.10 (tests/unit/test_prevalence.py)\
   \ (verify test passes). [UNRESOLVED-CLAIM: c_ae78747a \u2014 status=not_enough_info]"
+: 1
+? "T043 Unit tests for binomial test and CI width \u2264 0.10 [UNRESOLVED-CLAIM: c_4ea97576\
+  \ \u2014 status=not_enough_info] (1807.00365, https://arxiv.org/abs/1807.00365)\
+  \ (tests/unit/test_prevalence.py) (verify test passes)."
 : 1
 ? "T043 Unit tests for binomial test and CI width \u2264 0.10 [UNRESOLVED-CLAIM: c_597a8193\
   \ \u2014 status=not_enough_info] (tests/unit/test_prevalence.py) (verify test passes)."
@@ -197,17 +217,6 @@
 : 1
 ? "T043 Unit tests for binomial test and CI width \u2264 0.10 [UNRESOLVED-CLAIM: c_e3a7e8b9\
   \ \u2014 status=not_enough_info] (tests/unit/test_prevalence.py) (verify test passes)."
-: 1
-? 'T047 Implement CSV summary generator in `src/audit/report_generator.py` that reads
-  `output/audit_report.json` and writes `output/summary_report.csv` with required
-  columns (`total_summaries`, `inconsistent_count`, `inconsistent_rate`, `bias_adjusted_rate`,
-  `wilson_ci_lower`, `wilson_ci_upper`) (verify CSV file exists and column headers
-  match) [DEPENDS ON: T042, T045].'
-: 2
-? "T049 Add Quickstart guide `docs/README_QUICKSTART.md` covering execution on 30\
-  \ URLs within 30 minutes (FR\u2011028) **and include novice\u2011user verification\
-  \ step with written confirmation log** (see T095b) (verify guide file exists and\
-  \ includes novice verification instructions)."
 : 1
 ? "T049 Add Quickstart guide `docs/README_QUICKSTART.md` covering execution on 30\
   \ URLs within 30 minutes [UNRESOLVED-CLAIM: c_67ec5a88 \u2014 status=not_enough_info]\
@@ -240,6 +249,12 @@
   \ that runs 10\u202F000 replicates for each statistical test (z-test, Fisher's,\
   \ Welch's, binomial) and checks the absolute difference \u2264 0.005 [UNRESOLVED-CLAIM:\
   \ c_9b059f74 \u2014 status=not_enough_info] (constraint\u2011preservation\u2011\
+  e62a0df4) (verify module exits with status 0)."
+: 1
+? "T062 Implement Monte\u2011Carlo validation module (FR\u2011026) in `src/audit/monte_carlo_validation.py`\
+  \ that runs 10\u202F10000 replicates for each statistical test (z-test, Fisher's,\
+  \ Welch's, binomial) and checks the absolute difference \u2264 0.005 [UNRESOLVED-CLAIM:\
+  \ c_1fead734 \u2014 status=not_enough_info] (constraint\u2011preservation\u2011\
   e62a0df4) (verify module exits with status 0)."
 : 1
 ? "T062 Implement Monte\u2011Carlo validation module (FR\u2011026) in `src/audit/monte_carlo_validation.py`\
@@ -281,6 +296,13 @@
   monitor check, (d) main pipeline run (verify workflow runs all steps) [DEPENDS ON:\
   \ T098]. <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested\
   \ --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->"
+: 1
+? "T064 Update `.github/workflows/audit.yml` to include steps: (a) schema validation,\
+  \ (b) synthetic validation (ensure precision/recall thresholds), (c) resource\u2011\
+  monitor check, (d) main pipeline run (verify workflow runs all steps) [DEPENDS ON:\
+  \ T098]. <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested\
+  \ --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested\
+  \ -->"
 : 1
 ? 'T066 Add unit test for resource monitor parsing of `/proc` (tests/unit/test_resource_monitor.py)
   (verify test passes) [DEPENDS ON: T098].'

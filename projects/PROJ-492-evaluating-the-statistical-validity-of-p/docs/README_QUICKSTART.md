@@ -1,111 +1,120 @@
-# Quickstart Guide: Statistical Validity of Public A/B Tests
+# Quickstart Guide: Evaluating Statistical Validity of A/B Test Summaries
 
-This guide walks you through running the full audit pipeline on a small set of **30 URLs** within **30 minutes** on the default GitHub Actions runner (2 vCPU, 7 GB RAM), as required by FR-028.
+**Target**: Execute the audit pipeline on a sample of **30 URLs** within **30 minutes** on the default GitHub Actions runner (2 vCPU, 7 GB RAM).
 
-## Prerequisites
+**FR-028 Compliance**: This guide ensures the pipeline is lightweight enough for rapid validation while maintaining statistical rigor.
 
-- Python 3.9+ installed
-- `pip` available
-- Internet connection (to fetch URLs)
-- At least 2 GB free disk space
+---
 
-## Step 1: Clone and Setup
+## 1. Prerequisites
 
+Ensure you have the following installed:
+- Python 3.9+
+- `pip`
+- A text editor (for the verification log)
+
+If you are running locally, create a virtual environment:
 ```bash
-git clone <repository-url>
-cd PROJ-492-evaluating-the-statistical-validity-of-p
+python -m venv venv
+source venv/bin/activate # On Windows: venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-## Step 2: Prepare Input Data
+## 2. Prepare the Input Data
 
-Create a file `input/urls.csv` containing exactly 30 public A/B test summary URLs.
-Example format:
+The pipeline requires an input CSV file containing the URLs to audit.
 
-```csv
-url
+1. Create the input directory if it doesn't exist:
+ ```bash
+ mkdir -p input
+ ```
+
+2. Create `input/urls.csv` with a header `url` and exactly **30 valid A/B test summary URLs**.
+ *Example content (replace with real URLs):*
+ ```csv
+ url
 
 
-...
-```
+... (add 28 more)
+ ```
 
-> **Note:** Ensure the URLs are accessible and contain extractable A/B test metrics (p-values, effect sizes, sample sizes).
+> **Note**: For this quickstart, use a small, curated list of 30 URLs to ensure the 30-minute timeout is met.
 
-## Step 3: Run the Pipeline
+## 3. Execute the Pipeline
 
-Execute the audit driver script:
-
-```bash
-python -m code.src.cli.run_audit --input input/urls.csv
-```
-
-This command:
-1. Ingests and deduplicates URLs
-2. Fetches HTML with retries
-3. Extracts A/B test summaries
-4. Reconstructs statistical tests
-5. Validates inconsistencies
-6. Computes prevalence and bias-adjusted rates
-7. Generates `output/audit_report.json`, `output/summary_report.csv`, and `output/manifest.json`
-
-## Step 4: Verify Execution Time
-
-The pipeline must complete within **30 minutes** for 30 URLs.
-Check `output/resource_log.json` for wall-clock time and resource usage:
+Run the main audit driver script. This script orchestrates ingestion, fetching, extraction, reconstruction, validation, and reporting.
 
 ```bash
-cat output/resource_log.json
+python -m code.src.cli.run_audit --input input/urls.csv --output output --quickstart
 ```
 
-Verify that:
-- `wall_clock_seconds` ≤ 1800
-- `peak_memory_mb` ≤ 2048
-- `cpu_vcpu` ≤ 2
-
-## Step 5: Novice-User Verification Step
-
-To confirm the guide is usable by a novice, perform the following verification:
-
-1. Run the pipeline as described above.
-2. Ensure all output files exist:
+**Expected Behavior**:
+- The script will log progress to the console.
+- It will fetch HTML, extract metrics, and perform statistical reconstruction.
+- It will automatically enforce resource limits (CPU ≤ 2 vCPU, RAM ≤ 2 GB) as per FR-009.
+- Upon completion, it will generate:
  - `output/audit_report.json`
  - `output/summary_report.csv`
  - `output/manifest.json`
- - `output/resource_log.json`
-3. Confirm no errors are logged (check `logs/audit.log` for `ERR-###` codes).
-4. Write a **confirmation log** file `docs/verification_log.txt` with the following content:
+
+**Timing Constraint**:
+- The process should complete in **< 30 minutes** for 30 URLs.
+- If the process exceeds this time, check the `output/resource_log.json` for bottlenecks or network latency issues.
+
+## 4. Verify Results
+
+1. **Check Exit Code**: Ensure the script exited with code 0.
+2. **Inspect Output**: Open `output/summary_report.csv` to confirm columns exist (`total_summaries`, `inconsistent_count`, etc.).
+3. **Review Manifest**: Verify `output/manifest.json` contains SHA256 hashes for all generated artifacts.
+
+## 5. Novice-User Verification Step (Required)
+
+To confirm successful execution and compliance with FR-028, you must generate a **written confirmation log**.
+
+1. Create a file named `docs/quickstart_verification_log.txt` in the project root.
+2. Fill in the following template with your actual run data:
 
 ```text
-Verification Date: <YYYY-MM-DD HH:MM:SS>
-User: <your-name>
-Status: SUCCESS | FAILURE
-Notes: <brief description of execution, any warnings, or errors>
-Output Files Present:
- - audit_report.json: YES | NO
- - summary_report.csv: YES | NO
- - manifest.json: YES | NO
- - resource_log.json: YES | NO
-Execution Time: <seconds>
-Peak Memory: <MB>
+=========================================
+QUICKSTART VERIFICATION LOG
+=========================================
+Date: [YYYY-MM-DD HH:MM:SS]
+User: [Your Name/ID]
+
+Input File: input/urls.csv
+Number of URLs Processed: [Count, e.g., 30]
+
+Execution Time: [Start Time] to [End Time]
+Total Duration: [Duration in minutes]
+
+Resource Limits Observed:
+- Max CPU Usage: [e.g., 1.2 vCPU]
+- Max RAM Usage: [e.g., 1.1 GB]
+
+Output Artifacts Generated:
+- [ ] output/audit_report.json
+- [ ] output/summary_report.csv
+- [ ] output/manifest.json
+
+Verification Status:
+- Script Exit Code: [0 or Non-Zero]
+- All 7 Constitution Principles Checked: [Yes/No]
+
+Notes:
+[Any issues encountered or observations]
+
+Signature: _________________________
+=========================================
 ```
 
-> **Requirement:** This verification log must be updated for every new environment or major dependency change to ensure reproducibility (Constitution Principle I).
+3. **Commit this log**: Add `docs/quickstart_verification_log.txt` to your version control to prove the pipeline was successfully executed by a novice user.
 
 ## Troubleshooting
 
-- **ERR-001 to ERR-099**: Extraction errors (missing fields, malformed HTML). Check `logs/audit.log`.
-- **ERR-301**: Resource limit exceeded. Reduce input size or increase runner resources.
-- **ERR-800**: Synthetic validation thresholds not met. Re-run synthetic dataset generation (T026).
-- **ERR-801**: Monte-Carlo validation failed. Check `src/audit/monte_carlo_validation.py` logs.
+- **ERR-301**: Resource limit exceeded. Check `output/resource_log.json`.
+- **ERR-800**: Synthetic validation failed. Ensure `data/synthetic/` files are present.
+- **Network Timeout**: Increase retry limits in `src/config.py` if running on unstable connections.
 
 ## Next Steps
 
-- Expand to full corpus (≥300 URLs) for production validation.
-- Review `docs/statistical_methodology.md` for reconstruction logic.
-- Consult `docs/data_provenance.md` for artifact tracking.
-
-## References
-
-- FR-028: Quickstart execution on 30 URLs within 30 minutes
-- Constitution Principle I: Reproducibility and verification
-- Constitution Principle VII: Provenance and auditability
+For full-scale analysis, refer to `docs/README_FULL.md` and increase the input URL count. Ensure you have sufficient compute resources for larger corpora.
