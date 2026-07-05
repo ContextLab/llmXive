@@ -1,51 +1,130 @@
+%YAML 1.2
+---
 $schema: "http://json-schema.org/draft-07/schema#"
-type: object
 title: "Model Output Schema"
-description: "Schema for trained model parameters and performance metrics."
+description: >
+  Schema for tumor-type-specific predictive model outputs generated in
+  User Story 3 (T031-T038). Includes metrics, coefficients, and validation results.
+type: object
 required:
-  - model_id
-  - cancer_type
-  - hyperparameters
-  - performance
+  - metadata
+  - model_config
+  - performance_metrics
+  - validation_results
 properties:
-  model_id:
-    type: string
-    description: "Unique model identifier."
-  cancer_type:
-    type: string
-    description: "Tumor type this model was trained on (e.g., BRCA, LUAD)."
-  hyperparameters:
+  metadata:
+    type: object
+    required:
+      - tumor_type
+      - model_type
+      - gene_panel_source
+      - created_at
+    properties:
+      tumor_type:
+        type: string
+        description: "Tumor type code (e.g., 'BRCA')"
+      model_type:
+        type: string
+        enum:
+          - "ElasticNet_Logistic"
+      gene_panel_source:
+        type: string
+        description: "Path to gene panel JSON used for training"
+      created_at:
+        type: string
+        format: date-time
+      cv_folds:
+        type: integer
+        description: "Number of CV folds used in nested CV"
+      cv_inner_folds:
+        type: integer
+        description: "Number of inner CV folds for hyperparameter tuning"
+  model_config:
     type: object
     required:
       - alpha
-      - lambda
+      - l1_ratio
+      - selected_genes
     properties:
       alpha:
         type: number
-        description: "Elastic‑net mixing parameter (0 ≤ alpha ≤ 1)."
-      lambda:
+        description: "Regularization strength"
+      l1_ratio:
         type: number
-        description: "Regularization strength."
-  performance:
+        description: "Mixing parameter for Elastic Net (0=ridge, 1=lasso)"
+      selected_genes:
+        type: array
+        items:
+          type: string
+        description: "List of HGNC symbols in the fixed gene panel"
+      coefficients:
+        type: object
+        additionalProperties:
+          type: number
+        description: "Gene coefficients (intercept excluded)"
+      intercept:
+        type: number
+  performance_metrics:
     type: object
     required:
-      - cross_val_auc
-      - external_auc
+      - auc_roc
+      - auc_pr
+      - accuracy
+      - f1_score
     properties:
-      cross_val_auc:
+      auc_roc:
         type: number
-        description: "Internal cross‑validation ROC‑AUC."
-      external_auc:
-        type: ["number", "null"]
-        description: "External validation ROC‑AUC."
-      calibration_error:
+        minimum: 0
+        maximum: 1
+        description: "Area Under ROC Curve"
+      auc_pr:
         type: number
-        description: "Maximum calibration error across deciles."
-      de_long_p:
+        minimum: 0
+        maximum: 1
+        description: "Area Under Precision-Recall Curve"
+      accuracy:
         type: number
-        description: "Bonferroni‑adjusted p‑value from DeLong’s test."
-  coefficients:
+        minimum: 0
+        maximum: 1
+      f1_score:
+        type: number
+        minimum: 0
+        maximum: 1
+      calibration_slope:
+        type: number
+        description: "Slope of calibration curve (ideal=1.0)"
+      calibration_intercept:
+        type: number
+        description: "Intercept of calibration curve (ideal=0.0)"
+  validation_results:
     type: object
-    description: "Gene coefficients (gene_symbol → weight)."
-    additionalProperties:
-      type: number
+    required:
+      - internal_cv
+      - external_validation
+    properties:
+      internal_cv:
+        type: object
+        properties:
+          mean_auc:
+            type: number
+          std_auc:
+            type: number
+          per_fold_auc:
+            type: array
+            items:
+              type: number
+      external_validation:
+        type: object
+        description: "Results on held-out GEO datasets if available"
+        properties:
+          dataset_id:
+            type: string
+          auc_roc:
+            type: number
+          p_value_delong:
+            type: number
+            description: "P-value from DeLong's test vs baseline"
+          bonferroni_adjusted_p:
+            type: number
+            description: "Bonferroni adjusted p-value"
+additionalProperties: false

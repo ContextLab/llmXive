@@ -1,54 +1,107 @@
+%YAML 1.2
+---
 $schema: "http://json-schema.org/draft-07/schema#"
+title: "Meta-Analysis and Gene Panel Schema"
+description: >
+  Schema for the final selected gene panel and meta-analysis results
+  generated in User Story 2 (T023-T028).
 type: object
-title: "Meta‑Analysis Schema"
-description: "Schema for the meta‑analyzed gene panel."
 required:
+  - metadata
+  - selection_method
   - gene_panel
-  - summary
+  - statistical_summary
 properties:
+  metadata:
+    type: object
+    required:
+      - created_at
+      - tumor_types_analyzed
+      - total_discovery_samples
+    properties:
+      created_at:
+        type: string
+        format: date-time
+      tumor_types_analyzed:
+        type: array
+        items:
+          type: string
+        description: "List of tumor types included in meta-analysis"
+      total_discovery_samples:
+        type: integer
+        description: "Sum of samples across all discovery sets"
+      de_method:
+        type: string
+        description: "DE method used (e.g., 'DESeq2_Wald')"
+      fdr_threshold:
+        type: number
+        description: "FDR threshold used for significance (e.g., 0.05)"
+      log2fc_threshold:
+        type: number
+        description: "Absolute log2FC threshold (e.g., 1.0)"
+  selection_method:
+    type: string
+    enum:
+      - "intersection"
+      - "union_fallback"
+      - "stouffers_ranking"
+    description: "Method used to select the final gene panel"
+  fallback_reason:
+    type: string
+    nullable: true
+    description: "Reason for fallback if intersection was empty (e.g., 'intersection_empty')"
   gene_panel:
     type: array
-    description: "List of genes in the final panel."
+    description: "Final list of selected genes with meta-analysis statistics"
     items:
       type: object
       required:
         - gene_symbol
-        - meta_p_value
-        - log2FC_mean
-        - selected
-        - selection_method
         - rank
+        - stouffers_p_value
+        - mean_log2fc
+        - is_significant_intersection
       properties:
         gene_symbol:
           type: string
-          description: "HGNC gene symbol."
-        meta_p_value:
-          type: number
-          description: "Combined p‑value from Stouffer's method."
-        log2FC_mean:
-          type: number
-          description: "Mean log2 fold change across tumor types."
-        selected:
-          type: boolean
-          description: "True if included in the final panel."
-        selection_method:
-          type: string
-          enum: ["intersection", "union_fallback"]
-          description: "Method used to select the gene panel."
         rank:
           type: integer
-          description: "Rank by meta p‑value (1 = most significant)."
-  summary:
+          minimum: 1
+        stouffers_p_value:
+          type: number
+          minimum: 0
+          maximum: 1
+        adjusted_p_value:
+          type: number
+          description: "Bonferroni adjusted p-value"
+        mean_log2fc:
+          type: number
+        significant_in_types:
+          type: array
+          items:
+            type: string
+          description: "Tumor types where this gene was significant"
+        is_significant_intersection:
+          type: boolean
+          description: "True if gene was significant in all analyzed types"
+  statistical_summary:
     type: object
     required:
-      - total_genes_tested
-      - genes_in_panel
-      - tumor_types_contributing
+      - total_candidates
+      - intersection_size
+      - final_panel_size
     properties:
-      total_genes_tested:
+      total_candidates:
         type: integer
-      genes_in_panel:
+        description: "Total unique genes found significant in at least one type"
+      intersection_size:
         type: integer
-      tumor_types_contributing:
+        description: "Number of genes significant in ALL types (before fallback)"
+      final_panel_size:
         type: integer
-        description: "Number of tumor types with significant genes in the panel."
+        description: "Final number of genes in the panel"
+      union_size_if_fallback:
+        type: integer
+        nullable: true
+        description: "Size of union if fallback was triggered"
+additionalProperties: false

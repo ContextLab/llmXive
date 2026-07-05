@@ -1,0 +1,46 @@
+[tool.ruff]
+# Target Python version matching plan.md (Python 3.11)
+target-version = "py311"
+
+# Line length for formatting (matching Black default)
+line-length = 88
+
+# Exclude generated or large directories
+exclude = [
+    ".git",
+    "__pycache__",
+    "data/raw",
+    "data/processed",
+    "results",
+    "venv",
+    ".venv",
+    "build",
+    "dist",
+    "*.egg-info"
+]
+
+[tool.ruff.lint]
+# Enable standard rules
+select = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # Pyflakes
+    "I",  # isort (import sorting)
+    "B",  # flake8-bugbear
+    "C4", # flake8-comprehensions
+    "UP", # pyupgrade (modernize syntax)
+]
+
+# Ignore specific rules that might be too strict for this project
+ignore = [
+    "E501", # Line too long (handled by formatter)
+    "B008", # Do not perform function call in argument defaults (common in data pipelines)
+]
+
+[tool.ruff.lint.per-file-ignores]
+# Allow wildcard imports in __init__.py for API surface exposure
+"code/__init__.py" = ["F403", "F405"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["code"]
+force-sort-within-sections = true

@@ -1,49 +1,109 @@
+%YAML 1.2
+---
 $schema: "http://json-schema.org/draft-07/schema#"
+title: "TCGA/GEO Dataset Schema"
+description: >
+  Schema for validated dataset files produced by the data acquisition and
+  preprocessing pipeline (T012-T020). Enforces structure for discovery and
+  training sets, gene identifiers, and response labels.
 type: object
-title: "Processed Dataset Schema"
-description: "Schema for the normalized expression matrix and metadata."
 required:
-  - expression_matrix
   - metadata
+  - data
 properties:
-  expression_matrix:
-    type: object
-    description: "Mapping of sample_id to gene expression values (VST or Quantile‑normalized)."
-    additionalProperties:
-      type: object
-      description: "Sample data."
-      additionalProperties:
-        type: number
-        description: "Normalized expression value."
   metadata:
-    type: array
-    description: "List of sample metadata."
-    items:
-      type: object
-      required:
-        - sample_id
-        - tumor_type
-        - response_label
-        - source
-        - batch_corrected
-      properties:
-        sample_id:
-          type: string
-          description: "Unique sample identifier."
-        tumor_type:
-          type: string
-          description: "Tumor type code (e.g., BRCA, LUAD)."
-        response_label:
-          type: integer
-          enum: [0, 1]
-          description: "1 = Responder, 0 = Non‑Responder."
-        source:
-          type: string
-          enum: ["TCGA", "GEO"]
-          description: "Data source."
-        dataset_id:
-          type: string
-          description: "Original dataset accession (e.g., GSE25055)."
-        batch_corrected:
-          type: boolean
-          description: "True if batch correction (ComBat‑seq or Quantile) was applied."
+    type: object
+    required:
+      - source
+      - tumor_type
+      - platform
+      - sample_count
+      - gene_count
+      - created_at
+      - checksum
+    properties:
+      source:
+        type: string
+        description: "Source identifier (e.g., 'TCGA-BRCA', 'GSE25055')"
+        pattern: "^(TCGA-[A-Z0-9]{4}|GSE[0-9]+)$"
+      tumor_type:
+        type: string
+        description: "Standardized tumor type code (e.g., 'BRCA', 'LUAD')"
+      platform:
+        type: string
+        enum:
+          - "RNA-Seq (HTSeq-Counts)"
+          - "Microarray (Affymetrix)"
+          - "Microarray (Agilent)"
+      sample_count:
+        type: integer
+        minimum: 1
+      gene_count:
+        type: integer
+        minimum: 1
+      created_at:
+        type: string
+        format: date-time
+      checksum:
+        type: string
+        description: "SHA-256 checksum of the data payload"
+      harmonization_method:
+        type: string
+        description: "Method used for ID harmonization (e.g., 'mygene', 'biomaRt')"
+      normalization_method:
+        type: string
+        description: "Method used for normalization (e.g., 'VST', 'voom', 'Quantile')"
+      batch_correction_applied:
+        type: boolean
+        description: "Whether ComBat-seq or Quantile Matching was applied"
+  data:
+    type: object
+    required:
+      - columns
+      - rows
+    properties:
+      columns:
+        type: array
+        description: "Column definitions for the dataset"
+        items:
+          type: object
+          required:
+            - name
+            - type
+          properties:
+            name:
+              type: string
+            type:
+              type: string
+              enum:
+                - "gene_id"
+                - "expression_value"
+                - "response_label"
+                - "clinical_covariate"
+      rows:
+        type: array
+        description: "Sample rows (indexed by sample ID)"
+        items:
+          type: object
+          required:
+            - sample_id
+            - gene_values
+            - response_label
+          properties:
+            sample_id:
+              type: string
+            gene_values:
+              type: object
+              additionalProperties:
+                type: number
+              description: "Map of HGNC symbol to expression value"
+            response_label:
+              type: string
+              enum:
+                - "Responder"
+                - "NonResponder"
+                - "Unknown"
+            clinical_covariates:
+              type: object
+              description: "Optional clinical variables (age, stage, etc.)"
+additionalProperties: false
