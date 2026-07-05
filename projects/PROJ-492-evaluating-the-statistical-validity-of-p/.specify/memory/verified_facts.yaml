@@ -1,4 +1,4 @@
-'|contain least real row set validation world':
+'|contain least real row set validation will world':
   quote: train images and 100 validation images with very little cor-
   source_id: '1911.07850'
   url: https://arxiv.org/abs/1911.07850

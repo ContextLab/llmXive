@@ -1,234 +1,170 @@
 """
-Integration test for T036: FR-002 Verification.
-Asserts that extracted fields exist for > 95% of valid pages.
+Integration test for FR-002: Extractor Accuracy Verification.
+
+This test asserts that extracted fields exist for > 95% of valid pages.
+It runs the extraction pipeline on a set of real URLs (from data/raw or a
+provided list) and validates the completeness of the resulting ABTestSummary
+objects.
+
+Requirements:
+- FR-002: Extracted fields must exist for > 95% of valid pages.
+- SC-001: Extraction accuracy >= 95%.
 """
+
 import json
 import logging
+import os
 import sys
-import unittest
 from pathlib import Path
-from typing import List, Dict, Any, Optional
+from typing import List, Dict, Any, Set
+
+import pytest
 
 # Add project root to path for imports
-PROJECT_ROOT = Path(__file__).parent.parent.parent
-sys.path.insert(0, str(PROJECT_ROOT))
+project_root = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(project_root))
 
 from code.src.audit.extractor import extract_all, write_summaries_to_json
-from code.src.utils.logger import get_default_logger, AuditLogger
-from code.src.config import set_rng_seed
+from code.src.audit.fetcher import fetch_urls_batch
+from code.src.audit.ingestor import read_urls_from_csv
+from code.src.models.data_models import ABTestSummary
+from code.src.utils.logger import get_default_logger
 
-logger = get_default_logger()
+logger = get_default_logger(__name__)
 
-# Required fields that must be present in a valid ABTestSummary
-# Based on the data model and extraction logic
-REQUIRED_FIELDS = [
-    'url',
-    'domain',
-    'test_type',
-    'outcome_type',
-    'sample_size_control',
-    'sample_size_treatment',
-    'baseline_conversion_rate',
-    'treatment_conversion_rate',
-    'reported_p_value',
-    'reported_effect_size',
-    'outcome_direction',
-    'statistical_significance'
-]
+# Configuration
+EXPECTED_COMPLETENESS_THRESHOLD = 0.95
+INPUT_URLS_FILE = "data/input/urls.csv"
+RAW_DATA_DIR = "data/raw"
+EXTRACTED_OUTPUT_FILE = "data/extracted/summaries.json"
 
-def load_extracted_summaries(filepath: Path) -> List[Dict[str, Any]]:
-    """Load extracted summaries from JSON file."""
-    if not filepath.exists():
-        raise FileNotFoundError(f"Extracted summaries file not found: {filepath}")
-    
-    with open(filepath, 'r', encoding='utf-8') as f:
-        data = json.load(f)
-    
-    # Handle both list and dict with 'summaries' key
-    if isinstance(data, list):
-        return data
-    elif isinstance(data, dict) and 'summaries' in data:
-        return data['summaries']
-    else:
-        raise ValueError(f"Unexpected format in {filepath}")
+# Define required fields for a "valid" summary per FR-002
+# These are the core fields that must be present for the statistical reconstruction
+# to proceed. Missing these indicates a failed extraction.
+REQUIRED_FIELDS: Set[str] = {
+    "url",
+    "domain",
+    "baseline_conversion_rate",
+    "variant_conversion_rate",
+    "baseline_sample_size",
+    "variant_sample_size",
+    "p_value",
+    "effect_size",
+    "outcome_type"
+}
 
-def calculate_field_coverage(
-    summaries: List[Dict[str, Any]],
-    required_fields: List[str]
-) -> Dict[str, float]:
+def _get_valid_pages(extracted_summaries: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
     """
-    Calculate the percentage of records that have all required fields.
-    Returns a dict with coverage metrics.
+    Filter summaries that represent valid pages (i.e., not a parsing error).
+    A page is considered 'valid' if it was successfully parsed and contains
+    at least a URL.
     """
-    total_records = len(summaries)
-    if total_records == 0:
-        return {
-            'total_records': 0,
-            'records_with_all_fields': 0,
-            'coverage_percentage': 0.0
-        }
+    valid = []
+    for summary in extracted_summaries:
+        # If we have a URL, we assume the page was fetched and attempted to be parsed.
+        # If extraction failed completely, the extractor usually logs an error
+        # and might not produce a record, or produces one with specific error flags.
+        # Here we consider any record with a URL as a 'valid page' attempt.
+        if summary.get("url"):
+            valid.append(summary)
+    return valid
 
-    records_with_all_fields = 0
-    
-    for record in summaries:
-        has_all_fields = True
-        for field in required_fields:
-            if field not in record or record[field] is None:
-                has_all_fields = False
-                break
-        
+def _calculate_completeness(valid_summaries: List[Dict[str, Any]]) -> float:
+    """
+    Calculate the percentage of valid pages that contain all required fields.
+    """
+    if not valid_summaries:
+        return 0.0
+
+    complete_count = 0
+    for summary in valid_summaries:
+        has_all_fields = all(field in summary and summary[field] is not None
+                             for field in REQUIRED_FIELDS)
         if has_all_fields:
-            records_with_all_fields += 1
+            complete_count += 1
 
-    coverage_percentage = (records_with_all_fields / total_records) * 100.0
-    
-    return {
-        'total_records': total_records,
-        'records_with_all_fields': records_with_all_fields,
-        'coverage_percentage': coverage_percentage
-    }
+    return complete_count / len(valid_summaries)
 
-def run_extractor_on_synthetic_data() -> Path:
+@pytest.mark.integration
+def test_extractor_accuracy():
     """
-    Run the extractor on the synthetic validation dataset.
-    This simulates the pipeline flow for testing purposes.
+    FR-002 Verification: Run the extractor on available data and assert
+    that extracted fields exist for > 95% of valid pages.
     """
-    # Set seed for reproducibility
-    set_rng_seed(42)
-    
-    # Paths
-    synthetic_csv = PROJECT_ROOT / 'data' / 'synthetic' / 'synthetic_validation.csv'
-    extracted_json = PROJECT_ROOT / 'output' / 'extracted_summaries.json'
-    
-    # Ensure output directory exists
-    extracted_json.parent.mkdir(parents=True, exist_ok=True)
-    
-    # Run extraction
-    logger.info(f"Running extractor on {synthetic_csv}")
-    summaries = extract_all(synthetic_csv)
-    
-    # Write results
-    write_summaries_to_json(summaries, extracted_json)
-    
-    logger.info(f"Extracted {len(summaries)} summaries to {extracted_json}")
-    return extracted_json
+    # Ensure paths exist
+    urls_path = project_root / INPUT_URLS_FILE
+    if not urls_path.exists():
+        pytest.fail(f"Input URLs file not found: {urls_path}. "
+                    "Please run T018 (ingestor) to populate data/input/urls.csv "
+                    "or ensure data/raw contains fetched HTML files.")
 
-class TestExtractorAccuracy(unittest.TestCase):
-    """
-    Test suite for T036: FR-002 Verification.
-    Verifies that extracted fields exist for > 95% of valid pages.
-    """
+    # 1. Load URLs
+    logger.info(f"Reading URLs from {urls_path}")
+    url_list = read_urls_from_csv(urls_path)
+    if not url_list:
+        pytest.fail("No URLs found in input file.")
 
-    def setUp(self):
-        """Set up test fixtures."""
-        self.logger = get_default_logger()
-        self.required_fields = REQUIRED_FIELDS
-        self.threshold = 95.0  # 95% coverage threshold
+    # 2. Fetch HTML (if not already present)
+    # We rely on T019 having run, but we ensure data exists here.
+    raw_dir = project_root / RAW_DATA_DIR
+    raw_dir.mkdir(parents=True, exist_ok=True)
 
-    def test_extractor_coverage(self):
-        """
-        Main test: Assert that extracted fields exist for > 95% of valid pages.
-        
-        This test:
-        1. Runs the extractor on the synthetic validation dataset
-        2. Loads the extracted summaries
-        3. Calculates the percentage of records with all required fields
-        4. Asserts coverage is > 95%
-        """
-        self.logger.info("Starting T036: FR-002 Verification test")
-        
-        # Run extractor
+    # Check if we have enough fetched HTML files
+    html_files = list(raw_dir.glob("*.html"))
+    if not html_files:
+        logger.warning("No HTML files found in data/raw. Attempting to fetch.")
+        # Fetching might fail in CI without network, so we catch it.
         try:
-            extracted_path = run_extractor_on_synthetic_data()
+            fetch_urls_batch(url_list, raw_dir)
+            html_files = list(raw_dir.glob("*.html"))
         except Exception as e:
-            self.logger.error(f"Extractor failed: {e}")
-            self.fail(f"Extractor execution failed: {e}")
-        
-        # Load extracted summaries
-        try:
-            summaries = load_extracted_summaries(extracted_path)
-        except Exception as e:
-            self.logger.error(f"Failed to load extracted summaries: {e}")
-            self.fail(f"Failed to load extracted summaries: {e}")
-        
-        # Calculate coverage
-        coverage = calculate_field_coverage(summaries, self.required_fields)
-        
-        self.logger.info(f"Coverage Results:")
-        self.logger.info(f"  Total records: {coverage['total_records']}")
-        self.logger.info(f"  Records with all fields: {coverage['records_with_all_fields']}")
-        self.logger.info(f"  Coverage percentage: {coverage['coverage_percentage']:.2f}%")
-        self.logger.info(f"  Threshold: {self.threshold}%")
-        
-        # Assert coverage meets threshold
-        self.assertGreater(
-            coverage['total_records'], 0,
-            "No records were extracted. Check if synthetic dataset exists."
+            pytest.fail(f"Failed to fetch URLs: {e}. "
+                        "Ensure network is available or data/raw is pre-populated.")
+
+    # 3. Run Extraction
+    extracted_dir = project_root / "data" / "extracted"
+    extracted_dir.mkdir(parents=True, exist_ok=True)
+    output_path = extracted_dir / "summaries.json"
+
+    logger.info(f"Running extraction on {len(html_files)} HTML files.")
+    try:
+        summaries = extract_all(html_files)
+        write_summaries_to_json(summaries, output_path)
+    except Exception as e:
+        pytest.fail(f"Extraction failed: {e}")
+
+    if not summaries:
+        pytest.fail("Extraction produced no summaries.")
+
+    # 4. Validate Completeness
+    valid_pages = _get_valid_pages(summaries)
+    completeness = _calculate_completeness(valid_pages)
+
+    logger.info(f"Total summaries: {len(summaries)}")
+    logger.info(f"Valid pages: {len(valid_pages)}")
+    logger.info(f"Completeness rate: {completeness:.2%}")
+
+    # Assert against threshold
+    if completeness < EXPECTED_COMPLETENESS_THRESHOLD:
+        # Collect details for debugging
+        missing_fields_list = []
+        for s in valid_pages:
+            missing = [f for f in REQUIRED_FIELDS if f not in s or s[f] is None]
+            if missing:
+                missing_fields_list.append({"url": s.get("url"), "missing": missing})
+
+        pytest.fail(
+            f"Extractor accuracy check FAILED. "
+            f"Required completeness: > {EXPECTED_COMPLETENESS_THRESHOLD:.0%}, "
+            f"Actual: {completeness:.2%}. "
+            f"Sample of failures: {missing_fields_list[:5]}"
         )
-        
-        self.assertGreaterEqual(
-            coverage['coverage_percentage'], self.threshold,
-            f"Field coverage ({coverage['coverage_percentage']:.2f}%) is below "
-            f"the required threshold ({self.threshold}%). "
-            f"Only {coverage['records_with_all_fields']} of "
-            f"{coverage['total_records']} records have all required fields."
-        )
-        
-        self.logger.info("✓ T036: FR-002 Verification PASSED")
 
-    def test_individual_field_presence(self):
-        """
-        Additional test: Verify each required field is present in at least some records.
-        This helps identify which fields might be problematic.
-        """
-        # Run extractor if needed
-        extracted_path = PROJECT_ROOT / 'output' / 'extracted_summaries.json'
-        if not extracted_path.exists():
-            extracted_path = run_extractor_on_synthetic_data()
-        
-        summaries = load_extracted_summaries(extracted_path)
-        
-        if not summaries:
-            self.skipTest("No summaries to test")
-        
-        # Check each field
-        field_presence = {}
-        for field in self.required_fields:
-            count = sum(1 for r in summaries if field in r and r[field] is not None)
-            field_presence[field] = count / len(summaries) * 100
-        
-        self.logger.info("Individual field presence:")
-        for field, percentage in field_presence.items():
-            self.logger.info(f"  {field}: {percentage:.2f}%")
-        
-        # Assert no field is completely missing
-        for field, percentage in field_presence.items():
-            self.assertGreater(
-                percentage, 0,
-                f"Field '{field}' is missing from all records."
-            )
-
-    def test_empty_summaries_handling(self):
-        """Test that the coverage calculation handles empty input gracefully."""
-        coverage = calculate_field_coverage([], self.required_fields)
-        
-        self.assertEqual(coverage['total_records'], 0)
-        self.assertEqual(coverage['records_with_all_fields'], 0)
-        self.assertEqual(coverage['coverage_percentage'], 0.0)
-
-def main():
-    """Run the test suite."""
-    logging.basicConfig(
-        level=logging.INFO,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    assert completeness >= EXPECTED_COMPLETENESS_THRESHOLD, (
+        f"Extractor accuracy check FAILED. "
+        f"Required: > {EXPECTED_COMPLETENESS_THRESHOLD:.0%}, Got: {completeness:.2%}"
     )
-    
-    suite = unittest.TestLoader().loadTestsFromTestCase(TestExtractorAccuracy)
-    runner = unittest.TextTestRunner(verbosity=2)
-    result = runner.run(suite)
-    
-    # Exit with appropriate code
-    sys.exit(0 if result.wasSuccessful() else 1)
 
-if __name__ == '__main__':
-    main()
+if __name__ == "__main__":
+    # Allow running as a script for quick verification
+    pytest.main([__file__, "-v", "-s"])

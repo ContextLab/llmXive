@@ -1,10 +1,3 @@
-"""
-Evaluation module for inconsistency-detection component on synthetic validation dataset.
-
-Implements FR-031: Evaluate the inconsistency detection component on the synthetic
-validation dataset, computing precision, recall, and F1 score, and asserting that
-precision >= 90% and recall >= 80%.
-"""
 import csv
 import json
 import logging
@@ -14,206 +7,215 @@ from pathlib import Path
 from typing import Dict, Any, List, Optional, Tuple
 
 from code.src.utils.logger import get_default_logger, AuditLogger, get_error_message
-
-# Paths relative to project root
-SYNTHETIC_SUMMARIES_PATH = Path("data/synthetic/synthetic_validation.csv")
-GROUND_TRUTH_PATH = Path("data/synthetic/synthetic_ground_truth.json")
-AUDIT_REPORT_PATH = Path("output/audit_report.json")
-EVALUATION_OUTPUT_PATH = Path("output/evaluation_results.json")
-
-PRECISION_THRESHOLD = 0.90
-RECALL_THRESHOLD = 0.80
+from code.src.audit.validator import write_audit_report
+from code.src.audit.synthetic import generate_synthetic_dataset, write_csv_output, write_json_output
+from code.src.config import set_rng_seed
 
 logger = get_default_logger(__name__)
 
-
-def load_synthetic_summaries(path: Path) -> List[Dict[str, Any]]:
-    """Load synthetic summaries from CSV."""
-    if not path.exists():
-        raise FileNotFoundError(f"Synthetic summaries file not found: {path}")
-    
+def load_synthetic_summaries(csv_path: Path) -> List[Dict[str, Any]]:
+    """Load synthetic summaries from CSV file."""
     summaries = []
-    with open(path, "r", encoding="utf-8") as f:
+    with open(csv_path, 'r', newline='', encoding='utf-8') as f:
         reader = csv.DictReader(f)
         for row in reader:
+            # Convert numeric fields
+            for key in ['n_control', 'n_treatment', 'successes_control', 'successes_treatment']:
+                if key in row and row[key]:
+                    row[key] = int(row[key])
+            for key in ['p_value', 'effect_size', 'baseline_rate']:
+                if key in row and row[key]:
+                    row[key] = float(row[key])
             summaries.append(row)
     return summaries
 
-
-def load_ground_truth(path: Path) -> Dict[str, Any]:
-    """Load ground truth labels from JSON."""
-    if not path.exists():
-        raise FileNotFoundError(f"Ground truth file not found: {path}")
-    
-    with open(path, "r", encoding="utf-8") as f:
-        return json.load(f)
-
-
-def load_audit_records(path: Path) -> List[Dict[str, Any]]:
-    """Load audit records from the audit report JSON."""
-    if not path.exists():
-        raise FileNotFoundError(f"Audit report file not found: {path}")
-    
-    with open(path, "r", encoding="utf-8") as f:
+def load_ground_truth(json_path: Path) -> List[Dict[str, Any]]:
+    """Load ground truth labels from JSON file."""
+    with open(json_path, 'r', encoding='utf-8') as f:
         data = json.load(f)
-        # Handle both list and dict with 'records' key
-        if isinstance(data, list):
-            return data
-        elif isinstance(data, dict) and "records" in data:
-            return data["records"]
-        else:
-            return []
+    return data.get('records', [])
 
+def load_audit_records(json_path: Path) -> List[Dict[str, Any]]:
+    """Load audit records from JSON file."""
+    with open(json_path, 'r', encoding='utf-8') as f:
+        data = json.load(f)
+    return data.get('records', [])
 
 def evaluate_detection(
-    ground_truth: Dict[str, Any],
+    ground_truth: List[Dict[str, Any]],
     audit_records: List[Dict[str, Any]]
-) -> Tuple[int, int, int, int]:
+) -> Tuple[int, int, int, int, float, float, float]:
     """
-    Evaluate inconsistency detection by comparing predictions against ground truth.
+    Evaluate inconsistency detection component.
     
-    Returns: (true_positives, false_positives, false_negatives, true_negatives)
+    Returns:
+        tp, fp, fn, tn, precision, recall, f1
     """
-    # Build ground truth lookup by URL or ID
-    # Ground truth structure: { "summaries": [ { "url": ..., "is_inconsistent": ... }, ... ] }
-    gt_lookup = {}
-    for entry in ground_truth.get("summaries", []):
-        key = entry.get("url") or entry.get("id")
-        if key:
-            gt_lookup[key] = entry.get("is_inconsistent", False)
+    # Build lookup for ground truth by identifier
+    gt_lookup = {rec.get('id'): rec for rec in ground_truth}
+    audit_lookup = {rec.get('id'): rec for rec in audit_records}
     
-    # Build predictions lookup
-    pred_lookup = {}
-    for record in audit_records:
-        key = record.get("url") or record.get("id")
-        if key:
-            # Determine if flagged as inconsistent
-            is_flagged = record.get("is_inconsistent", False) or record.get("flagged", False)
-            pred_lookup[key] = is_flagged
+    tp = 0
+    fp = 0
+    fn = 0
+    tn = 0
     
-    true_positives = 0
-    false_positives = 0
-    false_negatives = 0
-    true_negatives = 0
-    
-    # Evaluate on common keys
-    for key in gt_lookup:
-        actual = gt_lookup[key]
-        predicted = pred_lookup.get(key, False)
+    for rec_id, gt_record in gt_lookup.items():
+        is_actually_inconsistent = gt_record.get('is_inconsistent', False)
         
-        if actual and predicted:
-            true_positives += 1
-        elif not actual and predicted:
-            false_positives += 1
-        elif actual and not predicted:
-            false_negatives += 1
+        if rec_id not in audit_lookup:
+            # If audit record missing, treat as not detected (FN if actually inconsistent)
+            if is_actually_inconsistent:
+                fn += 1
+            continue
+        
+        audit_record = audit_lookup[rec_id]
+        is_detected_inconsistent = audit_record.get('is_inconsistent', False)
+        
+        if is_actually_inconsistent and is_detected_inconsistent:
+            tp += 1
+        elif not is_actually_inconsistent and is_detected_inconsistent:
+            fp += 1
+        elif is_actually_inconsistent and not is_detected_inconsistent:
+            fn += 1
         else:
-            true_negatives += 1
+            tn += 1
     
-    return true_positives, false_positives, false_negatives, true_negatives
-
+    precision = tp / (tp + fp) if (tp + fp) > 0 else 0.0
+    recall = tp / (tp + fn) if (tp + fn) > 0 else 0.0
+    f1 = 2 * precision * recall / (precision + recall) if (precision + recall) > 0 else 0.0
+    
+    return tp, fp, fn, tn, precision, recall, f1
 
 def validate_summary(
+    precision: float,
+    recall: float,
+    f1: float,
+    precision_threshold: float = 0.90,
+    recall_threshold: float = 0.80
+) -> bool:
+    """
+    Validate that precision >= 90% and recall >= 80%.
+    Raises ERR-800 if thresholds not met.
+    """
+    if precision < precision_threshold:
+        logger.error(f"ERR-800: Precision {precision:.4f} below threshold {precision_threshold}")
+        return False
+    if recall < recall_threshold:
+        logger.error(f"ERR-800: Recall {recall:.4f} below threshold {recall_threshold}")
+        return False
+    return True
+
+def write_evaluation_results(
+    output_path: Path,
     tp: int,
     fp: int,
     fn: int,
-    tn: int
-) -> Tuple[float, float, float, bool]:
-    """
-    Calculate precision, recall, F1, and check if thresholds are met.
-    
-    Returns: (precision, recall, f1, thresholds_met)
-    """
-    precision = tp / (tp + fp) if (tp + fp) > 0 else 0.0
-    recall = tp / (tp + fn) if (tp + fn) > 0 else 0.0
-    f1 = 2 * (precision * recall) / (precision + recall) if (precision + recall) > 0 else 0.0
-    
-    thresholds_met = (precision >= PRECISION_THRESHOLD) and (recall >= RECALL_THRESHOLD)
-    
-    return precision, recall, f1, thresholds_met
-
-
-def write_evaluation_results(
-    path: Path,
-    metrics: Dict[str, Any],
-    thresholds_met: bool
+    tn: int,
+    precision: float,
+    recall: float,
+    f1: float,
+    passed: bool
 ) -> None:
     """Write evaluation results to JSON file."""
-    result = {
-        "timestamp": datetime.utcnow().isoformat(),
-        "metrics": metrics,
-        "thresholds_met": thresholds_met,
-        "precision_threshold": PRECISION_THRESHOLD,
-        "recall_threshold": RECALL_THRESHOLD
+    results = {
+        "timestamp": datetime.utcnow().isoformat() + "Z",
+        "metrics": {
+            "true_positives": tp,
+            "false_positives": fp,
+            "false_negatives": fn,
+            "true_negatives": tn,
+            "precision": precision,
+            "recall": recall,
+            "f1_score": f1
+        },
+        "thresholds": {
+            "precision_min": 0.90,
+            "recall_min": 0.80
+        },
+        "validation_passed": passed
     }
     
-    path.parent.mkdir(parents=True, exist_ok=True)
-    with open(path, "w", encoding="utf-8") as f:
-        json.dump(result, f, indent=2)
-    
-    logger.info(f"Evaluation results written to {path}")
-
+    with open(output_path, 'w', encoding='utf-8') as f:
+        json.dump(results, f, indent=2)
 
 def main() -> int:
     """
     Main entry point for T029: Evaluate inconsistency-detection component.
     
-    Returns: 0 on success, 1 if thresholds not met (ERR-800)
-    """
-    logger.info("Starting T029: Evaluate inconsistency-detection component on synthetic dataset")
+    This script:
+    1. Loads synthetic validation dataset (generated by T026)
+    2. Runs the full audit pipeline on it (or loads existing audit report)
+    3. Compares detected inconsistencies against ground truth
+    4. Computes precision, recall, F1
+    5. Asserts precision >= 90% and recall >= 80%
     
-    try:
-        # Load data
-        logger.info(f"Loading synthetic summaries from {SYNTHETIC_SUMMARIES_PATH}")
-        summaries = load_synthetic_summaries(SYNTHETIC_SUMMARIES_PATH)
-        logger.info(f"Loaded {len(summaries)} synthetic summaries")
-        
-        logger.info(f"Loading ground truth from {GROUND_TRUTH_PATH}")
-        ground_truth = load_ground_truth(GROUND_TRUTH_PATH)
-        logger.info(f"Loaded ground truth with {len(ground_truth.get('summaries', []))} entries")
-        
-        logger.info(f"Loading audit report from {AUDIT_REPORT_PATH}")
-        audit_records = load_audit_records(AUDIT_REPORT_PATH)
-        logger.info(f"Loaded {len(audit_records)} audit records")
-        
-        # Evaluate detection
-        tp, fp, fn, tn = evaluate_detection(ground_truth, audit_records)
-        logger.info(f"TP={tp}, FP={fp}, FN={fn}, TN={tn}")
-        
-        # Calculate metrics
-        precision, recall, f1, thresholds_met = validate_summary(tp, fp, fn, tn)
-        logger.info(f"Precision: {precision:.4f}, Recall: {recall:.4f}, F1: {f1:.4f}")
-        
-        # Write results
-        write_evaluation_results(
-            EVALUATION_OUTPUT_PATH,
-            {
-                "true_positives": tp,
-                "false_positives": fp,
-                "false_negatives": fn,
-                "true_negatives": tn,
-                "precision": precision,
-                "recall": recall,
-                "f1_score": f1
-            },
-            thresholds_met
-        )
-        
-        if thresholds_met:
-            logger.info(f"SUCCESS: Precision ({precision:.2%}) >= {PRECISION_THRESHOLD:.0%} and Recall ({recall:.2%}) >= {RECALL_THRESHOLD:.0%}")
-            return 0
-        else:
-            error_msg = get_error_message("ERR-800")
-            logger.error(f"ERR-800: Thresholds not met. Precision={precision:.2%} (need >= {PRECISION_THRESHOLD:.0%}), Recall={recall:.2%} (need >= {RECALL_THRESHOLD:.0%})")
+    Returns:
+        0 on success, 1 on failure (ERR-800)
+    """
+    set_rng_seed(42)
+    
+    # Define paths
+    project_root = Path(__file__).resolve().parent.parent.parent.parent
+    synthetic_csv = project_root / "data" / "synthetic" / "synthetic_validation.csv"
+    ground_truth_json = project_root / "data" / "synthetic" / "synthetic_ground_truth.json"
+    audit_report_json = project_root / "output" / "audit_report.json"
+    evaluation_output = project_root / "output" / "evaluation_results.json"
+    
+    if not synthetic_csv.exists():
+        logger.error(f"ERR-800: Synthetic dataset not found at {synthetic_csv}. Run T026 first.")
+        return 1
+    
+    if not ground_truth_json.exists():
+        logger.error(f"ERR-800: Ground truth not found at {ground_truth_json}. Run T026 first.")
+        return 1
+    
+    # Load data
+    logger.info(f"Loading synthetic summaries from {synthetic_csv}")
+    synthetic_summaries = load_synthetic_summaries(synthetic_csv)
+    logger.info(f"Loaded {len(synthetic_summaries)} synthetic summaries")
+    
+    logger.info(f"Loading ground truth from {ground_truth_json}")
+    ground_truth = load_ground_truth(ground_truth_json)
+    logger.info(f"Loaded {len(ground_truth)} ground truth records")
+    
+    # Run the audit pipeline on synthetic data if audit report doesn't exist
+    # For T029, we assume the pipeline has been run and audit_report.json exists
+    # If not, we would need to run the full pipeline here
+    if not audit_report_json.exists():
+        logger.warning(f"Audit report not found at {audit_report_json}. Running full pipeline...")
+        # Import and run the full pipeline
+        from code.src.cli.run_audit import main as run_pipeline
+        # We need to set up arguments for synthetic data
+        import sys as sys_module
+        sys_module.argv = ['run_audit.py', '--input-csv', str(synthetic_csv), '--output-dir', str(project_root / 'output')]
+        pipeline_result = run_pipeline()
+        if pipeline_result != 0:
+            logger.error("ERR-800: Pipeline execution failed")
             return 1
-            
-    except FileNotFoundError as e:
-        logger.error(f"ERR-800: Required data file not found - {e}")
+    
+    logger.info(f"Loading audit records from {audit_report_json}")
+    audit_records = load_audit_records(audit_report_json)
+    logger.info(f"Loaded {len(audit_records)} audit records")
+    
+    # Evaluate detection
+    logger.info("Evaluating inconsistency detection...")
+    tp, fp, fn, tn, precision, recall, f1 = evaluate_detection(ground_truth, audit_records)
+    
+    logger.info(f"Results: TP={tp}, FP={fp}, FN={fn}, TN={tn}")
+    logger.info(f"Precision: {precision:.4f}, Recall: {recall:.4f}, F1: {f1:.4f}")
+    
+    # Validate against thresholds
+    passed = validate_summary(precision, recall, f1)
+    
+    if not passed:
+        logger.error("ERR-800: Evaluation thresholds not met")
+        write_evaluation_results(evaluation_output, tp, fp, fn, tn, precision, recall, f1, passed)
         return 1
-    except Exception as e:
-        logger.error(f"ERR-800: Evaluation failed with exception - {e}")
-        return 1
-
+    
+    logger.info("Evaluation passed: precision >= 90% and recall >= 80%")
+    write_evaluation_results(evaluation_output, tp, fp, fn, tn, precision, recall, f1, passed)
+    return 0
 
 if __name__ == "__main__":
     sys.exit(main())
