@@ -1,18 +1,18 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-09T08:41:29.918507Z'
-current_stage: project_initialized
+current_stage: in_progress
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-481-investigating-the-impact-of-code-complex
-last_run_id: a99bc91d-1a1f-4a4d-b2e1-68389c14d93b
+last_run_id: b106bd5e-dddb-4720-be3d-2f751fb4a3fe
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
 revision_spec_path: null
 speckit_paper_dir: null
-speckit_research_dir: null
+speckit_research_dir: projects/PROJ-481-investigating-the-impact-of-code-complex/specs/001-investigating-the-impact-of-code-complex
 title: Investigating the Impact of Code Complexity on LLM Code Understanding
-updated_at: '2026-06-27T00:43:20.255044Z'
+updated_at: '2026-07-05T21:07:17.075333Z'

@@ -1,0 +1,93 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Analysis Results Schema"
+description: "Schema for the statistical analysis results and change-point detection output."
+type: "object"
+properties:
+  correlation_analysis:
+    type: "object"
+    description: "Correlation coefficients and p-values."
+    properties:
+      metric_name:
+        type: "string"
+        description: "Name of the complexity metric (e.g., 'cyclomatic_complexity' or 'complexity_index')."
+      task_type:
+        type: "string"
+        description: "Task type (e.g., 'summarization')."
+      correlation_coefficient:
+        type: "number"
+        description: "Spearman or Pearson correlation coefficient."
+      p_value:
+        type: "number"
+        description: "P-value for the correlation test."
+      is_significant:
+        type: "boolean"
+        description: "True if p < 0.05 (after correction)."
+      confidence_interval:
+        type: "array"
+        items:
+          type: "number"
+        description: "95% Confidence Interval [lower, upper]."
+    required:
+      - metric_name
+      - task_type
+      - correlation_coefficient
+      - p_value
+      - is_significant
+      - confidence_interval
+  change_point_detection:
+    type: "object"
+    description: "Segmented regression or GAM results."
+    properties:
+      metric_name:
+        type: "string"
+        description: "Complexity metric used."
+      threshold_value:
+        type: "number"
+        description: "Identified complexity threshold where accuracy drops."
+      threshold_confidence_interval:
+        type: "array"
+        items:
+          type: "number"
+        description: "95% CI for the threshold."
+      slope_before:
+        type: "number"
+        description: "Slope of accuracy vs complexity before the threshold."
+      slope_after:
+        type: "number"
+        description: "Slope of accuracy vs complexity after the threshold."
+      r_squared:
+        type: "number"
+        description: "R-squared of the segmented model."
+      model_type:
+        type: "string"
+        description: "Type of model used (e.g., 'SegmentedBetaRegression', 'GAM')."
+    required:
+      - metric_name
+      - threshold_value
+      - threshold_confidence_interval
+      - slope_before
+      - slope_after
+      - r_squared
+      - model_type
+  summary_statistics:
+    type: "object"
+    description: "Overall dataset statistics."
+    properties:
+      total_functions:
+        type: "integer"
+        description: "Total number of valid functions analyzed."
+      avg_accuracy:
+        type: "number"
+        description: "Mean accuracy across all tasks."
+      avg_complexity:
+        type: "number"
+        description: "Mean complexity (averaged across metrics)."
+    required:
+      - total_functions
+      - avg_accuracy
+      - avg_complexity
+required:
+  - correlation_analysis
+  - change_point_detection
+  - summary_statistics
+additionalProperties: false

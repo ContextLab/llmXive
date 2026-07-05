@@ -1,0 +1,12 @@
+T001 Create project structure per implementation plan (`code/`, `data/raw`, `data/derived`, `results/`): 2
+? T002 Initialize Python 3.11 project with `requirements.txt` (pinning `radon`, `transformers`,
+  `datasets`, `scikit-learn`, `statsmodels`, `seaborn`, `llama-cpp-python`)
+: 2
+T003 [P] Configure linting (ruff) and formatting (black) tools: 2
+T004 Create `data/` directory structure and `.gitkeep` files for raw/derived artifacts: 2
+? T005 [P] Implement `code/utils/metrics.py` with Radon wrappers (Cyclomatic, Halstead,
+  Cognitive) and error handling for invalid syntax
+: 2
+? T006 [P] Implement `code/utils/inference.py` with CPU-optimized LLM loading (GGUF
+  via `llama-cpp-python`), batching logic, and timeout/fail-fast mechanisms
+: 2

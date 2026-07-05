@@ -1,0 +1,2 @@
+# Intermediate processing artifacts (e.g., parsed ASTs, temporary batches).
+# These are usually transient but may be needed for debugging or incremental runs.

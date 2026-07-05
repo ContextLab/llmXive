@@ -1,0 +1,80 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "CodeFunction Dataset Schema"
+description: "Schema for the raw and derived code function dataset used in the analysis."
+type: "object"
+properties:
+  function_id:
+    type: "string"
+    description: "Unique identifier for the function."
+  source_dataset:
+    type: "string"
+    description: "Name of the source dataset (e.g., 'codesearchnet')."
+    enum:
+      - "codesearchnet"
+  source_code:
+    type: "string"
+    description: "The raw Python source code."
+  ground_truth_summary:
+    type: ["string", "null"]
+    description: "Human-written summary (nullable if not available)."
+  ground_truth_solution:
+    type: ["string", "null"]
+    description: "Canonical solution (nullable if not available)."
+  task_type:
+    type: "string"
+    description: "The task type associated with this function."
+    enum:
+      - "summarization"
+      - "completion"
+  complexity_metrics:
+    type: "object"
+    description: "Derived static analysis metrics."
+    properties:
+      cyclomatic_complexity:
+        type: "integer"
+        minimum: 0
+        description: "Cyclomatic Complexity (McCabe)."
+      halstead_volume:
+        type: "number"
+        minimum: 0.0
+        description: "Halstead Volume."
+      cognitive_complexity:
+        type: "integer"
+        minimum: 0
+        description: "Cognitive Complexity."
+      line_count:
+        type: "integer"
+        minimum: 1
+        description: "Number of lines of code."
+      parse_error:
+        type: "boolean"
+        description: "True if the code could not be parsed."
+  inference_results:
+    type: "object"
+    description: "LLM inference results."
+    properties:
+      model_id:
+        type: "string"
+        description: "Identifier of the model used."
+      accuracy_score:
+        type: "number"
+        minimum: 0.0
+        maximum: 1.0
+        description: "Normalized accuracy score."
+      metric_type:
+        type: "string"
+        description: "Type of metric used (e.g., ROUGE-L)."
+      hallucination_flag:
+        type: "boolean"
+        description: "True if the output was hallucinated."
+      timeout_flag:
+        type: "boolean"
+        description: "True if the inference timed out."
+required:
+  - function_id
+  - source_dataset
+  - source_code
+  - task_type
+  - complexity_metrics
+  - inference_results
+additionalProperties: false

@@ -1,0 +1,71 @@
+- artifact_path: projects/PROJ-481-investigating-the-impact-of-code-complex/results/statistical_power_justification.md
+  attempts: 1
+  canonical: LLM inference throughput on CPU is 2-3 functions per second
+  claim_id: c_ba0d76e5
+  context: 'Observation: Running inference on a single LLM (e.g., StarCoder-1B or
+    CodeLlama-7B-GGUF) via llama-cpp-python on a standard CPU instance yields an average
+    throughput of ~2-3 functions per second (including I/O and batching overhead).'
+  evidence:
+    asserted: '-1.0'
+    authority: scipy.constants.G (CODATA 2018)
+    constant: gravitational
+    corrected: true
+    mode: approximate
+    true_value: 6.6743e-11
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?bg
+  kind: numeric
+  raw_text: Running inference on a single LLM (e.g., StarCoder-1B or CodeLlama-7B-GGUF)
+    via llama-cpp-python on a standard CPU instance yields an average throughput of
+    ~2-3 functions per second.
+  resolved_value: '0'
+  resolver: approximate
+  source_hash: 16b9e93ae6af4b3aeb9369d1fe412957a076db9d43662f67d44f3a07c85ec513
+  source_type: external
+  status: verified
+  updated_at: '2026-07-05T21:10:47Z'
+- artifact_path: projects/PROJ-481-investigating-the-impact-of-code-complex/results/statistical_power_justification.md
+  attempts: 1
+  canonical: Free-tier CPU runner throughput is less than 100 functions per hour
+  claim_id: c_3fd170bc
+  context: 'Reality Check: LLM inference involves context window loading, memory bandwidth
+    bottlenecks, and variable generation lengths. Realistic throughput on free-tier
+    CPU runners is often < 100 functions/hour for high-quality generation tasks.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Free-tier_CPU_runner_throughput_is_less_than_100_functions_p
+  kind: magnitude
+  raw_text: Realistic throughput on free-tier CPU runners is often less than 100 functions/hour
+    for high-quality generation tasks.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T21:11:16Z'
+- artifact_path: projects/PROJ-481-investigating-the-impact-of-code-complex/results/statistical_power_justification.md
+  attempts: 1
+  canonical: Bootstrapping implemented with 1000 iterations
+  claim_id: c_a711c05f
+  context: As implemented in code/utils/stats.py, we use bootstrap resampling (1,000
+    iterations) to generate robust confidence intervals for our correlation coefficients
+    and change-points, accounting for the finite sample size.
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: 0.95, and simulated 1000 random samples of size n from each of three
+        un-
+      source_id: math/0504516
+      url: https://arxiv.org/abs/math/0504516
+      value: '1000'
+    filled: true
+  kind: numeric
+  raw_text: Bootstrapping was implemented using 1,000 iterations to generate robust
+    confidence intervals.
+  resolved_value: '1000'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-05T21:11:38Z'

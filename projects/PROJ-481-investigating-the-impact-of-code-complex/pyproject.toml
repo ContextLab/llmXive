@@ -1,0 +1,66 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "llmXive-code-complexity"
+version = "0.1.0"
+description = "Investigating the Impact of Code Complexity on LLM Code Understanding"
+requires-python = ">=3.11"
+dependencies = [
+    "radon",
+    "transformers",
+    "datasets",
+    "scikit-learn",
+    "statsmodels",
+    "seaborn",
+    "llama-cpp-python"
+]
+
+[tool.black]
+line-length = 88
+target-version = ['py311']
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
+)/
+'''
+
+[tool.ruff]
+line-length = 88
+target-version = "py311"
+src = ["code", "tests"]
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # pyflakes
+    "I",   # isort
+    "B",   # flake8-bugbear
+    "C4",  # flake8-comprehensions
+    "UP",  # pyupgrade
+]
+ignore = [
+    "E501", # Line too long (handled by black)
+    "B008", # Do not perform function call in argument defaults (common in CLI args)
+]
+
+[tool.ruff.per-file-ignores]
+"tests/*" = ["S101"] # Allow assertions in tests
+
+[tool.ruff.isort]
+known-first-party = ["utils"]
+force-sort-within-sections = true
+lines-after-imports = 2
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["code"]

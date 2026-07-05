@@ -1,0 +1,11 @@
+- artifact_hash: 9cd3b724e61fbdb3a17f0322798fe2b38bb0e2913fae6ea5516fc47cf1e3a4f5
+  artifact_path: projects/PROJ-481-investigating-the-impact-of-code-complex/specs/001-investigating-the-impact-of-code-complex/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: train-00000-of-00002-022fcdc5658ecd68.parquet
+  kind: url
+  value: https://huggingface.co/datasets/kejian/codesearchnet-python-raw/resolve/main/data/train-00000-of-00002-022fcdc5658ecd68.parquet`
+  verification_status: verified
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/6328088c5d34ed9e2dbc75ec/4dd6adfab9c8aeb7d8bf6019eee05d59c675587806421fa1da88fc84b7b5c32f?response-content-disposition=inline%3B+filename*%3DUTF-8%27%27train-00000-of-00002-022fcdc5658ecd68.parquet%3B+filename%3D%22train-00000-of-00002-022fcdc5658ecd68.parquet%22%3B&user_id=public&X-Xet-Cas-Uid=public&Expires=1783287801&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjMyODA4OGM1ZDM0ZWQ5ZTJkYmM3NWVjLzRkZDZhZGZhYjljOGFlYjdkOGJmNjAxOWVlZTA1ZDU5YzY3NTU4NzgwNjQyMWZhMWRhODhmYzg0YjdiNWMzMmZcXD9yZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dHJhaW4tMDAwMDAtb2YtMDAwMDItMDIyZmNkYzU2NThlY2Q2OC5wYXJxdWV0JTNCK2ZpbGVuYW1lJTNEJTIydHJhaW4tMDAwMDAtb2YtMDAwMDItMDIyZmNkYzU2NThlY2Q2OC5wYXJxdWV0JTIyJTNCJnVzZXJfaWQ9cHVibGljJlgtWGV0LUNhcy1VaWQ9cHVibGljIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3ODMyODc4MDF9fX1dfQ__&Signature=MEQCIBnndcfaQSKNQS5lqo5VeyHwBDOUnxoDQuZ6OnJomPh1AiAApQ5fiF1certWB0A9R1GQdTQr1gyU2eK%7Ep0e8iTQUkQ__&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+  verified_at: '2026-07-05T20:43:21.487672Z'

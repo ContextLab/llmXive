@@ -1,0 +1,2 @@
+# This file ensures the derived data directory is tracked by git.
+# Processed metrics and inference results will be saved here.

@@ -1,0 +1,3 @@
+# This file is a duplicate for IDE compatibility; main config is in pyproject.toml
+# Extends the configuration defined in pyproject.toml
+extend = "pyproject.toml"

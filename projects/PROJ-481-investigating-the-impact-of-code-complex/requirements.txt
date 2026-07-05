@@ -1,0 +1,25 @@
+# Python 3.11 Project Dependencies for PROJ-481
+# Investigating the Impact of Code Complexity on LLM Code Understanding
+# Generated for T002: Initialize Python 3.11 project
+
+# Core Analysis & Metrics
+radon==6.0.1
+scikit-learn==1.5.0
+statsmodels==0.14.2
+
+# Data Handling & Visualization
+datasets==2.20.0
+seaborn==0.13.2
+
+# LLM Inference (CPU Optimized)
+transformers==4.42.3
+llama-cpp-python==0.2.83
+
+# Additional Utilities (Implicitly required by dependencies)
+numpy>=1.26.0
+pandas>=2.2.0
+scipy>=1.13.0
+torch>=2.3.0
+
+# Note: Exact versions pinned where known to ensure reproducibility.
+# Install with: pip install -r requirements.txt
