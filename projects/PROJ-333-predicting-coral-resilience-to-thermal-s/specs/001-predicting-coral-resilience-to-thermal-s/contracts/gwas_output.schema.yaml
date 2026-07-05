@@ -1,0 +1,70 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "GWAS Output Schema"
+description: "Schema for the results of the genome-wide association study."
+type: object
+properties:
+  analysis_summary:
+    type: object
+    properties:
+      total_variants_tested:
+        type: integer
+      total_samples:
+        type: integer
+      significant_hits_count:
+        type: integer
+      genomic_inflation_factor:
+        type: number
+        description: "Lambda value for population stratification check"
+      fdr_threshold:
+        type: number
+        description: "FDR threshold used (e.g., 0.05)"
+      analysis_type:
+        type: string
+        enum:
+          - "individual_logistic"
+          - "population_linear"
+        description: "Type of analysis performed"
+    required:
+      - total_variants_tested
+      - total_samples
+      - significant_hits_count
+      - genomic_inflation_factor
+      - fdr_threshold
+      - analysis_type
+  significant_hits:
+    type: array
+    description: "List of variants passing the FDR threshold"
+    items:
+      type: object
+      properties:
+        variant_id:
+          type: string
+        chromosome:
+          type: string
+        position:
+          type: integer
+        p_value:
+          type: number
+          minimum: 0
+          maximum: 1
+        q_value:
+          type: number
+          minimum: 0
+          maximum: 1
+        effect_size:
+          type: number
+          description: "Log odds ratio or beta coefficient"
+      required:
+        - variant_id
+        - chromosome
+        - position
+        - p_value
+        - q_value
+  null_result_flag:
+    type: boolean
+    description: "True if no significant hits were found"
+required:
+  - analysis_summary
+  - significant_hits
+  - null_result_flag
+additionalProperties: false

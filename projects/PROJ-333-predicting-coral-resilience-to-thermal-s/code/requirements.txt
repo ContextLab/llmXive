@@ -1,0 +1,25 @@
+# Core dependencies
+plink2>=2.00
+scikit-learn>=1.3.0
+pandas>=2.0.0
+numpy>=1.24.0
+matplotlib>=3.7.0
+requests>=2.31.0
+pyyaml>=6.0.0
+pytest>=7.4.0
+memory-profiler>=0.61.0
+ruff>=0.1.0
+black>=23.0.0
+tomlkit>=0.12.0
+tomli_w>=1.0.0
+tomli>=2.0.0
+
+# Optional dependencies
+python-dotenv>=1.0.0
+
+# Bioinformatics dependencies
+biopython>=1.81
+pysam>=0.21.0
+
+# Data handling
+pyarrow>=13.0.0

@@ -1,0 +1,100 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Coral Resilience Dataset Schema"
+description: "Schema for the filtered genomic dataset used in GWAS analysis. Supports both individual-level and population-level phenotypes."
+type: object
+properties:
+  metadata:
+    type: object
+    properties:
+      source_project:
+        type: string
+        description: "NCBI BioProject ID"
+      organism:
+        type: string
+        description: "Scientific name of the organism"
+      filter_criteria:
+        type: object
+        properties:
+          min_maf:
+            type: number
+            description: "Minimum Minor Allele Frequency threshold"
+          max_missingness:
+            type: number
+            description: "Maximum allowed missingness rate"
+      checksum:
+        type: string
+        description: "SHA256 checksum of the raw source file"
+    required:
+      - source_project
+      - organism
+      - filter_criteria
+  variants:
+    type: array
+    items:
+      type: object
+      properties:
+        chromosome:
+          type: string
+        position:
+          type: integer
+        id:
+          type: string
+        ref_allele:
+          type: string
+        alt_allele:
+          type: string
+        maf:
+          type: number
+          minimum: 0
+          maximum: 1
+        missingness:
+          type: number
+          minimum: 0
+          maximum: 1
+      required:
+        - chromosome
+        - position
+        - id
+        - ref_allele
+        - alt_allele
+        - maf
+        - missingness
+  phenotypes:
+    type: array
+    items:
+      type: object
+      oneOf:
+        - type: object
+          description: "Individual-level phenotype"
+          properties:
+            sample_id:
+              type: string
+            survival:
+              type: integer
+              enum:
+                - 0
+                - 1
+            population:
+              type: string
+          required:
+            - sample_id
+            - survival
+        - type: object
+          description: "Population-level phenotype"
+          properties:
+            population_id:
+              type: string
+            mean_survival:
+              type: number
+            n_individuals:
+              type: integer
+            population:
+              type: string
+          required:
+            - population_id
+            - mean_survival
+required:
+  - metadata
+  - variants
+  - phenotypes
+additionalProperties: false
