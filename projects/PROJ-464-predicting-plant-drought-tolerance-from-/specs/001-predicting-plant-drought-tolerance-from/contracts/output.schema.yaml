@@ -1,0 +1,66 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Model Results Output Schema"
+type: object
+properties:
+  model_type:
+    type: string
+    description: "Type of model used (Ridge, Lasso, LMM)"
+    enum:
+      - Ridge
+      - Lasso
+      - LMM
+  target_variable:
+    type: string
+    description: "The physiological variable being predicted"
+    enum:
+      - stomatal_conductance
+      - photosynthetic_rate
+  r_squared:
+    type: number
+    description: "Coefficient of determination"
+    minimum: 0
+    maximum: 1
+  p_value:
+    type: number
+    description: "P-value for the overall model significance"
+    minimum: 0
+    maximum: 1
+  adjusted_p_value:
+    type: number
+    description: "P-value after FDR correction"
+    minimum: 0
+    maximum: 1
+  coefficients:
+    type: object
+    description: "Model coefficients or feature importances"
+    additionalProperties:
+      type: number
+  vif_scores:
+    type: object
+    description: "Variance Inflation Factor for each predictor"
+    additionalProperties:
+      type: number
+  random_effects_variance:
+    type: number
+    description: "Variance of the random effect (Species) in LMM"
+  sensitivity_analysis:
+    type: object
+    description: "Results of threshold sensitivity sweep"
+    properties:
+      threshold_range:
+        type: array
+        items:
+          type: number
+      performance_variation:
+        type: array
+        items:
+          type: number
+required:
+  - model_type
+  - target_variable
+  - r_squared
+  - p_value
+  - adjusted_p_value
+  - coefficients
+  - vif_scores
+additionalProperties: false

@@ -1,0 +1,37 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "RSA and Physiological Dataset Schema"
+type: object
+properties:
+  sample_id:
+    type: string
+    description: "Unique identifier for the merged sample"
+  species_name:
+    type: string
+    description: "Scientific name of the plant species"
+  depth:
+    type: number
+    description: "Maximum root depth in millimeters"
+    minimum: 0
+  branching_density:
+    type: number
+    description: "Number of branches per unit length"
+    minimum: 0
+  surface_area:
+    type: number
+    description: "Total root surface area in square millimeters"
+    minimum: 0
+  stomatal_conductance:
+    type: number
+    description: "Stomatal conductance in mmol m-2 s-1"
+  photosynthetic_rate:
+    type: number
+    description: "Photosynthetic rate in umol m-2 s-1"
+required:
+  - sample_id
+  - species_name
+  - depth
+  - branching_density
+  - surface_area
+  - stomatal_conductance
+  - photosynthetic_rate
+additionalProperties: false
