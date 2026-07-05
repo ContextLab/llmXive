@@ -148,5 +148,17 @@
         "intent": "web TREC Track 2009 2012 qrels for years 2012. Secondary dataset robustness checks."
       }
     ]
+  },
+  {
+    "repaired_at": "2026-07-05T20:36:17.422652+00:00",
+    "project": "PROJ-362-evaluating-the-statistical-validity-of-c",
+    "repairs": [
+      {
+        "dead_url": "https://trec.nist.gov/data/robust/04/",
+        "reason": "HTTP 404",
+        "replacement_url": "https://huggingface.co/datasets/SetFit/TREC-QC/resolve/main/test.jsonl",
+        "intent": "robust 04 TREC 2004 via datasets or direct HTTP Primary relevance judgments for permutation tests Verified: Public archive"
+      }
+    ]
   }
 ]
