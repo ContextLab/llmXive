@@ -1,0 +1,106 @@
+- artifact_path: projects/PROJ-470-predicting-cognitive-fatigue-from-restin/specs/001-predicting-cognitive-fatigue-from-restin/tasks.md
+  attempts: 1
+  canonical: 50Hz line noise peak must be attenuated by >20dB
+  claim_id: c_a2b144c4
+  context: 'Independent Test: Run preprocessing on a single sample file; verify 50Hz
+    line noise peak is attenuated by >20dB in output spectrum.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/50Hz_line_noise_peak_must_be_attenuated_by_%3E20dB
+  kind: entity_fact
+  raw_text: Verify 50Hz line noise peak is attenuated by >20dB in output spectrum.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T08:52:05Z'
+- artifact_path: projects/PROJ-470-predicting-cognitive-fatigue-from-restin/specs/001-predicting-cognitive-fatigue-from-restin/tasks.md
+  attempts: 1
+  canonical: Ensure peak memory usage < 6GB for streaming data loading
+  claim_id: c_befc43bb
+  context: T026 [P] Implement streaming data loading in code/preprocess.py to ensure
+    peak memory usage < 6GB (targeting DC-001).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement streaming data loading in code/preprocess.py to ensure peak
+    memory usage < 6GB (targeting DC-001).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T08:52:05Z'
+- artifact_path: projects/PROJ-470-predicting-cognitive-fatigue-from-restin/docs/PipelineParameters.md
+  attempts: 1
+  canonical: Primary dataset is Sleep-EDF with PhysioNet ID sleep-edf
+  claim_id: c_f39a868c
+  context: Data Source Configuration section listing primary and fallback datasets.
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: https://www.physionet.org/physiobank/database/sleep-edfx/.
+      source_id: '1803.01710'
+      url: https://arxiv.org/abs/1803.01710
+      value: sleep-edf
+    filled: true
+  kind: entity_fact
+  raw_text: 'Primary Dataset: Sleep-EDF (PhysioNet ID: ''sleep-edf'')'
+  resolved_value: sleep-edf
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-05T09:08:08Z'
+- artifact_path: projects/PROJ-470-predicting-cognitive-fatigue-from-restin/docs/PipelineParameters.md
+  attempts: 1
+  canonical: Fallback dataset is SHHS (Sleep Heart Health Study)
+  claim_id: c_9bbe3712
+  context: Data Source Configuration section listing primary and fallback datasets.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fallback_dataset_is_SHHS_(Sleep_Heart_Health_Study)
+  kind: entity_fact
+  raw_text: 'Fallback Dataset: SHHS (Sleep Heart Health Study)'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T09:08:27Z'
+- artifact_path: projects/PROJ-470-predicting-cognitive-fatigue-from-restin/docs/PipelineParameters.md
+  attempts: 1
+  canonical: Minimum 30 participants required for valid statistical power
+  claim_id: c_0390b9fd
+  context: Data Source Configuration section specifying participant count requirements.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Minimum N: 30 participants required for valid statistical power.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T09:08:50Z'
+- artifact_path: projects/PROJ-470-predicting-cognitive-fatigue-from-restin/docs/StatisticalInterpretation.md
+  attempts: 1
+  canonical: minimum sample size of 30 for power
+  claim_id: c_c1a7a6ac
+  context: Limitations and Caveats section discussing sample size requirements.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Minimum_sample_size_of_30_for_power
+  kind: entity_fact
+  raw_text: "N \u2265 30 is a minimum; larger samples improve power."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T09:09:15Z'

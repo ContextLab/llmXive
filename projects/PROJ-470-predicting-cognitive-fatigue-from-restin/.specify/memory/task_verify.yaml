@@ -1,0 +1,14 @@
+? 'T001 Create project directory structure: `projects/PROJ-470-predicting-cognitive-fatigue-from-restin/`,
+  `data/raw/`, `data/processed/`, `data/analysis/`, `code/`, `tests/unit/`, `tests/integration/`,
+  `docs/`.'
+: 2
+? 'T002 Create skeleton files: `code/config.yaml`, `code/download.py`, `code/preprocess.py`,
+  `code/features.py`, `code/analysis.py`, `code/report.py`, `code/models/__init__.py`,
+  `docs/README.md`.'
+: 2
+? 'T003 [P] Initialize Python 3.11 virtual environment and create `code/requirements.txt`
+  with pinned dependencies: `mne`, `scikit-learn`, `numpy`, `pandas`, `lempel-ziv-complexity`,
+  `scipy`, `pyyaml`, `pytest`.'
+: 2
+T006 [P] Create base data models for `EEGSegment` and `ComplexityMetric` in `code/models/`.: 2
+T007 [P] [US1] Unit test for bandpass filter attenuation in `tests/unit/test_preprocess.py`.: 1

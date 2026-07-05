@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-09T03:17:23.183322Z'
-current_stage: analyzed
+current_stage: in_progress
 failed_stage: null
 field: neuroscience
 human_escalation_reason: null
 id: PROJ-470-predicting-cognitive-fatigue-from-restin
-last_run_id: d19ffa49-86cb-4c8f-b3c1-32a2ecbe9f63
+last_run_id: 0b119932-e90b-496f-94e6-2304cf926f76
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-470-predicting-cognitive-fatigue-from-restin/specs/001-predicting-cognitive-fatigue-from-restin
 title: Predicting Cognitive Fatigue from Resting-State EEG Complexity
-updated_at: '2026-07-05T07:36:04.622689Z'
+updated_at: '2026-07-05T08:58:03.611059Z'

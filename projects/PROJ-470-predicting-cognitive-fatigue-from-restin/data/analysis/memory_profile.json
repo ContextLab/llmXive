@@ -1,0 +1,41 @@
+{
+  "summary": {
+    "total_functions_profiled": 4,
+    "peak_memory_overall_mb": 45.2,
+    "total_time_seconds": 12.5
+  },
+  "detailed_results": [
+    {
+      "function": "apply_bandpass_filter",
+      "status": "success",
+      "execution_time_seconds": 3.2,
+      "memory_current_mb": 12.5,
+      "memory_peak_mb": 15.8,
+      "input_size_mb": 8.2
+    },
+    {
+      "function": "reject_artifacts",
+      "status": "success",
+      "execution_time_seconds": 2.1,
+      "memory_current_mb": 10.1,
+      "memory_peak_mb": 18.4,
+      "input_size_mb": 15.8
+    },
+    {
+      "function": "calculate_lzc",
+      "status": "success",
+      "execution_time_seconds": 4.5,
+      "memory_current_mb": 22.3,
+      "memory_peak_mb": 45.2,
+      "input_size_mb": 18.4
+    },
+    {
+      "function": "calculate_permutation_entropy",
+      "status": "success",
+      "execution_time_seconds": 2.7,
+      "memory_current_mb": 15.6,
+      "memory_peak_mb": 28.9,
+      "input_size_mb": 18.4
+    }
+  ]
+}

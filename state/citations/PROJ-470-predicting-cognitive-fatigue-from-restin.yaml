@@ -9,14 +9,14 @@
   verification_status: verified
   verified_against_url: https://github.com/your-org/your-repo
   verified_at: '2026-07-03T08:39:47.184731Z'
-- artifact_hash: 52f28ebe2f164a69011beb8f3d17fce954f7bd746a47b0b2941858f096605edb
-  artifact_path: projects/PROJ-470-predicting-cognitive-fatigue-from-restin/specs/001-predicting-cognitive-fatigue-from-restin/tasks.md
+- artifact_hash: e7a103bd00d8f922842689e688a6d8fe3f5bc05147503f852c4a25028177964c
+  artifact_path: projects/PROJ-470-predicting-cognitive-fatigue-from-restin/docs/DataSources.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
   fetched_title: Sleep-EDF Database v1.0.0
   kind: url
-  value: https://physionet.org/content/sleep-edf/1.0.0/`
+  value: https://physionet.org/content/sleep-edf/`
   verification_status: verified
   verified_against_url: https://physionet.org/content/sleep-edf/1.0.0/
-  verified_at: '2026-07-05T07:36:03.201715Z'
+  verified_at: '2026-07-05T09:08:50.806912Z'

@@ -43,9 +43,9 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project directory structure: `projects/PROJ-470-predicting-cognitive-fatigue-from-restin/`, `data/raw/`, `data/processed/`, `data/analysis/`, `code/`, `tests/unit/`, `tests/integration/`, `docs/`.
-- [ ] T002 Create skeleton files: `code/config.yaml`, `code/download.py`, `code/preprocess.py`, `code/features.py`, `code/analysis.py`, `code/report.py`, `code/models/__init__.py`, `docs/README.md`.
-- [ ] T003 [P] Initialize Python 3.11 virtual environment and create `code/requirements.txt` with pinned dependencies: `mne`, `scikit-learn`, `numpy`, `pandas`, `lempel-ziv-complexity`, `scipy`, `pyyaml`, `pytest`.
+- [X] T001 Create project directory structure: `projects/PROJ-470-predicting-cognitive-fatigue-from-restin/`, `data/raw/`, `data/processed/`, `data/analysis/`, `code/`, `tests/unit/`, `tests/integration/`, `docs/`.
+- [X] T002 Create skeleton files: `code/config.yaml`, `code/download.py`, `code/preprocess.py`, `code/features.py`, `code/analysis.py`, `code/report.py`, `code/models/__init__.py`, `docs/README.md`.
+- [X] T003 [P] Initialize Python 3.11 virtual environment and create `code/requirements.txt` with pinned dependencies: `mne`, `scikit-learn`, `numpy`, `pandas`, `lempel-ziv-complexity`, `scipy`, `pyyaml`, `pytest`.
 
 ---
 
@@ -55,9 +55,9 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 Create `code/config.yaml` with pipeline parameters (filter cutoffs 1-40Hz, artifact threshold ±100µV, random seeds, dataset IDs).
-- [ ] T005 [P] Implement logging infrastructure in `code/utils/logging.py` to track participant exclusion and artifact rejection reasons.
-- [ ] T006 [P] Create base data models for `EEGSegment` and `ComplexityMetric` in `code/models/`.
+- [X] T004 Create `code/config.yaml` with pipeline parameters (filter cutoffs 1-40Hz, artifact threshold ±100µV, random seeds, dataset IDs).
+- [X] T005 [P] Implement logging infrastructure in `code/utils/logging.py` to track participant exclusion and artifact rejection reasons.
+- [X] T006 [P] Create base data models for `EEGSegment` and `ComplexityMetric` in `code/models/`.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -73,14 +73,14 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T007 [P] [US1] Unit test for bandpass filter attenuation in `tests/unit/test_preprocess.py`.
-- [ ] T008 [P] [US1] Integration test for data download and checksum verification in `tests/integration/test_download.py`.
+- [X] T007 [P] [US1] Unit test for bandpass filter attenuation in `tests/unit/test_preprocess.py`.
+- [~] T008 [P] [US1] Integration test for data download and checksum verification in `tests/integration/test_download.py`.
 
 ### Implementation for User Story 1
 
-- [ ] T009 [US1] Implement `code/download.py` to fetch the 'Sleep-EDF' dataset (PhysioNet ID: `sleep-edf`, URL: `) as primary candidate. Validate presence of both resting-state EEG and paired pre/post fatigue ratings per FR-001. If Sleep-EDF lacks required variables or yields N < 30, attempt fallback 'SHHS' dataset. If no source with both variables and N≥30 is found, halt with exit code 1 and log `validation_report.json` listing available variables and N count.
-- [ ] T010 [US1] Implement `code/preprocess.py` to apply a 1-40 Hz bandpass filter using MNE-Python per FR-002.
-- [ ] T011 [US1] Implement artifact rejection logic in `code/preprocess.py` to exclude epochs >±100µV and segments <120 seconds per FR-002 and Edge Cases. Log exclusion counts and reasons.
+- [~] T009 [US1] Implement `code/download.py` to fetch the 'Sleep-EDF' dataset (PhysioNet ID: `sleep-edf`, URL: `) as primary candidate. Validate presence of both resting-state EEG and paired pre/post fatigue ratings per FR-001. If Sleep-EDF lacks required variables or yields N < 30, attempt fallback 'SHHS' dataset. If no source with both variables and N≥30 is found, halt with exit code 1 and log `validation_report.json` listing available variables and N count.
+- [~] T010 [US1] Implement `code/preprocess.py` to apply a 1-40 Hz bandpass filter using MNE-Python per FR-002.
+- [~] T011 [US1] Implement artifact rejection logic in `code/preprocess.py` to exclude epochs >±100µV and segments <120 seconds per FR-002 and Edge Cases. Log exclusion counts and reasons.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -94,13 +94,13 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T012 [P] [US2] Unit test for LZC calculation on known signal in `tests/unit/test_features.py`.
-- [ ] T013 [P] [US2] Unit test for permutation entropy on known signal in `tests/unit/test_features.py`.
+- [~] T012 [P] [US2] Unit test for LZC calculation on known signal in `tests/unit/test_features.py`.
+- [~] T013 [P] [US2] Unit test for permutation entropy on known signal in `tests/unit/test_features.py`.
 
 ### Implementation for User Story 2
 
-- [ ] T014 [P] [US2] Implement `code/features.py` to calculate Lempel-Ziv complexity per channel per FR-003. Output to `data/processed/lzc_metrics.csv`.
-- [ ] T015 [P] [US2] Implement `code/features.py` to calculate Permutation Entropy per channel per FR-003. Output to `data/processed/pe_metrics.csv`.
+- [~] T014 [P] [US2] Implement `code/features.py` to calculate Lempel-Ziv complexity per channel per FR-003. Output to `data/processed/lzc_metrics.csv`.
+- [~] T015 [P] [US2] Implement `code/features.py` to calculate Permutation Entropy per channel per FR-003. Output to `data/processed/pe_metrics.csv`.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -114,17 +114,17 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T016 [P] [US3] Unit test for Benjamini-Hochberg correction implementation in `tests/unit/test_analysis.py`.
-- [ ] T017 [P] [US3] Integration test for full analysis pipeline on mock data in `tests/integration/test_analysis.py`.
+- [~] T016 [P] [US3] Unit test for Benjamini-Hochberg correction implementation in `tests/unit/test_analysis.py`.
+- [~] T017 [P] [US3] Integration test for full analysis pipeline on mock data in `tests/integration/test_analysis.py`.
 
 ### Implementation for User Story 3
 
-- [ ] T018 [US3] Implement `code/analysis.py` validation: Check for columns [pre_fatigue, post_fatigue, pre_eeg_id, post_eeg_id] in the metadata dataframe. If paired data exists, proceed to paired analysis (delta vs delta). If paired data is missing but baseline fatigue exists, pivot to cross-sectional analysis (Baseline Complexity vs. Baseline Fatigue) per plan.md Summary. If neither condition is met, write `validation_report.json` with error details and exit with code 1.
-- [ ] T019 [P] [US3] Implement `code/analysis.py` for Pearson/Spearman correlation between complexity changes (delta) and fatigue delta scores (paired mode) OR baseline complexity vs baseline fatigue (cross-sectional mode) per FR-004.
-- [ ] T020 [US3] Implement Benjamini-Hochberg correction for multiple comparisons across electrodes per FR-005.
-- [ ] T021 [US3] Implement sensitivity analysis at p≤0.05 and p≤0.01 thresholds with result table per FR-006. Output table to `data/analysis/sensitivity_table.csv`.
-- [ ] T022 [US3] Generate final report with statistical significance, effect sizes, and limitations per US-3, explicitly discussing the distinction between adaptive and degenerative complexity changes.
-- [ ] T023 [US3] Add collinearity diagnostics (VIF < 5) check if metrics are combined per SC-004.
+- [~] T018 [US3] Implement `code/analysis.py` validation: Check for columns [pre_fatigue, post_fatigue, pre_eeg_id, post_eeg_id] in the metadata dataframe. If paired data exists, proceed to paired analysis (delta vs delta). If paired data is missing but baseline fatigue exists, pivot to cross-sectional analysis (Baseline Complexity vs. Baseline Fatigue) per plan.md Summary. If neither condition is met, write `validation_report.json` with error details and exit with code 1.
+- [~] T019 [P] [US3] Implement `code/analysis.py` for Pearson/Spearman correlation between complexity changes (delta) and fatigue delta scores (paired mode) OR baseline complexity vs baseline fatigue (cross-sectional mode) per FR-004.
+- [~] T020 [US3] Implement Benjamini-Hochberg correction for multiple comparisons across electrodes per FR-005.
+- [~] T021 [US3] Implement sensitivity analysis at p≤0.05 and p≤0.01 thresholds with result table per FR-006. Output table to `data/analysis/sensitivity_table.csv`.
+- [~] T022 [US3] Generate final report with statistical significance, effect sizes, and limitations per US-3, explicitly discussing the distinction between adaptive and degenerative complexity changes.
+- [~] T023 [US3] Add collinearity diagnostics (VIF < 5) check if metrics are combined per SC-004.
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -134,10 +134,10 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T024 [P] Documentation updates in `docs/` covering pipeline parameters, data sources, and statistical interpretation guidelines.
-- [ ] T025 [P] Performance profiling of `code/preprocess.py` and `code/features.py` to identify memory bottlenecks.
-- [ ] T026 [P] Implement streaming data loading in `code/preprocess.py` to ensure peak memory usage < 6GB (targeting DC-001).
-- [ ] T027 [P] Additional unit tests for edge cases (missing data, artifact rejection, analysis mode failures) in `tests/unit/`.
+- [~] T024 [P] Documentation updates in `docs/` covering pipeline parameters, data sources, and statistical interpretation guidelines.
+- [X] T025 [P] Performance profiling of `code/preprocess.py` and `code/features.py` to identify memory bottlenecks.
+- [X] T026 [P] Implement streaming data loading in `code/preprocess.py` to ensure peak memory usage < 6GB (targeting DC-001).
+- [X] T027 [P] Additional unit tests for edge cases (missing data, artifact rejection, analysis mode failures) in `tests/unit/`.
 - [ ] T028 [P] Security hardening for data handling (PII scan implementation).
 - [ ] T029 [P] Run `quickstart.md` validation to ensure pipeline executes on CPU-only CI.
 
