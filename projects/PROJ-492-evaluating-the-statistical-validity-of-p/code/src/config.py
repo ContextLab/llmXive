@@ -1,90 +1,130 @@
 """
 Configuration constants for the A/B Test Validity Audit Pipeline.
 
-This module centralizes all deterministic seeds, statistical thresholds,
-and resource caps to ensure reproducibility (Constitution Principle I)
-and compliance with FR-009 (Resource Limits).
+This module defines deterministic seeds, statistical thresholds, and resource
+caps required for reproducibility and compliance with Constitution Principle I.
+
+All Random Number Generators (RNGs) used in the pipeline must be seeded via
+`set_rng_seed()` at startup to ensure deterministic behavior.
 """
+
 import random
 import os
-import numpy as np
 from typing import Optional, Dict, Any
+import numpy as np
 
 # ==============================================================================
-# DETERMINISTIC SEEDS (Constitution Principle I)
+# Core Reproducibility Constants (Constitution Principle I)
 # ==============================================================================
-# All random number generation in the pipeline MUST be seeded from this value.
-SEED = 42
 
-# Statistical thresholds (FR-004)
-P_VALUE_THRESHOLD_ABSOLUTE = 0.05  # Absolute difference threshold
-EFFECT_SIZE_THRESHOLD_RELATIVE = 0.05  # 5% relative effect size threshold
-MIN_CORPUS_SIZE = 300  # Minimum N for power analysis (SC-020)
-
-# Resource caps (FR-009)
-MAX_RAM_GB = 2.0
-MAX_CPU_VCORES = 2
-MAX_RUNTIME_SECONDS = 21600  # 6 hours
-
-# Monte Carlo parameters (FR-026)
-MONTE_CARLO_REPLICATES = 10000
-MONTE_CARLO_P_VALUE_TOLERANCE = 0.005
+SEED: int = 42
+"""Deterministic random seed for all RNGs to ensure reproducibility."""
 
 # ==============================================================================
-# SEEDING UTILITIES
+# Statistical Thresholds (FR-004, FR-012)
+# ==============================================================================
+
+P_VALUE_THRESHOLD: float = 0.05
+"""Standard significance threshold for p-values."""
+
+ABSOLUTE_P_DIFFERENCE_THRESHOLD: float = 0.05
+"""Threshold for absolute difference between reported and reconstructed p-values."""
+
+RELATIVE_EFFECT_SIZE_THRESHOLD: float = 0.05
+"""Threshold for relative difference in effect sizes (5%)."""
+
+MIN_SAMPLE_SIZE: int = 30
+"""Minimum sample size required for valid statistical inference (rule of thumb)."""
+
+CORRECTION_FACTOR: float = 1.0
+"""Factor for adjusting thresholds if needed (currently 1.0)."""
+
+# ==============================================================================
+# Resource Caps (FR-009, SC-008)
+# ==============================================================================
+
+MAX_RAM_GB: float = 2.0
+"""Maximum allowed RAM usage in Gigabytes."""
+
+MAX_CPU_CORES: int = 2
+"""Maximum allowed CPU cores."""
+
+TIMEOUT_SECONDS: int = 3600
+"""Default timeout for pipeline steps in seconds (1 hour)."""
+
+# ==============================================================================
+# Monte Carlo Validation Parameters (FR-026)
+# ==============================================================================
+
+MONTE_CARLO_REPLICATES: int = 10000
+"""Number of replicates for Monte Carlo validation."""
+
+MONTE_CARLO_TOLERANCE: float = 0.005
+"""Maximum allowed absolute difference between Monte Carlo and library p-values."""
+
+# ==============================================================================
+# Subgroup Analysis Parameters (FR-032)
+# ==============================================================================
+
+MIN_SUBGROUP_SIZE: int = 10
+"""Minimum number of summaries required for a subgroup to be analyzed."""
+
+BONFERRONI_ALPHA: float = 0.05
+"""Base alpha for Bonferroni correction."""
+
+# ==============================================================================
+# File Paths (Relative to project root)
+# ==============================================================================
+
+DATA_DIR: str = "data"
+OUTPUT_DIR: str = "output"
+LOGS_DIR: str = "logs"
+CONFIG_FILE: str = "config.yaml"
+
+# ==============================================================================
+# RNG Seeding Functions
 # ==============================================================================
 
 def set_rng_seed(seed: Optional[int] = None) -> None:
     """
-    Set the random seed for all major RNGs used in the pipeline.
-    
-    This ensures reproducibility across runs (Constitution Principle I).
-    If no seed is provided, defaults to the global SEED constant.
-    
+    Initialize all Random Number Generators with a deterministic seed.
+
+    This function must be called at the entry point of any script or module
+    that performs stochastic operations to ensure reproducibility (Constitution
+    Principle I).
+
     Args:
-        seed: Optional integer seed. Defaults to config.SEED if None.
+        seed: The seed value. If None, defaults to config.SEED.
     """
     if seed is None:
         seed = SEED
-    
-    # Seed Python's random module
+
+    # Seed Python's built-in random module
     random.seed(seed)
-    
-    # Seed NumPy's RNG
+
+    # Seed NumPy's random number generator
     np.random.seed(seed)
-    
-    # Log the action if logging is available (optional, non-fatal if missing)
-    try:
-        from code.src.utils.logger import get_default_logger
-        logger = get_default_logger()
-        logger.info(f"RNG seeds initialized globally with value: {seed}")
-    except ImportError:
-        # Fallback if logger isn't initialized yet during early import
-        pass
+
+    # Note: If using torch or tensorflow, they would be seeded here as well.
+    # For this project, we rely on standard library, numpy, and scipy.
 
 def get_config_summary() -> Dict[str, Any]:
     """
     Returns a summary of the current configuration state.
-    
-    Useful for logging, manifest generation, and reproducibility checks.
-    
+
+    Useful for logging and provenance tracking.
+
     Returns:
-        Dictionary containing key configuration parameters.
+        A dictionary containing key configuration values.
     """
     return {
         "seed": SEED,
-        "p_value_threshold_absolute": P_VALUE_THRESHOLD_ABSOLUTE,
-        "effect_size_threshold_relative": EFFECT_SIZE_THRESHOLD_RELATIVE,
-        "min_corpus_size": MIN_CORPUS_SIZE,
+        "p_value_threshold": P_VALUE_THRESHOLD,
+        "absolute_p_diff_threshold": ABSOLUTE_P_DIFFERENCE_THRESHOLD,
+        "relative_effect_size_threshold": RELATIVE_EFFECT_SIZE_THRESHOLD,
         "max_ram_gb": MAX_RAM_GB,
-        "max_cpu_vcores": MAX_CPU_VCORES,
+        "max_cpu_cores": MAX_CPU_CORES,
         "monte_carlo_replicates": MONTE_CARLO_REPLICATES,
-        "monte_carlo_tolerance": MONTE_CARLO_P_VALUE_TOLERANCE,
+        "monte_carlo_tolerance": MONTE_CARLO_TOLERANCE,
+        "min_subgroup_size": MIN_SUBGROUP_SIZE,
     }
-
-# ==============================================================================
-# IMMEDIATE EXECUTION GUARANTEE
-# ==============================================================================
-# Ensure seeds are set immediately upon module import to satisfy the requirement
-# that "all RNGs are seeded at startup".
-set_rng_seed(SEED)

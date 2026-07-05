@@ -1,293 +1,178 @@
 """
-Subgroup Analysis Module
+Subgroup Analysis Module.
 
-Implements subgroup prevalence analysis with Fisher's exact test and
-dynamic Bonferroni correction. Ensures publication year is extracted
-and available for stratified analysis.
+Performs subgroup prevalence analysis and Fisher's exact test with
+Bonferroni correction.
 """
+
 import json
 import logging
 from datetime import datetime
 from pathlib import Path
 from typing import Dict, Any, List, Optional, Tuple, Set
 from collections import defaultdict
+
 import numpy as np
 from scipy import stats
 
+from code.src.config import set_rng_seed, SEED
 from code.src.utils.logger import get_default_logger, AuditLogger
-from code.src.config import set_rng_seed
 
+logger = get_default_logger(__name__)
 
-def set_rng_seed_for_subgroup_analysis(seed: int = 42):
-    """Set random seed for reproducibility in subgroup analysis."""
+def set_rng_seed_for_subgroup_analysis(seed: Optional[int] = None) -> None:
+    """Set RNG seed for subgroup analysis."""
     set_rng_seed(seed)
 
+def load_audit_records_from_json(filepath: Path) -> List[Dict[str, Any]]:
+    """Load audit records from JSON."""
+    with open(filepath, 'r') as f:
+        return json.load(f)
 
-def load_audit_records_from_json(file_path: Path) -> List[Dict[str, Any]]:
-    """Load audit records from a JSON file."""
-    logger = get_default_logger(__name__)
-    try:
-        with open(file_path, 'r') as f:
-            records = json.load(f)
-        logger.info(f"Loaded {len(records)} audit records from {file_path}")
-        return records
-    except Exception as e:
-        logger.error(f"Failed to load audit records: {e}", extra={"error_code": "ERR-201"})
-        raise
+def extract_domain_from_record(record: Dict[str, Any]) -> str:
+    """Extract domain from record."""
+    return record.get("domain", "unknown")
 
+def extract_year_from_record(record: Dict[str, Any]) -> int:
+    """Extract year from record."""
+    year = record.get("year")
+    if year is None:
+        return 0
+    return int(year)
 
-def extract_domain_from_record(record: Dict[str, Any]) -> Optional[str]:
-    """Extract domain from an audit record."""
-    return record.get('domain')
-
-
-def extract_year_from_record(record: Dict[str, Any]) -> Optional[int]:
-    """
-    Extract publication year from an audit record.
-    
-    This function verifies that the publication year field exists and
-    is accessible for subgroup analysis stratification.
-    
-    Args:
-        record: Audit record dictionary containing extracted metadata
-        
-    Returns:
-        The publication year as an integer, or None if not present
-    """
-    year = record.get('publication_year')
-    if year is not None:
-        # Ensure it's an integer
-        try:
-            return int(year)
-        except (ValueError, TypeError):
-            return None
-    return None
-
-
-def group_records_by_subgroup(
-    records: List[Dict[str, Any]], 
-    subgroup_key: str
-) -> Dict[str, List[Dict[str, Any]]]:
-    """
-    Group audit records by a specific subgroup key (e.g., 'domain', 'publication_year').
-    
-    Args:
-        records: List of audit records
-        subgroup_key: The key to group by (e.g., 'domain', 'publication_year')
-        
-    Returns:
-        Dictionary mapping subgroup values to lists of records
-    """
+def group_records_by_subgroup(records: List[Dict[str, Any]], key: str = "domain") -> Dict[str, List[Dict[str, Any]]]:
+    """Group records by a specific key (e.g., domain, year)."""
     groups = defaultdict(list)
     for record in records:
-        if subgroup_key == 'publication_year':
-            value = extract_year_from_record(record)
-        else:
-            value = record.get(subgroup_key)
-        
-        if value is not None:
-            groups[value].append(record)
-        else:
-            # Group missing values separately
-            groups['Unknown'].append(record)
-    
+        val = record.get(key, "unknown")
+        groups[val].append(record)
     return dict(groups)
 
-
 def count_inconsistent_records(records: List[Dict[str, Any]]) -> int:
-    """Count the number of inconsistent records in a list."""
-    return sum(1 for r in records if r.get('is_inconsistent', False))
+    """Count inconsistent records in a group."""
+    return sum(1 for r in records if r.get("is_inconsistent", False))
 
-
-def compute_subgroup_prevalence(
-    total_count: int, 
-    inconsistent_count: int
-) -> float:
-    """Compute prevalence rate for a subgroup."""
-    if total_count == 0:
-        return 0.0
-    return inconsistent_count / total_count
-
-
-def compute_fisher_exact_pvalue(
-    group1_inconsistent: int,
-    group1_total: int,
-    group2_inconsistent: int,
-    group2_total: int
-) -> Optional[float]:
-    """
-    Compute Fisher's exact test p-value for comparing two subgroups.
+def compute_subgroup_prevalence(records: List[Dict[str, Any]]) -> Dict[str, Any]:
+    """Compute prevalence for a subgroup."""
+    total = len(records)
+    if total == 0:
+        return {"prevalence": 0.0, "count": 0}
     
+    inconsistent = count_inconsistent_records(records)
+    return {
+        "prevalence": inconsistent / total,
+        "inconsistent_count": inconsistent,
+        "total_count": total
+    }
+
+def compute_fisher_exact_pvalue(records: List[Dict[str, Any]], reference_records: List[Dict[str, Any]]) -> float:
+    """
+    Compute Fisher's exact test p-value comparing subgroup to reference.
+
     Args:
-        group1_inconsistent: Inconsistent count in group 1
-        group1_total: Total count in group 1
-        group2_inconsistent: Inconsistent count in group 2
-        group2_total: Total count in group 2
-        
+        records: Subgroup records.
+        reference_records: Reference records (e.g., rest of corpus).
+
     Returns:
-        P-value from Fisher's exact test, or None if computation fails
+        Two-tailed p-value.
     """
-    try:
-        # Create contingency table
-        table = [
-            [group1_inconsistent, group1_total - group1_inconsistent],
-            [group2_inconsistent, group2_total - group2_inconsistent]
-        ]
-        
-        _, p_value = stats.fisher_exact(table, alternative='two-sided')
-        return p_value
-    except Exception:
-        return None
-
-
-def apply_dynamic_bonferroni(p_value: float, num_comparisons: int) -> float:
-    """
-    Apply Bonferroni correction dynamically based on number of comparisons.
+    set_rng_seed_for_subgroup_analysis()
     
+    # Build contingency table
+    # Rows: Subgroup, Reference
+    # Cols: Inconsistent, Consistent
+    
+    a = count_inconsistent_records(records)
+    b = len(records) - a
+    
+    c = count_inconsistent_records(reference_records)
+    d = len(reference_records) - c
+    
+    if a + b == 0 or c + d == 0:
+        return 1.0
+    
+    # Fisher's exact test
+    _, p_value = stats.fisher_exact([[a, b], [c, d]], alternative='two-sided')
+    return p_value
+
+def apply_dynamic_bonferroni(p_value: float, n_groups: int) -> float:
+    """Apply Bonferroni correction dynamically based on number of groups."""
+    return min(p_value * n_groups, 1.0)
+
+def analyze_subgroups(records: List[Dict[str, Any]], group_by: str = "domain") -> List[Dict[str, Any]]:
+    """
+    Analyze all subgroups.
+
     Args:
-        p_value: Raw p-value
-        num_comparisons: Number of comparisons being made
-        
-    Returns:
-        Bonferroni-corrected p-value
-    """
-    if num_comparisons == 0:
-        return p_value
-    return p_value * num_comparisons
+        records: Full list of records.
+        group_by: Key to group by.
 
-
-def analyze_subgroups(
-    records: List[Dict[str, Any]],
-    subgroup_keys: List[str] = ['domain', 'publication_year']
-) -> Dict[str, Any]:
-    """
-    Perform subgroup analysis on audit records.
-    
-    Args:
-        records: List of audit records
-        subgroup_keys: List of keys to analyze subgroups by
-        
     Returns:
-        Dictionary containing subgroup analysis results
+        List of analysis results per group.
     """
-    results = {}
+    set_rng_seed_for_subgroup_analysis()
+    groups = group_records_by_subgroup(records, group_by)
+    results = []
     
-    for key in subgroup_keys:
-        groups = group_records_by_subgroup(records, key)
-        group_results = {}
+    n_groups = len(groups)
+    
+    for group_name, group_records in groups.items():
+        if len(group_records) < 10: # Minimum size filter
+            continue
         
-        for group_name, group_records in groups.items():
-            total = len(group_records)
-            inconsistent = count_inconsistent_records(group_records)
-            prevalence = compute_subgroup_prevalence(total, inconsistent)
-            
-            group_results[group_name] = {
-                'total_count': total,
-                'inconsistent_count': inconsistent,
-                'prevalence': prevalence,
-                'records': group_records
-            }
+        prevalence_data = compute_subgroup_prevalence(group_records)
         
-        results[key] = group_results
+        # Reference is everything else
+        reference = [r for r in records if r not in group_records]
+        
+        p_val = compute_fisher_exact_pvalue(group_records, reference)
+        corrected_p = apply_dynamic_bonferroni(p_val, n_groups)
+        
+        results.append({
+            "group": group_name,
+            "count": len(group_records),
+            **prevalence_data,
+            "fisher_p_value": p_val,
+            "bonferroni_corrected_p": corrected_p
+        })
     
     return results
 
+def write_subgroup_report(results: List[Dict[str, Any]], output_path: Path) -> None:
+    """Write subgroup analysis results to JSON."""
+    with open(output_path, 'w') as f:
+        json.dump(results, f, indent=2)
+    logger.info(f"Subgroup report written to {output_path}")
 
-def write_subgroup_report(
-    results: Dict[str, Any],
-    output_path: Path
-):
-    """Write subgroup analysis results to a JSON file."""
-    logger = get_default_logger(__name__)
-    try:
-        with open(output_path, 'w') as f:
-            json.dump(results, f, indent=2, default=str)
-        logger.info(f"Subgroup report written to {output_path}")
-    except Exception as e:
-        logger.error(f"Failed to write subgroup report: {e}", extra={"error_code": "ERR-202"})
-        raise
-
-
-def write_subgroup_csv(
-    results: Dict[str, Any],
-    output_path: Path
-):
-    """Write subgroup analysis results to a CSV file."""
+def write_subgroup_csv(results: List[Dict[str, Any]], output_path: Path) -> None:
+    """Write subgroup analysis results to CSV."""
     import csv
-    logger = get_default_logger(__name__)
-    
-    try:
-        with open(output_path, 'w', newline='') as f:
-            writer = csv.writer(f)
-            # Header
-            writer.writerow(['subgroup_key', 'group_name', 'total_count', 'inconsistent_count', 'prevalence'])
-            
-            for key, groups in results.items():
-                for group_name, data in groups.items():
-                    writer.writerow([
-                        key,
-                        group_name,
-                        data['total_count'],
-                        data['inconsistent_count'],
-                        f"{data['prevalence']:.4f}"
-                    ])
-        
-        logger.info(f"Subgroup CSV written to {output_path}")
-    except Exception as e:
-        logger.error(f"Failed to write subgroup CSV: {e}", extra={"error_code": "ERR-202"})
-        raise
+    with open(output_path, 'w', newline='') as f:
+        if not results:
+            return
+        writer = csv.DictWriter(f, fieldnames=results[0].keys())
+        writer.writeheader()
+        writer.writerows(results)
+    logger.info(f"Subgroup CSV written to {output_path}")
 
-
-def run_subgroup_analysis(
-    input_path: Path,
-    output_json_path: Path,
-    output_csv_path: Path
-):
-    """
-    Main entry point for running subgroup analysis.
-    
-    Args:
-        input_path: Path to audit_report.json
-        output_json_path: Path for JSON output
-        output_csv_path: Path for CSV output
-    """
-    logger = get_default_logger(__name__)
-    logger.info("Starting subgroup analysis")
-    
-    # Load records
+def run_subgroup_analysis(input_path: Path, output_json: Path, output_csv: Path, group_by: str = "domain") -> None:
+    """Run full subgroup analysis pipeline."""
     records = load_audit_records_from_json(input_path)
-    
-    # Verify publication year is available
-    years_available = [extract_year_from_record(r) for r in records]
-    valid_years = [y for y in years_available if y is not None]
-    
-    logger.info(f"Found {len(valid_years)} records with valid publication years")
-    
-    if len(valid_years) == 0:
-        logger.warning("No valid publication years found. Year-based subgrouping will be limited.")
-    
-    # Run analysis
-    results = analyze_subgroups(records)
-    
-    # Write outputs
-    write_subgroup_report(results, output_json_path)
-    write_subgroup_csv(results, output_csv_path)
-    
-    logger.info("Subgroup analysis completed successfully")
-
+    results = analyze_subgroups(records, group_by)
+    write_subgroup_report(results, output_json)
+    write_subgroup_csv(results, output_csv)
 
 def main():
-    """Command-line entry point."""
-    import argparse
-    parser = argparse.ArgumentParser(description="Run subgroup analysis on audit records")
-    parser.add_argument("--input", type=Path, required=True, help="Input audit_report.json")
-    parser.add_argument("--output-json", type=Path, required=True, help="Output JSON file")
-    parser.add_argument("--output-csv", type=Path, required=True, help="Output CSV file")
+    """Main entry point."""
+    input_path = Path("output/audit_report.json")
+    output_json = Path("output/subgroup_report.json")
+    output_csv = Path("output/subgroup_report.csv")
     
-    args = parser.parse_args()
-    
-    run_subgroup_analysis(args.input, args.output_json, args.output_csv)
-
+    if not input_path.exists():
+        logger.warning(f"Input file {input_path} not found.")
+        return
+        
+    run_subgroup_analysis(input_path, output_json, output_csv)
 
 if __name__ == "__main__":
     main()

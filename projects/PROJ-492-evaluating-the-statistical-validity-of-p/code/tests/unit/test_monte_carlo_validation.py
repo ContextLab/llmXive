@@ -1,111 +1,95 @@
 """
-Unit tests for Monte-Carlo Validation Module (T062)
+Unit tests for Monte-Carlo validation module.
 """
 import pytest
-import numpy as np
-from unittest.mock import patch, MagicMock
+import sys
+from pathlib import Path
+import logging
+
+# Add code directory to path
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
+
 from code.src.audit.monte_carlo_validation import (
     validate_z_test,
     validate_fisher_exact,
     validate_welch_t_test,
     validate_binomial_test,
     run_monte_carlo_validation,
-    TOLERANCE
+    TOLERANCE,
+    NUM_REPLICATES
 )
-from code.src.config import SEED
+from code.src.utils.logger import get_default_logger, AuditLogger
 
-@pytest.fixture(autouse=True)
-def set_seed():
-    np.random.seed(SEED)
-    yield
+@pytest.fixture
+def logger():
+    return get_default_logger()
 
-def test_validate_z_test_structure():
-    """Test that z-test validation returns expected structure"""
-    # Run with fewer replicates for speed in unit test
-    # We can't easily change NUM_REPLICATES in the function, so we test the return structure
-    # by mocking the heavy loop or just running a small subset if possible.
-    # For now, we test that the function returns a tuple of (bool, float, float, dict)
-    # We will patch the loop to run 0 times or 1 time to check structure?
-    # No, let's just run it. It might take a few seconds.
-    # To speed up, we can't easily change NUM_REPLICATES.
-    # Let's assume the function is correct if it returns the right types.
-    # We will run a small test by patching the loop range.
+def test_validate_z_test_structure(logger):
+    """Test that z-test validation returns correct structure."""
+    passed, empirical_p, library_p, details = validate_z_test(logger)
     
-    with patch('code.src.audit.monte_carlo_validation.NUM_REPLICATES', 10):
-        with patch('code.src.audit.monte_carlo_validation.set_seeds'):
-            passed, mean_sim, mean_lib, details = validate_z_test()
-            assert isinstance(passed, bool)
-            assert isinstance(mean_sim, float)
-            assert isinstance(mean_lib, float)
-            assert isinstance(details, dict)
+    assert isinstance(passed, bool)
+    assert isinstance(empirical_p, float)
+    assert isinstance(library_p, float)
+    assert isinstance(details, dict)
+    assert "z-test" in details["test"]
+    assert details["replicates"] == NUM_REPLICATES
+    assert "difference" in details
+    assert "tolerance" in details
+    assert abs(details["difference"]) <= 1.0  # P-values are between 0 and 1
 
-def test_validate_fisher_exact_structure():
-    """Test that Fisher's exact validation returns expected structure"""
-    with patch('code.src.audit.monte_carlo_validation.NUM_REPLICATES', 10):
-        with patch('code.src.audit.monte_carlo_validation.set_seeds'):
-            passed, mean_sim, mean_lib, details = validate_fisher_exact()
-            assert isinstance(passed, bool)
-            assert isinstance(mean_sim, float)
-            assert isinstance(mean_lib, float)
-            assert isinstance(details, dict)
+def test_validate_fisher_exact_structure(logger):
+    """Test that Fisher's exact validation returns correct structure."""
+    passed, empirical_p, library_p, details = validate_fisher_exact(logger)
+    
+    assert isinstance(passed, bool)
+    assert isinstance(empirical_p, float)
+    assert isinstance(library_p, float)
+    assert isinstance(details, dict)
+    assert "fisher_exact" in details["test"]
+    assert details["replicates"] == NUM_REPLICATES
 
-def test_validate_welch_t_test_structure():
-    """Test that Welch's t-test validation returns expected structure"""
-    with patch('code.src.audit.monte_carlo_validation.NUM_REPLICATES', 10):
-        with patch('code.src.audit.monte_carlo_validation.set_seeds'):
-            passed, mean_sim, mean_lib, details = validate_welch_t_test()
-            assert isinstance(passed, bool)
-            assert isinstance(mean_sim, float)
-            assert isinstance(mean_lib, float)
-            assert isinstance(details, dict)
+def test_validate_welch_t_test_structure(logger):
+    """Test that Welch's t-test validation returns correct structure."""
+    passed, empirical_p, library_p, details = validate_welch_t_test(logger)
+    
+    assert isinstance(passed, bool)
+    assert isinstance(empirical_p, float)
+    assert isinstance(library_p, float)
+    assert isinstance(details, dict)
+    assert "welch_t" in details["test"]
+    assert details["replicates"] == NUM_REPLICATES
 
-def test_validate_binomial_test_structure():
-    """Test that Binomial test validation returns expected structure"""
-    with patch('code.src.audit.monte_carlo_validation.NUM_REPLICATES', 10):
-        with patch('code.src.audit.monte_carlo_validation.set_seeds'):
-            passed, mean_sim, mean_lib, details = validate_binomial_test()
-            assert isinstance(passed, bool)
-            assert isinstance(mean_sim, float)
-            assert isinstance(mean_lib, float)
-            assert isinstance(details, dict)
+def test_validate_binomial_test_structure(logger):
+    """Test that binomial test validation returns correct structure."""
+    passed, empirical_p, library_p, details = validate_binomial_test(logger)
+    
+    assert isinstance(passed, bool)
+    assert isinstance(empirical_p, float)
+    assert isinstance(library_p, float)
+    assert isinstance(details, dict)
+    assert "binomial" in details["test"]
+    assert details["replicates"] == NUM_REPLICATES
 
-def test_run_monte_carlo_validation():
-    """Test the main runner function"""
-    with patch('code.src.audit.monte_carlo_validation.NUM_REPLICATES', 5):
-        with patch('code.src.audit.monte_carlo_validation.set_seeds'):
-            # Patch individual validators to return known values
-            with patch('code.src.audit.monte_carlo_validation.validate_z_test') as mock_z:
-                with patch('code.src.audit.monte_carlo_validation.validate_fisher_exact') as mock_f:
-                    with patch('code.src.audit.monte_carlo_validation.validate_welch_t_test') as mock_w:
-                        with patch('code.src.audit.monte_carlo_validation.validate_binomial_test') as mock_b:
-                            
-                            mock_z.return_value = (True, 0.5, 0.5, {})
-                            mock_f.return_value = (True, 0.5, 0.5, {})
-                            mock_w.return_value = (True, 0.5, 0.5, {})
-                            mock_b.return_value = (True, 0.5, 0.5, {})
-                            
-                            results = run_monte_carlo_validation()
-                            
-                            assert results['all_passed'] is True
-                            assert 'tests' in results
-                            assert 'z_test' in results['tests']
-                            assert results['tests']['z_test']['passed'] is True
+def test_tolerance_check(logger):
+    """Test that the tolerance check is applied correctly."""
+    # Run one test and verify the difference is within tolerance (or at least calculated)
+    passed, _, _, details = validate_z_test(logger)
+    
+    diff = details["difference"]
+    tol = details["tolerance"]
+    
+    # The test should pass if diff <= tol
+    assert passed == (diff <= tol)
 
-def test_run_monte_carlo_validation_failure():
-    """Test the main runner function when a test fails"""
-    with patch('code.src.audit.monte_carlo_validation.NUM_REPLICATES', 5):
-        with patch('code.src.audit.monte_carlo_validation.set_seeds'):
-            with patch('code.src.audit.monte_carlo_validation.validate_z_test') as mock_z:
-                with patch('code.src.audit.monte_carlo_validation.validate_fisher_exact') as mock_f:
-                    with patch('code.src.audit.monte_carlo_validation.validate_welch_t_test') as mock_w:
-                        with patch('code.src.audit.monte_carlo_validation.validate_binomial_test') as mock_b:
-                            
-                            mock_z.return_value = (False, 0.1, 0.5, {'diff': 0.4})
-                            mock_f.return_value = (True, 0.5, 0.5, {})
-                            mock_w.return_value = (True, 0.5, 0.5, {})
-                            mock_b.return_value = (True, 0.5, 0.5, {})
-                            
-                            results = run_monte_carlo_validation()
-                            
-                            assert results['all_passed'] is False
-                            assert results['tests']['z_test']['passed'] is False
+def test_run_monte_carlo_validation_returns_dict():
+    """Test that the full validation suite returns a dictionary."""
+    results = run_monte_carlo_validation()
+    
+    assert isinstance(results, dict)
+    assert "overall_passed" in results
+    assert "tests" in results
+    assert "z_test" in results["tests"]
+    assert "fisher_exact" in results["tests"]
+    assert "welch_t" in results["tests"]
+    assert "binomial" in results["tests"]

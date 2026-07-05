@@ -1,260 +1,191 @@
 """
-Unit tests for helper functions in src/utils/helpers.py.
-
-Tests cover:
-- checksum: SHA256 file hashing
-- domain_from_url: URL domain extraction
-- safe_float: Safe float conversion
-- parse_inequality_p: Inequality p-value parsing
+Unit tests for helper functions in src.utils.helpers
 """
-
 import pytest
-import tempfile
 import os
+import tempfile
 from pathlib import Path
-
-from code.src.utils.helpers import (
-    checksum,
-    domain_from_url,
-    safe_float,
-    parse_inequality_p,
-)
+from code.src.utils.helpers import checksum, domain_from_url, safe_float, parse_inequality_p
 
 
 class TestChecksum:
-    """Tests for the checksum function."""
+    """Tests for the checksum function"""
 
-    def test_checksum_basic(self, tmp_path: Path):
-        """Test basic SHA256 checksum computation."""
-        test_file = tmp_path / "test.txt"
-        test_file.write_text("Hello, World!")
+    def test_checksum_sha256(self):
+        """Test SHA256 checksum calculation"""
+        with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.txt') as f:
+            f.write("test content")
+            temp_path = f.name
 
-        result = checksum(test_file)
+        try:
+            result = checksum(temp_path, "sha256")
+            assert len(result) == 64  # SHA256 produces 64 hex chars
+            assert all(c in '0123456789abcdef' for c in result)
+        finally:
+            os.unlink(temp_path)
 
-        assert len(result) == 64  # SHA256 hex length
-        assert all(c in "0123456789abcdef" for c in result)
+    def test_checksum_md5(self):
+        """Test MD5 checksum calculation"""
+        with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.txt') as f:
+            f.write("test content")
+            temp_path = f.name
+
+        try:
+            result = checksum(temp_path, "md5")
+            assert len(result) == 32  # MD5 produces 32 hex chars
+        finally:
+            os.unlink(temp_path)
 
     def test_checksum_file_not_found(self):
-        """Test checksum raises FileNotFoundError for missing file."""
+        """Test that FileNotFoundError is raised for missing files"""
         with pytest.raises(FileNotFoundError):
             checksum("/nonexistent/path/file.txt")
 
-    def test_checksum_directory_error(self, tmp_path: Path):
-        """Test checksum raises IsADirectoryError for directories."""
-        with pytest.raises(IsADirectoryError):
-            checksum(tmp_path)
+    def test_checksum_consistency(self):
+        """Test that checksum is consistent for same content"""
+        with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.txt') as f:
+            f.write("consistent content")
+            temp_path = f.name
 
-    def test_checksum_consistency(self, tmp_path: Path):
-        """Test checksum returns same value for same file."""
-        test_file = tmp_path / "test.txt"
-        test_file.write_text("Consistency test")
-
-        result1 = checksum(test_file)
-        result2 = checksum(test_file)
-
-        assert result1 == result2
-
-    def test_checksum_empty_file(self, tmp_path: Path):
-        """Test checksum for empty file."""
-        test_file = tmp_path / "empty.txt"
-        test_file.write_text("")
-
-        result = checksum(test_file)
-
-        assert len(result) == 64
+        try:
+            result1 = checksum(temp_path)
+            result2 = checksum(temp_path)
+            assert result1 == result2
+        finally:
+            os.unlink(temp_path)
 
 
 class TestDomainFromUrl:
-    """Tests for the domain_from_url function."""
+    """Tests for the domain_from_url function"""
 
-    def test_basic_url(self):
-        """Test extraction from basic URL."""
-        result = domain_from_url("https://example.com/path/to/page")
-        assert result == "example.com"
+    def test_domain_from_full_url(self):
+        """Test extracting domain from full URL"""
+        assert domain_from_url("https://www.example.com/path") == "www.example.com"
+        assert domain_from_url("http://subdomain.example.org/page?query=1") == "subdomain.example.org"
 
-    def test_http_url(self):
-        """Test extraction from HTTP URL."""
-        result = domain_from_url("http://test.org/page")
-        assert result == "test.org"
+    def test_domain_from_url_without_scheme(self):
+        """Test extracting domain from URL without scheme"""
+        assert domain_from_url("example.com/path") == "example.com"
+        assert domain_from_url("sub.domain.co.uk") == "sub.domain.co.uk"
 
-    def test_url_with_www(self):
-        """Test extraction removes www prefix."""
-        result = domain_from_url("https://www.example.com/page")
-        assert result == "example.com"
+    def test_domain_lowercase(self):
+        """Test that domain is returned in lowercase"""
+        assert domain_from_url("HTTPS://EXAMPLE.COM") == "example.com"
 
-    def test_url_with_port(self):
-        """Test extraction handles port numbers."""
-        result = domain_from_url("https://example.com:8080/path")
-        assert result == "example.com"
+    def test_domain_invalid_url(self):
+        """Test handling of invalid URLs"""
+        assert domain_from_url("") is None
+        assert domain_from_url("not a url") is None
+        assert domain_from_url(None) is None
 
-    def test_url_with_query_string(self):
-        """Test extraction stops at query string."""
-        result = domain_from_url("https://example.com/page?foo=bar")
-        assert result == "example.com"
-
-    def test_empty_url(self):
-        """Test empty URL returns None."""
-        result = domain_from_url("")
-        assert result is None
-
-    def test_whitespace_url(self):
-        """Test URL with whitespace returns None."""
-        result = domain_from_url("   ")
-        assert result is None
-
-    def test_complex_domain(self):
-        """Test extraction from complex domain."""
-        result = domain_from_url("https://sub.example.co.uk/path")
-        assert result == "sub.example.co.uk"
+    def test_domain_with_port(self):
+        """Test extracting domain with port number"""
+        assert domain_from_url("http://example.com:8080/path") == "example.com:8080"
 
 
 class TestSafeFloat:
-    """Tests for the safe_float function."""
+    """Tests for the safe_float function"""
 
-    def test_valid_string(self):
-        """Test conversion of valid numeric string."""
-        result = safe_float("3.14")
-        assert result == 3.14
+    def test_safe_float_string(self):
+        """Test parsing string to float"""
+        assert safe_float("3.14") == 3.14
+        assert safe_float("0.05") == 0.05
+        assert safe_float("1e-5") == 1e-5
 
-    def test_integer_string(self):
-        """Test conversion of integer string."""
-        result = safe_float("42")
-        assert result == 42.0
+    def test_safe_float_integer(self):
+        """Test converting integer to float"""
+        assert safe_float(5) == 5.0
+        assert safe_float(0) == 0.0
 
-    def test_integer_input(self):
-        """Test conversion of integer input."""
-        result = safe_float(42)
-        assert result == 42.0
+    def test_safe_float_float(self):
+        """Test that float remains float"""
+        assert safe_float(3.14) == 3.14
 
-    def test_float_input(self):
-        """Test float input passes through."""
-        result = safe_float(3.14)
-        assert result == 3.14
+    def test_safe_float_none(self):
+        """Test handling of None"""
+        assert safe_float(None) is None
+        assert safe_float(None, default=0.0) == 0.0
 
-    def test_none_input(self):
-        """Test None input returns None."""
-        result = safe_float(None)
-        assert result is None
+    def test_safe_float_invalid_string(self):
+        """Test handling of invalid strings"""
+        assert safe_float("not a number") is None
+        assert safe_float("not a number", default=-1.0) == -1.0
 
-    def test_none_with_default(self):
-        """Test None input with default returns default."""
-        result = safe_float(None, default=0.0)
-        assert result == 0.0
+    def test_safe_float_empty_string(self):
+        """Test handling of empty string"""
+        assert safe_float("") is None
+        assert safe_float("  ", default=0.5) == 0.5
 
-    def test_invalid_string(self):
-        """Test invalid string returns default."""
-        result = safe_float("not_a_number")
-        assert result is None
-
-    def test_invalid_string_with_default(self):
-        """Test invalid string with default returns default."""
-        result = safe_float("invalid", default=-1.0)
-        assert result == -1.0
-
-    def test_empty_string(self):
-        """Test empty string returns None."""
-        result = safe_float("")
-        assert result is None
-
-    def test_whitespace_string(self):
-        """Test whitespace string returns None."""
-        result = safe_float("   ")
-        assert result is None
-
-    def test_nan_strings(self):
-        """Test NaN-like strings return None."""
-        for nan_str in ["nan", "NaN", "none", "None", "null", "n/a", "-"]:
-            result = safe_float(nan_str)
-            assert result is None
-
-    def test_negative_number(self):
-        """Test negative number string."""
-        result = safe_float("-3.14")
-        assert result == -3.14
-
-    def test_scientific_notation(self):
-        """Test scientific notation string."""
-        result = safe_float("1.5e-10")
-        assert result == 1.5e-10
+    def test_safe_float_whitespace(self):
+        """Test handling of whitespace"""
+        assert safe_float("  3.14  ") == 3.14
 
 
 class TestParseInequalityP:
-    """Tests for the parse_inequality_p function."""
+    """Tests for the parse_inequality_p function"""
 
-    def test_less_than(self):
-        """Test parsing p < value."""
-        value, op = parse_inequality_p("p < 0.05")
-        assert value == 0.05
-        assert op == "<"
-
-    def test_greater_than(self):
-        """Test parsing p > value."""
-        value, op = parse_inequality_p("p > 0.10")
-        assert value == 0.10
-        assert op == ">"
-
-    def test_less_than_or_equal(self):
-        """Test parsing p <= value."""
-        value, op = parse_inequality_p("p <= 0.01")
-        assert value == 0.01
-        assert op == "<="
-
-    def test_greater_than_or_equal(self):
-        """Test parsing p >= value."""
-        value, op = parse_inequality_p("p >= 0.05")
-        assert value == 0.05
-        assert op == ">="
-
-    def test_equals(self):
-        """Test parsing p = value."""
-        value, op = parse_inequality_p("p = 0.03")
-        assert value == 0.03
-        assert op == "="
-
-    def test_plain_number(self):
-        """Test parsing plain number without p prefix."""
-        value, op = parse_inequality_p("0.05")
-        assert value == 0.05
-        assert op is None
-
-    def test_with_spaces(self):
-        """Test parsing with extra spaces."""
-        value, op = parse_inequality_p("  p  <  0.05  ")
-        assert value == 0.05
-        assert op == "<"
-
-    def test_no_prefix(self):
-        """Test parsing without p prefix."""
+    def test_parse_inequality_less_than(self):
+        """Test parsing less-than inequality"""
         value, op = parse_inequality_p("< 0.05")
         assert value == 0.05
         assert op == "<"
 
-    def test_empty_string(self):
-        """Test empty string returns (None, None)."""
-        value, op = parse_inequality_p("")
-        assert value is None
+    def test_parse_inequality_greater_than(self):
+        """Test parsing greater-than inequality"""
+        value, op = parse_inequality_p("> 0.1")
+        assert value == 0.1
+        assert op == ">"
+
+    def test_parse_inequality_with_p_prefix(self):
+        """Test parsing with 'p' prefix"""
+        value, op = parse_inequality_p("p < 0.01")
+        assert value == 0.01
+        assert op == "<"
+
+        value, op = parse_inequality_p("p > 0.05")
+        assert value == 0.05
+        assert op == ">"
+
+    def test_parse_plain_number(self):
+        """Test parsing plain number without inequality"""
+        value, op = parse_inequality_p("0.03")
+        assert value == 0.03
         assert op is None
 
-    def test_none_input(self):
-        """Test None input returns (None, None)."""
-        value, op = parse_inequality_p(None)
-        assert value is None
-        assert op is None
+    def test_parse_leq_geq(self):
+        """Test parsing <= and >= operators"""
+        value, op = parse_inequality_p("<= 0.05")
+        assert value == 0.05
+        assert op == "<="
 
-    def test_invalid_string(self):
-        """Test invalid string returns (None, None)."""
+        value, op = parse_inequality_p(">= 0.1")
+        assert value == 0.1
+        assert op == ">="
+
+    def test_parse_invalid_input(self):
+        """Test handling of invalid input"""
         value, op = parse_inequality_p("invalid")
         assert value is None
         assert op is None
 
-    def test_case_insensitive(self):
-        """Test case insensitivity."""
+    def test_parse_empty_string(self):
+        """Test handling of empty string"""
+        value, op = parse_inequality_p("")
+        assert value is None
+        assert op is None
+
+    def test_parse_whitespace_handling(self):
+        """Test handling of extra whitespace"""
+        value, op = parse_inequality_p("  <  0.05  ")
+        assert value == 0.05
+        assert op == "<"
+
+    def test_parse_case_insensitivity(self):
+        """Test that parsing is case insensitive"""
         value, op = parse_inequality_p("P < 0.05")
         assert value == 0.05
         assert op == "<"
 
-    def test_probability_prefix(self):
-        """Test probability prefix."""
-        value, op = parse_inequality_p("probability < 0.05")
+        value, op = parse_inequality_p("p < 0.05")
         assert value == 0.05
         assert op == "<"

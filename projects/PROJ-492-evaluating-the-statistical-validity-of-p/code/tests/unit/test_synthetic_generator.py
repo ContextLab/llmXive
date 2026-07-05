@@ -1,168 +1,177 @@
 """
-Unit tests for the synthetic dataset generator (T026).
-Verifies:
-  - Output files are created.
-  - Record count >= 10,000.
-  - Both binary and continuous outcomes are present.
+Unit tests for synthetic dataset generator (T026).
+Verifies generation of 10,000+ records with both binary and continuous outcomes.
 """
 import csv
 import json
-import os
-import sys
-from pathlib import Path
 import tempfile
-import shutil
+from pathlib import Path
+from typing import Dict, Any, List
 
 import pytest
-
-# Add code to path if not already
-if "code" not in sys.path:
-    sys.path.insert(0, str(Path(__file__).parent.parent.parent))
+import numpy as np
 
 from code.src.audit.synthetic import (
     generate_synthetic_dataset,
+    generate_binary_outcome,
+    generate_continuous_outcome,
+    verify_outcome_types,
     write_csv_output,
     write_json_output,
-    verify_outcome_types,
-    set_all_seeds
+    TOTAL_RECORDS
 )
 
-# Constants for test
-TEST_NUM_RECORDS = 100  # Smaller for unit tests, but logic holds for 10k
-MIN_REQUIRED_RECORDS = 10000
 
-@pytest.fixture
-def temp_output_dir():
-    """Create a temporary directory for test outputs."""
-    tmpdir = tempfile.mkdtemp()
-    yield Path(tmpdir)
-    shutil.rmtree(tmpdir)
+class TestSyntheticGenerator:
+    """Test suite for synthetic dataset generation."""
 
-def test_generate_synthetic_dataset_structure(temp_output_dir):
-    """Test that the generator produces valid data structures."""
-    set_all_seeds(42)
-    summaries, ground_truth = generate_synthetic_dataset(TEST_NUM_RECORDS)
-    
-    assert len(summaries) == TEST_NUM_RECORDS
-    assert len(ground_truth) == TEST_NUM_RECORDS
-    
-    # Check first summary structure
-    s = summaries[0]
-    assert "id" in s
-    assert "outcome_type" in s
-    assert "p_value" in s
-    assert "effect_size_pct" in s
-    assert "n_control" in s
-    assert "n_treatment" in s
-
-def test_outcome_types_present(temp_output_dir):
-    """Test that both binary and continuous outcomes are generated."""
-    set_all_seeds(42)
-    summaries, _ = generate_synthetic_dataset(TEST_NUM_RECORDS)
-    
-    binary_count, continuous_count = verify_outcome_types(summaries)
-    
-    assert binary_count > 0, "Must have at least one binary outcome"
-    assert continuous_count > 0, "Must have at least one continuous outcome"
-    assert binary_count + continuous_count == TEST_NUM_RECORDS
-
-def test_write_csv_output(temp_output_dir):
-    """Test CSV writing functionality."""
-    set_all_seeds(42)
-    summaries, _ = generate_synthetic_dataset(TEST_NUM_RECORDS)
-    
-    csv_path = temp_output_dir / "test.csv"
-    write_csv_output(summaries, csv_path)
-    
-    assert csv_path.exists(), "CSV file was not created"
-    
-    with open(csv_path, 'r') as f:
-        reader = csv.DictReader(f)
-        rows = list(reader)
+    def test_generate_synthetic_dataset_creates_expected_count(self):
+        """Verify dataset contains at least 10,000 records."""
+        records, ground_truth = generate_synthetic_dataset(total_records=TOTAL_RECORDS)
         
-    assert len(rows) == TEST_NUM_RECORDS
-    assert "outcome_type" in rows[0].keys()
+        assert len(records) >= TOTAL_RECORDS, f"Expected at least {TOTAL_RECORDS} records, got {len(records)}"
+        assert ground_truth["total_records"] == TOTAL_RECORDS
 
-def test_write_json_output(temp_output_dir):
-    """Test JSON writing functionality."""
-    set_all_seeds(42)
-    _, ground_truth = generate_synthetic_dataset(TEST_NUM_RECORDS)
-    
-    json_path = temp_output_dir / "test.json"
-    write_json_output(ground_truth, json_path)
-    
-    assert json_path.exists(), "JSON file was not created"
-    
-    with open(json_path, 'r') as f:
-        data = json.load(f)
-    
-    assert "records" in data
-    assert len(data["records"]) == TEST_NUM_RECORDS
+    def test_generate_synthetic_dataset_includes_both_outcome_types(self):
+        """Verify both binary and continuous outcome types are present."""
+        records, _ = generate_synthetic_dataset(total_records=TOTAL_RECORDS)
+        
+        binary_count, continuous_count = verify_outcome_types(records)
+        
+        assert binary_count > 0, "No binary outcome records found"
+        assert continuous_count > 0, "No continuous outcome records found"
+        assert binary_count + continuous_count == len(records)
 
-def test_verify_outcome_types_fails_on_missing():
-    """Test that verification fails if one type is missing."""
-    # Create a list with only binary outcomes
-    only_binary = [{"outcome_type": "binary"} for _ in range(10)]
-    
-    with pytest.raises(ValueError, match="NO continuous"):
-        verify_outcome_types(only_binary)
-    
-    only_continuous = [{"outcome_type": "continuous"} for _ in range(10)]
-    
-    with pytest.raises(ValueError, match="NO binary"):
-        verify_outcome_types(only_continuous)
+    def test_binary_outcome_structure(self):
+        """Verify binary outcome records have required fields."""
+        record = generate_binary_outcome(
+            n=0,
+            control_size=100,
+            treatment_size=120,
+            baseline_rate=0.25,
+            effect_size=0.05,
+            inject_inconsistency=False
+        )
+        
+        required_fields = [
+            "record_id", "outcome_type", "control_sample_size", "treatment_sample_size",
+            "control_successes", "treatment_successes", "control_rate", "treatment_rate",
+            "reported_p_value", "effect_size", "baseline_rate", "is_inconsistent"
+        ]
+        
+        for field in required_fields:
+            assert field in record, f"Missing required field: {field}"
+        
+        assert record["outcome_type"] == "binary"
+        assert 0 <= record["control_rate"] <= 1
+        assert 0 <= record["treatment_rate"] <= 1
+        assert 0 <= record["reported_p_value"] <= 1
 
-def test_full_pipeline_simulation(temp_output_dir):
-    """Simulate the full T026 workflow to ensure files are created and valid."""
-    set_all_seeds(42)
-    
-    # Generate
-    summaries, ground_truth = generate_synthetic_dataset(TEST_NUM_RECORDS)
-    
-    # Verify
-    b_count, c_count = verify_outcome_types(summaries)
-    assert b_count > 0 and c_count > 0
-    
-    # Write
-    csv_path = temp_output_dir / "synthetic_validation.csv"
-    json_path = temp_output_dir / "synthetic_ground_truth.json"
-    
-    write_csv_output(summaries, csv_path)
-    write_json_output(ground_truth, json_path)
-    
-    # Re-read and validate
-    with open(csv_path, 'r') as f:
-        reader = csv.DictReader(f)
-        csv_rows = list(reader)
-    
-    with open(json_path, 'r') as f:
-        json_data = json.load(f)
-        json_rows = json_data["records"]
-    
-    assert len(csv_rows) == TEST_NUM_RECORDS
-    assert len(json_rows) == TEST_NUM_RECORDS
-    
-    # Check counts
-    csv_binary = sum(1 for r in csv_rows if r['outcome_type'] == 'binary')
-    csv_continuous = sum(1 for r in csv_rows if r['outcome_type'] == 'continuous')
-    
-    assert csv_binary > 0
-    assert csv_continuous > 0
+    def test_continuous_outcome_structure(self):
+        """Verify continuous outcome records have required fields."""
+        record = generate_continuous_outcome(
+            n=0,
+            control_size=100,
+            treatment_size=120,
+            control_mean=50.0,
+            treatment_mean=52.0,
+            control_std=10.0,
+            treatment_std=11.0,
+            inject_inconsistency=False
+        )
+        
+        required_fields = [
+            "record_id", "outcome_type", "control_sample_size", "treatment_sample_size",
+            "control_mean", "treatment_mean", "control_std", "treatment_std",
+            "reported_p_value", "effect_size", "is_inconsistent"
+        ]
+        
+        for field in required_fields:
+            assert field in record, f"Missing required field: {field}"
+        
+        assert record["outcome_type"] == "continuous"
+        assert 0 <= record["reported_p_value"] <= 1
 
-# Note: The actual requirement is 10,000 records. 
-# This test verifies the logic, but a full 10k run is heavy for CI.
-# We assert the logic works for 100, and the main script handles 10k.
-def test_record_count_logic():
-    """Verify that the generator can handle the required 10,000 records."""
-    set_all_seeds(42)
-    # We don't actually generate 10k here to save time, but we verify the function signature
-    # and that it accepts the argument.
-    # To be safe, we generate a smaller batch and check the count matches input.
-    test_size = 500
-    summaries, _ = generate_synthetic_dataset(test_size)
-    assert len(summaries) == test_size
-    
-    # If we were to run 10k, it would look like:
-    # large_summaries, _ = generate_synthetic_dataset(10000)
-    # assert len(large_summaries) == 10000
-    # assert verify_outcome_types(large_summaries) # Should not raise
+    def test_csv_output_file_creation(self):
+        """Verify CSV output file is created with correct structure."""
+        records, _ = generate_synthetic_dataset(total_records=100)
+        
+        with tempfile.TemporaryDirectory() as tmpdir:
+            output_path = Path(tmpdir) / "test_output.csv"
+            write_csv_output(records, output_path)
+            
+            assert output_path.exists(), "CSV output file not created"
+            
+            with open(output_path, 'r', encoding='utf-8') as f:
+                reader = csv.DictReader(f)
+                rows = list(reader)
+            
+            assert len(rows) == len(records), f"Expected {len(records)} rows, got {len(rows)}"
+            
+            # Verify header contains expected fields
+            expected_fields = ["record_id", "outcome_type", "control_sample_size"]
+            for field in expected_fields:
+                assert field in reader.fieldnames, f"Missing field in CSV header: {field}"
+
+    def test_json_output_file_creation(self):
+        """Verify JSON ground truth file is created with correct structure."""
+        _, ground_truth = generate_synthetic_dataset(total_records=100)
+        
+        with tempfile.TemporaryDirectory() as tmpdir:
+            output_path = Path(tmpdir) / "test_ground_truth.json"
+            write_json_output(ground_truth, output_path)
+            
+            assert output_path.exists(), "JSON output file not created"
+            
+            with open(output_path, 'r', encoding='utf-8') as f:
+                data = json.load(f)
+            
+            assert data["total_records"] == 100
+            assert "outcome_types" in data
+            assert "binary" in data["outcome_types"]
+            assert "continuous" in data["outcome_types"]
+            assert data["outcome_types"]["binary"]["count"] > 0
+            assert data["outcome_types"]["continuous"]["count"] > 0
+
+    def test_inconsistency_injection(self):
+        """Verify that inconsistency injection works correctly."""
+        # Generate with high inconsistency rate
+        records, ground_truth = generate_synthetic_dataset(
+            total_records=200,
+            inconsistency_rate=0.5
+        )
+        
+        inconsistent_count = sum(1 for r in records if r.get("is_inconsistent"))
+        
+        # Should be approximately 50% inconsistent (with some variance)
+        expected_min = 0.4 * 200  # 80
+        expected_max = 0.6 * 200  # 120
+        
+        assert expected_min <= inconsistent_count <= expected_max, \
+            f"Inconsistent count {inconsistent_count} outside expected range"
+
+    def test_sample_size_constraints(self):
+        """Verify sample sizes are within expected bounds."""
+        records, _ = generate_synthetic_dataset(total_records=100)
+        
+        for record in records:
+            assert MIN_SAMPLE_SIZE <= record["control_sample_size"] <= MAX_SAMPLE_SIZE
+            assert MIN_SAMPLE_SIZE <= record["treatment_sample_size"] <= MAX_SAMPLE_SIZE
+
+    def test_deterministic_seed(self):
+        """Verify that same seed produces same results."""
+        from code.src.config import SEED
+        
+        records1, _ = generate_synthetic_dataset(total_records=50)
+        records2, _ = generate_synthetic_dataset(total_records=50)
+        
+        # Records should be identical due to seeding
+        assert len(records1) == len(records2)
+        for r1, r2 in zip(records1, records2):
+            assert r1["record_id"] == r2["record_id"]
+            assert r1["outcome_type"] == r2["outcome_type"]
+            assert r1["control_sample_size"] == r2["control_sample_size"]
+
+# Constants for tests
+MIN_SAMPLE_SIZE = 50
+MAX_SAMPLE_SIZE = 5000

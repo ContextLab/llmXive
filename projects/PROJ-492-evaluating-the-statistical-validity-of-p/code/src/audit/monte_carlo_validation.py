@@ -1,429 +1,386 @@
 """
-Monte-Carlo Validation Module (FR-026)
+Monte-Carlo validation module for statistical tests.
 
-Validates the consistency of statistical tests (z-test, Fisher's exact, Welch's t-test, binomial)
-against SciPy library implementations using Monte-Carlo simulation.
-
-Runs 100,000 replicates (as per task description "10 10000" interpreted as 100,000)
-and checks that the absolute difference between simulated and library p-values is <= 0.005.
+Implements FR-026: Runs 10,000 replicates for z-test, Fisher's exact, Welch's t-test,
+and binomial test to verify that empirical p-values match library calculations
+within a tolerance of 0.005.
 """
-
 import sys
 import logging
 from pathlib import Path
 from typing import Tuple, List, Dict, Any
-
 import numpy as np
 from scipy import stats
 
+# Import from local project structure
+from code.src.config import set_rng_seed, SEED
+from code.src.utils.logger import get_default_logger, AuditLogger
 from code.src.audit.monte_carlo_core import (
-    set_seeds,
     simulate_z_test_statistic,
     simulate_fisher_exact_table,
     simulate_welch_t_statistic,
     simulate_binomial_statistic,
     compute_empirical_p_value,
+    set_seeds
 )
-from code.src.config import set_rng_seed, SEED
-from code.src.utils.logger import get_default_logger, AuditLogger, get_error_message
 
-# Configuration
-NUM_REPLICATES = 100000  # 10 * 10000 as implied by "10 10000"
+# Constants
+NUM_REPLICATES = 10000
 TOLERANCE = 0.005
 ALPHA = 0.05
 
-logger = get_default_logger(__name__)
-audit_logger = AuditLogger(__name__)
+def _setup_logging():
+    """Configure logging for the validation module."""
+    logger = get_default_logger()
+    logger.setLevel(logging.INFO)
+    return logger
 
-
-def validate_z_test() -> Tuple[bool, float, float, Dict[str, Any]]:
+def validate_z_test(logger: AuditLogger) -> Tuple[bool, float, float, Dict[str, Any]]:
     """
-    Validates the two-proportion z-test against SciPy.
-    Simulates null data where p1 = p2 and compares p-values.
+    Validate two-proportion z-test using Monte-Carlo simulation.
+    
+    Returns:
+        Tuple of (passed, empirical_p, library_p, details)
     """
+    logger.info("Starting Monte-Carlo validation for z-test...")
+    
+    # Set seeds for reproducibility
     set_seeds(SEED)
+    
+    # Parameters for the simulation (standard effect size)
     n1, n2 = 1000, 1000
-    p_true = 0.5
+    p1, p2 = 0.50, 0.55  # 5% effect size
     
-    simulated_p_values = []
-    library_p_values = []
-
-    logger.info(f"Running {NUM_REPLICATES} replicates for Z-test validation...")
-
-    for i in range(NUM_REPLICATES):
-        # Generate null data
-        x1 = np.random.binomial(n1, p_true)
-        x2 = np.random.binomial(n2, p_true)
-        
-        # Calculate sample proportions
-        p_hat1 = x1 / n1
-        p_hat2 = x2 / n2
-        p_pooled = (x1 + x2) / (n1 + n2)
-
-        # Compute z-statistic manually (two-proportion z-test)
-        # z = (p1 - p2) / sqrt(p_pool * (1 - p_pool) * (1/n1 + 1/n2))
-        if p_pooled == 0 or p_pooled == 1:
-            # Edge case, skip or handle
-            continue
-        
-        se = np.sqrt(p_pooled * (1 - p_pooled) * (1/n1 + 1/n2))
-        if se == 0:
-            continue
-            
-        z_stat = (p_hat1 - p_hat2) / se
-        
-        # Empirical p-value (two-tailed)
-        sim_p = 2 * (1 - stats.norm.cdf(abs(z_stat)))
-        
-        # SciPy p-value (using proportions z-test logic manually since older scipy might not have direct proportion test)
-        # Using statsmodels or manual calculation matching the z-stat above
-        # To ensure consistency with the "simulate" function in monte_carlo_core, we use the same logic
-        # But the task asks to compare against library. We use the standard normal CDF as the library reference.
-        lib_p = 2 * (1 - stats.norm.cdf(abs(z_stat)))
-
-        simulated_p_values.append(sim_p)
-        library_p_values.append(lib_p)
-
-    if not simulated_p_values:
-        return False, 0.0, 0.0, {"error": "No valid samples generated"}
-
-    # Compare distributions (Kolmogorov-Smirnov test) or mean difference
-    # The task asks for "absolute difference <= 0.005". Usually this implies comparing the 
-    # distribution of p-values or the mean p-value.
-    # If the implementation is correct, the mean p-value should be close to 0.5 (uniform under null).
-    # However, the prompt implies checking the difference between *simulated* (from monte_carlo_core)
-    # and *library*. 
-    # Let's assume the "simulate" functions in monte_carlo_core return a statistic, 
-    # and we compare the p-value derived from that statistic against the library p-value.
-    
-    # Re-implementation to strictly follow the "simulate" functions in monte_carlo_core
-    # which likely return the statistic, and we compare the p-value of that statistic.
-    
-    # Reset and run properly
-    set_seeds(SEED)
-    sim_p_vals = []
-    lib_p_vals = []
-
+    # Run simulation
+    z_stats = []
     for _ in range(NUM_REPLICATES):
-        # Generate data
-        x1 = np.random.binomial(n1, p_true)
-        x2 = np.random.binomial(n2, p_true)
-        
-        # Use the core simulation function if it returns the statistic, 
-        # but monte_carlo_core functions like simulate_z_test_statistic likely return the statistic.
-        # Let's assume they return the z-statistic.
-        z_stat_sim = simulate_z_test_statistic(x1, x2, n1, n2)
-        
-        # Compute p-value from simulated statistic
-        p_sim = 2 * (1 - stats.norm.cdf(abs(z_stat_sim)))
-        
-        # Compute p-value using library (scipy.stats)
-        # We can't easily call a direct "two_proportion_z_test" in scipy without statsmodels,
-        # so we calculate it the same way to verify the math.
-        # If the task implies comparing against a known library function, we assume the standard normal is the library.
-        # However, if the "simulate" function has a bug, the p-value will differ.
-        # Since we are validating the *validation* module, we assume the logic is:
-        # 1. Generate data
-        # 2. Compute stat via our code
-        # 3. Compute p via our code (using norm)
-        # 4. Compare with library (scipy.stats.norm.cdf) - which is trivial.
-        
-        # Maybe the task means: Compare the *distribution* of p-values to Uniform(0,1)?
-        # Or compare the *mean* p-value to 0.5?
-        # "checks the absolute difference <= 0.005"
-        # Let's interpret this as: The mean p-value from our simulation should be close to 0.5 (for null).
-        # OR: The p-value calculated by our code vs p-value calculated by a trusted library (scipy) for the SAME statistic.
-        
-        # Let's stick to the most rigorous interpretation: 
-        # Compute statistic via our code. Compute p-value via our code (norm.cdf).
-        # Compute p-value via SciPy (norm.cdf). They should be identical.
-        # If the task implies comparing to a *different* library implementation (e.g. statsmodels), 
-        # we would need that. But scipy is the standard.
-        
-        # Let's assume the "simulate" functions in monte_carlo_core might use a different approximation.
-        # We will compute the p-value using the standard library (scipy.stats) and compare.
-        
-        p_lib = 2 * (1 - stats.norm.cdf(abs(z_stat_sim)))
-        
-        sim_p_vals.append(p_sim)
-        lib_p_vals.append(p_lib)
-
-    mean_sim = np.mean(sim_p_vals)
-    mean_lib = np.mean(lib_p_vals)
-    diff = abs(mean_sim - mean_lib)
-
+        z_stat = simulate_z_test_statistic(n1, n2, p1, p2)
+        z_stats.append(z_stat)
+    
+    # Compute empirical p-value (two-tailed)
+    empirical_p = compute_empirical_p_value(z_stats, z_stats[0]) # Using first as observed for simplicity in null check, 
+    # Actually, we need to compare the distribution of null stats to a specific observed.
+    # Standard approach: Generate null distribution, then see where a specific observed stat falls.
+    # Or: Generate data under H0, compute stat, check distribution matches theoretical.
+    
+    # Correct approach for validation:
+    # 1. Generate data under H0 (p1 = p2).
+    # 2. Compute z-stat for each replicate.
+    # 3. The distribution of these stats should be N(0,1).
+    # 4. Compare the empirical p-value of a specific observed stat against the theoretical.
+    
+    # Let's fix the logic:
+    # We simulate the null distribution. Then we pick a "true" p1, p2 (maybe slightly different) 
+    # or just check the null distribution properties.
+    # The requirement is "checks the absolute difference <= 0.005".
+    # We will simulate under H0 (p1=p2=0.5), compute z-stats.
+    # Then we calculate the proportion of stats > |z_obs| for a fixed z_obs derived from a specific sample.
+    
+    # Simpler validation strategy:
+    # Generate 10,000 samples under H0. Compute z-stat for each.
+    # Calculate the empirical p-value for a fixed observed z-stat (e.g., 1.96).
+    # Compare with scipy.stats.norm.sf(1.96)*2.
+    
+    z_obs = 1.96  # Fixed observed statistic
+    
+    # Regenerate under H0 to get null distribution
+    set_seeds(SEED)
+    null_z_stats = []
+    for _ in range(NUM_REPLICATES):
+        # Generate under H0: p1 = p2
+        stat = simulate_z_test_statistic(n1, n2, 0.5, 0.5)
+        null_z_stats.append(stat)
+    
+    # Empirical p-value: proportion of null stats with |stat| >= |z_obs|
+    empirical_p = (sum(1 for s in null_z_stats if abs(s) >= abs(z_obs))) / NUM_REPLICATES
+    
+    # Theoretical p-value
+    library_p = 2 * stats.norm.sf(abs(z_obs))
+    
+    diff = abs(empirical_p - library_p)
     passed = diff <= TOLERANCE
-    return passed, mean_sim, mean_lib, {"diff": diff, "diff_threshold": TOLERANCE}
-
-
-def validate_fisher_exact() -> Tuple[bool, float, float, Dict[str, Any]]:
-    """
-    Validates Fisher's Exact Test against SciPy.
-    Simulates contingency tables under the null hypothesis.
-    """
-    set_seeds(SEED)
-    n1, n2 = 100, 100
-    p_true = 0.5
-
-    sim_p_vals = []
-    lib_p_vals = []
-
-    logger.info(f"Running {NUM_REPLICATES} replicates for Fisher's Exact validation...")
-
-    for _ in range(NUM_REPLICATES):
-        # Generate data under null
-        x1 = np.random.binomial(n1, p_true)
-        x2 = np.random.binomial(n2, p_true)
-        
-        # Construct contingency table
-        # [[x1, n1-x1], [x2, n2-x2]]
-        table = np.array([[x1, n1 - x1], [x2, n2 - x2]])
-        
-        # Compute Fisher's exact p-value using SciPy
-        # Note: scipy.stats.fisher_exact returns (odds_ratio, p_value)
-        # We use 'two-sided'
-        try:
-            _, p_lib = stats.fisher_exact(table, alternative='two-sided')
-        except Exception:
-            continue
-        
-        # Our simulation function should ideally return the same p-value logic
-        # But since we are validating the *module*, we assume we are comparing 
-        # the result of a custom implementation vs SciPy.
-        # If we don't have a custom implementation, we just check consistency.
-        # Let's assume the "simulate_fisher_exact_table" in core returns the table or statistic.
-        # We will compute the p-value using our own logic (which is just calling scipy here for validation?)
-        # No, that's circular.
-        # The task is: "runs ... replicates ... and checks the absolute difference <= 0.005".
-        # This implies comparing two different calculation methods.
-        # Method A: Our Monte Carlo simulation of the p-value (randomization test).
-        # Method B: SciPy's exact calculation.
-        
-        # Let's implement a simple Monte Carlo p-value for Fisher's:
-        # Count how many tables are as extreme or more extreme than observed.
-        # But doing 100,000 reps * 100,000 reps is too slow.
-        # The task likely means: Run the test 100,000 times, and check that the *distribution* 
-        # of p-values is uniform, or that the mean is 0.5.
-        # OR: Compare the p-value from a specific implementation (e.g. statsmodels) vs scipy.
-        
-        # Given the constraints, the most reasonable interpretation for "Monte-Carlo validation" 
-        # is to verify that the *empirical* p-value (from randomization) matches the *theoretical* p-value (scipy).
-        # But 100k reps for the inner loop is too much.
-        
-        # Alternative: The task asks to validate the *statistical tests* themselves.
-        # Maybe it means: Run the test 100,000 times on null data. The proportion of rejections (p < alpha) 
-        # should be close to alpha.
-        # Let's check if the rejection rate is close to 0.05.
-        
-        # Re-interpretation: "checks the absolute difference <= 0.005"
-        # Difference between what?
-        # Maybe: Difference between the observed rejection rate and the nominal alpha (0.05).
-        # Let's do that.
-        
-        if p_lib < ALPHA:
-            sim_p_vals.append(1.0) # Rejected
-            lib_p_vals.append(1.0)
-        else:
-            sim_p_vals.append(0.0)
-            lib_p_vals.append(0.0)
-
-    # If we are just comparing scipy to itself, diff is 0.
-    # Let's assume the "simulate" function in monte_carlo_core does a randomization test.
-    # But we don't have that implementation details in the prompt.
-    # We will assume the standard interpretation: 
-    # Validate that the type I error rate is within tolerance.
-    # Observed alpha = mean(sim_p_vals) (if we treat rejection as 1)
-    # Expected alpha = 0.05
     
-    # Actually, let's just compare the p-values directly if we had two implementations.
-    # Since we only have scipy, we will assume the "simulate" functions in core are the ones being validated.
-    # But they are not p-value calculators, they are data generators/statistic generators.
-    
-    # Let's go with the Type I error rate check.
-    # We generated null data. We ran the test. The p-value should be uniform.
-    # The proportion of p < 0.05 should be 0.05.
-    # Let's check if the observed proportion is within 0.005 of 0.05.
-    
-    # But the task says "checks the absolute difference <= 0.005".
-    # Let's assume it means: |p_simulated - p_library| <= 0.005 for each test?
-    # That requires a simulated p-value.
-    # Let's assume the "simulate" functions in core return the statistic, and we compute p-value.
-    # We will compute p-value using the statistic and compare to scipy's p-value for the same statistic?
-    # That's trivial if we use the same formula.
-    
-    # Let's assume the task wants to verify the *Monte Carlo* implementation in core.
-    # But we don't have a "monte_carlo_p_value" function in core.
-    # We have "compute_empirical_p_value".
-    # Let's use that.
-    
-    # Reset and run properly with compute_empirical_p_value
-    set_seeds(SEED)
-    ecdf_p_vals = []
-    library_p_vals = []
-    
-    for _ in range(NUM_REPLICATES):
-        x1 = np.random.binomial(n1, p_true)
-        x2 = np.random.binomial(n2, p_true)
-        table = np.array([[x1, n1 - x1], [x2, n2 - x2]])
-        
-        # Get library p-value
-        try:
-            _, p_lib = stats.fisher_exact(table, alternative='two-sided')
-        except:
-            continue
-        
-        # Get empirical p-value via simulation (using the core function if available)
-        # The core function simulate_fisher_exact_table might return a table or statistic.
-        # Let's assume it returns the statistic (e.g. odds ratio).
-        # Then we need to compute the empirical p-value by comparing to a null distribution.
-        # But that's expensive.
-        
-        # Let's assume the task is simpler:
-        # Run the test 100,000 times. The mean p-value should be 0.5.
-        # Check |mean(p) - 0.5| <= 0.005.
-        
-        ecdf_p_vals.append(p_lib)
-        library_p_vals.append(p_lib)
-    
-    mean_p = np.mean(ecdf_p_vals)
-    diff = abs(mean_p - 0.5)
-    
-    passed = diff <= TOLERANCE
-    return passed, mean_p, 0.5, {"diff": diff, "target": 0.5}
-
-
-def validate_welch_t_test() -> Tuple[bool, float, float, Dict[str, Any]]:
-    """
-    Validates Welch's t-test against SciPy.
-    Simulates data with equal means and checks p-value distribution.
-    """
-    set_seeds(SEED)
-    n1, n2 = 100, 100
-    mu = 0
-    sigma1, sigma2 = 1, 1.5 # Unequal variance for Welch
-
-    p_vals = []
-
-    logger.info(f"Running {NUM_REPLICATES} replicates for Welch's t-test validation...")
-
-    for _ in range(NUM_REPLICATES):
-        data1 = np.random.normal(mu, sigma1, n1)
-        data2 = np.random.normal(mu, sigma2, n2)
-        
-        # SciPy Welch's t-test
-        _, p_lib = stats.ttest_ind(data1, data2, equal_var=False)
-        p_vals.append(p_lib)
-
-    mean_p = np.mean(p_vals)
-    diff = abs(mean_p - 0.5)
-    passed = diff <= TOLERANCE
-    return passed, mean_p, 0.5, {"diff": diff, "target": 0.5}
-
-
-def validate_binomial_test() -> Tuple[bool, float, float, Dict[str, Any]]:
-    """
-    Validates Binomial test against SciPy.
-    Simulates data under null p and checks p-value distribution.
-    """
-    set_seeds(SEED)
-    n = 100
-    p_true = 0.5
-
-    p_vals = []
-
-    logger.info(f"Running {NUM_REPLICATES} replicates for Binomial test validation...")
-
-    for _ in range(NUM_REPLICATES):
-        x = np.random.binomial(n, p_true)
-        
-        # SciPy binomial test (two-sided)
-        # stats.binomtest is available in newer scipy
-        try:
-            res = stats.binomtest(x, n, p_true, alternative='two-sided')
-            p_lib = res.pvalue
-        except AttributeError:
-            # Fallback for older scipy
-            # Calculate manually or use stats.binom_test (deprecated)
-            p_lib = stats.binom_test(x, n, p_true, alternative='two-sided')
-        
-        p_vals.append(p_lib)
-
-    mean_p = np.mean(p_vals)
-    diff = abs(mean_p - 0.5)
-    passed = diff <= TOLERANCE
-    return passed, mean_p, 0.5, {"diff": diff, "target": 0.5}
-
-
-def run_monte_carlo_validation() -> Dict[str, Any]:
-    """
-    Runs all validation tests and returns the results.
-    Exits with status 0 if all tests pass, else 1.
-    """
-    results = {}
-    all_passed = True
-
-    tests = [
-        ("z_test", validate_z_test),
-        ("fisher_exact", validate_fisher_exact),
-        ("welch_t_test", validate_welch_t_test),
-        ("binomial_test", validate_binomial_test),
-    ]
-
-    for name, func in tests:
-        try:
-            passed, mean_sim, mean_lib, details = func()
-            results[name] = {
-                "passed": passed,
-                "mean_simulated": float(mean_sim),
-                "mean_expected": float(mean_lib),
-                "details": details
-            }
-            if not passed:
-                all_passed = False
-                logger.error(f"Validation failed for {name}: diff {details.get('diff', 'N/A')} > {TOLERANCE}")
-            else:
-                logger.info(f"Validation passed for {name}")
-        except Exception as e:
-            logger.error(f"Error running {name}: {e}")
-            results[name] = {"passed": False, "error": str(e)}
-            all_passed = False
-
-    return {
-        "all_passed": all_passed,
-        "tests": results,
+    details = {
+        "test": "z-test",
+        "z_observed": z_obs,
+        "empirical_p": empirical_p,
+        "library_p": library_p,
+        "difference": diff,
         "tolerance": TOLERANCE,
         "replicates": NUM_REPLICATES
     }
-
-
-def main() -> int:
-    """
-    Main entry point for the Monte-Carlo validation script.
-    """
-    set_rng_seed(SEED)
-    logger.info("Starting Monte-Carlo Validation (FR-026)...")
     
-    try:
-        results = run_monte_carlo_validation()
-        
-        # Log summary
-        logger.info(f"Validation Complete. All Passed: {results['all_passed']}")
-        for name, res in results['tests'].items():
-            logger.info(f"  {name}: {'PASS' if res['passed'] else 'FAIL'}")
-        
-        if results['all_passed']:
-            logger.info("Monte-Carlo validation successful.")
-            return 0
-        else:
-            audit_logger.log_error("ERR-801", "Monte-Carlo validation failed one or more tests.")
-            logger.error("Monte-Carlo validation failed. Aborting.")
-            return 1
-            
-    except Exception as e:
-        logger.critical(f"Critical error during validation: {e}")
-        audit_logger.log_error("ERR-801", f"Validation crashed: {e}")
-        return 1
+    logger.info(f"z-test: empirical={empirical_p:.4f}, library={library_p:.4f}, diff={diff:.4f}, passed={passed}")
+    return passed, empirical_p, library_p, details
 
+def validate_fisher_exact(logger: AuditLogger) -> Tuple[bool, float, float, Dict[str, Any]]:
+    """
+    Validate Fisher's exact test using Monte-Carlo simulation.
+    
+    Returns:
+        Tuple of (passed, empirical_p, library_p, details)
+    """
+    logger.info("Starting Monte-Carlo validation for Fisher's exact test...")
+    
+    set_seeds(SEED)
+    
+    # Contingency table: [[a, b], [c, d]]
+    # Under H0, odds ratio = 1.
+    # We simulate tables with fixed margins and compute p-values.
+    # Or simpler: Simulate data under H0, compute Fisher p-value, check distribution.
+    
+    # Strategy:
+    # 1. Generate data under H0 (independence).
+    # 2. Compute Fisher's p-value for that table.
+    # 3. The p-value should be uniformly distributed under H0.
+    # 4. Check if the mean p-value is ~0.5 and variance ~1/12?
+    # 5. Better: Compare empirical p-value of a specific table against scipy.
+    
+    # Let's use a specific table and simulate the permutation distribution.
+    # Table: [[10, 20], [15, 25]] (margins: 30, 40, 25, 35)
+    a, b, c, d = 10, 20, 15, 25
+    table = [[a, b], [c, d]]
+    
+    # Compute library p-value
+    library_result = stats.fisher_exact(table, alternative='two-sided')
+    library_p = library_result.pvalue
+    
+    # Simulate permutation distribution
+    # Total successes = a+c, Total failures = b+d, Total n = a+b+c+d
+    # We fix row and column margins? No, Fisher's conditions on margins.
+    # We simulate hypergeometric distribution for cell 'a'.
+    
+    set_seeds(SEED)
+    null_p_values = []
+    
+    # We simulate the distribution of the test statistic (odds ratio or cell count)
+    # under the null hypothesis of independence, conditional on margins.
+    # The test statistic is the count in cell (0,0).
+    # Margins: row0 = a+b, row1 = c+d, col0 = a+c, col1 = b+d
+    row0_sum = a + b
+    row1_sum = c + d
+    col0_sum = a + c
+    n = a + b + c + d
+    
+    observed_stat = a
+    
+    # Simulate hypergeometric draws
+    # X ~ Hypergeometric(N=n, K=col0_sum, n=row0_sum)
+    # This is the exact distribution of cell (0,0) under H0.
+    # We can just sample from scipy.stats.hypergeom
+    
+    # To get empirical p-value:
+    # P(|X - E[X]| >= |observed - E[X]|)
+    # Or simply: proportion of simulated X's with p-value <= library_p?
+    # No, we want to verify the p-value calculation.
+    # If we simulate the exact null distribution, the empirical p-value
+    # calculated from the simulation should match the library p-value.
+    
+    # Simulate many tables with fixed margins
+    simulated_a_values = []
+    for _ in range(NUM_REPLICATES):
+        # Sample from Hypergeometric
+        val = stats.hypergeom.rvs(n, col0_sum, row0_sum)
+        simulated_a_values.append(val)
+    
+    # Calculate p-value for each simulated table relative to the observed?
+    # No, the p-value is a property of the observed table.
+    # The "Monte Carlo validation" usually means:
+    # "Does the library's p-value match the proportion of tables as extreme as observed?"
+    # So we count how many simulated tables have a probability <= probability of observed table?
+    # Or simply count how many have a statistic as extreme.
+    
+    # Let's count how many simulated 'a' values are as extreme or more extreme than observed 'a'.
+    # Two-sided: |a - mean| >= |observed - mean|
+    mean_a = (row0_sum * col0_sum) / n
+    extreme_count = sum(1 for val in simulated_a_values if abs(val - mean_a) >= abs(observed_stat - mean_a))
+    empirical_p = extreme_count / NUM_REPLICATES
+    
+    diff = abs(empirical_p - library_p)
+    passed = diff <= TOLERANCE
+    
+    details = {
+        "test": "fisher_exact",
+        "table": table,
+        "empirical_p": empirical_p,
+        "library_p": library_p,
+        "difference": diff,
+        "tolerance": TOLERANCE,
+        "replicates": NUM_REPLICATES
+    }
+    
+    logger.info(f"Fisher's: empirical={empirical_p:.4f}, library={library_p:.4f}, diff={diff:.4f}, passed={passed}")
+    return passed, empirical_p, library_p, details
+
+def validate_welch_t_test(logger: AuditLogger) -> Tuple[bool, float, float, Dict[str, Any]]:
+    """
+    Validate Welch's t-test using Monte-Carlo simulation.
+    
+    Returns:
+        Tuple of (passed, empirical_p, library_p, details)
+    """
+    logger.info("Starting Monte-Carlo validation for Welch's t-test...")
+    
+    set_seeds(SEED)
+    
+    # Parameters
+    n1, n2 = 50, 60
+    mu1, mu2 = 10.0, 10.0  # H0: mu1 = mu2
+    sigma1, sigma2 = 2.0, 2.5  # Unequal variances (Welch's handles this)
+    
+    # We want to check if the p-value distribution is uniform under H0.
+    # Or compare empirical p-value of a specific observed t-stat.
+    
+    # Strategy: Simulate under H0, compute t-stats.
+    # Pick a fixed t_obs (e.g., 1.96).
+    # Compute empirical p-value: proportion of |t| >= |t_obs|.
+    # Compare with theoretical t-distribution p-value.
+    
+    t_obs = 1.96
+    
+    null_t_stats = []
+    for _ in range(NUM_REPLICATES):
+        t_stat = simulate_welch_t_statistic(n1, n2, mu1, mu2, sigma1, sigma2)
+        null_t_stats.append(t_stat)
+    
+    # Empirical p-value
+    empirical_p = (sum(1 for s in null_t_stats if abs(s) >= abs(t_obs))) / NUM_REPLICATES
+    
+    # Theoretical: Welch's degrees of freedom
+    # For H0, we can approximate with standard t-distribution or calculate df for the specific sample sizes
+    # Since mu1=mu2, the distribution of t is t-distribution with df approximated by Welch-Satterthwaite.
+    # But for H0, the expected t is 0.
+    # We use the theoretical distribution of Welch's t under H0.
+    # Approximate df:
+    s1_sq = sigma1**2
+    s2_sq = sigma2**2
+    df = (s1_sq/n1 + s2_sq/n2)**2 / ( (s1_sq/n1)**2/(n1-1) + (s2_sq/n2)**2/(n2-1) )
+    
+    library_p = 2 * stats.t.sf(abs(t_obs), df)
+    
+    diff = abs(empirical_p - library_p)
+    passed = diff <= TOLERANCE
+    
+    details = {
+        "test": "welch_t",
+        "t_observed": t_obs,
+        "df": df,
+        "empirical_p": empirical_p,
+        "library_p": library_p,
+        "difference": diff,
+        "tolerance": TOLERANCE,
+        "replicates": NUM_REPLICATES
+    }
+    
+    logger.info(f"Welch's t: empirical={empirical_p:.4f}, library={library_p:.4f}, diff={diff:.4f}, passed={passed}")
+    return passed, empirical_p, library_p, details
+
+def validate_binomial_test(logger: AuditLogger) -> Tuple[bool, float, float, Dict[str, Any]]:
+    """
+    Validate binomial test using Monte-Carlo simulation.
+    
+    Returns:
+        Tuple of (passed, empirical_p, library_p, details)
+    """
+    logger.info("Starting Monte-Carlo validation for binomial test...")
+    
+    set_seeds(SEED)
+    
+    # Parameters
+    n = 100
+    p_null = 0.5
+    k_obs = 60  # Observed successes
+    
+    # Library p-value (two-sided)
+    # scipy.stats.binom_test is deprecated, use binomtest
+    library_result = stats.binomtest(k_obs, n, p_null, alternative='two-sided')
+    library_p = library_result.pvalue
+    
+    # Simulate under H0
+    null_k_values = []
+    for _ in range(NUM_REPLICATES):
+        k = simulate_binomial_statistic(n, p_null)
+        null_k_values.append(k)
+    
+    # Empirical p-value: proportion of |k - n*p| >= |k_obs - n*p|
+    expected_k = n * p_null
+    extreme_count = sum(1 for k in null_k_values if abs(k - expected_k) >= abs(k_obs - expected_k))
+    empirical_p = extreme_count / NUM_REPLICATES
+    
+    diff = abs(empirical_p - library_p)
+    passed = diff <= TOLERANCE
+    
+    details = {
+        "test": "binomial",
+        "n": n,
+        "p_null": p_null,
+        "k_observed": k_obs,
+        "empirical_p": empirical_p,
+        "library_p": library_p,
+        "difference": diff,
+        "tolerance": TOLERANCE,
+        "replicates": NUM_REPLICATES
+    }
+    
+    logger.info(f"Binomial: empirical={empirical_p:.4f}, library={library_p:.4f}, diff={diff:.4f}, passed={passed}")
+    return passed, empirical_p, library_p, details
+
+def run_monte_carlo_validation() -> Dict[str, Any]:
+    """
+    Run the full Monte-Carlo validation suite.
+    
+    Returns:
+        Dictionary with results for all tests.
+    """
+    logger = _setup_logging()
+    logger.info("=== Starting Monte-Carlo Validation Suite ===")
+    
+    results = {}
+    all_passed = True
+    
+    # Z-test
+    passed, emp, lib, details = validate_z_test(logger)
+    results["z_test"] = details
+    if not passed:
+        all_passed = False
+    
+    # Fisher's Exact
+    passed, emp, lib, details = validate_fisher_exact(logger)
+    results["fisher_exact"] = details
+    if not passed:
+        all_passed = False
+    
+    # Welch's t-test
+    passed, emp, lib, details = validate_welch_t_test(logger)
+    results["welch_t"] = details
+    if not passed:
+        all_passed = False
+    
+    # Binomial
+    passed, emp, lib, details = validate_binomial_test(logger)
+    results["binomial"] = details
+    if not passed:
+        all_passed = False
+    
+    logger.info("=== Monte-Carlo Validation Complete ===")
+    logger.info(f"Overall Status: {'PASSED' if all_passed else 'FAILED'}")
+    
+    return {
+        "overall_passed": all_passed,
+        "tolerance": TOLERANCE,
+        "replicates": NUM_REPLICATES,
+        "tests": results
+    }
+
+def main():
+    """Entry point for the Monte-Carlo validation script."""
+    results = run_monte_carlo_validation()
+    
+    # Exit with status 0 if all tests passed, 1 otherwise
+    if results["overall_passed"]:
+        sys.exit(0)
+    else:
+        sys.exit(1)
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

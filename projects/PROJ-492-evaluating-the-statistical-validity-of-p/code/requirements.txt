@@ -12,5 +12,4 @@ ruff
 black
 pre-commit
 pytest
-pydantic
-scikit-learn
+pytest-cov

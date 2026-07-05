@@ -1,241 +1,206 @@
 """
-Structured logging infrastructure for the A/B test audit pipeline.
+Structured logging infrastructure for the A/B Test Audit Pipeline.
 
-This module provides a centralized logging configuration that ensures all
-logs follow a consistent format, including error codes in the format 'ERR-###'.
+This module provides a centralized logging configuration that ensures all log
+messages follow a consistent format, including standardized error codes (ERR-###)
+as required by FR-007 and Constitution Principle VII (Provenance).
 """
-
 import logging
 import sys
-from pathlib import Path
+import os
+from datetime import datetime
 from typing import Optional, Dict, Any
+from pathlib import Path
 
-# Error code registry
-ERROR_CODES: Dict[int, str] = {
-    # General errors
-    1: "ERR-001",
-    2: "ERR-002",
-    # URL and fetching errors
-    10: "ERR-010",
-    11: "ERR-011",
-    12: "ERR-012",
-    # Extraction errors
-    20: "ERR-020",
-    21: "ERR-021",
-    22: "ERR-022",
-    # Statistical errors
-    30: "ERR-030",
-    31: "ERR-031",
-    # Validation errors
-    40: "ERR-040",
-    41: "ERR-041",
-    # Resource errors
-    50: "ERR-050",
-    51: "ERR-051",
-    # Export errors
-    60: "ERR-060",
-    61: "ERR-061",
-    # Monte Carlo errors
-    70: "ERR-070",
-    71: "ERR-071",
-    # Power analysis errors
-    80: "ERR-080",
-    81: "ERR-081",
-    # Prevalence errors
-    90: "ERR-090",
-    91: "ERR-091",
-    # Subgroup analysis errors
-    100: "ERR-100",
-    101: "ERR-101",
-    # Bias adjustment errors
-    110: "ERR-110",
-    111: "ERR-111",
-    # Manifest errors
-    120: "ERR-120",
-    121: "ERR-121",
-    # Schema validation errors
-    130: "ERR-130",
-    131: "ERR-131",
-    # Export consistency errors
-    200: "ERR-200",
-    201: "ERR-201",
-    # Resource limit errors
-    300: "ERR-300",
-    301: "ERR-301",
-    # Pipeline execution errors
-    800: "ERR-800",
-    801: "ERR-801",
-    802: "ERR-802",
+# Error code registry to ensure uniqueness and documentation
+ERROR_CODES: Dict[str, str] = {
+    "ERR-001": "Missing required field in extracted summary",
+    "ERR-002": "Malformed HTML structure prevented extraction",
+    "ERR-003": "Sample size mismatch between reported and calculated values",
+    "ERR-004": "P-value inconsistency detected (absolute difference > 0.05)",
+    "ERR-005": "Effect size inconsistency detected (relative difference > 5%)",
+    "ERR-006": "Inequality p-value format detected (e.g., p < 0.001)",
+    "ERR-007": "Conflicting sample sizes reported in source",
+    "ERR-008": "Baseline conversion rate missing for binary outcome",
+    "ERR-009": "Statistical test type could not be determined",
+    "ERR-010": "Power analysis requirements not met (N < 300)",
+    "ERR-101": "URL fetch failed after retries",
+    "ERR-102": "Domain extraction failed for URL",
+    "ERR-201": "Export consistency check failed (JSON vs CSV count mismatch)",
+    "ERR-301": "Resource limit exceeded (CPU > 2vCPU or RAM > 2GB)",
+    "ERR-800": "Evaluation threshold not met (Precision < 90% or Recall < 80%)",
+    "ERR-801": "Monte-Carlo validation failed (difference > 0.005)",
+    "ERR-802": "Real-world validation threshold not met",
+    "ERR-950": "Constitution compliance check failed",
 }
 
-
-def get_error_message(code: int) -> str:
+def get_error_message(code: str) -> str:
     """
-    Get the formatted error code string for a given error number.
+    Retrieve the human-readable description for an error code.
 
     Args:
-        code: The error number (e.g., 1 for ERR-001)
+        code: The error code string (e.g., 'ERR-001').
 
     Returns:
-        Formatted error code string (e.g., 'ERR-001')
+        The error description if found, otherwise a generic message.
     """
-    return ERROR_CODES.get(code, f"ERR-{code:03d}")
+    return ERROR_CODES.get(code, f"Unknown error code: {code}")
 
-
-class AuditLogger:
+class AuditLogger(logging.LoggerAdapter):
     """
-    A logger wrapper that ensures all error messages include proper error codes.
+    A LoggerAdapter that injects structured metadata into every log record.
+
+    This ensures that all logs produced by the audit pipeline contain:
+    - Timestamp
+    - Error Code (if applicable)
+    - Component/Module name
+    - Task ID context (if available)
     """
 
-    def __init__(self, name: str, log_file: Optional[Path] = None):
+    def __init__(
+        self,
+        logger: logging.Logger,
+        extra: Optional[Dict[str, Any]] = None,
+        error_code: Optional[str] = None,
+        task_id: Optional[str] = None,
+    ):
         """
-        Initialize the audit logger.
+        Initialize the AuditLogger.
 
         Args:
-            name: Logger name (typically module name)
-            log_file: Optional path to a log file. If None, logs to console.
+            logger: The underlying logging.Logger instance.
+            extra: Additional context data to inject.
+            error_code: Standardized error code (ERR-###) if this log represents an error.
+            task_id: The current task ID context (e.g., 'T009').
         """
-        self.logger = logging.getLogger(name)
-        self.logger.setLevel(logging.DEBUG)
-        self.logger.handlers = []  # Clear existing handlers
+        context = {
+            "component": extra.get("component", "unknown") if extra else "unknown",
+            "task_id": task_id or "UNKNOWN",
+            "timestamp": datetime.utcnow().isoformat(),
+        }
+        if error_code:
+            context["error_code"] = error_code
+            context["error_message"] = get_error_message(error_code)
+        else:
+            context["error_code"] = None
+            context["error_message"] = None
 
-        # Create formatter with error code support
-        formatter = logging.Formatter(
-            '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-            datefmt='%Y-%m-%d %H:%M:%S'
+        super().__init__(logger, context)
+
+    def process(self, msg: str, kwargs: Dict[str, Any]) -> tuple:
+        """
+        Inject structured context into the log message.
+
+        Args:
+            msg: The original log message.
+            kwargs: Keyword arguments passed to the logger.
+
+        Returns:
+            A tuple of (formatted_message, kwargs).
+        """
+        extra = self.extra.copy()
+        # Format: [TIMESTAMP] [LEVEL] [TASK_ID] [COMPONENT] [ERR-CODE] MSG
+        level = kwargs.get("level", logging.INFO)
+        level_name = logging.getLevelName(level) if isinstance(level, int) else str(level)
+
+        error_code_str = f" [{extra['error_code']}]" if extra.get('error_code') else ""
+
+        formatted_msg = (
+            f"[{extra['timestamp']}] "
+            f"[{level_name}] "
+            f"[{extra['task_id']}] "
+            f"[{extra['component']}] "
+            f"{error_code_str} "
+            f"{msg}"
         )
 
-        # Console handler
-        console_handler = logging.StreamHandler(sys.stdout)
-        console_handler.setLevel(logging.INFO)
-        console_handler.setFormatter(formatter)
-        self.logger.addHandler(console_handler)
+        return formatted_msg, kwargs
 
-        # File handler if specified
-        if log_file:
-            log_file.parent.mkdir(parents=True, exist_ok=True)
-            file_handler = logging.FileHandler(log_file)
-            file_handler.setLevel(logging.DEBUG)
-            file_handler.setFormatter(formatter)
-            self.logger.addHandler(file_handler)
-
-    def log_error(self, code: int, message: str, **kwargs: Any) -> None:
-        """
-        Log an error with a specific error code.
-
-        Args:
-            code: Error code number
-            message: Error message
-            **kwargs: Additional context to include
-        """
-        error_code_str = get_error_message(code)
-        full_message = f"{error_code_str} - {message}"
-        if kwargs:
-            full_message += f" | Context: {kwargs}"
-        self.logger.error(full_message)
-
-    def log_warning(self, code: Optional[int], message: str, **kwargs: Any) -> None:
-        """
-        Log a warning, optionally with an error code.
-
-        Args:
-            code: Optional error code number
-            message: Warning message
-            **kwargs: Additional context to include
-        """
-        if code is not None:
-            error_code_str = get_error_message(code)
-            full_message = f"{error_code_str} - {message}"
-        else:
-            full_message = message
-        if kwargs:
-            full_message += f" | Context: {kwargs}"
-        self.logger.warning(full_message)
-
-    def log_info(self, message: str, **kwargs: Any) -> None:
-        """
-        Log an informational message.
-
-        Args:
-            message: Info message
-            **kwargs: Additional context to include
-        """
-        full_message = message
-        if kwargs:
-            full_message += f" | Context: {kwargs}"
-        self.logger.info(full_message)
-
-    def log_debug(self, message: str, **kwargs: Any) -> None:
-        """
-        Log a debug message.
-
-        Args:
-            message: Debug message
-            **kwargs: Additional context to include
-        """
-        full_message = message
-        if kwargs:
-            full_message += f" | Context: {kwargs}"
-        self.logger.debug(full_message)
-
-    def log_success(self, code: Optional[int], message: str, **kwargs: Any) -> None:
-        """
-        Log a success message, optionally with a completion code.
-
-        Args:
-            code: Optional success code number
-            message: Success message
-            **kwargs: Additional context to include
-        """
-        if code is not None:
-            success_code_str = get_error_message(code)  # Reuse format for consistency
-            full_message = f"{success_code_str} - {message}"
-        else:
-            full_message = f"SUCCESS - {message}"
-        if kwargs:
-            full_message += f" | Context: {kwargs}"
-        self.logger.info(full_message)
-
-
-# Global logger instance for convenience
-_default_logger: Optional[AuditLogger] = None
-
-
-def get_default_logger() -> AuditLogger:
+def get_default_logger(
+    name: Optional[str] = None,
+    task_id: Optional[str] = None,
+    log_file: Optional[str] = None,
+) -> AuditLogger:
     """
-    Get or create the default audit logger instance.
-
-    Returns:
-        The default AuditLogger instance
-    """
-    global _default_logger
-    if _default_logger is None:
-        _default_logger = AuditLogger("audit_pipeline")
-    return _default_logger
-
-
-def configure_logging(log_level: str = "INFO", log_file: Optional[Path] = None) -> None:
-    """
-    Configure the root logging settings for the entire application.
+    Create and configure a default AuditLogger instance.
 
     Args:
-        log_level: Logging level (DEBUG, INFO, WARNING, ERROR, CRITICAL)
-        log_file: Optional path to a log file
+        name: Name for the logger. Defaults to the module name if None.
+        task_id: The current task ID to include in all logs.
+        log_file: Optional path to a file for log output. If None, logs to stderr.
+
+    Returns:
+        An configured AuditLogger instance.
     """
-    level = getattr(logging, log_level.upper(), logging.INFO)
-    logging.basicConfig(
-        level=level,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-        datefmt='%Y-%m-%d %H:%M:%S',
-        handlers=[
-            logging.StreamHandler(sys.stdout)
-        ]
-    )
-    if log_file:
-        file_handler = logging.FileHandler(log_file)
-        file_handler.setLevel(logging.DEBUG)
-        file_handler.setFormatter(logging.Formatter(
-            '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-            datefmt='%Y-%m-%d %H:%M:%S'
-        ))
-        logging.getLogger().addHandler(file_handler)
+    if name is None:
+        # Derive name from caller or default
+        name = "audit_pipeline"
+
+    logger = logging.getLogger(name)
+    logger.setLevel(logging.DEBUG)
+
+    # Prevent duplicate handlers if called multiple times
+    if not logger.handlers:
+        formatter = logging.Formatter(
+            "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+        )
+
+        if log_file:
+            # Ensure directory exists
+            Path(log_file).parent.mkdir(parents=True, exist_ok=True)
+            handler = logging.FileHandler(log_file)
+            handler.setFormatter(formatter)
+            logger.addHandler(handler)
+
+        # Always log to stderr for visibility in CI/CLI
+        console_handler = logging.StreamHandler(sys.stderr)
+        console_handler.setFormatter(formatter)
+        logger.addHandler(console_handler)
+
+    return AuditLogger(logger, task_id=task_id)
+
+def log_error(logger: AuditLogger, error_code: str, message: str, **kwargs):
+    """
+    Log an error message with a standardized error code.
+
+    This is a convenience wrapper that ensures the error code is attached
+    to the log record and the message is formatted correctly.
+
+    Args:
+        logger: The AuditLogger instance.
+        error_code: The standardized error code (ERR-###).
+        message: The human-readable error message.
+        **kwargs: Additional context to merge into the log record.
+    """
+    if error_code not in ERROR_CODES:
+        # Log a warning if the error code is unknown
+        logger.warning(f"Unknown error code used: {error_code}")
+
+    # Merge kwargs into extra context
+    extra = {"component": kwargs.get("component", "unknown")}
+    extra.update({k: v for k, v in kwargs.items() if k != "component"})
+
+    # Create a temporary logger with the specific error code
+    error_logger = AuditLogger(logger.logger, extra=extra, error_code=error_code)
+    error_logger.error(message)
+
+def log_warning(logger: AuditLogger, message: str, **kwargs):
+    """Log a warning message."""
+    extra = {"component": kwargs.get("component", "unknown")}
+    extra.update({k: v for k, v in kwargs.items() if k != "component"})
+    warning_logger = AuditLogger(logger.logger, extra=extra)
+    warning_logger.warning(message)
+
+def log_info(logger: AuditLogger, message: str, **kwargs):
+    """Log an info message."""
+    extra = {"component": kwargs.get("component", "unknown")}
+    extra.update({k: v for k, v in kwargs.items() if k != "component"})
+    info_logger = AuditLogger(logger.logger, extra=extra)
+    info_logger.info(message)
+
+def log_debug(logger: AuditLogger, message: str, **kwargs):
+    """Log a debug message."""
+    extra = {"component": kwargs.get("component", "unknown")}
+    extra.update({k: v for k, v in kwargs.items() if k != "component"})
+    debug_logger = AuditLogger(logger.logger, extra=extra)
+    debug_logger.debug(message)
