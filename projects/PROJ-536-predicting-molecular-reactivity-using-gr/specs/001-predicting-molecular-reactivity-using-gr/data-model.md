@@ -1,94 +1,84 @@
-# Data Model: Predicting Molecular Reactivity Using Graph Neural Networks
-
-## Overview
-
-This document defines the data structures, schemas, and transformation rules for the molecular reactivity prediction pipeline. The model ensures compatibility with PyTorch Geometric (for GNNs) and scikit-learn (for baselines), while adhering to the project's data hygiene and reproducibility principles.
+# Data Model: Predicting Molecular Reactivity Using Graph Neural Networks and Reaction Datasets
 
 ## Entity Definitions
 
-### 1. RawReaction
-**Description**: A raw entry from the USPTO dataset containing SMILES strings and yield.
-**Source**: `data/raw/uspto_*.parquet`
-**Schema**:
-- `reaction_smiles`: string (SMILES string representing the reaction)
-- `yield`: float (0.0 to 100.0)
-- `reaction_class`: string (Optional, for stratification)
-- `source_id`: string (Unique identifier from dataset)
+### ReactionRecord
+Represents a single chemical reaction instance.
+- **id**: Unique identifier (string).
+- **reactants_smiles**: List of SMILES strings for reactants.
+- **product_smiles**: SMILES string for the product.
+- **yield**: Float (0.0 to 100.0). Target variable.
+- **reaction_class**: String (e.g., "Acylation", "Suzuki"). Used for reference only (not for splitting).
+- **scaffold**: String. The MurckoScaffold of the product molecule, used for grouping/splitting.
+- **parsed**: Boolean. True if SMILES were successfully converted to graphs.
+- **error_log**: String. Reason for parsing failure (if `parsed` is False).
 
-### 2. MolecularGraph (Processed)
-**Description**: A molecular graph representation derived from a reaction. Contains nodes (atoms) and edges (bonds) with extracted features.
-**Source**: `data/processed/graphs_*.pt` (PyTorch Geometric Data objects)
-**Structure**:
-- `x` (Node Features): Tensor of shape `[Num_Atoms, Num_Node_Features]`
-  - Features: Atomic Number, Formal Charge, Hybridization, Degree, Aromaticity, Valence.
-- `edge_index` (Edge Indices): Tensor of shape `[2, Num_Edges]`
-- `edge_attr` (Edge Features): Tensor of shape `[Num_Edges, Num_Edge_Features]`
-  - Features: Bond Type (Single, Double, Triple, Aromatic), Conjugation, In Ring.
-- `y` (Target): Tensor of shape `[1]` (Normalized yield, 0.0-1.0)
-- `reaction_center_mask`: Tensor of shape `[Num_Atoms]` (Boolean mask for atoms involved in reaction)
-- `smiles`: string (Original SMILES for reference)
+### MolecularGraph
+A graph data structure derived from a SMILES string.
+- **nodes**: List of Node objects.
+  - **atomic_number**: Integer.
+  - **charge**: Integer.
+  - **hybridization**: Enum (SP, SP2, SP3, etc.).
+  - **is_aromatic**: Boolean.
+- **edges**: List of Edge objects.
+  - **bond_type**: Enum (SINGLE, DOUBLE, TRIPLE, AROMATIC).
+  - **is_conjugated**: Boolean.
+- **is_valid**: Boolean. Result of RDKit valence/aromaticity checks.
 
-### 3. PredictionResult
-**Description**: Output of the model inference, including point prediction and uncertainty interval.
-**Source**: `results/predictions.json`
-**Schema**:
-- `model_type`: string ("GNN" or "Baseline")
-- `reaction_id`: string
-- `actual_yield`: float
-- `predicted_yield`: float
-- `lower_bound`: float (95% CI)
-- `upper_bound`: float (95% CI)
-- `error`: float (Absolute error)
+### ModelEvaluation
+Result set for a specific model on a specific split (or fold).
+- **model_type**: Enum (GNN, RF, LR).
+- **split_name**: String (train, val, test, or "fold-{N}").
+- **fold_id**: Integer (if using CV).
+- **r2**: Float.
+- **r2_ci_low**: Float. (Lower bound of 95% CI for R², if aggregated).
+- **r2_ci_high**: Float. (Upper bound of 95% CI for R², if aggregated).
+- **mae**: Float.
+- **rmse**: Float.
+- **loss_history**: List of Float (per epoch).
+- **p_value**: Float (if statistical test performed).
+- **comparison_baseline**: String (e.g., "RF").
+- **r2_delta**: Float. (R²_GNN - R²_Baseline).
+- **r2_delta_ci_low**: Float. (Lower bound of 95% CI for R² delta).
+- **r2_delta_ci_high**: Float. (Upper bound of 95% CI for R² delta).
+- **significance_assessment**: String. (e.g., "Practically Significant", "Statistically Significant, but effect size uncertain", "No Statistical Significance").
 
-### 4. MetricsReport
-**Description**: Aggregated performance metrics for the entire experiment.
-**Source**: `results/metrics.json`
-**Schema**:
-- `gnn`:
-  - `r2_mean`: float
-  - `r2_std`: float
-  - `mae`: float
-  - `rmse`: float
-- `baseline`:
-  - `r2_mean`: float
-  - `r2_std`: float
-  - `mae`: float
-  - `rmse`: float
-- `comparison`:
-  - `relative_error_reduction`: float
-  - `p_value`: float (from statistical test)
-- `sensitivity`:
-  - `noise_levels`: list[float]
-  - `mae_values`: list[float]
+### PredictionInterval
+Uncertainty estimate for a single prediction.
+- **reaction_id**: String.
+- **predicted_yield**: Float.
+- **lower_bound**: Float.
+- **upper_bound**: Float.
+- **actual_yield**: Float (for evaluation).
+- **is_covered**: Boolean. True if `lower_bound <= actual_yield <= upper_bound`.
 
-## Transformation Rules
+### SubgraphPattern
+Motif identified by GNNExplainer.
+- **pattern_id**: String.
+- **nodes**: List of node indices in the original graph.
+- **edges**: List of edge indices.
+- **importance_score**: Float.
+- **frequency**: Integer. How often this pattern appears in high-importance regions.
+- **interpretation_warning**: String. **Mandatory**: "These patterns are associational and may reflect dataset bias; they are not proven causal drivers."
 
-### SMILES to Graph
-1. **Parse**: Use `rdkit.Chem.MolFromSmiles`.
-2. **Validate**: Check `rdkit.Chem.rdmolops.SanitizeMol`. If fails, log and exclude.
-3. **Extract Nodes**: Iterate atoms.
-   - `atomic_num`: `atom.GetAtomicNum()`
-   - `formal_charge`: `atom.GetFormalCharge()`
-   - `hybridization`: `atom.GetHybridization()` (mapped to int)
-   - `degree`: `atom.GetDegree()`
-   - `is_aromatic`: `atom.GetIsAromatic()`
-4. **Extract Edges**: Iterate bonds.
-   - `bond_type`: `bond.GetBondType()` (mapped to int)
-   - `is_conjugated`: `bond.GetIsConjugated()`
-5. **Reaction Center**: Compare reactant and product atom environments to identify changed bonds/atoms.
+## Data Flow
 
-### Normalization
-- **Yield**: `y_normalized = y_raw / 100.0` (Range 0.0 to 1.0).
-- **Inverse Transform**: `y_raw = y_normalized * 100.0`.
+1.  **Raw Input**: Parquet file (USPTO) -> `download.py`
+2.  **Validation**: Verify `yield` and `smiles` columns exist.
+3.  **Parsing**: Parquet -> `parse.py` -> `ReactionRecord` (with graph conversion).
+4.  **Scaffolding**: Compute MurckoScaffold for each record.
+5.  **Splitting**: `ReactionRecord` -> Grouped by Scaffold -> Train/Val/Test splits.
+6.  **Feature Extraction**:
+    - GNN: `MolecularGraph` tensors.
+    - RF/LR: `MolecularGraph` -> `numpy` arrays (fingerprints/descriptors).
+7.  **Training**: `train.py` (5-Fold CV) -> `ModelEvaluation` (per fold).
+8.  **Aggregation**: Compute mean/std, statistical tests, and CIs -> `ModelEvaluation` (aggregated).
+9.  **Inference**: `evaluate.py` -> `ModelEvaluation` (metrics) + `PredictionInterval`.
+10. **Explanation**: `explainers.py` -> `SubgraphPattern` (with warning).
 
-### Splitting
-- **Stratified**: If `reaction_class` exists, split by class.
-- **Random**: Otherwise, random split (Seed=42).
-- **Ratio**: [deferred] Train (for CV), [deferred] Test.
-- **CV**: 5-fold on Training set.
+## Storage Format
 
-## Data Hygiene & Versioning
-
-- **Checksums**: Every file in `data/raw/` and `data/processed/` must have a SHA-256 checksum recorded in `state/.../artifact_hashes`.
-- **Immutability**: Raw data is never modified. Processed graphs are written to new files with version suffixes (e.g., `graphs_v1.pt`).
-- **PII**: Chemical data is non-PII. No special handling required beyond standard data security.
+- **Raw Data**: Parquet (immutable).
+- **Processed Data**: HDF5 or Pickle (for graph tensors), CSV (for descriptors).
+- **Models**: PyTorch `.pt` files.
+- **Results**: JSON (metrics), CSV (intervals).

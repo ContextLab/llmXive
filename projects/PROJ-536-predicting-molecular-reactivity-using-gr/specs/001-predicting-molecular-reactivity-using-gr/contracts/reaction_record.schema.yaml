@@ -1,0 +1,37 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "ReactionRecord"
+description: "Schema for a single chemical reaction instance including yield and classification."
+type: "object"
+properties:
+  id:
+    type: "string"
+    description: "Unique identifier for the reaction record."
+  reactants_smiles:
+    type: "array"
+    items:
+      type: "string"
+    description: "List of SMILES strings for reactants."
+  product_smiles:
+    type: "string"
+    description: "SMILES string for the product molecule."
+  yield:
+    type: "number"
+    description: "Reaction yield as a percentage (0.0 to 100.0)."
+    minimum: 0.0
+    maximum: 100.0
+  reaction_class:
+    type: "string"
+    description: "Classification label for the reaction (e.g., 'Suzuki')."
+  parsed:
+    type: "boolean"
+    description: "True if SMILES were successfully converted to graphs."
+  error_log:
+    type: "string"
+    description: "Reason for parsing failure if 'parsed' is false."
+required:
+  - id
+  - reactants_smiles
+  - product_smiles
+  - yield
+  - reaction_class
+  - parsed

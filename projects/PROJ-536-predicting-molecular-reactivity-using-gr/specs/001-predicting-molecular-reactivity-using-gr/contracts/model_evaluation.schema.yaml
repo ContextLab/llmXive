@@ -1,0 +1,53 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "ModelEvaluation"
+description: "Schema for performance metrics of a model on a dataset split or aggregated across folds."
+type: "object"
+properties:
+  model_type:
+    type: "string"
+    enum:
+      - "GNN"
+      - "RF"
+      - "LR"
+    description: "Type of model evaluated."
+  split_name:
+    type: "string"
+    description: "Dataset split used for evaluation (e.g., 'test', 'fold-1')."
+  fold_id:
+    type: ["integer", "null"]
+    description: "Fold ID if using cross-validation."
+  r2:
+    type: "number"
+    description: "Coefficient of determination (R-squared)."
+  r2_ci_low:
+    type: ["number", "null"]
+    description: "Lower bound of 95% CI for R² (if aggregated)."
+  r2_ci_high:
+    type: ["number", "null"]
+    description: "Upper bound of 95% CI for R² (if aggregated)."
+  mae:
+    type: "number"
+    description: "Mean Absolute Error."
+    minimum: 0.0
+  rmse:
+    type: "number"
+    description: "Root Mean Square Error."
+    minimum: 0.0
+  loss_history:
+    type: "array"
+    items:
+      type: "number"
+    description: "List of loss values per epoch."
+  p_value:
+    type: ["number", "null"]
+    description: "P-value from statistical significance test (e.g., paired t-test)."
+  comparison_baseline:
+    type: ["string", "null"]
+    description: "Baseline model used for comparison (e.g., 'RF')."
+required:
+  - model_type
+  - split_name
+  - r2
+  - mae
+  - rmse
+  - loss_history

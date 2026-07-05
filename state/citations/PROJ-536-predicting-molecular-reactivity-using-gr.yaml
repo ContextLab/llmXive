@@ -1,22 +1,55 @@
-- artifact_hash: 71f0940caca2b657fabf4dc975cd21a614e2ec13e6629062bea1ed2d7c5c7eb8
+- artifact_hash: 18dcec780d44c625d7850fd0e33b436429b4e284c8149facae09f002c204761d
   artifact_path: projects/PROJ-536-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/research.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
-  fetched_title: null
+  fetched_title: test-00000-of-00001.parquet
   kind: url
-  value: https://huggingface.co/datasets/molecular-datasets/uspto_50k_yield
-  verification_status: pending
-  verified_against_url: https://huggingface.co/datasets/molecular-datasets/uspto_50k_yield
-  verified_at: '2026-07-05T22:38:08.263837Z'
-- artifact_hash: 71f0940caca2b657fabf4dc975cd21a614e2ec13e6629062bea1ed2d7c5c7eb8
+  value: https://huggingface.co/datasets/ufukhaman/uspto_balanced_200k_ipc_classification/resolve/main/data/test-00000-of-00001.parquet`
+  verification_status: verified
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/6277f4e144ea0305f5975067/893a163a9a4f5ef2ce4728ad9b1d6c4cb4625af6414d26969ff37a797ca673b9?X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27test-00000-of-00001.parquet%3B+filename%3D%22test-00000-of-00001.parquet%22%3B&user_id=public&Expires=1783297431&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjI3N2Y0ZTE0NGVhMDMwNWY1OTc1MDY3Lzg5M2ExNjNhOWE0ZjVlZjJjZTQ3MjhhZDliMWQ2YzRjYjQ2MjVhZjY0MTRkMjY5NjlmZjM3YTc5N2NhNjczYjlcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dGVzdC0wMDAwMC1vZi0wMDAwMS5wYXJxdWV0JTNCK2ZpbGVuYW1lJTNEJTIydGVzdC0wMDAwMC1vZi0wMDAwMS5wYXJxdWV0JTIyJTNCJnVzZXJfaWQ9cHVibGljIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3ODMyOTc0MzF9fX1dfQ__&Signature=MEUCIH0ASK6b7pXjCuBA3uo3zskP7rt4Ai-NHNRNBwdkShodAiEAkjGBdZWOQyHYbVjTNSMjxJvyApMEpNsOjcA6niZTDqU_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+  verified_at: '2026-07-05T23:23:51.435234Z'
+- artifact_hash: 18dcec780d44c625d7850fd0e33b436429b4e284c8149facae09f002c204761d
   artifact_path: projects/PROJ-536-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/research.md
   cite_id: c-002
   cited_authors: []
   cited_title: null
-  fetched_title: "lucainiao/MAESTRO_2004_SYNTH \xB7 Datasets at Hugging Face"
+  fetched_title: test-00000-of-00001-73e9452cdb1d5938.parquet
   kind: url
-  value: https://huggingface.co/datasets/lucainiao/MAESTRO_2004_SYNTH
+  value: https://huggingface.co/datasets/bing-yan/USPTO/resolve/main/data/test-00000-of-00001-73e9452cdb1d5938.parquet`
   verification_status: verified
-  verified_against_url: https://huggingface.co/datasets/lucainiao/MAESTRO_2004_SYNTH
-  verified_at: '2026-07-05T22:38:08.263837Z'
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/63588d575ddda966187322ee/6a5e70264fbbb95d2fe363b403eaeff1113789609b3536363993cb66e60981c7?X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27test-00000-of-00001-73e9452cdb1d5938.parquet%3B+filename%3D%22test-00000-of-00001-73e9452cdb1d5938.parquet%22%3B&user_id=public&Expires=1783297434&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjM1ODhkNTc1ZGRkYTk2NjE4NzMyMmVlLzZhNWU3MDI2NGZiYmI5NWQyZmUzNjNiNDAzZWFlZmYxMTEzNzg5NjA5YjM1MzYzNjM5OTNjYjY2ZTYwOTgxYzdcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dGVzdC0wMDAwMC1vZi0wMDAwMS03M2U5NDUyY2RiMWQ1OTM4LnBhcnF1ZXQlM0IrZmlsZW5hbWUlM0QlMjJ0ZXN0LTAwMDAwLW9mLTAwMDAxLTczZTk0NTJjZGIxZDU5MzgucGFycXVldCUyMiUzQiZ1c2VyX2lkPXB1YmxpYyIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzgzMjk3NDM0fX19XX0_&Signature=MEYCIQCEhdi7OLuGQYhnNwHuTg2oRANH78H2J3z40%7EM7z-JGFgIhANwSvR6p6D1ibOxprtUSou5YTIgpDbxu%7EvGA4j8PHArp&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+  verified_at: '2026-07-05T23:23:51.435234Z'
+- artifact_hash: 18dcec780d44c625d7850fd0e33b436429b4e284c8149facae09f002c204761d
+  artifact_path: projects/PROJ-536-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/research.md
+  cite_id: c-003
+  cited_authors: []
+  cited_title: null
+  fetched_title: test-00000-of-00001-34f7e8e796c82948.parquet
+  kind: url
+  value: https://huggingface.co/datasets/chenxran/uspto_full/resolve/main/data/test-00000-of-00001-34f7e8e796c82948.parquet`
+  verification_status: verified
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/6400d84b3e09e3c959ddbd2a/c2e5d32cb57dbd2c5395336422b8a5d2c42b9f3d62bd066ae11646d9b19e5fc4?response-content-disposition=inline%3B+filename*%3DUTF-8%27%27test-00000-of-00001-34f7e8e796c82948.parquet%3B+filename%3D%22test-00000-of-00001-34f7e8e796c82948.parquet%22%3B&user_id=public&X-Xet-Cas-Uid=public&Expires=1783297474&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjQwMGQ4NGIzZTA5ZTNjOTU5ZGRiZDJhL2MyZTVkMzJjYjU3ZGJkMmM1Mzk1MzM2NDIyYjhhNWQyYzQyYjlmM2Q2MmJkMDY2YWUxMTY0NmQ5YjE5ZTVmYzRcXD9yZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dGVzdC0wMDAwMC1vZi0wMDAwMS0zNGY3ZThlNzk2YzgyOTQ4LnBhcnF1ZXQlM0IrZmlsZW5hbWUlM0QlMjJ0ZXN0LTAwMDAwLW9mLTAwMDAxLTM0ZjdlOGU3OTZjODI5NDgucGFycXVldCUyMiUzQiZ1c2VyX2lkPXB1YmxpYyZYLVhldC1DYXMtVWlkPXB1YmxpYyIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzgzMjk3NDc0fX19XX0_&Signature=MEUCIQDK8-7vlIsy44IrXZr0xj7jW84SGu5gObN5Roj1FN1EcQIgPQlnLhYc3q%7EIFwKUClbMVOzvtB71MaIRiJRkE3CpYAg_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+  verified_at: '2026-07-05T23:23:51.435234Z'
+- artifact_hash: 18dcec780d44c625d7850fd0e33b436429b4e284c8149facae09f002c204761d
+  artifact_path: projects/PROJ-536-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/research.md
+  cite_id: c-004
+  cited_authors: []
+  cited_title: null
+  fetched_title: test-00000-of-00001.parquet
+  kind: url
+  value: https://huggingface.co/datasets/fabikru/chembl-2025-randomized-smiles-cleaned-rdkit-descriptors/resolve/main/data/test-00000-of-00001.parquet`
+  verification_status: verified
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/67f936282a27347d7152f248/fdee916ffc0fe277c8fc069720c777adc7315d078281cb4dc3f709675b0c437e?response-content-disposition=inline%3B+filename*%3DUTF-8%27%27test-00000-of-00001.parquet%3B+filename%3D%22test-00000-of-00001.parquet%22%3B&X-Xet-Cas-Uid=public&user_id=public&Expires=1783297474&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjdmOTM2MjgyYTI3MzQ3ZDcxNTJmMjQ4L2ZkZWU5MTZmZmMwZmUyNzdjOGZjMDY5NzIwYzc3N2FkYzczMTVkMDc4MjgxY2I0ZGMzZjcwOTY3NWIwYzQzN2VcXD9yZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dGVzdC0wMDAwMC1vZi0wMDAwMS5wYXJxdWV0JTNCK2ZpbGVuYW1lJTNEJTIydGVzdC0wMDAwMC1vZi0wMDAwMS5wYXJxdWV0JTIyJTNCJlgtWGV0LUNhcy1VaWQ9cHVibGljJnVzZXJfaWQ9cHVibGljIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3ODMyOTc0NzR9fX1dfQ__&Signature=MEQCIHaCkFdch38X0j4cgStu3VA%7EdOhyVYk6LsPQoBXT-WmJAiAL5R3vNjCvCv4crGgdYAYnw7bcqzSNcOvAbrM40ESMBg__&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+  verified_at: '2026-07-05T23:23:51.435234Z'
+- artifact_hash: 85691b586e7fdc0a14c28b90f9c9e0f681382679cf8d24d8d7748891ccb65cb1
+  artifact_path: projects/PROJ-536-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/quickstart.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: cpu
+  kind: url
+  value: https://download.pytorch.org/whl/cpu
+  verification_status: pending
+  verified_against_url: https://download.pytorch.org/whl/cpu
+  verified_at: '2026-07-05T23:24:44.271627Z'

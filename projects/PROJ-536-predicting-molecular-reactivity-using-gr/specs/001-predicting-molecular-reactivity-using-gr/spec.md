@@ -1,103 +1,107 @@
-# Feature Specification: Predicting Molecular Reactivity Using Graph Neural Networks
+# Feature Specification: Predicting Molecular Reactivity Using Graph Neural Networks and Reaction Datasets
 
 **Feature Branch**: `001-predict-molecular-reactivity`  
-**Created**: 2024-05-21  
+**Created**: 2023-10-27  
 **Status**: Draft  
 **Input**: User description: "Predicting Molecular Reactivity Using Graph Neural Networks and Reaction Datasets"
 
 ## User Scenarios & Testing
 
-### User Story 1 - Data Ingestion and Graph Construction (Priority: P1)
+### User Story 1 - Core Yield Prediction Pipeline (Priority: P1)
 
-The system MUST ingest raw reaction data (SMILES strings), parse them into molecular graphs using RDKit, and extract atom/bond features to create a CPU-tractable dataset for analysis.
+The researcher downloads a subset of the USPTO reaction dataset, parses the molecular structures into graphs, and trains a lightweight Message Passing Neural Network (MPNN) to predict reaction yield. The system must successfully output a regression model that can predict yields for a held-out test set with quantified error metrics (MAE, RMSE).
 
-**Why this priority**: This is the foundational step; without a valid, structured dataset derived from the USPTO repository, no modeling or analysis can occur. It delivers the raw material for all subsequent research steps.
+**Why this priority**: This is the foundational capability. Without a working prediction model, no comparative analysis or feature importance study is possible. It establishes the baseline functionality of the research tool.
 
-**Independent Test**: Can be fully tested by executing the data pipeline script on a subset of the USPTO dataset and verifying that the output is a valid graph dataset (e.g., PyG Data objects) with non-null node/edge features and no parsing errors.
+**Independent Test**: The pipeline can be fully tested by running the training script on a small, fixed subset of the USPTO data and verifying that the output includes a model file and a JSON report containing MAE and RMSE values that are finite numbers (not NaN or Infinity).
 
 **Acceptance Scenarios**:
 
-1. **Given** a raw SMILES string from the USPTO dataset representing a valid organic reaction, **When** the parsing module processes it, **Then** the system generates a molecular graph with correctly assigned atom types, bond orders, and reaction center annotations.
-2. **Given** a batch of input SMILES strings, **When** the ingestion pipeline runs, **Then** at least 95% of the strings are successfully converted to graph structures, and the remaining failures are logged with the specific error reason.
-3. **Given** a parsed graph, **When** the feature extraction module runs, **Then** the resulting node features include atomic number, formal charge, and hybridization, and edge features include bond type, all formatted for CPU-based matrix operations.
+1. **Given** a valid USPTO subset CSV file with SMILES and yield columns, **When** the data ingestion and graph conversion script is executed, **Then** the system produces a graph dataset object where every molecule has valid atom and bond feature vectors, and no parsing errors occur for >95% of the input rows.
+2. **Given** the converted graph dataset split into train/validation/test sets, **When** the MPNN model is trained using early stopping (patience=5) or a maximum of 200 epochs on a CPU-only environment, **Then** the training loss shows a general downward trend (non-increasing moving average over 5 epochs) and the final validation loss is recorded in the log.
+3. **Given** a trained MPNN model and a test set, **When** the inference step is executed, **Then** the system outputs a JSON file containing predicted yields for all test samples, and the calculated Mean Absolute Error (MAE) is a positive number ≤ 15.0 (assuming yield is 0-100%).
 
 ---
 
-### User Story 2 - Baseline and GNN Model Training (Priority: P2)
+### User Story 2 - Baseline Comparison and Variance Analysis (Priority: P2)
 
-The system MUST train a lightweight Message Passing Neural Network (MPNN) and a Random Forest baseline on the constructed dataset to predict reaction yield, ensuring the process completes within the CPU-only resource limits.
+The researcher compares the GNN model's performance against traditional baselines (Random Forest on Morgan fingerprints and Linear Regression on molecular descriptors). The system must calculate and report the R² improvement of the GNN over the best baseline, determining if the structural topology adds predictive value.
 
-**Why this priority**: This implements the core comparative analysis. It allows the research to determine if GNN-derived embeddings offer any advantage over traditional descriptors, which is the primary hypothesis.
+**Why this priority**: The research question specifically asks whether graph topology explains yield variability *better* than traditional descriptors. This comparison is the core scientific validation step.
 
-**Independent Test**: Can be tested by running the 5-fold cross-validation training loop on the [deferred] training partition; the test passes if both models converge (loss decreases) and produce predictions within the valid yield range (0-100%) without crashing or exceeding memory limits, completing within 4 hours.
+**Independent Test**: The analysis can be tested by running the comparison module on a fixed dataset and verifying that the output report explicitly lists the R² scores for the GNN, Random Forest, and Linear Regression models, and calculates the delta.
 
 **Acceptance Scenarios**:
 
-1. **Given** a training dataset split ([deferred] for 5-fold CV, [deferred] held-out test), **When** the MPNN model trains for 50 epochs across 5 folds, **Then** the validation loss decreases monotonically after the initial epochs, and the model completes the 5-fold CV training phase within 4 hours on a 2-core CPU runner.
-2. **Given** the same training data, **When** the Random Forest baseline (using Morgan fingerprints) trains across 5 folds, **Then** it completes the 5-fold CV training phase within 30 minutes and produces a baseline R² score for comparison.
-3. **Given** the trained models, **When** evaluated on the held-out test set, **Then** the system outputs R², MAE, and RMSE metrics for both the GNN and the baseline, formatted in a structured JSON report.
+1. **Given** the same test set used in User Story 1, **When** the baseline models (RF with Morgan fingerprints, LR with MW/logP/TPSA) are trained and evaluated on the same stratified split, **Then** the system generates a comparison table showing R², MAE, and RMSE for all three models (GNN, RF, LR).
+2. **Given** the performance metrics from all models, **When** the variance analysis is computed, **Then** the system outputs a specific value for "R² Improvement" calculated as (R²_GNN - R²_Baseline), where R²_Baseline is the maximum of the two baseline scores.
+3. **Given** the comparison results, **When** the significance check is performed, **Then** the system flags the result as "Practically Significant" (if R² improvement ≥ 0.10) or "No Significant Improvement" (otherwise), based on the researcher-defined threshold of 0.10. This flag is a reporting item for researcher interpretation, not an automated pass/fail gate.
 
 ---
 
-### User Story 3 - Statistical Comparison and Sensitivity Analysis (Priority: P3)
+### User Story 3 - Feature Importance and Uncertainty Quantification (Priority: P3)
 
-The system MUST perform a statistical comparison between the GNN and baseline models, including a sensitivity analysis on the noise tolerance and a subgraph-level attribution test to identify key structural features.
+The researcher identifies which subgraph patterns or graph features drive the predictions using GNNExplainer and generates prediction intervals using conformal prediction to quantify uncertainty.
 
-**Why this priority**: This addresses the research question directly by quantifying the "improvement" and identifying "which structural features" matter. It validates the scientific contribution of the GNN approach.
+**Why this priority**: This addresses the "identify specific subgraph patterns" part of the research question and adds necessary rigor regarding confidence in the predictions, which is critical for chemical application.
 
-**Independent Test**: Can be tested by running the analysis script on the test set predictions; the test passes if it generates a report showing the R² improvement (or lack thereof), a sensitivity sweep result, and a ranked list of important features.
+**Independent Test**: The module can be tested by running the importance and uncertainty scripts on a trained model and verifying that the output includes a ranked list of subgraph patterns and a prediction interval file with valid lower/upper bounds.
 
 **Acceptance Scenarios**:
 
-1. **Given** the test set predictions from both models, **When** the comparison module runs, **Then** it calculates the relative error reduction and reports if the GNN improvement exceeds the [deferred] relative error reduction target defined in Assumptions (or flags if it does not).
-2. **Given** the GNN model weights, **When** the GNNExplainer attribution analysis runs, **Then** it outputs a ranked list of the top subgraph patterns contributing to prediction accuracy.
-3. **Given** a noise tolerance parameter for yield prediction, **When** the sensitivity analysis runs, **Then** it sweeps the tolerance over a range of values of the target yield and reports how the Mean Absolute Error (MAE) varies across these values.
+1. **Given** a trained GNN model, **When** the GNNExplainer algorithm is executed, **Then** the system outputs a ranked list of subgraph patterns (motifs) sorted by their impact on prediction error, with the A representative set of prominent patterns will be clearly identified and visualized..
+2. **Given** a set of test predictions, **When** conformal prediction is applied to generate % intervals, **Then** the system produces a CSV file containing the predicted yield, lower bound, and upper bound for each sample, where the upper bound is strictly greater than the lower bound.
+3. **Given** the prediction intervals, **When** the coverage rate is calculated, **Then** the system reports the percentage of true yields that fall within the predicted intervals, allowing the researcher to assess if the uncertainty quantification is well-calibrated.
+
+---
 
 ### Edge Cases
 
-- What happens when the USPTO dataset contains SMILES strings with stereochemistry that RDKit cannot parse? (System logs the error and skips the entry, maintaining the [deferred] success rate target defined in FR-001).
-- How does the system handle reactions with missing yield data (NaN values)? (System excludes these entries from the training set before splitting).
-- What happens if the training loss does not decrease after 10 epochs? (System triggers an early stopping mechanism to prevent wasted compute).
-- How does the system handle the scenario where the GNN model performs worse than the baseline? (System reports this as a null result, documenting the R² difference and potential causes).
+- What happens when the USPTO dataset contains SMILES strings that RDKit cannot parse (invalid chemical syntax)? The system must log the row ID, skip the entry, and continue processing without crashing, reporting the total count of skipped entries.
+- How does the system handle reaction classes with extremely low sample sizes (e.g., < 10 examples)? The system must stratify the split to ensure these classes are not entirely dropped from the test set, or flag them as "insufficient data for stratified evaluation" in the report.
+- What happens if the CPU memory limit is exceeded during graph conversion for a large batch? The system must process the data in smaller chunks and aggregate the results, ensuring the job completes within the CI time limit.
 
 ## Requirements
 
 ### Functional Requirements
 
-- **FR-001**: System MUST parse SMILES strings into molecular graphs using RDKit, extracting atom/bond features and reaction center annotations, ensuring at least 95% of a reproducible random sample of reactions from the USPTO dataset is successfully processed (See US-001).
-- **FR-002**: System MUST implement a Message Passing Neural Network (MPNN) architecture compatible with CPU-only execution (no CUDA/GPU), training for a maximum of 50 epochs with early stopping enabled, and training the 5-fold CV models must complete within 4 hours total (See US-002).
-- **FR-003**: System MUST train a Random Forest baseline model using Morgan fingerprints and molecular descriptors (MW, logP, TPSA) to serve as a comparative benchmark (See US-002).
-- **FR-004**: System MUST compute and report R², MAE, and RMSE metrics for both the GNN and baseline models on a held-out test set ([deferred] of the dataset) (as defined in US-002 AS-3) (See US-002).
-- **FR-005**: System MUST perform a sensitivity analysis on the noise tolerance parameter by sweeping values over {[deferred], [deferred], [deferred]} of the target yield and reporting the variation in MAE, justified as essential rigor to assess robustness against experimental noise in chemical yield datasets (See US-003).
-- **FR-006**: System MUST execute the entire pipeline (ingestion, 5-fold CV training, final evaluation) within 10 hours on a standard GitHub Actions free-tier runner (ubuntu-latest, CPU, ~7 GB RAM) (See US-002).
-- **FR-007**: System MUST apply 5-fold cross-validation on the [deferred] training partition (excluding the [deferred] held-out test set) to assess generalization and ensure the R² improvement claim is robust, in compliance with Constitution Principle I (Reproducibility) and Principle VII (Uncertainty Quantification), reporting mean R² and standard deviation of R² scores across folds (≤ 0.05) (See US-003).
-- **FR-008**: System MUST perform subgraph-level attribution using GNNExplainer to identify key structural patterns contributing to prediction accuracy (See US-003).
+- **FR-001**: System MUST download and parse a specified subset of the USPTO reaction dataset, extracting SMILES strings and reaction yields, and skip any rows with invalid chemical syntax while logging the count of skipped entries. (See US-1)
+- **FR-002**: System MUST convert molecular SMILES into graph representations using RDKit, extracting atom features (atomic number, charge, hybridization) and bond features (bond type, conjugation) suitable for Message Passing Neural Networks. (See US-1)
+- **FR-003**: System MUST train a lightweight MPNN model on CPU-only hardware using early stopping (patience=5) or a maximum of 200 epochs, using mean squared error loss, and save the final model weights and training history. (See US-1)
+- **FR-004**: System MUST implement and evaluate two baseline models: a Random Forest regressor using Morgan fingerprints and a Linear Regression model using molecular descriptors (MW, logP, TPSA) on the same stratified test set. (See US-2)
+- **FR-005**: System MUST calculate and report the R² improvement of the GNN model over the best-performing baseline, explicitly flagging whether the improvement meets or exceeds the 0.10 researcher-defined threshold. (See US-2)
+- **FR-006**: System MUST apply GNNExplainer to the trained GNN to identify the top contributing subgraph patterns and output a ranked list with visualizations. (See US-3)
+- **FR-007**: System MUST apply conformal prediction to generate [deferred] prediction intervals for the test set yields and report the empirical coverage rate. (See US-3)
+- **FR-008**: System MUST ensure all models (GNN and baselines) are trained and evaluated on data splits stratified by reaction class to prevent confounding due to class imbalance. (See US-2)
 
 ### Key Entities
 
-- **MolecularGraph**: Represents a molecule with nodes (atoms) and edges (bonds), containing features like atomic number, charge, and bond type.
-- **ReactionDataset**: A collection of MolecularGraphs paired with a continuous yield value (0-100) and a reaction class label.
-- **PredictionResult**: A record containing the predicted yield, actual yield, error metrics, and the model type used (GNN or Baseline).
+- **ReactionRecord**: Represents a single chemical reaction instance, containing input reactant SMILES, product SMILES, reaction yield (0-100), and reaction class label.
+- **MolecularGraph**: A graph data structure derived from a SMILES string, containing nodes (atoms with feature vectors) and edges (bonds with feature vectors).
+- **ModelEvaluation**: A result set containing performance metrics (R², MAE, RMSE) for a specific model configuration on a specific dataset split.
+- **PredictionInterval**: A tuple (lower_bound, predicted_value, upper_bound) associated with a specific reaction record, representing the uncertainty of the yield estimate.
+- **SubgraphPattern**: A localized motif or subgraph identified by GNNExplainer as contributing significantly to the prediction, including atom/bond composition and frequency.
 
 ## Success Criteria
 
 ### Measurable Outcomes
 
-> Planning docs state *what* will be measured and the *source/reference* it is measured against; defer specific empirical values (counts, dataset sizes, measured quantities, percentages) to the implementation/research phase.
+> Planning docs state *what* will be measured and the *source/reference* it is
+> measured against; defer specific empirical values (counts, dataset sizes,
+> measured quantities, percentages) to the implementation/research phase.
 
-- **SC-001**: The R² improvement of the GNN model over the Random Forest baseline is measured against the [deferred] relative error reduction target defined in Assumptions to determine if the GNN approach provides value (See FR-004, US-003).
-- **SC-002**: The computational cost of the entire analysis is measured against the 10-hour limit on a 2-core CPU runner to ensure feasibility (See FR-006, US-002).
-- **SC-003**: The sensitivity of the prediction to noise tolerance is measured by the variation in MAE across the sweep {[deferred], [deferred], [deferred]} to validate robustness (See FR-005, US-003).
-- **SC-004**: The data parsing success rate is measured against the [deferred] target defined in FR-001 to ensure dataset integrity (See FR-001, US-001).
-- **SC-005**: The generalization performance is measured by the standard deviation of R² scores across the 5 folds of cross-validation to ensure stability (See FR-007, US-003).
+- **SC-001**: The predictive performance (R², MAE, RMSE) of the GNN model is measured against the performance of the Random Forest and Linear Regression baselines on the same stratified test set. (See FR-005)
+- **SC-002**: The improvement in R² score provided by the GNN model is measured against the 0.10 threshold defined in FR-005. (See FR-005)
+- **SC-003**: The calibration of the uncertainty estimates is measured by the empirical coverage rate of the [deferred] prediction intervals against the true yield values in the test set. (See FR-007)
+- **SC-004**: The computational feasibility is measured by the total wall-clock time of the full pipeline (data parsing to evaluation) against the CI time limit on a 2-core CPU runner. (See Assumption A-003)
+- **SC-005**: Data validity is measured by the percentage of successfully parsed reactions, with the target documented in the implementation plan. (See FR-001)
+- **SC-006**: The R² improvement is measured against the researcher-defined 0.10 threshold to determine if the GNN provides practical significance for the specific study. (See FR-005, FR-008)
 
 ## Assumptions
 
-- The USPTO reaction dataset (or equivalent public source) contains sufficient reaction yield data and SMILES strings to train a model with at least 10,000 examples, allowing for a valid standard split (majority for CV, held-out).
-- The "reaction yield" variable in the dataset is continuous and normalized to the 0-100 range, or can be easily normalized without losing information.
-- The molecular graphs derived from SMILES strings contain all necessary chemical information (atom types, bond orders) to predict yield, without requiring 3D conformational data which is computationally expensive.
-- The PyTorch Geometric library and RDKit are available and compatible with the CPU-only environment of the GitHub Actions runner.
-- The "reaction class" labels in the dataset are consistent and can be used for stratified splitting.
-- The correlation between molecular graph topology and reaction yield is non-zero, meaning the data contains signal that a model can learn.
-- A [deferred] relative error reduction is a defensible community standard for "practical significance" in this specific sub-field of computational chemistry, as R² is dataset-dependent and relative error is a more robust metric for yield prediction.
-- Typical experimental noise margins in chemical yield datasets are non-negligible., justifying the sensitivity analysis sweep values.
+- **A-001**: The USPTO dataset available via the public repository (Zenodo/PubChem) contains a sufficient number of reactions with explicit yield values and valid SMILES strings to support a standard train/val/test split with stratification by reaction class.
+- **A-002**: The "reaction yield" variable in the dataset is a continuous numeric value representing the percentage yield, and does not require conversion from categorical labels or other units.
+- **A-003**: The entire dataset (after sampling if necessary) and the MPNN model (with default precision, no reduced-bit quantization) will fit within the RAM and disk constraints of the GitHub Actions free-tier runner.
+- **A-004**: The MPNN architecture implemented using PyTorch Geometric will converge within the early stopping criteria (patience=5) or 200 epochs on the CPU-only environment, as deep training on CPU is computationally expensive and the research focus is on feature comparison rather than state-of-the-art accuracy.
+- **A-005**: The "reaction class" labels in the dataset are sufficiently distinct to allow for meaningful stratification, and the dataset does not contain excessive noise in the yield values that would render regression impossible.
+- **A-006**: The 10% R² improvement threshold is a researcher-defined benchmark for this specific study to evaluate practical significance; it is not a universal community standard, and results should be interpreted within this context.

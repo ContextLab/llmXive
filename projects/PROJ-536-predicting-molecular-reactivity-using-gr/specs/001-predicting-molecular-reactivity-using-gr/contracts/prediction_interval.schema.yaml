@@ -1,0 +1,30 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "PredictionInterval"
+description: "Schema for a yield prediction with uncertainty bounds."
+type: "object"
+properties:
+  reaction_id:
+    type: "string"
+    description: "Reference to the ReactionRecord ID."
+  predicted_yield:
+    type: "number"
+    description: "Point prediction of the yield."
+  lower_bound:
+    type: "number"
+    description: "Lower bound of the prediction interval."
+  upper_bound:
+    type: "number"
+    description: "Upper bound of the prediction interval."
+  actual_yield:
+    type: "number"
+    description: "True yield value (for evaluation)."
+  is_covered:
+    type: "boolean"
+    description: "True if actual_yield is within [lower_bound, upper_bound]."
+required:
+  - reaction_id
+  - predicted_yield
+  - lower_bound
+  - upper_bound
+  - actual_yield
+  - is_covered
