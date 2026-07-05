@@ -13,6 +13,20 @@
 ? "T003 {{claim:c_ef1634da}} (Wikidata Q19873191 [UNRESOLVED-CLAIM: c_8fd76726 \u2014\
   \ status=not_enough_info], https://www.wikidata.org/wiki/Q19873191) *(Alias of PT003)*"
 : 1
+? "T009 Set up structured logging infrastructure in `src/utils/logger.py` with error\u2011\
+  code format `ERR-###` [UNRESOLVED-CLAIM: c_a556a205 \u2014 status=not_enough_info]\
+  \ (verify logs contain correct codes)."
+: 1
+? "T010 Initialize configuration constants (random seeds, thresholds, resource caps)\
+  \ in `src/config.py` with deterministic seed (`SEED = 42`) [UNRESOLVED-CLAIM: c_c5ddd110\
+  \ \u2014 status=not_enough_info] AND ensure all modules import SEED from config\
+  \ and set RNG seeds at startup (verify `src/config.py` defines `SEED = 42` and all\
+  \ RNGs are seeded per Constitution Principle I)."
+: 1
+? "T011 Implement generic helper functions (`checksum`, `domain_from_url`, `safe_float`,\
+  \ `parse_inequality_p`) [UNRESOLVED-CLAIM: c_9b5aedd5 \u2014 status=not_enough_info]\
+  \ in `src/utils/helpers.py` (run unit test for each helper)."
+: 1
 ? "T012 Create CI workflow file `.github/workflows/audit.yml` that installs dependencies,\
   \ enforces CPU \u2264 2 vCPU [UNRESOLVED-CLAIM: c_cd37e346 \u2014 status=not_enough_info],\
   \ RAM \u2264 2 GB [UNRESOLVED-CLAIM: c_d04b4d02 \u2014 status=not_enough_info],\
@@ -38,6 +52,10 @@
   \ enforces CPU \u2264 2 vCPU, RAM \u2264 2 GB, timeout a predefined duration [UNRESOLVED-CLAIM:\
   \ c_26bd3e2b \u2014 status=not_enough_info], and runs audit pipeline (verify workflow\
   \ runs and respects limits) [DEPENDS ON: T010]."
+: 1
+? "T014 Configure `manifest.json` generation with content hashes in `src/utils/manifest.py`\
+  \ (FR\u2011024) (verify `manifest.json` contains SHA256 hashes) [UNRESOLVED-CLAIM:\
+  \ c_01c292d1 \u2014 status=not_enough_info] [DEPENDS ON: T007]."
 : 1
 ? T020d **[P]** Verify that every row in `data/provenance_log.csv` contains URL, repository
   identifier, and fetch timestamp (run validation script `tests/unit/test_provenance_schema.py`).
@@ -66,7 +84,22 @@
 : 1
 ? "T026 Implement synthetic dataset generator in `src/audit/synthetic.py` (FR\u2011\
   030) \u2013 outputs `data/synthetic/synthetic_validation.csv` + `data/synthetic/synthetic_ground_truth.json`\
+  \ with at least 10\u202F000 simulated summaries (binary AND continuous outcomes)\
+  \ **and verify both outcome types are present** (constraint\u2011preservation\u2011\
+  2958f04c) (verify files are created and contain \u2265\u202F10\u202F000 records).\
+  \ **DEPENDS ON:** T006\u2011T012."
+: 2
+? "T026 Implement synthetic dataset generator in `src/audit/synthetic.py` (FR\u2011\
+  030) \u2013 outputs `data/synthetic/synthetic_validation.csv` + `data/synthetic/synthetic_ground_truth.json`\
   \ with at least 10\u202F000 simulated summaries [UNRESOLVED-CLAIM: c_15e13729 \u2014\
+  \ status=not_enough_info] (binary AND continuous outcomes) **and verify both outcome\
+  \ types are present** (constraint\u2011preservation\u20112958f04c) (verify files\
+  \ are created and contain \u2265\u202F10\u202F000 records). **DEPENDS ON:** T006\u2011\
+  T012."
+: 1
+? "T026 Implement synthetic dataset generator in `src/audit/synthetic.py` (FR\u2011\
+  030) \u2013 outputs `data/synthetic/synthetic_validation.csv` + `data/synthetic/synthetic_ground_truth.json`\
+  \ with at least 10\u202F000 simulated summaries [UNRESOLVED-CLAIM: c_336c8b58 \u2014\
   \ status=not_enough_info] (binary AND continuous outcomes) **and verify both outcome\
   \ types are present** (constraint\u2011preservation\u20112958f04c) (verify files\
   \ are created and contain \u2265\u202F10\u202F000 records). **DEPENDS ON:** T006\u2011\
@@ -94,12 +127,13 @@
   \ (verify all tests pass) [DEPENDS ON: T025]."
 : 1
 ? "T028 Implement power\u2011analysis utility in `src/audit/power_analysis.py` (FR\u2011\
-  025) that computes the minimum N given baseline, detectable effect, \u03B1 and power,\
-  \ writes result to `output/power_analysis.json`, **and asserts audited corpus meets\
-  \ N \u2265 300 OR N \u2265 calculated_minimum ** (constraint\u2011preservation\u2011\
-  ba913176) (verify JSON file exists, contains numeric N, and satisfies condition).\
-  \ **DEPENDS ON:** T010."
-: 2
+  025) that computes the minimum N given baseline, detectable effect, \u03B1 and power\
+  \ [UNRESOLVED-CLAIM: c_21bdda9f \u2014 status=not_enough_info], writes result to\
+  \ `output/power_analysis.json`, **and asserts audited corpus meets N \u2265 300\
+  \ OR N \u2265 calculated_minimum ** (constraint\u2011preservation\u2011ba913176)\
+  \ (verify JSON file exists, contains numeric N, and satisfies condition). **DEPENDS\
+  \ ON:** T010."
+: 1
 ? "T028 Implement power\u2011analysis utility in `src/audit/power_analysis.py` (FR\u2011\
   025) that computes the minimum N given baseline, detectable effect, \u03B1 and power,\
   \ writes result to `output/power_analysis.json`, **and asserts audited corpus meets\
