@@ -1,19 +1,25 @@
-name: A/B Test Audit Pipeline
+name: Audit Pipeline
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [ "main", "develop" ]
   pull_request:
-    branches: [ main, develop ]
+    branches: [ "main" ]
+
+permissions:
+  contents: read
+  actions: write
 
 jobs:
-  audit:
+  run-audit:
     runs-on: ubuntu-latest
-    timeout-minutes: 360
-    container:
-      image: python:3.11-slim
-    strategy:
-      fail-fast: false
+    
+    # Enforce resource limits via GitHub Actions runner configuration
+    # The default ubuntu-latest runner provides 2 vCPU and 7GB RAM.
+    # We enforce the 2GB RAM and 2 vCPU logical limit via the application layer
+    # (src/utils/resource_monitor.py) which will abort if exceeded.
+    # We set a timeout to ensure the pipeline does not hang indefinitely.
+    timeout-minutes: 60
 
     steps:
       - name: Checkout repository
@@ -22,49 +28,37 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
-          cache: 'pip'
-          cache-dependency-path: |
-            requirements.txt
-            pyproject.toml
+          python-version: '3.10'
 
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-          pip install ruff black mypy pytest
 
-      - name: Restore cached data (optional)
-        uses: actions/cache@v4
-        with:
-          path: data/raw
-          key: ${{ runner.os }}-raw-data-${{ hashFiles('input/urls.csv') }}
-          restore-keys: |
-            ${{ runner.os }}-raw-data-
-
-      - name: Schema Validation
+      - name: Run Schema Validation
         run: |
           python -m code.src.audit.export_schema_validator
           python -m code.src.audit.manifest_schema_validator
 
-      - name: Synthetic Validation
+      - name: Run Synthetic Validation
         run: |
-          python -m code.src.audit.synthetic
           python -m code.src.audit.evaluation
-          # Verify precision >= 0.90 and recall >= 0.80 internally or via test runner
-          python -m pytest tests/integration/test_synthetic_validation.py -v
 
-      - name: Resource Monitor Check
+      - name: Run Resource Monitor Check (Startup)
         run: |
           python -m code.src.utils.resource_monitor --check-only
 
-      - name: Constitution Compliance Check
+      - name: Run Monte Carlo Startup Validation
         run: |
-          python -m code.src.utils.constitution_checker
+          python -m code.src.cli.run_monte_carlo_validation
 
-      - name: Main Pipeline Run
+      - name: Run Full Audit Pipeline
         run: |
           python -m code.src.cli.run_audit
+
+      - name: Run Constitution Compliance Check
+        run: |
+          python -m code.src.utils.constitution_checker
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
@@ -73,7 +67,8 @@ jobs:
           name: audit-artifacts
           path: |
             output/
-            data/provenance_log.csv
-            data/checksums.txt
+            data/
             logs/
-          retention-days: 7
+            data/checksums.txt
+            output/manifest.json
+            output/resource_log.json

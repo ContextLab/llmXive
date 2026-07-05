@@ -64,6 +64,13 @@
   \ messages for sample\u2011size discrepancies, writing `output/audit_report.json`).\
   \ **DEPENDS ON:** T023."
 : 1
+? "T025 Implement inconsistency validator in `src/audit/validator.py` applying FR\u2011\
+  004 thresholds (absolute p\u2011difference > 0.05, relative effect\u2011size > 5\u202F\
+  %) **and verify that sample\u2011size mismatch entries are excluded from aggregate\
+  \ prevalence estimates** per FR\u2011004b (generate `AuditRecord` objects with data_quality_warning\
+  \ messages for sample\u2011size discrepancies, writing `output/audit_report.json`).\
+  \ **DEPENDS ON:** T023."
+: 1
 ? "T026 Implement synthetic dataset generator in `src/audit/synthetic.py` (FR\u2011\
   030) \u2013 outputs `data/synthetic/synthetic_validation.csv` + `data/synthetic/synthetic_ground_truth.json`\
   \ with at least 10\u202F000 simulated summaries [UNRESOLVED-CLAIM: c_15e13729 \u2014\
@@ -97,6 +104,14 @@
   025) that computes the minimum N given baseline, detectable effect, \u03B1 and power,\
   \ writes result to `output/power_analysis.json`, **and asserts audited corpus meets\
   \ N \u2265 300 OR N \u2265 calculated_minimum [UNRESOLVED-CLAIM: c_3b567611 \u2014\
+  \ status=not_enough_info] ** (constraint\u2011preservation\u2011ba913176) (verify\
+  \ JSON file exists, contains numeric N, and satisfies condition). **DEPENDS ON:**\
+  \ T010."
+: 1
+? "T028 Implement power\u2011analysis utility in `src/audit/power_analysis.py` (FR\u2011\
+  025) that computes the minimum N given baseline, detectable effect, \u03B1 and power,\
+  \ writes result to `output/power_analysis.json`, **and asserts audited corpus meets\
+  \ N \u2265 300 OR N \u2265 calculated_minimum [UNRESOLVED-CLAIM: c_b629b6e1 \u2014\
   \ status=not_enough_info] ** (constraint\u2011preservation\u2011ba913176) (verify\
   \ JSON file exists, contains numeric N, and satisfies condition). **DEPENDS ON:**\
   \ T010."
@@ -159,6 +174,11 @@
   \ log** (see T095b) (verify guide file exists and includes novice verification instructions)."
 : 1
 ? "T049 Add Quickstart guide `docs/README_QUICKSTART.md` covering execution on 30\
+  \ URLs within 30 minutes [UNRESOLVED-CLAIM: c_ac4d5db9 \u2014 status=not_enough_info]\
+  \ (FR\u2011028) **and include novice\u2011user verification step with written confirmation\
+  \ log** (see T095b) (verify guide file exists and includes novice verification instructions)."
+: 1
+? "T049 Add Quickstart guide `docs/README_QUICKSTART.md` covering execution on 30\
   \ URLs within 30 minutes [UNRESOLVED-CLAIM: c_cf59c7a8 \u2014 status=not_enough_info]\
   \ (FR\u2011028) **and include novice\u2011user verification step with written confirmation\
   \ log** (see T095b) (verify guide file exists and includes novice verification instructions)."
@@ -217,7 +237,7 @@
 : 2
 ? "T065 Add CI step that caches `pip` packages to stay within 6\u202Fhour total runtime\
   \ (plan.md) (verify cache hit on subsequent runs)."
-: 1
+: 2
 ? 'T066 Add unit test for resource monitor parsing of `/proc` (tests/unit/test_resource_monitor.py)
   (verify test passes) [DEPENDS ON: T098].'
 : 1
