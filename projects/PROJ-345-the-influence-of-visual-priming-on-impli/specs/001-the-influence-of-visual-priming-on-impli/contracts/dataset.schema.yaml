@@ -1,0 +1,62 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "IAT Trial Dataset Schema"
+description: "Schema for the processed trial-level dataset used in statistical modeling."
+type: "object"
+properties:
+  trial_id:
+    type: "string"
+    description: "Unique identifier for the trial."
+  participant_id:
+    type: "string"
+    description: "Anonymized participant identifier."
+  stimulus_id:
+    type: "string"
+    description: "Unique identifier for the stimulus used in this trial."
+  prime_condition:
+    type: "string"
+    enum:
+      - "positive"
+      - "negative"
+      - "neutral"
+    description: "Derived or original prime condition."
+  response_time_ms:
+    type: "number"
+    description: "Response time in milliseconds."
+  correct:
+    type: "boolean"
+    description: "Whether the response was correct."
+  valence_score:
+    type: "number"
+    minimum: -1
+    maximum: 1
+    description: "Derived valence score of the stimulus (via VAD regression)."
+  ambiguity_score:
+    type: "number"
+    minimum: 0
+    maximum: 1
+    description: "Derived ambiguity score of the stimulus (Human-rated or external validated metric)."
+  linkage_status:
+    type: "string"
+    enum:
+      - "verified"
+      - "derived"
+      - "missing"
+    description: "Status of stimulus linkage."
+  derivation_method:
+    type: "string"
+    description: "Method used to derive valence or ambiguity (e.g., 'vad_model_affectnet', 'human_rating_source_x')."
+  ambiguity_source:
+    type: "string"
+    description: "Source of ambiguity score (e.g., 'human_rated', 'external_dataset')."
+required:
+  - trial_id
+  - participant_id
+  - stimulus_id
+  - prime_condition
+  - response_time_ms
+  - correct
+  - valence_score
+  - linkage_status
+  - derivation_method
+  - ambiguity_source
+additionalProperties: false

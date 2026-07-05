@@ -1,0 +1,88 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Model Output Schema"
+description: "Schema for the statistical model output and effect sizes."
+type: "object"
+properties:
+  model_id:
+    type: "string"
+    description: "Unique identifier for the model run."
+  convergence_status:
+    type: "string"
+    enum:
+      - "converged"
+      - "failed"
+      - "retry_limit_reached"
+    description: "Convergence status of the LMM."
+  fixed_effects:
+    type: "array"
+    items:
+      type: "object"
+      properties:
+        term:
+          type: "string"
+        estimate:
+          type: "number"
+        std_error:
+          type: "number"
+        p_value:
+          type: "number"
+        p_value_fdr:
+          type: "number"
+          description: "FDR-corrected p-value."
+        vif:
+          type: "number"
+          description: "Variance Inflation Factor."
+      required:
+        - term
+        - estimate
+        - std_error
+        - p_value
+        - p_value_fdr
+        - vif
+  sensitivity_analysis:
+    type: "object"
+    properties:
+      alpha_001:
+        type: "boolean"
+        description: "Significant at alpha=0.01?"
+      alpha_005:
+        type: "boolean"
+        description: "Significant at alpha=0.05?"
+      alpha_010:
+        type: "boolean"
+        description: "Significant at alpha=0.10?"
+  effect_sizes:
+    type: "object"
+    properties:
+      cohen_d:
+        type: "number"
+      partial_eta_squared:
+        type: "number"
+    description: "Effect sizes for significant interactions."
+  confounding_check:
+    type: "object"
+    properties:
+      is_confounded:
+        type: "boolean"
+        description: "Whether prime is confounded with trial order/block."
+      confounding_details:
+        type: "string"
+        description: "Details of the confounding check."
+    required:
+      - is_confounded
+      - confounding_details
+  ambiguity_analysis_status:
+    type: "string"
+    enum:
+      - "completed"
+      - "skipped_no_source"
+      - "skipped_high_correlation"
+    description: "Status of the ambiguity interaction analysis."
+required:
+  - model_id
+  - convergence_status
+  - fixed_effects
+  - sensitivity_analysis
+  - confounding_check
+  - ambiguity_analysis_status
+additionalProperties: false
