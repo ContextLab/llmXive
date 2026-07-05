@@ -1,5 +1,46 @@
-'|each replicate statistical test':
-  quote: '10000'
-  source_id: Permutation test
-  url: https://en.wikipedia.org/wiki/Permutation_test
-  value: '10000'
+'|annotation contain dataset least manual row will':
+  quote: "Introduction Low back pain is a worldwide health problem with lifetime prevalence\
+    \ reported as high as 84%.1 In the United States alone, the direct medical and\
+    \ indirect costs of low back pain have been estimated at $50-100 billion.2 In\
+    \ the lumbar spine, narrowing of the spinal canal, neural foramina, and subarticular\
+    \ recesses can compress spinal nerve roots, which can lead to radiculopathy and\
+    \ necessitate spinal surgery. MRI is the best imaging modality to assess the degree\
+    \ of narrowing in these regions, but reported inter-rater agreement between radiologists\u2019\
+    \ grades of stenosis has been variable, ranging from poor to substantial, between\
+    \ different studies and spinal location (spinal canal, subarticular, or neural\
+    \ foramen).3,4 While the large number of lumbar spine MRIs creates a substantial\
+    \ workload for radiologists, this is overshadowed by the more critical challenge\
+    \ of ensuring consistent and accurate grading of stenosis severity, which impacts\
+    \ diagnostic confidence and potentially patient care. Previous efforts to create\
+    \ machine learning (ML) models for this purpose have been limited by the available\
+    \ lumbar spondylosis imaging datasets.5\u20137 Our goal was to create the largest,\
+    \ most diverse, expertly annotated MRI lumbar spondylosis dataset for both the\
+    \ RSNA 2024 Lumbar Spine Degenerative Classification AI Challenge and future research.\
+    \ Dataset Description and Usage The RSNA Lumbar Degenerative Imaging Spine Classification\
+    \ (LumbarDISC) dataset is composed of MRI studies of the lumbar spine from 2,697\
+    \ patients with a total of 8,593 image series from 8 institutions across 6 countries\
+    \ and 5 continents. Inclusion criteria included an MR lumbar spine study with\
+    \ a sagittal \u201CT2-like\u201D (e.g. conventional spin echo T2, STIR, or Dixon),\
+    \ sagittal T1, and axial T2 weighted images. Both axial T2 images acquired as\
+    \ a continuous stack or oriented parallel to the intervertebral disc levels were\
+    \ acceptable if they included at least 3 lumbar spine disc levels. Additional\
+    \ inclusion criteria were a patient age \u2265 18 years old and imaged in an outpatient\
+    \ setting for lumbar degenerative disease. Exclusion criteria included lumbosacral\
+    \ spinal hardware, active non-degenerative pathology (e.g. spinal tumor, active\
+    \ infection, etc.), severe scoliosis, or substantial diagnostic limiting artifact.\
+    \ A summary of the patient demographics and incidence of high-grade (moderate\
+    \ or severe) degenerative stenosis by institution is included in Table 1. Overall,\
+    \ of the 13,474 spinal canal stenosis grades, 85.4% were normal/mild, 8.8% were\
+    \ moderate, and 5.9% were severe. Of the 26,919 neural foraminal grades, 78.3%\
+    \ right and 77.2% left were normal/mild, 17.3% right and 18.1% left were moderate,\
+    \ and 4.4% right and 4.6% left were severe. Of the 26,285 subarticular grades,\
+    \ 69.4% right and 69.5% left were normal/mild, 19.6% right and 19.2% left were\
+    \ moderate, and 10.9% right and 11.3% left"
+  source_id: '2506.09162'
+  url: https://arxiv.org/abs/2506.09162
+  value: '100'
+'|ci complete hour must pipeline within':
+  quote: runs fuzzers for 10 minutes (max 6 hours) over 30 day old/public
+  source_id: '2205.14964'
+  url: https://arxiv.org/abs/2205.14964
+  value: 6 hours

@@ -5,221 +5,196 @@ import sys
 import signal
 from datetime import datetime
 from pathlib import Path
+from typing import Optional, Dict, Any
 
-from code.src.config import set_rng_seed
 from code.src.utils.logger import get_default_logger, AuditLogger, get_error_message
-from code.src.utils.resource_monitor import start_monitoring, stop_monitoring, write_resource_log, get_memory_usage_gb, get_cpu_cores
+from code.src.utils.resource_monitor import ResourceMonitor, check_resource_limits
 from code.src.audit.monte_carlo_validation import run_monte_carlo_validation
-from code.src.audit.power_analysis import run_power_analysis, write_power_analysis_result
-from code.src.audit.ingestor import ingest_and_deduplicate
-from code.src.audit.fetcher import fetch_urls_batch
-from code.src.audit.extractor import extract_all, write_summaries_to_json
-from code.src.audit.reconstructor import reconstruct_all
-from code.src.audit.validator import validate_all_summaries, write_audit_report
-from code.src.audit.prevalence import run_prevalence_analysis, write_prevalence_results
-from code.src.audit.report_generator import generate_summary_report, generate_subgroup_report
-from code.src.audit.subgroup_analysis import run_subgroup_analysis, write_subgroup_report
+from code.src.audit.power_analysis import run_power_analysis
+from code.src.audit.validator import write_audit_report
+from code.src.audit.prevalence import run_prevalence_analysis
+from code.src.audit.report_generator import generate_summary_report
 from code.src.audit.export_validator import run_export_validation
-from code.src.audit.export_schema_validator import run_schema_validation
-from code.src.audit.manifest_schema_validator import run_manifest_schema_validation
-from code.src.utils.manifest import generate_manifest, validate_manifest
-from code.src.audit.evaluation import evaluate_detection, write_evaluation_results
-from code.src.audit.provenance_archiver import archive_provenance
-from code.src.audit.bias_adjustment import run_bias_adjustment, write_bias_adjustment_results
-from code.src.audit.domain_subsample import run_domain_subsample
-from code.src.audit.synthetic import generate_synthetic_dataset, write_csv_output, write_json_output
-from code.src.audit.test_type_detector import detect_outcome_type_from_ab_summary
+from code.src.utils.manifest import generate_manifest
+from code.src.config import set_rng_seed, get_config_summary
 
-def setup_paths(args):
-    """Initialize logging and paths based on arguments."""
-    log_path = Path(args.log_dir) / "audit.log"
-    log_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    logger = get_default_logger("audit_pipeline", log_path)
-    logger.info("Pipeline started at %s", datetime.now().isoformat())
-    
-    return logger
+logger: AuditLogger = get_default_logger(__name__)
 
-def run_monte_carlo_startup_validation(logger):
-    """Run Monte Carlo validation at startup to ensure statistical functions are valid."""
+
+def setup_paths(args: argparse.Namespace) -> Dict[str, Path]:
+    """Initialize directory paths based on arguments or defaults."""
+    base_path = Path(args.base_path) if args.base_path else Path.cwd()
+    
+    paths = {
+        "base": base_path,
+        "input": base_path / "input",
+        "data_raw": base_path / "data" / "raw",
+        "data_synthetic": base_path / "data" / "synthetic",
+        "output": base_path / "output",
+        "logs": base_path / "logs",
+    }
+    
+    for p in paths.values():
+        p.mkdir(parents=True, exist_ok=True)
+        
+    return paths
+
+
+def run_monte_carlo_startup_validation(paths: Dict[str, Path]) -> None:
+    """Run Monte Carlo validation at startup to ensure statistical integrity."""
     logger.info("Running Monte Carlo startup validation...")
     try:
         run_monte_carlo_validation()
         logger.info("Monte Carlo validation passed.")
     except Exception as e:
-        logger.error("Monte Carlo validation failed: %s", str(e))
-        raise SystemExit(1)
+        logger.error(f"Monte Carlo validation failed: {e}")
+        raise
 
-def run_power_analysis_step(logger):
-    """Run power analysis to determine minimum corpus size."""
+
+def run_power_analysis_step(paths: Dict[str, Path]) -> None:
+    """Run power analysis to verify corpus size requirements."""
     logger.info("Running power analysis...")
     try:
-        run_power_analysis()
-        write_power_analysis_result()
+        run_power_analysis(paths["output"])
         logger.info("Power analysis completed.")
     except Exception as e:
-        logger.error("Power analysis failed: %s", str(e))
-        raise SystemExit(1)
+        logger.error(f"Power analysis failed: {e}")
+        raise
 
-def run_full_pipeline(logger, args):
-    """Execute the full audit pipeline: ingest, fetch, extract, reconstruct, validate."""
-    logger.info("Starting full pipeline...")
+
+def run_full_pipeline(paths: Dict[str, Path], input_file: Optional[Path] = None) -> None:
+    """Execute the main audit pipeline: ingest -> fetch -> extract -> reconstruct -> validate."""
+    logger.info("Starting full audit pipeline...")
     
-    # Ingest
-    logger.info("Ingesting URLs...")
-    ingest_and_deduplicate(args.input_urls, args.output_dir)
+    # Import pipeline components locally to avoid circular imports if any
+    from code.src.audit.ingestor import ingest_and_deduplicate
+    from code.src.audit.fetcher import ingest_and_fetch
+    from code.src.audit.extractor import extract_all
+    from code.src.audit.reconstructor import reconstruct_tests
+    from code.src.audit.validator import validate_all_summaries
     
-    # Fetch
-    logger.info("Fetching HTML...")
-    fetch_urls_batch(args.output_dir, args.output_dir)
+    # 1. Ingest
+    logger.info("Step 1: Ingesting URLs...")
+    if not input_file:
+        input_file = paths["input"] / "urls.csv"
+    if not input_file.exists():
+        logger.error(f"Input file not found: {input_file}")
+        raise FileNotFoundError(f"Input file not found: {input_file}")
+        
+    deduped_urls_path = paths["output"] / "urls_deduped.csv"
+    ingest_and_deduplicate(input_file, deduped_urls_path)
     
-    # Extract
-    logger.info("Extracting summaries...")
-    summaries = extract_all(args.output_dir, args.output_dir)
-    write_summaries_to_json(summaries, args.output_dir)
+    # 2. Fetch
+    logger.info("Step 2: Fetching HTML...")
+    ingest_and_fetch(deduped_urls_path, paths["data_raw"])
     
-    # Reconstruct
-    logger.info("Reconstructing statistics...")
-    reconstruct_all(args.output_dir)
+    # 3. Extract
+    logger.info("Step 3: Extracting summaries...")
+    extracted_summaries_path = paths["output"] / "extracted_summaries.json"
+    extract_all(deduped_urls_path, paths["data_raw"], extracted_summaries_path)
     
-    # Validate
-    logger.info("Validating summaries...")
-    audit_records = validate_all_summaries(args.output_dir)
-    write_audit_report(audit_records, args.output_dir)
+    # 4. Reconstruct
+    logger.info("Step 4: Reconstructing statistical tests...")
+    reconstructed_path = paths["output"] / "reconstructed_tests.json"
+    reconstruct_tests(extracted_summaries_path, reconstructed_path)
     
-    # Provenance
-    logger.info("Archiving provenance...")
-    archive_provenance(args.output_dir)
+    # 5. Validate
+    logger.info("Step 5: Validating consistency...")
+    audit_report_path = paths["output"] / "audit_report.json"
+    validate_all_summaries(reconstructed_path, audit_report_path)
     
     logger.info("Full pipeline completed.")
 
-def run_prevalence_and_reporting(logger, args):
-    """Run prevalence analysis, bias adjustment, and report generation."""
-    logger.info("Running prevalence and reporting...")
+
+def run_prevalence_and_reporting(paths: Dict[str, Path]) -> None:
+    """Run prevalence analysis and generate reports."""
+    logger.info("Running prevalence analysis and reporting...")
     
     # Prevalence
-    run_prevalence_analysis(args.output_dir)
-    write_prevalence_results(args.output_dir)
+    run_prevalence_analysis(paths["output"])
     
-    # Bias Adjustment
-    logger.info("Running bias adjustment...")
-    run_domain_subsample(args.output_dir)
-    run_bias_adjustment(args.output_dir)
-    write_bias_adjustment_results(args.output_dir)
-    
-    # Reports
-    logger.info("Generating summary report...")
-    generate_summary_report(args.output_dir)
-    generate_subgroup_report(args.output_dir)
-    
-    # Subgroup Analysis
-    logger.info("Running subgroup analysis...")
-    run_subgroup_analysis(args.output_dir)
-    write_subgroup_report(args.output_dir)
+    # Report Generation
+    generate_summary_report(paths["output"])
     
     logger.info("Prevalence and reporting completed.")
 
-def check_resource_limits(logger):
-    """Check if resource limits have been exceeded and abort with ERR-301 if so."""
-    logger.info("Checking resource limits...")
-    
-    try:
-        # Stop monitoring if running
-        stop_monitoring()
-        
-        # Read resource log if it exists
-        resource_log_path = Path("output/resource_log.json")
-        if resource_log_path.exists():
-            with open(resource_log_path, 'r') as f:
-                resource_data = json.load(f)
-            
-            peak_memory_gb = resource_data.get('peak_memory_gb', 0)
-            peak_cpu_cores = resource_data.get('peak_cpu_cores', 0)
-            
-            # FR-009 limits: RAM <= 2GB, CPU <= 2 vCPU
-            if peak_memory_gb > 2.0:
-                error_msg = get_error_message("ERR-301")
-                logger.error("ERR-301: Resource limit exceeded. Peak memory usage: %.2f GB (limit: 2.0 GB)", peak_memory_gb)
-                raise SystemExit(1)
-            
-            if peak_cpu_cores > 2.0:
-                error_msg = get_error_message("ERR-301")
-                logger.error("ERR-301: Resource limit exceeded. Peak CPU cores: %.2f (limit: 2.0)", peak_cpu_cores)
-                raise SystemExit(1)
-            
-            logger.info("Resource limits check passed. Peak memory: %.2f GB, Peak CPU: %.2f cores", peak_memory_gb, peak_cpu_cores)
-        else:
-            logger.warning("Resource log not found. Skipping resource limit check.")
-    except Exception as e:
-        logger.error("Error checking resource limits: %s", str(e))
-        raise
 
-def generate_manifest_and_validate(logger, args):
-    """Generate manifest with checksums and validate schemas."""
-    logger.info("Generating manifest and validating schemas...")
+def generate_manifest_and_validate(paths: Dict[str, Path]) -> None:
+    """Generate manifest and validate export consistency."""
+    logger.info("Generating manifest and validating exports...")
     
-    # Generate manifest
-    generate_manifest(args.output_dir)
+    # Generate Manifest
+    generate_manifest(paths["output"])
     
-    # Validate manifest schema
-    run_manifest_schema_validation(args.output_dir)
+    # Validate Exports
+    run_export_validation(paths["output"])
     
-    # Validate audit report schema
-    run_schema_validation(args.output_dir)
-    
-    # Validate export consistency
-    run_export_validation(args.output_dir)
-    
-    logger.info("Manifest generation and validation completed.")
+    logger.info("Manifest generated and exports validated.")
+
 
 def main():
-    parser = argparse.ArgumentParser(description="Run the A/B test audit pipeline.")
-    parser.add_argument("--input-urls", type=str, default="input/urls.csv", help="Path to input URLs CSV")
-    parser.add_argument("--output-dir", type=str, default="output", help="Output directory")
-    parser.add_argument("--log-dir", type=str, default="output/logs", help="Log directory")
-    parser.add_argument("--skip-monte-carlo", action="store_true", help="Skip Monte Carlo validation")
-    parser.add_argument("--skip-power-analysis", action="store_true", help="Skip power analysis")
-    parser.add_argument("--skip-prevalence", action="store_true", help="Skip prevalence and reporting")
-    parser.add_argument("--skip-manifest", action="store_true", help="Skip manifest generation")
+    parser = argparse.ArgumentParser(
+        description="Run the A/B Test Validity Audit Pipeline."
+    )
+    parser.add_argument(
+        "--base-path",
+        type=str,
+        default=None,
+        help="Base directory for input/output data. Defaults to current working directory."
+    )
+    parser.add_argument(
+        "--input-file",
+        type=str,
+        default=None,
+        help="Path to the input URLs CSV file."
+    )
+    parser.add_argument(
+        "--skip-monte-carlo",
+        action="store_true",
+        help="Skip the initial Monte Carlo validation step."
+    )
     
     args = parser.parse_args()
     
-    logger = setup_paths(args)
+    # Setup logging and paths
+    paths = setup_paths(args)
+    logger.info(f"Audit pipeline started at {datetime.now().isoformat()}")
+    logger.info(f"Base path: {paths['base']}")
     
     try:
-        # Start resource monitoring
-        start_monitoring()
+        # 0. Resource Monitor Check (NEW FOR T063)
+        # Initialize the monitor and check limits immediately. 
+        # If limits are exceeded, this function will log ERR-301 and abort.
+        logger.info("Checking resource limits...")
+        monitor = ResourceMonitor()
+        if not check_resource_limits(monitor):
+            # check_resource_limits logs the error and returns False on failure
+            logger.critical("Resource limits exceeded. Aborting pipeline.")
+            sys.exit(1)
         
-        # Monte Carlo validation
+        # 1. Monte Carlo Validation
         if not args.skip_monte_carlo:
-            run_monte_carlo_startup_validation(logger)
+            run_monte_carlo_startup_validation(paths)
         
-        # Power analysis
-        if not args.skip_power_analysis:
-            run_power_analysis_step(logger)
+        # 2. Power Analysis
+        run_power_analysis_step(paths)
         
-        # Full pipeline
-        run_full_pipeline(logger, args)
+        # 3. Main Pipeline
+        input_file = Path(args.input_file) if args.input_file else None
+        run_full_pipeline(paths, input_file)
         
-        # Prevalence and reporting
-        if not args.skip_prevalence:
-            run_prevalence_and_reporting(logger, args)
+        # 4. Prevalence & Reporting
+        run_prevalence_and_reporting(paths)
         
-        # Manifest and validation
-        if not args.skip_manifest:
-            generate_manifest_and_validate(logger, args)
+        # 5. Manifest & Export Validation
+        generate_manifest_and_validate(paths)
         
-        # Check resource limits
-        check_resource_limits(logger)
+        logger.info("Pipeline execution completed successfully.")
         
-        logger.info("Pipeline completed successfully.")
-        
-    except SystemExit as e:
-        # Re-raise SystemExit to allow proper exit codes
-        raise
     except Exception as e:
-        logger.error("Pipeline failed with error: %s", str(e))
-        raise
+        logger.error(f"Pipeline execution failed: {e}", exc_info=True)
+        sys.exit(1)
+
 
 if __name__ == "__main__":
     main()

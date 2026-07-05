@@ -30,6 +30,11 @@
   \ (verify workflow runs and respects limits) [DEPENDS ON: T010]."
 : 1
 ? "T012 Create CI workflow file `.github/workflows/audit.yml` that installs dependencies,\
+  \ enforces CPU \u2264 2 vCPU, RAM \u2264 2 GB [UNRESOLVED-CLAIM: c_a5c2cfa2 \u2014\
+  \ status=not_enough_info], timeout a predefined duration, and runs audit pipeline\
+  \ (verify workflow runs and respects limits) [DEPENDS ON: T010]."
+: 1
+? "T012 Create CI workflow file `.github/workflows/audit.yml` that installs dependencies,\
   \ enforces CPU \u2264 2 vCPU, RAM \u2264 2 GB, timeout a predefined duration [UNRESOLVED-CLAIM:\
   \ c_26bd3e2b \u2014 status=not_enough_info], and runs audit pipeline (verify workflow\
   \ runs and respects limits) [DEPENDS ON: T010]."
@@ -50,6 +55,14 @@
   \ repository identifier, and fetch timestamp [UNRESOLVED-CLAIM: c_3afd62b7 \u2014\
   \ status=not_enough_info] (run validation script `tests/unit/test_provenance_schema.py`).\
   \ **DEPENDS ON:** T020c."
+: 1
+? "T025 Implement inconsistency validator in `src/audit/validator.py` applying FR\u2011\
+  004 thresholds (absolute p\u2011difference > 0.05 [UNRESOLVED-CLAIM: c_071edb63\
+  \ \u2014 status=not_enough_info], relative effect\u2011size > 5\u202F%) **and verify\
+  \ that sample\u2011size mismatch entries are excluded from aggregate prevalence\
+  \ estimates** per FR\u2011004b (generate `AuditRecord` objects with data_quality_warning\
+  \ messages for sample\u2011size discrepancies, writing `output/audit_report.json`).\
+  \ **DEPENDS ON:** T023."
 : 1
 ? "T026 Implement synthetic dataset generator in `src/audit/synthetic.py` (FR\u2011\
   030) \u2013 outputs `data/synthetic/synthetic_validation.csv` + `data/synthetic/synthetic_ground_truth.json`\
@@ -74,6 +87,11 @@
   \ types are present** (constraint\u2011preservation\u20112958f04c) (verify files\
   \ are created and contain \u2265\u202F10\u202F000 records). **DEPENDS ON:** T006\u2011\
   T012."
+: 1
+? "T027 Unit tests for validator covering absolute p\u2011difference > 0.05 [UNRESOLVED-CLAIM:\
+  \ c_071edb63 \u2014 status=not_enough_info], effect\u2011size > 5\u202F%, inequality\
+  \ handling, sample\u2011size mismatch with data_quality_warning generation (tests/unit/test_validator.py)\
+  \ (verify all tests pass) [DEPENDS ON: T025]."
 : 1
 ? "T028 Implement power\u2011analysis utility in `src/audit/power_analysis.py` (FR\u2011\
   025) that computes the minimum N given baseline, detectable effect, \u03B1 and power,\
@@ -123,20 +141,17 @@
   \ c_c95cee25 \u2014 status=not_enough_info] (coverage\u2011executability\u201108d5764f)\
   \ (verify test passes)."
 : 1
-"T043 Unit tests for binomial test and CI width \u2264 0.10 (tests/unit/test_prevalence.py) (verify test passes).": 2
 ? "T043 Unit tests for binomial test and CI width \u2264 0.10 (tests/unit/test_prevalence.py)\
   \ (verify test passes). [UNRESOLVED-CLAIM: c_ae78747a \u2014 status=not_enough_info]"
 : 1
 ? "T043 Unit tests for binomial test and CI width \u2264 0.10 [UNRESOLVED-CLAIM: c_597a8193\
   \ \u2014 status=not_enough_info] (tests/unit/test_prevalence.py) (verify test passes)."
 : 1
-? "T043 Unit tests for binomial test and CI width \u2264 0.10 [UNRESOLVED-CLAIM: c_e3a7e8b9\
+? "T043 Unit tests for binomial test and CI width \u2264 0.10 [UNRESOLVED-CLAIM: c_8b62a5fc\
   \ \u2014 status=not_enough_info] (tests/unit/test_prevalence.py) (verify test passes)."
 : 1
-? "T049 Add Quickstart guide `docs/README_QUICKSTART.md` covering execution on 30\
-  \ URLs within 30 minutes (FR\u2011028) **and include novice\u2011user verification\
-  \ step with written confirmation log** (see T095b) (verify guide file exists and\
-  \ includes novice verification instructions)."
+? "T043 Unit tests for binomial test and CI width \u2264 0.10 [UNRESOLVED-CLAIM: c_e3a7e8b9\
+  \ \u2014 status=not_enough_info] (tests/unit/test_prevalence.py) (verify test passes)."
 : 1
 ? "T049 Add Quickstart guide `docs/README_QUICKSTART.md` covering execution on 30\
   \ URLs within 30 minutes [UNRESOLVED-CLAIM: c_67ec5a88 \u2014 status=not_enough_info]\
@@ -148,10 +163,6 @@
   \ (FR\u2011028) **and include novice\u2011user verification step with written confirmation\
   \ log** (see T095b) (verify guide file exists and includes novice verification instructions)."
 : 1
-? T050b **[P]** Verify that the publication year is extracted for each summary during
-  extraction (T020c) and present in the input to `subgroup_analysis.py`. (depends
-  on T020c)
-: 2
 ? "T062 Implement Monte\u2011Carlo validation module (FR\u2011026) in `src/audit/monte_carlo_validation.py`\
   \ that runs 10\u202F000 replicates for each statistical test (z-test, Fisher's,\
   \ Welch's, binomial) and checks the absolute difference \u2264 0.005 [UNRESOLVED-CLAIM:\
@@ -172,19 +183,16 @@
 : 1
 ? "T062 Implement Monte\u2011Carlo validation module (FR\u2011026) in `src/audit/monte_carlo_validation.py`\
   \ that runs 10\u202F10000 replicates for each statistical test (z-test, Fisher's,\
-  \ Welch's, binomial) and checks the absolute difference \u2264 0.005 (constraint\u2011\
-  preservation\u2011e62a0df4) (verify module exits with status 0)."
-: 2
+  \ Welch's, binomial) and checks the absolute difference \u2264 0.005 [UNRESOLVED-CLAIM:\
+  \ c_596b22bd \u2014 status=not_enough_info] (constraint\u2011preservation\u2011\
+  e62a0df4) (verify module exits with status 0)."
+: 1
 ? "T062 Implement Monte\u2011Carlo validation module (FR\u2011026) in `src/audit/monte_carlo_validation.py`\
   \ that runs 10\u202F10000 replicates for each statistical test (z-test, Fisher's,\
   \ Welch's, binomial) and checks the absolute difference \u2264 0.005 [UNRESOLVED-CLAIM:\
   \ c_dc19c8e6 \u2014 status=not_enough_info] (constraint\u2011preservation\u2011\
   e62a0df4) (verify module exits with status 0)."
 : 1
-? 'T063 Modify `src/cli/run_audit.py` to invoke `resource_monitor` and abort with
-  `ERR-301` if limits exceeded (plan.md) (run AFTER T098) (verify script aborts on
-  limit breach) [DEPENDS ON: T098].'
-: 2
 ? "T064 Update `.github/workflows/audit.yml` to include steps: (a) schema validation,\
   \ (b) synthetic validation (ensure precision/recall thresholds), (c) resource\u2011\
   monitor check, (d) main pipeline run (verify workflow runs all steps) [DEPENDS ON:\
@@ -194,4 +202,30 @@
   \ (b) synthetic validation (ensure precision/recall thresholds), (c) resource\u2011\
   monitor check, (d) main pipeline run (verify workflow runs all steps) [DEPENDS ON:\
   \ T098]. <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->"
+: 1
+? "T064 Update `.github/workflows/audit.yml` to include steps: (a) schema validation,\
+  \ (b) synthetic validation (ensure precision/recall thresholds), (c) resource\u2011\
+  monitor check, (d) main pipeline run (verify workflow runs all steps) [DEPENDS ON:\
+  \ T098]. <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested\
+  \ -->"
+: 1
+? "T064 Update `.github/workflows/audit.yml` to include steps: (a) schema validation,\
+  \ (b) synthetic validation (ensure precision/recall thresholds), (c) resource\u2011\
+  monitor check, (d) main pipeline run (verify workflow runs all steps) [DEPENDS ON:\
+  \ T098]. <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested\
+  \ --> <!-- ATOMIZE: requested -->"
+: 2
+? "T065 Add CI step that caches `pip` packages to stay within 6\u202Fhour total runtime\
+  \ (plan.md) (verify cache hit on subsequent runs)."
+: 1
+? 'T066 Add unit test for resource monitor parsing of `/proc` (tests/unit/test_resource_monitor.py)
+  (verify test passes) [DEPENDS ON: T098].'
+: 1
+? "T095b Verify Quickstart Docker guide also reproduces environment via `requirements.txt`\
+  \ and isolated venv (Constitution Principle I) (verify Dockerfile runs `pip install\
+  \ -r requirements.txt` and that a venv is created) (addresses ordering\u201128dea5aa)."
+: 1
+? "T095c **[P]** Verify that the CI run includes a step that checks all seven Constitution\
+  \ Principles (I\u2011VII) are satisfied (ties to PT005C) (verify CI step exists\
+  \ and passes). (depends on PT005C)"
 : 1

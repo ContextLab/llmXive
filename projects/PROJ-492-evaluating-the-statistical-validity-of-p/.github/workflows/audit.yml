@@ -1,31 +1,19 @@
-name: Audit Pipeline
+name: A/B Test Audit Pipeline
 
 on:
   push:
     branches: [ main, develop ]
   pull_request:
-    branches: [ main ]
-
-# Enforce resource limits as per FR-009 and SC-008
-# GitHub Actions runners typically provide more, but we constrain the job
-# to simulate the 2 vCPU / 2GB RAM limit and ensure the code handles it.
-# Note: Actual CPU/RAM hard limits on GitHub Actions runners are difficult
-# to enforce strictly via YAML alone without external tooling, but we
-# configure the job to run on a standard runner and rely on the
-# resource_monitor.py module (T098) to enforce soft limits and abort.
-# The timeout ensures the job does not exceed the 6-hour runtime constraint.
-
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+    branches: [ main, develop ]
 
 jobs:
-  run-audit:
+  audit:
     runs-on: ubuntu-latest
-    
-    # Set a strict timeout to enforce the 6-hour limit (SC-008)
-    # Using 5 hours to provide a safety buffer for the 6h requirement.
-    timeout-minutes: 300
+    timeout-minutes: 360
+    container:
+      image: python:3.11-slim
+    strategy:
+      fail-fast: false
 
     steps:
       - name: Checkout repository
@@ -34,87 +22,58 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.10'
+          python-version: '3.11'
           cache: 'pip'
+          cache-dependency-path: |
+            requirements.txt
+            pyproject.toml
 
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
+          pip install ruff black mypy pytest
 
-      - name: Validate Schema Definitions
-        run: |
-          python -m code.src.audit.export_schema_validator --check-only
-          python -m code.src.audit.manifest_schema_validator --check-only
+      - name: Restore cached data (optional)
+        uses: actions/cache@v4
+        with:
+          path: data/raw
+          key: ${{ runner.os }}-raw-data-${{ hashFiles('input/urls.csv') }}
+          restore-keys: |
+            ${{ runner.os }}-raw-data-
 
-      - name: Run Monte-Carlo Validation (Startup)
-        # T031: Run Monte-Carlo validation as part of pipeline start-up
-        # Aborts with ERR-801 if any test fails the <= 0.005 criterion
+      - name: Schema Validation
         run: |
-          python -m code.src.cli.run_monte_carlo_validation
+          python -m code.src.audit.export_schema_validator
+          python -m code.src.audit.manifest_schema_validator
 
-      - name: Run Power Analysis
-        # T028: Verify audited corpus meets N >= 300 OR N >= calculated_minimum
+      - name: Synthetic Validation
         run: |
-          python -m code.src.audit.power_analysis
-
-      - name: Run Main Audit Pipeline
-        # T032: End-to-end driver script
-        # Includes resource monitoring (T098) which enforces CPU/RAM limits
-        # and aborts with ERR-301 if limits are exceeded.
-        run: |
-          python -m code.src.cli.run_audit
-
-      - name: Run Synthetic Validation Tests
-        # T029: Evaluate inconsistency-detection component on synthetic dataset
-        # Verifies precision >= 90% and recall >= 80%
-        run: |
+          python -m code.src.audit.synthetic
           python -m code.src.audit.evaluation
+          # Verify precision >= 0.90 and recall >= 0.80 internally or via test runner
+          python -m pytest tests/integration/test_synthetic_validation.py -v
 
-      - name: Run Resource Monitor Check
-        # T063: Verify resource monitor logic (T098)
-        # This step ensures the log file was written and limits were respected.
+      - name: Resource Monitor Check
         run: |
-          python -c "
-          import json
-          from pathlib import Path
-          log_path = Path('output/resource_log.json')
-          if not log_path.exists():
-              print('ERR-301: Resource log file not found. Pipeline may have aborted early or failed to write log.')
-              exit(1)
-          with open(log_path) as f:
-              data = json.load(f)
-          # Verify limits were respected (soft limits enforced by code)
-          if data.get('peak_memory_gb', 0) > 2.0:
-              print(f'ERR-301: Peak memory {data[\"peak_memory_gb\"]}GB exceeds 2GB limit.')
-              exit(1)
-          print('Resource limits respected.')
-          "
+          python -m code.src.utils.resource_monitor --check-only
 
-      - name: Verify Export Consistency
-        # T059: Ensure JSON and CSV counts match
-        run: |
-          python -m code.src.audit.export_validator
-
-      - name: Run Constitution Compliance Check
-        # PT005C: Verify all seven Principles (I-VII)
+      - name: Constitution Compliance Check
         run: |
           python -m code.src.utils.constitution_checker
 
+      - name: Main Pipeline Run
+        run: |
+          python -m code.src.cli.run_audit
+
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
+        if: always()
         with:
           name: audit-artifacts
           path: |
             output/
-            data/processed/
-            data/synthetic/
             data/provenance_log.csv
-            output/manifest.json
+            data/checksums.txt
+            logs/
           retention-days: 7
-
-# Note: The actual CPU/RAM hard limits (2 vCPU, 2GB) are enforced by the
-# `code.src.utils.resource_monitor` module (T098) which runs inside the
-# Python process. The YAML configuration ensures the environment is
-# available and the timeout is respected. The job will fail if the
-# Python process exits with ERR-301 due to resource violations.

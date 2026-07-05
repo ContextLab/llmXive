@@ -1,13 +1,15 @@
 """
-Unit tests for Monte-Carlo Validation Module.
-Verifies that the module functions are importable and run without error.
+Unit tests for Monte-Carlo validation module.
 """
+
 import pytest
 import sys
-from unittest.mock import patch, MagicMock
+from pathlib import Path
 import numpy as np
 
-# Import the module
+# Add project root to path
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
+
 from code.src.audit.monte_carlo_validation import (
     validate_z_test,
     validate_fisher_exact,
@@ -15,83 +17,91 @@ from code.src.audit.monte_carlo_validation import (
     validate_binomial_test,
     run_monte_carlo_validation
 )
-from code.src.config import set_rng_seed
+
 
 class TestMonteCarloValidation:
-    
-    def test_validate_z_test_import_and_structure(self):
-        """Test that validate_z_test returns expected tuple structure."""
-        # We don't run the full 100k reps here to save time in unit tests,
-        # but we verify the function exists and returns the right type.
-        # We will mock the heavy lifting or run a tiny subset if needed.
-        # For this unit test, we assume the function signature is correct.
-        # To be safe and fast, we just check importability and return type shape
-        # by mocking the internal heavy calls if necessary, but since we need
-        # to verify logic, we'll run a small subset if the function allows,
-        # or just check the return type if we mock the simulation.
-        
-        # Actually, let's just ensure it doesn't crash with a small mock
-        # But the function is self-contained. Let's run it with a mocked NUM_REPLICATES?
-        # No, we can't easily mock global constants inside.
-        # Instead, we verify the logic by checking the return type.
-        # We will run the function but with a much smaller N for the test?
-        # The function uses global NUM_REPLICATES.
-        # We will patch the global constant.
-        
-        with patch('code.src.audit.monte_carlo_validation.NUM_REPLICATES', 10):
-            passed, s_p, e_p, result = validate_z_test()
-            assert isinstance(passed, bool)
-            assert isinstance(s_p, float)
-            assert isinstance(e_p, float)
-            assert isinstance(result, dict)
-            assert "test" in result
-            assert result["test"] == "z_test"
+    """Test suite for Monte-Carlo validation functions."""
 
-    def test_validate_fisher_exact_import_and_structure(self):
-        with patch('code.src.audit.monte_carlo_validation.NUM_REPLICATES', 10):
-            passed, s_p, e_p, result = validate_fisher_exact()
-            assert isinstance(passed, bool)
-            assert isinstance(s_p, float)
-            assert isinstance(e_p, float)
-            assert isinstance(result, dict)
-            assert result["test"] == "fisher_exact"
+    def test_validate_z_test_returns_tuple(self):
+        """Test that z-test validation returns a tuple of (bool, dict)."""
+        passed, details = validate_z_test(seed=42)
+        assert isinstance(passed, bool)
+        assert isinstance(details, dict)
+        assert "test" in details
+        assert details["test"] == "z_test"
+        assert "passed" in details
+        assert "difference" in details
+        assert "threshold" in details
 
-    def test_validate_welch_t_test_import_and_structure(self):
-        with patch('code.src.audit.monte_carlo_validation.NUM_REPLICATES', 10):
-            passed, s_p, e_p, result = validate_welch_t_test()
-            assert isinstance(passed, bool)
-            assert isinstance(s_p, float)
-            assert isinstance(e_p, float)
-            assert isinstance(result, dict)
-            assert result["test"] == "welch_t"
+    def test_validate_z_test_structure(self):
+        """Test that z-test validation result has expected structure."""
+        passed, details = validate_z_test(seed=42)
+        required_keys = ["test", "replicates", "empirical_alpha", "theoretical_alpha",
+                       "difference", "threshold", "passed", "seed"]
+        for key in required_keys:
+            assert key in details, f"Missing key: {key}"
 
-    def test_validate_binomial_test_import_and_structure(self):
-        with patch('code.src.audit.monte_carlo_validation.NUM_REPLICATES', 10):
-            passed, s_p, e_p, result = validate_binomial_test()
-            assert isinstance(passed, bool)
-            assert isinstance(s_p, float)
-            assert isinstance(e_p, float)
-            assert isinstance(result, dict)
-            assert result["test"] == "binomial"
+    def test_validate_fisher_exact_returns_tuple(self):
+        """Test that Fisher's exact validation returns a tuple of (bool, dict)."""
+        passed, details = validate_fisher_exact(seed=42)
+        assert isinstance(passed, bool)
+        assert isinstance(details, dict)
+        assert details["test"] == "fisher_exact"
 
-    def test_run_monte_carlo_validation(self):
-        """Test the main runner function."""
-        # Patch replicates to be small for speed
-        with patch('code.src.audit.monte_carlo_validation.NUM_REPLICATES', 10):
-            # Note: With only 10 replicates, the p-value estimation is noisy and might fail the tolerance check.
-            # This test verifies the runner logic, not the statistical validity with 10 samples.
-            # We expect it to run without crashing.
-            try:
-                result = run_monte_carlo_validation()
-                # It returns a boolean. It might be False due to low N, but it should run.
-                assert isinstance(result, bool)
-            except Exception as e:
-                pytest.fail(f"run_monte_carlo_validation raised an exception: {e}")
+    def test_validate_welch_t_test_returns_tuple(self):
+        """Test that Welch's t-test validation returns a tuple of (bool, dict)."""
+        passed, details = validate_welch_t_test(seed=42)
+        assert isinstance(passed, bool)
+        assert isinstance(details, dict)
+        assert details["test"] == "welch_t"
 
-    def test_tolerance_constant_exists(self):
-        from code.src.audit.monte_carlo_validation import TOLERANCE
-        assert TOLERANCE == 0.005
+    def test_validate_binomial_test_returns_tuple(self):
+        """Test that binomial test validation returns a tuple of (bool, dict)."""
+        passed, details = validate_binomial_test(seed=42)
+        assert isinstance(passed, bool)
+        assert isinstance(details, dict)
+        assert details["test"] == "binomial"
 
-    def test_replicates_constant_exists(self):
-        from code.src.audit.monte_carlo_validation import NUM_REPLICATES
-        assert NUM_REPLICATES == 100000
+    def test_run_monte_carlo_validation_all_tests(self):
+        """Test that running full validation suite returns results for all tests."""
+        passed, results = run_monte_carlo_validation(seed=42)
+        assert isinstance(passed, bool)
+        assert isinstance(results, dict)
+        assert "tests" in results
+        assert "z_test" in results["tests"]
+        assert "fisher_exact" in results["tests"]
+        assert "welch_t" in results["tests"]
+        assert "binomial" in results["tests"]
+        assert "all_passed" in results
+
+    def test_tolerance_threshold_applied(self):
+        """Test that the tolerance threshold is correctly applied."""
+        _, details = validate_z_test(seed=42)
+        assert details["threshold"] == 0.005
+        # Difference should be a float
+        assert isinstance(details["difference"], float)
+
+    def test_replicates_count(self):
+        """Test that the correct number of replicates is used."""
+        _, details = validate_z_test(seed=42)
+        assert details["replicates"] == 100000
+
+    def test_seed_reproducibility(self):
+        """Test that using the same seed produces consistent results."""
+        _, details1 = validate_z_test(seed=123)
+        _, details2 = validate_z_test(seed=123)
+        # The difference values should be identical (or very close due to float precision)
+        assert abs(details1["difference"] - details2["difference"]) < 1e-10
+
+    def test_empirical_alpha_reasonable_range(self):
+        """Test that empirical alpha is within a reasonable range."""
+        _, details = validate_z_test(seed=42)
+        # Under null, empirical alpha should be close to 0.05
+        # Allow some variance due to Monte-Carlo simulation
+        assert 0.0 < details["empirical_alpha"] < 0.15, \
+            f"empirical_alpha {details['empirical_alpha']} out of expected range"
+
+    def test_difference_is_absolute(self):
+        """Test that difference is always non-negative (absolute difference)."""
+        _, details = validate_z_test(seed=42)
+        assert details["difference"] >= 0, "Difference should be absolute (non-negative)"
