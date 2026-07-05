@@ -1,0 +1,46 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "CompositionRecord"
+description: "Schema for a single perovskite composition record used in training and screening."
+type: "object"
+properties:
+  formula:
+    type: "string"
+    description: "Chemical formula of the composition (e.g., 'CsPbI3')."
+  source_id:
+    type: "string"
+    description: "Unique identifier from the source database (MP or OQMD)."
+  space_group:
+    type: "integer"
+    description: "Space group number (e.g., 221 for Cubic, 148 for Rhombohedral)."
+  tolerance_factor:
+    type: "number"
+    description: "Goldschmidt tolerance factor (t)."
+  octahedral_factor:
+    type: "number"
+    description: "Octahedral factor (mu)."
+  ionic_radius_mismatch:
+    type: "number"
+    description: "Calculated ionic radius mismatch metric."
+  electronegativity_diff:
+    type: "number"
+    description: "Electronegativity difference between sites."
+  decomposition_energy:
+    type: "number"
+    description: "Target variable: decomposition energy in eV/atom."
+  source:
+    type: "string"
+    enum:
+      - "MP"
+      - "OQMD"
+    description: "Source of the data (Materials Project or OQMD)."
+required:
+  - formula
+  - source_id
+  - space_group
+  - tolerance_factor
+  - octahedral_factor
+  - ionic_radius_mismatch
+  - electronegativity_diff
+  - decomposition_energy
+  - source
+additionalProperties: false

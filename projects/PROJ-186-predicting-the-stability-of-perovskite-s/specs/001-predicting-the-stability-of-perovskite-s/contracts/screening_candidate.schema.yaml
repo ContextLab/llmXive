@@ -1,0 +1,42 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "ScreeningCandidate"
+description: "Schema for a hypothetical composition generated during virtual screening."
+type: "object"
+properties:
+  formula:
+    type: "string"
+    description: "Chemical formula of the hypothetical composition."
+  tolerance_factor:
+    type: "number"
+    description: "Calculated Goldschmidt tolerance factor."
+  predicted_stability_score:
+    type: "number"
+    description: "Predicted decomposition energy in eV/atom."
+  descriptor_values:
+    type: "object"
+    description: "Full set of descriptors used for prediction."
+    properties:
+      octahedral_factor:
+        type: "number"
+      ionic_radius_mismatch:
+        type: "number"
+      electronegativity_diff:
+        type: "number"
+    required:
+      - octahedral_factor
+      - ionic_radius_mismatch
+      - electronegativity_diff
+  rank:
+    type: "integer"
+    description: "Rank in the sorted list of candidates."
+  flagged:
+    type: "boolean"
+    description: "True if predicted_stability_score < -0.1 eV/atom."
+required:
+  - formula
+  - tolerance_factor
+  - predicted_stability_score
+  - descriptor_values
+  - rank
+  - flagged
+additionalProperties: false

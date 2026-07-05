@@ -1,34 +1,26 @@
 ## Research-question validation
 
 ### Phenomenon-vs-method check
+**Verdict**: pass
 
-**Verdict**: concern
-
-The core scientific phenomenon (relationship between compositional/structural descriptors and thermodynamic stability in perovskites) is present, but the question is framed as whether a specific ML capability ("lightweight machine-learning model") can achieve a prediction task rather than asking directly about the underlying chemical relationship. The phenomenon question would be "how do compositional descriptors predict thermodynamic stability?" rather than "can a model predict...".
+The question explicitly targets the relationship between compositional/structural descriptors (tolerance factor, ionic radius, electronegativity) and the physical phenomenon of thermodynamic stability. While it mentions "data-driven models," the core inquiry is about whether these chemical features *predict* stability across the compositional space, rather than evaluating the performance of a specific algorithm or hardware constraint.
 
 ### Circularity check
-
 **Verdict**: pass
 
-The predictor derives from compositional descriptors (ionic radii, electronegativity, tolerance factor) calculated from periodic table properties and chemical formulas. The predicted variable (formation energy, decomposition temperature) comes from independent DFT calculations or experimental measurements in Materials Project/OQMD. These are independent data sources with no mechanical guarantee of correlation.
+The predictor variables (Goldschmidt tolerance factor, ionic radii, electronegativity) are derived from fundamental atomic properties and stoichiometry, whereas the predicted variable (thermodynamic stability/decomposition energy) is a calculated property of the bulk crystal lattice derived from DFT (in the training data). These are distinct physical summaries; the stability is not mechanically constructed as a simple function of the tolerance factor alone, as evidenced by the existence of stable and unstable perovskites with similar tolerance factors.
 
 ### Triviality check
-
 **Verdict**: pass
 
-Both outcomes are informative: a positive result showing ML generalizes to novel compositions would enable virtual screening for stable perovskites; a null result (ML no better than traditional tolerance-factor rules) would confirm that classical chemical heuristics are already near-optimal for this task. Either outcome advances domain understanding.
+While the Goldschmidt tolerance factor is a known heuristic for perovskite stability, the question asks for a quantitative, generalizable mapping across the *entire* compositional space (ABX₃) including novel, uncharacterized compounds. A result showing that simple descriptors fail to capture complex stability trends (null) would be scientifically valuable by highlighting the need for more sophisticated features, while a strong positive result would provide a validated, rapid screening tool. Neither outcome is predetermined or trivial given the known limitations of simple geometric rules for complex materials.
 
 ### Question-narrowing check
+**Verdict**: pass
 
-**Verdict**: concern
-
-The question mixes a domain relationship (composition→stability) with implementation constraints ("lightweight model", "publicly available descriptors"). While the domain question is present, the framing emphasizes methodological feasibility (resource constraints, model type) rather than the chemical mechanism being studied.
+The question names a specific domain relationship (how atomic-scale descriptors influence macroscopic thermodynamic stability) rather than an implementation constraint. It asks "How do X predict Y?" which is a fundamental materials science inquiry, rather than "Can model Z achieve accuracy A within time B?"
 
 ### Overall verdict
+**Verdict**: validated
 
-**Verdict**: validator_revise
-
-[REVISED]
-How do compositional and structural descriptors (Goldschmidt tolerance factor, ionic radius mismatch, electronegativity differences) predict thermodynamic stability across the compositional space of ABX₃ perovskite compounds, and can data-driven models generalize this relationship to novel, experimentally uncharacterized compositions?
-[/REVISED]
-The reframing shifts focus from ML model capabilities to the underlying composition-stability relationship while preserving the virtual-screening goal. This makes the ML method a tool for answering the scientific question rather than the question itself.
+All four checks pass. The research question is well-framed as a substantive inquiry into structure-property relationships in materials science, free from implementation bias, circular construction, or triviality. The proposed methodology aligns directly with answering this scientific question.

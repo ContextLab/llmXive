@@ -1,0 +1,45 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "TrainedModel"
+description: "Schema for the serialized model artifact metadata."
+type: "object"
+properties:
+  hyperparameters:
+    type: "object"
+    description: "Best hyperparameters selected from grid search."
+    properties:
+      max_depth:
+        type: "integer"
+      min_samples_leaf:
+        type: "integer"
+    required:
+      - max_depth
+      - min_samples_leaf
+  feature_importances:
+    type: "object"
+    description: "Feature importance scores for each descriptor (from permutation analysis)."
+    additionalProperties:
+      type: "number"
+  cross_validation_rmse:
+    type: "number"
+    description: "Root Mean Squared Error from inner 5-fold cross-validation."
+  test_set_rmse:
+    type: "number"
+    description: "Root Mean Squared Error on the held-out test set."
+  training_samples:
+    type: "integer"
+    description: "Number of samples used for training."
+  random_seed:
+    type: "integer"
+    description: "Random seed used for reproducibility."
+  dft_functional:
+    type: "string"
+    description: "DFT functional used for training data (e.g., 'PBE')."
+required:
+  - hyperparameters
+  - feature_importances
+  - cross_validation_rmse
+  - test_set_rmse
+  - training_samples
+  - random_seed
+  - dft_functional
+additionalProperties: false
