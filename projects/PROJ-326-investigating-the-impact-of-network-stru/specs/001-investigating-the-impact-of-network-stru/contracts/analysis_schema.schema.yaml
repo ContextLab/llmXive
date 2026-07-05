@@ -1,0 +1,56 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "AnalysisResult"
+description: "Schema for statistical analysis results (regression and ANOVA)."
+type: "object"
+required:
+  - "analysis_id"
+  - "metric_name"
+  - "p_value"
+  - "corrected_p_value"
+  - "effect_size"
+properties:
+  analysis_id:
+    type: "string"
+    description: "Unique identifier for the analysis result."
+  metric_name:
+    type: "string"
+    description: "Name of the topological metric tested (e.g., 'clustering_coefficient')."
+  regression_coefficient:
+    type: "number"
+    description: "Coefficient from the linear regression model."
+  p_value:
+    type: "number"
+    description: "Raw p-value from the statistical test."
+  correction_method:
+    type: "string"
+    enum:
+      - "bonferroni"
+      - "benjamini_hochberg"
+    description: "Method used for multiple-comparison correction."
+  corrected_p_value:
+    type: "number"
+    description: "P-value after correction."
+  effect_size:
+    type: "number"
+    description: "Effect size metric (e.g., R-squared, Cohen's d)."
+  significance_level:
+    type: "number"
+    description: "Alpha level used for significance testing (e.g., 0.05)."
+  is_significant:
+    type: "boolean"
+    description: "Whether the result is significant after correction."
+  topology_group_stats:
+    type: "object"
+    description: "Optional ANOVA statistics if comparing topology classes."
+    properties:
+      f_statistic:
+        type: "number"
+      df_between:
+        type: "integer"
+      df_within:
+        type: "integer"
+      p_value:
+        type: "number"
+  vif_score:
+    type: "number"
+    description: "Variance Inflation Factor for this predictor to diagnose multicollinearity."

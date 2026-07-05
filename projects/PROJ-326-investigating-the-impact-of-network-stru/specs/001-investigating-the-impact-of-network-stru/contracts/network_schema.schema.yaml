@@ -1,0 +1,55 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "NetworkGraphMetadata"
+description: "Schema for metadata accompanying generated synthetic graphs."
+type: "object"
+required:
+  - "graph_id"
+  - "topology_class"
+  - "node_count"
+  - "clustering_coefficient"
+  - "generation_seed"
+  - "generation_params"
+properties:
+  graph_id:
+    type: "string"
+    description: "Unique identifier for the graph instance."
+  topology_class:
+    type: "string"
+    enum:
+      - "er"
+      - "sw"
+      - "sf"
+    description: "The class of network topology (Erdős-Rényi, Small-World, Scale-Free)."
+  node_count:
+    type: "integer"
+    minimum: 10
+    description: "Number of nodes in the graph."
+  edge_count:
+    type: "integer"
+    minimum: 0
+    description: "Number of edges in the graph."
+  clustering_coefficient:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Average clustering coefficient of the graph."
+  average_path_length:
+    type: "number"
+    description: "Average shortest path length between connected nodes."
+  generation_seed:
+    type: "integer"
+    description: "Random seed used for graph generation."
+  generation_params:
+    type: "object"
+    description: "Parameters passed to the generator (e.g., beta, p, m)."
+    additionalProperties: true
+  status:
+    type: "string"
+    enum:
+      - "valid"
+      - "clustering_deviation"
+      - "disconnected"
+    description: "Validation status of the generated graph."
+  deviation_details:
+    type: "string"
+    description: "Optional details if status is not 'valid' (e.g., 'actual_clustering: 0.25')."

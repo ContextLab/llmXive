@@ -1,0 +1,44 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "SimulationRunResult"
+description: "Schema for the output of a single energy transfer simulation run."
+type: "object"
+required:
+  - "run_id"
+  - "graph_id"
+  - "diffusion_rate"
+  - "convergence_status"
+properties:
+  run_id:
+    type: "string"
+    description: "Unique identifier for the simulation run."
+  graph_id:
+    type: "string"
+    description: "Reference to the input graph metadata ID."
+  seed_node:
+    type: "integer"
+    description: "ID of the node where energy was initially injected."
+  total_steps:
+    type: "integer"
+    description: "Number of time steps simulated."
+  diffusion_rate:
+    type: "number"
+    description: "Calculated rate of change of spatial variance of energy density (slope over transient phase t=0-20)."
+  time_to_saturation:
+    type: "number"
+ description: "Time step at which [deferred] of network energy spread is reached."
+  convergence_status:
+    type: "string"
+    enum:
+      - "complete"
+      - "divergence"
+      - "timeout"
+    description: "Final status of the simulation."
+  error_message:
+    type: "string"
+    description: "Error details if status is not 'complete'."
+  max_energy_observed:
+    type: "number"
+    description: "Maximum energy value observed during simulation (for stability check)."
+  transient_phase_steps:
+    type: "integer"
+    description: "Number of steps used for the transient phase slope calculation (default 20)."
