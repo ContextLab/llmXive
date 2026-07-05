@@ -1,0 +1,127 @@
+%YAML 1.2
+---
+# Schema for model artifacts and metadata
+# Defines the structure of saved models and training metadata
+# Location: docs/contracts/model.schema.yaml
+
+$schema: http://json-schema.org/draft-07/schema#
+title: ModelArtifactSchema
+description: Schema for machine learning model artifacts
+
+type: object
+required:
+  - model_type
+  - version
+  - training_metadata
+  - feature_definitions
+  - target_definitions
+
+properties:
+  model_type:
+    type: string
+    description: Type of model (e.g., RandomForestRegressor)
+  version:
+    type: string
+    pattern: '^\d+\.\d+\.\d+$'
+    description: Model version
+  training_metadata:
+    type: object
+    required:
+      - trained_at
+      - dataset_version
+      - sample_count
+      - hyperparameters
+    properties:
+      trained_at:
+        type: string
+        format: date-time
+      dataset_version:
+        type: string
+      sample_count:
+        type: integer
+        minimum: 1
+      train_test_split:
+        type: object
+        properties:
+          train_ratio:
+            type: number
+            minimum: 0
+            maximum: 1
+          test_ratio:
+            type: number
+            minimum: 0
+            maximum: 1
+      cross_validation:
+        type: object
+        properties:
+          n_folds:
+            type: integer
+            minimum: 2
+          cv_scores:
+            type: array
+            items:
+              type: number
+      hyperparameters:
+        type: object
+        description: Final hyperparameters after grid search
+  feature_definitions:
+    type: array
+    description: Features used in training
+    items:
+      type: object
+      required:
+        - name
+        - importance
+      properties:
+        name:
+          type: string
+        importance:
+          type: number
+          minimum: 0
+        rank:
+          type: integer
+          minimum: 1
+  target_definitions:
+    type: array
+    description: Targets predicted by the model
+    items:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+        unit:
+          type: string
+  performance_metrics:
+    type: object
+    description: Model performance metrics
+    properties:
+      r2_scores:
+        type: object
+        description: R² per target variable
+      mae_scores:
+        type: object
+        description: MAE per target variable
+      rmse_scores:
+        type: object
+        description: RMSE per target variable
+  alloy_family_metrics:
+    type: array
+    description: Performance metrics per alloy family
+    items:
+      type: object
+      required:
+        - family_name
+        - sample_count
+      properties:
+        family_name:
+          type: string
+        sample_count:
+          type: integer
+        r2_scores:
+          type: object
+        mae_scores:
+          type: object
+        rmse_scores:
+          type: object

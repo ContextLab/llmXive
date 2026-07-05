@@ -1,0 +1,176 @@
+%YAML 1.2
+---
+# Schema for evaluation reports and results
+# Defines the structure of model evaluation outputs
+# Location: docs/contracts/evaluation.schema.yaml
+
+$schema: http://json-schema.org/draft-07/schema#
+title: EvaluationReportSchema
+description: Schema for model evaluation reports
+
+type: object
+required:
+  - report_version
+  - generated_at
+  - model_info
+  - overall_metrics
+  - per_target_metrics
+  - per_family_metrics
+  - feature_importance
+  - validation_results
+
+properties:
+  report_version:
+    type: string
+    pattern: '^\d+\.\d+\.\d+$'
+  generated_at:
+    type: string
+    format: date-time
+  model_info:
+    type: object
+    required:
+      - model_type
+      - model_version
+      - dataset_source
+    properties:
+      model_type:
+        type: string
+      model_version:
+        type: string
+      dataset_source:
+        type: string
+        enum:
+          - Real
+          - Synthetic
+          - Hybrid
+  overall_metrics:
+    type: object
+    required:
+      - r2
+      - mae
+      - rmse
+    properties:
+      r2:
+        type: number
+      mae:
+        type: number
+      rmse:
+        type: number
+      sample_count:
+        type: integer
+        minimum: 1
+  per_target_metrics:
+    type: object
+    description: Metrics for each texture coefficient
+    additionalProperties:
+      type: object
+      required:
+        - r2
+        - mae
+        - rmse
+      properties:
+        r2:
+          type: number
+        mae:
+          type: number
+        rmse:
+          type: number
+  per_family_metrics:
+    type: array
+    description: Metrics broken down by alloy family
+    items:
+      type: object
+      required:
+        - family_name
+        - sample_count
+      properties:
+        family_name:
+          type: string
+        sample_count:
+          type: integer
+        r2:
+          type: number
+        mae:
+          type: number
+        rmse:
+          type: number
+  feature_importance:
+    type: array
+    description: Ranked feature importance scores
+    items:
+      type: object
+      required:
+        - feature_name
+        - importance
+        - rank
+      properties:
+        feature_name:
+          type: string
+        importance:
+          type: number
+          minimum: 0
+        rank:
+          type: integer
+          minimum: 1
+  validation_results:
+    type: object
+    required:
+      - sc002_passed
+      - sc002_details
+    properties:
+      sc002_passed:
+        type: boolean
+        description: Whether SC-002 (importance >= 0.10 for all families) is met
+      sc002_details:
+        type: array
+        description: Details per family for SC-002 validation
+        items:
+          type: object
+          required:
+            - family_name
+            - max_importance
+            - threshold_met
+          properties:
+            family_name:
+              type: string
+            max_importance:
+              type: number
+            threshold_met:
+              type: boolean
+      missing_confounds_warning:
+        type: boolean
+        description: Warning flag for missing confounds (SC-004)
+  sensitivity_analysis:
+    type: object
+    description: Results from threshold sensitivity sweep
+    properties:
+      threshold_range:
+        type: object
+        properties:
+          start:
+            type: number
+          end:
+            type: number
+          step:
+            type: number
+      results:
+        type: array
+        items:
+          type: object
+          properties:
+            threshold:
+              type: number
+            stable_features_count:
+              type: integer
+            r2_stability:
+              type: number
+  artifacts:
+    type: object
+    description: Paths to generated artifacts
+    properties:
+      importance_plot:
+        type: string
+      report_json:
+        type: string
+      sensitivity_report:
+        type: string

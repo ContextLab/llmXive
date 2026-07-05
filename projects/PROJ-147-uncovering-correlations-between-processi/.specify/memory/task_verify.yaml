@@ -1,0 +1,6 @@
+T001 Create project structure per implementation plan (`code/`, `data/`, `tests/`, `docs/`): 1
+? T002 Initialize Python 3.11 project with dependencies (`scikit-learn`, `pandas`,
+  `numpy`, `pymtex`, `pyyaml`, `pytest`) in `requirements.txt`
+: 1
+T003 [P] Configure linting (ruff/flake8) and formatting (black) tools in `.pre-commit-config.yaml`: 1
+T006 [P] Create `code/data/` directory structure (`raw/`, `processed/`): 1

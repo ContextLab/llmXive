@@ -1,44 +1,51 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "ProcessingRecord Schema"
-description: "Schema for a single rolling experiment record, including processing parameters and optional raw diffraction file path."
+title: "ProcessingRecordSchema"
+description: "Schema for a single processing record including parameters and texture descriptors."
 type: "object"
 properties:
-  sample_id:
+  id:
     type: "string"
-    description: "Unique identifier for the sample."
+    description: "Unique identifier for the record."
   alloy_id:
     type: "string"
-    description: "Identifier linking to the AlloyFamily."
+    description: "Alloy identifier (e.g., Al-6061)."
   rolling_speed:
     type: "number"
-    description: "Rolling speed in meters per second (m/s)."
+    description: "Rolling speed in m/s."
+    minimum: 0.0
   temperature:
     type: "number"
-    description: "Rolling temperature in degrees Celsius (°C)."
+    description: "Rolling temperature in °C."
   reduction_ratio:
     type: "number"
-    description: "Reduction ratio as a percentage (%)."
-  composition_vector:
-    type: "array"
-    items:
-      type: "number"
-    description: "Normalized elemental composition vector."
-  prior_history:
-    type: "string"
-    description: "Prior processing history (e.g., 'annealed', 'cold-worked')."
-  raw_diffraction_file:
-    type: "string"
-    description: "Path to the raw ODF or pole-figure file."
+    description: "Reduction ratio in percentage (0-100)."
+    minimum: 0.0
+    maximum: 100.0
+  odf_100:
+    type: "number"
+    description: "ODF intensity for {100} plane in MRD."
+    minimum: 0.0
+  odf_110:
+    type: "number"
+    description: "ODF intensity for {110} plane in MRD."
+    minimum: 0.0
+  odf_111:
+    type: "number"
+    description: "ODF intensity for {111} plane in MRD."
+    minimum: 0.0
   source:
     type: "string"
-    description: "Data source (e.g., 'OMDB', 'synthetic')."
+    enum:
+      - "real"
+      - "synthetic"
+    description: "Origin of the data."
 required:
-  - sample_id
+  - id
   - alloy_id
   - rolling_speed
   - temperature
   - reduction_ratio
-  - composition_vector
-  - prior_history
+  - odf_100
+  - odf_110
+  - odf_111
   - source
-additionalProperties: false

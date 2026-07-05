@@ -1,0 +1,184 @@
+%YAML 1.2
+---
+# Schema for input data files (raw and processed)
+# Defines the structure of CSV/JSON files ingested by the pipeline
+# Location: docs/contracts/input.schema.yaml
+
+$schema: http://json-schema.org/draft-07/schema#
+title: InputDataSchema
+description: Schema for raw and processed input data files
+
+type: object
+required:
+  - schema_type
+  - version
+  - columns
+
+properties:
+  schema_type:
+    type: string
+    enum:
+      - raw_data
+      - processed_data
+      - synthetic_data
+    description: Type of input data this schema validates
+  version:
+    type: string
+    pattern: '^\d+\.\d+\.\d+$'
+    description: Schema version
+  columns:
+    type: array
+    description: Column definitions for CSV/flat data
+    items:
+      type: object
+      required:
+        - name
+        - dtype
+      properties:
+        name:
+          type: string
+        dtype:
+          type: string
+          enum:
+            - float64
+            - int64
+            - object
+            - bool
+        nullable:
+          type: boolean
+          default: true
+        description:
+          type: string
+        constraints:
+          type: object
+          properties:
+            min:
+              type: number
+            max:
+              type: number
+            pattern:
+              type: string
+            enum:
+              type: array
+              items:
+                type: string
+
+definitions:
+  raw_data_columns:
+    - name: sample_id
+      dtype: object
+      nullable: false
+      description: Unique sample identifier
+    - name: alloy_family
+      dtype: object
+      nullable: false
+      description: Alloy family classification
+    - name: reduction_ratio
+      dtype: float64
+      nullable: false
+      constraints:
+        min: 0
+        max: 1
+    - name: temperature
+      dtype: float64
+      nullable: false
+      constraints:
+        min: 0
+    - name: strain_rate
+      dtype: float64
+      nullable: false
+      constraints:
+        min: 0
+    - name: cube_intensity
+      dtype: float64
+      nullable: true
+      constraints:
+        min: 0
+    - name: brass_intensity
+      dtype: float64
+      nullable: true
+      constraints:
+        min: 0
+    - name: copper_intensity
+      dtype: float64
+      nullable: true
+      constraints:
+        min: 0
+    - name: s_intensity
+      dtype: float64
+      nullable: true
+      constraints:
+        min: 0
+
+  processed_data_columns:
+    - name: sample_id
+      dtype: object
+      nullable: false
+    - name: alloy_family
+      dtype: object
+      nullable: false
+    - name: reduction_ratio
+      dtype: float64
+      nullable: false
+    - name: temperature
+      dtype: float64
+      nullable: false
+    - name: strain_rate
+      dtype: float64
+      nullable: false
+    - name: zener_hollomon
+      dtype: float64
+      nullable: false
+    - name: cube_intensity
+      dtype: float64
+      nullable: false
+    - name: brass_intensity
+      dtype: float64
+      nullable: false
+    - name: copper_intensity
+      dtype: float64
+      nullable: false
+    - name: s_intensity
+      dtype: float64
+      nullable: false
+    - name: data_quality
+      dtype: object
+      nullable: false
+
+  synthetic_data_columns:
+    - name: sample_id
+      dtype: object
+      nullable: false
+    - name: alloy_family
+      dtype: object
+      nullable: false
+    - name: alloy_composition
+      dtype: object
+      nullable: false
+    - name: reduction_ratio
+      dtype: float64
+      nullable: false
+    - name: temperature
+      dtype: float64
+      nullable: false
+    - name: strain_rate
+      dtype: float64
+      nullable: false
+    - name: zener_hollomon
+      dtype: float64
+      nullable: false
+    - name: cube_intensity
+      dtype: float64
+      nullable: false
+    - name: brass_intensity
+      dtype: float64
+      nullable: false
+    - name: copper_intensity
+      dtype: float64
+      nullable: false
+    - name: s_intensity
+      dtype: float64
+      nullable: false
+    - name: ground_truth_verified
+      dtype: bool
+      nullable: false

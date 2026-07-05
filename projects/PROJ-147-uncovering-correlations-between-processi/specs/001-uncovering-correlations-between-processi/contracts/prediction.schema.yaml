@@ -1,0 +1,25 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "PredictionOutputSchema"
+description: "Schema for the prediction output CSV and report."
+type: "object"
+properties:
+  sample_id:
+    type: "string"
+    description: "ID of the input sample."
+  predicted_odf_100:
+    type: "number"
+    description: "Predicted ODF intensity for {100}."
+  predicted_odf_110:
+    type: "number"
+    description: "Predicted ODF intensity for {110}."
+  predicted_odf_111:
+    type: "number"
+    description: "Predicted ODF intensity for {111}."
+  warning:
+    type: "string"
+    description: "Optional warning message (e.g., out-of-range parameters)."
+required:
+  - sample_id
+  - predicted_odf_100
+  - predicted_odf_110
+  - predicted_odf_111

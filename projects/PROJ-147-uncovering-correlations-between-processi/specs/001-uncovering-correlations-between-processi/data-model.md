@@ -1,84 +1,62 @@
 # Data Model: Uncovering Correlations Between Processing Conditions and Texture in Rolled Metals
 
-## Overview
+## Entity-Relationship Overview
 
-This document defines the core data entities, relationships, and transformations used throughout the pipeline. It ensures consistency between data ingestion, preprocessing, modeling, and output.
+The data model is designed to support the ingestion, processing, and prediction phases of the pipeline. It centers on the `ProcessingRecord` entity, which links processing conditions to texture outcomes.
 
-## Core Entities
+### Core Entities
 
-### ProcessingRecord
-Represents a single rolling experiment.
-- `sample_id`: str (unique identifier)
-- `alloy_id`: str (links to AlloyFamily)
-- `rolling_speed`: float (m/s)
-- `temperature`: float (°C)
-- `reduction_ratio`: float (%)
-- `composition_vector`: list[float] (normalized elemental composition)
-- `prior_history`: str (categorical: e.g., "annealed", "cold-worked")
-- `raw_diffraction_file`: str (path to raw ODF/pole-figure file)
-- `source`: str (e.g., "OMDB", "synthetic")
+1.  **ProcessingRecord**
+    *   **Description**: A single observation of a rolling process experiment.
+    *   **Attributes**:
+        *   `id`: Unique identifier (UUID).
+        *   `alloy_id`: String (e.g., "Al-6061", "Cu-110").
+        *   `rolling_speed`: Float (m/s).
+        *   `temperature`: Float (°C).
+        *   `reduction_ratio`: Float (%).
+        *   `composition_vector`: List[Float] (Optional, e.g., [0.0, 0.0, 0.0] for pure metal).
+        *   `grain_size`: Float (µm, Optional).
+        *   `history`: String (Optional, e.g., "annealed", "cold-rolled").
 
-### AlloyFamily
-Classification of alloys by composition and crystal structure.
-- `family_id`: str (e.g., "FCC_Al", "FCC_Cu", "BCC_Steel")
-- `crystal_structure`: str (e.g., "FCC", "BCC")
-- `composition_range`: dict (min/max for key elements)
+2.  **TextureDescriptor**
+    *   **Description**: Quantitative texture metrics derived from the record.
+    *   **Attributes**:
+        *   `record_id`: Reference to `ProcessingRecord`.
+        *   `odf_100`: Float (MRD).
+        *   `odf_110`: Float (MRD).
+        *   `odf_111`: Float (MRD).
+        *   `source`: Enum ("real", "synthetic").
 
-### TextureDescriptor
-Quantitative representation of crystallographic texture.
-- `sample_id`: str (links to ProcessingRecord)
-- `odf_100`: float (MRD)
-- `odf_110`: float (MRD)
-- `odf_111`: float (MRD)
-- `computed_by`: str (e.g., "pymtex", "synthetic_generator")
-
-### TrainedModel
-Serialized multi-output RandomForest model.
-- `model_id`: str (content hash)
-- `hyperparameters`: dict (n_estimators, max_depth, etc.)
-- `training_seed`: int
-- `feature_names`: list[str]
-- `alloy_families`: list[str]
-- `created_at`: datetime
-
-### SyntheticDataConfig
-Configuration for synthetic data generation.
-- `num_samples`: int (≥50 per family)
-- `alloy_families`: list[str]
-- `noise_level`: float (σ=0.05 MRD)
-- `seed`: int
-
-## Relationships
-
-- `ProcessingRecord` ↔ `TextureDescriptor`: One-to-one via `sample_id` and `alloy_id`.
-- `ProcessingRecord` ↔ `AlloyFamily`: Many-to-one via `alloy_id`.
-- `TrainedModel` → `ProcessingRecord`: Trained on processed `ProcessingRecord` data.
-- `SyntheticDataConfig` → `ProcessingRecord` + `TextureDescriptor`: Generates both.
+3.  **ModelArtifact**
+    *   **Description**: Serialized model and metadata.
+    *   **Attributes**:
+        *   `model_id`: String.
+        *   `hyperparameters`: Dict.
+        *   `metrics`: Dict (R², MAE, RMSE per coefficient).
+        *   `feature_importance`: Dict.
+        *   `created_at`: Timestamp.
 
 ## Data Flow
 
-1. **Ingestion**: Raw files (CSV/JSON) → `ProcessingRecord` + `TextureDescriptor` (via `pymtex`).
-2. **Preprocessing**: `ProcessingRecord` → cleaned/derived features (VIF-checked).
-3. **Training**: Cleaned features + `TextureDescriptor` → `TrainedModel`.
-4. **Prediction**: New `ProcessingRecord` → predicted `TextureDescriptor`.
-5. **Evaluation**: Predicted vs. actual `TextureDescriptor` → metrics + importance.
+1.  **Ingestion**: Raw CSV/JSON -> `ProcessingRecord` (raw).
+2.  **Preprocessing**:
+    *   Unit standardization.
+    *   Missing value handling (Median Imputation).
+    *   Outlier removal (3σ).
+    *   Feature engineering (Zener-Hollomon, Strain Rate).
+    *   Result: `ProcessedRecord` (cleaned).
+3.  **Training**: `ProcessedRecord` (Train) -> `ModelArtifact`.
+4.  **Prediction**: `ProcessedRecord` (New) + `ModelArtifact` -> `PredictionResult`.
 
-## Transformations
+## Schema Constraints
 
-| Step | Input | Output | Transformation |
-|------|-------|--------|----------------|
-| Unit Standardization | Raw `ProcessingRecord` | Cleaned `ProcessingRecord` | Convert to SI units (°C, m/s, %) |
-| Imputation | Cleaned `ProcessingRecord` | Imputed `ProcessingRecord` | Median imputation for missing values |
-| Outlier Removal | Imputed `ProcessingRecord` | Filtered `ProcessingRecord` | Remove samples beyond 3σ |
-| Feature Engineering | Filtered `ProcessingRecord` | Derived `ProcessingRecord` | Add strain rate, Zener-Hollomon, composition |
-| VIF Check | Derived `ProcessingRecord` | Final `ProcessingRecord` | Remove features with VIF ≥ 5 |
-| Texture Computation | Raw diffraction files | `TextureDescriptor` | `pymtex` ODF peak extraction |
-| Synthetic Generation | `SyntheticDataConfig` | `ProcessingRecord` + `TextureDescriptor` | Physics-informed simulation |
+-   **Temperature**: Must be > -273.15°C.
+-   **Reduction Ratio**: Must be between 0.0 and 100.0.
+-   **ODF Values**: Must be >= 0.0 (MRD cannot be negative).
+-   **Alloy Family**: Must be one of the predefined set (Al, Cu, Steel, etc.) or "Unknown".
 
-## Constraints & Validations
+## File Formats
 
-- **Sample Size**: ≥ 50 per alloy family (abort if not met).
-- **Missing Data**: >20% missing in any feature → abort.
-- **VIF Threshold**: ≥ 5 → remove feature.
-- **ODF Accuracy**: Synthetic descriptors must match generator within ±5% MRD.
-- **Seeds**: All random operations use fixed seeds for reproducibility.
+-   **Input**: CSV, JSON, Parquet.
+-   **Intermediate**: Parquet (for efficient I/O).
+-   **Output**: CSV (predictions), JSON (reports), Pickle (model).

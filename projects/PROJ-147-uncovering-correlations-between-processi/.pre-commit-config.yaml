@@ -1,0 +1,33 @@
+# Pre-commit configuration for llmXive project
+# Configure linting (ruff) and formatting (black) tools
+# Install with: pip install pre-commit black ruff
+# Run hooks: pre-commit run --all-files
+# Auto-install hooks: pre-commit install
+
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-added-large-files
+        args: ['--maxkb=10240'] # Max 10MB files
+      - id: check-merge-conflict
+      - id: detect-private-key
+
+  - repo: https://github.com/psf/black
+    rev: 24.2.0
+    hooks:
+      - id: black
+        language_version: python3.11
+        args: [--line-length=88]
+
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.3.0
+    hooks:
+      - id: ruff
+        args: [--fix, --exit-non-zero-on-fix]
+      - id: ruff-format
+        # Note: ruff-format is an alternative to black; if using both,
+        # ensure they are compatible or pick one. Here we use ruff for linting only.

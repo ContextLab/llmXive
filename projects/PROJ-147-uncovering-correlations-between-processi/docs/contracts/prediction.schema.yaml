@@ -1,0 +1,111 @@
+%YAML 1.2
+---
+# Schema for prediction outputs
+# Defines the structure of prediction CSV/JSON files
+# Location: docs/contracts/prediction.schema.yaml
+
+$schema: http://json-schema.org/draft-07/schema#
+title: PredictionOutputSchema
+description: Schema for model prediction outputs
+
+type: object
+required:
+  - prediction_version
+  - generated_at
+  - model_version
+  - predictions
+
+properties:
+  prediction_version:
+    type: string
+    pattern: '^\d+\.\d+\.\d+$'
+  generated_at:
+    type: string
+    format: date-time
+  model_version:
+    type: string
+  input_summary:
+    type: object
+    description: Summary of input data used for predictions
+    properties:
+      sample_count:
+        type: integer
+        minimum: 1
+      alloy_families:
+        type: array
+        items:
+          type: string
+  predictions:
+    type: array
+    description: List of prediction records
+    items:
+      type: object
+      required:
+        - sample_id
+        - predicted_texture
+      properties:
+        sample_id:
+          type: string
+        alloy_family:
+          type: string
+        processing_conditions:
+          type: object
+          properties:
+            reduction_ratio:
+              type: number
+            temperature:
+              type: number
+            strain_rate:
+              type: number
+            zener_hollomon:
+              type: number
+        predicted_texture:
+          type: object
+          required:
+            - cube
+            - brass
+            - copper
+            - s
+          properties:
+            cube:
+              type: number
+              description: Predicted {100}<001> intensity (MRD)
+            brass:
+              type: number
+              description: Predicted {110}<112> intensity (MRD)
+            copper:
+              type: number
+              description: Predicted {112}<111> intensity (MRD)
+            s:
+              type: number
+              description: Predicted {123}<634> intensity (MRD)
+            goss:
+              type: number
+              description: Predicted {110}<001> intensity (MRD)
+        confidence_intervals:
+          type: object
+          description: Optional confidence intervals for predictions
+          properties:
+            cube_lower:
+              type: number
+            cube_upper:
+              type: number
+            brass_lower:
+              type: number
+            brass_upper:
+              type: number
+            copper_lower:
+              type: number
+            copper_upper:
+              type: number
+            s_lower:
+              type: number
+            s_upper:
+              type: number
+        warnings:
+          type: array
+          description: Any warnings generated during prediction
+          items:
+            type: string
+          example:
+            - "Input strain_rate is outside training range"

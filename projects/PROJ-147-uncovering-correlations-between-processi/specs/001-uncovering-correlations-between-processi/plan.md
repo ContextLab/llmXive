@@ -1,48 +1,67 @@
 # Implementation Plan: Uncovering Correlations Between Processing Conditions and Texture in Rolled Metals
 
-**Branch**: `001-uncovering-correlations` | **Date**: 2026-06-24 | **Spec**: `specs/001-uncovering-correlations/spec.md`
+**Branch**: `001-uncovering-correlations` | **Date**: 2026-06-24 | **Spec**: `spec.md`
+**Input**: Feature specification for rolled metal texture prediction.
 
 ## Summary
 
-This feature implements a reproducible data pipeline to predict crystallographic texture coefficients (ODF peak intensities for {100}, {110}, {111} planes) from rolling process parameters (speed, temperature, reduction ratio) across multiple alloy families. 
+This project implements a data-driven pipeline to predict crystallographic texture coefficients (ODF intensities for {100}, {110}, {111} planes) from rolling process parameters (speed, temperature, reduction ratio). The approach utilizes a multi-output RandomForestRegressor trained on a hybrid dataset of real materials data (where available) and physics-based synthetic data (to meet minimum sample counts). 
 
-**Critical Distinction**: The system distinguishes between **Pipeline Validation** (using synthetic data) and **Scientific Discovery** (using real data). 
-- **Synthetic Data**: Used exclusively to validate code logic, data flow, and contract enforcement. Results (e.g., R² ≥ 0.50) are tautological sanity checks and **cannot** validate physical hypotheses.
-- **Real Data**: Required to answer the research question regarding "how parameters influence texture." If real data is insufficient, the study explicitly reports an inability to draw scientific conclusions, rather than relying on synthetic results.
+**Critical Validity Note**: Due to the unavailability of real-world paired datasets in verified sources, the primary execution path relies on **synthetic data**. This path serves as a **Pipeline Stress Test** to validate code correctness, statistical consistency, and the ability to handle the specified workflow. It does **not** claim to uncover real-world physical correlations. High R² scores on synthetic data are expected and validate the pipeline, not the physics. Real-world scientific validity is a future requirement pending real data availability.
 
-The system ingests real data from Materials Project/OMDB/NIST if available; otherwise, it falls back to a physics-informed synthetic data generator. A multi-output RandomForestRegressor is trained and evaluated against strict success criteria. The pipeline includes rigorous data hygiene, VIF-based collinearity checks (with forced inclusion of confounders), and sensitivity analysis, all containerized for GitHub Actions execution on free-tier CPU resources.
+The pipeline enforces strict data hygiene, unit standardization, and handles missing data via median imputation, running entirely on CPU within GitHub Actions free-tier constraints.
 
 ## Technical Context
 
 **Language/Version**: Python 3.11  
-**Primary Dependencies**: `pandas`, `scikit-learn`, `pymtex` (with spherical-harmonic fallback), `numpy`, `matplotlib`, `pyyaml`, `joblib`  
-**Storage**: Local file system (`data/`, `models/`, `output/`)  
-**Testing**: `pytest` (unit/contract), GitHub Actions CI integration  
-**Target Platform**: Linux (GitHub Actions free-tier runner: 2 CPU, 7GB RAM, no GPU)  
-**Project Type**: Data science pipeline / CLI tool  
-**Performance Goals**: ≤ 30 min hyperparameter tuning, ≤ 6h total runtime, ≤ 6GB RAM peak  
-**Constraints**: 
-- No GPU usage.
-- Synthetic data only for pipeline validation (not scientific hypothesis).
-- VIF ≥ 5 triggers feature removal **only for derived features**; known confounders (composition, history) are forced inclusion.
-- Missing data > 20% aborts training.
-- **Fallback**: If `pymtex` is unavailable, use spherical-harmonic approximation with equivalence criterion (±5% MRD on reference).
+**Primary Dependencies**: `scikit-learn`, `pandas`, `numpy`, `pymtex` (used for ODF validation on synthetic data per FR-003), `pyyaml`, `pytest`.  
+**Storage**: Local file system (CSV/JSON/Parquet) within the runner's `/tmp` or `data/` directory. No external database.  
+**Testing**: `pytest` (unit tests for data loaders, synthetic generator, model training; integration tests for full pipeline).  
+**Target Platform**: Linux (GitHub Actions `ubuntu-latest` runner).  
+**Project Type**: Scientific computing pipeline / CLI.  
+**Performance Goals**: End-to-end execution ≤ 6 hours; Model training ≤ 30 mins; Inference ≤ 30s per 100 rows.  
+**Constraints**: CPU-only (no CUDA), ≤ 7 GB RAM, ≤ 14 GB disk. No GPU-accelerated libraries.  
+**Scale/Scope**: A moderate number of samples (synthetic + real subset) to ensure statistical validity within compute limits.
 
-**Contract Enforcement**: The pipeline validates all data ingestion and output against the schemas in `contracts/` (e.g., `dataset.schema.yaml`, `model.schema.yaml`) before proceeding.
+### Data Source Strategy
+- **Real Data**: Attempt ingestion from verified sources. If no paired data (Speed/Temp/Reduction + Texture) is found, abort ingestion and switch to synthetic.
+- **Synthetic Data**: Generate using a physics-based generator (FR-011) with known ground truth.
+- **Validation**: For synthetic data, `pymtex` is used to validate the generator's ODF output against the known ground truth to satisfy FR-003 equivalence criteria.
 
-> All empirical quantities (dataset sizes, R² thresholds, sample counts) are derived from spec requirements or deferred to research/implementation phases.
+### Circular Validation Warning
+Training a model on data generated by a physics-based model and evaluating it against the same model's logic creates a circular validation loop. The model will learn the generator's internal rules. Therefore:
+- **Success on Synthetic Data** = Pipeline is correct, code is robust.
+- **Success on Real Data** (if available) = Scientific correlation exists.
+- **Current Status**: Only Synthetic Data is available. Results are **not** scientific discoveries.
+
+### pymtex Mapping
+For both real and synthetic data, `pymtex` (or equivalent) is used to compute texture descriptors. The mapping is:
+- `pymtex` output (MRD for {100}) -> `TextureDescriptor.odf_100`
+- `pymtex` output (MRD for {110}) -> `TextureDescriptor.odf_110`
+- `pymtex` output (MRD for {111}) -> `TextureDescriptor.odf_111`
+This ensures the `TextureDescriptor` entity is populated correctly regardless of data source.
+
+### Collinearity Handling
+Derived features (Strain Rate, Zener-Hollomon) are definitionally related to raw inputs (Speed, Temp). This creates multicollinearity.
+- **Handling**: The plan will report **Group Importance** calculated as the sum of permutation importance scores for all features in a group (e.g., `Group_Speed = Importance_Speed + Importance_StrainRate`).
+- **Interpretation**: Individual feature importances will be reported but interpreted with caution. The plan explicitly states that "which variable drives texture" cannot be disentangled for collinear groups.
+
+### Manifold Constraint Limitation
+ODF intensities are part of a continuous orientation distribution function. Predicting them as independent scalars ignores spherical harmonic constraints. This is a known baseline approximation. A more rigorous approach (predicting spherical harmonic coefficients) is noted as a future improvement.
 
 ## Constitution Check
 
-| Principle | Status | Notes |
-|-----------|--------|-------|
-| **I. Reproducibility** | ✅ PASS | Seeds pinned in code; data fetched from canonical sources; Docker/CI workflow defined. |
-| **II. Verified Accuracy** | ✅ PASS | Dataset URLs cited from verified block. **Note**: Materials Project & NIST have NO verified source; OMDB is Partial. Plan reflects this accurately. |
-| **III. Data Hygiene** | ✅ PASS | Checksums recorded; raw data immutable; derivations versioned; PII scan enforced. |
-| **IV. Single Source of Truth** | ✅ PASS | All metrics trace to `data/` and `code/`; no hand-typed stats. |
-| **V. Versioning Discipline** | ✅ PASS | Content hashes for artifacts; state file updated on change. |
-| **VI. Experimental Measurement Fidelity** | ✅ PASS | **Synthetic generator MUST produce raw diffraction/ODF files** to satisfy this principle. |
-| **VII. Model Transparency** | ✅ PASS | Model serialized with metadata; validation set held-out; feature engineering documented. |
+*GATE: Must pass before Phase 0 research.*
+
+| Principle | Status | Implementation Action |
+|-----------|--------|-----------------------|
+| **I. Reproducibility** | PASS | All random seeds pinned in `code/`. Synthetic generator parameters logged. CI workflow ensures identical environment. |
+| **II. Verified Accuracy** | PASS | Citations in `research.md` limited to verified URLs. Synthetic data ground truth is the generator's internal logic, not an external citation. |
+| **III. Data Hygiene** | PASS | Data files checksummed in `state/`. Raw data preserved; transformations create new files. |
+| **IV. Single Source of Truth** | PASS | Pipeline outputs (`predictions.csv`, `evaluation_report.json`) are the sole source for metrics in reports. |
+| **V. Versioning Discipline** | PASS | Artifacts hashed in `state/` on every run. |
+| **VI. Experimental Measurement Fidelity** | PASS | **Exception Applied per FR-003**: "For synthetic data... texture descriptors are derived from the generator's known ground truth parameters and validated against pymtex on the synthetic ODF output." This satisfies the fidelity requirement via synthetic ODF output and validation, bypassing the need for physical raw diffraction files in this specific path. |
+| **VII. Model Transparency** | PASS | Full training script, hyper-params, and validation set reported. Model artifact versioned. |
 
 ## Project Structure
 
@@ -54,7 +73,14 @@ specs/001-uncovering-correlations/
 ├── research.md          # Phase 0 output
 ├── data-model.md        # Phase 1 output
 ├── quickstart.md        # Phase 1 output
-└── contracts/           # Phase 1 output
+├── contracts/           # Phase 1 output
+│   ├── dataset.schema.yaml
+│   ├── input.schema.yaml
+│   ├── model.schema.yaml
+│   ├── output.schema.yaml
+│   ├── prediction.schema.yaml
+│   └── sensitivity.schema.yaml
+└── tasks.md             # Phase 2 output
 ```
 
 ### Source Code (repository root)
@@ -62,52 +88,70 @@ specs/001-uncovering-correlations/
 ```text
 code/
 ├── __init__.py
-├── main.py              # CLI entry point
+├── main.py              # Entry point for pipeline
+├── config.py            # Hyperparameters, paths, seeds
 ├── data/
-│   ├── __init__.py
-│   ├── loader.py        # Real data ingestion (Materials Project, OMDB, NIST)
-│   ├── synthetic.py     # Synthetic data generator (FR-011) - MUST generate ODF files
-│   └── preprocess.py    # Cleaning, imputation, VIF, feature engineering (FR-002)
+│   ├── loader.py        # Ingest real/synthetic data
+│   ├── processor.py     # Preprocessing, imputation, feature engineering
+│   └── synthetic.py     # Physics-based generator (FR-011)
 ├── models/
-│   ├── __init__.py
-│   ├── trainer.py       # RandomForest training + tuning (FR-004)
-│   └── evaluator.py     # Metrics, importance, sensitivity (FR-005, FR-009, FR-010)
+│   ├── trainer.py       # RandomForest training & tuning
+│   └── predictor.py     # Inference logic
 ├── utils/
-│   ├── __init__.py
-│   ├── logger.py        # Pipeline logging (FR-007)
-│   └── validators.py    # Data quality checks (edge cases)
-└── config/
-    └── settings.yaml    # Paths, seeds, thresholds
-
-tests/
-├── __init__.py
-├── contract/
-│   └── test_schemas.py  # Validates against contracts/*.schema.yaml
-├── unit/
-│   ├── test_synthetic.py
-│   └── test_preprocess.py
-└── integration/
+│   ├── texture.py       # ODF/MRD calculation (pymtex wrapper)
+│   └── logging.py       # Pipeline logging
+└── tests/
+    ├── test_synthetic.py
+    ├── test_preprocessing.py
     └── test_pipeline.py
 
 data/
-├── raw/                 # Immutable raw data (real or synthetic)
-├── processed/           # Derived features, ODF coefficients
-└── models/              # Serialized models, logs
+├── raw/                 # Downloaded/Generated raw files
+├── processed/           # Cleaned, standardized datasets
+└── models/              # Trained model artifacts
 
-output/
-├── predictions.csv
-├── new_predictions.csv
-├── evaluation_report.json
-├── importance_plot.png
-└── pipeline.log
-
-requirements.txt
-Dockerfile
-.github/workflows/ci.yml
+docs/
+└── research/            # Research notes, citations
 ```
 
-**Structure Decision**: Single-project structure (`code/`, `data/`, `output/`) chosen for simplicity and alignment with CLI/data-pipeline nature. No frontend/backend split. Tests organized by contract/unit/integration.
+**Structure Decision**: Single `code/` directory with modular sub-packages. This minimizes overhead for CI and aligns with the "scientific pipeline" nature of the project. No separate frontend/backend.
 
 ## Complexity Tracking
 
-*No violations identified. All complexity justified by spec requirements (e.g., multi-output RF, VIF checks, synthetic fallback, causal distinction).*
+| Violation | Why Needed | Simpler Alternative Rejected Because |
+|-----------|------------|-------------------------------------|
+| **Synthetic Data Generator** | Real datasets (OMDB/NIST) lack paired texture/process data. | Using only real data would fail FR-008 (minimum 50 samples) and make the project non-runnable. |
+| **Multi-Output Regressor** | Texture coefficients are physically coupled; separate models ignore correlations. | Independent models would violate FR-004 and reduce physical consistency. |
+| **Physics-Based Features** | Raw parameters (speed, temp) are insufficient to capture deformation mechanisms. | Simple linear regression on raw inputs fails to capture non-linear physics (FR-002). |
+| **Group Importance** | Collinearity between raw and derived features makes individual importance meaningless. | Reporting individual scores would be misleading; Group Importance provides a robust aggregate. |
+
+## Data Hygiene & Logging
+
+- **Confounding Variables (FR-012)**: If composition/grain size are unavailable, the system will log a `WARNING` with the message: `[FR-012] Missing confounding variables: <list>`. This warning will be recorded in `evaluation_report.json` under the field `missing_confounds`.
+- **Data Source Type (SC-004)**: The `evaluation_report.json` will explicitly include a field `data_source_type` with value "Real" or "Synthetic".
+
+## Success Criteria Interpretation
+
+- **SC-001 (R² ≥ 0.10)**: This is a **minimum sanity check** for the pipeline. On synthetic data, R² is expected to be >> 0.90. If R² < 0.10 on synthetic data, the pipeline is broken. If R² ≥ 0.10 on real data, it indicates a correlation.
+- **SC-004 (Data Source)**: The `evaluation_report.json` must contain `data_source_type`.
+- **FR-009 (Alloy Families)**: The dataset will be split by `alloy_family` **before** cross-validation. Metrics (R², MAE, RMSE) will be computed and reported **separately** for each family in `evaluation_report.json`.
+- **FR-010 (Sensitivity Analysis)**: A sweep of R² and importance thresholds will be performed. The output will be `sensitivity_report.json` containing a table of thresholds vs. stability metrics (variance of R²/MAE).
+
+## Sensitivity Analysis (FR-010)
+
+- **Sweep Ranges**: R² thresholds ranging from low to moderate values in incremental steps. Feature importance thresholds ranging from a minimal to a substantial value in uniform increments.
+- **Stability Metric**: Variance of R² and MAE across the sweep.
+- **Output Format**: `sensitivity_report.json` (schema defined in `contracts/sensitivity.schema.yaml`).
+
+## Per-Family Evaluation Logic (FR-009)
+
+1.  **Split**: Partition the dataset by `alloy_family`.
+2.  **Train**: Train a single multi-output model on the full dataset (to leverage shared physics).
+3.  **Evaluate**: Compute metrics separately for each family's test split.
+4.  **Report**: `evaluation_report.json` will contain a `per_family_metrics` object with keys for each family (e.g., `Al`, `Cu`, `Steel`).
+
+## Physics Gap & Generalization Risk
+
+The synthetic generator assumes a simplified physics model (e.g., Taylor model). Real materials exhibit complex behaviors (grain boundary sliding, dynamic recrystallization) not captured by the generator.
+- **Risk**: The model will fail on real data if these unmodeled factors dominate.
+- **Mitigation**: The plan explicitly flags this as a "Physics Gap" and treats the synthetic run as a stress test, not a discovery of real correlations.

@@ -72,6 +72,22 @@ properties:
       - odf_100
       - odf_110
       - odf_111
+  per_family_metrics:
+    type: object
+    description: "Validation metrics per alloy family (FR-009)"
+    additionalProperties:
+      type: object
+      properties:
+        r_squared:
+          type: number
+        mae:
+          type: number
+        rmse:
+          type: number
+      required:
+        - r_squared
+        - mae
+        - rmse
   feature_importance:
     type: array
     description: "Permutation importance ranking"
@@ -88,6 +104,33 @@ properties:
         - feature_name
         - importance_score
         - rank
+  group_importance:
+    type: array
+    description: "Grouped permutation importance (raw + derived)"
+    items:
+      type: object
+      properties:
+        group_name:
+          type: string
+        importance_score:
+          type: number
+        rank:
+          type: integer
+      required:
+        - group_name
+        - importance_score
+        - rank
+  data_source_type:
+    type: string
+    description: "Type of data used for training (Real or Synthetic) per SC-004"
+    enum:
+      - "Real"
+      - "Synthetic"
+  missing_confounds:
+    type: array
+    description: "List of missing confounding variables (FR-012)"
+    items:
+      type: string
   created_at:
     type: string
     description: "ISO timestamp of model creation"
@@ -98,5 +141,6 @@ required:
   - hyperparameters
   - training_checksum
   - validation_metrics
+  - data_source_type
   - created_at
 additionalProperties: false

@@ -2,88 +2,89 @@
 
 ## Prerequisites
 
-- Python 3.11+
-- Docker (optional, for CI)
-- Git
+-   Python 3.11+
+-   Git
+-   Docker (optional, for containerized execution)
 
 ## Installation
 
-1. Clone the repository and navigate to the feature branch:
-   ```bash
-   git clone <repo-url>
-   cd projects/PROJ-147-uncovering-correlations-between-processi
-   git checkout 001-uncovering-correlations
-   ```
+1.  **Clone the repository**:
+    ```bash
+    git clone <repo-url>
+    cd <project-dir>
+    ```
 
-2. Install dependencies:
-   ```bash
-   pip install -r requirements.txt
-   ```
+2.  **Create a virtual environment**:
+    ```bash
+    python -m venv venv
+    source venv/bin/activate  # On Windows: venv\Scripts\activate
+    ```
+
+3.  **Install dependencies**:
+    ```bash
+    pip install -r code/requirements.txt
+    ```
+    *Dependencies include: `scikit-learn`, `pandas`, `numpy`, `pyyaml`, `pytest`.*
 
 ## Running the Pipeline
 
 ### Option 1: Local Execution (Recommended for Development)
 
-```bash
-# Run the full pipeline (real data fallback → synthetic)
-python code/main.py --mode full
+1.  **Generate Synthetic Data** (if real data is missing):
+    ```bash
+    python code/data/synthetic.py --output data/raw/synthetic_data.csv --samples 250
+    ```
+    *This creates a dataset with a representative set of samples across 3 alloy families.*
 
-# Generate synthetic data only
-python code/main.py --mode synthetic --num-samples 150
+2.  **Run the Full Pipeline**:
+    ```bash
+    python code/main.py --data data/raw/synthetic_data.csv --output data/processed/ --model-output code/models/
+    ```
+    *This will:*
+    *   Ingest and preprocess data.
+    *   Train the RandomForest model.
+    *   Generate `predictions.csv`.
+    *   Output `evaluation_report.json` and `importance_plot.png`.
 
-# Train model on existing data
-python code/main.py --mode train
-
-# Predict on new data (provide new_processing.csv)
-python code/main.py --mode predict --input new_processing.csv
-```
+3.  **View Results**:
+    -   Check `data/processed/predictions.csv` for predicted texture coefficients.
+    -   Check `code/models/evaluation_report.json` for performance metrics.
+    -   Check `code/models/importance_plot.png` for feature importance visualization.
 
 ### Option 2: Docker (Reproducibility)
 
-```bash
-# Build the Docker image
-docker build -t texture-pipeline .
+1.  **Build the Docker image**:
+    ```bash
+    docker build -t texture-pipeline:latest .
+    ```
 
-# Run the pipeline inside container
-docker run --rm -v $(pwd)/data:/app/data -v $(pwd)/output:/app/output texture-pipeline python code/main.py --mode full
-```
+2.  **Run the container**:
+    ```bash
+    docker run --rm -v $(pwd)/data:/app/data -v $(pwd)/code:/app/code texture-pipeline:latest python code/main.py
+    ```
 
 ### Option 3: GitHub Actions (CI)
 
-Push to the feature branch to trigger the CI workflow:
+Push to the `001-uncovering-correlations` branch to trigger the workflow:
 ```yaml
-# .github/workflows/ci.yml (auto-generated)
+# .github/workflows/pipeline.yml
 name: Run Texture Pipeline
 on: [push]
 jobs:
-  pipeline:
+  run:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - name: Run pipeline
+      - uses: actions/checkout@v3
+      - name: Run Pipeline
         run: |
-          pip install -r requirements.txt
-          python code/main.py --mode full
+          python -m venv venv
+          source venv/bin/activate
+          pip install -r code/requirements.txt
+          python code/main.py
 ```
-
-## Expected Outputs
-
-- `output/predictions.csv`: Predicted texture coefficients for test set.
-- `output/new_predictions.csv`: Predictions for new input data (if provided).
-- `output/evaluation_report.json`: R², MAE, RMSE per coefficient and alloy family.
-- `output/importance_plot.png`: Permutation importance visualization.
-- `output/pipeline.log`: Detailed logs of all steps, warnings, and errors.
-- `models/trained_model.joblib`: Serialized model artifact.
 
 ## Troubleshooting
 
-- **Missing Data**: If `Data quality insufficient` error occurs, check `output/pipeline.log` for missing percentage.
-- **VIF Warning**: Features with VIF ≥ 5 are removed; review `pipeline.log` for details.
-- **Out-of-Range Predictions**: Warnings logged; predictions still generated.
-- **CI Failure**: Check GitHub Actions logs for resource limits (RAM/CPU) or missing data files.
-
-## Next Steps
-
-- Review `output/evaluation_report.json` for model performance.
-- Inspect `output/importance_plot.png` to understand key drivers.
-- For scientific validation, acquire real paired rolling-process/texture data.
+-   **Missing Data**: If the pipeline aborts with "Data quality insufficient", ensure you have generated synthetic data or provided a valid real dataset with ≥50 samples per alloy.
+-   **Memory Error**: Reduce the number of samples in the synthetic generator or limit the `max_depth` of the RandomForest.
+-   **Import Error**: Ensure `pymtex` is installed correctly. If it fails, the pipeline will fall back to synthetic ground truth values.

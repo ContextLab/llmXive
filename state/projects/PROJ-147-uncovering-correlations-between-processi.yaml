@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-02T13:36:37.183740Z'
-current_stage: planned
+current_stage: in_progress
 failed_stage: null
 field: materials science
 human_escalation_reason: null
 id: PROJ-147-uncovering-correlations-between-processi
-last_run_id: 76924815-1f4a-4a78-a429-38f41fabdde1
+last_run_id: 716ffb93-8e7c-4c73-adb7-d06728c0d244
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-147-uncovering-correlations-between-processi/specs/001-uncovering-correlations-between-processi
 title: Uncovering Correlations Between Processing Conditions and Texture in Rolled
   Metals
-updated_at: '2026-07-05T15:41:37.037429Z'
+updated_at: '2026-07-05T16:17:44.825594Z'
