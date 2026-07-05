@@ -1,0 +1,296 @@
+resolved_at: '2026-07-05T15:30:01.474553+00:00'
+datasets:
+- intent: FARS
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/farsi-asr/farsi-asr-dataset/resolve/main/youtube/youtube.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/community-datasets/farsi_news/resolve/main/data/hamshahri-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/maderix/farsidecomics-blip-captions/resolve/main/data/train-00000-of-00001-e70315c3ecceae76.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/farsi-asr/farsi-asr-dataset/resolve/main/youtube/youtube.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/pymmdrza/PERSIAN_FARSI_NARRATION/resolve/main/test_metadata.csv
+    source: huggingface
+    status: wrong_format
+    reason: HTTP 401
+  - url: https://huggingface.co/datasets/community-datasets/farsi_news/resolve/main/data/hamshahri-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/maderix/farsidecomics-blip-captions/resolve/main/data/train-00000-of-00001-e70315c3ecceae76.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/alighasemi/farsi_paraphrase_detection/resolve/main/data/test-00000-of-00001-6d3aa0a232d76302.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/media/_b__Mostbet__2026_MAX200_b_/32902880
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Call_09152489563_For_College_of_Nursing_Sciences_Lagos_University_Teaching_Hospital_LUTH_Idi-Araba_2026_2027_Admission_Application_Form_Is_Out_Call_09152489563_/32902886
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/_Testing_an_Elastic_Vacuum_Relaxation_Cosmology_with_Supernovae_BAO_Expansion-Rate_and_Growth_Data_/32902868
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Call_09152489563_For_Apex_College_of_Nursing_Sciences_Igbo-Ukwu_2026_2027_Admission_Application_Form_Is_Out_Call_09152489563_/32902874
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Ginsenosides_mitigate_multi-organ_aging_mechanistic_insights_from_a_preclinical_systematic_review_and_meta-analysis/32902873
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://link.springer.com/article/10.1007/BF01329136
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17241655
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4925814
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4612724
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17029230
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21183699
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21183699
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21182485
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21182485
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21146434
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.openml.org/data/get_csv/4965247/fars.csv
+    source: openml
+    status: verified
+    format: csv
+  - url: https://www.openml.org/data/get_csv/22112024/fars.csv
+    source: openml
+    status: unreachable
+    reason: 'reachability failed: HTTP 404'
+- intent: NOAA
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/Qdrant/NOAA-Buoy/resolve/main/full_2023_remove_flawed.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 225573
+      parsed: true
+  - url: https://huggingface.co/datasets/brianofrim/NOAA_buoycams/resolve/main/split_sizes.json
+    source: huggingface
+    format: json
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 70
+      parsed: true
+  - url: https://huggingface.co/datasets/yueq92/NOAA_narratives_NER/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 114547
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/Qdrant/NOAA-Buoy/resolve/main/full_2023_remove_flawed.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/brianofrim/NOAA_buoycams/resolve/main/split_sizes.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://huggingface.co/datasets/yueq92/NOAA_narratives_NER/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/alea-institute/kl3m-data-dotgov-oceanservice.noaa.gov/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/alea-institute/kl3m-data-dotgov-www.nmfs.noaa.gov/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://rs.figshare.com/articles/journal_contribution/supplementary_material-7_from_CDK1-Cyclin_B_mediated_phosphorylation_of_PP2A-B56_on_B56_sup_Par1_sup_T73T75_controls_mitotic_entry_timing_and_i_Schizosaccharomyces_pombe_i_cell_size/32902924
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://rs.figshare.com/articles/figure/supplementary_material-3_from_CDK1-Cyclin_B_mediated_phosphorylation_of_PP2A-B56_on_B56_sup_Par1_sup_T73T75_controls_mitotic_entry_timing_and_i_Schizosaccharomyces_pombe_i_cell_size/32902921
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://rs.figshare.com/articles/figure/supplementary_material-5_from_CDK1-Cyclin_B_mediated_phosphorylation_of_PP2A-B56_on_B56_sup_Par1_sup_T73T75_controls_mitotic_entry_timing_and_i_Schizosaccharomyces_pombe_i_cell_size/32902918
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://rs.figshare.com/articles/dataset/supplementary_material_from_CDK1-Cyclin_B_mediated_phosphorylation_of_PP2A-B56_on_B56_sup_Par1_sup_T73T75_controls_mitotic_entry_timing_and_i_Schizosaccharomyces_pombe_i_cell_size/32902915
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://rs.figshare.com/articles/dataset/supplementary_material-10_from_CDK1-Cyclin_B_mediated_phosphorylation_of_PP2A-B56_on_B56_sup_Par1_sup_T73T75_controls_mitotic_entry_timing_and_i_Schizosaccharomyces_pombe_i_cell_size/32902912
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.135212/slp
+    source: zenodo
+    status: unreachable
+    reason: 'reachability failed: HTTP 404'
+  - url: https://zenodo.org/records/7505022
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5787067
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18893503
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14816488
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21203719
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21203719
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21156350
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21193260
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21193260
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: GHCN-Daily
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/ml-project-group-3/NOAA_GHCN_Daily/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/ml-project-group-3/NOAA_GHCN_Daily/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://rs.figshare.com/articles/journal_contribution/supplementary_material-7_from_CDK1-Cyclin_B_mediated_phosphorylation_of_PP2A-B56_on_B56_sup_Par1_sup_T73T75_controls_mitotic_entry_timing_and_i_Schizosaccharomyces_pombe_i_cell_size/32902924
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://rs.figshare.com/articles/figure/supplementary_material-3_from_CDK1-Cyclin_B_mediated_phosphorylation_of_PP2A-B56_on_B56_sup_Par1_sup_T73T75_controls_mitotic_entry_timing_and_i_Schizosaccharomyces_pombe_i_cell_size/32902921
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://rs.figshare.com/articles/figure/supplementary_material-5_from_CDK1-Cyclin_B_mediated_phosphorylation_of_PP2A-B56_on_B56_sup_Par1_sup_T73T75_controls_mitotic_entry_timing_and_i_Schizosaccharomyces_pombe_i_cell_size/32902918
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://rs.figshare.com/articles/dataset/supplementary_material_from_CDK1-Cyclin_B_mediated_phosphorylation_of_PP2A-B56_on_B56_sup_Par1_sup_T73T75_controls_mitotic_entry_timing_and_i_Schizosaccharomyces_pombe_i_cell_size/32902915
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://rs.figshare.com/articles/dataset/supplementary_material-10_from_CDK1-Cyclin_B_mediated_phosphorylation_of_PP2A-B56_on_B56_sup_Par1_sup_T73T75_controls_mitotic_entry_timing_and_i_Schizosaccharomyces_pombe_i_cell_size/32902912
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15402876
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.c866t1gfp
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.5281/zenodo.8308359
+    source: zenodo
+    status: unreachable
+    reason: 'reachability failed: ReadTimeout: HTTPSConnectionPool(host=''zenodo.org'',
+      port=443): Read timed out. (read timeout=20.0)'
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.9kd51c5d1
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4518811
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://redivis.com/workflows/x7kh-5pvd4mbf1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21185540
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21185540
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/abhng/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://data.mendeley.com/datasets/7n9gb9kcz9/1
+    source: datacite
+    status: wrong_format
+    reason: HTTP 403

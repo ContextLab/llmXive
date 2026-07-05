@@ -1,0 +1,49 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Merged Traffic Accident Dataset Schema"
+description: "Schema for the merged dataset containing accident and weather variables."
+type: "object"
+properties:
+  severity:
+    type: "integer"
+    description: "Accident severity: 0=Property, 1=Injury, 2=Fatality"
+    minimum: 0
+    maximum: 2
+  precipitation:
+    type: "number"
+    description: "Total precipitation in mm"
+    minimum: 0
+  visibility:
+    type: "number"
+    description: "Visibility in km"
+    minimum: 0
+  temperature:
+    type: "number"
+    description: "Average temperature in Celsius"
+  hour:
+    type: "integer"
+    description: "Hour of the day (0-23)"
+    minimum: 0
+    maximum: 23
+  day_of_week:
+    type: "integer"
+    description: "Day of the week (0-6)"
+    minimum: 0
+    maximum: 6
+  road_type:
+    type: "string"
+    description: "Type of road"
+    enum: ["Highway", "Residential", "Urban", "Rural"]
+  vehicle_type:
+    type: "string"
+    description: "Type of vehicle"
+    enum: ["Car", "Truck", "Motorcycle", "Bus", "Other"]
+required:
+  - severity
+  - precipitation
+  - visibility
+  - temperature
+  - hour
+  - day_of_week
+  - road_type
+  - vehicle_type
+additionalProperties: false

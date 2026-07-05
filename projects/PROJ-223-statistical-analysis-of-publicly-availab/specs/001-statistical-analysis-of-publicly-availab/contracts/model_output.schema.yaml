@@ -1,0 +1,81 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Model Output Schema"
+description: "Schema for the statistical model output and diagnostics."
+type: "object"
+properties:
+  model_type:
+    type: "string"
+    description: "Type of model used (Ordinal, Multinomial, or Penalized GLM)"
+    enum: ["Ordinal Logistic Regression", "Multinomial Logistic Regression", "Penalized GLM"]
+  convergence:
+    type: "boolean"
+    description: "Whether the model converged successfully"
+  coefficients:
+    type: "array"
+    description: "List of predictor coefficients"
+    items:
+      type: "object"
+      properties:
+        predictor:
+          type: "string"
+        coef:
+          type: "number"
+        std_err:
+          type: "number"
+        p_value:
+          type: "number"
+        odds_ratio:
+          type: "number"
+        ci_lower:
+          type: "number"
+        ci_upper:
+          type: "number"
+      required:
+        - predictor
+        - coef
+        - std_err
+        - p_value
+        - odds_ratio
+        - ci_lower
+        - ci_upper
+  diagnostics:
+    type: "object"
+    description: "Model diagnostics metrics"
+    properties:
+      vif_scores:
+        type: "object"
+        additionalProperties:
+          type: "number"
+      mcfadden_pseudo_r2:
+        type: "number"
+      likelihood_ratio_p_value:
+        type: "number"
+      cluster_robust_se:
+        type: "boolean"
+        description: "Whether Cluster-Robust Standard Errors were applied"
+      sensitivity_analysis:
+        type: "object"
+        properties:
+          mde:
+            type: "number"
+            description: "Minimum Detectable Effect (Odds Ratio)"
+          power_target:
+            type: "number"
+            description: "Target power (e.g., 0.80)"
+          sufficient:
+            type: "boolean"
+            description: "True if MDE < 1.5"
+        required:
+          - mde
+          - power_target
+          - sufficient
+    required:
+      - vif_scores
+      - mcfadden_pseudo_r2
+      - likelihood_ratio_p_value
+      - sensitivity_analysis
+required:
+  - model_type
+  - convergence
+  - coefficients
+  - diagnostics
