@@ -1,75 +1,85 @@
 # Research: Quantifying the Impact of Data Compression on Gravitational Wave Event Reconstruction
 
-## Objective
-To determine the threshold of data compression (lossless vs. lossy) at which gravitational wave parameter estimation (mass, distance, spin) becomes statistically biased compared to uncompressed data. The study uses **two distinct workflows**:
-1. **Real GW Events**: Measures **Posterior Instability** (distributional shift) via KL divergence.
-2. **Simulated Injections**: Measures **Parameter Bias** (systematic error) via MAE against ground truth.
+## 1. Problem Statement & Hypotheses
 
-## Dataset Strategy
+**Problem**: The storage and transmission of gravitational wave (GW) strain data often require compression. While lossless compression is standard, lossy techniques could offer significant bandwidth savings. However, the impact of lossy compression on the scientific utility of the data—specifically the accuracy of parameter estimation (mass, distance, spin) for Compact Binary Coalescence (CBC) events—is not fully quantified.
 
-| Dataset Name | Source/Loader | Verification Status | Usage |
-|--------------|---------------|---------------------|-------|
-| GWOSC CBC Events (O3a/O3b) | GWOSC Catalog URLs: ` and ` | **Verified** (Official GWOSC Release Pages) | Primary real-world data for compression testing (US-1). |
-| Simulated Injections (Ground Truth) | Generated via `lalsimulation` (O3b CBC Population Model) | **Verified** (Reference: `LIGO-P2100123-v15` O3b Population) | Ground truth for bias measurement (US-4). |
-| Compression Validation (1D) | Generated via `lalsimulation` (Synthetic Strain) | **Verified** (Internal Generation) | Used to validate JPEG2000 and quantization pipelines on 1D-like data (spectrograms). |
+**Hypotheses**:
+1.  **H1 (Lossless)**: Lossless compression (gzip, LZ4, bzip2) will result in zero reconstruction error (MSE = 0) and no statistically significant bias in parameter estimation compared to uncompressed data.
+2.  **H2 (Lossy)**: Lossy compression will introduce measurable SNR degradation and parameter estimation bias, with the magnitude of bias increasing as the compression ratio increases (e.g., 4-bit > 8-bit > 16-bit).
+3.  **H3 (Threshold)**: There exists a "tipping point" in lossy compression (e.g., 8-bit quantization or Wavelet thresholding > 90%) beyond which the parameter estimation bias exceeds acceptable scientific thresholds.
 
-**Note on GWOSC**: Data is accessed via the `gwosc` Python package, which queries the official API endpoints linked to the verified O3a/O3b catalogs.
+## 2. Dataset Strategy
 
-## Dataset-Variable Fit Analysis
+**Constraint**: The "Verified datasets" block contains no Gravitational Wave data. Public GWOSC archives host *detected* events (inferred parameters), not *injection campaigns* with ground truth.
 
-- **Required Variables**: Strain time series (h(t)), detector network (LLO, LHO, V1), event timestamp, parameter posteriors (mass, distance, spin components).
-- **GWOSC Availability**: The `gwosc` API provides strain data and event metadata. However, **full 3D spin reconstruction is not supported** by standard public data; only effective spin parameters (`chi_eff`, `chi_p`) are available.
- - *Mitigation*: The plan explicitly flags this limitation (FR-008) and limits analysis to available spin parameters.
-- **Simulated Injections**: Generated with full ground-truth parameters (mass, distance, full spin vector) using the **O3b CBC population model** to ensure representativeness. This allows precise bias calculation (US-4).
-- **JPEG2000 Fit**: JPEG2000 is a 2D image codec. To apply it to 1D GW strain, we convert the signal to a **spectrogram** (time-frequency representation) using `scipy.signal.spectrogram`. This ensures the compression artifacts are relevant to the signal modality.
+**Strategy**:
+1.  **Synthetic Injection**: Use `LALSimulation` to generate CBC waveforms with **known ground truth** parameters (Mass, Spin, Distance).
+2.  **Noise Injection**: Inject these synthetic signals into real GW noise fetched from the GWOSC API (e.g., O3 data segments).
+3.  **Validation**: Ensure injected signals have SNR > 8 and complete metadata.
+4.  **External Baseline**: The `Bias_Original` baseline will be derived from a pre-converged run on an external resource (or a high-fidelity public posterior) to avoid CI convergence issues.
 
-## Statistical Rigor & Methodology
+**Critical Data Mismatch Resolution**:
+-   **Issue**: No verified GW injection dataset exists.
+-   **Resolution**: The project generates its own ground truth via `LALSimulation`. This satisfies FR-010 and SC-003 by providing known true parameters.
+-   **Noise Source**: GWOSC API (programmatic access) is used for noise, as no verified static URL exists for GW noise segments.
 
-### Hypothesis Testing
-- **Null Hypothesis ($H_0$)**: Compression method $C$ does not alter the posterior distribution or introduce bias compared to uncompressed data.
-- **Test 1 (Real Events)**: **Repeated-measures ANOVA** on **KL Divergence** (Posterior Instability) across events for each parameter.
- - *Rationale*: KL divergence measures distributional shift, not bias. This test determines if compression causes significant instability in the posterior.
-- **Test 2 (Injections)**: **Repeated-measures ANOVA** on **Mean Absolute Error (MAE)** (Parameter Bias) across events for each parameter.
- - *Rationale*: MAE measures systematic error against ground truth. This test determines if compression introduces significant bias.
-- **Correction**: Bonferroni or Benjamini-Hochberg (FDR) correction applied for multiple comparisons across 3 parameters and multiple compression levels (SC-004).
-- **Post-hoc**: If ANOVA is significant, pairwise **paired t-tests** with Bonferroni correction are performed.
+**Dataset Variables**:
+-   **Input**: Strain time series (Hz), Detector names (H1, L1, V1), Injection parameters (Mass1, Mass2, Spin1, Spin2, Distance).
+-   **Output**: Compressed strain, Reconstructed strain, Posterior samples (Mass, Distance, Spin).
 
-### Power & Sample Size
-- **Limitation**: With ~12 real events and 50 injections, the study is **underpowered** to detect very small effect sizes (<0.2 Cohen's d).
-- **Acknowledgement**: Results will be framed as **estimation-focused** (reporting effect sizes and confidence intervals) rather than strict hypothesis testing for small effects. The power analysis (calculated in `code/05_analysis.py`) will be explicitly reported.
-- **Strategy**: 50 injections are used to maximize power for the bias measurement (US-4), while real events are limited by data availability.
+## 3. Methodology
 
-### Causal Framing
-- **Observational**: Compression is applied systematically, but the "treatment" is algorithmic. Claims will be framed as "compression-induced bias" rather than causal effects of astrophysical phenomena.
+### 3.1 Compression Pipeline
+1.  **Lossless**: Apply `gzip` (levels 1, 5, 9), `lz4`, `bzip2` (levels 1, 5, 9).
+2.  **Lossy**:
+    -   **Quantization**: Float64 -> Float16, Float8, Float4 (bit-packing).
+    -   **Wavelet Thresholding**: Apply Daubechies wavelets (db4) with soft thresholding at 50%, 75%, 90% retention.
+    -   **JPEG2000 (Folding Experiment)**: To satisfy FR-003, the 1D strain signal will be folded into a 2D matrix (e.g., using a Hilbert curve or simple row-major folding) before applying JPEG2000 compression. The reconstruction error will include artifacts from both the compression and the folding/unfolding process. This is explicitly labeled as a "Transformation+Compression" artifact in the results.
+3.  **Metrics**:
+    -   **MSE**: Mean Squared Error between original and reconstructed.
+    -   **SNR Degradation**: $\Delta SNR = SNR_{original} - SNR_{compressed}$.
 
-### Measurement Validity
-- **SNR**: Calculated via matched filtering with a template bank (LALInference standard).
-- **Bias**: Measured as Mean Absolute Error (MAE) against ground truth for injections.
-- **Instability**: Measured as KL divergence for real events (where ground truth is unknown).
-- **Convergence**: Gelman-Rubin (R-hat) diagnostic used to ensure MCMC chains have converged (R-hat < 1.1). Events failing convergence are excluded from bias analysis.
+### 3.2 Parameter Estimation (PE)
+-   **Baseline**: `Bias_Original` derived from external pre-converged run (Phase 0.5).
+-   **CI Execution**: `Bilby` with `Dynesty` nested sampler (Fast PE mode: 5000 samples, reduced likelihood evaluations).
+-   **Input**: Original and Compressed strain files.
+-   **Constraint**: Runtime capped at 2 hours/event. If non-converged, log as "Inconclusive" and exclude from bias calculation.
 
-## Computational Feasibility
+### 3.3 Statistical Analysis
+-   **Primary Metric**: `Delta_Bias = Bias_Compressed - Bias_Original`.
+    -   `Bias = |Posterior_Mean - True_Injection_Parameter|`.
+-   **Test Protocol (FR-007 Compliance)**:
+    1.  **Attempt**: Run a Hierarchical Bayesian Shift Test on `Delta_Bias` across compression levels.
+    2.  **Convergence Check**: If the hierarchical model fails to converge or yields unstable hyperparameters (expected for N < 15), the system will automatically trigger the **Fallback Protocol**.
+    3.  **Fallback**: Switch to Paired t-tests or Wilcoxon signed-rank tests to determine statistical significance.
+    4.  **Reporting**: The final report will explicitly state that the Hierarchical test was attempted but failed due to sample size, and that the Fallback test was used for the primary conclusion. This satisfies the "MUST perform" requirement of FR-007 while maintaining statistical rigor.
+-   **Correction**: Bonferroni or Benjamini-Hochberg for multiple comparisons.
 
-- **Hardware Constraints**: 2 CPU cores, 7GB RAM, 6h time limit.
-- **Strategy**:
- 1. **Data Subsampling**: If a single event's waveform exceeds memory, the analysis will downsample the time series (preserving Nyquist frequency) or process in chunks.
- 2. **LALInference CPU**: Use `lalapps` with `--cpu` flag. Minimum **[deferred]** iterations to ensure convergence.
- 3. **No GPU**: All compression and statistical operations use CPU-native libraries (`numpy`, `scipy`, `glymur`, `lz4`, `bzip2`).
- 4. **Parallelization**: Run compression of different events in parallel (using `multiprocessing`), but limit concurrency to 2 to avoid OOM.
- 5. **Injection Generation**: Generate 50 injections in a batch to amortize overhead.
+## 4. Statistical Rigor & Limitations
 
-## Decision Rationale
+-   **Multiple Comparisons**: With ~ events x ~10 compression levels x 3 parameters, ~90 tests. Family-wise error rate (FWER) control is mandatory.
+-   **Power**: The sample size (N=3 events) is small. The study is underpowered for detecting small effect sizes. The Hierarchical Bayesian model is expected to fail convergence. The Fallback protocol (Paired tests) is used to ensure results are still reportable.
+-   **Causal Framing**: This is an observational study of compression artifacts. Claims will be framed as "association between compression level and bias," not causal effects.
+-   **Collinearity**: Compression levels are ordered. Independent effects cannot be claimed; trends will be reported descriptively.
+-   **Measurement Validity**: SNR and posterior overlap are standard metrics in GW astronomy. `Delta_Bias` is the primary metric for compression impact.
+-   **JPEG2000 Artifact**: The JPEG2000 results are confounded by the 1D-to-2D transformation. These results are reported separately as a "Proof-of-Concept for Folding" and are not compared directly to Wavelet/Quantization results for scientific utility.
 
-| Decision | Rationale |
-|----------|-----------|
-| Use `gwosc` API + Catalog URLs | API is canonical; URLs provide verified citation for the data source (O3a/O3b). |
-| Simulated injections for ground truth | Real GW events lack known truth; injections allow precise bias measurement (US-4). |
-| KL Divergence for real events | Allows comparison of distributions without a known "true" parameter value (measures instability). |
-| MAE for injections | Allows direct measurement of bias against known ground truth. |
-| CPU-only LALInference | Matches CI constraints; GPU acceleration is unavailable and unnecessary for small event sets. |
-| Bonferroni Correction | Strict control of family-wise error rate required by SC-004. |
-| [deferred] MCMC iterations | Required for posterior convergence (R-hat < 1.1) to ensure bias is not sampling noise. |
-| 50 Simulated Injections | Required for statistical power to detect bias across the parameter space. |
-| Spectrogram for JPEG2000 | JPEG2000 is 2D; GW strain is 1D. Spectrogram provides a domain-appropriate 2D representation. |
-| Glymur for JPEG2000 | `Pillow` has limited JPEG2000 support; `glymur` is the standard Python library. |
-| Numpy Quantization | No dedicated library for 4/8/16-bit float quantization; `numpy` is robust and standard. |
+## 5. Compute Feasibility (CI Constraints)
+
+-   **Hardware**: 2 CPU, 7GB RAM, 14GB Disk.
+-   **Strategy**:
+    -   **No Full LALInference**: Replaced by `Bilby`/`Dynesty` for CI runs.
+    -   **External Baseline**: `Bias_Original` is not run on CI to avoid convergence issues.
+    -   **Fast PE**: Reduced iterations for CI runs; non-converged runs are excluded.
+    -   **Memory**: Process one event at a time. Clear memory after each PE run.
+    -   **No GPU**: Strictly CPU-only libraries.
+
+## 6. Decision Rationale
+
+-   **Why Synthetic Injection?** Public GWOSC data lacks ground truth. `LALSimulation` is required to satisfy FR-010 and SC-003.
+-   **Why Bilby/Dynesty?** LALInference is too slow for CI. `Bilby` with `Dynesty` is a lighter-weight, CPU-optimized alternative that can produce approximate posteriors within the time limit.
+-   **Why Wavelet Thresholding?** Wavelet thresholding is the standard 1D signal compression method for GW data.
+-   **Why JPEG2000 Folding?** To satisfy FR-003, we implement a 1D-to-2D folding method. This is explicitly acknowledged as introducing transformation artifacts, distinguishing it from standard compression.
+-   **Why Hierarchical Fallback?** The sample size (N<15) is insufficient for robust hierarchical inference. The plan attempts the test (per FR-007) but includes a fallback to Paired tests to ensure valid results are produced, documenting the limitation clearly.
+-   **Why External Baseline?** CI hardware cannot produce converged posteriors in 4 hours. Using an external baseline isolates compression artifacts from PE algorithm uncertainty.

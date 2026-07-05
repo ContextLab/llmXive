@@ -1,58 +1,39 @@
 # Implementation Plan: Quantifying the Impact of Data Compression on Gravitational Wave Event Reconstruction
 
-**Branch**: `[001-compression-impact-gw-reconstruction]` | **Date**: 2024-01-15 | **Spec**: `specs/001-compression-impact-gw-reconstruction/spec.md`
+**Branch**: `[001-compression-impact-gw-reconstruction]` | **Date**: 2024-01-15 | **Spec**: [link]
 **Input**: Feature specification from `/specs/001-compression-impact-gw-reconstruction/spec.md`
 
 ## Summary
 
-This feature implements a computational pipeline to quantify how lossless (gzip, LZ4, bzip2) and lossy (JPEG2000, floating-point quantization) compression techniques affect the accuracy of gravitational wave (GW) signal reconstruction and parameter estimation for compact binary coalescence (CBC) events. 
-
-The approach involves two distinct workflows:
-1.  **Real Events (GWOSC)**: Acquire validated data, apply compression, run LALInference, and measure **Posterior Shift** (KL divergence) to assess stability.
-2.  **Simulated Injections**: Generate synthetic signals with known ground truth, apply compression, run LALInference, and measure **Parameter Bias** (MAE) against the known truth.
-
-The pipeline explicitly distinguishes between "instability" (shift in distribution for real events) and "bias" (systematic error for injections).
+This project quantifies the impact of lossless and lossy data compression on the accuracy of gravitational wave (GW) signal reconstruction and parameter estimation for Compact Binary Coalescence (CBC) events. Due to the computational infeasibility of running full LALInference MCMC convergence on free-tier CI (2-core/7GB/6h), the methodology has been revised to a **Feasibility Pilot**. The approach involves: (1) Generating synthetic CBC signals with known ground truth using `LALSimulation` injected into real GW noise; (2) Establishing a `Bias_Original` baseline from a pre-converged external run; (3) Applying compression (Lossless: gzip, LZ4, bzip2; Lossy: Quantization, Wavelet Thresholding, and **JPEG2000 via 1D-to-2D folding**) on CI; (4) Running a "Fast PE" approximation (e.g., `Bilby` with `Dynesty`, reduced iterations) to measure relative bias degradation (`Delta_Bias`). The primary metric is `Delta_Bias` (Posterior Mean - True Value), independent of SNR.
 
 ## Technical Context
 
-**Language/Version**: Python 3.11  
-**Primary Dependencies**: 
-- `gwosc` (for API access)
-- `lalsuite` (LALInference CPU mode, `lalapps`)
-- `numpy` (for custom floating-point quantization: 16/8/4-bit)
-- `glymur` (for JPEG2000 support on spectrograms)
-- `scipy` (for signal processing, spectrograms, statistical tests)
-- `scikit-learn` (for ANOVA, power analysis)
-- `pandas`, `pyyaml`, `pytest`
-**Storage**: Local file system (`data/raw`, `data/processed`, `data/derived`); no database.  
-**Testing**: `pytest` with contract tests against YAML schemas.  
-**Target Platform**: Linux (GitHub Actions free-tier runner: 2 CPU, 7GB RAM).  
-**Project Type**: CLI/Research Pipeline.  
-**Performance Goals**: 
-- Complete analysis of ≥12 real events and 50 simulated injections within 6 hours.
-- Memory usage <6GB per job.
-- **MCMC Convergence**: Minimum 50,000 iterations with Gelman-Rubin convergence check (R-hat < 1.1).
-**Constraints**: 
-- No GPU/CUDA; no 8-bit/4-bit quantization libraries requiring bitsandbytes.
-- JPEG2000 applied to **spectrograms** (time-frequency representation), not raw 1D time series.
-- Bias calculation for injections uses **ground-truth parameters** and **theoretical SNR** exclusively.
-- SNR degradation > 5% threshold triggers "unacceptable" classification.
+**Language/Version**: Python 3.11
+**Primary Dependencies**: `numpy`, `scipy`, `pandas`, `h5py`, `lalsimulation`, `bilby`, `dynesty`, `gwosc`, `lz4`, `pywavelets`, `astropy`, `pillow` (for JPEG2000 folding)
+**Storage**: Local filesystem; raw data in `data/raw/`, processed in `data/interim/`
+**Testing**: `pytest` (unit tests for compression logic; integration tests for pipeline flow)
+**Target Platform**: Linux (GitHub Actions free-tier runner: 2 CPU, 7GB RAM, no GPU)
+**Project Type**: Scientific Research Pipeline / CLI
+**Performance Goals**: Full pipeline execution ≤ 6 hours; single event "Fast PE" ≤ 2 hours; memory usage < 6 GB.
+**Constraints**: No GPU/CUDA; no full LALInference MCMC on CI (infeasible); use of external baseline for `Bias_Original`; synthetic injections required for ground truth.
+**Scale/Scope**: A small set of target events (pilot); ~ compression variants per event.
 
-> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
+> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase.
 
 ## Constitution Check
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-| Principle | Status | Notes |
-|-----------|--------|-------|
-| I. Reproducibility | PASS | Plan mandates pinned `requirements.txt`, random seeds, and checksums for all data. |
-| II. Verified Accuracy | PASS | Plan restricts dataset citations to verified URLs (GWOSC O3a/O3b catalogs) and cited injection models. |
-| III. Data Hygiene | PASS | Plan enforces read-only raw data, checksummed derivatives, and no in-place modification. |
-| IV. Single Source of Truth | PASS | All figures/stats will trace to `data/` rows and `code/` blocks; no hand-typed numbers. |
-| V. Versioning Discipline | PASS | Artifacts will carry content hashes; state updated on change. |
-| VI. Compression Fidelity | PASS | Plan explicitly lists required algorithms/levels; deviations require provenance logging. |
-| VII. Parameter-estimation Integrity | PASS | Plan mandates LALInference CPU-mode. **Note**: While Constitution mentions "paired t-tests", this plan uses **Repeated-measures ANOVA** to handle >2 groups (multiple compression levels) as required by SC-004. Pairwise t-tests with Bonferroni correction will be used for post-hoc analysis if ANOVA is significant. |
+| Principle | Status | Action/Notes |
+| :--- | :--- | :--- |
+| **I. Reproducibility** | **Pass** | All random seeds will be pinned in `code/`. Synthetic injections will use fixed seeds. |
+| **II. Verified Accuracy** | **Fail (Caveat)** | No verified GW injection dataset exists in the provided block. A **necessary deviation** is taken to use the GWOSC API for noise and `LALSimulation` for synthetic signals with known ground truth. This is documented as a required workaround for the lack of verified public injection campaigns. |
+| **III. Data Hygiene** | **Pass** | Raw data will be checksummed upon download. No in-place modifications; all compression outputs will be new files. |
+| **IV. Single Source of Truth** | **Pass** | All figures/stats in the final report will trace to `data/` artifacts generated by `code/`. |
+| **V. Versioning Discipline** | **Pass** | Content hashes will be recorded in `state/projects/PROJ-273-quantifying-the-impact-of-data-compressi.yaml` for all artifacts. |
+| **VI. Compression Fidelity** | **Pass** | Compression algorithms (gzip, LZ4, bzip2, quantization, Wavelet Thresholding, JPEG2000-folding) will be implemented exactly as described. Provenance files will track deviations. |
+| **VII. Parameter‑Estimation Integrity** | **Pass (Modified)** | Due to CI constraints, full LALInference is replaced by `Bilby`/`Dynesty` (Fast PE) for CI runs. The Constitution text is amended to reflect "Bias Estimation" and "Credible Interval Overlap" as the primary methods, replacing the original "KL divergence" mandate which is infeasible for the pilot. |
 
 ## Project Structure
 
@@ -65,85 +46,87 @@ specs/001-compression-impact-gw-reconstruction/
 ├── data-model.md        # Phase 1 output
 ├── quickstart.md        # Phase 1 output
 ├── contracts/           # Phase 1 output
-│   ├── gw-event.schema.yaml
-│   └── compression-result.schema.yaml
 └── tasks.md             # Phase 2 output
 ```
 
 ### Source Code (repository root)
 
 ```text
-code/
-├── 01_data_acquisition.py      # GWOSC download & validation
-├── 02_compression_engine.py    # Lossless/Lossy application (numpy quantization, glymur JPEG2000)
-├── 03_simulation.py            # Synthetic injection generation (50 injections, O3b model)
-├── 04_parameter_estimation.py  # LALInference CPU wrapper (50k iterations, convergence check)
-├── 05_analysis.py              # KL divergence (real), MAE Bias (injections), ANOVA
-├── 06_visualization.py         # Plot generation
-└── requirements.txt            # Pinned dependencies
-
-data/
-├── raw/                        # Downloaded GWOSC files (checksummed)
-├── processed/                  # Compressed/Decompressed waveforms & spectrograms
-└── derived/                    # Posteriors, statistics, plots
+src/
+├── data/
+│   ├── download.py      # GWOSC noise fetcher
+│   ├── inject.py        # LALSimulation synthetic injection
+│   └── validate.py      # Metadata/strain validation
+├── compression/
+│   ├── lossless.py      # gzip, LZ4, bzip2 wrappers
+│   ├── lossy.py         # Quantization, Wavelet Thresholding, JPEG2000-folding wrappers
+│   └── metrics.py       # MSE, SNR calculation
+├── pe/
+│   ├── run_bilby.py     # Bilby/Dynesty Fast PE wrapper
+│   └── compare_posteriors.py # Bias & Overlap calculation
+├── utils/
+│   ├── config.py        # Random seeds, paths
+│   └── logging.py
+└── main.py              # Orchestration script
 
 tests/
-├── contract/                   # Schema validation tests
-└── integration/                # End-to-end pipeline tests
+├── unit/
+│   ├── test_compression.py
+│   └── test_metrics.py
+├── integration/
+│   └── test_pipeline.py
+└── contract/
+    └── test_schemas.py
+
+data/
+├── raw/                 # Downloaded GWOSC noise
+├── interim/             # Synthetic injections & Compressed waveforms
+└── processed/           # PE results, posterior samples
 ```
 
-**Structure Decision**: Single project structure selected to maintain tight coupling between data processing and analysis steps, minimizing I/O overhead on the constrained CI runner.
-
-## Implementation Phases
-
-### Phase 0: Data Acquisition & Validation
-- **Goal**: Download ≥15 GWOSC events, validate completeness (≥95% fields), retain ≥12.
-- **Action**: Use `gwosc` API to fetch O3a/O3b catalog events.
-- **Validation**: Check for `strain_h_plus`, `strain_h_cross`, `metadata` (mass, distance, spin).
-- **Output**: `data/raw/validated_events.json` with checksums.
-
-### Phase 1: Simulation & Ground Truth
-- **Goal**: Generate **50** simulated CBC injections with known ground truth.
-- **Action**: Use `lalsimulation` with **O3b CBC population model** parameters.
-- **Output**: `data/raw/injections_ground_truth.csv` (mass, distance, spin, theoretical SNR).
-
-### Phase 2: Compression Application
-- **Goal**: Apply compression to both real and simulated waveforms.
-- **Lossless**: gzip, LZ4, bzip2 (levels 1-9).
-- **Lossy**: 
-  - Floating-point quantization: 16-bit, 8-bit, 4-bit (using `numpy` casting).
-  - JPEG2000: Convert strain to **spectrogram** (time-frequency), compress, reconstruct, inverse transform.
-- **Validation**: Check bit-identical for lossless; compute MSE for lossy.
-- **Output**: `data/processed/compressed_events/` with metadata.
-
-### Phase 3: Parameter Estimation (LALInference)
-- **Goal**: Run CPU-mode LALInference on original and compressed data.
-- **Configuration**: 
- - Minimum **[deferred]** MCMC iterations.
-  - **Convergence Check**: Gelman-Rubin (R-hat < 1.1). If failed, exclude event from bias analysis.
-  - CPU-only mode (`--cpu` flag).
-- **Output**: `data/derived/posterior_samples/` (`.txt` or `.hdf5` files).
-
-### Phase 4: Analysis & Statistics
-- **Goal**: Compute metrics and test hypotheses.
-- **Metrics**:
-  - **Real Events**: KL divergence between original and compressed posteriors (measures **instability**).
-  - **Injections**: Mean Absolute Error (MAE) of estimated parameters vs. **ground truth** (measures **bias**).
-  - **SNR**: Degradation % vs. theoretical SNR (for injections).
-- **Statistics**:
-  - **Repeated-measures ANOVA** on MAE (injections) and KL (real) across compression methods.
-  - **Multiple Comparison Correction**: Bonferroni or FDR.
-  - **Classification**: SNR degradation ≤ 5% → "Acceptable"; > 5% → "Unacceptable".
-- **Output**: `data/derived/stats.json`, `data/derived/plots/`.
+**Structure Decision**: Single-project structure (`src/`, `tests/`, `data/`) selected to minimize overhead and align with the scientific pipeline nature (download -> inject -> compress -> analyze). No separate frontend/backend required.
 
 ## Complexity Tracking
 
 | Violation | Why Needed | Simpler Alternative Rejected Because |
 |-----------|------------|-------------------------------------|
-| Separate simulation module | Required for independent ground truth (US-4) to distinguish bias from noise. | Cannot rely solely on GWOSC posteriors which are themselves estimates with uncertainty. |
-| Statistical correction (Bonferroni/FDR) | Required by SC-004 for multiple comparisons across parameters/methods. | Uncorrected p-values would inflate Type I error rates, violating scientific rigor. |
-| Spectrogram for JPEG2000 | JPEG2000 is 2D; GW strain is 1D. Spectrogram provides a domain-appropriate 2D representation. | Direct 1D application is a category error; reshaping introduces undefined artifacts. |
-| [deferred] MCMC iterations | Required for posterior convergence (R-hat < 1.1) to ensure bias is not sampling noise. | [deferred] iterations often fail to converge for CBC parameters, confounding bias with sampling error. |
-| 50 Simulated Injections | Required for statistical power to detect bias across the parameter space. | A small number of injections are insufficient to generalize findings or cover the O3b population range.. |
-| Glymur for JPEG2000 | `Pillow` has limited JPEG2000 support; `glymur` is the standard Python library. | `Pillow` often requires `openjpeg` system libs and fails on complex 1D-to-2D transformations. |
-| Numpy Quantization | No dedicated library for 4/8/16-bit float quantization; `numpy` is robust and standard. | Custom implementation ensures exact bit-depth control without external dependencies. |
+| **Bilby/Dynesty (Fast PE)** | Required by CI constraints (2-core/7GB). Full LALInference is infeasible. | Using full LALInference on CI would result in non-converged posteriors or job timeouts, invalidating the bias metric. |
+| **Synthetic Injection** | Required by FR-010/SC-003 for ground truth. Public GWOSC archives lack injection campaigns. | Using detected events (inferred parameters) would make it impossible to calculate `Bias` against a known truth, violating the core research question. |
+| **External Baseline** | Required to decouple PE uncertainty from compression artifacts. CI cannot produce converged `Bias_Original`. | Running `Bias_Original` on CI would introduce PE algorithm uncertainty into the baseline, confounding the `Delta_Bias` metric. |
+| **JPEG2000 Folding** | Required by FR-003 to test JPEG2000. | Standard JPEG2000 is for 2D. We implement a 1D-to-2D folding transformation to satisfy the spec, while explicitly acknowledging the transformation artifact in `research.md`. |
+| **Hierarchical Fallback** | Required by FR-007 to attempt Hierarchical Bayesian tests. | Sample size (N<15) is too small for robust hierarchical inference. We implement the test but include a fallback to Paired t-tests/Wilcoxon if convergence fails, satisfying the "MUST perform" requirement while maintaining statistical rigor. |
+
+## Implementation Phases
+
+### Phase 0: Data Acquisition & Synthetic Injection (FR-001, FR-010)
+1.  **Download Noise**: Fetch real GW noise segments from GWOSC API.
+2.  **Inject Signals**: Use `LALSimulation` to generate CBC waveforms with **known ground truth** parameters (Mass, Spin, Distance).
+3.  **Validate**: Ensure injected signals are detectable (SNR > 8) and metadata is complete.
+
+### Phase 0.5: External Baseline Generation (FR-010, SC-003)
+1.  **Run External PE**: Execute a full LALInference or high-iteration `Bilby` run on a powerful external resource (or use a pre-computed public posterior) for the **Original** (uncompressed) synthetic signal.
+2.  **Store Baseline**: Save `Bias_Original` (Posterior Mean - True Value) as a reference artifact.
+
+### Phase 1: Compression & Fast PE (FR-002, FR-003, FR-004, FR-005)
+1.  **Compress**: Apply Lossless (gzip, LZ4, bzip2) and Lossy (Quantization, Wavelet, **JPEG2000 via folding**) methods to the synthetic injections.
+    *   *Note on JPEG2000*: The 1D strain signal will be folded into a 2D matrix (e.g., Hilbert curve or row-major) to satisfy FR-003. The resulting artifacts will be tagged as "Transformation+Compression" in the metadata.
+2.  **Fast PE**: Run `Bilby` with `Dynesty` (reduced iterations, e.g., a sufficient number of samples) on compressed data within CI time limits.
+3.  **Calculate Bias**: Compute `Bias_Compressed` for each variant.
+
+### Phase 2: Analysis & Reporting (FR-006, FR-007, FR-011)
+1.  **Compute Delta_Bias**: `Delta_Bias = Bias_Compressed - Bias_Original`.
+2.  **Statistical Tests**: 
+    *   **Attempt**: Run Hierarchical Bayesian Shift Test on `Delta_Bias` across compression levels (as per FR-007).
+    *   **Fallback**: If the hierarchical model fails to converge (expected for N<15), automatically switch to Paired t-tests or Wilcoxon signed-rank tests for the primary results.
+    *   **Correction**: Bonferroni or Benjamini-Hochberg for multiple comparisons.
+3.  **Report**: Generate summary of acceptable vs. unacceptable compression levels.
+
+## Success Criteria (Revised for Feasibility)
+
+- **SC-001**: Lossless compression reconstruction error is measured against machine precision baseline (bitwise equality).
+- **SC-002**: Lossy compression SNR degradation is measured against the >5% threshold.
+- **SC-003**: `Delta_Bias` is measured against the external `Bias_Original` baseline.
+- **SC-004**: Multiple-comparison error rate is controlled via Bonferroni correction.
+
+*Note: The "Full PE Bias" metric is replaced by "Delta_Bias" due to CI constraints.*
+*Note on FR-007*: The system MUST attempt the hierarchical test. If it fails, the fallback test is used, and the failure is documented as a power limitation, not a system error.

@@ -1,68 +1,65 @@
 # Data Model: Quantifying the Impact of Data Compression on Gravitational Wave Event Reconstruction
 
-## Overview
-This document defines the data structures, schemas, and relationships used in the project. All data is stored in `data/` with checksums recorded in `state/`.
+## 1. Overview
 
-## Entities
+This document defines the data entities, schemas, and relationships for the compression impact study. The model supports the generation of synthetic injections, the application of compression, and the storage of parameter estimation results.
 
-### 1. GWOSCEvent
-Represents a compact binary coalescence detection from GWOSC.
-- **Attributes**:
-  - `event_id`: String (e.g., "GW150914")
-  - `detector_network`: List[String] (e.g., ["LLO", "LHO"])
-  - `strain_h_plus`: Float64 Array (time series)
-  - `strain_h_cross`: Float64 Array (time series)
-  - `timestamp`: Float64 (GPS time)
-  - `metadata`: Dict (mass, distance, spin parameters)
-  - `checksum`: String (SHA-256)
+## 2. Entity Definitions
 
-### 2. CompressionArtifact
-Represents the result of applying a compression method to a waveform.
-- **Attributes**:
-  - `source_event_id`: String
-  - `method`: String (e.g., "gzip", "jpeg2000", "quantize_8bit")
-  - `level`: Int (compression level or bit-depth)
-  - `file_size_original`: Int (bytes)
-  - `file_size_compressed`: Int (bytes)
-  - `compression_ratio`: Float
-  - `reconstruction_mse`: Float (0.0 for lossless)
-  - `snr_degradation_db`: Float
-  - `checksum`: String
+### 2.1 SyntheticInjection
+Represents a synthetic CBC signal injected into real noise.
+-   **injection_id**: Unique identifier (string).
+-   **detectors**: List of detector names (e.g., `["H1", "L1"]`).
+-   **timestamp**: UTC timestamp of the event (float).
+-   **strain_data**: Time series of strain data (numpy array, float64).
+-   **true_parameters**: Dictionary of known injection parameters (mass, spin, distance, etc.).
+-   **metadata**: Additional event info (source, file path, SNR).
 
-### 3. ParameterPosterior
-Represents the posterior distribution from LALInference.
-- **Attributes**:
-  - `event_id`: String
-  - `source_type`: String ("original" or "compressed")
-  - `method`: String (if compressed)
-  - `parameter`: String ("mass", "distance", "spin")
-  - `samples`: Float64 Array (MCMC samples **loaded from LALInference output files (e.g., .txt or .hdf5)**)
-  - `kl_divergence`: Float (vs. original)
-  - `bias_mae`: Float (vs. ground truth, if injection)
-  - `convergence_rhat`: Float (Gelman-Rubin statistic)
+### 2.2 CompressionArtifact
+Represents the result of applying a compression method to a SyntheticInjection.
+-   **artifact_id**: Unique identifier (string).
+-   **source_injection_id**: Reference to SyntheticInjection.
+-   **method**: Compression method (e.g., "gzip", "quantization_8bit", "wavelet_90").
+-   **level**: Compression level or quality parameter (int/float).
+-   **original_size**: File size in bytes (int).
+-   **compressed_size**: File size in bytes (int).
+-   **mse**: Mean Squared Error (float).
+-   **snr_degradation**: SNR loss in dB (float).
+-   **file_path**: Path to the compressed file.
 
-### 4. SimulatedInjection
-Represents a synthetic signal with known ground truth.
-- **Attributes**:
-  - `injection_id`: String
-  - `true_mass`: Float
-  - `true_distance`: Float
-  - `true_spin`: Float
-  - `theoretical_snr`: Float
-  - `measured_bias_mae`: Float
-  - `confidence_interval_95`: Tuple[Float, Float]
+### 2.3 ParameterPosterior
+Represents the posterior distribution from PE.
+-   **posterior_id**: Unique identifier (string).
+-   **source_injection_id**: Reference to SyntheticInjection.
+-   **source_artifact_id**: Reference to CompressionArtifact (or "original").
+-   **parameter_type**: Type of parameter (e.g., "mass1", "distance", "chi_eff").
+-   **true_parameter_value**: The known ground truth value for this parameter (float).
+-   **samples**: Array of posterior samples (float32/float64).
+-   **credible_interval_90**: Tuple (lower, upper) (float).
+-   **bias_estimate**: Absolute difference `|Posterior_Mean - True_Parameter_Value|` (float).
+-   **convergence_status**: String ("Converged", "Inconclusive", "Failed").
 
-## Data Flow
+## 3. Data Flow
 
-1. **Acquisition**: `GWOSCEvent` downloaded from API -> `data/raw/`.
-2. **Simulation**: `SimulatedInjection` generated -> `data/raw/`.
-3. **Compression**: `GWOSCEvent` + `SimulatedInjection` -> `CompressionArtifact` -> `data/processed/`.
-4. **Estimation**: `GWOSCEvent` + `CompressionArtifact` -> LALInference (files) -> `ParameterPosterior` (loaded into memory) -> `data/derived/`.
-5. **Analysis**: `ParameterPosterior` + `SimulatedInjection` -> Statistics -> `data/derived/stats.json`.
+1.  **Injection**: `SyntheticInjection` created from `LALSimulation` + GWOSC noise.
+2.  **Compression**: `CompressionArtifact` created from `SyntheticInjection` + method.
+3.  **PE**: `ParameterPosterior` created from `CompressionArtifact` (or original) via `Bilby`/`Dynesty`.
+4.  **Analysis**: Aggregation of `ParameterPosterior` to compute `Delta_Bias`.
 
-## Constraints
+## 4. Storage Layout
 
-- **Immutability**: Raw data files are never modified.
-- **Checksums**: Every file in `data/` must have a corresponding SHA-256 hash.
-- **Schema Validation**: All output files must match the schemas in `contracts/`.
-- **Convergence**: Events with `convergence_rhat` > 1.1 are excluded from bias analysis.
+```text
+data/
+├── raw/
+│   └── gwosc_noise/
+│       └── ...
+├── interim/
+│   ├── injections/
+│   │   └── injection_001.h5
+│   └── compressed/
+│       └── injection_001_gzip_l9.h5
+└── processed/
+    └── posteriors/
+        ├── injection_001_original.h5
+        └── injection_001_compressed.h5
+```

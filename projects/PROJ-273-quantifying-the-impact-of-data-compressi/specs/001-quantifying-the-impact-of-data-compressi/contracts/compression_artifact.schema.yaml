@@ -1,0 +1,47 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "CompressionArtifact"
+description: "Schema for a compressed version of a GW event."
+type: "object"
+properties:
+  artifact_id:
+    type: "string"
+    description: "Unique identifier for the artifact."
+  source_injection_id:
+    type: "string"
+    description: "Reference to the source SyntheticInjection."
+  method:
+    type: "string"
+    description: "Compression method (e.g., 'gzip', 'lz4', 'quantization_8bit', 'wavelet_90')."
+  level:
+    type: "number"
+    description: "Compression level or quality parameter."
+  original_size:
+    type: "integer"
+    description: "Original file size in bytes."
+  compressed_size:
+    type: "integer"
+    description: "Compressed file size in bytes."
+  mse:
+    type: "number"
+    description: "Mean Squared Error between original and reconstructed."
+  snr_degradation:
+    type: "number"
+    description: "SNR degradation in dB."
+  file_path:
+    type: "string"
+    description: "Path to the compressed file."
+  is_acceptable:
+    type: "boolean"
+    description: "Whether the compression level is acceptable (SNR degradation <= 5%)."
+required:
+  - artifact_id
+  - source_injection_id
+  - method
+  - level
+  - original_size
+  - compressed_size
+  - mse
+  - snr_degradation
+  - file_path
+  - is_acceptable
+additionalProperties: false

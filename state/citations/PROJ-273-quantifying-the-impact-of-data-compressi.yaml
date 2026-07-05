@@ -1,22 +1,11 @@
-- artifact_hash: d276e52e59e49412f0ab48960d808119e286bead3659b16d8a979d93697ef53a
-  artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/specs/001-quantifying-the-impact-of-data-compressi/research.md
+- artifact_hash: c1b9e7312ff8ff0d2e35aa8ae849dd377b93b6f454a98c70a4c5517ce4a3d8da
+  artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/specs/001-quantifying-the-impact-of-data-compressi/tasks.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
   fetched_title: null
-  kind: url
-  value: https://www.gwosc.org/datasets/O3a/`
-  verification_status: unreachable
-  verified_against_url: https://www.gwosc.org/datasets/O3a/
-  verified_at: '2026-07-04T23:20:57.752297Z'
-- artifact_hash: d276e52e59e49412f0ab48960d808119e286bead3659b16d8a979d93697ef53a
-  artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/specs/001-quantifying-the-impact-of-data-compressi/research.md
-  cite_id: c-002
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: url
-  value: https://www.gwosc.org/datasets/O3b/`
-  verification_status: unreachable
-  verified_against_url: https://www.gwosc.org/datasets/O3b/
-  verified_at: '2026-07-04T23:20:57.752297Z'
+  kind: doi
+  value: 10.1234/example
+  verification_status: mismatch
+  verified_against_url: https://api.crossref.org/works/10.1234/example
+  verified_at: '2026-07-04T23:59:42.295708Z'

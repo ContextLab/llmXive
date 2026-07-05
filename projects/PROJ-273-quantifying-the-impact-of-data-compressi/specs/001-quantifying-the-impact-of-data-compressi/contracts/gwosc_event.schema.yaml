@@ -1,0 +1,79 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "SyntheticInjection"
+description: "Schema for a synthetic gravitational wave injection event with known ground truth."
+type: "object"
+properties:
+  injection_id:
+    type: "string"
+    description: "Unique identifier for the injection (e.g., 'INJ_001')."
+  detectors:
+    type: "array"
+    items:
+      type: "string"
+    description: "List of detector names (e.g., ['H1', 'L1', 'V1'])."
+  timestamp:
+    type: "number"
+    description: "UTC timestamp of the event in GPS time."
+  strain_data:
+    type: "object"
+    description: "Strain time series data."
+    properties:
+      time:
+        type: "array"
+        items:
+          type: "number"
+        description: "Time array (seconds)."
+      data:
+        type: "array"
+        items:
+          type: "number"
+        description: "Strain values (dimensionless)."
+      sampling_rate:
+        type: "number"
+        description: "Sampling rate in Hz."
+  true_parameters:
+    type: "object"
+    description: "Known injection parameters (ground truth)."
+    properties:
+      mass_1:
+        type: "number"
+        description: "Primary mass in solar masses."
+      mass_2:
+        type: "number"
+        description: "Secondary mass in solar masses."
+      spin_1_x:
+        type: "number"
+        description: "Primary spin x-component."
+      spin_1_y:
+        type: "number"
+        description: "Primary spin y-component."
+      spin_1_z:
+        type: "number"
+        description: "Primary spin z-component."
+      distance:
+        type: "number"
+        description: "Luminosity distance in Mpc."
+      inclination:
+        type: "number"
+        description: "Inclination angle in radians."
+  metadata:
+    type: "object"
+    description: "Additional metadata."
+    properties:
+      source:
+        type: "string"
+        description: "Source of the data (e.g., 'LALSimulation+GWOSC')."
+      file_path:
+        type: "string"
+        description: "Local path to the file."
+      snr:
+        type: "number"
+        description: "Signal-to-noise ratio of the injection."
+required:
+  - injection_id
+  - detectors
+  - timestamp
+  - strain_data
+  - true_parameters
+  - metadata
+additionalProperties: false

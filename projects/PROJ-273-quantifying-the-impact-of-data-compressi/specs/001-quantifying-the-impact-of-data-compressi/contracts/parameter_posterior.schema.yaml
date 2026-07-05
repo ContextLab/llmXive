@@ -1,0 +1,49 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "ParameterPosterior"
+description: "Schema for parameter estimation results (posteriors)."
+type: "object"
+properties:
+  posterior_id:
+    type: "string"
+    description: "Unique identifier for the posterior."
+  source_injection_id:
+    type: "string"
+    description: "Reference to the source SyntheticInjection."
+  source_artifact_id:
+    type: "string"
+    description: "Reference to the source CompressionArtifact (or 'original')."
+  parameter_type:
+    type: "string"
+    description: "Type of parameter (e.g., 'mass1', 'distance', 'chi_eff')."
+  true_parameter_value:
+    type: "number"
+    description: "The known ground truth value for this parameter."
+  samples:
+    type: "array"
+    items:
+      type: "number"
+    description: "Array of posterior samples."
+  credible_interval_90:
+    type: "array"
+    items:
+      type: "number"
+    minItems: 2
+    maxItems: 2
+    description: "90% credible interval [lower, upper]."
+  bias_estimate:
+    type: "number"
+    description: "Estimated bias (|Posterior Mean - True Value|)."
+  convergence_status:
+    type: "string"
+    description: "Convergence status (e.g., 'Converged', 'Inconclusive', 'Failed')."
+required:
+  - posterior_id
+  - source_injection_id
+  - source_artifact_id
+  - parameter_type
+  - true_parameter_value
+  - samples
+  - credible_interval_90
+  - bias_estimate
+  - convergence_status
+additionalProperties: false
