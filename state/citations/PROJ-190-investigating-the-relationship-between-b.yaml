@@ -1,1 +1,46 @@
-[]
+- artifact_hash: 722b705823e137606b0d247eb99292bcf6009bc2e949192803a7463c0075f2cf
+  artifact_path: projects/PROJ-190-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: BALSA
+  kind: url
+  value: https://db.humanconnectome.org/`
+  verification_status: pending
+  verified_against_url: https://balsa.wustl.edu
+  verified_at: '2026-07-05T00:06:00.891072Z'
+- artifact_hash: 722b705823e137606b0d247eb99292bcf6009bc2e949192803a7463c0075f2cf
+  artifact_path: projects/PROJ-190-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/research.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: "CBIG/stable_projects/brain_parcellation/Schaefer2018_LocalGlobal\
+    \ at master \xB7 ThomasYeoLab/CBIG \xB7 GitHub"
+  kind: url
+  value: https://github.com/ThomasYeoLab/CBIG/tree/master/stable_projects/brain_parcellation/Schaefer2018_LocalGlobal`
+  verification_status: verified
+  verified_against_url: https://github.com/ThomasYeoLab/CBIG/tree/master/stable_projects/brain_parcellation/Schaefer2018_LocalGlobal
+  verified_at: '2026-07-05T00:06:00.891072Z'
+- artifact_hash: 722b705823e137606b0d247eb99292bcf6009bc2e949192803a7463c0075f2cf
+  artifact_path: projects/PROJ-190-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/research.md
+  cite_id: c-003
+  cited_authors: []
+  cited_title: null
+  fetched_title: USING A FLIPPED SPOON TO DECREASE PACKING IN CHILDREN WITH FEEDING
+    DISORDERS - PMC
+  kind: url
+  value: https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3177344/`
+  verification_status: verified
+  verified_against_url: https://pmc.ncbi.nlm.nih.gov/articles/PMC3177344/
+  verified_at: '2026-07-05T00:06:00.891072Z'
+- artifact_hash: 0ee0a19c1c575ee0a5506a21aca66b73bb108a661d6c1974b2d87c704aa050e7
+  artifact_path: projects/PROJ-190-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/quickstart.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: BALSA
+  kind: url
+  value: https://db.humanconnectome.org/`
+  verification_status: pending
+  verified_against_url: https://balsa.wustl.edu
+  verified_at: '2026-07-05T00:07:23.283275Z'

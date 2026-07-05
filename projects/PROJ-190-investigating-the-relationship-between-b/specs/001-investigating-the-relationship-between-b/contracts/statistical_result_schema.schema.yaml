@@ -1,0 +1,40 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Statistical Result Schema"
+description: "Schema for aggregated statistical analysis results."
+type: "object"
+properties:
+  metric_name:
+    type: "string"
+    enum: ["global_efficiency", "fp_efficiency"]
+    description: "The efficiency metric being analyzed."
+  graph_type:
+    type: "string"
+    enum: ["binary", "weighted", "absolute"]
+    description: "Graph type used for this result."
+  correlation_r:
+    type: "number"
+    description: "Pearson or Spearman correlation coefficient."
+  p_value_uncorrected:
+    type: "number"
+    description: "Raw p-value from correlation test."
+  p_value_fwe:
+    type: "number"
+    description: "Family-wise error corrected p-value from permutation testing (only for primary binary tests)."
+  regression_coef:
+    type: "number"
+    description: "Coefficient from multiple linear regression."
+  vif:
+    type: "number"
+    description: "Variance Inflation Factor for collinearity check."
+  is_primary:
+    type: "boolean"
+    description: "True if this result is part of the FWE-corrected family."
+required:
+  - metric_name
+  - graph_type
+  - correlation_r
+  - p_value_uncorrected
+  - p_value_fwe
+  - regression_coef
+  - vif
+  - is_primary

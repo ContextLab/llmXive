@@ -1,0 +1,36 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Graph Metrics Schema"
+description: "Schema for brain network efficiency metrics derived from fMRI data."
+type: "object"
+properties:
+  subject_id:
+    type: "string"
+    description: "Foreign key to Subject."
+  atlas_resolution:
+    type: "string"
+    enum: ["200_ROI", "400_ROI"]
+    description: "Schaefer atlas resolution used."
+  graph_type:
+    type: "string"
+    enum: ["binary", "weighted", "absolute"]
+    description: "Type of graph constructed (binary=primary, absolute/weighted=robustness)."
+  global_efficiency:
+    type: "number"
+    description: "Global efficiency of the brain network (Harmonic Mean if disconnected)."
+  fp_efficiency:
+    type: "number"
+    description: "Frontoparietal subgraph efficiency."
+  density:
+    type: "number"
+    description: "Actual edge density of the thresholded graph."
+  is_disconnected:
+    type: "boolean"
+    description: "Flag indicating if the graph was disconnected."
+required:
+  - subject_id
+  - atlas_resolution
+  - graph_type
+  - global_efficiency
+  - fp_efficiency
+  - density
+  - is_disconnected

@@ -1,0 +1,31 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Subject Schema"
+description: "Schema for subject-level data including demographics and fluid intelligence scores."
+type: "object"
+properties:
+  subject_id:
+    type: "string"
+    description: "Unique HCP subject identifier."
+  fluid_intelligence:
+    type: "number"
+    description: "NIH Toolbox Fluid Intelligence composite score."
+  age:
+    type: "integer"
+    description: "Age in years."
+  sex:
+    type: "string"
+    enum: ["M", "F"]
+    description: "Biological sex."
+  mean_fd:
+    type: "number"
+    description: "Mean Framewise Displacement in mm."
+  excluded:
+    type: "boolean"
+    description: "Flag indicating if the subject was excluded from analysis."
+required:
+  - subject_id
+  - fluid_intelligence
+  - age
+  - sex
+  - mean_fd
+  - excluded

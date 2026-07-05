@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-03T09:37:12.278181Z'
-current_stage: specified
+current_stage: tasked
 failed_stage: null
 field: neuroscience
 human_escalation_reason: null
 id: PROJ-190-investigating-the-relationship-between-b
-last_run_id: 1a51e97b-5262-4735-9ddf-7a5528a8a05d
+last_run_id: bf1482cb-720c-4dae-8432-bc47538396fe
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-190-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b
 title: Investigating the Relationship Between Brain Network Efficiency and Fluid Intelligence
-updated_at: '2026-06-28T22:56:25.236526Z'
+updated_at: '2026-07-05T00:30:24.538847Z'
