@@ -1,0 +1,57 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Regression Results Schema"
+type: "object"
+properties:
+  frequency_band:
+    type: "string"
+    description: "Frequency band"
+    enum:
+      - "delta"
+      - "theta"
+      - "alpha"
+      - "beta"
+      - "gamma"
+  entropy_type:
+    type: "string"
+    description: "Entropy measure (Sample or Approximate)"
+    enum:
+      - "sample"
+      - "approximate"
+  partial_r:
+    type: "number"
+    description: "Partial correlation coefficient (derived from OLS)"
+  p_value:
+    type: "number"
+    description: "Raw p-value"
+  p_value_fdr:
+    type: "number"
+    description: "Benjamini-Hochberg FDR corrected p-value"
+  significant:
+    type: "boolean"
+    description: "Whether result is significant after FDR correction"
+  effect_size_class:
+    type: "string"
+    description: "Classification of effect size"
+    enum:
+      - "negligible"
+      - "small"
+      - "medium"
+      - "large"
+      - "clinically_meaningful"
+  vif:
+    type: "number"
+    description: "Variance Inflation Factor for this predictor"
+  collinearity_flag:
+    type: "boolean"
+    description: "True if VIF > 5"
+required:
+  - frequency_band
+  - entropy_type
+  - partial_r
+  - p_value
+  - p_value_fdr
+  - significant
+  - effect_size_class
+  - vif
+  - collinearity_flag
+additionalProperties: false

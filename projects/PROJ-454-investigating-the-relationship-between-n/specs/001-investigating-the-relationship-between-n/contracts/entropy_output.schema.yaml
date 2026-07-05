@@ -1,0 +1,35 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Entropy Output Schema"
+type: "object"
+properties:
+  participant_id:
+    type: "string"
+    description: "Participant ID"
+  frequency_band:
+    type: "string"
+    description: "Frequency band name"
+    enum:
+      - "delta"
+      - "theta"
+      - "alpha"
+      - "beta"
+      - "gamma"
+  entropy_type:
+    type: "string"
+    description: "Type of entropy"
+    enum:
+      - "sample"
+      - "approximate"
+  value:
+    type: "number"
+    description: "Computed entropy value"
+  valid:
+    type: "boolean"
+    description: "Whether the computation was successful"
+required:
+  - participant_id
+  - frequency_band
+  - entropy_type
+  - value
+  - valid
+additionalProperties: false

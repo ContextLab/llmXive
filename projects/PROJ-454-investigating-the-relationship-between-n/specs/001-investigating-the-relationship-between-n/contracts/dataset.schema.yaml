@@ -1,0 +1,52 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "EEG Dataset Schema"
+description: "Schema for the verified OpenNeuro/NeuroFusion dataset structure. Must contain EEG channels and behavioral metrics."
+type: "object"
+properties:
+  participant_id:
+    type: "string"
+    description: "Unique identifier for the participant."
+  age:
+    type: "integer"
+    minimum: 50
+    description: "Participant age in years."
+  education_years:
+    type: "integer"
+    description: "Years of education."
+  neurological_condition:
+    type: "boolean"
+    description: "Flag for known neurological conditions."
+  medication_use:
+    type: "string"
+    description: "Description of medication affecting EEG."
+  eeg_data:
+    type: "object"
+    description: "Nested object for EEG time-series or pre-processed features."
+    required:
+      - "sampling_rate"
+      - "channels"
+    properties:
+      sampling_rate:
+        type: "number"
+        minimum: 100
+      channels:
+        type: "array"
+        items:
+          type: "string"
+      duration_seconds:
+        type: "number"
+        minimum: 60
+  wcst_perseverative_errors:
+    type: "integer"
+    description: "Number of perseverative errors on WCST. REQUIRED for analysis."
+  task_accuracy:
+    type: "number"
+    minimum: 0
+    maximum: 1
+    description: "Accuracy from a separate attention task."
+required:
+  - "participant_id"
+  - "age"
+  - "eeg_data"
+  - "wcst_perseverative_errors"
+additionalProperties: true

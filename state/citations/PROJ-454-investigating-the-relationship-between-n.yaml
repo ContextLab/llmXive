@@ -1,1 +1,22 @@
-[]
+- artifact_hash: 316362c06c11c9fd205fd2b0357e0c119d91dba8bbdcea4475b7c4701e6ff321
+  artifact_path: projects/PROJ-454-investigating-the-relationship-between-n/specs/001-investigating-the-relationship-between-n/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: test-00000-of-00016.parquet
+  kind: url
+  value: https://huggingface.co/datasets/clane9/openneuro-fslr64k/resolve/main/data/test-00000-of-00016.parquet`
+  verification_status: verified
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/69139de16b08753a3093614c/1dd24a67ad2f62b2c2998529497114bf6a86a2af800f88ffdf81dd9fd9e8812d?X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27test-00000-of-00016.parquet%3B+filename%3D%22test-00000-of-00016.parquet%22%3B&user_id=public&Expires=1783229912&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjkxMzlkZTE2YjA4NzUzYTMwOTM2MTRjLzFkZDI0YTY3YWQyZjYyYjJjMjk5ODUyOTQ5NzExNGJmNmE4NmEyYWY4MDBmODhmZmRmODFkZDlmZDllODgxMmRcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dGVzdC0wMDAwMC1vZi0wMDAxNi5wYXJxdWV0JTNCK2ZpbGVuYW1lJTNEJTIydGVzdC0wMDAwMC1vZi0wMDAxNi5wYXJxdWV0JTIyJTNCJnVzZXJfaWQ9cHVibGljIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3ODMyMjk5MTJ9fX1dfQ__&Signature=MEUCIQCN7JFpZ2A-Iz0KTvyFDxB0BQgPqvpAtyVnWfJnVdYT7wIgToidCayILzYuaSrDga4hjCyKLfwzmW7MkTSGC833MPk_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+  verified_at: '2026-07-05T04:38:32.234716Z'
+- artifact_hash: 316362c06c11c9fd205fd2b0357e0c119d91dba8bbdcea4475b7c4701e6ff321
+  artifact_path: projects/PROJ-454-investigating-the-relationship-between-n/specs/001-investigating-the-relationship-between-n/research.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: events.csv
+  kind: url
+  value: https://huggingface.co/datasets/neurofusion/eeg-restingstate/resolve/main/events.csv`
+  verification_status: verified
+  verified_against_url: https://huggingface.co/api/resolve-cache/datasets/neurofusion/eeg-restingstate/fe43ac768e0e0df525c5925edb9c27c186730b3b/events.csv?%2Fdatasets%2Fneurofusion%2Feeg-restingstate%2Fresolve%2Fmain%2Fevents.csv=&etag=%2266529439ad90491c045012e98500156c632aa756%22
+  verified_at: '2026-07-05T04:38:32.234716Z'
