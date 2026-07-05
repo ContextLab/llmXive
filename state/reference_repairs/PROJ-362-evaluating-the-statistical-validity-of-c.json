@@ -106,5 +106,23 @@
         "intent": "robust 04 04.qrels The analysis relies on TREC and Web Track relevance judgments qrels . following datasets are targeted based specification. Note : specification"
       }
     ]
+  },
+  {
+    "repaired_at": "2026-07-05T15:21:45.445101+00:00",
+    "project": "PROJ-362-evaluating-the-statistical-validity-of-c",
+    "repairs": [
+      {
+        "dead_url": "https://trec.nist.gov/data/robust/04/",
+        "reason": "HTTP 404",
+        "replacement_url": "https://huggingface.co/datasets/SetFit/TREC-QC/resolve/main/test.jsonl",
+        "intent": "robust 04 TREC 2004 HuggingFace Datasets nlp/trec Verified Previous direct NIST URL was unreachable 404 . The loader provides a verified, stable programmatic access"
+      },
+      {
+        "dead_url": "https://trec.nist.gov/data/",
+        "reason": "HTTP 403",
+        "replacement_url": "https://huggingface.co/datasets/SetFit/TREC-QC/resolve/main/test.jsonl",
+        "intent": "TREC Robust 2004 HuggingFace Datasets nlp/trec 04 Verified Previous direct NIST URL was unreachable 404 . The loader provides a verified, stable programmatic access"
+      }
+    ]
   }
 ]
