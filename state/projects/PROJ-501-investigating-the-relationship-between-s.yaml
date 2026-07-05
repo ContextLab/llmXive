@@ -1,19 +1,19 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-09T17:25:29.108631Z'
-current_stage: project_initialized
+current_stage: specified
 failed_stage: null
 field: physics
 human_escalation_reason: null
 id: PROJ-501-investigating-the-relationship-between-s
-last_run_id: 8cd0d23d-7b65-43ed-8f30-3417cf33098f
+last_run_id: e0d0284e-f6d4-433f-a344-f5b8919b4eab
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
 revision_spec_path: null
 speckit_paper_dir: null
-speckit_research_dir: null
+speckit_research_dir: projects/PROJ-501-investigating-the-relationship-between-s/specs/001-investigating-the-relationship-between-s
 title: Investigating the Relationship Between Stellar Flare Frequency and Exoplanet
   Atmospheric Retention
-updated_at: '2026-06-27T00:14:10.898069Z'
+updated_at: '2026-07-05T20:05:32.118261Z'
