@@ -94,5 +94,17 @@
         "intent": "web TREC Track 2009 relevance judgments for 50 queries Supplementary dataset robustness."
       }
     ]
+  },
+  {
+    "repaired_at": "2026-07-05T12:49:36.047770+00:00",
+    "project": "PROJ-362-evaluating-the-statistical-validity-of-c",
+    "repairs": [
+      {
+        "dead_url": "https://trec.nist.gov/data/robust/04/04.qrels",
+        "reason": "HTTP 404",
+        "replacement_url": "https://huggingface.co/datasets/SetFit/TREC-QC/resolve/main/test.jsonl",
+        "intent": "robust 04 04.qrels The analysis relies on TREC and Web Track relevance judgments qrels . following datasets are targeted based specification. Note : specification"
+      }
+    ]
   }
 ]
