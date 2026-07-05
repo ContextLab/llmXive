@@ -1,0 +1,58 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "BiasMetricOutput"
+description: "Schema for computed bias metrics, scaling exponents, and confidence intervals."
+type: "object"
+properties:
+  snapshot_id:
+    type: "string"
+    description: "ID of the source snapshot."
+  resolution_factor:
+    type: "integer"
+    description: "Downsampling factor used."
+  metric_type:
+    type: "string"
+    enum:
+      - "energy_spectrum"
+      - "structure_function_p2"
+      - "structure_function_p3"
+    description: "Type of statistical metric."
+  wavenumber_or_scale:
+    type: "array"
+    items:
+      type: "number"
+    description: "Array of wavenumbers (k) or separation scales (r)."
+  values:
+    type: "array"
+    items:
+      type: "number"
+    description: "Computed E(k) or S_p(r) values."
+  relative_bias:
+    type: "array"
+    items:
+      type: "number"
+    description: "Relative bias (percent error) compared to ground truth."
+  scaling_exponent:
+    type: "number"
+    description: "Fitted power-law exponent (e.g., -5/3 or 2/3)."
+  exponent_deviation:
+    type: "number"
+    description: "Deviation from theoretical value."
+  confidence_interval_95:
+    type: "object"
+    properties:
+      lower:
+        type: "number"
+      upper:
+        type: "number"
+    description: "95% confidence interval for the bias/exponent."
+  inertial_subrange_resolved:
+    type: "boolean"
+    description: "True if the inertial subrange was successfully identified."
+required:
+  - snapshot_id
+  - resolution_factor
+  - metric_type
+  - wavenumber_or_scale
+  - values
+  - relative_bias
+  - inertial_subrange_resolved

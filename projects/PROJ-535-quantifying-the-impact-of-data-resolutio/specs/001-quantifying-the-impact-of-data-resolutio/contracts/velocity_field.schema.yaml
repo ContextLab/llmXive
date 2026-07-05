@@ -1,0 +1,62 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: VelocityFieldSchema
+description: Schema for raw and downsampled velocity fields from JHTDB.
+type: object
+properties:
+  metadata:
+    type: object
+    properties:
+      snapshot_id:
+        type: string
+        description: "Unique identifier for the snapshot (e.g., 'coarse_t420')"
+      source_url:
+        type: string
+        description: "Original URL of the dataset"
+      checksum:
+        type: string
+        description: "SHA-256 hash of the raw file"
+      grid_dimensions:
+        type: array
+        items:
+          type: integer
+        minItems: 3
+        maxItems: 3
+        description: "Grid dimensions (Nx, Ny, Nz)"
+      reynolds_number:
+        type: number
+        description: "Taylor microscale Reynolds number (Re_lambda)"
+      downsampling_factor:
+        type: integer
+        description: "Factor by which the grid was downsampled (1 for ground truth)"
+        minimum: 1
+      cutoff_wavenumber:
+        type: number
+        description: "Maximum wavenumber retained after truncation"
+    required:
+      - snapshot_id
+      - source_url
+      - checksum
+      - grid_dimensions
+  data:
+    type: object
+    properties:
+      velocity_components:
+        type: array
+        items:
+          type: string
+        description: "Names of velocity components (e.g., ['u', 'v', 'w'])"
+      dtype:
+        type: string
+        description: "Data type of the array (e.g., 'float32')"
+      shape:
+        type: array
+        items:
+          type: integer
+        description: "Shape of the velocity array"
+    required:
+      - velocity_components
+      - dtype
+      - shape
+required:
+  - metadata
+  - data

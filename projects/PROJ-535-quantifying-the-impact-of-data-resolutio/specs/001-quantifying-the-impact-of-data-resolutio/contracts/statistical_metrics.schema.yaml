@@ -1,0 +1,121 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: StatisticalMetricsSchema
+description: Schema for computed energy spectra, structure functions, and bias metrics.
+type: object
+properties:
+  metadata:
+    type: object
+    properties:
+      variant_id:
+        type: string
+        description: "ID of the resolution variant (e.g., 'coarse_t420_res4')"
+      parent_snapshot_id:
+        type: string
+        description: "ID of the ground truth snapshot"
+      computation_date:
+        type: string
+        format: date-time
+        description: "Timestamp of computation"
+      method:
+        type: string
+        description: "Method used (e.g., 'FFT', 'Direct Differencing')"
+      analysis_mode:
+        type: string
+        enum:
+          - "Deterministic"
+          - "Bootstrap"
+        description: "Mode of analysis: 'Deterministic' if N<3, 'Bootstrap' if N>=3"
+    required:
+      - variant_id
+      - parent_snapshot_id
+      - computation_date
+      - analysis_mode
+  energy_spectrum:
+    type: object
+    properties:
+      wavenumbers:
+        type: array
+        items:
+          type: number
+        description: "Array of wavenumber magnitudes (k)"
+      energy_values:
+        type: array
+        items:
+          type: number
+        description: "Array of energy values E(k)"
+      fitted_exponent:
+        type: number
+        description: "Fitted exponent alpha for E(k) ~ k^-alpha"
+      fitted_r_squared:
+        type: number
+        minimum: 0
+        maximum: 1
+        description: "R-squared value of the power-law fit"
+      theoretical_exponent:
+        type: number
+        description: "Theoretical Kolmogorov exponent (5/3)"
+    required:
+      - wavenumbers
+      - energy_values
+  structure_functions:
+    type: object
+    properties:
+      separations:
+        type: array
+        items:
+          type: number
+        description: "Array of separation distances (r)"
+      s2_values:
+        type: array
+        items:
+          type: number
+        description: "Array of second-order structure function values S2(r)"
+      s3_values:
+        type: array
+        items:
+          type: number
+        description: "Array of third-order structure function values S3(r)"
+      fitted_exponent_s2:
+        type: number
+        description: "Fitted exponent beta for S2(r) ~ r^beta"
+      fitted_r_squared_s2:
+        type: number
+        minimum: 0
+        maximum: 1
+        description: "R-squared value of the S2 power-law fit"
+      theoretical_exponent_s2:
+        type: number
+        description: "Theoretical Kolmogorov exponent (2/3)"
+    required:
+      - separations
+      - s2_values
+      - s3_values
+  bias_metrics:
+    type: object
+    properties:
+      bias_energy_spectrum:
+        type: array
+        items:
+          type: number
+        description: "Relative bias of E(k) compared to ground truth"
+      bias_structure_function_s2:
+        type: array
+        items:
+          type: number
+        description: "Relative bias of S2(r) compared to ground truth"
+      confidence_interval_95:
+        type: ["object", "null"]
+        properties:
+          lower:
+            type: number
+          upper:
+            type: number
+        description: "95% confidence interval for the bias at the inertial subrange. Null if analysis_mode is 'Deterministic'."
+    required:
+      - bias_energy_spectrum
+      - bias_structure_function_s2
+required:
+  - metadata
+  - energy_spectrum
+  - structure_functions
+  - bias_metrics

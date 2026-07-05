@@ -1,0 +1,54 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "TurbulenceSnapshotDataset"
+description: "Schema for raw and processed turbulence snapshot data files."
+type: "object"
+properties:
+  metadata:
+    type: "object"
+    properties:
+      snapshot_id:
+        type: "string"
+        description: "Unique identifier for the JHTDB snapshot."
+      source_url:
+        type: "string"
+        format: "uri"
+        description: "Verified source URL for the dataset."
+      reynolds_number:
+        type: "number"
+        description: "Taylor microscale Reynolds number (Re_lambda)."
+      grid_dimensions:
+        type: "array"
+        items:
+          type: "integer"
+        description: "Grid dimensions [Nx, Ny, Nz]."
+      resolution_factor:
+        type: "integer"
+        description: "Downsampling factor (1 for ground truth)."
+      checksum_sha256:
+        type: "string"
+        pattern: "^[a-f0-9]{64}$"
+        description: "SHA-256 checksum of the data content."
+    required:
+      - snapshot_id
+      - source_url
+      - grid_dimensions
+      - checksum_sha256
+  data:
+    type: "object"
+    properties:
+      velocity_u:
+        type: "array"
+        description: "U-component velocity field (flattened or chunked)."
+      velocity_v:
+        type: "array"
+        description: "V-component velocity field."
+      velocity_w:
+        type: "array"
+        description: "W-component velocity field."
+    required:
+      - velocity_u
+      - velocity_v
+      - velocity_w
+required:
+  - metadata
+  - data
