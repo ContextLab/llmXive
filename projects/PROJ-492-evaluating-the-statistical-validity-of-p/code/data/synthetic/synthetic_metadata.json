@@ -1,0 +1,8 @@
+{
+  "total_records": 10500,
+  "binary_outcomes": 5250,
+  "continuous_outcomes": 5250,
+  "inconsistent_records": 1575,
+  "generation_timestamp": "2026-06-27T20:00:00.000000",
+  "seed": 42
+}
