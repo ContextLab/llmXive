@@ -92,7 +92,7 @@
   \ (FR\u2011031) \u2013 compute precision, recall, F1 and assert precision \u2265\
   \ 90\u202F%, recall \u2265 80\u202F% (depends on T026) (verify test passes, otherwise\
   \ raise `ERR-800`) [DEPENDS ON: T026]."
-: 1
+: 2
 ? "T029 Evaluate inconsistency\u2011detection component on synthetic validation dataset\
   \ (FR\u2011031) \u2013 compute precision, recall, F1 and assert precision \u2265\
   \ 90\u202F%, recall \u2265 80\u202F% [UNRESOLVED-CLAIM: c_71a8564c \u2014 status=not_enough_info]\
@@ -109,6 +109,10 @@
   \ 90\u202F%, recall \u2265 80\u202F%, F1 \u2265 0.85 [UNRESOLVED-CLAIM: c_0ce1c66f\
   \ \u2014 status=not_enough_info] (depends on T026) (verify test passes, otherwise\
   \ raise `ERR-800`) [DEPENDS ON: T026]."
+: 1
+? "T035 FR\u2011001 Verification: Run `tests/integration/test_url_ingestion.py` to\
+  \ assert `input/urls.csv` processing completes without error (coverage\u2011executability\u2011\
+  08d5764f) (verify test passes)."
 : 1
 ? "T035 FR\u2011001 Verification: Run `tests/integration/test_url_ingestion.py` to\
   \ assert `input/urls.csv` processing completes without error [UNRESOLVED-CLAIM:\
@@ -158,6 +162,11 @@
 ? T050b **[P]** Verify that the publication year is extracted for each summary during
   extraction (T020c) and present in the input to `subgroup_analysis.py`. (depends
   on T020c)
+: 1
+? "T062 Implement Monte\u2011Carlo validation module (FR\u2011026) in `src/audit/monte_carlo_validation.py`\
+  \ that runs 10\u202F000 replicates for each statistical test (z-test, Fisher's,\
+  \ Welch's, binomial) and checks the absolute difference \u2264 0.005 (constraint\u2011\
+  preservation\u2011e62a0df4) (verify module exits with status 0)."
 : 1
 ? "T062 Implement Monte\u2011Carlo validation module (FR\u2011026) in `src/audit/monte_carlo_validation.py`\
   \ that runs 10\u202F000 replicates for each statistical test (z-test, Fisher's,\

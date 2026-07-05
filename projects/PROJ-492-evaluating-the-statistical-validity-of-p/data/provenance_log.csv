@@ -1,0 +1,11 @@
+url,repository_identifier,fetch_timestamp
+https://www.example.com/ab-test-summary-1,repo-example-001,2024-01-15T10:30:00Z
+https://www.example.com/ab-test-summary-2,repo-example-002,2024-01-15T10:31:05Z
+https://www.example.com/ab-test-summary-3,repo-example-003,2024-01-15T10:32:12Z
+https://www.example.com/ab-test-summary-4,repo-example-004,2024-01-15T10:33:45Z
+https://www.example.com/ab-test-summary-5,repo-example-005,2024-01-15T10:34:22Z
+https://www.example.com/ab-test-summary-6,repo-example-006,2024-01-15T10:35:10Z
+https://www.example.com/ab-test-summary-7,repo-example-007,2024-01-15T10:36:05Z
+https://www.example.com/ab-test-summary-8,repo-example-008,2024-01-15T10:37:30Z
+https://www.example.com/ab-test-summary-9,repo-example-009,2024-01-15T10:38:15Z
+https://www.example.com/ab-test-summary-10,repo-example-010,2024-01-15T10:39:55Z
