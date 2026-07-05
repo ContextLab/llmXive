@@ -1,0 +1,13 @@
+? 'T003a [P] Create `requirements.txt` with pinned versions: `pandas==2.0.3`, `numpy==1.24.3`,
+  `statsmodels==0.14.0`, `scikit-learn==1.3.0`, `torch` (CPU-only, pinned via `--index-url
+  https://download.pytorch.org/whl/cpu`), `requests==2.31.0`, `pyyaml==6.0.1`, `pillow==10.0.0`'
+: 1
+'T003b [P] Create Python 3.11 virtualenv and install dependencies from `requirements.txt` <!-- FAILED: unspecified -->': 1
+T004 [P] Configure linting (ruff), formatting (black), and pre-commit hooks: 1
+? T005 [P] Setup `config.py` with paths for `data/raw`, `data/processed`, `data/primes`,
+  `data/targets`, `state` and random seed pinning
+: 1
+? T006 [P] Implement `code/data/integrity.py` for Principle VI (Distinct Stimulus
+  Set Validation) ensuring primes and targets are never merged prematurely
+: 1
+T007 [P] Setup `state/projects/PROJ-345/` structure and `state.yaml` initialization script for Principle V (Versioning): 1
