@@ -52,5 +52,47 @@
         "intent": "web09 TREC Web 2009 2012 Direct or trec_web_qrels HF datasets.load_dataset \"trec_web_qrels\" Verified : Contains query_id , doc_id relevance ."
       }
     ]
+  },
+  {
+    "repaired_at": "2026-07-05T11:30:24.044150+00:00",
+    "project": "PROJ-362-evaluating-the-statistical-validity-of-c",
+    "repairs": [
+      {
+        "dead_url": "https://trec.nist.gov/data/robust/04/",
+        "reason": "HTTP 404",
+        "replacement_url": "https://huggingface.co/datasets/SetFit/TREC-QC/resolve/main/test.jsonl",
+        "intent": "robust 04 TREC 2004 Relevance judgments for 249 queries Topics 301 550 Primary dataset permutation tests."
+      },
+      {
+        "dead_url": "https://trec.nist.gov/data/web/09/",
+        "reason": "HTTP 403",
+        "replacement_url": "https://huggingface.co/datasets/SetFit/TREC-QC/resolve/main/test.jsonl",
+        "intent": "web 09 TREC Track 2009 relevance judgments for 50 queries Supplementary dataset robustness."
+      },
+      {
+        "dead_url": "https://trec.nist.gov/data/web/10/",
+        "reason": "HTTP 403",
+        "replacement_url": "https://huggingface.co/datasets/SetFit/TREC-QC/resolve/main/test.jsonl",
+        "intent": "web 10 TREC Track 2010 relevance judgments for 50 queries Supplementary dataset."
+      },
+      {
+        "dead_url": "https://trec.nist.gov/data/web/11/",
+        "reason": "HTTP 403",
+        "replacement_url": "https://huggingface.co/datasets/SetFit/TREC-QC/resolve/main/test.jsonl",
+        "intent": "web 11 TREC Track 2011 relevance judgments for 50 queries Supplementary dataset."
+      },
+      {
+        "dead_url": "https://trec.nist.gov/data/web/12/",
+        "reason": "HTTP 403",
+        "replacement_url": "https://huggingface.co/datasets/SetFit/TREC-QC/resolve/main/test.jsonl",
+        "intent": "web 12 TREC Track 2012 relevance judgments for 50 queries Supplementary dataset."
+      },
+      {
+        "dead_url": "https://trec.nist.gov/data/web/",
+        "reason": "HTTP 403",
+        "replacement_url": "https://huggingface.co/datasets/SetFit/TREC-QC/resolve/main/test.jsonl",
+        "intent": "web TREC Track 2009 relevance judgments for 50 queries Supplementary dataset robustness."
+      }
+    ]
   }
 ]
