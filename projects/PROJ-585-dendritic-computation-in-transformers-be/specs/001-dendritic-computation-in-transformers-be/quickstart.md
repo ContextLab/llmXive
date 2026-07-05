@@ -3,60 +3,103 @@
 ## Prerequisites
 
 - Python 3.11+
+- pip
 - Git
-- GB RAM (minimum)
-- CPU cores (minimum)
+- At least 14 GB of free disk space
+- CPU-only environment (no GPU required)
 
 ## Installation
 
-1.  **Clone and Setup**:
-    ```bash
-    git clone <repo-url>
-    cd projects/PROJ-585-dendritic-computation-in-transformers-be
-    python -m venv venv
-    source venv/bin/activate
-    pip install -r code/requirements.txt
-    ```
+1. **Clone the repository**
+ ```bash
+ git clone
+ cd dendritic-transformers
+ ```
 
-2.  **Verify Environment**:
-    Ensure PyTorch is running on CPU:
-    ```bash
-    python -c "import torch; print(torch.__version__); print('CUDA available:', torch.cuda.is_available())"
-    # Expected: CUDA available: False
-    ```
+2. **Create a virtual environment**
+ ```bash
+ python -m venv venv
+ source venv/bin/activate # On Windows: venv\Scripts\activate
+ ```
+
+3. **Install dependencies**
+ ```bash
+ pip install -r requirements.txt
+ ```
+ *Note: `requirements.txt` pins CPU-only versions of PyTorch and other libraries.*
+
+4. **Download and verify datasets**
+ ```bash
+ python code/utils/download_data.py
+ ```
+ This script downloads the SST-2 dataset from verified HuggingFace sources and generates checksums.
 
 ## Running the Experiments
 
-### 1. Architecture Validation (FLOP/Param Check)
-Verify that the baseline and dendritic models are matched before training.
-```bash
-python code/experiments/validate_arch.py --config code/config/config.yaml
-```
-*Expected Output*: Parameter diff < 0.1%, FLOP diff < 1%.
+### 1. Train Baseline and Dendritic Models
 
-### 2. Training (with h Timeout)
-Run the training loop for both models. The script will automatically stop after a predefined duration.
-```bash
-python code/experiments/train.py --config code/config/config.yaml --seeds 42 123 456
-```
-*Output*: Logs in `artifacts/logs/`, checkpoints in `artifacts/checkpoints/`.
+Run the training script for both architectures across multiple seeds:
 
-### 3. Probing Analysis
-Train linear probes on the saved checkpoints.
 ```bash
-python code/experiments/probe.py --checkpoints-dir artifacts/checkpoints/
+python code/experiments/train.py --config config.yaml
 ```
-*Output*: `artifacts/results/probe_*.csv`.
 
-### 4. Statistical Analysis
-Compute paired tests and apply corrections.
+- This will train the baseline and dendritic models for multiple seeds.
+- A hard timeout is enforced per run.
+- Logs and checkpoints are saved to `data/experiments/`.
+
+### 2. Perform Probing Analysis
+
+After training, run the probing pipeline:
+
 ```bash
-python code/experiments/analyze.py --probe-results-dir artifacts/results/
+python code/experiments/probe.py --input-dir data/experiments/
 ```
-*Output*: `artifacts/results/stat_test.json`.
+
+- This trains linear classifiers on intermediate layers.
+- Results are saved to `data/experiments/[seed]/probing_results.json`.
+
+### 3. Statistical Analysis
+
+Generate final statistics and plots:
+
+```bash
+python code/experiments/analyze.py
+```
+
+- Performs paired Wilcoxon tests.
+- Applies Benjamini-Hochberg correction for multiple comparisons.
+- Outputs summary statistics and effect sizes.
+
+## Verification
+
+To verify the implementation:
+
+1. **Check Architecture Matching**
+ ```bash
+ python code/tests/test_architecture_match.py
+ ```
+ Ensures parameter and FLOP counts match within tolerance.
+
+2. **Check Data Integrity**
+ ```bash
+ python code/tests/test_data_hygiene.py
+ ```
+ Verifies checksums and file existence.
+
+3. **Run Unit Tests**
+ ```bash
+ pytest code/tests/
+ ```
 
 ## Troubleshooting
 
-- **Out of Memory (OOM)**: Reduce `batch_size` in `config.yaml` or use a smaller subset of the dataset.
-- **Training Too Slow**: The 6-hour timeout is a hard limit. If the model hasn't converged, the results are marked "incomplete" but still valid for comparison.
-- **Gradient Explosion**: If `clipped_gradients` is high in logs, check the `nonlinearity_threshold` in the dendritic config.
+- **Out of Memory**: Reduce `batch_size` in `config.yaml`. The default is set for a moderate amount of RAM.
+- **Training Timeout**: The script automatically stops after a predefined duration. If results are incomplete, check `logs.jsonl` for the final step.
+- **Dataset Errors**: Ensure `data/raw/glue_sst2/` contains the downloaded files. Re-run `download_data.py` if checksums fail.
+
+## Next Steps
+
+- Review `research.md` for detailed methodology.
+- Examine `data/experiments/` for specific results.
+- Contribute to the paper draft in `docs/paper.md`.

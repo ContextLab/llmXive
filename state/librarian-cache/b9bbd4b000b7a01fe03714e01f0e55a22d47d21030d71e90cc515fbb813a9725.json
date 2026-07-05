@@ -1,0 +1,660 @@
+{
+  "fetched_at": "2026-07-05T00:59:35Z",
+  "field": "computer science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "computer science",
+      "idea_body_excerpt": "llmXive follow-up: extending \"EvalVerse: Pipeline-Aware and Expert-Calibrated Benchmarking for Profe\"",
+      "target_n": 5
+    },
+    "duration_seconds": 69.733,
+    "ended_at": "2026-07-05T00:59:35Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "LLM benchmarking frameworks"
+        ],
+        [
+          2,
+          "pipeline-aware evaluation of language models"
+        ],
+        [
+          3,
+          "expert-calibrated assessment for generative AI"
+        ],
+        [
+          4,
+          "automated evaluation pipelines for LLMs"
+        ],
+        [
+          5,
+          "human-in-the-loop LLM benchmarking"
+        ],
+        [
+          6,
+          "evaluation metrics for large language models"
+        ],
+        [
+          7,
+          "domain-specific LLM performance assessment"
+        ],
+        [
+          8,
+          "benchmarking challenges in generative AI"
+        ],
+        [
+          9,
+          "structured evaluation protocols for AI systems"
+        ],
+        [
+          10,
+          "LLM output quality calibration"
+        ],
+        [
+          11,
+          "comparative analysis of language model benchmarks"
+        ],
+        [
+          12,
+          "expert-driven evaluation of AI pipelines"
+        ],
+        [
+          13,
+          "systematic assessment of LLM capabilities"
+        ],
+        [
+          14,
+          "evaluation dataset construction for LLMs"
+        ],
+        [
+          15,
+          "robustness testing for language model pipelines"
+        ],
+        [
+          16,
+          "multi-dimensional LLM performance metrics"
+        ],
+        [
+          17,
+          "benchmarking generative models with expert feedback"
+        ],
+        [
+          18,
+          "evaluation infrastructure for large-scale language models"
+        ],
+        [
+          19,
+          "qualitative and quantitative LLM assessment"
+        ],
+        [
+          20,
+          "standardization of language model evaluation"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "LLM benchmarking frameworks": 5,
+        "llmXive follow-up: extending \"EvalVerse: Pipeline-Aware and Expert-Calibrated Benchmarking for Profe\" computer science": 0
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "benchmark contamination data leakage LLM evaluation",
+      "EvalVerse expert calibration pipeline awareness",
+      "LLM benchmarking suite automated evaluation framework",
+      "LLM evaluation metrics robustness reliability",
+      "benchmark saturation evaluation protocol design"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2601.21070"
+      ]
+    },
+    "per_query_hit_count": {
+      "EvalVerse expert calibration pipeline awareness": 3,
+      "LLM benchmarking suite automated evaluation framework": 3,
+      "LLM evaluation metrics robustness reliability": 1,
+      "benchmark contamination data leakage LLM evaluation": 3,
+      "benchmark saturation evaluation protocol design": 3,
+      "llmXive follow-up: extending \"EvalVerse: Pipeline-Aware and Expert-Calibrated Benchmarking for Profe\" computer science": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 4,
+      "rejections": [
+        {
+          "primary_pointer": "2606.05868",
+          "rationale": "The candidate paper focuses on a specific engineering solution (adaptive GQA-to-MLA transition) for high-concurrency financial LLM deployment, which does not address the user's question regarding the \"EvalVerse\" benchmarking pipeline or the specific follow-up research on that evaluation framework. While both involve LLMs, the paper lacks the specific mechanism, benchmarking methodology, or canonical reference to the \"EvalVerse\" system required for inclusion in a literature review for this specif",
+          "title": "YouZhi: Towards High-Concurrency Financial LLMs via Adaptive GQA-to-MLA Transition"
+        },
+        {
+          "primary_pointer": "2409.11404",
+          "rationale": "The paper focuses on dialectal and cultural evaluation benchmarks for Arabic LLMs, which does not address the user's specific question regarding the \"EvalVerse\" pipeline-aware benchmarking framework or its follow-up extensions. While both papers concern LLM benchmarking, they target entirely different evaluation dimensions (cultural/dialectal nuance vs. pipeline-aware expert calibration) and do not share the same mechanism, variables, or foundational methodology required for inclusion under the ",
+          "title": "AraDiCE: Benchmarks for Dialectal and Cultural Capabilities in LLMs"
+        },
+        {
+          "primary_pointer": "2502.11187",
+          "rationale": "The paper focuses on the creation and benchmarking of Bangla-specific LLMs, which is a distinct domain (low-resource language adaptation) from the user's question regarding \"EvalVerse,\" a pipeline-aware benchmarking framework for professional evaluation. While both involve LLM benchmarking, the candidate paper does not measure the same mechanism, establish a baseline for the specific \"EvalVerse\" pipeline, or serve as a foundational reference for the user's specific follow-up work on that framewo",
+          "title": "TituLLMs: A Family of Bangla LLMs with Comprehensive Benchmarking"
+        },
+        {
+          "primary_pointer": "2504.07887",
+          "rationale": "The candidate paper focuses on benchmarking adversarial robustness and bias elicitation in LLMs, which is a distinct research construct from the user's question regarding \"EvalVerse,\" a pipeline-aware and expert-calibrated benchmarking framework. While both papers fall under the broad domain of LLM evaluation, the candidate does not measure the same mechanism, variables, or population as the specific \"EvalVerse\" pipeline or its expert-calibration methodology, nor does it serve as a foundational ",
+          "title": "Benchmarking Adversarial Robustness to Bias Elicitation in Large Language Models: Scalable Automated Assessment with LLM-as-a-Judge"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-07-05T00:58:25Z",
+    "term_input": {
+      "normalized": "llmxive follow-up: extending \"evalverse: pipeline-aware and expert-calibrated benchmarking for profe\" computer science",
+      "raw": "llmXive follow-up: extending \"EvalVerse: Pipeline-Aware and Expert-Calibrated Benchmarking for Profe\" computer science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This white paper describes the LSST Dark Energy Science Collaboration (DESC), whose goal is the study of dark energy and related topics in fundamental physics with data from the Large Synoptic Survey Telescope (LSST). It provides an overview of dark energy science and describes the current and anticipated state of the field. It makes the case for the DESC by laying out a robust analytical framework for dark energy science that has been defined by its members and the comprehensive three-year work plan they have developed for implementing that framework. The analysis working groups cover five key probes of dark energy: weak lensing, large scale structure, galaxy clusters, Type Ia supernovae, and strong lensing. The computing working groups span cosmological simulations, galaxy catalogs, photon simulations and a systematic software and computational framework for LSST dark energy data analysis. The technical working groups make the connection between dark energy science and the LSST system. The working groups have close linkages, especially through the use of the photon simulations to study the impact of instrument design and survey strategy on analysis methodology and cosmological parameter estimation. The white paper describes several high priority tasks identified by each of the 16 working groups. Over the next three years these tasks will help prepare for LSST analysis, make synergistic connections with ongoing cosmological surveys and provide the dark energy community with state of the art analysis tools. Members of the community are invited to join the LSST DESC, according to the membership policies described in the white paper. Applications to sign up for associate membership may be made by submitting the Web form at http://www.slac.stanford.edu/exp/lsst/desc/signup.html with a short statement of the work they wish to pursue that is relevant to the LSST DESC.",
+          "claimed_authors": [
+            " LSST Dark Energy Science Collaboration"
+          ],
+          "claimed_title": "Large Synoptic Survey Telescope: Dark Energy Science Collaboration",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1211.0310"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"EvalVerse: Pipeline-Aware and Expert-Calibrated Be', candidate_title='Large Synoptic Survey Telescope: Dark Energy Science Collaboration')",
+        "failed_at": "2026-07-05T00:58:56Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The large instantaneous sensitivity, a wide frequency coverage and flexible observation modes with large number of beams in the sky are the main features of the SKA observatory's two telescopes, the SKA-Low and the SKA-Mid, which are located on two different continents. Owing to these capabilities, the SKAO telescopes are going to be a game-changer for radio astronomy in general and pulsar astronomy in particular. The eleven articles in this special issue on pulsar science with the SKA Observatory describe its impact on different areas of pulsar science. In this lead article, a brief description of the two telescopes highlighting the relevant features for pulsar science is presented followed by an overview of each accompanying article, exploring the inter-relationship between different pulsar science use cases.",
+          "claimed_authors": [
+            "Bhal Chandra Joshi",
+            "Aris Karastergiou",
+            "Marta Burgay",
+            "The SKA pulsar science working group"
+          ],
+          "claimed_title": "Pulsar Science with the SKA Observatory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.16152"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"EvalVerse: Pipeline-Aware and Expert-Calibrated Be', candidate_title='Pulsar Science with the SKA Observatory')",
+        "failed_at": "2026-07-05T00:58:56Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A Human Computer Interface (HCI) System for playing games is designed here for more natural communication with the machines. The system presented here is a vision-based system for detection of long voluntary eye blinks and interpretation of blink patterns for communication between man and machine. This system replaces the mouse with the human face as a new way to interact with the computer. Facial features (nose tip and eyes) are detected and tracked in realtime to use their actions as mouse events. The coordinates and movement of the nose tip in the live video feed are translated to become the coordinates and movement of the mouse pointer on the application. The left or right eye blinks fire left or right mouse click events. The system works with inexpensive USB cameras and runs at a frame rate of 30 frames per second.",
+          "claimed_authors": [
+            "S. Sumathi",
+            "S. K. Srivatsa",
+            "M. Uma Maheswari"
+          ],
+          "claimed_title": "Vision Based Game Development Using Human Computer Interaction",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1002.2191"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"EvalVerse: Pipeline-Aware and Expert-Calibrated Be', candidate_title='Vision Based Game Development Using Human Computer Interaction')",
+        "failed_at": "2026-07-05T00:58:56Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We study distributed optimization in the presence of Byzantine adversaries, where both data and computation are distributed among $m$ worker machines, $t$ of which may be corrupt. The compromised nodes may collaboratively and arbitrarily deviate from their pre-specified programs, and a designated (master) node iteratively computes the model/parameter vector for generalized linear models. In this work, we primarily focus on two iterative algorithms: Proximal Gradient Descent (PGD) and Coordinate Descent (CD). Gradient descent (GD) is a special case of these algorithms. PGD is typically used in the data-parallel setting, where data is partitioned across different samples, whereas, CD is used in the model-parallelism setting, where data is partitioned across the parameter space.\n  In this paper, we propose a method based on data encoding and error correction over real numbers to combat adversarial attacks. We can tolerate up to $t\\leq \\lfloor\\frac{m-1}{2}\\rfloor$ corrupt worker nodes, which is information-theoretically optimal. We give deterministic guarantees, and our method does not assume any probability distribution on the data. We develop a {\\em sparse} encoding scheme which enables computationally efficient data encoding and decoding. We demonstrate a trade-off between the corruption threshold and the resource requirements (storage, computational, and communication complexity). As an example, for $t\\leq\\frac{m}{3}$, our scheme incurs only a {\\em constant} overhead on these resources, over that required by the plain distributed PGD/CD algorithms which provide no adversarial protection. To the best of our knowledge, ours is the first paper that makes CD secure against adversarial attacks.\n  Our encoding scheme extends efficiently to the data streaming model and for stochastic gradient descent (SGD). We also give experimental results to show the efficacy of our proposed schemes.",
+          "claimed_authors": [
+            "Deepesh Data",
+            "Linqi Song",
+            "Suhas Diggavi"
+          ],
+          "claimed_title": "Data Encoding for Byzantine-Resilient Distributed Optimization",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1907.02664"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"EvalVerse: Pipeline-Aware and Expert-Calibrated Be', candidate_title='Data Encoding for Byzantine-Resilient Distributed Optimization')",
+        "failed_at": "2026-07-05T00:58:56Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We study distributed stochastic gradient descent (SGD) in the master-worker architecture under Byzantine attacks. We consider the heterogeneous data model, where different workers may have different local datasets, and we do not make any probabilistic assumptions on data generation. At the core of our algorithm, we use the polynomial-time outlier-filtering procedure for robust mean estimation proposed by Steinhardt et al. (ITCS 2018) to filter-out corrupt gradients. In order to be able to apply their filtering procedure in our {\\em heterogeneous} data setting where workers compute {\\em stochastic} gradients, we derive a new matrix concentration result, which may be of independent interest.\n  We provide convergence analyses for smooth strongly-convex and non-convex objectives. We derive our results under the bounded variance assumption on local stochastic gradients and a {\\em deterministic} condition on datasets, namely, gradient dissimilarity; and for both these quantities, we provide concrete bounds in the statistical heterogeneous data model. We give a trade-off between the mini-batch size for stochastic gradients and the approximation error. Our algorithm can tolerate up to $\\frac{1}{4}$ fraction Byzantine workers. It can find approximate optimal parameters in the strongly-convex setting exponentially fast and reach to an approximate stationary point in the non-convex setting with a linear speed, thus, matching the convergence rates of vanilla SGD in the Byzantine-free setting.\n  We also propose and analyze a Byzantine-resilient SGD algorithm with gradient compression, where workers send $k$ random coordinates of their gradients. Under mild conditions, we show a $\\frac{d}{k}$-factor saving in communication bits as well as decoding complexity over our compression-free algorithm without affecting its convergence rate (order-wise) and the approximation error.",
+          "claimed_authors": [
+            "Deepesh Data",
+            "Suhas Diggavi"
+          ],
+          "claimed_title": "Byzantine-Resilient SGD in High Dimensions on Heterogeneous Data",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2005.07866"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"EvalVerse: Pipeline-Aware and Expert-Calibrated Be', candidate_title='Byzantine-Resilient SGD in High Dimensions on Heterogeneous Data')",
+        "failed_at": "2026-07-05T00:58:56Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The 1st Workshop on Data Contamination (CONDA 2024) focuses on all relevant aspects of data contamination in natural language processing, where data contamination is understood as situations where evaluation data is included in pre-training corpora used to train large scale models, compromising evaluation results. The workshop fostered a shared task to collect evidence on data contamination in current available datasets and models. The goal of the shared task and associated database is to assist the community in understanding the extent of the problem and to assist researchers in avoiding reporting evaluation results on known contaminated resources. The shared task provides a structured, centralized public database for the collection of contamination evidence, open to contributions from the community via GitHub pool requests. This first compilation paper is based on 566 reported entries over 91 contaminated sources from a total of 23 contributors. The details of the individual contamination events are available in the platform. The platform continues to be online, open to contributions from the community.",
+          "claimed_authors": [
+            "Oscar Sainz",
+            "Iker García-Ferrero",
+            "Alon Jacovi",
+            "Jon Ander Campos",
+            "Yanai Elazar",
+            "Eneko Agirre",
+            "Yoav Goldberg",
+            "Wei-Lin Chen",
+            "Jenny Chim",
+            "Leshem Choshen",
+            "Luca D'Amico-Wong",
+            "Melissa Dell",
+            "Run-Ze Fan",
+            "Shahriar Golchin",
+            "Yucheng Li",
+            "Pengfei Liu",
+            "Bhavish Pahwa",
+            "Ameya Prabhu",
+            "Suryansh Sharma",
+            "Emily Silcock",
+            "Kateryna Solonko",
+            "David Stap",
+            "Mihai Surdeanu",
+            "Yu-Min Tseng",
+            "Vishaal Udandarao",
+            "Zengzhi Wang",
+            "Ruijie Xu",
+            "Jinglin Yang"
+          ],
+          "claimed_title": "Data Contamination Report from the 2024 CONDA Shared Task",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2407.21530"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"EvalVerse: Pipeline-Aware and Expert-Calibrated Be', candidate_title='Data Contamination Report from the 2024 CONDA Shared Task')",
+        "failed_at": "2026-07-05T00:58:56Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The Five-hundred-meter Aperture Spherical radio Telescope (FAST) has the largest aperture and a 19-beam L-band receiver, making it powerful for investigating the neutral hydrogen atomic gas (HI) in the universe. We present HiFAST (https://hifast.readthedocs.io), a dedicated, modular, and self-contained calibration and imaging pipeline for processing the HI data of FAST. The pipeline consists of frequency-dependent noise diode calibration, baseline fitting, standing wave removal using an FFT-based method, flux density calibration, stray radiation correction, and gridding to produce data cubes. These modules can be combined as needed to process the data from most FAST observation modes: tracking, drift scanning, On-The-Fly mapping, and most of their variants. With HiFAST, the RMS noises of the calibrated spectra from all 19 beams were only slightly (~ 5%) higher than the theoretical expectation. The results for the extended source M33 and the point sources are consistent with the results from Arecibo. The moment maps (0,1 and 2) of M33 agree well with the results from the Arecibo Galaxy Environment Survey (AGES) with a fractional difference of less than 10%. For a common sample of 221 sources with signal-to-noise ratio S/N >10 from the Arecibo Legacy Fast ALFA (ALFALFA) survey, the mean value of fractional difference in the integrated flux density, $S_{\\mathrm{int}}$, between the two datasets is approximately 0.005 %, with a dispersion of 15.4%. Further checks on the integrated flux density of 23 sources with seven observations indicate that the variance in the flux density of the source with luminous objects ($S_\\mathrm{int}$ $ > 2.5$ Jy km s$^{-1}$) is less than 5%. Our tests suggest that the FAST telescope, with the efficient, precise, and user-friendly pipeline HiFAST, will yield numerous significant scientific findings in the investigation of the HI in the universe.",
+          "claimed_authors": [
+            "Yingjie Jing",
+            "Jie Wang",
+            "Chen Xu",
+            "Ziming Liu",
+            "Qingze Chen",
+            "Tiantian Liang",
+            "Jinlong Xu",
+            "Yixian Cao",
+            "Jing Wang",
+            "Huijie Hu",
+            "Chuan-Peng Zhang",
+            "Qi Guo",
+            "Liang Gao",
+            "Mei Ai",
+            "Hengqian Gan",
+            "Xuyang Gao",
+            "Jinlin Han",
+            "Ligang Hou",
+            "Zhipeng Hou",
+            "Peng Jiang",
+            "Xu Kong",
+            "Fujia Li",
+            "Zerui Liu",
+            "Li Shao",
+            "Hengxing Pan",
+            "Jun Pan",
+            "Lei Qian",
+            "Jinghai Sun",
+            "Ningyu Tang",
+            "Qingliang Yang",
+            "Bo Zhang",
+            "Zhiyu Zhang",
+            "Ming Zhu"
+          ],
+          "claimed_title": "HiFAST: an HI data calibration and imaging pipeline for FAST",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2401.17364"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"EvalVerse: Pipeline-Aware and Expert-Calibrated Be', candidate_title='HiFAST: an HI data calibration and imaging pipeline for FAST')",
+        "failed_at": "2026-07-05T00:58:56Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This paper introduces Evalverse, a novel library that streamlines the evaluation of Large Language Models (LLMs) by unifying disparate evaluation tools into a single, user-friendly framework. Evalverse enables individuals with limited knowledge of artificial intelligence to easily request LLM evaluations and receive detailed reports, facilitated by an integration with communication platforms like Slack. Thus, Evalverse serves as a powerful tool for the comprehensive assessment of LLMs, offering both researchers and practitioners a centralized and easily accessible evaluation framework. Finally, we also provide a demo video for Evalverse, showcasing its capabilities and implementation in a two-minute format.",
+          "claimed_authors": [
+            "Jihoo Kim",
+            "Wonho Song",
+            "Dahyun Kim",
+            "Yunsu Kim",
+            "Yungi Kim",
+            "Chanjun Park"
+          ],
+          "claimed_title": "Evalverse: Unified and Accessible Library for Large Language Model Evaluation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2404.00943"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"EvalVerse: Pipeline-Aware and Expert-Calibrated Be', candidate_title='Evalverse: Unified and Accessible Library for Large Language Model Evaluation')",
+        "failed_at": "2026-07-05T00:58:56Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Accurate evaluation of conversational retrieval is pivotal for advancing Retrieval-Augmented Generation (RAG) systems. However, existing conversational retrieval benchmarks suffer from costly, sparse human annotation or rigid, unnatural automated heuristics. To address these challenges, we introduce MTR-Suite, a unified framework for auditing, synthesizing, and benchmarking retrieval. It features: (1) MTR-Eval, an LLM-based auditor quantifying alignment gaps in previous benchmarks; (2) MTR-Pipeline, a multi-agent system using greedy traversal clustering to generate high-fidelity dialogues at 1/400th human cost; and (3) MTR-Bench, a rigorous general-domain benchmark. MTR-Bench mimics production-style challenges (hard topic switching, verbosity), offering superior discriminative power. We make our code and data publicly available to facilitate future research at https://github.com/rangehow/mtr-suite.",
+          "claimed_authors": [
+            "Junhao Ruan",
+            "Abudukeyumu Abudula",
+            "Bei Li",
+            "Yongjing Yin",
+            "Xinyu Liu",
+            "Kechen Jiao",
+            "Xin Chen",
+            "Jingang Wang",
+            "Xunliang Cai",
+            "Tong Xiao",
+            "Jingbo Zhu"
+          ],
+          "claimed_title": "MTR-Suite: A Framework for Evaluating and Synthesizing Conversational Retrieval Benchmarks",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2605.20729"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"EvalVerse: Pipeline-Aware and Expert-Calibrated Be', candidate_title='MTR-Suite: A Framework for Evaluating and Synthesizing Conversational Retrieval Benchmarks')",
+        "failed_at": "2026-07-05T00:58:56Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Large language models (LLMs) drive significant financial innovations, yet their high-concurrency deployment is severely bottlenecked by KV cache memory overhead, which inflates infrastructure costs and throttles scalability. To address this, we propose YouZhi-LLM, a highly efficient financial LLM empowered by a comprehensive structural transition and training pipeline natively built on the Huawei Ascend ecosystem. At its algorithmic core, YouZhi-LLM features a layer-adaptive GQA-to-MLA transition framework that dynamically assigns per-layer FreqFold sizes, maximizing KV-cache compression while minimizing perplexity degradation. To recover representation capacity and inject domain expertise, the Ascend-based training pipeline seamlessly integrates generalized knowledge distillation with financial-specific supervised fine-tuning. Evaluations demonstrate the superiority of this systematic approach, with the adaptive transition reducing perplexity degradation by up to 35% over uniform baselines. Crucially, when evaluated on Ascend NPUs via vLLM-Ascend, the massive KV-cache reduction translates directly into deployment efficiency. Compared to their respective base models, YouZhi-7B yields a 12.3% improvement in average financial benchmark score alongside a 2.69$\\times$ increase in maximum concurrency; similarly, YouZhi-14B achieves a 7.0% accuracy gain and a 2.43$\\times$ concurrency boost, establishing a new paradigm for cost-effective, high-throughput financial inference.",
+          "claimed_authors": [
+            " PSBC LLM Team",
+            " Huawei LLM Team",
+            "Ruihan Long",
+            "Junjie Wu",
+            "Tianan Zhang",
+            "Duo Zhang",
+            "Yaozong Wu",
+            "Jinbin Fu",
+            "Chang Liu",
+            "Zhentao Tang",
+            "Wenshuang Yang",
+            "Xin Wang",
+            "Zhihao Song",
+            "Ning Huang",
+            "Wenjing Xu",
+            "Shuai Zong",
+            "Shupei Sun",
+            "Sen Wang",
+            "Jing Hu",
+            "Bin Wang",
+            "Xinyu Wang",
+            "Junkui Ju",
+            "Zequn Ding",
+            "Jie Ran",
+            "Man Luo",
+            "Shixiong Kai",
+            "Linkai Hou",
+            "Kaichao Liang",
+            "Hu Zhao",
+            "Yang Zhao",
+            "Shucheng Lin",
+            "Wei Yu",
+            "Chenghan Jiang",
+            "Jingjing Ding",
+            "Jiahui Zhang",
+            "Tian Jin",
+            "Yuhang Zhang",
+            "Dong Guo",
+            "Wei Sun",
+            "Jun Xie",
+            "Jianwei Li",
+            "Lei Cao",
+            "Pei Li",
+            "Jiabin Li",
+            "Jia Yuan",
+            "Rui Yuan",
+            "Jing Zhu",
+            "Mingxuan Yuan",
+            "Zhangcheng Lv",
+            "Xin Jiang",
+            "Xiuhong Fei",
+            "Xiaozhe Ren",
+            "Yulong Li",
+            "Zhipeng Zhang",
+            "Hang Wang",
+            "Zhaohui Xu",
+            "Rui Zhao",
+            "Yibo He",
+            "Xinzhuang Niu"
+          ],
+          "claimed_title": "YouZhi: Towards High-Concurrency Financial LLMs via Adaptive GQA-to-MLA Transition",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2606.05868"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"EvalVerse: Pipeline-Aware and Expert-Calibrated Be', candidate_title='YouZhi: Towards High-Concurrency Financial LLMs via Adaptive GQA-to-MLA Transition')",
+        "failed_at": "2026-07-05T00:58:56Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "While existing benchmarks demonstrate the near-perfect performance of large language models (LLMs) on various tasks, this apparent saturation often obscures the need for rigorous evaluation of their reliability. In real-world deployment, however, achieving extremely high reliability (e.g., \"five-nines\" (99.999%) vs. \"three-nines\" (99.9%)) is fundamentally critical, as this gap results in an order-of-magnitude increase in failures, which is catastrophic in reliability-critical applications. Still, estimating such a rare failure probability with tight confidence bounds requires prohibitively large LLM inference sizes, making standard Monte Carlo evaluation infeasible under limited compute budgets. In this paper, we observe that LLM failures exhibit strong systematic patterns: across broad parameterized input spaces, a small subset of inputs disproportionately accounts for the majority of failures. Leveraging this observation, we propose to learn a sampling distribution concentrated on failure-prone inputs via the cross-entropy method (CEM). We evaluate our framework on three LLMs, Qwen2.5-Math-7B-Instruct, gpt-oss-20b-low, and Gemini 2.5 Flash Lite, across parameterized GSM8K templates and achieve up to 156.22x reduction in required inferences compared to naive uniform sampling. Our estimates reveal that models with indistinguishable accuracy on standard benchmarks can differ substantially in estimated failure rates, underscoring that reliability is a distinct and measurable axis of model quality. Our simple yet practical framework enables the evaluation of extreme reliability in LLMs, a distinct and underexplored dimension of evaluation beyond existing benchmarks, for their growing use in reliability-sensitive applications.",
+          "claimed_authors": [
+            "Eungyeup Kim",
+            "Chenchen Gu",
+            "Vashisth Tiwari",
+            "J. Zico Kolter"
+          ],
+          "claimed_title": "Measuring Five-Nines Reliability: Sample-Efficient LLM Evaluation in Saturated Benchmarks",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2605.11209"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"EvalVerse: Pipeline-Aware and Expert-Calibrated Be', candidate_title='Measuring Five-Nines Reliability: Sample-Efficient LLM Evaluation in Saturated Benchmarks')",
+        "failed_at": "2026-07-05T00:58:56Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "LLM-as-a-Judge has been widely applied to evaluate and compare different LLM alignmnet approaches (e.g., RLHF and DPO). However, concerns regarding its reliability have emerged, due to LLM judges' biases and inconsistent decision-making. Previous research has developed evaluation frameworks to assess reliability of LLM judges and their alignment with human preferences. However, the employed evaluation metrics often lack adequate explainability and fail to address LLM internal inconsistency. Additionally, existing studies inadequately explore the impact of various prompt templates when applying LLM-as-a-Judge methods, leading to potentially inconsistent comparisons between different alignment algorithms. In this work, we systematically evaluate LLM-as-a-Judge on alignment tasks by defining more theoretically interpretable evaluation metrics and explicitly mitigating LLM internal inconsistency from reliability metrics. We develop an open-source framework to evaluate, compare, and visualize the reliability and alignment of LLM judges, which facilitates practitioners to choose LLM judges for alignment tasks. In the experiments, we examine effects of diverse prompt templates on LLM-judge reliability and also demonstrate our developed framework by comparing various LLM judges on two common alignment datasets (i.e., TL;DR Summarization and HH-RLHF-Helpfulness). Our results indicate a significant impact of prompt templates on LLM judge performance, as well as a mediocre alignment level between the tested LLM judges and human evaluators.",
+          "claimed_authors": [
+            "Hui Wei",
+            "Shenghua He",
+            "Tian Xia",
+            "Fei Liu",
+            "Andy Wong",
+            "Jingyang Lin",
+            "Mei Han"
+          ],
+          "claimed_title": "Systematic Evaluation of LLM-as-a-Judge in LLM Alignment Tasks: Explainable Metrics and Diverse Prompt Templates",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2408.13006"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"EvalVerse: Pipeline-Aware and Expert-Calibrated Be', candidate_title='Systematic Evaluation of LLM-as-a-Judge in LLM Alignment Tasks: Explainable Metrics and Diverse Prompt Templates')",
+        "failed_at": "2026-07-05T00:58:56Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Research in interpretable machine learning proposes different computational and human subject approaches to evaluate model saliency explanations. These approaches measure different qualities of explanations to achieve diverse goals in designing interpretable machine learning systems. In this paper, we propose a human attention benchmark for image and text domains using multi-layer human attention masks aggregated from multiple human annotators. We then present an evaluation study to evaluate model saliency explanations obtained using Grad-cam and LIME techniques. We demonstrate our benchmark's utility for quantitative evaluation of model explanations by comparing it with human subjective ratings and ground-truth single-layer segmentation masks evaluations. Our study results show that our threshold agnostic evaluation method with the human attention baseline is more effective than single-layer object segmentation masks to ground truth. Our experiments also reveal user biases in the subjective rating of model saliency explanations.",
+          "claimed_authors": [
+            "Sina Mohseni",
+            "Jeremy E. Block",
+            "Eric D. Ragan"
+          ],
+          "claimed_title": "A Human-Grounded Evaluation Benchmark for Local Explanations of Machine Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1801.05075"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"EvalVerse: Pipeline-Aware and Expert-Calibrated Be', candidate_title='A Human-Grounded Evaluation Benchmark for Local Explanations of Machine Learning')",
+        "failed_at": "2026-07-05T00:58:56Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Today, SIP is a protocol par Excellence in the field of communication over Internet. But, the fact that it belongs to the application layer constitutes a weakness vis-a-vis the NAT traversal. This weakness is due to the way in which the server replies to the requests of clients on the one hand. On the other, it is caused by the dynamic allocation of UDP ports for emission and reception of packets RTP/RTCP. The TURN Protocol may face this weakness. However, its use requires a certain number of exchanges between the clients and a TURN server before establishing the multimedia sessions and this increase the latent time. In this article, we propose to adapt TURN protocol for applications based on SIP protocol such as telephony over Internet, conference video, etc. This adaptation optimises the establishment of multimedia sessions by integrating a manager of TCP connections and multimedia flow controller into SIP Proxy server.",
+          "claimed_authors": [
+            "Mustapha Guezouri",
+            "Ahmed Blaha",
+            "Mokhtar Keche"
+          ],
+          "claimed_title": "Adaptation of TURN protocol to SIP protocol",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1002.1178"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"EvalVerse: Pipeline-Aware and Expert-Calibrated Be', candidate_title='Adaptation of TURN protocol to SIP protocol')",
+        "failed_at": "2026-07-05T00:58:56Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We introduce SECQUE, a comprehensive benchmark for evaluating large language models (LLMs) in financial analysis tasks. SECQUE comprises 565 expert-written questions covering SEC filings analysis across four key categories: comparison analysis, ratio calculation, risk assessment, and financial insight generation. To assess model performance, we develop SECQUE-Judge, an evaluation mechanism leveraging multiple LLM-based judges, which demonstrates strong alignment with human evaluations. Additionally, we provide an extensive analysis of various models' performance on our benchmark. By making SECQUE publicly available, we aim to facilitate further research and advancements in financial AI.",
+          "claimed_authors": [
+            "Noga Ben Yoash",
+            "Meni Brief",
+            "Oded Ovadia",
+            "Gil Shenderovitz",
+            "Moshik Mishaeli",
+            "Rachel Lemberg",
+            "Eitam Sheetrit"
+          ],
+          "claimed_title": "SECQUE: A Benchmark for Evaluating Real-World Financial Analysis Capabilities",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2504.04596"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"EvalVerse: Pipeline-Aware and Expert-Calibrated Be', candidate_title='SECQUE: A Benchmark for Evaluating Real-World Financial Analysis Capabilities')",
+        "failed_at": "2026-07-05T00:58:56Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Songlin Yang",
+            "Haobin Zhong",
+            "Ruilin Zhang",
+            "Xiaotong Zhao",
+            "Shuai Li",
+            "Kai Zheng",
+            "Xuyi Yang",
+            "Zhe Wang",
+            "Zhenchen Tang",
+            "Yang Li",
+            "Bohai Gu",
+            "Zhengwei Peng",
+            "Yidan Huang",
+            "Mengzhou Luo",
+            "Yihang Bo",
+            "Dalu Feng",
+            "Yujia Zhang",
+            "Juntao Ma",
+            "Ruiqi Wang",
+            "Lvmin Zhang",
+            "Yuwei Guo",
+            "Frank Guan",
+            "Maneesh Agrawala",
+            "Hongbo Fu",
+            "Alan Zhao",
+            "Anyi Rao"
+          ],
+          "title": "EvalVerse: Pipeline-Aware and Expert-Calibrated Benchmarking for Professional Cinematic Video Generation",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2605.23271",
+        "summary": "The rapid evolution of generative video foundation models has propelled the field toward professional-grade cinematic synthesis. To achieve such demanding quality, the community transitions towards Reinforcement Learning (RL) and agentic workflows. However, reliable evaluation has emerged as a critical bottleneck. Existing benchmarks predominantly evaluate ''whether it is right'' (basic prompt-following) while fundamentally neglecting ''whether it is good'' (cinematic quality, acting, and aesthetics). Furthermore, current automated metrics lack the domain-specific rigor required to provide trustworthy signals, creating a severe credibility gap between human aesthetic perception and machine scoring. To bridge this gap, we introduce EvalVerse, a comprehensive, pipeline-aware, and expert-calibrated evaluation framework. We treat video generation assessment not merely as an engineering task, but as a core scientific problem: the systematic digitization of subjective cinematic expertise. First, we organize domain knowledge into an evaluation taxonomy aligned with the professional filmmaking workflow (pre-production, production, and post-production). Second, we distill human expert judgments into a curated dataset with large-scale human annotations. Third, we inject this knowledge into Vision-Language Models (VLMs) through an expert-calibrated fine-tuning strategy, enabling the VLM to perform explicit Chain-of-Thought reasoning. Compared to previous works, EvalVerse not only retains compatibility with foundational ''rightness'' metrics, but also significantly expands the criteria to ''goodness'' and broaden the task coverage to complex multi-shot sequencing and audio-visual integration. Consequently, by providing granular diagnostic signals, EvalVerse transcends a static leaderboard and establishes a fundamental infrastructure for future work, such as reward models and evaluator agent.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2605.23271",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-05T00:58:56Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Daniel Rodriguez-Cardenas",
+            "Xiaochang Li",
+            "Marcos Macedo",
+            "Antonio Mastropaolo",
+            "Dipin Khati",
+            "Yuan Tian",
+            "Huajie Shao",
+            "Denys Poshyvanyk"
+          ],
+          "title": "Towards Comprehensive Benchmarking Infrastructure for LLMs In Software Engineering",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2601.21070",
+        "summary": "Large language models for code are advancing fast, yet our ability to evaluate them lags behind. Current benchmarks focus on narrow tasks and single metrics, which hide critical gaps in robustness, interpretability, fairness, efficiency, and real-world usability. They also suffer from inconsistent data engineering practices, limited software engineering context, and widespread contamination issues. To understand these problems and chart a path forward, we combined an in-depth survey of existing benchmarks with insights gathered from a dedicated community workshop. We identified three core barriers to reliable evaluation: the absence of software-engineering-rich datasets, overreliance on ML-centric metrics, and the lack of standardized, reproducible data pipelines. Building on these findings, we introduce BEHELM, a holistic benchmarking infrastructure that unifies software-scenario specification with multi-metric evaluation. BEHELM provides a structured way to assess models across tasks, languages, input and output granularities, and key quality dimensions. Our goal is to reduce the overhead currently required to construct benchmarks while enabling a fair, realistic, and future-proof assessment of LLMs in software engineering.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2601.21070",
+          "http_status": 200,
+          "pdf_sample_score": 0.223,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-05T00:59:02Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "llmxive follow-up: extending \"evalverse: pipeline-aware and expert-calibrated benchmarking for profe\" computer science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2601.21070",
+  "judged_at": "2026-07-05T00:59:34Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"evalverse: pipeline-aware and expert-calibrated benchmarking for profe\" computer science",
+  "rationale": "This paper satisfies criteria (d) and (f) as it provides a foundational methodology and canonical reference for the specific domain of LLM benchmarking in software engineering, directly addressing the \"pipeline-aware\" and \"expert-calibrated\" aspects of the user's question regarding the extension of the EvalVerse framework. It establishes the necessary empirical baseline and alternative vocabulary (e.g., \"contamination,\" \"data pipelines,\" \"multi-metric evaluation\") required for a literature revie",
+  "relevant": true
+}

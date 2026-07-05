@@ -1,0 +1,35 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+type: object
+properties:
+  step:
+    type: integer
+    description: "Global training step number"
+  seed:
+    type: integer
+    description: "Random seed for this run"
+  model_type:
+    type: string
+    enum: ["baseline", "dendritic"]
+    description: "Architecture variant"
+  loss:
+    type: number
+    description: "Training loss at this step"
+  accuracy:
+    type: number
+    minimum: 0.0
+    maximum: 1.0
+    description: "Validation accuracy at this step"
+  elapsed_time_seconds:
+    type: number
+    description: "Wall-clock time elapsed since start"
+  gradient_clipped:
+    type: boolean
+    description: "True if gradient clipping was applied"
+required:
+  - step
+  - seed
+  - model_type
+  - loss
+  - accuracy
+  - elapsed_time_seconds
+additionalProperties: false

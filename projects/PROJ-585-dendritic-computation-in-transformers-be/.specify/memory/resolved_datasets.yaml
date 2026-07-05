@@ -1,4 +1,4 @@
-resolved_at: '2026-07-04T22:43:10.034558+00:00'
+resolved_at: '2026-07-05T01:02:02.149708+00:00'
 datasets:
 - intent: GLUE
   status: verified
@@ -45,23 +45,23 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://figshare.com/articles/dataset/Dataset_supporting_the_study_Knowledge_attitudes_practices_and_perceptions_related_to_dental_caries_among_Peruvian_first-division_soccer_players_a_cross-sectional_study_/32900639
+  - url: https://figshare.com/articles/preprint/Yang-Mills_Existence_Non-trivial_Solutions_of_Yang-Mills_Equation/32900867
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/2026_2027_DIRECT_ENTRY_FORM_Nile_University_of_Nigeria_Abuja_Admission_is_out_officially_Call_ON_07036366909_DR_MRS_GRACE_to_apply/32900786
+  - url: https://figshare.com/articles/dataset/Data_of_TECE-OAM-RRA-1_0_for_Matbench_Discovery/32900813
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/2026_2027_DIRECT_ENTRY_FORM_Afe_Babalola_University_Ado-EkitiAdmission_is_out_officially_Call_ON_07036366909_DR_MRS_GRACE_to_apply/32900783
+  - url: https://figshare.com/articles/dataset/Data_of_TECE-OAM-RRA-1_0_for_Matbench_Discovery/32900873
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/media/2026_2027_DIRECT_ENTRY_FORM_Caleb_University_Lagos_Admission_is_out_officially_Call_ON_07036366909_DR_MRS_GRACE_to_apply/32900780
+  - url: https://figshare.com/articles/dataset/Data_of_TECE-OAM-RRA-1_0_for_Matbench_Discovery/32900870
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/media/2026_2027_DIRECT_ENTRY_FORM_Achievers_University_Owo_Admission_is_out_officially_Call_ON_07036366909_DR_MRS_GRACE_to_apply/32900777
+  - url: https://figshare.com/articles/preprint/2nd_Elementary_PDE_Theory_Riesz_Representation_Theorem_and_Elementary_Weak_Solutions_of_the_Navier-Stokes_Equations/32900864
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -85,6 +85,14 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21199012
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21199012
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/21195584
     source: datacite
     status: wrong_format
@@ -94,14 +102,6 @@ datasets:
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/21195550
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21194780
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21194735
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -120,23 +120,23 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://figshare.com/articles/dataset/Dataset_supporting_the_study_Knowledge_attitudes_practices_and_perceptions_related_to_dental_caries_among_Peruvian_first-division_soccer_players_a_cross-sectional_study_/32900639
+  - url: https://figshare.com/articles/preprint/Yang-Mills_Existence_Non-trivial_Solutions_of_Yang-Mills_Equation/32900867
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/2026_2027_DIRECT_ENTRY_FORM_Nile_University_of_Nigeria_Abuja_Admission_is_out_officially_Call_ON_07036366909_DR_MRS_GRACE_to_apply/32900786
+  - url: https://figshare.com/articles/dataset/Data_of_TECE-OAM-RRA-1_0_for_Matbench_Discovery/32900813
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/2026_2027_DIRECT_ENTRY_FORM_Afe_Babalola_University_Ado-EkitiAdmission_is_out_officially_Call_ON_07036366909_DR_MRS_GRACE_to_apply/32900783
+  - url: https://figshare.com/articles/dataset/Data_of_TECE-OAM-RRA-1_0_for_Matbench_Discovery/32900873
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/media/2026_2027_DIRECT_ENTRY_FORM_Caleb_University_Lagos_Admission_is_out_officially_Call_ON_07036366909_DR_MRS_GRACE_to_apply/32900780
+  - url: https://figshare.com/articles/dataset/Data_of_TECE-OAM-RRA-1_0_for_Matbench_Discovery/32900870
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/media/2026_2027_DIRECT_ENTRY_FORM_Achievers_University_Owo_Admission_is_out_officially_Call_ON_07036366909_DR_MRS_GRACE_to_apply/32900777
+  - url: https://figshare.com/articles/preprint/2nd_Elementary_PDE_Theory_Riesz_Representation_Theorem_and_Elementary_Weak_Solutions_of_the_Navier-Stokes_Equations/32900864
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -144,7 +144,7 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/5951740
+  - url: https://zenodo.org/records/14352943
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -152,19 +152,19 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/14352943
+  - url: https://zenodo.org/records/17854610
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://kjet.kardan.edu.af/Journal?Journal=KJET&id=3183
+  - url: https://zenodo.org/records/10199277
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21148696
+  - url: https://zenodo.org/records/20172622
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21148696
+  - url: https://zenodo.org/records/20172622
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -176,7 +176,7 @@ datasets:
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21198051
+  - url: https://zenodo.org/records/21148696
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -225,23 +225,23 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://figshare.com/articles/dataset/Dataset_supporting_the_study_Knowledge_attitudes_practices_and_perceptions_related_to_dental_caries_among_Peruvian_first-division_soccer_players_a_cross-sectional_study_/32900639
+  - url: https://figshare.com/articles/preprint/Yang-Mills_Existence_Non-trivial_Solutions_of_Yang-Mills_Equation/32900867
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/2026_2027_DIRECT_ENTRY_FORM_Nile_University_of_Nigeria_Abuja_Admission_is_out_officially_Call_ON_07036366909_DR_MRS_GRACE_to_apply/32900786
+  - url: https://figshare.com/articles/dataset/Data_of_TECE-OAM-RRA-1_0_for_Matbench_Discovery/32900813
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/2026_2027_DIRECT_ENTRY_FORM_Afe_Babalola_University_Ado-EkitiAdmission_is_out_officially_Call_ON_07036366909_DR_MRS_GRACE_to_apply/32900783
+  - url: https://figshare.com/articles/dataset/Data_of_TECE-OAM-RRA-1_0_for_Matbench_Discovery/32900873
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/media/2026_2027_DIRECT_ENTRY_FORM_Caleb_University_Lagos_Admission_is_out_officially_Call_ON_07036366909_DR_MRS_GRACE_to_apply/32900780
+  - url: https://figshare.com/articles/dataset/Data_of_TECE-OAM-RRA-1_0_for_Matbench_Discovery/32900870
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/media/2026_2027_DIRECT_ENTRY_FORM_Achievers_University_Owo_Admission_is_out_officially_Call_ON_07036366909_DR_MRS_GRACE_to_apply/32900777
+  - url: https://figshare.com/articles/preprint/2nd_Elementary_PDE_Theory_Riesz_Representation_Theorem_and_Elementary_Weak_Solutions_of_the_Navier-Stokes_Equations/32900864
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2605.23271",
+  "judged_at": "2026-07-05T00:59:04Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"evalverse: pipeline-aware and expert-calibrated benchmarking for profe\" computer science",
+  "rationale": "The paper is the foundational methodology and canonical reference (Category d) for the specific benchmarking framework \"EvalVerse\" explicitly named in the user's research question, serving as the primary prior work that any follow-up study must cite.",
+  "relevant": true
+}

@@ -855,6 +855,10 @@
     "classified_at": "2026-07-03T21:36:10Z",
     "verdict": false
   },
+  "PROJ-899-llmxive-follow-up-extending-evalverse-pi::1.6.0": {
+    "classified_at": "2026-07-05T00:58:56Z",
+    "verdict": false
+  },
   "PROJ-909-llmxive-follow-up-extending-gamma-world::1.6.0": {
     "classified_at": "2026-07-04T15:37:58Z",
     "verdict": false
@@ -877,6 +881,10 @@
   },
   "PROJ-964-llmxive-follow-up-extending-wan-streamer::1.6.0": {
     "classified_at": "2026-07-04T18:41:34Z",
+    "verdict": false
+  },
+  "PROJ-976-llmxive-follow-up-extending-trust-region::1.6.0": {
+    "classified_at": "2026-07-05T00:57:27Z",
     "verdict": false
   },
   "PROJ-978-llmxive-follow-up-extending-transitlm-a::1.6.0": {

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2409.11404",
+  "judged_at": "2026-07-05T00:59:09Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"evalverse: pipeline-aware and expert-calibrated benchmarking for profe\" computer science",
+  "rationale": "The paper focuses on dialectal and cultural evaluation benchmarks for Arabic LLMs, which does not address the user's specific question regarding the \"EvalVerse\" pipeline-aware benchmarking framework or its follow-up extensions. While both papers concern LLM benchmarking, they target entirely different evaluation dimensions (cultural/dialectal nuance vs. pipeline-aware expert calibration) and do not share the same mechanism, variables, or foundational methodology required for inclusion under the ",
+  "relevant": false
+}

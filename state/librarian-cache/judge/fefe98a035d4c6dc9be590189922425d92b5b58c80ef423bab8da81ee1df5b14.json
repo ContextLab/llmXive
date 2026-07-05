@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2504.07887",
+  "judged_at": "2026-07-05T00:59:27Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"evalverse: pipeline-aware and expert-calibrated benchmarking for profe\" computer science",
+  "rationale": "The candidate paper focuses on benchmarking adversarial robustness and bias elicitation in LLMs, which is a distinct research construct from the user's question regarding \"EvalVerse,\" a pipeline-aware and expert-calibrated benchmarking framework. While both papers fall under the broad domain of LLM evaluation, the candidate does not measure the same mechanism, variables, or population as the specific \"EvalVerse\" pipeline or its expert-calibration methodology, nor does it serve as a foundational ",
+  "relevant": false
+}

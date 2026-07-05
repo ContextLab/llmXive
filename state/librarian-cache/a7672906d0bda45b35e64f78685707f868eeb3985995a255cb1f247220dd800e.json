@@ -1,0 +1,597 @@
+{
+  "fetched_at": "2026-07-05T00:57:59Z",
+  "field": "computer science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "computer science",
+      "idea_body_excerpt": "llmXive follow-up: extending \"Trust-Region Behavior Blending for On-Policy Distillation\"",
+      "target_n": 5
+    },
+    "duration_seconds": 66.09,
+    "ended_at": "2026-07-05T00:57:59Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "on-policy knowledge distillation with trust region constraints"
+        ],
+        [
+          2,
+          "behavior cloning via trust region optimization"
+        ],
+        [
+          3,
+          "policy distillation using clipped surrogate objectives"
+        ],
+        [
+          4,
+          "proximal policy optimization for teacher-student distillation"
+        ],
+        [
+          5,
+          "safe on-policy reinforcement learning distillation"
+        ],
+        [
+          6,
+          "trust region regularization in imitation learning"
+        ],
+        [
+          7,
+          "blending expert policies with on-policy constraints"
+        ],
+        [
+          8,
+          "constrained policy optimization for knowledge transfer"
+        ],
+        [
+          9,
+          "stable on-policy distillation algorithms"
+        ],
+        [
+          10,
+          "teacher-student learning with KL-divergence constraints"
+        ],
+        [
+          11,
+          "trust region methods for reinforcement learning distillation"
+        ],
+        [
+          12,
+          "on-policy imitation learning with behavior blending"
+        ],
+        [
+          13,
+          "policy distillation using trust region proximal methods"
+        ],
+        [
+          14,
+          "safe reinforcement learning via on-policy distillation"
+        ],
+        [
+          15,
+          "bounded policy improvement in knowledge distillation"
+        ],
+        [
+          16,
+          "trust region behavior cloning"
+        ],
+        [
+          17,
+          "on-policy distillation with entropy regularization"
+        ],
+        [
+          18,
+          "proximal trust region distillation"
+        ],
+        [
+          19,
+          "on-policy reinforcement learning for model compression"
+        ],
+        [
+          20,
+          "blending policies with trust region constraints in RL"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "llmXive follow-up: extending \"Trust-Region Behavior Blending for On-Policy Distillation\" computer science": 0,
+        "on-policy knowledge distillation with trust region constraints": 5
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "on-policy distillation trust-region optimization",
+      "behavior cloning KL divergence penalty",
+      "imitation learning policy blending reward shaping",
+      "distributional shift policy evaluation stability",
+      "conservative policy iteration data contamination"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "success_after_expansion",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2004.08116"
+      ]
+    },
+    "per_query_hit_count": {
+      "behavior cloning KL divergence penalty": 3,
+      "conservative policy iteration data contamination": 3,
+      "distributional shift policy evaluation stability": 3,
+      "imitation learning policy blending reward shaping": 3,
+      "llmXive follow-up: extending \"Trust-Region Behavior Blending for On-Policy Distillation\" computer science": 3,
+      "on-policy distillation trust-region optimization": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 0,
+      "rejections": []
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-07-05T00:56:53Z",
+    "term_input": {
+      "normalized": "llmxive follow-up: extending \"trust-region behavior blending for on-policy distillation\" computer science",
+      "raw": "llmXive follow-up: extending \"Trust-Region Behavior Blending for On-Policy Distillation\" computer science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This white paper describes the LSST Dark Energy Science Collaboration (DESC), whose goal is the study of dark energy and related topics in fundamental physics with data from the Large Synoptic Survey Telescope (LSST). It provides an overview of dark energy science and describes the current and anticipated state of the field. It makes the case for the DESC by laying out a robust analytical framework for dark energy science that has been defined by its members and the comprehensive three-year work plan they have developed for implementing that framework. The analysis working groups cover five key probes of dark energy: weak lensing, large scale structure, galaxy clusters, Type Ia supernovae, and strong lensing. The computing working groups span cosmological simulations, galaxy catalogs, photon simulations and a systematic software and computational framework for LSST dark energy data analysis. The technical working groups make the connection between dark energy science and the LSST system. The working groups have close linkages, especially through the use of the photon simulations to study the impact of instrument design and survey strategy on analysis methodology and cosmological parameter estimation. The white paper describes several high priority tasks identified by each of the 16 working groups. Over the next three years these tasks will help prepare for LSST analysis, make synergistic connections with ongoing cosmological surveys and provide the dark energy community with state of the art analysis tools. Members of the community are invited to join the LSST DESC, according to the membership policies described in the white paper. Applications to sign up for associate membership may be made by submitting the Web form at http://www.slac.stanford.edu/exp/lsst/desc/signup.html with a short statement of the work they wish to pursue that is relevant to the LSST DESC.",
+          "claimed_authors": [
+            " LSST Dark Energy Science Collaboration"
+          ],
+          "claimed_title": "Large Synoptic Survey Telescope: Dark Energy Science Collaboration",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1211.0310"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"Trust-Region Behavior Blending for On-Policy Disti', candidate_title='Large Synoptic Survey Telescope: Dark Energy Science Collaboration')",
+        "failed_at": "2026-07-05T00:57:27Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The large instantaneous sensitivity, a wide frequency coverage and flexible observation modes with large number of beams in the sky are the main features of the SKA observatory's two telescopes, the SKA-Low and the SKA-Mid, which are located on two different continents. Owing to these capabilities, the SKAO telescopes are going to be a game-changer for radio astronomy in general and pulsar astronomy in particular. The eleven articles in this special issue on pulsar science with the SKA Observatory describe its impact on different areas of pulsar science. In this lead article, a brief description of the two telescopes highlighting the relevant features for pulsar science is presented followed by an overview of each accompanying article, exploring the inter-relationship between different pulsar science use cases.",
+          "claimed_authors": [
+            "Bhal Chandra Joshi",
+            "Aris Karastergiou",
+            "Marta Burgay",
+            "The SKA pulsar science working group"
+          ],
+          "claimed_title": "Pulsar Science with the SKA Observatory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.16152"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"Trust-Region Behavior Blending for On-Policy Disti', candidate_title='Pulsar Science with the SKA Observatory')",
+        "failed_at": "2026-07-05T00:57:27Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A Human Computer Interface (HCI) System for playing games is designed here for more natural communication with the machines. The system presented here is a vision-based system for detection of long voluntary eye blinks and interpretation of blink patterns for communication between man and machine. This system replaces the mouse with the human face as a new way to interact with the computer. Facial features (nose tip and eyes) are detected and tracked in realtime to use their actions as mouse events. The coordinates and movement of the nose tip in the live video feed are translated to become the coordinates and movement of the mouse pointer on the application. The left or right eye blinks fire left or right mouse click events. The system works with inexpensive USB cameras and runs at a frame rate of 30 frames per second.",
+          "claimed_authors": [
+            "S. Sumathi",
+            "S. K. Srivatsa",
+            "M. Uma Maheswari"
+          ],
+          "claimed_title": "Vision Based Game Development Using Human Computer Interaction",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1002.2191"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"Trust-Region Behavior Blending for On-Policy Disti', candidate_title='Vision Based Game Development Using Human Computer Interaction')",
+        "failed_at": "2026-07-05T00:57:27Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Trust region methods are widely applied in single-agent reinforcement learning problems due to their monotonic performance-improvement guarantee at every iteration. Nonetheless, when applied in multi-agent settings, the guarantee of trust region methods no longer holds because an agent's payoff is also affected by other agents' adaptive behaviors. To tackle this problem, we conduct a game-theoretical analysis in the policy space, and propose a multi-agent trust region learning method (MATRL), which enables trust region optimization for multi-agent learning. Specifically, MATRL finds a stable improvement direction that is guided by the solution concept of Nash equilibrium at the meta-game level. We derive the monotonic improvement guarantee in multi-agent settings and empirically show the local convergence of MATRL to stable fixed points in the two-player rotational differential game. To test our method, we evaluate MATRL in both discrete and continuous multiplayer general-sum games including checker and switch grid worlds, multi-agent MuJoCo, and Atari games. Results suggest that MATRL significantly outperforms strong multi-agent reinforcement learning baselines.",
+          "claimed_authors": [
+            "Ying Wen",
+            "Hui Chen",
+            "Yaodong Yang",
+            "Zheng Tian",
+            "Minne Li",
+            "Xu Chen",
+            "Jun Wang"
+          ],
+          "claimed_title": "A Game-Theoretic Approach to Multi-Agent Trust Region Optimization",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2106.06828"
+        },
+        "details": "query-relevance 0.273 < 0.3 (query='llmXive follow-up: extending \"Trust-Region Behavior Blending for On-Policy Disti', candidate_title='A Game-Theoretic Approach to Multi-Agent Trust Region Optimization')",
+        "failed_at": "2026-07-05T00:57:27Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Kullback-Leibler (KL) divergence is a fundamental concept in information theory that quantifies the discrepancy between two probability distributions. In the context of Variational Autoencoders (VAEs), it serves as a central regularization term, imposing structure on the latent space and thereby enabling the model to exhibit generative capabilities. In this work, we present a detailed derivation of the closed-form expression for the KL divergence between Gaussian distributions, a case of particular importance in practical VAE implementations. Starting from the general definition for continuous random variables, we derive the expression for the univariate case and extend it to the multivariate setting under the assumption of diagonal covariance. Finally, we discuss the interpretation of each term in the resulting expression and its impact on the training dynamics of the model.",
+          "claimed_authors": [
+            "Andrés Muñoz",
+            "Rodrigo Ramele"
+          ],
+          "claimed_title": "KL Divergence Between Gaussians: A Step-by-Step Derivation for the Variational Autoencoder Objective",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2604.11744"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Trust-Region Behavior Blending for On-Policy Disti', candidate_title='KL Divergence Between Gaussians: A Step-by-Step Derivation for the Variational Autoencoder Objective')",
+        "failed_at": "2026-07-05T00:57:28Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We prove new quantitative limitations on any approximate simultaneous cloning or broadcasting of mixed states. The results are based on information-theoretic (entropic) considerations and generalize the well known no-cloning and no-broadcasting theorems. We also observe and exploit the fact that the universal cloning machine on the symmetric subspace of $n$ qudits and symmetrized partial trace channels are dual to each other. This duality manifests itself both in the algebraic sense of adjointness of quantum channels and in the operational sense that a universal cloning machine can be used as an approximate recovery channel for a symmetrized partial trace channel and vice versa. The duality extends to give control on the performance of generalized UQCMs on subspaces more general than the symmetric subspace. This gives a way to quantify the usefulness of a-priori information in the context of cloning. For example, we can control the performance of an antisymmetric analogue of the UQCM in recovering from the loss of $n-k$ fermionic particles.",
+          "claimed_authors": [
+            "Marius Lemm",
+            "Mark M. Wilde"
+          ],
+          "claimed_title": "Information-theoretic limitations on approximate quantum cloning and broadcasting",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1608.07569"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Trust-Region Behavior Blending for On-Policy Disti', candidate_title='Information-theoretic limitations on approximate quantum cloning and broadcasting')",
+        "failed_at": "2026-07-05T00:57:28Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The cloning of quantum variables with continuous spectra is analyzed. A universal - or Gaussian - quantum cloning machine is exhibited that copies equally well the states of two conjugate variables such as position and momentum. It also duplicates all coherent states with a fidelity of 2/3. More generally, the copies are shown to obey a no-cloning Heisenberg-like uncertainty relation.",
+          "claimed_authors": [
+            "N. J. Cerf",
+            "A. Ipe",
+            "X. Rottenberg"
+          ],
+          "claimed_title": "Universal cloning of continuous quantum variables",
+          "claimed_venue": "arXiv",
+          "claimed_year": 1999,
+          "primary_pointer": "quant-ph/9909037"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Trust-Region Behavior Blending for On-Policy Disti', candidate_title='Universal cloning of continuous quantum variables')",
+        "failed_at": "2026-07-05T00:57:28Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Q-shaping is an extension of Q-value initialization and serves as an alternative to reward shaping for incorporating domain knowledge to accelerate agent training, thereby improving sample efficiency by directly shaping Q-values. This approach is both general and robust across diverse tasks, allowing for immediate impact assessment while guaranteeing optimality. We evaluated Q-shaping across 20 different environments using a large language model (LLM) as the heuristic provider. The results demonstrate that Q-shaping significantly enhances sample efficiency, achieving a \\textbf{16.87\\%} improvement over the best baseline in each environment and a \\textbf{253.80\\%} improvement compared to LLM-based reward shaping methods. These findings establish Q-shaping as a superior and unbiased alternative to conventional reward shaping in reinforcement learning.",
+          "claimed_authors": [
+            "Xiefeng Wu"
+          ],
+          "claimed_title": "From Reward Shaping to Q-Shaping: Achieving Unbiased Learning with LLM-Guided Knowledge",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2410.01458"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Trust-Region Behavior Blending for On-Policy Disti', candidate_title='From Reward Shaping to Q-Shaping: Achieving Unbiased Learning with LLM-Guided Knowledge')",
+        "failed_at": "2026-07-05T00:57:28Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Reinforcement Learning (RL) models have continually evolved to navigate the exploration - exploitation trade-off in uncertain Markov Decision Processes (MDPs). In this study, I leverage the principles of stochastic thermodynamics and system dynamics to explore reward shaping via diffusion processes. This provides an elegant framework as a way to think about exploration-exploitation trade-off. This article sheds light on relationships between information entropy, stochastic system dynamics, and their influences on entropy production. This exploration allows us to construct a dual-pronged framework that can be interpreted as either a maximum entropy program for deriving efficient policies or a modified cost optimization program accounting for informational costs and benefits. This work presents a novel perspective on the physical nature of information and its implications for online learning in MDPs, consequently providing a better understanding of information-oriented formulations in RL.",
+          "claimed_authors": [
+            "Peeyush Kumar"
+          ],
+          "claimed_title": "Reward Shaping via Diffusion Process in Reinforcement Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2306.11885"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Trust-Region Behavior Blending for On-Policy Disti', candidate_title='Reward Shaping via Diffusion Process in Reinforcement Learning')",
+        "failed_at": "2026-07-05T00:57:28Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Imitation learning is an effective alternative approach to learn a policy when the reward function is sparse. In this paper, we consider a challenging setting where an agent and an expert use different actions from each other. We assume that the agent has access to a sparse reward function and state-only expert observations. We propose a method which gradually balances between the imitation learning cost and the reinforcement learning objective. In addition, this method adapts the agent's policy based on either mimicking expert behavior or maximizing sparse reward. We show, through navigation scenarios, that (i) an agent is able to efficiently leverage sparse rewards to outperform standard state-only imitation learning, (ii) it can learn a policy even when its actions are different from the expert, and (iii) the performance of the agent is not bounded by that of the expert, due to the optimized usage of sparse rewards.",
+          "claimed_authors": [
+            "Konrad Zolna",
+            "Negar Rostamzadeh",
+            "Yoshua Bengio",
+            "Sungjin Ahn",
+            "Pedro O. Pinheiro"
+          ],
+          "claimed_title": "Reinforced Imitation in Heterogeneous Action Space",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1904.03438"
+        },
+        "details": "query-relevance 0.182 < 0.3 (query='llmXive follow-up: extending \"Trust-Region Behavior Blending for On-Policy Disti', candidate_title='Reinforced Imitation in Heterogeneous Action Space')",
+        "failed_at": "2026-07-05T00:57:28Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Explainability is highly-desired in Machine Learning (ML) systems supporting high-stakes policy decisions in areas such as health, criminal justice, education, and employment. While the field of explainable ML has expanded in recent years, much of this work has not taken real-world needs into account. A majority of proposed methods are designed with \\textit{generic} explainability goals without well-defined use-cases or intended end-users and evaluated on simplified tasks, benchmark problems/datasets, or with proxy users (e.g., AMT). We argue that these simplified evaluation settings do not capture the nuances and complexities of real-world applications. As a result, the applicability and effectiveness of this large body of theoretical and methodological work in real-world applications are unclear. In this work, we take steps toward addressing this gap for the domain of public policy. First, we identify the primary use-cases of explainable ML within public policy problems. For each use case, we define the end-users of explanations and the specific goals the explanations have to fulfill. Finally, we map existing work in explainable ML to these use-cases, identify gaps in established capabilities, and propose research directions to fill those gaps to have a practical societal impact through ML. The contribution is 1) a methodology for explainable ML researchers to identify use cases and develop methods targeted at them and 2) using that methodology for the domain of public policy and giving an example for the researchers on developing explainable ML methods that result in real-world impact.",
+          "claimed_authors": [
+            "Kasun Amarasinghe",
+            "Kit Rodolfa",
+            "Hemank Lamba",
+            "Rayid Ghani"
+          ],
+          "claimed_title": "Explainable Machine Learning for Public Policy: Use Cases, Gaps, and Research Directions",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2010.14374"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"Trust-Region Behavior Blending for On-Policy Disti', candidate_title='Explainable Machine Learning for Public Policy: Use Cases, Gaps, and Research Directions')",
+        "failed_at": "2026-07-05T00:57:28Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This paper focuses on the problem of detecting and reacting to changes in the distribution of a sensorimotor controller's observables. The key idea is the design of switching policies that can take conformal quantiles as input, which we define as conformal policy learning, that allows robots to detect distribution shifts with formal statistical guarantees. We show how to design such policies by using conformal quantiles to switch between base policies with different characteristics, e.g. safety or speed, or directly augmenting a policy observation with a quantile and training it with reinforcement learning. Theoretically, we show that such policies achieve the formal convergence guarantees in finite time. In addition, we thoroughly evaluate their advantages and limitations on two compelling use cases: simulated autonomous driving and active perception with a physical quadruped. Empirical results demonstrate that our approach outperforms five baselines. It is also the simplest of the baseline strategies besides one ablation. Being easy to use, flexible, and with formal guarantees, our work demonstrates how conformal prediction can be an effective tool for sensorimotor learning under uncertainty.",
+          "claimed_authors": [
+            "Huang Huang",
+            "Satvik Sharma",
+            "Antonio Loquercio",
+            "Anastasios Angelopoulos",
+            "Ken Goldberg",
+            "Jitendra Malik"
+          ],
+          "claimed_title": "Conformal Policy Learning for Sensorimotor Control Under Distribution Shifts",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2311.01457"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"Trust-Region Behavior Blending for On-Policy Disti', candidate_title='Conformal Policy Learning for Sensorimotor Control Under Distribution Shifts')",
+        "failed_at": "2026-07-05T00:57:28Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Evaluating the value of a hypothetical target policy with only a logged dataset is important but challenging. On the one hand, it brings opportunities for safe policy improvement under high-stakes scenarios like clinical guidelines. On the other hand, such opportunities raise a need for precise off-policy evaluation (OPE). While previous work on OPE focused on improving the algorithm in value estimation, in this work, we emphasize the importance of the offline dataset, hence putting forward a data-centric framework for evaluating OPE problems. We propose DataCOPE, a data-centric framework for evaluating OPE, that answers the questions of whether and to what extent we can evaluate a target policy given a dataset. DataCOPE (1) forecasts the overall performance of OPE algorithms without access to the environment, which is especially useful before real-world deployment where evaluating OPE is impossible; (2) identifies the sub-group in the dataset where OPE can be inaccurate; (3) permits evaluations of datasets or data-collection strategies for OPE problems. Our empirical analysis of DataCOPE in the logged contextual bandit settings using healthcare datasets confirms its ability to evaluate both machine-learning and human expert policies like clinical guidelines. Finally, we apply DataCOPE to the task of reward modeling in Large Language Model alignment to demonstrate its scalability in real-world applications.",
+          "claimed_authors": [
+            "Hao Sun",
+            "Alex J. Chan",
+            "Nabeel Seedat",
+            "Alihan Hüyük",
+            "Mihaela van der Schaar"
+          ],
+          "claimed_title": "When is Off-Policy Evaluation (Reward Modeling) Useful in Contextual Bandits? A Data-Centric Perspective",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2311.14110"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"Trust-Region Behavior Blending for On-Policy Disti', candidate_title='When is Off-Policy Evaluation (Reward Modeling) Useful in Contextual Bandits? A Data-Centric Perspective')",
+        "failed_at": "2026-07-05T00:57:28Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We study distributed optimization in the presence of Byzantine adversaries, where both data and computation are distributed among $m$ worker machines, $t$ of which may be corrupt. The compromised nodes may collaboratively and arbitrarily deviate from their pre-specified programs, and a designated (master) node iteratively computes the model/parameter vector for generalized linear models. In this work, we primarily focus on two iterative algorithms: Proximal Gradient Descent (PGD) and Coordinate Descent (CD). Gradient descent (GD) is a special case of these algorithms. PGD is typically used in the data-parallel setting, where data is partitioned across different samples, whereas, CD is used in the model-parallelism setting, where data is partitioned across the parameter space.\n  In this paper, we propose a method based on data encoding and error correction over real numbers to combat adversarial attacks. We can tolerate up to $t\\leq \\lfloor\\frac{m-1}{2}\\rfloor$ corrupt worker nodes, which is information-theoretically optimal. We give deterministic guarantees, and our method does not assume any probability distribution on the data. We develop a {\\em sparse} encoding scheme which enables computationally efficient data encoding and decoding. We demonstrate a trade-off between the corruption threshold and the resource requirements (storage, computational, and communication complexity). As an example, for $t\\leq\\frac{m}{3}$, our scheme incurs only a {\\em constant} overhead on these resources, over that required by the plain distributed PGD/CD algorithms which provide no adversarial protection. To the best of our knowledge, ours is the first paper that makes CD secure against adversarial attacks.\n  Our encoding scheme extends efficiently to the data streaming model and for stochastic gradient descent (SGD). We also give experimental results to show the efficacy of our proposed schemes.",
+          "claimed_authors": [
+            "Deepesh Data",
+            "Linqi Song",
+            "Suhas Diggavi"
+          ],
+          "claimed_title": "Data Encoding for Byzantine-Resilient Distributed Optimization",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1907.02664"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Trust-Region Behavior Blending for On-Policy Disti', candidate_title='Data Encoding for Byzantine-Resilient Distributed Optimization')",
+        "failed_at": "2026-07-05T00:57:28Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We study distributed stochastic gradient descent (SGD) in the master-worker architecture under Byzantine attacks. We consider the heterogeneous data model, where different workers may have different local datasets, and we do not make any probabilistic assumptions on data generation. At the core of our algorithm, we use the polynomial-time outlier-filtering procedure for robust mean estimation proposed by Steinhardt et al. (ITCS 2018) to filter-out corrupt gradients. In order to be able to apply their filtering procedure in our {\\em heterogeneous} data setting where workers compute {\\em stochastic} gradients, we derive a new matrix concentration result, which may be of independent interest.\n  We provide convergence analyses for smooth strongly-convex and non-convex objectives. We derive our results under the bounded variance assumption on local stochastic gradients and a {\\em deterministic} condition on datasets, namely, gradient dissimilarity; and for both these quantities, we provide concrete bounds in the statistical heterogeneous data model. We give a trade-off between the mini-batch size for stochastic gradients and the approximation error. Our algorithm can tolerate up to $\\frac{1}{4}$ fraction Byzantine workers. It can find approximate optimal parameters in the strongly-convex setting exponentially fast and reach to an approximate stationary point in the non-convex setting with a linear speed, thus, matching the convergence rates of vanilla SGD in the Byzantine-free setting.\n  We also propose and analyze a Byzantine-resilient SGD algorithm with gradient compression, where workers send $k$ random coordinates of their gradients. Under mild conditions, we show a $\\frac{d}{k}$-factor saving in communication bits as well as decoding complexity over our compression-free algorithm without affecting its convergence rate (order-wise) and the approximation error.",
+          "claimed_authors": [
+            "Deepesh Data",
+            "Suhas Diggavi"
+          ],
+          "claimed_title": "Byzantine-Resilient SGD in High Dimensions on Heterogeneous Data",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2005.07866"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Trust-Region Behavior Blending for On-Policy Disti', candidate_title='Byzantine-Resilient SGD in High Dimensions on Heterogeneous Data')",
+        "failed_at": "2026-07-05T00:57:28Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In this paper we use H II starburst galaxy apparent magnitude versus redshift data from Siegel et al. (2005) to constrain dark energy cosmological model parameters. These constraints are generally consistent with those derived using other data sets, but are not as restrictive as the tightest currently available constraints.",
+          "claimed_authors": [
+            "Data Mania",
+            "Bharat Ratra"
+          ],
+          "claimed_title": "Constraints on dark energy from H II starburst galaxy apparent magnitude versus redshift data",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2011,
+          "primary_pointer": "1110.5626"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Trust-Region Behavior Blending for On-Policy Disti', candidate_title='Constraints on dark energy from H II starburst galaxy apparent magnitude versus redshift data')",
+        "failed_at": "2026-07-05T00:57:28Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Xingrun Xing",
+            "Haoqing Wang",
+            "Boyan Gao",
+            "Ziheng Li",
+            "Yehui Tang"
+          ],
+          "title": "Trust Region On-Policy Distillation",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2606.01249",
+        "summary": "On-Policy Distillation (OPD) is a fundamental technique for efficient post-training of large language models (LLMs), with broad applications in agent learning, multi-task enhancement, and model compression. However, OPD training becomes unstable when the teacher and student distributions differ substantially, as teacher supervision on student-generated tokens may yield unreliable policy gradients and even cause optimization failure. This work addresses reliable on-policy token-level supervision through credit assignment strategies, and proposes Trust Region On-Policy Distillation, TrOPD. It features the following characteristics: 1) Trust-Region On-Policy Learning: TrOPD performs OPD only in regions where the teacher provides reliable supervision, mitigating the optimization difficulty of the K1 reverse-KL estimator under distribution mismatch. 2) Outlier Estimation: For outlier regions, we explore gradient clipping, masking, and forward-KL estimation to reduce the adverse effects of unreliable supervision. 3) Off-Policy Guidance: The student continues generation from teacher prefixes and uses forward KL to imitate off-policy guidance, encouraging on-policy exploration toward reliable regions. Experiments show that TrOPD consistently outperforms SoTA OPD baselines, including OPD, EOPD, and REOPOLD, across mathematical reasoning, code generation, and general-domain benchmarks.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2606.01249",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3636,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-05T00:57:27Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Daniil Plyusov",
+            "Alexey Gorbatovski",
+            "Alexey Malakhov",
+            "Nikita Balagansky",
+            "Boris Shaposhnikov",
+            "Daria Korotyshova",
+            "Daniil Gavrilov"
+          ],
+          "title": "Trust-Region Behavior Blending for On-Policy Distillation",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2605.31159",
+        "summary": "On-policy distillation (OPD) trains a student on prefixes sampled from its own policy while matching a stronger teacher. This addresses the prefix mismatch of offline distillation, but early student rollouts can still be poor, placing teacher supervision on weak or low-quality prefixes. We propose Trust-Region behavior Blending (TRB), a warmup method that replaces the early rollout policy with the closest-to-teacher behavior policy inside a student-centered KL trust region, while keeping the per-prefix reverse-KL OPD loss unchanged. The KL budget is annealed to zero, so training returns to pure student rollouts after warmup. Across two math-reasoning distillation settings, TRB attains the strongest average among the compared methods.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2605.31159",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5455,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-05T00:57:27Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Ying Wen",
+            "Hui Chen",
+            "Yaodong Yang",
+            "Zheng Tian",
+            "Minne Li",
+            "Xu Chen",
+            "Jun Wang"
+          ],
+          "title": "A Game-Theoretic Approach to Multi-Agent Trust Region Optimization",
+          "venue": "arXiv",
+          "year": 2021
+        },
+        "primary_pointer": "2106.06828",
+        "summary": "Trust region methods are widely applied in single-agent reinforcement learning problems due to their monotonic performance-improvement guarantee at every iteration. Nonetheless, when applied in multi-agent settings, the guarantee of trust region methods no longer holds because an agent's payoff is also affected by other agents' adaptive behaviors. To tackle this problem, we conduct a game-theoretical analysis in the policy space, and propose a multi-agent trust region learning method (MATRL), which enables trust region optimization for multi-agent learning. Specifically, MATRL finds a stable improvement direction that is guided by the solution concept of Nash equilibrium at the meta-game level. We derive the monotonic improvement guarantee in multi-agent settings and empirically show the local convergence of MATRL to stable fixed points in the two-player rotational differential game. To test our method, we evaluate MATRL in both discrete and continuous multiplayer general-sum games including checker and switch grid worlds, multi-agent MuJoCo, and Atari games. Results suggest that MATRL significantly outperforms strong multi-agent reinforcement learning baselines.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2106.06828",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-05T00:57:34Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Manish Dhakal",
+            "Uthman Jinadu",
+            "Anjila Budathoki",
+            "Rajshekhar Sunderraman",
+            "Yi Ding"
+          ],
+          "title": "DistillLens: Symmetric Knowledge Distillation Through Logit Lens",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2602.13567",
+        "summary": "Standard Knowledge Distillation (KD) compresses Large Language Models (LLMs) by optimizing final outputs, yet it typically treats the teacher's intermediate layer's thought process as a black box. While feature-based distillation attempts to bridge this gap, existing methods (e.g., MSE and asymmetric KL divergence) ignore the rich uncertainty profiles required for the final output. In this paper, we introduce DistillLens, a framework that symmetrically aligns the evolving thought processes of student and teacher models. By projecting intermediate hidden states into the vocabulary space via the Logit Lens, we enforce structural alignment using a symmetric divergence objective. Our analysis proves that this constraint imposes a dual-sided penalty, preventing both overconfidence and underconfidence while preserving the high-entropy information conduits essential for final deduction. Extensive experiments on GPT-2 and Llama architectures demonstrate that DistillLens consistently outperforms standard KD and feature-transfer baselines on diverse instruction-following benchmarks. The code is available at https://github.com/manishdhakal/DistillLens.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2602.13567",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-05T00:57:35Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Hideki Oki",
+            "Motoshi Abe",
+            "Junichi Miyao",
+            "Takio Kurita"
+          ],
+          "title": "Triplet Loss for Knowledge Distillation",
+          "venue": "arXiv",
+          "year": 2020
+        },
+        "primary_pointer": "2004.08116",
+        "summary": "In recent years, deep learning has spread rapidly, and deeper, larger models have been proposed. However, the calculation cost becomes enormous as the size of the models becomes larger. Various techniques for compressing the size of the models have been proposed to improve performance while reducing computational costs. One of the methods to compress the size of the models is knowledge distillation (KD). Knowledge distillation is a technique for transferring knowledge of deep or ensemble models with many parameters (teacher model) to smaller shallow models (student model). Since the purpose of knowledge distillation is to increase the similarity between the teacher model and the student model, we propose to introduce the concept of metric learning into knowledge distillation to make the student model closer to the teacher model using pairs or triplets of the training samples. In metric learning, the researchers are developing the methods to build a model that can increase the similarity of outputs for similar samples. Metric learning aims at reducing the distance between similar and increasing the distance between dissimilar. The functionality of the metric learning to reduce the differences between similar outputs can be used for the knowledge distillation to reduce the differences between the outputs of the teacher model and the student model. Since the outputs of the teacher model for different objects are usually different, the student model needs to distinguish them. We think that metric learning can clarify the difference between the different outputs, and the performance of the student model could be improved. We have performed experiments to compare the proposed method with state-of-the-art knowledge distillation methods.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2004.08116",
+          "http_status": 200,
+          "pdf_sample_score": 0.3794,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-05T00:57:35Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "llmxive follow-up: extending \"trust-region behavior blending for on-policy distillation\" computer science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

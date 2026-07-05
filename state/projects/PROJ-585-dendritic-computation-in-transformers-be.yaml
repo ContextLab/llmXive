@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-17T00:34:44.524738Z'
-current_stage: clarified
+current_stage: planned
 failed_stage: null
 field: neuroscience
 human_escalation_reason: null
 id: PROJ-585-dendritic-computation-in-transformers-be
-last_run_id: 10b9a9f8-67b2-4c06-b469-3140039b9559
+last_run_id: b98ee0aa-27db-45dc-a935-065fd453b1e3
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-585-dendritic-computation-in-transformers-be/specs/001-dendritic-computation-in-transformers-be
 title: 'Dendritic Computation in Transformers: Beyond Point Neurons'
-updated_at: '2026-07-04T23:30:23.154200Z'
+updated_at: '2026-07-05T01:11:42.542884Z'

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2605.31159",
+  "judged_at": "2026-07-05T00:57:46Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"trust-region behavior blending for on-policy distillation\" computer science",
+  "rationale": "The candidate paper is the foundational methods paper that directly introduces the \"Trust-Region Behavior Blending\" technique mentioned in the user's question, satisfying acceptance criterion (d) as the canonical reference for the specific algorithm the user intends to extend.",
+  "relevant": true
+}

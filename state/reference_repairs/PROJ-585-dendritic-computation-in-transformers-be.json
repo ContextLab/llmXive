@@ -22,5 +22,17 @@
         "intent": "jmamau augmented glue sst2 Note: The dataset was previously considered but is unreachable HTTP 401 . plan strictly uses verified SetFit/sst2 and gpt3mix/sst2 sources."
       }
     ]
+  },
+  {
+    "repaired_at": "2026-07-05T01:04:18.562178+00:00",
+    "project": "PROJ-585-dendritic-computation-in-transformers-be",
+    "repairs": [
+      {
+        "dead_url": "https://huggingface.co/datasets/jmamau/augmented-glue-sst2/resolve/main/train-v2.tsv",
+        "reason": "HTTP 401",
+        "replacement_url": "https://huggingface.co/datasets/SetFit/sst2/resolve/main/dev.jsonl",
+        "intent": "jmamau augmented glue sst2 SST 2 Training and Evaluation Dev <br Train datasets.load_dataset \"json\", data_files=... or load_dataset \"glue\", \"sst2\" via HuggingFace hub."
+      }
+    ]
   }
 ]

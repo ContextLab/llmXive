@@ -1,45 +1,37 @@
 # Implementation Plan: Dendritic Computation in Transformers: Beyond Point Neurons
 
-**Branch**: `001-dendritic-computation-in-transformers` | **Date**: 2026-06-08 | **Spec**: `specs/001-dendritic-computation-in-transformers/spec.md`
-**Input**: Feature specification from `specs/001-dendritic-computation-in-transformers/spec.md`
+**Branch**: `001-dendritic-computation-in-transformers` | **Date**: 2026-06-25 | **Spec**: `spec.md`
+**Input**: Feature specification from `/specs/001-dendritic-computation-in-transformers/spec.md`
 
 ## Summary
 
-This project implements a rigorous comparison between standard transformer architectures (point-neuron feedforward layers) and a novel variant incorporating biologically inspired dendritic compartmentalization (local nonlinearities and plateau potential gating). The primary objective is to determine if dendritic mechanics enable more efficient hierarchical feature detection on the GLUE SST-2 benchmark, strictly controlling for parameter count and FLOPs. The implementation adheres to a CPU-only constraint (limited cores, constrained RAM, 6h limit). and includes a full probing pipeline with statistical validation across multiple seeds.
+This project investigates whether artificial neurons with biologically realistic dendritic compartmentalization enable more efficient hierarchical feature detection in transformer architectures compared to standard point-neuron designs. The technical approach involves implementing a matched-parameter dendritic transformer variant (replacing standard feedforward layers with compartmentalized units featuring **local nonlinearities**, **plateau potential gating**, and **calcium modulation**) and a baseline point-neuron transformer. To ensure strict parameter and FLOP matching (tolerances: **<0.1% parameters**, **<1% FLOPs**), the plan explicitly compensates for the dendritic overhead by reducing the hidden dimension of the baseline's main trunk. Both models will be trained on the GLUE SST-2 benchmark under strict CPU-only constraints (**2 cores, 7GB RAM**, **6-hour wall-clock limit**). The plan includes rigorous statistical analysis (**paired Wilcoxon tests** on **sample efficiency** (steps to reach **[deferred] fixed accuracy**) and **probing accuracy**, **Benjamini-Hochberg correction** for per-layer tests, and **AUC of accuracy-vs-depth curve**) across **3-5 random seeds**. A **sensitivity analysis** sweeps the `dendritic_threshold` parameter over values **0.1, 0.5, and 0.9** to validate robustness (FR-007).
 
 ## Technical Context
 
-**Language/Version**: Python 3.11
-**Primary Dependencies**: `torch` (CPU-only wheel), `scikit-learn`, `datasets` (HuggingFace), `pandas`, `numpy`, `pytest`, `wandb` (optional, local logging preferred for CPU constraints)
-**Storage**: Local file system (`data/`, `artifacts/`, `state/`) for checkpoints, logs, and checksums; no external database.
-**Testing**: `pytest` for unit tests (model architecture, FLOP counting); integration tests for training loops.
-**Target Platform**: Linux (GitHub Actions free-tier runner: 2 vCPU, 7GB RAM).
-**Project Type**: Research library / CLI tool.
-**Performance Goals**: Training must complete or hit a hard stop within 6 hours; FLOP matching within <1% (counting non-linear gates as distinct operations); parameter matching within <0.1%.
-**Constraints**: No GPU/CUDA; no 8-bit quantization; memory usage <7GB; strict adherence to matched compute budgets.
-**Scale/Scope**: Single benchmark (SST-2), A small number of random seeds, shallow-to-moderate transformer depth (e.g., 4-6 layers) to ensure CPU feasibility.
+**Language/Version**: Python 3.11  
+**Primary Dependencies**: PyTorch (CPU-only wheel), scikit-learn, pandas, datasets (HuggingFace), pytest, torchinfo  
+**Storage**: Local file system (`data/` for datasets/checkpoints, `data/experiments/` for logs)  
+**Testing**: `pytest` with unit tests for model architecture matching and integration tests for training pipelines  
+**Target Platform**: Linux (GitHub Actions free-tier runner: 2 CPU, 7GB RAM, no GPU)  
+**Project Type**: Research library/experimental pipeline  
+**Performance Goals**: Train both models to stable state or hard stop within 6 hours on CPU; parameter match <0.1%; FLOP match <1%  
+**Constraints**: No GPU/CUDA; memory footprint <7GB; disk usage <14GB; reproducibility via pinned seeds (stored in `config.yaml`) and checksummed data  
+**Scale/Scope**: Single benchmark task (SST-2); 3-5 random seeds; sensitivity sweep over 3 threshold values (0.1, 0.5, 0.9)
 
-> Note: Empirical values (exact dataset splits, final accuracies) are deferred to the implementation phase.
-
-**FLOP Counting Methodology**:
-To ensure fair comparison (FR-002), the FLOP counter explicitly accounts for the computational cost of dendritic gates.
-- Matrix Multiplication: Constant-factor operations proportional to H * W.
-- Non-linear Gating (Sigmoid, Element-wise Multiply): a constant number of operations per element.
-- The <1% tolerance is calculated on the *total* operation count, ensuring the gating overhead is not ignored. If the dendritic model has higher non-linear overhead, the linear projection width will be reduced to compensate.
+> Empirical specifics (exact dataset sizes, measured quantities) are deferred to the research/implementation phase.
 
 ## Constitution Check
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-| Principle | Status | Notes |
-| :--- | :--- | :--- |
-| **I. Reproducibility** | **PASS** | Plan mandates pinned seeds, deterministic data loading, and `requirements.txt`. |
-| **II. Verified Accuracy** | **PASS** | Citations in `research.md` will strictly use verified URLs from the spec block. |
-| **III. Data Hygiene** | **PASS** | Data will be checksummed; raw data preserved; derived data written to new files. Checksums recorded in `data/checksums.manifest` and `state/artifact_hashes.yaml`. |
-| **IV. Single Source of Truth** | **PASS** | All metrics traced to `data/experiments/` logs and code blocks. |
-| **V. Versioning Discipline** | **PASS** | Content hashes for artifacts will be updated upon change. |
-| **VI. Dendritic Model Documentation** | **PASS** | Plan explicitly requires exposing `local_nonlinearities`, `plateau_gating`, and `calcium_modulation` as configurable modules with logged hyperparameters. |
-| **VII. Benchmark Parity** | **PASS** | Plan enforces matched parameters/FLOPs, identical schedules, and 6h wall-clock limit. |
+- **I. Reproducibility**: Plan mandates pinned random seeds (persisted in `config.yaml`), checksummed datasets, and isolated virtualenv execution. All results traceable to `code/` and `data/`.
+- **II. Verified Accuracy**: Dataset references in `research.md` are restricted to the verified list provided in the prompt (no invented URLs). Citations in analysis will be validated by the Reference-Validator Agent.
+- **III. Data Hygiene**: Raw data preserved; derivations written to new files with checksums. No PII in data.
+- **IV. Single Source of Truth**: All figures/stats in final paper trace to `data/` rows and `code/` blocks.
+- **V. Versioning Discipline**: Artifacts carry content hashes; state file updated on changes.
+- **VI. Dendritic Model Documentation**: Plan explicitly requires logging of dendritic parameters (local nonlinearities, plateau gating, calcium modulation) in `data/experiments/` via `dendritic_parameters` schema.
+- **VII. Benchmark Parity and Compute Consistency**: Plan enforces matched parameters/FLOPs (via hidden dimension compensation), **identical optimization schedules**, **identical batch sizes**, and a **6-hour wall-clock limit** on the same runner config (2 cores, 7GB RAM), as required by Constitution Principle VII.
 
 ## Project Structure
 
@@ -51,52 +43,47 @@ specs/001-dendritic-computation-in-transformers/
 ├── research.md          # Phase 0 output
 ├── data-model.md        # Phase 1 output
 ├── quickstart.md        # Phase 1 output
-├── contracts/           # Phase 1 output
-└── tasks.md             # Phase 2 output (generated later)
+├── contracts/           # Phase 1 output (Schema files)
+│   ├── experiment_log.schema.yaml
+│   ├── probe_result.schema.yaml
+│   ├── stat_test.schema.yaml
+│   └── transformer_config.schema.yaml
+└── tasks.md             # Phase 2 output (NOT created by /speckit-plan)
 ```
 
 ### Source Code (repository root)
 
 ```text
-code/
-├── models/
-│   ├── __init__.py
-│   ├── transformer_base.py       # Standard point-neuron baseline
-│   ├── transformer_dendritic.py  # Dendritic variant with compartmentalized units
-│   └── utils.py                  # FLOP counter, parameter matcher
+projects/PROJ-585-dendritic-computation-in-transformers-be/
+├── code/
+│   ├── models/
+│   │   ├── transformer_baseline.py
+│   │   └── transformer_dendritic.py
+│   ├── experiments/
+│   │   ├── train.py
+│   │   ├── probe.py
+│   │   └── analyze.py
+│   ├── utils/
+│   │   ├── flops.py
+│   │   └── config.py
+│   └── tests/
+│       ├── test_architecture_match.py
+│       └── test_training_pipeline.py
 ├── data/
-│   ├── __init__.py
-│   └── loaders.py                # SST-2 loader with checksums
-├── experiments/
-│   ├── train.py                  # Main training loop with 6h timeout
-│   ├── probe.py                  # Linear probing on intermediate layers
-│   ├── analyze.py                # Statistical tests (t-test, FDR)
-│   └── validate_arch.py          # Architecture validation script
-├── config/
-│   └── config.yaml               # Hyperparameters, dendritic thresholds
-├── tests/
-│   ├── test_architecture.py      # Verify FLOP/Param matching
-│   └── test_training.py          # Verify timeout and logging
-├── requirements.txt
-└── main.py                       # CLI entry point
-
-artifacts/
-├── logs/
-├── checkpoints/
-└── results/
-
-state/
-├── artifact_hashes.yaml          # Checksums for data hygiene (Constitution III)
-└── current_stage.yaml
+│   ├── raw/
+│   │   └── glue_sst2/
+│   ├── processed/
+│   └── experiments/
+│       └── [seed_001]/
+└── docs/
+    ├── research_notes.md
+    └── quickstart.md
 ```
 
-**Structure Decision**: A single `code/` directory with modular separation of models, data, and experiments. This minimizes import overhead and simplifies the CPU-only execution environment. The `models/` directory explicitly separates the baseline and dendritic implementations to ensure the "Distinct Logic" requirement (Constitution VI) is met. The `state/` directory is explicitly included to house the `artifact_hashes` map required by Constitution III.
+**Structure Decision**: Single-project structure with clear separation of models, experiments, and utilities. Directories align with Constitution Principle I (Reproducibility) and Principle VII (Benchmark Parity). Contract files (Phase 1 outputs) are explicitly listed to ensure traceability.
 
 ## Complexity Tracking
 
 | Violation | Why Needed | Simpler Alternative Rejected Because |
-| :--- | :--- | :--- |
-| **Dendritic Sub-units** | Required by spec (FR-001) to test biological realism hypothesis. | Reverting to standard MLPs would fail the research question entirely. |
-| **Statistical Probing** | Required by FR-004/005 to measure "hierarchical feature detection" (US-3). | Comparing only final accuracy would miss the core mechanism (local vs. global feature extraction). |
-| **FLOP Counter** | Required by FR-002 to ensure fair comparison. | Assuming parameter count equality is insufficient; FLOPs vary with nonlinearity complexity. |
-| **6h Timeout Mechanism** | Required by US-2 and Constitution VII (Compute Consistency). | Without a hard stop, CPU-only training might run indefinitely, violating the "fair comparison" constraint. |
+|-----------|------------|-------------------------------------|
+| None | Constitution Check passed without violations. | N/A |

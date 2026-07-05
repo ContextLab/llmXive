@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2004.08116",
+  "judged_at": "2026-07-05T00:57:58Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"trust-region behavior blending for on-policy distillation\" computer science",
+  "rationale": "This paper satisfies criterion (d) as a foundational methodology reference for the \"knowledge distillation\" component of the user's query, and criterion (a) by proposing a specific mechanism (triplet loss/metric learning) to achieve the core objective of distilling teacher behavior into a student model, which is the central theme of the user's \"On-Policy Distillation\" topic.",
+  "relevant": true
+}
