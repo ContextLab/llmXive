@@ -1,0 +1,45 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Model Performance Schema"
+description: "Schema for results/model_performance.json"
+type: "object"
+properties:
+  model_type:
+    type: "string"
+    description: "Type of model used (e.g., 'LinearRegression')"
+  r_squared_mean:
+    type: "number"
+    description: "Mean R² score across folds"
+  r_squared_std:
+    type: "number"
+    description: "Standard deviation of R² score"
+  rmse_mean:
+    type: "number"
+    description: "Mean RMSE across folds"
+  rmse_std:
+    type: "number"
+    description: "Standard deviation of RMSE"
+  n_folds:
+    type: "integer"
+    description: "Number of cross-validation folds"
+  features_used:
+    type: "array"
+    items:
+      type: "string"
+    description: "List of features included after VIF filtering (includes physical descriptors)"
+  sample_size:
+    type: "integer"
+    description: "Number of samples used in the model"
+  power_warning:
+    type: "boolean"
+    description: "True if sample size < 50 or effect size is weak"
+required:
+  - model_type
+  - r_squared_mean
+  - r_squared_std
+  - rmse_mean
+  - rmse_std
+  - n_folds
+  - features_used
+  - sample_size
+  - power_warning
+additionalProperties: false

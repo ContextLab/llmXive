@@ -1,1 +1,11 @@
-[]
+- artifact_hash: 902bfb76f7e8be7559122a5e677d17d3787a0de2882d87dd44c3be53b12f03ac
+  artifact_path: projects/PROJ-360-quantifying-the-impact-of-network-struct/specs/001-quantifying-the-impact-of-network-struct/plan.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: Materials Project API - Swagger UI
+  kind: url
+  value: https://api.materialsproject.org`
+  verification_status: verified
+  verified_against_url: https://api.materialsproject.org/docs
+  verified_at: '2026-07-05T12:46:01.813077Z'

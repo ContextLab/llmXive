@@ -1,0 +1,30 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Correlation Result Schema"
+description: "Schema for results/correlations.json"
+type: "object"
+properties:
+  metric_name:
+    type: "string"
+    description: "Name of the network metric (e.g., 'average_degree')"
+  correlation_coefficient:
+    type: "number"
+    description: "Pearson or Spearman correlation coefficient"
+  p_value:
+    type: "number"
+    description: "Raw p-value of the test"
+  bonferroni_adjusted_p:
+    type: "number"
+    description: "Bonferroni-corrected p-value"
+  significance_flag:
+    type: "boolean"
+    description: "True if adjusted p-value < 0.05"
+  vif_value:
+    type: ["number", "null"]
+    description: "Variance Inflation Factor (null if not applicable)"
+required:
+  - metric_name
+  - correlation_coefficient
+  - p_value
+  - bonferroni_adjusted_p
+  - significance_flag
+additionalProperties: false

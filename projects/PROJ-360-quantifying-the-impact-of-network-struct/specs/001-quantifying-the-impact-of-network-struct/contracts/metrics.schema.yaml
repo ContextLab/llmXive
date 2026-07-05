@@ -1,0 +1,43 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Network Metrics Schema"
+description: "Schema for data/processed/metrics.csv and related JSON outputs"
+type: "object"
+properties:
+  material_id:
+    type: "string"
+    description: "Unique identifier from Materials Project"
+  scalar_k:
+    type: "number"
+    description: "Mean thermal conductivity (W/mK)"
+  average_degree:
+    type: "number"
+    description: "Average degree of the network graph"
+  average_path_length:
+    type: ["number", "null"]
+    description: "Average shortest path length on LCC (null if disconnected and imputation not possible)"
+  clustering_coefficient:
+    type: "number"
+    description: "Global clustering coefficient"
+  is_connected:
+    type: "boolean"
+    description: "True if the graph is fully connected"
+  unit_cell_volume:
+    type: "number"
+    description: "Unit cell volume in Å³ (confounder control)"
+  atom_count:
+    type: "integer"
+    description: "Total number of atoms (confounder control)"
+  mean_atomic_mass:
+    type: "number"
+    description: "Mean atomic mass of elements (confounder control)"
+required:
+  - material_id
+  - scalar_k
+  - average_degree
+  - average_path_length
+  - clustering_coefficient
+  - is_connected
+  - unit_cell_volume
+  - atom_count
+  - mean_atomic_mass
+additionalProperties: false

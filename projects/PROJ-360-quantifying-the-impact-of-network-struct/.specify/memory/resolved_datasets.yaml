@@ -1,0 +1,99 @@
+resolved_at: '2026-07-05T12:32:11.811774+00:00'
+datasets:
+- intent: CIF
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/uoft-cs/cifar10/resolve/main/plain_text/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/uoft-cs/cifar100/resolve/main/cifar100/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/rafay/upside_down_detection_cifar100/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/uoft-cs/cifar10/resolve/main/plain_text/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/uoft-cs/cifar100/resolve/main/cifar100/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/rafay/upside_down_detection_cifar100/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/poster/Obong_University_Obong_Ntak_2026_2027_ADMISSION_FORM_ACESS_0704-0964-654_Dr_Faith_07040964654_Applications_are_now_ongoing_for_the_2026_2027_academic_session_Interested_candidates_07040964654_for_Post_UTME_Undergraduate_Form_JUPEB_Form_IJMB/32902580
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/Salem_University_Lokoja_2026_2027_ADMISSION_FORM_ACESS_0704-0964-654_Dr_Faith_07040964654_Applications_are_now_ongoing_for_the_2026_2027_academic_session_Interested_candidates_07040964654_for_Post_UTME_Undergraduate_Form_JUPEB_Form_IJMB_For/32902559
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Nigerian_British_University_Asa_Abia_State_Jupeb_2026_2027_FORM_PORTAL_IS_OPEN_NOW_O9167660199_09165949470_Admission_form_Applications_are_now_ongoing_for_the_2026_2027_academic_session_Interested_candidates_09167660199_for_Post_UTME_Underg/32902565
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/Tansian_University_Umunya_2026_2027_ADMISSION_FORM_ACESS_0704-0964-654_Dr_Faith_07040964654_Applications_are_now_ongoing_for_the_2026_2027_academic_session_Interested_candidates_07040964654_for_Post_UTME_Undergraduate_Form_JUPEB_Form_IJMB_F/32902574
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Veritas_University_Abuja_2026_2027_ADMISSION_FORM_ACESS_0704-0964-654_Dr_Faith_07040964654_Applications_are_now_ongoing_for_the_2026_2027_academic_session_Interested_candidates_07040964654_for_Post_UTME_Undergraduate_Form_JUPEB_Form_IJMB_Fo/32902568
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5759499
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/2564072
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4153196
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3557302
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20759234
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21199453
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21199453
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21198876
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21189615
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21189615
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
