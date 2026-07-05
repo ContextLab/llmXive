@@ -1,12 +1,7 @@
-last_used: alan-turing
-last_used_at: '2026-07-04T18:27:44.960159+00:00'
-last_outcome: committed
+last_used: albert-einstein
+last_used_at: '2026-07-05T00:45:45.481800+00:00'
+last_outcome: triage_rejected_advanced_as_abstain
 history:
-- slug: ada-lovelace
-  started_at: '2026-06-23T12:02:53.508608+00:00'
-  ended_at: '2026-06-23T13:27:49.935149+00:00'
-  outcome: abstained
-  action: abstain
 - slug: alan-turing
   started_at: '2026-06-23T13:27:49.935149+00:00'
   ended_at: '2026-06-23T14:20:46.460646+00:00'
@@ -1218,3 +1213,8 @@ history:
   action: comment
   committed_paths:
   - projects/PROJ-586-social-memory-networks-modeling-collecti/reviews/research/alan-turing-simulated__2026-07-04__research.md
+- slug: albert-einstein
+  started_at: '2026-07-04T18:27:44.960159+00:00'
+  ended_at: '2026-07-05T00:45:45.481800+00:00'
+  outcome: triage_rejected_advanced_as_abstain
+  action: comment
