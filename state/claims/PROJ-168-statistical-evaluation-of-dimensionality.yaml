@@ -1,0 +1,392 @@
+- artifact_path: projects/PROJ-168-statistical-evaluation-of-dimensionality/specs/001-statistical-evaluation-of-dimensionality/tasks.md
+  attempts: 1
+  canonical: Pipeline fetches raw counts for GSE131907, GSE111322, GSE150728
+  claim_id: c_ce4b8eed
+  context: 'Phase 3: User Story 1 - Data Acquisition and Preprocessing Pipeline. Goal:
+    Automatically download three specific public scRNA-seq datasets...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pipeline_fetches_raw_counts_for_GSE131907,_GSE111322,_GSE150
+  kind: entity_fact
+  raw_text: The pipeline is designed to fetch raw count matrices for GSE131907, GSE111322,
+    and GSE150728.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T02:48:07Z'
+- artifact_path: projects/PROJ-168-statistical-evaluation-of-dimensionality/specs/001-statistical-evaluation-of-dimensionality/tasks.md
+  attempts: 1
+  canonical: Gene filter threshold is less than 5 percent
+  claim_id: c_7992b7f1
+  context: 'T013: Create Snakefile rule preprocess to apply QC (<5% gene filter)...'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Gene_filter_threshold_is_less_than_5_percent
+  kind: magnitude
+  raw_text: The pipeline uses a gene filter threshold of <5%.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T02:48:26Z'
+- artifact_path: projects/PROJ-168-statistical-evaluation-of-dimensionality/specs/001-statistical-evaluation-of-dimensionality/tasks.md
+  attempts: 1
+  canonical: Sampling threshold is 10000 cells
+  claim_id: c_d04d8718
+  context: 'T014b: Configure sampling threshold (10,000 cells) in code/config.py...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline samples down to a subset of 10,000 cells if the cell count
+    exceeds this threshold.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T02:48:34Z'
+- artifact_path: projects/PROJ-168-statistical-evaluation-of-dimensionality/specs/001-statistical-evaluation-of-dimensionality/tasks.md
+  attempts: 1
+  canonical: Global Linearity uses Trustworthiness metric with k=15
+  claim_id: c_7bc79f41
+  context: 'T007: Implement code/geometry.py to compute Global Linearity (Trustworthiness
+    metric, k=15)...'
+  evidence:
+    asserted: '15.0'
+    authority: scipy.constants.k (CODATA 2018, exact by SI definition)
+    constant: boltzmann
+    corrected: true
+    mode: approximate
+    true_value: 1.380649e-23
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?k
+  kind: numeric
+  raw_text: Global Linearity is computed using the Trustworthiness metric with k=15.
+  resolved_value: '0'
+  resolver: approximate
+  source_hash: 2bfb0d3513311088eea23af05f5f28fc2ef73a6a80811bbb243001626363f07f
+  source_type: external
+  status: verified
+  updated_at: '2026-07-05T02:48:34Z'
+- artifact_path: projects/PROJ-168-statistical-evaluation-of-dimensionality/specs/001-statistical-evaluation-of-dimensionality/tasks.md
+  attempts: 1
+  canonical: Local Continuity uses LCA metric with k=15
+  claim_id: c_6488e986
+  context: 'T007: Implement code/geometry.py to compute ... Local Continuity (LCA
+    metric, k=15)...'
+  evidence:
+    asserted: '15.0'
+    authority: scipy.constants.k (CODATA 2018, exact by SI definition)
+    constant: boltzmann
+    corrected: true
+    mode: approximate
+    true_value: 1.380649e-23
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?k
+  kind: numeric
+  raw_text: Local Continuity is computed using the LCA metric with k=15.
+  resolved_value: '0'
+  resolver: approximate
+  source_hash: 2bfb0d3513311088eea23af05f5f28fc2ef73a6a80811bbb243001626363f07f
+  source_type: external
+  status: verified
+  updated_at: '2026-07-05T02:48:34Z'
+- artifact_path: projects/PROJ-168-statistical-evaluation-of-dimensionality/specs/001-statistical-evaluation-of-dimensionality/tasks.md
+  attempts: 1
+  canonical: Geometric diagnostics computed on raw high-dimensional space pre-log-CPM
+  claim_id: c_a98d8e7b
+  context: 'T018: Create Snakefile rule geometry to compute Global Linearity ... on
+    the RAW high-dimensional space (pre-log-CPM)...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Geometric_diagnostics_computed_on_raw_high-dimensional_space
+  kind: entity_fact
+  raw_text: Geometric diagnostics are computed on the RAW high-dimensional space (pre-log-CPM).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T02:49:01Z'
+- artifact_path: projects/PROJ-168-statistical-evaluation-of-dimensionality/specs/001-statistical-evaluation-of-dimensionality/tasks.md
+  attempts: 1
+  canonical: Sensitivity sweep uses Silhouette thresholds 0.4, 0.5, 0.6
+  claim_id: c_4bf51822
+  context: 'Notes: SENSITIVITY SWEEP: Explicitly uses {0.4, 0.5, 0.6} as per SC-001.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity sweep iterates over Silhouette thresholds of 0.4, 0.5,
+    and 0.6.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T02:58:56Z'
+- artifact_path: projects/PROJ-168-statistical-evaluation-of-dimensionality/specs/001-statistical-evaluation-of-dimensionality/tasks.md
+  attempts: 1
+  canonical: Target peak RAM usage is less than 7GB
+  claim_id: c_644777ab
+  context: 'T032: Add CI step to verify total pipeline runtime < 6 hours and peak
+    RAM < 7GB...'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Target_peak_RAM_usage_is_less_than_7GB
+  kind: magnitude
+  raw_text: The analysis pipeline targets a peak RAM usage of less than 7GB.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T03:00:05Z'
+- artifact_path: projects/PROJ-168-statistical-evaluation-of-dimensionality/specs/001-statistical-evaluation-of-dimensionality/tasks.md
+  attempts: 1
+  canonical: Target total pipeline runtime is less than 6 hours
+  claim_id: c_1bef01b4
+  context: 'T032: Add CI step to verify total pipeline runtime < 6 hours and peak
+    RAM < 7GB...'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Target_total_pipeline_runtime_is_less_than_6_hours
+  kind: magnitude
+  raw_text: The pipeline targets a total runtime of less than 6 hours.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T03:02:11Z'
+- artifact_path: projects/PROJ-168-statistical-evaluation-of-dimensionality/specs/001-statistical-evaluation-of-dimensionality/tasks.md
+  attempts: 1
+  canonical: Benjamini-Hochberg correction ensures FDR less than 0.05
+  claim_id: c_e168aec2
+  context: 'T047: Implement Benjamini-Hochberg correction ... ensuring FDR < 0.05
+    is reported.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Benjamini-Hochberg_correction_ensures_FDR_less_than_0.05
+  kind: magnitude
+  raw_text: The Benjamini-Hochberg correction is applied to ensure an FDR of less
+    than 0.05.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T03:10:44Z'
+- artifact_path: projects/PROJ-168-statistical-evaluation-of-dimensionality/specs/001-statistical-evaluation-of-dimensionality/tasks.md
+  attempts: 1
+  canonical: Pipeline aborts if VIF is greater than or equal to 5
+  claim_id: c_d48a32cc
+  context: 'T048: Add VIF calculation ... abort if VIF >= 5...'
+  evidence:
+    asserted: '5.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: magnitude
+  raw_text: The pipeline aborts if the Variance Inflation Factor (VIF) is greater
+    than or equal to 5.
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-07-05T03:10:44Z'
+- artifact_path: projects/PROJ-168-statistical-evaluation-of-dimensionality/specs/001-statistical-evaluation-of-dimensionality/tasks.md
+  attempts: 1
+  canonical: Sensitivity sweep variance threshold is 0.05
+  claim_id: c_885ccc0f
+  context: 'T046: Update code/aggregate.py ... comparing it against the SC-001 threshold
+    (variance < 0.05).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity sweep compares variance against a threshold of 0.05.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T03:14:01Z'
+- artifact_path: projects/PROJ-168-statistical-evaluation-of-dimensionality/specs/001-statistical-evaluation-of-dimensionality/tasks.md
+  attempts: 1
+  canonical: ANOVA F-tests use alpha of 0.05
+  claim_id: c_077b1724
+  context: "T026: Implement ANOVA F-tests in code/stats.py to evaluate interaction\
+    \ terms with \u03B1=0.05"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: ANOVA F-tests evaluate interaction terms with an alpha of 0.05.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T03:14:53Z'
+- artifact_path: projects/PROJ-168-statistical-evaluation-of-dimensionality/specs/001-statistical-evaluation-of-dimensionality/tasks.md
+  attempts: 1
+  canonical: Mixed-Effects Model falls back to Fixed-Effects ANOVA if N=1
+  claim_id: c_2ecf1b90
+  context: 'T024: Include fallback to Fixed-Effects ANOVA if N=1 dataset...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Mixed-Effects Model falls back to Fixed-Effects ANOVA if N=1 dataset.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T03:16:06Z'
+- artifact_path: projects/PROJ-168-statistical-evaluation-of-dimensionality/specs/001-statistical-evaluation-of-dimensionality/tasks.md
+  attempts: 1
+  canonical: Pipeline proceeds in Case Study mode if at least one dataset found
+  claim_id: c_9dfbed0c
+  context: 'Notes: DATA GAP LOGIC: Pipeline aborts only if ZERO datasets are found.
+    If >=1 dataset is found, it proceeds in ''Case Study'' mode.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pipeline_proceeds_in_Case_Study_mode_if_at_least_one_dataset
+  kind: magnitude
+  raw_text: The pipeline proceeds in 'Case Study' mode if at least one dataset is
+    found.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T03:17:13Z'
+- artifact_path: projects/PROJ-168-statistical-evaluation-of-dimensionality/specs/001-statistical-evaluation-of-dimensionality/tasks.md
+  attempts: 1
+  canonical: Pipeline aborts if zero datasets found
+  claim_id: c_2fe9028a
+  context: 'Notes: DATA GAP LOGIC: Pipeline aborts only if ZERO datasets are found.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pipeline_aborts_if_zero_datasets_found
+  kind: entity_fact
+  raw_text: The pipeline aborts if zero datasets are found.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T03:19:00Z'
+- artifact_path: projects/PROJ-168-statistical-evaluation-of-dimensionality/specs/001-statistical-evaluation-of-dimensionality/tasks.md
+  attempts: 1
+  canonical: t-SNE uses perplexity 30 and n_iter 1000
+  claim_id: c_6a42a8e0
+  context: 'T008b: Extend code/embeddings.py to generate t-SNE (perplexity=30, n_iter=1000...)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The t-SNE implementation uses perplexity=30 and n_iter=1000.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T03:20:08Z'
+- artifact_path: projects/PROJ-168-statistical-evaluation-of-dimensionality/specs/001-statistical-evaluation-of-dimensionality/tasks.md
+  attempts: 1
+  canonical: UMAP uses n_neighbors 15 and min_dist 0.1
+  claim_id: c_c521ddce
+  context: 'T008b: Extend code/embeddings.py to generate ... UMAP (n_neighbors=15,
+    min_dist=0.1)...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The UMAP implementation uses n_neighbors=15 and min_dist=0.1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T03:20:55Z'
+- artifact_path: projects/PROJ-168-statistical-evaluation-of-dimensionality/specs/001-statistical-evaluation-of-dimensionality/tasks.md
+  attempts: 1
+  canonical: Target runtime per embedding step is less than 30 minutes
+  claim_id: c_7cf5a383
+  context: 'T035: Performance optimization ... target < 30 min runtime per embedding
+    step...'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Target_runtime_per_embedding_step_is_less_than_30_minutes
+  kind: magnitude
+  raw_text: The pipeline targets a runtime of less than 30 minutes per embedding step.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T03:21:59Z'
+- artifact_path: projects/PROJ-168-statistical-evaluation-of-dimensionality/specs/001-statistical-evaluation-of-dimensionality/tasks.md
+  attempts: 1
+  canonical: CI environment installation completes within 30 minutes
+  claim_id: c_087a514d
+  context: 'T031: Add CI step to verify environment.yml installation completes within
+    30 minutes'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The CI step verifies environment installation completes within 30 minutes.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T03:23:05Z'
+- artifact_path: projects/PROJ-168-statistical-evaluation-of-dimensionality/specs/001-statistical-evaluation-of-dimensionality/tasks.md
+  attempts: 1
+  canonical: Leiden clustering uses generic resolution input
+  claim_id: c_e2da0a8e
+  context: 'T009a: Implement code/clustering.py with Leiden clustering engine (generic
+    resolution input)...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Leiden_clustering_uses_generic_resolution_input
+  kind: entity_fact
+  raw_text: The pipeline uses Leiden clustering with a generic resolution input.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T03:24:08Z'
+- artifact_path: projects/PROJ-168-statistical-evaluation-of-dimensionality/specs/001-statistical-evaluation-of-dimensionality/tasks.md
+  attempts: 1
+  canonical: Sensitivity sweep iterates over Silhouette thresholds
+  claim_id: c_4427e2a1
+  context: 'T045: Implement code/stats.py function run_sensitivity_sweep() that iterates
+    over Silhouette thresholds across a representative range...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Sensitivity_sweep_iterates_over_Silhouette_thresholds
+  kind: entity_fact
+  raw_text: The sensitivity sweep iterates over Silhouette thresholds across a representative
+    range.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T03:25:10Z'

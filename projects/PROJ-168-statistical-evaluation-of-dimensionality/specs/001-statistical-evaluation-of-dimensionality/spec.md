@@ -100,5 +100,5 @@ The system must fit a mixed-effects model to test the effect of method type on f
 - The ground-truth cell-type labels in the GEO metadata are accurate and consistent with the biological definitions used in the clustering evaluation.
 - The global linearity metric (Trustworthiness) and local continuity metric (LCA) are computationally feasible on the high-dimensional space (with [deferred] random pair sampling) without requiring dimensionality reduction prior to calculation.
 - The Benjamini-Hochberg correction is the appropriate method for controlling false discoveries given the small number of hypothesis tests (method comparisons) being performed.
-- The sensitivity analysis sweep of Silhouette thresholds {0.4, 0.5, 0.6} is sufficient to capture the stability of the clustering results; wider sweeps are deferred to future work.
+- The sensitivity analysis sweep of Silhouette thresholds across a representative range is sufficient to capture the stability of the clustering results; wider sweeps are deferred to future work.
 - The mixed-effects model assumptions (normality of residuals, homoscedasticity) are approximately met by the fidelity metrics after transformation if necessary.

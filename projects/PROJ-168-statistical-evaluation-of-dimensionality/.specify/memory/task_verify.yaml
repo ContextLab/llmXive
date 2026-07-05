@@ -1,0 +1,17 @@
+? 'T001 Create project structure per implementation plan: `mkdir -p projects/001-statistical-evaluation-of-dimensionality/{data/raw,data/processed,results,code,tests}`'
+: 2
+? T002 [P] Create `environment.yml` with pinned Python dependencies (scanpy, umap-learn,
+  leidenalg, statsmodels, snakemake, scikit-misc, requests, pandas, numpy) compatible
+  with the selected major version.
+: 2
+? 'T003 [P] Configure `Snakefile` workflow skeleton and `code/__init__.py` (DEPENDS:
+  T004 to ensure valid paths; Define skeleton rules: download, preprocess, geometry,
+  embeddings, cluster, fidelity, stats)'
+: 2
+? T005 [P] Implement `code/download.py` with fetching logic using `requests` for verified
+  GEO raw count URLs (no R/GEOquery) and checksum validation
+: 2
+? T006 [P] Implement `code/preprocess.py` for QC (filter genes <5% cells), HVG selection
+  (top variable genes), and deterministic cell sampling (hash-based `random_state`)
+  ONLY IF cell count > 10,000
+: 1

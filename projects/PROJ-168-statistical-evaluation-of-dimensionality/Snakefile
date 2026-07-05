@@ -1,0 +1,156 @@
+import os
+import sys
+from pathlib import Path
+
+# Ensure the code directory is in the path for imports
+code_dir = Path(__file__).parent / "code"
+if str(code_dir) not in sys.path:
+    sys.path.insert(0, str(code_dir))
+
+from config import get_all_accessions, ensure_paths, CASE_STUDY_MODE
+from download import download_accession
+from preprocess import preprocess_accession
+from embeddings import run_embedding_pipeline
+from clustering import process_accession as cluster_process
+from stats import save_results
+from validators import validate_accession_data, RealDataValidationError
+
+# Global configuration
+config = {
+    "cores": int(os.getenv("SNAKE_CORES", 1)),
+    "ram_limit_gb": 7.0,
+    "log_level": "INFO",
+}
+
+# Initialize paths
+ensure_paths()
+
+# Rule: verify_data_availability
+# This rule runs before 'download' to ensure at least one valid source exists.
+# It imports logic from code/download.py to attempt source verification without downloading full files.
+rule verify_data_availability:
+    message: "Verifying data availability for required accessions..."
+    input:
+        # Dummy input to force execution order; actual check is in the shell command
+        check_marker = "data/.check_availability"
+    output:
+        touch("data/.availability_verified")
+    run:
+        import logging
+        from download import verify_source_availability
+        
+        logging.basicConfig(level=logging.INFO)
+        logger = logging.getLogger(__name__)
+        
+        accessions = get_all_accessions()
+        logger.info(f"Checking availability for accessions: {accessions}")
+        
+        available = []
+        for acc in accessions:
+            if verify_source_availability(acc):
+                available.append(acc)
+            else:
+                logger.warning(f"No valid raw count source found for {acc}")
+        
+        if not available:
+            logger.error("CRITICAL: No valid raw count sources found for any required accessions. Aborting workflow.")
+            logger.error("Please verify GEO accessions or network connectivity.")
+            sys.exit(1)
+        
+        logger.info(f"Data verification successful. Available accessions: {available}")
+        # Write available list to a temp file for downstream rules if needed
+        with open("data/available_accessions.txt", "w") as f:
+            for acc in available:
+                f.write(f"{acc}\n")
+
+# Rule: download
+rule download:
+    input:
+        "data/.availability_verified"
+    output:
+        lambda wildcards: f"data/raw/{wildcards.accession}_counts.h5ad"
+    message: "Downloading raw count matrix for {wildcards.accession}"
+    run:
+        from download import download_accession as dl_func
+        acc = wildcards.accession
+        dl_func(acc)
+
+# Rule: preprocess
+rule preprocess:
+    input:
+        "data/raw/{accession}_counts.h5ad"
+    output:
+        "data/processed/{accession}_processed.h5ad"
+    message: "Preprocessing {wildcards.accession}: QC and HVG selection"
+    run:
+        from preprocess import preprocess_accession as pp_func
+        acc = wildcards.accession
+        pp_func(acc)
+
+# Rule: geometry (computed on raw space as per spec)
+rule geometry:
+    input:
+        "data/raw/{accession}_counts.h5ad"
+    output:
+        "results/geometry/{accession}_metrics.json"
+    message: "Computing geometry metrics for {wildcards.accession}"
+    run:
+        # Placeholder for geometry logic (T007)
+        pass
+
+# Rule: embeddings
+rule embeddings:
+    input:
+        "data/processed/{accession}_processed.h5ad"
+    output:
+        "results/embeddings/{accession}_embeddings.h5ad"
+    message: "Generating embeddings for {wildcards.accession}"
+    run:
+        from embeddings import run_embedding_pipeline as emb_func
+        acc = wildcards.accession
+        emb_func(acc)
+
+# Rule: cluster
+rule cluster:
+    input:
+        "results/embeddings/{accession}_embeddings.h5ad"
+    output:
+        "results/clustering/{accession}_clusters.json"
+    message: "Clustering embeddings for {wildcards.accession}"
+    run:
+        from clustering import process_accession as cluster_func
+        acc = wildcards.accession
+        cluster_func(acc)
+
+# Rule: fidelity
+rule fidelity:
+    input:
+        "results/clustering/{accession}_clusters.json",
+        "data/processed/{accession}_processed.h5ad"
+    output:
+        "results/fidelity/{accession}_fidelity.json"
+    message: "Calculating fidelity metrics for {wildcards.accession}"
+    run:
+        # Placeholder for fidelity logic (T023)
+        pass
+
+# Rule: stats
+rule stats:
+    input:
+        expand("results/fidelity/{acc}_fidelity.json", acc=get_all_accessions())
+    output:
+        "results/stats/mixed_effects_results.json"
+    message: "Running statistical analysis"
+    run:
+        from stats import main as stats_main
+        stats_main()
+
+# Main entry point
+rule all:
+    input:
+        "results/stats/mixed_effects_results.json"
+
+# Helper function to get all accessions (defined in config)
+def get_all_accessions():
+    from config import get_all_accessions as cfg_accessions
+    return cfg_accessions()
