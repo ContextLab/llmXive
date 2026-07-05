@@ -1,0 +1,39 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Power Curve Schema"
+description: "Schema for the power curve data used for visualization."
+type: "object"
+properties:
+  curve_data:
+    type: "array"
+    description: "Data points for the power curve."
+    items:
+      type: "object"
+      properties:
+        resolution_m:
+          type: "integer"
+          description: "Resolution in meters."
+        power:
+          type: "number"
+          description: "Statistical power estimate."
+        threshold_flag:
+          type: "boolean"
+          description: "True if this is the first resolution where power < 0.80."
+      required:
+        - resolution_m
+        - power
+        - threshold_flag
+  summary:
+    type: "object"
+    properties:
+      threshold_resolution_m:
+        type: "integer"
+        description: "The resolution where power first drops below 0.80."
+      power_at_threshold:
+        type: "number"
+        description: "The power value at the threshold resolution."
+    required:
+      - threshold_resolution_m
+      - power_at_threshold
+required:
+  - curve_data
+  - summary

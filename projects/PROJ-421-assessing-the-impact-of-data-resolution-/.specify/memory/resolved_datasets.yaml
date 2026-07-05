@@ -1,0 +1,131 @@
+resolved_at: '2026-07-05T07:48:38.661572+00:00'
+datasets:
+- intent: ResolutionRaster
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/dataset/Redeemer_s_University_Ede_2026_2027_Admission_Form_is_out_call_DR_MRS_FAITH_0704-0964654_or_07040964654_Prospective_candidates_seeking_admission_The_education_system_is_divided_into_kindergarten_primary_education_secondary_education_and_ter/32901551
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/_b_Pulsed_electromagnetic_fields_activate_a_peripheral_interoceptive_pathway_to_suppress_sympathetic_Npy_for_osteogenesis_b_/32901515
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/A_Mathematical_Approach_to_Decidability_Theory/32901500
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Drip_Fertigation_Improves_Water_Productivity_Nutrient-Use_Efficiency_and_Rhizosphere_Moisture_Dynamics_in_Aerobic_Rice_Grown_on_Alkaline_Soils/32901512
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Supporting_Information_for_Stage-resolved_thermo-optical_switching_dynamics_in_VO_SiO_heterostructures_under_continuous_mid-infrared_excitation_/32797488
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: NLCD
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/vectors/nlcd_landsat8_map/resolve/main/nlcd_2021_land_cover_l48_20230630.zip
+    source: huggingface
+    format: zip
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/gdurkin/s1_2_nlcd/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/gdurkin/s1_to_nlcd/resolve/main/data/group_0_9-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/vectors/nlcd_landsat8_map/resolve/main/nlcd_2021_land_cover_l48_20230630.zip
+    source: huggingface
+    status: verified
+    format: zip
+  - url: https://huggingface.co/datasets/gdurkin/s1_2_nlcd/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/gdurkin/s1_to_nlcd/resolve/main/data/group_0_9-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/gdurkin/s1_nlcd_ca/resolve/main/data/group_0_9-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/gdurkin/s1_nlcd_sfbay_plus/resolve/main/data/group_0_9-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/dataset/Redeemer_s_University_Ede_2026_2027_Admission_Form_is_out_call_DR_MRS_FAITH_0704-0964654_or_07040964654_Prospective_candidates_seeking_admission_The_education_system_is_divided_into_kindergarten_primary_education_secondary_education_and_ter/32901551
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/_b_Pulsed_electromagnetic_fields_activate_a_peripheral_interoceptive_pathway_to_suppress_sympathetic_Npy_for_osteogenesis_b_/32901515
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/A_Mathematical_Approach_to_Decidability_Theory/32901500
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Drip_Fertigation_Improves_Water_Productivity_Nutrient-Use_Efficiency_and_Rhizosphere_Moisture_Dynamics_in_Aerobic_Rice_Grown_on_Alkaline_Soils/32901512
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Supporting_Information_for_Stage-resolved_thermo-optical_switching_dynamics_in_VO_SiO_heterostructures_under_continuous_mid-infrared_excitation_/32797488
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/13386030
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15059111
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/2649737
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17260370
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7106054
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21154804
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21154804
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/fj7ua/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.datalumos.org/datalumos/project/250872/version/V1/view
+    source: datacite
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://www.datalumos.org/datalumos/project/250872/view
+    source: datacite
+    status: wrong_format
+    reason: HTTP 403

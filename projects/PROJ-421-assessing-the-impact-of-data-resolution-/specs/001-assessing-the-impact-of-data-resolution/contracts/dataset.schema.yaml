@@ -1,0 +1,51 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "NLCD Dataset Schema"
+description: "Schema for the National Land Cover Database (NLCD) raster files used in the study."
+type: "object"
+properties:
+  metadata:
+    type: "object"
+    properties:
+      source_url:
+        type: "string"
+        description: "Verified URL from HuggingFace used to download the data."
+      state:
+        type: "string"
+        description: "Target state (e.g., 'CO')."
+      resolution_m:
+        type: "integer"
+        description: "Spatial resolution in meters (30, 60, 120, etc.)."
+      checksum_sha256:
+        type: "string"
+        description: "SHA-256 checksum of the file."
+      crs:
+        type: "string"
+        description: "Coordinate Reference System (e.g., 'EPSG:5070')."
+  raster_info:
+    type: "object"
+    properties:
+      width:
+        type: "integer"
+        description: "Width of the raster in pixels."
+      height:
+        type: "integer"
+        description: "Height of the raster in pixels."
+      bands:
+        type: "integer"
+        description: "Number of bands (expected 1)."
+      dtype:
+        type: "string"
+        description: "Data type (expected 'uint8' or 'int16')."
+      nodata_value:
+        type: "number"
+        description: "No-data value (e.g., -9999)."
+  land_cover_classes:
+    type: "array"
+    description: "List of unique integer values representing land cover classes."
+    items:
+      type: "integer"
+    minItems: 1
+required:
+  - metadata
+  - raster_info
+  - land_cover_classes
