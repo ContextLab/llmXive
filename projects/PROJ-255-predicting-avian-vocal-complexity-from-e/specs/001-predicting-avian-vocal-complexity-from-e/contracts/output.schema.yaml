@@ -1,0 +1,63 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Model Results Schema"
+description: "Schema for the statistical model output including coefficients, p-values, and effect sizes."
+type: object
+properties:
+  metric_name:
+    type: string
+    description: "Name of the vocal metric (e.g., syllable_count)."
+  fixed_effect_coefficient:
+    type: number
+    description: "Coefficient for noise_level_db."
+  p_value_raw:
+    type: number
+    description: "Raw p-value for the noise effect."
+  p_value_corrected:
+    type: number
+    description: "Multiple-comparison corrected p-value (FDR)."
+  effect_size_cohen_d:
+    type: number
+    description: "Cohen's d effect size."
+  random_effect_variance_species:
+    type: number
+    description: "Variance of the random intercept for species."
+  random_effect_variance_location:
+    type: number
+    description: "Variance of the random intercept for location."
+  r_squared_marginal:
+    type: number
+    description: "Marginal R-squared (fixed effects only)."
+  r_squared_conditional:
+    type: number
+    description: "Conditional R-squared (fixed + random effects)."
+  correlation_coefficient_r:
+    type: number
+    description: "Pearson correlation coefficient (r) for noise vs. complexity."
+  correlation_ci_lower:
+    type: number
+    description: "Lower bound of 95% CI for r."
+  correlation_ci_upper:
+    type: number
+    description: "Upper bound of 95% CI for r."
+  n_observations:
+    type: integer
+    description: "Number of observations used in the model."
+  n_species:
+    type: integer
+    description: "Number of unique species in the model."
+required:
+  - metric_name
+  - fixed_effect_coefficient
+  - p_value_raw
+  - p_value_corrected
+  - effect_size_cohen_d
+  - random_effect_variance_species
+  - random_effect_variance_location
+  - r_squared_marginal
+  - r_squared_conditional
+  - correlation_coefficient_r
+  - correlation_ci_lower
+  - correlation_ci_upper
+  - n_observations
+  - n_species
+additionalProperties: false

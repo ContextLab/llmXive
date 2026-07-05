@@ -1,18 +1,18 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-04T13:44:11.003213Z'
-current_stage: project_initialized
+current_stage: analyzed
 failed_stage: null
 field: biology
 human_escalation_reason: null
 id: PROJ-255-predicting-avian-vocal-complexity-from-e
-last_run_id: e14b8bf7-a551-4b82-9128-4b204f400619
+last_run_id: 12b65f04-e631-432c-a7f1-85514fa1a100
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
 revision_spec_path: null
 speckit_paper_dir: null
-speckit_research_dir: null
+speckit_research_dir: projects/PROJ-255-predicting-avian-vocal-complexity-from-e/specs/001-predicting-avian-vocal-complexity-from-e
 title: Predicting Avian Vocal Complexity from Environmental Noise Levels
-updated_at: '2026-06-26T18:35:41.282995Z'
+updated_at: '2026-07-05T13:22:22.759830Z'

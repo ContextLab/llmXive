@@ -1,0 +1,22 @@
+- artifact_hash: 06603376c0adeddcb7ac648703e309f3941d9fc64f641c146ea0194eda9bef48
+  artifact_path: projects/PROJ-255-predicting-avian-vocal-complexity-from-e/specs/001-predicting-avian-vocal-complexity-from-e/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: 'xeno-canto :: Sharing wildlife sounds from around the world'
+  kind: url
+  value: https://www.xeno-canto.org/`
+  verification_status: verified
+  verified_against_url: https://xeno-canto.org/
+  verified_at: '2026-07-05T12:50:49.349065Z'
+- artifact_hash: 06603376c0adeddcb7ac648703e309f3941d9fc64f641c146ea0194eda9bef48
+  artifact_path: projects/PROJ-255-predicting-avian-vocal-complexity-from-e/specs/001-predicting-avian-vocal-complexity-from-e/research.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: OpenStreetMap
+  kind: url
+  value: https://www.openstreetmap.org/`
+  verification_status: verified
+  verified_against_url: https://www.openstreetmap.org/
+  verified_at: '2026-07-05T12:50:49.349065Z'

@@ -1,0 +1,61 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Final Analysis Dataset Schema"
+description: "Schema for the cleaned, analysis-ready dataset containing recordings, noise levels, and vocal metrics."
+type: object
+properties:
+  recording_id:
+    type: string
+    description: "Unique identifier for the recording."
+  species_id:
+    type: string
+    description: "Species code."
+  latitude:
+    type: number
+    description: "Latitude in decimal degrees."
+  longitude:
+    type: number
+    description: "Longitude in decimal degrees."
+  noise_level_db:
+    type: number
+    description: "Ambient noise level in dB(A) derived from OSM land-use."
+  noise_source:
+    type: string
+    enum: ["OSM"]
+    description: "Source of the noise level data (OpenStreetMap)."
+  land_use_class:
+    type: string
+    enum: ["Urban", "Rural", "Wild"]
+    description: "Land-use classification from OSM."
+  syllable_count:
+    type: integer
+    description: "Number of syllables detected."
+  duration_seconds:
+    type: number
+    description: "Duration of the vocalization in seconds."
+  frequency_bandwidth_hz:
+    type: number
+    description: "Frequency bandwidth in Hz."
+  spectral_entropy:
+    type: number
+    description: "Spectral entropy value."
+  snr_db:
+    type: number
+    description: "Signal-to-Noise Ratio in dB."
+  is_valid:
+    type: boolean
+    description: "True if SNR > 10 dB and species count threshold met."
+required:
+  - recording_id
+  - species_id
+  - latitude
+  - longitude
+  - noise_level_db
+  - noise_source
+  - land_use_class
+  - syllable_count
+  - duration_seconds
+  - frequency_bandwidth_hz
+  - spectral_entropy
+  - snr_db
+  - is_valid
+additionalProperties: false

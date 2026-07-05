@@ -1,0 +1,143 @@
+resolved_at: '2026-07-05T12:39:53.548524+00:00'
+datasets:
+- intent: AIC
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/SakanaAI/AI-CUDA-Engineer-Archive/resolve/main/level_1.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/ai-coscientist/researcher-ablation-bench/resolve/main/dev.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 38542
+      parsed: true
+  - url: https://huggingface.co/datasets/opendatalab/AICC/resolve/main/CC-MAIN-2025-08/part-00000-f81f1ee1-e96c-421f-bcf3-90ba2bc714d1-c000.snappy.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/SakanaAI/AI-CUDA-Engineer-Archive/resolve/main/level_1.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/ai-coscientist/researcher-ablation-bench/resolve/main/dev.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/opendatalab/AICC/resolve/main/CC-MAIN-2025-08/part-00000-f81f1ee1-e96c-421f-bcf3-90ba2bc714d1-c000.snappy.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/api/resolve-cache/datasets/AICAD/Text2CAD-Bench/76428d5fe6efc3daa4ed93d4e8a3e5b8e32939c0/release.csv?%2Fdatasets%2FAICAD%2FText2CAD-Bench%2Fresolve%2Fmain%2Frelease.csv=&etag=%227d31e8c921fab769621f6ace7dfed42cae136d8d%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/ai-coustics/dawn_chorus_en/resolve/main/eval.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/media/African_University_of_Science_and_Technology_2026_2027_ADMISSION_FORM_ACESS_0704-0964-654_Dr_Faith_07040964654_Applications_are_now_ongoing_for_the_2026_2027_academic_session_Interested_candidates_07040964654_for_Post_UTME_Undergraduate_For/32902499
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://aubh.figshare.com/articles/thesis/_b_Quiet_Luxury_Viral_Influence_How_TikTok_Popularity_Shapes_Perceived_Authenticity_and_Perceived_Wealth_b_/32902466
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/Obong_University_Obong_Ntak_2026_2027_ADMISSION_FORM_ACESS_0704-0964-654_Dr_Faith_07040964654_Applications_are_now_ongoing_for_the_2026_2027_academic_session_Interested_candidates_07040964654_for_Post_UTME_Undergraduate_Form_JUPEB_Form_IJMB/32902580
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/Salem_University_Lokoja_2026_2027_ADMISSION_FORM_ACESS_0704-0964-654_Dr_Faith_07040964654_Applications_are_now_ongoing_for_the_2026_2027_academic_session_Interested_candidates_07040964654_for_Post_UTME_Undergraduate_Form_JUPEB_Form_IJMB_For/32902559
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Nigerian_British_University_Asa_Abia_State_Jupeb_2026_2027_FORM_PORTAL_IS_OPEN_NOW_O9167660199_09165949470_Admission_form_Applications_are_now_ongoing_for_the_2026_2027_academic_session_Interested_candidates_09167660199_for_Post_UTME_Underg/32902565
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://checklist.pensoft.net/articles.php?id=20205
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7684550
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7806798
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.5sj852c
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/1244240
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21202242
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21202242
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20728795
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20728795
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21197618
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: NoiseProfile
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/dataset/Data_for_manuscript_COMMSBIO-25-11511_of_Communications_biology_/32902577
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/African_University_of_Science_and_Technology_2026_2027_ADMISSION_FORM_ACESS_0704-0964-654_Dr_Faith_07040964654_Applications_are_now_ongoing_for_the_2026_2027_academic_session_Interested_candidates_07040964654_for_Post_UTME_Undergraduate_For/32902499
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://aubh.figshare.com/articles/thesis/_b_Quiet_Luxury_Viral_Influence_How_TikTok_Popularity_Shapes_Perceived_Authenticity_and_Perceived_Wealth_b_/32902466
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/Obong_University_Obong_Ntak_2026_2027_ADMISSION_FORM_ACESS_0704-0964-654_Dr_Faith_07040964654_Applications_are_now_ongoing_for_the_2026_2027_academic_session_Interested_candidates_07040964654_for_Post_UTME_Undergraduate_Form_JUPEB_Form_IJMB/32902580
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/Salem_University_Lokoja_2026_2027_ADMISSION_FORM_ACESS_0704-0964-654_Dr_Faith_07040964654_Applications_are_now_ongoing_for_the_2026_2027_academic_session_Interested_candidates_07040964654_for_Post_UTME_Undergraduate_Form_JUPEB_Form_IJMB_For/32902559
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3673797
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dl.acm.org/doi/10.1145/3038912.3052641
+    source: zenodo
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://zenodo.org/records/21157323
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
