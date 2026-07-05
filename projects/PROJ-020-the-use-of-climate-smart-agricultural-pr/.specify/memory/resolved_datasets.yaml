@@ -1,0 +1,516 @@
+resolved_at: '2026-07-05T06:32:54.660493+00:00'
+datasets:
+- intent: LSMS
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/dataset/R_code_and_data_for_Tree_diversity_increases_the_distribution-evenness_and_biomass_of_fine_roots_in_a_subtropical_forest_experiment_/30145750
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/High-temperature_superconductivity_at_100_K_in_La3-xNdxNi2O7/32896412
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/China_Urban_Disaster_Resilience_Research_Dataset_from_Concluded_NSFC_Projects/32901365
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Processed_fecal_short-chain_fatty_acid_SCFA_dataset_used_in_the_study_of/32901446
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/dataset/Impact_of_electrostriction_under_unequal_biaxial_deformation_on_the_nonlinear_dynamics_of_dielectric_elastomer_actuators/29486829
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15774761
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4568484
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4558109
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/12596218
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5806574
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15965732
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15965732
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/wvqfk/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/arx2f/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/f6u5v/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: FAOSTAT
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/electricsheepafrica/africa-faostat-food-prices-for-united-republic-of-tanzania-the/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 13291
+      parsed: true
+  - url: https://huggingface.co/datasets/electricsheepafrica/africa-faostat-food-prices-for-tunisia/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 9634
+      parsed: true
+  - url: https://huggingface.co/datasets/electricsheepafrica/africa-faostat-food-prices-for-comoros/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 9634
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/electricsheepafrica/africa-faostat-food-prices-for-united-republic-of-tanzania-the/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/electricsheepafrica/africa-faostat-food-prices-for-tunisia/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/electricsheepafrica/africa-faostat-food-prices-for-comoros/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/electricsheepafrica/africa-faostat-food-prices-for-mali/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/electricsheepafrica/africa-faostat-food-prices-for-madagascar/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/dataset/R_code_and_data_for_Tree_diversity_increases_the_distribution-evenness_and_biomass_of_fine_roots_in_a_subtropical_forest_experiment_/30145750
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/High-temperature_superconductivity_at_100_K_in_La3-xNdxNi2O7/32896412
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/China_Urban_Disaster_Resilience_Research_Dataset_from_Concluded_NSFC_Projects/32901365
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Processed_fecal_short-chain_fatty_acid_SCFA_dataset_used_in_the_study_of/32901446
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/dataset/Impact_of_electrostriction_under_unequal_biaxial_deformation_on_the_nonlinear_dynamics_of_dielectric_elastomer_actuators/29486829
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/13319086
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/13941470
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3941973
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8007286
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10882206
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ageconsearch.umn.edu/record/404272
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18814497
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18814497
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21163104
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21163104
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: NASA
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/jiang12/nasa/resolve/main/diff-svc-v0.1.1-alpha.zip
+    source: huggingface
+    format: zip
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/nasa-cisto-data-science-group/legacy-satvision-sr-pretrain-small/resolve/main/metadata/training_0/A2001013_h11v10_dataset_metadata.json
+    source: huggingface
+    format: json
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 16577
+      parsed: true
+  - url: https://huggingface.co/datasets/liuyanchen1015/MULTI_VALUE_mnli_nasal_possessive_pron/resolve/main/data/dev_matched-00000-of-00001-f5c89bab96bb3fae.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/liuyanchen1015/MULTI_VALUE_mnli_nasal_possessive_pron/resolve/main/data/dev_matched-00000-of-00001-f5c89bab96bb3fae.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/jiang12/nasa/resolve/main/diff-svc-v0.1.1-alpha.zip
+    source: huggingface
+    status: verified
+    format: zip
+  - url: https://huggingface.co/datasets/nasa-cisto-data-science-group/legacy-satvision-sr-pretrain-small/resolve/main/metadata/training_0/A2001013_h11v10_dataset_metadata.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://figshare.com/articles/dataset/R_code_and_data_for_Tree_diversity_increases_the_distribution-evenness_and_biomass_of_fine_roots_in_a_subtropical_forest_experiment_/30145750
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/High-temperature_superconductivity_at_100_K_in_La3-xNdxNi2O7/32896412
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/China_Urban_Disaster_Resilience_Research_Dataset_from_Concluded_NSFC_Projects/32901365
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Processed_fecal_short-chain_fatty_acid_SCFA_dataset_used_in_the_study_of/32901446
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/dataset/Impact_of_electrostriction_under_unequal_biaxial_deformation_on_the_nonlinear_dynamics_of_dielectric_elastomer_actuators/29486829
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18287732
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18307252
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7655414
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/2628412
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15544360
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/xgs7r/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/vbpy5/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21197615
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21197615
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/v3j5s/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: POWER
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/noahgift/social-power-nba/resolve/main/nba_2017_players_with_salary_wiki_twitter.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 51688
+      parsed: true
+  - url: https://huggingface.co/datasets/AndreCNF/us-coal-power-emissions-sentinel2/resolve/main/daily_emissions_facility_aggregation.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/powerpuffpomelo/mello_test/resolve/main/wmt14_en2de_cased_bin.zip
+    source: huggingface
+    format: zip
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://us.aws.cdn.hf.co/xet-bridge-us/68bdb1f926975fa834fef56d/08c77824a62d193187e6ab1df63e8f74f325fc053112533a57596bbb0ab09fee?response-content-disposition=inline%3B+filename*%3DUTF-8%27%27powerful_kazakh_dataset_grok.jsonl%3B+filename%3D%22powerful_kazakh_dataset_grok.jsonl%22%3B&user_id=public&X-Xet-Cas-Uid=public&Expires=1783236672&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjhiZGIxZjkyNjk3NWZhODM0ZmVmNTZkLzA4Yzc3ODI0YTYyZDE5MzE4N2U2YWIxZGY2M2U4Zjc0ZjMyNWZjMDUzMTEyNTMzYTU3NTk2YmJiMGFiMDlmZWVcXD9yZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3cG93ZXJmdWxfa2F6YWtoX2RhdGFzZXRfZ3Jvay5qc29ubCUzQitmaWxlbmFtZSUzRCUyMnBvd2VyZnVsX2themFraF9kYXRhc2V0X2dyb2suanNvbmwlMjIlM0ImdXNlcl9pZD1wdWJsaWMmWC1YZXQtQ2FzLVVpZD1wdWJsaWMiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkVwb2NoVGltZSI6MTc4MzIzNjY3Mn19fV19&Signature=MEQCIFUgxF9tC71rJqnaHDmiHu~NGtvQEhNoN4ZsDe7ogJIJAiAJN~k4KOCO-r0jmCyBs3JG-qjwTXRJMFoRyu7wsCVpow__&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/noahgift/social-power-nba/resolve/main/nba_2017_players_with_salary_wiki_twitter.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/powerpuffpomelo/mello_test/resolve/main/wmt14_en2de_cased_bin.zip
+    source: huggingface
+    status: verified
+    format: zip
+  - url: https://huggingface.co/datasets/AndreCNF/us-coal-power-emissions-sentinel2/resolve/main/daily_emissions_facility_aggregation.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://figshare.com/articles/dataset/R_code_and_data_for_Tree_diversity_increases_the_distribution-evenness_and_biomass_of_fine_roots_in_a_subtropical_forest_experiment_/30145750
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/High-temperature_superconductivity_at_100_K_in_La3-xNdxNi2O7/32896412
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/China_Urban_Disaster_Resilience_Research_Dataset_from_Concluded_NSFC_Projects/32901365
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Processed_fecal_short-chain_fatty_acid_SCFA_dataset_used_in_the_study_of/32901446
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/dataset/Impact_of_electrostriction_under_unequal_biaxial_deformation_on_the_nonlinear_dynamics_of_dielectric_elastomer_actuators/29486829
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.nature.com/articles/025483b0
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/495509
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14679068
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5898449
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.1109/ISGTEUROPE56780.2023.10407549.
+    source: zenodo
+    status: unreachable
+    reason: 'reachability failed: HTTP 404'
+  - url: https://zenodo.org/records/21201703
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21201703
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/tu7yx/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21191870
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21191870
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: CSA
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/allenai/csabstruct/resolve/main/data/test-00000-of-00001-be7e891381aedbe0.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 124772
+      parsed: true
+  candidates_tried:
+  - url: https://us.aws.cdn.hf.co/xet-bridge-us/621ffdd236468d709f183137/fc2b1c915378892f3dc29b9ed601573091954907494952e9fd790ae4a764ff3e?user_id=public&X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27cc12m-0000.arrow%3B+filename%3D%22cc12m-0000.arrow%22%3B&Expires=1783236710&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjIxZmZkZDIzNjQ2OGQ3MDlmMTgzMTM3L2ZjMmIxYzkxNTM3ODg5MmYzZGMyOWI5ZWQ2MDE1NzMwOTE5NTQ5MDc0OTQ5NTJlOWZkNzkwYWU0YTc2NGZmM2VcXD91c2VyX2lkPXB1YmxpYyZYLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3Y2MxMm0tMDAwMC5hcnJvdyUzQitmaWxlbmFtZSUzRCUyMmNjMTJtLTAwMDAuYXJyb3clMjIlM0IiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkVwb2NoVGltZSI6MTc4MzIzNjcxMH19fV19&Signature=MEQCIFk0l3G76mOElHEAvyI6~EwVGvMHiRQqyai7oNY6PAWtAiA55UR7sZbd6uHfXPQJUsLgXBQBwo5~VlfZDfL63TRSJw__&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://us.aws.cdn.hf.co/xet-bridge-us/621ffdd236468d709f183138/adf687b7b4d4ecefae22dda793c9b30d822a961dae5b24d8b382daf7229cdff7?user_id=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27cc3m-0000.arrow%3B+filename%3D%22cc3m-0000.arrow%22%3B&X-Xet-Cas-Uid=public&Expires=1783236713&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjIxZmZkZDIzNjQ2OGQ3MDlmMTgzMTM4L2FkZjY4N2I3YjRkNGVjZWZhZTIyZGRhNzkzYzliMzBkODIyYTk2MWRhZTViMjRkOGIzODJkYWY3MjI5Y2RmZjdcXD91c2VyX2lkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3Y2MzbS0wMDAwLmFycm93JTNCK2ZpbGVuYW1lJTNEJTIyY2MzbS0wMDAwLmFycm93JTIyJTNCJlgtWGV0LUNhcy1VaWQ9cHVibGljIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3ODMyMzY3MTN9fX1dfQ__&Signature=MEYCIQC~o~AFyKKn1IuvVSymO3RA4GsBYImxPpPbM0Jxp0~Q4AIhAP5aFA8TVvJbD1mGMrUYb1n5qXNQF3f~RIhBURsBBciw&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/allenai/csabstruct/resolve/main/data/test-00000-of-00001-be7e891381aedbe0.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/dataset/R_code_and_data_for_Tree_diversity_increases_the_distribution-evenness_and_biomass_of_fine_roots_in_a_subtropical_forest_experiment_/30145750
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/High-temperature_superconductivity_at_100_K_in_La3-xNdxNi2O7/32896412
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/China_Urban_Disaster_Resilience_Research_Dataset_from_Concluded_NSFC_Projects/32901365
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Processed_fecal_short-chain_fatty_acid_SCFA_dataset_used_in_the_study_of/32901446
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/dataset/Impact_of_electrostriction_under_unequal_biaxial_deformation_on_the_nonlinear_dynamics_of_dielectric_elastomer_actuators/29486829
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6967183
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6974175
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18309
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6963286
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3666165
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21201377
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21201377
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/w483c/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21196220
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21196220
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: HDDS
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/dataset/R_code_and_data_for_Tree_diversity_increases_the_distribution-evenness_and_biomass_of_fine_roots_in_a_subtropical_forest_experiment_/30145750
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/High-temperature_superconductivity_at_100_K_in_La3-xNdxNi2O7/32896412
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/China_Urban_Disaster_Resilience_Research_Dataset_from_Concluded_NSFC_Projects/32901365
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Processed_fecal_short-chain_fatty_acid_SCFA_dataset_used_in_the_study_of/32901446
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/dataset/Impact_of_electrostriction_under_unequal_biaxial_deformation_on_the_nonlinear_dynamics_of_dielectric_elastomer_actuators/29486829
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://journals.stecab.com/index.php/jcsp/article/view/103
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5920150
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4727724
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.researchgate.net/doi/10.13140/RG.2.2.31642.21449
+    source: zenodo
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://ieeexplore.ieee.org/document/9059482/
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/jzu3v/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://knowledgeloom.tib.eu/resource/6d050672yq
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/ehcmn/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.5281/zenodo.19360227
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: HTTP 410'
+  - url: https://zenodo.org/records/20520091
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

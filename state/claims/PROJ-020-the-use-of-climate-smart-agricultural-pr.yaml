@@ -1,0 +1,103 @@
+- artifact_path: projects/PROJ-020-the-use-of-climate-smart-agricultural-pr/specs/001-the-use-of-climate-smart-agricultural-pr/tasks.md
+  attempts: 1
+  canonical: merged_sample.parquet contains at least 95% valid records with no missing
+    values in key predictors
+  claim_id: c_c8523dbd
+  context: "Independent Test for User Story 1: Execute code/data/pipeline.py and verify\
+    \ data/processed/merged_sample.parquet contains \u2265 95% valid records, no missing\
+    \ values in key predictors after imputation, and matches the schema."
+  evidence:
+    candidates:
+    - - ''
+      - 95.0
+    - - ''
+      - 25.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Merged_sample.parquet_contains_at_least_95%25_valid_records_wi
+  kind: magnitude
+  raw_text: "Execute code/data/pipeline.py and verify data/processed/merged_sample.parquet\
+    \ contains \u2265 95% valid records, no missing values in key predictors after\
+    \ imputation, and matches the schema."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-07-05T06:57:43Z'
+- artifact_path: projects/PROJ-020-the-use-of-climate-smart-agricultural-pr/specs/001-the-use-of-climate-smart-agricultural-pr/tasks.md
+  attempts: 1
+  canonical: stratified sampling targets at least 5000 households per country and
+    ensures memory usage is at most 7GB
+  claim_id: c_c86a8d72
+  context: "Implement stratified sampling with design weights in code/data/clean.py\
+    \ to ensure \u2264 7GB RAM and target N \u2265 5000 households per country; calculate\
+    \ and apply survey design weights to preserve design effects for the Mixed-Effects\
+    \ Model"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Stratified_sampling_targets_at_least_5000_households_per_cou
+  kind: magnitude
+  raw_text: "Implement stratified sampling with design weights in code/data/clean.py\
+    \ to ensure \u2264 7GB RAM and target N \u2265 5000 households per country"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T06:58:28Z'
+- artifact_path: projects/PROJ-020-the-use-of-climate-smart-agricultural-pr/specs/001-the-use-of-climate-smart-agricultural-pr/tasks.md
+  attempts: 1
+  canonical: predictors are flagged if Variance Inflation Factor exceeds 5.0
+  claim_id: c_65e3f4ff
+  context: 'Implement collinearity diagnostics in code/analysis/diagnostics.py: Calculate
+    VIF for all predictors; Flag predictors exceeding VIF > 5.0 (log warning, do not
+    auto-exclude mediators)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Flag predictors exceeding VIF > 5.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T06:58:28Z'
+- artifact_path: projects/PROJ-020-the-use-of-climate-smart-agricultural-pr/specs/001-the-use-of-climate-smart-agricultural-pr/tasks.md
+  attempts: 1
+  canonical: Benjamini-Hochberg FDR correction is applied when there are more than
+    5 hypotheses
+  claim_id: c_efcb3436
+  context: 'Implement multiple hypothesis correction in code/analysis/model.py: Apply
+    Benjamini-Hochberg FDR correction (replacing Bonferroni) for > 5 hypotheses to
+    control false discovery rate in hierarchical data'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Benjamini-Hochberg_FDR_correction_is_applied_when_there_are
+  kind: magnitude
+  raw_text: Apply Benjamini-Hochberg FDR correction for > 5 hypotheses to control
+    false discovery rate in hierarchical data
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T06:58:46Z'
+- artifact_path: projects/PROJ-020-the-use-of-climate-smart-agricultural-pr/specs/001-the-use-of-climate-smart-agricultural-pr/tasks.md
+  attempts: 1
+  canonical: timeout handling attempts a reduced-batch retry if execution exceeds
+    6 hours
+  claim_id: c_ebb9585d
+  context: Implement timeout handling in code/analysis/model.py to log state and attempt
+    a reduced-batch retry if > 6 hours
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: attempt a reduced-batch retry if > 6 hours
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T06:58:46Z'

@@ -1,0 +1,258 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "CSA Food Security Analysis Dataset Schema"
+description: |
+  Schema for the merged, cleaned, and sampled dataset used in the analysis of
+  Climate-Smart Agricultural (CSA) practices and their impact on food security.
+  This dataset combines LSMS household survey data, FAOSTAT agricultural indicators,
+  and NASA POWER climate data.
+
+type: object
+required:
+  - metadata
+  - fields
+
+metadata:
+  type: object
+  required:
+    - version
+    - generated_at
+    - source_datasets
+    - countries
+    - years
+  properties:
+    version:
+      type: string
+      description: "Schema version (e.g., '1.0.0')"
+    generated_at:
+      type: string
+      format: date-time
+      description: "ISO 8601 timestamp of dataset generation"
+    source_datasets:
+      type: array
+      items:
+        type: string
+      description: "List of source datasets (e.g., 'LSMS', 'FAOSTAT', 'NASA_POWER')"
+    countries:
+      type: array
+      items:
+        type: string
+      description: "ISO 3166-1 alpha-3 country codes included"
+    years:
+      type: array
+      items:
+        type: integer
+      description: "Survey years included in the dataset"
+    sample_size:
+      type: integer
+      description: "Total number of household records after sampling"
+    data_checksum:
+      type: string
+      description: "SHA-256 checksum of the raw parquet file for provenance"
+
+fields:
+  type: array
+  items:
+    type: object
+    required:
+      - name
+      - type
+      - description
+      - source
+    properties:
+      name:
+        type: string
+        description: "Column name in the dataset"
+      type:
+        type: string
+        enum:
+          - integer
+          - float
+          - string
+          - boolean
+          - category
+        description: "Data type of the field"
+      description:
+        type: string
+        description: "Human-readable description of the variable"
+      source:
+        type: string
+        description: "Origin of the variable (e.g., 'LSMS_KENYA_2021_Q12', 'FAOSTAT', 'NASA_POWER', 'derived')"
+      required:
+        type: boolean
+        default: false
+        description: "Whether the field must be non-null"
+      units:
+        type: string
+        description: "Measurement units (e.g., 'USD', 'kg/ha', 'mm', 'score')"
+      category_values:
+        type: array
+        items:
+          type: string
+        description: "Allowed values if type is 'category'"
+
+# Core Identifiers
+- name: household_id
+  type: string
+  description: "Unique household identifier (Country + SurveyID + HouseholdID)"
+  source: "LSMS (derived)"
+  required: true
+
+- name: country_code
+  type: string
+  description: "ISO 3166-1 alpha-3 country code"
+  source: "LSMS"
+  required: true
+  category_values: ["KEN", "IND", "VNM"]
+
+- name: survey_year
+  type: integer
+  description: "Year of the household survey"
+  source: "LSMS"
+  required: true
+
+- name: region_id
+  type: string
+  description: "Administrative region identifier within the country"
+  source: "LSMS"
+  required: true
+
+# --- CSA Practice Variables (Independent Variables) ---
+- name: csa_index
+  type: float
+  description: "Composite Climate-Smart Agriculture adoption index (0.0 to 1.0)"
+  source: "derived (T022)"
+  required: true
+  units: "score"
+
+- name: conservation_tillage_score
+  type: float
+  description: "Adoption score for conservation tillage practices"
+  source: "LSMS (aggregated questions)"
+  required: false
+  units: "score"
+
+- name: crop_diversity_index
+  type: float
+  description: "Shannon diversity index of crops grown by household"
+  source: "LSMS (derived)"
+  required: false
+  units: "index"
+
+- name: irrigation_efficiency_score
+  type: float
+  description: "Score for irrigation water management efficiency"
+  source: "LSMS (aggregated questions)"
+  required: false
+  units: "score"
+
+# --- Moderation Variables (Digital & Finance Access) ---
+- name: digital_access_index
+  type: float
+  description: "Index of access to digital agricultural technologies"
+  source: "LSMS (derived)"
+  required: false
+  units: "score"
+
+- name: finance_access_index
+  type: float
+  description: "Index of access to agricultural finance/credit"
+  source: "LSMS (derived)"
+  required: false
+  units: "score"
+
+# --- Outcome Variables (Dependent Variables) ---
+- name: food_security_score
+  type: float
+  description: "Household Food Security Scale (HFSS) score"
+  source: "LSMS (derived)"
+  required: true
+  units: "score"
+
+- name: household_income_usd
+  type: float
+  description: "Total annual household income in USD (PPP adjusted)"
+  source: "LSMS"
+  required: false
+  units: "USD"
+
+- name: crop_yield_kg_ha
+  type: float
+  description: "Average crop yield in kg per hectare"
+  source: "LSMS + FAOSTAT"
+  required: false
+  units: "kg/ha"
+
+# --- Climate Controls (NASA POWER) ---
+- name: climate_precip_mm
+  type: float
+  description: "Total precipitation during the growing season (mm)"
+  source: "NASA_POWER"
+  required: false
+  units: "mm"
+
+- name: climate_temp_avg_c
+  type: float
+  description: "Average temperature during the growing season (°C)"
+  source: "NASA_POWER"
+  required: false
+  units: "C"
+
+- name: climate_temp_max_c
+  type: float
+  description: "Maximum temperature during the growing season (°C)"
+  source: "NASA_POWER"
+  required: false
+  units: "C"
+
+# --- FAOSTAT Ag Indicators (Contextual) ---
+- name: fao_fertilizer_use
+  type: float
+  description: "National average fertilizer consumption (kg/hectare)"
+  source: "FAOSTAT"
+  required: false
+  units: "kg/ha"
+
+- name: fao_irrigated_area_pct
+  type: float
+  description: "Percentage of arable land under irrigation (national average)"
+  source: "FAOSTAT"
+  required: false
+  units: "percent"
+
+# --- Survey Design Weights ---
+- name: survey_weight
+  type: float
+  description: "Stratified sampling design weight for the household"
+  source: "LSMS (derived T017)"
+  required: true
+  units: "weight"
+
+# --- Spatial Coordinates ---
+- name: latitude
+  type: float
+  description: "Latitude of household location (or centroid of enumeration area)"
+  source: "LSMS"
+  required: false
+  units: "degrees"
+
+- name: longitude
+  type: float
+  description: "Longitude of household location (or centroid of enumeration area)"
+  source: "LSMS"
+  required: false
+  units: "degrees"
+
+# --- Metadata Flags ---
+- name: data_quality_flag
+  type: string
+  description: "Flag for data quality issues (e.g., 'valid', 'imputed', 'unmatched_climate')"
+  source: "derived (T015)"
+  required: true
+  category_values: ["valid", "imputed", "unmatched_climate", "missing_income"]
+
+- name: imputation_method
+  type: string
+  description: "Method used for imputation if value was missing"
+  source: "derived (T016)"
+  required: false
+  category_values: ["none", "mean", "median", "knn", "regression"]

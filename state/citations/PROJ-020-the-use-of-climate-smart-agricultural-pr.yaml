@@ -1,1 +1,44 @@
-[]
+- artifact_hash: a2062f1deff6c024d3048b2469999b65837b7b564f3c8b97e765381bcf7aca3b
+  artifact_path: projects/PROJ-020-the-use-of-climate-smart-agricultural-pr/specs/001-the-use-of-climate-smart-agricultural-pr/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://www.worldbank.org/en/data/surveys/lsms
+  verification_status: mismatch
+  verified_against_url: https://www.worldbank.org/en/data/surveys/lsms
+  verified_at: '2026-07-05T06:38:27.708364Z'
+- artifact_hash: a2062f1deff6c024d3048b2469999b65837b7b564f3c8b97e765381bcf7aca3b
+  artifact_path: projects/PROJ-020-the-use-of-climate-smart-agricultural-pr/specs/001-the-use-of-climate-smart-agricultural-pr/research.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: FAOSTAT
+  kind: url
+  value: https://www.fao.org/faostat/en/#data
+  verification_status: verified
+  verified_against_url: https://www.fao.org/faostat/en/#data
+  verified_at: '2026-07-05T06:38:27.708364Z'
+- artifact_hash: a2062f1deff6c024d3048b2469999b65837b7b564f3c8b97e765381bcf7aca3b
+  artifact_path: projects/PROJ-020-the-use-of-climate-smart-agricultural-pr/specs/001-the-use-of-climate-smart-agricultural-pr/research.md
+  cite_id: c-003
+  cited_authors: []
+  cited_title: null
+  fetched_title: NASA POWER | Homepage
+  kind: url
+  value: https://power.larc.nasa.gov/
+  verification_status: verified
+  verified_against_url: https://power.larc.nasa.gov/
+  verified_at: '2026-07-05T06:38:27.708364Z'
+- artifact_hash: a2062f1deff6c024d3048b2469999b65837b7b564f3c8b97e765381bcf7aca3b
+  artifact_path: projects/PROJ-020-the-use-of-climate-smart-agricultural-pr/specs/001-the-use-of-climate-smart-agricultural-pr/research.md
+  cite_id: c-004
+  cited_authors: []
+  cited_title: null
+  fetched_title: "allenai/csabstruct \xB7 Datasets at Hugging Face"
+  kind: url
+  value: https://huggingface.co/datasets/allenai/csabstruct
+  verification_status: verified
+  verified_against_url: https://huggingface.co/datasets/allenai/csabstruct
+  verified_at: '2026-07-05T06:38:27.708364Z'

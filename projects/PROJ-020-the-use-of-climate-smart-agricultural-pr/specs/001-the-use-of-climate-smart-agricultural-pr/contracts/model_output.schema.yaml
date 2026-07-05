@@ -1,0 +1,101 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Model Output Schema
+description: Schema for the statistical model results, mediation analysis, and robustness checks.
+type: object
+required:
+  - model_id
+  - coefficients
+  - p_values
+  - vif_scores
+  - mediation_effects
+  - robustness_metrics
+properties:
+  model_id:
+    type: string
+    format: uuid
+    description: "Unique identifier for the model run"
+  model_type:
+    type: string
+    enum:
+      - Mixed-Effects Regression
+    description: "Type of model fitted"
+  coefficients:
+    type: object
+    description: "Standardized coefficient estimates"
+    additionalProperties:
+      type: number
+  std_errors:
+    type: object
+    description: "Standard errors for coefficients"
+    additionalProperties:
+      type: number
+  p_values:
+    type: object
+    description: "P-values (Benjamini-Hochberg FDR corrected)"
+    additionalProperties:
+      type: number
+      minimum: 0
+      maximum: 1
+  vif_scores:
+    type: object
+    description: "Variance Inflation Factors for predictors"
+    additionalProperties:
+      type: number
+      minimum: 1
+  random_effects:
+    type: object
+    description: "Variance components for random effects (Region, Country)"
+    properties:
+      region_variance:
+        type: number
+      country_variance:
+        type: number
+      residual_variance:
+        type: number
+  mediation_effects:
+    type: object
+    description: "Results from mediation analysis (indirect and direct effects)"
+    properties:
+      direct_effect_csa:
+        type: number
+        description: "Direct effect of CSA on food security"
+      indirect_effect_digital:
+        type: number
+        description: "Indirect effect via digital access"
+      indirect_effect_finance:
+        type: number
+        description: "Indirect effect via finance access"
+      total_effect:
+        type: number
+        description: "Total effect (Direct + Indirect)"
+  robustness_metrics:
+    type: object
+    description: "Results from robustness checks"
+    properties:
+      bootstrap_variance:
+        type: number
+        description: "Variance estimate from 1000 bootstrap iterations"
+      leave_one_out_variance:
+        type: number
+        description: "Variance estimate from leave-one-region-out"
+      sensitivity_threshold_variance:
+        type: number
+        description: "Variance in significance rates across CSA thresholds"
+  warnings:
+    type: array
+    items:
+      type: string
+    description: "List of warnings (e.g., VIF > 5.0, missing data, synthetic data mode)"
+  provenance:
+    type: object
+    description: "Mapping of derived variables to raw data sources"
+    properties:
+      data_source:
+        type: string
+      sample_size:
+        type: integer
+      random_seed:
+        type: integer
+      is_synthetic:
+        type: boolean
+        description: "True if results were generated from synthetic data (pipeline validation only)"
