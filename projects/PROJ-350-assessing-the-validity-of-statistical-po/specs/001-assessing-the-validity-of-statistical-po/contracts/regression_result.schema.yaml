@@ -1,0 +1,59 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: RegressionResult
+description: "Schema for the output of the Power Gap regression model."
+type: object
+properties:
+  model_summary:
+    type: object
+    properties:
+      r_squared:
+        type: number
+        description: "Coefficient of determination."
+      adj_r_squared:
+        type: number
+        description: "Adjusted R-squared."
+      f_statistic:
+        type: number
+        description: "F-statistic for the overall model."
+      p_value_f:
+        type: number
+        description: "P-value for the F-statistic."
+  coefficients:
+    type: array
+    items:
+      type: object
+      properties:
+        predictor:
+          type: string
+          description: "Name of the predictor variable."
+        coefficient:
+          type: number
+          description: "Beta weight."
+        standard_error:
+          type: number
+          description: "Standard error of the coefficient."
+        p_value:
+          type: number
+          description: "P-value for the coefficient."
+        vif_score:
+          type: number
+          description: "Variance Inflation Factor."
+      required:
+        - predictor
+        - coefficient
+        - vif_score
+  diagnostics:
+    type: object
+    properties:
+      collinearity_warning:
+        type: boolean
+        description: "True if any VIF > 5.0."
+      residual_normality_p_value:
+        type: number
+        description: "P-value from Shapiro-Wilk test."
+    required:
+      - collinearity_warning
+required:
+  - model_summary
+  - coefficients
+  - diagnostics

@@ -1,0 +1,11 @@
+- artifact_hash: bd0c7a01648cd18baaf9fb82e569bc35350f1b2f8f377fd89d351663899e50eb
+  artifact_path: projects/PROJ-350-assessing-the-validity-of-statistical-po/specs/001-assessing-the-validity-of-statistical-po/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: "Root \u2013 Django REST framework"
+  kind: url
+  value: https://api.osf.io/v2/`
+  verification_status: verified
+  verified_against_url: https://api.osf.io/v2/
+  verified_at: '2026-07-05T08:56:45.056323Z'

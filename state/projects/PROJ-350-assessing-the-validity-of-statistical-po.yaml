@@ -1,19 +1,19 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-06T09:57:23.338905Z'
-current_stage: project_initialized
+current_stage: in_progress
 failed_stage: null
 field: statistics
 human_escalation_reason: null
 id: PROJ-350-assessing-the-validity-of-statistical-po
-last_run_id: d7f98dca-e7a8-48d2-afe8-a320bd003528
+last_run_id: 5f20c5d7-e207-45fd-b436-b8e5ff14733f
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
 revision_spec_path: null
 speckit_paper_dir: null
-speckit_research_dir: null
+speckit_research_dir: projects/PROJ-350-assessing-the-validity-of-statistical-po/specs/001-assessing-the-validity-of-statistical-po
 title: Assessing the Validity of Statistical Power in Publicly Available Pre-Registered
   Studies
-updated_at: '2026-06-26T12:30:33.329181Z'
+updated_at: '2026-07-05T09:32:04.067606Z'

@@ -1,0 +1,7 @@
+'T001a [P] Create directory structure: `code/`, `data/raw/`, `data/derived/`, `tests/`, `specs/`, `results/`, `docs/`': 1
+'T001b [P] Create placeholder files: `.gitkeep` in all data directories': 1
+T002 Initialize `code/__init__.py` as an empty file: 1
+'T003 [P] Create configuration files: `.pre-commit-config.yaml`, `requirements.txt`, `pyproject.toml`': 1
+? T004 [P] Setup GitHub Actions workflow for CI (CPU-only, limited core count, constrained
+  memory limits) and data checksum validation
+: 1

@@ -1,0 +1,64 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Study Record Schema
+description: Schema for extracted study records from OSF pre-registrations.
+type: object
+required:
+  - osf_id
+  - extraction_timestamp
+  - planned_power
+  - target_n
+  - effect_size_assumption
+  - missing_planned_data
+  - source_citation
+properties:
+  osf_id:
+    type: string
+    description: The unique OSF identifier for the study.
+  extraction_timestamp:
+    type: string
+    format: date-time
+    description: ISO 8601 timestamp of when the extraction occurred.
+  planned_power:
+    type: number
+    minimum: 0.0
+    maximum: 1.0
+    description: The planned statistical power stated in the pre-registration.
+    nullable: true
+  target_n:
+    type: integer
+    minimum: 1
+    description: The target sample size stated in the pre-registration.
+    nullable: true
+  effect_size_assumption:
+    type: number
+    minimum: 0.0
+    description: The assumed effect size (e.g., Cohen's d) used for power calculation.
+    nullable: true
+  missing_planned_data:
+    type: boolean
+    description: Flag indicating if planned data was missing or could not be extracted.
+  source_citation:
+    type: object
+    description: Metadata about where the data was found.
+    required:
+      - page_number
+      - paragraph_id
+    properties:
+      page_number:
+        type: integer
+        nullable: true
+      paragraph_id:
+        type: string
+        nullable: true
+  raw_text_snippet:
+    type: string
+    description: Optional raw text snippet where the data was found.
+    nullable: true
+  validation_status:
+    type: string
+    enum: [valid, invalid, warning]
+    description: Status of the extracted data validation.
+  notes:
+    type: string
+    nullable: true
+    description: Additional notes or flags from the extraction process.

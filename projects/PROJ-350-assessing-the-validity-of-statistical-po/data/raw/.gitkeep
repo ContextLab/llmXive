@@ -1,0 +1,2 @@
+# This directory stores raw data downloaded from external sources (e.g., OSF).
+# Do not commit large files here; use .gitignore for data patterns.

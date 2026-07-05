@@ -1,0 +1,56 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: StudyRecord
+description: "Schema for a single pre-registered study record including planned and achieved power metrics."
+type: object
+properties:
+  osf_id:
+    type: string
+    description: "Unique OSF identifier for the study."
+  field:
+    type: string
+    description: "Broad disciplinary category (e.g., Social, Natural)."
+  planned_power:
+    type: number
+    description: "Target statistical power (e.g., 0.80)."
+    minimum: 0.0
+    maximum: 1.0
+  target_n:
+    type: integer
+    description: "Planned sample size."
+    minimum: 0
+  effect_size_assumption:
+    type: number
+    description: "Assumed effect size (e.g., Cohen's d) used in planning."
+  test_type:
+    type: string
+    description: "Statistical test type used (e.g., 't-test', 'ANOVA')."
+  actual_sample_size:
+    type: integer
+    description: "Actual sample size used in the final analysis."
+    minimum: 0
+  observed_effect_size:
+    type: number
+    description: "Observed effect size from the study results."
+  sensitivity_power:
+    type: number
+    description: "Power to detect the assumed effect size given the actual sample size."
+    minimum: 0.0
+    maximum: 1.0
+  power_gap:
+    type: number
+    description: "Difference between planned and sensitivity power (planned - sensitivity)."
+  missing_planned_data:
+    type: boolean
+    description: "Flag indicating if planned power data was missing."
+  assumption_mismatch:
+    type: boolean
+    description: "Flag indicating if extracted assumptions differ from those implied by reported power."
+  source_citation:
+    type: string
+    description: "Reference to the source document (e.g., 'page:para' or 'json_path')."
+required:
+  - osf_id
+  - field
+  - missing_planned_data
+  - source_citation
+  - test_type
