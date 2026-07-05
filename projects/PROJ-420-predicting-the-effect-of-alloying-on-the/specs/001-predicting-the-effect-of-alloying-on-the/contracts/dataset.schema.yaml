@@ -1,0 +1,98 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "AlloyRecord Schema"
+description: "Schema for the cleaned and normalized aluminum alloy dataset."
+type: "object"
+properties:
+  id:
+    type: "string"
+    description: "Unique identifier for the alloy record."
+  source:
+    type: "string"
+    enum:
+      - "Materials Project"
+      - "NIST"
+    description: "Source database of the record."
+  poissons_ratio:
+    type: "number"
+    minimum: 0.0
+    maximum: 0.5
+    description: "Poisson's ratio (dimensionless)."
+  youngs_modulus_gpa:
+    type: "number"
+    exclusiveMinimum: 0
+    description: "Young's modulus in GPa."
+  shear_modulus_gpa:
+    type: "number"
+    exclusiveMinimum: 0
+    description: "Shear modulus in GPa (required for independence verification)."
+  measurement_method:
+    type: "string"
+    description: "Method used to measure Poisson's ratio."
+  composition_cu:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Atomic fraction of Copper."
+  composition_mg:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Atomic fraction of Magnesium."
+  composition_si:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Atomic fraction of Silicon."
+  composition_zn:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Atomic fraction of Zinc."
+  composition_mn:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Atomic fraction of Manganese."
+  composition_al:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Calculated atomic fraction of Aluminum."
+  is_independent_measurement:
+    type: "boolean"
+    description: "True if Poisson's ratio is an independent measurement."
+  raw_vif_cu:
+    type: "number"
+    description: "Variance Inflation Factor for Cu in raw space."
+  raw_vif_mg:
+    type: "number"
+    description: "Variance Inflation Factor for Mg in raw space."
+  raw_vif_si:
+    type: "number"
+    description: "Variance Inflation Factor for Si in raw space."
+  raw_vif_zn:
+    type: "number"
+    description: "Variance Inflation Factor for Zn in raw space."
+  raw_vif_mn:
+    type: "number"
+    description: "Variance Inflation Factor for Mn in raw space."
+required:
+  - id
+  - source
+  - poissons_ratio
+  - youngs_modulus_gpa
+  - shear_modulus_gpa
+  - measurement_method
+  - composition_cu
+  - composition_mg
+  - composition_si
+  - composition_zn
+  - composition_mn
+  - composition_al
+  - is_independent_measurement
+  - raw_vif_cu
+  - raw_vif_mg
+  - raw_vif_si
+  - raw_vif_zn
+  - raw_vif_mn
+additionalProperties: false

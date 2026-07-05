@@ -1,0 +1,86 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "AlloyRecord"
+description: "Schema for a single aluminum alloy entry after cleaning and filtering."
+type: "object"
+properties:
+  source_id:
+    type: "string"
+    description: "Unique identifier from the source database."
+  source:
+    type: "string"
+    enum: ["Open Alloys", "Materials Cloud"]
+    description: "Name of the source database."
+  composition:
+    type: "object"
+    description: "Atomic fractions of alloying elements."
+    properties:
+      Cu:
+        type: "number"
+        minimum: 0
+        maximum: 1
+        description: "Atomic fraction of Copper."
+      Mg:
+        type: "number"
+        minimum: 0
+        maximum: 1
+        description: "Atomic fraction of Magnesium."
+      Si:
+        type: "number"
+        minimum: 0
+        maximum: 1
+        description: "Atomic fraction of Silicon."
+      Zn:
+        type: "number"
+        minimum: 0
+        maximum: 1
+        description: "Atomic fraction of Zinc."
+      Mn:
+        type: "number"
+        minimum: 0
+        maximum: 1
+        description: "Atomic fraction of Manganese."
+      Al:
+        type: "number"
+        minimum: 0
+        maximum: 1
+        description: "Atomic fraction of Aluminum (calculated balance)."
+    required:
+      - Cu
+      - Mg
+      - Si
+      - Zn
+      - Mn
+      - Al
+  poissons_ratio:
+    type: "number"
+    minimum: 0
+    maximum: 0.5
+    description: "Poisson's ratio (dimensionless)."
+  youngs_modulus:
+    type: "number"
+    minimum: 0
+    description: "Young's modulus in GPa."
+  shear_modulus:
+    type: "number"
+    minimum: 0
+    description: "Shear modulus in GPa (required for independence verification)."
+  measurement_method:
+    type: "string"
+    description: "Method used to measure Poisson's ratio (e.g., 'Ultrasonic', 'Calculated')."
+  is_measured:
+    type: "boolean"
+    default: false
+    description: "Flag indicating if the measurement was independent (e.g., ultrasonic)."
+  is_synthetic:
+    type: "boolean"
+    default: false
+    description: "Flag indicating if the data is synthetic (for testing)."
+required:
+  - source_id
+  - source
+  - composition
+  - poissons_ratio
+  - youngs_modulus
+  - shear_modulus
+  - measurement_method
+  - is_measured

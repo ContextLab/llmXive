@@ -1,0 +1,101 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "ModelOutput"
+description: "Schema for the final model performance metrics, feature importance, and diagnostics."
+type: "object"
+properties:
+  cv_mae:
+    type: "number"
+    minimum: 0
+    description: "Mean Absolute Error from 5-fold cross-validation."
+  test_mae:
+    type: "number"
+    minimum: 0
+    description: "Mean Absolute Error on the held-out test set."
+  n_train:
+    type: "integer"
+    minimum: 1
+    description: "Number of samples in the training set."
+  n_test:
+    type: "integer"
+    minimum: 1
+    description: "Number of samples in the test set."
+  feature_importance:
+    type: "object"
+    properties:
+      Cu:
+        type: "number"
+        minimum: 0
+        description: "Importance score for Copper."
+      Mg:
+        type: "number"
+        minimum: 0
+        description: "Importance score for Magnesium."
+      Si:
+        type: "number"
+        minimum: 0
+        description: "Importance score for Silicon."
+      Zn:
+        type: "number"
+        minimum: 0
+        description: "Importance score for Zinc."
+      Mn:
+        type: "number"
+        minimum: 0
+        description: "Importance score for Manganese."
+    required:
+      - Cu
+      - Mg
+      - Si
+      - Zn
+      - Mn
+    additionalProperties: false
+  associational_framing:
+    type: "boolean"
+    const: true
+    description: "Flag indicating results are framed as associational."
+  null_model_threshold:
+    type: "number"
+    description: "95th percentile of null model importance scores."
+  basis_sensitivity_flag:
+    type: "boolean"
+    description: "True if rankings changed with alternative ILR basis."
+  vif_scores:
+    type: "object"
+    description: "Variance Inflation Factors for raw predictors."
+    properties:
+      Cu:
+        type: "number"
+        minimum: 1
+      Mg:
+        type: "number"
+        minimum: 1
+      Si:
+        type: "number"
+        minimum: 1
+      Zn:
+        type: "number"
+        minimum: 1
+      Mn:
+        type: "number"
+        minimum: 1
+    required:
+      - Cu
+      - Mg
+      - Si
+      - Zn
+      - Mn
+  high_vif_flag:
+    type: "boolean"
+    description: "True if any VIF score > 5 (expected artifact)."
+required:
+  - cv_mae
+  - test_mae
+  - n_train
+  - n_test
+  - feature_importance
+  - associational_framing
+  - null_model_threshold
+  - basis_sensitivity_flag
+  - vif_scores
+  - high_vif_flag
+additionalProperties: false

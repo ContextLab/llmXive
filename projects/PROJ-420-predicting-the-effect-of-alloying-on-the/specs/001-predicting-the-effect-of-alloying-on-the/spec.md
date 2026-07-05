@@ -106,6 +106,6 @@ The researcher MUST be able to extract feature importance scores ranking alloyin
 - The dataset contains all required variables (Poisson's ratio, Young's modulus, Cu, Mg, Si, Zn, Mn concentrations); any missing variables will be flagged as an error during data extraction.
 - The observational nature of the dataset means all findings will be framed as associational; no randomization or identification strategy is available for causal claims.
 - Multiple-comparison correction is not required for the primary analysis since the research question focuses on a single outcome (Poisson's ratio) rather than multiple hypothesis tests.
-- The 0.02 MAE target is a design expectation for model performance; if the model exceeds this, the result will be documented as a limitation rather than suppressing the finding.
+- The design expectation for model performance is a low MAE target; if the model exceeds this, the result will be documented as a limitation rather than suppressing the finding.
 - The 5-element feature set (Cu, Mg, Si, Zn, Mn) captures the major alloying elements for standard aluminum series; trace elements are excluded as their concentrations are typically <1 wt%, and entries with missing mass >5% are excluded.
 - Poisson's ratio values in the source databases are primarily derived from independent ultrasonic measurements rather than calculated from Young's modulus alone.

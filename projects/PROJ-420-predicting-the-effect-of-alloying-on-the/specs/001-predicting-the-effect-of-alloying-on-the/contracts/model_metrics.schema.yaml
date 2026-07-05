@@ -1,0 +1,91 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "ModelMetrics"
+description: "Schema for the output metrics of the Random Forest model."
+type: "object"
+properties:
+  cv_mae:
+    type: "number"
+    description: "Mean Absolute Error from 5-fold cross-validation."
+  test_mae:
+    type: "number"
+    description: "Mean Absolute Error on the held-out test set."
+  feature_importance_raw:
+    type: "object"
+    description: "Back-transformed feature importance scores for original elements."
+    properties:
+      Cu:
+        type: "number"
+        minimum: 0
+      Mg:
+        type: "number"
+        minimum: 0
+      Si:
+        type: "number"
+        minimum: 0
+      Zn:
+        type: "number"
+        minimum: 0
+      Mn:
+        type: "number"
+        minimum: 0
+      Al:
+        type: "number"
+        minimum: 0
+    required:
+      - Cu
+      - Mg
+      - Si
+      - Zn
+      - Mn
+      - Al
+  vif_scores:
+    type: "object"
+    description: "Variance Inflation Factors for raw predictors."
+    properties:
+      Cu:
+        type: "number"
+        minimum: 1
+      Mg:
+        type: "number"
+        minimum: 1
+      Si:
+        type: "number"
+        minimum: 1
+      Zn:
+        type: "number"
+        minimum: 1
+      Mn:
+        type: "number"
+        minimum: 1
+    required:
+      - Cu
+      - Mg
+      - Si
+      - Zn
+      - Mn
+  is_associational:
+    type: "boolean"
+    const: true
+    description: "Flag indicating the results are associational, not causal."
+  high_vif_flag:
+    type: "boolean"
+    description: "True if any VIF score > 5 (expected artifact)."
+  power_analysis_log:
+    type: "string"
+    description: "Log of the power analysis (detectable effect size)."
+  null_model_threshold:
+    type: "number"
+    description: "95th percentile of null model importance scores."
+  basis_sensitivity_flag:
+    type: "boolean"
+    description: "True if rankings changed with alternative ILR basis."
+required:
+  - cv_mae
+  - test_mae
+  - feature_importance_raw
+  - vif_scores
+  - is_associational
+  - high_vif_flag
+  - power_analysis_log
+  - null_model_threshold
+  - basis_sensitivity_flag
