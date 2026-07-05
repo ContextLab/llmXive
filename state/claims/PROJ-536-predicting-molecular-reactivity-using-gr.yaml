@@ -1,0 +1,379 @@
+- artifact_path: projects/PROJ-536-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
+  attempts: 1
+  canonical: USPTO dataset parsing success rate greater than 95 percent
+  claim_id: c_4ee9737f
+  context: 'Independent Test: Execute src/data/ingestion.py on a subset of the USPTO
+    dataset; verify output is a valid PyG Data object with non-null features and >95%
+    parsing success rate.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/USPTO_dataset_parsing_success_rate_greater_than_95_percent
+  kind: magnitude
+  raw_text: Execute src/data/ingestion.py on a subset of the USPTO dataset; verify
+    output is a valid PyG Data object with non-null features and >95% parsing success
+    rate.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T22:53:57Z'
+- artifact_path: projects/PROJ-536-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
+  attempts: 1
+  canonical: MPNN and Random Forest baseline training completes within 4 hours on
+    CPU
+  claim_id: c_295bf6df
+  context: 'Goal: Train a lightweight MPNN and a Random Forest baseline on the constructed
+    dataset within 4 hours on CPU.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Train a lightweight MPNN and a Random Forest baseline on the constructed
+    dataset within 4 hours on CPU.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T22:54:23Z'
+- artifact_path: projects/PROJ-536-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
+  attempts: 1
+  canonical: 5-fold cross-validation training loop execution
+  claim_id: c_1fa6ea88
+  context: 'Independent Test: Run -fold CV training loop; verify both models converge,
+    produce valid predictions across the full probability spectrum, and complete within
+    time limits.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run 5-fold CV training loop; verify both models converge, produce valid
+    predictions across the full probability spectrum, and complete within time limits.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T22:54:54Z'
+- artifact_path: projects/PROJ-536-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
+  attempts: 1
+  canonical: 5-fold cross-validation used to calculate mean R squared and standard
+    deviation
+  claim_id: c_658214ad
+  context: "Implementation for User Story 2: Implement 5-fold cross-validation training\
+    \ loop in src/training/trainer.py (handles data splitting, model training, checkpointing,\
+    \ and aggregation of fold-level metrics to calculate mean R\xB2 and standard deviation)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement 5-fold cross-validation training loop in src/training/trainer.py\
+    \ (handles data splitting, model training, checkpointing, and aggregation of fold-level\
+    \ metrics to calculate mean R\xB2 and standard deviation)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T22:55:10Z'
+- artifact_path: projects/PROJ-536-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
+  attempts: 1
+  canonical: dataset sourced from HuggingFace USPTO
+  claim_id: c_d54c7411
+  context: Implement SMILES ingestion script in src/data/ingestion.py (fetches from
+    HuggingFace USPTO dataset, handles NaN yields, extracts and validates reaction_class
+    labels)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Dataset_sourced_from_HuggingFace_USPTO
+  kind: entity_fact
+  raw_text: fetches from HuggingFace USPTO dataset
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T22:57:48Z'
+- artifact_path: projects/PROJ-536-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
+  attempts: 1
+  canonical: parsing success rate greater than 95 percent
+  claim_id: c_22845432
+  context: 'Independent Test: Execute src/data/ingestion.py on a subset of the USPTO
+    dataset; verify output is a valid PyG Data object with non-null features and >95%
+    parsing success rate.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Parsing_success_rate_greater_than_95_percent
+  kind: magnitude
+  raw_text: verify output is a valid PyG Data object with non-null features and >95%
+    parsing success rate
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T22:58:09Z'
+- artifact_path: projects/PROJ-536-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
+  attempts: 1
+  canonical: model training completes within 4 hours on CPU
+  claim_id: c_5891c511
+  context: 'Goal: Train a lightweight MPNN and a Random Forest baseline on the constructed
+    dataset within 4 hours on CPU.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: train a lightweight MPNN and a Random Forest baseline on the constructed
+    dataset within 4 hours on CPU
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T22:58:09Z'
+- artifact_path: projects/PROJ-536-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
+  attempts: 1
+  canonical: 5-fold cross-validation implemented
+  claim_id: c_4086488f
+  context: "Implement 5-fold cross-validation training loop in src/training/trainer.py\
+    \ (handles data splitting, model training, checkpointing, and aggregation of fold-level\
+    \ metrics to calculate mean R\xB2 and standard deviation)"
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: cross-validation across both backbones, totaling 180 trained models,
+        and (ii)
+      source_id: '2604.10702'
+      url: https://arxiv.org/abs/2604.10702
+      value: '180'
+    filled: true
+  kind: numeric
+  raw_text: implement 5-fold cross-validation training loop
+  resolved_value: '180'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-05T22:58:41Z'
+- artifact_path: projects/PROJ-536-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
+  attempts: 1
+  canonical: USPTO dataset from HuggingFace used without synthetic generation
+  claim_id: c_81661415
+  context: 'Data Integrity: Use real USPTO dataset from HuggingFace; no synthetic
+    data generation.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/USPTO_dataset_from_HuggingFace_used_without_synthetic_genera
+  kind: entity_fact
+  raw_text: Use real USPTO dataset from HuggingFace; no synthetic data generation
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T22:59:03Z'
+- artifact_path: projects/PROJ-536-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
+  attempts: 1
+  canonical: fetches data from HuggingFace USPTO dataset
+  claim_id: c_3733be2c
+  context: Implement SMILES ingestion script in src/data/ingestion.py (fetches from
+    HuggingFace USPTO dataset, handles NaN yields, extracts and validates reaction_class
+    labels)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fetches_data_from_HuggingFace_USPTO_dataset
+  kind: entity_fact
+  raw_text: fetches from HuggingFace USPTO dataset
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T23:01:06Z'
+- artifact_path: projects/PROJ-536-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
+  attempts: 1
+  canonical: verify 95% parsing success rate for USPTO dataset
+  claim_id: c_e42435d5
+  context: Execute src/data/ingestion.py on a subset of the USPTO dataset; verify
+    output is a valid PyG Data object with non-null features and >95% parsing success
+    rate.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Verify_95%25_parsing_success_rate_for_USPTO_dataset
+  kind: entity_fact
+  raw_text: verify output is a valid PyG Data object with non-null features and >95%
+    parsing success rate
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T23:01:08Z'
+- artifact_path: projects/PROJ-536-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
+  attempts: 1
+  canonical: Document examples include test tasks
+  claim_id: c_12047e55
+  context: 'Tests: The examples below include test tasks. Tests are OPTIONAL - only
+    include them if explicitly requested in the feature specification.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Document_examples_include_test_tasks
+  kind: entity_fact
+  raw_text: The examples below include test tasks.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T23:02:04Z'
+- artifact_path: projects/PROJ-536-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
+  attempts: 1
+  canonical: Tasks grouped by user story for independent implementation
+  claim_id: c_c6628f3b
+  context: 'Organization: Tasks are grouped by user story to enable independent implementation
+    and testing of each story.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Tasks_grouped_by_user_story_for_independent_implementation
+  kind: entity_fact
+  raw_text: Tasks are grouped by user story to enable independent implementation and
+    testing of each story.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T23:02:52Z'
+- artifact_path: projects/PROJ-536-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
+  attempts: 1
+  canonical: Project initializes with Python 3.11
+  claim_id: c_171f094b
+  context: T001c [P] Initialize Python 3.11 project with CPU-only dependencies (torch,
+    torch-geometric, rdkit, scikit-learn, pandas, pyyaml) in requirements.txt
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project initializes with Python 3.11.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T23:03:53Z'
+- artifact_path: projects/PROJ-536-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
+  attempts: 1
+  canonical: Dataset is USPTO-50k
+  claim_id: c_7927d4f3
+  context: 'Goal: Ingest raw SMILES from USPTO-50k, parse into molecular graphs using
+    RDKit, and extract features for CPU-based analysis.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The dataset used is USPTO-50k.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T23:04:20Z'
+- artifact_path: projects/PROJ-536-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
+  attempts: 1
+  canonical: Parsing success rate must be greater than 95 percent
+  claim_id: c_c5c446bf
+  context: 'Independent Test: Execute src/data/ingestion.py on a subset of the USPTO
+    dataset; verify output is a valid PyG Data object with non-null features and >95%
+    parsing success rate.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Parsing_success_rate_must_be_greater_than_95_percent
+  kind: magnitude
+  raw_text: The test requires a >95% parsing success rate.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T23:05:23Z'
+- artifact_path: projects/PROJ-536-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
+  attempts: 1
+  canonical: Baseline training must complete within 4 hours on CPU
+  claim_id: c_2acd61ab
+  context: 'Goal: Train a lightweight MPNN and a Random Forest baseline on the constructed
+    dataset within 4 hours on CPU.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The baseline model must be trained within 4 hours on CPU.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T23:06:11Z'
+- artifact_path: projects/PROJ-536-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
+  attempts: 1
+  canonical: Training loop uses 5-fold cross-validation
+  claim_id: c_0c03fcac
+  context: 'Independent Test: Run -fold CV training loop; verify both models converge,
+    produce valid predictions across the full probability spectrum, and complete within
+    time limits.'
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: 'Prostate MRI Segmentation: A 5-Fold Cross-Validation and Gate'
+      source_id: '2604.10702'
+      url: https://arxiv.org/abs/2604.10702
+      value: '5'
+    filled: true
+  kind: numeric
+  raw_text: The training loop uses 5-fold cross-validation.
+  resolved_value: '5'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-05T23:07:14Z'
+- artifact_path: projects/PROJ-536-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
+  attempts: 1
+  canonical: Implementation uses 5-fold cross-validation
+  claim_id: c_cbb7950d
+  context: "T023 [US2] Implement 5-fold cross-validation training loop in src/training/trainer.py\
+    \ (handles data splitting, model training, checkpointing, and aggregation of fold-level\
+    \ metrics to calculate mean R\xB2 and standard deviation)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The implementation uses 5-fold cross-validation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T23:08:14Z'
+- artifact_path: projects/PROJ-536-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
+  attempts: 1
+  canonical: Data fetched from HuggingFace USPTO dataset
+  claim_id: c_f8a11647
+  context: T012 [US1] Implement SMILES ingestion script in src/data/ingestion.py (fetches
+    from HuggingFace USPTO dataset, handles NaN yields, extracts and validates reaction_class
+    labels)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Data_fetched_from_HuggingFace_USPTO_dataset
+  kind: entity_fact
+  raw_text: The data is fetched from the HuggingFace USPTO dataset.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T23:09:19Z'

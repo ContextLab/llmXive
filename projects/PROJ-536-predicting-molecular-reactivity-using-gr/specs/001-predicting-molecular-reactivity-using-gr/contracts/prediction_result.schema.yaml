@@ -1,0 +1,43 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "PredictionResultSchema"
+description: "Schema for individual prediction outputs including uncertainty intervals."
+type: "object"
+properties:
+  model_type:
+    description: "Type of model used for prediction."
+    type: "string"
+    enum:
+      - "GNN"
+      - "Baseline"
+  reaction_id:
+    description: "Unique identifier for the reaction."
+    type: "string"
+  actual_yield:
+    description: "Ground truth yield value."
+    type: "number"
+    minimum: 0.0
+    maximum: 100.0
+  predicted_yield:
+    description: "Model predicted yield."
+    type: "number"
+    minimum: 0.0
+    maximum: 100.0
+  lower_bound:
+ description: "Lower bound of the [deferred] prediction interval."
+    type: "number"
+  upper_bound:
+ description: "Upper bound of the [deferred] prediction interval."
+    type: "number"
+  error:
+    description: "Absolute error between actual and predicted yield."
+    type: "number"
+    minimum: 0.0
+required:
+  - "model_type"
+  - "reaction_id"
+  - "actual_yield"
+  - "predicted_yield"
+  - "lower_bound"
+  - "upper_bound"
+  - "error"
+additionalProperties: false

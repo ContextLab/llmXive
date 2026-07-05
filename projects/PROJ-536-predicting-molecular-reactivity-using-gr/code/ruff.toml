@@ -1,0 +1,39 @@
+[tool.ruff]
+# Target Python version
+target-version = "py311"
+
+# Line length matching Black's default
+line-length = 88
+
+# Exclude directories
+extend-exclude = [
+    "__pycache__",
+    ".git",
+    ".venv",
+    "venv",
+    "data",
+    "results",
+    "models",
+]
+
+[tool.ruff.lint]
+# Select specific rule sets
+select = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # Pyflakes
+    "I",  # isort
+    "B",  # flake8-bugbear
+    "C4", # flake8-comprehensions
+    "UP", # pyupgrade
+]
+
+# Ignore specific rules if necessary
+ignore = [
+    "E501", # Line too long (handled by Black)
+    "B008", # Do not perform function call in argument defaults (common in ML)
+]
+
+[tool.ruff.lint.isort]
+known-first-party = ["src", "tests", "setup_directories"]
+force-sort-within-sections = true

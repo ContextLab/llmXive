@@ -1,0 +1,8 @@
+'T001a [P] Create directory structure: `src/`, `tests/`': 1
+'T001b [P] Create directory structure: `data/`, `results/`, `models/`, `contracts/`': 1
+? T001c [P] Initialize Python 3.11 project with CPU-only dependencies (torch, torch-geometric,
+  rdkit, scikit-learn, pandas, pyyaml) in `requirements.txt`
+: 1
+T001d [P] Configure linting (ruff) and formatting (black) tools: 1
+T002 Create configuration manager in `src/config.py` (paths, seeds, hyperparameters): 1
+T003 [P] Implement logging infrastructure in `src/utils/logging.py`: 1

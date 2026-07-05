@@ -1,0 +1,22 @@
+- artifact_hash: 71f0940caca2b657fabf4dc975cd21a614e2ec13e6629062bea1ed2d7c5c7eb8
+  artifact_path: projects/PROJ-536-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://huggingface.co/datasets/molecular-datasets/uspto_50k_yield
+  verification_status: pending
+  verified_against_url: https://huggingface.co/datasets/molecular-datasets/uspto_50k_yield
+  verified_at: '2026-07-05T22:38:08.263837Z'
+- artifact_hash: 71f0940caca2b657fabf4dc975cd21a614e2ec13e6629062bea1ed2d7c5c7eb8
+  artifact_path: projects/PROJ-536-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/research.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: "lucainiao/MAESTRO_2004_SYNTH \xB7 Datasets at Hugging Face"
+  kind: url
+  value: https://huggingface.co/datasets/lucainiao/MAESTRO_2004_SYNTH
+  verification_status: verified
+  verified_against_url: https://huggingface.co/datasets/lucainiao/MAESTRO_2004_SYNTH
+  verified_at: '2026-07-05T22:38:08.263837Z'

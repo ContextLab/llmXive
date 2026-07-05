@@ -1,0 +1,9 @@
+torch>=2.0.0
+torch-geometric>=2.3.0
+rdkit>=2023.3.0
+scikit-learn>=1.2.0
+pandas>=2.0.0
+pyyaml>=6.0
+numpy>=1.24.0
+matplotlib>=3.7.0
+huggingface-hub>=0.14.0

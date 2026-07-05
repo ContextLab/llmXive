@@ -1,0 +1,41 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "llmxive-molecular-reactivity"
+version = "0.1.0"
+description = "Predicting Molecular Reactivity Using Graph Neural Networks"
+requires-python = ">=3.11"
+dependencies = [
+    "torch",
+    "torch-geometric",
+    "rdkit",
+    "scikit-learn",
+    "pandas",
+    "pyyaml",
+]
+
+[project.optional-dependencies]
+dev = [
+    "ruff>=0.1.0",
+    "black>=23.0.0",
+    "pytest>=7.0.0",
+    "pytest-cov>=4.0.0",
+]
+
+[tool.black]
+line-length = 88
+target-version = ["py311"]
+include = '\.pyi?$'
+
+[tool.ruff]
+# Ruff configuration is in ruff.toml, this file is for project metadata
+# but we include these settings here for tools that read pyproject.toml directly
+line-length = 88
+target-version = "py311"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+addopts = "-v --tb=short"

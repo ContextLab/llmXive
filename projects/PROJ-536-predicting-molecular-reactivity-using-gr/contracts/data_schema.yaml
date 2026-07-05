@@ -1,0 +1,157 @@
+# Data Schema Contracts for Molecular Reactivity Prediction
+# This file defines the expected structure for data artifacts used in the pipeline.
+# All data processing scripts must adhere to these schemas.
+
+version: "1.0.0"
+description: "Schema definitions for MolecularGraph and ReactionDataset"
+
+schemas:
+  MolecularGraph:
+    description: "Represents a single molecular graph with node and edge features."
+    type: object
+    required_fields:
+      - node_features
+      - edge_index
+      - edge_features
+      - molecular_weight
+      - formula
+    properties:
+      node_features:
+        type: array
+        description: "Feature vector for each atom (atomic number, charge, hybridization, etc.)"
+        items:
+          type: array
+          items:
+            type: number
+        min_items: 1
+      edge_index:
+        type: array
+        description: "2xE tensor of source and target node indices"
+        items:
+          type: integer
+        min_items: 2
+      edge_features:
+        type: array
+        description: "Feature vector for each bond (type, conjugation, stereo, etc.)"
+        items:
+          type: array
+          items:
+            type: number
+        min_items: 1
+      molecular_weight:
+        type: number
+        description: "Calculated molecular weight in g/mol"
+        minimum: 0
+      formula:
+        type: string
+        description: "Chemical formula (e.g., 'C6H12O6')"
+        pattern: "^[A-Z][a-z]?[0-9]*([A-Z][a-z]?[0-9]*)*$"
+      smiles:
+        type: string
+        description: "Canonical SMILES string"
+      inchi_key:
+        type: string
+        description: "InChI Key for unique identification"
+      metadata:
+        type: object
+        description: "Optional additional metadata"
+        additionalProperties: true
+
+  ReactionDataset:
+    description: "A collection of molecular graphs representing a reaction dataset."
+    type: object
+    required_fields:
+      - reactions
+      - reaction_class
+      - metadata
+    properties:
+      reactions:
+        type: array
+        description: "List of reaction entries"
+        items:
+          type: object
+          required_fields:
+            - reactants
+            - products
+            - reaction_id
+            - yield
+          properties:
+            reactants:
+              type: array
+              description: "List of MolecularGraph objects for reactants"
+              items:
+                $ref: "#/schemas/MolecularGraph"
+            products:
+              type: array
+              description: "List of MolecularGraph objects for products"
+              items:
+                $ref: "#/schemas/MolecularGraph"
+            reaction_id:
+              type: string
+              description: "Unique identifier for the reaction"
+            yield:
+              type: number
+              description: "Reaction yield percentage"
+              minimum: 0
+              maximum: 100
+            reaction_class:
+              type: string
+              description: "Classification of the reaction type (e.g., 'substitution', 'elimination')"
+              pattern: "^[a-z_]+$"
+            source:
+              type: string
+              description: "Source dataset or publication"
+            metadata:
+              type: object
+              additionalProperties: true
+      reaction_class:
+        type: array
+        description: "List of unique reaction classes present in the dataset"
+        items:
+          type: string
+        uniqueItems: true
+      metadata:
+        type: object
+        description: "Dataset-level metadata"
+        properties:
+          name:
+            type: string
+          version:
+            type: string
+          source:
+            type: string
+          creation_date:
+            type: string
+            format: date-time
+          total_reactions:
+            type: integer
+            minimum: 0
+          split_ratios:
+            type: object
+            properties:
+              train:
+                type: number
+                minimum: 0
+                maximum: 1
+              val:
+                type: number
+                minimum: 0
+                maximum: 1
+              test:
+                type: number
+                minimum: 0
+                maximum: 1
+          statistics:
+            type: object
+            description: "Dataset statistics (avg molecular weight, yield distribution, etc.)"
+
+validation_rules:
+  - rule: "ReactionClassConsistency"
+    description: "Every reaction entry must have a reaction_class that exists in the top-level reaction_class array"
+    check: "all(r.reaction_class in dataset.reaction_class for r in dataset.reactions)"
+  - rule: "YieldRange"
+    description: "All yield values must be between 0 and 100"
+    check: "all(0 <= r.yield <= 100 for r in dataset.reactions)"
+  - rule: "NonEmptyGraphs"
+    description: "Every MolecularGraph must have at least one node"
+    check: "all(len(g.node_features) > 0 for r in dataset.reactions for g in r.reactants + r.products)"

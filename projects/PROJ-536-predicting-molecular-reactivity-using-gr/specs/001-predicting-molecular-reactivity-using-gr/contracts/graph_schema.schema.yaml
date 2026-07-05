@@ -1,0 +1,48 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "MolecularGraphSchema"
+description: "Schema for processed molecular graph data used in GNN training."
+type: "object"
+properties:
+  x:
+    description: "Node feature matrix. Rows are atoms, columns are features."
+    type: "array"
+    items:
+      type: "array"
+      items:
+        type: "number"
+    minItems: 1
+  edge_index:
+    description: "Edge connectivity. 2xN tensor of source and target indices."
+    type: "array"
+    items:
+      type: "array"
+      items:
+        type: "integer"
+    minItems: 2
+  edge_attr:
+    description: "Edge feature matrix. Rows are bonds, columns are features."
+    type: "array"
+    items:
+      type: "array"
+      items:
+        type: "number"
+  y:
+    description: "Target yield value (normalized 0.0 to 1.0)."
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+  reaction_center_mask:
+    description: "Boolean mask indicating atoms involved in the reaction."
+    type: "array"
+    items:
+      type: "boolean"
+  smiles:
+    description: "Original SMILES string for reference."
+    type: "string"
+required:
+  - "x"
+  - "edge_index"
+  - "edge_attr"
+  - "y"
+  - "smiles"
+additionalProperties: false
