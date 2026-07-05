@@ -1,11 +1,11 @@
-- artifact_hash: 990bf5f163fd35d3f88737328d0162a9117404a2ab17ab2e8dbb5adb17fa2e82
+- artifact_hash: ef1acd396c471c1bf1a34d8e04a8e0a8bb57c275968768aa5f2bedc4df0c7a0d
   artifact_path: projects/PROJ-362-evaluating-the-statistical-validity-of-c/specs/001-evaluating-the-statistical-validity-of-c/spec.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
   fetched_title: null
   kind: url
-  value: https://trec.nist.gov/data/robust/04/`
+  value: https://trec.nist.gov/data/robust/09-12/`
   verification_status: mismatch
-  verified_against_url: https://trec.nist.gov/data/robust/04/
-  verified_at: '2026-07-04T00:14:17.418363Z'
+  verified_against_url: https://trec.nist.gov/data/robust/09-12/
+  verified_at: '2026-07-05T21:42:09.865593Z'
