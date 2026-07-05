@@ -24,56 +24,50 @@ wheels/
 .installed.cfg
 *.egg
 
-# PyInstaller
-*.manifest
-*.spec
-
-# Installer logs
-pip-log.txt
-pip-delete-this-directory.txt
-
-# Unit test / coverage reports
-htmlcov/
-.tox/
-.coverage
-.coverage.*
-.cache
-nosetests.xml
-coverage.xml
-*.cover
-.pytest_cache
-
-# Translations
-*.pot
-
-# Environments
-.env
-.venv
-env/
+# Virtual Environments
 venv/
+.venv/
 ENV/
-env.bak/
-venv.bak/
+env/
 
-# Jupyter Notebook
-.ipynb_checkpoints
-
-# IDEs and editors
+# IDEs
 .idea/
 .vscode/
 *.swp
 *.swo
+*~
 
 # OS generated files
 .DS_Store
 .DS_Store?
 Thumbs.db
+ehthumbs.db
+Desktop.ini
 
-# Project specific
-data/raw/*
-!data/raw/.gitkeep
-data/processed/*
-!data/processed/.gitkeep
-results/*
-!results/.gitkeep
+# Data & Results (Generated artifacts)
+data/raw/
+data/processed/
+data/metadata/
+results/
+figures/
+*.csv
+*.parquet
+*.json
+*.png
+*.tif
+*.tiff
+*.nc
+
+# Logs
+*.log
 logs/
+
+# Environment variables
+.env
+.env.local
+
+# Testing
+.coverage
+htmlcov/
+pytest.ini
+.pytest_cache/

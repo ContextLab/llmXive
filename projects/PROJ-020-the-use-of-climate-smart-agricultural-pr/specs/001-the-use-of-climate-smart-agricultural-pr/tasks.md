@@ -43,10 +43,10 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001a [P] Create project directories: `code/`, `data/`, `tests/`, `specs/`
-- [ ] T001b [P] Create `__init__.py` files in all `code/` sub-packages (`data/`, `analysis/`, `viz/`, `utils/`)
-- [ ] T002 Initialize Python 3.11 project with pinned dependencies in `code/requirements.txt` (pandas, numpy, scikit-learn, statsmodels, geopandas, matplotlib, seaborn, requests, pyyaml)
-- [ ] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools in `code/`
+- [X] T001a [P] Create project directories: `code/`, `data/`, `tests/`, `specs/`
+- [X] T001b [P] Create `__init__.py` files in all `code/` sub-packages (`data/`, `analysis/`, `viz/`, `utils/`)
+- [X] T002 Initialize Python 3.11 project with pinned dependencies in `code/requirements.txt` (pandas, numpy, scikit-learn, statsmodels, geopandas, matplotlib, seaborn, requests, pyyaml)
+- [X] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools in `code/`
 
 ---
 
@@ -56,9 +56,9 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 Setup directory structure for `data/raw/`, `data/processed/`, and `state/` for checksums
+- [X] T004 Setup directory structure for `data/raw/`, `data/processed/`, and `state/` for checksums
 - [X] T005 [P] Implement `code/utils/logging.py` for provenance logging (mapping derived variables to raw IDs)
-- [ ] T006 [P] Create `code/utils/config.py` to manage environment variables (target countries, years, RAM limits)
+- [X] T006 [P] Create `code/utils/config.py` to manage environment variables (target countries, years, RAM limits)
 - [~] T007 Create base data schema definitions in `specs/001-csa-food-security/contracts/dataset.schema.yaml`
 - [~] T008 [P] Implement `code/data/download.py` with function stubs: `download_lsms(country, year)`, `download_nasa_power(lat, lon, start, end)`, `download_faostat(indicator)`
 - [~] T009 Setup pytest environment in `tests/` with configuration for CPU-only execution
@@ -107,25 +107,25 @@
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
 - [~] T020 [P] [US2] Contract test for model output schema in `tests/contract/test_model_output_schema.py`
-- [ ] T021 [P] [US2] Unit test for VIF calculation and collinearity flagging in `tests/unit/test_diagnostics.py`
+- [~] T021 [P] [US2] Unit test for VIF calculation and collinearity flagging in `tests/unit/test_diagnostics.py`
 
 ### Implementation for User Story 2
 
-- [ ] T022 [US2] Implement CSA Index construction in `code/data/features.py`:
+- [~] T022 [US2] Implement CSA Index construction in `code/data/features.py`:
  - Weighted composite score (conservation tillage, crop diversification, irrigation efficiency)
  - **Exclude** digital-technology access and finance access variables from the index calculation to maintain independence from moderation terms (as per Plan Technical Context)
  - Normalize to a unit scale.
-- [ ] T024 [US2] Implement collinearity diagnostics in `code/analysis/diagnostics.py`:
+- [~] T024 [US2] Implement collinearity diagnostics in `code/analysis/diagnostics.py`:
  - Calculate VIF for all predictors
  - Flag predictors exceeding VIF > 5.0 (log warning, do not auto-exclude mediators)
-- [ ] T023 [US2] Implement Mixed-Effects Regression model in `code/analysis/model.py`:
+- [~] T023 [US2] Implement Mixed-Effects Regression model in `code/analysis/model.py`: <!-- FAILED: unspecified -->
  - Include interaction terms for digital and finance access (moderation)
  - Include mediation analysis for digital/finance access (indirect effects) per Constitution Principle VII
  - Apply stratified sampling weights
  - Frame all findings as associational (no causal language)
-- [ ] T025 [US2] Implement multiple hypothesis correction in `code/analysis/model.py`:
+- [~] T025 [US2] Implement multiple hypothesis correction in `code/analysis/model.py`:
  - Apply **Benjamini-Hochberg FDR correction** (replacing Bonferroni) for > 5 hypotheses to control false discovery rate in hierarchical data
-- [ ] T025b [US2] Verify Benjamini-Hochberg FDR correction implementation against Plan requirements in `tests/unit/test_model_correction.py`
+- [~] T025b [US2] Verify Benjamini-Hochberg FDR correction implementation against Plan requirements in `tests/unit/test_model_correction.py`
 - [ ] T026 [US2] Implement robustness check logic in `code/analysis/model.py`:
  - Alternative variable specifications
  - Sensitivity analysis on CSA adoption threshold (sweep moderate to strict cutoffs) and **report variance in significance rates** as per FR-007

@@ -1,31 +1,28 @@
+"""
+Setup script for linting and formatting tools.
+Validates that configuration files exist and are valid.
+"""
 import os
+import sys
 from pathlib import Path
 
 def main():
-    """Configure linting and formatting tools."""
-    # Create .ruff.toml
-    ruff_config = """[lint]
-    select = ["E", "F", "W", "I", "N", "UP", "B", "C4", "SIM"]
-    ignore = ["E501", "B008"]
-    target-version = "py311"
+    """Run linting and formatting setup checks."""
+    project_root = Path(__file__).parent
+    config_files = [
+        project_root / ".ruff.toml",
+        project_root / "pyproject.toml",
+    ]
 
-    [format]
-    line-length = 100
-    quote-style = "double"
-    indent-style = "space"
-    """
-    
-    Path(".ruff.toml").write_text(ruff_config)
-    print("Created .ruff.toml")
+    missing = [f for f in config_files if not f.exists()]
 
-    # Create pyproject.toml for black
-    black_config = """[tool.black]
-    line-length = 100
-    target-version = ['py311']
-    """
-    
-    Path("pyproject.toml").write_text(black_config)
-    print("Created pyproject.toml with Black configuration")
+    if missing:
+        print(f"Error: Missing configuration files: {missing}")
+        sys.exit(1)
+
+    print("Linting and formatting configuration validated successfully.")
+    print("Run 'ruff check . --fix' to fix linting issues.")
+    print("Run 'black .' to format code.")
 
 if __name__ == "__main__":
     main()

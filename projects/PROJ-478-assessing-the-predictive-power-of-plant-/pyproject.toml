@@ -3,88 +3,95 @@ requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "plant-traits-sdm"
+name = "llmxive-plant-traits"
 version = "0.1.0"
-description = "Assessing the Predictive Power of Plant Functional Traits for Species Distribution Models"
+description = "Assessing the predictive power of plant functional traits for species distribution models"
+readme = "README.md"
 requires-python = ">=3.9"
 dependencies = [
-    "scikit-learn",
     "pandas",
+    "numpy",
+    "scikit-learn",
     "geopandas",
     "rasterio",
     "rasterstats",
     "pyyaml",
     "requests",
     "tqdm",
-    "numpy",
     "statsmodels",
     "linearmodels",
 ]
 
 [project.optional-dependencies]
 dev = [
-    "black>=23.0.0",
-    "ruff>=0.1.0",
+    "ruff",
+    "black",
+    "mypy",
     "pytest",
-    "pytest-cov",
 ]
 
-[tool.black]
+[tool.ruff]
+# Target Python version
+target-version = "py39"
+
+# Line length for formatting
 line-length = 88
-target-version = ['py39', 'py310', 'py311']
+
+# Exclude generated or third-party directories
+exclude = [
+    ".git",
+    ".tox",
+    "build",
+    "dist",
+    "venv",
+    ".venv",
+    "data",
+    "results",
+]
+
+[tool.ruff.lint]
+# Select specific rule sets
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # Pyflakes
+    "I",   # isort (import sorting)
+    "C",   # flake8-comprehensions
+    "B",   # flake8-bugbear
+    "UP",  # pyupgrade
+]
+
+# Ignore specific rules if necessary
+ignore = [
+    "E501", # Line too long (handled by black)
+    "B008", # Do not perform function calls in argument defaults (common in data loaders)
+]
+
+[tool.ruff.lint.isort]
+known-first-party = ["src"]
+known-local-folder = ["tests"]
+
+[tool.black]
+target-version = ['py39']
+line-length = 88
 include = '\.pyi?$'
 exclude = '''
 /(
     \.git
-    | \.hg
-    | \.mypy_cache
     | \.tox
-    | \.venv
-    | _build
-    | buck-out
     | build
     | dist
+    | venv
+    | \.venv
+    | data
+    | results
 )/
 '''
 
-[tool.ruff]
-line-length = 88
-target-version = "py39"
-select = [
-    "E",  # pycodestyle errors
-    "W",  # pycodestyle warnings
-    "F",  # pyflakes
-    "I",  # isort
-    "C",  # flake8-comprehensions
-    "B",  # flake8-bugbear
-]
-ignore = [
-    "E501",  # line too long (handled by black)
-    "B008",  # do not perform function calls in argument defaults
-    "C901",  # too complex
-]
-
-[tool.ruff.per-file-ignores]
-"tests/*" = ["S101"]  # Allow assertions in tests
-
-[tool.ruff.isort]
-known-first-party = ["src"]
-known-third-party = [
-    "geopandas",
-    "numpy",
-    "pandas",
-    "pytest",
-    "requests",
-    "rasterio",
-    "rasterstats",
-    "sklearn",
-    "statsmodels",
-    "tqdm",
-    "yaml",
-]
-force-sort-within-sections = true
-
-[tool.pytest.ini_options]
-testpaths = ["tests"]
-python_files = ["test_*.py"]
-addopts = "-v --tb=short"
+[tool.mypy]
+python_version = "3.9"
+warn_return_any = true
+warn_unused_configs = true
+ignore_missing_imports = true
+check_untyped_defs = false
+strict_optional = false

@@ -1,1 +1,1 @@
-"""Integration tests for the plant traits SDM pipeline."""
+# Integration tests package initialization

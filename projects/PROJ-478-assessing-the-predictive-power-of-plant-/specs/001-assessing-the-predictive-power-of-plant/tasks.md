@@ -24,11 +24,11 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001a [P] Create `src/`, `src/data/`, `src/modeling/`, `src/analysis/`, `src/utils/` directories
-- [ ] T001b [P] Create `data/raw`, `data/processed`, `data/metadata`, `results` directories
-- [ ] T001c [P] Create `tests/unit`, `tests/integration`, `tests/contract` directories
-- [ ] T002 Initialize a Python project with dependencies in `requirements.txt` (scikit-learn, pandas, geopandas, rasterio, rasterstats, pyyaml, requests, tqdm, numpy, statsmodels, linearmodels)
-- [ ] T003 [P] Configure linting (flake/ruff) and formatting (black) tools
+- [X] T001a [P] Create `src/`, `src/data/`, `src/modeling/`, `src/analysis/`, `src/utils/` directories
+- [X] T001b [P] Create `data/raw`, `data/processed`, `data/metadata`, `results` directories
+- [X] T001c [P] Create `tests/unit`, `tests/integration`, `tests/contract` directories
+- [X] T002 Initialize a Python project with dependencies in `requirements.txt` (scikit-learn, pandas, geopandas, rasterio, rasterstats, pyyaml, requests, tqdm, numpy, statsmodels, linearmodels)
+- [X] T003 [P] Configure linting (flake/ruff) and formatting (black) tools
 
 ---
 
@@ -38,7 +38,7 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 [P] Implement `src/utils/config.py` with constants, random seeds, and resource limits (max_depth=10, n_estimators=100)
+- [X] T004 [P] Implement `src/utils/config.py` with constants, random seeds, and resource limits (max_depth=10, n_estimators=100)
 - [~] T005 [P] Implement `src/utils/logging.py` for structured logging and provenance tracking
 - [~] T007 Implement `src/data/loaders.py` for raster loading utilities and coordinate alignment checks
 - [~] T008 Implement `src/data/preprocess.py` for spatial thinning (default 10 km, min 1 km) and density-based background sampling using exactly **[deferred] points** per species (as per Spec Assumptions)
@@ -94,15 +94,15 @@ could not find expected ':'
 ### Implementation for User Story 2
 
 - [~] T020 [P] [US2] Implement `src/data/fetch_traits.py` to retrieve SLA, seed mass, and plant height from TRY public subset; verify source metadata and explicitly flag values as **'unverified protocol'** if source is not 'Handbook 2013' (FR-003, FR-010)
-- [ ] T022a [US2] Implement `src/analysis/collinearity.py` to merge climate and trait data for the full predictor set across all species (prerequisite for VIF)
-- [ ] T022 [US2] Implement `src/analysis/collinearity.py` to compute Variance Inflation Factor (VIF) for the full predictor set using the merged data from T022a and flag VIF > 5 (FR-011, SC-005)
-- [ ] T023 [US2] Implement logic to flag/exclude species with missing traits and log exclusion reasons (FR-006)
-- [ ] T021a [US2] Implement `src/modeling/loso_cv.py` to orchestrate the full LOSO cycle: train on N-1 species, **use the known trait values** of the 1 held-out species as inputs, and evaluate (FR-004, US-2)
-- [ ] T021b [US2] Implement `src/modeling/loso_cv.py` (optional branch) to **predict traits** for the held-out species using a climate-niche model trained on N-1 species (Plan Override of FR-004), and evaluate using these imputed values
-- [ ] T024 [US2] Integrate both **known** (T021a) and **imputed** (T021b) trait data into the Random Forest training pipeline for the "climate + traits" configuration, ensuring the Spec-compliant path (known values) is the default
-- [ ] T025 [US2] Add explicit disclaimer logic in the report generation to frame relationships as associative, not causal (FR-007)
-- [ ] T025b [US2] Add explicit documentation in the final report explaining the **Trait Imputation** strategy as a Plan override of Spec FR-004 to ensure scientific validity
-- [ ] T025c [US2] Create a formal note in `research.md` or `plan.md` documenting the Spec-Plan divergence regarding Trait Imputation (FR-004 override) to ensure traceability
+- [~] T022a [US2] Implement `src/analysis/collinearity.py` to merge climate and trait data for the full predictor set across all species (prerequisite for VIF)
+- [~] T022 [US2] Implement `src/analysis/collinearity.py` to compute Variance Inflation Factor (VIF) for the full predictor set using the merged data from T022a and flag VIF > 5 (FR-011, SC-005)
+- [~] T023 [US2] Implement logic to flag/exclude species with missing traits and log exclusion reasons (FR-006)
+- [~] T021a [US2] Implement `src/modeling/loso_cv.py` to orchestrate the full LOSO cycle: train on N-1 species, **use the known trait values** of the 1 held-out species as inputs, and evaluate (FR-004, US-2)
+- [~] T021b [US2] Implement `src/modeling/loso_cv.py` (optional branch) to **predict traits** for the held-out species using a climate-niche model trained on N-1 species (Plan Override of FR-004), and evaluate using these imputed values <!-- ATOMIZE: requested -->
+- [~] T024 [US2] Integrate both **known** (T021a) and **imputed** (T021b) trait data into the Random Forest training pipeline for the "climate + traits" configuration, ensuring the Spec-compliant path (known values) is the default
+- [~] T025 [US2] Add explicit disclaimer logic in the report generation to frame relationships as associative, not causal (FR-007)
+- [~] T025b [US2] Add explicit documentation in the final report explaining the **Trait Imputation** strategy as a Plan override of Spec FR-004 to ensure scientific validity
+- [~] T025c [US2] Create a formal note in `research.md` or `plan.md` documenting the Spec-Plan divergence regarding Trait Imputation (FR-004 override) to ensure traceability
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -116,7 +116,7 @@ could not find expected ':'
 
 ### Tests for User Story 3
 
-- [ ] T026 [P] [US3] Unit test for t-test logic and Bonferroni correction in `tests/unit/test_stats.py`
+- [~] T026 [P] [US3] Unit test for t-test logic and Bonferroni correction in `tests/unit/test_stats.py`
 - [ ] T027 [P] [US3] Integration test for sensitivity analysis sweep in `tests/integration/test_sensitivity.py`
 
 ### Implementation for User Story 3

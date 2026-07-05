@@ -1,10 +1,13 @@
+"""
+Data ingestion, cleaning, and preprocessing module.
+"""
 from .download import (
     download_lsms,
     download_nasa_power,
     download_faostat,
     download_lsms_batch,
     download_nasa_power_batch,
-    download_faostat_batch
+    download_faostat_batch,
 )
 from .clean import (
     clean_and_merge,
@@ -16,5 +19,5 @@ from .clean import (
     apply_sampling_weights,
     validate_sample_quality,
     save_sampled_data,
-    run_sampling_pipeline
+    run_sampling_pipeline,
 )

@@ -1,0 +1,10 @@
+'|project python use version':
+  quote: "As of June 2026, Python 3.14.6  is the latest stable release. This version\
+    \ currently receives full bug-fix and security updates, while Python 3.13\u2014\
+    released in October 2024\u2014will continue to receive bug-fixes until October\
+    \ 2026, and after that will only receive security fixes until its end-of-life\
+    \ in 2029. Python 3.10 is the oldest supported branch of Python (albeit in the\
+    \ 'security support' phase)."
+  source_id: History of Python
+  url: https://en.wikipedia.org/wiki/History_of_Python
+  value: 3.14.6

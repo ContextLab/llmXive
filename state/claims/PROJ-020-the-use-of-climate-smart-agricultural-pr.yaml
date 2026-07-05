@@ -101,3 +101,136 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-05T06:58:46Z'
+- artifact_path: projects/PROJ-020-the-use-of-climate-smart-agricultural-pr/specs/001-the-use-of-climate-smart-agricultural-pr/tasks.md
+  attempts: 1
+  canonical: Data pipeline ensures at least 95% valid records
+  claim_id: c_59740ed9
+  context: "Independent Test: Execute code/data/pipeline.py and verify data/processed/merged_sample.parquet\
+    \ contains \u2265 95% valid records..."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Data_pipeline_ensures_at_least_95%25_valid_records
+  kind: magnitude
+  raw_text: "The dataset contains \u2265 95% valid records."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T10:31:59Z'
+- artifact_path: projects/PROJ-020-the-use-of-climate-smart-agricultural-pr/specs/001-the-use-of-climate-smart-agricultural-pr/tasks.md
+  attempts: 1
+  canonical: Stratified sampling targets 5000 households per country
+  claim_id: c_d3a39506
+  context: "Implement stratified sampling with design weights in code/data/clean.py\
+    \ to ensure \u2264 7GB RAM and target N \u2265 5000 households per country..."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The target sample size is N \u2265 5000 households per country."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T10:31:59Z'
+- artifact_path: projects/PROJ-020-the-use-of-climate-smart-agricultural-pr/specs/001-the-use-of-climate-smart-agricultural-pr/tasks.md
+  attempts: 1
+  canonical: System memory usage target is 7GB
+  claim_id: c_c745335d
+  context: "Implement stratified sampling with design weights in code/data/clean.py\
+    \ to ensure \u2264 7GB RAM and target N \u2265 5000 households per country..."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/System_memory_usage_target_is_7GB
+  kind: entity_fact
+  raw_text: The system is designed to run within 7GB RAM.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T10:32:25Z'
+- artifact_path: projects/PROJ-020-the-use-of-climate-smart-agricultural-pr/specs/001-the-use-of-climate-smart-agricultural-pr/tasks.md
+  attempts: 1
+  canonical: Benjamini-Hochberg FDR applied for hypotheses greater than 5
+  claim_id: c_95cb3c9a
+  context: Apply Benjamini-Hochberg FDR correction (replacing Bonferroni) for > 5
+    hypotheses to control false discovery rate in hierarchical data...
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Benjamini-Hochberg_FDR_applied_for_hypotheses_greater_than_5
+  kind: magnitude
+  raw_text: The Benjamini-Hochberg FDR correction is applied for more than 5 hypotheses.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T10:32:54Z'
+- artifact_path: projects/PROJ-020-the-use-of-climate-smart-agricultural-pr/specs/001-the-use-of-climate-smart-agricultural-pr/tasks.md
+  attempts: 1
+  canonical: VIF threshold for collinearity flagging is 5.0
+  claim_id: c_3d5e4bcc
+  context: Calculate VIF for all predictors. Flag predictors exceeding VIF > 5.0 (log
+    warning, do not auto-exclude mediators)...
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/VIF_threshold_for_collinearity_flagging_is_5.0
+  kind: magnitude
+  raw_text: Predictors exceeding a VIF score greater than 5.0 are flagged.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T10:34:05Z'
+- artifact_path: projects/PROJ-020-the-use-of-climate-smart-agricultural-pr/specs/001-the-use-of-climate-smart-agricultural-pr/tasks.md
+  attempts: 1
+  canonical: LSMS data targeted for Kenya, India, and Vietnam
+  claim_id: c_7577d2c8
+  context: Implement LSMS downloader in code/data/download.py targeting Kenya, India,
+    Vietnam (-2023) with error handling for missing years...
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/LSMS_data_targeted_for_Kenya,_India,_and_Vietnam
+  kind: entity_fact
+  raw_text: The project targets Kenya, India, and Vietnam for data download.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T10:34:50Z'
+- artifact_path: projects/PROJ-020-the-use-of-climate-smart-agricultural-pr/specs/001-the-use-of-climate-smart-agricultural-pr/tasks.md
+  attempts: 1
+  canonical: Python project version is 3.11
+  claim_id: c_2d6d1791
+  context: Initialize Python 3.11 project with pinned dependencies in code/requirements.txt...
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: "As of June 2026, Python 3.14.6  is the latest stable release. This version\
+        \ currently receives full bug-fix and security updates, while Python 3.13\u2014\
+        released in October 2024\u2014will continue to receive bug-fixes until October\
+        \ 2026, and after that will only receive security fixes until its end-of-life\
+        \ in 2029. Python 3.10 is the oldest supported branch of Python (albeit in\
+        \ the 'security support' phase)."
+      source_id: History of Python
+      url: https://en.wikipedia.org/wiki/History_of_Python
+      value: 3.14.6
+    filled: true
+  kind: numeric
+  raw_text: The Python project uses version 3.11.
+  resolved_value: 3.14.6
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-05T10:34:59Z'

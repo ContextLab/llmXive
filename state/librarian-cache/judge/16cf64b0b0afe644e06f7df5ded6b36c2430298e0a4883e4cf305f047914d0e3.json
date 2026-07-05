@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2110.12065",
+  "judged_at": "2026-07-05T10:35:59Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"redesign mixture-of-experts routers with manifold power iteration\" computer science",
+  "rationale": "This paper satisfies acceptance criteria (d) and (f) because it provides a foundational alternative algorithmic variant (multiplication-avoiding power iteration) for the core \"Manifold Power Iteration\" mechanism mentioned in the user's question, offering a canonical methodological reference for optimizing or redesigning power iteration-based components in computer science systems.",
+  "relevant": true
+}

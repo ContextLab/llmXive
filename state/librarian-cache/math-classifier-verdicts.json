@@ -847,6 +847,10 @@
     "classified_at": "2026-07-04T05:12:37Z",
     "verdict": false
   },
+  "PROJ-878-llmxive-follow-up-extending-multi-turn-r::1.6.0": {
+    "classified_at": "2026-07-05T10:37:23Z",
+    "verdict": false
+  },
   "PROJ-883-llmxive-follow-up-extending-omniretrieva::1.6.0": {
     "classified_at": "2026-07-03T13:03:39Z",
     "verdict": false
@@ -877,6 +881,10 @@
   },
   "PROJ-918-llmxive-follow-up-extending-agentic-abst::1.6.0": {
     "classified_at": "2026-07-04T10:08:59Z",
+    "verdict": false
+  },
+  "PROJ-939-llmxive-follow-up-extending-redesign-mix::1.6.0": {
+    "classified_at": "2026-07-05T10:35:40Z",
     "verdict": false
   },
   "PROJ-953-llmxive-follow-up-extending-code-as-agen::1.6.0": {

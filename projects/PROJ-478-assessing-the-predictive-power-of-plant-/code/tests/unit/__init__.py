@@ -1,1 +1,1 @@
-"""Unit tests for the plant traits SDM pipeline."""
+# Unit tests package initialization

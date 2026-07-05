@@ -1,1 +1,1 @@
-"""Contract tests ensuring data and model interfaces are respected."""
+# Contract tests package initialization

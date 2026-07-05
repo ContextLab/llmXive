@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2509.00679",
+  "judged_at": "2026-07-05T10:36:12Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"redesign mixture-of-experts routers with manifold power iteration\" computer science",
+  "rationale": "This paper satisfies criteria (a) and (b) as it directly investigates the same core mechanism (Mixture-of-Experts routing) and domain (MoE upcycling) as the user's question, offering a specific methodological alternative (Router Upcycling) to the \"Manifold Power Iteration\" approach mentioned in the user's title. It provides essential prior work on the specific problem of improving MoE routers during the upcycling process, which is the exact context for the user's proposed follow-up research.",
+  "relevant": true
+}

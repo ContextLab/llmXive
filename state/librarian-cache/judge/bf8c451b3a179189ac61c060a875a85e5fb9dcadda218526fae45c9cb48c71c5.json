@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2601.16905",
+  "judged_at": "2026-07-05T10:36:09Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"redesign mixture-of-experts routers with manifold power iteration\" computer science",
+  "rationale": "This paper satisfies criteria (a) and (d) as it investigates the same core mechanism (Mixture-of-Experts router behavior and constraints) and proposes a foundational geometric framework for modifying these routers, which is directly relevant to a follow-up study on \"Redesigning MoE Routers.\" Although the specific application is machine unlearning rather than manifold power iteration, the paper provides the canonical prior work on geometric router constraints that a literature review for this spe",
+  "relevant": true
+}

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2605.12476",
+  "judged_at": "2026-07-05T10:36:03Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"redesign mixture-of-experts routers with manifold power iteration\" computer science",
+  "rationale": "This paper directly addresses the user's question by investigating the same core mechanism (Mixture-of-Experts routing dynamics) and proposing a geometric/optimization-based alternative to standard routing losses, which aligns with the \"Manifold Power Iteration\" theme of the user's follow-up work. It satisfies criteria (a) and (d) as it provides foundational empirical and theoretical evidence on the geometric coupling in SMoE routers, a necessary baseline for any research extending or redesignin",
+  "relevant": true
+}

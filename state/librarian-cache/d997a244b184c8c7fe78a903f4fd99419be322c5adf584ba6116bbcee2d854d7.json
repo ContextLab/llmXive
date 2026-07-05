@@ -1,0 +1,701 @@
+{
+  "fetched_at": "2026-07-05T10:36:25Z",
+  "field": "computer science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "computer science",
+      "idea_body_excerpt": "llmXive follow-up: extending \"Redesign Mixture-of-Experts Routers with Manifold Power Iteration\"",
+      "target_n": 5
+    },
+    "duration_seconds": 74.043,
+    "ended_at": "2026-07-05T10:36:25Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "manifold power iteration for MoE routing"
+        ],
+        [
+          2,
+          "geometric optimization of mixture-of-experts routers"
+        ],
+        [
+          3,
+          "Riemannian optimization in sparse expert models"
+        ],
+        [
+          4,
+          "power iteration methods for neural network routing"
+        ],
+        [
+          5,
+          "manifold learning for expert selection mechanisms"
+        ],
+        [
+          6,
+          "sparse routing strategies in large language models"
+        ],
+        [
+          7,
+          "topological approaches to mixture-of-experts gating"
+        ],
+        [
+          8,
+          "iterative power methods for router weight updates"
+        ],
+        [
+          9,
+          "curvature-aware routing in deep expert networks"
+        ],
+        [
+          10,
+          "spectral methods for MoE load balancing"
+        ],
+        [
+          11,
+          "manifold constraints in neural routing policies"
+        ],
+        [
+          12,
+          "geometric deep learning for expert model scaling"
+        ],
+        [
+          13,
+          "optimization on manifolds for sparse activation"
+        ],
+        [
+          14,
+          "dynamic routing algorithms for mixture-of-experts"
+        ],
+        [
+          15,
+          "eigenvector-based routing for LLMs"
+        ],
+        [
+          16,
+          "non-Euclidean optimization in transformer experts"
+        ],
+        [
+          17,
+          "gradient-based manifold routing for sparse models"
+        ],
+        [
+          18,
+          "convergence properties of MoE power iteration"
+        ],
+        [
+          19,
+          "geometric regularizers for expert selection"
+        ],
+        [
+          20,
+          "iterative refinement of expert routing matrices"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "geometric optimization of mixture-of-experts routers": 5,
+        "llmXive follow-up: extending \"Redesign Mixture-of-Experts Routers with Manifold Power Iteration\" computer science": 0,
+        "manifold power iteration for MoE routing": 2
+      },
+      "total_queries_issued": 2
+    },
+    "extracted_queries": [
+      "MoE router optimization manifold spectral methods",
+      "Mixture-of-Experts sparse activation load balancing",
+      "top-k routing gating mechanism heterogeneity",
+      "expert utilization collapse router convergence rate",
+      "eigenvector centrality router initialization gradient flow"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "success_after_expansion",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2604.23996"
+      ]
+    },
+    "per_query_hit_count": {
+      "Mixture-of-Experts sparse activation load balancing": 3,
+      "MoE router optimization manifold spectral methods": 3,
+      "eigenvector centrality router initialization gradient flow": 3,
+      "expert utilization collapse router convergence rate": 3,
+      "llmXive follow-up: extending \"Redesign Mixture-of-Experts Routers with Manifold Power Iteration\" computer science": 3,
+      "top-k routing gating mechanism heterogeneity": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 0,
+      "rejections": []
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-07-05T10:35:11Z",
+    "term_input": {
+      "normalized": "llmxive follow-up: extending \"redesign mixture-of-experts routers with manifold power iteration\" computer science",
+      "raw": "llmXive follow-up: extending \"Redesign Mixture-of-Experts Routers with Manifold Power Iteration\" computer science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This white paper describes the LSST Dark Energy Science Collaboration (DESC), whose goal is the study of dark energy and related topics in fundamental physics with data from the Large Synoptic Survey Telescope (LSST). It provides an overview of dark energy science and describes the current and anticipated state of the field. It makes the case for the DESC by laying out a robust analytical framework for dark energy science that has been defined by its members and the comprehensive three-year work plan they have developed for implementing that framework. The analysis working groups cover five key probes of dark energy: weak lensing, large scale structure, galaxy clusters, Type Ia supernovae, and strong lensing. The computing working groups span cosmological simulations, galaxy catalogs, photon simulations and a systematic software and computational framework for LSST dark energy data analysis. The technical working groups make the connection between dark energy science and the LSST system. The working groups have close linkages, especially through the use of the photon simulations to study the impact of instrument design and survey strategy on analysis methodology and cosmological parameter estimation. The white paper describes several high priority tasks identified by each of the 16 working groups. Over the next three years these tasks will help prepare for LSST analysis, make synergistic connections with ongoing cosmological surveys and provide the dark energy community with state of the art analysis tools. Members of the community are invited to join the LSST DESC, according to the membership policies described in the white paper. Applications to sign up for associate membership may be made by submitting the Web form at http://www.slac.stanford.edu/exp/lsst/desc/signup.html with a short statement of the work they wish to pursue that is relevant to the LSST DESC.",
+          "claimed_authors": [
+            " LSST Dark Energy Science Collaboration"
+          ],
+          "claimed_title": "Large Synoptic Survey Telescope: Dark Energy Science Collaboration",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1211.0310"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Redesign Mixture-of-Experts Routers with Manifold ', candidate_title='Large Synoptic Survey Telescope: Dark Energy Science Collaboration')",
+        "failed_at": "2026-07-05T10:35:40Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The large instantaneous sensitivity, a wide frequency coverage and flexible observation modes with large number of beams in the sky are the main features of the SKA observatory's two telescopes, the SKA-Low and the SKA-Mid, which are located on two different continents. Owing to these capabilities, the SKAO telescopes are going to be a game-changer for radio astronomy in general and pulsar astronomy in particular. The eleven articles in this special issue on pulsar science with the SKA Observatory describe its impact on different areas of pulsar science. In this lead article, a brief description of the two telescopes highlighting the relevant features for pulsar science is presented followed by an overview of each accompanying article, exploring the inter-relationship between different pulsar science use cases.",
+          "claimed_authors": [
+            "Bhal Chandra Joshi",
+            "Aris Karastergiou",
+            "Marta Burgay",
+            "The SKA pulsar science working group"
+          ],
+          "claimed_title": "Pulsar Science with the SKA Observatory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.16152"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Redesign Mixture-of-Experts Routers with Manifold ', candidate_title='Pulsar Science with the SKA Observatory')",
+        "failed_at": "2026-07-05T10:35:40Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A Human Computer Interface (HCI) System for playing games is designed here for more natural communication with the machines. The system presented here is a vision-based system for detection of long voluntary eye blinks and interpretation of blink patterns for communication between man and machine. This system replaces the mouse with the human face as a new way to interact with the computer. Facial features (nose tip and eyes) are detected and tracked in realtime to use their actions as mouse events. The coordinates and movement of the nose tip in the live video feed are translated to become the coordinates and movement of the mouse pointer on the application. The left or right eye blinks fire left or right mouse click events. The system works with inexpensive USB cameras and runs at a frame rate of 30 frames per second.",
+          "claimed_authors": [
+            "S. Sumathi",
+            "S. K. Srivatsa",
+            "M. Uma Maheswari"
+          ],
+          "claimed_title": "Vision Based Game Development Using Human Computer Interaction",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1002.2191"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Redesign Mixture-of-Experts Routers with Manifold ', candidate_title='Vision Based Game Development Using Human Computer Interaction')",
+        "failed_at": "2026-07-05T10:35:40Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Mixture-of-Experts (MoE) language models scale model ability with sparsely activated experts, making this architecture a standard recipe for modern large models. However, sparse activation does not remove the deployment burden of storing and serving all experts, and the available deployment budget can vary substantially across devices, users, and workloads. Existing MoE compression methods are still largely fixed-budget, typically optimizing one compressed endpoint at each chosen target budget. We study a different setting: converting a large pretrained MoE LLM into a nested family of deployable subnetworks across budgets. Our method first ranks expert FFN channels by their importance, then lets each expert learn a discrete action to prune its channels. By gradually increasing cost pressure, a single action-training run exports a series of action masks from high to low budgets, each of which identifies a reliable smaller subnetwork nested in the ranked base model. Moreover, we use a single recovery fine-tune at a mid pruning budget (40%) to recover degraded model quality and transfer the recovered model to other unseen budgets. Overall, our framework surpasses recent MoE compression baselines. Specifically, on Qwen2-57B-A14B, our method retains ~99.8% of base performance while pruning 50% of routed expert parameters even without fine-tuning. For deployment, our pruned subnetworks deliver real memory reduction and throughput gains, and further support realtime online budget switching with kernel-level co-design.",
+          "claimed_authors": [
+            "Fan Mo",
+            "Yuxuan Han",
+            "Geng Zhang",
+            "Wangbo Zhao",
+            "Yang You"
+          ],
+          "claimed_title": "FlexMoE: One-for-All Nested Intra-Expert Pruning for MoE Language Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2606.27866"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"Redesign Mixture-of-Experts Routers with Manifold ', candidate_title='FlexMoE: One-for-All Nested Intra-Expert Pruning for MoE Language Models')",
+        "failed_at": "2026-07-05T10:35:40Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Recent advances in language models have enabled framing molecule generation as sequence modeling. However, existing approaches often rely on single-objective reinforcement learning, limiting their applicability to real-world drug design, where multiple competing properties must be optimized. Traditional multi-objective reinforcement learning (MORL) methods require costly retraining for each new objective combination, making rapid exploration of trade-offs impractical. To overcome these limitations, we introduce Mol-MoE, a mixture-of-experts (MoE) architecture that enables efficient test-time steering of molecule generation without retraining. Central to our approach is a preference-based router training objective that incentivizes the router to combine experts in a way that aligns with user-specified trade-offs. This provides improved flexibility in exploring the chemical property space at test time, facilitating rapid trade-off exploration. Benchmarking against state-of-the-art methods, we show that Mol-MoE achieves superior sample quality and steerability.",
+          "claimed_authors": [
+            "Diego Calanzone",
+            "Pierluca D'Oro",
+            "Pierre-Luc Bacon"
+          ],
+          "claimed_title": "Mol-MoE: Training Preference-Guided Routers for Molecule Generation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2502.05633"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='llmXive follow-up: extending \"Redesign Mixture-of-Experts Routers with Manifold ', candidate_title='Mol-MoE: Training Preference-Guided Routers for Molecule Generation')",
+        "failed_at": "2026-07-05T10:35:40Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We present CompassMax-V3-Thinking, a hundred-billion-scale MoE reasoning model trained with a new RL framework built on one principle: each prompt must matter. Scaling RL to this size exposes critical inefficiencies-zero-variance prompts that waste rollouts, unstable importance sampling over long horizons, advantage inversion from standard reward models, and systemic bottlenecks in rollout processing. To overcome these challenges, we introduce several unified innovations: (1) Multi-Stage Zero-Variance Elimination, which filters out non-informative prompts and stabilizes group-based policy optimization (e.g. GRPO) by removing wasted rollouts; (2) ESPO, an entropy-adaptive optimization method that balances token-level and sequence-level importance sampling to maintain stable learning dynamics; (3) a Router Replay strategy that aligns training-time MoE router decisions with inference-time behavior to mitigate train-infer discrepancies, coupled with a reward model adjustment to prevent advantage inversion; (4) a high-throughput RL system with FP8-precision rollouts, overlapped reward computation, and length-aware scheduling to eliminate performance bottlenecks. Together, these contributions form a cohesive pipeline that makes RL on hundred-billion-scale MoE models stable and efficient. The resulting model delivers strong performance across both internal and public evaluations.",
+          "claimed_authors": [
+            "Anxiang Zeng",
+            "Haibo Zhang",
+            "Hailing Zhang",
+            "Kaixiang Mo",
+            "Liang Yao",
+            "Ling Hu",
+            "Long Zhang",
+            "Shuman Liu",
+            "Shuyi Xie",
+            "Yanshi Li",
+            "Yizhang Chen",
+            "Yuepeng Sheng",
+            "Yuwei Huang",
+            "Zhaochen Xu",
+            "Zhiqiang Zhou",
+            "Ziqin Liew"
+          ],
+          "claimed_title": "Each Prompt Matters: Scaling Reinforcement Learning Without Wasting Rollouts on Hundred-Billion-Scale MoE",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.07710"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Redesign Mixture-of-Experts Routers with Manifold ', candidate_title='Each Prompt Matters: Scaling Reinforcement Learning Without Wasting Rollouts on Hundred-Billion-Scale MoE')",
+        "failed_at": "2026-07-05T10:35:40Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Sparse Mixture-of-Experts (MoE) architectures enable efficient scaling of large language models through conditional computation, yet the routing mechanisms responsible for expert selection remain poorly understood. In this work, we introduce routing signatures, a vector representation summarizing expert activation patterns across layers for a given prompt, and use them to study whether MoE routing exhibits task-conditioned structure. Using OLMoE-1B-7B-0125-Instruct as an empirical testbed, we show that prompts from the same task category induce highly similar routing signatures, while prompts from different categories exhibit substantially lower similarity. Within-category routing similarity (0.8435 +/- 0.0879) significantly exceeds across-category similarity (0.6225 +/- 0.1687), corresponding to Cohen's d = 1.44. A logistic regression classifier trained solely on routing signatures achieves 92.5% +/- 6.1% cross-validated accuracy on four-way task classification. To ensure statistical validity, we introduce permutation and load-balancing baselines and show that the observed separation is not explained by sparsity or balancing constraints alone. We further analyze layer-wise signal strength and low-dimensional projections of routing signatures, finding that task structure becomes increasingly apparent in deeper layers. These results suggest that routing in sparse transformers is not merely a balancing mechanism, but a measurable task-sensitive component of conditional computation. We release MOE-XRAY, a lightweight toolkit for routing telemetry and analysis.",
+          "claimed_authors": [
+            "Mynampati Sri Ranganadha Avinash"
+          ],
+          "claimed_title": "Task-Conditioned Routing Signatures in Sparse Mixture-of-Experts Transformers",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2603.11114"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"Redesign Mixture-of-Experts Routers with Manifold ', candidate_title='Task-Conditioned Routing Signatures in Sparse Mixture-of-Experts Transformers')",
+        "failed_at": "2026-07-05T10:35:40Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This article proposes a design and implementation of a low cost two-tier architecture model for high availability cluster combined with load-balancing and shared storage technology to achieve desired scale of three-tier architecture for application load balancing e.g. web servers. The research work proposes a design that physically omits Network File System (NFS) server nodes and implements NFS server functionalities within the cluster nodes, through Red Hat Cluster Suite (RHCS) with High Availability (HA) proxy load balancing technologies. In order to achieve a low-cost implementation in terms of investment in hardware and computing solutions, the proposed architecture will be beneficial. This system intends to provide steady service despite any system components fails due to uncertainly such as network system, storage and applications.",
+          "claimed_authors": [
+            "A B M Moniruzzaman",
+            "Syed Akther Hossain"
+          ],
+          "claimed_title": "A Low Cost Two-Tier Architecture Model For High Availability Clusters Application Load Balancing",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2014,
+          "primary_pointer": "1406.5761"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Redesign Mixture-of-Experts Routers with Manifold ', candidate_title='A Low Cost Two-Tier Architecture Model For High Availability Clusters Application Load Balancing')",
+        "failed_at": "2026-07-05T10:35:40Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Efficient load balancing is crucial in cloud computing environments to ensure optimal resource utilization, minimize response times, and prevent server overload. Traditional load balancing algorithms, such as round-robin or least connections, are often static and unable to adapt to the dynamic and fluctuating nature of cloud workloads. In this paper, we propose a novel adaptive load balancing framework using Reinforcement Learning (RL) to address these challenges. The RL-based approach continuously learns and improves the distribution of tasks by observing real-time system performance and making decisions based on traffic patterns and resource availability. Our framework is designed to dynamically reallocate tasks to minimize latency and ensure balanced resource usage across servers. Experimental results show that the proposed RL-based load balancer outperforms traditional algorithms in terms of response time, resource utilization, and adaptability to changing workloads. These findings highlight the potential of AI-driven solutions for enhancing the efficiency and scalability of cloud infrastructures.",
+          "claimed_authors": [
+            "Kavish Chawla"
+          ],
+          "claimed_title": "Reinforcement Learning-Based Adaptive Load Balancing for Dynamic Cloud Environments",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2409.04896"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Redesign Mixture-of-Experts Routers with Manifold ', candidate_title='Reinforcement Learning-Based Adaptive Load Balancing for Dynamic Cloud Environments')",
+        "failed_at": "2026-07-05T10:35:40Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We consider a practical top-k route search problem: given a collection of points of interest (POIs) with rated features and traveling costs between POIs, a user wants to find k routes from a source to a destination and limited in a cost budget, that maximally match her needs on feature preferences. One challenge is dealing with the personalized diversity requirement where users have various trade-off between quantity (the number of POIs with a specified feature) and variety (the coverage of specified features). Another challenge is the large scale of the POI map and the great many alternative routes to search. We model the personalized diversity requirement by the whole class of submodular functions, and present an optimal solution to the top-k route search problem through indices for retrieving relevant POIs in both feature and route spaces and various strategies for pruning the search space using user preferences and constraints. We also present promising heuristic solutions and evaluate all the solutions on real life data.",
+          "claimed_authors": [
+            "Hongwei Liang",
+            "Ke Wang"
+          ],
+          "claimed_title": "Top-k Route Search through Submodularity Modeling of Recurrent POI Features",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1710.03852"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Redesign Mixture-of-Experts Routers with Manifold ', candidate_title='Top-k Route Search through Submodularity Modeling of Recurrent POI Features')",
+        "failed_at": "2026-07-05T10:35:40Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We introduce the first one-stage Top-$k$ Learning-to-Defer framework, which unifies prediction and deferral by learning a shared score-based model that selects the $k$ most cost-effective entities-labels or experts-per input. While existing one-stage L2D methods are limited to deferring to a single expert, our approach jointly optimizes prediction and deferral across multiple entities through a single end-to-end objective. We define a cost-sensitive loss and derive a novel convex surrogate that is independent of the cardinality parameter $k$, enabling generalization across Top-$k$ regimes without retraining. Our formulation recovers the Top-1 deferral policy of prior score-based methods as a special case, and we prove that our surrogate is both Bayes-consistent and $\\mathcal{H}$-consistent under mild assumptions. We further introduce an adaptive variant, Top-$k(x)$, which dynamically selects the number of consulted entities per input to balance predictive accuracy and consultation cost. Experiments on CIFAR-10 and SVHN confirm that our one-stage Top-$k$ method strictly outperforms Top-1 deferral, while Top-$k(x)$ achieves superior accuracy-cost trade-offs by tailoring allocations to input complexity.",
+          "claimed_authors": [
+            "Yannis Montreuil",
+            "Axel Carlier",
+            "Lai Xing Ng",
+            "Wei Tsang Ooi"
+          ],
+          "claimed_title": "One-Stage Top-$k$ Learning-to-Defer: Score-Based Surrogates with Theoretical Guarantees",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2505.10160"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Redesign Mixture-of-Experts Routers with Manifold ', candidate_title='One-Stage Top-$k$ Learning-to-Defer: Score-Based Surrogates with Theoretical Guarantees')",
+        "failed_at": "2026-07-05T10:35:40Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Robust segmentation of clinically significant prostate cancer (csPCa) on multi-parametric MRI must tolerate frequent degradation of its most informative diffusion sequences. Multi-modal fusion commonly employs learned modality gating under the assumption that gates implement per-sample modality quality routing -- rarely tested directly. We ask how gating behaves across backbone architectures. We systematically analyze modality-isolated gated fusion (MIGF) for csPCa segmentation on two backbones (nnU-Net and Mamba) using PI-CAI (n=1500), with cross-cohort validation on Prostate158 (n=158): a factorial ablation over gating, modality dropout, and deep supervision under 5-fold cross-validation (180 trained models), plus a gate-weight and counterfactual analysis of 30 trained gating models. Modality gating is backbone-conditional. On nnU-Net, adding gating reduces the ranking score (marginal effect -0.037; gating configurations p<0.05), whereas on Mamba the gating-plus-dropout configuration improves it (+0.024, p=0.037). Gate-weight analysis explains this: nnU-Net gates collapse into a near-static modality prior (across-case SD 0.0033), while Mamba gates retain sample-dependent variation (0.0365, ~11x larger, non-overlapping); replacing per-sample gates with their training-set mean leaves nnU-Net unchanged but degrades Mamba. Modality dropout is the only component beneficial on both backbones. Under cross-cohort shift, convolutional backbones collapse to case-level specificity near zero, whereas Mamba retains it (MIGF-Mamba highest, 0.31). Learned modality gates do not universally perform per-sample quality routing; their effective behavior is conditional on the backbone's inherent modality awareness. Among tested configurations, MIGF-Mamba is the most cross-cohort robust, and training-time modality dropout is the only component beneficial across both backbones.",
+          "claimed_authors": [
+            "Yongbo Shu",
+            "Wenzhao Xie",
+            "Shanhu Yao",
+            "Zirui Xin",
+            "Luo Lei",
+            "Kewen Chen",
+            "Aijing Luo"
+          ],
+          "claimed_title": "Backbone-Conditional Behavior of Modality Gating in Multi-Modal Prostate MRI Segmentation: A 5-Fold Cross-Validation and Gate Mechanism Analysis",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2604.10702"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Redesign Mixture-of-Experts Routers with Manifold ', candidate_title='Backbone-Conditional Behavior of Modality Gating in Multi-Modal Prostate MRI Segmentation: A 5-Fold Cross-Validation and Gate Mechanism Analysis')",
+        "failed_at": "2026-07-05T10:35:40Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Here we survey the compactness and geometric stability conjectures formulated by the participants at the 2018 IAS Emerging Topics Workshop on {\\em Scalar Curvature and Convergence}. We have tried to survey all the progress towards these conjectures as well as related examples, although it is impossible to cover everything. We focus primarily on sequences of compact Riemannian manifolds with nonnegative scalar curvature and their limit spaces. Christina Sormani is grateful to have had the opportunity to write up our ideas and has done her best to credit everyone involved within the paper even though she is the only author listed above. In truth we are a team of over thirty people working together and apart on these deep questions and we welcome everyone who is interested in these conjectures to join us.",
+          "claimed_authors": [
+            "Christina Sormani",
+            "Participants at the IAS Emerging Topics Workshop on Scalar Curvature",
+            " Convergence"
+          ],
+          "claimed_title": "Conjectures on Convergence and Scalar Curvature",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2103.10093"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Redesign Mixture-of-Experts Routers with Manifold ', candidate_title='Conjectures on Convergence and Scalar Curvature')",
+        "failed_at": "2026-07-05T10:35:40Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Convergence rate to the stationary distribution for continuous-time Markov processes can be studied using Lyapunov functions. Recent work by the author provided explicit rates of convergence in special case of a reflected jump-diffusion on a half-line. These results are proved for total variation distance and its generalizations: measure distances defined by test functions regardless of their continuity. Here we prove similar results for Wasserstein distance, convergence in which is related to convergence for continuou test functions. In some cases, including the reflected Ornstein-Uhlenbeck process, we get faster exponential convergence rates for Wasserstein distance than for total variation distance.",
+          "claimed_authors": [
+            "Andrey Sarantsev"
+          ],
+          "claimed_title": "Convergence rate to equilibrium in Wasserstein distance for reflected jump-diffusions",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2003.10590"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Redesign Mixture-of-Experts Routers with Manifold ', candidate_title='Convergence rate to equilibrium in Wasserstein distance for reflected jump-diffusions')",
+        "failed_at": "2026-07-05T10:35:40Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This paper is concerned with the numerical analysis of the explicit upwind finite volume scheme for numerically solving continuity equations. We are interested in the case where the advecting velocity field has spatial Sobolev regularity and initial data are merely integrable. We estimate the error between approximate solutions constructed by the upwind scheme and distributional solutions of the continuous problem in a Kantorovich-Rubinstein distance, which was recently used for stability estimates for the continuity equation by Seis [23]. Restricted to Cartesian meshes, our estimate shows that the rate of weak convergence is at least of order $1/2$ in the mesh size. The proof relies on a probabilistic interpretation of the upwind scheme Delarue and Lagoutière [9]. We complement the weak convergence result with an example that illustrates that for rough initial data no rates can be expected in strong norms. The same example suggests that the weak order $1/2$ rate is optimal.",
+          "claimed_authors": [
+            "André Schlichting",
+            "Christian Seis"
+          ],
+          "claimed_title": "Convergence rates for upwind schemes with rough coefficients",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1606.09156"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Redesign Mixture-of-Experts Routers with Manifold ', candidate_title='Convergence rates for upwind schemes with rough coefficients')",
+        "failed_at": "2026-07-05T10:35:40Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Eigenvector centrality is a linear algebra based graph invariant used in various rating systems such as webpage ratings for search engines. A generalization of the eigenvector centrality invariant is defined which is motivated by the need to design rating systems for bipartite graph models of time-sensitive and other processes. The linear algebra connection and some applications are described.",
+          "claimed_authors": [
+            "Peteris Daugulis"
+          ],
+          "claimed_title": "A note on a generalization of eigenvector centrality for bipartite graphs and applications",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1610.01544"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Redesign Mixture-of-Experts Routers with Manifold ', candidate_title='A note on a generalization of eigenvector centrality for bipartite graphs and applications')",
+        "failed_at": "2026-07-05T10:35:40Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We examine the characteristics of mean flow and scalar concentration characteristics of a turbulent boundary layer flow impinging on a cluster of tall obstacles (which can also be interpreted as a porous obstruction). The cluster is created with a group of cylinders of diameter $d$ and height $h$ arranged in a circular patch of diameter $D$.The solidity of the patch/obstruction is defined by $φ$ (the total planar area covered by cylinders), which is systematically varied ($0.098 \\leq φ\\leq 1$) by increasing the number of cylinders in a patch ($N_c$). A point source is placed at ground level upstream of the patch and its transport around the patch is examined. Time-averaged velocity and scalar fields, obtained from simultaneous planar PIV-PLIF (particle image velocimetry-planar laser-induced fluorescence) measurements, reveal that the characteristics of wake and flow above porous patches are heavily influenced by $φ$. In particular, we observe that the horizontal and vertical extent of the wake and scalar concentration downstream of the patches decreases and increases with $φ$, respectively. Here, the recirculation bubble is shifted closer to the trailing edge of the patches as $φ$ increases, limiting the flow from convecting downstream, decreasing the scalar concentration and virtually `extending' the patch in streamwise direction. As the bubble forms in the trailing edge, vertical bleeding increases and hence the concentration increases above patch where the cylinders appear to be `extend' vertically towards the freestream.",
+          "claimed_authors": [
+            "Dea Daniella Wangsawijaya",
+            "Claudia Nicolai",
+            "Bharathram Ganapathisubramani"
+          ],
+          "claimed_title": "Time-averaged velocity and scalar fields of the flow surrounding a group of cylinders",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2110.02266"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Redesign Mixture-of-Experts Routers with Manifold ', candidate_title='Time-averaged velocity and scalar fields of the flow surrounding a group of cylinders')",
+        "failed_at": "2026-07-05T10:35:40Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In this paper we obtain bounds for the extreme entries of the principal eigenvector of hypergraphs; these bounds are computed using the spectral radius and some classical parameters such as maximum and minimum degrees. We also study inequalities involving the ratio and difference between the two extreme entries of this vector.",
+          "claimed_authors": [
+            "Kauê Cardoso",
+            "Vilmar Trevisan"
+          ],
+          "claimed_title": "Principal eigenvectors of general hypergraphs",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1909.00238"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Redesign Mixture-of-Experts Routers with Manifold ', candidate_title='Principal eigenvectors of general hypergraphs')",
+        "failed_at": "2026-07-05T10:35:40Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Zi-Hao Bo",
+            "Yaqian Li",
+            "Anzhou Hou",
+            "Rinyoichi Takezoe",
+            "Ertao Zhao",
+            "Tianxiang Pan",
+            "Jiale Yan",
+            "Mo Guang",
+            "Kaiwen Long"
+          ],
+          "title": "SMoES: Soft Modality-Guided Expert Specialization in MoE-VLMs",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2604.23996",
+        "summary": "Mixture-of-Experts (MoE) has become a prevalent backbone for large vision-language models (VLMs), yet how modality-specific signals should guide expert routing remains under-explored. Existing routing strategies are either hand-crafted or modality-agnostic, relying on idealized priors that ignore the layer-dependent modality fusion patterns in MoE-VLMs and provide little guidance for expert specialization. We propose Soft Modality-guided Expert Specialization (SMoES), which consists of dynamic soft modality scores that capture layer-dependent fusion patterns, an expert binning mechanism aligned with expert-parallel deployment, and an inter-bin mutual information regularization that encourages coherent modality specialization. Our method leverages attention-based or Gaussian-statistics modality scores to optimize mutual information regularization. Experiments across four MoE-based VLMs and 16 benchmarks demonstrate improvement on both effectiveness and efficiency: 0.9% and 4.2% average gain on multimodal and language-only tasks, 56.1% reduction in EP communication overhead, and 12.3% throughput improvement under realistic deployment. These results validate that aligning routing with modality-aware expert specialization unlocks MoE-VLM capacity and efficiency.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2604.23996",
+          "http_status": 200,
+          "pdf_sample_score": 0.2198,
+          "query_relevance_score": 0.4,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-05T10:35:45Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Hongyi Pan",
+            "Diaa Badawi",
+            "Runxuan Miao",
+            "Erdem Koyuncu",
+            "Ahmet Enis Cetin"
+          ],
+          "title": "Multiplication-Avoiding Variant of Power Iteration with Applications",
+          "venue": "arXiv",
+          "year": 2021
+        },
+        "primary_pointer": "2110.12065",
+        "summary": "Power iteration is a fundamental algorithm in data analysis. It extracts the eigenvector corresponding to the largest eigenvalue of a given matrix. Applications include ranking algorithms, recommendation systems, principal component analysis (PCA), among many others. In this paper, we introduce multiplication-avoiding power iteration (MAPI), which replaces the standard $\\ell_2$-inner products that appear at the regular power iteration (RPI) with multiplication-free vector products which are Mercer-type kernel operations related with the $\\ell_1$ norm. Precisely, for an $n\\times n$ matrix, MAPI requires $n$ multiplications, while RPI needs $n^2$ multiplications per iteration. Therefore, MAPI provides a significant reduction of the number of multiplication operations, which are known to be costly in terms of energy consumption. We provide applications of MAPI to PCA-based image reconstruction as well as to graph-based ranking algorithms. When compared to RPI, MAPI not only typically converges much faster, but also provides superior performance.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2110.12065",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-05T10:35:45Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Sagi Ahrac",
+            "Noya Hochwald",
+            "Mor Geva"
+          ],
+          "title": "Routers Learn the Geometry of Their Experts: Geometric Coupling in Sparse Mixture-of-Experts",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2605.12476",
+        "summary": "Sparse Mixture-of-Experts (SMoE) models enable scaling language models efficiently, but training them remains challenging, as routing can collapse onto few experts and auxiliary load-balancing losses can reduce specialization. Motivated by these hurdles, we study how routing decisions in SMoEs are formed mechanistically. First, we reveal a geometric coupling between routers and their corresponding experts. For a given token, the router weights for the selected expert and the expert weights processing it receive gradients along the same input direction, differing only in scalar coefficients. Thus, matched router--expert directions accumulate the same routed token history. This theoretical coupling also appears empirically in routing dynamics. In a $1$B SMoE trained from scratch, higher router scores predict stronger expert neuron activations, showing that routing decisions are mirrored inside the selected expert. Next, we analyze the effects of auxiliary load balancing on the router--expert geometric coupling, showing that such losses break this structure by spreading input-directed gradients across router weights, making distinct router directions nearly three times more similar to each other. Last, we demonstrate the centrality of geometric coupling for effective routing with a parameter-free online K-Means router, in which each expert maintains a running average of the hidden states routed to it and tokens are assigned based on cosine similarity. Compared with auxiliary-loss and loss-free balancing, this router achieves the lowest load imbalance with only a modest perplexity increase, indicating that geometric coupling captures a substantial part of what the router learns. Overall, our results explain how routers form assignment geometry that supports an effective division of labor.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2605.12476",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.8,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-05T10:35:50Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Andy Zhu",
+            "Rongzhe Wei",
+            "Yupu Gu",
+            "Pan Li"
+          ],
+          "title": "GRIP: Algorithm-Agnostic Machine Unlearning for Mixture-of-Experts via Geometric Router Constraints",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2601.16905",
+        "summary": "Machine unlearning (MU) for large language models has become critical for AI safety, yet existing methods fail to generalize to Mixture-of-Experts (MoE) architectures. We identify that traditional unlearning methods exploit MoE's architectural vulnerability: they manipulate routers to redirect queries away from knowledgeable experts rather than erasing knowledge, causing a loss of model utility and superficial forgetting. We propose Geometric Routing Invariance Preservation (GRIP), an algorithm-agnostic framework for unlearning for MoE. Our core contribution is a geometric constraint, implemented by projecting router gradient updates into an expert-specific null-space. Crucially, this decouples routing stability from parameter rigidity: while discrete expert selections remain stable for retained knowledge, the continuous router parameters remain plastic within the null space, allowing the model to undergo necessary internal reconfiguration to satisfy unlearning objectives. This forces the unlearning optimization to erase knowledge directly from expert parameters rather than exploiting the superficial router manipulation shortcut. GRIP functions as an adapter, constraining router parameter updates without modifying the underlying unlearning algorithm. Extensive experiments on large-scale MoE models demonstrate that our adapter eliminates expert selection shift (achieving over 95% routing stability) across all tested unlearning methods while preserving their utility. By preventing existing algorithms from exploiting MoE model's router vulnerability, GRIP adapts existing unlearning research from dense architectures to MoEs.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2601.16905",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 1.0,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-05T10:35:50Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Junfeng Ran",
+            "Guangxiang Zhao",
+            "Yuhan Wu",
+            "Dawei Zhu",
+            "Longyun Wu",
+            "Yikai Zhao",
+            "Tong Yang",
+            "Lin Sun",
+            "Xiangzheng Zhang",
+            "Sujian Li"
+          ],
+          "title": "Router Upcycling: Leveraging Mixture-of-Routers in Mixture-of-Experts Upcycling",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2509.00679",
+        "summary": "The Mixture-of-Experts (MoE) models have gained significant attention in deep learning due to their dynamic resource allocation and superior performance across diverse tasks. However, efficiently training these models remains challenging. The MoE upcycling technique has been proposed to reuse and improve existing model components, thereby minimizing training overhead. Despite this, simple routers, such as linear routers, often struggle with complex routing tasks within MoE upcycling. In response, we propose a novel routing technique called Router Upcycling to enhance the performance of MoE upcycling models. Our approach initializes multiple routers from the attention heads of preceding attention layers during upcycling. These routers collaboratively assign tokens to specialized experts in an attention-like manner. Each token is processed into diverse queries and aligned with the experts' features (serving as keys). Experimental results demonstrate that our method achieves state-of-the-art (SOTA) performance, outperforming other upcycling baselines.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2509.00679",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-05T10:35:50Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Xudong Lu",
+            "Qi Liu",
+            "Yuhui Xu",
+            "Aojun Zhou",
+            "Siyuan Huang",
+            "Bo Zhang",
+            "Junchi Yan",
+            "Hongsheng Li"
+          ],
+          "title": "Not All Experts are Equal: Efficient Expert Pruning and Skipping for Mixture-of-Experts Large Language Models",
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2402.14800",
+        "summary": "A pivotal advancement in the progress of large language models (LLMs) is the emergence of the Mixture-of-Experts (MoE) LLMs. Compared to traditional LLMs, MoE LLMs can achieve higher performance with fewer parameters, but it is still hard to deploy them due to their immense parameter sizes. Different from previous weight pruning methods that rely on specifically designed hardware, this paper mainly aims to enhance the deployment efficiency of MoE LLMs by introducing plug-and-play expert-level sparsification techniques. Specifically, we propose, for the first time to our best knowledge, post-training approaches for task-agnostic and task-specific expert pruning and skipping of MoE LLMs, tailored to improve deployment efficiency while maintaining model performance across a wide range of tasks. Extensive experiments show that our proposed methods can simultaneously reduce model sizes and increase the inference speed, while maintaining satisfactory performance. Data and code will be available at https://github.com/Lucky-Lance/Expert_Sparsity.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2402.14800",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-05T10:35:51Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Tianlin Liu",
+            "Mathieu Blondel",
+            "Carlos Riquelme",
+            "Joan Puigcerver"
+          ],
+          "title": "Routers in Vision Mixture of Experts: An Empirical Study",
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2401.15969",
+        "summary": "Mixture-of-Experts (MoE) models are a promising way to scale up model capacity without significantly increasing computational cost. A key component of MoEs is the router, which decides which subset of parameters (experts) process which feature embeddings (tokens). In this paper, we present a comprehensive study of routers in MoEs for computer vision tasks. We introduce a unified MoE formulation that subsumes different MoEs with two parametric routing tensors. This formulation covers both sparse MoE, which uses a binary or hard assignment between experts and tokens, and soft MoE, which uses a soft assignment between experts and weighted combinations of tokens. Routers for sparse MoEs can be further grouped into two variants: Token Choice, which matches experts to each token, and Expert Choice, which matches tokens to each expert. We conduct head-to-head experiments with 6 different routers, including existing routers from prior work and new ones we introduce. We show that (i) many routers originally developed for language modeling can be adapted to perform strongly in vision tasks, (ii) in sparse MoE, Expert Choice routers generally outperform Token Choice routers, and (iii) soft MoEs generally outperform sparse MoEs with a fixed compute budget. These results provide new insights regarding the crucial role of routers in vision MoE models.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2401.15969",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-05T10:35:51Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "llmxive follow-up: extending \"redesign mixture-of-experts routers with manifold power iteration\" computer science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}
