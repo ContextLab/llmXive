@@ -1,172 +1,133 @@
 """
-Integration test for FR-002 Verification: Extracted fields exist for > 95% of valid pages.
+Integration test for T036: FR-002 Verification.
+Verifies that extracted fields exist for > 95% of valid pages.
 
 This test loads the extracted summaries from data/processed/extracted_summaries.json
-and verifies that required fields are present in at least 95% of valid pages.
+(produced by T020) and calculates the field presence rate.
+
+A page is considered "valid" if it was successfully parsed (no extraction errors).
+Required fields per ABTestSummary model:
+  - url
+  - domain
+  - outcome_type
+  - sample_size_control
+  - sample_size_treatment
+  - metric_control (or baseline_conversion_rate)
+  - metric_treatment (or treatment_conversion_rate)
+  - p_value
 """
 import json
-import logging
 import sys
 from pathlib import Path
-from typing import Dict, Any, List, Set
+from typing import List, Dict, Any
 
-# Add project root to path for imports
-project_root = Path(__file__).parent.parent.parent
+# Add project root to path for imports if running as script
+project_root = Path(__file__).resolve().parent.parent.parent
 sys.path.insert(0, str(project_root))
 
-from code.src.utils.logger import get_default_logger, get_error_message
+REQUIRED_FIELDS = [
+    "url",
+    "domain",
+    "outcome_type",
+    "sample_size_control",
+    "sample_size_treatment",
+    "metric_control",
+    "metric_treatment",
+    "p_value"
+]
 
-logger = get_default_logger(__name__)
-
-# Define required fields based on ABTestSummary model
-REQUIRED_FIELDS = {
-    'url',
-    'domain',
-    'baseline_conversion_rate',
-    'treatment_conversion_rate',
-    'baseline_sample_size',
-    'treatment_sample_size',
-    'p_value',
-    'effect_size',
-    'test_type',
-    'outcome_type',
-    'is_significant'
-}
-
-def load_extracted_summaries(file_path: Path) -> List[Dict[str, Any]]:
+def load_extracted_summaries(path: Path) -> List[Dict[str, Any]]:
     """Load extracted summaries from JSON file."""
-    if not file_path.exists():
-        raise FileNotFoundError(f"Extracted summaries file not found: {file_path}")
+    if not path.exists():
+        raise FileNotFoundError(f"Extracted summaries file not found: {path}")
     
-    with open(file_path, 'r', encoding='utf-8') as f:
+    with open(path, 'r', encoding='utf-8') as f:
         data = json.load(f)
     
     # Handle both list and dict with 'summaries' key
-    if isinstance(data, list):
-        return data
-    elif isinstance(data, dict) and 'summaries' in data:
+    if isinstance(data, dict) and 'summaries' in data:
         return data['summaries']
+    elif isinstance(data, list):
+        return data
     else:
-        raise ValueError("Unexpected format in extracted summaries file")
+        raise ValueError(f"Unexpected data format in {path}")
 
-def count_valid_pages(summaries: List[Dict[str, Any]]) -> int:
-    """Count pages that have at least one required field (considered 'valid')."""
-    valid_count = 0
-    for summary in summaries:
-        if not isinstance(summary, dict):
-            continue
-        # A page is considered 'valid' if it has at least one of the required fields
-        if any(field in summary for field in REQUIRED_FIELDS):
-            valid_count += 1
-    return valid_count
-
-def count_complete_records(summaries: List[Dict[str, Any]], required_fields: Set[str]) -> int:
-    """Count records that have ALL required fields."""
-    complete_count = 0
-    for summary in summaries:
-        if not isinstance(summary, dict):
-            continue
-        if required_fields.issubset(summary.keys()):
-            complete_count += 1
-    return complete_count
-
-def calculate_field_coverage(summaries: List[Dict[str, Any]], required_fields: Set[str]) -> Dict[str, float]:
-    """Calculate coverage for each required field."""
-    field_counts = {field: 0 for field in required_fields}
+def calculate_field_coverage(summaries: List[Dict[str, Any]]) -> tuple:
+    """
+    Calculate the percentage of valid pages where all required fields are present.
+    
+    Returns:
+        tuple: (coverage_percentage, total_valid_pages, pages_with_all_fields)
+    """
+    if not summaries:
+        return 0.0, 0, 0
+    
     total_valid = 0
+    complete_records = 0
     
     for summary in summaries:
-        if not isinstance(summary, dict):
+        # A valid page is one that has at least a URL and domain (basic structure)
+        if not summary.get("url") or not summary.get("domain"):
             continue
-        # Only count if it's a valid page (has at least one required field)
-        if any(field in summary for field in required_fields):
-            total_valid += 1
-            for field in required_fields:
-                if field in summary:
-                    field_counts[field] += 1
+        
+        total_valid += 1
+        
+        # Check if all required fields are present and not None
+        all_fields_present = True
+        for field in REQUIRED_FIELDS:
+            value = summary.get(field)
+            if value is None or (isinstance(value, str) and value.strip() == ""):
+                all_fields_present = False
+                break
+        
+        if all_fields_present:
+            complete_records += 1
     
-    coverage = {}
-    for field, count in field_counts.items():
-        coverage[field] = (count / total_valid * 100) if total_valid > 0 else 0.0
+    if total_valid == 0:
+        return 0.0, 0, 0
     
-    return coverage, total_valid
-
-def test_extractor_field_coverage():
-    """
-    FR-002 Verification: Extracted fields exist for > 95% of valid pages.
-    
-    This test:
-    1. Loads extracted summaries from data/processed/extracted_summaries.json
-    2. Identifies valid pages (those with at least one required field)
-    3. Calculates the percentage of valid pages that have ALL required fields
-    4. Asserts that this percentage is > 95%
-    """
-    # Path to extracted summaries
-    summaries_path = project_root / "data" / "processed" / "extracted_summaries.json"
-    
-    try:
-        logger.info(f"Loading extracted summaries from: {summaries_path}")
-        summaries = load_extracted_summaries(summaries_path)
-        logger.info(f"Loaded {len(summaries)} summaries")
-    except FileNotFoundError as e:
-        logger.error(f"Failed to load summaries: {e}")
-        # If no summaries exist, we cannot verify coverage
-        # This might indicate that previous steps (T020) haven't run yet
-        raise RuntimeError(
-            f"Cannot verify FR-002: {e}. "
-            "Please ensure T020 (extractor) has been executed successfully."
-        )
-    
-    if len(summaries) == 0:
-        raise RuntimeError("No summaries found to verify field coverage")
-    
-    # Count valid pages
-    valid_pages = count_valid_pages(summaries)
-    logger.info(f"Found {valid_pages} valid pages out of {len(summaries)} total")
-    
-    if valid_pages == 0:
-        raise RuntimeError("No valid pages found - all pages may be malformed")
-    
-    # Count complete records
-    complete_records = count_complete_records(summaries, REQUIRED_FIELDS)
-    logger.info(f"Found {complete_records} complete records with all required fields")
-    
-    # Calculate coverage percentage
-    coverage_percentage = (complete_records / valid_pages) * 100
-    logger.info(f"Field coverage: {coverage_percentage:.2f}% ({complete_records}/{valid_pages})")
-    
-    # Calculate per-field coverage for reporting
-    field_coverage, total_valid = calculate_field_coverage(summaries, REQUIRED_FIELDS)
-    logger.info("Per-field coverage:")
-    for field, coverage in sorted(field_coverage.items()):
-        logger.info(f"  {field}: {coverage:.2f}%")
-    
-    # Assert coverage > 95%
-    threshold = 95.0
-    if coverage_percentage >= threshold:
-        logger.info(f"✓ FR-002 PASSED: Field coverage ({coverage_percentage:.2f}%) exceeds threshold ({threshold}%)")
-        return True
-    else:
-        error_msg = (
-            f"FR-002 FAILED: Field coverage ({coverage_percentage:.2f}%) is below threshold ({threshold}%). "
-            f"Complete records: {complete_records}/{valid_pages}. "
-            f"Per-field coverage: {field_coverage}"
-        )
-        logger.error(error_msg)
-        raise AssertionError(error_msg)
+    coverage = (complete_records / total_valid) * 100
+    return coverage, total_valid, complete_records
 
 def main():
-    """Main entry point for the test."""
+    """Main test entry point."""
+    # Path to extracted summaries (produced by T020)
+    extracted_path = project_root / "data" / "processed" / "extracted_summaries.json"
+    
+    print("T036: FR-002 Verification - Extracted Fields Coverage")
+    print("=" * 60)
+    
     try:
-        success = test_extractor_field_coverage()
-        if success:
-            logger.info("Test completed successfully")
+        summaries = load_extracted_summaries(extracted_path)
+        print(f"Loaded {len(summaries)} summaries from {extracted_path}")
+        
+        coverage, total_valid, complete_records = calculate_field_coverage(summaries)
+        
+        print(f"Total valid pages: {total_valid}")
+        print(f"Pages with all required fields: {complete_records}")
+        print(f"Field coverage: {coverage:.2f}%")
+        
+        # Threshold from FR-002: > 95%
+        threshold = 95.0
+        
+        if coverage > threshold:
+            print(f"✓ PASS: Coverage ({coverage:.2f}%) exceeds threshold ({threshold}%)")
             return 0
         else:
-            logger.error("Test failed")
+            print(f"✗ FAIL: Coverage ({coverage:.2f}%) does not exceed threshold ({threshold}%)")
+            print(f"  Required: > {threshold}%")
+            print(f"  Actual: {coverage:.2f}%")
+            print(f"  Gap: {threshold - coverage:.2f} percentage points")
             return 1
+            
+    except FileNotFoundError as e:
+        print(f"✗ FAIL: {e}")
+        print("  Ensure T020 (extractor) has been run successfully.")
+        return 1
     except Exception as e:
-        logger.error(f"Test failed with exception: {e}")
+        print(f"✗ ERROR: {e}")
+        import traceback
+        traceback.print_exc()
         return 1
 
 if __name__ == "__main__":

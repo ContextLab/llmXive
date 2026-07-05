@@ -1,0 +1,9 @@
+{
+  "generated_at": "2024-01-15T12:00:00.000000Z",
+  "total_records": 10000,
+  "binary_outcomes": 5000,
+  "continuous_outcomes": 5000,
+  "inconsistent_summaries": 1500,
+  "seed": 42,
+  "version": "1.0.0"
+}

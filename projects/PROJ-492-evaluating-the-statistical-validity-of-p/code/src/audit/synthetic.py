@@ -1,10 +1,10 @@
 """
-Synthetic Dataset Generator for A/B Test Validation (FR-030).
+Synthetic Dataset Generator (FR-030)
 
-Generates a realistic synthetic corpus of A/B test summaries containing
-both binary and continuous outcomes to validate the statistical audit pipeline.
+Generates a synthetic corpus of A/B test summaries for validation purposes.
+Outputs at least 10,000 records containing both binary and continuous outcomes.
+Ensures deterministic behavior via seeded RNGs.
 """
-
 import csv
 import json
 import logging
@@ -15,39 +15,37 @@ from pathlib import Path
 from typing import List, Dict, Any, Tuple, Optional
 
 import numpy as np
+from scipy import stats
 
-from code.src.config import set_rng_seed, SEED
+# Import from project API surface
+from code.src.config import SEED, set_rng_seed
 from code.src.utils.logger import get_default_logger, AuditLogger
+from code.src.models.data_models import ABTestSummary
 
-# Constants for synthetic data generation
-MIN_SAMPLES_CONTROL = 50
-MAX_SAMPLES_CONTROL = 5000
-MIN_SAMPLES_TREATMENT = 50
-MAX_SAMPLES_TREATMENT = 5000
-BASELINE_RATE_MIN = 0.01
-BASELINE_RATE_MAX = 0.50
-EFFECT_SIZE_MIN = 0.0
-EFFECT_SIZE_MAX = 0.30
-MEAN_CONTROL_MIN = 10.0
-MEAN_CONTROL_MAX = 100.0
-STD_DEV_MIN = 5.0
-STD_DEV_MAX = 50.0
-INCONSISTENCY_RATE = 0.15  # 15% of records will have intentional inconsistencies
-TOTAL_RECORDS = 10500      # Ensure >= 10,000 records
-BINARY_RATIO = 0.5         # 50% binary, 50% continuous
+logger = get_default_logger(__name__)
 
 
 def set_all_seeds(seed: int = SEED) -> None:
-    """Initialize random seeds for reproducibility."""
+    """Seed all random number generators for reproducibility."""
     set_rng_seed(seed)
     random.seed(seed)
     np.random.seed(seed)
+    logger.info(f"Seeded RNGs with seed={seed}")
 
 
-def generate_sample_sizes() -> Tuple[int, int]:
-    """Generate random sample sizes for control and treatment groups."""
-    n_control = random.randint(MIN_SAMPLES_CONTROL, MAX_SAMPLES_CONTROL)
-    n_treatment = random.randint(MIN_SAMPLES_TREATMENT, MAX_SAMPLES_TREATMENT)
+def generate_sample_sizes(n_min: int = 50, n_max: int = 5000) -> Tuple[int, int]:
+    """
+    Generate realistic sample sizes for control and treatment groups.
+    Uses a log-normal distribution to simulate realistic web traffic variance.
+    """
+    # Control group
+    n_control = int(np.random.lognormal(mean=6.0, sigma=0.8))
+    n_control = max(n_min, min(n_control, n_max))
+
+    # Treatment group (often similar but can vary)
+    n_treatment = int(np.random.lognormal(mean=6.0, sigma=0.8))
+    n_treatment = max(n_min, min(n_treatment, n_max))
+
     return n_control, n_treatment
 
 
@@ -56,292 +54,309 @@ def generate_binary_outcome(
     n_treatment: int,
     baseline_rate: float,
     effect_size: float,
-    make_inconsistent: bool = False
+    is_inconsistent: bool = False
 ) -> Dict[str, Any]:
     """
-    Generate a synthetic binary outcome A/B test.
-
+    Generate binary outcome data (conversion rates).
+    
     Args:
-        n_control: Sample size of control group.
-        n_treatment: Sample size of treatment group.
-        baseline_rate: Conversion rate of control group.
-        effect_size: True effect size (lift).
-        make_inconsistent: If True, introduce statistical inconsistency.
-
+        n_control: Sample size for control group
+        n_treatment: Sample size for treatment group
+        baseline_rate: True conversion rate for control (0.01 to 0.20)
+        effect_size: True relative lift (e.g., 0.10 for 10% lift)
+        is_inconsistent: If True, report a p-value that contradicts the data
+    
     Returns:
-        Dictionary with metrics for the summary.
+        Dictionary with metrics and reported statistics
     """
-    p_control = baseline_rate
-    p_treatment = p_control * (1 + effect_size)
-
-    # Clamp probabilities
-    p_treatment = max(0.0, min(1.0, p_treatment))
-
-    # Generate true counts
-    x_control = np.random.binomial(n_control, p_control)
-    x_treatment = np.random.binomial(n_treatment, p_treatment)
-
-    observed_rate_control = x_control / n_control
-    observed_rate_treatment = x_treatment / n_treatment
-
-    # Calculate "reported" p-value and effect size
-    # Standard two-proportion z-test
-    p_pooled = (x_control + x_treatment) / (n_control + n_treatment)
-    se = math.sqrt(p_pooled * (1 - p_pooled) * (1/n_control + 1/n_treatment))
+    # Generate actual successes
+    p_control_true = baseline_rate
+    p_treatment_true = baseline_rate * (1 + effect_size)
     
-    if se == 0:
-        z_stat = 0.0
-    else:
-        z_stat = (observed_rate_treatment - observed_rate_control) / se
-
-    true_p_value = 2 * (1 - stats.norm.cdf(abs(z_stat)))
+    successes_control = np.random.binomial(n_control, p_control_true)
+    successes_treatment = np.random.binomial(n_treatment, p_treatment_true)
     
-    # Reported values
-    if make_inconsistent:
-        # Introduce inconsistency: report a p-value that doesn't match the stats
-        # e.g., report p < 0.05 when it should be > 0.05, or vice versa
-        # We'll shift the p-value by a factor
-        reported_p_value = true_p_value * random.uniform(0.1, 10.0)
-        reported_p_value = max(0.0, min(1.0, reported_p_value))
-        reported_effect_size = observed_rate_treatment - observed_rate_control
-        # Sometimes flip the sign of effect size for extreme inconsistency
-        if random.random() < 0.1:
-            reported_effect_size = -reported_effect_size
+    # Calculate observed rates
+    rate_control = successes_control / n_control
+    rate_treatment = successes_treatment / n_treatment
+    
+    # Calculate true effect size (relative)
+    if rate_control > 0:
+        observed_lift = (rate_treatment - rate_control) / rate_control
     else:
-        reported_p_value = true_p_value
-        reported_effect_size = observed_rate_treatment - observed_rate_control
-
+        observed_lift = 0.0
+    
+    # Perform two-proportion z-test
+    # Using scipy for accurate p-value calculation
+    try:
+        stat, p_value_true = stats.proportions_ztest(
+            [successes_control, successes_treatment],
+            [n_control, n_treatment]
+        )
+    except Exception:
+        # Fallback for edge cases
+        p_value_true = 1.0
+        stat = 0.0
+    
+    # Determine reported p-value
+    if is_inconsistent:
+        # Flip the significance: if p < 0.05, report p > 0.05 and vice versa
+        if p_value_true < 0.05:
+            p_value_reported = round(random.uniform(0.06, 0.50), 4)
+        else:
+            p_value_reported = round(random.uniform(0.001, 0.04), 4)
+    else:
+        p_value_reported = round(p_value_true, 4)
+    
     return {
-        "outcome_type": "binary",
-        "n_control": n_control,
-        "n_treatment": n_treatment,
-        "successes_control": int(x_control),
-        "successes_treatment": int(x_treatment),
-        "rate_control": observed_rate_control,
-        "rate_treatment": observed_rate_treatment,
-        "reported_p_value": reported_p_value,
-        "reported_effect_size": reported_effect_size,
-        "true_p_value": true_p_value,
-        "is_inconsistent": make_inconsistent
+        "successes_control": int(successes_control),
+        "successes_treatment": int(successes_treatment),
+        "n_control": int(n_control),
+        "n_treatment": int(n_treatment),
+        "rate_control": round(rate_control, 6),
+        "rate_treatment": round(rate_treatment, 6),
+        "reported_p_value": p_value_reported,
+        "true_p_value": round(p_value_true, 6),
+        "reported_lift": round(observed_lift, 4),
+        "outcome_type": "binary"
     }
 
 
 def generate_continuous_outcome(
     n_control: int,
     n_treatment: int,
-    mean_control: float,
+    baseline_mean: float,
+    baseline_std: float,
     effect_size: float,
-    std_dev: float,
-    make_inconsistent: bool = False
+    is_inconsistent: bool = False
 ) -> Dict[str, Any]:
     """
-    Generate a synthetic continuous outcome A/B test.
-
-    Args:
-        n_control: Sample size of control group.
-        n_treatment: Sample size of treatment group.
-        mean_control: Mean of control group.
-        effect_size: True effect size (lift in mean).
-        std_dev: Standard deviation (assumed equal for simplicity).
-        make_inconsistent: If True, introduce statistical inconsistency.
-
-    Returns:
-        Dictionary with metrics for the summary.
-    """
-    mean_treatment = mean_control * (1 + effect_size)
+    Generate continuous outcome data (e.g., revenue per user).
     
-    # Generate data
-    data_control = np.random.normal(mean_control, std_dev, n_control)
-    data_treatment = np.random.normal(mean_treatment, std_dev, n_treatment)
-
-    obs_mean_control = np.mean(data_control)
-    obs_mean_treatment = np.mean(data_treatment)
-    obs_std_control = np.std(data_control, ddof=1)
-    obs_std_treatment = np.std(data_treatment, ddof=1)
-
-    # Welch's t-test
-    se_diff = math.sqrt((obs_std_control**2 / n_control) + (obs_std_treatment**2 / n_treatment))
-    if se_diff == 0:
-        t_stat = 0.0
-        df = 1
+    Args:
+        n_control: Sample size for control group
+        n_treatment: Sample size for treatment group
+        baseline_mean: True mean for control
+        baseline_std: True standard deviation for control
+        effect_size: True relative lift
+        is_inconsistent: If True, report a p-value that contradicts the data
+    
+    Returns:
+        Dictionary with metrics and reported statistics
+    """
+    # Generate actual data
+    data_control = np.random.normal(baseline_mean, baseline_std, n_control)
+    data_treatment = np.random.normal(
+        baseline_mean * (1 + effect_size), 
+        baseline_std, 
+        n_treatment
+    )
+    
+    # Calculate observed statistics
+    mean_control = float(np.mean(data_control))
+    mean_treatment = float(np.mean(data_treatment))
+    std_control = float(np.std(data_control, ddof=1))
+    std_treatment = float(np.std(data_treatment, ddof=1))
+    
+    # Calculate observed lift
+    if mean_control > 0:
+        observed_lift = (mean_treatment - mean_control) / mean_control
     else:
-        t_stat = (obs_mean_treatment - obs_mean_control) / se_diff
-        # Welch-Satterthwaite equation for degrees of freedom
-        num = (obs_std_control**2 / n_control + obs_std_treatment**2 / n_treatment)**2
-        den = (obs_std_control**2 / n_control)**2 / (n_control - 1) + (obs_std_treatment**2 / n_treatment)**2 / (n_treatment - 1)
-        df = num / den if den > 0 else 1
-
-    true_p_value = 2 * (1 - stats.t.cdf(abs(t_stat), df))
-
-    # Reported values
-    if make_inconsistent:
-        reported_p_value = true_p_value * random.uniform(0.1, 10.0)
-        reported_p_value = max(0.0, min(1.0, reported_p_value))
-        reported_effect_size = obs_mean_treatment - obs_mean_control
-        if random.random() < 0.1:
-            reported_effect_size = -reported_effect_size
+        observed_lift = 0.0
+    
+    # Perform Welch's t-test
+    try:
+        stat, p_value_true = stats.ttest_ind(
+            data_control, data_treatment, equal_var=False
+        )
+    except Exception:
+        p_value_true = 1.0
+        stat = 0.0
+    
+    # Determine reported p-value
+    if is_inconsistent:
+        if p_value_true < 0.05:
+            p_value_reported = round(random.uniform(0.06, 0.50), 4)
+        else:
+            p_value_reported = round(random.uniform(0.001, 0.04), 4)
     else:
-        reported_p_value = true_p_value
-        reported_effect_size = obs_mean_treatment - obs_mean_control
-
+        p_value_reported = round(p_value_true, 4)
+    
     return {
-        "outcome_type": "continuous",
-        "n_control": n_control,
-        "n_treatment": n_treatment,
-        "mean_control": obs_mean_control,
-        "mean_treatment": obs_mean_treatment,
-        "std_control": obs_std_control,
-        "std_treatment": obs_std_treatment,
-        "reported_p_value": reported_p_value,
-        "reported_effect_size": reported_effect_size,
-        "true_p_value": true_p_value,
-        "is_inconsistent": make_inconsistent
+        "mean_control": round(mean_control, 4),
+        "mean_treatment": round(mean_treatment, 4),
+        "std_control": round(std_control, 4),
+        "std_treatment": round(std_treatment, 4),
+        "n_control": int(n_control),
+        "n_treatment": int(n_treatment),
+        "reported_p_value": p_value_reported,
+        "true_p_value": round(p_value_true, 6),
+        "reported_lift": round(observed_lift, 4),
+        "outcome_type": "continuous"
     }
 
 
 def generate_synthetic_dataset(
-    total_records: int = TOTAL_RECORDS,
-    binary_ratio: float = BINARY_RATIO,
-    inconsistency_rate: float = INCONSISTENCY_RATE,
-    seed: int = SEED
+    total_records: int = 10000,
+    binary_ratio: float = 0.5,
+    inconsistency_rate: float = 0.15,
+    output_dir: Optional[Path] = None
 ) -> List[Dict[str, Any]]:
     """
-    Generate the full synthetic dataset.
-
+    Generate a full synthetic dataset.
+    
     Args:
-        total_records: Total number of records to generate.
-        binary_ratio: Fraction of records that are binary outcomes.
-        inconsistency_rate: Fraction of records with intentional inconsistencies.
-        seed: Random seed.
-
+        total_records: Total number of summaries to generate (min 10000)
+        binary_ratio: Proportion of binary outcomes (default 0.5)
+        inconsistency_rate: Proportion of summaries with inconsistent p-values
+        output_dir: Directory to write output files (default: data/synthetic)
+    
     Returns:
-        List of synthetic summary dictionaries.
+        List of generated summary dictionaries
     """
-    set_all_seeds(seed)
-    records = []
+    if total_records < 10000:
+        logger.warning(f"Requested {total_records} records; minimum is 10000. Using 10000.")
+        total_records = 10000
+    
+    set_all_seeds()
+    
+    if output_dir is None:
+        output_dir = Path("data/synthetic")
+    output_dir.mkdir(parents=True, exist_ok=True)
+    
+    summaries = []
     num_binary = int(total_records * binary_ratio)
     num_continuous = total_records - num_binary
-
-    for i in range(total_records):
-        is_binary = i < num_binary
-        is_inconsistent = random.random() < inconsistency_rate
-
-        n_control, n_treatment = generate_sample_sizes()
-
-        if is_binary:
-            baseline = random.uniform(BASELINE_RATE_MIN, BASELINE_RATE_MAX)
-            effect = random.uniform(EFFECT_SIZE_MIN, EFFECT_SIZE_MAX)
-            record = generate_binary_outcome(
-                n_control, n_treatment, baseline, effect, is_inconsistent
-            )
-        else:
-            mean_c = random.uniform(MEAN_CONTROL_MIN, MEAN_CONTROL_MAX)
-            effect = random.uniform(EFFECT_SIZE_MIN, EFFECT_SIZE_MAX)
-            std = random.uniform(STD_DEV_MIN, STD_DEV_MAX)
-            record = generate_continuous_outcome(
-                n_control, n_treatment, mean_c, effect, std, is_inconsistent
-            )
-
-        # Add metadata
-        record["id"] = f"syn_{i:06d}"
-        record["generated_at"] = datetime.utcnow().isoformat()
-        record["domain"] = random.choice(["tech", "finance", "health", "retail", "education"])
-        
-        records.append(record)
-
-    return records
-
-
-def write_csv_output(records: List[Dict[str, Any]], output_path: Path) -> None:
-    """Write synthetic dataset to CSV."""
-    if not records:
-        logging.warning("No records to write.")
-        return
-
-    # Flatten nested dicts if necessary, but our structure is flat enough
-    fieldnames = list(records[0].keys())
     
-    with open(output_path, 'w', newline='', encoding='utf-8') as f:
+    # Generate binary outcomes
+    for i in range(num_binary):
+        n_c, n_t = generate_sample_sizes()
+        base_rate = random.uniform(0.01, 0.20)
+        effect = random.choice([0.0, 0.05, 0.10, 0.15, -0.05, -0.10])
+        is_inconsistent = random.random() < inconsistency_rate
+        
+        record = generate_binary_outcome(
+            n_c, n_t, base_rate, effect, is_inconsistent
+        )
+        record["id"] = f"BINARY_{i:05d}"
+        record["domain"] = random.choice([
+            "ecommerce", "media", "finance", "health", "tech"
+        ])
+        record["year"] = random.randint(2020, 2024)
+        summaries.append(record)
+    
+    # Generate continuous outcomes
+    for i in range(num_continuous):
+        n_c, n_t = generate_sample_sizes()
+        base_mean = random.uniform(1.0, 100.0)
+        base_std = base_mean * random.uniform(0.5, 2.0)
+        effect = random.choice([0.0, 0.05, 0.10, 0.15, -0.05, -0.10])
+        is_inconsistent = random.random() < inconsistency_rate
+        
+        record = generate_continuous_outcome(
+            n_c, n_t, base_mean, base_std, effect, is_inconsistent
+        )
+        record["id"] = f"CONT_{i:05d}"
+        record["domain"] = random.choice([
+            "ecommerce", "media", "finance", "health", "tech"
+        ])
+        record["year"] = random.randint(2020, 2024)
+        summaries.append(record)
+    
+    logger.info(f"Generated {len(summaries)} synthetic summaries")
+    return summaries
+
+
+def write_csv_output(summaries: List[Dict[str, Any]], filepath: Path) -> None:
+    """Write summaries to CSV file."""
+    if not summaries:
+        logger.warning("No summaries to write to CSV.")
+        return
+    
+    fieldnames = list(summaries[0].keys())
+    with open(filepath, "w", newline="", encoding="utf-8") as f:
         writer = csv.DictWriter(f, fieldnames=fieldnames)
         writer.writeheader()
-        writer.writerows(records)
+        writer.writerows(summaries)
+    
+    logger.info(f"Wrote {len(summaries)} records to {filepath}")
 
 
-def write_json_output(records: List[Dict[str, Any]], output_path: Path) -> None:
-    """Write synthetic dataset to JSON."""
-    with open(output_path, 'w', encoding='utf-8') as f:
-        json.dump(records, f, indent=2, default=str)
+def write_json_output(summaries: List[Dict[str, Any]], filepath: Path) -> None:
+    """Write summaries to JSON file."""
+    with open(filepath, "w", encoding="utf-8") as f:
+        json.dump(summaries, f, indent=2)
+    
+    logger.info(f"Wrote {len(summaries)} records to {filepath}")
 
 
-def write_metadata(records: List[Dict[str, Any]], output_path: Path) -> None:
+def write_metadata(summaries: List[Dict[str, Any]], filepath: Path) -> None:
     """Write generation metadata."""
-    binary_count = sum(1 for r in records if r["outcome_type"] == "binary")
-    continuous_count = sum(1 for r in records if r["outcome_type"] == "continuous")
-    inconsistent_count = sum(1 for r in records if r["is_inconsistent"])
-
+    binary_count = sum(1 for s in summaries if s["outcome_type"] == "binary")
+    continuous_count = sum(1 for s in summaries if s["outcome_type"] == "continuous")
+    inconsistent_count = sum(1 for s in summaries if s["reported_p_value"] != s["true_p_value"])
+    
     metadata = {
-        "total_records": len(records),
+        "generated_at": datetime.utcnow().isoformat() + "Z",
+        "total_records": len(summaries),
         "binary_outcomes": binary_count,
         "continuous_outcomes": continuous_count,
-        "inconsistent_records": inconsistent_count,
-        "generation_timestamp": datetime.utcnow().isoformat(),
-        "seed": SEED
+        "inconsistent_summaries": inconsistent_count,
+        "seed": SEED,
+        "version": "1.0.0"
     }
-
-    with open(output_path, 'w', encoding='utf-8') as f:
+    
+    with open(filepath, "w", encoding="utf-8") as f:
         json.dump(metadata, f, indent=2)
+    
+    logger.info(f"Wrote metadata to {filepath}")
 
 
-def verify_outcome_types(records: List[Dict[str, Any]]) -> Tuple[int, int]:
-    """Verify that both outcome types are present."""
-    binary = sum(1 for r in records if r["outcome_type"] == "binary")
-    continuous = sum(1 for r in records if r["outcome_type"] == "continuous")
-    return binary, continuous
+def verify_outcome_types(summaries: List[Dict[str, Any]]) -> Tuple[int, int]:
+    """
+    Verify that both outcome types are present in the dataset.
+    
+    Returns:
+        Tuple of (binary_count, continuous_count)
+    """
+    binary_count = sum(1 for s in summaries if s["outcome_type"] == "binary")
+    continuous_count = sum(1 for s in summaries if s["outcome_type"] == "continuous")
+    
+    logger.info(f"Verification: Binary={binary_count}, Continuous={continuous_count}")
+    
+    if binary_count == 0:
+        raise ValueError("No binary outcomes found in generated dataset.")
+    if continuous_count == 0:
+        raise ValueError("No continuous outcomes found in generated dataset.")
+    
+    return binary_count, continuous_count
 
 
 def main() -> None:
     """Main entry point for synthetic dataset generation."""
-    logger = get_default_logger()
-    logger.info("Starting synthetic dataset generation (T026)...")
-
-    # Paths
-    data_dir = Path("code/data/synthetic")
-    data_dir.mkdir(parents=True, exist_ok=True)
+    logger.info("Starting synthetic dataset generation...")
     
-    csv_path = data_dir / "synthetic_summaries.csv"
-    json_path = data_dir / "synthetic_summaries.json"
-    metadata_path = data_dir / "synthetic_metadata.json"
-
-    # Generate
-    logger.info(f"Generating {TOTAL_RECORDS} synthetic records...")
-    records = generate_synthetic_dataset(
-        total_records=TOTAL_RECORDS,
-        binary_ratio=BINARY_RATIO,
-        inconsistency_rate=INCONSISTENCY_RATE,
-        seed=SEED
+    output_dir = Path("data/synthetic")
+    output_dir.mkdir(parents=True, exist_ok=True)
+    
+    # Generate dataset
+    summaries = generate_synthetic_dataset(
+        total_records=10000,
+        binary_ratio=0.5,
+        inconsistency_rate=0.15
     )
-
-    # Verify
-    binary_count, continuous_count = verify_outcome_types(records)
-    logger.info(f"Generated {len(records)} records: {binary_count} binary, {continuous_count} continuous")
-
-    if binary_count == 0 or continuous_count == 0:
-        raise ValueError("Verification failed: Both outcome types must be present.")
-
-    if len(records) < 10000:
-        raise ValueError(f"Verification failed: Expected >= 10000 records, got {len(records)}")
-
+    
+    # Verify outcome types
+    binary_count, continuous_count = verify_outcome_types(summaries)
+    
     # Write outputs
-    logger.info(f"Writing CSV to {csv_path}...")
-    write_csv_output(records, csv_path)
-
-    logger.info(f"Writing JSON to {json_path}...")
-    write_json_output(records, json_path)
-
-    logger.info(f"Writing metadata to {metadata_path}...")
-    write_metadata(records, metadata_path)
-
-    logger.info("Synthetic dataset generation completed successfully.")
+    write_csv_output(summaries, output_dir / "synthetic_summaries.csv")
+    write_json_output(summaries, output_dir / "synthetic_summaries.json")
+    write_metadata(summaries, output_dir / "generation_metadata.json")
+    
+    logger.info(f"Synthetic dataset generation complete. "
+                f"Total: {len(summaries)}, Binary: {binary_count}, "
+                f"Continuous: {continuous_count}")
 
 
 if __name__ == "__main__":
