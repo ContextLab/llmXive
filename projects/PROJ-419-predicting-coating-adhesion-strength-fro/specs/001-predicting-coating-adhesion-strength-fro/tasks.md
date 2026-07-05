@@ -20,23 +20,23 @@
 - **Mobile**: `api/src/`, `ios/src/` or `android/src/`
 - Paths shown below assume single project - adjust based on plan.md structure
 
-<!-- 
-  ============================================================================
-  IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-  
-  The /speckit-tasks command MUST replace these with actual tasks based on:
-  - User stories from spec.md (with their priorities P1, P2, P3...)
-  - Feature requirements from plan.md
-  - Entities from data-model.md
-  - Endpoints from contracts/
-  
-  Tasks MUST be organized by user story so each story can be:
-  - Implemented independently
-  - Tested independently
-  - Delivered as an MVP increment
-  
-  DO NOT keep these sample tasks in the generated tasks.md file.
-  ============================================================================
+<!--
+ ============================================================================
+ IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
+
+ The /speckit-tasks command MUST replace these with actual tasks based on:
+ - User stories from spec.md (with their priorities P1, P2, P3...)
+ - Feature requirements from plan.md
+ - Entities from data-model.md
+ - Endpoints from contracts/
+
+ Tasks MUST be organized by user story so each story can be:
+ - Implemented independently
+ - Tested independently
+ - Delivered as an MVP increment
+
+ DO NOT keep these sample tasks in the generated tasks.md file.
+ ============================================================================
 -->
 
 ## Phase 0: Data Gap Analysis & Validation (BLOCKER)
@@ -45,9 +45,9 @@
 
 **CRITICAL**: If verified URLs are missing, the pipeline MUST halt here and signal for manual intervention.
 
-- [ ] T009 [P] Implement `code/utils.py` function to verify Materials Project API URL accessibility and schema validity; **if missing/invalid, write `state/HALT_SIGNAL.yaml` and exit with code 1** (Plan Phase 0)
-- [ ] T010 [P] Implement `code/utils.py` function to verify NIST Surface Metrology Repository URL accessibility and schema validity; **if missing/invalid, write `state/HALT_SIGNAL.yaml` and exit with code 1** (Plan Phase 0)
-- [ ] T011 [P] Implement `code/main.py` logic to check for `state/HALT_SIGNAL.yaml` and halt execution immediately if found, logging "Data Gap: Missing Verified Sources - Manual Intervention Required" (Plan Phase 0)
+- [X] T009 [P] Implement `code/utils.py` function to verify Materials Project API URL accessibility and schema validity; **if missing/invalid, write `state/HALT_SIGNAL.yaml` and exit with code 1** (Plan Phase 0)
+- [X] T010 [P] Implement `code/utils.py` function to verify NIST Surface Metrology Repository URL accessibility and schema validity; **if missing/invalid, write `state/HALT_SIGNAL.yaml` and exit with code 1** (Plan Phase 0)
+- [X] T011 [P] Implement `code/main.py` logic to check for `state/HALT_SIGNAL.yaml` and halt execution immediately if found, logging "Data Gap: Missing Verified Sources - Manual Intervention Required" (Plan Phase 0)
 
 ---
 
@@ -55,10 +55,10 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 [P] Create `data/raw` and `data/processed` directory structure (Plan Phase 1)
-- [ ] T002 [P] Create `code` and `tests` directory structure (Plan Phase 1)
-- [ ] T003 [P] Initialize Python 3.11 project with `requirements.txt` (pandas, scikit-learn, shap, requests, numpy, pyyaml, pytest) (Plan Phase 1)
-- [ ] T004 [P] Configure linting (ruff) and formatting (black) tools (Plan Phase 1)
+- [X] T001 [P] Create `data/raw` and `data/processed` directory structure (Plan Phase 1)
+- [X] T002 [P] Create `code` and `tests` directory structure (Plan Phase 1)
+- [X] T003 [P] Initialize Python 3.11 project with `requirements.txt` (pandas, scikit-learn, shap, requests, numpy, pyyaml, pytest) (Plan Phase 1)
+- [X] T004 [P] Configure linting (ruff) and formatting (black) tools (Plan Phase 1)
 
 ---
 
@@ -68,17 +68,17 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete.
 
-- [ ] T005 [P] Implement `code/utils.py` with logging, exponential backoff retry logic for API calls, and memory monitoring helpers (Plan Phase 1)
+- [X] T005 [P] Implement `code/utils.py` with logging, exponential backoff retry logic for API calls, and memory monitoring helpers (Plan Phase 1)
 - [ ] T006 [P] Create `code/__init__.py` and define base configuration constants (MAX_ROWS=5000, RAM_LIMIT_GB=7, TIMEOUT_HOURS=4) (Plan Phase 1)
 - [ ] T007 [P] Setup `pytest` configuration and directory structure (`tests/unit`, `tests/integration`) (Plan Phase 1)
 - [ ] T008 [P] Implement logic to generate/update `state/` YAML file with checksums for raw data files (Constitution Principle III) (Plan Phase 1)
-- [ ] T009 [P] Implement `code/preprocessing.py` skeleton with functions for one-hot encoding and standardization (no data yet) (Plan Phase 1)
-- [ ] T010 [P] Implement `code/utils.py` power analysis function to check sample size N ≥ 1,000 (Plan Phase 1.6)
-- [ ] T011 [P] Implement `code/utils.py` function to calculate exclusion ratio (missing targets / total valid) and enforce <10% threshold (Plan Phase 1.4, SC-005)
-- [ ] T012 [P] Implement `code/utils.py` function to calculate processing success rate and enforce ≥95% threshold (Plan Phase 1.5, SC-001)
-- [ ] T013 [P] Implement `code/modeling.py` skeleton with placeholder for nested CV and SHAP (Plan Phase 2)
-- [ ] T014 [P] Implement `code/evaluation.py` skeleton for statistical testing (Plan Phase 3)
-- [ ] T015 [P] Implement `code/preprocessing.py` function to perform **Construct Validity Check** on derived proxies: compare proxy correlation against target; **exclude proxy if |r| < 0.3 or R² < 0.05** (Plan Phase 1.8, T040 moved here)
+- [X] T009 [P] Implement `code/preprocessing.py` skeleton with functions for one-hot encoding and standardization (no data yet) (Plan Phase 1)
+- [~] T010 [P] Implement `code/utils.py` power analysis function to check sample size N ≥ 1,000 (Plan Phase 1.6)
+- [~] T011 [P] Implement `code/utils.py` function to calculate exclusion ratio (missing targets / total valid) and enforce <10% threshold (Plan Phase 1.4, SC-005)
+- [~] T012 [P] Implement `code/utils.py` function to calculate processing success rate and enforce ≥95% threshold (Plan Phase 1.5, SC-001)
+- [~] T013 [P] Implement `code/modeling.py` skeleton with placeholder for nested CV and SHAP (Plan Phase 2)
+- [~] T014 [P] Implement `code/evaluation.py` skeleton for statistical testing (Plan Phase 3)
+- [~] T015 [P] Implement `code/preprocessing.py` function to perform **Construct Validity Check** on derived proxies: compare proxy correlation against target; **exclude proxy if |r| < 0.3 or R² < 0.05** (Plan Phase 1.8, T040 moved here)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -94,25 +94,25 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T016 [P] [US1] Unit test for ASTM D4541 filter logic in `tests/unit/test_ingestion.py`
-- [ ] T017 [P] [US1] Unit test for duplicate resolution (most recent date vs sample count) in `tests/unit/test_ingestion.py`
-- [ ] T018 [P] [US1] Integration test for full ingestion pipeline on small mock dataset in `tests/integration/test_pipeline.py`
+- [~] T016 [P] [US1] Unit test for ASTM D4541 filter logic in `tests/unit/test_ingestion.py`
+- [~] T017 [P] [US1] Unit test for duplicate resolution (most recent date vs sample count) in `tests/unit/test_ingestion.py`
+- [~] T018 [P] [US1] Integration test for full ingestion pipeline on small mock dataset in `tests/integration/test_pipeline.py`
 
 ### Implementation for User Story 1
 
-- [ ] T019 [P] [US1] Implement `code/ingestion.py` to fetch data from Materials Project API with rate-limit handling (FR-001)
-- [ ] T020 [P] [US1] Implement `code/ingestion.py` to fetch data from NIST Surface Metrology Repository with error handling for 404/schema changes (FR-001)
-- [ ] T021 [P] [US1] Implement `code/ingestion.py` to fetch data from open-access literature sources (FR-001)
-- [ ] T022 [US1] Implement `code/ingestion.py` logic to filter records strictly to ASTM D4541 pull-off test results (FR-009)
-- [ ] T023 [US1] Implement `code/ingestion.py` logic to **STRICTLY REJECT** any coating-substrate pair that cannot be linked by a **unique, verified identifier**; **do not use heuristic mapping** (Plan Phase 1.3, Constitution Principle VII). **Note: This contradicts Spec FR-007 which mandates heuristic mapping; Spec FR-007 is flagged for external update.** Log count of rejected records.
-- [ ] T024 [US1] Implement `code/ingestion.py` logic to exclude records with missing target variables and log counts (US-1, SC-005)
-- [ ] T025 [US1] Implement `code/ingestion.py` logic to resolve duplicates (most recent date or highest sample count) (US-1)
-- [ ] T026 [US1] Implement `code/ingestion.py` logic to sample dataset to ≤ 5,000 rows if raw volume exceeds memory (FR-006) (Plan Phase 1.1)
-- [ ] T027 [US1] Implement `code/ingestion.py` logic to exclude records with missing surface roughness data (impute median or exclude) (US-1)
-- [ ] T028 [US1] **Validation Gate**: Implement `code/main.py` logic to **calculate processing success rate and exclusion ratio** AFTER alignment (T023) and filtering (T022, T024, T027). **HALT** if success rate < 95% OR exclusion ratio ≥ 10% (Plan Phase 1.4/1.5, SC-001, SC-005).
-- [ ] T029 [US1] Implement `code/preprocessing.py` to encode compositional data (one-hot, atomic radius variance, crosslinker density proxy) (FR-002)
-- [ ] T030 [US1] Implement `code/preprocessing.py` to standardize surface metrics (RMS, skewness, kurtosis) (FR-002)
-- [ ] T031 [US1] Implement `code/main.py` orchestration to save unified `coating_adhesion_dataset.csv` to `data/processed/` **only if T028 passes**
+- [~] T019 [P] [US1] Implement `code/ingestion.py` to fetch data from Materials Project API with rate-limit handling (FR-001)
+- [~] T020 [P] [US1] Implement `code/ingestion.py` to fetch data from NIST Surface Metrology Repository with error handling for 404/schema changes (FR-001)
+- [~] T021 [P] [US1] Implement `code/ingestion.py` to fetch data from open-access literature sources (FR-001)
+- [~] T022 [US1] Implement `code/ingestion.py` logic to filter records strictly to ASTM D4541 pull-off test results (FR-009)
+- [~] T023 [US1] Implement `code/ingestion.py` logic to **STRICTLY REJECT** any coating-substrate pair that cannot be linked by a **unique, verified identifier**; **do not use heuristic mapping** (Plan Phase 1.3, Constitution Principle VII). **Note: This contradicts Spec FR-007 which mandates heuristic mapping; Spec FR-007 is flagged for external update.** Log count of rejected records.
+- [~] T024 [US1] Implement `code/ingestion.py` logic to exclude records with missing target variables and log counts (US-1, SC-005)
+- [~] T025 [US1] Implement `code/ingestion.py` logic to resolve duplicates (most recent date or highest sample count) (US-1)
+- [~] T026 [US1] Implement `code/ingestion.py` logic to sample dataset to ≤ 5,000 rows if raw volume exceeds memory (FR-006) (Plan Phase 1.1)
+- [~] T027 [US1] Implement `code/ingestion.py` logic to exclude records with missing surface roughness data (impute median or exclude) (US-1)
+- [~] T028 [US1] **Validation Gate**: Implement `code/main.py` logic to **calculate processing success rate and exclusion ratio** AFTER alignment (T023) and filtering (T022, T024, T027). **HALT** if success rate < 95% OR exclusion ratio ≥ 10% (Plan Phase 1.4/1.5, SC-001, SC-005).
+- [~] T029 [US1] Implement `code/preprocessing.py` to encode compositional data (one-hot, atomic radius variance, crosslinker density proxy) (FR-002)
+- [~] T030 [US1] Implement `code/preprocessing.py` to standardize surface metrics (RMS, skewness, kurtosis) (FR-002)
+- [~] T031 [US1] Implement `code/main.py` orchestration to save unified `coating_adhesion_dataset.csv` to `data/processed/` **only if T028 passes**
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -126,20 +126,20 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T032 [P] [US2] Unit test for nested cross-validation loop (no data leakage) in `tests/unit/test_modeling.py`
-- [ ] T033 [P] [US2] Unit test for SHAP value calculation and ranking stability in `tests/unit/test_modeling.py`
+- [~] T032 [P] [US2] Unit test for nested cross-validation loop (no data leakage) in `tests/unit/test_modeling.py`
+- [~] T033 [P] [US2] Unit test for SHAP value calculation and ranking stability in `tests/unit/test_modeling.py`
 
 ### Implementation for User Story 2
 
-- [ ] T034 [US2] Implement `code/modeling.py` to train Gradient Boosting Regressor with nested k-fold CV (FR-003)
-- [ ] T035 [US2] Implement `code/modeling.py` to train Random Forest Regressor with nested k-fold CV (FR-003)
-- [ ] T036 [US2] Implement `code/modeling.py` to compute SHAP values for top features (FR-004)
-- [ ] T037 [US2] Implement `code/modeling.py` to compute permutation importance for top features (FR-004)
-- [ ] T038 [US2] Implement `code/modeling.py` to rank top features distinguishing compositional vs. surface categories (FR-004)
-- [ ] T039 [US2] Implement `code/modeling.py` to calculate Spearman correlation between SHAP and permutation rankings (SC-003)
-- [ ] T040 [US2] Implement `code/main.py` to output JSON report with mean R², RMSE, MAE for both models (US-2)
-- [ ] T041 [US2] Implement `code/modeling.py` sensitivity analysis for 'crosslinker density' proxy (multiple definitions) and explicitly output a report of the **variance in model performance** across the three definitions (FR-008)
-- [ ] T042 [US2] **Construct Validity Check**: Re-verify derived proxies (from T015) against the **defined thresholds** (|r| > 0.3, R² > 0.05) before final model training; exclude any invalid proxies (Plan Phase 1.8)
+- [~] T034 [US2] Implement `code/modeling.py` to train Gradient Boosting Regressor with nested k-fold CV (FR-003)
+- [~] T035 [US2] Implement `code/modeling.py` to train Random Forest Regressor with nested k-fold CV (FR-003)
+- [~] T036 [US2] Implement `code/modeling.py` to compute SHAP values for top features (FR-004)
+- [~] T037 [US2] Implement `code/modeling.py` to compute permutation importance for top features (FR-004)
+- [~] T038 [US2] Implement `code/modeling.py` to rank top features distinguishing compositional vs. surface categories (FR-004)
+- [~] T039 [US2] Implement `code/modeling.py` to calculate Spearman correlation between SHAP and permutation rankings (SC-003)
+- [~] T040 [US2] Implement `code/main.py` to output JSON report with mean R², RMSE, MAE for both models (US-2)
+- [~] T041 [US2] Implement `code/modeling.py` sensitivity analysis for 'crosslinker density' proxy (multiple definitions) and explicitly output a report of the **variance in model performance** across the three definitions (FR-008)
+- [~] T042 [US2] **Construct Validity Check**: Re-verify derived proxies (from T015) against the **defined thresholds** (|r| > 0.3, R² > 0.05) before final model training; exclude any invalid proxies (Plan Phase 1.8)
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -189,8 +189,8 @@
 - **Setup (Phase 1)**: No dependencies - can start immediately after Phase 0 passes.
 - **Foundational (Phase 2)**: Depends on Phase 0 & 1 - BLOCKS all user stories. Includes safety gates.
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
-  - User stories can then proceed in parallel (if staffed)
-  - Or sequentially in priority order (P1 → P2 → P3)
+ - User stories can then proceed in parallel (if staffed)
+ - Or sequentially in priority order (P1 → P2 → P3)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
@@ -257,9 +257,9 @@ With multiple developers:
 
 1. Team completes Phase 0 + Setup + Foundational together
 2. Once Foundational is done:
-   - Developer A: User Story 1
-   - Developer B: User Story 2
-   - Developer C: User Story 3
+ - Developer A: User Story 1
+ - Developer B: User Story 2
+ - Developer C: User Story 3
 3. Stories complete and integrate independently
 
 ---

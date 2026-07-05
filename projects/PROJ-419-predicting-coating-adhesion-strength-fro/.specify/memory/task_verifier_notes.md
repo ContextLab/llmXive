@@ -1,0 +1,7 @@
+# Tasks an independent verifier REJECTED (redo these)
+
+A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
+
+- **T006 [P] Create `code/__init__.py` and define base configuration constants (MAX_ROWS=5000, RAM_LIMIT_GB=7, TIMEOUT_HOURS=4) (Plan Phase 1)** — The provided `code/__init__.py` contains only a docstring and a `__version__` variable; it does **not** define the required constants `MAX_ROWS`, `RAM_LIMIT_GB`, and `TIMEOUT_HOURS`. Consequently the artifact does not meet the task specification.
+- **T007 [P] Setup `pytest` configuration and directory structure (`tests/unit`, `tests/integration`) (Plan Phase 1)** — No `pytest` configuration file (e.g., `pytest.ini` or `conftest.py`) or the required `tests/unit` and `tests/integration` directories were presented. Consequently, the claimed setup does not exist in the provided artifacts.
+- **T008 [P] Implement logic to generate/update `state/` YAML file with checksums for raw data files (Constitution Principle III) (Plan Phase 1)** — No `state/` directory or YAML file containing checksums for raw data files is present in the provided evidence, and there is no code implementing the required generation/update logic. Consequently, the task’s core deliverable is missing.

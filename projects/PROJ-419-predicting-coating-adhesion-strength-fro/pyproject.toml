@@ -1,0 +1,53 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "coating-adhesion-predictor"
+version = "0.1.0"
+description = "Predicting Coating Adhesion Strength from Composition and Surface Features"
+requires-python = ">=3.11"
+dependencies = [
+    "pandas",
+    "scikit-learn",
+    "shap",
+    "requests",
+    "numpy",
+    "pyyaml",
+    "pytest",
+    "tomlkit"
+]
+
+[tool.ruff]
+line-length = 88
+target-version = "py311"
+select = [
+    "E",
+    "W",
+    "F",
+    "I",
+    "C",
+    "B",
+    "UP",
+]
+ignore = [
+    "E501",
+    "B008",
+    "C901",
+]
+exclude = [
+    ".git",
+    "__pycache__",
+    "data",
+    "state",
+    "build",
+    "dist",
+]
+per-file-ignores = {
+    "__init__.py" = ["F401", "F403"],
+}
+
+[tool.black]
+line-length = 88
+target-version = ["py311"]
+exclude = "/(\\.git|__pycache__|data|state|build|dist)/"

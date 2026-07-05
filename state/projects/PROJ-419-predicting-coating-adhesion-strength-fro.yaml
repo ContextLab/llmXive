@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-07T23:25:06.369481Z'
-current_stage: analyzed
+current_stage: in_progress
 failed_stage: null
 field: materials science
 human_escalation_reason: null
 id: PROJ-419-predicting-coating-adhesion-strength-fro
-last_run_id: 90d391ae-523a-47df-b854-293cf2aebc84
+last_run_id: 69dabb84-9756-414b-b554-ea9e023d54d9
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-419-predicting-coating-adhesion-strength-fro/specs/001-predicting-coating-adhesion-strength-fro
 title: Predicting Coating Adhesion Strength from Composition and Surface Features
-updated_at: '2026-07-05T18:53:37.307860Z'
+updated_at: '2026-07-05T20:46:32.271056Z'

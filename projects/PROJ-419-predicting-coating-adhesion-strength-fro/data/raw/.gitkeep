@@ -1,0 +1,2 @@
+# This file ensures the directory exists.
+# Real data files will be downloaded here by the ingestion scripts.

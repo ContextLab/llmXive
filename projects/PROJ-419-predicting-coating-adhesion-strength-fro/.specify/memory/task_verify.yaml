@@ -1,0 +1,7 @@
+? T006 [P] Create `code/__init__.py` and define base configuration constants (MAX_ROWS=5000,
+  RAM_LIMIT_GB=7, TIMEOUT_HOURS=4) (Plan Phase 1)
+: 1
+T007 [P] Setup `pytest` configuration and directory structure (`tests/unit`, `tests/integration`) (Plan Phase 1): 1
+? T008 [P] Implement logic to generate/update `state/` YAML file with checksums for
+  raw data files (Constitution Principle III) (Plan Phase 1)
+: 1
