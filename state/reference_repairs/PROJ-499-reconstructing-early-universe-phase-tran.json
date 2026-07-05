@@ -1,0 +1,14 @@
+[
+  {
+    "repaired_at": "2026-07-05T02:36:49.231607+00:00",
+    "project": "PROJ-499-reconstructing-early-universe-phase-tran",
+    "repairs": [
+      {
+        "dead_url": "https://bicepkeck.org/",
+        "reason": "connection/DNS failure: [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: Hostname mismatch, certificate is not valid for 'bicepkeck.org'. (_ssl.c:1016)",
+        "replacement_url": "https://huggingface.co/datasets/Chawder25/bicepcurl/resolve/main/bicep_curl_master_dataset.csv",
+        "intent": "BICEP/Keck 2018 Power Spectra Observed B mode from collaboration via datasets.load_dataset \"bicep_keck_2018\" if available or direct CSV download pandas.read_csv Cross validation with Planck data"
+      }
+    ]
+  }
+]
