@@ -1,0 +1,3 @@
+? T006 [P] Implement chunked data processing framework in `code/utils/io.py` to handle
+  >7GB potential corpus, ensuring memory safety for real-world data acquisition (FR-001).
+: 1

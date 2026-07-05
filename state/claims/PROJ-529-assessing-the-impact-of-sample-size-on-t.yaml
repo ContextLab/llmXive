@@ -1,0 +1,1305 @@
+- artifact_path: projects/PROJ-529-assessing-the-impact-of-sample-size-on-t/specs/001-assessing-the-impact-of-sample-size-on-t/tasks.md
+  attempts: 1
+  canonical: 'simulation parameters from Ioannidis et al. (2008): tau^2=0.04, mean_effect=0.3,
+    bias=0.1, study_count_range=3-50'
+  claim_id: c_ccb3eeec
+  context: 'Implement parameter generation and synthetic data generation in code/download.py
+    as a fallback triggered ONLY if T012/T012a confirm failure. Parameters: Use values
+    from Ioannidis et al. (2008): tau^2 = 0.04, mean_effect = 0.3, bias = 0.1, study_count_range
+    = [3, 50].'
+  evidence:
+    asserted: '2008.0'
+    authority: math.tau (IEEE-754 double, Python stdlib)
+    constant: tau
+    corrected: true
+    mode: approximate
+    true_value: 6.283185307179586
+    url: https://en.wikipedia.org/wiki/Turn_(angle)#Tau_proposals
+  kind: numeric
+  raw_text: 'Use values from Ioannidis et al. (2008): tau^2 = 0.04, mean_effect =
+    0.3, bias = 0.1, study_count_range = [3, 50]'
+  resolved_value: '6'
+  resolver: approximate
+  source_hash: d0a1b8a5b40995feb696dbce9ae211b0e3e5520e8676d5fd1b9d8448cdea0647
+  source_type: external
+  status: verified
+  updated_at: '2026-07-05T22:24:40Z'
+- artifact_path: projects/PROJ-529-assessing-the-impact-of-sample-size-on-t/specs/001-assessing-the-impact-of-sample-size-on-t/research.md
+  attempts: 1
+  canonical: Ioannidis 2008 published Why most discovered true associations are inflated
+    in Epidemiology
+  claim_id: c_2949ca52
+  context: Key Literature section listing foundational papers on meta-analysis and
+    bias.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Ioannidis_2008_published_Why_most_discovered_true_associatio
+  kind: magnitude
+  raw_text: Ioannidis, J. P. A. (2008). 'Why most discovered true associations are
+    inflated'. Epidemiology.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T22:26:57Z'
+- artifact_path: projects/PROJ-529-assessing-the-impact-of-sample-size-on-t/specs/001-assessing-the-impact-of-sample-size-on-t/research.md
+  attempts: 1
+  canonical: Borenstein et al. 2009 published Introduction to Meta-Analysis
+  claim_id: c_83865942
+  context: Key Literature section listing foundational papers on meta-analysis and
+    bias.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Borenstein, M., et al. (2009). Introduction to Meta-Analysis.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T22:27:17Z'
+- artifact_path: projects/PROJ-529-assessing-the-impact-of-sample-size-on-t/specs/001-assessing-the-impact-of-sample-size-on-t/research.md
+  attempts: 1
+  canonical: Higgins and Green 2011 published Cochrane Handbook for Systematic Reviews
+    of Interventions
+  claim_id: c_cd8b1e5d
+  context: Key Literature section listing foundational papers on meta-analysis and
+    bias.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Higgins, J. P. T., & Green, S. (Eds.). (2011). Cochrane Handbook for Systematic
+    Reviews of Interventions.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T22:27:35Z'
+- artifact_path: projects/PROJ-529-assessing-the-impact-of-sample-size-on-t/specs/001-assessing-the-impact-of-sample-size-on-t/tasks.md
+  attempts: 0
+  canonical: 'Ioannidis et al. 2008 simulation parameters: tau^2=0.04, mean_effect=0.3,
+    bias=0.1, study_count_range=[3,50]'
+  claim_id: c_4ca0756e
+  context: 'Implement parameter generation and synthetic data generation in code/download.py
+    as a fallback triggered ONLY if T012/T012a confirm failure. Parameters: Use values
+    from Ioannidis et al. (2008): tau^2 = 0.04, mean_effect = 0.3, bias = 0.1, study_count_range
+    = [3, 50].'
+  evidence:
+    asserted: '2008.0'
+    authority: math.tau (IEEE-754 double, Python stdlib)
+    constant: tau
+    corrected: true
+    mode: approximate
+    true_value: 6.283185307179586
+    url: https://en.wikipedia.org/wiki/Turn_(angle)#Tau_proposals
+  kind: numeric
+  raw_text: 'Use values from Ioannidis et al. (2008): tau^2 = 0.04, mean_effect =
+    0.3, bias = 0.1, study_count_range = [3, 50].'
+  resolved_value: '6'
+  resolver: approximate
+  source_hash: d0a1b8a5b40995feb696dbce9ae211b0e3e5520e8676d5fd1b9d8448cdea0647
+  source_type: external
+  status: verified
+  updated_at: '2026-07-05T22:27:50Z'
+- artifact_path: projects/PROJ-529-assessing-the-impact-of-sample-size-on-t/specs/001-assessing-the-impact-of-sample-size-on-t/tasks.md
+  attempts: 0
+  canonical: 'Simulation parameters from Ioannidis et al. 2008: tau squared 0.04,
+    mean effect 0.3, bias 0.1, study count range 3 to 50'
+  claim_id: c_d7ec726e
+  context: 'Implement parameter generation and synthetic data generation in code/download.py
+    as a fallback triggered ONLY if T012/T012a confirm failure. Parameters: Use values
+    from Ioannidis et al. (2008): tau^2 = 0.04, mean_effect = 0.3, bias = 0.1, study_count_range
+    = [3, 50].'
+  evidence:
+    asserted: '2008.0'
+    authority: math.tau (IEEE-754 double, Python stdlib)
+    constant: tau
+    corrected: true
+    mode: approximate
+    true_value: 6.283185307179586
+    url: https://en.wikipedia.org/wiki/Turn_(angle)#Tau_proposals
+  kind: numeric
+  raw_text: 'Use values from Ioannidis et al. (2008): tau^2 = 0.04, mean_effect =
+    0.3, bias = 0.1, study_count_range = [3, 50].'
+  resolved_value: '6'
+  resolver: approximate
+  source_hash: d0a1b8a5b40995feb696dbce9ae211b0e3e5520e8676d5fd1b9d8448cdea0647
+  source_type: external
+  status: verified
+  updated_at: '2026-07-05T22:30:09Z'
+- artifact_path: projects/PROJ-529-assessing-the-impact-of-sample-size-on-t/specs/001-assessing-the-impact-of-sample-size-on-t/tasks.md
+  attempts: 1
+  canonical: Generate 100 bootstrap subsamples for study counts k from 3 to N
+  claim_id: c_f6e438f3
+  context: Implement code/subsample.py to generate up to 100 bootstrap subsamples
+    for each k (3 to N), logging seeds and handling k < 3 edge cases.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate up to 100 bootstrap subsamples for each k (3 to N).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T22:31:50Z'
+- artifact_path: projects/PROJ-529-assessing-the-impact-of-sample-size-on-t/specs/001-assessing-the-impact-of-sample-size-on-t/tasks.md
+  attempts: 1
+  canonical: GAM configuration uses cubic basis with 3 smoothing parameters
+  claim_id: c_b202c2ab
+  context: 'Implement code/analysis.py to fit a Generalized Additive Model (GAM) (Primary
+    Method per FR-006) to stability metrics. Target Variable: stability SD (y-axis)
+    vs study count k (x-axis). Parameters: Use cubic basis with k=3 smoothing.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use cubic basis with k=3 smoothing for the Generalized Additive Model
+    (GAM).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T22:33:25Z'
+- artifact_path: projects/PROJ-529-assessing-the-impact-of-sample-size-on-t/specs/001-assessing-the-impact-of-sample-size-on-t/tasks.md
+  attempts: 1
+  canonical: Coverage rate stability threshold is within 2 percent of nominal target
+  claim_id: c_10291080
+  context: "Implement code/analysis.py to identify minimum k where coverage rate stabilizes\
+    \ within \xB12% of the nominal target read from code/config.py (T009a) (SC-003,\
+    \ FR-007)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Identify minimum k where coverage rate stabilizes within \xB12% of the\
+    \ nominal target."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T22:33:25Z'
+- artifact_path: projects/PROJ-529-assessing-the-impact-of-sample-size-on-t/specs/001-assessing-the-impact-of-sample-size-on-t/tasks.md
+  attempts: 1
+  canonical: Inflection point defined as derivative less than 0.05 change in standard
+    deviation per unit k
+  claim_id: c_d3b9e1b5
+  context: 'Implement code/analysis.py to detect inflection point where derivative
+    < 0.05 (unit: change in SD per unit k) and model fit (p < 0.05) is significantly
+    better than linear.'
+  evidence:
+    asserted: '0.05'
+    authority: scipy.constants.k (CODATA 2018, exact by SI definition)
+    constant: boltzmann
+    corrected: true
+    mode: approximate
+    true_value: 1.380649e-23
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?k
+  kind: magnitude
+  raw_text: Detect inflection point where derivative < 0.05 unit change in SD per
+    unit k.
+  resolved_value: '0'
+  resolver: approximate
+  source_hash: 2bfb0d3513311088eea23af05f5f28fc2ef73a6a80811bbb243001626363f07f
+  source_type: external
+  status: verified
+  updated_at: '2026-07-05T22:33:25Z'
+- artifact_path: projects/PROJ-529-assessing-the-impact-of-sample-size-on-t/specs/001-assessing-the-impact-of-sample-size-on-t/tasks.md
+  attempts: 1
+  canonical: System designed to handle corpus sizes greater than 7 gigabytes
+  claim_id: c_1c1daccb
+  context: Implement chunked data processing framework in code/utils/io.py to handle
+    >7GB potential corpus, ensuring memory safety for real-world data acquisition
+    (FR-001).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/System_designed_to_handle_corpus_sizes_greater_than_7_gigaby
+  kind: magnitude
+  raw_text: Handle >7GB potential corpus via chunked data processing framework.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T22:33:58Z'
+- artifact_path: projects/PROJ-529-assessing-the-impact-of-sample-size-on-t/specs/001-assessing-the-impact-of-sample-size-on-t/tasks.md
+  attempts: 0
+  canonical: 'Ioannidis et al. 2008 simulation parameters: tau^2 0.04, mean effect
+    0.3, bias 0.1, study count 3 to 50'
+  claim_id: c_fdc2cdef
+  context: 'T019 [US1] Implement parameter generation and synthetic data generation
+    in code/download.py as a fallback triggered ONLY if T012/T012a confirm failure.
+    Parameters: Use values from Ioannidis et al. (2008)...'
+  evidence:
+    asserted: '2008.0'
+    authority: math.tau (IEEE-754 double, Python stdlib)
+    constant: tau
+    corrected: true
+    mode: approximate
+    true_value: 6.283185307179586
+    url: https://en.wikipedia.org/wiki/Turn_(angle)#Tau_proposals
+  kind: numeric
+  raw_text: 'Use values from Ioannidis et al. (2008): tau^2 = 0.04, mean_effect =
+    0.3, bias = 0.1, study_count_range = [3, 50].'
+  resolved_value: '6'
+  resolver: approximate
+  source_hash: d0a1b8a5b40995feb696dbce9ae211b0e3e5520e8676d5fd1b9d8448cdea0647
+  source_type: external
+  status: verified
+  updated_at: '2026-07-05T22:35:11Z'
+- artifact_path: projects/PROJ-529-assessing-the-impact-of-sample-size-on-t/specs/001-assessing-the-impact-of-sample-size-on-t/tasks.md
+  attempts: 1
+  canonical: Generate up to 100 bootstrap subsamples per k value
+  claim_id: c_18a4235a
+  context: T016 [US1] Implement code/subsample.py to generate up to 100 bootstrap
+    subsamples for each k (3 to N), logging seeds and handling k < 3 edge cases.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate up to 100 bootstrap subsamples for each k (3 to N).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T22:35:11Z'
+- artifact_path: projects/PROJ-529-assessing-the-impact-of-sample-size-on-t/specs/001-assessing-the-impact-of-sample-size-on-t/tasks.md
+  attempts: 1
+  canonical: Threshold detection inflection point derivative less than 0.05
+  claim_id: c_0f149d38
+  context: 'T032 [US3] Implement code/analysis.py to detect inflection point where
+    derivative < 0.05 (unit: change in SD per unit k) and model fit (p < 0.05) is
+    significantly better than linear.'
+  evidence:
+    asserted: '0.05'
+    authority: scipy.constants.k (CODATA 2018, exact by SI definition)
+    constant: boltzmann
+    corrected: true
+    mode: approximate
+    true_value: 1.380649e-23
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?k
+  kind: magnitude
+  raw_text: 'Detect inflection point where derivative < 0.05 (unit: change in SD per
+    unit k).'
+  resolved_value: '0'
+  resolver: approximate
+  source_hash: 2bfb0d3513311088eea23af05f5f28fc2ef73a6a80811bbb243001626363f07f
+  source_type: external
+  status: verified
+  updated_at: '2026-07-05T22:35:11Z'
+- artifact_path: projects/PROJ-529-assessing-the-impact-of-sample-size-on-t/specs/001-assessing-the-impact-of-sample-size-on-t/tasks.md
+  attempts: 1
+  canonical: Identify minimum study count k where coverage rate stabilizes within
+    2 percent of nominal target
+  claim_id: c_7943e51d
+  context: "T034 [US3] Implement code/analysis.py to identify minimum k where coverage\
+    \ rate stabilizes within \xB12% of the nominal target read from code/config.py\
+    \ (T009a) (SC-003, FR-007)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Identify minimum k where coverage rate stabilizes within \xB12% of the\
+    \ nominal target."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T22:35:11Z'
+- artifact_path: projects/PROJ-529-assessing-the-impact-of-sample-size-on-t/specs/001-assessing-the-impact-of-sample-size-on-t/tasks.md
+  attempts: 1
+  canonical: Full bootstrap analysis runtime under 6 hours on 2 CPU cores
+  claim_id: c_2ce29c12
+  context: 'T040 Performance optimization: Ensure full bootstrap analysis runs within
+    6 hours on 2 CPU cores'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Ensure full bootstrap analysis runs within 6 hours on 2 CPU cores.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T22:35:27Z'
+- artifact_path: projects/PROJ-529-assessing-the-impact-of-sample-size-on-t/specs/001-assessing-the-impact-of-sample-size-on-t/tasks.md
+  attempts: 0
+  canonical: 'Simulation parameters from Ioannidis et al. 2008: tau^2=0.04, mean_effect=0.3,
+    bias=0.1, study_count_range=[3,50]'
+  claim_id: c_f1ba94aa
+  context: 'Implement parameter generation and synthetic data generation in code/download.py
+    as a fallback triggered ONLY if T012/T012a confirm failure. Parameters: Use values
+    from Ioannidis et al. (2008): tau^2 = 0.04, mean_effect = 0.3, bias = 0.1, study_count_range
+    = [3, 50].'
+  evidence:
+    asserted: '2008.0'
+    authority: math.tau (IEEE-754 double, Python stdlib)
+    constant: tau
+    corrected: true
+    mode: approximate
+    true_value: 6.283185307179586
+    url: https://en.wikipedia.org/wiki/Turn_(angle)#Tau_proposals
+  kind: numeric
+  raw_text: 'Use values from Ioannidis et al. (2008): tau^2 = 0.04, mean_effect =
+    0.3, bias = 0.1, study_count_range = [3, 50]'
+  resolved_value: '6'
+  resolver: approximate
+  source_hash: d0a1b8a5b40995feb696dbce9ae211b0e3e5520e8676d5fd1b9d8448cdea0647
+  source_type: external
+  status: verified
+  updated_at: '2026-07-05T22:36:39Z'
+- artifact_path: projects/PROJ-529-assessing-the-impact-of-sample-size-on-t/specs/001-assessing-the-impact-of-sample-size-on-t/tasks.md
+  attempts: 0
+  canonical: 'Ioannidis et al. 2008 simulation parameters: tau^2=0.04, mean_effect=0.3,
+    bias=0.1, study_count_range=[3, 50]'
+  claim_id: c_8ce3db45
+  context: 'T019 [US1] Implement parameter generation and synthetic data generation
+    in code/download.py as a fallback triggered ONLY if T012/T012a confirm failure.
+    Parameters: Use values from Ioannidis et al. (2008): tau^2 = 0.04, mean_effect
+    = 0.3, bias = 0.1, study_count_range = [3, 50].'
+  evidence:
+    asserted: '2008.0'
+    authority: math.tau (IEEE-754 double, Python stdlib)
+    constant: tau
+    corrected: true
+    mode: approximate
+    true_value: 6.283185307179586
+    url: https://en.wikipedia.org/wiki/Turn_(angle)#Tau_proposals
+  kind: numeric
+  raw_text: 'Use values from Ioannidis et al. (2008): tau^2 = 0.04, mean_effect =
+    0.3, bias = 0.1, study_count_range = [3, 50].'
+  resolved_value: '6'
+  resolver: approximate
+  source_hash: d0a1b8a5b40995feb696dbce9ae211b0e3e5520e8676d5fd1b9d8448cdea0647
+  source_type: external
+  status: verified
+  updated_at: '2026-07-05T22:38:58Z'
+- artifact_path: projects/PROJ-529-assessing-the-impact-of-sample-size-on-t/specs/001-assessing-the-impact-of-sample-size-on-t/tasks.md
+  attempts: 1
+  canonical: Data sources for meta-analyses are Cochrane Library and Campbell Collaboration
+  claim_id: c_76ad5646
+  context: 'T012 [US1] Implement code/download.py to fetch a substantial corpus of
+    meta-analyses from Cochrane/Campbell. Mandatory: Use specific search parameters...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Data_sources_for_meta-analyses_are_Cochrane_Library_and_Camp
+  kind: entity_fact
+  raw_text: Implement code/download.py to fetch a substantial corpus of meta-analyses
+    from Cochrane/Campbell.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T22:39:17Z'
+- artifact_path: projects/PROJ-529-assessing-the-impact-of-sample-size-on-t/specs/001-assessing-the-impact-of-sample-size-on-t/tasks.md
+  attempts: 1
+  canonical: Coverage rate stabilization threshold is within 2% of nominal target
+  claim_id: c_c5c51fc3
+  context: T034 [US3] Implement code/analysis.py to identify minimum k where coverage
+    rate stabilizes within +/-2% of the nominal target read from code/config.py (T009a)
+    (SC-003, FR-007).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Identify minimum k where coverage rate stabilizes within +/-2% of the
+    nominal target.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T22:39:17Z'
+- artifact_path: projects/PROJ-529-assessing-the-impact-of-sample-size-on-t/specs/001-assessing-the-impact-of-sample-size-on-t/tasks.md
+  attempts: 1
+  canonical: Full bootstrap analysis runtime limit is 6 hours on 2 CPU cores
+  claim_id: c_2eac477e
+  context: 'T040 Performance optimization: Ensure full bootstrap analysis runs within
+    6 hours on 2 CPU cores'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Ensure full bootstrap analysis runs within 6 hours on 2 CPU cores.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T22:39:17Z'
+- artifact_path: projects/PROJ-529-assessing-the-impact-of-sample-size-on-t/specs/001-assessing-the-impact-of-sample-size-on-t/tasks.md
+  attempts: 0
+  canonical: 'Ioannidis et al. 2008 simulation parameters: tau2=0.04, mean_effect=0.3,
+    bias=0.1, study_count_range=[3, 50]'
+  claim_id: c_22e6f87a
+  context: 'Implement parameter generation and synthetic data generation in code/download.py
+    as a fallback triggered ONLY if T012/T012a confirm failure. Parameters: Use values
+    from Ioannidis et al. (2008): tau^2 = 0.04, mean_effect = 0.3, bias = 0.1, study_count_range
+    = [3, 50].'
+  evidence:
+    asserted: '2008.0'
+    authority: math.tau (IEEE-754 double, Python stdlib)
+    constant: tau
+    corrected: true
+    mode: approximate
+    true_value: 6.283185307179586
+    url: https://en.wikipedia.org/wiki/Turn_(angle)#Tau_proposals
+  kind: numeric
+  raw_text: 'Use values from Ioannidis et al. (2008): tau^2 = 0.04, mean_effect =
+    0.3, bias = 0.1, study_count_range = [3, 50].'
+  resolved_value: '6'
+  resolver: approximate
+  source_hash: d0a1b8a5b40995feb696dbce9ae211b0e3e5520e8676d5fd1b9d8448cdea0647
+  source_type: external
+  status: verified
+  updated_at: '2026-07-05T22:41:54Z'
+- artifact_path: projects/PROJ-529-assessing-the-impact-of-sample-size-on-t/specs/001-assessing-the-impact-of-sample-size-on-t/tasks.md
+  attempts: 0
+  canonical: Threshold detection inflection point defined as derivative less than
+    0.05
+  claim_id: c_05d56f6d
+  context: 'Implement code/analysis.py to detect inflection point where derivative
+    < 0.05 (unit: change in SD per unit k) and model fit (p < 0.05) is significantly
+    better than linear.'
+  evidence:
+    asserted: '0.05'
+    authority: scipy.constants.k (CODATA 2018, exact by SI definition)
+    constant: boltzmann
+    corrected: true
+    mode: approximate
+    true_value: 1.380649e-23
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?k
+  kind: magnitude
+  raw_text: 'Detect inflection point where derivative < 0.05 (unit: change in SD per
+    unit k).'
+  resolved_value: '0'
+  resolver: approximate
+  source_hash: 2bfb0d3513311088eea23af05f5f28fc2ef73a6a80811bbb243001626363f07f
+  source_type: external
+  status: verified
+  updated_at: '2026-07-05T22:41:54Z'
+- artifact_path: projects/PROJ-529-assessing-the-impact-of-sample-size-on-t/specs/001-assessing-the-impact-of-sample-size-on-t/tasks.md
+  attempts: 1
+  canonical: Generalized Additive Model uses cubic basis with 3 smoothing parameters
+  claim_id: c_f22e8542
+  context: 'Implement code/analysis.py to fit a Generalized Additive Model (GAM) (Primary
+    Method per FR-006) to stability metrics. Parameters: Use cubic basis with k=3
+    smoothing.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use cubic basis with k=3 smoothing.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T22:42:11Z'
+- artifact_path: projects/PROJ-529-assessing-the-impact-of-sample-size-on-t/specs/001-assessing-the-impact-of-sample-size-on-t/tasks.md
+  attempts: 1
+  canonical: Coverage rate stabilization threshold is within 2% of nominal target
+  claim_id: c_0842b2ec
+  context: "Implement code/analysis.py to identify minimum k where coverage rate stabilizes\
+    \ within \xB12% of the nominal target read from code/config.py (T009a) (SC-003,\
+    \ FR-007)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Identify minimum k where coverage rate stabilizes within \xB12% of the\
+    \ nominal target."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T22:42:11Z'
+- artifact_path: projects/PROJ-529-assessing-the-impact-of-sample-size-on-t/specs/001-assessing-the-impact-of-sample-size-on-t/tasks.md
+  attempts: 1
+  canonical: Full bootstrap analysis runtime limit is 6 hours on 2 CPU cores
+  claim_id: c_1e99a8ea
+  context: 'Performance optimization: Ensure full bootstrap analysis runs within 6
+    hours on 2 CPU cores'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Ensure full bootstrap analysis runs within 6 hours on 2 CPU cores.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T22:42:11Z'
+- artifact_path: projects/PROJ-529-assessing-the-impact-of-sample-size-on-t/specs/001-assessing-the-impact-of-sample-size-on-t/tasks.md
+  attempts: 1
+  canonical: Generate up to 100 bootstrap subsamples per study count k
+  claim_id: c_db0a5032
+  context: Implement code/subsample.py to generate up to 100 bootstrap subsamples
+    for each k (3 to N), logging seeds and handling k < 3 edge cases.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate up to 100 bootstrap subsamples for each k (3 to N).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T22:42:11Z'
+- artifact_path: projects/PROJ-529-assessing-the-impact-of-sample-size-on-t/specs/001-assessing-the-impact-of-sample-size-on-t/tasks.md
+  attempts: 1
+  canonical: System handles potential corpus size greater than 7GB
+  claim_id: c_5ff10786
+  context: Implement chunked data processing framework in code/utils/io.py to handle
+    >7GB potential corpus, ensuring memory safety for real-world data acquisition
+    (FR-001).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/System_handles_potential_corpus_size_greater_than_7GB
+  kind: magnitude
+  raw_text: Handle >7GB potential corpus.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T22:42:24Z'
+- artifact_path: projects/PROJ-529-assessing-the-impact-of-sample-size-on-t/specs/001-assessing-the-impact-of-sample-size-on-t/tasks.md
+  attempts: 0
+  canonical: 'Ioannidis et al. 2008 simulation parameters: tau-squared 0.04, mean
+    effect 0.3, bias 0.1, study count range 3 to 50'
+  claim_id: c_06303d88
+  context: 'T019 [US1] Implement parameter generation and synthetic data generation
+    in code/download.py as a fallback triggered ONLY if T012/T012a confirm failure.
+    Parameters: Use values from Ioannidis et al. (2008): tau^2 = 0.04, mean_effect
+    = 0.3, bias = 0.1, study_count_range = [3, 50].'
+  evidence:
+    asserted: '2008.0'
+    authority: math.tau (IEEE-754 double, Python stdlib)
+    constant: tau
+    corrected: true
+    mode: approximate
+    true_value: 6.283185307179586
+    url: https://en.wikipedia.org/wiki/Turn_(angle)#Tau_proposals
+  kind: numeric
+  raw_text: 'Use values from Ioannidis et al. (2008): tau^2 = 0.04, mean_effect =
+    0.3, bias = 0.1, study_count_range = [3, 50]'
+  resolved_value: '6'
+  resolver: approximate
+  source_hash: d0a1b8a5b40995feb696dbce9ae211b0e3e5520e8676d5fd1b9d8448cdea0647
+  source_type: external
+  status: verified
+  updated_at: '2026-07-05T22:42:57Z'
+- artifact_path: projects/PROJ-529-assessing-the-impact-of-sample-size-on-t/specs/001-assessing-the-impact-of-sample-size-on-t/tasks.md
+  attempts: 0
+  canonical: 'Ioannidis et al. 2008 simulation parameters: tau^2=0.04, mean_effect=0.3,
+    bias=0.1, study_count_range=[3,50]'
+  claim_id: c_69e9eb27
+  context: 'Implement parameter generation and synthetic data generation in code/download.py
+    as a fallback triggered ONLY if T012/T012a confirm failure. Parameters: Use values
+    from Ioannidis et al. (2008)...'
+  evidence:
+    asserted: '2008.0'
+    authority: math.tau (IEEE-754 double, Python stdlib)
+    constant: tau
+    corrected: true
+    mode: approximate
+    true_value: 6.283185307179586
+    url: https://en.wikipedia.org/wiki/Turn_(angle)#Tau_proposals
+  kind: numeric
+  raw_text: 'Use values from Ioannidis et al. (2008): tau^2 = 0.04, mean_effect =
+    0.3, bias = 0.1, study_count_range = [3, 50].'
+  resolved_value: '6'
+  resolver: approximate
+  source_hash: d0a1b8a5b40995feb696dbce9ae211b0e3e5520e8676d5fd1b9d8448cdea0647
+  source_type: external
+  status: verified
+  updated_at: '2026-07-05T22:43:26Z'
+- artifact_path: projects/PROJ-529-assessing-the-impact-of-sample-size-on-t/specs/001-assessing-the-impact-of-sample-size-on-t/tasks.md
+  attempts: 0
+  canonical: Threshold detection identifies inflection point where derivative is less
+    than 0.05
+  claim_id: c_411dd421
+  context: 'Implement code/analysis.py to detect inflection point where derivative
+    < 0.05 (unit: change in SD per unit k)...'
+  evidence:
+    asserted: '0.05'
+    authority: scipy.constants.k (CODATA 2018, exact by SI definition)
+    constant: boltzmann
+    corrected: true
+    mode: approximate
+    true_value: 1.380649e-23
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?k
+  kind: magnitude
+  raw_text: Detect inflection point where derivative < 0.05.
+  resolved_value: '0'
+  resolver: approximate
+  source_hash: 2bfb0d3513311088eea23af05f5f28fc2ef73a6a80811bbb243001626363f07f
+  source_type: external
+  status: verified
+  updated_at: '2026-07-05T22:43:27Z'
+- artifact_path: projects/PROJ-529-assessing-the-impact-of-sample-size-on-t/specs/001-assessing-the-impact-of-sample-size-on-t/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis perturbs reference value by its standard error
+  claim_id: c_d5a848c8
+  context: Implement sensitivity analysis in code/metrics.py by perturbing the reference
+    value (full-sample estimate) by its SE (FR-009).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Sensitivity_analysis_perturbs_reference_value_by_its_standar
+  kind: entity_fact
+  raw_text: Perturb the reference value (full-sample estimate) by its SE.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T22:43:50Z'
+- artifact_path: projects/PROJ-529-assessing-the-impact-of-sample-size-on-t/specs/001-assessing-the-impact-of-sample-size-on-t/tasks.md
+  attempts: 1
+  canonical: GAM implementation uses cubic basis with 3 smoothing knots
+  claim_id: c_722a8b3e
+  context: 'Implement code/analysis.py to fit a Generalized Additive Model (GAM)...
+    Parameters: Use cubic basis with k=3 smoothing.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use cubic basis with k=3 smoothing.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T22:43:51Z'
+- artifact_path: projects/PROJ-529-assessing-the-impact-of-sample-size-on-t/specs/001-assessing-the-impact-of-sample-size-on-t/tasks.md
+  attempts: 1
+  canonical: Identify minimum k where coverage rate stabilizes within 2% of nominal
+    target
+  claim_id: c_207c77c0
+  context: "Implement code/analysis.py to identify minimum k where coverage rate stabilizes\
+    \ within \xB12% of the nominal target read from code/config.py (T009a)..."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Identify minimum k where coverage rate stabilizes within \xB12% of the\
+    \ nominal target."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T22:43:51Z'
+- artifact_path: projects/PROJ-529-assessing-the-impact-of-sample-size-on-t/specs/001-assessing-the-impact-of-sample-size-on-t/tasks.md
+  attempts: 1
+  canonical: Full bootstrap analysis performance target is 6 hours on 2 CPU cores
+  claim_id: c_e485a917
+  context: 'Performance optimization: Ensure full bootstrap analysis runs within 6
+    hours on 2 CPU cores'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Ensure full bootstrap analysis runs within 6 hours on 2 CPU cores.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T22:43:51Z'
+- artifact_path: projects/PROJ-529-assessing-the-impact-of-sample-size-on-t/specs/001-assessing-the-impact-of-sample-size-on-t/tasks.md
+  attempts: 0
+  canonical: 'Simulation parameters from Ioannidis et al. (2008): tau^2=0.04, mean_effect=0.3,
+    bias=0.1, study_count_range=[3,50]'
+  claim_id: c_33769bfc
+  context: 'Implement parameter generation and synthetic data generation in code/download.py
+    as a fallback triggered ONLY if T012/T012a confirm failure. Parameters: Use values
+    from Ioannidis et al. (2008): tau^2 = 0.04, mean_effect = 0.3, bias = 0.1, study_count_range
+    = [3, 50].'
+  evidence:
+    asserted: '2008.0'
+    authority: math.tau (IEEE-754 double, Python stdlib)
+    constant: tau
+    corrected: true
+    mode: approximate
+    true_value: 6.283185307179586
+    url: https://en.wikipedia.org/wiki/Turn_(angle)#Tau_proposals
+  kind: numeric
+  raw_text: 'Use values from Ioannidis et al. (2008): tau^2 = 0.04, mean_effect =
+    0.3, bias = 0.1, study_count_range = [3, 50]'
+  resolved_value: '6'
+  resolver: approximate
+  source_hash: d0a1b8a5b40995feb696dbce9ae211b0e3e5520e8676d5fd1b9d8448cdea0647
+  source_type: external
+  status: verified
+  updated_at: '2026-07-05T22:45:18Z'
+- artifact_path: projects/PROJ-529-assessing-the-impact-of-sample-size-on-t/specs/001-assessing-the-impact-of-sample-size-on-t/tasks.md
+  attempts: 0
+  canonical: 'Ioannidis et al. 2008 simulation parameters: tau^2 0.04, mean effect
+    0.3, bias 0.1, study count range 3-50'
+  claim_id: c_9d7b3c0b
+  context: 'T019 [US1] Implement parameter generation and synthetic data generation
+    in code/download.py as a fallback triggered ONLY if T012/T012a confirm failure.
+    Parameters: Use values from Ioannidis et al. (2008): tau^2 = 0.04, mean_effect
+    = 0.3, bias = 0.1, study_count_range = [3, 50].'
+  evidence:
+    asserted: '2008.0'
+    authority: math.tau (IEEE-754 double, Python stdlib)
+    constant: tau
+    corrected: true
+    mode: approximate
+    true_value: 6.283185307179586
+    url: https://en.wikipedia.org/wiki/Turn_(angle)#Tau_proposals
+  kind: numeric
+  raw_text: 'Use values from Ioannidis et al. (2008): tau^2 = 0.04, mean_effect =
+    0.3, bias = 0.1, study_count_range = [3, 50].'
+  resolved_value: '6'
+  resolver: approximate
+  source_hash: d0a1b8a5b40995feb696dbce9ae211b0e3e5520e8676d5fd1b9d8448cdea0647
+  source_type: external
+  status: verified
+  updated_at: '2026-07-05T22:45:51Z'
+- artifact_path: projects/PROJ-529-assessing-the-impact-of-sample-size-on-t/specs/001-assessing-the-impact-of-sample-size-on-t/tasks.md
+  attempts: 1
+  canonical: Generate up to 100 bootstrap subsamples for each study count k from 3
+    to N
+  claim_id: c_ad069678
+  context: T016 [US1] Implement code/subsample.py to generate up to 100 bootstrap
+    subsamples for each k (3 to N), logging seeds and handling k < 3 edge cases.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate up to 100 bootstrap subsamples for each k (3 to N).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T22:45:51Z'
+- artifact_path: projects/PROJ-529-assessing-the-impact-of-sample-size-on-t/specs/001-assessing-the-impact-of-sample-size-on-t/tasks.md
+  attempts: 1
+  canonical: Identify minimum study count k where coverage rate stabilizes within
+    2 percent of nominal target
+  claim_id: c_8c8e3646
+  context: T034 [US3] Implement code/analysis.py to identify minimum k where coverage
+    rate stabilizes within +/-2% of the nominal target read from code/config.py (T009a)
+    (SC-003, FR-007).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Identify minimum k where coverage rate stabilizes within +/-2% of the
+    nominal target.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T22:45:52Z'
+- artifact_path: projects/PROJ-529-assessing-the-impact-of-sample-size-on-t/specs/001-assessing-the-impact-of-sample-size-on-t/tasks.md
+  attempts: 1
+  canonical: Use cubic basis with k equals 3 smoothing for GAM
+  claim_id: c_0e27cfc3
+  context: 'T031 [US3] Implement code/analysis.py to fit a Generalized Additive Model
+    (GAM) (Primary Method per FR-006) to stability metrics. Parameters: Use cubic
+    basis with k=3 smoothing.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use cubic basis with k=3 smoothing.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T22:45:52Z'
+- artifact_path: projects/PROJ-529-assessing-the-impact-of-sample-size-on-t/specs/001-assessing-the-impact-of-sample-size-on-t/tasks.md
+  attempts: 1
+  canonical: Handle potential corpus larger than 7 GB
+  claim_id: c_0767827b
+  context: T006 [P] Implement chunked data processing framework in code/utils/io.py
+    to handle >7GB potential corpus, ensuring memory safety for real-world data acquisition
+    (FR-001).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Handle >7GB potential corpus.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T22:45:52Z'
+- artifact_path: projects/PROJ-529-assessing-the-impact-of-sample-size-on-t/specs/001-assessing-the-impact-of-sample-size-on-t/tasks.md
+  attempts: 0
+  canonical: 'Simulation parameters from Ioannidis et al. 2008: tau^2 0.04, mean effect
+    0.3, bias 0.1, study count 3 to 50'
+  claim_id: c_e12f70ba
+  context: 'Implement parameter generation and synthetic data generation in code/download.py
+    as a fallback triggered ONLY if T012/T012a confirm failure. Parameters: Use values
+    from Ioannidis et al. (2008)...'
+  evidence:
+    asserted: '2008.0'
+    authority: math.tau (IEEE-754 double, Python stdlib)
+    constant: tau
+    corrected: true
+    mode: approximate
+    true_value: 6.283185307179586
+    url: https://en.wikipedia.org/wiki/Turn_(angle)#Tau_proposals
+  kind: numeric
+  raw_text: 'Use values from Ioannidis et al. (2008): tau^2 = 0.04, mean_effect =
+    0.3, bias = 0.1, study_count_range = [3, 50]'
+  resolved_value: '6'
+  resolver: approximate
+  source_hash: d0a1b8a5b40995feb696dbce9ae211b0e3e5520e8676d5fd1b9d8448cdea0647
+  source_type: external
+  status: verified
+  updated_at: '2026-07-05T22:46:24Z'
+- artifact_path: projects/PROJ-529-assessing-the-impact-of-sample-size-on-t/specs/001-assessing-the-impact-of-sample-size-on-t/tasks.md
+  attempts: 0
+  canonical: 'Simulation parameters from Ioannidis et al. 2008: tau^2 0.04, mean effect
+    0.3, bias 0.1, study count range 3 to 50'
+  claim_id: c_5fe0253d
+  context: 'T019 [US1] Implement parameter generation and synthetic data generation
+    in code/download.py as a fallback... Parameters: Use values from Ioannidis et
+    al. (2008)...'
+  evidence:
+    asserted: '2008.0'
+    authority: math.tau (IEEE-754 double, Python stdlib)
+    constant: tau
+    corrected: true
+    mode: approximate
+    true_value: 6.283185307179586
+    url: https://en.wikipedia.org/wiki/Turn_(angle)#Tau_proposals
+  kind: numeric
+  raw_text: 'Use values from Ioannidis et al. (2008): tau^2 = 0.04, mean_effect =
+    0.3, bias = 0.1, study_count_range = [3, 50].'
+  resolved_value: '6'
+  resolver: approximate
+  source_hash: d0a1b8a5b40995feb696dbce9ae211b0e3e5520e8676d5fd1b9d8448cdea0647
+  source_type: external
+  status: verified
+  updated_at: '2026-07-05T22:47:14Z'
+- artifact_path: projects/PROJ-529-assessing-the-impact-of-sample-size-on-t/specs/001-assessing-the-impact-of-sample-size-on-t/tasks.md
+  attempts: 1
+  canonical: Generate up to 100 bootstrap subsamples for each study count k
+  claim_id: c_1128a417
+  context: T016 [US1] Implement code/subsample.py to generate up to 100 bootstrap
+    subsamples for each k (3 to N)...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate up to 100 bootstrap subsamples for each k (3 to N).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T22:47:15Z'
+- artifact_path: projects/PROJ-529-assessing-the-impact-of-sample-size-on-t/specs/001-assessing-the-impact-of-sample-size-on-t/tasks.md
+  attempts: 1
+  canonical: Identify minimum study count k where coverage rate stabilizes within
+    plus or minus 2 percent of nominal target
+  claim_id: c_61b8e453
+  context: "T034 [US3] Implement code/analysis.py to identify minimum k where coverage\
+    \ rate stabilizes within \xB12% of the nominal target read from code/config.py\
+    \ (T009a) (SC-003, FR-007)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Identify minimum k where coverage rate stabilizes within \xB12% of the\
+    \ nominal target."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T22:47:15Z'
+- artifact_path: projects/PROJ-529-assessing-the-impact-of-sample-size-on-t/specs/001-assessing-the-impact-of-sample-size-on-t/tasks.md
+  attempts: 2
+  canonical: Full bootstrap analysis must run within 6 hours on 2 CPU cores
+  claim_id: c_02cc4f00
+  context: 'T040 Performance optimization: Ensure full bootstrap analysis runs within
+    6 hours on 2 CPU cores'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Ensure full bootstrap analysis runs within 6 hours on 2 CPU cores.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T22:47:15Z'
+- artifact_path: projects/PROJ-529-assessing-the-impact-of-sample-size-on-t/specs/001-assessing-the-impact-of-sample-size-on-t/tasks.md
+  attempts: 0
+  canonical: 'Simulation parameters from Ioannidis et al. 2008: tau^2=0.04, mean_effect=0.3,
+    bias=0.1, study_count_range=[3,50]'
+  claim_id: c_a69b56a1
+  context: 'Implement parameter generation and synthetic data generation in code/download.py
+    as a fallback triggered ONLY if T012/T012a confirm failure. Parameters: Use values
+    from Ioannidis et al. (2008)...'
+  evidence:
+    asserted: '2008.0'
+    authority: math.tau (IEEE-754 double, Python stdlib)
+    constant: tau
+    corrected: true
+    mode: approximate
+    true_value: 6.283185307179586
+    url: https://en.wikipedia.org/wiki/Turn_(angle)#Tau_proposals
+  kind: numeric
+  raw_text: 'Use values from Ioannidis et al. (2008): tau^2 = 0.04, mean_effect =
+    0.3, bias = 0.1, study_count_range = [3, 50].'
+  resolved_value: '6'
+  resolver: approximate
+  source_hash: d0a1b8a5b40995feb696dbce9ae211b0e3e5520e8676d5fd1b9d8448cdea0647
+  source_type: external
+  status: verified
+  updated_at: '2026-07-05T22:51:12Z'
+- artifact_path: projects/PROJ-529-assessing-the-impact-of-sample-size-on-t/specs/001-assessing-the-impact-of-sample-size-on-t/tasks.md
+  attempts: 1
+  canonical: GAM model uses cubic basis with k=3 smoothing parameter
+  claim_id: c_dd26e9a5
+  context: 'Implement code/analysis.py to fit a Generalized Additive Model (GAM)...
+    Parameters: Use cubic basis with k=3 smoothing.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use cubic basis with k=3 smoothing.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T22:51:13Z'
+- artifact_path: projects/PROJ-529-assessing-the-impact-of-sample-size-on-t/specs/001-assessing-the-impact-of-sample-size-on-t/tasks.md
+  attempts: 1
+  canonical: Threshold detection requires derivative < 0.05
+  claim_id: c_b9942d7e
+  context: 'Implement code/analysis.py to detect inflection point where derivative
+    < 0.05 (unit: change in SD per unit k) and model fit (p < 0.05) is significantly
+    better than linear.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Detect inflection point where derivative < 0.05.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T22:51:13Z'
+- artifact_path: projects/PROJ-529-assessing-the-impact-of-sample-size-on-t/specs/001-assessing-the-impact-of-sample-size-on-t/tasks.md
+  attempts: 0
+  canonical: 'Simulation parameters from Ioannidis et al. 2008: tau squared 0.04,
+    mean effect 0.3, bias 0.1, study count range 3 to 50'
+  claim_id: c_848a1a88
+  context: Task T019 specifies implementing synthetic data generation using parameters
+    from Ioannidis et al. (2008) as a fallback.
+  evidence:
+    asserted: '2008.0'
+    authority: math.tau (IEEE-754 double, Python stdlib)
+    constant: tau
+    corrected: true
+    mode: approximate
+    true_value: 6.283185307179586
+    url: https://en.wikipedia.org/wiki/Turn_(angle)#Tau_proposals
+  kind: numeric
+  raw_text: 'Use values from Ioannidis et al. (2008): tau^2 = 0.04, mean_effect =
+    0.3, bias = 0.1, study_count_range = [3, 50].'
+  resolved_value: '6'
+  resolver: approximate
+  source_hash: d0a1b8a5b40995feb696dbce9ae211b0e3e5520e8676d5fd1b9d8448cdea0647
+  source_type: external
+  status: verified
+  updated_at: '2026-07-05T22:51:45Z'
+- artifact_path: projects/PROJ-529-assessing-the-impact-of-sample-size-on-t/specs/001-assessing-the-impact-of-sample-size-on-t/tasks.md
+  attempts: 0
+  canonical: 'Simulation parameters from Ioannidis et al. 2008: tau^2=0.04, mean_effect=0.3,
+    bias=0.1, study_count_range=3-50'
+  claim_id: c_6658bdc8
+  context: 'Implement parameter generation and synthetic data generation in code/download.py
+    as a fallback triggered ONLY if T012/T012a confirm failure. Parameters: Use values
+    from Ioannidis et al. (2008): tau^2 = 0.04, mean_effect = 0.3, bias = 0.1, study_count_range
+    = [3, 50].'
+  evidence:
+    asserted: '2008.0'
+    authority: math.tau (IEEE-754 double, Python stdlib)
+    constant: tau
+    corrected: true
+    mode: approximate
+    true_value: 6.283185307179586
+    url: https://en.wikipedia.org/wiki/Turn_(angle)#Tau_proposals
+  kind: numeric
+  raw_text: 'Use values from Ioannidis et al. (2008): tau^2 = 0.04, mean_effect =
+    0.3, bias = 0.1, study_count_range = [3, 50].'
+  resolved_value: '6'
+  resolver: approximate
+  source_hash: d0a1b8a5b40995feb696dbce9ae211b0e3e5520e8676d5fd1b9d8448cdea0647
+  source_type: external
+  status: verified
+  updated_at: '2026-07-05T22:51:52Z'
+- artifact_path: projects/PROJ-529-assessing-the-impact-of-sample-size-on-t/specs/001-assessing-the-impact-of-sample-size-on-t/tasks.md
+  attempts: 0
+  canonical: 'simulation parameters from Ioannidis et al. 2008: tau^2 0.04, mean effect
+    0.3, bias 0.1, study count 3 to 50'
+  claim_id: c_f943b1ef
+  context: 'T019 [US1] Implement parameter generation and synthetic data generation
+    in code/download.py as a fallback triggered ONLY if T012/T012a confirm failure.
+    Parameters: Use values from Ioannidis et al. (2008)...'
+  evidence:
+    asserted: '2008.0'
+    authority: math.tau (IEEE-754 double, Python stdlib)
+    constant: tau
+    corrected: true
+    mode: approximate
+    true_value: 6.283185307179586
+    url: https://en.wikipedia.org/wiki/Turn_(angle)#Tau_proposals
+  kind: numeric
+  raw_text: 'Use values from Ioannidis et al. (2008): tau^2 = 0.04, mean_effect =
+    0.3, bias = 0.1, study_count_range = [3, 50].'
+  resolved_value: '6'
+  resolver: approximate
+  source_hash: d0a1b8a5b40995feb696dbce9ae211b0e3e5520e8676d5fd1b9d8448cdea0647
+  source_type: external
+  status: verified
+  updated_at: '2026-07-05T22:54:06Z'
+- artifact_path: projects/PROJ-529-assessing-the-impact-of-sample-size-on-t/specs/001-assessing-the-impact-of-sample-size-on-t/tasks.md
+  attempts: 0
+  canonical: inflection point detection threshold is derivative less than 0.05
+  claim_id: c_deacebb5
+  context: 'T032 [US3] Implement code/analysis.py to detect inflection point where
+    derivative < 0.05 (unit: change in SD per unit k) and model fit (p < 0.05) is
+    significantly better than linear.'
+  evidence:
+    asserted: '0.05'
+    authority: scipy.constants.k (CODATA 2018, exact by SI definition)
+    constant: boltzmann
+    corrected: true
+    mode: approximate
+    true_value: 1.380649e-23
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?k
+  kind: magnitude
+  raw_text: Detect inflection point where derivative < 0.05.
+  resolved_value: '0'
+  resolver: approximate
+  source_hash: 2bfb0d3513311088eea23af05f5f28fc2ef73a6a80811bbb243001626363f07f
+  source_type: external
+  status: verified
+  updated_at: '2026-07-05T22:54:07Z'
+- artifact_path: projects/PROJ-529-assessing-the-impact-of-sample-size-on-t/specs/001-assessing-the-impact-of-sample-size-on-t/tasks.md
+  attempts: 1
+  canonical: generate up to 100 bootstrap subsamples per k value
+  claim_id: c_dbd29013
+  context: T016 [US1] Implement code/subsample.py to generate up to 100 bootstrap
+    subsamples for each k (3 to N), logging seeds and handling k < 3 edge cases.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate up to 100 bootstrap subsamples for each k (3 to N).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T22:54:07Z'
+- artifact_path: projects/PROJ-529-assessing-the-impact-of-sample-size-on-t/specs/001-assessing-the-impact-of-sample-size-on-t/tasks.md
+  attempts: 1
+  canonical: coverage rate stabilization threshold is within 2 percent of nominal
+    target
+  claim_id: c_692694f2
+  context: T034 [US3] Implement code/analysis.py to identify minimum k where coverage
+    rate stabilizes within +/-2% of the nominal target read from code/config.py (T009a)
+    (SC-003, FR-007).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Identify minimum k where coverage rate stabilizes within +/-2% of the
+    nominal target.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T22:54:08Z'
+- artifact_path: projects/PROJ-529-assessing-the-impact-of-sample-size-on-t/specs/001-assessing-the-impact-of-sample-size-on-t/tasks.md
+  attempts: 1
+  canonical: full bootstrap analysis runtime limit is 6 hours on 2 CPU cores
+  claim_id: c_89ef0b8c
+  context: 'T040 Performance optimization: Ensure full bootstrap analysis runs within
+    6 hours on 2 CPU cores'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Ensure full bootstrap analysis runs within 6 hours on 2 CPU cores.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T22:54:08Z'
+- artifact_path: projects/PROJ-529-assessing-the-impact-of-sample-size-on-t/specs/001-assessing-the-impact-of-sample-size-on-t/tasks.md
+  attempts: 0
+  canonical: 'Simulation parameters from Ioannidis et al. 2008: tau^2=0.04, mean_effect=0.3,
+    bias=0.1, study_count_range=[3, 50]'
+  claim_id: c_cae5d335
+  context: Task T019 [US1] Implement parameter generation and synthetic data generation
+    in code/download.py as a fallback triggered ONLY if T012/T012a confirm failure.
+  evidence:
+    asserted: '2008.0'
+    authority: math.tau (IEEE-754 double, Python stdlib)
+    constant: tau
+    corrected: true
+    mode: approximate
+    true_value: 6.283185307179586
+    url: https://en.wikipedia.org/wiki/Turn_(angle)#Tau_proposals
+  kind: numeric
+  raw_text: 'Use values from Ioannidis et al. (2008): tau^2 = 0.04, mean_effect =
+    0.3, bias = 0.1, study_count_range = [3, 50].'
+  resolved_value: '6'
+  resolver: approximate
+  source_hash: d0a1b8a5b40995feb696dbce9ae211b0e3e5520e8676d5fd1b9d8448cdea0647
+  source_type: external
+  status: verified
+  updated_at: '2026-07-05T22:59:19Z'
+- artifact_path: projects/PROJ-529-assessing-the-impact-of-sample-size-on-t/specs/001-assessing-the-impact-of-sample-size-on-t/tasks.md
+  attempts: 0
+  canonical: Inflection point detected when derivative is less than 0.05
+  claim_id: c_ee639f8e
+  context: 'Implement code/analysis.py to detect inflection point where derivative
+    < 0.05 (unit: change in SD per unit k) and model fit (p < 0.05) is significantly
+    better than linear.'
+  evidence:
+    asserted: '0.05'
+    authority: scipy.constants.k (CODATA 2018, exact by SI definition)
+    constant: boltzmann
+    corrected: true
+    mode: approximate
+    true_value: 1.380649e-23
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?k
+  kind: magnitude
+  raw_text: 'Detect inflection point where derivative < 0.05 (unit: change in SD per
+    unit k)'
+  resolved_value: '0'
+  resolver: approximate
+  source_hash: 2bfb0d3513311088eea23af05f5f28fc2ef73a6a80811bbb243001626363f07f
+  source_type: external
+  status: verified
+  updated_at: '2026-07-05T23:01:05Z'
+- artifact_path: projects/PROJ-529-assessing-the-impact-of-sample-size-on-t/specs/001-assessing-the-impact-of-sample-size-on-t/tasks.md
+  attempts: 3
+  canonical: Generate up to 100 bootstrap subsamples per k value
+  claim_id: c_2c0d6a4f
+  context: Implement code/subsample.py to generate up to 100 bootstrap subsamples
+    for each k (3 to N), logging seeds and handling k < 3 edge cases.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate up to 100 bootstrap subsamples for each k (3 to N).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T23:01:06Z'
+- artifact_path: projects/PROJ-529-assessing-the-impact-of-sample-size-on-t/specs/001-assessing-the-impact-of-sample-size-on-t/tasks.md
+  attempts: 1
+  canonical: GAM model uses cubic basis with k=3 smoothing
+  claim_id: c_02d4b0fb
+  context: 'Implement code/analysis.py to fit a Generalized Additive Model (GAM) (Primary
+    Method per FR-006) to stability metrics. Target Variable: stability SD (y-axis)
+    vs study count k (x-axis). Parameters: Use cubic basis with k=3 smoothing.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use cubic basis with k=3 smoothing
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T23:01:06Z'
+- artifact_path: projects/PROJ-529-assessing-the-impact-of-sample-size-on-t/specs/001-assessing-the-impact-of-sample-size-on-t/tasks.md
+  attempts: 2
+  canonical: Coverage rate stabilizes within 2% of nominal target
+  claim_id: c_05a19283
+  context: Implement code/analysis.py to identify minimum k where coverage rate stabilizes
+    within +/-2% of the nominal target read from code/config.py (T009a) (SC-003, FR-007).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Identify minimum k where coverage rate stabilizes within +/-2% of the
+    nominal target.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T23:01:06Z'
+- artifact_path: projects/PROJ-529-assessing-the-impact-of-sample-size-on-t/specs/001-assessing-the-impact-of-sample-size-on-t/tasks.md
+  attempts: 1
+  canonical: Full bootstrap analysis completes within 6 hours on 2 CPU cores
+  claim_id: c_c1f92253
+  context: 'Performance optimization: Ensure full bootstrap analysis runs within 6
+    hours on 2 CPU cores'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Ensure full bootstrap analysis runs within 6 hours on 2 CPU cores
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T23:01:07Z'
+- artifact_path: projects/PROJ-529-assessing-the-impact-of-sample-size-on-t/specs/001-assessing-the-impact-of-sample-size-on-t/tasks.md
+  attempts: 0
+  canonical: 'Simulation parameters from Ioannidis et al. 2008: tau^2 0.04, mean effect
+    0.3, bias 0.1, study count 3-50'
+  claim_id: c_bf3a4fd4
+  context: 'Implement parameter generation and synthetic data generation in code/download.py
+    as a fallback triggered ONLY if T012/T012a confirm failure. Parameters: Use values
+    from Ioannidis et al. (2008): tau^2 = 0.04, mean_effect = 0.3, bias = 0.1, study_count_range
+    = [3, 50].'
+  evidence:
+    asserted: '2008.0'
+    authority: math.tau (IEEE-754 double, Python stdlib)
+    constant: tau
+    corrected: true
+    mode: approximate
+    true_value: 6.283185307179586
+    url: https://en.wikipedia.org/wiki/Turn_(angle)#Tau_proposals
+  kind: numeric
+  raw_text: 'Use values from Ioannidis et al. (2008): tau^2 = 0.04, mean_effect =
+    0.3, bias = 0.1, study_count_range = [3, 50]'
+  resolved_value: '6'
+  resolver: approximate
+  source_hash: d0a1b8a5b40995feb696dbce9ae211b0e3e5520e8676d5fd1b9d8448cdea0647
+  source_type: external
+  status: verified
+  updated_at: '2026-07-05T23:03:14Z'
+- artifact_path: projects/PROJ-529-assessing-the-impact-of-sample-size-on-t/specs/001-assessing-the-impact-of-sample-size-on-t/tasks.md
+  attempts: 1
+  canonical: Search parameters for Cochrane Library API and Campbell Collaboration
+    RSS
+  claim_id: c_39aceb11
+  context: 'Implement code/download.py to fetch a substantial corpus of meta-analyses
+    from Cochrane/Campbell. Mandatory: Use specific search parameters: searchString=''meta-analysis
+    effect size'' for Cochrane Library API and query=''meta-analysis'' for Campbell
+    Collaboration RSS.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Search_parameters_for_Cochrane_Library_API_and_Campbell_Coll
+  kind: entity_fact
+  raw_text: 'Use specific search parameters: searchString=''meta-analysis effect size''
+    for Cochrane Library API and query=''meta-analysis'' for Campbell Collaboration
+    RSS'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T23:04:20Z'
