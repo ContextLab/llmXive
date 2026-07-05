@@ -1,21 +1,7 @@
-? 'T001 Create project directory structure: `projects/PROJ-677-impact-of-cache-line-padding-false-sh/`
-  with `code/`, `data/`, `state/`, `.github/` directories'
-: 2
-? T002 Initialize C++17 build system (CMake or Makefile) and Python 3.11 environment
-  with `requirements.txt` (pandas, scipy, matplotlib, pydantic, pyyaml) in `projects/PROJ-677-impact-of-cache-line-padding-false-sh/code/analysis/`
-: 2
-T003 [P] Configure `.gitignore` and basic linting/formatting (clang-format for C++, black/flake8 for Python): 2
-? T004 [FR-002] [Plan-Principle-VII] Create `hardware_spec.yaml` generator script
-  in `projects/PROJ-677-impact-of-cache-line-padding-false-sh/code/analysis/hardware_detect.py`
-  to detect core count, cache line size, and set CPU governor to 'performance'
-: 2
 ? "T005 [US1] Implement memory layout verification utility `verify_layout.cpp` in\
   \ `projects/PROJ-677-impact-of-cache-line-padding-false-sh/code/benchmark/` to assert\
   \ struct sizes (24 bytes packed, \u2265192 bytes padded)"
 : 1
 ? T005 [US1] Implement memory layout verification utility `verify_layout.cpp` in `projects/PROJ-677-impact-of-cache-line-padding-false-sh/code/benchmark/`
   to {{claim:c_97e99955}}
-: 1
-? T006 [P] Create Pydantic schemas in `projects/PROJ-677-impact-of-cache-line-padding-false-sh/code/analysis/contracts/`
-  for `BenchmarkRun` and `AggregatedResult`
 : 2

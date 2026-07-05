@@ -7,7 +7,3 @@ pyyaml
 requests
 joblib
 pytest
-black
-isort
-flake8
-pylint

@@ -1,29 +1,37 @@
-#!/usr/bin/env bash
-set -euo pipefail
+#!/bin/bash
 
 # build.sh
-# Compiles the C++ benchmark binary with optimization flags.
+# Compiles the C++ benchmark harness.
 
-PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../" && pwd)"
-SRC_DIR="${PROJECT_ROOT}/code/benchmark"
-BIN_DIR="${PROJECT_ROOT}/code/benchmark"
+set -e
 
-SRC_FILE="${SRC_DIR}/counter_bench.cpp"
-OUTPUT_BIN="${BIN_DIR}/counter_bench"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
+BENCHMARK_DIR="${PROJECT_ROOT}/benchmark"
+OUTPUT_DIR="${PROJECT_ROOT}"
+BINARY_NAME="benchmark_runner"
 
-echo "Building benchmark binary..."
+echo "Building benchmark harness..."
 
-if [[ ! -f "${SRC_FILE}" ]]; then
-    echo "Error: Source file not found at ${SRC_FILE}"
+# Check for g++
+if ! command -v g++ &> /dev/null; then
+    echo "Error: g++ compiler not found." >&2
     exit 1
 fi
 
-# Compile with C++17 and optimization flags
-g++ -std=c++17 -O3 -march=native -pthread -o "${OUTPUT_BIN}" "${SRC_FILE}"
+# Compile main.cpp with optimizations
+# -O3: High optimization
+# -march=native: Optimize for current machine architecture
+# -std=c++17: C++17 standard
+# -pthread: Enable pthread support
+g++ -O3 -march=native -std=c++17 -pthread \
+    -o "${OUTPUT_DIR}/${BINARY_NAME}" \
+    "${BENCHMARK_DIR}/main.cpp" \
+    -I"${BENCHMARK_DIR}"
 
-if [[ $? -eq 0 ]]; then
-    echo "Build successful: ${OUTPUT_BIN}"
+if [ $? -eq 0 ]; then
+    echo "Build successful: ${OUTPUT_DIR}/${BINARY_NAME}"
 else
-    echo "Build failed."
+    echo "Build failed." >&2
     exit 1
 fi

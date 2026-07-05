@@ -1,0 +1,6 @@
+pandas
+scipy
+matplotlib
+pydantic
+pyyaml
+asv

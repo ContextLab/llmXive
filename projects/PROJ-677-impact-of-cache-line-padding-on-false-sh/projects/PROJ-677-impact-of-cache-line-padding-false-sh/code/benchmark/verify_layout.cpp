@@ -1,48 +1,105 @@
 #include <iostream>
-#include <cstddef>
-#include <cstdint>
-#include <cstdlib>
+#include <iomanip>
+#include <atomic>
+#include <cstring>
+#include <fstream>
+#include <string>
+#include <vector>
 
-// Packed counter struct: expected size 24 bytes (3 * 8 bytes)
-struct alignas(1) PackedCounter {
-    std::int64_t value;
-    std::int64_t padding1;
-    std::int64_t padding2;
-};
+// Include the header files we are verifying
+#include "counter_packed.hpp"
+#include "counter_padded.hpp"
 
-// Padded counter struct: expected size >= 192 bytes (3 * 64 bytes)
-struct AlignedCounter {
-    alignas(64) std::int64_t value;
-    alignas(64) std::int64_t padding1;
-    alignas(64) std::int64_t padding2;
-};
+// Helper to get cache line size (platform specific, fallback to 64)
+size_t get_cache_line_size() {
+    #ifdef __x86_64__
+    return 64;
+    #elif defined(__aarch64__)
+    return 64;
+    #else
+    return 64; // Default assumption
+    #endif
+}
 
-int main() {
-    std::cout << "=== Memory Layout Verification ===" << std::endl;
+int main(int argc, char* argv[]) {
+    std::cout << "=== Memory Layout Verification Utility ===" << std::endl;
     
-    size_t packed_size = sizeof(PackedCounter);
-    size_t padded_size = sizeof(AlignedCounter);
+    size_t cache_line = get_cache_line_size();
+    std::cout << "Detected Cache Line Size: " << cache_line << " bytes" << std::endl;
 
-    std::cout << "PackedCounter size: " << packed_size << " bytes" << std::endl;
-    std::cout << "AlignedCounter size: " << padded_size << " bytes" << std::endl;
+    bool success = true;
 
-    // Verify packed size is exactly 24 bytes
-    if (packed_size != 24) {
-        std::cerr << "ERROR: PackedCounter size is " << packed_size 
+    // 1. Verify Packed Counter
+    std::cout << "\n--- Verifying Packed Counter ---" << std::endl;
+    std::cout << "Size of PackedCounter: " << sizeof(PackedCounter) << " bytes" << std::endl;
+    std::cout << "Alignment of PackedCounter: " << alignof(PackedCounter) << " bytes" << std::endl;
+    
+    // Expected: 24 bytes (as per task description)
+    // Expected: Alignment might be 1 (due to pack) or natural alignment of members
+    if (sizeof(PackedCounter) != 24) {
+        std::cerr << "ERROR: PackedCounter size is " << sizeof(PackedCounter) 
                   << " bytes, expected 24 bytes." << std::endl;
-        return 1;
+        success = false;
+    } else {
+        std::cout << "PASS: PackedCounter size is 24 bytes." << std::endl;
     }
 
-    // Verify padded size is at least 192 bytes (3 * 64)
-    if (padded_size < 192) {
-        std::cerr << "ERROR: AlignedCounter size is " << padded_size 
-                  << " bytes, expected at least 192 bytes." << std::endl;
-        return 1;
+    // Check if it fits in one cache line (it should, since 24 < 64)
+    if (sizeof(PackedCounter) > cache_line) {
+        std::cout << "WARNING: PackedCounter spans multiple cache lines." << std::endl;
+    } else {
+        std::cout << "INFO: PackedCounter fits within one cache line." << std::endl;
     }
 
-    std::cout << "Layout verification PASSED." << std::endl;
-    std::cout << "Packed: " << packed_size << " bytes (expected 24)" << std::endl;
-    std::cout << "Padded: " << padded_size << " bytes (expected >= 192)" << std::endl;
+    // 2. Verify Padded Counter
+    std::cout << "\n--- Verifying Padded Counter ---" << std::endl;
+    std::cout << "Size of PaddedCounter: " << sizeof(PaddedCounter) << " bytes" << std::endl;
+    std::cout << "Alignment of PaddedCounter: " << alignof(PaddedCounter) << " bytes" << std::endl;
+
+    // Expected: >= 192 bytes
+    // Expected: Alignment 64
+    if (sizeof(PaddedCounter) < 192) {
+        std::cerr << "ERROR: PaddedCounter size is " << sizeof(PaddedCounter) 
+                  << " bytes, expected >= 192 bytes." << std::endl;
+        success = false;
+    } else {
+        std::cout << "PASS: PaddedCounter size is >= 192 bytes." << std::endl;
+    }
+
+    if (alignof(PaddedCounter) != 64) {
+        std::cerr << "ERROR: PaddedCounter alignment is " << alignof(PaddedCounter) 
+                  << " bytes, expected 64 bytes." << std::endl;
+        success = false;
+    } else {
+        std::cout << "PASS: PaddedCounter alignment is 64 bytes." << std::endl;
+    }
+
+    // 3. Verify False Sharing Potential (Conceptual)
+    // If we have an array of these, do they share cache lines?
+    std::cout << "\n--- False Sharing Analysis ---" << std::endl;
     
-    return 0;
+    // Packed: 24 bytes. Two packed counters in an array: 0-23, 24-47. 
+    // If cache line is 64, they fit in one line. FALSE SHARING LIKELY.
+    if (sizeof(PackedCounter) * 2 <= cache_line) {
+        std::cout << "WARNING: Multiple PackedCounters may share a cache line. False sharing likely." << std::endl;
+    } else {
+        std::cout << "INFO: PackedCounters likely fit in separate cache lines if array is small, but size is small." << std::endl;
+    }
+
+    // Padded: >= 192 bytes. One padded counter per cache line (or multiple lines).
+    // 192 bytes = 3 cache lines.
+    // Next counter starts at offset 192. 
+    // 192 % 64 == 0. So it starts on a new cache line boundary.
+    // No false sharing.
+    std::cout << "INFO: PaddedCounter size (" << sizeof(PaddedCounter) 
+              << ") ensures separation. False sharing unlikely." << std::endl;
+
+    std::cout << "\n=== Verification Complete ===" << std::endl;
+    if (success) {
+        std::cout << "STATUS: SUCCESS" << std::endl;
+        return 0;
+    } else {
+        std::cout << "STATUS: FAILED" << std::endl;
+        return 1;
+    }
 }

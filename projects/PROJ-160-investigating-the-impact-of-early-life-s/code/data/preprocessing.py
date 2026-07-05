@@ -1,192 +1,210 @@
+"""
+Data preprocessing pipeline for the hippocampal subfield analysis.
+
+This module handles data filtering, normalization, and transformation
+required for the statistical analysis.
+"""
+
 import os
 import logging
 from pathlib import Path
 from typing import Dict, Any, Optional, List, Tuple
 import pandas as pd
 import numpy as np
-from scipy import stats
 
-from code.config import DATA_PROCESSED_DIR, DATA_RAW_DIR
-from code.data.loaders import load_merged_dataset, save_dataframe
+from code.config import get_project_root, ensure_directories
+from code.data.loaders import load_csv, save_dataframe
 
-logger = logging.getLogger(__name__)
 
-def _check_and_transform_ace_skewness(df: pd.DataFrame, column: str = "ACE") -> Tuple[pd.DataFrame, float]:
+def filter_missing_ace(df: pd.DataFrame, ace_col: str = "ace_score") -> pd.DataFrame:
     """
-    Checks the skewness of the ACE score column.
-    If |skewness| > 1.0, applies a log-transformation (log1p) to the column.
-    
+    Filter out participants with missing ACE scores.
+
     Args:
-        df: Input DataFrame.
-        column: Name of the ACE column.
-        
-    Returns:
-        Tuple of (modified DataFrame, original skewness value).
-    """
-    if column not in df.columns:
-        raise ValueError(f"Column '{column}' not found in DataFrame.")
-    
-    # Drop NaNs for skewness calculation to get accurate metric
-    clean_series = df[column].dropna()
-    
-    if len(clean_series) == 0:
-        logger.warning(f"No non-null values found in column '{column}' for skewness check.")
-        return df, 0.0
-        
-    original_skewness = float(stats.skew(clean_series))
-    logger.info(f"Original skewness for '{column}': {original_skewness:.4f}")
-    
-    if abs(original_skewness) > 1.0:
-        logger.info(f"|Skewness| ({abs(original_skewness):.4f}) > 1.0. Applying log1p transformation.")
-        
-        # Ensure no negative values for log transformation if using log, 
-        # but log1p handles 0. If data has negatives, log1p is still valid for -1 < x.
-        # Assuming ACE scores are non-negative based on typical stress metrics.
-        # If strict log is needed for strictly positive, we'd use np.log. 
-        # Standard practice for skewness reduction on non-negative data is log1p.
-        df[f"{column}_log"] = np.log1p(df[column])
-        # Update the main column to the transformed value for downstream consistency 
-        # as per "apply log-transformation" implication in data prep pipelines.
-        df[column] = df[f"{column}_log"]
-        logger.info(f"Transformed '{column}' in place. New skewness: {float(stats.skew(df[column].dropna())):.4f}")
-    else:
-        logger.info(f"|Skewness| ({abs(original_skewness):.4f}) <= 1.0. No transformation applied.")
-        
-    return df, original_skewness
+        df: The input dataframe.
+        ace_col: Name of the ACE score column.
 
-def _flag_extreme_ace_outliers(df: pd.DataFrame, column: str = "ACE", std_threshold: float = 3.0) -> pd.DataFrame:
-    """
-    Identifies extreme ACE outliers (>3 SD from the mean) and flags them in a new column.
-    This supports downstream sensitivity analysis without auto-exclusion.
-    
-    Args:
-        df: Input DataFrame.
-        column: Name of the ACE column.
-        std_threshold: Number of standard deviations to consider an outlier.
-        
     Returns:
-        DataFrame with a new boolean column '{column}_outlier_flag'.
+        Filtered dataframe.
     """
-    if column not in df.columns:
-        raise ValueError(f"Column '{column}' not found in DataFrame.")
-    
-    clean_series = df[column].dropna()
-    
-    if len(clean_series) < 2:
-        logger.warning(f"Insufficient data to calculate outliers for '{column}'.")
-        df[f"{column}_outlier_flag"] = False
-        return df
-    
-    mean_val = clean_series.mean()
-    std_val = clean_series.std()
-    
-    if std_val == 0:
-        logger.warning(f"Standard deviation for '{column}' is 0. No outliers can be flagged.")
-        df[f"{column}_outlier_flag"] = False
-        return df
-    
-    lower_bound = mean_val - (std_threshold * std_val)
-    upper_bound = mean_val + (std_threshold * std_val)
-    
-    # Flag rows where ACE is outside the bounds
-    df[f"{column}_outlier_flag"] = (df[column] < lower_bound) | (df[column] > upper_bound)
-    
-    outlier_count = df[f"{column}_outlier_flag"].sum()
-    total_count = len(df)
-    logger.info(
-        f"Flagged {outlier_count} outliers for '{column}' (>{std_threshold} SD). "
-        f"Bounds: [{lower_bound:.4f}, {upper_bound:.4f}]. "
-        f"Total rows: {total_count}, Retention: 100% (no exclusion)."
-    )
-    
+    if ace_col not in df.columns:
+        raise ValueError(f"ACE column '{ace_col}' not found")
+
+    initial_count = len(df)
+    df = df.dropna(subset=[ace_col])
+    retained = len(df)
+
+    logging.info(f"Filtered missing ACE: {initial_count} -> {retained}")
     return df
 
-def run_preprocessing_pipeline(
-    input_path: Optional[str] = None,
-    output_path: Optional[str] = None,
-    skip_acquisition: bool = False
-) -> Dict[str, Any]:
+
+def filter_mri_quality(df: pd.DataFrame, quality_col: str = "mr_quality_flag") -> pd.DataFrame:
     """
-    Runs the full preprocessing pipeline:
-    1. Loads merged dataset (or from input_path).
-    2. Handles missing ACE/MRI (T015 logic - assumed done or handled by loader).
-    3. Normalizes volumes by ICV (T016 logic).
-    4. Checks ACE skewness and applies log-transformation if |skew| > 1.0 (T017).
-    5. Flags extreme ACE outliers (>3 SD) for sensitivity analysis (T018).
-    6. Saves to output_path.
-    
+    Filter out participants with poor MRI quality.
+
     Args:
-        input_path: Path to input CSV. Defaults to processed intermediate if available.
-        output_path: Path to save final cleaned dataset.
-        skip_acquisition: If True, expects data to already exist in raw/processed.
-        
+        df: The input dataframe.
+        quality_col: Name of the MRI quality column.
+
     Returns:
-        Dictionary with pipeline stats and paths.
+        Filtered dataframe.
     """
-    # Ensure output directory exists
-    Path(DATA_PROCESSED_DIR).mkdir(parents=True, exist_ok=True)
-    
-    if output_path is None:
-        output_path = os.path.join(DATA_PROCESSED_DIR, "cleaned_dataset.csv")
-        
-    logger.info(f"Starting preprocessing pipeline. Output: {output_path}")
-    
-    # Load Data
-    # Assuming T015 and T016 are integrated into the flow or previous steps
-    # Here we implement the T017 and T018 specific logic on top of the expected state.
-    
-    try:
-        df = load_merged_dataset()
-    except Exception as e:
-        logger.error(f"Failed to load merged dataset: {e}")
-        raise
-        
+    if quality_col not in df.columns:
+        logging.warning(f"Quality column '{quality_col}' not found, skipping filter")
+        return df
+
     initial_count = len(df)
-    logger.info(f"Loaded {initial_count} rows.")
-    
-    # T016 Logic: Normalize volumes by ICV if not already done
-    # Expected columns: CA3, DG, Subiculum, ICV
-    volume_cols = ["CA3", "DG", "Subiculum"]
-    for col in volume_cols:
-        if col in df.columns and "ICV" in df.columns:
-            norm_col = f"{col}_Normalized"
+    # Assuming 0 or 'good' indicates good quality; adjust based on actual data
+    df = df[df[quality_col] == 0]  # or df[df[quality_col] == 'good']
+    retained = len(df)
+
+    logging.info(f"Filtered MRI quality: {initial_count} -> {retained}")
+    return df
+
+
+def normalize_volumes(
+    df: pd.DataFrame,
+    subfields: List[str],
+    icv_col: str = "ICV"
+) -> pd.DataFrame:
+    """
+    Normalize subfield volumes by intracranial volume (ICV).
+
+    Args:
+        df: The input dataframe.
+        subfields: List of subfield column names.
+        icv_col: Name of the ICV column.
+
+    Returns:
+        Dataframe with normalized volumes.
+    """
+    df = df.copy()
+    if icv_col not in df.columns:
+        raise ValueError(f"ICV column '{icv_col}' not found")
+
+    for subfield in subfields:
+        norm_col = f"{subfield}_norm"
+        if subfield in df.columns:
             # Avoid division by zero
-            df[norm_col] = np.where(df["ICV"] > 0, df[col] / df["ICV"], np.nan)
-            logger.info(f"Normalized {col} by ICV into {norm_col}")
-        else:
-            logger.warning(f"Skipping normalization for {col}: missing source or ICV column.")
-            
-    # T017 Logic: Check ACE skewness and log-transform
-    ace_col = "ACE"
-    skew_val = 0.0
-    if ace_col in df.columns:
-        df, skew_val = _check_and_transform_ace_skewness(df, column=ace_col)
-    else:
-        logger.warning(f"ACE column not found. Skipping skewness check.")
-        
-    # T018 Logic: Flag extreme ACE outliers (>3 SD)
-    if ace_col in df.columns:
-        df = _flag_extreme_ace_outliers(df, column=ace_col, std_threshold=3.0)
-    else:
-        logger.warning(f"ACE column not found. Skipping outlier flagging.")
-    
-    # Save results
+            df[norm_col] = df[subfield] / (df[icv_col] + 1e-6)
+            # Round to 4 decimal places
+            df[norm_col] = df[norm_col].round(4)
+
+    return df
+
+
+def check_and_transform_ace(df: pd.DataFrame, ace_col: str = "ace_score") -> pd.DataFrame:
+    """
+    Check ACE score skewness and apply log transformation if needed.
+
+    Args:
+        df: The input dataframe.
+        ace_col: Name of the ACE score column.
+
+    Returns:
+        Dataframe with transformed ACE scores if necessary.
+    """
+    if ace_col not in df.columns:
+        return df
+
+    skewness = df[ace_col].skew()
+
+    if abs(skewness) > 1.0:
+        logging.info(f"ACE skewness ({skewness:.2f}) > 1.0, applying log transformation")
+        df = df.copy()
+        # Add small constant to avoid log(0)
+        df[f"{ace_col}_log"] = np.log1p(df[ace_col])
+        return df
+
+    logging.info(f"ACE skewness ({skewness:.2f}) within acceptable range, no transformation")
+    return df
+
+
+def flag_outliers(
+    df: pd.DataFrame,
+    col: str,
+    std_threshold: float = 3.0
+) -> pd.DataFrame:
+    """
+    Flag extreme outliers (>3 SD) in a column.
+
+    Args:
+        df: The input dataframe.
+        col: Column name to check.
+        std_threshold: Number of standard deviations for outlier flagging.
+
+    Returns:
+        Dataframe with an outlier flag column.
+    """
+    df = df.copy()
+    mean = df[col].mean()
+    std = df[col].std()
+
+    lower = mean - (std_threshold * std)
+    upper = mean + (std_threshold * std)
+
+    flag_col = f"{col}_outlier"
+    df[flag_col] = ((df[col] < lower) | (df[col] > upper)).astype(int)
+
+    n_outliers = df[flag_col].sum()
+    logging.info(f"Flagged {n_outliers} outliers in {col} (>{std_threshold} SD)")
+
+    return df
+
+
+def run_preprocessing_pipeline(input_path: Optional[str] = None) -> pd.DataFrame:
+    """
+    Run the full preprocessing pipeline.
+
+    Args:
+        input_path: Path to the input dataset. If None, uses default path.
+
+    Returns:
+        The preprocessed dataframe.
+    """
+    project_root = get_project_root()
+    ensure_directories()
+
+    if input_path is None:
+        input_path = project_root / "data" / "raw" / "merged_data.csv"
+
+    if not Path(input_path).exists():
+        raise FileNotFoundError(f"Input file not found: {input_path}")
+
+    logging.info(f"Loading data from {input_path}")
+    df = load_csv(input_path)
+
+    # 1. Filter missing ACE
+    df = filter_missing_ace(df)
+
+    # 2. Filter MRI quality
+    df = filter_mri_quality(df)
+
+    # 3. Normalize volumes
+    subfields = ["CA3", "DG", "Subiculum"]
+    df = normalize_volumes(df, subfields)
+
+    # 4. Check and transform ACE
+    df = check_and_transform_ace(df)
+
+    # 5. Flag outliers
+    df = flag_outliers(df, "ace_score")
+
+    # 6. Save cleaned dataset
+    output_path = project_root / "data" / "processed" / "cleaned_dataset.csv"
     save_dataframe(df, output_path)
-    final_count = len(df)
-    
-    logger.info(f"Pipeline complete. Rows: {initial_count} -> {final_count}")
-    logger.info(f"Saved to: {output_path}")
-    
-    return {
-        "input_rows": initial_count,
-        "output_rows": final_count,
-        "output_path": output_path,
-        "ace_skewness_initial": skew_val,
-        "columns": list(df.columns)
-    }
+    logging.info(f"Cleaned dataset saved to {output_path}")
+
+    return df
+
+
+def main() -> None:
+    """
+    Main entry point for the preprocessing module.
+    """
+    logging.basicConfig(level=logging.INFO)
+    run_preprocessing_pipeline()
+
 
 if __name__ == "__main__":
-    # Basic execution entry point for testing
-    logging.basicConfig(level=logging.INFO)
-    result = run_preprocessing_pipeline()
-    print(f"Pipeline finished: {result}")
+    main()

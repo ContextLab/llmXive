@@ -4,17 +4,20 @@ __pycache__/
 *$py.class
 
 # C/C++ build artifacts
+build/
 *.o
 *.a
 *.so
-*.out
-build/
-cmake-build-*/
+CMakeFiles/
+cmake_install.cmake
+Makefile
+compile_commands.json
 
-# Python virtual environments
+# Virtual environments
 venv/
 .venv/
 env/
+.env/
 
 # IDE
 .idea/
@@ -22,21 +25,12 @@ env/
 *.swp
 *.swo
 
-# Test and coverage
-.coverage
-htmlcov/
-.pytest_cache/
-
-# Generated data and figures
+# Data and state (except for specific tracked files if needed)
 data/raw/
 data/processed/
-figures/
-
-# Project specific
 state/
-*.yaml
-!.github/workflows/*.yml
+*.log
 
-# OS files
+# OS
 .DS_Store
 Thumbs.db

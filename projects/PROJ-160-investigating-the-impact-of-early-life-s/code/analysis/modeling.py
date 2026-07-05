@@ -1,176 +1,321 @@
+"""
+Statistical modeling module for hippocampal subfield analysis.
+
+This module implements Linear Mixed-Effects (LMM) models,
+variance inflation factor (VIF) calculations, and ratio analyses
+to investigate associations between early life stress and brain volumes.
+"""
+
 import pandas as pd
 import numpy as np
 import statsmodels.api as sm
 import statsmodels.formula.api as smf
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple, Any
-import logging
-import warnings
 
-logger = logging.getLogger(__name__)
+from code.config import get_project_root, ensure_directories
+from code.analysis.results import StatisticalModel, AnalysisResult
+
+# Constants
+VIF_THRESHOLD = 5.0
+RANDOM_SEED = 42
+
 
 def calculate_vif(df: pd.DataFrame, formula: str) -> Dict[str, float]:
     """
-    Calculates Variance Inflation Factor (VIF) for covariates in the formula.
-    Returns a dictionary mapping column names to VIF values.
+    Calculate Variance Inflation Factors (VIF) for covariates in a formula.
+
+    Args:
+        df: The dataframe containing the data.
+        formula: The statsmodel formula string (e.g., 'y ~ x1 + x2').
+
+    Returns:
+        A dictionary mapping variable names to their VIF values.
     """
-    # Extract variables from formula string (simplified parsing)
-    # Formula format: Y ~ X1 + X2 + ...
+    # Parse formula to get independent variables
+    # Simple parsing: split by '+' and clean up
     parts = formula.split('~')
     if len(parts) != 2:
-        raise ValueError("Invalid formula format. Expected 'Y ~ X1 + X2'")
-    
+        raise ValueError("Formula must contain exactly one '~'")
+
     _, rhs = parts
-    # Remove random effects part (1|...) for VIF calculation
-    rhs_clean = rhs.split('+ (1')[0]
-    
-    vars = [v.strip() for v in rhs_clean.split('+') if v.strip()]
-    
+    # Remove random effects for VIF calculation (fixed effects only)
+    rhs_clean = rhs.split(' + (1|')[0].strip()
+    vars_list = [v.strip() for v in rhs_clean.split('+') if v.strip()]
+
+    vif_data = {}
     # Create design matrix
     try:
-        design = smf.ols(formula, data=df).fit().model.exog
-    except Exception as e:
-        logger.warning(f"Could not build design matrix for VIF: {e}")
-        return {}
+        design = smf.ols(formula, data=df).fit()
+        # statsmodels doesn't have a direct VIF function, so we calculate manually
+        # using the correlation matrix of the independent variables
+        # Note: This is a simplified approach; for rigorous VIF, use statsmodels.stats.outliers_influence.variance_inflation_factor
+        pass
+    except Exception:
+        # Fallback: calculate using correlation matrix of independent variables
+        pass
 
-    vifs = {}
-    for i, col_name in enumerate(df.columns):
-        if col_name in vars:
-            try:
-                # VIF = 1 / (1 - R^2)
-                # Regress col against all other vars
-                other_vars = [v for v in vars if v != col_name]
-                if not other_vars:
-                    continue
-                
-                sub_formula = f"{col_name} ~ {' + '.join(other_vars)}"
-                r2 = smf.ols(sub_formula, data=df).fit().rsquared
-                vif = 1.0 / (1.0 - r2)
-                vifs[col_name] = vif
-            except Exception:
-                vifs[col_name] = float('inf')
-    
-    return vifs
+    # Robust VIF calculation using design matrix
+    # Extract independent variables
+    indep_vars = []
+    for var in vars_list:
+        if var in df.columns:
+            indep_vars.append(var)
 
-def residualize_column(df: pd.DataFrame, target_col: str, control_cols: List[str]) -> pd.Series:
+    if not indep_vars:
+        return vif_data
+
+    # Add intercept if not present
+    if 'Intercept' not in indep_vars:
+        indep_vars.insert(0, 'Intercept')
+
+    X = df[indep_vars].values
+    if X.shape[1] < 2:
+        return {var: 1.0 for var in vars_list}
+
+    # Center variables for VIF (excluding intercept)
+    X_centered = X[:, 1:] - np.mean(X[:, 1:], axis=0)
+
+    # Calculate correlation matrix
+    corr_matrix = np.corrcoef(X_centered, rowvar=False)
+
+    # Calculate VIFs
+    for i, var in enumerate(vars_list):
+        try:
+            # VIF = 1 / (1 - R^2) where R^2 is from regressing var on others
+            # Using diagonal of inverse correlation matrix
+            inv_corr = np.linalg.inv(corr_matrix)
+            vif = inv_corr[i, i]
+            vif_data[var] = float(vif)
+        except np.linalg.LinAlgError:
+            vif_data[var] = float('inf')
+
+    return vif_data
+
+
+def residualize_column(df: pd.DataFrame, target_col: str, covariates: List[str]) -> pd.Series:
     """
-    Regresses target_col against control_cols and returns the residuals.
+    Residualize a target column against a list of covariates.
+
+    Args:
+        df: The dataframe containing the data.
+        target_col: The name of the column to residualize.
+        covariates: List of covariate column names.
+
+    Returns:
+        A pandas Series containing the residuals.
     """
-    formula = f"{target_col} ~ {' + '.join(control_cols)}"
+    if target_col not in df.columns:
+        raise ValueError(f"Target column '{target_col}' not found in dataframe")
+
+    # Build formula
+    covariates_str = ' + '.join(covariates)
+    formula = f"{target_col} ~ {covariates_str}"
+
     model = smf.ols(formula, data=df).fit()
-    return model.resid
+    residuals = model.resid
 
-def apply_residualization_strategy(df: pd.DataFrame, target_col: str, vif_dict: Dict[str, float], threshold: float = 5.0) -> pd.DataFrame:
-    """
-    If any covariate has VIF > threshold, residualize the target against it.
-    Returns the modified dataframe.
-    """
-    high_vif_vars = [k for k, v in vif_dict.items() if v > threshold]
-    if not high_vif_vars:
-        return df
+    return residuals
 
-    logger.info(f"Applying residualization for {target_col} against high VIF variables: {high_vif_vars}")
-    df[target_col] = residualize_column(df, target_col, high_vif_vars)
-    return df
 
-def fit_lmm_for_subfield(df: pd.DataFrame, subfield_col: str, covariates: List[str], family_id_col: str) -> Tuple[Any, float]:
+def apply_residualization_strategy(df: pd.DataFrame, target_col: str) -> Tuple[pd.DataFrame, Dict[str, float]]:
     """
-    Fits a Linear Mixed Effects Model for a specific subfield.
-    Formula: subfield_vol ~ ACE_score + age + sex + scanner_site + (1|family_id)
-    Returns the fitted model and the p-value for ACE_score.
+    Apply residualization strategy if multicollinearity is detected.
+
+    Args:
+        df: The dataframe containing the data.
+        target_col: The target column (e.g., ACE_score) to residualize.
+
+    Returns:
+        A tuple of (modified dataframe, dict of VIF values).
     """
-    # Construct formula
-    # Ensure ACE_score is in covariates
-    if 'ACE_score' not in covariates:
-        raise ValueError("ACE_score must be in covariates")
-    
-    fixed_effects = ' + '.join(covariates)
-    formula = f"{subfield_col} ~ {fixed_effects} + (1|{family_id_col})"
-    
-    # Fit model
-    # Using statsmodels MixedLM
-    # Note: statsmodels MixedLM requires specific handling for random effects syntax
-    # We use the 'groups' argument for random intercepts
-    
-    groups = df[family_id_col]
-    endog = df[subfield_col]
-    exog = df[covariates]
-    
+    # Define covariates to check against
+    covariates = ['age', 'sex', 'scanner_site']
+    # Filter to existing columns
+    existing_covariates = [c for c in covariates if c in df.columns]
+
+    if not existing_covariates:
+        return df, {}
+
+    # Build formula for VIF check
+    formula = f"{target_col} ~ {' + '.join(existing_covariates)}"
+    vif_values = calculate_vif(df, formula)
+
+    max_vif = max(vif_values.values()) if vif_values else 0.0
+
+    if max_vif > VIF_THRESHOLD:
+        # Find the covariate with highest VIF
+        worst_covariate = max(vif_values, key=vif_values.get)
+        other_covariates = [c for c in existing_covariates if c != worst_covariate]
+
+        # Residualize target against the problematic covariate
+        residuals = residualize_column(df, target_col, [worst_covariate])
+        df = df.copy()
+        df[f"{target_col}_resid"] = residuals
+
+        return df, vif_values
+
+    return df, vif_values
+
+
+def fit_lmm_for_subfield(
+    df: pd.DataFrame,
+    subfield_col: str,
+    formula: str,
+    random_seed: int = RANDOM_SEED
+) -> StatisticalModel:
+    """
+    Fit a Linear Mixed-Effects Model for a specific hippocampal subfield.
+
+    Args:
+        df: The dataframe containing the data.
+        subfield_col: The name of the subfield volume column.
+        formula: The statsmodel formula string.
+        random_seed: Random seed for reproducibility.
+
+    Returns:
+        A StatisticalModel object containing the fit results.
+    """
+    np.random.seed(random_seed)
+
+    if subfield_col not in df.columns:
+        raise ValueError(f"Subfield column '{subfield_col}' not found in dataframe")
+
     try:
-        model = smf.mixedlm(f"{subfield_col} ~ {fixed_effects}", df, groups=groups)
-        result = model.fit()
-        
-        # Extract p-value for ACE_score
-        # params index might be 'ACE_score' or 'Intercept' etc.
-        p_val = result.pvalues.get('ACE_score', 1.0)
-        
-        return result, p_val
-    except Exception as e:
-        logger.error(f"Failed to fit LMM for {subfield_col}: {e}")
-        return None, 1.0
+        model = smf.mixedlm(formula, df, groups=df["family_id"])
+        result = model.fit(reml=False)  # Use ML for comparison
 
-def run_primary_analysis(data_path: Path, output_dir: Path) -> Dict[str, Any]:
+        # Extract parameters
+        params = result.params.to_dict()
+        conf_int = result.conf_int()
+
+        # Extract specific coefficients
+        beta_ace = params.get("ACE_score", np.nan)
+        p_value_ace = result.pvalues.get("ACE_score", np.nan)
+
+        # 95% CI for ACE
+        ci_low = conf_int.loc["ACE_score", 0] if "ACE_score" in conf_int.index else np.nan
+        ci_high = conf_int.loc["ACE_score", 1] if "ACE_score" in conf_int.index else np.nan
+
+        return StatisticalModel(
+            subfield=subfield_col,
+            formula=formula,
+            beta_ace=beta_ace,
+            ci_95_low=ci_low,
+            ci_95_high=ci_high,
+            p_value=p_value_ace,
+            log_likelihood=result.loglike,
+            aic=result.aic,
+            bic=result.bic,
+            n_obs=len(df)
+        )
+
+    except Exception as e:
+        logging.error(f"Failed to fit LMM for {subfield_col}: {e}")
+        # Return a failed model object or raise
+        raise e
+
+
+def run_primary_analysis(df: pd.DataFrame) -> Dict[str, StatisticalModel]:
     """
-    Runs the primary analysis for CA3, DG, and Subiculum.
-    Returns a dictionary of results.
+    Run the primary LMM analysis for all three subfields.
+
+    Args:
+        df: The preprocessed dataframe.
+
+    Returns:
+        A dictionary mapping subfield names to their StatisticalModel objects.
     """
-    # Load data
-    df = pd.read_csv(data_path)
-    
-    # Ensure numeric columns
-    numeric_cols = ['CA3', 'DG', 'Subiculum', 'ACE_score', 'Age', 'ICV']
-    for col in numeric_cols:
-        if col in df.columns:
-            df[col] = pd.to_numeric(df[col], errors='coerce')
-    
-    # Drop rows with missing critical values
-    df = df.dropna(subset=['CA3', 'DG', 'Subiculum', 'ACE_score', 'Age', 'FamilyID'])
-    
-    # Covariates
-    covariates = ['ACE_score', 'Age', 'Sex', 'Site']
-    family_id = 'FamilyID'
-    
-    subfields = ['CA3', 'DG', 'Subiculum']
+    subfields = ["CA3", "DG", "Subiculum"]
+    formula = "vol ~ ACE_score + age + sex + scanner_site + (1|family_id)"
+
     results = {}
-    
-    for sub in subfields:
-        logger.info(f"Fitting model for {sub}")
-        model, p_val = fit_lmm_for_subfield(df, sub, covariates, family_id)
-        if model:
-            # Check VIF
-            vifs = calculate_vif(df, f"{sub} ~ {' + '.join(covariates)}")
-            if any(v > 5 for v in vifs.values()):
-                # Apply residualization if needed (simplified for this task)
-                # In full implementation, we would re-fit with residualized ACE
-                logger.warning(f"High VIF detected for {sub}. Residualization strategy pending full implementation.")
-            
-            results[sub] = {
-                'model': model,
-                'p_value': p_val,
-                'vifs': vifs
-            }
+    for subfield in subfields:
+        col_name = f"{subfield}_norm" if f"{subfield}_norm" in df.columns else subfield
+        if col_name in df.columns:
+            try:
+                model = fit_lmm_for_subfield(df, col_name, formula)
+                results[subfield] = model
+            except Exception as e:
+                logging.error(f"Error fitting model for {subfield}: {e}")
         else:
-            results[sub] = {'model': None, 'p_value': 1.0, 'vifs': {}}
-    
+            logging.warning(f"Column {col_name} not found for {subfield}")
+
     return results
 
-def main():
+
+def calculate_ca3_dg_ratio(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Entry point for modeling script.
+    Calculate the CA3:DG volume ratio for each participant.
+
+    Args:
+        df: The dataframe containing CA3 and DG volumes.
+
+    Returns:
+        The dataframe with a new 'CA3_DG_ratio' column.
     """
-    logging.basicConfig(level=logging.INFO)
-    logger.info("Running primary analysis pipeline.")
-    
-    # Placeholder paths - in real execution, these come from config
-    data_path = Path("data/processed/cleaned_dataset.csv")
-    output_dir = Path("data/processed")
-    
+    df = df.copy()
+    ca3_col = "CA3_norm" if "CA3_norm" in df.columns else "CA3"
+    dg_col = "DG_norm" if "DG_norm" in df.columns else "DG"
+
+    if ca3_col not in df.columns or dg_col not in df.columns:
+        raise ValueError("Required columns CA3 and DG (or their normalized versions) not found")
+
+    # Avoid division by zero
+    df["CA3_DG_ratio"] = df[ca3_col] / (df[dg_col] + 1e-6)
+
+    return df
+
+
+def fit_ca3_dg_ratio_model(df: pd.DataFrame) -> StatisticalModel:
+    """
+    Fit an exploratory model for the CA3:DG ratio.
+
+    Args:
+        df: The dataframe containing the CA3_DG_ratio column.
+
+    Returns:
+        A StatisticalModel object for the ratio analysis.
+    """
+    formula = "CA3_DG_ratio ~ ACE_score + age + sex + scanner_site + (1|family_id)"
+
+    if "CA3_DG_ratio" not in df.columns:
+        df = calculate_ca3_dg_ratio(df)
+
+    return fit_lmm_for_subfield(df, "CA3_DG_ratio", formula)
+
+
+def main() -> None:
+    """
+    Main entry point for the modeling module.
+    Loads data, runs primary analysis, and saves results.
+    """
+    project_root = get_project_root()
+    ensure_directories()
+
+    data_path = project_root / "data" / "processed" / "cleaned_dataset.csv"
+
     if not data_path.exists():
-        logger.error(f"Data file not found: {data_path}")
-        return
-    
-    results = run_primary_analysis(data_path, output_dir)
-    logger.info(f"Analysis complete. Results keys: {list(results.keys())}")
+        raise FileNotFoundError(f"Data file not found: {data_path}")
+
+    df = pd.read_csv(data_path)
+
+    logging.info(f"Loaded {len(df)} participants")
+
+    # Run primary analysis
+    results = run_primary_analysis(df)
+
+    # Save results
+    output_path = project_root / "data" / "processed" / "model_results.json"
+    with open(output_path, 'w') as f:
+        import json
+        json_results = {k: v.to_dict() for k, v in results.items()}
+        json.dump(json_results, f, indent=2)
+
+    logging.info(f"Results saved to {output_path}")
+
 
 if __name__ == "__main__":
+    import logging
+    logging.basicConfig(level=logging.INFO)
     main()

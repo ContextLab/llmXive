@@ -1,124 +1,126 @@
-#include <atomic>
-#include <chrono>
-#include <cstdlib>
 #include <iostream>
+#include <fstream>
+#include <chrono>
 #include <thread>
+#include <atomic>
 #include <vector>
+#include <string>
+#include <cstring>
+#include <cstdlib>
+#include <iomanip>
+#include <sstream>
 
+// Include counter definitions
 #include "counter_packed.hpp"
 #include "counter_padded.hpp"
 
-// Constants for the benchmark
-constexpr size_t NUM_INCREMENTS = 10000000; // 10 million increments per thread
-constexpr size_t WARMUP_INCREMENTS = 100000; // 100k warmup
-
-template <typename CounterType>
-void run_single_threaded_validation() {
-    std::cout << "Running single-threaded validation for " 
-              << (std::is_same_v<CounterType, PackedCounter> ? "Packed" : "Padded") 
-              << " counter..." << std::endl;
-
-    // Allocate array of counters. 
-    // Packed: 24 bytes, Padded: >= 192 bytes (64 bytes alignment * 3 fields roughly)
-    // We allocate enough space to hold 100 counters to ensure distinct cache lines if padded.
-    constexpr size_t NUM_COUNTERS = 100;
-    
-    // Use alignas to ensure the array itself is aligned if necessary, though the struct alignment handles internal layout.
-    alignas(64) CounterType counters[NUM_COUNTERS];
-
-    // Initialize counters to 0 (atomic default constructor handles this, but explicit for clarity)
-    for (size_t i = 0; i < NUM_COUNTERS; ++i) {
-        counters[i].value.store(0, std::memory_order_relaxed);
-    }
-
-    // Warmup phase
-    for (size_t i = 0; i < WARMUP_INCREMENTS; ++i) {
-        counters[0].increment();
-    }
-
-    // Reset for measurement
-    for (size_t i = 0; i < NUM_COUNTERS; ++i) {
-        counters[i].value.store(0, std::memory_order_relaxed);
-    }
-
-    // Measurement phase
-    auto start = std::chrono::high_resolution_clock::now();
-    
-    // Perform increments on a single counter to ensure no false sharing during this specific check
-    // The thread count logic in main will handle multi-threaded distribution.
-    // Here we just verify the atomic increment works and isn't optimized away.
-    for (size_t i = 0; i < NUM_INCREMENTS; ++i) {
-        counters[0].increment();
-    }
-
-    auto end = std::chrono::high_resolution_clock::now();
-    
-    // Read result
-    long long final_value = counters[0].value.load(std::memory_order_relaxed);
-
-    auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
-
-    std::cout << "Validation Result:" << std::endl;
-    std::cout << "  Expected increments: " << NUM_INCREMENTS << std::endl;
-    std::cout << "  Actual value: " << final_value << std::endl;
-    std::cout << "  Time: " << duration.count() << " microseconds" << std::endl;
-
-    if (final_value != static_cast<long long>(NUM_INCREMENTS)) {
-        std::cerr << "ERROR: Atomic increment validation failed! Expected " 
-                  << NUM_INCREMENTS << " but got " << final_value << std::endl;
-        std::exit(1);
-    }
-
-    // Prevent compiler optimization of the result variable
-    volatile long long sink = final_value;
-    (void)sink;
-
-    std::cout << "  [PASS] Single-threaded atomic increment validation successful." << std::endl;
+void print_usage(const char* prog) {
+    std::cerr << "Usage: " << prog << " <thread_count> <config_type> <iterations>" << std::endl;
+    std::cerr << "  thread_count: Number of threads (e.g., 1, 2, 4, 8)" << std::endl;
+    std::cerr << "  config_type: 'packed' or 'padded'" << std::endl;
+    std::cerr << "  iterations: Number of increments per thread" << std::endl;
 }
 
-void print_usage(const char* prog_name) {
-    std::cerr << "Usage: " << prog_name << " --validate-single [--type packed|padded]" << std::endl;
-    std::cerr << "       " << prog_name << " --benchmark --threads <N> --type packed|padded [--output <file>]" << std::endl;
+template <typename CounterStruct>
+void run_benchmark(int thread_count, long long iterations, const std::string& config_type, const std::string& output_file) {
+    // Allocate shared array of structs
+    // Each thread will write to a distinct element to isolate false sharing effects
+    std::vector<CounterStruct> counters(thread_count);
+    
+    // Initialize counters to zero
+    for (int i = 0; i < thread_count; ++i) {
+        counters[i].value = 0;
+    }
+
+    std::atomic<bool> start_flag(false);
+    std::vector<std::thread> workers;
+    
+    auto start_time = std::chrono::high_resolution_clock::now();
+
+    // Launch threads
+    for (int i = 0; i < thread_count; ++i) {
+        workers.emplace_back([&counters, &start_flag, iterations, i]() {
+            // Wait for the start signal to ensure simultaneous start
+            while (!start_flag.load(std::memory_order_acquire)) {
+                std::this_thread::yield();
+            }
+            
+            // Perform increments
+            for (long long j = 0; j < iterations; ++j) {
+                counters[i].value++;
+            }
+        });
+    }
+
+    // Signal all threads to start
+    start_flag.store(true, std::memory_order_release);
+
+    // Wait for all threads to complete
+    for (auto& worker : workers) {
+        worker.join();
+    }
+
+    auto end_time = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double, std::milli> elapsed = end_time - start_time;
+    double wall_clock_ms = elapsed.count();
+
+    // Append results to CSV
+    std::ofstream file(output_file, std::ios::app);
+    if (!file.is_open()) {
+        std::cerr << "Error: Could not open output file: " << output_file << std::endl;
+        return;
+    }
+
+    // Write CSV row: thread_count, configuration, iteration_count, wall_clock_time_ms
+    file << thread_count << "," << config_type << "," << iterations << "," << std::fixed << std::setprecision(4) << wall_clock_ms << "\n";
+    
+    file.close();
+
+    // Optional: Print to stdout for immediate feedback
+    std::cout << "Completed: " << thread_count << " threads, " 
+              << config_type << ", " << iterations << " iterations, " 
+              << wall_clock_ms << " ms" << std::endl;
 }
 
 int main(int argc, char* argv[]) {
-    if (argc < 3) {
+    if (argc != 4) {
         print_usage(argv[0]);
         return 1;
     }
 
-    std::string mode = argv[1];
+    int thread_count = std::atoi(argv[1]);
+    std::string config_type = argv[2];
+    long long iterations = std::atoll(argv[3]);
+
+    if (thread_count <= 0 || iterations <= 0) {
+        std::cerr << "Error: Invalid arguments. Thread count and iterations must be positive." << std::endl;
+        print_usage(argv[0]);
+        return 1;
+    }
+
+    // Determine struct type based on config
+    if (config_type != "packed" && config_type != "padded") {
+        std::cerr << "Error: Invalid config_type. Must be 'packed' or 'padded'." << std::endl;
+        print_usage(argv[0]);
+        return 1;
+    }
+
+    // Output file path (matches tasks.md requirement)
+    std::string output_file = "data/benchmark_results.csv";
     
-    if (mode == "--validate-single") {
-        std::string type_str = "padded"; // Default
-        for (int i = 2; i < argc; ++i) {
-            std::string arg = argv[i];
-            if (arg == "--type" && i + 1 < argc) {
-                type_str = argv[++i];
-            }
-        }
-
-        if (type_str == "packed") {
-            run_single_threaded_validation<PackedCounter>();
-        } else if (type_str == "padded") {
-            run_single_threaded_validation<PaddedCounter>();
-        } else {
-            std::cerr << "Error: Invalid type. Use 'packed' or 'padded'." << std::endl;
-            return 1;
-        }
-        return 0;
-    } 
-    else if (mode == "--benchmark") {
-        // Placeholder for multi-threaded benchmark logic (T021)
-        // This block ensures the binary compiles and runs but the actual 
-        // multi-threading logic is implemented in T021.
-        std::cerr << "Multi-threaded benchmark mode (--benchmark) is not yet implemented in this task (T016)." << std::endl;
-        std::cerr << "Please run with --validate-single to verify atomic operations." << std::endl;
-        return 1; // Return non-zero to indicate this mode is not ready, but not a crash
+    // Ensure header exists if file is new (simple check: if file doesn't exist, write header)
+    std::ifstream check_file(output_file);
+    if (!check_file.good()) {
+        std::ofstream init_file(output_file);
+        init_file << "thread_count,configuration,iteration_count,wall_clock_time_ms\n";
+        init_file.close();
     }
-    else {
-        print_usage(argv[0]);
-        return 1;
+    check_file.close();
+
+    if (config_type == "packed") {
+        run_benchmark<CounterPacked>(thread_count, iterations, config_type, output_file);
+    } else {
+        run_benchmark<CounterPadded>(thread_count, iterations, config_type, output_file);
     }
 
     return 0;

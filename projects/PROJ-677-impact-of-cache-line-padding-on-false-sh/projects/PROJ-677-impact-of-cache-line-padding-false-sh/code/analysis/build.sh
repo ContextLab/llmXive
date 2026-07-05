@@ -4,10 +4,9 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
 BENCHMARK_DIR="$PROJECT_ROOT/benchmark"
-BUILD_DIR="$SCRIPT_DIR/build"
-BIN_DIR="$BUILD_DIR/bin"
+BUILD_DIR="$PROJECT_ROOT/build"
 
-echo "=== Building Cache Line Padding Benchmark ==="
+echo "=== Building Cache Padding Benchmark ==="
 echo "Project Root: $PROJECT_ROOT"
 echo "Build Dir: $BUILD_DIR"
 
@@ -15,8 +14,8 @@ echo "Build Dir: $BUILD_DIR"
 mkdir -p "$BUILD_DIR"
 cd "$BUILD_DIR"
 
-# Run CMake configuration
-echo "Configuring with CMake..."
+# Configure with CMake
+echo "Configuring CMake..."
 cmake .. -DCMAKE_BUILD_TYPE=Release
 
 # Build
@@ -24,12 +23,17 @@ echo "Compiling..."
 make -j$(nproc)
 
 # Verify executables exist
-if [[ ! -f "$BIN_DIR/benchmark" ]] || [[ ! -f "$BIN_DIR/verify_layout" ]]; then
-    echo "ERROR: Build failed. Executables not found."
+if [[ ! -x "benchmark" ]]; then
+    echo "ERROR: benchmark executable not found!"
     exit 1
 fi
 
-echo "=== Build Successful ==="
-echo "Executables available in: $BIN_DIR"
-echo "Run verify_layout: $BIN_DIR/verify_layout"
-echo "Run benchmark: $BIN_DIR/benchmark"
+if [[ ! -x "verify_layout" ]]; then
+    echo "ERROR: verify_layout executable not found!"
+    exit 1
+fi
+
+echo "=== Build Complete ==="
+echo "Executables available in: $BUILD_DIR"
+echo "Run benchmark: $BUILD_DIR/benchmark"
+echo "Run verification: $BUILD_DIR/verify_layout"

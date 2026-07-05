@@ -43,9 +43,9 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project directory structure: `projects/PROJ-677-impact-of-cache-line-padding-false-sh/` with `code/`, `data/`, `state/`, `.github/` directories
-- [ ] T002 Initialize C++17 build system (CMake or Makefile) and Python 3.11 environment with `requirements.txt` (pandas, scipy, matplotlib, pydantic, pyyaml) in `projects/PROJ-677-impact-of-cache-line-padding-false-sh/code/analysis/`
-- [ ] T003 [P] Configure `.gitignore` and basic linting/formatting (clang-format for C++, black/flake8 for Python)
+- [X] T001 Create project directory structure: `projects/PROJ-677-impact-of-cache-line-padding-false-sh/` with `code/`, `data/`, `state/`, `.github/` directories
+- [X] T002 Initialize C++17 build system (CMake or Makefile) and Python 3.11 environment with `requirements.txt` (pandas, scipy, matplotlib, pydantic, pyyaml) in `projects/PROJ-677-impact-of-cache-line-padding-false-sh/code/analysis/`
+- [X] T003 [P] Configure `.gitignore` and basic linting/formatting (clang-format for C++, black/flake8 for Python)
 
 ---
 
@@ -57,11 +57,11 @@
 
 Examples of foundational tasks (adjust based on your project):
 
-- [ ] T004 [FR-002] [Plan-Principle-VII] Create `hardware_spec.yaml` generator script in `projects/PROJ-677-impact-of-cache-line-padding-false-sh/code/analysis/hardware_detect.py` to detect core count, cache line size, and set CPU governor to 'performance'
+- [X] T004 [FR-002] [Plan-Principle-VII] Create `hardware_spec.yaml` generator script in `projects/PROJ-677-impact-of-cache-line-padding-false-sh/code/analysis/hardware_detect.py` to detect core count, cache line size, and set CPU governor to 'performance'
 - [ ] T005 [US1] Implement memory layout verification utility `verify_layout.cpp` in `projects/PROJ-677-impact-of-cache-line-padding-false-sh/code/benchmark/` to {{claim:c_97e99955}}
  - **DEPENDS_ON**: T007
-- [ ] T006 [P] Create Pydantic schemas in `projects/PROJ-677-impact-of-cache-line-padding-false-sh/code/analysis/contracts/` for `BenchmarkRun` and `AggregatedResult`
-- [~] T007 [P] [FR-002] Create `counter_packed.hpp` and `counter_padded.hpp` in `projects/PROJ-677-impact-of-cache-line-padding-false-sh/code/benchmark/` with `#pragma pack(1)` for packed (24 bytes) and `alignas(64)` for padded (≥192 bytes)
+- [X] T006 [P] Create Pydantic schemas in `projects/PROJ-677-impact-of-cache-line-padding-false-sh/code/analysis/contracts/` for `BenchmarkRun` and `AggregatedResult`
+- [~] T007 [P] [FR-002] Create `counter_packed.hpp` and `counter_padded.hpp` in `projects/PROJ-677-impact-of-cache-line-padding-false-sh/code/benchmark/` with `#pragma pack(1)` for packed (24 bytes) and `alignas(64) ` for padded (≥192 bytes)
 - [~] T008 [P] Configure GitHub Actions workflow `.github/workflows/benchmark.yml` with `ubuntu-latest`, timeout 6h, and steps for build, run, and analysis
 - [~] T009 [P] Setup environment configuration for `run_benchmarks.sh` to handle core pinning via `taskset` and output directory creation
 
@@ -109,12 +109,12 @@ Examples of foundational tasks (adjust based on your project):
 ### Implementation for User Story 2
 
 - [~] T021 [P] [US2] Implement multi-threaded worker logic in `main.cpp` using `std::thread` and `std::atomic<long>` for a large number of increments per thread, allocating a shared array of structs where each thread writes to a distinct element (FR-004, FR-010)
-- [ ] T022 [US2] Implement `run_benchmarks.sh` in `projects/PROJ-677-impact-of-cache-line-padding-false-sh/code/scripts/` to iterate thread counts {2, 4, 8} and configs {packed, padded}
-- [ ] T023 [US2] Implement wall-clock timing logic in `main.cpp` using `std::chrono::high_resolution_clock` and output to CSV (FR-006)
-- [ ] T024 [US2] Implement CSV writer in `main.cpp` or `run_benchmarks.sh` to append rows with `thread_count, configuration, iteration_count, wall_clock_time_ms`
-- [ ] T025 [US2] Implement CPU pinning and governor setting in `run_benchmarks.sh` using `cpupower` first, then fallback to direct sysfs writes (Plan: Hardware Configuration Transparency)
-- [ ] T026 [US2] Add logic to `run_benchmarks.sh` to repeat each config multiple times (≥5 runs) to ensure statistical independence via temporal separation, handling timeout/early termination (Edge Case: time limit)
-- [ ] T027 [US2] Implement timeout handling logic to flag incomplete data by adding a 'status' column to the CSV with value 'TIMEOUT' and excluding these rows from analysis
+- [~] T022 [US2] Implement `run_benchmarks.sh` in `projects/PROJ-677-impact-of-cache-line-padding-false-sh/code/scripts/` to iterate thread counts {2, 4, 8} and configs {packed, padded}
+- [~] T023 [US2] Implement wall-clock timing logic in `main.cpp` using `std::chrono::high_resolution_clock` and output to CSV (FR-006)
+- [~] T024 [US2] Implement CSV writer in `main.cpp` or `run_benchmarks.sh` to append rows with `thread_count, configuration, iteration_count, wall_clock_time_ms`
+- [~] T025 [US2] Implement CPU pinning and governor setting in `run_benchmarks.sh` using `cpupower` first, then fallback to direct sysfs writes (Plan: Hardware Configuration Transparency)
+- [~] T026 [US2] Add logic to `run_benchmarks.sh` to repeat each config multiple times (≥5 runs) to ensure statistical independence via temporal separation, handling timeout/early termination (Edge Case: time limit)
+- [~] T027 [US2] Implement timeout handling logic to flag incomplete data by adding a 'status' column to the CSV with value 'TIMEOUT' and excluding these rows from analysis
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 

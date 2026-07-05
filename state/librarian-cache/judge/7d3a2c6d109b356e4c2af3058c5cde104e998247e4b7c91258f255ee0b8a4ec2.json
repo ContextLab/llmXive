@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2606.05868",
+  "judged_at": "2026-07-05T07:28:33Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"mint: managed infrastructure for training and serving millions of llms\" computer science",
+  "rationale": "This paper satisfies criteria (a) and (b) as it addresses the core mechanism of \"Managed Infrastructure for Training and Serving Millions of LLMs\" by proposing a specific architectural transition (GQA-to-MLA) and training pipeline to solve the KV-cache memory bottleneck, which is a fundamental infrastructure challenge for scaling LLM serving concurrency. Although it focuses on the financial domain and Huawei Ascend hardware, it provides canonical evidence on the same physical observable (KV-cach",
+  "relevant": true
+}

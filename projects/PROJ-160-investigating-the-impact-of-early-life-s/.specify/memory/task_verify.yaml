@@ -12,3 +12,19 @@
   and confirming all packages are present. <!-- ATOMIZE: requested --> <!-- ATOMIZE:
   requested --> <!-- ATOMIZE: requested -->'
 : 1
+? 'T002b [P] Install dependencies from `projects/PROJ-160-investigating-the-impact-of-early-life-s/requirements.txt`
+  in an isolated virtualenv at `.venv`; verify success by running `python -m pip list`
+  and confirming all packages are present. <!-- ATOMIZE: requested --> <!-- ATOMIZE:
+  requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->'
+: 1
+? 'T006a [P] Create `contracts/dataset.schema.yaml` defining the schema for the preprocessed
+  dataset (columns: ACE, Age, Sex, Site, FamilyID, CA3, DG, Subiculum, ICV, Normalized_Volumes)'
+: 1
+? "T006b [P] Create `contracts/model_results.schema.yaml` defining the schema for\
+  \ model outputs (\u03B2, CI, p-value, corrected_p-value)"
+: 1
+T007 Create base entity definitions in `code/analysis/results.py` (AnalysisResult, StatisticalModel): 1
+? 'T008 Configure error handling and logging infrastructure in `code/main.py`: Implement
+  try/except blocks for all I/O operations; log errors to `logs/pipeline.log` in JSON
+  format; raise custom exceptions on failure.'
+: 1

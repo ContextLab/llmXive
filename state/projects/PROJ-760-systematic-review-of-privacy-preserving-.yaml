@@ -1,18 +1,18 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-06-22T09:11:51.365229Z'
-current_stage: project_initialized
+current_stage: specified
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-760-systematic-review-of-privacy-preserving-
-last_run_id: 25b79d63-b0e4-40ea-8115-db2718e27c81
+last_run_id: b66704b2-6b47-4c05-b55c-65a898cabe8d
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
 revision_spec_path: null
 speckit_paper_dir: null
-speckit_research_dir: null
+speckit_research_dir: projects/PROJ-760-systematic-review-of-privacy-preserving-/specs/001-systematic-review-of-privacy-preserving
 title: Systematic Review of Privacy-Preserving Federated Learning Protocols
-updated_at: '2026-06-27T01:35:33.247406Z'
+updated_at: '2026-07-05T07:29:56.700707Z'

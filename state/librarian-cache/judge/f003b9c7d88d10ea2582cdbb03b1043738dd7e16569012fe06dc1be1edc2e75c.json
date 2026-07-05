@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2602.23036",
+  "judged_at": "2026-07-05T07:28:55Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"mint: managed infrastructure for training and serving millions of llms\" computer science",
+  "rationale": "This paper satisfies criterion (d) as a foundational methodology and canonical reference for the specific domain of \"managed infrastructure for training and serving millions of LLMs,\" providing the essential simulation framework and runtime-driven modeling techniques required to extend or evaluate such systems. It directly addresses the core variables of the user's question (LLM serving infrastructure, heterogeneity, and disaggregation) by establishing the state-of-the-art tools for analyzing th",
+  "relevant": true
+}

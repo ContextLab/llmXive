@@ -1,119 +1,140 @@
-#!/usr/bin/env bash
-set -euo pipefail
-
-# run_benchmarks.sh
-# Executes the counter benchmark across multiple thread counts and configurations.
-# Generates a CSV file with timing results.
+#!/bin/bash
+# run_benchmarks.sh - Execute multi-threaded benchmarks with timeout handling
 #
-# Output: data/raw/benchmark_results.csv
+# This script iterates over thread counts {2, 4, 8} and configurations {packed, padded},
+# runs the benchmark binary, and collects timing data into a CSV file.
+# It implements timeout handling to flag incomplete runs.
 
-PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../" && pwd)"
-BINARY_DIR="${PROJECT_ROOT}/code/benchmark"
-DATA_DIR="${PROJECT_ROOT}/data/raw"
-OUTPUT_CSV="${DATA_DIR}/benchmark_results.csv"
-BENCHMARK_BIN="${BINARY_DIR}/counter_bench"
+set -e
 
 # Configuration
-THREAD_COUNTS=(2 4 8)
-CONFIGS=("packed" "padded")
-ITERATIONS_PER_RUN=1000000  # Number of atomic increments per thread
-NUM_REPETITIONS=5           # Number of times to run each config/thread combo
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
+BENCHMARK_DIR="$PROJECT_ROOT/code/benchmark"
+DATA_DIR="$PROJECT_ROOT/data/raw"
+BINARY="counter_benchmark"
+CSV_OUTPUT="$DATA_DIR/benchmark_results.csv"
+ITERATIONS=10000000  # 10M increments per thread
+TIMEOUT_SECONDS=300 # 5 minutes per run
+REPEATS=5           # Number of repetitions per config
 
 # Ensure data directory exists
-mkdir -p "${DATA_DIR}"
+mkdir -p "$DATA_DIR"
 
-# Check if binary exists
-if [[ ! -f "${BENCHMARK_BIN}" ]]; then
-    echo "Error: Benchmark binary not found at ${BENCHMARK_BIN}. Please run build.sh first."
-    exit 1
+# Initialize CSV header if file doesn't exist
+if [ ! -f "$CSV_OUTPUT" ]; then
+    echo "thread_count,configuration,iteration_count,wall_clock_time_ms,status" > "$CSV_OUTPUT"
 fi
 
-# Attempt to set CPU governor to performance
-# This might fail if not running as root, so we catch errors but continue
-set_cpu_governor() {
-    local governor="performance"
+# Setup CPU governor (from T025)
+setup_cpu_governor() {
     if command -v cpupower &> /dev/null; then
-        if cpupower frequency-set -g "${governor}" 2>/dev/null; then
-            echo "CPU governor set to ${governor} via cpupower."
-            return 0
-        fi
+        sudo cpupower frequency-set -g performance 2>/dev/null || true
+    else
+        # Fallback to direct sysfs write
+        for cpu in /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor; do
+            if [ -w "$cpu" ]; then
+                echo performance | sudo tee "$cpu" >/dev/null 2>&1 || true
+            fi
+        done
+    fi
+}
+
+# Run a single benchmark configuration
+run_benchmark() {
+    local thread_count=$1
+    local config=$2
+    local iteration_count=$3
+    local timeout=$4
+    
+    echo "Running: threads=$thread_count, config=$config, iters=$iteration_count"
+    
+    # Run with timeout and capture output
+    local output
+    local exit_code
+    
+    output=$(timeout --signal=KILL "${timeout}s" \
+        "$BENCHMARK_DIR/$BINARY" \
+        --threads "$thread_count" \
+        --config "$config" \
+        --iterations "$iteration_count" \
+        2>&1) || exit_code=$?
+    
+    # Check for timeout (exit code 137 = killed by signal 9, or 124 from timeout command)
+    if [ "${exit_code:-0}" -eq 124 ] || [ "${exit_code:-0}" -eq 137 ]; then
+        echo "  TIMEOUT: Run exceeded ${timeout}s limit"
+        echo "${thread_count},${config},${iteration_count},0,TIMEOUT" >> "$CSV_OUTPUT"
+        return 1
     fi
     
-    # Fallback to direct sysfs write
-    if [[ -d /sys/devices/system/cpu/cpu0/cpufreq ]]; then
-        if echo "${governor}" | sudo tee /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor > /dev/null 2>&1; then
-            echo "CPU governor set to ${governor} via sysfs."
-            return 0
-        fi
+    # Parse timing from output (expected format: "Wall clock time: X.XX ms")
+    local wall_time_ms
+    wall_time_ms=$(echo "$output" | grep "Wall clock time:" | awk '{print $4}')
+    
+    if [ -z "$wall_time_ms" ]; then
+        echo "  WARNING: Could not parse timing from output"
+        echo "${thread_count},${config},${iteration_count},0,ERROR" >> "$CSV_OUTPUT"
+        return 1
     fi
     
-    echo "Warning: Could not set CPU governor to ${governor}. Continuing with default settings."
+    echo "  Result: ${wall_time_ms} ms"
+    echo "${thread_count},${config},${iteration_count},${wall_time_ms},OK" >> "$CSV_OUTPUT"
     return 0
 }
 
-set_cpu_governor
+# Main execution
+echo "Starting benchmark suite..."
+echo "Binary: $BENCHMARK_DIR/$BINARY"
+echo "Output: $CSV_OUTPUT"
+echo "Timeout per run: ${TIMEOUT_SECONDS}s"
+echo "Iterations per thread: $ITERATIONS"
+echo ""
 
-# Initialize CSV header if file doesn't exist or is empty
-if [[ ! -f "${OUTPUT_CSV}" ]] || [[ ! -s "${OUTPUT_CSV}" ]]; then
-    echo "thread_count,configuration,iteration_count,wall_clock_time_ms" > "${OUTPUT_CSV}"
+# Setup environment
+setup_cpu_governor
+
+# Check if binary exists
+if [ ! -f "$BENCHMARK_DIR/$BINARY" ]; then
+    echo "ERROR: Benchmark binary not found at $BENCHMARK_DIR/$BINARY"
+    echo "Please run build.sh first."
+    exit 1
 fi
 
-echo "Starting benchmark run..."
-echo "Output file: ${OUTPUT_CSV}"
-echo "----------------------------------------"
-
-for threads in "${THREAD_COUNTS[@]}"; do
-    for config in "${CONFIGS[@]}"; do
-        echo "Running: threads=${threads}, config=${config}"
+# Run experiments
+for threads in 2 4 8; do
+    for config in packed padded; do
+        echo "=== Thread Count: $threads, Config: $config ==="
         
-        for ((rep=1; rep<=NUM_REPETITIONS; rep++)); do
-            # Run the benchmark
-            # The binary is expected to output the timing in a parseable format or we capture wall time here.
-            # Based on T023/T024, the binary should output CSV rows or we parse its stdout.
-            # Assumption: The binary prints "SUCCESS <time_ms>" or similar, or we time it externally.
-            # To be robust, we time the execution externally using 'time' or a wrapper, 
-            # but the task implies the binary does the timing. 
-            # Let's assume the binary prints the result to stdout in a specific format.
-            # However, T024 says "output to CSV", implying the binary might write directly or we append.
-            # To satisfy T023 (binary uses chrono) and T024 (output to CSV), 
-            # we will assume the binary prints a single line with the time, and we append to the master CSV.
-            
-            # Execute and capture time
-            start_time=$(date +%s%N)
-            output=$("${BENCHMARK_BIN}" --threads "${threads}" --config "${config}" --iterations "${ITERATIONS_PER_RUN}" 2>&1) || {
-                echo "Error: Benchmark failed for threads=${threads}, config=${config}"
-                echo "${threads},${config},${ITERATIONS_PER_RUN},TIMEOUT" >> "${OUTPUT_CSV}"
-                continue
-            }
-            end_time=$(date +%s%N)
-            
-            # Calculate wall clock time in milliseconds
-            duration_ns=$((end_time - start_time))
-            duration_ms=$(echo "scale=3; ${duration_ns} / 1000000" | bc)
-            
-            # The binary might output its own internal timing. 
-            # If the binary outputs a time, we could use that. 
-            # For this integration, we trust the external wall-clock measurement 
-            # to ensure we capture the full overhead, or we parse the binary output if it provides it.
-            # Let's assume the binary outputs "Result: <time_ms>"
-            # If the binary output contains a time, use it. Otherwise use wall clock.
-            # To keep it simple and robust for the test: use the wall clock time calculated above.
-            # But T023 says "output to CSV". Let's assume the binary prints the time.
-            # We will parse the binary output for the time if possible, else use wall clock.
-            
-            # Extract time from binary output if present (format: "time_ms: <val>")
-            if [[ "${output}" =~ time_ms:\ ([0-9.]+) ]]; then
-                final_time="${BASH_REMATCH[1]}"
-            else
-                final_time="${duration_ms}"
-            fi
-
-            # Append to CSV
-            echo "${threads},${config},${ITERATIONS_PER_RUN},${final_time}" >> "${OUTPUT_CSV}"
-            echo "  Rep ${rep}/${NUM_REPETITIONS}: ${final_time} ms"
+        for ((i=1; i<=REPEATS; i++)); do
+            echo "  Repetition $i/$REPEATS"
+            run_benchmark "$threads" "$config" "$ITERATIONS" "$TIMEOUT_SECONDS" || true
+            # Small delay between runs to ensure statistical independence
+            sleep 1
         done
+        echo ""
     done
 done
 
-echo "----------------------------------------"
-echo "Benchmark complete. Results saved to ${OUTPUT_CSV}"
+echo "Benchmark suite completed."
+echo "Results written to: $CSV_OUTPUT"
+
+# Count timeout vs successful runs
+local total_runs
+local timeout_runs
+local success_runs
+
+total_runs=$(tail -n +2 "$CSV_OUTPUT" | wc -l)
+timeout_runs=$(grep ",TIMEOUT$" "$CSV_OUTPUT" | wc -l)
+success_runs=$(grep ",OK$" "$CSV_OUTPUT" | wc -l)
+
+echo ""
+echo "Summary:"
+echo "  Total runs: $total_runs"
+echo "  Successful: $success_runs"
+echo "  Timeouts: $timeout_runs"
+
+if [ "$timeout_runs" -gt 0 ]; then
+    echo "  WARNING: Some runs timed out and were flagged. These will be excluded from analysis."
+fi
+
+exit 0

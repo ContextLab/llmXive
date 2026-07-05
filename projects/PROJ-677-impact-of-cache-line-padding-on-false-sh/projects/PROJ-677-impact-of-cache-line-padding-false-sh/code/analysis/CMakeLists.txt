@@ -1,17 +1,25 @@
-cmake_minimum_required(VERSION 3.17)
-project(CounterBenchmark LANGUAGES CXX)
+cmake_minimum_required(VERSION 3.16)
+project(cache_padding_benchmark LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
 
-# Add benchmark executable
+# Optimization flags for release builds
+if(NOT CMAKE_BUILD_TYPE)
+    set(CMAKE_BUILD_TYPE Release)
+endif()
+
+set(CMAKE_CXX_FLAGS_RELEASE "-O3 -march=native")
+set(CMAKE_CXX_FLAGS_DEBUG "-g -O0")
+
+# Benchmark executable
 add_executable(benchmark ../benchmark/main.cpp)
 target_include_directories(benchmark PRIVATE ../benchmark)
 
-# Add verification utility
+# Verification utility
 add_executable(verify_layout ../benchmark/verify_layout.cpp)
 target_include_directories(verify_layout PRIVATE ../benchmark)
 
-# Optimization flags
-target_compile_options(benchmark PRIVATE -O3 -march=native)
-target_compile_options(verify_layout PRIVATE -O3 -march=native)
+# Install targets
+install(TARGETS benchmark verify_layout DESTINATION bin)

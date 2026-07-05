@@ -819,6 +819,10 @@
     "classified_at": "2026-07-04T01:11:53Z",
     "verdict": false
   },
+  "PROJ-813-llmxive-follow-up-extending-mint-managed::1.6.0": {
+    "classified_at": "2026-07-05T07:28:23Z",
+    "verdict": false
+  },
   "PROJ-820-llmxive-follow-up-extending-visual-gener::1.6.0": {
     "classified_at": "2026-07-03T18:58:54Z",
     "verdict": false

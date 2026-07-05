@@ -1,210 +1,166 @@
 """
-Data loading utilities for ABCD Study data.
-Handles CSV/TSV parsing with robust error handling and type inference.
+Data loading utilities for the hippocampal subfield analysis pipeline.
+
+This module provides functions to load CSV and TSV files, handle
+ABCD Study specific data formats, and merge datasets.
 """
+
 import csv
 import os
 from typing import List, Dict, Any, Optional, Union
 from pathlib import Path
-
 import pandas as pd
 import numpy as np
 
-from code.config import DATA_RAW_DIR, DATA_PROCESSED_DIR
+from code.config import get_project_root, ensure_directories
 
 
 def load_csv(
-    file_path: Union[str, Path],
-    delimiter: str = ',',
-    low_memory: bool = False,
+    filepath: Union[str, Path],
+    sep: str = ",",
     dtype: Optional[Dict[str, Any]] = None,
-    na_values: Optional[List[str]] = None,
-    usecols: Optional[List[str]] = None
+    na_values: Optional[List[str]] = None
 ) -> pd.DataFrame:
     """
-    Load a CSV file into a pandas DataFrame with robust error handling.
+    Load a CSV file into a pandas DataFrame.
 
     Args:
-        file_path: Path to the CSV file.
-        delimiter: Field delimiter character (default: ',').
-        low_memory: If True, reads file in chunks to save memory (default: False).
-        dtype: Dictionary specifying data types for columns.
-        na_values: List of additional strings to recognize as NA/NaN.
-        usecols: List of column names to load (subset).
+        filepath: Path to the CSV file.
+        sep: Field separator.
+        dtype: Data type specification.
+        na_values: List of strings to recognize as NA.
 
     Returns:
-        pd.DataFrame: Loaded data.
-
-    Raises:
-        FileNotFoundError: If the file does not exist.
-        ValueError: If the file is empty or malformed.
-        Exception: For other I/O or parsing errors.
+        The loaded DataFrame.
     """
-    path = Path(file_path)
-    if not path.exists():
-        raise FileNotFoundError(f"Data file not found: {path}")
+    if not Path(filepath).exists():
+        raise FileNotFoundError(f"File not found: {filepath}")
 
-    if path.stat().st_size == 0:
-        raise ValueError(f"Data file is empty: {path}")
-
-    try:
-        df = pd.read_csv(
-            path,
-            delimiter=delimiter,
-            low_memory=low_memory,
-            dtype=dtype,
-            na_values=na_values,
-            usecols=usecols,
-            keep_default_na=True,
-            on_bad_lines='warn'
-        )
-
-        if df.empty:
-            raise ValueError(f"Data file produced an empty DataFrame: {path}")
-
-        return df
-
-    except csv.Error as e:
-        raise ValueError(f"CSV parsing error in {path}: {e}")
-    except Exception as e:
-        raise Exception(f"Failed to load CSV {path}: {e}")
+    df = pd.read_csv(
+        filepath,
+        sep=sep,
+        dtype=dtype,
+        na_values=na_values,
+        low_memory=False
+    )
+    return df
 
 
 def load_tsv(
-    file_path: Union[str, Path],
-    low_memory: bool = False,
+    filepath: Union[str, Path],
     dtype: Optional[Dict[str, Any]] = None,
-    na_values: Optional[List[str]] = None,
-    usecols: Optional[List[str]] = None
+    na_values: Optional[List[str]] = None
 ) -> pd.DataFrame:
     """
     Load a TSV file into a pandas DataFrame.
 
     Args:
-        file_path: Path to the TSV file.
-        low_memory: If True, reads file in chunks to save memory.
-        dtype: Dictionary specifying data types for columns.
-        na_values: List of additional strings to recognize as NA/NaN.
-        usecols: List of column names to load (subset).
+        filepath: Path to the TSV file.
+        dtype: Data type specification.
+        na_values: List of strings to recognize as NA.
 
     Returns:
-        pd.DataFrame: Loaded data.
-
-    Raises:
-        FileNotFoundError: If the file does not exist.
-        ValueError: If the file is empty or malformed.
+        The loaded DataFrame.
     """
-    return load_csv(
-        file_path=file_path,
-        delimiter='\t',
-        low_memory=low_memory,
-        dtype=dtype,
-        na_values=na_values,
-        usecols=usecols
-    )
+    return load_csv(filepath, sep="\t", dtype=dtype, na_values=na_values)
 
 
-def load_abc_phenotypic(
-    file_name: str = "phenotypic.csv"
-) -> pd.DataFrame:
+def load_abc_phenotypic(filepath: Union[str, Path]) -> pd.DataFrame:
     """
-    Load the ABCD phenotypic data file from the raw data directory.
+    Load ABCD Study phenotypic data.
 
     Args:
-        file_name: Name of the phenotypic file (default: "phenotypic.csv").
+        filepath: Path to the phenotypic data file.
 
     Returns:
-        pd.DataFrame: Phenotypic data.
+        The phenotypic DataFrame.
     """
-    file_path = Path(DATA_RAW_DIR) / file_name
-    return load_csv(file_path, na_values=['', 'NA', 'NaN', 'null'])
+    df = load_csv(filepath)
+    # Standardize column names if necessary
+    df.columns = [col.lower().strip() for col in df.columns]
+    return df
 
 
-def load_subcortical_stats(
-    file_name: str = "subcorticalSegmentationStats.csv"
-) -> pd.DataFrame:
+def load_subcortical_stats(filepath: Union[str, Path]) -> pd.DataFrame:
     """
-    Load the ABCD subcortical segmentation statistics file.
+    Load ABCD Study subcortical segmentation statistics.
 
     Args:
-        file_name: Name of the stats file (default: "subcorticalSegmentationStats.csv").
+        filepath: Path to the subcortical stats file.
 
     Returns:
-        pd.DataFrame: Subcortical volume data.
+        The subcortical statistics DataFrame.
     """
-    file_path = Path(DATA_RAW_DIR) / file_name
-    return load_csv(file_path, na_values=['', 'NA', 'NaN', 'null'])
+    df = load_csv(filepath)
+    df.columns = [col.lower().strip() for col in df.columns]
+    return df
 
 
 def load_merged_dataset(
-    phenotypic_path: Union[str, Path],
-    segmentation_path: Union[str, Path],
-    key_col: str = 'subjectkey',
-    left_cols: Optional[List[str]] = None,
-    right_cols: Optional[List[str]] = None
+    phenotypic_df: pd.DataFrame,
+    subcortical_df: pd.DataFrame,
+    id_col: str = "subjectkey"
 ) -> pd.DataFrame:
     """
-    Load and merge phenotypic and segmentation datasets.
+    Merge phenotypic and subcortical data on participant ID.
 
     Args:
-        phenotypic_path: Path to the phenotypic CSV/TSV.
-        segmentation_path: Path to the segmentation CSV/TSV.
-        key_col: The column name to join on (default: 'subjectkey').
-        left_cols: List of columns to keep from the left dataframe.
-        right_cols: List of columns to keep from the right dataframe.
+        phenotypic_df: Phenotypic data DataFrame.
+        subcortical_df: Subcortical data DataFrame.
+        id_col: Column name for participant ID.
 
     Returns:
-        pd.DataFrame: Merged dataset.
+        The merged DataFrame.
     """
-    df_left = load_csv(phenotypic_path)
-    df_right = load_csv(segmentation_path)
+    # Ensure ID column exists in both
+    if id_col not in phenotypic_df.columns:
+        raise ValueError(f"ID column '{id_col}' not found in phenotypic data")
+    if id_col not in subcortical_df.columns:
+        raise ValueError(f"ID column '{id_col}' not found in subcortical data")
 
-    if left_cols:
-        # Ensure key_col is kept
-        if key_col not in left_cols:
-            left_cols = [key_col] + left_cols
-        df_left = df_left[[c for c in left_cols if c in df_left.columns]]
-
-    if right_cols:
-        if key_col not in right_cols:
-            right_cols = [key_col] + right_cols
-        df_right = df_right[[c for c in right_cols if c in df_right.columns]]
-
-    if key_col not in df_left.columns or key_col not in df_right.columns:
-        raise ValueError(f"Join key '{key_col}' not found in one or both datasets.")
-
-    merged_df = pd.merge(
-        df_left,
-        df_right,
-        on=key_col,
-        how='inner'
+    merged = pd.merge(
+        phenotypic_df,
+        subcortical_df,
+        on=id_col,
+        how="inner"
     )
 
-    return merged_df
+    logging.info(f"Merged dataset size: {len(merged)}")
+    return merged
 
 
 def save_dataframe(
     df: pd.DataFrame,
-    output_path: Union[str, Path],
-    index: bool = False,
-    delimiter: str = ','
+    filepath: Union[str, Path],
+    index: bool = False
 ) -> None:
     """
-    Save a DataFrame to a CSV or TSV file.
+    Save a DataFrame to a CSV file.
 
     Args:
         df: The DataFrame to save.
-        output_path: Path to the output file.
-        index: Whether to write row indices (default: False).
-        delimiter: Delimiter character (default: ',' for CSV, '\t' for TSV).
+        filepath: Output file path.
+        index: Whether to write the index.
     """
-    path = Path(output_path)
-    path.parent.mkdir(parents=True, exist_ok=True)
+    Path(filepath).parent.mkdir(parents=True, exist_ok=True)
+    df.to_csv(filepath, index=index)
 
-    if path.suffix.lower() == '.tsv':
-        delimiter = '\t'
 
-    df.to_csv(path, index=index, sep=delimiter)
-    
-    if not path.exists():
-        raise IOError(f"Failed to write output file: {path}")
+def main() -> None:
+    """
+    Main entry point for the loaders module (for testing).
+    """
+    project_root = get_project_root()
+    ensure_directories()
+
+    # Example: Load a file if it exists
+    sample_path = project_root / "data" / "raw" / "sample.csv"
+    if sample_path.exists():
+        df = load_csv(sample_path)
+        print(df.head())
+
+
+if __name__ == "__main__":
+    import logging
+    logging.basicConfig(level=logging.INFO)
+    main()

@@ -1,6 +1,6 @@
 """
 Pydantic schemas for benchmark data contracts.
 """
-from .schemas import BenchmarkRun, AggregatedResult
+from .benchmark_schemas import BenchmarkRun, AggregatedResult
 
 __all__ = ["BenchmarkRun", "AggregatedResult"]

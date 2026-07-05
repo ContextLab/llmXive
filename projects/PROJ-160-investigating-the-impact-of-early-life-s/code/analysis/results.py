@@ -1,8 +1,9 @@
 """
-Results module for statistical analysis outputs.
+Result data structures for statistical analysis.
 
-Defines base entity definitions for analysis results and statistical models
-used in the early life stress impact study.
+This module defines dataclasses for storing and serializing
+statistical model results, including coefficients, confidence intervals,
+and p-values.
 """
 
 from dataclasses import dataclass, field
@@ -13,210 +14,158 @@ import numpy as np
 
 
 class ModelType(Enum):
-    """Enumeration of supported statistical model types."""
-    LINEAR_MIXED_EFFECTS = "LMM"
-    LINEAR_REGRESSION = "LM"
-    PERMUTATION_TEST = "Permutation"
+    """Enumeration of model types supported by the pipeline."""
+    LMM = "LinearMixedModel"
+    OLS = "OrdinaryLeastSquares"
+    RATIO = "RatioAnalysis"
 
 
 @dataclass
 class StatisticalModel:
     """
-    Data class representing a fitted statistical model and its core metrics.
+    Data class representing a fitted statistical model.
 
     Attributes:
-        model_type: Type of statistical model used (e.g., LMM).
-        formula: The model formula string (e.g., 'y ~ x + z').
-        dependent_variable: Name of the dependent variable.
-        independent_variables: List of independent variable names.
-        beta_coefficients: Dictionary mapping variable names to beta coefficients.
-        standard_errors: Dictionary mapping variable names to standard errors.
-        confidence_intervals: Dictionary mapping variable names to (lower, upper) CI tuples.
-        p_values: Dictionary mapping variable names to uncorrected p-values.
-        corrected_p_values: Dictionary mapping variable names to Bonferroni-corrected p-values.
-        model_fit_stats: Dictionary of additional fit statistics (AIC, BIC, R-squared, etc.).
-        sample_size: Number of observations used in the model.
-        degrees_of_freedom: Degrees of freedom for the model.
+        subfield: The hippocampal subfield analyzed.
+        formula: The model formula used.
+        beta_ace: The beta coefficient for ACE score.
+        ci_95_low: Lower bound of 95% confidence interval.
+        ci_95_high: Upper bound of 95% confidence interval.
+        p_value: Uncorrected p-value.
+        log_likelihood: Model log-likelihood.
+        aic: Akaike Information Criterion.
+        bic: Bayesian Information Criterion.
+        n_obs: Number of observations.
     """
-    model_type: ModelType
+    subfield: str
     formula: str
-    dependent_variable: str
-    independent_variables: List[str]
-    beta_coefficients: Dict[str, float] = field(default_factory=dict)
-    standard_errors: Dict[str, float] = field(default_factory=dict)
-    confidence_intervals: Dict[str, tuple] = field(default_factory=dict)
-    p_values: Dict[str, float] = field(default_factory=dict)
-    corrected_p_values: Dict[str, float] = field(default_factory=dict)
-    model_fit_stats: Dict[str, float] = field(default_factory=dict)
-    sample_size: Optional[int] = None
-    degrees_of_freedom: Optional[int] = None
+    beta_ace: float
+    ci_95_low: float
+    ci_95_high: float
+    p_value: float
+    log_likelihood: float
+    aic: float
+    bic: float
+    n_obs: int
+    corrected_p_value: Optional[float] = None
 
     def to_dict(self) -> Dict[str, Any]:
-        """Convert the model object to a dictionary for serialization."""
+        """Convert the model results to a dictionary."""
         return {
-            "model_type": self.model_type.value,
+            "subfield": self.subfield,
             "formula": self.formula,
-            "dependent_variable": self.dependent_variable,
-            "independent_variables": self.independent_variables,
-            "beta_coefficients": self.beta_coefficients,
-            "standard_errors": self.standard_errors,
-            "confidence_intervals": {
-                k: list(v) if isinstance(v, tuple) else v
-                for k, v in self.confidence_intervals.items()
-            },
-            "p_values": self.p_values,
-            "corrected_p_values": self.corrected_p_values,
-            "model_fit_stats": self.model_fit_stats,
-            "sample_size": self.sample_size,
-            "degrees_of_freedom": self.degrees_of_freedom
+            "beta_ace": self.beta_ace,
+            "ci_95_low": self.ci_95_low,
+            "ci_95_high": self.ci_95_high,
+            "p_value": self.p_value,
+            "corrected_p_value": self.corrected_p_value,
+            "log_likelihood": self.log_likelihood,
+            "aic": self.aic,
+            "bic": self.bic,
+            "n_obs": self.n_obs
         }
-
-    def to_json(self, indent: int = 2) -> str:
-        """Serialize the model to a JSON string."""
-        return json.dumps(self.to_dict(), indent=indent)
 
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> "StatisticalModel":
-        """Create a StatisticalModel instance from a dictionary."""
-        # Convert string model type back to Enum
-        if isinstance(data.get("model_type"), str):
-            data["model_type"] = ModelType(data["model_type"])
-        
-        # Reconstruct confidence intervals from lists back to tuples if needed
-        if "confidence_intervals" in data:
-            data["confidence_intervals"] = {
-                k: tuple(v) if isinstance(v, list) else v
-                for k, v in data["confidence_intervals"].items()
-            }
-        
-        return cls(**data)
+        """Create a StatisticalModel from a dictionary."""
+        return cls(
+            subfield=data["subfield"],
+            formula=data["formula"],
+            beta_ace=data["beta_ace"],
+            ci_95_low=data["ci_95_low"],
+            ci_95_high=data["ci_95_high"],
+            p_value=data["p_value"],
+            log_likelihood=data["log_likelihood"],
+            aic=data["aic"],
+            bic=data["bic"],
+            n_obs=data["n_obs"],
+            corrected_p_value=data.get("corrected_p_value")
+        )
 
 
 @dataclass
 class AnalysisResult:
     """
-    Data class representing the complete result of a specific analysis.
-
-    This entity encapsulates the model, the data context, and the interpretation
-    flags required for the study.
+    Container for the full analysis results.
 
     Attributes:
-        analysis_id: Unique identifier for this analysis run.
-        subfield: The hippocampal subfield analyzed (e.g., 'CA3', 'DG', 'Subiculum').
-        model: The StatisticalModel object containing the fit results.
-        covariates_used: List of covariates included in the model.
-        normalization_method: Method used for volume normalization (e.g., 'ICV').
-        transformation_applied: Description of any data transformation (e.g., 'log').
-        interpretation: Textual interpretation of the findings (associational only).
-        is_significant_after_correction: Boolean indicating if any result survived correction.
-        metadata: Additional metadata about the analysis run.
+        models: List of StatisticalModel objects.
+        sensitivity_analysis: Optional sensitivity analysis results.
+        robustness_metrics: Optional robustness metrics.
     """
-    analysis_id: str
-    subfield: str
-    model: StatisticalModel
-    covariates_used: List[str]
-    normalization_method: str
-    transformation_applied: Optional[str] = None
-    interpretation: str = ""
-    is_significant_after_correction: bool = False
-    metadata: Dict[str, Any] = field(default_factory=dict)
-
-    def __post_init__(self):
-        """Validate and set derived fields after initialization."""
-        if not self.interpretation:
-            self._generate_default_interpretation()
-        
-        self._check_significance()
-
-    def _generate_default_interpretation(self):
-        """Generate a default interpretation string based on the model results."""
-        significant_vars = [
-            var for var, p in self.model.corrected_p_values.items()
-            if p < 0.05
-        ]
-        
-        if significant_vars:
-            vars_str = ", ".join(significant_vars)
-            self.interpretation = (
-                f"Associational analysis indicates a significant relationship between "
-                f"{vars_str} and {self.subfield} volume (p < 0.05, Bonferroni corrected). "
-                f"Note: This is an associational finding, not causal."
-            )
-        else:
-            self.interpretation = (
-                f"No statistically significant associations were found between the "
-                f"independent variables and {self.subfield} volume after Bonferroni correction "
-                f"(p >= 0.05). Note: This is an associational analysis."
-            )
-
-    def _check_significance(self):
-        """Update the is_significant_after_correction flag based on model results."""
-        self.is_significant_after_correction = any(
-            p < 0.05 for p in self.model.corrected_p_values.values()
-        )
+    models: List[StatisticalModel] = field(default_factory=list)
+    sensitivity_analysis: Optional[Dict[str, Any]] = None
+    robustness_metrics: Optional[Dict[str, Any]] = None
 
     def to_dict(self) -> Dict[str, Any]:
-        """Convert the analysis result to a dictionary for serialization."""
+        """Convert results to a dictionary."""
         return {
-            "analysis_id": self.analysis_id,
-            "subfield": self.subfield,
-            "model": self.model.to_dict(),
-            "covariates_used": self.covariates_used,
-            "normalization_method": self.normalization_method,
-            "transformation_applied": self.transformation_applied,
-            "interpretation": self.interpretation,
-            "is_significant_after_correction": self.is_significant_after_correction,
-            "metadata": self.metadata
+            "models": [m.to_dict() for m in self.models],
+            "sensitivity_analysis": self.sensitivity_analysis,
+            "robustness_metrics": self.robustness_metrics
         }
 
-    def to_json(self, indent: int = 2) -> str:
-        """Serialize the analysis result to a JSON string."""
-        return json.dumps(self.to_dict(), indent=indent)
+    def save_json(self, filepath: str) -> None:
+        """Save results to a JSON file."""
+        with open(filepath, 'w') as f:
+            json.dump(self.to_dict(), f, indent=2)
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "AnalysisResult":
-        """Create an AnalysisResult instance from a dictionary."""
-        model_data = data.get("model", {})
-        model = StatisticalModel.from_dict(model_data)
-        
+    def load_json(cls, filepath: str) -> "AnalysisResult":
+        """Load results from a JSON file."""
+        with open(filepath, 'r') as f:
+            data = json.load(f)
+
+        models = [StatisticalModel.from_dict(m) for m in data.get("models", [])]
         return cls(
-            analysis_id=data.get("analysis_id"),
-            subfield=data.get("subfield"),
-            model=model,
-            covariates_used=data.get("covariates_used", []),
-            normalization_method=data.get("normalization_method"),
-            transformation_applied=data.get("transformation_applied"),
-            interpretation=data.get("interpretation", ""),
-            is_significant_after_correction=data.get("is_significant_after_correction", False),
-            metadata=data.get("metadata", {})
+            models=models,
+            sensitivity_analysis=data.get("sensitivity_analysis"),
+            robustness_metrics=data.get("robustness_metrics")
         )
 
-    def summary_report(self) -> str:
-        """Generate a human-readable summary report of the analysis."""
-        lines = [
-            f"Analysis Result: {self.analysis_id}",
-            f"Subfield: {self.subfield}",
-            f"Model Type: {self.model.model_type.value}",
-            f"Formula: {self.model.formula}",
-            f"Sample Size: {self.model.sample_size}",
-            "",
-            "Coefficients:",
-        ]
-        
-        for var, beta in self.model.beta_coefficients.items():
-            se = self.model.standard_errors.get(var, 0.0)
-            p_uncorr = self.model.p_values.get(var, 1.0)
-            p_corr = self.model.corrected_p_values.get(var, 1.0)
-            
-            ci = self.model.confidence_intervals.get(var, (0.0, 0.0))
-            ci_str = f"[{ci[0]:.4f}, {ci[1]:.4f}]"
-            
-            lines.append(
-                f"  {var}: β={beta:.4f} (SE={se:.4f}), 95% CI={ci_str}, "
-                f"p={p_uncorr:.4f}, p_corr={p_corr:.4f}"
-            )
-        
-        lines.append("")
-        lines.append(f"Interpretation: {self.interpretation}")
-        
-        return "\n".join(lines)
+
+def apply_bonferroni_correction(p_values: List[float]) -> List[float]:
+    """
+    Apply Bonferroni correction to a list of p-values.
+
+    Args:
+        p_values: List of uncorrected p-values.
+
+    Returns:
+        List of corrected p-values (capped at 1.0).
+    """
+    n = len(p_values)
+    if n == 0:
+        return []
+
+    corrected = [min(p * n, 1.0) for p in p_values]
+    return corrected
+
+
+def main() -> None:
+    """
+    Main entry point for the results module (for testing).
+    """
+    # Example usage
+    model = StatisticalModel(
+        subfield="CA3",
+        formula="vol ~ ACE + age",
+        beta_ace=-0.05,
+        ci_95_low=-0.10,
+        ci_95_high=0.00,
+        p_value=0.04,
+        log_likelihood=-100.5,
+        aic=205.0,
+        bic=210.0,
+        n_obs=500
+    )
+
+    p_vals = [0.04, 0.01, 0.05]
+    corrected = apply_bonferroni_correction(p_vals)
+
+    print(f"Original p-values: {p_vals}")
+    print(f"Corrected p-values: {corrected}")
+
+
+if __name__ == "__main__":
+    main()

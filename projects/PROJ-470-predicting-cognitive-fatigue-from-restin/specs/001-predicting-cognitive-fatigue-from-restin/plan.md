@@ -34,7 +34,7 @@ Crucially, the analysis design is conditional: it first verifies if the dataset 
 | **III. Data Hygiene** | **PASS** | Raw data will be downloaded to `data/raw` and checksummed. Derived data (preprocessed, features) will be written to `data/processed` with new filenames. No in-place modification. PII scan will be run. |
 | **IV. Single Source of Truth** | **PASS** | All statistics in the final report will be generated programmatically from `data/processed` via `code/`. No hand-typed numbers. |
 | **V. Versioning Discipline** | **PASS** | Artifacts will be tracked with content hashes in the project state YAML. The `state/projects/PROJ-470...yaml` file will be updated with `updated_at` timestamps upon any artifact change, and the Advancement-Evaluator Agent will invalidate stale records. |
-| **VI. EEG Signal Processing** | **PASS** | Pipeline will use MNE-Python. Bandpass -40 Hz. Artifact rejection at ±100 µV. Average re-referencing. Configuration parameters stored in a config file. |
+| **VI. EEG Signal Processing** | **PASS** | Pipeline will use MNE-Python. Bandpass filtering within the lower frequency range.. Artifact rejection at ±100 µV. Average re-referencing. Configuration parameters stored in a config file. |
 | **VII. Statistical Transparency** | **PASS** | Correlation analysis will report Pearson/Spearman, p-values, CIs. Confounds will be controlled if available; otherwise, limitations will be explicitly stated. ANCOVA or cross-sectional models used to avoid collinearity. Benjamini-Hochberg correction applied. |
 
 ## Project Structure

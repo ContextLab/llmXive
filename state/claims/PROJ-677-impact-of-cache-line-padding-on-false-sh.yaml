@@ -53,3 +53,345 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-04T04:50:05Z'
+- artifact_path: projects/PROJ-677-impact-of-cache-line-padding-on-false-sh/specs/001-impact-of-cache-line-padding-on-false-sh/tasks.md
+  attempts: 1
+  canonical: packed counter size 24 bytes and padded counter size at least 192 bytes
+  claim_id: c_de6d93af
+  context: "Create `counter_packed.hpp` and `counter_padded.hpp` ... with `#pragma\
+    \ pack(1)` for packed (24 bytes) and `alignas(64)` for padded (\u2265192 bytes)"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Packed_counter_size_24_bytes_and_padded_counter_size_at_leas
+  kind: magnitude
+  raw_text: "packed (24 bytes) and padded (\u2265192 bytes)"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T07:17:30Z'
+- artifact_path: projects/PROJ-677-impact-of-cache-line-padding-on-false-sh/specs/001-impact-of-cache-line-padding-on-false-sh/tasks.md
+  attempts: 1
+  canonical: padded counter alignment 64 bytes
+  claim_id: c_ec19057c
+  context: "Create `counter_packed.hpp` and `counter_padded.hpp` ... with `#pragma\
+    \ pack(1)` for packed (24 bytes) and `alignas(64)` for padded (\u2265192 bytes)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: alignas(64)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T07:17:47Z'
+- artifact_path: projects/PROJ-677-impact-of-cache-line-padding-on-false-sh/specs/001-impact-of-cache-line-padding-on-false-sh/tasks.md
+  attempts: 1
+  canonical: packed counter size 24 bytes and padded counter size at least 192 bytes
+  claim_id: c_52cf2fb8
+  context: "Create `counter_packed.hpp` and `counter_padded.hpp` ... with `#pragma\
+    \ pack(1)` for packed (24 bytes) and `alignas(64) ` for padded (\u2265192 bytes)"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Packed_counter_size_24_bytes_and_padded_counter_size_at_leas
+  kind: magnitude
+  raw_text: "packed (24 bytes) and padded (\u2265192 bytes)"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T07:20:40Z'
+- artifact_path: projects/PROJ-677-impact-of-cache-line-padding-on-false-sh/specs/001-impact-of-cache-line-padding-on-false-sh/tasks.md
+  attempts: 1
+  canonical: benchmark execution across thread counts 1, 2, 4, and 8
+  claim_id: c_eef1d971
+  context: Execute the benchmark across all thread counts (1, 2, 4, 8) and both counter
+    configurations (packed, padded)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: thread counts (1, 2, 4, 8)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T07:20:54Z'
+- artifact_path: projects/PROJ-677-impact-of-cache-line-padding-on-false-sh/specs/001-impact-of-cache-line-padding-on-false-sh/tasks.md
+  attempts: 1
+  canonical: at least 5 timing samples per configuration
+  claim_id: c_4ecadc3e
+  context: "verifying CSV output is generated with \u22655 timing samples per configuration"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/At_least_5_timing_samples_per_configuration
+  kind: magnitude
+  raw_text: "\u22655 timing samples per configuration"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T07:21:13Z'
+- artifact_path: projects/PROJ-677-impact-of-cache-line-padding-on-false-sh/specs/001-impact-of-cache-line-padding-on-false-sh/tasks.md
+  attempts: 1
+  canonical: repeat each configuration at least 5 times
+  claim_id: c_fd720d66
+  context: "Add logic to `run_benchmarks.sh` to repeat each config multiple times\
+    \ (\u22655 runs) to ensure statistical independence"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Repeat_each_configuration_at_least_5_times
+  kind: magnitude
+  raw_text: "repeat each config multiple times (\u22655 runs)"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T07:21:49Z'
+- artifact_path: projects/PROJ-677-impact-of-cache-line-padding-on-false-sh/specs/001-impact-of-cache-line-padding-on-false-sh/tasks.md
+  attempts: 1
+  canonical: 4 thread count comparisons for Benjamini-Hochberg FDR correction
+  claim_id: c_99be7e66
+  context: Implement Benjamini-Hochberg FDR correction in `run_analysis.py` applied
+    to the p-values generated by T032 for the 4 thread count comparisons
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 4 thread count comparisons
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T07:22:04Z'
+- artifact_path: projects/PROJ-677-impact-of-cache-line-padding-on-false-sh/specs/001-impact-of-cache-line-padding-on-false-sh/tasks.md
+  attempts: 1
+  canonical: edge case of fewer than 8 cores
+  claim_id: c_0ec6aea0
+  context: Additional unit tests for edge cases (e.g., fewer than 8 cores) in `tests/unit/`
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Edge_case_of_fewer_than_8_cores
+  kind: magnitude
+  raw_text: fewer than 8 cores
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T07:22:37Z'
+- artifact_path: projects/PROJ-677-impact-of-cache-line-padding-on-false-sh/specs/001-impact-of-cache-line-padding-on-false-sh/tasks.md
+  attempts: 1
+  canonical: packed counter struct size is 24 bytes and padded counter struct size
+    is at least 192 bytes
+  claim_id: c_c7181c78
+  context: "T007 [P] [FR-002] Create `counter_packed.hpp` and `counter_padded.hpp`\
+    \ in `projects/PROJ-677-impact-of-cache-line-padding-false-sh/code/benchmark/`\
+    \ with `#pragma pack(1)` for packed (24 bytes) and `alignas(64) ` for padded (\u2265\
+    192 bytes)"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Packed_counter_struct_size_is_24_bytes_and_padded_counter_st
+  kind: magnitude
+  raw_text: "packed (24 bytes) and padded (\u2265192 bytes)"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T07:23:17Z'
+- artifact_path: projects/PROJ-677-impact-of-cache-line-padding-on-false-sh/specs/001-impact-of-cache-line-padding-on-false-sh/tasks.md
+  attempts: 1
+  canonical: padded counter struct size is at least 192 bytes
+  claim_id: c_fe021e2d
+  context: "T007 [P] [FR-002] Create `counter_packed.hpp` and `counter_padded.hpp`\
+    \ in `projects/PROJ-677-impact-of-cache-line-padding-false-sh/code/benchmark/`\
+    \ with `#pragma pack(1)` for packed (24 bytes) and `alignas(64) ` for padded (\u2265\
+    192 bytes)"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Padded_counter_struct_size_is_at_least_192_bytes
+  kind: magnitude
+  raw_text: "padded (\u2265192 bytes)"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T07:23:31Z'
+- artifact_path: projects/PROJ-677-impact-of-cache-line-padding-on-false-sh/specs/001-impact-of-cache-line-padding-on-false-sh/tasks.md
+  attempts: 1
+  canonical: benchmark executes across thread counts 2, 4, and 8
+  claim_id: c_2150cc6a
+  context: T022 [US2] Implement `run_benchmarks.sh` in `projects/PROJ-677-impact-of-cache-line-padding-false-sh/code/scripts/`
+    to iterate thread counts {2, 4, 8} and configs {packed, padded}
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: thread counts {2, 4, 8}
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T07:23:49Z'
+- artifact_path: projects/PROJ-677-impact-of-cache-line-padding-on-false-sh/specs/001-impact-of-cache-line-padding-on-false-sh/tasks.md
+  attempts: 1
+  canonical: benchmark executes across packed and padded configurations
+  claim_id: c_c0b8ad2d
+  context: T022 [US2] Implement `run_benchmarks.sh` in `projects/PROJ-677-impact-of-cache-line-padding-false-sh/code/scripts/`
+    to iterate thread counts {2, 4, 8} and configs {packed, padded}
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Benchmark_executes_across_packed_and_padded_configurations
+  kind: entity_fact
+  raw_text: configs {packed, padded}
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T07:24:05Z'
+- artifact_path: projects/PROJ-677-impact-of-cache-line-padding-on-false-sh/specs/001-impact-of-cache-line-padding-on-false-sh/tasks.md
+  attempts: 1
+  canonical: Benjamini-Hochberg FDR correction is applied to 4 thread count comparisons
+  claim_id: c_68f38660
+  context: T033 [US3] Implement Benjamini-Hochberg FDR correction in `run_analysis.py`
+    applied to the p-values generated by T032 for the 4 thread count comparisons (Success
+    Criteria SC-005)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 4 thread count comparisons
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T07:24:06Z'
+- artifact_path: projects/PROJ-677-impact-of-cache-line-padding-on-false-sh/specs/001-impact-of-cache-line-padding-on-false-sh/tasks.md
+  attempts: 1
+  canonical: packed counter size is 24 bytes
+  claim_id: c_71be866f
+  context: "Create `counter_packed.hpp` and `counter_padded.hpp` ... with `#pragma\
+    \ pack(1)` for packed (24 bytes) and `alignas(64) ` for padded (\u2265192 bytes)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: packed (24 bytes)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T07:25:48Z'
+- artifact_path: projects/PROJ-677-impact-of-cache-line-padding-on-false-sh/specs/001-impact-of-cache-line-padding-on-false-sh/tasks.md
+  attempts: 1
+  canonical: padded counter size is at least 192 bytes
+  claim_id: c_2e8652ce
+  context: "Create `counter_packed.hpp` and `counter_padded.hpp` ... with `#pragma\
+    \ pack(1)` for packed (24 bytes) and `alignas(64) ` for padded (\u2265192 bytes)"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Padded_counter_size_is_at_least_192_bytes
+  kind: magnitude
+  raw_text: "padded (\u2265192 bytes)"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T07:25:49Z'
+- artifact_path: projects/PROJ-677-impact-of-cache-line-padding-on-false-sh/specs/001-impact-of-cache-line-padding-on-false-sh/tasks.md
+  attempts: 1
+  canonical: counter_packed.hpp struct size is 24 bytes
+  claim_id: c_50e29bc0
+  context: Create `counter_packed.hpp` and `counter_padded.hpp` ... with `#pragma
+    pack(1)` for packed (24 bytes)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: packed (24 bytes)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T07:26:25Z'
+- artifact_path: projects/PROJ-677-impact-of-cache-line-padding-on-false-sh/specs/001-impact-of-cache-line-padding-on-false-sh/tasks.md
+  attempts: 1
+  canonical: counter_padded.hpp struct size is at least 192 bytes
+  claim_id: c_c87c9588
+  context: "Create `counter_packed.hpp` and `counter_padded.hpp` ... and `alignas(64)\
+    \ ` for padded (\u2265192 bytes)"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Counter_padded.hpp_struct_size_is_at_least_192_bytes
+  kind: magnitude
+  raw_text: "padded (\u2265192 bytes)"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T07:26:27Z'
+- artifact_path: projects/PROJ-677-impact-of-cache-line-padding-on-false-sh/specs/001-impact-of-cache-line-padding-on-false-sh/tasks.md
+  attempts: 1
+  canonical: benchmark thread counts are 2, 4, and 8
+  claim_id: c_6d529ac8
+  context: Implement `run_benchmarks.sh` ... to iterate thread counts {2, 4, 8}
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: thread counts {2, 4, 8}
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T07:26:27Z'
+- artifact_path: projects/PROJ-677-impact-of-cache-line-padding-on-false-sh/specs/001-impact-of-cache-line-padding-on-false-sh/tasks.md
+  attempts: 1
+  canonical: line plot includes 95% confidence intervals
+  claim_id: c_4ccff8f1
+  context: generate a line plot with 95% confidence intervals
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 95% confidence intervals
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T07:26:27Z'
+- artifact_path: projects/PROJ-677-impact-of-cache-line-padding-on-false-sh/specs/001-impact-of-cache-line-padding-on-false-sh/tasks.md
+  attempts: 1
+  canonical: Benjamini-Hochberg FDR correction applied to 4 thread count comparisons
+  claim_id: c_c04c0e4f
+  context: Implement Benjamini-Hochberg FDR correction ... for the 4 thread count
+    comparisons
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 4 thread count comparisons
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T07:26:27Z'
