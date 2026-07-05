@@ -1,0 +1,48 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+type: object
+properties:
+  galaxy_id:
+    type: string
+    description: "Unique identifier for the galaxy"
+  radial_distances:
+    type: array
+    items:
+      type: number
+    description: "Radial distances in kpc"
+  rotational_velocities:
+    type: array
+    items:
+      type: number
+    description: "Rotational velocities in km/s"
+  velocity_uncertainties:
+    type: array
+    items:
+      type: number
+    description: "Velocity uncertainties in km/s"
+  inclination:
+    type: number
+    description: "Inclination angle in degrees"
+  inclination_uncertainty:
+    type: number
+    description: "Inclination uncertainty in degrees"
+  baryonic_mass_distribution:
+    type: object
+    properties:
+      stellar_surface_density:
+        type: array
+        items:
+          type: number
+      gas_surface_density:
+        type: array
+        items:
+          type: number
+    description: "Stellar and gas surface densities"
+required:
+  - galaxy_id
+  - radial_distances
+  - rotational_velocities
+  - velocity_uncertainties
+  - inclination
+  - inclination_uncertainty
+  - baryonic_mass_distribution
+additionalProperties: false

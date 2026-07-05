@@ -1,0 +1,110 @@
+resolved_at: '2026-07-05T02:56:50.990102+00:00'
+datasets:
+- intent: SPARC
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/jellyChiru/SParC/resolve/main/train.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/AayushShah/SQL_SparC_Dataset_With_Schema/resolve/main/data/train-00000-of-00001-0349cde71eba5135.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/lkaesberg/SPaRC/resolve/main/human_annotation/example.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 29761
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/jellyChiru/SParC/resolve/main/train.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/AayushShah/SQL_SparC_Dataset_With_Schema/resolve/main/data/train-00000-of-00001-0349cde71eba5135.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/api/resolve-cache/datasets/aherntech/sparc/607e756d896d1d3270ed35be46db000895c4f2ed/dev.json?%2Fdatasets%2Faherntech%2Fsparc%2Fresolve%2Fmain%2Fdev.json=&etag=%2271173631416464b7b99df2589d8fa4c44bf3525e%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/api/resolve-cache/datasets/adarshsahu27/sparc-llama2/103dd455b042be85ae7e617311843b62f6354191/formatted_sparc.csv?%2Fdatasets%2Fadarshsahu27%2Fsparc-llama2%2Fresolve%2Fmain%2Fformatted_sparc.csv=&etag=%22aae2f3f8c155df34bf2eb30113a09b12c023253c%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/lkaesberg/SPaRC/resolve/main/human_annotation/example.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://figshare.com/articles/presentation/La_evasi_n_tributaria_y_su_impacto_en_la_econom_a/32901065
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/La_tendencia_interna_trascendente_como_categor_a_diferenciada_del_dolo_por_Nefijesus_Cruz/32901074
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/Broadcast_Baiting_when_eradication_fuels_invasion/32901071
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/Neutron_Star_Baryogenesis_Through_Superfluid_Vacuum_Cavitation/32900981
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://bridges.monash.edu/articles/dataset/Quantitative_Analysis_Data_for_SCAR_Mentions_by_the_ATCMs_Including_Climate_Change_Advice/32901053
+    source: figshare
+    status: unreachable
+    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''bridges.monash.edu'',
+      port=443): Max retries exceeded with url: /articles/dataset/Quantitative_Analysis_Data_for_SCAR_Mentions_by_the_ATCMs_Including_Climate_Change_Advice/32901053
+      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
+      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
+  - url: https://zenodo.org/records/5564146
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3361583
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6812276
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20497757
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10474045
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21199818
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21199818
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21198361
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21198361
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21117379
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

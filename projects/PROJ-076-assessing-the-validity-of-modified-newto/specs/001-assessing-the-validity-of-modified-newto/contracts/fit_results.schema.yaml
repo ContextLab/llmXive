@@ -1,0 +1,41 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+type: object
+properties:
+  galaxy_id:
+    type: string
+    description: "Unique identifier for the galaxy"
+  model_type:
+    type: string
+    enum: ["MOND", "NFW"]
+    description: "Type of model fitted"
+  fitted_parameters:
+    type: object
+    description: "Fitted parameters for the model"
+  reduced_chi_squared:
+    type: number
+    description: "Reduced chi-squared value"
+  AIC:
+    type: number
+    description: "Akaike Information Criterion"
+  BIC:
+    type: number
+    description: "Bayesian Information Criterion"
+  residual_statistics:
+    type: object
+    properties:
+      mean:
+        type: number
+      median:
+        type: number
+      std:
+        type: number
+    description: "Residual statistics"
+required:
+  - galaxy_id
+  - model_type
+  - fitted_parameters
+  - reduced_chi_squared
+  - AIC
+  - BIC
+  - residual_statistics
+additionalProperties: false

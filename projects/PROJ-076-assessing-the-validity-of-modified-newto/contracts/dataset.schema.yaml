@@ -1,0 +1,53 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: SPARC Galaxy Dataset Schema
+description: Schema for validated SPARC galaxy rotation curve data
+type: object
+required:
+  - galaxy_id
+  - distance
+  - inclination
+  - inclination_uncertainty
+  - hubble_type
+  - rotation_curve
+properties:
+  galaxy_id:
+    type: string
+    description: Unique identifier for the galaxy (e.g., "UGC00001")
+  distance:
+    type: number
+    description: Distance to galaxy in Mpc
+    minimum: 0
+  inclination:
+    type: number
+    description: Inclination angle in degrees
+    minimum: 0
+    maximum: 90
+  inclination_uncertainty:
+    type: number
+    description: Uncertainty in inclination angle in degrees
+    minimum: 0
+  hubble_type:
+    type: string
+    description: Hubble classification (e.g., "Sc", "SBb")
+  rotation_curve:
+    type: array
+    description: Array of rotation curve data points
+    minItems: 1
+    items:
+      type: object
+      required:
+        - radial_distance
+        - velocity
+        - velocity_uncertainty
+      properties:
+        radial_distance:
+          type: number
+          description: Radial distance in kpc
+          minimum: 0
+        velocity:
+          type: number
+          description: Rotational velocity in km/s
+        velocity_uncertainty:
+          type: number
+          description: Uncertainty in velocity in km/s
+          minimum: 0

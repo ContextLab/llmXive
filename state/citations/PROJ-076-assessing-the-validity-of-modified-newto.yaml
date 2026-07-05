@@ -1,4 +1,4 @@
-- artifact_hash: 57e5426c8d216cf3433aed716cb5099fd13023935a500c512a4c4f3f4d29122f
+- artifact_hash: 6f9a263a68eec8170b077b0022d79b2adfa522dd00b2510998d8a8d5a58bed32
   artifact_path: projects/PROJ-076-assessing-the-validity-of-modified-newto/specs/001-assessing-the-validity-of-modified-newto/spec.md
   cite_id: c-001
   cited_authors: []
@@ -6,6 +6,39 @@
   fetched_title: SPARC
   kind: url
   value: https://astroweb.cwru.edu/SPARC/
-  verification_status: verified
+  verification_status: pending
   verified_against_url: https://astroweb.cwru.edu/SPARC/
-  verified_at: '2026-06-28T23:23:17.301807Z'
+  verified_at: '2026-07-05T02:56:17.683595Z'
+- artifact_hash: 2dd2bbf9af914e227fd3492dd3f07ae96bb922119ddf83e4e36dc0d5d5228afd
+  artifact_path: projects/PROJ-076-assessing-the-validity-of-modified-newto/specs/001-assessing-the-validity-of-modified-newto/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: SPARC
+  kind: url
+  value: https://astroweb.cwru.edu/SPARC/
+  verification_status: pending
+  verified_against_url: https://astroweb.cwru.edu/SPARC/
+  verified_at: '2026-07-05T03:05:11.491803Z'
+- artifact_hash: 74281827823029dc9ee1a27c36bb1014e185c2f7f0be3fc8ed5f824ff658a1bd
+  artifact_path: projects/PROJ-076-assessing-the-validity-of-modified-newto/specs/001-assessing-the-validity-of-modified-newto/quickstart.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: "GitHub - your-org/your-repo \xB7 GitHub"
+  kind: url
+  value: https://github.com/your-org/your-repo.git
+  verification_status: verified
+  verified_against_url: https://github.com/your-org/your-repo
+  verified_at: '2026-07-05T03:05:37.528080Z'
+- artifact_hash: 74281827823029dc9ee1a27c36bb1014e185c2f7f0be3fc8ed5f824ff658a1bd
+  artifact_path: projects/PROJ-076-assessing-the-validity-of-modified-newto/specs/001-assessing-the-validity-of-modified-newto/quickstart.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: SPARC
+  kind: url
+  value: https://astroweb.cwru.edu/SPARC/
+  verification_status: pending
+  verified_against_url: https://astroweb.cwru.edu/SPARC/
+  verified_at: '2026-07-05T03:05:37.528080Z'

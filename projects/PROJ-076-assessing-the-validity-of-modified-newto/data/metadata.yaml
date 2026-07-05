@@ -1,0 +1,35 @@
+project:
+  name: PROJ-076-assessing-the-validity-of-modified-newto
+  description: Assessing the Validity of Modified Newtonian Dynamics with Galaxy Rotation Curves
+  version: 0.1.0
+data:
+  source: SPARC
+  url: http://astroweb.cs.washington.edu/SPARC/
+  download_timestamp: null
+  version: 1.0
+models:
+  mond:
+    a0: 1.2e-10
+    interpolating_function: simple
+  nfw:
+    concentration_prior:
+      enabled: true
+      scaling_exponent: -0.5
+analysis:
+  inclination_threshold: 10.0
+  min_points: 15
+  alpha: 0.05
+  bootstrap_iterations: 1000
+  chi2_thresholds:
+  - 1.0
+  - 1.25
+  - 1.5
+  - 1.75
+paths:
+  raw_data: data/raw/sparc_data.zip
+  processed_data: data/processed/filtered_galaxies.csv
+  fit_results: results/fit_summary.csv
+  sensitivity_data: results/sensitivity_data.csv
+  residual_stats: results/residual_stats.csv
+  sensitivity_report: results/sensitivity_report.md
+  analysis_verdict: results/analysis_verdict.md
