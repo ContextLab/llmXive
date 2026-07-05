@@ -122,7 +122,7 @@
 
 - [X] T042 Implement binomial prevalence test, Wilson CI, **and sensitivity analysis** (FR‑005a & FR‑005b) in `src/audit/prevalence.py` including dynamic Bonferroni correction (α = 0.05 / number_of_subgroups) per FR‑032 (verify JSON output contains required fields including sensitivity analysis results).
 - [X] T042b **[P]** Verify that `prevalence.json` does **not** contain any entries flagged for sample‑size mismatch (cross‑check with T025c). (depends on T025c)
-- [ ] T043 Unit tests for binomial test and CI width ≤ 0.10 (1807.00365, https://arxiv.org/abs/1807.00365) (tests/unit/test_prevalence.py) (verify test passes).
+- [X] T043 Unit tests for binomial test and CI width ≤ 0.10 (1807.00365, https://arxiv.org/abs/1807.00365) (tests/unit/test_prevalence.py) (verify test passes).
 - [X] T044 **[P]** Domain Bias Subsampling – create a balanced subsample of the corpus so that no single domain exceeds 30 % before bias adjustment (FR‑027). (writes `data/subsampled_balanced.csv`). **DEPENDS ON:** T006‑T012.
 - [X] T045 Implement bias‑adjustment module that computes domain‑weighted prevalence using domain‑weighted averaging (FR‑027) **and either subsamples the dominant domain *or* flags a violation** per FR‑027 (constraint‑preservation‑01844dd3) in `src/audit/bias_adjustment.py` (verify bias‑adjusted rate is written and appropriate action taken when any domain exceeds 30 %). **DEPENDS ON:** T044.
 - [X] T046 Unit tests for bias‑adjustment ensuring no domain exceeds 30 % proportion (tests/unit/test_bias_adjustment.py) (verify test passes).
@@ -174,9 +174,9 @@
 
 - [X] T098 Add resource‑monitoring module `src/utils/resource_monitor.py` that records peak CPU & memory, writes to `output/resource_log.json` (SC‑008) **and aborts with `ERR-301` when limits exceeded per FR‑009** (verify log file exists, records within limits, and abort logic triggers on breach).
 - [X] T063 Modify `src/cli/run_audit.py` to invoke `resource_monitor` and abort with `ERR-301` if limits exceeded (plan.md) (run AFTER T098) (verify script aborts on limit breach) [DEPENDS ON: T098].
-- [ ] T064 Update `.github/workflows/audit.yml` to include steps: (a) schema validation, (b) synthetic validation (ensure precision/recall thresholds), (c) resource‑monitor check, (d) main pipeline run (verify workflow runs all steps) [DEPENDS ON: T098]. <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
+- [ ] T064 Update `.github/workflows/audit.yml` to include steps: (a) schema validation, (b) synthetic validation (ensure precision/recall thresholds), (c) resource‑monitor check, (d) main pipeline run (verify workflow runs all steps) [DEPENDS ON: T098]. <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
 - [X] T065 Add CI step that caches `pip` packages to stay within 6 hour total runtime (plan.md) (verify cache hit on subsequent runs).
-- [ ] T066 Add unit test for resource monitor parsing of `/proc` (tests/unit/test_resource_monitor.py) (verify test passes) [DEPENDS ON: T098].
+- [X] T066 Add unit test for resource monitor parsing of `/proc` (tests/unit/test_resource_monitor.py) (verify test passes) [DEPENDS ON: T098].
 - [ ] T095b Verify Quickstart Docker guide also reproduces environment via `requirements.txt` and isolated venv (Constitution Principle I) (verify Dockerfile runs `pip install -r requirements.txt` and that a venv is created) (addresses ordering‑28dea5aa).
 - [ ] T095c **[P]** Verify that the CI run includes a step that checks all seven Constitution Principles (I‑VII) are satisfied (ties to PT005C) (verify CI step exists and passes). (depends on PT005C)
 
@@ -208,16 +208,16 @@
 **⚠️ NOTE**: All Phase X tasks depend on completion of Phases 3‑7 implementation artifacts.
 
 - [ ] T072 Verify SC‑001: Extraction accuracy ≥ 95 % on `data/manual_validation/real_world_labels.csv` (run `tests/integration/test_extractor_accuracy.py`) (depends on T020, T069c) (addresses ordering‑fef4baa0). **Also confirms stratification across five domains.**
-- [ ] T073 Verify SC‑003: Monte‑Carlo vs library difference ≤ 0.005 for each statistical test for each statistical test (run `src/audit/monte_carlo_validation.py`) (depends on T062) (addresses ordering‑326c451a).
+- [ ] T073 Verify SC‑003: Monte‑Carlo vs library difference ≤ 0.005 for each statistical test [UNRESOLVED-CLAIM: c_23bf5428 — status=not_enough_info] for each statistical test (run `src/audit/monte_carlo_validation.py`) (depends on T062) (addresses ordering‑326c451a).
 - [ ] T074 Verify SC‑005: The parsing‑error rate is ≤ 5 %. (run `src/audit/validator.py` and check log summary) (depends on T020) (addresses ordering‑fb2f11e6).
 - [ ] T075 Verify SC‑008: CI execution completes within 6 h, ≤ 2 GB RAM, ≤ 2 vCPU (inspect `output/resource_log.json`) (depends on T098) (addresses ordering‑6e28c95b).
 - [ ] T076 Verify SC‑013: The CI pipeline exits with status 0 and produces `manifest.json` in ≥ 99 % of runs. (run CI locally and check); compute checksums for ALL files under `data/` (raw, processed) AND `output/` directories and record them in `data/checksums.txt` per Constitution Principle III and Principle IV (verify `data/checksums.txt` exists with SHA256 hashes) (depends on T056, T095c, T095a) (addresses ordering‑cfade9e1 and constraint‑preservation‑d467869d).
-- [ ] T077 Verify SC‑014: Binomial test output meets formatting and CI width ≤ 0.10 (run `src/audit/prevalence.py` and inspect JSON) (depends on T042) (addresses ordering‑fb2f11e6).
-- [ ] T078 Verify SC‑015: Sensitivity analysis variation is < 0.02 across baseline range. [UNRESOLVED-CLAIM: c_080c3c5f — status=not_enough_info] (run `src/audit/prevalence.py` and inspect results) (depends on T042) (addresses ordering‑fb2f11e6).
+- [ ] T077 Verify SC‑014: Binomial test output meets formatting and CI width ≤ 0.10 [UNRESOLVED-CLAIM: c_1ebced0b — status=not_enough_info] (run `src/audit/prevalence.py` and inspect JSON) (depends on T042) (addresses ordering‑fb2f11e6).
+- [ ] T078 Verify SC‑015: Sensitivity analysis variation is < 0.02 across baseline range. [UNRESOLVED-CLAIM: c_9fd5dd77 — status=not_enough_info] (run `src/audit/prevalence.py` and inspect results) (depends on T042) (addresses ordering‑fb2f11e6).
 - [ ] T079 Verify SC‑024: `summary_report.csv` columns and values match `audit_report.json` (run `tests/integration/test_summary_consistency.py`) (depends on T047) (addresses ordering‑fb2f11e6).
-- [ ] T080 Verify SC‑020: Audited corpus size N ≥ 300 (check `output/power_analysis.json`) (depends on T028) (addresses ordering‑fb2f11e6).
+- [ ] T080 Verify SC‑020: Audited corpus size N ≥ 300 [UNRESOLVED-CLAIM: c_cff0f912 — status=not_enough_info] (check `output/power_analysis.json`) (depends on T028) (addresses ordering‑fb2f11e6).
 - [ ] T081 Verify SC‑026: Monte‑Carlo validation passes for all tests (same as T073) (depends on T062) (addresses ordering‑326c451a).
-- [ ] T082 Verify SC‑027: No domain exceeds a substantial proportion and bias‑adjusted rate reported (run `src/audit/bias_adjustment.py` and inspect output) (depends on T045) (addresses ordering‑fb2f11e6).
+- [ ] T082 Verify SC‑027: No domain exceeds a substantial proportion and bias‑adjusted rate reported [UNRESOLVED-CLAIM: c_889e9314 — status=not_enough_info] (run `src/audit/bias_adjustment.py` and inspect output) (depends on T045) (addresses ordering‑fb2f11e6).
 - [ ] T083 Verify SC‑028: Quickstart guide enables audit of 30 URLs in ≤ 30 minutes on **default GitHub Actions runner** (2 vCPU, 7 GB RAM) and records novice‑user verification log (depends on T049, T095b) (addresses ordering‑28dea5aa).
 - [ ] T084 Verify SC‑030: Synthetic validation precision ≥ 90 % and recall ≥ 80 % (run T029) (depends on T026) (addresses ordering‑fef4baa0).
 - [ ] T085 Verify SC‑031b: Real‑world validation precision ≥ 85 % and recall ≥ 75 % (run T070) (depends on T070) (addresses ordering‑fef4baa0).
