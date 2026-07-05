@@ -1,0 +1,126 @@
+\section{Experiments}
+\label{sec:experiments}
+
+% \subsection{Core16 Suite and Agents}
+% \label{sec:core16-suite}
+
+% We evaluate four harness--model agents on the Core16 suite listed in
+% Appendix~\ref{app:core16-suite-details}. The suite covers four environment
+% families: Gym / Box2D, MuJoCo, MiniGrid, and Robotics / Driving. Each run gives
+% the agent a 128-episode interaction budget. The agent decides how to spend this
+% budget across candidate policy evaluations and visible train cases. After the
+% optimization loop ends, hidden validation selects the checkpoint from that run,
+% and hidden held-out evaluation measures final generalization. We use 16
+% validation cases and 32 held-out cases per environment. Tables also include a
+% uniform random-policy reference evaluated on the same held-out pools; it is not
+% a training agent and receives no interaction budget.
+
+% The leaderboard entries are complete harness--model agents. GPT-5.5 is run
+% through the Codex harness; Claude Opus 4.7, MiniMax-M3, and DeepSeek-V4-Pro are
+% run through the Claude Code-compatible harness. All agents face the same suite,
+% budget, validation size, and held-out size. We report validation-selected
+% held-out mean return for agents and held-out mean return for the random-policy
+% reference; higher is better within each environment.
+% Cross-environment summaries use the rank-score defined in
+% Section~\ref{sec:scoring-audit}. Conventional RL baselines are outside this
+% first leaderboard because their training interface differs from the interactive
+% code-editing setting studied here.
+
+\subsection{Experimental Setup}
+\label{sec:experimental-setup}
+
+
+We instantiate the evaluation framework on the Core16 suite listed in
+Appendix~\ref{app:core16-suite-details}. Core16 covers four environment families: Gym / Box2D, MuJoCo, MiniGrid, and Robotics / Driving. For each environment, all agents receive a 128-episode training budget, with 16 validation cases and 32 held-out cases reserved for server-side selection and final evaluation. We evaluate each model together with its coding harness and include the harness as part of the evaluation dimension: GPT-5.5 is run through the Codex harness, while Claude Opus 4.7, MiniMax-M3, and DeepSeek-V4-Pro are run through the Claude Code harness. All agents face the same Core16 environment suite, case splits, submission interface, and scoring protocol. 
+
+We do not normalize token use, context management, or provider-specific inference defaults across harnesses; these are part of the evaluated model-and-harness system, and token statistics are reported only as diagnostics in Appendix~\ref{app:token-accounting}. Each leaderboard cell is one 128-episode optimization run for one model together with its coding harness on one environment, followed by hidden-validation checkpoint selection and held-out evaluation. We report validation-selected held-out mean return for each agent, with higher values indicating better performance within each environment. A uniform random policy is also evaluated on the same held-out pools.
+Conventional RL baselines are outside this leaderboard because their training interface differs from the interactive code-editing setting studied here. The 128-episode budget is also far below the sample regime in which standard RL training methods are expected to converge; giving them the much larger budgets needed for convergence would change the comparison being measured.
+%\runzhe{exact token use, budget, and inference settings. zhilin: In coding agent setting, temperature. max token length, etc. are not emphasized. }. 
+%\runzhe{if there is only one 128-episode optimization run per cell, say so plainly}
+% Cross-environment summaries
+% use the rank-score defined in Section~\ref{sec:scoring-audit}. 
+
+
+
+\subsection{Leaderboard Results}
+\label{sec:leaderboard-results}
+\label{sec:aggregate-ranking}
+
+Tables~\ref{tab:core16-raw} and~\ref{tab:aggregate} give two complementary readings of the same Core16 experiments. Table~\ref{tab:core16-raw} reports the validation-selected held-out return in each environment, preserving the native reward scale for within-environment comparison. Because these reward scales are not comparable across tasks, Table~\ref{tab:aggregate} summarizes each model together with its coding harness using the rank score defined in Appendix~\ref{app:evaluation-and-scoring}. The aggregate score should therefore be read as a reliability measure across heterogeneous tasks, not as an average return.
+
+\input{tables/core16_raw}
+\input{tables/aggregate}
+\paragraph{The leading entries are defined by coverage.}
+GPT-5.5 obtains the highest Core16 score ($0.891$), with nine wins and top-two placement on all 16 environments. 
+Claude Opus 4.7 ranks second ($0.750$), with five wins and 12 top-two placements. 
+The gap is therefore not only a count of first-place finishes: GPT-5.5 is the only entry that remains near the top across every environment, while Claude Opus 4.7 remains second overall through strong coverage and the best MiniGrid family score ($0.938$).
+
+\paragraph{Different task families favor different agents.}
+The raw held-out returns explain how these aggregate scores arise. GPT-5.5
+leads the Gym / Box2D, MuJoCo, and Robotics / Driving family scores, whereas
+Claude Opus 4.7 is strongest on MiniGrid. At the task level, Claude Opus 4.7
+wins ContinuousCar, Ant, KeyCorridor, FourRooms, and ObstructedMaze, while
+GPT-5.5 supplies the broader set of wins across the remaining families. This
+pattern makes the leaderboard more informative than a single global winner: it
+shows both the overall reliability ordering and the task families where that
+ordering changes.
+
+\paragraph{Local wins do not imply suite-level reliability.}
+MiniMax-M3 and DeepSeek-V4-Pro each win one environment, but their aggregate scores remain substantially lower. 
+MiniMax-M3 wins HalfCheetah and reaches the top two on Parking and FetchPickAndPlace, yet its weaker Gym / Box2D and MiniGrid ranks reduce its Core16 score to $0.531$. 
+DeepSeek-V4-Pro wins Roundabout but has only one top-two placement overall, giving a Core16 score of
+$0.359$. 
+The uniform random policy scores $0.109$, mainly from shared rank credit on MiniGrid zero-score ties. The leaderboard therefore rewards consistent near-top performance across the suite rather than isolated task success.
+
+
+
+
+
+
+\subsection{Post-Hoc Score Trajectories}
+\label{sec:score-evolution}
+
+
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=0.98\textwidth]{figs/score_evolution_main_1.pdf}
+    \caption{\small Score evolution over each run's episode-budget trajectory. Each curve tracks the post-hoc best-so-far hidden-validation score across candidate evaluations. Vertical jumps indicate improvements in the selected policy, while plateaus correspond to budget spent without improvement.}
+    \label{fig:score-evolution}
+\end{figure}
+
+The leaderboard aggregates each run into a single selected checkpoint, which
+hides the temporal structure of how high-performing policies are discovered.
+We therefore compute a post-hoc diagnostic: the evolution of the best-so-far
+hidden-validation score over the consumed episode budget
+(Figure~\ref{fig:score-evolution}). The agent never observes these
+hidden-validation curves during optimization; they are reconstructed after the
+run to show when useful candidate policies appeared. These trajectories capture
+when improvements occur, how frequently they arise, and how efficiently budget
+is converted into better candidate policies.
+
+
+A key signal in these curves is the occurrence of improvement events over the
+budget. Each vertical jump corresponds to the discovery of a higher-quality
+candidate policy, while flat segments indicate periods in which additional
+budget does not yield improvements on hidden validation. The timing of these
+jumps provides a post-hoc efficiency diagnostic, distinguishing agents that
+identify high-scoring candidate policies early from agents that consume more
+budget before reaching comparable hidden-validation scores.
+In Figure~\ref{fig:score-evolution}, MiniGrid panels often show sparse but
+sharp jumps, MuJoCo panels show more incremental gains, and several robotics
+or driving panels show delayed improvements after substantial budget has been
+spent. These curves are computed only after each run is finished; they are used
+for analysis, not as feedback that agents can observe during optimization.
+
+
+These trajectory-level patterns complement the leaderboard results by
+distinguishing final performance from the path by which candidates appeared.
+They show that similar selected-checkpoint scores can arise from early jumps
+followed by plateaus or from late improvements after much of the budget has
+already been consumed. Section~\ref{sec:behavior-analysis} provides
+qualitative evidence about these trajectories through interaction logs and
+code-edit diagnostics, including how agents use feedback, revise code, and preserve selected checkpoints.
+
+%\runzhe{``many''?What specific environments are you referring to? Model-specific timing claims should be accompanied by summary statistics across all 16 trajectories; otherwise restrict them to the environments shown in the figure}
+%runzhe{case studies illustrate plausible mechanisms but do not ``explain'' agent-level score differences causally. use ``provides qualitative evidence about'' instead.}
+

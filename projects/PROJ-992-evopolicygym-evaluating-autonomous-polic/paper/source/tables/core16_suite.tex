@@ -1,0 +1,33 @@
+\begin{table}[H]
+\caption{Implemented \evopolicygym{} scenarios used in the 128-episode
+Core16 suite.}
+\label{tab:suite}
+\begin{center}
+\scriptsize
+\setlength{\tabcolsep}{3.5pt}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{llll}
+\toprule
+Category & Suite ID & Gymnasium env & Obs./action \\
+\midrule
+Gym / Box2D & \texttt{gym/acrobot} & \texttt{Acrobot-v1} & state/discrete \\
+Gym / Box2D & \texttt{gym/continuouscar} & \texttt{MountainCarContinuous-v0} & state/continuous \\
+Gym / Box2D & \texttt{gym/bipedal} & \texttt{BipedalWalker-v3} & state/continuous \\
+Gym / Box2D & \texttt{gym/racing} & \texttt{CarRacing-v3} & image/continuous \\
+MuJoCo & \texttt{gym/reacher5} & \texttt{Reacher-v5} & state/continuous \\
+MuJoCo & \texttt{gym/halfcheetah5} & \texttt{HalfCheetah-v5} & state/continuous \\
+MuJoCo & \texttt{gym/ant5} & \texttt{Ant-v5} & state/continuous \\
+MuJoCo & \texttt{gym/pusher5} & \texttt{Pusher-v5} & state/continuous \\
+MiniGrid & \texttt{gymnasium/MiniGrid-DoorKey-16x16-v0} & \texttt{MiniGrid-DoorKey-16x16-v0} & symbolic/discrete \\
+MiniGrid & \texttt{gymnasium/MiniGrid-KeyCorridorS4R3-v0} & \texttt{MiniGrid-KeyCorridorS4R3-v0} & symbolic/discrete \\
+MiniGrid & \texttt{gymnasium/MiniGrid-FourRooms-v0} & \texttt{MiniGrid-FourRooms-v0} & symbolic/discrete \\
+MiniGrid & \texttt{gymnasium/MiniGrid-ObstructedMaze-1Q-v1} & \texttt{MiniGrid-ObstructedMaze-1Q-v1} & symbolic/discrete \\
+Robotics / Driving & \texttt{gymnasium/parking-v0} & \texttt{parking-v0} & state/control \\
+Robotics / Driving & \texttt{gymnasium/roundabout-v0} & \texttt{roundabout-v0} & state/control \\
+Robotics / Driving & \texttt{gymnasium/FetchPush-v4} & \texttt{FetchPush-v4} & dict/continuous \\
+Robotics / Driving & \texttt{gymnasium/FetchPickAndPlace-v4} & \texttt{FetchPickAndPlace-v4} & dict/continuous \\
+\bottomrule
+\end{tabular}
+}
+\end{center}
+\end{table}

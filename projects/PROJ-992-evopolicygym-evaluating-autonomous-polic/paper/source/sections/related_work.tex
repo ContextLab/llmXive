@@ -1,0 +1,89 @@
+\section{Related Work}
+\paragraph{From static patches to long-horizon coding-agent evaluation.}
+% Repository-level benchmarks such as SWE-bench evaluate coding agents on
+% execution-grounded software-engineering tasks, requiring them to edit real
+% repositories and validate patches against project-level tests \citep{swebench}.
+% Agent systems built around this setting further emphasize repository navigation,
+% tool use, test execution, and agent-computer interfaces in realistic workflows
+% \citep{sweagent,openhands,codeact}.
+
+Repository-level benchmarks such as SWE-bench evaluate coding agents on execution-grounded software-engineering tasks, where agents edit real repositories and validate patches against unit tests \citep{swebench}. 
+Systems built on this setting emphasize repository navigation, tool use, and interactive debugging in realistic workflows \citep{sweagent,codeact,openhands}. Yet one-shot patch generation only partially captures software development, where code must be revised, extended, and maintained over time. Long-horizon benchmarks therefore move beyond single-edit success to study software evolution under repeated modifications, revealing issues such as quality degradation, multi-file consistency challenges, and mismatches between visible validation and hidden behavioral tests \citep{slopcodebench,sweci,sweevo,roadmapbench,specbench}. In contrast to these long-horizon benchmarks driven by evolving specifications and discrete unit-test outcomes, we study \emph{policy evolution under bounded feedback}, where agents iteratively refine executable policies from limited rollout signals and are evaluated by continuous return rather than binary test outcomes.
+
+
+% \runzhe{above text summarizes the literature but does not yet state our technical distinction. i suggest adding a closing contrast like, ... ``In contrast to benchmarks driven by coding tests, \evopolicygym{} holds the task contract fixed and evaluates how an agent improves a persistent decision policy from bounded rollout feedback, with xxxxx measurement.''}
+
+\paragraph{Feedback-driven self-improvement.}
+A line of research has shown that language models can improve their performance through iterative feedback rather than single-shot generation. Reflexion and Self-Refine leverage language-level reflection to refine outputs across attempts \citep{reflexion,selfrefine}. Building on this idea, Voyager, Eureka, FunSearch, and AlphaEvolve extend self-improvement to executable artifacts, enabling iterative improvement of skills, reward functions, programs, and algorithms via external feedback, thereby broadening the scope of self-evolution from language outputs to algorithmic and programmatic representations \citep{voyager,eureka,funsearch,alphaevolve}. Extending this further, our work studies this paradigm at the level of \emph{harness--model agents}, focusing on the ability of agents to iteratively improve their \emph{interaction-driven policies} through bounded environment feedback in a unified execution loop.
+
+
+\paragraph{Evaluation of interactive and self-improving agents.}
+Feedback-driven approaches have led to a range of interactive benchmarks that place agents in web, operating-system, database, and workplace environments to assess tool use, state tracking, and multi-step decision making \citep{agentbench,webarena,osworld,workarena}. However, these settings are primarily episodic, focusing on task completion within single interactions, and do not capture how agents iteratively improve a persistent policy across repeated deployments. A related line of experimentation benchmarks studies iterative machine-learning system development, where agents design, execute, and refine models or training pipelines under repeated feedback \citep{mlagentbench,mlebench}. While these settings introduce longer optimization loops, they remain centered on task-specific system construction rather than general policy evolution across a unified interaction interface.
+
+
+
+% \paragraph{Feedback-driven self-improvement and its evaluation.}
+% A line of method research has shown that language-model agents can improve
+% through feedback rather than producing a fixed one-shot output. 
+% \runzhe{Please separate self-improvement \emph{methods} from evaluation \emph{benchmarks} more sharply.}
+% Reflexion and
+% Self-Refine use language-level reflection and revision to improve performance
+% across attempts \citep{reflexion,selfrefine}, while Voyager, Eureka, FunSearch,
+% and AlphaEvolve extend this idea to executable artifacts, showing that agents can
+% iteratively refine skills, reward functions, programs, and algorithms through 
+% external feedback \citep{voyager,eureka,funsearch,alphaevolve}. This feedback-driven 
+% view has also shaped agent evaluation. 
+% \runzhe{Reflexion, ....,  AlphaEvolve demonstrate particular improvement algorithms, whereas our paper evaluates arbitrary harness--model agents under a common interface.}
+% Interactive benchmarks place agents in web,
+% operating-system, database, and workplace environments to measure tool use, state 
+% tracking, and multi-step decision making \citep{agentbench,webarena,osworld,workarena}.
+% \runzhe{we may prevent reviewers from asking whether \evopolicygym{} is merely another program-search system?}
+% Experimentation benchmarks such as MLAgentBench and MLE-bench further evaluate 
+% agents that iteratively design, execute, and refine machine-learning code and 
+% models under repeated feedback \citep{mlagentbench,mlebench}.
+
+
+
+% \paragraph{Bounded optimization and trajectory-level analysis for agents.}
+% Frontier-Eng studies generative engineering design under bounded optimization, where agents improve executable artifacts under explicit limits on feedback and computation. It covers a broad class of engineering environments, whereas we focus on standard reinforcement learning environments and study how agents iteratively improve decision-making policies through environment interaction. In our setting, interaction budgets are structured at the episode level, and feedback is mediated through a platform-controlled evaluation protocol that enforces consistent interaction constraints across episodes. These design choices make our setting particularly suitable for trajectory-level analysis. Prior work has shown that aggregate success rates can obscure important intermediate behaviors, such as retry patterns, failure recovery loops, and verification-related issues \citep{agentlens,codeagentbehavior,swechat,howcodingagentsfail}. Our episode-level budgeting and controlled feedback mechanism provide a more consistent and comparable basis for analysis, enabling finer-grained attribution of agent behavior across interaction trajectories.
+
+\paragraph{Bounded optimization and trajectory-level analysis for agents.}
+Frontier-Eng studies generative engineering design under bounded optimization, where agents improve executable artifacts under explicit limits on feedback and computation\citep{frontiereng}. It covers a broad class of engineering environments, whereas we consider standard reinforcement learning environments and study how agents iteratively improve decision-making policies through environment interaction. In this setting, interaction budgets are structured at the episode level, and feedback is mediated through a platform-controlled evaluation protocol that enforces consistent interaction constraints across episodes. These design choices make the setting suitable for trajectory-level analysis. Prior work has shown that aggregate success rates can obscure intermediate behaviors such as retry patterns, failure recovery loops, and verification-related issues \citep{agentlens,codeagentbehavior,swechat,howcodingagentsfail}. The episode-level budgeting and controlled feedback mechanism provide a more consistent and comparable basis for analysis, enabling finer-grained attribution of agent behavior along interaction trajectories.
+
+% Frontier-Eng studies generative engineering design under bounded optimization, where agents improve executable artifacts under explicit limits on feedback and computation. It defines budget in optimization steps and uses an external evaluator that returns a feasibility indicator and a scalar score for constraint satisfaction and performance assessment\citep{frontiereng}. By contrast, we allocate budget at the episode level rather than optimization steps, enabling finer-grained control of interaction trajectories, and replace explicit feasibility checking with a platform-mediated protocol where agents submit episodes to receive feedback under controlled interaction constraints. These design choices make our setting particularly suitable for trajectory-level analysis. Prior work shows that aggregate success rates can obscure intermediate behaviors such as retry patterns, failure recovery loops, and verification-related issues \citep{agentlens,codeagentbehavior,swechat,howcodingagentsfail}. Our episode-level budgeting and controlled feedback mechanism provide a more consistent and comparable basis for analysis, enabling finer-grained attribution of agent behavior across interaction trajectories.
+
+% CUDA-kernel benchmarks extend this perspective to
+% performance-oriented code generation, where success depends not only on
+% correctness but also on optimization strategies such as profiling, memory-access
+% tuning, parallelization, and feedback-guided refinement
+% \citep{kernelbench,robustkbench,cudaforge}. Complementing these task-level
+% evaluations, trajectory-analysis studies argue that aggregate pass rates can
+% obscure how coding agents actually solve or fail tasks. AgentLens surfaces patterns such as lucky
+% passes, blind retries, regression cycles, and missing verification
+% \citep{agentlens}, while analyses of OpenHands, SWE-agent, Prometheus, and real
+% developer--agent interactions examine context gathering, fault localization,
+% defensive programming, user pushback, and interaction failures
+% \citep{codeagentbehavior,swechat,howcodingagentsfail}.
+% \runzhe{I think we should state what is unique here. at present this paragraph lists neighboring areas but does not close the novelty argument.}
+
+
+
+
+% \paragraph{Bounded optimization and trajectory-level analysis for agents.}
+% Frontier-Eng represents a bounded-optimization benchmark for generative
+% engineering design, measuring how models improve executable artifacts when
+% feedback and computation are explicitly limited \citep{frontiereng}. 
+% \runzhe{Frontier-Eng deserves a direct assumption-by-assumption comparison.}
+% CUDA-kernel benchmarks extend this perspective to
+% performance-oriented code generation, where success depends not only on
+% correctness but also on optimization strategies such as profiling, memory-access
+% tuning, parallelization, and feedback-guided refinement
+% \citep{kernelbench,robustkbench,cudaforge}. Complementing these task-level
+% evaluations, trajectory-analysis studies argue that aggregate pass rates can
+% obscure how coding agents actually solve or fail tasks. AgentLens surfaces patterns such as lucky
+% passes, blind retries, regression cycles, and missing verification
+% \citep{agentlens}, while analyses of OpenHands, SWE-agent, Prometheus, and real
+% developer--agent interactions examine context gathering, fault localization,
+% defensive programming, user pushback, and interaction failures
+% \citep{codeagentbehavior,swechat,howcodingagentsfail}.
+% \runzhe{I think we should state what is unique here. at present this paragraph lists neighboring areas but does not close the novelty argument.}

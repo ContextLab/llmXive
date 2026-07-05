@@ -1,0 +1,38 @@
+\begin{table}[H]
+\caption{Per-environment values behind Figure~\ref{fig:two-abilities}. Scores
+are scaled between a random policy ($0$) and the best evaluated agent
+performance on that environment ($1$), with random anchors measured on the
+same held-out pools.}
+\label{tab:two-abilities-detail}
+\begin{center}
+\footnotesize
+\setlength{\tabcolsep}{5.5pt}
+\begin{tabular}{@{}lrrrr@{}}
+\toprule
+Demand / environment & GPT-5.5 & Claude Opus 4.7 & MiniMax-M3 & DeepSeek-V4-Pro \\
+\midrule
+\multicolumn{5}{@{}l}{\emph{Synthesis-dominant}} \\
+\quad DoorKey & 1.00 & 1.00 & 0.00 & 0.00 \\
+\quad KeyCorridor & 0.99 & 1.00 & 0.00 & 0.00 \\
+\quad ObstructedMaze & 0.99 & 1.00 & 0.00 & 0.00 \\
+\quad FourRooms & 0.94 & 1.00 & 0.55 & 0.06 \\
+\quad CarRacing & 1.00 & 1.00 & 0.42 & 0.09 \\
+\textbf{Synthesis mean} & \textbf{0.98} & \textbf{1.00} & \textbf{0.19} & \textbf{0.03} \\
+\midrule
+\multicolumn{5}{@{}l}{\emph{Tuning-dominant}} \\
+\quad Parking & 1.00 & 0.54 & 0.86 & 0.00 \\
+\quad Bipedal & 1.00 & 0.24 & 0.06 & 0.01 \\
+\quad HalfCheetah & 1.00 & 0.83 & 1.00 & 0.32 \\
+\quad FetchPush & 1.00 & 0.95 & 0.72 & 0.66 \\
+\quad Roundabout & 0.87 & 0.71 & 0.77 & 1.00 \\
+\quad FetchPickAndPlace & 1.00 & 0.95 & 0.96 & 0.73 \\
+\quad Pusher & 1.00 & 0.99 & 0.98 & 0.85 \\
+\quad Acrobot & 1.00 & 0.99 & 0.88 & 0.98 \\
+\quad Ant & 1.00 & 1.00 & 0.99 & 0.91 \\
+\quad Reacher & 1.00 & 0.99 & 0.96 & 0.92 \\
+\quad ContinuousCar & 0.97 & 1.00 & 0.95 & 0.97 \\
+\textbf{Tuning mean} & \textbf{0.99} & \textbf{0.83} & \textbf{0.83} & \textbf{0.67} \\
+\bottomrule
+\end{tabular}
+\end{center}
+\end{table}

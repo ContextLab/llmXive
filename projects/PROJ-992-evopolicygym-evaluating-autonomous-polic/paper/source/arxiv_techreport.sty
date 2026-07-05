@@ -1,0 +1,211 @@
+%%%% arxiv_techreport.sty
+%%%% Tech-report style for the arXiv version of this paper.
+%%%% Aesthetic: DeepMind skeleton + OpenAI restraint.
+%%%% Body and headings share a single serif (libertinus); a single muted
+%%%% cool-blue accent is used sparingly for section numbers, caption labels,
+%%%% link colour, and the abstract / contributions cards.
+%%%%
+%%%% This file is independent of iclr2026_conference.sty. Build the arxiv
+%%%% PDF with `pdflatex arxiv.tex'.
+
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{arxiv_techreport}[2026/06/03 Tech-report style]
+
+% ---------------------------------------------------------------------------
+% Geometry & page furniture
+% ---------------------------------------------------------------------------
+\RequirePackage[letterpaper,
+                top=1in, bottom=1in,
+                left=1.25in, right=1.25in,
+                heightrounded]{geometry}
+
+\RequirePackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0pt}
+\renewcommand{\footrulewidth}{0pt}
+
+\widowpenalty=10000
+\clubpenalty=10000
+\sloppy
+
+\renewcommand{\topfraction}{0.95}
+\renewcommand{\textfraction}{0.05}
+
+% Don't auto-emit table-of-contents lines (matches ICLR style).
+\def\addcontentsline#1#2#3{}
+
+% ---------------------------------------------------------------------------
+% Colour palette
+% ---------------------------------------------------------------------------
+\RequirePackage{xcolor}
+\definecolor{accent}{HTML}{10A37F}    % OpenAI mint, single accent
+\definecolor{rulegrey}{HTML}{D2D3D6}  % warm grey for thin rules / dividers
+\definecolor{cardbg}{HTML}{EDF7F3}    % card fill (very light mint tint)
+
+% ---------------------------------------------------------------------------
+% Fonts: one serif family for everything; bold for emphasis
+% ---------------------------------------------------------------------------
+\RequirePackage[T1]{fontenc}
+\RequirePackage{libertinus}
+
+% Tighter than 10pt looks dense at 6in width; libertinus default 10pt is fine.
+% Inter-line skip set via \linespread.
+\linespread{1.06}
+
+% ---------------------------------------------------------------------------
+% Lists & paragraph spacing
+% ---------------------------------------------------------------------------
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.5em plus 0.1em minus 0.05em}
+
+\RequirePackage{enumitem}
+\setlist{itemsep=2pt, parsep=0pt, topsep=3pt, partopsep=0pt}
+
+% ---------------------------------------------------------------------------
+% Citations (match ICLR observable behaviour)
+% ---------------------------------------------------------------------------
+\RequirePackage{natbib}
+\setcitestyle{authoryear,round,citesep={;},aysep={,},yysep={;}}
+
+% ---------------------------------------------------------------------------
+% Section headings: bold, accent-coloured number, same family as body
+% ---------------------------------------------------------------------------
+\RequirePackage{titlesec}
+
+\titleformat{\section}
+  {\Large\bfseries}
+  {\textcolor{accent}{\thesection}}
+  {0.8em}
+  {}
+\titlespacing*{\section}{0pt}{2.4ex plus 0.5ex minus 0.2ex}{1.0ex plus 0.2ex}
+
+\titleformat{\subsection}
+  {\large\bfseries}
+  {\textcolor{accent}{\thesubsection}}
+  {0.7em}
+  {}
+\titlespacing*{\subsection}{0pt}{2.0ex plus 0.4ex minus 0.2ex}{0.6ex plus 0.2ex}
+
+\titleformat{\subsubsection}
+  {\normalsize\bfseries}
+  {\textcolor{accent}{\thesubsubsection}}
+  {0.6em}
+  {}
+\titlespacing*{\subsubsection}{0pt}{1.6ex plus 0.3ex minus 0.2ex}{0.4ex plus 0.2ex}
+
+% Run-in paragraph headings, OpenAI-style.
+\titleformat{\paragraph}[runin]
+  {\normalfont\bfseries}
+  {}
+  {0pt}
+  {}
+\titlespacing*{\paragraph}{0pt}{1.4ex plus 0.3ex minus 0.2ex}{0.6em}
+
+% ---------------------------------------------------------------------------
+% Title block (replaces ICLR's \sc / banner version)
+% ---------------------------------------------------------------------------
+\def\maketitle{\par
+  \begingroup
+    \def\thefootnote{\fnsymbol{footnote}}%
+    \def\@makefnmark{\hbox to 0pt{$^{\@thefnmark}$\hss}}%
+    \long\def\@makefntext##1{\parindent 1em\noindent
+                             \hbox to1.8em{\hss $\m@th ^{\@thefnmark}$}##1}%
+    \@maketitle \@thanks
+  \endgroup
+  \setcounter{footnote}{0}%
+  \let\maketitle\relax \let\@maketitle\relax
+  \gdef\@thanks{}\gdef\@author{}\gdef\@title{}\let\thanks\relax}
+
+\def\@maketitle{%
+  \vbox{\hsize\textwidth
+    \raggedright
+    {\Huge\bfseries\@title\par}%
+    \vskip 0.5em
+    {\color{accent}\rule{0.28\textwidth}{0.8pt}}\par
+    \vskip 1.2em
+    \def\And{\end{tabular}\hfil\linebreak[0]\hfil
+            \begin{tabular}[t]{l}\bfseries\ignorespaces}%
+    \def\AND{\end{tabular}\hfil\linebreak[4]\hfil
+            \begin{tabular}[t]{l}\bfseries\ignorespaces}%
+    \begin{tabular}[t]{l}\bfseries\large\@author\end{tabular}%
+    \par
+    \vskip 1.6em
+  }%
+}
+
+% ---------------------------------------------------------------------------
+% Abstract: run-in, framed by thin grey rules
+% ---------------------------------------------------------------------------
+\renewenvironment{abstract}{%
+  \vskip 0.4em%
+  \noindent{\color{rulegrey}\rule{\textwidth}{0.4pt}}\par
+  \vskip 0.6em%
+  \noindent\textbf{\textcolor{accent}{Abstract.}}\hspace{0.45em}\ignorespaces
+}{%
+  \par\vskip 0.6em%
+  \noindent{\color{rulegrey}\rule{\textwidth}{0.4pt}}\par
+  \vskip 1.0em%
+}
+
+% ---------------------------------------------------------------------------
+% Captions: "Figure 1 | Overview ..." with accent label and thin grey bar
+% ---------------------------------------------------------------------------
+\RequirePackage{caption}
+\DeclareCaptionLabelFormat{barred}{%
+  \textbf{\textcolor{accent}{#1~#2}}\;\textcolor{rulegrey}{\textbar}%
+}
+\captionsetup{
+  labelformat=barred,
+  labelsep=quad,
+  font=small,
+  justification=justified,
+  singlelinecheck=false,
+}
+
+% ---------------------------------------------------------------------------
+% Hyperlinks (accent colour, no boxes)
+% ---------------------------------------------------------------------------
+\RequirePackage[hidelinks]{hyperref}
+\hypersetup{
+  colorlinks=true,
+  linkcolor=accent,
+  citecolor=accent,
+  urlcolor=accent,
+  filecolor=accent,
+  pdfborder={0 0 0},
+}
+
+% ---------------------------------------------------------------------------
+% Cards: Contributions / Key Takeaways (DeepMind-flavoured callouts)
+% ---------------------------------------------------------------------------
+\RequirePackage[most]{tcolorbox}
+
+\tcbset{
+  techreportcard/.style={
+    enhanced, breakable,
+    colback=cardbg,
+    colframe=accent,
+    boxrule=0pt,
+    leftrule=3pt,
+    arc=1.5pt, outer arc=1.5pt,
+    left=10pt, right=10pt, top=8pt, bottom=8pt,
+    before skip=10pt, after skip=10pt,
+    coltitle=accent,
+    fonttitle=\bfseries,
+    attach title to upper={\par\vskip 4pt},
+  }
+}
+
+\newtcolorbox{contributions}{%
+  techreportcard,
+  title={Contributions},
+}
+
+\newtcolorbox{keytakeaway}[1][TL;DR]{%
+  techreportcard,
+  title={#1},
+}
+
+\endinput

@@ -1,0 +1,46 @@
+\begin{table}[t]
+\caption{Core16 final held-out scores for each environment. Each cell is the validation-selected policy's mean return on that environment's held-out episodes, reported on the environment's native reward scale; values are comparable within an environment but not across environments. The uniform random-policy reference is evaluated on the same held-out pools. Best values are bolded, second-best values are underlined, and rows are sorted by Core16 aggregate rank score.}
+\label{tab:core16-raw}
+\begin{center}
+\scriptsize
+\setlength{\tabcolsep}{3pt}
+\textbf{A. Gym / Box2D and MuJoCo}\par\vspace{0.25em}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{llrrrrrrrr}
+\toprule
+ & & \multicolumn{4}{c}{Gym / Box2D $\uparrow$} & \multicolumn{4}{c}{MuJoCo $\uparrow$} \\
+\cmidrule(lr){3-6}\cmidrule(lr){7-10}
+Model & Harness & Acrobot & Cont.Car & Bipedal & CarRacing
+& Reacher & HalfCheetah & Ant & Pusher \\
+\midrule
+GPT-5.5 & Codex & \textbf{-84.688} & \underline{95.216} & \textbf{248.874} & \textbf{604.145} & \textbf{-3.473} & \underline{601.833} & \underline{989.580} & \textbf{-37.106} \\
+Claude Opus 4.7 & Claude Code & \underline{-88.594} & \textbf{98.774} & \underline{-15.844} & \underline{602.337} & \underline{-3.979} & 452.022 & \textbf{990.149} & \underline{-38.520} \\
+MiniMax-M3 & Claude Code & -136.406 & 91.881 & -80.874 & 233.435 & -5.103 & \textbf{606.154} & 983.425 & -39.245 \\
+DeepSeek-V4-Pro & Claude Code & -91.156 & 94.477 & -97.475 & 25.199 & -6.506 & -0.468 & 897.995 & -54.180 \\
+Random policy & Uniform & -499.156 & -33.359 & -100.976 & -29.627 & -43.772 & -291.844 & -34.602 & -147.462 \\
+\bottomrule
+\end{tabular}
+}
+
+\vspace{0.75em}
+\textbf{B. MiniGrid and Robotics / Driving}\par\vspace{0.25em}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{llrrrrrrrr}
+\toprule
+ & & \multicolumn{4}{c}{MiniGrid 
+ $\uparrow$} & \multicolumn{4}{c}{Robotics / Driving $\uparrow$} \\
+\cmidrule(lr){3-6}\cmidrule(lr){7-10}
+Model & Harness & DoorKey & KeyCorr. & FourRooms & Obst.Maze
+& Parking & Roundabout & FetchPush & FetchPick \\
+\midrule
+GPT-5.5 & Codex & \textbf{0.986} & \underline{0.918} & \underline{0.664} & \underline{0.904} & \textbf{-30.237} & \underline{9.818} & \textbf{-18.156} & \textbf{-11.812} \\
+Claude Opus 4.7 & Claude Code & \underline{0.983} & \textbf{0.930} & \textbf{0.701} & \textbf{0.911} & -38.181 & 9.331 & \underline{-19.688} & -13.344 \\
+MiniMax-M3 & Claude Code & 0.000 & 0.000 & 0.403 & 0.000 & \underline{-32.710} & 9.521 & -25.875 & \underline{-13.219} \\
+DeepSeek-V4-Pro & Claude Code & 0.000 & 0.000 & 0.079 & 0.000 & -53.384 & \textbf{10.203} & -27.656 & -20.562 \\
+Random policy & Uniform & 0.000 & 0.000 & 0.042 & 0.000 & -47.448 & 7.188 & -46.031 & -43.750 \\
+\bottomrule
+\end{tabular}
+
+}
+\end{center}
+\end{table}

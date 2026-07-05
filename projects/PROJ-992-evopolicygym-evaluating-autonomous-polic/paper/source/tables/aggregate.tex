@@ -1,0 +1,20 @@
+\begin{table}[t]
+\caption{Aggregate Core16 leaderboard. Family and Core16 scores are macro-averages of per-environment rank scores over the four agents and the uniform random-policy reference. \emph{Wins} counts first-place environments, \emph{Top-2} counts first- or second-place environments, and rows are sorted by Core16 score.}
+\label{tab:aggregate}
+\begin{center}
+\scriptsize
+\setlength{\tabcolsep}{3.5pt}
+\begin{tabular}{llrrrrrrrr}
+\toprule
+Model & Harness & Gym/Box2D & MuJoCo & MiniGrid & Robotics/Driving
+& Core16 & Budget & Wins & Top-2 \\
+\midrule
+GPT-5.5 & Codex & \textbf{0.938} & \textbf{0.875} & \underline{0.812} & \textbf{0.938} & \textbf{0.891} & 128 & 9 & 16 \\
+Claude Opus 4.7 & Claude Code & \underline{0.812} & \underline{0.750} & \textbf{0.938} & 0.500 & \underline{0.750} & 128 & 5 & 12 \\
+MiniMax-M3 & Claude Code & 0.375 & 0.625 & 0.500 & \underline{0.625} & 0.531 & 128 & 1 & 3 \\
+DeepSeek-V4-Pro & Claude Code & 0.375 & 0.250 & 0.438 & 0.375 & 0.359 & 128 & 1 & 1 \\
+Random policy & - & 0.000 & 0.000 & 0.375 & 0.062 & 0.109 & -- & 0 & 0 \\
+\bottomrule
+\end{tabular}
+\end{center}
+\end{table}

@@ -1,0 +1,27 @@
+\begin{table}[ht]
+\caption{Realized computational structure in validation-selected policies.
+Values are group means over the same synthesis/tuning split as
+Figure~\ref{fig:two-abilities}. Columns report deterministic AST features of
+the selected policy source bundle (\texttt{policy.py} plus reachable local
+Python modules).}
+\label{tab:code-structure}
+\begin{center}
+\footnotesize
+\setlength{\tabcolsep}{3.5pt}
+\begin{tabular}{@{}lllrrrrr@{}}
+\toprule
+Demand & Agent & Harness & Funcs & Branches & Loops & Depth & State \\
+\midrule
+Synthesis & GPT-5.5 & Codex & 30.2 & 68.2 & 13.0 & 4.6 & 48.4 \\
+Synthesis & Claude Opus 4.7 & Claude Code & 19.0 & 77.0 & 16.8 & 7.6 & 26.0 \\
+Synthesis & MiniMax-M3 & Claude Code & 12.8 & 38.2 & 7.6 & 4.0 & 16.0 \\
+Synthesis & DeepSeek-V4-Pro & Claude Code & 5.4 & 21.8 & 3.2 & 3.2 & 11.2 \\
+\midrule
+Tuning & GPT-5.5 & Codex & 8.5 & 8.6 & 0.5 & 2.1 & 9.2 \\
+Tuning & Claude Opus 4.7 & Claude Code & 6.5 & 4.5 & 0.5 & 1.7 & 8.2 \\
+Tuning & MiniMax-M3 & Claude Code & 4.5 & 7.7 & 0.4 & 2.3 & 6.9 \\
+Tuning & DeepSeek-V4-Pro & Claude Code & 3.6 & 5.8 & 0.1 & 2.5 & 5.7 \\
+\bottomrule
+\end{tabular}
+\end{center}
+\end{table}

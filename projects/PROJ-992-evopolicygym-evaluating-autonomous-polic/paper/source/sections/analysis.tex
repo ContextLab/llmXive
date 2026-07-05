@@ -1,0 +1,260 @@
+\section{Mechanisms of Policy Evolution}
+\label{sec:behavior-analysis}
+
+\subsection{Structural Synthesis and Parametric Tuning}
+\label{sec:two-aspects}
+
+The leaderboard tells us which agents win, and
+Figure~\ref{fig:score-evolution} shows when their scores improve. We now examine how agents explore the policy implementation space during this process: do they introduce new control mechanisms, or do they refine constants and thresholds within an already plausible controller?
+
+We refer to these two exploration modes as \emph{structural synthesis} and
+\emph{parametric tuning}. Structural synthesis creates task machinery such as
+perception, memory, planning, reward interpretation, or state abstraction.
+Parametric tuning adjusts gains, thresholds, constants, and branch-local
+parameters inside a plausible controller. This split follows from the policy
+system itself: each submitted policy combines computational structure
+(e.g., modules, state, branches, and control logic) with parameters that determine
+how that structure behaves. A run can therefore contain both forms of
+exploration, so we use the split as a diagnostic lens rather than an exclusive
+taxonomy.
+
+We first split environments by what a good policy must contain. The
+synthesis-dominant group contains pixel-perception and symbolic-planning tasks,
+where a policy must build task-specific machinery such as visual state
+extraction, memory, search, or recovery logic. The tuning-dominant group
+contains lower-dimensional control tasks, where a simple controller family
+often exists and improvement comes mainly from adjusting gains, thresholds, and
+branch-local constants. This split lets us ask whether the observed performance
+gap comes from building the right control machinery or from tuning a controller
+that is already in the right family.
+
+\input{tables/code_structure}
+
+\paragraph{Synthesis tasks need richer machinery.}
+Table~\ref{tab:code-structure} compares the validation-selected policy bundles
+under this split. It reports deterministic AST features of \texttt{policy.py}
+plus self-written local modules reachable by imports. The synthesis-dominant
+rows are visibly heavier: the strongest agents select substantially richer
+source bundles, with more functions, branches, loops, and persistent state,
+while the tuning-dominant rows are much smaller and more compressed.
+These features are diagnostic rather than sufficient. 
+Nontrivial code volume is therefore not sufficient for strong performance. In other words, complex code is not necessarily a task-adapted mechanism for solving the problem.
+
+%\runzhe{richer code does not cause better performance or capture the right ``task-relevant abstraction''. Replace the final two sentences with: ``Nontrivial code volume is therefore not sufficient for strong performance. In other words, the results point in that direction, but they do not conclusively show that successful synthesis comes from having the right computational structure.'' }
+
+\paragraph{The score gap opens on synthesis tasks.}
+Because raw rewards are not comparable across environments, we normalize
+held-out scores on a per-environment random-to-best scale before aggregating
+the two demand groups in Figure~\ref{fig:two-abilities}:
+\[
+    \mathrm{norm}_{m,e} =
+    \mathrm{clip}_{[0,1]}
+    \left(
+    \frac{R_{m,e}^{\mathrm{heldout}} - R_{e}^{\mathrm{random}}}
+         {R_{e}^{\mathrm{best}} - R_{e}^{\mathrm{random}}}
+    \right),
+\]
+where $R_{e}^{\mathrm{random}}$ is the random-policy anchor on the same
+held-out pool and $R_{e}^{\mathrm{best}}$ is the best held-out score achieved
+by any evaluated agent on environment $e$. We macro-average
+$\mathrm{norm}_{m,e}$ within the synthesis- and tuning-dominant groups. This
+diagnostic scale is separate from the rank-based leaderboard score.
+
+
+\begin{figure}[!t]
+    \centering
+    \includegraphics[width=0.98\textwidth]{figs/two_abilities_domains_3.pdf}
+    \caption{\small Relative held-out performance under different dominant task
+    demands. Scores are macro means over synthesis-dominant and
+    tuning-dominant environments, using the random-to-best normalization
+    described in the text. Each row follows the same model and harness identity
+    as the main leaderboard. Per-environment values are reported in Appendix
+    Table~\ref{tab:two-abilities-detail}.}
+    \label{fig:two-abilities}
+\end{figure}
+
+%\begin{figure}[H]
+%    \centering
+%    \includegraphics[width=0.98\textwidth]
+%    {figs/two_abilities_domains.pdf}
+    %\caption{Ability-level \runzhe{``demand'' or ``ability''? the terms should be unified throughout the main text \& caption...} normalized held-out scores. Scores are macro means
+    %over synthesis-dominant and tuning-dominant environments, using the
+    %random-to-best normalization described in the text. Each row follows the
+    %same model and harness identity as the main leaderboard; per-environment
+    %values are reported in Appendix Table~\ref{tab:two-%abilities-detail}.}
+%    \label{fig:two-abilities}
+%\end{figure}
+
+Figure~\ref{fig:two-abilities} shows that agents separate most on the
+synthesis-dominant side. GPT-5.5 and Claude Opus 4.7 nearly reach the best
+observed held-out policies ($0.98$ and $1.00$), whereas MiniMax-M3 and
+DeepSeek-V4-Pro remain close to the random anchor ($0.19$ and $0.03$) and solve
+none of the three locked-door MiniGrid tasks. On tuning-dominant environments,
+the same agents cluster more tightly ($0.67$--$0.99$). This is not simply the
+leaderboard repeated in two columns: MiniMax-M3 is competitive on tuning
+($0.83$), Claude Opus 4.7 misses BipedalWalker ($0.24$), and DeepSeek-V4-Pro
+falls below random on Parking. Together with the code and edit diagnostics below, this performance split motivates two candidate failure modes: failing to discover an effective structure and failing to refine a plausible structure.
+%\runzhe{final return does not reveal which internal step failed. Suggested wording: ``Together with the code and edit diagnostics below, this performance split motivates two candidate failure modes: failing to discover an effective structure and failing to refine a plausible structure.''}
+
+\paragraph{The winning edit type changes with the task.}
+We classify each score-bearing submit transition before measuring whether it
+helps. A \emph{synthesis edit} introduces a new policy-bundle AST topology
+after numeric constants are stripped. A \emph{parametric edit} changes the
+source bundle while preserving that stripped topology. We exclude revisited
+topologies and byte-identical retests. %\runzhe{excluding them changes the denominator and may preferentially remove failed candidate actions?report how many transitions are excluded by reason.} 
+Table~\ref{tab:edit-types}  then asks which edit type produces new validation bests, counting an edit as a hit only
+if it raises the validation best-so-far.
+
+\input{tables/edit_types}
+
+The table shows where those improvements come from. On synthesis-dominant
+tasks, GPT-5.5 and Claude Opus 4.7 turn synthesis edits into new validation
+bests at high rates ($41\%$ and $48\%$), while MiniMax-M3 and
+DeepSeek-V4-Pro mostly churn structure without traction ($10\%$ and $3\%$).
+Same-topology edits rarely rescue a wrong mechanism, but they become useful on
+tuning-dominant tasks once the controller family is close enough.
+%\runzhe{table4: check bold logic.}
+
+\subsection{Trajectory Case Studies}
+\label{sec:carracing-case}
+
+Aggregate edit counts show which transitions help, but not when agents invent
+structure, tune it, or manage candidates. Figures~\ref{fig:carracing-code-phase}
+and~\ref{fig:bipedal-code-phase} put the same edit classifier from
+Table~\ref{tab:edit-types} back onto each run's budget axis. A timeline phase is
+a run of adjacent score-bearing transitions with the same edit type: a
+synthesis-edit phase begins when the numeric-constant-stripped source-bundle AST
+topology changes, and a parametric-edit phase begins when the source bundle
+changes while that topology is preserved. Rollbacks and retests are overlaid as
+candidate-management events, not additional edit types.
+
+
+The two timelines are randomly sampled case studies rather than an additional
+selection based on which traces most cleanly support the aggregate split.
+Before auditing phase histories, we sampled one environment from each demand
+group: CarRacing from the synthesis-dominant group and BipedalWalker from the
+tuning-dominant group. CarRacing makes the synthesis demand visible: agents
+must turn pixels into a driving state, detect tracker failure, and preserve
+recovery behavior across noisy visible rollouts. Figure~\ref{fig:carracing-code-phase} gives a directly countable phase pattern for the two high-return traces: Claude Opus 4.7 stays in synthesis-edit phases, while GPT-5.5 has one short
+parametric-edit phase after early synthesis improvements before returning to
+synthesis edits. BipedalWalker shows the complementary pattern. It is tuning-dominant, but tuning becomes useful only after a gait-producing topology exists. We operationalize that milestone by return: GPT-5.5 is the only run in this audit with a positive high-return gait, reaching timeline best score $271$ and validation-selected held-out return $248.874$ (Table~\ref{tab:core16-raw}); the other three BipedalWalker traces remain at negative timeline best scores ($-15.6$ or lower) and mostly churn structures or revisit candidates without crossing that return threshold.
+
+%\runzhe{Explain why CarRacing and BipedalWalker were selected before interpreting them as complementary exemplars. If they were chosen after inspecting results, add at least a selection criterion. Replace ``successful runs therefore improve mostly'' with a directly countable statement from the timeline, and define ``stable gait'' using return or episode-completion evidence.}
+
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=0.98\textwidth]{figs/agent_audit_racing_timeline_2.pdf}
+    \caption{\small CarRacing code-phase timeline. Phase bands are inferred
+    mechanically from the same policy source-bundle rule as Table~\ref{tab:edit-types}:
+    synthesis-edit phases denote new AST topologies after numeric constants are
+    stripped, and parametric-edit phases denote changed source bundles under the
+    same topology. Symbols mark
+    validation outcomes and candidate-management events; rollback/retest are
+    event types, not additional edit types.}
+    \label{fig:carracing-code-phase}
+\end{figure}
+
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=0.98\textwidth]{figs/agent_audit_bipedal_timeline_2.pdf}
+    \caption{\small Bipedal code-phase timeline, rendered with the same synthesis-edit
+    and parametric-edit phase rules as Figure~\ref{fig:carracing-code-phase}.
+    The environment is tuning-dominant, but successful tuning still depends on
+    first reaching a viable gait topology; same-topology source-bundle edits
+    then expose whether an agent can improve that structure by adjusting
+    constants and thresholds.}
+    \label{fig:bipedal-code-phase}
+\end{figure}
+
+
+% \begin{figure}[H]
+%     \centering
+
+%     \begin{minipage}[t]{0.495\textwidth}
+%         \centering
+%         \includegraphics[width=\textwidth]{figs/agent_audit_racing_timeline_1.pdf}
+        
+%         \vspace{0.2em}
+%         \small \textbf{(a) CarRacing.} Synthesis-edit example.
+%     \end{minipage}
+%     \hfill
+%     \begin{minipage}[t]{0.495\textwidth}
+%         \centering
+%         \includegraphics[width=\textwidth]{figs/agent_audit_bipedal_timeline_1.pdf}
+        
+%         \vspace{0.2em}
+%         \small \textbf{(b) Bipedal.} Parametric-edit example.
+%     \end{minipage}
+
+%     \caption{\han{Code-phase timelines for CarRacing and Bipedal. Phase bands are inferred
+%     mechanically from the same policy source-bundle rule as
+%     Table~\ref{tab:edit-types}: synthesis-edit phases denote new AST topologies
+%     after numeric constants are stripped, and parametric-edit phases denote
+%     changed source bundles under the same topology. Symbols mark validation
+%     outcomes and candidate-management events; rollback/retest are event types,
+%     not additional edit types. Bipedal is tuning-dominant, but successful tuning
+%     still depends on first reaching a viable gait topology; same-topology
+%     source-bundle edits then expose whether an agent can improve that structure
+%     by adjusting constants and thresholds.}}
+%     \label{fig:code-phase-timelines}
+% \end{figure}
+
+
+
+Figure~\ref{fig:feedback-utilization-trace} unpacks the CarRacing timeline by connecting code phases to visible feedback. The successful traces do not merely react to scalar score changes: agents attribute visible failures to perception or control mechanisms, edit the corresponding policy structure, and use later feedback to select or roll back candidates. Weaker runs expose the same loop with less traction: mechanism replacements and retests occur, yet the controller rarely escapes the wrong abstraction. Appendix Figure~\ref{fig:gpt55-racing-diagnostics-panel} complements this timeline with the visible game frames that GPT-5.5 saved during testing, showing how it used rollout observations as diagnostic evidence for subsequent policy edits.
+
+% \begin{figure}[H]
+%     \centering
+%     \includegraphics[width=0.98\textwidth]{figs/feedback_utilization_trace.pdf}
+%     \caption{Audited CarRacing feedback-utilization trace. Each row links the
+%     visible evidence an agent read, its failure attribution, the corresponding
+%     code edit or candidate-selection action, and the observed submit outcome.
+%     The Submit column reports the submit index and consumed episode budget; row
+%     labels are audited from agent streams, feedback summaries, and checkpoint
+%     diffs.
+%     The figure is qualitative case evidence for how agents operationalize
+%     feedback into policy revisions; it is not an aggregate metric and does not
+%     imply hidden validation or held-out feedback was visible.}
+%     \label{fig:feedback-utilization-trace}
+% \end{figure}
+
+
+
+Across these diagnostics, higher-scoring harness--model runs are associated with more successful structural edits on synthesis-dominant tasks and with qualitative traces that link visible failure evidence to targeted policy revisions.
+%\runzhe{safer version is: ``Across these diagnostics, higher-scoring harness--model runs are associated with more successful structural edits on synthesis-dominant tasks and with qualitative traces that link visible failure evidence to targeted policy revisions.''}
+
+
+
+
+\subsection{Limitations of the Diagnostics}
+\label{sec:analysis-limits}
+
+These diagnostics are conservative proxies, not semantic proofs. AST topology
+captures objective code changes, but two topologies can implement similar
+behavior, and one topology can mix useful and harmful ideas. The policy
+source-bundle boundary includes \texttt{policy.py} and self-written helper
+modules reachable from it, reducing a policy-only blind spot, but it still
+excludes generated data files, learned weights, and unreferenced experiments.
+The synthesis/tuning split is a lens rather than a taxonomy of tasks:
+Bipedal still needs a viable gait structure before tuning helps, and CarRacing
+still benefits from later parameter choices once perception and control are in
+place. We therefore treat the figures as converging evidence from scores, code
+artifacts, edit outcomes, and visible-feedback traces, not as calibrated
+measurements of latent abilities.
+
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=0.98\textwidth]{figs/detailed_agent_data.pdf}
+    \caption{\small CarRacing feedback-utilization traces. Each row links evidence, attribution, policy revision, and outcome across agents. The submit column reports the submission index (s00k denotes the k-th submission) and the cumulative episode budget consumed prior to that submission. Labels are derived from logs, feedback summaries, and checkpoint diffs. The figure provides qualitative evidence of how feedback is translated into policy updates and is not an aggregate metric.
+    % Audited CarRacing feedback-utilization trace. Each row links the
+    % visible evidence an agent read, its failure attribution, the corresponding
+    % code edit or candidate-selection action, and the observed submit outcome.
+    % The Submit column reports the submit index and consumed episode budget; row
+    % labels are audited from agent streams, feedback summaries, and checkpoint
+    % diffs.
+    % The figure is qualitative case evidence for how agents operationalize
+    % feedback into policy revisions; it is not an aggregate metric and does not
+    % imply hidden validation or held-out feedback was visible.
+    }
+    \label{fig:feedback-utilization-trace}
+\end{figure}

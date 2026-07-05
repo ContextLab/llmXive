@@ -1,0 +1,33 @@
+\section{Introduction}
+Autonomous agents are expected to improve through feedback rather than produce a single fixed output. Modern coding agents are able to call tools, observe failures, and revise executable artifacts over long horizons \citep{sweagent,openhands,codeact}, while self-improvement systems show that language models can use reflection to refine answers across attempts \citep{reflexion,selfrefine,alphaevolve}. However, this broader capability is hard to evaluate because improvement is both an outcome and a process: final scores can hide blind retries, overfitting to visible feedback, brittle special cases, missing verification, and other trajectory-level failure modes \citep{agentlens,codeagentbehavior,howcodingagentsfail}. 
+Fully open-ended engineering tasks add further confounders, including evolving specifications and software-maintenance quality \citep{sweci,roadmapbench,specbench,slopcodebench}. 
+% We therefore need an evaluation setting that is controlled enough to isolate primitive self-evolution abilities, while still forcing agents to improve an executable behavior through real environment feedback.
+We therefore need a controlled setting that isolates an agent's ability to convert bounded environment feedback into generalizable improvements of an executable policy, while retaining the iterative decisions that make autonomous improvement difficult.
+
+We address this gap by formalizing \emph{Autonomous Policy Evolution}, a problem in which an agent repeatedly revises an executable decision policy using feedback from prior deployments. 
+Formally, the observable object is the sequence of submitted policy systems and train-feedback records, whereas the outcome is the held-out return of the checkpoint selected on hidden validation.
+The goal is not only to maximize observed performance alone, but to produce a policy that generalizes to environment instances after limited interaction. 
+The bounded budget is therefore part of the capability being measured: it requires each agent to choose what information to acquire, when to explore or exploit, and how efficiently to convert sparse behavioral evidence into robust policy improvement.
+
+To evaluate this problem, we instantiate \emph{Autonomous Policy Evolution} in \textsc{EvoPolicyGym}, a controlled benchmark built from compact interactive environments. 
+Unlike open-ended engineering benchmarks \citep{frontiereng}, 
+\textsc{EvoPolicyGym} makes policy evolution itself the evaluated object: an agent repeatedly edits an executable policy system, submits it under a fixed interaction budget, and receives server-generated feedback from sandboxed rollouts. 
+Train submissions return aggregate and trajectory-level feedback, whereas validation and held-out cases remain server-side.
+This protocol makes policy evolution itself the evaluated object, rather than direct task execution or open-ended engineering progress. Across environments derived from standard reinforcement-learning substrates \citep{mujoco,minigrid,gymnasium}, \textsc{EvoPolicyGym} records the full execution--feedback--revise trajectory, enabling comparisons of not only final held-out performance but also how agents diagnose failures, allocate budget, and balance exploration with exploitation.
+
+
+We conduct preliminary experiments on the classical RL gymnasium environment.
+We evaluate four harness--model agents on Core16, a 16-environment suite spanning Gym/Box2D, MuJoCo, MiniGrid, and robotics/driving tasks, under a common 128-episode interaction budget. The results show that GPT-5.5 obtains the highest aggregate rank score and top-two performance on all 16 environments, whereas Claude Opus 4.7 leads the MiniGrid family. The remaining agents achieve isolated task wins but substantially lower cross-environment coverage.
+% The results show that policy-evolution performance is highly environment-dependent: 
+
+% Beyond these scores, our trajectory analysis shows that agents adopt different feedback-use strategies, including patching observed failures, using visual perception for control refinement, and trading off early exploration against late exploitation.
+Beyond final scores, our analysis on aggregate edit statistics and selected-policy structure reveal systematic differences between structural synthesis and parameter tuning, while audited CarRacing and BipedalWalker traces illustrate how individual agents translate visible feedback into revisions.
+Thus, \textsc{EvoPolicyGym} serves both as a leaderboard and as a diagnostic substrate for studying how self-evolving agents interact with environment feedback under bounded budgets.
+
+To summarize, our contributions are threefold:
+\begin{itemize}
+    \item We formulate \emph{Autonomous Policy Evolution} as a benchmarkable setting for evaluating agents in policy searching tasks.
+    \item We instantiate this setting in \textsc{EvoPolicyGym}, a controlled benchmark with strict visibility boundaries, bounded interaction, trajectory-level feedback, and hidden held-out generalization. 
+    \item We introduce trajectory-level diagnostics that relate policy improvement to budget-conditioned policy evolution and audited trace revisions.
+\end{itemize}
+

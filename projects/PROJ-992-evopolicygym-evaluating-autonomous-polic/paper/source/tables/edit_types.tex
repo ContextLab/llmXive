@@ -1,0 +1,32 @@
+\begin{table}[H]
+\caption{Synthesis-edit and parametric-edit success by task category. Each score-bearing submit
+transition compares the submitted policy source bundle (\texttt{policy.py} and
+reachable local Python modules). A synthesis edit introduces a previously
+unseen AST topology after numeric constants are stripped; a parametric edit
+changes the source bundle while preserving the immediately previous stripped
+topology. Rollback topologies and byte-identical retests are excluded. An edit succeeds if it raises the validation best-so-far.}
+\label{tab:edit-types}
+\begin{center}
+\small
+\setlength{\tabcolsep}{4.8pt}
+\begin{tabular}{lllrrrr}
+\toprule
+ & & & \multicolumn{2}{c}{Synthesis edits} & \multicolumn{2}{c}{Parametric edits} \\
+\cmidrule(lr){4-5}\cmidrule(lr){6-7}
+Agent & Harness & Task & $n$ & hit & $n$ & hit \\
+\midrule
+GPT-5.5 & Codex & Synthesis & 37 & 41\% & 1 & 100\% \\
+ &  & Tuning & 48 & 38\% & 31 & {61\%} \\
+\addlinespace
+Claude Opus 4.7 & Claude Code & Synthesis & 31 & {48\%} & -- & -- \\
+ &  & Tuning & 123 & 26\% & 58 & {21\%} \\
+\addlinespace
+MiniMax-M3 & Claude Code & Synthesis & 39 & {10\%} & -- & -- \\
+ &  & Tuning & 100 & 25\% & 57 & {25\%} \\
+\addlinespace
+DeepSeek-V4-Pro & Claude Code & Synthesis & 132 & {3\%} & -- & -- \\
+ &  & Tuning & 112 & 30\% & 21 & {38\%} \\
+\bottomrule
+\end{tabular}
+\end{center}
+\end{table}

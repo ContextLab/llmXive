@@ -1,0 +1,130 @@
+% arXiv / tech-report build of the paper.
+% Mirrors iclr2026_conference.tex but swaps in arxiv_techreport.sty
+% for a DeepMind-skeleton / OpenAI-restraint visual style.
+% Shares sections/, figs/, .bib, and math_commands.tex with the ICLR build.
+
+
+\documentclass{article}
+\usepackage{arxiv_techreport}
+
+\input{math_commands.tex}
+
+\usepackage{amsmath}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{wrapfig}
+\usepackage[section]{placeins}
+\usepackage{fontawesome5}
+\usepackage{subcaption}
+
+
+\NewDocumentCommand{\runzhe} { mO{} }{\textcolor{blue}{\textsuperscript{\textit{runzhe:}}\textsf{\textbf{[#1]}}}}
+
+\definecolor{hanGreen}{RGB}{0,100,60}
+\NewDocumentCommand{\han} { mO{} }{\textcolor{hanGreen}{\textsuperscript{\textit{han:}}\textsf{\textbf{[#1]}}}}
+
+
+\title{EvoPolicyGym: Evaluating Autonomous Policy Evolution in Interactive Environments}
+
+
+
+\author{%
+\begin{minipage}[t]{0.88\textwidth}
+\centering
+Zhilin Wang\textsuperscript{1,*}, Han Song\textsuperscript{2,*},
+Runzhe Zhan\textsuperscript{3,*}\\
+Jusen Du\textsuperscript{4}, Jiacheng Chen\textsuperscript{2},
+Tianle Li\textsuperscript{2}, Qingyu Yin\textsuperscript{5},
+Yulun Wu\textsuperscript{5}\\
+Zhennan Shen\textsuperscript{9}, Tong Zhu\textsuperscript{6},
+Yanshu Li\textsuperscript{7}, Guanjie Chen\textsuperscript{9} \\
+% Junjie Wu\textsuperscript{8}\\
+Derek F. Wong\textsuperscript{3}, Yafu Li\textsuperscript{2,\textdagger},
+Yu Cheng\textsuperscript{2,\textdagger}, Yang Yang\textsuperscript{9,\textdagger}\\[0.35em]
+{\normalfont\small 
+\textsuperscript{1}University of Science and Technology of China \quad
+\textsuperscript{2}The Chinese University of Hong Kong \\
+\textsuperscript{3}University of Macau \quad
+\textsuperscript{4}Tsinghua University \quad
+\textsuperscript{5}Zhejiang University \\
+\textsuperscript{6}Soochow University \quad
+\textsuperscript{7}Brown University \\
+% \quad
+% \textsuperscript{8}The Hong Kong University of Science and Technology 
+\textsuperscript{9}Shanghai Jiao Tong University \\
+} 
+{\normalfont\small \textsuperscript{*}Equal contribution \quad
+\textsuperscript{\textdagger}Corresponding authors}
+\end{minipage}
+}
+
+
+
+\newcommand{\evopolicygym}{\textsc{EvoPolicyGym}}
+\newcommand{\policy}{\texttt{policy.py}}
+\newcommand{\workspace}{\texttt{workspace}}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+Autonomous agents are increasingly expected to improve executable policies through feedback, yet existing evaluations often collapse this process into a final score or confound it with open-ended software-engineering progress. 
+We introduce Autonomous Policy Evolution, a controlled evaluation setting in which a harness–model agent repeatedly edits an executable policy system under a fixed interaction budget. 
+We instantiate this setting in EvoPolicyGym, a benchmark built from compact interactive RL environments that evaluates how agents iteratively improve explored policies.
+On the EvoPolicyGym suite, GPT-5.5 achieves the strongest aggregate rank score and top-two performance on all 16 environments. 
+Beyond leaderboard results, EvoPolicyGym also provides trajectory-level diagnostics that distinguish how agents allocate budget, convert feedback into parametric tuning. 
+These analyses show that strong autonomous policy evolution depends not only on isolated task wins, but on discovering task-appropriate mechanisms and refining policies under bounded feedback.
+
+\begin{center}
+\small
+\faGithub~\href{https://github.com/Linzwcs/EvoPolicyGym}{\texttt{EvoPolicyGym}}
+\qquad
+\faDatabase~\href{https://huggingface.co/datasets/linzw/EvoPolicyGym-Exp-data}{\texttt{EvoPolicyGym-Exp-data}}\qquad
+\faGlobe~\href{https://linzwcs.github.io/EvoPolicyGym/}{\texttt{EvoPolicyGym.io}}
+\end{center}
+\end{abstract}
+
+\input{sections/intro}
+\input{sections/related_work}
+\input{sections/framework}
+
+\input{sections/experiment}
+\input{sections/analysis}
+
+\section{Conclusion}
+\evopolicygym{} casts autonomous policy improvement as a controlled evaluation
+of the systems agents build over time. Each harness--model agent edits an
+executable policy under a fixed interaction budget, learns only from visible
+train feedback, and is judged by hidden validation-selected heldout
+performance. The Core16 results show that high scores require more than
+isolated task wins: strong agents infer task-appropriate abstractions,
+translate feedback into mechanism-level code changes, and preserve useful
+candidates under budget pressure. By pairing leaderboard scores with
+trajectory-level diagnostics, \evopolicygym{} provides a concrete protocol for
+measuring stable, feedback-driven autonomous policy evolution.
+
+\section*{Acknowledgements}
+We thank Jiayi Weng for the public blog post \emph{Learning Beyond Gradients}
+\citep{learningbeyondgradients}. Its central insight, that coding agents can
+continually maintain and improve heuristic systems rather than merely produce
+one-off policy files, directly shaped the starting point of this work. During
+this project, we found that the word ``heuristic''
+was difficult to make operational. Traditional hand-written rules are often
+called heuristics, but the boundary becomes unclear once the policy includes
+tuned numeric parameters, learned components, or baselines optimized by methods
+such as PPO. This difficulty pushed us to make the policy system the benchmark
+object: an executable policy together with the state, code structure, feedback
+traces, and revision history that an agent can maintain. Fixed
+environment-interaction budgets then create optimization pressure while hidden
+validation and heldout splits prevent leakage. This setting lets us compare
+how well stronger models extract insight from feedback and turn that insight
+into policy improvements.
+
+\bibliography{iclr2026_conference}
+\bibliographystyle{iclr2026_conference}
+
+\input{sections/appendix}
+
+\end{document}

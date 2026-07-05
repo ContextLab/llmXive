@@ -1,0 +1,53 @@
+\begin{table}[t]
+\caption{Per-task agent stream token accounting for the \texttt{main-128}
+Core16 runs. Values are parsed from agent stream logs and reported in millions;
+model subcolumns are non-cached input (In), cache read plus cache creation
+(Cache), and output including Codex reasoning output (Out). For Codex streams,
+In subtracts \texttt{cached\_input\_tokens} from \texttt{input\_tokens};
+Claude Code streams already report cache read/creation in separate fields.
+Dashes mark missing stream logs. These diagnostic columns are not used in the
+leaderboard rank score.}
+\label{tab:token-accounting}
+\begin{center}
+\scriptsize
+\setlength{\tabcolsep}{1.8pt}
+\textbf{A. Gym / Box2D and MuJoCo}\par\vspace{0.25em}
+\begin{tabular}{@{}l*{4}{rrr}@{}}
+\toprule
+ & \multicolumn{3}{c}{GPT-5.5} & \multicolumn{3}{c}{Claude Opus 4.7}
+ & \multicolumn{3}{c}{MiniMax-M3} & \multicolumn{3}{c}{DeepSeek-V4-Pro} \\
+\cmidrule(lr){2-4}\cmidrule(lr){5-7}\cmidrule(lr){8-10}\cmidrule(lr){11-13}
+Task & In & Cache & Out & In & Cache & Out & In & Cache & Out & In & Cache & Out \\
+\midrule
+Acrobot & 0.06 & 0.61 & 0.03 & \textless{}0.01 & 5.85 & 0.06 & 0.25 & 6.05 & 0.09 & 0.06 & 2.48 & 0.04 \\
+Cont.Car & 0.10 & 1.22 & 0.02 & \textless{}0.01 & 7.07 & 0.10 & 0.04 & 2.92 & 0.06 & 0.07 & 3.62 & 0.05 \\
+Bipedal & 0.19 & 2.67 & 0.05 & \textless{}0.01 & 13.85 & 0.11 & 0.31 & 9.78 & 0.11 & 0.06 & 6.24 & 0.08 \\
+CarRacing & 0.53 & 11.36 & 0.09 & \textless{}0.01 & 28.90 & 0.12 & 0.73 & 10.80 & 0.06 & 0.37 & 44.19 & 0.27 \\
+Reacher & 0.18 & 2.08 & 0.03 & \textless{}0.01 & 27.07 & 0.17 & 0.16 & 7.29 & 0.09 & 0.05 & 2.78 & 0.07 \\
+HalfCheetah & 0.08 & 0.78 & 0.03 & \textless{}0.01 & 6.50 & 0.08 & 0.22 & 12.69 & 0.08 & 0.07 & 5.32 & 0.06 \\
+Ant & 0.11 & 2.26 & 0.05 & \textless{}0.01 & 6.66 & 0.08 & 0.13 & 7.03 & 0.06 & 0.06 & 4.74 & 0.07 \\
+Pusher & 0.13 & 1.79 & 0.04 & \textless{}0.01 & 9.25 & 0.13 & 0.29 & 7.44 & 0.12 & 0.06 & 3.30 & 0.07 \\
+\bottomrule
+\end{tabular}
+
+\vspace{0.75em}
+\textbf{B. MiniGrid and Robotics / Driving}\par\vspace{0.25em}
+\begin{tabular}{@{}l*{4}{rrr}@{}}
+\toprule
+ & \multicolumn{3}{c}{GPT-5.5} & \multicolumn{3}{c}{Claude Opus 4.7}
+ & \multicolumn{3}{c}{MiniMax-M3} & \multicolumn{3}{c}{DeepSeek-V4-Pro} \\
+\cmidrule(lr){2-4}\cmidrule(lr){5-7}\cmidrule(lr){8-10}\cmidrule(lr){11-13}
+Task & In & Cache & Out & In & Cache & Out & In & Cache & Out & In & Cache & Out \\
+\midrule
+DoorKey & 0.14 & 1.59 & 0.04 & \textless{}0.01 & 3.80 & 0.08 & 0.51 & 12.54 & 0.28 & 0.17 & 16.73 & 0.27 \\
+KeyCorr. & 0.07 & 1.05 & 0.04 & 0.01 & 7.09 & 0.09 & 0.96 & 14.03 & 0.20 & 0.16 & 13.08 & 0.29 \\
+FourRooms & 0.23 & 3.36 & 0.07 & \textless{}0.01 & 12.08 & 0.17 & 0.34 & 9.55 & 0.11 & 0.25 & 22.02 & 0.35 \\
+Obst.Maze & 0.39 & 12.27 & 0.12 & \textless{}0.01 & 34.88 & 0.24 & 0.35 & 19.60 & 0.18 & 0.24 & 21.99 & 0.38 \\
+Parking & 0.17 & 3.09 & 0.05 & \textless{}0.01 & 0.35 & \textless{}0.01 & 0.92 & 17.46 & 0.13 & 0.12 & 9.57 & 0.13 \\
+Roundabout & 0.25 & 2.23 & 0.04 & \textless{}0.01 & 7.48 & 0.06 & 0.12 & 4.52 & 0.05 & 0.07 & 2.90 & 0.06 \\
+FetchPush & 0.22 & 3.49 & 0.05 & \textless{}0.01 & 9.05 & 0.15 & 0.24 & 11.90 & 0.12 & 0.06 & 4.37 & 0.08 \\
+FetchPick & 0.10 & 2.06 & 0.04 & \textless{}0.01 & 8.05 & 0.10 & 0.37 & 6.72 & 0.13 & 0.09 & 4.70 & 0.07 \\
+\bottomrule
+\end{tabular}
+\end{center}
+\end{table}
