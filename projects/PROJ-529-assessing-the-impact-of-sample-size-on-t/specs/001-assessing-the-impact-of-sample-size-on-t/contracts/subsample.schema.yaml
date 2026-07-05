@@ -1,0 +1,50 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Subsample Record"
+description: "Schema for a single bootstrap subsample at a specific study count k."
+type: object
+properties:
+  subsample_id:
+    type: string
+    format: uuid
+    description: "Unique identifier for the subsample."
+  meta_id:
+    type: string
+    description: "Reference to the parent meta-analysis."
+  k:
+    type: integer
+    description: "Number of studies in this subsample."
+    minimum: 3
+  iteration:
+    type: integer
+    description: "Bootstrap iteration index (0-99)."
+  seed:
+    type: integer
+    description: "The random seed used for this specific iteration to ensure reproducibility."
+  model_type:
+    type: string
+    enum: ["FE", "RE_DL", "RE_REML"]
+    description: "Model type used (Fixed Effects, Random Effects DerSimonian-Laird, or Random Effects REML)."
+  pooled_effect:
+    type: number
+    description: "Pooled effect size for this subsample."
+  se_pooled:
+    type: number
+    description: "Standard error of the pooled effect."
+  ci_lower:
+    type: number
+    description: "Lower bound of the 95% CI."
+  ci_upper:
+    type: number
+    description: "Upper bound of the 95% CI."
+required:
+  - subsample_id
+  - meta_id
+  - k
+  - iteration
+  - seed
+  - model_type
+  - pooled_effect
+  - se_pooled
+  - ci_lower
+  - ci_upper
+additionalProperties: false

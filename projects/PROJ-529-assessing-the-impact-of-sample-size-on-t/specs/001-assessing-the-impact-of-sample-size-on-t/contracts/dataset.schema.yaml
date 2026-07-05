@@ -1,0 +1,27 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Meta-Analysis Component Dataset"
+description: "Schema for raw component studies within a meta-analysis."
+type: object
+properties:
+  meta_id:
+    type: string
+    description: "Unique identifier for the meta-analysis."
+  study_id:
+    type: string
+    description: "Unique identifier for the component study."
+  effect_size:
+    type: number
+    description: "The effect size (e.g., logOR, SMD) reported for the study."
+  se_effect:
+    type: number
+    description: "The standard error of the effect size."
+    minimum: 0
+  weight:
+    type: number
+    description: "Pre-calculated weight (inverse variance). Optional."
+required:
+  - meta_id
+  - study_id
+  - effect_size
+  - se_effect
+additionalProperties: false

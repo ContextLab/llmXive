@@ -1,0 +1,44 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Aggregated Stability Metrics"
+description: "Schema for aggregated stability and coverage metrics per meta-analysis and study count k."
+type: object
+properties:
+  meta_id:
+    type: string
+    description: "Reference to the meta-analysis."
+  k:
+    type: integer
+    description: "Study count."
+  model_type:
+    type: string
+    enum: ["FE", "RE_DL", "RE_REML"]
+    description: "Model type used (Fixed Effects, Random Effects DerSimonian-Laird, or Random Effects REML)."
+  stability_sd:
+    type: number
+    description: "Standard deviation of pooled effects across bootstrap iterations."
+  agreement_rate:
+    type: number
+    description: "Proportion of subsamples where CI contains the full-sample estimate (Reference Agreement Rate)."
+    minimum: 0
+    maximum: 1
+  coverage_rate:
+    type: number
+    description: "Proportion of subsamples where CI contains the true effect (Simulation Mode only)."
+    minimum: 0
+    maximum: 1
+  n_subsamples:
+    type: integer
+    description: "Number of bootstrap iterations used for this calculation."
+    minimum: 1
+  full_sample_estimate:
+    type: number
+    description: "The reference full-sample pooled effect."
+required:
+  - meta_id
+  - k
+  - model_type
+  - stability_sd
+  - agreement_rate
+  - n_subsamples
+  - full_sample_estimate
+additionalProperties: false
