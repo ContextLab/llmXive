@@ -1,14 +1,3 @@
-- artifact_hash: acd362baa7cf74fff49137331b6cfcbac10741297342b08d41ad879e6f7b85f2
-  artifact_path: projects/PROJ-050-the-effect-of-priming-on-prosocial-behav/specs/001-the-effect-of-priming-on-prosocial-behav/spec.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: url
-  value: https://files.pushshift.io/reddit/`
-  verification_status: unreachable
-  verified_against_url: https://files.pushshift.io/reddit/
-  verified_at: '2026-07-03T21:50:02.867810Z'
 - artifact_hash: fcefd79e218c20e3dba6d4d3fefad28a4c807ee95a45b4ebd426759441e46a05
   artifact_path: projects/PROJ-050-the-effect-of-priming-on-prosocial-behav/specs/001-the-effect-of-priming-on-prosocial-behav/research.md
   cite_id: c-001

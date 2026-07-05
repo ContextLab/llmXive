@@ -1,0 +1,18 @@
+{
+  "name": "score_contract",
+  "description": "Contract for the scoring pipeline",
+  "inputs": {
+    "source": "data/processed/anonymized.csv",
+    "lexicon": "prosocial_lexicon.txt",
+    "sentiment_tool": "VADER"
+  },
+  "outputs": {
+    "file": "data/processed/scored.csv",
+    "columns": ["comment_id", "prosocial_action_count", "neg_score"],
+    "validation": {
+      "file": "data/validation/gold_standard.csv",
+      "metric": "Cohen's Kappa",
+      "threshold": 0.7
+    }
+  }
+}

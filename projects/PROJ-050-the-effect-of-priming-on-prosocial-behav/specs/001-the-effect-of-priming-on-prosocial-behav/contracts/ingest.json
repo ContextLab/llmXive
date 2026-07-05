@@ -1,0 +1,18 @@
+{
+  "name": "ingest_contract",
+  "description": "Contract for the data ingestion pipeline",
+  "inputs": {
+    "source": "pushshift/reddit",
+    "subreddits": ["AskReddit", "relationships", "socialscience", "psychology", "dataisbeautiful"],
+    "min_group_size": 4000
+  },
+  "outputs": {
+    "file": "data/processed/anonymized.csv",
+    "columns": ["comment_id", "thread_id", "user_id", "body", "thread_type", "subreddit", "thread_age", "comment_count"],
+    "constraints": [
+      "No plaintext usernames",
+      "At least 4000 rows per thread_type",
+      "At least 3 distinct subreddits"
+    ]
+  }
+}

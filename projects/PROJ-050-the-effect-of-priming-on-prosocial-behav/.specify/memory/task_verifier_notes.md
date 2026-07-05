@@ -1,0 +1,6 @@
+# Tasks an independent verifier REJECTED (redo these)
+
+A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
+
+- **T011 [P] [US1] Unit test for negation-aware keyword classification logic in `tests/unit/test_classification.py`** — No unit test file `tests/unit/test_classification.py` or its contents were provided; without seeing the test code we cannot verify that a negation‑aware keyword classification test exists or meets the specification. The required artifact is missing.
+- **T012 [P] [US1] Unit test for PII anonymization (SHA-256 hash ing) in `tests/unit/test_anonymization.py`** — No evidence of a `tests/unit/test_anonymization.py` file containing a unit test for SHA‑256 hashing of user IDs was provided; without the actual test file we cannot confirm that the required unit test exists or meets the acceptance criteria. The implementer must add the test file with appropriate assertions verifying that PII is anonymized via SHA‑256.

@@ -1,0 +1,626 @@
+- artifact_path: projects/PROJ-050-the-effect-of-priming-on-prosocial-behav/specs/001-the-effect-of-priming-on-prosocial-behav/tasks.md
+  attempts: 1
+  canonical: output DataFrame contains at least 4000 comments per group
+  claim_id: c_c20d467d
+  context: Execute code/01_ingest.py against a small, known test subset and verify
+    the output DataFrame contains exactly two distinct groups ('Prime', 'Control')
+    with at least 4,000 comments each (or aborts correctly)
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Output_DataFrame_contains_at_least_4000_comments_per_group
+  kind: magnitude
+  raw_text: verify the output DataFrame contains exactly two distinct groups ('Prime',
+    'Control') with at least 4,000 comments each
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-04T23:58:07Z'
+- artifact_path: projects/PROJ-050-the-effect-of-priming-on-prosocial-behav/specs/001-the-effect-of-priming-on-prosocial-behav/tasks.md
+  attempts: 1
+  canonical: data fetching limit set to 10000
+  claim_id: c_0ecb060c
+  context: 'Implement code/01_ingest.py: Data fetching logic with TARGET_N = 10,000
+    limit and abort logic if dataset exhausted or group counts < 4,000'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: TARGET_N = 10,000 limit
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-04T23:58:38Z'
+- artifact_path: projects/PROJ-050-the-effect-of-priming-on-prosocial-behav/specs/001-the-effect-of-priming-on-prosocial-behav/tasks.md
+  attempts: 1
+  canonical: power analysis assumes effect size d=0.15 and alpha=0.05
+  claim_id: c_cf906ba8
+  context: "Implement code/00_power_analysis.py to perform pre-data-collection power\
+    \ analysis (FR-013) assuming d=0.15, \u03B1=0.05"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "assuming d=0.15, \u03B1=0.05"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T00:00:51Z'
+- artifact_path: projects/PROJ-050-the-effect-of-priming-on-prosocial-behav/specs/001-the-effect-of-priming-on-prosocial-behav/tasks.md
+  attempts: 1
+  canonical: power analysis aborts if power is less than 80 percent
+  claim_id: c_a6f33a33
+  context: If power < 80%, the script MUST abort and log a requirement for researcher
+    approval before proceeding
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Power_analysis_aborts_if_power_is_less_than_80_percent
+  kind: magnitude
+  raw_text: If power < 80%, the script MUST abort
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T00:02:45Z'
+- artifact_path: projects/PROJ-050-the-effect-of-priming-on-prosocial-behav/specs/001-the-effect-of-priming-on-prosocial-behav/tasks.md
+  attempts: 1
+  canonical: validation file must contain annotations from at least 3 distinct raters
+  claim_id: c_5e59fa75
+  context: "Implement code/validation/run_validation.py to accept an externally supplied\
+    \ gold_standard.csv. Verify the file contains annotations from \u22653 distinct\
+    \ raters (validated via rater_id column)"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Validation_file_must_contain_annotations_from_at_least_3_dis
+  kind: magnitude
+  raw_text: "verify the file contains annotations from \u22653 distinct raters"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T00:03:32Z'
+- artifact_path: projects/PROJ-050-the-effect-of-priming-on-prosocial-behav/specs/001-the-effect-of-priming-on-prosocial-behav/tasks.md
+  attempts: 1
+  canonical: stratified sampling ensures at least 200 comments with at least 50 per
+    stratum
+  claim_id: c_7e9ba5a5
+  context: "Implement stratified sampling logic for validation (FR-010, FR-010a) to\
+    \ ensure \u2265200 comments with \u226550 per stratum"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Stratified_sampling_ensures_at_least_200_comments_with_at_le
+  kind: magnitude
+  raw_text: "ensure \u2265200 comments with \u226550 per stratum"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T00:04:17Z'
+- artifact_path: projects/PROJ-050-the-effect-of-priming-on-prosocial-behav/specs/001-the-effect-of-priming-on-prosocial-behav/tasks.md
+  attempts: 1
+  canonical: validation requires Cohen's Kappa of at least 0.7
+  claim_id: c_1714226b
+  context: "Verify the file contains annotations from \u22653 distinct raters... If\
+    \ Cohen's Kappa < 0.7, the script MUST abort the pipeline"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Validation_requires_Cohen%27s_Kappa_of_at_least_0.7
+  kind: magnitude
+  raw_text: "Cohen's Kappa \u2265 0.7"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T00:05:02Z'
+- artifact_path: projects/PROJ-050-the-effect-of-priming-on-prosocial-behav/specs/001-the-effect-of-priming-on-prosocial-behav/tasks.md
+  attempts: 1
+  canonical: performance monitoring ensures runtime is less than or equal to 4 hours
+    on CPU
+  claim_id: c_4a227f61
+  context: "Implement code/02_score.py: Performance monitoring to ensure runtime \u2264\
+    \ 4 hours on CPU (FR-012)"
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Performance_monitoring_ensures_runtime_is_less_than_or_equal
+  kind: magnitude
+  raw_text: "runtime \u2264 4 hours on CPU"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T00:05:45Z'
+- artifact_path: projects/PROJ-050-the-effect-of-priming-on-prosocial-behav/specs/001-the-effect-of-priming-on-prosocial-behav/tasks.md
+  attempts: 1
+  canonical: singular fit check uses variance threshold of 0.01
+  claim_id: c_74bf5d58
+  context: "Implement code/03_analyze.py: Singular fit check (variance \u2264 0.01)\
+    \ and fallback re-fit without user_id random effect"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "variance \u2264 0.01"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T00:05:45Z'
+- artifact_path: projects/PROJ-050-the-effect-of-priming-on-prosocial-behav/specs/001-the-effect-of-priming-on-prosocial-behav/tasks.md
+  attempts: 1
+  canonical: sensitivity analysis convergence requires standard deviation of mean
+    p-value over last 100 iterations to be less than 0.001
+  claim_id: c_702c2e28
+  context: Check for convergence by verifying that the mean p-value estimate stabilizes
+    (standard deviation of the mean over the last 100 iterations < 0.001)
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Sensitivity_analysis_convergence_requires_standard_deviation
+  kind: magnitude
+  raw_text: standard deviation of the mean over the last 100 iterations < 0.001
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T00:06:43Z'
+- artifact_path: projects/PROJ-050-the-effect-of-priming-on-prosocial-behav/specs/001-the-effect-of-priming-on-prosocial-behav/tasks.md
+  attempts: 1
+  canonical: anonymization uses SHA-256 hashing for user IDs
+  claim_id: c_e74635ba
+  context: 'Implement code/01_ingest.py: Anonymization logic (SHA hash of username).
+    The SHA-256 hash MUST be retained and explicitly mapped as the user_id column'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: SHA-256 hash
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T00:07:49Z'
+- artifact_path: projects/PROJ-050-the-effect-of-priming-on-prosocial-behav/specs/001-the-effect-of-priming-on-prosocial-behav/tasks.md
+  attempts: 1
+  canonical: Data ingestion output must contain at least 4000 comments per group for
+    Prime and Control.
+  claim_id: c_5d0d6b1b
+  context: 'Independent Test: Execute code/01_ingest.py against a small, known test
+    subset and verify the output DataFrame contains exactly two distinct groups (''Prime'',
+    ''Control'') with at least 4,000 comments each (or aborts correctly)...'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Data_ingestion_output_must_contain_at_least_4000_comments_pe
+  kind: magnitude
+  raw_text: Verify the output DataFrame contains exactly two distinct groups ('Prime',
+    'Control') with at least 4,000 comments each.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T00:09:26Z'
+- artifact_path: projects/PROJ-050-the-effect-of-priming-on-prosocial-behav/specs/001-the-effect-of-priming-on-prosocial-behav/tasks.md
+  attempts: 1
+  canonical: Pre-data-collection power analysis assumes effect size d=0.15 and alpha=0.05.
+  claim_id: c_2effb8df
+  context: "T013 [US1] PRE-COLLECTION POWER ANALYSIS: Implement code/00_power_analysis.py\
+    \ to perform pre-data-collection power analysis (FR-013) assuming d=0.15, \u03B1\
+    =0.05."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Assuming d=0.15, \u03B1=0.05."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T00:09:26Z'
+- artifact_path: projects/PROJ-050-the-effect-of-priming-on-prosocial-behav/specs/001-the-effect-of-priming-on-prosocial-behav/tasks.md
+  attempts: 1
+  canonical: Power analysis script must abort if calculated power is less than 80%.
+  claim_id: c_d5266eaa
+  context: If power < 80%, the script MUST abort and log a requirement for researcher
+    approval before proceeding.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Power_analysis_script_must_abort_if_calculated_power_is_less
+  kind: magnitude
+  raw_text: If power < 80%, the script MUST abort and log a requirement for researcher
+    approval before proceeding.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T00:10:57Z'
+- artifact_path: projects/PROJ-050-the-effect-of-priming-on-prosocial-behav/specs/001-the-effect-of-priming-on-prosocial-behav/tasks.md
+  attempts: 1
+  canonical: Data fetching logic has a target limit of 10000 comments.
+  claim_id: c_dbb93488
+  context: 'T015 [US1] Implement code/01_ingest.py: Data fetching logic with TARGET_N
+    = 10,000 limit and abort logic if dataset exhausted or group counts < 4,000...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Data fetching logic with TARGET_N = 10,000 limit.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T00:12:09Z'
+- artifact_path: projects/PROJ-050-the-effect-of-priming-on-prosocial-behav/specs/001-the-effect-of-priming-on-prosocial-behav/tasks.md
+  attempts: 1
+  canonical: Validation report must confirm Cohen's Kappa is at least 0.7.
+  claim_id: c_e9c9a309
+  context: "Independent Test: ...verify data/processed/scored.csv contains prosocial_action_count\
+    \ and neg_score columns, and that results/validation_report.json confirms Cohen's\
+    \ Kappa \u2265 0.7 against data/validation/gold_standard.csv."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Validation_report_must_confirm_Cohen's_Kappa_is_at_least_0.7
+  kind: magnitude
+  raw_text: "Verify Cohen's Kappa \u2265 0.7 against data/validation/gold_standard.csv."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T00:12:40Z'
+- artifact_path: projects/PROJ-050-the-effect-of-priming-on-prosocial-behav/specs/001-the-effect-of-priming-on-prosocial-behav/tasks.md
+  attempts: 1
+  canonical: External validation file must contain annotations from at least 3 distinct
+    raters.
+  claim_id: c_2a2a20e2
+  context: "T026b [US2] ...Verify the file contains annotations from \u22653 distinct\
+    \ raters (validated via rater_id column). Abort if the file does not meet this\
+    \ criterion (FR-011a)."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/External_validation_file_must_contain_annotations_from_at_le
+  kind: magnitude
+  raw_text: "Verify the file contains annotations from \u22653 distinct raters."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T00:12:43Z'
+- artifact_path: projects/PROJ-050-the-effect-of-priming-on-prosocial-behav/specs/001-the-effect-of-priming-on-prosocial-behav/tasks.md
+  attempts: 1
+  canonical: Validation script must abort if Cohen's Kappa is less than 0.7.
+  claim_id: c_b289703e
+  context: 'T027 [US2] ...Logic to load gold_standard.csv, compute Cohen''s Kappa
+    (SC-006) and Pearson r for neg_score (SC-008). ABORT LOGIC: If Cohen''s Kappa
+    < 0.7, the script MUST abort the pipeline...'
+  evidence:
+    asserted: '0.7'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: magnitude
+  raw_text: If Cohen's Kappa < 0.7, the script MUST abort the pipeline.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-07-05T00:12:43Z'
+- artifact_path: projects/PROJ-050-the-effect-of-priming-on-prosocial-behav/specs/001-the-effect-of-priming-on-prosocial-behav/tasks.md
+  attempts: 1
+  canonical: Prosocial action scoring and validation runtime must be 4 hours or less
+    on CPU.
+  claim_id: c_0f45a7da
+  context: "T028 [US2] Implement code/02_score.py: Performance monitoring to ensure\
+    \ runtime \u2264 4 hours on CPU (FR-012)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Ensure runtime \u2264 4 hours on CPU."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T00:12:43Z'
+- artifact_path: projects/PROJ-050-the-effect-of-priming-on-prosocial-behav/specs/001-the-effect-of-priming-on-prosocial-behav/tasks.md
+  attempts: 1
+  canonical: Singular fit check triggers if variance is less than or equal to 0.01.
+  claim_id: c_ccb8810b
+  context: "T034 [US3] Implement code/03_analyze.py: Singular fit check (variance\
+    \ \u2264 0.01) and fallback re-fit without user_id random effect (FR-005b)"
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Singular_fit_check_triggers_if_variance_is_less_than_or_equa
+  kind: magnitude
+  raw_text: "Singular fit check (variance \u2264 0.01)."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T00:14:02Z'
+- artifact_path: projects/PROJ-050-the-effect-of-priming-on-prosocial-behav/specs/001-the-effect-of-priming-on-prosocial-behav/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis convergence check requires standard deviation of
+    mean p-value over last 100 iterations to be less than 0.001.
+  claim_id: c_6ef12e4b
+  context: T035 [US3] ...check for convergence by verifying that the mean p-value
+    estimate stabilizes (standard deviation of the mean over the last 100 iterations
+    < 0.001).
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Sensitivity_analysis_convergence_check_requires_standard_dev
+  kind: magnitude
+  raw_text: Standard deviation of the mean over the last 100 iterations < 0.001.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T00:14:08Z'
+- artifact_path: projects/PROJ-050-the-effect-of-priming-on-prosocial-behav/specs/001-the-effect-of-priming-on-prosocial-behav/tasks.md
+  attempts: 1
+  canonical: output dataframe must contain at least 4000 comments per group
+  claim_id: c_2016f061
+  context: 'Independent Test: Execute code/01_ingest.py against a small, known test
+    subset and verify the output DataFrame contains exactly two distinct groups (''Prime'',
+    ''Control'') with at least 4,000 comments each (or aborts correctly)...'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Output_dataframe_must_contain_at_least_4000_comments_per_gro
+  kind: magnitude
+  raw_text: verify the output DataFrame contains exactly two distinct groups ('Prime',
+    'Control') with at least 4,000 comments each
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T00:20:38Z'
+- artifact_path: projects/PROJ-050-the-effect-of-priming-on-prosocial-behav/specs/001-the-effect-of-priming-on-prosocial-behav/tasks.md
+  attempts: 1
+  canonical: validation report must confirm Cohen's Kappa at least 0.7
+  claim_id: c_4ed16c89
+  context: "Independent Test: Run code/02_score.py on the anonymized dataset and verify\
+    \ data/processed/scored.csv contains prosocial_action_count and neg_score columns,\
+    \ and that results/validation_report.json confirms Cohen's Kappa \u2265 0.7 against\
+    \ data/validation/gold_standard.csv."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Validation_report_must_confirm_Cohen%27s_Kappa_at_least_0.7
+  kind: magnitude
+  raw_text: "verify Cohen's Kappa \u2265 0.7 against data/validation/gold_standard.csv"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T00:20:41Z'
+- artifact_path: projects/PROJ-050-the-effect-of-priming-on-prosocial-behav/specs/001-the-effect-of-priming-on-prosocial-behav/tasks.md
+  attempts: 1
+  canonical: stratified sampling requires at least 200 comments with at least 50 per
+    stratum
+  claim_id: c_3a14a99f
+  context: "Implement stratified sampling logic for validation (FR-010, FR-010a) to\
+    \ ensure \u2265200 comments with \u226550 per stratum."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Stratified_sampling_requires_at_least_200_comments_with_at_l
+  kind: magnitude
+  raw_text: "ensure stratified sampling logic ensures \u2265200 comments with \u2265\
+    50 per stratum"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T00:21:16Z'
+- artifact_path: projects/PROJ-050-the-effect-of-priming-on-prosocial-behav/specs/001-the-effect-of-priming-on-prosocial-behav/tasks.md
+  attempts: 1
+  canonical: external gold standard file must contain annotations from at least 3
+    distinct raters
+  claim_id: c_36edfa59
+  context: "Implement code/validation/run_validation.py to accept an externally supplied\
+    \ gold_standard.csv. Verify the file contains annotations from \u22653 distinct\
+    \ raters (validated via rater_id column)."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/External_gold_standard_file_must_contain_annotations_from_at
+  kind: magnitude
+  raw_text: "Verify the file contains annotations from \u22653 distinct raters"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T00:21:18Z'
+- artifact_path: projects/PROJ-050-the-effect-of-priming-on-prosocial-behav/specs/001-the-effect-of-priming-on-prosocial-behav/tasks.md
+  attempts: 1
+  canonical: power analysis assumes effect size 0.15 and alpha 0.05
+  claim_id: c_95c0cc47
+  context: "Implement code/00_power_analysis.py to perform pre-data-collection power\
+    \ analysis (FR-013) assuming d=0.15, \u03B1=0.05."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "perform pre-data-collection power analysis assuming d=0.15, \u03B1=0.05"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T00:22:09Z'
+- artifact_path: projects/PROJ-050-the-effect-of-priming-on-prosocial-behav/specs/001-the-effect-of-priming-on-prosocial-behav/tasks.md
+  attempts: 1
+  canonical: power analysis aborts if power is less than 80 percent
+  claim_id: c_2ee34d0e
+  context: If power < 80%, the script MUST abort and log a requirement for researcher
+    approval before proceeding.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Power_analysis_aborts_if_power_is_less_than_80_percent
+  kind: magnitude
+  raw_text: If power < 80%, the script MUST abort
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T00:22:11Z'
+- artifact_path: projects/PROJ-050-the-effect-of-priming-on-prosocial-behav/specs/001-the-effect-of-priming-on-prosocial-behav/tasks.md
+  attempts: 1
+  canonical: ingest process aborts if group counts are less than 4000
+  claim_id: c_1ba1140b
+  context: 'Implement code/01_ingest.py: Data fetching logic with TARGET_N = 10,000
+    limit and abort logic if dataset exhausted or group counts < 4,000 (FR-001, FR-001a).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Ingest_process_aborts_if_group_counts_are_less_than_4000
+  kind: magnitude
+  raw_text: abort if dataset exhausted or group counts < 4,000
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T00:23:08Z'
+- artifact_path: projects/PROJ-050-the-effect-of-priming-on-prosocial-behav/specs/001-the-effect-of-priming-on-prosocial-behav/tasks.md
+  attempts: 1
+  canonical: validation script aborts if Cohen's Kappa is less than 0.7
+  claim_id: c_ace66b5f
+  context: 'ABORT LOGIC: If Cohen''s Kappa < 0.7, the script MUST abort the pipeline
+    and log insufficiency per SC-006.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Validation_script_aborts_if_Cohen%27s_Kappa_is_less_than_0.7
+  kind: magnitude
+  raw_text: abort if Cohen's Kappa < 0.7
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T00:24:01Z'
+- artifact_path: projects/PROJ-050-the-effect-of-priming-on-prosocial-behav/specs/001-the-effect-of-priming-on-prosocial-behav/tasks.md
+  attempts: 1
+  canonical: scoring script runtime must be less than or equal to 4 hours on CPU
+  claim_id: c_9cb734e3
+  context: "Implement code/02_score.py: Performance monitoring to ensure runtime \u2264\
+    \ 4 hours on CPU (FR-012)"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Scoring_script_runtime_must_be_less_than_or_equal_to_4_hours
+  kind: magnitude
+  raw_text: "ensure runtime \u2264 4 hours on CPU"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T00:24:41Z'
+- artifact_path: projects/PROJ-050-the-effect-of-priming-on-prosocial-behav/specs/001-the-effect-of-priming-on-prosocial-behav/tasks.md
+  attempts: 1
+  canonical: singular fit check requires variance less than or equal to 0.01
+  claim_id: c_0603edfa
+  context: "Implement code/03_analyze.py: Singular fit check (variance \u2264 0.01)\
+    \ and fallback re-fit without user_id random effect (FR-005b)"
+  evidence:
+    entailment_evidence: Singular fit check requires variance less than or equal to
+      0
+    entailment_status: contradicted
+    source_url: https://en.wikipedia.org/wiki/Singular_fit_check_requires_variance_less_than_or_equal_to_0
+  kind: magnitude
+  raw_text: "singular fit check (variance \u2264 0.01)"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-07-05T00:24:45Z'
+- artifact_path: projects/PROJ-050-the-effect-of-priming-on-prosocial-behav/specs/001-the-effect-of-priming-on-prosocial-behav/tasks.md
+  attempts: 1
+  canonical: sensitivity analysis convergence requires standard deviation of mean
+    over last 100 iterations less than 0.001
+  claim_id: c_aa8329cb
+  context: check for convergence by verifying that the mean p-value estimate stabilizes
+    (standard deviation of the mean over the last 100 iterations < 0.001).
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Sensitivity_analysis_convergence_requires_standard_deviation
+  kind: magnitude
+  raw_text: standard deviation of the mean over the last 100 iterations < 0.001
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T00:24:48Z'
+- artifact_path: projects/PROJ-050-the-effect-of-priming-on-prosocial-behav/specs/001-the-effect-of-priming-on-prosocial-behav/tasks.md
+  attempts: 1
+  canonical: data fetching target limit is 10000
+  claim_id: c_835d2c25
+  context: 'Implement code/01_ingest.py: Data fetching logic with TARGET_N = 10,000
+    limit and abort logic if dataset exhausted or group counts < 4,000 (FR-001, FR-001a).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: TARGET_N = 10,000 limit
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T00:24:48Z'
+- artifact_path: projects/PROJ-050-the-effect-of-priming-on-prosocial-behav/specs/001-the-effect-of-priming-on-prosocial-behav/tasks.md
+  attempts: 1
+  canonical: prosocial action count excludes keywords help support and charity
+  claim_id: c_04e7e63e
+  context: 'Implement code/02_score.py: prosocial_action_count computation using secondary
+    lexicon (FR-003b), excluding ''help'', ''support'', ''charity'' and equivalents'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Prosocial_action_count_excludes_keywords_help_support_and_ch
+  kind: entity_fact
+  raw_text: exclude 'help', 'support', 'charity' and equivalents from prosocial_action_count
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T00:25:19Z'

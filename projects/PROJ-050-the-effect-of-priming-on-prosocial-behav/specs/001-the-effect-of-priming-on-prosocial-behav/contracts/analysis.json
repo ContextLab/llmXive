@@ -1,0 +1,13 @@
+{
+  "name": "analysis_contract",
+  "description": "Contract for the statistical analysis pipeline",
+  "inputs": {
+    "source": "data/processed/scored.csv",
+    "model": "Linear Mixed-Effects Model"
+  },
+  "outputs": {
+    "report": "results/stats_report.json",
+    "plot": "results/boxplot.png",
+    "metrics": ["p_value", "coefficient", "confidence_interval", "sensitivity_results"]
+  }
+}

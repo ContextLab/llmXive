@@ -20,32 +20,32 @@
 - **Mobile**: `api/src/`, `ios/src/` or `android/src/`
 - Paths shown below assume single project - adjust based on plan.md structure
 
-<!-- 
-  ============================================================================
-  IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-  
-  The /speckit-tasks command MUST replace these with actual tasks based on:
-  - User stories from spec.md (with their priorities P1, P2, P3...)
-  - Feature requirements from plan.md
-  - Entities from data-model.md
-  - Endpoints from contracts/
-  
-  Tasks MUST be organized by user story so each story can be:
-  - Implemented independently
-  - Tested independently
-  - Delivered as an MVP increment
-  
-  DO NOT keep these sample tasks in the generated tasks.md file.
-  ============================================================================
+<!--
+ ============================================================================
+ IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
+
+ The /speckit-tasks command MUST replace these with actual tasks based on:
+ - User stories from spec.md (with their priorities P1, P2, P3...)
+ - Feature requirements from plan.md
+ - Entities from data-model.md
+ - Endpoints from contracts/
+
+ Tasks MUST be organized by user story so each story can be:
+ - Implemented independently
+ - Tested independently
+ - Delivered as an MVP increment
+
+ DO NOT keep these sample tasks in the generated tasks.md file.
+ ============================================================================
 -->
 
 ## Phase 1: Setup (Shared Infrastructure)
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure per implementation plan (`projects/PROJ-050-the-effect-of-priming-on-prosocial-behav/`)
-- [ ] T002 Initialize Python 3.11 project with pinned dependencies in `code/requirements.txt` (pandas, numpy, nltk, vaderSentiment, statsmodels, scikit-learn, pyyaml, hashlib, datasets)
-- [ ] T003 [P] Configure linting (flake8/black) and formatting tools in `code/`
+- [X] T001 Create project structure per implementation plan (`projects/PROJ-050-the-effect-of-priming-on-prosocial-behav/`)
+- [X] T002 Initialize Python 3.11 project with pinned dependencies in `code/requirements.txt` (pandas, numpy, nltk, vaderSentiment, statsmodels, scikit-learn, pyyaml, hashlib, datasets)
+- [X] T003 [P] Configure linting (flake8/black) and formatting tools in `code/`
 
 ---
 
@@ -55,12 +55,12 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 [P] Create data directory structure: `data/raw/`, `data/processed/`, `data/validation/`, `results/`
-- [ ] T005 [P] Implement data checksumming utility in `code/utils/checksum.py` to verify raw data integrity
-- [ ] T006 Create schema validation utilities in `code/utils/schema_validator.py` for `dataset.schema.yaml`, `scored.schema.yaml`, and `output.schema.yaml`
-- [ ] T007 [P] Configure environment variable management for `TARGET_N` and data source paths in `code/config.py`
-- [ ] T008 Implement logging infrastructure in `code/utils/logger.py` to capture "Negation Exclusions" and abort conditions
-- [ ] T009 [P] Setup pytest configuration and test directory structure (`tests/unit/`, `tests/integration/`, `tests/contract/`)
+- [X] T004 [P] Create data directory structure: `data/raw/`, `data/processed/`, `data/validation/`, `results/`
+- [X] T005 [P] Implement data checksumming utility in `code/utils/checksum.py` to verify raw data integrity
+- [X] T006 Create schema validation utilities in `code/utils/schema_validator.py` for `dataset.schema.yaml`, `scored.schema.yaml`, and `output.schema.yaml`
+- [X] T007 [P] Configure environment variable management for `TARGET_N` and data source paths in `code/config.py`
+- [X] T008 Implement logging infrastructure in `code/utils/logger.py` to capture "Negation Exclusions" and abort conditions
+- [X] T009 [P] Setup pytest configuration and test directory structure (`tests/unit/`, `tests/integration/`, `tests/contract/`)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -76,18 +76,18 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T010 [P] [US1] Contract test for dataset schema validation in `tests/contract/test_dataset_schema.py`
+- [X] T010 [P] [US1] Contract test for dataset schema validation in `tests/contract/test_dataset_schema.py`
 - [ ] T011 [P] [US1] Unit test for negation-aware keyword classification logic in `tests/unit/test_classification.py`
-- [ ] T012 [P] [US1] Unit test for PII anonymization (SHA-256 hashing) in `tests/unit/test_anonymization.py`
+- [ ] T012 [P] [US1] Unit test for PII anonymization (SHA-256 hash ing) in `tests/unit/test_anonymization.py`
 
 ### Implementation for User Story 1
 
-- [ ] T013 [US1] **PRE-COLLECTION POWER ANALYSIS**: Implement `code/00_power_analysis.py` to perform pre-data-collection power analysis (FR-013) assuming d=0.15, α=0.05. **Logic**: Check for existing pilot data; if present, use actual ICC to calculate power; if absent, use a conservative theoretical ICC estimate with a **mandatory log entry citing the specific prior study or theoretical justification** for this value. If power < 80%, the script MUST abort and log a requirement for **researcher approval** before proceeding. This task MUST run BEFORE T014. **CRITICAL**: This is a pre-fetch gate; if it fails, no data fetching occurs.
-- [ ] T014 [US1] Implement `code/01_ingest.py`: Source verification for `pushshift/reddit` (FR-014) and presence check for multiple target subreddits (r/AskReddit, r/relationships, r/socialscience, r/psychology, r/dataisbeautiful). **Dependency**: Must wait for T013 success.
-- [ ] T015 [US1] Implement `code/01_ingest.py`: Data fetching logic with `TARGET_N = 10,000` limit and abort logic if dataset exhausted or group counts < 4,000 (FR-001, FR-001a). **Dependency**: Must wait for T014 success.
-- [ ] T016 [US1] Implement `code/01_ingest.py`: Classification logic using NLTK `word_tokenize` and -token negation window (FR-002, FR-002a); log "Negation Exclusions".
-- [ ] T015b [US1] **Feasibility Check for Optional Feature**: Check CPU feasibility for FR-002c (confidence score). If a lightweight lexical confidence model can be run within time limits, implement logic; otherwise, explicitly defer this feature in code comments and log "FR-002c Deferred". This task does not implement the full feature, only determines feasibility.
-- [ ] T016a [US1] Implement `code/01_ingest.py`: Anonymization logic (SHA hash of username). **CRITICAL**: The SHA-256 hash MUST be **retained and explicitly mapped as the `user_id` column** for downstream LMM random effects (FR-009, SC-009). Strip raw timestamps only after computing `thread_age` (FR-009).
+- [~] T013 [US1] **PRE-COLLECTION POWER ANALYSIS**: Implement `code/00_power_analysis.py` to perform pre-data-collection power analysis (FR-013) assuming d=0.15, α=0.05. **Logic**: Check for existing pilot data; if present, use actual ICC to calculate power; if absent, use a conservative theoretical ICC estimate with a **mandatory log entry citing the specific prior study or theoretical justification** for this value. If power < 80%, the script MUST abort and log a requirement for **researcher approval** before proceeding. This task MUST run BEFORE T014. **CRITICAL**: This is a pre-fetch gate; if it fails, no data fetching occurs.
+- [~] T014 [US1] Implement `code/01_ingest.py`: Source verification for `pushshift/reddit` (FR-014) and presence check for multiple target subreddits (r/AskReddit, r/relationships, r/socialscience, r/psychology, r/dataisbeautiful). **Dependency**: Must wait for T013 success.
+- [~] T015 [US1] Implement `code/01_ingest.py`: Data fetching logic with `TARGET_N = 10,000` limit and abort logic if dataset exhausted or group counts < 4,000 (FR-001, FR-001a). **Dependency**: Must wait for T014 success.
+- [~] T016 [US1] Implement `code/01_ingest.py`: Classification logic using NLTK `word_tokenize` and -token negation window (FR-002, FR-002a); log "Negation Exclusions".
+- [~] T015b [US1] **Feasibility Check for Optional Feature**: Check CPU feasibility for FR-002c (confidence score). If a lightweight lexical confidence model can be run within time limits, implement logic; otherwise, explicitly defer this feature in code comments and log "FR-002c Deferred". This task does not implement the full feature, only determines feasibility.
+- [~] T016a [US1] Implement `code/01_ingest.py`: Anonymization logic (SHA hash of username). **CRITICAL**: The SHA-256 hash MUST be **retained and explicitly mapped as the `user_id` column** for downstream LMM random effects (FR-009, SC-009). Strip raw timestamps only after computing `thread_age` (FR-009).
 - [ ] T017 [US1] Implement `code/01_ingest.py`: Save `data/processed/anonymized.csv` and `data/processed/raw_counts.json`.
 - [ ] T018 [US1] Implement `code/01_ingest.py`: Post-fetch validation to ensure at least 4,000 comments per group and ≥3 subreddits remain; abort if conditions not met (FR-001, Edge Cases).
 - [ ] T019 [US1] Create `tests/integration/test_ingest_pipeline.py` to verify end-to-end data flow and abort conditions
@@ -170,8 +170,8 @@
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
-  - User stories can then proceed in parallel (if staffed)
-  - Or sequentially in priority order (P1 → P2 → P3)
+ - User stories can then proceed in parallel (if staffed)
+ - Or sequentially in priority order (P1 → P2 → P3)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
@@ -237,9 +237,9 @@ With multiple developers:
 
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
-   - Developer A: User Story 1 (Ingestion)
-   - Developer B: User Story 2 (Scoring/Validation)
-   - Developer C: User Story 3 (Analysis)
+ - Developer A: User Story 1 (Ingestion)
+ - Developer B: User Story 2 (Scoring/Validation)
+ - Developer C: User Story 3 (Analysis)
 3. Stories complete and integrate independently
 
 ---

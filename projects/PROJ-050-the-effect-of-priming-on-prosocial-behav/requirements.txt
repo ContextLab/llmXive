@@ -1,0 +1,13 @@
+# Existing dependencies
+pandas
+numpy
+nltk
+vaderSentiment
+statsmodels
+scikit-learn
+pyyaml
+hashlib
+datasets
+# Test dependencies
+pytest
+pytest-cov
