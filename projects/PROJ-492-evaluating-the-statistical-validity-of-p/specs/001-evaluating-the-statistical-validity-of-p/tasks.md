@@ -62,7 +62,7 @@
 - [X] T011 Implement generic helper functions (`checksum`, `domain_from_url`, `safe_float`, `parse_inequality_p`) in `src/utils/helpers.py` (run unit test for each helper).
 - [X] T012 Create CI workflow file `.github/workflows/audit.yml` that installs dependencies, enforces CPU ≤ 2 vCPU, RAM ≤ 2 GB, timeout a predefined duration, and runs audit pipeline (verify workflow runs and respects limits) [DEPENDS ON: T010].
 - [X] T013 Create Dockerfile for optional local execution (uses only CPU‑compatible base image) (build Docker image successfully). **(No dependency on T012)**
-- [ ] T014 Configure `manifest.json` generation with content hashes in `src/utils/manifest.py` (FR‑024) (verify `manifest.json` contains SHA256 hashes) [DEPENDS ON: T007].
+- [X] T014 Configure `manifest.json` generation with content hashes in `src/utils/manifest.py` (FR‑024) (verify `manifest.json` contains SHA256 hashes) [DEPENDS ON: T007].
 - [X] T015 Create `data/manual_validation/` directory structure for real‑world validation annotations (verify directory exists).
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -92,7 +92,7 @@
 - [X] T025c **[P]** Run `tests/unit/test_sample_size_exclusion.py` to verify that summaries flagged for sample‑size mismatch are not included in `output/prevalence.json`. **DEPENDS ON:** T025.
 - [X] T027 Unit tests for validator covering absolute p‑difference > 0.05, effect‑size > 5 %, inequality handling, sample‑size mismatch with data_quality_warning generation (tests/unit/test_validator.py) (verify all tests pass) [DEPENDS ON: T025].
 - [X] T026 Implement synthetic dataset generator in `src/audit/synthetic.py` (FR‑030) – outputs `data/synthetic/synthetic_validation.csv` + `data/synthetic/synthetic_ground_truth.json` with at least 10 000 simulated summaries (binary AND continuous outcomes) **and verify both outcome types are present** (constraint‑preservation‑2958f04c) (verify files are created and contain ≥ 10 000 records). **DEPENDS ON:** T006‑T012.
-- [ ] T028 Implement power‑analysis utility in `src/audit/power_analysis.py` (FR‑025) that computes the minimum N given baseline, detectable effect, α and power, writes result to `output/power_analysis.json`, **and asserts audited corpus meets N ≥ 300 OR N ≥ calculated_minimum ** (constraint‑preservation‑ba913176) (verify JSON file exists, contains numeric N, and satisfies condition). **DEPENDS ON:** T010.
+- [X] T028 Implement power‑analysis utility in `src/audit/power_analysis.py` (FR‑025) that computes the minimum N given baseline, detectable effect, α and power, writes result to `output/power_analysis.json`, **and asserts audited corpus meets N ≥ 300 OR N ≥ calculated_minimum ** (constraint‑preservation‑ba913176) (verify JSON file exists, contains numeric N, and satisfies condition). **DEPENDS ON:** T010.
 - [X] T029 Evaluate inconsistency‑detection component on synthetic validation dataset (FR‑031) – compute precision, recall, F1 and assert precision ≥ 90 %, recall ≥ 80 % (depends on T026) (verify test passes, otherwise raise `ERR-800`) [DEPENDS ON: T026].
 - [X] T062 Implement Monte‑Carlo validation module (FR‑026) in `src/audit/monte_carlo_validation.py` that runs 10 10000 replicates for each statistical test (z-test, Fisher's, Welch's, binomial) and checks the absolute difference ≤ 0.005 (constraint‑preservation‑e62a0df4) (verify module exits with status 0).
 - [X] T031 **[P]** Run Monte‑Carlo validation (from T062) as part of pipeline start‑up; abort with `ERR-801` if any test fails the ≤ 0.005 criterion (T031 runs T062 module internally). **DEPENDS ON:** T062.
@@ -101,7 +101,7 @@
 - [X] T034 Create analysis notebook `notebooks/statistical_consistency_verification.ipynb` that documents any p‑value discrepancies >0.05 with justification per Constitution Principle VI; run as part of pipeline acceptance (depends on T025) (verify notebook exists and contains discrepancy justifications) [DEPENDS ON: T025].
 - [X] T035 FR‑001 Verification: Run `tests/integration/test_url_ingestion.py` to assert `input/urls.csv` processing completes without error (coverage‑executability‑08d5764f) (verify test passes).
 - [X] T036 FR‑002 Verification: Run `tests/integration/test_extractor_accuracy.py` to assert extracted fields exist for > 95 % of valid pages (coverage‑executability‑08d5764f) (verify test passes).
-- [ ] T037 FR‑003 Verification: Run `tests/integration/test_reconstructor_completeness.py` to assert reconstructed p‑values computed for all records (coverage‑executability‑08d5764f) (verify test passes).
+- [X] T037 FR‑003 Verification: Run `tests/integration/test_reconstructor_completeness.py` to assert reconstructed p‑values computed for all records (coverage‑executability‑08d5764f) (verify test passes).
 - [X] T038 FR‑004 Verification: Run `tests/integration/test_validator_thresholds.py` to assert flags correspond to defined thresholds (coverage‑executability‑08d5764f) (verify test passes).
 
 ### Tests for User Story 1 (OPTIONAL)
@@ -174,8 +174,8 @@
 
 - [X] T098 Add resource‑monitoring module `src/utils/resource_monitor.py` that records peak CPU & memory, writes to `output/resource_log.json` (SC‑008) **and aborts with `ERR-301` when limits exceeded per FR‑009** (verify log file exists, records within limits, and abort logic triggers on breach).
 - [X] T063 Modify `src/cli/run_audit.py` to invoke `resource_monitor` and abort with `ERR-301` if limits exceeded (plan.md) (run AFTER T098) (verify script aborts on limit breach) [DEPENDS ON: T098].
-- [ ] T064 Update `.github/workflows/audit.yml` to include steps: (a) schema validation, (b) synthetic validation (ensure precision/recall thresholds), (c) resource‑monitor check, (d) main pipeline run (verify workflow runs all steps) [DEPENDS ON: T098]. <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
-- [ ] T065 Add CI step that caches `pip` packages to stay within 6 hour total runtime (plan.md) (verify cache hit on subsequent runs).
+- [ ] T064 Update `.github/workflows/audit.yml` to include steps: (a) schema validation, (b) synthetic validation (ensure precision/recall thresholds), (c) resource‑monitor check, (d) main pipeline run (verify workflow runs all steps) [DEPENDS ON: T098]. <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
+- [X] T065 Add CI step that caches `pip` packages to stay within 6 hour total runtime (plan.md) (verify cache hit on subsequent runs).
 - [ ] T066 Add unit test for resource monitor parsing of `/proc` (tests/unit/test_resource_monitor.py) (verify test passes) [DEPENDS ON: T098].
 - [ ] T095b Verify Quickstart Docker guide also reproduces environment via `requirements.txt` and isolated venv (Constitution Principle I) (verify Dockerfile runs `pip install -r requirements.txt` and that a venv is created) (addresses ordering‑28dea5aa).
 - [ ] T095c **[P]** Verify that the CI run includes a step that checks all seven Constitution Principles (I‑VII) are satisfied (ties to PT005C) (verify CI step exists and passes). (depends on PT005C)
@@ -212,10 +212,10 @@
 - [ ] T074 Verify SC‑005: Parsing‑error rate ≤ 5 % (run `src/audit/validator.py` and check log summary) (depends on T020) (addresses ordering‑fb2f11e6).
 - [ ] T075 Verify SC‑008: CI execution completes within 6 h, ≤ 2 GB RAM, ≤ 2 vCPU (inspect `output/resource_log.json`) (depends on T098) (addresses ordering‑6e28c95b).
 - [ ] T076 Verify SC‑013: CI pipeline exits with status 0 and produces `manifest.json` in ≥ 99 % of runs (run CI locally and check); compute checksums for ALL files under `data/` (raw, processed) AND `output/` directories and record them in `data/checksums.txt` per Constitution Principle III and Principle IV (verify `data/checksums.txt` exists with SHA256 hashes) (depends on T056, T095c, T095a) (addresses ordering‑cfade9e1 and constraint‑preservation‑d467869d).
-- [ ] T077 Verify SC‑014: Binomial test output meets formatting and CI width ≤ 0.10 (run `src/audit/prevalence.py` and inspect JSON) (depends on T042) (addresses ordering‑fb2f11e6).
-- [ ] T078 Verify SC‑015: Sensitivity analysis variation < 0.02 across baseline range (run `src/audit/prevalence.py` and inspect results) (depends on T042) (addresses ordering‑fb2f11e6).
+- [ ] T077 Verify SC‑014: Binomial test output meets formatting and CI width ≤ 0.10 [UNRESOLVED-CLAIM: c_c26bab54 — status=not_enough_info] (run `src/audit/prevalence.py` and inspect JSON) (depends on T042) (addresses ordering‑fb2f11e6).
+- [ ] T078 Verify SC‑015: Sensitivity analysis variation < 0.02 across baseline range [UNRESOLVED-CLAIM: c_f331a263 — status=not_enough_info] (run `src/audit/prevalence.py` and inspect results) (depends on T042) (addresses ordering‑fb2f11e6).
 - [ ] T079 Verify SC‑024: `summary_report.csv` columns and values match `audit_report.json` (run `tests/integration/test_summary_consistency.py`) (depends on T047) (addresses ordering‑fb2f11e6).
-- [ ] T080 Verify SC‑020: Audited corpus size N ≥ 300 (check `output/power_analysis.json`) (depends on T028) (addresses ordering‑fb2f11e6).
+- [ ] T080 Verify SC‑020: Audited corpus size N ≥ 300 [UNRESOLVED-CLAIM: c_cf9b8717 — status=not_enough_info] (check `output/power_analysis.json`) (depends on T028) (addresses ordering‑fb2f11e6).
 - [ ] T081 Verify SC‑026: Monte‑Carlo validation passes for all tests (same as T073) (depends on T062) (addresses ordering‑326c451a).
 - [ ] T082 Verify SC‑027: No domain exceeds a substantial proportion and bias‑adjusted rate reported (run `src/audit/bias_adjustment.py` and inspect output) (depends on T045) (addresses ordering‑fb2f11e6).
 - [ ] T083 Verify SC‑028: Quickstart guide enables audit of 30 URLs in ≤ 30 minutes on **default GitHub Actions runner** (2 vCPU, 7 GB RAM) and records novice‑user verification log (depends on T049, T095b) (addresses ordering‑28dea5aa).

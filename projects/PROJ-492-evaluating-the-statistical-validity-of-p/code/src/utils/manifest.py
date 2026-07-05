@@ -1,137 +1,207 @@
 """
 Manifest generation utility for FR-024.
-Generates a manifest.json file containing SHA256 content hashes for all
-specified artifacts under the output and data directories.
+Generates a manifest.json file containing SHA256 hashes for all specified artifacts.
 """
 import hashlib
 import json
 import logging
 import os
 from pathlib import Path
-from typing import Dict, Any, List, Optional
-from datetime import datetime
+from typing import Dict, List, Any, Optional
 
 from code.src.utils.logger import get_default_logger, AuditLogger
 
+logger = get_default_logger(__name__)
+
+
 def compute_sha256(file_path: Path) -> str:
-    """Compute the SHA256 hash of a file's contents."""
+    """
+    Computes the SHA256 hash of a file.
+    
+    Args:
+        file_path: Path to the file to hash.
+        
+    Returns:
+        Hexadecimal string of the SHA256 hash.
+        
+    Raises:
+        FileNotFoundError: If the file does not exist.
+        IOError: If the file cannot be read.
+    """
+    if not file_path.exists():
+        raise FileNotFoundError(f"File not found: {file_path}")
+        
     sha256_hash = hashlib.sha256()
     try:
         with open(file_path, "rb") as f:
             for byte_block in iter(lambda: f.read(4096), b""):
                 sha256_hash.update(byte_block)
         return sha256_hash.hexdigest()
-    except Exception as e:
-        logger = get_default_logger()
-        logger.error(f"ERR-241: Failed to compute hash for {file_path}: {e}")
-        raise
+    except IOError as e:
+        raise IOError(f"Error reading file {file_path}: {e}")
 
-def find_artifacts(base_dir: Path, extensions: Optional[List[str]] = None) -> List[Path]:
-    """
-    Recursively find all files in base_dir.
-    Optionally filter by extensions (e.g., ['.json', '.csv']).
-    """
-    artifacts = []
-    if not base_dir.exists():
-        return artifacts
-
-    for root, _, files in os.walk(base_dir):
-        for file in files:
-            file_path = Path(root) / file
-            if extensions:
-                if any(file_path.suffix == ext for ext in extensions):
-                    artifacts.append(file_path)
-            else:
-                artifacts.append(file_path)
-    return artifacts
 
 def generate_manifest(
-    output_dir: Path,
-    data_dir: Path,
-    manifest_path: Path,
-    logger: Optional[AuditLogger] = None
+    artifact_paths: List[Path],
+    output_path: Path,
+    base_dir: Optional[Path] = None
 ) -> Dict[str, Any]:
     """
-    Generate a manifest.json containing SHA256 hashes for all files
-    in output_dir and data_dir.
-
+    Generates a manifest.json file with SHA256 hashes for the given artifact paths.
+    
     Args:
-        output_dir: Path to the output directory.
-        data_dir: Path to the data directory.
-        manifest_path: Path where the manifest.json will be written.
-        logger: Optional logger instance.
-
+        artifact_paths: List of Path objects pointing to files to include in the manifest.
+        output_path: Path where the manifest.json file will be written.
+        base_dir: Optional base directory to compute relative paths from. 
+                  If None, absolute paths are used.
+                  
     Returns:
-        The manifest dictionary.
+        The manifest dictionary that was written.
+        
+    Raises:
+        FileNotFoundError: If any artifact in artifact_paths does not exist.
+        IOError: If the manifest cannot be written.
     """
-    if logger is None:
-        logger = get_default_logger()
-
-    artifacts = {}
-    directories_to_scan = [output_dir, data_dir]
-
-    for directory in directories_to_scan:
-        if not directory.exists():
-            logger.warning(f"ERR-242: Directory {directory} does not exist, skipping.")
-            continue
-
-        files = find_artifacts(directory)
-        for file_path in files:
-            # Store relative path from project root (assuming file_path is relative to project root)
-            # If file_path is absolute, make it relative to the current working directory or project root
-            try:
-                rel_path = file_path.relative_to(Path.cwd())
-            except ValueError:
-                # Fallback if relative_to fails, use absolute string or just the path string
-                rel_path = file_path
-
-            file_hash = compute_sha256(file_path)
-            artifacts[str(rel_path)] = {
-                "sha256": file_hash,
-                "size_bytes": file_path.stat().st_size,
-                "modified_at": datetime.fromtimestamp(file_path.stat().st_mtime).isoformat()
-            }
-
+    if base_dir is None:
+        base_dir = Path.cwd()
+        
     manifest = {
-        "generated_at": datetime.now().isoformat(),
-        "version": "1.0.0",
-        "artifacts": artifacts
+        "version": "1.0",
+        "generated_at": None, # Will be set by caller if needed, or left for metadata
+        "artifacts": {}
     }
-
+    
+    missing_files = []
+    
+    for path in artifact_paths:
+        if not path.exists():
+            missing_files.append(str(path))
+            continue
+        
+        # Determine relative path
+        try:
+            rel_path = str(path.relative_to(base_dir))
+        except ValueError:
+            # If path is not relative to base_dir, use absolute path string
+            rel_path = str(path.absolute())
+            
+        try:
+            file_hash = compute_sha256(path)
+            manifest["artifacts"][rel_path] = {
+                "sha256": file_hash,
+                "size_bytes": path.stat().st_size
+            }
+            logger.debug(f"Added to manifest: {rel_path} (hash: {file_hash[:16]}...)")
+        except Exception as e:
+            logger.error(f"Failed to compute hash for {path}: {e}")
+            raise
+            
+    if missing_files:
+        logger.error(f"Missing files for manifest: {missing_files}")
+        raise FileNotFoundError(f"Missing files: {missing_files}")
+        
+    # Write manifest
     try:
-        with open(manifest_path, "w", encoding="utf-8") as f:
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        with open(output_path, "w", encoding="utf-8") as f:
             json.dump(manifest, f, indent=2)
-        logger.info(f"Manifest generated successfully at {manifest_path} with {len(artifacts)} entries.")
-    except Exception as e:
-        logger.error(f"ERR-243: Failed to write manifest to {manifest_path}: {e}")
-        raise
-
+        logger.info(f"Manifest written to {output_path} with {len(manifest['artifacts'])} artifacts.")
+    except IOError as e:
+        raise IOError(f"Failed to write manifest to {output_path}: {e}")
+        
     return manifest
 
-def main():
-    """Main entry point for script execution."""
-    import sys
-    from code.src.config import SEED
 
-    # Set seed for reproducibility if any random ops were involved (none here, but good practice)
-    # No random ops in this module, but we follow project convention.
+def load_manifest(manifest_path: Path) -> Dict[str, Any]:
+    """
+    Loads a manifest.json file.
     
-    logger = get_default_logger()
-    logger.info("Starting manifest generation...")
+    Args:
+        manifest_path: Path to the manifest file.
+        
+    Returns:
+        The manifest dictionary.
+        
+    Raises:
+        FileNotFoundError: If the manifest file does not exist.
+        json.JSONDecodeError: If the file is not valid JSON.
+    """
+    if not manifest_path.exists():
+        raise FileNotFoundError(f"Manifest not found: {manifest_path}")
+        
+    with open(manifest_path, "r", encoding="utf-8") as f:
+        return json.load(f)
 
-    # Define paths relative to project root
-    project_root = Path.cwd()
-    output_dir = project_root / "output"
-    data_dir = project_root / "data"
-    manifest_path = output_dir / "manifest.json"
 
+def verify_manifest(
+    manifest_path: Path,
+    base_dir: Optional[Path] = None
+) -> bool:
+    """
+    Verifies that the files listed in the manifest exist and their hashes match.
+    
+    Args:
+        manifest_path: Path to the manifest file.
+        base_dir: Base directory for relative path resolution. Defaults to manifest's parent.
+                 
+    Returns:
+        True if all files match, False otherwise.
+    """
+    if base_dir is None:
+        base_dir = manifest_path.parent
+        
+    manifest = load_manifest(manifest_path)
+    all_valid = True
+    
+    for rel_path, info in manifest.get("artifacts", {}).items():
+        expected_hash = info.get("sha256")
+        file_path = base_dir / rel_path
+        
+        if not file_path.exists():
+            logger.error(f"Verification failed: File not found {file_path}")
+            all_valid = False
+            continue
+            
+        actual_hash = compute_sha256(file_path)
+        
+        if actual_hash != expected_hash:
+            logger.error(
+                f"Verification failed: Hash mismatch for {file_path}. "
+                f"Expected: {expected_hash}, Actual: {actual_hash}"
+            )
+            all_valid = False
+        else:
+            logger.debug(f"Verification passed: {file_path}")
+            
+    return all_valid
+
+
+def main():
+    """
+    CLI entry point for generating a manifest.
+    Usage: python -m code.src.utils.manifest --output output/manifest.json --files data/... output/...
+    """
+    import argparse
+    
+    parser = argparse.ArgumentParser(description="Generate manifest.json with SHA256 hashes")
+    parser.add_argument("--output", type=str, required=True, help="Path to output manifest.json")
+    parser.add_argument("--files", nargs="+", type=str, required=True, help="List of file paths to include")
+    parser.add_argument("--base-dir", type=str, default=None, help="Base directory for relative paths")
+    
+    args = parser.parse_args()
+    
+    artifact_paths = [Path(p) for p in args.files]
+    output_path = Path(args.output)
+    base_dir = Path(args.base_dir) if args.base_dir else None
+    
     try:
-        manifest = generate_manifest(output_dir, data_dir, manifest_path, logger)
-        print(json.dumps(manifest, indent=2))
-        sys.exit(0)
+        manifest = generate_manifest(artifact_paths, output_path, base_dir)
+        print(f"Manifest generated successfully at {output_path}")
+        print(f"Total artifacts: {len(manifest['artifacts'])}")
     except Exception as e:
-        logger.error(f"ERR-244: Manifest generation failed: {e}")
-        sys.exit(1)
+        logger.error(f"Failed to generate manifest: {e}")
+        raise
+
 
 if __name__ == "__main__":
     main()

@@ -6,6 +6,7 @@ This test verifies that the reconstructor module successfully processes every
 summary in the audit dataset and produces a non-null p-value in the resulting
 AuditRecord.
 """
+import csv
 import json
 import logging
 import sys
@@ -26,7 +27,6 @@ logger = get_default_logger("test_reconstructor_completeness")
 
 def load_synthetic_summaries(file_path: Path) -> List[Dict[str, Any]]:
     """Load synthetic summaries from the generated CSV."""
-    import csv
     summaries = []
     if not file_path.exists():
         raise FileNotFoundError(f"Synthetic dataset not found at {file_path}")

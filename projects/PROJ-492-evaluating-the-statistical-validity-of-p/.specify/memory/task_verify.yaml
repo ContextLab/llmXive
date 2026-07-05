@@ -54,9 +54,6 @@
   \ runs and respects limits) [DEPENDS ON: T010]."
 : 1
 ? "T014 Configure `manifest.json` generation with content hashes in `src/utils/manifest.py`\
-  \ (FR\u2011024) (verify `manifest.json` contains SHA256 hashes) [DEPENDS ON: T007]."
-: 2
-? "T014 Configure `manifest.json` generation with content hashes in `src/utils/manifest.py`\
   \ (FR\u2011024) (verify `manifest.json` contains SHA256 hashes) [UNRESOLVED-CLAIM:\
   \ c_01c292d1 \u2014 status=not_enough_info] [DEPENDS ON: T007]."
 : 1
@@ -133,13 +130,6 @@
 ? "T028 Implement power\u2011analysis utility in `src/audit/power_analysis.py` (FR\u2011\
   025) that computes the minimum N given baseline, detectable effect, \u03B1 and power,\
   \ writes result to `output/power_analysis.json`, **and asserts audited corpus meets\
-  \ N \u2265 300 OR N \u2265 calculated_minimum ** (constraint\u2011preservation\u2011\
-  ba913176) (verify JSON file exists, contains numeric N, and satisfies condition).\
-  \ **DEPENDS ON:** T010."
-: 2
-? "T028 Implement power\u2011analysis utility in `src/audit/power_analysis.py` (FR\u2011\
-  025) that computes the minimum N given baseline, detectable effect, \u03B1 and power,\
-  \ writes result to `output/power_analysis.json`, **and asserts audited corpus meets\
   \ N \u2265 300 OR N \u2265 calculated_minimum [UNRESOLVED-CLAIM: c_3b567611 \u2014\
   \ status=not_enough_info] ** (constraint\u2011preservation\u2011ba913176) (verify\
   \ JSON file exists, contains numeric N, and satisfies condition). **DEPENDS ON:**\
@@ -189,14 +179,13 @@
   \ (verify test passes)."
 : 1
 ? "T037 FR\u2011003 Verification: Run `tests/integration/test_reconstructor_completeness.py`\
-  \ to assert reconstructed p\u2011values computed for all records (coverage\u2011\
-  executability\u201108d5764f) (verify test passes)."
-: 1
-? "T037 FR\u2011003 Verification: Run `tests/integration/test_reconstructor_completeness.py`\
   \ to assert reconstructed p\u2011values computed for all records [UNRESOLVED-CLAIM:\
   \ c_c95cee25 \u2014 status=not_enough_info] (coverage\u2011executability\u201108d5764f)\
   \ (verify test passes)."
 : 1
+? "T043 Unit tests for binomial test and CI width \u2264 0.10 (1807.00365, https://arxiv.org/abs/1807.00365)\
+  \ (tests/unit/test_prevalence.py) (verify test passes)."
+: 2
 ? "T043 Unit tests for binomial test and CI width \u2264 0.10 (tests/unit/test_prevalence.py)\
   \ (verify test passes). [UNRESOLVED-CLAIM: c_ae78747a \u2014 status=not_enough_info]"
 : 1
@@ -214,6 +203,11 @@
   columns (`total_summaries`, `inconsistent_count`, `inconsistent_rate`, `bias_adjusted_rate`,
   `wilson_ci_lower`, `wilson_ci_upper`) (verify CSV file exists and column headers
   match) [DEPENDS ON: T042, T045].'
+: 2
+? "T049 Add Quickstart guide `docs/README_QUICKSTART.md` covering execution on 30\
+  \ URLs within 30 minutes (FR\u2011028) **and include novice\u2011user verification\
+  \ step with written confirmation log** (see T095b) (verify guide file exists and\
+  \ includes novice verification instructions)."
 : 1
 ? "T049 Add Quickstart guide `docs/README_QUICKSTART.md` covering execution on 30\
   \ URLs within 30 minutes [UNRESOLVED-CLAIM: c_67ec5a88 \u2014 status=not_enough_info]\
@@ -282,9 +276,12 @@
   \ T098]. <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested\
   \ --> <!-- ATOMIZE: requested -->"
 : 2
-? "T065 Add CI step that caches `pip` packages to stay within 6\u202Fhour total runtime\
-  \ (plan.md) (verify cache hit on subsequent runs)."
-: 2
+? "T064 Update `.github/workflows/audit.yml` to include steps: (a) schema validation,\
+  \ (b) synthetic validation (ensure precision/recall thresholds), (c) resource\u2011\
+  monitor check, (d) main pipeline run (verify workflow runs all steps) [DEPENDS ON:\
+  \ T098]. <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested\
+  \ --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->"
+: 1
 ? 'T066 Add unit test for resource monitor parsing of `/proc` (tests/unit/test_resource_monitor.py)
   (verify test passes) [DEPENDS ON: T098].'
 : 1

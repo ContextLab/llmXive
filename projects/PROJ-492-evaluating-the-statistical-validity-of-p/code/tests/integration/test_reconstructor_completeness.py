@@ -12,7 +12,6 @@ import sys
 import os
 from pathlib import Path
 from typing import List, Dict, Any, Optional
-import csv
 
 # Ensure the project root is in the path for imports
 PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
@@ -22,12 +21,12 @@ from code.src.utils.logger import get_default_logger, AuditLogger, get_error_mes
 from code.src.audit.validator import validate_all_summaries, write_audit_report
 from code.src.audit.reconstructor import reconstruct_all
 from code.src.models.data_models import ABTestSummary, AuditRecord
-from code.src.config import set_rng_seed
 
 logger = get_default_logger("test_reconstructor_completeness")
 
 def load_synthetic_summaries(file_path: Path) -> List[Dict[str, Any]]:
     """Load synthetic summaries from the generated CSV."""
+    import csv
     summaries = []
     if not file_path.exists():
         raise FileNotFoundError(f"Synthetic dataset not found at {file_path}")
@@ -46,9 +45,6 @@ def run_completeness_check() -> bool:
     Returns:
         bool: True if all records have p-values, False otherwise.
     """
-    # Seed RNG for deterministic behavior if needed by downstream modules
-    set_rng_seed(42)
-
     data_dir = PROJECT_ROOT / "data" / "synthetic"
     input_file = data_dir / "synthetic_validation.csv"
     output_file = PROJECT_ROOT / "output" / "audit_report.json"
@@ -57,12 +53,7 @@ def run_completeness_check() -> bool:
         output_file.parent.mkdir(parents=True)
 
     logger.info(f"Loading synthetic data from {input_file}")
-    try:
-        raw_summaries = load_synthetic_summaries(input_file)
-    except FileNotFoundError as e:
-        logger.error(f"Data file missing: {e}. Ensure T026 (synthetic dataset generation) has run.")
-        return False
-    
+    raw_summaries = load_synthetic_summaries(input_file)
     logger.info(f"Loaded {len(raw_summaries)} summaries")
 
     if not raw_summaries:
@@ -76,52 +67,27 @@ def run_completeness_check() -> bool:
             # Map CSV columns to ABTestSummary fields based on synthetic generator logic
             # The synthetic generator typically produces: n_control, n_treatment, 
             # success_control, success_treatment, p_value_reported, effect_size_reported
-            # We handle potential missing keys gracefully
-            n_control = int(row.get('n_control', 0))
-            n_treatment = int(row.get('n_treatment', 0))
-            
-            # Handle potential non-numeric or missing success counts
-            try:
-                s_control = float(row.get('success_control', 0))
-                s_treatment = float(row.get('success_treatment', 0))
-            except (ValueError, TypeError):
-                logger.warning(f"Row {i} has invalid success counts, skipping.")
-                continue
-
-            try:
-                p_val = float(row.get('p_value_reported', 0.0))
-                eff_size = float(row.get('effect_size_reported', 0.0))
-            except (ValueError, TypeError):
-                logger.warning(f"Row {i} has invalid p-value or effect size, skipping.")
-                continue
-
-            outcome_type = row.get('outcome_type', 'binary')
-            
             summary = ABTestSummary(
                 url=f"synthetic_url_{i}",
-                n_control=n_control,
-                n_treatment=n_treatment,
-                success_control=s_control,
-                success_treatment=s_treatment,
-                p_value_reported=p_val,
-                effect_size_reported=eff_size,
-                outcome_type=outcome_type
+                n_control=int(row.get('n_control', 0)),
+                n_treatment=int(row.get('n_treatment', 0)),
+                success_control=float(row.get('success_control', 0)),
+                success_treatment=float(row.get('success_treatment', 0)),
+                p_value_reported=float(row.get('p_value_reported', 0.0)),
+                effect_size_reported=float(row.get('effect_size_reported', 0.0)),
+                outcome_type=row.get('outcome_type', 'binary')
             )
             ab_summaries.append(summary)
         except Exception as e:
             logger.warning(f"Skipping malformed summary row {i}: {e}")
 
     if not ab_summaries:
-        logger.error("No valid ABTestSummary objects created from input.")
+        logger.error("No valid ABTestSummary objects created.")
         return False
 
     # Run reconstruction
-    logger.info(f"Running reconstruction on {len(ab_summaries)} summaries...")
-    try:
-        reconstructed_records = reconstruct_all(ab_summaries)
-    except Exception as e:
-        logger.error(f"Reconstruction failed with exception: {e}", exc_info=True)
-        return False
+    logger.info("Running reconstruction on all summaries...")
+    reconstructed_records = reconstruct_all(ab_summaries)
     
     logger.info(f"Reconstructed {len(reconstructed_records)} records")
 

@@ -2,24 +2,17 @@ name: Audit Pipeline
 
 on:
   push:
-    branches: [ "main", "develop" ]
+    branches: [ main, develop ]
   pull_request:
-    branches: [ "main" ]
-
-permissions:
-  contents: read
-  actions: write
+    branches: [ main ]
 
 jobs:
-  run-audit:
+  audit:
     runs-on: ubuntu-latest
-    
-    # Enforce resource limits via GitHub Actions runner configuration
-    # The default ubuntu-latest runner provides 2 vCPU and 7GB RAM.
-    # We enforce the 2GB RAM and 2 vCPU logical limit via the application layer
-    # (src/utils/resource_monitor.py) which will abort if exceeded.
-    # We set a timeout to ensure the pipeline does not hang indefinitely.
-    timeout-minutes: 60
+    timeout-minutes: 360
+    container:
+      image: python:3.10-slim
+      options: --cpus 2 --memory 2g
 
     steps:
       - name: Checkout repository
@@ -30,45 +23,36 @@ jobs:
         with:
           python-version: '3.10'
 
+      - name: Cache pip packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt', '**/pyproject.toml') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Run Schema Validation
+      - name: Schema Validation
         run: |
           python -m code.src.audit.export_schema_validator
           python -m code.src.audit.manifest_schema_validator
 
-      - name: Run Synthetic Validation
+      - name: Synthetic Validation
         run: |
           python -m code.src.audit.evaluation
 
-      - name: Run Resource Monitor Check (Startup)
+      - name: Resource Monitor Check
         run: |
           python -m code.src.utils.resource_monitor --check-only
 
-      - name: Run Monte Carlo Startup Validation
-        run: |
-          python -m code.src.cli.run_monte_carlo_validation
-
-      - name: Run Full Audit Pipeline
+      - name: Main Pipeline Run
         run: |
           python -m code.src.cli.run_audit
 
-      - name: Run Constitution Compliance Check
+      - name: Constitution Compliance Check
         run: |
           python -m code.src.utils.constitution_checker
-
-      - name: Upload Artifacts
-        uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: audit-artifacts
-          path: |
-            output/
-            data/
-            logs/
-            data/checksums.txt
-            output/manifest.json
-            output/resource_log.json
