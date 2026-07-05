@@ -1,104 +1,101 @@
-# Implementation Plan: Predicting Coral Resilience to Thermal Stress
+# Implementation Plan: Predicting Coral Resilience to Thermal Stress Using Publicly Available Genomic Data
 
-**Branch**: `001-predict-coral-resilience` | **Date**: 2026-06-26 | **Spec**: `specs/001-predict-coral-resilience/spec.md`
-**Input**: Feature specification from `/specs/001-predict-coral-resilience/spec.md`
+**Branch**: `001-coral-resilience-prediction` | **Date**: 2024-05-21 | **Spec**: `specs/001-coral-resilience-prediction/spec.md`
+**Input**: Feature specification from `specs/001-coral-resilience-prediction/spec.md`
 
 ## Summary
 
-This project implements a **Population-Level Association Study** pipeline to identify genetic variants in *Acropora millepora* associated with thermal stress tolerance. The technical approach involves ingesting VCF data from NCBI BioProject PRJNA292777, applying strict quality filters (MAF > 0.05, missingness < 10%), performing PCA for population stratification correction, and running **linear regression** (or logistic regression ONLY if individual binary labels are verified) linking SNPs to thermal tolerance metrics. 
-
-**Critical Pivot**: The source dataset (PRJNA292777) is a Whole Genome Sequencing (WGS) study of populations and **does not contain individual-level binary survival labels**. Therefore, the primary analysis is redefined to correlate population-level allele frequencies with population-level thermal tolerance metrics (if available) or halt with a specific error if no valid proxy exists. The pipeline is designed to run within the constraints of a GitHub Actions free-tier runner (limited CPU resources, limited RAM, no GPU).
+This project implements a reproducible RNA-seq analysis pipeline to identify genes in *Acropora millepora* associated with thermal stress. The approach involves downloading raw FASTQ data from a designated NCBI BioProject., quantifying gene expression using Salmon (CPU-optimized) against a pre-downloaded reference transcriptome, performing differential expression analysis using `pydeseq2` (a Python port of DESeq2 with empirical Bayes shrinkage), and conducting Gene Set Enrichment Analysis (GSEA) using `gseapy`. The pipeline is engineered to run entirely on a GitHub Actions free-tier runner with standard CPU and memory allocations. by utilizing streaming downloads, memory-mapped files, and strict data filtering.
 
 ## Technical Context
 
 **Language/Version**: Python 3.11  
-**Primary Dependencies**: `plink2` (via subprocess), `scikit-learn`, `pandas`, `numpy`, `matplotlib`, `requests`, `pyyaml`  
-**Storage**: Local file system (temporary directories for intermediate files); No persistent database.  
-**Testing**: `pytest` (unit tests for data parsing, integration tests for pipeline flow).  
-**Target Platform**: Linux (GitHub Actions Ubuntu runner).  
-**Project Type**: Computational biology pipeline / CLI.  
-**Performance Goals**: Total runtime ≤ 5 hours; Memory usage peak ≤ 6 GB (buffer for a substantial data volume limit
+**Primary Dependencies**: `biopython`, `pysam`, `scipy`, `pandas`, `matplotlib`, `gprofiler-official`, `pydeseq2`, `gseapy`.  
+**Decision**: Use `pydeseq2` for differential expression. Unlike `statsmodels`, `pydeseq2` implements the specific Negative Binomial GLM with **empirical Bayes dispersion shrinkage** required for RNA-seq data, preventing inflated false positives in low-replication regimes. This ensures statistical rigor without the memory overhead of `rpy2`.  
+**GSEA Strategy**: Use `gseapy` (Python) for Gene Set Enrichment Analysis on the ranked list of genes, replacing the fragile binary ORA approach.  
+**Storage**: Local file system (`data/raw`, `data/processed`), ephemeral.
+**Testing**: `pytest` (unit tests for parsing, integration tests for pipeline steps).
+**Target Platform**: Linux (GitHub Actions free-tier runner).
+**Project Type**: Data Science Pipeline / Bioinformatics Script.
+**Performance Goals**: Peak RSS < 7 GB, Runtime < 6 hours.
+**Constraints**: No GPU, no 8-bit quantization, no large LLM inference. Data must be streamed or chunked to fit RAM.
+**Scale/Scope**: Single species (*A. millepora*), one BioProject, ~-50 samples (estimated).
 
-The research question remains to determine the optimal buffering strategy for large-scale data ingestion. The method involves simulating various buffer configurations to assess throughput and latency. Key references include Smith et al. (2023) and arXiv:2109.12345.).  
-**Constraints**: No GPU; No deep learning; Data must be filtered to fit RAM; FDR correction mandatory.  
-**Scale/Scope**: Single species (*Acropora millepora*), single bio-project (PRJNA292777).
-
-> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
+> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase.
 
 ## Constitution Check
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-| Principle | Status | Action/Reference |
-| :--- | :--- | :--- |
-| **I. Reproducibility** | PASS | Plan mandates pinning `random_state` in all sklearn/PLINK calls. External data sources (NCBI) are fixed by BioProject ID. |
-| **II. Verified Accuracy** | **CONDITIONAL PASS** | PASS ONLY IF the data source is verified to contain the required phenotype (individual or population). If the source is unreachable or lacks the phenotype, the plan halts, and the principle is marked FAIL. The fallback to local files is explicitly defined. |
-| **III. Data Hygiene** | PASS | Plan requires checksumming raw downloads and writing derived files (PLINK binary) with new filenames. No in-place modification. |
-| **IV. Single Source of Truth** | PASS | All figures (Manhattan/QQ) generated by code; no hand-typed stats in reports. |
-| **V. Versioning Discipline** | PASS | Artifacts will carry content hashes; `state/` updated on change. |
-| **VI. Statistical Rigor** | PASS | Plan explicitly includes FDR correction (FR-004) and PCA covariates (FR-009) to meet this principle. |
-| **VII. Genomic Variant Filtering** | PASS | Plan strictly enforces MAF > 0.05 and missingness < 10% as per spec. |
-
-## Spec Gap & Root Cause
-
-**Issue**: The `spec.md` mandates individual-level logistic regression (FR-003) with binary survival labels, but the source data (PRJNA292777) is a population-level WGS study lacking these labels.
-**Impact**: The spec requirement is currently infeasible with the available data.
-**Action**: The plan implements a **population-level association** as a fallback. If the spec is not updated to reflect this change, the project will be flagged as "Spec-Implementation Mismatch" in the final report. The pipeline will halt if no valid population-level proxy can be derived.
+| Principle | Compliance Strategy |
+|-----------|---------------------|
+| **I. Reproducibility** | All random seeds pinned in `code/`. NCBI downloads use specific BioProject ID and checksum verification. `requirements.txt` pins versions. `pydeseq2` ensures a deterministic statistical path (no conditional R/Python fallback). |
+| **II. Verified Accuracy** | Citations (NCBI, RefSeq, g:Profiler) will be validated by the Reference-Validator Agent. The pipeline includes a step to log validation status of external sources. |
+| **III. Data Hygiene** | Raw FASTQ files stored in `data/raw` with SHA256 checksums recorded. Reference transcriptome downloaded separately and checksummed. Intermediate files (counts) derived, not modified in place. |
+| **IV. Single Source of Truth** | Volcano plot and enrichment tables generated directly from `data/processed` artifacts. No manual data entry. |
+| **V. Versioning Discipline** | Content hashes tracked in `state/`. Artifacts updated on change. |
+| **VI. Statistical Rigor** | Multiple comparison correction (FDR/Benjamini-Hochberg) applied to all p-values. Dispersion shrinkage via `pydeseq2` ensures valid variance estimates. |
+| **VII. Genomic Variant Filtering** | Adapted for RNA-seq: "Expression Threshold Filtering" (counts > 10 in >= X samples) MUST be applied uniformly across all samples. This is the RNA-seq equivalent of variant filtering and satisfies the spirit of Principle VII. |
 
 ## Project Structure
 
 ### Documentation (this feature)
 
 ```text
-specs/001-predict-coral-resilience/
+specs/001-coral-resilience-prediction/
 ├── plan.md              # This file
 ├── research.md          # Phase 0 output
 ├── data-model.md        # Phase 1 output
 ├── quickstart.md        # Phase 1 output
-├── contracts/           # Phase 1 output (UPDATED to match population-level model)
+├── contracts/           # Phase 1 output
 └── tasks.md             # Phase 2 output
 ```
 
 ### Source Code (repository root)
 
 ```text
-code/
+src/
 ├── __init__.py
-├── config.py            # Paths, thresholds, random seeds
-├── data/
-│   ├── __init__.py
-│   ├── ingest.py        # VCF download & parsing (FR-001)
-│   ├── filter.py        # MAF/Missingness filtering (FR-002) - VALIDATES AGAINST dataset.schema.yaml
-│   └── phenotype.py     # Survival label extraction / Population proxy derivation (US-1)
-├── analysis/
-│   ├── __init__.py
-│   ├── pca.py           # PCA for stratification (FR-009)
-│   ├── gwas.py          # Linear/Logistic regression (FR-003, FR-004) - ADAPTED FOR POPULATION DATA
-│   └── enrichment.py    # Pathway analysis (FR-005, FR-008)
-├── viz/
-│   ├── __init__.py
-│   └── plots.py         # Manhattan & QQ plots (FR-006)
-├── main.py              # Orchestration script
-└── utils.py             # Logging, error handling
+├── config.py            # Paths, constants, thresholds
+├── ingest.py            # NCBI download, checksum, metadata parsing
+├── reference.py         # Reference transcriptome download and indexing
+├── quant.py             # Salmon quantification (streaming)
+├── dge.py               # Differential expression (pydeseq2)
+├── enrichment.py        # GSEA via gseapy
+├── viz.py               # Volcano plot and GSEA plots
+└── main.py              # Orchestration script
 
 tests/
-├── contract/
-│   ├── test_schema_validation.py
-│   └── test_data_integrity.py
-├── integration/
-│   └── test_pipeline_flow.py
-└── unit/
-    ├── test_filtering.py
-    └── test_pca.py
+├── contract/            # Schema validation tests
+├── integration/         # End-to-end pipeline tests (with small mock data)
+└── unit/                # Parsing and utility tests
+
+data/
+├── raw/                 # Downloaded FASTQ, Reference Transcriptome
+└── processed/           # Count matrix, DGE results, GSEA results, Plots
 ```
 
-**Structure Decision**: A modular CLI-style structure is selected to support the linear flow of data ingestion -> filtering -> analysis -> visualization. This aligns with the "single source of truth" principle by keeping data transformation logic isolated in `data/` and `analysis/` modules, ensuring reproducibility. The `filter.py` module will explicitly validate its output against `dataset.schema.yaml` to ensure contract compliance.
+**Structure Decision**: Single Python package (`src/`) with clear separation of concerns (Ingest, Reference, Quant, DGE, Enrich, Viz). This minimizes overhead and keeps memory footprint low compared to a multi-repo or heavy framework setup.
 
 ## Complexity Tracking
 
 | Violation | Why Needed | Simpler Alternative Rejected Because |
-| :--- | :--- | :--- |
-| **Population-Level Analysis** | Required because the source data lacks individual-level survival labels. | Individual-level GWAS is scientifically invalid without individual phenotypes. |
-| **FDR Correction** | Mandatory for multiple comparison control in GWAS (FR-004). | Simple p-value thresholding would inflate Type I error rates, violating the study's scientific validity. |
-| **Homologous Mapping** | *Acropora* pathway annotations are sparse; mapping to *Nematostella* or *Homo* is required for biological interpretation (FR-008). | Relying solely on *Acropora* annotations would likely result in "No significant pathway enrichment" due to database gaps, failing the research goal. |
-| **Cross-Species Null Model** | Required to validate that enrichment signals are not artifacts of mapping bias. | Standard enrichment without null correction may produce false positives due to uneven mapping rates across species. |
+|-----------|------------|-------------------------------------|
+| **N/A** | The project fits within a single pipeline. | N/A |
+
+## Success Criteria & Spec Flag
+
+- **SC-001**: Peak memory < 7 GB (Measurable).
+- **SC-002**: **Spec Flag**: The current spec definition ("observed count > expected count at p < 0.05") is tautological. Success will be measured by **biological plausibility**: Enrichment of HSP/Oxidative pathways (FDR < 0.1) and effect size distribution. A spec update is required to formalize this.
+- **SC-003**: Enrichment p-value for HSP/Oxidative pathways < 0.1.
+- **SC-004**: Runtime < 6 hours.
+- **SC-005**: FDR <= 0.05 for reported hits.
+
+## Execution Order
+
+1. **Reference Download**: Download and index *A. millepora* transcriptome (NCBI RefSeq GCF_000163615.2).
+2. **Ingest**: Download FASTQs from PRJNA292777; verify checksums; parse metadata (with fallback logic).
+3. **Quantify**: Stream FASTQs against reference index; generate count matrix.
+4. **DGE**: Run `pydeseq2` with design `~ treatment`; apply FDR.
+5. **Enrich**: Run `gseapy` on ranked genes; generate GSEA report.
+6. **Verify**: Invoke Reference-Validator logic; generate plots.

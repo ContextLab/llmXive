@@ -1,0 +1,41 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "GSEA Enrichment Report Schema"
+description: "Schema for Gene Set Enrichment Analysis (GSEA) results."
+type: "object"
+properties:
+  term_id:
+    type: "string"
+    description: "Pathway identifier (e.g., GO:0006954)."
+  term_name:
+    type: "string"
+    description: "Human-readable pathway name."
+  es:
+    type: "number"
+    description: "Enrichment Score (ES)."
+  nes:
+    type: "number"
+    description: "Normalized Enrichment Score (NES)."
+  p_value:
+    type: "number"
+    description: "Raw enrichment p-value."
+  p_adj:
+    type: "number"
+    description: "Adjusted p-value (FDR)."
+  leading_edge:
+    type: "array"
+    items:
+      type: "string"
+    description: "List of genes contributing most to the enrichment signal."
+  is_stress_pathway:
+    type: "boolean"
+    description: "True if pathway is HSP or Oxidative stress related."
+required:
+  - "term_id"
+  - "term_name"
+  - "es"
+  - "nes"
+  - "p_value"
+  - "p_adj"
+  - "leading_edge"
+  - "is_stress_pathway"
+additionalProperties: false

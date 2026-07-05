@@ -1,0 +1,27 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "DGE Results Schema"
+description: "Schema for differential gene expression results output."
+type: "object"
+properties:
+  gene_id:
+    type: "string"
+    description: "Unique gene identifier."
+  log2_fold_change:
+    type: "number"
+    description: "Log2 fold change value."
+  p_value:
+    type: "number"
+    description: "Raw p-value from statistical test."
+  p_adj:
+    type: "number"
+    description: "Benjamini-Hochberg adjusted p-value (FDR)."
+  significant:
+    type: "boolean"
+    description: "True if p_adj < 0.05."
+required:
+  - "gene_id"
+  - "log2_fold_change"
+  - "p_value"
+  - "p_adj"
+  - "significant"
+additionalProperties: false

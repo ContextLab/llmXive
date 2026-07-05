@@ -1,82 +1,82 @@
 # Feature Specification: Predicting Coral Resilience to Thermal Stress Using Publicly Available Genomic Data
 
-**Feature Branch**: `001-predict-coral-resilience`  
-**Created**: 2023-10-27  
+**Feature Branch**: `001-coral-resilience-prediction`  
+**Created**: 2024-05-21  
 **Status**: Draft  
 **Input**: User description: "Predicting Coral Resilience to Thermal Stress Using Publicly Available Genomic Data"
 
 ## User Scenarios & Testing
 
-### User Story 1 - Data Ingestion and Quality Filtering (Priority: P1)
+### User Story 1 - RNA-seq Data Ingestion and Preprocessing Pipeline (Priority: P1)
 
-The researcher downloads publicly available *Acropora millepora* genomic variant files (VCF) and associated metadata from NCBI BioProject PRJNA292777, then applies strict quality filters to ensure the dataset fits within the 7 GB RAM constraint and removes low-confidence variants.
+A researcher needs to download raw RNA-seq reads (FASTQ) for *Acropora millepora* from an NCBI BioProject., map them to a reference transcriptome, and quantify gene expression to ensure data quality and fit within the limited RAM constraint of the free-tier CI runner.
 
-**Why this priority**: Without a clean, memory-tractable dataset, no downstream statistical analysis can be performed. This is the foundational step that enables the entire research pipeline.
+**Why this priority**: Without clean, memory-tractable expression data, no differential expression analysis can occur. This is the foundational step that enables all subsequent hypothesis testing.
 
-**Independent Test**: The pipeline can be executed end-to-end starting from raw download links, producing a filtered PLINK binary file set (`.bed`, `.bim`, `.fam`) and a summary report of removed variants, without requiring any association testing logic.
+**Independent Test**: Can be fully tested by running the download and quantification script on a local machine or CI runner and verifying that peak memory usage (RSS) remains < 7 GB and that the output expression matrix contains only samples with valid treatment metadata.
 
 **Acceptance Scenarios**:
-1. **Given** the raw VCF and metadata files from NCBI PRJNA292777, **When** the ingestion script runs, **Then** the output must be a filtered dataset where all variants with Minor Allele Frequency (MAF) ≤ 0.05 or missingness > 10% are excluded.
-2. **Given** a corrupted or incomplete VCF file in the input directory, **When** the ingestion script runs, **Then** the system must halt with a clear error message identifying the specific file and the nature of the corruption, preventing partial data processing.
-3. **Given** the metadata file, **When** the system checks for individual-level survival labels, **Then** if individual survival data is missing, the system must either derive a population-level proxy (e.g., mean temperature tolerance) or halt with a specific error indicating the data source does not support individual-level GWAS.
+
+1. **Given** the NCBI BioProject ID PRJNA292777 is provided, **When** the ingestion script executes, **Then** it successfully downloads the FASTQ files and logs the total file size.
+2. **Given** raw FASTQ files, **When** the quantification step runs (using Salmon/DESeq2), **Then** the output expression matrix is generated with valid gene counts, and peak memory usage does not exceed 7 GB.
+3. **Given** metadata with treatment status (Heat vs. Control), **When** the script parses the phenotype file, **Then** it correctly maps sample IDs from the FASTQ files to treatment conditions.
 
 ---
 
-### User Story 2 - Genome-Wide Association Analysis (Priority: P2)
+### User Story 2 - Differential Gene Expression Analysis (Priority: P2)
 
-The researcher executes a genome-wide association study (GWAS) using PLINK to statistically correlate filtered SNPs with the binary survival phenotype (survived/died) under thermal stress, applying multiple-comparison corrections and population stratification controls to identify significant hits.
+A researcher needs to run a differential gene expression (DGE) analysis using DESeq2 to identify genes significantly upregulated or downregulated under thermal stress, ensuring the analysis respects the observational nature of the data.
 
-**Why this priority**: This is the core scientific inquiry of the project. It directly addresses the research question by identifying specific genetic variants linked to thermal tolerance.
+**Why this priority**: This is the core scientific inquiry. It directly addresses the research question by testing the correlation between gene expression and thermal stress conditions.
 
-**Independent Test**: The analysis script can be run on the filtered dataset from User Story 1, producing a list of significant SNPs (p-values), a Manhattan plot, and a QQ-plot, independent of the pathway enrichment step.
+**Independent Test**: Can be fully tested by executing the DESeq2 pipeline with the quantified data and verifying that a results table is generated containing log2-fold changes and adjusted p-values for all tested genes.
 
 **Acceptance Scenarios**:
-1. **Given** the filtered dataset and survival metadata, **When** the PLINK logistic regression runs, **Then** the output must include a p-value for every tested SNP and apply a False Discovery Rate (FDR) correction (q < 0.05) to control family-wise error.
-2. **Given** a dataset where no SNPs meet the significance threshold (q < 0.05), **When** the analysis completes, **Then** the system must explicitly report "No significant associations found" and generate a null result report rather than crashing or returning empty files.
-3. **Given** the filtered dataset, **When** Principal Component Analysis (PCA) is run, **Then** the top 3 Principal Components must be output as covariates to correct for population stratification.
+
+1. **Given** the quantified expression matrix and phenotype file are ready, **When** the DESeq2 analysis runs, **Then** it outputs a result table with log2-fold changes and adjusted p-values for every gene tested.
+2. **Given** the analysis is based on experimental conditions, **When** the results are generated, **Then** the output includes a clear header or metadata note stating that findings are associational, not causal.
+3. **Given** multiple hypothesis tests are performed, **When** the analysis completes, **Then** the results include a column for multiple-comparison corrected p-values (FDR).
 
 ---
 
 ### User Story 3 - Pathway Enrichment and Visualization (Priority: P3)
 
-The researcher takes the list of significant SNPs from the GWAS and performs pathway enrichment analysis to determine if these variants cluster in heat-shock protein or oxidative stress pathways, visualizing the results via a Manhattan plot and pathway summary.
+A researcher needs to visualize the differentially expressed genes via a volcano plot and perform pathway enrichment analysis to identify if the hits cluster in heat-shock protein or oxidative stress pathways.
 
-**Why this priority**: This step provides biological context and interpretability to the statistical hits, transforming raw p-values into actionable biological insights for conservationists.
+**Why this priority**: This transforms raw statistical hits into biological insight, allowing the researcher to interpret *why* certain genes are associated with thermal stress response.
 
-**Independent Test**: The enrichment script can be run on a pre-defined list of significant SNPs (simulated or from a previous run) to produce the final visualization and biological interpretation report.
+**Independent Test**: Can be fully tested by running the enrichment script on the top 100 significant genes and verifying that a volcano plot image and an enrichment report (listing pathways) are generated.
 
 **Acceptance Scenarios**:
-1. **Given** a list of significant SNPs (q < 0.05), **When** the enrichment analysis runs against a standard reference database (e.g., g:Profiler) and a homologous species database (e.g., *Nematostella vectensis*), **Then** the output must identify over-represented biological pathways (e.g., "Heat Shock Protein binding") with a reported adjusted p-value < 0.05.
-    *Note: The p < 0.05 threshold for enrichment is a standard community convention for exploratory analysis.*
-2. **Given** a list of significant SNPs that do not map to any known pathway, **When** the analysis runs, **Then** the system must report "No significant pathway enrichment found" and list the specific SNPs that could not be annotated.
+
+1. **Given** a list of significant genes (FDR < 0.05), **When** the visualization script runs, **Then** it generates a volcano plot saved as a PNG file.
+2. **Given** significant genes are mapped to gene IDs, **When** the enrichment analysis runs against g:Profiler, **Then** it outputs a list of enriched pathways with p-values, and explicitly notes whether heat-shock or oxidative stress pathways are among the enriched results.
+3. **Given** the analysis completes, **When** the final report is generated, **Then** it includes a summary stating whether the observed enrichment for stress pathways is statistically significant (FDR < 0.05).
+
+---
 
 ### Edge Cases
 
-- What happens when the metadata lacks a clear "survival" binary label (e.g., continuous temperature exposure data only)? The system must flag this as a critical data quality issue, attempt to derive a population-level proxy, or halt with a specific error preventing invalid GWAS execution.
-- How does the system handle a situation where the number of significant SNPs is zero after correction? The system must treat this as a valid scientific outcome (polygenic trait or environmental plasticity) and generate a "Null Result" report rather than failing.
-- What if the VCF file contains variants with missing genotype calls exceeding the 10% threshold for a specific individual? That individual must be excluded from the analysis to prevent bias.
+- What happens when the NCBI download fails due to network timeout? (System retries up to 3 times with exponential backoff, then logs a fatal error).
+- How does the system handle a dataset where no genes pass the expression threshold? (The pipeline halts with a clear error message indicating insufficient data for this specific cohort).
+- What happens if the phenotype metadata is missing treatment status for a subset of samples? (Those samples are excluded from the DGE, and a warning log reports the exclusion count).
 
 ## Requirements
 
 ### Functional Requirements
 
-- **FR-001**: System MUST download variant call files (VCF) and metadata from NCBI BioProject PRJNA292777 and parse them into a standard format. (See US-1)
-- **FR-002**: System MUST filter variants to retain only those with Minor Allele Frequency (MAF) > 0.05 and missingness < 10%. (See US-1)
-- **FR-003**: System MUST perform genome-wide association testing using logistic regression (PLINK) linking SNPs to the binary survival phenotype, including population stratification correction. (See US-2)
-- **FR-004**: System MUST apply a False Discovery Rate (FDR) correction (q < 0.05) to all p-values to control family-wise error rate. (See US-2)
-- **FR-005**: System MUST conduct pathway enrichment analysis on significant hits (q < 0.05) using a standard reference database (e.g., g:Profiler) and a homologous species database to identify heat-shock or oxidative stress pathways. (See US-3)
-- **FR-006**: System MUST generate a Manhattan plot visualizing p-values across all chromosomes. (See US-2)
-- **FR-007**: System MUST report a definitive "No significant associations found" status if no SNPs meet the corrected significance threshold, rather than failing silently. (See US-2)
-- **FR-008**: System MUST validate pathway annotations by cross-referencing with a homologous species database (e.g., *Nematostella vectensis*) and report the annotation confidence level. (See US-3)
-- **FR-009**: System MUST perform Principal Component Analysis (PCA) to identify the top 3 Principal Components and use them as covariates in the GWAS model to correct for population stratification. (See US-2)
+- **FR-001**: System MUST download FASTQ files and phenotype metadata from NCBI BioProject PRJNA292777 and verify file integrity (SHA256) before processing. (See US-1)
+- **FR-002**: System MUST quantify gene expression and filter results to ensure the resulting dataset size is compatible with a 7 GB RAM environment. (See US-1)
+- **FR-003**: System MUST execute a differential gene expression test using DESeq2 (or equivalent) to correlate gene expression levels with thermal stress treatment conditions. (See US-2)
+- **FR-004**: System MUST apply a multiple-comparison correction (Benjamini-Hochberg FDR) to all p-values to control family-wise error rate. (See US-2)
+- **FR-005**: System MUST generate a volcano plot and a pathway enrichment report using g:Profiler or equivalent for genes with FDR < 0.05. (See US-3)
+- **FR-006**: System MUST explicitly label all statistical findings as "associational" in the output report, acknowledging the lack of random assignment. (See US-2)
 
 ### Key Entities
 
-- **Variant Record**: A genomic position containing allele frequency, genotype data, and chromosome location.
-- **Phenotype Record**: A sample identifier linked to a binary survival status (1=Survived, 0=Died) and temperature exposure metadata.
-- **Significant Hit**: A Variant Record that meets the statistical significance threshold (q < 0.05 after correction).
-- **Pathway**: A biological functional group (e.g., "Oxidative Stress Response") containing a set of genes.
-- **Principal Component**: A derived covariate representing genetic ancestry variation used to correct for population stratification.
+- **Expression Matrix**: A filtered collection of gene counts derived from *Acropora millepora* RNA-seq data, mapped to treatment conditions.
+- **Phenotype Record**: A mapping of sample IDs to experimental treatment status (Heat vs. Control).
+- **DGE Result**: A dataset linking each gene to a log2-fold change, p-value, and adjusted significance status.
 
 ## Success Criteria
 
@@ -84,17 +84,18 @@ The researcher takes the list of significant SNPs from the GWAS and performs pat
 
 > Planning docs state *what* will be measured and the *source/reference* it is measured against; defer specific empirical values (counts, dataset sizes, measured quantities, percentages) to the implementation/research phase.
 
-- **SC-001**: The total dataset size after filtering is measured against the 7 GB RAM limit to ensure memory feasibility. (See US-1)
-- **SC-002**: The genomic inflation factor (lambda) is measured against the threshold 1.05 to validate that the population stratification correction (FR-009) was successful. (See US-2)
-- **SC-003**: The pathway enrichment analysis successfully reports either a list of pathways with adjusted p < 0.05 OR a definitive null result, ensuring the output is never ambiguous. (See US-3)
-- **SC-004**: The computation time for the full GWAS pipeline is measured against a target of ≤ 5 hours to provide a 1-hour buffer before the 6-hour GitHub Actions free-tier timeout. (See US-2)
-- **SC-005**: The presence of the top 3 Principal Components in the GWAS covariate file is measured against the requirement for population stratification correction. (See US-2)
-- **SC-006**: The annotation confidence of pathway mappings is measured against the requirement for cross-species validation (FR-008). (See US-3)
+- **SC-001**: Peak memory usage (RSS) measured via system profiler during execution is measured against the 7 GB RAM limit to ensure the analysis completes without memory overflow on the free-tier runner. (See US-1)
+- **SC-002**: Number of significant genes (FDR < 0.05) is measured against the expected count under the null hypothesis; success requires observed count > expected count at p < 0.05. (See US-2)
+- **SC-003**: Enrichment p-value for at least one pathway from the predefined list [HSP, Oxidative] is measured against the threshold FDR < 0.1 to validate biological plausibility. (See US-3)
+- **SC-004**: The computational runtime is measured against the free-tier job limit of GitHub Actions to ensure feasibility. (See US-1)
+- **SC-005**: The False Discovery Rate (FDR) of reported significant hits is measured against the threshold FDR <= 0.05. (See US-2)
 
 ## Assumptions
 
-- The NCBI BioProject PRJNA292777 contains VCF files for *Acropora millepora*. If individual-level survival metadata is missing, the system will attempt to derive a population-level proxy or halt with a specific error, as individual-level GWAS requires individual phenotypes.
-- The thermal stress phenotype is observational; therefore, all findings will be framed as associational correlations, not causal effects, unless the metadata explicitly indicates a randomized experimental design.
-- The analysis will rely on standard, CPU-tractable statistical methods (PLINK logistic regression) rather than deep learning or GPU-accelerated models, as the compute environment is limited to a small number of CPU cores and no GPU.
-- The g:Profiler or equivalent pathway database may contain sparse annotation mappings for *Acropora millepora* genes; therefore, the system will map to the closest homologous model organism (e.g., *Nematostella vectensis* or *Homo sapiens*) and report this mapping confidence as part of the results.
-- The "survival" phenotype is binary (Survived/Died) in the metadata; if the data provides continuous temperature tolerance metrics, a threshold of "survival" will be defined as the median survival temperature of the cohort for binarization, or a population-level proxy will be used if individual labels are absent.
+- The NCBI BioProject contains raw RNA-seq reads (FASTQ) that can be mapped to a reference transcriptome within the 6-hour CI time limit using standard tools (e.g., Salmon, DESeq2).
+- The experimental treatment metadata (Heat vs. Control) is available in a machine-readable format (e.g., CSV, TSV) linked to the sample IDs in the genomic files.
+- The dataset size, after quantification and filtering, will fit within the RAM and disk constraints of the free-tier runner.
+- The analysis is purely observational; therefore, no causal claims regarding specific genes causing thermal resilience will be made, only associations.
+- The g:Profiler API or a local equivalent is accessible and functional during the pipeline execution for pathway enrichment.
+- The "heat-shock protein" and "oxidative stress" pathways are adequately represented in the reference genome annotation used for the analysis.
+- If the dataset lacks specific variables required for covariate adjustment (e.g., specific environmental covariates), the analysis will proceed with available metadata only, noting this limitation in the final report.

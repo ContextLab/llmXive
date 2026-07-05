@@ -3,84 +3,62 @@
 ## Prerequisites
 
 - Python 3.11+
-- PLINK 2.0 (installed and in PATH)
-- Git
-- 7 GB+ available RAM (GitHub Actions environment)
-- 14 GB+ available disk space
+- Access to a GitHub Actions runner (or local machine with sufficient RAM).
+- `ncbi-sra-tools` (optional, for SRA download) or `curl`/`wget`.
 
-## 1. Clone and Setup
+## Installation
 
-```bash
-git clone <repository-url>
-cd projects/PROJ-333-predicting-coral-resilience-to-thermal-s
-python -m venv venv
-source venv/bin/activate
-pip install -r code/requirements.txt
-```
+1. **Clone the repository**:
+   ```bash
+   git clone <repo-url>
+   cd projects/PROJ-333-predicting-coral-resilience-to-thermal-s
+   ```
 
-## 2. Data Preparation
+2. **Create a virtual environment**:
+   ```bash
+   python -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   ```
 
-**Important**: The automated download for NCBI BioProject PRJNA292777 may fail if the source is unreachable (as indicated in `research.md`). If the automated step fails, manually download the VCF and metadata files from NCBI and place them in `data/raw/`.
+3. **Install dependencies**:
+   ```bash
+   pip install -r code/requirements.txt
+   ```
+   *Note: `requirements.txt` includes `biopython`, `pandas`, `scipy`, `pydeseq2`, `gseapy`, `matplotlib`, `requests`.*
 
-**Critical Note**: The source dataset (PRJNA292777) lacks individual-level survival labels. The pipeline expects either:
-1. A metadata file with individual-level continuous thermal tolerance metrics, OR
-2. A metadata file with population-level mean survival metrics.
+## Running the Pipeline
 
-If neither is available, the pipeline will halt with a specific error.
+The pipeline is orchestrated via `code/main.py`.
 
-```bash
-# Attempt automated download
-python code/main.py --step download
+1. **Download Reference & Ingest**:
+   ```bash
+   python code/main.py --step reference
+   python code/main.py --step ingest
+   ```
+   *This downloads the *A. millepora* transcriptome (GCF_000163615.2), then downloads FASTQs from PRJNA292777, verifies checksums, and parses metadata.*
 
-# If download fails, manually place files:
-# data/raw/prjna292777_variants.vcf
-# data/raw/prjna292777_phenotypes.csv (must contain 'population_id' and 'mean_survival' OR 'sample_id' and 'survival')
-```
+2. **Quantify**:
+   ```bash
+   python code/main.py --step quant
+   ```
+   *Streams FASTQs against the reference index to generate the count matrix.*
 
-Ensure the phenotype file contains either:
-- `population_id` and `mean_survival` (for population-level analysis), OR
-- `sample_id` and `survival` (for individual-level analysis, if available).
+3. **Differential Expression**:
+   ```bash
+   python code/main.py --step dge
+   ```
+   *Runs `pydeseq2` and generates `data/processed/dge_results.csv`.*
 
-## 3. Run the Pipeline
+4. **Enrichment & Visualization**:
+   ```bash
+   python code/main.py --step enrich
+   python code/main.py --step viz
+   ```
+   *Runs GSEA via `gseapy` and generates `data/processed/gsea_report.csv` and `data/processed/volcano_plot.png`.*
 
-Execute the full pipeline:
+## Verification
 
-```bash
-python code/main.py --full
-```
-
-This will:
-1. Download/Verify data.
-2. Filter variants (MAF > 0.05, missingness < 10%).
-3. Run PCA for stratification.
-4. Perform GWAS (Linear or Logistic regression based on phenotype type).
-5. Apply FDR correction.
-6. Run pathway enrichment (with null model correction).
-7. Generate plots and reports.
-
-## 4. Verify Results
-
-Check the output directory:
-
-```bash
-ls results/
-# Expected:
-# - gwas_results.csv
-# - manhattan_plot.png
-# - qq_plot.png
-# - pathway_enrichment.json
-# - summary_report.md
-```
-
-### Expected Outcomes
-
-- **Success**: `summary_report.md` lists significant SNPs and pathways.
-- **Null Result**: `summary_report.md` states "No significant associations found" (valid outcome).
-- **Error**: If survival labels are missing or invalid, the script halts with a clear error.
-
-## 5. Troubleshooting
-
-- **Memory Error**: Reduce the dataset size by sampling variants or individuals (see `code/config.py`).
-- **PLINK Not Found**: Ensure PLINK 2.0 is installed and added to your system PATH.
-- **Missing Data**: If the pipeline cannot find the VCF, manually download it from NCBI and place it in `data/raw/`.
-- **Invalid Phenotype**: If the pipeline cannot derive a valid phenotype (individual or population), it will halt. Check `data/raw/prjna292777_phenotypes.csv` for the required columns.
+- Check `data/processed/` for output files.
+- Verify `data/processed/dge_results.csv` contains `p_adj` < 0.05.
+- Ensure peak memory usage (via `psutil` logs) did not exceed 7 GB.
+- Confirm that the Reference-Validator Agent (or log) confirms the validity of NCBI and RefSeq citations.
