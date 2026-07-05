@@ -1,0 +1,5 @@
+'T001a [P] Create project directories: `code/`, `data/`, `tests/`, `docs/`, `state/`': 1
+? 'T001b [P] Create `requirements.txt` with pinned versions for: numpy, pandas, scikit-learn,
+  networkx, nibabel, nilearn, scipy, matplotlib, seaborn, statsmodels, pyyaml'
+: 1
+T001c [P] Create `README.md` with project overview and quickstart instructions: 1

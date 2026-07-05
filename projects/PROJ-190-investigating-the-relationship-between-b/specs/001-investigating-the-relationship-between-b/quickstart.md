@@ -3,68 +3,93 @@
 ## Prerequisites
 
 - Python 3.11+
-- HCP Data Access (credentials for `https://db.humanconnectome.org/` or a local copy of the 1200-subject release).
-- Schaefer Atlas files (downloaded from the Yeo Lab GitHub).
-- **CI Note**: For automated CI runs, a `--mock-data` flag is available to generate synthetic data matching the HCP schema.
+- Access to HCP -subject release (registration required at https://db.humanconnectome.org/)
+- Sufficient disk space (for raw + processed data)
+- Sufficient RAM (for processing; may require sampling)
 
 ## Installation
 
-1. **Clone the repository**:
+1. **Clone Repository**:
    ```bash
    git clone <repo-url>
    cd projects/PROJ-190-investigating-the-relationship-between-b
    ```
 
-2. **Create a virtual environment**:
+2. **Create Virtual Environment**:
    ```bash
    python -m venv venv
    source venv/bin/activate  # On Windows: venv\Scripts\activate
    ```
 
-3. **Install dependencies**:
+3. **Install Dependencies**:
    ```bash
-   pip install -r requirements.txt
+   pip install -r code/requirements.txt
    ```
 
-4. **Download Data** (Manual step for HCP):
-   - Log in to the HCP database.
-   - Download the `1200_Subjects` release.
-   - Place the data in `data/raw/`.
-   - *Note: For CI, a pre-downloaded subset or mock data is used.*
+4. **Download HCP Data**:
+   - Follow HCP access instructions to download rs-fMRI and behavioral data.
+   - Place raw data in `data/raw/`.
+   - Ensure `data/raw/` contains:
+     - `sub-XXXXX/` folders with `rfMRI_REST1_LR.nii.gz`, `rfMRI_REST1_RL.nii.gz`, etc.
+     - `BehavioralData.xlsx` or equivalent with fluid intelligence scores.
 
 ## Running the Pipeline
 
-The pipeline is orchestrated via `code/main.py`.
-
-### Full Run (or Sampled)
+### 1. Preprocessing
 ```bash
-python code/main.py --config config/default.yaml
+python code/main.py --step preprocess --subjects all
 ```
+- Downloads/loads data, applies nuisance regression + band-pass filter.
+- Excludes subjects with missing scores or FD > 0.5 mm.
+- Outputs: `data/processed/time_series/`.
 
-### Mock Run (CI Testing)
+### 2. Compute Graph Metrics
 ```bash
-python code/main.py --config config/default.yaml --mock-data
+python code/main.py --step graph --atlas Schaefer_200 --density 0.20
 ```
+- Parcellates brains, computes connectivity matrices, calculates efficiency metrics.
+- Outputs: `data/results/efficiency_metrics.csv`.
 
-### Steps Executed:
-1. **Download/Load**: Loads fMRI and behavioral data (or generates mock data).
-2. **Preprocess**: Applies nuisance regression and band-pass filtering. Calculates FD.
-3. **Graph Construction**: Parcellates with Schaefer 200/400, computes matrices, thresholds.
-4. **Metric Calculation**: Computes global and frontoparietal efficiency (Harmonic Mean for disconnected graphs).
-5. **Statistics**: Runs correlations, regression, VIF check, and permutation testing (with a sufficient number of permutations).
-6. **Report**: Generates `results/statistical_summary.json` and figures.
+### 3. Statistical Analysis
+```bash
+python code/main.py --step stats --permutations 1000
+```
+- Runs correlation, regression, permutation testing.
+- Adapts permutation count if time > 5.5h.
+- Outputs: `data/results/statistical_results.csv`.
 
-### Verification
-Check the output log for:
-- `Subjects processed: X`
-- `Mean FD: Y mm`
-- `Global Efficiency (200): Z`
-- `FWE Corrected p-value: P`
+### 4. Generate Report
+```bash
+python code/main.py --step report
+```
+- Creates figures, tables, and text report.
+- Includes mandatory phrase and citations.
+- Outputs: `paper/`.
 
-If the 6-hour limit is approached, the system will automatically sample to ≤200 subjects and log this event.
+## Verification
+
+- **Check Excluded Subjects**:
+  ```bash
+  cat logs/exclusions.log
+  ```
+- **Verify Efficiency Metrics**:
+  ```bash
+  python code/utils/validate_metrics.py
+  ```
+- **Run Unit Tests**:
+  ```bash
+  pytest tests/unit/
+  ```
 
 ## Troubleshooting
 
-- **HCP Access Error**: Ensure credentials are set in environment variables or the HCP CLI is configured. Use `--mock-data` for CI testing.
-- **Memory Error**: The script uses memory mapping. If issues persist, reduce `--max-subjects` manually.
-- **Permutation Timeout**: If 1,000 permutations exceed time, the system will log a warning and reduce subjects (fallback to N=200).
+- **HCP Access Denied**: Ensure credentials are set; check network; retry with `--retry 1`.
+- **Memory Error**: Reduce subject count via `--subjects sample:500`.
+- **Runtime Exceeded**: Permutation count will auto-reduce; check `logs/runtime.log`.
+- **Missing Atlas**: Download Schaefer/Yeo atlases to `data/atlases/`.
+
+## Notes
+
+- **Reproducibility**: Random seeds are pinned in `code/config.py`.
+- **Data Hygiene**: All data files are checksummed; raw data is preserved.
+- **Causation**: Report includes mandatory phrase: "Findings are associational and do not imply causation due to the observational study design."

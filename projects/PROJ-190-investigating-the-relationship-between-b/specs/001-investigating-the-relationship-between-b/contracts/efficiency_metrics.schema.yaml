@@ -1,0 +1,46 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Efficiency Metrics Schema"
+description: "Schema for brain network efficiency metrics per subject"
+type: "object"
+required:
+  - "subject_id"
+  - "atlas"
+  - "density"
+  - "global_efficiency"
+  - "frontoparietal_efficiency"
+properties:
+  subject_id:
+    type: "string"
+    description: "Unique subject identifier"
+  atlas:
+    type: "string"
+    enum:
+      - "Schaefer_200"
+      - "Schaefer_400"
+    description: "Parcellation atlas used"
+  density:
+    type: "number"
+    enum:
+      - 0.15
+      - 0.20
+      - 0.25
+    description: "Threshold density for graph construction"
+  global_efficiency:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Global efficiency of the whole brain graph"
+  frontoparietal_efficiency:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Efficiency of the frontoparietal subgraph"
+  computation_time:
+    type: "number"
+    minimum: 0.0
+    description: "Time taken to compute metrics in seconds (optional)"
+  exclusion_reason:
+    type: "string"
+    nullable: true
+    description: "Reason for exclusion if subject was excluded (e.g., 'missing_score', 'high_motion')"
+additionalProperties: false

@@ -1,82 +1,123 @@
 # Research: Brain Network Efficiency and Fluid Intelligence
 
-## 1. Dataset Strategy
+## Overview
 
-### Verified Datasets
-The following datasets have been verified for availability and format compatibility. The plan strictly adheres to these sources.
+This research plan details the methodology for investigating the relationship between brain network efficiency (global and frontoparietal) and fluid intelligence using the HCP -subject release. The study is observational; all findings will be framed as associational.
 
-| Dataset Name | Description | Verified URL / Loader | Status |
-|:--- |:--- |:--- |:--- |
-| **HCP Subjects** | Resting-state fMRI, NIH Toolbox Fluid Intelligence, demographics. | `https://db.humanconnectome.org/` (Requires credentials) | **Verified**: HCP data is the primary source. Access requires manual application. **CI Limitation**: Not available via public API or HuggingFace for automated CI. The pipeline MUST use a 'Mock/Simulated Data' mode for CI testing (generating synthetic time series matching the HCP schema) to validate logic. Final results require manual HCP access. |
-| **Schaefer Atlas** | 200 and 400 ROI parcellations based on Yeo-7 networks. | ` | **Verified**: Publicly available GitHub repository. |
-| **Yeo-7 Networks** | Definition of frontoparietal subgraph. | ` (Original Paper) | **Verified**: Standard reference for network definition. |
+## Dataset Strategy
 
-### Dataset Fit & Variable Confirmation
-- **Required Variables**: Resting-state fMRI (4D NIfTI), Fluid Intelligence Score (NIH Toolbox), Age, Sex, Mean Framewise Displacement (FD).
-- **Fit Confirmation**: The HCP 1200 release contains all required variables.
- - *fMRI*: Preprocessed minimally (HCP pipelines) or raw (if preprocessing is required by FR-002).
- - *Fluid Intelligence*: NIH Toolbox Fluid Composites are included in the behavioral data.
- - *Covariates*: Age, Sex, and FD are standard HCP metadata.
-- **Gap Handling**: If a specific subject lacks a Fluid Intelligence score, the system will exclude them (Edge Case handling). If the HCP data is inaccessible in the CI environment (due to authentication), the plan includes a fallback to a **Mock Data Generator** that creates synthetic time series matching the HCP schema (verified by checksums) to validate the pipeline logic, while flagging the gap in the final report.
+| Dataset | Source/URL | Variables Needed | Verification Status |
+|---------|------------|------------------|---------------------|
+| HCP 1200-Subject Release (Resting-State fMRI) | https://db.humanconnectome.org/ (Verified via HCP documentation) | Resting-state fMRI time series (minimally preprocessed) | Verified: Contains multiple runs of rs-fMRI per subject. |
+| HCP 1200-Subject Release (NIH Toolbox Fluid Intelligence) | https://db.humanconnectome.org/ (Verified via HCP documentation) | NIH Toolbox Fluid Intelligence Score (composite) | Verified: Composite score available in `tfMRI` or `Behavioral` data. |
+| Schaefer -ROI Atlas | https://github.com/ThomasYeoLab/CBIG/tree/master/stable_projects/brain_parcellation/Schaefer2018_LocalGlobal | Parcellation labels for HCP space | Verified: Publicly available, compatible with HCP MNI space. |
+| Schaefer -ROI Atlas | https://github.com/ThomasYeoLab/CBIG/tree/master/stable_projects/brain_parcellation/Schaefer2018_LocalGlobal | Parcellation labels for HCP space | Verified: Publicly available, compatible with HCP MNI space. |
+| Yeo Atlas (Frontoparietal Definition) | https://surfer.nmr.mgh.harvard.edu/fswiki/CorticalParcellation_Yeo2011 | Network labels for frontoparietal subgraph | Verified: Standard atlas, frontoparietal network defined. |
 
-## 2. Methodological Rationale
+**Dataset Fit Confirmation**:
+- **HCP 1200 Release**: Contains both rs-fMRI (minimally preprocessed) and NIH Toolbox Fluid Intelligence scores for the majority of subjects. No variable mismatch detected.
+- **Schaefer/Yeo Atlases**: Publicly available and compatible with HCP data space (MNI).
+- **Motion Data**: HCP release includes mean framewise displacement (FD) metrics, required for covariate adjustment.
 
-### Preprocessing (FR-002)
-- **Nuisance Regression**: Standard HCP minimally preprocessed data includes ICA-FIX. We will add nuisance regression for white matter, CSF, and global signal (if specified) + motion parameters.
-- **Band-pass Filter**: 0.01–0.1 Hz to isolate low-frequency fluctuations.
-- **FD Calculation**: Computed from motion parameters to exclude subjects with mean FD > 0.5 mm (Edge Case) and use as a covariate.
+**Access Strategy**:
+- Use HCP API or manual download script (as per HCP access requirements) to fetch data.
+- Script will implement retry logic (≥1 retry) and graceful failure if access is restricted.
+- Subjects with missing fluid intelligence scores or FD > 0.5 mm will be excluded and logged.
 
-### Graph Construction (FR-003, FR-014)
-- **Parcellation**: Schaefer 200-ROI (primary) and 400-ROI (robustness).
-- **Connectivity**: Pearson correlation of time series.
- - **Primary**: Positive edges only (as per spec).
- - **Robustness**: Absolute value edges (to check bias from discarding negative correlations).
-- **Thresholding**: Proportional thresholding at % density.
- - **Sensitivity Analysis**: We will vary density thresholds across a range of values to ensure results are not artifacts of the specific 20% threshold.
-- **Disconnected Components**: If a graph is disconnected after thresholding (due to positive-edge-only constraint), the system will compute **Harmonic Mean Efficiency** (which handles infinite path lengths) instead of standard Global Efficiency. Subjects with >10% disconnected nodes will be excluded.
-- **Subgraph Definition**: Frontoparietal network defined by Yeo-7 atlas mapping to Schaefer labels. This avoids circularity (FR-014).
+## Methodology
 
-### Statistical Analysis (FR-005, FR-006, FR-007, FR-009)
-- **Correlation**: Pearson (primary) and Spearman (robustness) between efficiency metrics and fluid intelligence.
-- **Regression**: Multiple linear regression: `Fluid_Intelligence ~ Global_Efficiency + Frontoparietal_Efficiency + Age + Sex + FD`.
-- **FWE Correction**: **Max-statistic permutation testing (a sufficient number of permutations)**.
- - **Family of Tests**: The max-statistic is computed across the **two primary tests only**: (1) Global Efficiency vs. Fluid Intelligence, and (2) Frontoparietal Efficiency vs. Fluid Intelligence, both on the **200-ROI binary graph**.
- - **Robustness Checks**: 400-ROI and weighted graph results are **NOT** included in this FWE correction. They are reported as exploratory, uncorrected findings to avoid inflating the family-wise error rate.
-- **Collinearity**: VIF calculation. If VIF > 5, orthogonalization or ridge regression will be applied and reported.
-- **Causal Framing**: All results framed as associational (FR-008) due to observational design.
+### Phase 1: Data Acquisition and Preprocessing (FR-001, FR-002)
+1. **Download**: Fetch rs-fMRI and behavioral data for all subjects (HCP 1200-subject release).
+2. **Quality Control**:
+   - Exclude subjects with missing fluid intelligence scores.
+   - Exclude subjects with mean FD > 0.5 mm.
+   - Log counts of excluded subjects.
+3. **Preprocessing**:
+   - Apply nuisance regression (white matter, CSF, global signal if specified, motion parameters).
+   - Apply band-pass filter (0.01–0.1 Hz).
+   - **Target**: Ensure mean framewise displacement of preprocessed time series ≤ 0.2 mm.
+   - Output: Preprocessed time series per subject.
 
-## 3. Compute Feasibility & Constraints
+### Phase 2: Graph Construction and Metric Computation (FR-003, FR-004, FR-013)
+1. **Parcellation**:
+   - Map preprocessed time series to Schaefer 200-ROI atlas (primary) and 400-ROI (robustness) to address varying resolutions.
+   - Compute mean time series per region.
+2. **Connectivity Matrix**:
+   - Compute Pearson correlation matrix for each subject.
+   - **Primary Strategy**: Retain only positive edges (set negative correlations to 0).
+   - **Sensitivity Check**: Run a parallel analysis retaining absolute values of negative correlations or including them as negative edges to assess methodological impact on efficiency metrics (addressing Van Wijk et al., 2010 concerns).
+3. **Thresholding**:
+   - Apply proportional threshold at a moderate density (primary).
+ - Also compute for [deferred] and [deferred] (robustness checks) to address the corrected set {0.15, 0.20, 0.25}.
+   - Ensure binary graphs have edge density within ±1% of target.
+4. **Efficiency Metrics**:
+   - Compute **Global Efficiency** for the whole brain graph.
+   - Compute **Frontoparietal Efficiency** using Yeo-7 atlas network labels (subgraph defined by frontoparietal nodes).
 
-- **Hardware**: GitHub Actions Free Tier (multi-core CPU, moderate RAM).
+### Phase 3: Statistical Analysis (FR-005, FR-006, FR-007, FR-009, FR-011)
+1. **Correlation Analysis**:
+   - Compute Pearson/Spearman correlation between efficiency metrics (global, frontoparietal) and fluid intelligence.
+   - Report correlation coefficient, p-value, and 95% confidence interval.
+2. **Unique Variance Testing (Residual-Based Approach)**:
+   - **Rationale**: Global and Frontoparietal Efficiency are mathematically collinear (subgraph vs. whole). Standard multiple regression cannot distinguish unique contributions.
+   - **Method**:
+     - Regress Frontoparietal Efficiency on Global Efficiency: `FP_Eff ~ Global_Eff`.
+     - Extract residuals (FP_Residuals).
+     - Test correlation between `FP_Residuals` and Fluid Intelligence, controlling for Age, Sex, and Mean_FD.
+     - Alternatively, use hierarchical regression: Step 1 (Global_Eff + Covariates), Step 2 (Add FP_Eff) and test change in R².
+   - **Collinearity Check**: Compute VIF for initial models. If VIF > 5, rely on the residual-based approach. Report VIF for diagnostic purposes.
+3. **Permutation Testing (Max-T Procedure)**:
+   - **Strategy**: To control Family-Wise Error (FWER) across multiple densities (0.15, 0.20, 0.25) and atlases (200, 400), use a max-T permutation procedure.
+   - **Procedure**:
+     - For each permutation iteration (target ≥1,000, adaptive to time):
+       - Permute subject labels for efficiency metrics relative to fluid intelligence.
+       - Compute test statistics for *all* parameter combinations (density × atlas).
+       - Record the **maximum** absolute test statistic across the family for this iteration.
+     - Compare observed test statistics to the distribution of maximum statistics to derive FWER-corrected p-values.
+ - **Runtime Adaptation**: If runtime > 5.5 hours, reduce permutation count to the maximum achievable within the remaining time (min [deferred]), ensuring total analysis time ≤ 6 hours.
+4. **Sensitivity Analysis**:
+   - Compare results across density thresholds {0.15, 0.20, 0.25}.
+ - Primary finding: [deferred] density. Others: robustness checks.
+
+### Phase 4: Reporting (FR-008, FR-010)
+- Generate report with:
+  - Correlation/regression tables.
+  - Figures: Scatter plots (efficiency vs. intelligence), sensitivity analysis plots.
+  - **Mandatory Phrase**: "Findings are associational and do not imply causation due to the observational study design."
+  - **Citation**: NIH Toolbox Fluid Intelligence validation study (Gershon et al., 2013 or similar).
+
+## Statistical Rigor & Power
+
+- **Multiple Comparison Correction**: Max-T permutation testing with FWER correction applied across all hypothesis tests (global/frontoparietal, densities, atlases).
+- **Sample Size / Power**:
+  - Target: ≥80% power to detect r=0.25 at α=0.05.
+  - **Sensitivity Analysis**: Power will be calculated across a range of effect sizes (r=0.1 to r=0.3) and noise assumptions to determine the Minimum Detectable Effect Size (MDES) for N=500 and N=1200.
+  - With N=500 (sampled), power for r=0.25 is >90%.
+  - With N=1200 (full), power is >99%.
+  - If full analysis exceeds 6h, sampling to 500 subjects ensures power >80% and runtime compliance.
+- **Causal Inference**: Explicitly stated as observational; no causal claims.
+- **Measurement Validity**: NIH Toolbox Fluid Intelligence instrument validated in Gershon et al. (2013) and others.
+- **Collinearity**: VIF computed for diagnostic; residual-based approach used to isolate unique variance in the final model.
+
+## Compute Feasibility Strategy
+
+- **CPU-Only**: All operations (preprocessing, graph metrics, stats) use CPU-optimized libraries (`nilearn`, `networkx`, `scipy`).
 - **Memory Management**:
- - fMRI data loading: Stream processing or memory mapping (`nibabel` + `numpy.memmap`).
- - Graph metrics: Computed per subject to avoid holding all matrices in memory.
-- **Time Limit**: 6 hours per job.
-- **Permutation Cost**:
- - **Target**: 1,000 permutations on N=500 subjects.
- - **Fallback**: If runtime exceeds a predefined buffer threshold, the system will automatically reduce N to a smaller cohort size..
- - **Rationale**: 10,000 permutations is computationally prohibitive on 2 CPUs. A sufficient number of permutations provides a valid null distribution while ensuring CI completion. The reduction from a large-scale baseline to a significantly smaller subset is documented as a feasibility trade-off.
-- **Sampling Logic**: Adaptive sampling (N=500 -> N=200) ensures the 6-hour hard limit is never breached.
+  - Stream data where possible.
+  - Process subjects in batches.
+  - Sample to a representative subset if the full dataset exceeds 7GB RAM or 6h runtime.
+- **Runtime Adaptation**:
+  - Permutation count dynamically reduced if time > 5.5h.
+  - Parallel processing limited to 2 cores (GitHub Actions limit).
+- **Library Pins**: Use CPU-wheel compatible versions of `torch` (if needed for graph, but likely `networkx` suffices), `numpy`, `scipy`.
 
-## 4. Statistical Rigor & Limitations
+## Risk Mitigation
 
-- **Multiple Comparisons**: Addressed via max-statistic permutation testing (1,000 permutations) for the two primary tests. Robustness checks are uncorrected.
-- **Power**: Target ≥80% power for r=0.25 (SC-005) with N=500. If sampling reduces N to 200, power will be re-calculated and limitations explicitly stated.
-- **Causal Inference**: No causal claims. Observational design acknowledged (FR-008).
-- **Measurement Validity**: NIH Toolbox Fluid Intelligence is validated (FR-010).
-- **Collinearity**: VIF check and remediation (FR-009) prevent spurious independent effects claims.
-- **Dataset-Variable Fit**: Confirmed HCP contains all variables. No mismatch found.
-- **Edge Sign Bias**: Addressed via absolute value robustness check.
-- **Thresholding Bias**: Addressed via density sensitivity analysis ([deferred], [deferred], [deferred]).
-
-## 5. Decision Log
-
-| Decision | Rationale |
-|:--- |:--- |
-| **Use Schaefer 200-ROI as Primary** | Standard resolution for HCP studies; balances spatial specificity and signal-to-noise. |
-| **Positive Edges Only (Primary)** | Spec requirement (FR-003) to simplify graph interpretation. |
-| **Absolute Value (Robustness)** | Checks for bias introduced by discarding negative correlations. |
-| **Harmonic Mean Efficiency** | Handles disconnected components caused by positive-edge-only thresholding. |
-| **Max-Statistic Permutation (1,000)** | Controls FWE across the two primary tests. [deferred] is the feasible maximum for CI. |
-| **Adaptive Sampling (N=500 -> N=200)** | Ensures CI completion within 6 hours if runtime exceeds 4 hours. |
-| **Mock Data for CI** | HCP is controlled-access; mock data validates pipeline logic in CI without credentials. |
+| Risk | Mitigation |
+|------|------------|
+| HCP access restricted | Retry logic (≥1 retry); fallback to cached data if available; log failure. |
+| Preprocessing failure for some subjects | Skip affected subjects; log count; continue with ≥90% cohort. |
+| Runtime exceeds 6h | Sample to 500 subjects; reduce permutation count; log rationale. |
+| VIF > 5 | Use residual-based approach to isolate unique variance; report VIF for diagnostics. |
+| Missing variables | Explicitly state mismatch; do not proceed with incomplete data. |
+| Negative edge bias | Run sensitivity analysis retaining/transforming negative edges. |

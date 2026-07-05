@@ -1,15 +1,15 @@
-- artifact_hash: 722b705823e137606b0d247eb99292bcf6009bc2e949192803a7463c0075f2cf
+- artifact_hash: a2bc3d4b9fa7fa4d1a885266ea18a83edd4d9ad026a0167957172a57cff98963
   artifact_path: projects/PROJ-190-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/research.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
   fetched_title: BALSA
   kind: url
-  value: https://db.humanconnectome.org/`
+  value: https://db.humanconnectome.org/
   verification_status: pending
   verified_against_url: https://balsa.wustl.edu
-  verified_at: '2026-07-05T00:06:00.891072Z'
-- artifact_hash: 722b705823e137606b0d247eb99292bcf6009bc2e949192803a7463c0075f2cf
+  verified_at: '2026-07-05T00:20:54.927146Z'
+- artifact_hash: a2bc3d4b9fa7fa4d1a885266ea18a83edd4d9ad026a0167957172a57cff98963
   artifact_path: projects/PROJ-190-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/research.md
   cite_id: c-002
   cited_authors: []
@@ -17,30 +17,51 @@
   fetched_title: "CBIG/stable_projects/brain_parcellation/Schaefer2018_LocalGlobal\
     \ at master \xB7 ThomasYeoLab/CBIG \xB7 GitHub"
   kind: url
-  value: https://github.com/ThomasYeoLab/CBIG/tree/master/stable_projects/brain_parcellation/Schaefer2018_LocalGlobal`
+  value: https://github.com/ThomasYeoLab/CBIG/tree/master/stable_projects/brain_parcellation/Schaefer2018_LocalGlobal
   verification_status: verified
   verified_against_url: https://github.com/ThomasYeoLab/CBIG/tree/master/stable_projects/brain_parcellation/Schaefer2018_LocalGlobal
-  verified_at: '2026-07-05T00:06:00.891072Z'
-- artifact_hash: 722b705823e137606b0d247eb99292bcf6009bc2e949192803a7463c0075f2cf
+  verified_at: '2026-07-05T00:20:54.927146Z'
+- artifact_hash: a2bc3d4b9fa7fa4d1a885266ea18a83edd4d9ad026a0167957172a57cff98963
   artifact_path: projects/PROJ-190-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/research.md
   cite_id: c-003
   cited_authors: []
   cited_title: null
-  fetched_title: USING A FLIPPED SPOON TO DECREASE PACKING IN CHILDREN WITH FEEDING
-    DISORDERS - PMC
+  fetched_title: CorticalParcellation_Yeo2011 - Free Surfer Wiki
   kind: url
-  value: https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3177344/`
+  value: https://surfer.nmr.mgh.harvard.edu/fswiki/CorticalParcellation_Yeo2011
   verification_status: verified
-  verified_against_url: https://pmc.ncbi.nlm.nih.gov/articles/PMC3177344/
-  verified_at: '2026-07-05T00:06:00.891072Z'
-- artifact_hash: 0ee0a19c1c575ee0a5506a21aca66b73bb108a661d6c1974b2d87c704aa050e7
+  verified_against_url: https://surfer.nmr.mgh.harvard.edu/fswiki/CorticalParcellation_Yeo2011
+  verified_at: '2026-07-05T00:20:54.927146Z'
+- artifact_hash: e9c113e6069dce2e601bc641631548309792b0843ee26bd22421600da972857e
   artifact_path: projects/PROJ-190-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/quickstart.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
   fetched_title: BALSA
   kind: url
-  value: https://db.humanconnectome.org/`
+  value: https://db.humanconnectome.org/
   verification_status: pending
   verified_against_url: https://balsa.wustl.edu
-  verified_at: '2026-07-05T00:07:23.283275Z'
+  verified_at: '2026-07-05T00:21:53.969983Z'
+- artifact_hash: a6b79865f67aedc27e0290fcd8adb1aa70cc0f2b4470390179f3750771b4b215
+  artifact_path: projects/PROJ-190-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: Vif - Wikidata
+  kind: url
+  value: https://www.wikidata.org/wiki/Q113106917
+  verification_status: verified
+  verified_against_url: https://www.wikidata.org/wiki/Q113106917
+  verified_at: '2026-07-05T00:53:50.812510Z'
+- artifact_hash: a6b79865f67aedc27e0290fcd8adb1aa70cc0f2b4470390179f3750771b4b215
+  artifact_path: projects/PROJ-190-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: Human Connectome Project - Wikidata
+  kind: url
+  value: https://www.wikidata.org/wiki/Q387749
+  verification_status: verified
+  verified_against_url: https://www.wikidata.org/wiki/Q387749
+  verified_at: '2026-07-05T00:53:50.812510Z'

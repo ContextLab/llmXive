@@ -1,0 +1,80 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Statistical Results Schema"
+description: "Schema for correlation and regression results (including residual-based unique variance tests)"
+type: "object"
+required:
+  - "test_type"
+  - "metric"
+  - "density"
+  - "coefficient"
+  - "p_value"
+  - "p_corrected"
+properties:
+  test_type:
+    type: "string"
+    enum:
+      - "correlation"
+      - "regression"
+      - "residual_test"
+      - "permutation"
+    description: "Type of statistical test performed"
+  metric:
+    type: "string"
+    enum:
+      - "Global_Efficiency"
+      - "Frontoparietal_Efficiency"
+      - "Frontoparietal_Residual"
+    description: "Efficiency metric or residual tested"
+  density:
+    type: "number"
+    enum:
+      - 0.15
+      - 0.20
+      - 0.25
+    description: "Threshold density used"
+  atlas:
+    type: "string"
+    enum:
+      - "Schaefer_200"
+      - "Schaefer_400"
+    description: "Atlas used for graph construction"
+  coefficient:
+    type: "number"
+    description: "Correlation coefficient or regression coefficient"
+  p_value:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Raw p-value"
+  p_corrected:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Family-wise error corrected p-value (max-T procedure)"
+  ci_lower:
+    type: "number"
+    description: "Lower bound of 95% confidence interval"
+  ci_upper:
+    type: "number"
+    description: "Upper bound of 95% confidence interval"
+  effect_size:
+    type: "number"
+    description: "Effect size (e.g., Cohen's f², r)"
+  vif:
+    type: "number"
+    minimum: 1.0
+    nullable: true
+    description: "Variance Inflation Factor for predictors (for diagnostic regression tests)"
+  permutation_count:
+    type: "integer"
+    minimum: 1000
+    description: "Number of permutations performed"
+  sample_size:
+    type: "integer"
+    minimum: 1
+    description: "Number of subjects in the analysis"
+  method_note:
+    type: "string"
+    nullable: true
+    description: "Notes on method (e.g., 'Residual-based unique variance test', 'Max-T FWER correction')"
+additionalProperties: false

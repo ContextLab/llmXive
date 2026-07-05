@@ -1,0 +1,467 @@
+- artifact_path: projects/PROJ-190-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: mean FD less than or equal to 0.2 mm
+  claim_id: c_fb12eb6a
+  context: "Independent Test: Verify that downloaded and preprocessed data files exist\
+    \ with expected dimensions and quality metrics (mean FD \u22640.2 mm)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Mean_FD_less_than_or_equal_to_0.2_mm
+  kind: magnitude
+  raw_text: "Verify that downloaded and preprocessed data files exist with expected\
+    \ dimensions and quality metrics (mean FD \u22640.2 mm)."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T00:36:21Z'
+- artifact_path: projects/PROJ-190-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: HCP 1200-release dataset
+  claim_id: c_9803d115
+  context: "Implement code/data/download_hcp.py: Fetch raw fMRI and NIH Toolbox scores\
+    \ from HCP 1200-release (handle access restrictions, \u22651 retry)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Fetch raw fMRI and NIH Toolbox scores from HCP 1200-release
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T00:36:52Z'
+- artifact_path: projects/PROJ-190-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: mean FD greater than 0.5 mm exclusion threshold
+  claim_id: c_6639fb66
+  context: 'Implement exclusion logic: Filter subjects with mean FD >0.5 mm, log the
+    exclusion count, and proceed; do NOT halt the pipeline if the retained cohort
+    drops below [deferred] of the original'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Mean_FD_greater_than_0.5_mm_exclusion_threshold
+  kind: magnitude
+  raw_text: Filter subjects with mean FD >0.5 mm
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T00:37:50Z'
+- artifact_path: projects/PROJ-190-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: verify final mean FD less than or equal to 0.2 mm
+  claim_id: c_3992c8a2
+  context: "Verify quality: Calculate the mean FD of the final retained dataset; log\
+    \ the value and verify it is \u22640.2 mm (if >0.2 mm, log a warning but continue)"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_final_mean_FD_less_than_or_equal_to_0.2_mm
+  kind: magnitude
+  raw_text: "Verify it is \u22640.2 mm (if >0.2 mm, log a warning but continue)"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T00:38:35Z'
+- artifact_path: projects/PROJ-190-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: efficiency metrics computed for 95 percent of subjects
+  claim_id: c_773e07be
+  context: "Independent Test: Verify efficiency metrics are computed for \u226595%\
+    \ of subjects and stored with expected ranges; verify graph density is within\
+    \ \xB11% of target."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify efficiency metrics are computed for \u226595% of subjects"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T00:38:35Z'
+- artifact_path: projects/PROJ-190-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: graph density within 1 percent of target
+  claim_id: c_c57fa3db
+  context: "Independent Test: Verify efficiency metrics are computed for \u226595%\
+    \ of subjects and stored with expected ranges; verify graph density is within\
+    \ \xB11% of target."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "verify graph density is within \xB11% of target"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T00:38:35Z'
+- artifact_path: projects/PROJ-190-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: binary graphs for densities 0.20 and 0.25
+  claim_id: c_21fcbd59
+  context: 'Implement thresholding logic: Generate binary graphs for densities {,
+    0.20, 0.25} as required by FR-009/SC-003'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate binary graphs for densities {, 0.20, 0.25}
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T00:39:16Z'
+- artifact_path: projects/PROJ-190-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: Frontoparietal Efficiency for densities 0.15, 0.20, and 0.25
+  claim_id: c_f73b634d
+  context: 'Implement code/graph/metrics.py: Calculate Frontoparietal Efficiency using
+    Yeo atlas network definition for each density in {0.15, 0.20, 0.25} (depends on
+    T019)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Calculate Frontoparietal Efficiency using Yeo atlas network definition
+    for each density in {0.15, 0.20, 0.25}
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T00:40:27Z'
+- artifact_path: projects/PROJ-190-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: Variance Inflation Factor less than or equal to 5
+  claim_id: c_62d77d97
+  context: "Implement VIF check: Compute Variance Inference Factor, ensure VIF \u2264\
+    5 for all predictors"
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: 'P1533: Q113107166'
+      source_id: Q113106917
+      url: https://www.wikidata.org/wiki/Q113106917
+      value: '33'
+    filled: true
+  kind: magnitude
+  raw_text: "ensure VIF \u22645 for all predictors"
+  resolved_value: '33'
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-05T00:40:40Z'
+- artifact_path: projects/PROJ-190-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: Findings are associational and do not imply causation due to the observational
+    study design
+  claim_id: c_84129f19
+  context: 'Generate data/results/report.md: Include correlation stats, p-values,
+    effect sizes, VIFs, and the phrase ''Findings are associational and do not imply
+    causation due to the observational study design'''
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Findings_are_associational_and_do_not_imply_causation_due_to
+  kind: entity_fact
+  raw_text: Include the phrase 'Findings are associational and do not imply causation
+    due to the observational study design'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T00:41:41Z'
+- artifact_path: projects/PROJ-190-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: Reference-Validator Agent for NIH Toolbox Fluid Intelligence validation
+  claim_id: c_6bce5b9f
+  context: 'Citation Verification: Run the Reference-Validator Agent to identify the
+    primary source for the NIH Toolbox Fluid Intelligence validation, then insert
+    the verified year into the report (do not hard-code the year)'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Reference-Validator_Agent_for_NIH_Toolbox_Fluid_Intelligence
+  kind: entity_fact
+  raw_text: Run the Reference-Validator Agent to identify the primary source for the
+    NIH Toolbox Fluid Intelligence validation
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T00:42:36Z'
+- artifact_path: projects/PROJ-190-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: dataset sampling logic less than or equal to 500 subjects
+  claim_id: c_0e104a40
+  context: "Implement code/utils/sampling.py for dataset sampling logic (\u2264500\
+    \ subjects)"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Dataset_sampling_logic_less_than_or_equal_to_500_subjects
+  kind: magnitude
+  raw_text: "sampling logic (\u2264500 subjects)"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T00:43:07Z'
+- artifact_path: projects/PROJ-190-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: sample to 500 subjects dynamically
+  claim_id: c_f9f7294d
+  context: "If dataset >500 subjects and time is critical, sample to \u2264500 subjects\
+    \ dynamically."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "sample to \u2264500 subjects dynamically"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T00:43:07Z'
+- artifact_path: projects/PROJ-190-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: analysis complete on CPU within 6 hours
+  claim_id: c_3f86f15a
+  context: 'Critical Constraint: All analysis must complete on CPU within 6 hours;
+    use sampling if necessary.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: All analysis must complete on CPU within 6 hours
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T00:43:39Z'
+- artifact_path: projects/PROJ-190-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: permutations calculation if elapsed time exceeds 5.5 hours
+  claim_id: c_732bad5f
+  context: If t_elapsed > 5.5h, set permutations = max(1000, floor((6h - t_elapsed)
+    / avg_perm_time)).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If t_elapsed > 5.5h, set permutations = max(1000, floor((6h - t_elapsed)
+    / avg_perm_time))
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T00:43:40Z'
+- artifact_path: projects/PROJ-190-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: Use only real data from HCP
+  claim_id: c_7c2b9f5c
+  context: 'Critical Constraint: Use only real data from HCP; never fabricate data.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Use_only_real_data_from_HCP
+  kind: entity_fact
+  raw_text: Use only real data from HCP; never fabricate data
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T00:44:42Z'
+- artifact_path: projects/PROJ-190-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: mean framewise displacement less than or equal to 0.2 millimeters
+  claim_id: c_bc8ffd6c
+  context: "Independent Test: Verify that downloaded and preprocessed data files exist\
+    \ with expected dimensions and quality metrics (mean FD \u22640.2 mm)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Mean_framewise_displacement_less_than_or_equal_to_0.2_millim
+  kind: magnitude
+  raw_text: "mean FD \u22640.2 mm"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T00:47:03Z'
+- artifact_path: projects/PROJ-190-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: exclude subjects with mean framewise displacement greater than 0.5 millimeters
+  claim_id: c_59e0f61d
+  context: 'Implement exclusion logic: Filter subjects with mean FD >0.5 mm, log the
+    exclusion count, and proceed; do NOT halt the pipeline if the retained cohort
+    drops below [deferred] of the original'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Exclude_subjects_with_mean_framewise_displacement_greater_th
+  kind: magnitude
+  raw_text: exclude subjects with mean FD >0.5 mm
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T00:47:43Z'
+- artifact_path: projects/PROJ-190-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: verify final mean framewise displacement is less than or equal to 0.2
+    millimeters
+  claim_id: c_cbf5517d
+  context: "Verify quality: Calculate the mean FD of the final retained dataset; log\
+    \ the value and verify it is \u22640.2 mm (if >0.2 mm, log a warning but continue)"
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_final_mean_framewise_displacement_is_less_than_or_equ
+  kind: magnitude
+  raw_text: "verify it is \u22640.2 mm"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T00:47:46Z'
+- artifact_path: projects/PROJ-190-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: efficiency metrics computed for at least 95 percent of subjects
+  claim_id: c_dd7bb6dd
+  context: "Independent Test: Verify efficiency metrics are computed for \u226595%\
+    \ of subjects and stored with expected ranges; verify graph density is within\
+    \ \xB11% of target."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Efficiency_metrics_computed_for_at_least_95_percent_of_subje
+  kind: magnitude
+  raw_text: "efficiency metrics are computed for \u226595% of subjects"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T00:48:28Z'
+- artifact_path: projects/PROJ-190-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: graph density within plus or minus 1 percent of target
+  claim_id: c_952aa329
+  context: "Independent Test: Verify efficiency metrics are computed for \u226595%\
+    \ of subjects and stored with expected ranges; verify graph density is within\
+    \ \xB11% of target."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "graph density is within \xB11% of target"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T00:48:28Z'
+- artifact_path: projects/PROJ-190-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: generate binary graphs for densities 0.20 and 0.25
+  claim_id: c_3d90aeb8
+  context: 'Implement thresholding logic: Generate binary graphs for densities {,
+    0.20, 0.25} as required by FR-009/SC-003'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: generate binary graphs for densities {, 0.20, 0.25}
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T00:48:28Z'
+- artifact_path: projects/PROJ-190-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: calculate frontoparietal efficiency for densities 0.15, 0.20, and 0.25
+  claim_id: c_627eef2b
+  context: 'Implement code/graph/metrics.py: Calculate Frontoparietal Efficiency using
+    Yeo atlas network definition for each density in {0.15, 0.20, 0.25} (depends on
+    T019)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Calculate Frontoparietal Efficiency for each density in {0.15, 0.20, 0.25}
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T00:49:12Z'
+- artifact_path: projects/PROJ-190-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: sample dataset to 500 subjects or fewer dynamically
+  claim_id: c_1667ad7d
+  context: "If dataset >500 subjects and time is critical, sample to \u2264500 subjects\
+    \ dynamically."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "sample to \u2264500 subjects dynamically"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T00:49:12Z'
+- artifact_path: projects/PROJ-190-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: all analysis must complete on CPU within 6 hours
+  claim_id: c_bb11ddfb
+  context: 'Critical Constraint: All analysis must complete on CPU within 6 hours;
+    use sampling if necessary.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: All analysis must complete on CPU within 6 hours
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T00:49:13Z'
+- artifact_path: projects/PROJ-190-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: use only real data from Human Connectome Project
+  claim_id: c_92c7d144
+  context: 'Critical Constraint: Use only real data from HCP; never fabricate data.'
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: Human Connectome Project
+      source_id: Q387749
+      url: https://www.wikidata.org/wiki/Q387749
+      value: Human Connectome Project
+    filled: true
+  kind: entity_fact
+  raw_text: Use only real data from HCP
+  resolved_value: Human Connectome Project
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-05T00:49:47Z'

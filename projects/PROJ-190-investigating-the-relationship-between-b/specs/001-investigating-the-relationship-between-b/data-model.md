@@ -1,71 +1,62 @@
 # Data Model: Brain Network Efficiency and Fluid Intelligence
 
-## 1. Entity Relationship Overview
+## Entities and Relationships
 
-The data model consists of three primary entities: `Subject`, `BrainNetwork`, and `StatisticalResult`.
+### Subject
+- **ID**: Unique subject identifier (string/int).
+- **Fluid_Intelligence**: NIH Toolbox composite score (float).
+- **Age**: Age in years (int/float).
+- **Sex**: Sex (categorical: 'M', 'F').
+- **Mean_FD**: Mean framewise displacement in mm (float).
+- **Status**: 'valid', 'excluded_missing_score', 'excluded_motion'.
 
-- **Subject**: Represents an individual participant. Contains demographic data and behavioral scores.
-- **BrainNetwork**: Represents the graph representation of a subject's brain. Contains the connectivity matrix and derived efficiency metrics.
-- **StatisticalResult**: Aggregated results from the analysis (correlations, regression coefficients, p-values).
+### Connectivity Matrix
+- **Subject_ID**: Foreign key to Subject.
+- **Atlas**: 'Schaefer_200', 'Schaefer_400'.
+- **Density**: Threshold density (float: 0.15, 0.20, 0.25).
+- **Matrix**: 2D array of Pearson correlations (positive edges only).
+- **Graph**: Binary graph object (NetworkX) derived from thresholded matrix.
 
-## 2. Data Schemas
+### Efficiency Metric
+- **Subject_ID**: Foreign key to Subject.
+- **Atlas**: 'Schaefer_200', 'Schaefer_400'.
+- **Density**: Threshold density (float).
+- **Global_Efficiency**: Global efficiency value (float).
+- **Frontoparietal_Efficiency**: Frontoparietal subgraph efficiency value (float).
+- **Computation_Time**: Time to compute (float, optional).
 
-### Subject Schema
-Contains raw and derived subject-level data.
+### Statistical Result
+- **Test_Type**: 'correlation', 'regression', 'permutation'.
+- **Metric**: 'Global_Efficiency', 'Frontoparietal_Efficiency'.
+- **Density**: Threshold density (float).
+- **Coefficient**: Correlation/regression coefficient (float).
+- **P_Value**: Raw p-value (float).
+- **P_Corrected**: FWER-corrected p-value (float).
+- **CI_Lower**: Lower bound of 95% CI (float).
+- **CI_Upper**: Upper bound of 95% CI (float).
+- **Effect_Size**: Cohen's f² or r (float).
+- **VIF**: Variance Inflation Factor for predictors (float).
 
-| Field | Type | Description | Source |
-| :--- | :--- | :--- | :--- |
-| `subject_id` | `string` | Unique HCP subject identifier. | HCP Metadata |
-| `fluid_intelligence` | `float` | NIH Toolbox Fluid Intelligence composite score. | HCP Behavioral |
-| `age` | `integer` | Age in years. | HCP Metadata |
-| `sex` | `string` | 'M' or 'F'. | HCP Metadata |
-| `mean_fd` | `float` | Mean Framewise Displacement (mm). | Preprocessing |
-| `excluded` | `boolean` | True if excluded (missing score, high motion, disconnected graph). | Pipeline Logic |
+## Data Flow
 
-### BrainNetwork Schema
-Contains graph metrics per subject.
+1. **Raw Data**: HCP rs-fMRI + behavioral scores → `data/raw/`.
+2. **Preprocessed Data**: Nuisance regression + band-pass → `data/processed/time_series/`.
+3. **Connectivity Matrices**: Correlation matrices → `data/processed/matrices/`.
+4. **Graph Metrics**: Efficiency values → `data/results/efficiency_metrics.csv`.
+5. **Statistical Outputs**: Regression/correlation tables → `data/results/statistical_results.csv`.
+6. **Reports**: Figures + tables → `paper/figures/`, `paper/tables/`.
 
-| Field | Type | Description | Source |
-| :--- | :--- | :--- | :--- |
-| `subject_id` | `string` | Foreign key to Subject. | Subject |
-| `atlas_resolution` | `string` | '200_ROI' or '400_ROI'. | Config |
-| `graph_type` | `string` | 'binary', 'weighted', or 'absolute'. | Config |
-| `density` | `float` | Actual edge density (target ~0.20). | Thresholding |
-| `global_efficiency` | `float` | Global efficiency (Harmonic Mean if disconnected). | Graph Metric |
-| `fp_efficiency` | `float` | Frontoparietal subgraph efficiency. | Graph Metric |
-| `is_disconnected` | `boolean` | Flag if graph was disconnected (used for exclusion logic). | Graph Metric |
+## Storage Format
 
-### StatisticalResult Schema
-Contains final analysis outputs.
+- **Time Series**: `.nii.gz` (NIfTI) or `.npz` (NumPy compressed).
+- **Matrices**: `.npy` (NumPy) or `.csv` (for small matrices).
+- **Metrics/Stats**: `.csv` (pandas DataFrame) with columns as defined above.
+- **Graphs**: `.pickle` (NetworkX object) or `.gexf` (optional).
 
-| Field | Type | Description | Source |
-| :--- | :--- | :--- | :--- |
-| `metric_name` | `string` | 'global_efficiency' or 'fp_efficiency'. | Analysis |
-| `graph_type` | `string` | 'binary' (primary) or 'absolute'/'weighted' (robustness). | Analysis |
-| `correlation_r` | `float` | Pearson/Spearman correlation coefficient. | Stats |
-| `p_value_uncorrected` | `float` | Raw p-value. | Stats |
-| `p_value_fwe` | `float` | Family-wise error corrected p-value (only for primary binary tests). | Permutation |
-| `regression_coef` | `float` | Coefficient from multiple regression. | Stats |
-| `vif` | `float` | Variance Inflation Factor. | Stats |
-| `is_primary` | `boolean` | True if part of the FWE-corrected family. | Analysis |
+## Data Validation Rules
 
-## 3. File Structure
-
-```text
-data/
-├── raw/
-│   ├── sub-XXXX/
-│   │   └── rfMRI_REST1_LR.nii.gz
-│   └── behavioral.csv
-├── processed/
-│   ├── time_series/
-│   │   └── sub-XXXX_200ROI.npy
-│   ├── matrices/
-│   │   └── sub-XXXX_200ROI_binary.npy
-│   └── metrics/
-│       └── efficiency_metrics.csv
-└── results/
-    └── statistical_summary.json
-```
-
-**Versioning Note**: All checksums for files in `data/` are recorded in `state/*.yaml` as the Single Source of Truth (Constitution Principle III).
+- **Subject**: `Fluid_Intelligence` must be non-null; `Mean_FD` ≤ 0.5 mm.
+- **Matrix**: Diagonal must be 0 (or 1 if self-loop); off-diagonal ∈ [0, 1] (positive edges only).
+- **Graph**: Edge density must be within ±1% of target density.
+- **Metrics**: Efficiency values must be ∈ (0, 1] (typically 0.1–0.6 for brain networks).
+- **Stats**: P-values ∈ [0, 1]; VIF ≥ 1.

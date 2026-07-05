@@ -1,0 +1,7 @@
+# Tasks an independent verifier REJECTED (redo these)
+
+A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
+
+- **T001a [P] Create project directories: `code/`, `data/`, `tests/`, `docs/`, `state/`** — No evidence of the required directories (`code/`, `data/`, `tests/`, `docs/`, `state/`) being present on disk is provided; the implementer’s claim cannot be verified without those artifacts. The missing folder structure must be created and shown.
+- **T001b [P] Create `requirements.txt` with pinned versions for: numpy, pandas, scikit-learn, networkx, nibabel, nilearn, scipy, matplotlib, seaborn, statsmodels, pyyaml** — No `requirements.txt` file was presented; there is no evidence of a file containing pinned versions for the listed packages (numpy, pandas, scikit-learn, networkx, nibabel, nilearn, scipy, matplotlib, seaborn, statsmodels, pyyaml). The implementer must supply a non‑empty `requirements.txt` with exact version specifications.
+- **T001c [P] Create `README.md` with project overview and quickstart instructions** — No `README.md` file or its contents were provided; without the actual artifact we cannot confirm that a project overview and quickstart instructions exist. The required documentation is missing.

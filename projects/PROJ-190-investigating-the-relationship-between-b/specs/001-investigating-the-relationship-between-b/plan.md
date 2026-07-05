@@ -1,23 +1,23 @@
 # Implementation Plan: Brain Network Efficiency and Fluid Intelligence
 
-**Branch**: `001-brain-network-efficiency-fluid-intelligence` | **Date**: 2024-01-15 | **Spec**: `specs/001-brain-network-efficiency-fluid-intelligence/spec.md`
-**Input**: Feature specification from `specs/001-brain-network-efficiency-fluid-intelligence/spec.md`
+**Branch**: `001-brain-network-efficiency-fluid-intelligence` | **Date**: 2024-01-15 | **Spec**: `specs/001-investigating-the-relationship-between-b/spec.md`
+**Input**: Feature specification from `specs/001-investigating-the-relationship-between-b/spec.md`
 
 ## Summary
 
-This project implements a computational pipeline to investigate the associational relationship between brain network efficiency (global and frontoparietal) and fluid intelligence using the Human Connectome Project (HCP) large-scale release. The technical approach involves downloading preprocessed fMRI data, applying specific nuisance regression and band-pass filtering, parcellating using the Schaefer atlas (and 400 ROIs), computing graph efficiency metrics on thresholded binary and weighted graphs, and performing statistical analysis (correlation and multiple regression) with rigorous family-wise error correction via permutation testing. All analysis is constrained to run on CPU-only CI (GitHub Actions free-tier) with a reasonable time limit and ~7GB RAM, requiring dataset sampling if necessary.
+This feature implements a reproducible computational neuroscience pipeline to investigate the associational relationship between brain network efficiency (global and frontoparietal) and fluid intelligence. The technical approach involves downloading and preprocessing HCP large-scale release data (resting-state fMRI and NIH Toolbox scores), parcellating brains using the Schaefer atlas, computing graph-theoretical metrics on thresholded functional connectivity matrices, and performing robust statistical analysis (correlation, residual-based regression with covariates, max-T permutation testing) on a CPU-constrained environment.
 
 ## Technical Context
 
 **Language/Version**: Python 3.11  
-**Primary Dependencies**: `nibabel`, `nilearn`, `networkx`, `scikit-learn`, `pandas`, `numpy`, `requests`, `tqdm`, `pyyaml`, `pytest`  
-**Storage**: Local filesystem (`data/raw`, `data/processed`, `results/`) with checksums recorded in `state/*.yaml` as the Single Source of Truth (Constitution Principle III).  
-**Testing**: `pytest` (unit tests for metric computation, integration tests for pipeline steps)  
-**Target Platform**: Linux (GitHub Actions Free Tier: CPU, ~7GB RAM)  
-**Project Type**: Computational Research Pipeline  
-**Performance Goals**: Complete full pipeline (or sampled subset) within 6 hours; memory usage < 7GB. Adaptive sampling: Target N=500, fallback to N=200 if runtime > 4 hours. Permutation count: a sufficient number of permutations to ensure feasibility.  
-**Constraints**: No GPU; no deep learning training; strict adherence to HCP preprocessing; CPU-tractable permutation testing (a feasible number of permutations); sampling to ≤200 subjects if time limit breached.  
-**Scale/Scope**: Up to 1200 subjects (potentially sampled to 500 or 200); -ROI and -ROI parcellations; 2 primary hypothesis tests (Global/FP on A binary representation of a fixed number of ROIs.).
+**Primary Dependencies**: `numpy`, `pandas`, `scikit-learn`, `networkx`, `nibabel`, `nilearn`, `scipy`, `matplotlib`, `seaborn`, `statsmodels`, `pyyaml`  
+**Storage**: Local file system (raw data in `data/raw`, preprocessed in `data/processed`, artifacts in `data/results`)  
+**Testing**: `pytest` (unit tests for metric calculation, integration tests for pipeline execution)  
+**Target Platform**: Linux (GitHub Actions free-tier runner: 2 CPU, 7GB RAM)  
+**Project Type**: computational-research-pipeline  
+**Performance Goals**: Complete full analysis (preprocessing + graph metrics + stats) within 6 hours on 2 CPU cores; memory usage < 7GB via streaming/sampling.  
+**Constraints**: No GPU; no deep learning training; strict adherence to HCP preprocessing standards; permutation testing must adapt to time limits; dataset sampling required if full 1200-subject analysis exceeds 6h limit.  
+**Scale/Scope**: A substantial number of subjects (adaptive); hundreds of brain regions; A large number of edges per connectivity matrix..
 
 > Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
 
@@ -25,61 +25,74 @@ This project implements a computational pipeline to investigate the associationa
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-| Principle | Status | Reference in Plan |
-| :--- | :--- | :--- |
-| **I. Reproducibility** | **PASS** | `code/` will pin seeds; `requirements.txt` pins versions; data fetched from canonical HCP source (or mock for CI). |
-| **II. Verified Accuracy** | **PASS** | Citations (NIH Toolbox, Yeo-7, Schaefer) will be validated by the Reference-Validator Agent against primary sources, ensuring Title Token Overlap ≥ `CITATION_TITLE_OVERLAP_THRESHOLD`. |
-| **III. Data Hygiene** | **PASS** | Raw data preserved; derivations written to new files; checksums recorded in `state/*.yaml`; PII scan passed. |
-| **IV. Single Source of Truth** | **PASS** | All stats trace to `data/` rows and `code/` blocks; no hand-typed numbers in paper. |
-| **V. Versioning Discipline** | **PASS** | Content hashes for artifacts; `state/*.yaml` `updated_at` timestamp updated on every artifact change as required by the Constitution. |
-| **VI. Neuroimaging Data Integrity** | **PASS** | HCP 1200 release used; nuisance regression + band-pass (low-frequency cutoff to a low frequency) implemented as specified. |
-| **VII. Graph-Theoretical Consistency** | **PASS** | Primary analysis: 200-ROI, [deferred] density, binary graphs. Robustness: 400-ROI, weighted graphs. |
+| Principle | Status | Verification Plan |
+|-----------|--------|-------------------|
+| I. Reproducibility | PASS | All scripts in `code/` will pin random seeds (`numpy`, `random`, `scipy`) defined in `code/config.py` (Single Source of Truth). `requirements.txt` will pin exact versions. Data fetcher will use canonical HCP URLs. |
+| II. Verified Accuracy | PASS | Citations (Schaefer et al., NIH Toolbox validation) will be validated by the Reference-Validator Agent against primary sources. **Action**: Run Reference-Validator on `research.md` and `paper/` artifacts before inclusion. |
+| III. Data Hygiene | PASS | `data/` files will be checksummed (SHA-256) and recorded in `state/`. Raw data preserved; derivations written to new files. PII scan on commit. |
+| IV. Single Source of Truth | PASS | All figures/stats in paper will trace to `data/results` CSVs generated by `code/`. No hand-typed numbers. Seeds defined in `code/config.py`. |
+| V. Versioning Discipline | PASS | Artifacts under `code/` and `data/` will carry content hashes. **Action**: Update `state/...yaml` with new hashes on every artifact change. |
+| VI. Neuroimaging Data Integrity | PASS | Preprocessing will strictly follow HCP minimally preprocessed pipelines + nuisance regression + band-pass (low-frequency range) as specified in spec and constitution. |
+| VII. Graph-Theoretical Analysis Consistency | PASS | Primary analysis uses Schaefer multi-scale ROI parcellations, a moderate density threshold, binary graphs, positive edges only. Multiple ROIs and a range of densities are used as robustness checks. Residual-based approach used to avoid collinearity. |
 
 ## Project Structure
 
 ### Documentation (this feature)
 
 ```text
-specs/001-brain-network-efficiency-fluid-intelligence/
+specs/001-investigating-the-relationship-between-b/
 ├── plan.md              # This file
 ├── research.md          # Phase 0 output
 ├── data-model.md        # Phase 1 output
 ├── quickstart.md        # Phase 1 output
 ├── contracts/           # Phase 1 output
-└── tasks.md             # Phase 2 output (generated later)
+└── tasks.md             # Phase 2 output (NOT created by /speckit-plan)
 ```
 
 ### Source Code (repository root)
 
 ```text
 projects/PROJ-190-investigating-the-relationship-between-b/
-├── data/
-│   ├── raw/             # Downloaded HCP data (checksummed)
-│   └── processed/       # Preprocessed time series, matrices
 ├── code/
 │   ├── __init__.py
-│   ├── download.py      # FR-001: HCP data acquisition
-│   ├── preprocess.py    # FR-002: Nuisance regression, band-pass, FD calc
-│   ├── graph_metrics.py # FR-003, FR-004, FR-012, FR-013: Parcellation, efficiency
-│   ├── stats.py         # FR-005, FR-006, FR-007, FR-009: Correlation, regression, permutations, VIF
-│   └── main.py          # Orchestrator
+│   ├── config.py          # Paths, seeds, thresholds
+│   ├── data/
+│   │   ├── download_hcp.py
+│   │   ├── preprocess.py
+│   │   └── loader.py
+│   ├── graph/
+│   │   ├── connectivity.py
+│   │   └── metrics.py
+│   ├── stats/
+│   │   ├── analysis.py
+│   │   └── permutation.py
+│   ├── utils/
+│   │   ├── logging.py
+│   │   └── sampling.py
+│   └── main.py            # Orchestrator
+├── data/
+│   ├── raw/               # Downloaded HCP data (checksummed)
+│   ├── processed/         # Preprocessed time series, matrices
+│   └── results/           # Efficiency metrics, stats outputs
 ├── tests/
 │   ├── unit/
+│   │   ├── test_connectivity.py
+│   │   └── test_metrics.py
 │   └── integration/
-├── results/
-│   ├── figures/
-│   └── reports/
-└── requirements.txt     # Pinned dependencies
+│       └── test_pipeline.py
+├── docs/
+└── requirements.txt
 ```
 
-**Structure Decision**: Single project structure chosen to maintain tight coupling between data processing and statistical analysis, facilitating reproducibility on CI.
+**Structure Decision**: Single project structure (`code/` submodules) selected for tight integration of data, graph, and stats modules. This avoids cross-repo latency and simplifies dependency management for a research pipeline.
 
 ## Complexity Tracking
 
 | Violation | Why Needed | Simpler Alternative Rejected Because |
-| :--- | :--- | :--- |
-| **Permutation Testing (1,000)** | FR-007 requires FWE correction. A large-scale sample size is infeasible on 2-CPU CI; 1,000 is the feasible maximum for N=500. | Parametric approximations (e.g., Bonferroni) are less powerful for dependent tests; A sufficient number of permutations is the best feasible approximation for FWE. |
-| **Two Atlas Resolutions** | FR-012 requires robustness check with 400-ROI. | Single resolution risks parcellation-specific artifacts; robustness check ensures findings are not atlas-dependent. |
-| **Adaptive Sampling** | FR-011 requires sampling if >6h runtime. | Fixed 1200-subject run risks CI timeout; adaptive sampling (N=500 -> N=200) ensures completion within constraints. |
-| **Disconnected Components** | Negative edges only can cause disconnection. | Standard global efficiency fails on disconnected graphs; harmonic mean efficiency handles infinite path lengths. |
-| **Edge Sign Robustness** | Discarding negative edges may bias results. | Absolute value graphs provide a sensitivity check for edge sign handling. |
+|-----------|------------|-------------------------------------|
+| Residual-Based Statistical Strategy | Global and Frontoparietal Efficiency are mathematically collinear. Standard regression fails to isolate unique variance. | A standard multiple regression would yield inflated VIFs and uninterpretable coefficients. |
+| Max-T Permutation Strategy | FWER correction across multiple densities and atlases requires a multivariate permutation approach. | Naive label shuffling per test does not control FWER across the family of tests. |
+| Adaptive Permutation Strategy | Spec FR-007 (corrected intent) requires dynamic reduction if time exceeds limit. | Fixed permutation count would risk timeout on large datasets, violating compute feasibility. |
+| Density Sensitivity Analysis | Spec FR-009 (corrected intent) requires {0.15, 0.20, 0.25} checks. | Single threshold would miss graph metric artifacts, violating robustness. |
+| Subject Sampling Logic | Spec FR-012 (corrected intent) requires sampling to ≤500 if full 1200-subject analysis exceeds 6h. | Full 1200-subject analysis may exceed 6h on 2 CPU cores; sampling ensures CI feasibility. |
+| Negative Edge Sensitivity | Methodological validity requires testing impact of discarding negative correlations. | Discarding negative edges may bias efficiency metrics; robustness check is required. |

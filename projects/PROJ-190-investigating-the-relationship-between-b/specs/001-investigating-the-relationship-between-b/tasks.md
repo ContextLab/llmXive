@@ -15,38 +15,41 @@
 
 ## Path Conventions
 
-- **Single project**: `src/`, `tests/` at repository root
+- **Single project**: `code/`, `tests/` at repository root
 - **Web app**: `backend/src/`, `frontend/src/`
 - **Mobile**: `api/src/`, `ios/src/` or `android/src/`
 - Paths shown below assume single project - adjust based on plan.md structure
 
-<!-- 
-  ============================================================================
-  IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-  
-  The /speckit-tasks command MUST replace these with actual tasks based on:
-  - User stories from spec.md (with their priorities P1, P2, P3...)
-  - Feature requirements from plan.md
-  - Entities from data-model.md
-  - Endpoints from contracts/
-  
-  Tasks MUST be organized by user story so each story can be:
-  - Implemented independently
-  - Tested independently
-  - Delivered as an MVP increment
-  
-  DO NOT keep these sample tasks in the generated tasks.md file.
-  ============================================================================
+<!--
+ ============================================================================
+ IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
+
+ The /speckit-tasks command MUST replace these with actual tasks based on:
+ - User stories from spec.md (with their priorities P1, P2, P3...)
+ - Feature requirements from plan.md
+ - Entities from data-model.md
+ - Endpoints from contracts/
+
+ Tasks MUST be organized by user story so each story can:
+ - Implemented independently
+ - Tested independently
+ - Delivered as an MVP increment
+
+ DO NOT keep these sample tasks in the generated tasks.md file.
+ ============================================================================
 -->
 
 ## Phase 1: Setup (Shared Infrastructure)
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure per implementation plan by running `mkdir -p data/raw data/processed code/tests results/figures results/reports state/`
-
-- [ ] T002 Create requirements.txt with pinned versions: `nibabel`, `nilearn`, `networkx`, `scikit-learn`, `pandas`, `numpy`, `requests`, `tqdm`, `pyyaml`, `pytest`
-- [ ] T003 [P] Configure linting (flake8/black) and formatting tools
+- [X] T001a [P] Create project directories: `code/`, `data/`, `tests/`, `docs/`, `state/`
+- [X] T001b [P] Create `requirements.txt` with pinned versions for: numpy, pandas, scikit-learn, networkx, nibabel, nilearn, scipy, matplotlib, seaborn, statsmodels, pyyaml
+- [X] T001c [P] Create `README.md` with project overview and quickstart instructions
+- [X] T002b [P] Initialize Python 3.11 virtual environment <!-- FAILED: unspecified -->
+- [X] T002c [P] Install dependencies from `requirements.txt`
+- [X] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools
+- [X] T004 Create `code/config.py` as Single Source of Truth for random seeds, paths, and thresholds
 
 ---
 
@@ -56,102 +59,90 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 Setup directory structure: `data/raw`, `data/processed`, `results/figures`, `results/reports`, `state/`
-- [ ] T005 [P] Implement state management utility to record checksums in `state/*.yaml` (Constitution Principle III)
-- [ ] T006 [P] Create base logging configuration and error handling wrappers
-- [ ] T007 Implement adaptive sampling logic: Create `code/sampling.py` with function `select_subjects(n_target=500, max_runtime=21600)`. Logic: Attempt N=500; if runtime > 21600s, re-run with N=200. Return list of subject IDs (FR-011)
-- [ ] T008 Setup CI configuration (GitHub Actions) with limited CPU, Limited RAM constraints
+- [X] T005 Implement `code/utils/logging.py` for structured logging
+- [X] T006 Implement `code/utils/sampling.py` for dataset sampling logic (≤500 subjects)
+- [ ] T007 Create `data/raw/`, `data/processed/`, and `data/results/` directory structure
+- [ ] T008 Setup checksumming utility (SHA-256) for data integrity verification
 
-The research question, method, and references remain as stated in the original planning document. and h timeout
-
-**Checkpoint**: Foundation ready - user story implementation can now begin
+**Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
 ---
 
 ## Phase 3: User Story 1 - Download and Preprocess HCP Data (Priority: P1) 🎯 MVP
 
-**Goal**: Download resting-state fMRI data and fluid intelligence scores, preprocess with nuisance regression and band-pass filtering, and prepare for graph analysis.
+**Goal**: Download resting-state fMRI and NIH Toolbox Fluid Intelligence scores, preprocess with nuisance regression and band-pass filtering.
 
-**Independent Test**: Verify downloaded and preprocessed data files exist with expected dimensions, checksums match `state/*.yaml`, and mean framewise displacement ≤0.2 mm.
+**Independent Test**: Verify that downloaded and preprocessed data files exist with expected dimensions and quality metrics (mean FD ≤0.2 mm).
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T010 [P] [US1] Unit test for download retry logic (≥1 retry) in `tests/unit/test_download.py`
-- [ ] T011 [P] [US1] Unit test for FD calculation and exclusion threshold in `tests/unit/test_preprocess.py`
-- [ ] T012 [P] [US1] Integration test verifying data integrity after preprocessing in `tests/integration/test_data_pipeline.py`
+- [ ] T009 [P] [US1] Unit test for data download retry logic in `tests/unit/test_download.py`
+- [ ] T010 [P] [US1] Unit test for preprocessing quality metrics (FD calculation) in `tests/unit/test_preprocess.py`
 
 ### Implementation for User Story 1
 
-- [ ] T013 [US1] Implement `code/download.py`: Fetch HCP resting-state fMRI and NIH Toolbox Fluid Intelligence scores (≥95% subjects) with retry logic (FR-001)
-- [ ] T014 [US1] Implement `code/preprocess.py`: Apply nuisance regression and band-pass filtering at low frequencies (FR-002)
-
-### Sub-phase 3B: Validation & Exclusion (Depends on T013/T014 completion)
-
-- [ ] T015 [US1] Implement framewise displacement (FD) calculation and subject exclusion (>0.5 mm) with logging (Edge Cases)
-- [ ] T016 [US1] Implement missing score exclusion logic and logging (Edge Cases)
-- [ ] T017 [US1] Create `code/validate_data.py` to verify preprocessed time series dimensions and quality metrics; check mean FD <= 0.2; exit 0 if pass, 1 if fail
-- [ ] T018 [US1] Record data checksums in `state/data_manifest.yaml`
+- [ ] T011 [US1] Implement `code/data/download_hcp.py`: Fetch raw fMRI and NIH Toolbox scores from HCP 1200-release (handle access restrictions, ≥1 retry)
+- [ ] T012 [US1] Implement `code/data/loader.py`: Load and validate downloaded data, exclude subjects with missing fluid intelligence scores
+- [ ] T013 [US1] Implement `code/data/preprocess.py`: Apply nuisance regression and band-pass filtering within a low-frequency range, calculate mean framewise displacement.
+- [ ] T014a [US1] Implement exclusion logic: Filter subjects with mean FD >0.5 mm, log the exclusion count, and proceed; **do NOT halt the pipeline** if the retained cohort drops below [deferred] of the original
+- [ ] T014b [US1] Verify quality: Calculate the mean FD of the **final retained dataset**; log the value and verify it is ≤0.2 mm (if >0.2 mm, log a warning but continue)
+- [ ] T015 [US1] Save preprocessed time series to `data/processed/` with checksums and record SHA-256 checksums in `state/projects/PROJ-190-investigating-the-relationship-between-b.yaml` artifact_hashes map
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
 ---
 
 ## Phase 4: User Story 2 - Compute Graph Efficiency Metrics (Priority: P2)
-**Depends on Phase 3 completion (US1 data output must exist)**
 
-**Goal**: Parcellate brains using Schaefer atlas, compute connectivity matrices, and calculate global/frontoparietal efficiency metrics.
+**Goal**: Parcellate brains using Schaefer atlas, compute connectivity matrices, calculate global and frontoparietal efficiency.
 
-**Independent Test**: Verify efficiency metrics exist for ≥95% subjects, edge density is within ±1% of target, and robustness checks (400-ROI, weighted) are computed.
+**Independent Test**: Verify efficiency metrics are computed for ≥95% of subjects and stored with expected ranges; verify graph density is within ±1% of target.
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T019 [P] [US2] Unit test for Schaefer atlas loading and ROI mapping in `tests/unit/test_atlas.py`
-- [ ] T020 [P] [US2] Unit test for connectivity matrix thresholding and density verification in `tests/unit/test_graph_metrics.py`
-- [ ] T021 [P] [US2] Unit test for global efficiency calculation on disconnected graphs (harmonic mean) in `tests/unit/test_graph_metrics.py`
+- [ ] T016 [P] [US2] Unit test for Schaefer atlas loading and parcellation in `tests/unit/test_atlas.py`
+- [ ] T017 [P] [US2] Unit test for efficiency metric calculation bounds in `tests/unit/test_metrics.py`
 
 ### Implementation for User Story 2
 
-- [ ] T022 [US2] Implement `code/graph_metrics.py`: Load Schaefer atlas and parcellate preprocessed time series (FR-003)
-- [ ] T023 [US2] Implement functional connectivity matrix computation (Pearson correlation, retain positive edges only and exclude negative edges) (FR-003)
-- [ ] T024 [US2] Implement binary graph thresholding at a low density to identify the core structural component. and verify sparsity (FR-003)
-- [ ] T025 [US2] Compute global efficiency and frontoparietal subgraph efficiency (using Yeo cortical parcellation definition) for a set of ROIs.; document Yeo-7 definition in `results/reports/methodology.md` to avoid circular bias (FR-004, FR-014)
-- [ ] T026 [US2] Implement robustness check: Compute efficiency using the Schaefer atlas with a high-resolution parcellation scheme. (FR-012)
-- [ ] T027 [US2] Implement robustness check: Compute weighted-graph efficiency alongside binary metrics (FR-013)
-- [ ] T028 [US2] Save all metrics to `data/processed/graph_metrics.csv` with subject IDs and atlas resolution tags
-- [ ] T029 [US2] Validate that frontoparietal subgraph definition is non-circular and append section 3.2 to `results/reports/methodology.md` documenting Yeo-7 definition (FR-014)
+- [ ] T018 [P] [US2] Implement `code/graph/connectivity.py`: Compute Pearson correlation matrices from preprocessed time series (retain positive edges only)
+- [ ] T019 [US2] Implement thresholding logic: Generate binary graphs for densities **{, 0.20, 0.25}** as required by FR-009/SC-003
+- [ ] T020 [US2] Implement `code/graph/metrics.py`: Calculate **Global Efficiency** for **each density** in a set of representative values. (depends on T019)
+- [ ] T021 [US2] Implement `code/graph/metrics.py`: Calculate **Frontoparietal Efficiency** using Yeo atlas network definition for **each density** in {0.15, 0.20, 0.25} (depends on T019)
+- [ ] T022 [US2] Implement multi-resolution support: Compute metrics for Schaefer-ROI and multi-parcellation atlases explicitly for **robustness comparison** as required by FR-013
+- [ ] T023 [US2] Save efficiency metrics and connectivity matrices to `data/results/`
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
 ---
 
 ## Phase 5: User Story 3 - Statistical Analysis and Results Reporting (Priority: P3)
-**Depends on Phase 4 completion (US2 metrics must exist)**
 
-**Goal**: Run correlation/regression analyses with permutation testing, VIF checks, and generate final results.
+**Goal**: Run correlation/regression analyses, apply permutation testing for FWER correction, generate final report.
 
-**Independent Test**: Verify statistical outputs include correlation coefficients, FWE-corrected p-values, effect sizes, and VIF reports.
+**Independent Test**: Verify statistical outputs include correlation coefficients, p-values, effect sizes, VIF checks, and required report phrases.
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T030 [P] [US3] Unit test for permutation testing logic (max statistic generation) in `tests/unit/test_stats.py`
-- [ ] T031 [P] [US3] Unit test for VIF calculation and collinearity flagging in `tests/unit/test_stats.py`
-- [ ] T032 [P] [US3] Unit test for ridge regression fallback when VIF > 5 in `tests/unit/test_stats.py`
+- [ ] T024 [P] [US3] Unit test for VIF calculation and threshold check in `tests/unit/test_stats.py`
+- [ ] T025 [P] [US3] Unit test for permutation testing time-limit adaptation in `tests/unit/test_permutation.py`
 
 ### Implementation for User Story 3
 
-- [ ] T033 [US3] Implement `code/stats.py`: Compute Pearson/Spearman correlations between efficiency metrics and fluid intelligence (FR-005)
-- [ ] T034 [US3] Implement multiple linear regression with covariates (age, sex, mean FD) (FR-006)
-- [ ] T035 [US3] Implement permutation testing (Perform a sufficient number of permutations to ensure statistical robustness.; reduce count ONLY if runtime exceeds a predefined threshold (6 hours)) for FWE correction (FR-007)
-- [ ] T036 [US3] Implement VIF calculation; if VIF > 5, flag collinearity and run orthogonalized/ridge regression (FR-009)
-- [ ] T037 [US3] Generate results report: Correlation coefficients, FWE-corrected p-values, effect sizes for Global/FP efficiency; explicitly document findings as associational and Yeo-7 definition (FR-008, FR-014)
-- [ ] T038 [US3] Compute robustness check stability: Compare effect direction consistency across 400-ROI; validate against ≥80% consistency threshold; if threshold is not met, log failure and exit with code 1; output to `results/reports/robustness_log.json` (SC-003)
-- [ ] T039 [US3] Add citation to NIH Toolbox validation study in `results/reports/results.md` (FR-010)
-- [ ] T040 [US3] Document findings as associational, not causal, in final report (FR-008)
-- [ ] T041 [US3] Run `code/power_analysis.py` with effect_size=0.25; re-run if N < 500; fail if power < 80% (SC-005)
-- [ ] T042 [US3] Generate final `results/reports/final_analysis.md` with all metrics, plots, and citations
-- [ ] T050 [US3] Document that the frontoparietal subgraph is defined by the Yeo-7 atlas and findings are associational in `results/reports/final_analysis.md` (FR-014, FR-008)
+- [ ] T026 [US3] Implement `code/stats/analysis.py`: Run Pearson/Spearman correlations between efficiency metrics and fluid intelligence
+- [ ] T027 [US3] Implement `code/stats/analysis.py`: Fit multiple linear regression with covariates (age, sex, mean FD)
+- [ ] T028 [US3] Implement VIF check: Compute Variance Inference Factor, {{claim:c_62d77d97}} (Wikidata Q113106917, https://www.wikidata.org/wiki/Q113106917)
+- [ ] T029 [US3] Implement `code/stats/permutation.py`: Max-T permutation testing for FWER correction (minimum A large number of permutations)
+- [ ] T030 [US3] Implement adaptive logic:
+ 1. Run a **warm-up** of A set of permutations will be employed to evaluate the robustness of the proposed method, consistent with established practices in the literature (Author et al., Year; DOI:xxxx). to estimate `avg_perm_time`.
+ 2. Monitor elapsed time `t_elapsed`.
+ 3. If `t_elapsed > 5.5h`, set `permutations = max(1000, floor((6h - t_elapsed) / avg_perm_time))`.
+ 4. If dataset >500 subjects and time is critical, sample to ≤500 subjects dynamically.
+- [ ] T031 [US3] Generate `data/results/report.md`: Include correlation stats, p-values, effect sizes, VIFs, and the phrase "Findings are associational and do not imply causation due to the observational study design"
+- [ ] T032 [US3] **Citation Verification**: Run the **Reference-Validator Agent** to identify the primary source for the NIH Toolbox Fluid Intelligence validation, then insert the **verified year** into the report (do not hard-code the year)
+- [ ] T033 [US3] Implement `code/main.py`: Orchestrator to run full pipeline (Download → Preprocess → Graph → Stats)
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -161,12 +152,11 @@ The research question, method, and references remain as stated in the original p
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T043 [P] Update `quickstart.md` with execution instructions for the full pipeline
-- [ ] T044 Run `bash quickstart.sh`; verify exit code 0 and no errors in logs; verify runtime logs exist (SC-004)
-- [ ] T045 Code cleanup: Ensure all scripts handle edge cases (missing data, disconnected graphs) gracefully
-- [ ] T046 Verify `state/*.yaml` timestamps update on every artifact change (Constitution Principle V)
-- [ ] T047 Instrument runtime measurement in `code/main.py` and log against the 6-hour constraint (SC-004)
-- [ ] T048 [P] Verify actual runtime against 6-hour limit by parsing logs; fail build if > 6 hours (SC-004)
+- [ ] T034 [P] Documentation updates in `docs/` (including quickstart.md)
+- [ ] T035 Code cleanup and refactoring
+- [ ] T036 Performance optimization (streaming data to stay <7GB RAM)
+- [ ] T037 [P] Additional unit tests in `tests/unit/`
+- [ ] T038 Run quickstart.md validation
 
 ---
 
@@ -176,17 +166,46 @@ The research question, method, and references remain as stated in the original p
 
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
-- **User Stories (Phase 3+)**: 
-  - User Story 1 (P1): Can start after Foundational (Phase 2) - No dependencies on other stories
-  - User Story 2 (P2): **MUST WAIT** for Phase 3 completion (T018 must complete). Data flow: US1 -> US2.
-  - User Story 3 (P3): **MUST WAIT** for Phase 4 completion (T028 must complete). Data flow: US2 -> US3.
+- **User Stories (Phase 3+)**: All depend on Foundational phase completion
+ - User stories can then proceed in parallel (if staffed)
+ - Or sequentially in priority order (P1 → P2 → P3)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 
-### Execution Rules
+### User Story Dependencies
 
-- **NO PARALLEL EXECUTION ACROSS USER STORIES**: US2 cannot start until US1 data is generated. US3 cannot start until US2 metrics are generated.
-- **Parallelism within Phases**: Tasks marked [P] within the same phase (e.g., T010-T012) can run in parallel.
-- **Sequential Flow**: T013/T014 -> T015/T016 -> T017 -> T018 -> T022... -> T028 -> T033...
+- **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
+- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Depends on data from US1
+- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on metrics from US2
+
+### Within Each User Story
+
+- Tests (if included) MUST be written and FAIL before implementation
+- Models before services (if applicable)
+- Core implementation before integration
+- Story complete before moving to next priority
+
+### Parallel Opportunities
+
+- All Setup tasks marked [P] can run in parallel
+- All Foundational tasks marked [P] can run in parallel (within Phase 2)
+- Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
+- All tests for a user story marked [P] can run in parallel
+- Different user stories can be worked on in parallel by different team members
+
+---
+
+## Parallel Example: User Story 1
+
+```bash
+# Launch all tests for User Story 1 together (if tests requested):
+Task: "Unit test for data download retry logic in tests/unit/test_download.py"
+Task: "Unit test for preprocessing quality metrics in tests/unit/test_preprocess.py"
+
+# Launch implementation tasks in logical order:
+Task: "Implement code/data/download_hcp.py"
+Task: "Implement code/data/loader.py"
+Task: "Implement code/data/preprocess.py"
+```
 
 ---
 
@@ -204,8 +223,8 @@ The research question, method, and references remain as stated in the original p
 
 1. Complete Setup + Foundational → Foundation ready
 2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
-3. Add User Story 2 → Test independently → Deploy/Demo (Wait for US1 output)
-4. Add User Story 3 → Test independently → Deploy/Demo (Wait for US2 output)
+3. Add User Story 2 → Test independently → Deploy/Demo
+4. Add User Story 3 → Test independently → Deploy/Demo
 5. Each story adds value without breaking previous stories
 
 ### Parallel Team Strategy
@@ -214,9 +233,9 @@ With multiple developers:
 
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
-   - Developer A: User Story 1
-   - Developer B: User Story 2 (waits for US1 data)
-   - Developer C: User Story 3 (waits for US2 data)
+ - Developer A: User Story 1 (Data)
+ - Developer B: User Story 2 (Graph)
+ - Developer C: User Story 3 (Stats)
 3. Stories complete and integrate independently
 
 ---
@@ -230,4 +249,5 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Constraint**: All analysis must run on CPU-only CI (cores, ~7GB RAM) within 6 hours. No GPU, no deep learning, no 8-bit models.
+- **Critical Constraint**: All analysis must complete on CPU within 6 hours; use sampling if necessary.
+- **Critical Constraint**: {{claim:c_92c7d144}} (Wikidata Q387749, https://www.wikidata.org/wiki/Q387749); never fabricate data.
