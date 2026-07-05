@@ -1,0 +1,6 @@
+T001 Create project structure per implementation plan (`code/`, `tests/`, `data/`, `specs/`): 2
+T005 Create `code/utils/update_state.py` to compute SHA-256 hashes and update `state/...yaml` (Principle V): 2
+T007 Setup `data/` directory structure (`raw/`, `preprocessed/`, `external/`): 1
+? T008 Create `contracts/` schema files (`dataset.schema.yaml`, `model_output.schema.yaml`,
+  `evaluation_results.schema.yaml`)
+: 1

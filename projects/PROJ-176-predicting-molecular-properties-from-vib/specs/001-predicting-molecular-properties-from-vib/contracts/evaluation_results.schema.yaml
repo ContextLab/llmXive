@@ -1,0 +1,88 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Evaluation Results Schema"
+description: "Schema for the JSON report containing MAE, R², TOST, and Hotelling's T2 results."
+type: "object"
+properties:
+  dipole:
+    $ref: "#/$defs/metric_block"
+  polarizability:
+    $ref: "#/$defs/metric_block"
+  gap:
+    $ref: "#/$defs/metric_block"
+  multivariate:
+    type: "object"
+    description: "Joint error analysis results."
+    properties:
+      hotelling_t2:
+        type: "number"
+        description: "Hotelling's T-squared statistic."
+      p_value:
+        type: "number"
+        description: "P-value for the multivariate test."
+        minimum: 0
+        maximum: 1
+    required:
+      - "hotelling_t2"
+      - "p_value"
+    additionalProperties: false
+  metadata:
+    type: "object"
+    properties:
+      test_size:
+        type: "integer"
+        minimum: 1
+      seed:
+        type: "integer"
+      timestamp:
+        type: "string"
+        format: "date-time"
+      dft_method_train:
+        type: "string"
+        description: "DFT method used for training data."
+      dft_method_val:
+        type: "string"
+        description: "DFT method used for validation (or 'simulated')."
+      selection_bias_detected:
+        type: "boolean"
+        description: "Whether KS-test indicated significant selection bias."
+    required:
+      - "test_size"
+      - "seed"
+    additionalProperties: false
+required:
+  - "dipole"
+  - "polarizability"
+  - "gap"
+  - "multivariate"
+  - "metadata"
+additionalProperties: false
+$defs:
+  metric_block:
+    type: "object"
+    description: "Metrics for a single molecular property."
+    properties:
+      mae:
+        type: "number"
+        description: "Mean Absolute Error."
+        minimum: 0
+      r2:
+        type: "number"
+        description: "Coefficient of determination."
+      tost_p_value:
+        type: "number"
+        description: "P-value for the Two One-Sided Tests (equivalence test)."
+        minimum: 0
+        maximum: 1
+      ci_lower:
+        type: "number"
+        description: "Lower bound of 95% confidence interval for mean error."
+      ci_upper:
+        type: "number"
+        description: "Upper bound of 95% confidence interval for mean error."
+    required:
+      - "mae"
+      - "r2"
+      - "tost_p_value"
+      - "ci_lower"
+      - "ci_upper"
+    additionalProperties: false

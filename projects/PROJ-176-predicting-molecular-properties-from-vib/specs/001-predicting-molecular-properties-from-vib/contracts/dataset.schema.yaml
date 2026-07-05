@@ -1,0 +1,45 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Preprocessed Dataset Schema"
+description: "Schema for the aligned and preprocessed molecular dataset (.npz contents)"
+type: "object"
+properties:
+  spectra:
+    type: "array"
+    description: "Normalized, smoothed IR spectra. Shape: [N, 1, 3601]"
+    items:
+      type: "array"
+      items:
+        type: "number"
+        format: "float32"
+    minItems: 1
+  dipole:
+    type: "array"
+    description: "Dipole moment target values (Debye). Shape: [N]"
+    items:
+      type: "number"
+      format: "float32"
+  polarizability:
+    type: "array"
+    description: "Isotropic polarizability target values (Å³). Shape: [N]"
+    items:
+      type: "number"
+      format: "float32"
+  gap:
+    type: "array"
+    description: "HOMO-LUMO gap target values (eV). Shape: [N]"
+    items:
+      type: "number"
+      format: "float32"
+  InChIKeys:
+    type: "array"
+    description: "Molecule identifiers corresponding to each row."
+    items:
+      type: "string"
+    minItems: 1
+required:
+  - "spectra"
+  - "dipole"
+  - "polarizability"
+  - "gap"
+  - "InChIKeys"
+additionalProperties: false

@@ -1,0 +1,43 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Model Checkpoint Schema"
+description: "Schema for the saved PyTorch model checkpoint (.pt file metadata)"
+type: "object"
+properties:
+  model_state_dict:
+    type: "object"
+    description: "State dictionary of the 1-D CNN weights."
+    additionalProperties: true
+  optimizer_state_dict:
+    type: "object"
+    description: "Optimizer state (e.g., Adam)."
+    additionalProperties: true
+  epoch:
+    type: "integer"
+    description: "Epoch number at which the checkpoint was saved."
+    minimum: 0
+  val_loss:
+    type: "number"
+    description: "Validation loss at this epoch."
+    minimum: 0
+  config:
+    type: "object"
+    description: "Hyperparameters used for training."
+    properties:
+      learning_rate:
+        type: "number"
+      batch_size:
+        type: "integer"
+      patience:
+        type: "integer"
+      max_epochs:
+        type: "integer"
+    required:
+      - "learning_rate"
+      - "batch_size"
+    additionalProperties: true
+required:
+  - "model_state_dict"
+  - "epoch"
+  - "val_loss"
+  - "config"
+additionalProperties: false

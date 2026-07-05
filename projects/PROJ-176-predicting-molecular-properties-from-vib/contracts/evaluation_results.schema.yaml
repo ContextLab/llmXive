@@ -1,0 +1,161 @@
+%YAML 1.2
+---
+$schema: http://json-schema.org/draft-07/schema#
+title: Evaluation Results Schema
+description: >
+  Schema for statistical evaluation results including metrics and significance tests.
+type: object
+required:
+  - metadata
+  - metrics
+  - statistical_tests
+properties:
+  metadata:
+    type: object
+    required:
+      - evaluation_timestamp
+      - dataset_split
+      - model_version
+    properties:
+      evaluation_timestamp:
+        type: string
+        format: date-time
+      dataset_split:
+        type: string
+        enum:
+          - train
+          - validation
+          - test
+          - independent
+      model_version:
+        type: string
+      evaluation_script_hash:
+        type: string
+  metrics:
+    type: object
+    required:
+      - dipole_moment
+      - polarizability
+      - homo_lumo_gap
+    properties:
+      dipole_moment:
+        type: object
+        required:
+          - mae
+          - r_squared
+        properties:
+          mae:
+            type: number
+            description: Mean Absolute Error
+          r_squared:
+            type: number
+            description: Coefficient of Determination
+      polarizability:
+        type: object
+        required:
+          - mae
+          - r_squared
+        properties:
+          mae:
+            type: number
+          r_squared:
+            type: number
+      homo_lumo_gap:
+        type: object
+        required:
+          - mae
+          - r_squared
+        properties:
+          mae:
+            type: number
+          r_squared:
+            type: number
+  statistical_tests:
+    type: object
+    required:
+      - paired_t_test
+    properties:
+      paired_t_test:
+        type: object
+        description: Primary validation test (mean error = 0)
+        properties:
+          dipole_moment:
+            type: object
+            properties:
+              t_statistic:
+                type: number
+              p_value:
+                type: number
+              significant_at_0.05:
+                type: boolean
+          polarizability:
+            type: object
+            properties:
+              t_statistic:
+                type: number
+              p_value:
+                type: number
+              significant_at_0.05:
+                type: boolean
+          homo_lumo_gap:
+            type: object
+            properties:
+              t_statistic:
+                type: number
+              p_value:
+                type: number
+              significant_at_0.05:
+                type: boolean
+      tost_equivalence:
+        type: object
+        description: Secondary exploratory test
+        properties:
+          dipole_moment:
+            type: object
+            properties:
+              p_value_lower:
+                type: number
+              p_value_upper:
+                type: number
+              equivalent:
+                type: boolean
+          polarizability:
+            type: object
+            properties:
+              p_value_lower:
+                type: number
+              p_value_upper:
+                type: number
+              equivalent:
+                type: boolean
+          homo_lumo_gap:
+            type: object
+            properties:
+              p_value_lower:
+                type: number
+              p_value_upper:
+                type: number
+              equivalent:
+                type: boolean
+      hotellings_t2:
+        type: object
+        description: Multivariate test for systematic bias
+        properties:
+          t2_statistic:
+            type: number
+          p_value:
+            type: number
+          significant:
+            type: boolean
+  summary:
+    type: object
+    properties:
+      overall_status:
+        type: string
+        enum:
+          - passed
+          - failed
+          - inconclusive
+      notes:
+        type: string
+        description: Human-readable summary of findings

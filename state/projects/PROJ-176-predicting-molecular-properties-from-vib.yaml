@@ -1,18 +1,18 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-02T22:19:44.995297Z'
-current_stage: flesh_out_complete
+current_stage: in_progress
 failed_stage: null
 field: chemistry
 human_escalation_reason: null
 id: PROJ-176-predicting-molecular-properties-from-vib
-last_run_id: 09d3ffed-1594-41df-9d16-8ac8c1a1339c
+last_run_id: df710b50-7374-4bbe-8b06-39ab75159e6e
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
 revision_spec_path: null
 speckit_paper_dir: null
-speckit_research_dir: null
+speckit_research_dir: projects/PROJ-176-predicting-molecular-properties-from-vib/specs/001-predicting-molecular-properties-from-vib
 title: Predicting Molecular Properties from Vibrational Spectra with Deep Learning
-updated_at: '2026-06-25T04:07:58.676227Z'
+updated_at: '2026-07-05T07:05:21.572864Z'

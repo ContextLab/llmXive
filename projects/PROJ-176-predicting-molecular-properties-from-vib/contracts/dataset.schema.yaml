@@ -1,0 +1,100 @@
+%YAML 1.2
+---
+$schema: http://json-schema.org/draft-07/schema#
+title: Aligned Molecular Dataset Schema
+description: >
+  Schema for the preprocessed, aligned molecular dataset containing
+  vibrational spectra and quantum mechanical properties.
+type: object
+required:
+  - metadata
+  - molecules
+properties:
+  metadata:
+    type: object
+    required:
+      - source
+      - alignment_key
+      - preprocessing_steps
+      - created_at
+      - molecule_count
+    properties:
+      source:
+        type: string
+        description: Origin of the data (e.g., "QM9 + IR-Spectra")
+      alignment_key:
+        type: string
+        description: Key used for alignment (e.g., "InChIKey")
+      preprocessing_steps:
+        type: array
+        items:
+          type: string
+        description: List of applied preprocessing steps
+      created_at:
+        type: string
+        format: date-time
+        description: ISO 8601 timestamp of creation
+      molecule_count:
+        type: integer
+        minimum: 1
+        description: Total number of aligned molecules
+      dft_functional:
+        type: string
+        description: DFT functional used (e.g., "B3LYP")
+      dft_basis_set:
+        type: string
+        description: Basis set used (e.g., "6-31G*")
+      domain_shift_flags:
+        type: array
+        items:
+          type: object
+          properties:
+            molecule_id:
+              type: string
+            reason:
+              type: string
+        description: Molecules flagged for domain shift
+  molecules:
+    type: array
+    description: Array of molecular records
+    items:
+      type: object
+      required:
+        - inchi_key
+        - spectra
+        - properties
+      properties:
+        inchi_key:
+          type: string
+          description: Unique molecular identifier
+        spectra:
+          type: array
+          items:
+            type: number
+          description: Normalized absorbance values on fixed wavenumber grid
+        wavenumbers:
+          type: array
+          items:
+            type: number
+          description: Wavenumber grid values (cm^-1)
+        properties:
+          type: object
+          required:
+            - dipole_moment
+            - polarizability
+            - homo_lumo_gap
+          properties:
+            dipole_moment:
+              type: number
+              description: Dipole moment in Debye
+            polarizability:
+              type: number
+              description: Polarizability in Angstrom^3
+            homo_lumo_gap:
+              type: number
+              description: HOMO-LUMO gap in eV
+        flags:
+          type: array
+          items:
+            type: string
+          description: Any flags associated with this molecule
