@@ -1,0 +1,66 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "CorrelationAnalysisOutput"
+description: "Schema for the statistical output of the fractal dimension and energy dissipation correlation analysis, including null model comparison and robustness checks."
+type: object
+properties:
+  re_lambda:
+    type: number
+    description: "Taylor Reynolds number (e.g., 200, 400, 600)."
+  threshold_multiplier:
+    type: number
+    description: "Vorticity threshold multiplier (e.g., 2.0, 3.0, 4.0 for RMS) or absolute value."
+  threshold_type:
+    type: string
+    enum: ["RMS", "Absolute"]
+    description: "Type of thresholding used."
+  pearson_r:
+    type: number
+    description: "Pearson correlation coefficient."
+  p_value:
+    type: number
+    description: "Raw p-value from the correlation test."
+  adjusted_p_value:
+    type: number
+    description: "P-value after family-wise error correction (Bonferroni/BH)."
+  ci_lower:
+    type: number
+    description: "Lower bound of the 95% confidence interval."
+  ci_upper:
+    type: number
+    description: "Upper bound of the 95% confidence interval."
+  sample_size:
+    type: integer
+    minimum: 100
+    description: "Number of independent spatial subdomains used (aggregated across snapshots)."
+  method:
+    type: string
+    description: "Correction method used (e.g., 'Bonferroni')."
+  checksum:
+    type: string
+    description: "SHA256 checksum of the input data for reproducibility."
+  null_model_r:
+    type: number
+    description: "Pearson correlation coefficient from the Phase-Shifted DNS null model."
+  robustness_check_passed:
+    type: boolean
+    description: "True if the correlation holds across both RMS and Absolute thresholding methods."
+  data_source:
+    type: string
+    enum: ["JHTDB", "Phase-Shifted-DNS"]
+    description: "Source of the data used for this analysis."
+required:
+  - re_lambda
+  - threshold_multiplier
+  - threshold_type
+  - pearson_r
+  - p_value
+  - adjusted_p_value
+  - ci_lower
+  - ci_upper
+  - sample_size
+  - method
+  - checksum
+  - null_model_r
+  - robustness_check_passed
+  - data_source
+additionalProperties: false

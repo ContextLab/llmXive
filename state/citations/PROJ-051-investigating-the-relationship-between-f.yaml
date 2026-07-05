@@ -1,4 +1,4 @@
-- artifact_hash: 6996651288cac088d1a5ae53034fb1be4379bf0762dfc92ba238e7e2b1217ed1
+- artifact_hash: 637b9c2a6999d41c60e50b0df3b84ae239739cada7151bce596d1938cbc02d71
   artifact_path: projects/PROJ-051-investigating-the-relationship-between-f/specs/001-investigating-the-relationship-between-f/spec.md
   cite_id: c-001
   cited_authors: []
@@ -8,4 +8,26 @@
   value: https://turbulence.pha.jhu.edu/
   verification_status: verified
   verified_against_url: https://turbulence.idies.jhu.edu/home
-  verified_at: '2026-06-29T01:32:19.108824Z'
+  verified_at: '2026-07-05T13:23:00.010333Z'
+- artifact_hash: b73aa98f02e385a4e15aaa14090b1c7daed2ea7ca992ae944ed8cfb2406e8897
+  artifact_path: projects/PROJ-051-investigating-the-relationship-between-f/specs/001-investigating-the-relationship-between-f/plan.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: Johns Hopkins Turbulence Database JHTDB
+  kind: url
+  value: https://turbulence.pha.jhu.edu/
+  verification_status: verified
+  verified_against_url: https://turbulence.idies.jhu.edu/home
+  verified_at: '2026-07-05T13:32:53.095587Z'
+- artifact_hash: c3f2e6554152d668b8337002c7626909e723779a0248df4da70dead91da22dc3
+  artifact_path: projects/PROJ-051-investigating-the-relationship-between-f/specs/001-investigating-the-relationship-between-f/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: Johns Hopkins Turbulence Database JHTDB
+  kind: url
+  value: https://turbulence.pha.jhu.edu/
+  verification_status: verified
+  verified_against_url: https://turbulence.idies.jhu.edu/home
+  verified_at: '2026-07-05T13:33:07.646617Z'

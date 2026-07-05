@@ -1,0 +1,208 @@
+resolved_at: '2026-07-05T13:24:55.913331+00:00'
+datasets:
+- intent: DNS
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/Gatozu35/DNSMOS-TTS/resolve/main/ljspeech_mos.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/Dnsibu/serial2023/resolve/main/data/test-00000-of-00001-926cc4844b7ec4d7.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/Dnsibu/sn/resolve/main/data/test-00000-of-00001-91a94381196a0dbf.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/Gatozu35/DNSMOS-TTS/resolve/main/ljspeech_mos.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/Dnsibu/serial2023/resolve/main/data/test-00000-of-00001-926cc4844b7ec4d7.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/Dnsibu/sn/resolve/main/data/test-00000-of-00001-91a94381196a0dbf.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/Dnsibu/sn_tsv/resolve/main/test.tsv
+    source: huggingface
+    status: verified
+    format: tsv
+  - url: https://huggingface.co/datasets/Dnsibu/serials/resolve/main/test.tsv
+    source: huggingface
+    status: verified
+    format: tsv
+  - url: https://figshare.com/articles/dataset/Dataset_of_Winter_Wheat_Spring_Frost_Damage_2014-2024_based_on_MIFI_in_the_Huang-Huai-Hai_Region/32902715
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/Mewar_International_University_2026_2027_ADMISSION_FORM_ACESS_0704-0964-654_Dr_Faith_07040964654_Applications_are_now_ongoing_for_the_2026_2027_academic_session_Interested_candidates_07040964654_for_Post_UTME_Undergraduate_Form_JUPEB_Form_I/32902745
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Edusoko_University_Bida_Niger_State_2026_2027_ADMISSION_FORM_ACESS_0704-0964-654_Dr_Faith_07040964654_Applications_are_now_ongoing_for_the_2026_2027_academic_session_Interested_candidates_07040964654_for_Post_UTME_Undergraduate_Form_JUPEB_F/32902739
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/Philomath_University_Kuje_Abuja_2026_2027_ADMISSION_FORM_ACESS_0704-0964-654_Dr_Faith_07040964654_Applications_are_now_ongoing_for_the_2026_2027_academic_session_Interested_candidates_07040964654_for_Post_UTME_Undergraduate_Form_JUPEB_Form_/32902736
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Data_for_the_paper_Herbivore_species_asynchrony_underpins_multitrophic_stability_across_plants_herbivores_and_predators/29203865
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10050033
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.47893/IJSSAN.2022.1207
+    source: zenodo
+    status: unreachable
+    reason: 'reachability failed: HTTP 404'
+  - url: https://linkinghub.elsevier.com/retrieve/pii/S1574013722000132
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3732893
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ieeexplore.ieee.org/document/8886568/
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21203688
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21203688
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21202825
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21202825
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21203028
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: RSS
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/NickyNicky/finance-financialmodelingprep-stock-news-sentiments-rss-feed/resolve/main/data/train-00000-of-00001-ccd537eba2831636.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/jacobbieker/eumetsat-rss/resolve/main/data/2008/05/13/200805130935_hrv.zarr.zip
+    source: huggingface
+    format: zip
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/Brosnan/WIFI_RSSI_Indoor_Positioning_Dataset/resolve/main/Nexus4_Data/Long_Traj_344_DiffSpeed_1_5ms.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 6853
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/Brosnan/WIFI_RSSI_Indoor_Positioning_Dataset/resolve/main/Nexus4_Data/Long_Traj_344_DiffSpeed_1_5ms.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/jonathan-roberts1/RSSCN7/resolve/main/data/train-00000-of-00001-0031e216612a4732.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/NickyNicky/finance-financialmodelingprep-stock-news-sentiments-rss-feed/resolve/main/data/train-00000-of-00001-ccd537eba2831636.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/jacobbieker/eumetsat-rss/resolve/main/data/2008/05/13/200805130935_hrv.zarr.zip
+    source: huggingface
+    status: verified
+    format: zip
+  - url: https://figshare.com/articles/dataset/Dataset_of_Winter_Wheat_Spring_Frost_Damage_2014-2024_based_on_MIFI_in_the_Huang-Huai-Hai_Region/32902715
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/Mewar_International_University_2026_2027_ADMISSION_FORM_ACESS_0704-0964-654_Dr_Faith_07040964654_Applications_are_now_ongoing_for_the_2026_2027_academic_session_Interested_candidates_07040964654_for_Post_UTME_Undergraduate_Form_JUPEB_Form_I/32902745
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Edusoko_University_Bida_Niger_State_2026_2027_ADMISSION_FORM_ACESS_0704-0964-654_Dr_Faith_07040964654_Applications_are_now_ongoing_for_the_2026_2027_academic_session_Interested_candidates_07040964654_for_Post_UTME_Undergraduate_Form_JUPEB_F/32902739
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/Philomath_University_Kuje_Abuja_2026_2027_ADMISSION_FORM_ACESS_0704-0964-654_Dr_Faith_07040964654_Applications_are_now_ongoing_for_the_2026_2027_academic_session_Interested_candidates_07040964654_for_Post_UTME_Undergraduate_Form_JUPEB_Form_/32902736
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Data_for_the_paper_Herbivore_species_asynchrony_underpins_multitrophic_stability_across_plants_herbivores_and_predators/29203865
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10490496
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18808960
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.kwh70rz31
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5353890
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.d51c5b0bq
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21204396
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21204396
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21197687
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21197687
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/36aqt/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

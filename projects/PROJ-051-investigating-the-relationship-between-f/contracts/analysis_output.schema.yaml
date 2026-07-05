@@ -1,0 +1,148 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Turbulence Analysis Output Schema
+description: >
+  Schema defining the structure of analysis outputs for the fractal dimension
+  and energy dissipation study. Used for contract validation in the pipeline.
+type: object
+required:
+  - metadata
+  - fractal_dimension
+  - energy_dissipation
+  - correlation_results
+additionalProperties: false
+
+properties:
+  metadata:
+    type: object
+    description: Metadata about the run including parameters and timestamps.
+    required:
+      - re_lambda
+      - vorticity_threshold
+      - timestamp
+      - software_version
+    properties:
+      re_lambda:
+        type: number
+        description: Reynolds number based on Taylor microscale (Re_λ).
+      vorticity_threshold:
+        type: number
+        description: Threshold multiplier used for vorticity iso-surface extraction (e.g., 2.0, 3.0).
+      threshold_type:
+        type: string
+        enum: [normalized_rms, absolute]
+        description: Type of thresholding applied.
+      timestamp:
+        type: string
+        format: date-time
+        description: ISO 8601 timestamp of the analysis run.
+      software_version:
+        type: string
+        description: Version of the analysis pipeline.
+      grid_size:
+        type: string
+        description: Dimensions of the input grid (e.g., "512x512x512").
+      data_source:
+        type: string
+        description: Source of the data (e.g., "JHTDB", "Phase-Shifted DNS Fallback").
+
+  fractal_dimension:
+    type: object
+    description: Results from the box-counting fractal dimension analysis.
+    required:
+      - d_f
+      - r_squared
+      - box_counts
+    properties:
+      d_f:
+        type: number
+        description: Estimated fractal dimension (D_f). Must be between 2.0 and 3.0.
+        minimum: 2.0
+        maximum: 3.0
+      r_squared:
+        type: number
+        description: R-squared value of the linear fit in log-log space.
+        minimum: 0.0
+        maximum: 1.0
+      box_counts:
+        type: array
+        description: Array of box counts for each box size used in the analysis.
+        items:
+          type: integer
+          minimum: 0
+      box_sizes:
+        type: array
+        description: Array of box sizes used.
+        items:
+          type: number
+          minimum: 1
+
+  energy_dissipation:
+    type: object
+    description: Results from the energy dissipation rate (ε) analysis.
+    required:
+      - epsilon_mean
+      - epsilon_max
+      - epsilon_std
+      - intermittency_ratio
+    properties:
+      epsilon_mean:
+        type: number
+        description: Mean energy dissipation rate.
+      epsilon_max:
+        type: number
+        description: Maximum energy dissipation rate observed.
+      epsilon_std:
+        type: number
+        description: Standard deviation of energy dissipation rate.
+      intermittency_ratio:
+        type: number
+        description: Ratio of max(ε) to mean(ε).
+      spatial_variance:
+        type: number
+        description: Spatial variance of the dissipation field.
+
+  correlation_results:
+    type: object
+    description: Statistical correlation results between D_f and log(ε).
+    required:
+      - pearson_r
+      - p_value
+      - slope
+      - intercept
+      - n_samples
+      - ci_lower
+      - ci_upper
+    properties:
+      pearson_r:
+        type: number
+        description: Pearson correlation coefficient.
+      p_value:
+        type: number
+        description: P-value for the correlation test.
+      slope:
+        type: number
+        description: Slope of the linear regression line.
+      intercept:
+        type: number
+        description: Intercept of the linear regression line.
+      n_samples:
+        type: integer
+        description: Number of independent samples used in the analysis.
+      ci_lower:
+        type: number
+        description: Lower bound of the confidence interval for the correlation (block-bootstrap).
+      ci_upper:
+        type: number
+        description: Upper bound of the confidence interval for the correlation (block-bootstrap).
+      method:
+        type: string
+        description: Statistical method used (e.g., "pearson", "spearman").
+      fwe_corrected:
+        type: boolean
+        description: Whether Family-Wise Error correction was applied.
+      integral_length_scale:
+        type: number
+        description: Estimated integral length scale (λ) used for subdomain selection.
+      subdomain_count:
+        type: integer
+        description: Number of spatial subdomains selected for analysis.

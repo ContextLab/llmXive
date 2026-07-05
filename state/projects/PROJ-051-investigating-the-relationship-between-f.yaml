@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-04-30T18:40:38.670156Z'
-current_stage: specified
+current_stage: in_progress
 failed_stage: null
 field: physics
 human_escalation_reason: null
 id: PROJ-051-investigating-the-relationship-between-f
-last_run_id: 26929f83-c210-4f06-b63e-9f238175276c
+last_run_id: 86e04fd5-287e-4694-8462-dde906e4fc66
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-051-investigating-the-relationship-between-f/specs/001-investigating-the-relationship-between-f
 title: Investigating the Relationship Between Fractal Dimension and Energy Dissipation
   in Turbulent Flows
-updated_at: '2026-06-29T01:39:12.525529Z'
+updated_at: '2026-07-05T14:00:41.381838Z'

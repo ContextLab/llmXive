@@ -1,0 +1,1 @@
+"""Analysis algorithms module."""

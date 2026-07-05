@@ -1,0 +1,16 @@
+? 'T001 Create project structure with specific files: `projects/PROJ-051-investigating-the-relationship-between-f/code/__init__.py`,
+  `config.py`, `main.py`, `requirements.txt`, `README.md`, and directories `data/`,
+  `analysis/`, `validation/`, `tests/`'
+: 1
+? 'T002 Initialize Python 3.10 project with dependencies: `numpy`, `scipy`, `scikit-learn`,
+  `pandas`, `requests`, `tqdm`, `h5py`, `matplotlib`, `pytest`'
+: 1
+T003 [P] Configure linting (flake8/black) and formatting tools in `.pre-commit-config.yaml`: 1
+? "T004 Implement `config.py` to manage Re_\u03BB values (representing a range of\
+  \ low to high turbulence intensities), vorticity thresholds, and memory limits (max\
+  \ constrained RSS)"
+: 1
+T005 [P] Implement `utils/logging.py` for reproducible logging with random seeds and step timing: 1
+? "T006 [P] Setup `contracts/` directory with `analysis_output.schema.yaml` defining\
+  \ output fields for D_f, \u03B5, and correlation results"
+: 1
