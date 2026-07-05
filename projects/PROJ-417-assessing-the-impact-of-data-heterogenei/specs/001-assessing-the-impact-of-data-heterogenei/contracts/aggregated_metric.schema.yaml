@@ -1,0 +1,53 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: AggregatedMetric
+description: >-
+  Schema for summary statistics aggregated across all replicates for a specific
+  heterogeneity level and estimator combination.
+type: object
+required:
+  - heterogeneity_level
+  - estimator_name
+  - n_replicates
+  - mean_bias
+  - mean_i_squared
+  - coverage_rate
+  - coverage_test_p_value
+  - coverage_test_passed
+properties:
+  heterogeneity_level:
+    type: number
+    description: The target tau^2 level for this aggregation.
+  estimator_name:
+    type: string
+    enum: ["Fixed-Effects", "DerSimonian-Laird", "REML"]
+    description: Name of the estimator.
+  n_replicates:
+    type: integer
+    description: Number of valid replicates included in this aggregate.
+  mean_bias:
+    type: number
+    description: Average bias across all replicates.
+  mean_i_squared:
+    type: number
+    description: Average I-squared statistic across all replicates.
+  coverage_rate:
+    type: number
+    description: Proportion of replicates where the CI covered the true effect.
+  coverage_test_p_value:
+    type: number
+    description: P-value from the binomial test comparing coverage_rate to 0.95.
+  coverage_test_passed:
+    type: boolean
+    description: True if the coverage rate is statistically indistinguishable from 0.95 (after correction).
+  kruskal_wallis_stat:
+    type: number
+    description: Optional: Statistic from Kruskal-Wallis test if normality failed.
+  kruskal_wallis_p_value:
+    type: number
+    description: Optional: P-value from Kruskal-Wallis test.
+  anova_f_stat:
+    type: number
+    description: Optional: F-statistic from ANOVA if normality passed.
+  anova_p_value:
+    type: number
+    description: Optional: P-value from ANOVA.

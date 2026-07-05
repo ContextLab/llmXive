@@ -1,0 +1,3 @@
+# This directory is for raw data files.
+# Ensure .gitkeep is present to track the directory in git.
+# Do not commit large binary data files directly; use git-lfs or external storage if needed.

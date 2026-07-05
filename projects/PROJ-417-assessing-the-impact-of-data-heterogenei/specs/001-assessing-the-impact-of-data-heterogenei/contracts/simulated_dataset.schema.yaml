@@ -1,0 +1,55 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: SimulatedDataset
+description: >-
+  Schema for a single replicate of a simulated meta-analysis dataset.
+  Contains the ground truth parameters and the generated study-level data.
+type: object
+required:
+  - replicate_id
+  - tau_squared_true
+  - mu_true
+  - n_studies
+  - studies
+  - heterogeneity_level
+  - seed
+properties:
+  replicate_id:
+    type: string
+    description: Unique identifier for this simulation replicate (e.g., "level_0.1_rep_001").
+  seed:
+    type: integer
+    description: Random seed used for this specific replicate generation.
+  heterogeneity_level:
+    type: number
+    description: The target between-study variance (tau^2) for this group.
+  tau_squared_true:
+    type: number
+    description: The actual generated between-study variance (should match level within Monte Carlo error).
+  mu_true:
+    type: number
+    description: The true pooled effect size used for generation.
+  n_studies:
+    type: integer
+    description: Number of studies in this replicate.
+  studies:
+    type: array
+    description: List of study-level observations.
+    items:
+      type: object
+      required:
+        - study_id
+        - effect_size
+        - standard_error
+        - sample_size
+      properties:
+        study_id:
+          type: integer
+        effect_size:
+          type: number
+          description: Observed effect size (e.g., log odds ratio or mean difference).
+        standard_error:
+          type: number
+          description: Standard error of the effect size.
+        sample_size:
+          type: integer
+          description: Total sample size or effective sample size for the study.

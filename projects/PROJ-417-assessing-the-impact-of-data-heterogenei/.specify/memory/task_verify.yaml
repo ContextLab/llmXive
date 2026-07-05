@@ -1,0 +1,18 @@
+? T001 Create project structure per `plan.md` (mkdir `code/simulation`, `code/analysis`,
+  `code/visualization`, `code/reporting`, `data/raw`, `data/processed`, `data/results`,
+  `tests/unit`, `tests/integration`, `contracts`)
+: 2
+? T002 Initialize Python 3.11 project with `requirements.txt` containing `numpy`,
+  `scipy`, `pandas`, `scikit-learn`, `matplotlib`, `pyyaml`, `pytest`
+: 2
+T003 [P] Configure linting (flake8/black) and pre-commit hooks in `code/`: 2
+? T004 [P] Create JSON schemas for `SimulatedDataset`, `EstimationResult`, and `AggregatedMetric`
+  in `specs/001-assess-heterogeneity-impact/contracts/` with filenames `simulated_dataset.schema.yaml`,
+  `estimation_result.schema.yaml`, and `aggregated_metric.schema.yaml`. **Must include
+  `I^2` as a required field in `EstimationResult`**.
+: 1
+T005 [P] Implement `code/simulation/__init__.py` and `code/analysis/__init__.py` to expose core classes: 1
+? 'T006 Create `code/main.py` entry point that orchestrates the pipeline (generation
+  -> estimation -> analysis -> reporting) with CLI argument support for seeds and
+  levels <!-- ATOMIZE: requested -->'
+: 1

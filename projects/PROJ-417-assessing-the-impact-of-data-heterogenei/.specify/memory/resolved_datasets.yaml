@@ -1,0 +1,306 @@
+resolved_at: '2026-07-05T10:49:58.797467+00:00'
+datasets:
+- intent: DerSimonian
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/poster/Rhema_University_Obeama-Asa_Jupeb_2026_2027_FORM_PORTAL_IS_OPEN_NOW_O9167660199_09165949470_Admission_form_Applications_are_now_ongoing_for_the_2026_2027_academic_session_Interested_candidates_09167660199_for_Post_UTME_Undergraduate_Form_JU/32902223
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/Redeemer_s_University_Mowe_Jupeb_2026_2027_FORM_PORTAL_IS_OPEN_NOW_O9167660199_09165949470_Admission_form_Applications_are_now_ongoing_for_the_2026_2027_academic_session_Interested_candidates_09167660199_for_Post_UTME_Undergraduate_Form_JUP/32902220
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Shanghai_element_data_in_2018_and_2023/32901899
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/Paul_University_Awka_Anambra_State_Jupeb_2026_2027_FORM_PORTAL_IS_OPEN_NOW_O9167660199_09165949470_Admission_form_Applications_are_now_ongoing_for_the_2026_2027_academic_session_Interested_candidates_09167660199_for_Post_UTME_Undergraduate_/32902217
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Pan-Atlantic_University_Lagos_Jupeb_2026_2027_FORM_PORTAL_IS_OPEN_NOW_O9167660199_09165949470_Admission_form_Applications_are_now_ongoing_for_the_2026_2027_academic_session_Interested_candidates_09167660199_for_Post_UTME_Undergraduate_Form_/32902211
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10927678
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://pharmacia.pensoft.net/article/111398/
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.mdpi.com/2072-6643/11/8/1706
+    source: zenodo
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://zenodo.org/records/5913022
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://journals.sagepub.com/doi/10.1177/17455057241279039
+    source: zenodo
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://osf.io/pbhs7/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21191813
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21191813
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/kpsm9/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/6xvpa/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: REML
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/Razvan27/remla_phishing_url/resolve/main/data/test-00000-of-00001-978966d811841a2e.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/Razvan27/remla_phishing_url/resolve/main/data/test-00000-of-00001-978966d811841a2e.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://us.aws.cdn.hf.co/xet-bridge-us/67ee4e006047e7ceb41adecb/777d79b80f1e853c158b4e2c1047275585dc59da730547b6ddb0b3c96e96b64a?X-Xet-Cas-Uid=public&user_id=public&response-content-type=application%2Fjson&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27fortisavqa-head.json%3B+filename%3D%22fortisavqa-head.json%22%3B&Expires=1783252109&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjdlZTRlMDA2MDQ3ZTdjZWI0MWFkZWNiLzc3N2Q3OWI4MGYxZTg1M2MxNThiNGUyYzEwNDcyNzU1ODVkYzU5ZGE3MzA1NDdiNmRkYjBiM2M5NmU5NmI2NGFcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZ1c2VyX2lkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LXR5cGU9YXBwbGljYXRpb24lMkZqc29uJnJlc3BvbnNlLWNvbnRlbnQtZGlzcG9zaXRpb249aW5saW5lJTNCK2ZpbGVuYW1lJTJBJTNEVVRGLTglMjclMjdmb3J0aXNhdnFhLWhlYWQuanNvbiUzQitmaWxlbmFtZSUzRCUyMmZvcnRpc2F2cWEtaGVhZC5qc29uJTIyJTNCIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3ODMyNTIxMDl9fX1dfQ__&Signature=MEUCIQDgSw9mNGJAZ5gitAQSjBAuXaPc0U6glb40AxjFUPWXxQIgDgwuHRo29v86NN~dR6Kow0ej8fb1iDCumsk4cq3sKI8_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/Rhema_University_Obeama-Asa_Jupeb_2026_2027_FORM_PORTAL_IS_OPEN_NOW_O9167660199_09165949470_Admission_form_Applications_are_now_ongoing_for_the_2026_2027_academic_session_Interested_candidates_09167660199_for_Post_UTME_Undergraduate_Form_JU/32902223
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/Redeemer_s_University_Mowe_Jupeb_2026_2027_FORM_PORTAL_IS_OPEN_NOW_O9167660199_09165949470_Admission_form_Applications_are_now_ongoing_for_the_2026_2027_academic_session_Interested_candidates_09167660199_for_Post_UTME_Undergraduate_Form_JUP/32902220
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Shanghai_element_data_in_2018_and_2023/32901899
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/Paul_University_Awka_Anambra_State_Jupeb_2026_2027_FORM_PORTAL_IS_OPEN_NOW_O9167660199_09165949470_Admission_form_Applications_are_now_ongoing_for_the_2026_2027_academic_session_Interested_candidates_09167660199_for_Post_UTME_Undergraduate_/32902217
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Pan-Atlantic_University_Lagos_Jupeb_2026_2027_FORM_PORTAL_IS_OPEN_NOW_O9167660199_09165949470_Admission_form_Applications_are_now_ongoing_for_the_2026_2027_academic_session_Interested_candidates_09167660199_for_Post_UTME_Undergraduate_Form_/32902211
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.16bc7f2
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19378367
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/13515321
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18901476
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3860972
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21195923
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21195923
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21194756
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21194756
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/udas2/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: CIs
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/nasa-cisto-data-science-group/legacy-satvision-sr-pretrain-small/resolve/main/metadata/training_0/A2001013_h11v10_dataset_metadata.json
+    source: huggingface
+    format: json
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 16577
+      parsed: true
+  - url: https://huggingface.co/datasets/dazzle-nu/CIS435-CreditCardFraudDetection/resolve/main/fraudTrain.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/nasa-cisto-data-science-group/modis-lake-powell-toy-dataset/resolve/main/MODIS_multiclass_dataset.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/Exploration-Lab/CISLR/resolve/main/dataset.csv
+    source: huggingface
+    status: wrong_format
+    reason: HTTP 401
+  - url: https://huggingface.co/datasets/nasa-cisto-data-science-group/legacy-satvision-sr-pretrain-small/resolve/main/metadata/training_0/A2001013_h11v10_dataset_metadata.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://huggingface.co/datasets/dazzle-nu/CIS435-CreditCardFraudDetection/resolve/main/fraudTrain.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/nasa-cisto-data-science-group/modis-lake-powell-toy-dataset/resolve/main/MODIS_multiclass_dataset.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://figshare.com/articles/dataset/Ritman_University_Jupeb_2026_2027_FORM_PORTAL_IS_OPEN_NOW_O9167660199_09165949470_Admission_form_Applications_are_now_ongoing_for_the_2026_2027_academic_session_Interested_candidates_09167660199_for_Post_UTME_Undergraduate_Form_JUPEB_Form_I/32902226
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/Rhema_University_Obeama-Asa_Jupeb_2026_2027_FORM_PORTAL_IS_OPEN_NOW_O9167660199_09165949470_Admission_form_Applications_are_now_ongoing_for_the_2026_2027_academic_session_Interested_candidates_09167660199_for_Post_UTME_Undergraduate_Form_JU/32902223
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/Redeemer_s_University_Mowe_Jupeb_2026_2027_FORM_PORTAL_IS_OPEN_NOW_O9167660199_09165949470_Admission_form_Applications_are_now_ongoing_for_the_2026_2027_academic_session_Interested_candidates_09167660199_for_Post_UTME_Undergraduate_Form_JUP/32902220
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Shanghai_element_data_in_2018_and_2023/32901899
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/Paul_University_Awka_Anambra_State_Jupeb_2026_2027_FORM_PORTAL_IS_OPEN_NOW_O9167660199_09165949470_Admission_form_Applications_are_now_ongoing_for_the_2026_2027_academic_session_Interested_candidates_09167660199_for_Post_UTME_Undergraduate_/32902217
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7920596
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20637910
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4623194
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/46571
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4645204
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://fair.unifg.it//handle/11369/369486
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://iris.uniupo.it//handle/11579/86962
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/z98f3/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21201934
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21201934
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: SimulatedDataset
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/dataset/Ritman_University_Jupeb_2026_2027_FORM_PORTAL_IS_OPEN_NOW_O9167660199_09165949470_Admission_form_Applications_are_now_ongoing_for_the_2026_2027_academic_session_Interested_candidates_09167660199_for_Post_UTME_Undergraduate_Form_JUPEB_Form_I/32902226
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/Rhema_University_Obeama-Asa_Jupeb_2026_2027_FORM_PORTAL_IS_OPEN_NOW_O9167660199_09165949470_Admission_form_Applications_are_now_ongoing_for_the_2026_2027_academic_session_Interested_candidates_09167660199_for_Post_UTME_Undergraduate_Form_JU/32902223
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/Redeemer_s_University_Mowe_Jupeb_2026_2027_FORM_PORTAL_IS_OPEN_NOW_O9167660199_09165949470_Admission_form_Applications_are_now_ongoing_for_the_2026_2027_academic_session_Interested_candidates_09167660199_for_Post_UTME_Undergraduate_Form_JUP/32902220
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Shanghai_element_data_in_2018_and_2023/32901899
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/Paul_University_Awka_Anambra_State_Jupeb_2026_2027_FORM_PORTAL_IS_OPEN_NOW_O9167660199_09165949470_Admission_form_Applications_are_now_ongoing_for_the_2026_2027_academic_session_Interested_candidates_09167660199_for_Post_UTME_Undergraduate_/32902217
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14407921
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19789759
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19968308
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17091616
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5088346
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/2530320
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/2530320
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4632039
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4632039
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

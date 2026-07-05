@@ -1,0 +1,55 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: EstimationResult
+description: >-
+  Schema for the results of applying an estimator (Fixed-Effects, DL, REML)
+  to a single simulated dataset. Includes bias and coverage metrics.
+type: object
+required:
+  - replicate_id
+  - estimator_name
+  - pooled_estimate
+  - ci_lower
+  - ci_upper
+  - tau_squared_estimated
+  - i_squared
+  - bias
+  - coverage_flag
+  - convergence_status
+properties:
+  replicate_id:
+    type: string
+    description: Links back to the SimulatedDataset replicate_id.
+  estimator_name:
+    type: string
+    enum: ["Fixed-Effects", "DerSimonian-Laird", "REML"]
+    description: Name of the estimator used.
+  pooled_estimate:
+    type: number
+    description: The calculated pooled effect size.
+  ci_lower:
+    type: number
+    description: Lower bound of the 95% confidence interval.
+  ci_upper:
+    type: number
+    description: Upper bound of the 95% confidence interval.
+  tau_squared_estimated:
+    type: number
+    description: Estimated between-study variance (0 for Fixed-Effects).
+  i_squared:
+    type: number
+    description: >-
+      I-squared statistic representing the percentage of variation across studies
+      due to heterogeneity rather than chance. Calculated as (Q - df) / Q.
+  bias:
+    type: number
+    description: Difference between pooled_estimate and the true effect (mu_true).
+  coverage_flag:
+    type: boolean
+    description: True if the true effect (mu_true) lies within [ci_lower, ci_upper].
+  convergence_status:
+    type: string
+    enum: ["success", "failed", "skipped"]
+    description: Status of the estimator convergence (relevant for REML).
+  notes:
+    type: string
+    description: Optional notes regarding edge cases (e.g., N<5 exclusion).
