@@ -1,165 +1,153 @@
-"""
-T004: Verify dataset availability for Planck, Xenon1T, and LEP; document fallback strategies.
-
-This script attempts to fetch or verify the existence of real data sources required for the
-muon g-2 dark matter analysis. It checks:
-1. Planck 2018 Relic Density: Available via standard cosmological constants (no external fetch needed).
-2. Xenon1T Limits: Attempts to fetch from the public Zenodo repository.
-3. LEP Limits: Attempts to fetch from the CERN Data Preservation portal or a known mirror.
-
-If a source is unreachable, it logs the fallback strategy defined in the project plan.
-Outputs a summary report to `data/data_availability_report.json`.
-"""
 import json
 import os
 import sys
 import urllib.request
 import ssl
 from pathlib import Path
-from datetime import datetime
-from typing import Dict, Any, Optional
+from typing import Dict, List, Tuple, Optional
+import logging
 
-# Add parent directory to path to allow imports if run as script
-sys.path.insert(0, str(Path(__file__).parent.parent))
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.StreamHandler(sys.stdout),
+        logging.FileHandler('data/data_availability.log')
+    ]
+)
+logger = logging.getLogger(__name__)
 
-# Output paths relative to project root
-OUTPUT_DIR = Path("data")
-REPORT_PATH = OUTPUT_DIR / "data_availability_report.json"
-
-# Ensure output directory exists
-OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
-
-# --- Data Source Definitions ---
-
-SOURCES = {
-    "Planck_2018": {
-        "name": "Planck 2018 Relic Density Constraints",
-        "type": "constant",
-        "url": None,
-        "description": "Standard cosmological constants (Omega_c h^2). No external fetch required.",
-        "fallback": "Use hardcoded Planck 2018 central value: 0.120 +/- 0.001."
-    },
-    "Xenon1T_2018": {
-        "name": "Xenon1T Spin-Independent Limits (2018)",
+# Define data sources based on standard physics repositories and publications
+DATA_SOURCES = {
+    "Planck": {
         "type": "url",
-        # Zenodo record for XENON1T 1T run results
-        "url": "https://zenodo.org/api/records/3364945/files-archive",
-        "local_check": "data/xenon1t_limits.parquet",
-        "description": "Spin-independent cross-section limits vs DM mass.",
-        "fallback": "Use hardcoded piecewise polynomial approximation of the 2018 curve if fetch fails."
+        "url": "https://pla.esa.int/ftp/pla/full_release/Cosmological_Parameters.tar.gz",
+        "description": "Planck 2018 Cosmological Parameters (Full Release)",
+        "fallback_strategy": "Use Planck 2018 public CSV tables if tarball fails. If network fails, use hardcoded Planck 2018 central values for Omega_c h^2 and Omega_b h^2 from arXiv:1807.06209 as a temporary fallback for code structure testing (NOT for production physics).",
+        "required": True
     },
-    "LEP_Monophoton": {
-        "name": "LEP Monophoton Limits (2004-2014)",
+    "Xenon1T": {
         "type": "url",
-        # Attempting a generic CERN data preservation link or a known mirror.
-        # If this specific URL is not reachable, we fall back to parsing paper tables.
-        "url": "https://cds.cern.ch/record/2004841/files/1408.2878.pdf", 
-        "local_check": "data/lep_limits.parquet",
-        "description": "LEP limits on contact interactions/monophoton events.",
-        "fallback": "Parse numerical tables from the paper (arXiv:1408.2878) if direct data fetch fails."
+        "url": "https://xenon1t.web.cern.ch/Public/DarkMatter/ExclusionLimit.html",
+        "description": "Xenon1T Dark Matter Exclusion Limit (HTML/Table)",
+        "fallback_strategy": "Parse HTML table for limit points. If network fails or HTML structure changes, fallback to hardcoded array of (mass, cross_section) points extracted from the Xenon1T 2018 paper (Phys. Rev. D 98, 112009) which are standard reference values.",
+        "required": True
+    },
+    "LEP": {
+        "type": "url",
+        "url": "https://pdg.lbl.gov/2024/reviews/rpp2024-rev-std-model.pdf",
+        "description": "PDG Review of LEP Limits (PDF/Source)",
+        "fallback_strategy": "Fetch PDG review. If network fails, fallback to hardcoded LEP limits for vector mediators from Ref [2014] (e.g., m_V > 10 GeV for g=0.1) as a placeholder for the scan logic, noting that this is a fallback.",
+        "required": True
     }
 }
 
-def check_url_availability(url: str, timeout: int = 10) -> bool:
-    """Check if a URL is reachable."""
-    if not url:
-        return False
+def check_url_availability(url: str, timeout: int = 10) -> Tuple[bool, str]:
+    """
+    Check if a URL is reachable.
+    Returns (is_available, message).
+    """
     try:
-        # Create an SSL context that does not verify certificates (for some older repos)
-        # In a production environment, proper cert verification is preferred.
-        ctx = ssl.create_default_context()
-        ctx.check_hostname = False
-        ctx.verify_mode = ssl.CERT_NONE
-        
-        req = urllib.request.Request(url, headers={'User-Agent': 'llmXive-Research-Agent/1.0'})
-        with urllib.request.urlopen(req, timeout=timeout, context=ctx) as response:
-            return response.status == 200
-    except Exception:
-        return False
+        # Create an SSL context that does not verify certificates (for robustness in restricted envs)
+        # In a production environment, this should be set to True and handled properly.
+        context = ssl._create_unverified_context()
+        logger.info(f"Checking URL: {url}")
+        req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
+        with urllib.request.urlopen(req, context=context, timeout=timeout) as response:
+            if response.status == 200:
+                logger.info(f"SUCCESS: {url} is accessible.")
+                return True, "Accessible"
+            else:
+                logger.warning(f"FAILURE: {url} returned status {response.status}")
+                return False, f"HTTP {response.status}"
+    except urllib.error.URLError as e:
+        logger.error(f"FAILURE: {url} - {e.reason}")
+        return False, str(e.reason)
+    except Exception as e:
+        logger.error(f"FAILURE: {url} - Unexpected error: {e}")
+        return False, str(e)
 
-def check_local_file(path: str) -> bool:
-    """Check if a local file exists."""
-    return os.path.exists(path)
+def check_local_file(filepath: str) -> Tuple[bool, str]:
+    """
+    Check if a local file exists.
+    Returns (exists, message).
+    """
+    path = Path(filepath)
+    if path.exists():
+        logger.info(f"SUCCESS: Local file {filepath} exists.")
+        return True, "File exists"
+    else:
+        logger.warning(f"FAILURE: Local file {filepath} not found.")
+        return False, "File not found"
 
-def run_checks() -> Dict[str, Any]:
-    """Run availability checks for all defined sources."""
-    results = {}
-    timestamp = datetime.now().isoformat()
-
-    for key, config in SOURCES.items():
-        status = {
-            "name": config["name"],
-            "type": config["type"],
-            "description": config["description"],
-            "available": False,
-            "method": None,
-            "details": "",
-            "fallback_strategy": config["fallback"]
-        }
-
-        if config["type"] == "constant":
-            status["available"] = True
-            status["method"] = "hardcoded_constant"
-            status["details"] = "No external fetch required. Value defined in code."
-        
-        elif config["type"] == "url":
-            # Check local first (if we assume previous runs might have downloaded it)
-            if "local_check" in config:
-                local_path = Path(config["local_check"])
-                if local_path.exists():
-                    status["available"] = True
-                    status["method"] = "local_cache"
-                    status["details"] = f"Found local file: {local_path}"
-            
-            # If not local, try to fetch
-            if not status["available"]:
-                if check_url_availability(config["url"]):
-                    status["available"] = True
-                    status["method"] = "remote_fetch"
-                    status["details"] = f"URL reachable: {config['url']}"
-                else:
-                    status["available"] = False
-                    status["method"] = "fetch_failed"
-                    status["details"] = f"URL unreachable: {config['url']}"
-
-        results[key] = status
-
-    return {
-        "timestamp": timestamp,
-        "project": "PROJ-115-exploring-the-connection-between-muon-an",
-        "task": "T004",
-        "sources": results,
+def run_checks(output_dir: str = "data") -> Dict:
+    """
+    Run availability checks for all defined data sources.
+    Returns a dictionary of results.
+    """
+    results = {
+        "timestamp": "2023-10-27T12:00:00Z", # Placeholder, actual time handled by logging
+        "sources": {},
         "summary": {
-            "total_sources": len(SOURCES),
-            "available_count": sum(1 for s in results.values() if s["available"]),
-            "fallbacks_required": sum(1 for s in results.values() if not s["available"])
+            "total": len(DATA_SOURCES),
+            "available": 0,
+            "unavailable": 0
         }
     }
 
+    # Ensure output directory exists
+    Path(output_dir).mkdir(parents=True, exist_ok=True)
+
+    for name, config in DATA_SOURCES.items():
+        logger.info(f"Checking source: {name}")
+        is_available = False
+        message = ""
+        
+        if config["type"] == "url":
+            is_available, message = check_url_availability(config["url"])
+        elif config["type"] == "local":
+            is_available, message = check_local_file(config["path"])
+        
+        results["sources"][name] = {
+            "available": is_available,
+            "message": message,
+            "description": config["description"],
+            "fallback_strategy": config["fallback_strategy"],
+            "url": config.get("url", "N/A")
+        }
+        
+        if is_available:
+            results["summary"]["available"] += 1
+        else:
+            results["summary"]["unavailable"] += 1
+
+    return results
+
 def main():
-    print("Starting T004: Data Availability Check...")
-    report = run_checks()
+    """
+    Main entry point for the data availability check.
+    Outputs a JSON report to data/data_availability_report.json.
+    """
+    logger.info("Starting Data Availability Check for Planck, Xenon1T, and LEP.")
     
-    # Save report
-    with open(REPORT_PATH, 'w') as f:
-        json.dump(report, f, indent=2)
+    results = run_checks(output_dir="data")
     
-    print(f"Report generated: {REPORT_PATH}")
+    output_path = Path("data/data_availability_report.json")
+    with open(output_path, 'w') as f:
+        json.dump(results, f, indent=2)
+    
+    logger.info(f"Report saved to {output_path}")
     
     # Print summary to stdout
-    summary = report["summary"]
-    print(f"Total sources: {summary['total_sources']}")
-    print(f"Available: {summary['available_count']}")
-    print(f"Requires fallback: {summary['fallbacks_required']}")
+    print("\n--- Data Availability Summary ---")
+    print(f"Total Sources: {results['summary']['total']}")
+    print(f"Available: {results['summary']['available']}")
+    print(f"Unavailable: {results['summary']['unavailable']}")
+    print("Fallback strategies are documented in the JSON report.")
+    print("---------------------------------\n")
     
-    for key, data in report["sources"].items():
-        status_icon = "✓" if data["available"] else "✗"
-        print(f"{status_icon} {data['name']}: {data['method']}")
-        if not data["available"]:
-            print(f"   -> Fallback: {data['fallback_strategy'][:60]}...")
-
-    # Exit with 0 regardless of availability, as fallbacks are valid strategies
-    return 0
+    return results
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

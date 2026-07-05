@@ -1,0 +1,485 @@
+{
+  "fetched_at": "2026-07-05T19:08:21Z",
+  "field": "chemistry",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "chemistry",
+      "idea_body_excerpt": "Predicting Molecular Reactivity Using Graph Neural Networks and Public Databases",
+      "target_n": 5
+    },
+    "duration_seconds": 46.521,
+    "ended_at": "2026-07-05T19:08:21Z",
+    "expansion": null,
+    "extracted_queries": [
+      "molecular property prediction graph neural networks",
+      "QM9 dataset GNN reactivity benchmark",
+      "homophily heterophily molecular graph topology",
+      "activation energy prediction held-out evaluation",
+      "training data leakage molecular contamination"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2406.09675"
+      ]
+    },
+    "per_query_hit_count": {
+      "Predicting Molecular Reactivity Using Graph Neural Networks and Public Databases chemistry": 3,
+      "QM9 dataset GNN reactivity benchmark": 3,
+      "activation energy prediction held-out evaluation": 3,
+      "homophily heterophily molecular graph topology": 3,
+      "molecular property prediction graph neural networks": 2,
+      "training data leakage molecular contamination": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 2,
+      "rejections": [
+        {
+          "primary_pointer": "2502.12908",
+          "rationale": "The paper focuses on applying Graph Neural Networks to optimize database systems (e.g., query optimization, text-to-SQL) rather than using GNNs to predict molecular reactivity or analyze chemical data. This falls under the \"Distinct construct sharing only homonym keywords\" rejection rule, as it addresses the \"database\" and \"graph\" terms in a computer systems context rather than the chemistry and molecular property prediction context required by the user.",
+          "title": "Graph Neural Networks for Databases: A Survey"
+        },
+        {
+          "primary_pointer": "2212.06370",
+          "rationale": "The paper proposes a general method for generating prediction intervals in regression tasks and validates it on synthetic, benchmark, and crop yield datasets, but it does not address the specific domain of molecular reactivity, utilize Graph Neural Networks, or leverage public chemistry databases. Consequently, it fails to meet the criteria for same-mechanism evidence, domain-specific variable measurement, or foundational methodology for the user's specific chemistry-GNN intersection.",
+          "title": "Dual Accuracy-Quality-Driven Neural Network for Prediction Interval Generation"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-07-05T19:07:34Z",
+    "term_input": {
+      "normalized": "predicting molecular reactivity using graph neural networks and public databases chemistry",
+      "raw": "Predicting Molecular Reactivity Using Graph Neural Networks and Public Databases chemistry"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Artificial Intelligence and Machine learning have been widely used in various fields of mathematical computing, physical modeling, computational science, communication science, and stochastic analysis. Approaches based on Deep Artificial Neural Networks (DANN) are very popular in our days. Depending on the learning task, the exact form of DANNs is determined via their multi-layer architecture, activation functions and the so-called loss function. However, for a majority of deep learning approaches based on DANNs, the kernel structure of neural signal processing remains the same, where the node response is encoded as a linear superposition of neural activity, while the non-linearity is triggered by the activation functions. In the current paper, we suggest to analyze the neural signal processing in DANNs from the point of view of homogeneous chaos theory as known from polynomial chaos expansion (PCE). From the PCE perspective, the (linear) response on each node of a DANN could be seen as a $1^{st}$ degree multi-variate polynomial of single neurons from the previous layer, i.e. linear weighted sum of monomials. From this point of view, the conventional DANN structure relies implicitly (but erroneously) on a Gaussian distribution of neural signals. Additionally, this view revels that by design DANNs do not necessarily fulfill any orthogonality or orthonormality condition for a majority of data-driven applications. Therefore, the prevailing handling of neural signals in DANNs could lead to redundant representation as any neural signal could contain some partial information from other neural signals. To tackle that challenge, we suggest to employ the data-driven generalization of PCE theory known as arbitrary polynomial chaos (aPC) to construct a corresponding multi-variate orthonormal representations on each node of a DANN to obtain Deep arbitrary polynomial chaos neural networks.",
+          "claimed_authors": [
+            "Sergey Oladyshkin",
+            "Timothy Praditia",
+            "Ilja Kröker",
+            "Farid Mohammadi",
+            "Wolfgang Nowak",
+            "Sebastian Otte"
+          ],
+          "claimed_title": "The Deep Arbitrary Polynomial Chaos Neural Network or how Deep Artificial Neural Networks could benefit from Data-Driven Homogeneous Chaos Theory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2306.14753"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='Predicting Molecular Reactivity Using Graph Neural Networks and Public Databases', candidate_title='The Deep Arbitrary Polynomial Chaos Neural Network or how Deep Artificial Neural Networks could benefit from Data-Driven Homogeneous Chaos Theory')",
+        "failed_at": "2026-07-05T19:08:02Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This paper presents a framework for estimating the remaining useful life (RUL) of mechanical systems. The framework consists of a multi-layer perceptron and an evolutionary algorithm for optimizing the data-related parameters. The framework makes use of a strided time window to estimate the RUL for mechanical components. Tuning the data-related parameters can become a very time consuming task. The framework presented here automatically reshapes the data such that the efficiency of the model is increased. Furthermore, the complexity of the model is kept low, e.g. neural networks with few hidden layers and few neurons at each layer. Having simple models has several advantages like short training times and the capacity of being in environments with limited computational resources such as embedded systems. The proposed method is evaluated on the publicly available C-MAPSS dataset, its accuracy is compared against other state-of-the art methods for the same dataset.",
+          "claimed_authors": [
+            "David Laredo",
+            "Zhaoyin Chen",
+            "Oliver Schütze",
+            "Jian-Qiao Sun"
+          ],
+          "claimed_title": "A Neural Network-Evolutionary Computational Framework for Remaining Useful Life Estimation of Mechanical Systems",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1905.05918"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='Predicting Molecular Reactivity Using Graph Neural Networks and Public Databases', candidate_title='A Neural Network-Evolutionary Computational Framework for Remaining Useful Life Estimation of Mechanical Systems')",
+        "failed_at": "2026-07-05T19:08:03Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "AI-assisted molecular property prediction has become a promising technique in early-stage drug discovery and materials design in recent years. However, due to high-cost and complex wet-lab experiments, real-world molecules usually experience the issue of scarce annotations, leading to limited labeled data for effective supervised AI model learning. In light of this, few-shot molecular property prediction (FSMPP) has emerged as an expressive paradigm that enables learning from only a few labeled examples. Despite rapidly growing attention, existing FSMPP studies remain fragmented, without a coherent framework to capture methodological advances and domain-specific challenges. In this work, we present the first comprehensive and systematic survey of few-shot molecular property prediction. We begin by analyzing the few-shot phenomenon in molecular datasets and highlighting two core challenges: (1) cross-property generalization under distribution shifts, where each task corresponding to each property, may follow a different data distribution or even be inherently weakly related to others from a biochemical perspective, requiring the model to transfer knowledge across heterogeneous prediction tasks, and (2) cross-molecule generalization under structural heterogeneity, where molecules involved in different or same properties may exhibit significant structural diversity, making model difficult to achieve generalization. Then, we introduce a unified taxonomy that organizes existing methods into data, model, and learning paradigm levels, reflecting their strategies for extracting knowledge from scarce supervision in few-shot molecular property prediction. Next, we compare representative methods, summarize benchmark datasets and evaluation protocols. In the end, we identify key trends and future directions for advancing the continued research on FSMPP.",
+          "claimed_authors": [
+            "Zeyu Wang",
+            "Tianyi Jiang",
+            "Huanchang Ma",
+            "Yao Lu",
+            "Xiaoze Bao",
+            "Shanqing Yu",
+            "Qi Xuan",
+            "Shirui Pan",
+            "Xin Zheng"
+          ],
+          "claimed_title": "Few-shot Molecular Property Prediction: A Survey",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2510.08900"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Predicting Molecular Reactivity Using Graph Neural Networks and Public Databases', candidate_title='Few-shot Molecular Property Prediction: A Survey')",
+        "failed_at": "2026-07-05T19:08:03Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The RSNA Abdominal Traumatic Injury CT (RATIC) dataset is the largest publicly available collection of adult abdominal CT studies annotated for traumatic injuries. This dataset includes 4,274 studies from 23 institutions across 14 countries. The dataset is freely available for non-commercial use via Kaggle at https://www.kaggle.com/competitions/rsna-2023-abdominal-trauma-detection. Created for the RSNA 2023 Abdominal Trauma Detection competition, the dataset encourages the development of advanced machine learning models for detecting abdominal injuries on CT scans. The dataset encompasses detection and classification of traumatic injuries across multiple organs, including the liver, spleen, kidneys, bowel, and mesentery. Annotations were created by expert radiologists from the American Society of Emergency Radiology (ASER) and Society of Abdominal Radiology (SAR). The dataset is annotated at multiple levels, including the presence of injuries in three solid organs with injury grading, image-level annotations for active extravasations and bowel injury, and voxelwise segmentations of each of the potentially injured organs. With the release of this dataset, we hope to facilitate research and development in machine learning and abdominal trauma that can lead to improved patient care and outcomes.",
+          "claimed_authors": [
+            "Jeffrey D. Rudie",
+            "Hui-Ming Lin",
+            "Robyn L. Ball",
+            "Sabeena Jalal",
+            "Luciano M. Prevedello",
+            "Savvas Nicolaou",
+            "Brett S. Marinelli",
+            "Adam E. Flanders",
+            "Kirti Magudia",
+            "George Shih",
+            "Melissa A. Davis",
+            "John Mongan",
+            "Peter D. Chang",
+            "Ferco H. Berger",
+            "Sebastiaan Hermans",
+            "Meng Law",
+            "Tyler Richards",
+            "Jan-Peter Grunz",
+            "Andreas Steven Kunz",
+            "Shobhit Mathur",
+            "Sandro Galea-Soler",
+            "Andrew D. Chung",
+            "Saif Afat",
+            "Chin-Chi Kuo",
+            "Layal Aweidah",
+            "Ana Villanueva Campos",
+            "Arjuna Somasundaram",
+            "Felipe Antonio Sanchez Tijmes",
+            "Attaporn Jantarangkoon",
+            "Leonardo Kayat Bittencourt",
+            "Michael Brassil",
+            "Ayoub El Hajjami",
+            "Hakan Dogan",
+            "Muris Becircic",
+            "Agrahara G. Bharatkumar",
+            "Eduardo Moreno Júdice de Mattos Farina",
+            "Dataset Curator Group",
+            "Dataset Contributor Group",
+            "Dataset Annotator Group",
+            "Errol Colak"
+          ],
+          "claimed_title": "The RSNA Abdominal Traumatic Injury CT (RATIC) Dataset",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2405.19595"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Molecular Reactivity Using Graph Neural Networks and Public Databases', candidate_title='The RSNA Abdominal Traumatic Injury CT (RATIC) Dataset')",
+        "failed_at": "2026-07-05T19:08:03Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The Radiological Society of North America (RSNA) Lumbar Degenerative Imaging Spine Classification (LumbarDISC) dataset is the largest publicly available dataset of adult MRI lumbar spine examinations annotated for degenerative changes. The dataset includes 2,697 patients with a total of 8,593 image series from 8 institutions across 6 countries and 5 continents. The dataset is available for free for non-commercial use via Kaggle and RSNA Medical Imaging Resource of AI (MIRA). The dataset was created for the RSNA 2024 Lumbar Spine Degenerative Classification competition where competitors developed deep learning models to grade degenerative changes in the lumbar spine. The degree of spinal canal, subarticular recess, and neural foraminal stenosis was graded at each intervertebral disc level in the lumbar spine. The images were annotated by expert volunteer neuroradiologists and musculoskeletal radiologists from the RSNA, American Society of Neuroradiology, and the American Society of Spine Radiology. This dataset aims to facilitate research and development in machine learning and lumbar spine imaging to lead to improved patient care and clinical efficiency.",
+          "claimed_authors": [
+            "Tyler J. Richards",
+            "Adam E. Flanders",
+            "Errol Colak",
+            "Luciano M. Prevedello",
+            "Robyn L. Ball",
+            "Felipe Kitamura",
+            "John Mongan",
+            "Maryam Vazirabad",
+            "Hui-Ming Lin",
+            "Anne Kendell",
+            "Thanat Kanthawang",
+            "Salita Angkurawaranon",
+            "Emre Altinmakas",
+            "Hakan Dogan",
+            "Paulo Eduardo de Aguiar Kuriki",
+            "Arjuna Somasundaram",
+            "Christopher Ruston",
+            "Deniz Bulja",
+            "Naida Spahovic",
+            "Jennifer Sommer",
+            "Sirui Jiang",
+            "Eduardo Moreno Judice de Mattos Farina",
+            "Eduardo Caminha Nunes",
+            "Michael Brassil",
+            "Megan McNamara",
+            "Johanna Ortiz",
+            "Jacob Peoples",
+            "Vinson L. Uytana",
+            "Anthony Kam",
+            "Venkata N. S. Dola",
+            "Daniel Murphy",
+            "David Vu",
+            "Dataset Contributor Group",
+            "Dataset Annotator Group",
+            "Competition Data Notebook Group",
+            "Jason F. Talbott"
+          ],
+          "claimed_title": "The RSNA Lumbar Degenerative Imaging Spine Classification (LumbarDISC) Dataset",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2506.09162"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Predicting Molecular Reactivity Using Graph Neural Networks and Public Databases', candidate_title='The RSNA Lumbar Degenerative Imaging Spine Classification (LumbarDISC) Dataset')",
+        "failed_at": "2026-07-05T19:08:03Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Graph Convolutional Networks (GCNs) have been widely applied in various fields due to their significant power on processing graph-structured data. Typical GCN and its variants work under a homophily assumption (i.e., nodes with same class are prone to connect to each other), while ignoring the heterophily which exists in many real-world networks (i.e., nodes with different classes tend to form edges). Existing methods deal with heterophily by mainly aggregating higher-order neighborhoods or combing the immediate representations, which leads to noise and irrelevant information in the result. But these methods did not change the propagation mechanism which works under homophily assumption (that is a fundamental part of GCNs). This makes it difficult to distinguish the representation of nodes from different classes. To address this problem, in this paper we design a novel propagation mechanism, which can automatically change the propagation and aggregation process according to homophily or heterophily between node pairs. To adaptively learn the propagation process, we introduce two measurements of homophily degree between node pairs, which is learned based on topological and attribute information, respectively. Then we incorporate the learnable homophily degree into the graph convolution framework, which is trained in an end-to-end schema, enabling it to go beyond the assumption of homophily. More importantly, we theoretically prove that our model can constrain the similarity of representations between nodes according to their homophily degree. Experiments on seven real-world datasets demonstrate that this new approach outperforms the state-of-the-art methods under heterophily or low homophily, and gains competitive performance under homophily.",
+          "claimed_authors": [
+            "Tao Wang",
+            "Rui Wang",
+            "Di Jin",
+            "Dongxiao He",
+            "Yuxiao Huang"
+          ],
+          "claimed_title": "Powerful Graph Convolutioal Networks with Adaptive Propagation Mechanism for Homophily and Heterophily",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2112.13562"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='Predicting Molecular Reactivity Using Graph Neural Networks and Public Databases', candidate_title='Powerful Graph Convolutioal Networks with Adaptive Propagation Mechanism for Homophily and Heterophily')",
+        "failed_at": "2026-07-05T19:08:03Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We describe the Dark Energy Survey (DES), a proposed optical-near infrared survey of 5000 sq. deg of the South Galactic Cap to ~24th magnitude in SDSS griz, that would use a new 3 sq. deg CCD camera to be mounted on the Blanco 4-m telescope at Cerro Telolo Inter-American Observatory (CTIO). The survey data will allow us to measure the dark energy and dark matter densities and the dark energy equation of state through four independent methods: galaxy clusters, weak gravitational lensing tomography, galaxy angular clustering, and supernova distances. These methods are doubly complementary: they constrain different combinations of cosmological model parameters and are subject to different systematic errors. By deriving the four sets of measurements from the same data set with a common analysis framework, we will obtain important cross checks of the systematic errors and thereby make a substantial and robust advance in the precision of dark energy measurements.",
+          "claimed_authors": [
+            " The Dark Energy Survey Collaboration"
+          ],
+          "claimed_title": "The Dark Energy Survey",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2005,
+          "primary_pointer": "astro-ph/0510346"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Molecular Reactivity Using Graph Neural Networks and Public Databases', candidate_title='The Dark Energy Survey')",
+        "failed_at": "2026-07-05T19:08:04Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This white paper describes the LSST Dark Energy Science Collaboration (DESC), whose goal is the study of dark energy and related topics in fundamental physics with data from the Large Synoptic Survey Telescope (LSST). It provides an overview of dark energy science and describes the current and anticipated state of the field. It makes the case for the DESC by laying out a robust analytical framework for dark energy science that has been defined by its members and the comprehensive three-year work plan they have developed for implementing that framework. The analysis working groups cover five key probes of dark energy: weak lensing, large scale structure, galaxy clusters, Type Ia supernovae, and strong lensing. The computing working groups span cosmological simulations, galaxy catalogs, photon simulations and a systematic software and computational framework for LSST dark energy data analysis. The technical working groups make the connection between dark energy science and the LSST system. The working groups have close linkages, especially through the use of the photon simulations to study the impact of instrument design and survey strategy on analysis methodology and cosmological parameter estimation. The white paper describes several high priority tasks identified by each of the 16 working groups. Over the next three years these tasks will help prepare for LSST analysis, make synergistic connections with ongoing cosmological surveys and provide the dark energy community with state of the art analysis tools. Members of the community are invited to join the LSST DESC, according to the membership policies described in the white paper. Applications to sign up for associate membership may be made by submitting the Web form at http://www.slac.stanford.edu/exp/lsst/desc/signup.html with a short statement of the work they wish to pursue that is relevant to the LSST DESC.",
+          "claimed_authors": [
+            " LSST Dark Energy Science Collaboration"
+          ],
+          "claimed_title": "Large Synoptic Survey Telescope: Dark Energy Science Collaboration",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1211.0310"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Molecular Reactivity Using Graph Neural Networks and Public Databases', candidate_title='Large Synoptic Survey Telescope: Dark Energy Science Collaboration')",
+        "failed_at": "2026-07-05T19:08:04Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Knowledge of the centre-of-mass energy at LEP2 is of primary importance to set the absolute energy scale for the measurement of the W-boson mass. The beam energy above 80 GeV is derived from continuous measurements of the magnetic bending field by 16 NMR probes situated in a number of the LEP dipoles. The relationship between the fields measured by the probes and the beam energy is calibrated against precise measurements of the average beam energy between 41 and 55 GeV made using the resonant depolarisation technique. The linearity of the relationship is tested by comparing the fields measured by the probes with the total bending field measured by a flux loop. This test results in the largest contribution to the systematic uncertainty. Several further corrections are applied to derive the the centre-of-mass energies at each interaction point. In addition the centre-of-mass energy spread is evaluated. The beam energy has been determined with a precision of 25 MeV for the data taken in 1997, corresponding to a relative precision of 2.7x10^{-4}. This is small in comparison to the present uncertainty on the W mass measurement at LEP. However, the ultimate statistical precision on the W mass with the full LEP2 data sample should be around 25 MeV, and a smaller uncertainty on the beam energy is desirable. Prospects for improvements are outlined.",
+          "claimed_authors": [
+            " The LEP Energy Working Group"
+          ],
+          "claimed_title": "Evaluation of the LEP Centre-of-Mass Energy Above the W-Pair Production Threshold",
+          "claimed_venue": "arXiv",
+          "claimed_year": 1999,
+          "primary_pointer": "hep-ex/9901002"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Predicting Molecular Reactivity Using Graph Neural Networks and Public Databases', candidate_title='Evaluation of the LEP Centre-of-Mass Energy Above the W-Pair Production Threshold')",
+        "failed_at": "2026-07-05T19:08:04Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We study distributed optimization in the presence of Byzantine adversaries, where both data and computation are distributed among $m$ worker machines, $t$ of which may be corrupt. The compromised nodes may collaboratively and arbitrarily deviate from their pre-specified programs, and a designated (master) node iteratively computes the model/parameter vector for generalized linear models. In this work, we primarily focus on two iterative algorithms: Proximal Gradient Descent (PGD) and Coordinate Descent (CD). Gradient descent (GD) is a special case of these algorithms. PGD is typically used in the data-parallel setting, where data is partitioned across different samples, whereas, CD is used in the model-parallelism setting, where data is partitioned across the parameter space.\n  In this paper, we propose a method based on data encoding and error correction over real numbers to combat adversarial attacks. We can tolerate up to $t\\leq \\lfloor\\frac{m-1}{2}\\rfloor$ corrupt worker nodes, which is information-theoretically optimal. We give deterministic guarantees, and our method does not assume any probability distribution on the data. We develop a {\\em sparse} encoding scheme which enables computationally efficient data encoding and decoding. We demonstrate a trade-off between the corruption threshold and the resource requirements (storage, computational, and communication complexity). As an example, for $t\\leq\\frac{m}{3}$, our scheme incurs only a {\\em constant} overhead on these resources, over that required by the plain distributed PGD/CD algorithms which provide no adversarial protection. To the best of our knowledge, ours is the first paper that makes CD secure against adversarial attacks.\n  Our encoding scheme extends efficiently to the data streaming model and for stochastic gradient descent (SGD). We also give experimental results to show the efficacy of our proposed schemes.",
+          "claimed_authors": [
+            "Deepesh Data",
+            "Linqi Song",
+            "Suhas Diggavi"
+          ],
+          "claimed_title": "Data Encoding for Byzantine-Resilient Distributed Optimization",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1907.02664"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Molecular Reactivity Using Graph Neural Networks and Public Databases', candidate_title='Data Encoding for Byzantine-Resilient Distributed Optimization')",
+        "failed_at": "2026-07-05T19:08:04Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We study distributed stochastic gradient descent (SGD) in the master-worker architecture under Byzantine attacks. We consider the heterogeneous data model, where different workers may have different local datasets, and we do not make any probabilistic assumptions on data generation. At the core of our algorithm, we use the polynomial-time outlier-filtering procedure for robust mean estimation proposed by Steinhardt et al. (ITCS 2018) to filter-out corrupt gradients. In order to be able to apply their filtering procedure in our {\\em heterogeneous} data setting where workers compute {\\em stochastic} gradients, we derive a new matrix concentration result, which may be of independent interest.\n  We provide convergence analyses for smooth strongly-convex and non-convex objectives. We derive our results under the bounded variance assumption on local stochastic gradients and a {\\em deterministic} condition on datasets, namely, gradient dissimilarity; and for both these quantities, we provide concrete bounds in the statistical heterogeneous data model. We give a trade-off between the mini-batch size for stochastic gradients and the approximation error. Our algorithm can tolerate up to $\\frac{1}{4}$ fraction Byzantine workers. It can find approximate optimal parameters in the strongly-convex setting exponentially fast and reach to an approximate stationary point in the non-convex setting with a linear speed, thus, matching the convergence rates of vanilla SGD in the Byzantine-free setting.\n  We also propose and analyze a Byzantine-resilient SGD algorithm with gradient compression, where workers send $k$ random coordinates of their gradients. Under mild conditions, we show a $\\frac{d}{k}$-factor saving in communication bits as well as decoding complexity over our compression-free algorithm without affecting its convergence rate (order-wise) and the approximation error.",
+          "claimed_authors": [
+            "Deepesh Data",
+            "Suhas Diggavi"
+          ],
+          "claimed_title": "Byzantine-Resilient SGD in High Dimensions on Heterogeneous Data",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2005.07866"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Molecular Reactivity Using Graph Neural Networks and Public Databases', candidate_title='Byzantine-Resilient SGD in High Dimensions on Heterogeneous Data')",
+        "failed_at": "2026-07-05T19:08:04Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The 1st Workshop on Data Contamination (CONDA 2024) focuses on all relevant aspects of data contamination in natural language processing, where data contamination is understood as situations where evaluation data is included in pre-training corpora used to train large scale models, compromising evaluation results. The workshop fostered a shared task to collect evidence on data contamination in current available datasets and models. The goal of the shared task and associated database is to assist the community in understanding the extent of the problem and to assist researchers in avoiding reporting evaluation results on known contaminated resources. The shared task provides a structured, centralized public database for the collection of contamination evidence, open to contributions from the community via GitHub pool requests. This first compilation paper is based on 566 reported entries over 91 contaminated sources from a total of 23 contributors. The details of the individual contamination events are available in the platform. The platform continues to be online, open to contributions from the community.",
+          "claimed_authors": [
+            "Oscar Sainz",
+            "Iker García-Ferrero",
+            "Alon Jacovi",
+            "Jon Ander Campos",
+            "Yanai Elazar",
+            "Eneko Agirre",
+            "Yoav Goldberg",
+            "Wei-Lin Chen",
+            "Jenny Chim",
+            "Leshem Choshen",
+            "Luca D'Amico-Wong",
+            "Melissa Dell",
+            "Run-Ze Fan",
+            "Shahriar Golchin",
+            "Yucheng Li",
+            "Pengfei Liu",
+            "Bhavish Pahwa",
+            "Ameya Prabhu",
+            "Suryansh Sharma",
+            "Emily Silcock",
+            "Kateryna Solonko",
+            "David Stap",
+            "Mihai Surdeanu",
+            "Yu-Min Tseng",
+            "Vishaal Udandarao",
+            "Zengzhi Wang",
+            "Ruijie Xu",
+            "Jinglin Yang"
+          ],
+          "claimed_title": "Data Contamination Report from the 2024 CONDA Shared Task",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2407.21530"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Predicting Molecular Reactivity Using Graph Neural Networks and Public Databases', candidate_title='Data Contamination Report from the 2024 CONDA Shared Task')",
+        "failed_at": "2026-07-05T19:08:04Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Ningyi Liao",
+            "Haoyu Liu",
+            "Zulun Zhu",
+            "Siqiang Luo",
+            "Laks V. S. Lakshmanan"
+          ],
+          "title": "A Comprehensive Benchmark on Spectral GNNs: The Impact on Efficiency, Memory, and Effectiveness",
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2406.09675",
+        "summary": "With recent advancements in graph neural networks (GNNs), spectral GNNs have received increasing popularity by virtue of their ability to retrieve graph signals in the spectral domain. These models feature uniqueness in efficient computation as well as rich expressiveness, which stems from advanced management and profound understanding of graph data. However, few systematic studies have been conducted to assess spectral GNNs, particularly in benchmarking their efficiency, memory consumption, and effectiveness in a unified and fair manner. There is also a pressing need to select spectral models suitable for learning specific graph data and deploying them to massive web-scale graphs, which is currently constrained by the varied model designs and training settings.\n  In this work, we extensively benchmark spectral GNNs with a focus on the spectral perspective, demystifying them as spectral graph filters. We analyze and categorize 35 GNNs with 27 corresponding filters, spanning diverse formulations and utilizations of the graph data. Then, we implement the filters within a unified spectral-oriented framework with dedicated graph computations and efficient training schemes. In particular, our implementation enables the deployment of spectral GNNs over million-scale graphs and various tasks with comparable performance and less overhead. Thorough experiments are conducted on the graph filters with comprehensive metrics on effectiveness and efficiency, offering novel observations and practical guidelines that are only available from our evaluations across graph scales. Different from the prevailing belief, our benchmark reveals an intricate landscape regarding the effectiveness and efficiency of spectral graph filters, demonstrating the potential to achieve desirable performance through tailored spectral manipulation of graph data.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2406.09675",
+          "http_status": 200,
+          "pdf_sample_score": 0.2986,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-05T19:08:03Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Oleg Platonov",
+            "Denis Kuznedelev",
+            "Artem Babenko",
+            "Liudmila Prokhorenkova"
+          ],
+          "title": "Characterizing Graph Datasets for Node Classification: Homophily-Heterophily Dichotomy and Beyond",
+          "venue": "arXiv",
+          "year": 2022
+        },
+        "primary_pointer": "2209.06177",
+        "summary": "Homophily is a graph property describing the tendency of edges to connect similar nodes; the opposite is called heterophily. It is often believed that heterophilous graphs are challenging for standard message-passing graph neural networks (GNNs), and much effort has been put into developing efficient methods for this setting. However, there is no universally agreed-upon measure of homophily in the literature. In this work, we show that commonly used homophily measures have critical drawbacks preventing the comparison of homophily levels across different datasets. For this, we formalize desirable properties for a proper homophily measure and verify which measures satisfy which properties. In particular, we show that a measure that we call adjusted homophily satisfies more desirable properties than other popular homophily measures while being rarely used in graph machine learning literature. Then, we go beyond the homophily-heterophily dichotomy and propose a new characteristic that allows one to further distinguish different sorts of heterophily. The proposed label informativeness (LI) characterizes how much information a neighbor's label provides about a node's label. We prove that this measure satisfies important desirable properties. We also observe empirically that LI better agrees with GNN performance compared to homophily measures, which confirms that it is a useful characteristic of the graph structure.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2209.06177",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-05T19:08:03Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Fengzhao Shi",
+            "Ren Li",
+            "Yanan Cao",
+            "Yanmin Shang",
+            "Lanxue Zhang",
+            "Chuan Zhou",
+            "Jia Wu",
+            "Shirui Pan"
+          ],
+          "title": "VR-GNN: Variational Relation Vector Graph Neural Network for Modeling both Homophily and Heterophily",
+          "venue": "arXiv",
+          "year": 2022
+        },
+        "primary_pointer": "2211.14523",
+        "summary": "Graph Neural Networks (GNNs) have achieved remarkable success in diverse real-world applications. Traditional GNNs are designed based on homophily, which leads to poor performance under heterophily scenarios. Current solutions deal with heterophily mainly by mixing high-order neighbors or passing signed messages. However, mixing high-order neighbors destroys the original graph structure and passing signed messages utilizes an inflexible message-passing mechanism, which is prone to producing unsatisfactory effects. To overcome the above problems, we propose a novel GNN model based on relation vector translation named Variational Relation Vector Graph Neural Network (VR-GNN). VR-GNN models relation generation and graph aggregation into an end-to-end model based on Variational Auto-Encoder. The encoder utilizes the structure, feature and label to generate a proper relation vector. The decoder achieves superior node representation by incorporating the relation translation into the message-passing framework. VR-GNN can fully capture the homophily and heterophily between nodes due to the great flexibility of relation translation in modeling neighbor relationships. We conduct extensive experiments on eight real-world datasets with different homophily-heterophily properties to verify the effectiveness of our model. The experimental results show that VR-GNN gains consistent and significant improvements against state-of-the-art GNN methods under heterophily, and competitive performance under homophily.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2211.14523",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-05T19:08:04Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "predicting molecular reactivity using graph neural networks and public databases chemistry",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

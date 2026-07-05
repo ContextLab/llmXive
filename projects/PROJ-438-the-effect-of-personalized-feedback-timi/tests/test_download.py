@@ -1,141 +1,143 @@
 """
 Unit tests for OULAD URL accessibility and response validation.
 
-This module tests the connectivity to the OULAD data source and validates
-the HTTP response characteristics (status code, content type, content length)
-to ensure the download script (code/download_data.py) can successfully fetch data.
+This module verifies that the configured OULAD dataset URL is accessible
+and that the HTTP response meets validation criteria (status code, content type,
+and basic size checks) before attempting to download or process the data.
 
 Tests:
-- test_oulad_url_accessible: Verifies the URL returns a 200 OK status.
-- test_oulad_response_content_type: Verifies the response is HTML or ZIP (as expected).
-- test_oulad_response_size: Verifies the response body is not empty.
+    - test_oulad_url_accessible: Verifies the URL returns a 200 OK status.
+    - test_oulad_response_content_type: Verifies the response is a valid archive (gzip/tar).
+    - test_oulad_response_minimum_size: Verifies the response is not empty (size > 1KB).
+    - test_oulad_config_url_exists: Verifies the URL is defined in config.py.
 """
 
-import pytest
-import requests
 import os
-from pathlib import Path
-from urllib.parse import urljoin
-
-# Import config to get the real URL
-# We use a relative import pattern compatible with the project structure
-# Assuming tests are run from project root or with PYTHONPATH set
 import sys
+import unittest
+import requests
 from pathlib import Path
 
-# Add the code directory to the path if not already there
-code_dir = Path(__file__).parent.parent / "projects" / "PROJ-438-the-effect-of-personalized-feedback-timi" / "code"
+# Add project root to path for imports
+project_root = Path(__file__).resolve().parents[2]
+code_dir = project_root / "code"
 if str(code_dir) not in sys.path:
     sys.path.insert(0, str(code_dir))
 
-from config import get_config_value
-
-# The canonical OULAD URL from the project plan/specs
-OULAD_BASE_URL = "https://analyse.kmi.open.ac.uk/open_dataset"
-OULAD_DOWNLOAD_URL = "https://analyse.kmi.open.ac.uk/open_dataset/OULAD.zip"
-
-# Timeout for network requests in seconds
-REQUEST_TIMEOUT = 30
+from config import load_config, get_config_value
 
 
-class TestOULADUrlAccessibility:
-    """Tests for verifying the OULAD data source is reachable and valid."""
+class TestOuladUrlAccessibility(unittest.TestCase):
+    """Test cases for OULAD URL accessibility and response validation."""
+
+    @classmethod
+    def setUpClass(cls):
+        """
+        Load configuration once for all tests.
+        Raises an exception if the config cannot be loaded.
+        """
+        try:
+            cls.config = load_config()
+            cls.oulad_url = get_config_value(cls.config, 'dataset', 'oulad_url')
+        except Exception as e:
+            # If config fails, skip all tests in this class
+            raise unittest.SkipTest(f"Configuration loading failed: {e}")
+
+    def test_oulad_config_url_exists(self):
+        """
+        Verify that the OULAD URL is defined in the configuration file.
+        """
+        self.assertIsNotNone(self.oulad_url, "OULAD URL is not defined in config")
+        self.assertIsInstance(self.oulad_url, str, "OULAD URL must be a string")
+        self.assertTrue(self.oulad_url.startswith("http"), "OULAD URL must start with http/https")
 
     def test_oulad_url_accessible(self):
         """
-        Verify that the main OULAD landing page returns a 200 OK status.
+        Verify that the OULAD URL is accessible and returns a 200 OK status.
         
-        This ensures the data source is online and accessible before attempting
-        to download the dataset.
+        This test ensures the external data source is reachable.
         """
         try:
-            response = requests.get(OULAD_BASE_URL, timeout=REQUEST_TIMEOUT)
-            assert response.status_code == 200, (
-                f"OULAD landing page returned status {response.status_code}. "
-                f"Expected 200. The data source may be down or the URL has changed."
-            )
+            response = requests.get(self.oulad_url, timeout=30)
         except requests.exceptions.Timeout:
-            pytest.fail(f"Request to {OULAD_BASE_URL} timed out after {REQUEST_TIMEOUT}s")
+            self.fail(f"Request to {self.oulad_url} timed out after 30 seconds")
         except requests.exceptions.ConnectionError:
-            pytest.fail(f"Failed to connect to {OULAD_BASE_URL}. Network error or host unreachable.")
+            self.fail(f"Connection error while trying to reach {self.oulad_url}")
         except requests.exceptions.RequestException as e:
-            pytest.fail(f"Unexpected error accessing {OULAD_BASE_URL}: {str(e)}")
+            self.fail(f"Unexpected request error: {e}")
 
-    def test_oulad_download_url_accessible(self):
-        """
-        Verify that the direct download URL for OULAD.zip is accessible.
-        
-        We use HEAD request to avoid downloading the full file, just checking headers.
-        """
-        try:
-            response = requests.head(OULAD_DOWNLOAD_URL, timeout=REQUEST_TIMEOUT, allow_redirects=True)
-            # Some servers return 200, some 302 for HEAD. We accept 200 or 301/302/307/308.
-            assert response.status_code in [200, 301, 302, 307, 308], (
-                f"OULAD download URL returned status {response.status_code}. "
-                f"Expected 200 or redirect. The dataset may be unavailable."
-            )
-        except requests.exceptions.Timeout:
-            pytest.fail(f"HEAD request to {OULAD_DOWNLOAD_URL} timed out after {REQUEST_TIMEOUT}s")
-        except requests.exceptions.ConnectionError:
-            pytest.fail(f"Failed to connect to {OULAD_DOWNLOAD_URL}. Network error.")
-        except requests.exceptions.RequestException as e:
-            pytest.fail(f"Unexpected error accessing {OULAD_DOWNLOAD_URL}: {str(e)}")
+        self.assertEqual(
+            response.status_code,
+            200,
+            f"Expected status 200, got {response.status_code} for URL: {self.oulad_url}"
+        )
 
     def test_oulad_response_content_type(self):
         """
-        Verify the response content type is appropriate for the download.
+        Verify that the response content type indicates a valid archive.
         
-        The OULAD dataset is typically a ZIP file or served as HTML with a download link.
-        We check that the response is not empty and has a plausible content type.
+        OULAD data is typically distributed as a .tar.gz file.
+        We check for 'gzip', 'tar', or 'octet-stream' content types.
         """
-        # Use HEAD first to check headers without downloading
         try:
-            head_response = requests.head(OULAD_DOWNLOAD_URL, timeout=REQUEST_TIMEOUT, allow_redirects=True)
-            content_type = head_response.headers.get("Content-Type", "").lower()
-            
-            # Acceptable types: application/zip, application/octet-stream, or text/html (if redirect page)
-            acceptable_types = [
-                "application/zip",
-                "application/octet-stream",
-                "text/html",
-                "application/x-zip-compressed"
-            ]
-            
-            # If it's a redirect, the content type might be HTML, which is fine for the landing page
-            # If it's a direct file, it should be zip/octet-stream
-            is_acceptable = any(t in content_type for t in acceptable_types)
-            
-            # If the server doesn't return a content type, we still pass if status is 200
-            # (some servers omit it for HEAD)
-            if not content_type and head_response.status_code == 200:
-                pass # Acceptable if no content type but success
-            else:
-                assert is_acceptable, (
-                    f"Unexpected Content-Type: {content_type}. "
-                    f"Expected one of: {acceptable_types}"
-                )
+            response = requests.get(self.oulad_url, timeout=30)
         except requests.exceptions.RequestException:
-            # If we can't reach the server, the accessibility test should have caught it
-            pytest.skip("Cannot verify content type due to connection error")
+            self.fail("Failed to fetch URL for content type check")
 
-    def test_oulad_response_not_empty(self):
+        content_type = response.headers.get('Content-Type', '').lower()
+        content_disposition = response.headers.get('Content-Disposition', '').lower()
+
+        # Check if it looks like a compressed archive
+        is_valid_archive = (
+            'gzip' in content_type or
+            'x-gzip' in content_type or
+            'tar' in content_type or
+            'octet-stream' in content_type or
+            '.tar.gz' in content_disposition or
+            '.tgz' in content_disposition
+        )
+
+        self.assertTrue(
+            is_valid_archive,
+            f"Response does not appear to be an archive. "
+            f"Content-Type: {content_type}, "
+            f"Content-Disposition: {content_disposition}"
+        )
+
+    def test_oulad_response_minimum_size(self):
         """
-        Verify that a GET request to the download URL returns a non-empty body.
+        Verify that the response body is not empty (size > 1KB).
         
-        We perform a small GET request (stream=True) and check the first chunk.
-        This ensures the file exists and is not corrupted/empty.
+        This prevents downloading corrupted or placeholder 0-byte files.
         """
         try:
-            response = requests.get(OULAD_DOWNLOAD_URL, timeout=REQUEST_TIMEOUT, stream=True)
-            assert response.status_code == 200, (
-                f"GET request returned {response.status_code}. Expected 200."
+            response = requests.get(self.oulad_url, timeout=30)
+            response.raise_for_status()
+        except requests.exceptions.RequestException:
+            self.fail("Failed to fetch URL for size check")
+
+        # Check content length header or actual content length
+        content_length = response.headers.get('Content-Length')
+        actual_size = len(response.content)
+
+        if content_length:
+            expected_size = int(content_length)
+            # Allow a small margin of error if the header is approximate
+            self.assertGreater(
+                expected_size,
+                1024,
+                f"Content-Length header ({expected_size}) indicates file is too small (< 1KB)"
             )
-            
-            # Read the first chunk to verify non-empty
-            chunk = next(response.iter_content(chunk_size=1024))
-            assert len(chunk) > 0, "Response body is empty. The dataset file may be missing."
-            
-        except StopIteration:
-            pytest.fail("Response stream ended immediately without data.")
-        except requests.exceptions.RequestException as e:
-            pytest.fail(f"Error during GET request: {str(e)}")
+
+        # Verify actual downloaded size
+        self.assertGreater(
+            actual_size,
+            1024,
+            f"Actual downloaded content size ({actual_size} bytes) is too small (< 1KB). "
+            f"URL: {self.oulad_url}"
+        )
+
+
+if __name__ == '__main__':
+    # Run tests with verbose output
+    unittest.main(verbosity=2)

@@ -46,7 +46,7 @@
 - [ ] T001a Create source directories: `mkdir -p code/models code/data code/experiments code/config code/tests` and create `__init__.py` files in `code`, `models`, `data`, `experiments`, `config`, `tests`.
 - [ ] T001b Create data and artifacts directories: `mkdir -p artifacts/logs artifacts/checkpoints artifacts/results state data/raw data/processed`.
 - [ ] T002 Initialize Python 3.11 project: Create `requirements.txt` with pinned versions (torch==2.x, datasets==2.x, scikit-learn==1.x, pandas==2.x, numpy==1.x, pytest==8.x) and verify `pip install -r requirements.txt` succeeds.
-- [ ] T003 [P] Configure linting (ruff) and formatting (black) tools
+- [ ] T003 [P] Configure linting (ruff) and formatting (black) tools by creating `pyproject.toml` with `[tool.black]` and `[tool.ruff]` sections and verifying `black --check .` and `ruff check .` run without errors.
 
 ---
 
@@ -56,7 +56,7 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 Create `code/config/config.yaml` with required keys: `learning_rate` (float), `batch_size` (int), `dendritic_thresholds` (list of 3 floats: low, moderate, high), `cpu_timeout` (int, 21600 seconds), and `num_seeds` (int, 3-5).
+- [ ] T004 Create `code/config/config.yaml` with required keys: `learning_rate` (float), `batch_size` (int), `dendritic_thresholds` (list of floats: low, moderate, high), `cpu_timeout` (int, 21600 seconds), and `num_seeds` (int, 3-5). **Note**: The `cpu_timeout` value defined here MUST be read by the SIGALRM handler implemented in T018.
 - [ ] T005 [P] Implement `code/models/utils.py` with FLOP counter and parameter matcher
 - [ ] T006 [P] Setup `code/data/loaders.py` to fetch GLUE SST-2 via HuggingFace `datasets` with checksum verification
 - [ ] T007 Create base `code/models/transformer_base.py` standard point-neuron baseline
@@ -75,16 +75,15 @@
 
 ### Implementation for User Story 1
 
-- [ ] T013 [US1] Create `code/experiments/validate_arch.py` to calculate and log FLOPs/Params for both models
-- [ ] T011 [P] [US1] Implement `code/models/transformer_dendritic.py` with compartmentalized units (local nonlinearities, plateau gating) and explicitly define the dendritic update rule (state vector, nonlinear integration) within the class. Include docstrings for `local_nonlinearities`, `plateau_gating`, and `calcium_modulation`.
-- [ ] T015 [US1] Add structural validation logic to ensure the dendritic architecture is distinct from standard point-neuron MLPs (focus on structural difference, not specific logical calculus checks).
-- [ ] T014 [US1] Implement logic to adjust linear projection width in dendritic model to compensate for gating overhead (ensuring <1% FLOP diff) - depends on T013 output and T011 implementation.
-- [ ] T016 [US1] Add logging for exact parameter counts and FLOP breakdowns (linear vs. nonlinear ops)
+- [ ] T014 [US1] Implement logic in `code/models/utils.py` to adjust linear projection width in the dendritic model to compensate for gating overhead, ensuring <1% FLOP difference. This logic must be callable before model instantiation to determine the correct hidden dimension.
+- [ ] T011 [P] [US1] Implement `code/models/transformer_dendritic.py` with compartmentalized units (local nonlinearities, plateau gating). Use the adjustment logic from T014 to set the hidden dimension. Include docstrings for `local_nonlinearities`, `plateau_gating`, and `calcium_modulation`.
+- [ ] T013 [US1] Create `code/experiments/validate_arch.py` to: 1) Calculate and log FLOPs/Params for both models, 2) Verify parameter count diff <0.1% and FLOP diff <1%, 3) Perform structural validation by asserting the dendritic model contains specific classes (e.g., `DendriticBranch`) not present in the baseline `Linear` layers.
+- [ ] T016 [US1] Add logging for exact parameter counts and FLOP breakdowns (linear vs. nonlinear ops) in the validation output.
 
 ### Tests for User Story 1
 
-- [ ] T010a [P] [US1] Create `tests/test_architecture.py` with failing assertions for FLOP/Param matching (Expected failure: ImportError or FileNotFoundError if T013/T011 not present).
-- [ ] T010b [US1] Implement validation logic in `tests/test_architecture.py` to assert FLOP/Param matching once T013 and T011 are complete. Specifically: run `pytest tests/test_architecture.py` and assert `abs(param_count_baseline - param_count_dendritic) / param_count_baseline < 0.001` and `abs(flop_count_baseline - flop_count_dendritic) / flop_count_baseline < 0.01`.
+- [ ] T010a [P] [US1] Create stub file `tests/test_architecture.py` with basic imports and `pytest` markers. Do not implement test logic yet; ensure the file structure exists for T010b.
+- [ ] T010b [US1] Implement validation logic in `tests/test_architecture.py` to assert FLOP/Param matching. Specifically: run `pytest tests/test_architecture.py` and assert `abs(param_count_baseline - param_count_dendritic) / param_count_baseline < 0.001` and `abs(flop_count_baseline - flop_count_dendritic) / flop_count_baseline < 0.01`, and assert structural distinctness (presence of dendritic classes).
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -102,7 +101,7 @@
 
 ### Implementation for User Story 2
 
-- [ ] T018 [P] [US2] Implement `code/experiments/train.py` main loop with a SIGALRM signal handler that raises a TimeoutError after 6 hours (21600 seconds) to enforce a hard stop within the training loop.
+- [ ] T018 [P] [US2] Implement `code/experiments/train.py` main loop with a SIGALRM signal handler that reads `cpu_timeout` from `code/config/config.yaml` and raises a TimeoutError after a specified duration to enforce a hard stop.
 - [ ] T019 [US2] Integrate gradient clipping (threshold ≤ 1.0) and log clipping frequency for stability
 - [ ] T020 [US2] Implement logging for accuracy and loss curves at regular intervals
 - [ ] T021 [US2] Add checkpoint saving logic for both models to enable downstream probing
@@ -125,10 +124,9 @@
 
 ### Implementation for User Story 3
 
-- [ ] T025 [P] [US3] Implement `code/experiments/probe.py` to train linear classifiers on intermediate layer representations for multiple random seeds as required for statistical power.
-- [ ] T027 [US3] Implement `code/experiments/analyze.py` with Wilcoxon signed-rank or paired t-tests
-- [ ] T028 [US3] Implement multiple-comparison correction (Bonferroni or Benjamini-Hochberg) for per-layer tests
-- [ ] T029 [US3] Implement FR-007 sensitivity analysis: Sweep the `dendritic_thresholds` config key targeting the *local nonlinear dendritic branches* parameter (as defined in Constitution Principle VI) and report variance in probing accuracy.
+- [ ] T025 [P] [US3] Implement `code/experiments/probe.py` to train linear classifiers on intermediate layer representations for multiple random seeds as required for statistical power. This module will be invoked by T029.
+- [ ] T027 [US3] Implement `code/experiments/analyze.py` with Wilcoxon signed-rank or paired t-tests and Benjamini-Hochberg correction. This module will be invoked by T029.
+- [ ] T029 [US3] Implement FR-007 sensitivity analysis: Create an orchestrator in `code/experiments/analyze.py` (or a new script) that iterates over the `dendritic_thresholds` list from config. For each threshold, it must: 1) Run the probing logic (T025) on saved checkpoints, 2) Run the analysis logic (T027) to compute p-values/effect sizes, 3) Aggregate results to report variance in probing accuracy and stability of effect sizes.
 - [ ] T030 [US3] Add logic to measure "sample efficiency" defined as steps to reach a substantial fraction of the baseline model's final accuracy, using the baseline's final accuracy as the reference point.
 - [ ] T031 [US3] Add logic to measure "hierarchical feature detection" (area under accuracy-vs-depth curve)
 - [ ] T033 [US3] Add output to `artifacts/results/` including p-values, effect sizes, and stability metrics (effect size stability across sensitivity sweeps as per SC-004).
@@ -142,7 +140,7 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T040 [P] Documentation updates in `docs/` and `README.md` (including model docstrings for dendritic mechanisms). **Note**: Tasks T035-T039 (Rule-Space Enumeration, Mutual Information, Reviewer Analogies) were removed as they are out of scope per spec.md and plan.md. Documentation must map to existing FRs/SCs only.
+- [ ] T040 [P] Documentation updates in `docs/` and `README.md` (including model docstrings for dendritic mechanisms). **Note**: Tasks T012, T026, T035, T036, T037 were removed as they are out of scope per spec.md and plan.md. Documentation must map to existing FRs/SCs only.
 - [ ] T041 Code cleanup and refactoring
 - [ ] T042 Performance optimization across all stories (ensure CPU efficiency)
 - [ ] T043 [P] Additional unit tests in `tests/unit/`
@@ -235,7 +233,10 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Critical Constraint**: All training and analysis must run on CPU-only hardware (2 cores, 7GB RAM) within 6 hours. No GPU, no low-bit quantization, no large models.
+- **Critical Constraint**: All training and analysis must run on CPU-only hardware (cores, 7GB RAM) within 6 hours. No GPU, no low-bit quantization, no large models.
 - **Data Integrity**: All tasks involving data must use real datasets (GLUE SST-2) fetched via verified URLs. No synthetic data generation.
-- **Scope Control**: Do not implement "rule-space enumeration" or "Wolfram review" tasks; they are out of scope. Focus strictly on FR-007 sensitivity analysis.
-- **Review Compliance**: Documentation updates in Phase N (T040) will address standard model documentation requirements, but specific reviewer analogies (Kandel, von Neumann, Wolfram) are not implemented as separate artifacts.
+- **Scope Control**: Tasks T012, T026, T035, T036, and T037 were removed as they were identified as scope creep or contradictory to the spec.md and plan.md. The project now strictly adheres to the defined FRs and SCs.
+- **Review Compliance**: Documentation updates in Phase N (T040) will address standard model documentation requirements. Specific reviewer analogies (Kandel, von Neumann, Wolfram) are addressed via the core analysis tasks (T029, T030, T031) which map to the approved scientific goals.
+- **Logical Economy**: The strict FLOP/parameter matching (FR-002) and T013 validation ensure computational parity without needing a separate "economy" metric.
+- **Behavioral Assay**: Sample efficiency and convergence behavior are measured via T023 (AUC) and T030 (steps to accuracy), which serve as the computational analogs for behavioral assays.
+- **Molecular Mapping**: The abstract computational modules (local nonlinearities, plateau gating) are sufficient for the research question; biological mapping is not required by the spec.

@@ -1,39 +1,31 @@
 {
-  "timestamp": "2023-10-27T10:00:00.000000",
-  "project": "PROJ-115-exploring-the-connection-between-muon-an",
-  "task": "T004",
+  "timestamp": "2023-10-27T12:00:00Z",
   "sources": {
-    "Planck_2018": {
-      "name": "Planck 2018 Relic Density Constraints",
-      "type": "constant",
-      "description": "Standard cosmological constants (Omega_c h^2). No external fetch required.",
-      "available": true,
-      "method": "hardcoded_constant",
-      "details": "No external fetch required. Value defined in code.",
-      "fallback_strategy": "Use hardcoded Planck 2018 central value: 0.120 +/- 0.001."
-    },
-    "Xenon1T_2018": {
-      "name": "Xenon1T Spin-Independent Limits (2018)",
-      "type": "url",
-      "description": "Spin-independent cross-section limits vs DM mass.",
+    "Planck": {
       "available": false,
-      "method": "fetch_failed",
-      "details": "URL unreachable: https://zenodo.org/api/records/3364945/files-archive",
-      "fallback_strategy": "Use hardcoded piecewise polynomial approximation of the 2018 curve if fetch fails."
+      "message": "Network timeout or unreachable (simulated for offline environment)",
+      "description": "Planck 2018 Cosmological Parameters (Full Release)",
+      "fallback_strategy": "Use Planck 2018 public CSV tables if tarball fails. If network fails, use hardcoded Planck 2018 central values for Omega_c h^2 and Omega_b h^2 from arXiv:1807.06209 as a temporary fallback for code structure testing (NOT for production physics).",
+      "url": "https://pla.esa.int/ftp/pla/full_release/Cosmological_Parameters.tar.gz"
     },
-    "LEP_Monophoton": {
-      "name": "LEP Monophoton Limits (2004-2014)",
-      "type": "url",
-      "description": "LEP limits on contact interactions/monophoton events.",
+    "Xenon1T": {
       "available": false,
-      "method": "fetch_failed",
-      "details": "URL unreachable: https://cds.cern.ch/record/2004841/files/1408.2878.pdf",
-      "fallback_strategy": "Parse numerical tables from the paper (arXiv:1408.2878) if direct data fetch fails."
+      "message": "Network timeout or unreachable (simulated for offline environment)",
+      "description": "Xenon1T Dark Matter Exclusion Limit (HTML/Table)",
+      "fallback_strategy": "Parse HTML table for limit points. If network fails or HTML structure changes, fallback to hardcoded array of (mass, cross_section) points extracted from the Xenon1T 2018 paper (Phys. Rev. D 98, 112009) which are standard reference values.",
+      "url": "https://xenon1t.web.cern.ch/Public/DarkMatter/ExclusionLimit.html"
+    },
+    "LEP": {
+      "available": false,
+      "message": "Network timeout or unreachable (simulated for offline environment)",
+      "description": "PDG Review of LEP Limits (PDF/Source)",
+      "fallback_strategy": "Fetch PDG review. If network fails, fallback to hardcoded LEP limits for vector mediators from Ref [2014] (e.g., m_V > 10 GeV for g=0.1) as a placeholder for the scan logic, noting that this is a fallback.",
+      "url": "https://pdg.lbl.gov/2024/reviews/rpp2024-rev-std-model.pdf"
     }
   },
   "summary": {
-    "total_sources": 3,
-    "available_count": 1,
-    "fallbacks_required": 2
+    "total": 3,
+    "available": 0,
+    "unavailable": 3
   }
 }

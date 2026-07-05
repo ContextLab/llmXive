@@ -78,7 +78,7 @@
 
 - [~] T008 [US4] Implement `code/physics/delta_a_mu.py` for analytic one-loop calculation (FR-001, US-2 benchmark).
 - [~] T009 [US4] Implement `code/physics/cross_section.py` for σ_SI calculation including convolution method for Xenon1T limits (FR-003, FR-015).
-- [ ] T010 [US4] Implement `code/physics/relic_density.py` with manual RK4 integration (FR-010) and Sommerfeld enhancement via Hulthen potential (FR-002). **SCOPE: Pre-computation and Validation ONLY.**
+- [~] T010 [US4] Implement `code/physics/relic_density.py` with manual RK4 integration (FR-010) and Sommerfeld enhancement via Hulthen potential (FR-002). **SCOPE: Pre-computation and Validation ONLY.**
 - [ ] T011 [US4] Implement thermal averaging of Sommerfeld factor <σv> over Maxwell-Boltzmann distribution (FR-002).
 - [ ] T012 [US4] Implement `code/physics/relic_reference.py`: A high-precision numerical solver (manual RK4) to generate benchmark data for validation. **Output: `data/relic_reference_benchmarks.csv`.**
 - [ ] T013 [US4] Implement `code/validation/validate_relic_density.py` to compare RK4 results against high-precision reference solver benchmarks for resonance points.

@@ -1,137 +1,198 @@
 """
-Schema definitions for the RelicLookupTable data structure.
+Schema definitions for the Relic Lookup Table.
 
-This module defines the Pydantic models used to validate and serialize
-pre-computed relic density lookup tables used in the scan pipeline.
+This module defines the data structures for pre-computed relic density
+lookup tables used to accelerate the main scan pipeline. The tables
+are generated using the Hulthen approximation for Sommerfeld enhancement
+and stored in a structured format for fast interpolation.
+
+Plan 1.2 Implementation: Define RelicLookupTable schema.
 """
+
 import math
 from typing import List, Optional, Dict, Any
 from dataclasses import dataclass, asdict
 from pathlib import Path
-
 import numpy as np
 import pandas as pd
 
-# Using a lightweight dataclass for the core schema definition
-# as Pydantic is not listed in the provided API surface dependencies.
-# This ensures compatibility with the project's current stack.
 
 @dataclass
 class RelicLookupTableEntry:
     """
-    Represents a single row in the pre-computed relic density lookup table.
+    Represents a single entry in the relic density lookup table.
 
     Attributes:
-        m_dm_MeV: Dark matter mass in MeV.
-        m_V_MeV: Vector mediator mass in MeV.
-        g: Dark coupling constant (dimensionless).
-        omega_dm_h2: Calculated relic density parameter (Omega_dm * h^2).
-        is_resonant: Boolean flag indicating if the point is near a resonance (2*m_dm ~ m_V).
-        approximation_error_pct: Estimated percentage error of the approximation method used.
+        m_dm: Dark matter particle mass in MeV.
+        m_v: Vector mediator mass in MeV.
+        g: Coupling constant (dimensionless).
+        omega_dm_h2: Computed relic density parameter (Ω_dm * h^2).
+        method: String identifier for the calculation method (e.g., 'Hulthen', 'Numerov').
+        is_valid: Boolean flag indicating if the calculation converged successfully.
+        error_estimate: Optional float for estimated numerical error.
+        timestamp: Optional string for generation timestamp.
     """
-    m_dm_MeV: float
-    m_V_MeV: float
+    m_dm: float
+    m_v: float
     g: float
     omega_dm_h2: float
-    is_resonant: bool = False
-    approximation_error_pct: float = 0.0
+    method: str = "Hulthen"
+    is_valid: bool = True
+    error_estimate: Optional[float] = None
+    timestamp: Optional[str] = None
 
     def to_dict(self) -> Dict[str, Any]:
-        """Convert the entry to a dictionary."""
+        """Convert the entry to a dictionary for serialization."""
         return asdict(self)
+
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> 'RelicLookupTableEntry':
+        """Create an entry from a dictionary."""
+        return cls(**data)
+
+    def validate(self) -> bool:
+        """
+        Validates the physical and numerical consistency of the entry.
+
+        Returns:
+            bool: True if the entry is valid, False otherwise.
+        """
+        # Physical constraints
+        if self.m_dm <= 0 or self.m_v <= 0 or self.g <= 0:
+            return False
+
+        # Relic density must be non-negative
+        if self.omega_dm_h2 < 0:
+            return False
+
+        # If marked invalid, it should not be used
+        if not self.is_valid:
+            return False
+
+        return True
+
 
 @dataclass
 class RelicLookupTable:
     """
-    Container for the full RelicLookupTable dataset.
+    Container for a complete Relic Lookup Table.
 
-    This schema validates the structure of the lookup table data,
-    ensuring it meets the requirements for the scan pipeline (Plan 1.2).
+    This class manages a collection of RelicLookupTableEntry objects,
+    providing methods for validation, serialization, and file I/O.
 
     Attributes:
-        entries: List of RelicLookupTableEntry objects.
-        metadata: Dictionary containing generation metadata (date, method, etc.).
+        entries: List of lookup table entries.
+        metadata: Dictionary for table metadata (generation date, parameters, etc.).
     """
     entries: List[RelicLookupTableEntry]
-    metadata: Dict[str, Any]
+    metadata: Dict[str, Any] = None
+
+    def __post_init__(self):
+        if self.metadata is None:
+            self.metadata = {}
+        self.metadata.setdefault("version", "1.0")
+        self.metadata.setdefault("entry_count", len(self.entries))
+
+    def add_entry(self, entry: RelicLookupTableEntry):
+        """Add a new entry to the table."""
+        self.entries.append(entry)
+        self.metadata["entry_count"] = len(self.entries)
 
     def to_dataframe(self) -> pd.DataFrame:
         """
-        Convert the lookup table to a pandas DataFrame for serialization.
+        Convert the lookup table to a pandas DataFrame.
+
+        Returns:
+            pd.DataFrame: DataFrame containing all entries.
         """
         data = [entry.to_dict() for entry in self.entries]
         return pd.DataFrame(data)
 
-    def save_csv(self, path: str) -> None:
+    @classmethod
+    def from_dataframe(cls, df: pd.DataFrame, metadata: Optional[Dict[str, Any]] = None) -> 'RelicLookupTable':
+        """
+        Create a RelicLookupTable from a pandas DataFrame.
+
+        Args:
+            df: DataFrame with columns matching RelicLookupTableEntry fields.
+            metadata: Optional metadata dictionary.
+
+        Returns:
+            RelicLookupTable: New instance.
+        """
+        entries = []
+        for _, row in df.iterrows():
+            entry_dict = row.to_dict()
+            # Handle potential NaNs or None values gracefully
+            if pd.isna(entry_dict.get('error_estimate')):
+                entry_dict['error_estimate'] = None
+            if pd.isna(entry_dict.get('timestamp')):
+                entry_dict['timestamp'] = None
+            entries.append(RelicLookupTableEntry(**entry_dict))
+        
+        return cls(entries=entries, metadata=metadata or {})
+
+    def save_to_csv(self, filepath: str | Path):
         """
         Save the lookup table to a CSV file.
 
         Args:
-            path: File path to save the CSV.
+            filepath: Path to the output CSV file.
         """
+        path = Path(filepath)
+        path.parent.mkdir(parents=True, exist_ok=True)
         df = self.to_dataframe()
-        # Ensure directory exists
-        Path(path).parent.mkdir(parents=True, exist_ok=True)
         df.to_csv(path, index=False)
-        print(f"Saved RelicLookupTable to {path} with {len(self.entries)} entries.")
 
     @classmethod
-    def load_csv(cls, path: str) -> "RelicLookupTable":
+    def load_from_csv(cls, filepath: str | Path) -> 'RelicLookupTable':
         """
         Load a lookup table from a CSV file.
 
         Args:
-            path: File path to load from.
+            filepath: Path to the input CSV file.
 
         Returns:
-            RelicLookupTable instance.
+            RelicLookupTable: Loaded instance.
         """
-        if not Path(path).exists():
+        path = Path(filepath)
+        if not path.exists():
             raise FileNotFoundError(f"Lookup table file not found: {path}")
-
+        
         df = pd.read_csv(path)
-        entries = []
-        for _, row in df.iterrows():
-            entry = RelicLookupTableEntry(
-                m_dm_MeV=float(row['m_dm_MeV']),
-                m_V_MeV=float(row['m_V_MeV']),
-                g=float(row['g']),
-                omega_dm_h2=float(row['omega_dm_h2']),
-                is_resonant=bool(row['is_resonant']),
-                approximation_error_pct=float(row['approximation_error_pct'])
-            )
-            entries.append(entry)
+        return cls.from_dataframe(df, metadata={"source_file": str(path)})
 
-        # Basic metadata reconstruction or default
-        metadata = {
-            "source_file": path,
-            "row_count": len(entries)
-        }
+    def validate_all(self) -> bool:
+        """
+        Validate all entries in the table.
 
-        return cls(entries=entries, metadata=metadata)
+        Returns:
+            bool: True if all entries are valid, False otherwise.
+        """
+        return all(entry.validate() for entry in self.entries)
+
 
 def validate_entry(entry: RelicLookupTableEntry) -> bool:
     """
-    Validates a single entry for physical consistency.
+    Standalone function to validate a single entry.
+
+    Args:
+        entry: The entry to validate.
 
     Returns:
-        True if valid, False otherwise.
+        bool: True if valid, False otherwise.
     """
-    if entry.m_dm_MeV <= 0 or entry.m_V_MeV <= 0:
-        return False
-    if entry.g <= 0:
-        return False
-    if entry.omega_dm_h2 < 0:
-        return False
-    if not (0.0 <= entry.approximation_error_pct <= 100.0):
-        return False
-    return True
+    return entry.validate()
+
 
 def validate_table(table: RelicLookupTable) -> bool:
     """
-    Validates the entire lookup table.
+    Standalone function to validate an entire table.
+
+    Args:
+        table: The table to validate.
 
     Returns:
-        True if all entries are valid, False otherwise.
+        bool: True if all entries are valid, False otherwise.
     """
-    return all(validate_entry(e) for e in table.entries)
+    return table.validate_all()

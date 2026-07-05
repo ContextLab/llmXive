@@ -1,0 +1,15 @@
+Source File,Line,Reference Key,Valid,Reason
+idea/concept.md,5,Constitution II,True,Valid
+idea/concept.md,12,1,True,Valid
+idea/concept.md,15,Planck,True,Valid
+idea/concept.md,15,Xenon1T,True,Valid
+technical-design/solver.md,3,0.2,False,Reference '0.2' not found in registry
+technical-design/amr.md,2,0.3,False,Reference '0.3' not found in registry
+implementation-plan/us1.md,1,US-001,True,Valid
+implementation-plan/us1.md,5,FR-004,True,Valid
+implementation-plan/us1.md,6,LEP,True,Valid
+implementation-plan/us4.md,2,FR-010,True,Valid
+implementation-plan/us4.md,3,FR-002,True,Valid
+paper/results.md,10,2014,True,Valid
+paper/methods.md,4,SC-006,True,Valid
+paper/conclusion.md,1,SC-005,True,Valid

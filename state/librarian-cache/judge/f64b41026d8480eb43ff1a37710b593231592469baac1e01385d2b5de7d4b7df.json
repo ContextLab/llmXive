@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2212.06370",
+  "judged_at": "2026-07-05T19:08:08Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting molecular reactivity using graph neural networks and public databases chemistry",
+  "rationale": "The paper proposes a general method for generating prediction intervals in regression tasks and validates it on synthetic, benchmark, and crop yield datasets, but it does not address the specific domain of molecular reactivity, utilize Graph Neural Networks, or leverage public chemistry databases. Consequently, it fails to meet the criteria for same-mechanism evidence, domain-specific variable measurement, or foundational methodology for the user's specific chemistry-GNN intersection.",
+  "relevant": false
+}

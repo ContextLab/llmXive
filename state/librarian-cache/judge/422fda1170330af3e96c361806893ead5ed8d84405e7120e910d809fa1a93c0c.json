@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2502.12908",
+  "judged_at": "2026-07-05T19:08:06Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting molecular reactivity using graph neural networks and public databases chemistry",
+  "rationale": "The paper focuses on applying Graph Neural Networks to optimize database systems (e.g., query optimization, text-to-SQL) rather than using GNNs to predict molecular reactivity or analyze chemical data. This falls under the \"Distinct construct sharing only homonym keywords\" rejection rule, as it addresses the \"database\" and \"graph\" terms in a computer systems context rather than the chemistry and molecular property prediction context required by the user.",
+  "relevant": false
+}

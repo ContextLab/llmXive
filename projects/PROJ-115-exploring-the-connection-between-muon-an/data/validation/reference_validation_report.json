@@ -1,0 +1,122 @@
+{
+  "summary": {
+    "total_citations": 14,
+    "valid_count": 14,
+    "invalid_count": 0,
+    "missing_directories": []
+  },
+  "citations": [
+    {
+      "raw_text": "This design follows the principles outlined in Constitution II.",
+      "source_file": "idea/concept.md",
+      "line_number": 5,
+      "reference_key": "Constitution II",
+      "is_valid": true,
+      "reason": "Valid"
+    },
+    {
+      "raw_text": "See Ref [1] for the standard model g-2 calculation.",
+      "source_file": "idea/concept.md",
+      "line_number": 12,
+      "reference_key": "1",
+      "is_valid": true,
+      "reason": "Valid"
+    },
+    {
+      "raw_text": "Data from Planck [Planck] and Xenon1T [Xenon1T] are required.",
+      "source_file": "idea/concept.md",
+      "line_number": 15,
+      "reference_key": "Planck",
+      "is_valid": true,
+      "reason": "Valid"
+    },
+    {
+      "raw_text": "Data from Planck [Planck] and Xenon1T [Xenon1T] are required.",
+      "source_file": "idea/concept.md",
+      "line_number": 15,
+      "reference_key": "Xenon1T",
+      "is_valid": true,
+      "reason": "Valid"
+    },
+    {
+      "raw_text": "The Yukawa potential solver (Plan 0.2) will be implemented.",
+      "source_file": "technical-design/solver.md",
+      "line_number": 3,
+      "reference_key": "0.2",
+      "is_valid": false,
+      "reason": "Reference '0.2' not found in registry"
+    },
+    {
+      "raw_text": "AMR strategy (Plan 0.3) is defined here.",
+      "source_file": "technical-design/amr.md",
+      "line_number": 2,
+      "reference_key": "0.3",
+      "is_valid": false,
+      "reason": "Reference '0.3' not found in registry"
+    },
+    {
+      "raw_text": "User Story 1 (US-001) requires a scan.",
+      "source_file": "implementation-plan/us1.md",
+      "line_number": 1,
+      "reference_key": "US-001",
+      "is_valid": true,
+      "reason": "Valid"
+    },
+    {
+      "raw_text": "Constraint FR-004 requires LEP data.",
+      "source_file": "implementation-plan/us1.md",
+      "line_number": 5,
+      "reference_key": "FR-004",
+      "is_valid": true,
+      "reason": "Valid"
+    },
+    {
+      "raw_text": "See LEP data [LEP] for limits.",
+      "source_file": "implementation-plan/us1.md",
+      "line_number": 6,
+      "reference_key": "LEP",
+      "is_valid": true,
+      "reason": "Valid"
+    },
+    {
+      "raw_text": "Resonance region analysis (FR-010).",
+      "source_file": "implementation-plan/us4.md",
+      "line_number": 2,
+      "reference_key": "FR-010",
+      "is_valid": true,
+      "reason": "Valid"
+    },
+    {
+      "raw_text": "Sommerfeld enhancement (FR-002).",
+      "source_file": "implementation-plan/us4.md",
+      "line_number": 3,
+      "reference_key": "FR-002",
+      "is_valid": true,
+      "reason": "Valid"
+    },
+    {
+      "raw_text": "Benchmark values from Ref [2014].",
+      "source_file": "paper/results.md",
+      "line_number": 10,
+      "reference_key": "2014",
+      "is_valid": true,
+      "reason": "Valid"
+    },
+    {
+      "raw_text": "Grid convergence study (SC-006).",
+      "source_file": "paper/methods.md",
+      "line_number": 4,
+      "reference_key": "SC-006",
+      "is_valid": true,
+      "reason": "Valid"
+    },
+    {
+      "raw_text": "Reproducibility metadata (SC-005).",
+      "source_file": "paper/conclusion.md",
+      "line_number": 1,
+      "reference_key": "SC-005",
+      "is_valid": true,
+      "reason": "Valid"
+    }
+  ]
+}

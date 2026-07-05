@@ -1,4 +1,7 @@
-numpy>=1.21.0
-pandas>=1.3.0
-scipy>=1.7.0
-matplotlib>=3.4.0
+numpy
+pandas
+scipy
+
+# Existing project dependencies (if any) would be listed above.
+# This task adds only standard scientific packages required for the relic_density
+# implementation. No version pins are enforced to keep the environment flexible.

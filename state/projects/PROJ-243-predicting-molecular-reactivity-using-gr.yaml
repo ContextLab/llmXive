@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-04T09:00:08.394027Z'
-current_stage: flesh_out_in_progress
+current_stage: flesh_out_complete
 failed_stage: null
 field: chemistry
 human_escalation_reason: null
 id: PROJ-243-predicting-molecular-reactivity-using-gr
-last_run_id: 49cd439f-7ff6-4408-9a9e-158b3724067f
+last_run_id: 419095dd-965f-47f3-97fa-bab9e3c72d05
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: null
 title: Predicting Molecular Reactivity Using Graph Neural Networks and Public Databases
-updated_at: '2026-06-12T18:27:39.131215Z'
+updated_at: '2026-07-05T19:08:49.085581Z'

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2211.14523",
+  "judged_at": "2026-07-05T19:08:20Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting molecular reactivity using graph neural networks and public databases chemistry",
+  "rationale": "This paper qualifies under category (d) as a foundational methodology reference for Graph Neural Networks (GNNs) and category (f) as it addresses the canonical \"homophily/heterophily\" construct central to GNN performance on molecular graphs. Although it does not explicitly study molecular reactivity or public chemistry databases, it provides the essential algorithmic framework and theoretical understanding of GNN behavior (specifically regarding node relationship modeling) that any literature re",
+  "relevant": true
+}

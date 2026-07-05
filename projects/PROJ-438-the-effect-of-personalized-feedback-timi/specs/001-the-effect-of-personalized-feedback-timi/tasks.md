@@ -63,7 +63,7 @@
 - [ ] T009 Create base data schema validation utilities in `projects/PROJ-438-the-effect-of-personalized-feedback-timi/code/schema.py` (aligns with `contracts/dataset.schema.yaml`)
 - [ ] T010 Implement checksum utility for raw data integrity in `projects/PROJ-438-the-effect-of-personalized-feedback-timi/code/checksums.py`
 - [X] T011 [P] Update spec.md Assumptions section to explicitly state that 'final grade' proxy validation is performed by the automated 'Reference-Validator Agent' (FR-008 alignment)
-- [ ] T012 [P] Update spec.md FR-007 to explicitly mandate calculation of 'significance flip rate' (conclusion change) in addition to 'significance stability' (FR-007/SC-003 alignment)
+- [X] T012 [P] Update spec.md FR-007 to explicitly mandate calculation of 'significance flip rate' (conclusion change) in addition to 'significance stability' (FR-007/SC-003 alignment)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -80,8 +80,8 @@
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
 - [ ] T013 [P] [US1] Unit test for OULAD URL accessibility and response validation in `projects/PROJ-438-the-effect-of-personalized-feedback-timi/tests/test_download.py`
-- [~] T014 [P] [US1] Unit test for course filtering logic (assessment + forum presence) in `projects/PROJ-438-the-effect-of-personalized-feedback-timi/tests/test_preprocess.py`
-- [~] T015 [P] [US1] Integration test for full data pipeline on a small sample (N=100) in `projects/PROJ-438-the-effect-of-personalized-feedback-timi/tests/test_pipeline_sample.py`
+- [ ] T014 [P] [US1] Unit test for course filtering logic (assessment + forum presence) in `projects/PROJ-438-the-effect-of-personalized-feedback-timi/tests/test_preprocess.py`
+- [ ] T015 [P] [US1] Integration test for full data pipeline on a small sample (N=100) in `projects/PROJ-438-the-effect-of-personalized-feedback-timi/tests/test_pipeline_sample.py`
 
 ### Implementation for User Story 1
 
@@ -159,7 +159,7 @@
 - [~] T043 Code cleanup and refactoring of `projects/PROJ-438-the-effect-of-personalized-feedback-timi/code/` scripts
 - [~] T044 Performance optimization: verify pipeline runs ≤6h on 2 CPU cores (Assumptions)
 - [~] T045 [P] Additional unit tests for edge cases (missing timestamps, empty courses) in `tests/unit/`
-- [ ] T046 Run `quickstart.md` validation to ensure reproducibility
+- [~] T046 Run `quickstart.md` validation to ensure reproducibility
 
 ---
 
