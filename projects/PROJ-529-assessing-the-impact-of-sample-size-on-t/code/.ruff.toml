@@ -1,42 +1,25 @@
+# Ruff configuration for llmXive project
+# Aligns with Black formatting and standard Python best practices
+
 [lint]
-# Enable pycodestyle (`E`), Pyflakes (`F`), and isort (`I`)
-select = ["E", "F", "I", "W", "UP"]
-ignore = []
-
-# Allow autofix for all enabled rules
-fixable = ["ALL"]
-unfixable = []
-
-# Exclude a few files
-exclude = [
-    ".bzr",
-    ".direnv",
-    ".eggs",
-    ".git",
-    ".git-rewrite",
-    ".hg",
-    ".mypy_cache",
-    ".nox",
-    ".pants.d",
-    ".pytype",
-    ".ruff_cache",
-    ".svn",
-    ".tox",
-    ".venv",
-    "__pypackages__",
-    "_build",
-    "buck-out",
-    "build",
-    "dist",
-    "node_modules",
-    "venv",
+# Enable Pyflakes (E), pycodestyle (W), isort (I), and pep8-naming (N)
+select = ["E", "W", "F", "I", "N", "UP"]
+ignore = [
+    "E501",  # Line too long (handled by Black)
+    "N806",  # Variable in function should be lowercase (sometimes needed for math)
 ]
-
-# Same as Black
-line-length = 88
-
-# Allow unused variables when underscore-prefixed
-dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
 
 # Assume Python 3.11
 target-version = "py311"
+
+[lint.isort]
+known-first-party = ["code"]
+force-single-line = false
+lines-after-imports = 2
+
+[format]
+# Ruff formatter settings (compatible with Black)
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"

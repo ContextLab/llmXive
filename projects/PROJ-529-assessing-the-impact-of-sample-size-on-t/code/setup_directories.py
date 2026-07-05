@@ -1,44 +1,49 @@
-"""
-Setup script to create the project directory structure.
-"""
+"""Script to create the project directory structure."""
+
 import os
 import sys
+from pathlib import Path
 
-
-def create_directories():
-    """
-    Create the project directory structure.
-    """
-    # Define the project root
-    project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
-
-    # Define directory structure
+def create_directory_structure():
+    """Create all required project directories."""
+    base_path = Path(__file__).parent.parent
+    
     directories = [
         # Data directories
-        "data/raw",
-        "data/processed",
-        "data/output",
+        base_path / 'data' / 'raw',
+        base_path / 'data' / 'processed',
+        base_path / 'data' / 'output',
+        
         # Code directories
-        "code/utils",
-        "code/models",
-        "code/tests",
-        # Tests directories
-        "tests/unit",
-        "tests/integration",
+        base_path / 'code' / 'utils',
+        base_path / 'code' / 'models',
+        base_path / 'code' / 'tests',
+        
+        # Test directories
+        base_path / 'tests' / 'unit',
+        base_path / 'tests' / 'integration',
+        
         # Specs directories
-        "specs",
-        # Figures directory
-        "figures",
+        base_path / 'specs' / '001-assessing-the-impact-of-sample-size-on-t',
     ]
-
-    # Create directories
-    for dir_path in directories:
-        full_path = os.path.join(project_root, dir_path)
-        os.makedirs(full_path, exist_ok=True)
-        print(f"Created directory: {full_path}")
-
-    print("Project directory structure created successfully.")
-
-
-if __name__ == "__main__":
-    create_directories()
+    
+    for directory in directories:
+        directory.mkdir(parents=True, exist_ok=True)
+        print(f"Created directory: {directory}")
+        
+    # Create __init__.py files for Python packages
+    init_files = [
+        base_path / 'code' / 'utils' / '__init__.py',
+        base_path / 'code' / 'models' / '__init__.py',
+        base_path / 'code' / 'tests' / '__init__.py',
+    ]
+    
+    for init_file in init_files:
+        if not init_file.exists():
+            init_file.touch()
+            print(f"Created {init_file}")
+            
+    print("Directory structure creation complete.")
+    
+if __name__ == '__main__':
+    create_directory_structure()

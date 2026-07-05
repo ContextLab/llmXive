@@ -1,172 +1,210 @@
 """
-Unit tests for data schema validation.
-Tests the Pydantic models defined in code/schemas.py.
+Contract test for data schema validation (US1).
+Tests the Pydantic schemas defined in code/schemas.py to ensure
+they correctly validate real-world data structures and reject invalid inputs.
 """
 import pytest
-from pydantic import ValidationError
+from datetime import datetime
+import math
+
+# Import schemas from the project code
 from schemas import (
-    MetaAnalysis,
-    Subsample,
-    StabilityMetric,
-    validate_meta_analysis,
-    validate_subsample,
-    validate_stability_metric,
+    StudySchema,
+    SubsampleSchema,
+    MetaAnalysisSchema,
+    StabilityMetricSchema
 )
+from utils.exceptions import DataValidationError
 
 
-class TestMetaAnalysisSchema:
-    """Tests for the MetaAnalysis Pydantic model and validator."""
+class TestStudySchema:
+    """Tests for the Study entity schema."""
 
-    def test_valid_meta_analysis(self):
-        """Test that a valid MetaAnalysis object can be created."""
+    def test_valid_study(self):
+        """Test that a valid study passes validation."""
         data = {
-            "id": "test_001",
-            "title": "Sample Meta-Analysis",
-            "effect_sizes": [0.5, 0.6, 0.4],
-            "standard_errors": [0.1, 0.12, 0.09],
-            "study_count": 3,
+            "study_id": "STUDY-001",
+            "meta_analysis_id": "META-001",
+            "effect_size": 0.45,
+            "standard_error": 0.12,
+            "sample_size": 150,
+            "year": 2021,
+            "source": "Cochrane"
         }
-        result = validate_meta_analysis(data)
-        assert result.id == "test_001"
-        assert len(result.effect_sizes) == 3
-        assert result.study_count == 3
+        study = StudySchema(**data)
+        assert study.study_id == "STUDY-001"
+        assert study.effect_size == 0.45
+        assert study.standard_error == 0.12
 
-    def test_invalid_meta_analysis_missing_fields(self):
-        """Test that validation fails for missing required fields."""
+    def test_invalid_negative_se(self):
+        """Test that negative standard error is rejected."""
         data = {
-            "id": "test_001",
-            # Missing title, effect_sizes, etc.
+            "study_id": "STUDY-002",
+            "meta_analysis_id": "META-001",
+            "effect_size": 0.3,
+            "standard_error": -0.05,
+            "sample_size": 100,
+            "year": 2020,
+            "source": "Campbell"
         }
-        with pytest.raises(ValidationError):
-            validate_meta_analysis(data)
+        with pytest.raises(ValueError):
+            StudySchema(**data)
 
-    def test_effect_sizes_and_se_must_match_length(self):
-        """Test that effect_sizes and standard_errors must have the same length."""
+    def test_invalid_zero_sample_size(self):
+        """Test that zero sample size is rejected."""
         data = {
-            "id": "test_002",
-            "title": "Mismatched Lengths",
-            "effect_sizes": [0.5, 0.6],
-            "standard_errors": [0.1],  # Length mismatch
-            "study_count": 2,
+            "study_id": "STUDY-003",
+            "meta_analysis_id": "META-001",
+            "effect_size": 0.2,
+            "standard_error": 0.1,
+            "sample_size": 0,
+            "year": 2019,
+            "source": "Cochrane"
         }
-        with pytest.raises(ValidationError):
-            validate_meta_analysis(data)
+        with pytest.raises(ValueError):
+            StudySchema(**data)
 
-    def test_study_count_consistency(self):
-        """Test that study_count must match the length of effect_sizes."""
+    def test_valid_zero_se(self):
+        """Test that zero standard error is allowed (handled by error handling logic later)."""
         data = {
-            "id": "test_003",
-            "title": "Count Mismatch",
-            "effect_sizes": [0.5, 0.6, 0.4],
-            "standard_errors": [0.1, 0.12, 0.09],
-            "study_count": 5,  # Does not match length of 3
+            "study_id": "STUDY-004",
+            "meta_analysis_id": "META-001",
+            "effect_size": 0.5,
+            "standard_error": 0.0,
+            "sample_size": 200,
+            "year": 2022,
+            "source": "Cochrane"
         }
-        with pytest.raises(ValidationError):
-            validate_meta_analysis(data)
-
-    def test_empty_effect_sizes(self):
-        """Test that empty effect_sizes list raises validation error."""
-        data = {
-            "id": "test_004",
-            "title": "Empty Data",
-            "effect_sizes": [],
-            "standard_errors": [],
-            "study_count": 0,
-        }
-        # Depending on schema strictness, this might be allowed or rejected.
-        # Assuming minimum 1 study is required for meta-analysis context.
-        with pytest.raises(ValidationError):
-            validate_meta_analysis(data)
+        study = StudySchema(**data)
+        assert study.standard_error == 0.0
 
 
 class TestSubsampleSchema:
-    """Tests for the Subsample Pydantic model."""
+    """Tests for the Subsample entity schema."""
 
     def test_valid_subsample(self):
-        """Test that a valid Subsample object can be created."""
+        """Test that a valid subsample passes validation."""
         data = {
-            "meta_id": "test_001",
-            "k": 3,
+            "subsample_id": "SUB-001",
+            "meta_analysis_id": "META-001",
+            "k": 5,
             "seed": 42,
-            "effect_sizes": [0.5, 0.6, 0.4],
-            "standard_errors": [0.1, 0.12, 0.09],
+            "effect_size": 0.42,
+            "standard_error": 0.15,
+            "estimator_type": "REML",
+            "study_ids": ["STUDY-001", "STUDY-002", "STUDY-003", "STUDY-004", "STUDY-005"]
         }
-        result = Subsample(**data)
-        assert result.meta_id == "test_001"
-        assert result.k == 3
-        assert len(result.effect_sizes) == 3
+        subsample = SubsampleSchema(**data)
+        assert subsample.k == 5
+        assert subsample.seed == 42
+        assert len(subsample.study_ids) == 5
 
-    def test_invalid_subsample_missing_fields(self):
-        """Test that validation fails for missing required fields."""
+    def test_invalid_k_less_than_3(self):
+        """Test that k < 3 is rejected."""
         data = {
-            "meta_id": "test_001",
-            # Missing k, seed, etc.
+            "subsample_id": "SUB-002",
+            "meta_analysis_id": "META-001",
+            "k": 2,
+            "seed": 43,
+            "effect_size": 0.3,
+            "standard_error": 0.1,
+            "estimator_type": "DL",
+            "study_ids": ["STUDY-001", "STUDY-002"]
         }
-        with pytest.raises(ValidationError):
-            Subsample(**data)
+        with pytest.raises(ValueError):
+            SubsampleSchema(**data)
 
-    def test_k_must_be_positive(self):
-        """Test that k must be a positive integer."""
+    def test_invalid_mismatched_k_and_studies(self):
+        """Test that k must match the length of study_ids."""
         data = {
-            "meta_id": "test_001",
-            "k": 0,
-            "seed": 42,
-            "effect_sizes": [0.5],
-            "standard_errors": [0.1],
+            "subsample_id": "SUB-003",
+            "meta_analysis_id": "META-001",
+            "k": 5,
+            "seed": 44,
+            "effect_size": 0.35,
+            "standard_error": 0.12,
+            "estimator_type": "DL",
+            "study_ids": ["STUDY-001", "STUDY-002"]  # k=5 but only 2 IDs
         }
-        with pytest.raises(ValidationError):
-            Subsample(**data)
+        with pytest.raises(ValueError):
+            SubsampleSchema(**data)
 
-    def test_list_length_mismatch(self):
-        """Test that effect_sizes and standard_errors must match length k."""
+
+class TestMetaAnalysisSchema:
+    """Tests for the MetaAnalysis entity schema."""
+
+    def test_valid_meta_analysis(self):
+        """Test that a valid meta-analysis passes validation."""
         data = {
-            "meta_id": "test_001",
-            "k": 3,
-            "seed": 42,
-            "effect_sizes": [0.5, 0.6],  # Length 2 != k
-            "standard_errors": [0.1, 0.12, 0.09],
+            "meta_analysis_id": "META-001",
+            "title": "Impact of Sample Size on Reliability",
+            "source": "Cochrane",
+            "year": 2023,
+            "total_studies": 25,
+            "pooled_effect": 0.35,
+            "pooled_se": 0.08,
+            "model_type": "REML"
         }
-        with pytest.raises(ValidationError):
-            Subsample(**data)
+        meta = MetaAnalysisSchema(**data)
+        assert meta.meta_analysis_id == "META-001"
+        assert meta.total_studies == 25
+
+    def test_invalid_total_studies_zero(self):
+        """Test that total_studies must be positive."""
+        data = {
+            "meta_analysis_id": "META-002",
+            "title": "Invalid Meta",
+            "source": "Cochrane",
+            "year": 2023,
+            "total_studies": 0,
+            "pooled_effect": 0.3,
+            "pooled_se": 0.1,
+            "model_type": "FE"
+        }
+        with pytest.raises(ValueError):
+            MetaAnalysisSchema(**data)
 
 
 class TestStabilityMetricSchema:
-    """Tests for the StabilityMetric Pydantic model."""
+    """Tests for the StabilityMetric entity schema."""
 
-    def test_stability_metric_creation(self):
-        """Test that a StabilityMetric object can be created."""
+    def test_valid_stability_metric(self):
+        """Test that a valid stability metric passes validation."""
         data = {
-            "meta_id": "test_001",
-            "k": 3,
-            "model_type": "REML",
-            "sd_effects": 0.05,
+            "meta_analysis_id": "META-001",
+            "k": 10,
+            "sd_effects": 0.12,
             "coverage_rate": 0.95,
+            "model_type": "REML",
+            "changepoint_detected": False
         }
-        result = StabilityMetric(**data)
-        assert result.model_type == "REML"
-        assert result.sd_effects == 0.05
-        assert result.coverage_rate == 0.95
+        metric = StabilityMetricSchema(**data)
+        assert metric.k == 10
+        assert metric.sd_effects == 0.12
+        assert metric.coverage_rate == 0.95
 
-    def test_invalid_coverage_rate(self):
+    def test_invalid_coverage_rate_out_of_bounds(self):
         """Test that coverage_rate must be between 0 and 1."""
         data = {
-            "meta_id": "test_001",
-            "k": 3,
+            "meta_analysis_id": "META-001",
+            "k": 10,
+            "sd_effects": 0.12,
+            "coverage_rate": 1.5,
             "model_type": "REML",
-            "sd_effects": 0.05,
-            "coverage_rate": 1.5,  # Invalid
+            "changepoint_detected": False
         }
-        with pytest.raises(ValidationError):
-            StabilityMetric(**data)
+        with pytest.raises(ValueError):
+            StabilityMetricSchema(**data)
 
-    def test_negative_sd_effects(self):
+    def test_invalid_negative_sd(self):
         """Test that sd_effects cannot be negative."""
         data = {
-            "meta_id": "test_001",
-            "k": 3,
-            "model_type": "REML",
+            "meta_analysis_id": "META-001",
+            "k": 10,
             "sd_effects": -0.05,
             "coverage_rate": 0.95,
+            "model_type": "REML",
+            "changepoint_detected": False
         }
-        with pytest.raises(ValidationError):
-            StabilityMetric(**data)
+        with pytest.raises(ValueError):
+            StabilityMetricSchema(**data)

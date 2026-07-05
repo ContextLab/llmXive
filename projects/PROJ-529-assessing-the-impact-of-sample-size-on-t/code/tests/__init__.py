@@ -1,3 +1,1 @@
-"""
-Test utilities and helpers.
-"""
+# Tests package

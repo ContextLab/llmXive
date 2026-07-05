@@ -1,1 +1,3 @@
-# Code package
+"""
+Core codebase for the llmXive automated science pipeline.
+"""

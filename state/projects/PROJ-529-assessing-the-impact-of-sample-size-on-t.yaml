@@ -6,7 +6,7 @@ failed_stage: null
 field: statistics
 human_escalation_reason: null
 id: PROJ-529-assessing-the-impact-of-sample-size-on-t
-last_run_id: ca10090e-a963-450d-95ce-eeff0ff30da3
+last_run_id: b2bc5989-458f-4d1b-88d1-f038311ccd28
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-529-assessing-the-impact-of-sample-size-on-t/specs/001-assessing-the-impact-of-sample-size-on-t
 title: Assessing the Impact of Sample Size on the Reliability of Meta-Analytic Effect
   Sizes
-updated_at: '2026-07-05T22:35:35.859987Z'
+updated_at: '2026-07-05T22:59:26.587232Z'

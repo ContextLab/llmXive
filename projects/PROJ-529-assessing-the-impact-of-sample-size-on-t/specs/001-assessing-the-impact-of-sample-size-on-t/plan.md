@@ -1,24 +1,30 @@
-# Plan: Assessing the Impact of Sample Size on Meta-Analytic Reliability
+# Implementation Plan
 
-## Overview
-This project investigates how sample size (number of studies, k) affects the stability
-and reliability of meta-analytic estimates. We will analyze real-world meta-analyses
-to determine the minimum k required for stable effect size estimates.
+## Phase 1: Setup
+- Initialize directory structure (T001a-d)
+- Configure dependencies (T002)
+- Setup linting (T003)
 
-## Objectives
-1. Acquire a corpus of real-world meta-analyses (or fallback to simulation)
-2. Generate bootstrap subsamples for varying k values
-3. Compute stability and coverage metrics
-4. Detect diminishing returns thresholds using GAM modeling
+## Phase 2: Foundational
+- Implement schemas (T004)
+- Implement seed management (T005)
+- Implement chunked IO (T006)
+- Implement base models (T007)
+- Implement exception handling (T008)
+- Setup config (T009, T009a)
 
-## Success Criteria
-- SC-001: Process at least 50 real-world meta-analyses
-- SC-003: Identify minimum k for stable coverage (within ±2% of nominal)
-- SC-006: Quantify sensitivity of thresholds to reference value perturbations
+## Phase 3: User Story 1 (Data)
+- Download/Generate data (T012, T019)
+- Subsampling logic (T016)
+- Validation (T017)
 
-## Timeline
-- Phase 1: Setup (1 week)
-- Phase 2: Foundational (2 weeks)
-- Phase 3: US1 - Data Acquisition (2 weeks)
-- Phase 4: US2 - Metrics Computation (2 weeks)
-- Phase 5: US3 - Threshold Detection (2 weeks)
+## Phase 4: User Story 2 (Metrics)
+- Model fitting (T023, T024)
+- Metric calculation (T025, T026, T027)
+- Aggregation (T028)
+
+## Phase 5: User Story 3 (Analysis)
+- GAM fitting (T031, T032)
+- Parametric fit (T033)
+- Coverage threshold (T034)
+- Visualization (T035, T036, T037)

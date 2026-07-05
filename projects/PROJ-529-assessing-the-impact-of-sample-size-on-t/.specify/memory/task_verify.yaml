@@ -1,3 +1,9 @@
+? T005 [P] Implement deterministic random seed management and logging utility in `code/utils/seeds.py`
+  (logs `k`, `seed`, `estimator_type` per iteration)
+: 1
 ? T006 [P] Implement chunked data processing framework in `code/utils/io.py` to handle
   >7GB potential corpus, ensuring memory safety for real-world data acquisition (FR-001).
+: 1
+? T008 Configure error handling for zero-variance studies (SE=0), negative variance
+  estimates, and boundary clamping in `code/utils/exceptions.py`
 : 1

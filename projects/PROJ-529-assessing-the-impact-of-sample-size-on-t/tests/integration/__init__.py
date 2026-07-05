@@ -1,1 +1,3 @@
-# Integration tests package
+"""
+Integration tests package for the llmXive research pipeline.
+"""
