@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-06T13:43:59.792620Z'
-current_stage: specified
+current_stage: analyzed
 failed_stage: null
 field: neuroscience
 human_escalation_reason: null
 id: PROJ-361-investigating-the-relationship-between-b
-last_run_id: f01e7cf8-4976-4a1b-bc44-790ac014e278
+last_run_id: f437bed8-cdff-4931-a032-bd4b93df25b1
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-361-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b
 title: Investigating the Relationship Between Brain Network Topology and Susceptibility
   to Visual Illusions
-updated_at: '2026-06-29T22:03:53.483882Z'
+updated_at: '2026-07-05T22:43:18.190207Z'

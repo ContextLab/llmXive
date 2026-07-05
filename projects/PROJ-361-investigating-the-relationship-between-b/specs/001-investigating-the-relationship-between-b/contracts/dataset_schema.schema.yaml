@@ -1,0 +1,44 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Dataset Schema for Brain Network Topology Study"
+description: "Schema for the processed dataset containing topology components and behavioral scores."
+type: "object"
+properties:
+  subject_id:
+    type: "string"
+    description: "Unique subject identifier (e.g., 'sub-001')."
+  components:
+    type: "array"
+    description: "List of PCA components retained for this subject (dynamic count)."
+    items:
+      type: "object"
+      properties:
+        component_index:
+          type: "integer"
+          description: "Index of the component (0, 1, 2...)."
+        component_value:
+          type: "number"
+          description: "Score for the component."
+        variance_explained:
+          type: "number"
+          description: "Proportion of variance explained by this component."
+      required:
+        - component_index
+        - component_value
+        - variance_explained
+  muller_lyer_score:
+    type: "number"
+    description: "Susceptibility score for Müller-Lyer illusion."
+  ponzo_score:
+    type: "number"
+    description: "Susceptibility score for Ponzo illusion."
+  mean_fd:
+    type: "number"
+    description: "Mean Framewise Displacement. Used for quality control."
+    maximum: 0.5
+required:
+  - subject_id
+  - components
+  - muller_lyer_score
+  - ponzo_score
+  - mean_fd
+additionalProperties: false

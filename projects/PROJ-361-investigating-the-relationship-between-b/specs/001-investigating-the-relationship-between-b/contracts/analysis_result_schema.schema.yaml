@@ -1,0 +1,46 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Analysis Result Schema"
+description: "Schema for the correlation analysis results table."
+type: "object"
+properties:
+  component_id:
+    type: "integer"
+    description: "The PCA component index (e.g., 0, 1)."
+  component_label:
+    type: "string"
+    description: "Dynamic label assigned based on loadings (e.g., 'Integration', 'Segregation')."
+  illusion_type:
+    type: "string"
+    description: "Type of illusion (e.g., 'muller_lyer', 'ponzo')."
+    enum:
+      - "muller_lyer"
+      - "ponzo"
+  correlation_coef:
+    type: "number"
+    description: "Pearson or Spearman correlation coefficient."
+  p_value:
+    type: "number"
+    description: "Uncorrected p-value."
+    minimum: 0.0
+    maximum: 1.0
+  p_value_fdr:
+    type: "number"
+    description: "Benjamini-Hochberg FDR adjusted p-value."
+    minimum: 0.0
+    maximum: 1.0
+  effect_size_r:
+    type: "number"
+    description: "Effect size (Cohen's r)."
+  is_significant:
+    type: "boolean"
+    description: "True if p_value_fdr < 0.05."
+required:
+  - component_id
+  - component_label
+  - illusion_type
+  - correlation_coef
+  - p_value
+  - p_value_fdr
+  - effect_size_r
+  - is_significant
+additionalProperties: false

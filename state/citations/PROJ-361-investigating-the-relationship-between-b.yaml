@@ -1,1 +1,22 @@
-[]
+- artifact_hash: 25978b378faa53a9e4cd5dcc639452bb3113733fddb0116c28db83631b4dd3b8
+  artifact_path: projects/PROJ-361-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: OpenNeuro
+  kind: url
+  value: https://openneuro.org/datasets/ds004285`
+  verification_status: verified
+  verified_against_url: https://openneuro.org/datasets/ds004285
+  verified_at: '2026-07-05T22:27:58.549112Z'
+- artifact_hash: 5ac151915f561dbf0a7e914db5af19c38449bbfeb042d7d49a252e27d45e734d
+  artifact_path: projects/PROJ-361-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: OpenNeuro
+  kind: url
+  value: https://openneuro.org/datasets/ds004285`
+  verification_status: verified
+  verified_against_url: https://openneuro.org/datasets/ds004285
+  verified_at: '2026-07-05T22:42:56.776913Z'
