@@ -1,0 +1,49 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Output Schema for Topic Drift Analysis"
+description: "Schema for the divergence measurements and statistical results."
+type: "object"
+properties:
+  window_pair:
+    type: "string"
+    pattern: "^\\d{4}-\\d{4}_to_\\d{4}-\\d{4}$"
+    description: "Identifier for the pair of consecutive windows being compared."
+  divergence_value:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Jensen-Shannon divergence value (base 2)."
+  p_value_raw:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Raw p-value from permutation test."
+  p_value_adjusted:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "MaxT corrected p-value."
+  ci_lower:
+    type: "number"
+    description: "Lower bound of the 95% bootstrapped confidence interval."
+  ci_upper:
+    type: "number"
+    description: "Upper bound of the 95% bootstrapped confidence interval."
+  significance_flag:
+    type: "boolean"
+    description: "True if adjusted p-value < 0.05."
+  quality_flag:
+    type: "string"
+    enum:
+      - "Valid"
+      - "Unreliable"
+    description: "Quality flag based on coherence threshold."
+required:
+  - window_pair
+  - divergence_value
+  - p_value_raw
+  - p_value_adjusted
+  - ci_lower
+  - ci_upper
+  - significance_flag
+  - quality_flag
+additionalProperties: false

@@ -1,0 +1,45 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Dataset Schema for Topic Drift Analysis"
+description: "Schema for the raw and processed abstract records used in the analysis."
+type: "object"
+properties:
+  id:
+    type: "string"
+    description: "Unique identifier for the abstract (e.g., 'pmid_12345')."
+  source:
+    type: "string"
+    enum:
+      - "arXiv"
+      - "PubMed"
+    description: "The source database of the abstract."
+  publication_year:
+    type: "integer"
+    minimum: 2000
+    maximum: 2024
+    description: "Year of publication."
+  field_tag:
+    type: "string"
+    description: "Subject field tag (e.g., 'cs.LG', 'stat.ML')."
+  raw_text:
+    type: "string"
+    description: "Original abstract text."
+  processed_text:
+    type: "string"
+    description: "Tokenized, lemmatized, and stopword-removed text."
+  token_count:
+    type: "integer"
+    minimum: 20
+    description: "Number of tokens after preprocessing. Must be >= 20."
+  window_id:
+    type: "string"
+    pattern: "^\\d{4}-\\d{4}$"
+    description: "Time window identifier (e.g., '2000-2004')."
+required:
+  - id
+  - source
+  - publication_year
+  - raw_text
+  - processed_text
+  - token_count
+  - window_id
+additionalProperties: false

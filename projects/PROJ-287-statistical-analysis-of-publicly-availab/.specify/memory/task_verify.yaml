@@ -1,0 +1,11 @@
+? 'T001 Create project structure per implementation plan: Create directories `src/`,
+  `tests/`, `data/raw/`, `data/processed/`, `results/figures/`, `results/stats/`,
+  `docs/`'
+: 2
+? T002 Initialize Python 3.11 project with `requirements.txt` (scikit-learn, scipy,
+  nltk, spacy, pandas, matplotlib, requests, pyyaml)
+: 2
+T003 [P] Configure linting (ruff/flake8) and formatting (black) tools: 2
+T004 [P] Implement `src/utils/logging.py` for standardized logging and error handling: 2
+T005 [P] Implement `src/utils/manifest.py` for reproducibility manifest generation (JSON): 2
+T006 [P] Create `src/utils/config.py` to load environment variables and random seeds: 2

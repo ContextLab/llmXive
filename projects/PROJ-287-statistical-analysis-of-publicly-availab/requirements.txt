@@ -1,0 +1,24 @@
+# Statistical Analysis of Topic Drift in Academic Abstracts
+# Python 3.11 Environment Dependencies
+# Generated for PROJ-287
+
+# Core Data Science & ML
+scikit-learn>=1.4.0
+scipy>=1.12.0
+pandas>=2.2.0
+numpy>=1.26.0
+
+# NLP Processing
+nltk>=3.8.1
+spacy>=3.7.2
+requests>=2.31.0
+
+# Visualization
+matplotlib>=3.8.0
+
+# Configuration & Utilities
+pyyaml>=6.0.1
+
+# Testing (Optional but recommended for pipeline validation)
+pytest>=8.0.0
+pytest-cov>=4.1.0

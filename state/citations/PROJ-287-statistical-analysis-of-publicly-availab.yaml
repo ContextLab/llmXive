@@ -1,4 +1,4 @@
-- artifact_hash: 48da74f87dd2b3c2668c5d5c6977233d341c9349cc6a49b5d8569e3a684b921a
+- artifact_hash: fa97f3a608293bef1d378b420abb90867c29da83b6d22bd76271c97a5f5d8771
   artifact_path: projects/PROJ-287-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/spec.md
   cite_id: c-001
   cited_authors: []
@@ -6,17 +6,117 @@
   fetched_title: oai2
   kind: url
   value: http://export.arxiv.org/oai2
-  verification_status: verified
+  verification_status: pending
   verified_against_url: https://oaipmh.arxiv.org/oai
-  verified_at: '2026-06-28T23:21:09.378391Z'
-- artifact_hash: 48da74f87dd2b3c2668c5d5c6977233d341c9349cc6a49b5d8569e3a684b921a
+  verified_at: '2026-07-05T02:00:15.116074Z'
+- artifact_hash: fa97f3a608293bef1d378b420abb90867c29da83b6d22bd76271c97a5f5d8771
   artifact_path: projects/PROJ-287-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/spec.md
   cite_id: c-002
   cited_authors: []
   cited_title: null
-  fetched_title: PubMed
+  fetched_title: null
   kind: url
   value: https://pubmed.ncbi.nlm.nih.gov/
-  verification_status: verified
+  verification_status: pending
   verified_against_url: https://pubmed.ncbi.nlm.nih.gov/
-  verified_at: '2026-06-28T23:21:09.378391Z'
+  verified_at: '2026-07-05T02:00:15.116074Z'
+- artifact_hash: f22c485347cc3cd9e0821678e7b3c9f952e412364b0e4ceb24dbb8344f811529
+  artifact_path: projects/PROJ-287-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/plan.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: arxiv
+  value: '1803.09810'
+  verification_status: unreachable
+  verified_against_url: null
+  verified_at: '2026-07-05T02:09:33.324951Z'
+- artifact_hash: 7b327656c66a39e3aedeb6f872dbe25cce25612afd3f80d9f37de28684b2ff74
+  artifact_path: projects/PROJ-287-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: oai2
+  kind: url
+  value: http://export.arxiv.org/oai2`
+  verification_status: pending
+  verified_against_url: https://oaipmh.arxiv.org/oai
+  verified_at: '2026-07-05T02:10:00.412080Z'
+- artifact_hash: 7b327656c66a39e3aedeb6f872dbe25cce25612afd3f80d9f37de28684b2ff74
+  artifact_path: projects/PROJ-287-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/research.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://pubmed.ncbi.nlm.nih.gov/`
+  verification_status: pending
+  verified_against_url: https://pubmed.ncbi.nlm.nih.gov/
+  verified_at: '2026-07-05T02:10:00.412080Z'
+- artifact_hash: 7b327656c66a39e3aedeb6f872dbe25cce25612afd3f80d9f37de28684b2ff74
+  artifact_path: projects/PROJ-287-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/research.md
+  cite_id: c-003
+  cited_authors: []
+  cited_title: null
+  fetched_title: pubmed23n0001.jsonl
+  kind: url
+  value: https://huggingface.co/datasets/MedRAG/pubmed/resolve/main/chunk/pubmed23n0001.jsonl`
+  verification_status: verified
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/65d4e87efb0d0560cfd5c2b9/688767e910318cc898ad968bbfa5d1bf8daa39d5795ed1ea0c356198f3dd6d5b?user_id=public&X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27pubmed23n0001.jsonl%3B+filename%3D%22pubmed23n0001.jsonl%22%3B&Expires=1783221000&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjVkNGU4N2VmYjBkMDU2MGNmZDVjMmI5LzY4ODc2N2U5MTAzMThjYzg5OGFkOTY4YmJmYTVkMWJmOGRhYTM5ZDU3OTVlZDFlYTBjMzU2MTk4ZjNkZDZkNWJcXD91c2VyX2lkPXB1YmxpYyZYLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3cHVibWVkMjNuMDAwMS5qc29ubCUzQitmaWxlbmFtZSUzRCUyMnB1Ym1lZDIzbjAwMDEuanNvbmwlMjIlM0IiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkVwb2NoVGltZSI6MTc4MzIyMTAwMH19fV19&Signature=MEQCIE8e3JGCKnx0N7HThe0GDIHxPaurCkMX4ALZOlmfiJAXAiAo8UDItKdKmnfx-WGz3bth9gxBbmMRp5dtqoYUFp61yA__&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+  verified_at: '2026-07-05T02:10:00.412080Z'
+- artifact_hash: 7b327656c66a39e3aedeb6f872dbe25cce25612afd3f80d9f37de28684b2ff74
+  artifact_path: projects/PROJ-287-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/research.md
+  cite_id: c-004
+  cited_authors: []
+  cited_title: null
+  fetched_title: pubmed_qa_train.csv
+  kind: url
+  value: https://huggingface.co/datasets/alinet/pubmed_qa/resolve/main/pubmed_qa_train.csv`
+  verification_status: verified
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/65e1e6b1fa76e3de8a97a5dd/320576d66f8992abe833a9d1814ef20f6e232967fd5f152e69037b72943ac493?X-Xet-Cas-Uid=public&user_id=public&response-content-type=text%2Fcsv&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27pubmed_qa_train.csv%3B+filename%3D%22pubmed_qa_train.csv%22%3B&Expires=1783221003&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjVlMWU2YjFmYTc2ZTNkZThhOTdhNWRkLzMyMDU3NmQ2NmY4OTkyYWJlODMzYTlkMTgxNGVmMjBmNmUyMzI5NjdmZDVmMTUyZTY5MDM3YjcyOTQzYWM0OTNcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZ1c2VyX2lkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LXR5cGU9dGV4dCUyRmNzdiZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3cHVibWVkX3FhX3RyYWluLmNzdiUzQitmaWxlbmFtZSUzRCUyMnB1Ym1lZF9xYV90cmFpbi5jc3YlMjIlM0IiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkVwb2NoVGltZSI6MTc4MzIyMTAwM319fV19&Signature=MEUCIGM4ZXxvwXmocx96tiRBIxYs8ttnsfvpjfclw4A2In5GAiEA%7EkfUb9De7rGJn%7Ef6U7%7EmhGjoI-XAtz1NxpSePYxvlqU_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+  verified_at: '2026-07-05T02:10:00.412080Z'
+- artifact_hash: 7b327656c66a39e3aedeb6f872dbe25cce25612afd3f80d9f37de28684b2ff74
+  artifact_path: projects/PROJ-287-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/research.md
+  cite_id: c-005
+  cited_authors: []
+  cited_title: null
+  fetched_title: LDA.zip
+  kind: url
+  value: https://huggingface.co/datasets/Apinapi/LDA/resolve/main/LDA.zip`
+  verification_status: verified
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/6566713da9441fd9212a9c2e/68f06d3e8cc69e56a51829d02b10b14e177ec34636f70daf61235ab095b2da4f?response-content-disposition=inline%3B+filename*%3DUTF-8%27%27LDA.zip%3B+filename%3D%22LDA.zip%22%3B&X-Xet-Cas-Uid=public&response-content-type=application%2Fzip&user_id=public&Expires=1783221008&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjU2NjcxM2RhOTQ0MWZkOTIxMmE5YzJlLzY4ZjA2ZDNlOGNjNjllNTZhNTE4MjlkMDJiMTBiMTRlMTc3ZWMzNDYzNmY3MGRhZjYxMjM1YWIwOTViMmRhNGZcXD9yZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3TERBLnppcCUzQitmaWxlbmFtZSUzRCUyMkxEQS56aXAlMjIlM0ImWC1YZXQtQ2FzLVVpZD1wdWJsaWMmcmVzcG9uc2UtY29udGVudC10eXBlPWFwcGxpY2F0aW9uJTJGemlwJnVzZXJfaWQ9cHVibGljIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3ODMyMjEwMDh9fX1dfQ__&Signature=MEUCIQC8hL%7ELURfpd34m%7EJlFFAN7bQNk5AsU0T88qFOHbdtPpQIgfwpeSxHFFj8CKUo%7EN5XCDk-3vDuO%7EwTwGV7%7EuVaMlik_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+  verified_at: '2026-07-05T02:10:00.412080Z'
+- artifact_hash: 7b327656c66a39e3aedeb6f872dbe25cce25612afd3f80d9f37de28684b2ff74
+  artifact_path: projects/PROJ-287-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/research.md
+  cite_id: c-006
+  cited_authors: []
+  cited_title: null
+  fetched_title: "VictorSanh/obelisc_23k_w_ldatopics_tr_199_w_xattn_opt_step-28000\
+    \ \xB7 Datasets at Hugging Face"
+  kind: url
+  value: https://huggingface.co/datasets/VictorSanh/obelisc_23k_w_ldatopics_tr_199_w_xattn_opt_step-28000/...`
+  verification_status: verified
+  verified_against_url: https://huggingface.co/datasets/VictorSanh/obelisc_23k_w_ldatopics_tr_199_w_xattn_opt_step-28000
+  verified_at: '2026-07-05T02:10:00.412080Z'
+- artifact_hash: 71ce193450002e330999d4b569fed6c590ef347ed314f1e1528f38f3b8f13944
+  artifact_path: projects/PROJ-287-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/data-model.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://pubmed.ncbi.nlm.nih.gov/
+  verification_status: pending
+  verified_against_url: https://pubmed.ncbi.nlm.nih.gov/
+  verified_at: '2026-07-05T02:10:32.869700Z'
+- artifact_hash: 71ce193450002e330999d4b569fed6c590ef347ed314f1e1528f38f3b8f13944
+  artifact_path: projects/PROJ-287-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/data-model.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: oai2
+  kind: url
+  value: http://export.arxiv.org/oai2
+  verification_status: pending
+  verified_against_url: https://oaipmh.arxiv.org/oai
+  verified_at: '2026-07-05T02:10:32.869700Z'
