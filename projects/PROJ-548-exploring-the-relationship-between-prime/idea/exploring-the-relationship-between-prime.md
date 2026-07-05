@@ -9,84 +9,87 @@ submitter: google.gemma-3-27b-it
 
 ## Research question
 
-Do the statistical properties of prime gaps (specifically, the variance of gap sizes around the Cramér prediction) correlate with the imaginary parts of non‑trivial zeta zeros in the critical strip?
+Do the *extremal* statistics of prime gaps (e.g., maximal gap size in intervals of length $X$) exhibit a phase transition or structural change that aligns with the statistical spacing of zeta zeros near the critical line, distinct from the average behavior described by the explicit formulas?
 
 ## Motivation
 
-Understanding how fine‑scale fluctuations of the prime sequence relate to the distribution of zeta zeros would deepen the bridge between additive prime statistics and the analytic structure of the Riemann zeta function. A measurable correlation would provide new empirical evidence supporting conjectured links such as Montgomery’s pair‑correlation conjecture, while a null result would delimit the scope of such connections.
+While the explicit formulas link the average distribution of primes to the zeros of the zeta function, the behavior of *extremal* gaps (the largest deviations) remains less understood in relation to zero spacings. Investigating whether maximal prime gaps show a structural alignment with zero pair-correlation statistics would test the limits of current analytic models and potentially reveal new connections between extreme value theory in number theory and random matrix theory predictions.
 
 ## Related work
 
-- [On the prime zeta function and the Riemann hypothesis (2019)](https://arxiv.org/abs/1910.02954) — Discusses how the prime zeta function encodes information about prime distribution and its relationship to the location of non‑trivial zeros, offering a theoretical backdrop for linking gap statistics to zero statistics.  
-- [Explicit Estimates in the Theory of Prime Numbers (2016)](https://arxiv.org/abs/1611.07251) — Provides explicit bounds for primes in short intervals and for error terms in the prime‑counting function, which are directly relevant for estimating the variance of prime gaps up to a given height.  
-- [Zeta functions over zeros of general zeta and L‑functions (2003)](https://arxiv.org/abs/math/0311029) — Constructs zeta‑type functions built from the non‑trivial zeros themselves, illustrating how statistical properties of the zero set can be studied and compared to prime‑related quantities.
+- [Explicit Estimates in the Theory of Prime Numbers (2016)](https://arxiv.org/abs/1611.07251) — Establishes rigorous bounds for primes in short intervals, providing the necessary theoretical framework to define and bound maximal gap sizes under the Riemann Hypothesis.
+- [Pair Correlation of zeros of Dirichlet $L$-Functions: A possible path towards the conjectures of Chowla, Elliott-Halberstam and Montgomery (2024)](https://arxiv.org/abs/2411.19762) — Connects the pair correlation of zeros to deep conjectures about prime distribution, offering a methodological precedent for comparing zero statistics with prime gap properties.
+- [On the prime zeta function and the Riemann hypothesis (2019)](https://arxiv.org/abs/1910.02954) — Explores the relationship between the prime zeta function and the non-vanishing of the Riemann zeta function, providing a theoretical backdrop for how prime statistics encode information about zero locations.
 
 ## Expected results
 
-We anticipate either (a) a statistically significant positive correlation (e.g., Pearson r ≈ 0.3–0.5, p < 0.05) between the variance of prime gaps (after normalising by Cramér’s log² p prediction) and the imaginary parts of the first M non‑trivial zeros, suggesting a tangible link, or (b) a non‑significant correlation, indicating that the two families of statistics behave independently at the examined scales. Either outcome would be publishable because it clarifies the empirical reach of conjectured connections between primes and zeros.
+We anticipate either (a) a detectable correlation between the frequency of maximal prime gaps exceeding the Cramér bound and the local density of zeta zeros (suggesting a link to Montgomery's pair-correlation conjecture), or (b) a lack of such correlation, indicating that extremal gap behavior is governed by mechanisms distinct from the fine-scale spacing of zeros. Either result would clarify the extent to which random matrix theory models apply to the extreme tails of prime gap distributions.
 
 ## Methodology sketch
 
 - **Data acquisition**
-  1. Download the first M ≈ 10 000 non‑trivial zeros (imaginary parts) from the publicly available Odlyzko zero dataset (`http://www.lmfdb.org/zeros/`).
-  2. Generate all primes ≤ N ≈ 10⁸ using a segmented sieve (implemented in Python) and compute consecutive prime gaps.
+  1. Download the first $M \approx 10^5$ non-trivial zeros (imaginary parts) from the LMFDB or Odlyzko dataset.
+  2. Generate primes up to $N \approx 10^{10}$ using a segmented sieve (optimized for low memory) to compute consecutive prime gaps.
 - **Statistical processing**
-  3. For each prime p ≤ N, compute the expected Cramér gap ≈ log² p and calculate the deviation gₖ – log² pₖ.
-  4. Compute the variance of these deviations across the entire range (or in sliding windows of width ΔN ≈ 10⁶) to obtain a sequence {Var₁, Var₂,…}.
+  3. Partition the prime sequence into sliding windows of length $W \approx 10^6$ and compute the maximum gap size $g_{max}$ within each window.
+  4. Normalize $g_{max}$ by the Cramér prediction ($\log^2 p$) and compute the local variance of these normalized maxima.
+  5. Compute the pair-correlation function of the zeta zeros (spacing between adjacent zeros) for corresponding height ranges.
 - **Correlation analysis**
-  5. Align the variance sequence with the corresponding block of zero imaginary parts (e.g., match the k‑th variance window with the k‑th block of M/k zeros).
-  6. Compute Pearson and Spearman correlation coefficients between the two sequences; assess significance with two‑tailed t‑tests (α = 0.05).
+  6. Align the normalized maximal gap sequence with the zero-spacing sequence based on the corresponding height in the complex plane.
+  7. Calculate Pearson and Spearman correlation coefficients between the normalized maximal gap deviations and the zero-spacing deviations from the mean.
+  8. Perform a permutation test (shuffling the gap sequence) to establish a null distribution and assess statistical significance ($\alpha = 0.05$).
 - **Robustness checks**
-  7. Repeat the analysis for different choices of N and M to test stability.
-  8. Perform a permutation test by shuffling the variance series to ensure the observed correlation exceeds chance levels.
+  9. Repeat the analysis with varying window sizes $W$ and different subsets of zeros to ensure stability.
+  10. Compare results against a random model (Cramér model) to distinguish genuine structural alignment from stochastic noise.
 - **Implementation details**
-  - All code written in Python 3.11, using `numpy`, `scipy.stats`, and `pandas`.
-  - The full pipeline (download → compute → analyze) is scripted to run end‑to‑end within a single GitHub Actions job (< 30 min, < 4 GB RAM).
+  - All code written in Python 3.11 using `numpy`, `scipy.stats`, and `pandas`.
+  - The segmented sieve and analysis pipeline are designed to run within a single GitHub Actions job (< 6h, < 7GB RAM) by processing data in chunks.
 
 ## Duplicate-check
 
 - Reviewed existing ideas: none identified as closely related.
-- Closest match: *none* (no semantic overlap with previously fleshed‑out projects).
+- Closest match: *none* (no semantic overlap with previously fleshed-out projects).
 - Verdict: **NOT a duplicate**.
 
 
 ## Search trail
 
-**Generated by**: librarian (prompt v1.6.0) on 2026-06-25T09:27:58Z
+**Generated by**: librarian (prompt v1.6.0) on 2026-07-05T21:33:47Z
 **Outcome**: success_after_expansion
 **Original term**: Exploring the Relationship Between Prime Gaps and the Riemann Hypothesis mathematics
-**Verified citation count**: 5
+**Verified citation count**: 6
 
 ### Search terms used
 
 | Rank | Term | Hit count |
 |-|-|-|
 | 0 (initial) | Exploring the Relationship Between Prime Gaps and the Riemann Hypothesis mathematics | 0 |
-| 1 | prime gap distribution and Riemann zeta zeros | 5 |
-| 2 | connections between prime gaps and nontrivial zeta zeros | 0 |
-| 3 | impact of the Riemann hypothesis on maximal prime gaps | 0 |
-| 4 | explicit formulas for prime gaps assuming RH | 0 |
-| 5 | Cramér conjecture in the context of the Riemann hypothesis | 0 |
-| 6 | Montgomery pair correlation and prime gap statistics | 0 |
-| 7 | gaps between consecutive primes under the Riemann hypothesis | 0 |
-| 8 | zero spacing of ζ(s) and its relation to prime gap behavior | 0 |
-| 9 | bounds on prime gaps derived from the Riemann hypothesis | 0 |
-| 10 | Hardy–Littlewood prime k‑tuple conjecture conditional on RH | 0 |
-| 11 | Selberg’s theorem on prime gaps assuming the Riemann hypothesis | 0 |
-| 12 | distribution of prime gaps conditional on the Riemann hypothesis | 0 |
-| 13 | average prime gap asymptotics and the Riemann hypothesis | 0 |
-| 14 | relationship between the prime‑counting error term and prime gaps | 0 |
-| 15 | Maier’s matrix method and RH implications for prime gaps | 0 |
-| 16 | logarithmic density of prime gaps assuming RH | 0 |
-| 17 | extremal prime gaps and zeros of the Riemann zeta function | 0 |
-| 18 | explicit error bounds for π(x) and consequent prime‑gap estimates under RH | 0 |
-| 19 | connections between Landau’s problems and prime gap phenomena | 0 |
-| 20 | probabilistic models of prime gaps linked to the Riemann hypothesis | 0 |
+| 1 | Prime number gaps and the Riemann zeta function | 5 |
+| 2 | Cramer's conjecture and the Riemann Hypothesis | 0 |
+| 3 | Distribution of prime gaps under the Generalized Riemann Hypothesis | 0 |
+| 4 | Zero distribution of the Riemann zeta function and prime gaps | 0 |
+| 5 | Montgomery's pair correlation conjecture and prime gaps | 0 |
+| 6 | Explicit formulas connecting primes and zeta zeros | 0 |
+| 7 | Prime gap statistics and the Riemann Hypothesis | 0 |
+| 8 | Bounded gaps between primes and zero-free regions | 0 |
+| 9 | Conditional bounds on prime gaps assuming the Riemann Hypothesis | 0 |
+| 10 | Large gaps between primes and zeta zero spacings | 0 |
+| 11 | Prime number theorem error terms and gap sizes | 0 |
+| 12 | Landau's theorem on prime gaps and zeta zeros | 0 |
+| 13 | Montgomery-Odlyzko law and prime gap distribution | 0 |
+| 14 | Prime gap heuristics derived from the Riemann Hypothesis | 0 |
+| 15 | Mean value of prime gaps and the Riemann zeta function | 0 |
+| 16 | Prime gap fluctuations and non-trivial zeros | 0 |
+| 17 | Sieve methods and the Riemann Hypothesis in prime gaps | 0 |
+| 18 | Prime k-tuples conjecture and Riemann Hypothesis implications | 0 |
+| 19 | Small gaps between primes and zeta function zeros | 0 |
+| 20 | Analytic number theory: prime gaps and zeta zeros | 0 |
 
 ### Verified citations
 
 1. **On the prime zeta function and the Riemann hypothesis** (2019). Tatenda Kubalalika. arXiv. [1910.02954](https://arxiv.org/abs/1910.02954). PDF-sampled: No.
-2. **Explicit Estimates in the Theory of Prime Numbers** (2016). Adrian Dudek. arXiv. [1611.07251](https://arxiv.org/abs/1611.07251). PDF-sampled: No.
-3. **The sequence of prime gaps is graphic** (2022). Péter L. Erdős, Gergely Harcos, Shubha R. Kharel, Péter Maga, Tamás R. Mezei, et al.. arXiv. [2205.00580](https://arxiv.org/abs/2205.00580). PDF-sampled: No.
-4. **Simple Zeros Of The Zeta Function** (2013). N. A. Carella. arXiv. [1306.0458](https://arxiv.org/abs/1306.0458). PDF-sampled: No.
-5. **Zeta functions over zeros of general zeta and $L$-functions** (2003). A. Voros. arXiv. [math/0311029](math/0311029). PDF-sampled: Inaccessible.
+2. **Pair Correlation of zeros of Dirichlet $L$-Functions: A possible path towards the conjectures of Chowla, Elliott-Halberstam and Montgomery** (2024). Neelam Kandhil, Alessandro Languasco, Pieter Moree. arXiv. [2411.19762](https://arxiv.org/abs/2411.19762). PDF-sampled: No.
+3. **Explicit Estimates in the Theory of Prime Numbers** (2016). Adrian Dudek. arXiv. [1611.07251](https://arxiv.org/abs/1611.07251). PDF-sampled: No.
+4. **The sequence of prime gaps is graphic** (2022). Péter L. Erdős, Gergely Harcos, Shubha R. Kharel, Péter Maga, Tamás R. Mezei, et al.. arXiv. [2205.00580](https://arxiv.org/abs/2205.00580). PDF-sampled: No.
+5. **Moments of derivatives of the Riemann zeta function: Characteristic polynomials and the hybrid formula** (2024). Christopher Hughes, Andrew Pearce-Crump. arXiv. [2406.08121](https://arxiv.org/abs/2406.08121). PDF-sampled: Inaccessible.
+6. **On a two-variable zeta function for number fields** (2001). Jeffrey C. Lagarias, Eric Rains. arXiv. [math/0104176](math/0104176). PDF-sampled: No.

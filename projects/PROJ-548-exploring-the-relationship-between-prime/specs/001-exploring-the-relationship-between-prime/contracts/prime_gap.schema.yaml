@@ -1,0 +1,24 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "PrimeGap Schema"
+description: "Schema for normalized prime gap data used in distributional analysis."
+type: object
+properties:
+  prime_before:
+    type: integer
+    description: "The prime number p_n before the gap."
+  prime_after:
+    type: integer
+    description: "The prime number p_{n+1} after the gap."
+  gap_size:
+    type: integer
+    description: "The difference p_{n+1} - p_n."
+  normalized_gap:
+    type: number
+    description: "The gap size normalized by (log(p_n))^2."
+    minimum: 0
+required:
+  - prime_before
+  - prime_after
+  - gap_size
+  - normalized_gap
+additionalProperties: false

@@ -1,0 +1,22 @@
+- artifact_hash: 4229cd57276b8dfbfc8e50a74293effcdd687b168ce1d3feef424630fda519d2
+  artifact_path: projects/PROJ-548-exploring-the-relationship-between-prime/specs/001-exploring-the-relationship-between-prime/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: all_lmfdb_primes.parquet
+  kind: url
+  value: https://huggingface.co/datasets/introspector/lmfdb/resolve/main/parquet/all_lmfdb_primes.parquet`
+  verification_status: verified
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/698f5a61bfc15c0daf64b5a0/63ae688c02a84d49a0aa6d155c310a58144c373e3600d225f4aaa27fae64e11a?response-content-disposition=inline%3B+filename*%3DUTF-8%27%27all_lmfdb_primes.parquet%3B+filename%3D%22all_lmfdb_primes.parquet%22%3B&X-Xet-Cas-Uid=public&user_id=public&Expires=1783293500&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjk4ZjVhNjFiZmMxNWMwZGFmNjRiNWEwLzYzYWU2ODhjMDJhODRkNDlhMGFhNmQxNTVjMzEwYTU4MTQ0YzM3M2UzNjAwZDIyNWY0YWFhMjdmYWU2NGUxMWFcXD9yZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3YWxsX2xtZmRiX3ByaW1lcy5wYXJxdWV0JTNCK2ZpbGVuYW1lJTNEJTIyYWxsX2xtZmRiX3ByaW1lcy5wYXJxdWV0JTIyJTNCJlgtWGV0LUNhcy1VaWQ9cHVibGljJnVzZXJfaWQ9cHVibGljIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3ODMyOTM1MDB9fX1dfQ__&Signature=MEYCIQC6CtvFCJi-ioyKA3DQq80FnLFRFbYVMqKubP0Oqy-vAwIhANDxEf9ImTTLAtpvUQJpfv3oQQwtN%7Eqp5yz9qIkneUjZ&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+  verified_at: '2026-07-05T22:18:20.077298Z'
+- artifact_hash: 4229cd57276b8dfbfc8e50a74293effcdd687b168ce1d3feef424630fda519d2
+  artifact_path: projects/PROJ-548-exploring-the-relationship-between-prime/specs/001-exploring-the-relationship-between-prime/research.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: LMFDB - Zeros of $\zeta(s)$
+  kind: url
+  value: https://www.lmfdb.org/zeros/zeta/`
+  verification_status: verified
+  verified_against_url: https://www.lmfdb.org/zeros/zeta/
+  verified_at: '2026-07-05T22:18:20.077298Z'

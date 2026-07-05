@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2411.19762",
+  "judged_at": "2026-07-05T21:33:39Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "exploring the relationship between prime gaps and the riemann hypothesis mathematics",
+  "rationale": "This paper belongs in the literature review because it investigates the statistical distribution of zeros of L-functions (specifically pair correlation) and its direct consequences for the error term in the prime number theorem, which is the fundamental mechanism linking prime gaps to the Riemann Hypothesis (Category a). It also addresses the Elliott-Halberstam conjecture, a central hypothesis regarding the distribution of primes in arithmetic progressions that is deeply intertwined with the stu",
+  "relevant": true
+}

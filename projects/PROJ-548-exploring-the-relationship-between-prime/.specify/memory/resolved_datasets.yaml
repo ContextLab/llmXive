@@ -1,0 +1,152 @@
+resolved_at: '2026-07-05T22:08:16.245361+00:00'
+datasets:
+- intent: LMFDB
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/introspector/lmfdb/resolve/main/parquet/all_lmfdb_primes.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 19371
+      parsed: true
+  - url: https://huggingface.co/datasets/h4/lmfdb-monster-71/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/introspector/lmfdb/resolve/main/parquet/all_lmfdb_primes.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/h4/lmfdb-monster-71/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://frontiersin.figshare.com/articles/dataset/Table_2_Complementary_structure_of_statistical_significance_and_predictive_relevance_in_explainable_machine_learning_based_transcriptomic_tissue_classification_of_Hanwoo_cattle_xlsx/32903858
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/dataset/Table_1_Complementary_structure_of_statistical_significance_and_predictive_relevance_in_explainable_machine_learning_based_transcriptomic_tissue_classification_of_Hanwoo_cattle_xlsx/32903855
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/dataset/Table_3_Complementary_structure_of_statistical_significance_and_predictive_relevance_in_explainable_machine_learning_based_transcriptomic_tissue_classification_of_Hanwoo_cattle_xlsx/32903840
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/dataset/Table_1_Implementation_of_cumulative_effect_assessments_in_maritime_spatial_planning_insights_from_two_North_Sea_case_studies_xlsx/32903852
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/dataset/Table_2_Implementation_of_cumulative_effect_assessments_in_maritime_spatial_planning_insights_from_two_North_Sea_case_studies_xlsx/32903843
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3522238
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15490636
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14774042
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15525712
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16736154
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21154474
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21154474
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/uxn2g/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21115113
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21115113
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: CPU-based
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://frontiersin.figshare.com/articles/dataset/Table_2_Complementary_structure_of_statistical_significance_and_predictive_relevance_in_explainable_machine_learning_based_transcriptomic_tissue_classification_of_Hanwoo_cattle_xlsx/32903858
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/dataset/Table_1_Complementary_structure_of_statistical_significance_and_predictive_relevance_in_explainable_machine_learning_based_transcriptomic_tissue_classification_of_Hanwoo_cattle_xlsx/32903855
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/dataset/Table_3_Complementary_structure_of_statistical_significance_and_predictive_relevance_in_explainable_machine_learning_based_transcriptomic_tissue_classification_of_Hanwoo_cattle_xlsx/32903840
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/dataset/Table_1_Implementation_of_cumulative_effect_assessments_in_maritime_spatial_planning_insights_from_two_North_Sea_case_studies_xlsx/32903852
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/dataset/Table_2_Implementation_of_cumulative_effect_assessments_in_maritime_spatial_planning_insights_from_two_North_Sea_case_studies_xlsx/32903843
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14811831
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/12770771
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/12759131
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/33247
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://kjet.kardan.edu.af/Journal?Journal=KJET&id=3183
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21210220
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21210220
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21208868
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21208868
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20773380
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

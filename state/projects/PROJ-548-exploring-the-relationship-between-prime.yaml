@@ -1,18 +1,18 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-12T17:34:15.485482Z'
-current_stage: flesh_out_complete
+current_stage: planned
 failed_stage: null
 field: mathematics
 human_escalation_reason: null
 id: PROJ-548-exploring-the-relationship-between-prime
-last_run_id: e254bb25-ea57-4610-9488-98261a46039e
+last_run_id: d0a1c51f-7f4b-44ba-b62b-b27b88303902
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
 revision_spec_path: null
 speckit_paper_dir: null
-speckit_research_dir: null
+speckit_research_dir: projects/PROJ-548-exploring-the-relationship-between-prime/specs/001-exploring-the-relationship-between-prime
 title: Exploring the Relationship Between Prime Gaps and the Riemann Hypothesis
-updated_at: '2026-06-25T09:28:07.572619Z'
+updated_at: '2026-07-05T22:18:49.084841Z'

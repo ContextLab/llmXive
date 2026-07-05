@@ -1,0 +1,39 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "CorrelationResults"
+description: "Schema for the output of the distributional comparison analysis."
+type: "object"
+properties:
+  ks_statistic:
+    type: "number"
+    description: "The Kolmogorov-Smirnov statistic comparing the two distributions."
+    minimum: 0
+    maximum: 1
+  p_value:
+    type: "number"
+    description: "The p-value from the KS test."
+    minimum: 0
+    maximum: 1
+  null_distribution_mean:
+    type: "number"
+    description: "The mean KS statistic from the Cramér model null distribution."
+  window_size:
+    type: "integer"
+    description: "The window size W used for the analysis."
+  sample_size:
+    type: "integer"
+    description: "The number of data points used in the comparison."
+  timestamp:
+    type: "string"
+    format: "date-time"
+    description: "ISO 8601 timestamp of the analysis run."
+  method:
+    type: "string"
+    description: "The method used (e.g., 'pair_correlation', 'extreme_value')."
+required:
+  - "ks_statistic"
+  - "p_value"
+  - "window_size"
+  - "sample_size"
+  - "timestamp"
+  - "method"
+additionalProperties: false

@@ -1,0 +1,38 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Analysis Result Schema"
+description: "Schema for the output of the distributional comparison analysis."
+type: object
+properties:
+  ks_statistic:
+    type: number
+    description: "The Kolmogorov-Smirnov statistic comparing empirical gaps to GUE."
+  p_value:
+    type: number
+    description: "The p-value from the KS test."
+  window_size:
+    type: integer
+    description: "The sliding window size W used for the analysis."
+  sample_size:
+    type: integer
+    description: "The number of maximal gaps analyzed."
+  null_distribution_stats:
+    type: object
+    description: "Statistics from the Cramér model null distribution."
+    properties:
+      mean:
+        type: number
+      std:
+        type: number
+      observed_rank:
+        type: integer
+    required:
+      - mean
+      - std
+      - observed_rank
+required:
+  - ks_statistic
+  - p_value
+  - window_size
+  - sample_size
+  - null_distribution_stats
+additionalProperties: false
