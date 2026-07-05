@@ -1,18 +1,18 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-05T07:47:40.272135Z'
-current_stage: project_initialized
+current_stage: clarified
 failed_stage: null
 field: statistics
 human_escalation_reason: null
 id: PROJ-298-statistical-analysis-of-publicly-availab
-last_run_id: 09dc8fe8-d6f0-4226-a4a1-bf3acaae7f48
+last_run_id: 70889ed0-a016-4194-8583-88dfabe75464
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
 revision_spec_path: null
 speckit_paper_dir: null
-speckit_research_dir: null
+speckit_research_dir: projects/PROJ-298-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab
 title: Statistical Analysis of Publicly Available Stack Overflow Question Tags
-updated_at: '2026-06-26T06:07:00.496595Z'
+updated_at: '2026-07-05T04:57:57.101460Z'
