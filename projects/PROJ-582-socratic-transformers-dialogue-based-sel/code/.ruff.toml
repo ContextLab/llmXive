@@ -1,0 +1,5 @@
+# Ruff configuration for Socratic Transformers project
+# Extends pyproject.toml settings if needed, or can be used standalone
+# Currently, main config is in pyproject.toml. This file ensures
+# ruff finds the config if run from subdirectories.
+extend = "pyproject.toml"

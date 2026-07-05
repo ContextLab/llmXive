@@ -1,0 +1,91 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Dialogue Tuple Schema"
+description: "Schema for Socratic training data tuples (question, answer, critique, revised_answer)."
+type: "object"
+properties:
+  sample_id:
+    type: "string"
+    description: "Unique UUID for the sample."
+  condition:
+    type: "string"
+    enum:
+      - "static"
+      - "socratic"
+      - "ablation"
+    description: "Training condition label."
+  question:
+    type: "string"
+    description: "The original problem statement."
+  initial_answer:
+    type: "string"
+    description: "The model's first attempt at the answer."
+  critique:
+    oneOf:
+      - type: "null"
+        description: "Static condition: no critique."
+      - type: "object"
+        description: "Socratic condition: adversarial critique object."
+        properties:
+          confidence_score:
+            type: "number"
+            minimum: 0.0
+            maximum: 1.0
+            description: "Proxy confidence score (log-prob normalized)."
+          reasoning_snippet:
+            type: "string"
+            description: "Text identifying logical contradictions or unsupported assumptions."
+        required:
+          - "confidence_score"
+          - "reasoning_snippet"
+      - type: "object"
+        description: "Ablation condition: neutral reasoning trace object."
+        properties:
+          confidence_score:
+            type: "number"
+            const: 0.5
+            description: "Fixed confidence score for neutral trace."
+          reasoning_snippet:
+            type: "string"
+            description: "Neutral reasoning trace text (no critique)."
+        required:
+          - "confidence_score"
+          - "reasoning_snippet"
+  revised_answer:
+    type: "string"
+    description: "The final answer after critique (or initial answer if no critique)."
+  prediction_error:
+    type: "number"
+    description: "The log-prob proxy value that triggered the critique."
+  is_degenerate:
+    type: "boolean"
+    description: "True if the dialogue was truncated due to repetition."
+  is_verified:
+    type: "boolean"
+    description: "True if revised_answer matches ground truth."
+  metadata:
+    type: "object"
+    description: "Additional metadata (seed, threshold, model_version)."
+    properties:
+      seed:
+        type: "integer"
+      threshold:
+        type: "number"
+      model_version:
+        type: "string"
+      calibration_metrics:
+        type: "object"
+        description: "Metrics from Phase 0 calibration."
+        properties:
+          correlation:
+            type: "number"
+          threshold_used:
+            type: "number"
+required:
+  - "sample_id"
+  - "condition"
+  - "question"
+  - "initial_answer"
+  - "revised_answer"
+  - "is_degenerate"
+  - "is_verified"
+additionalProperties: false

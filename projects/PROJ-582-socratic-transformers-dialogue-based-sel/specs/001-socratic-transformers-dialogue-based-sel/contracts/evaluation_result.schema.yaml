@@ -1,0 +1,45 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Evaluation Result Schema"
+description: "Schema for benchmark evaluation results."
+type: "object"
+properties:
+  run_id:
+    type: "string"
+    description: "Unique UUID for the run."
+  condition:
+    type: "string"
+    enum:
+      - "static"
+      - "socratic"
+      - "ablation"
+    description: "Training condition label."
+  seed:
+    type: "integer"
+    description: "Random seed used for this run."
+  benchmark:
+    type: "string"
+    description: "Benchmark name (e.g., gsm8k_test, mmlu_stem)."
+  accuracy:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Accuracy score (0.0-1.0)."
+  total_samples:
+    type: "integer"
+    description: "Total number of samples evaluated."
+  correct_samples:
+    type: "integer"
+    description: "Number of correct predictions."
+  runtime_seconds:
+    type: "number"
+    description: "Total runtime in seconds."
+required:
+  - "run_id"
+  - "condition"
+  - "seed"
+  - "benchmark"
+  - "accuracy"
+  - "total_samples"
+  - "correct_samples"
+  - "runtime_seconds"
+additionalProperties: false

@@ -1,1 +1,22 @@
-[]
+- artifact_hash: aa627ba9d1fa9898198f4d16a5f389c3fdde714429994e47f63ea3261da7848a
+  artifact_path: projects/PROJ-582-socratic-transformers-dialogue-based-sel/specs/001-socratic-transformers-dialogue-based-sel/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: test-00000-of-00001.parquet
+  kind: url
+  value: https://huggingface.co/datasets/openai/gsm8k/resolve/main/main/test-00000-of-00001.parquet`
+  verification_status: verified
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/625552d2b339bb03abe3432d/ad526cbfe3eb75568603d62295066ebd2491137403f012186c30f9416839141d?response-content-disposition=inline%3B+filename*%3DUTF-8%27%27test-00000-of-00001.parquet%3B+filename%3D%22test-00000-of-00001.parquet%22%3B&user_id=public&X-Xet-Cas-Uid=public&Expires=1783231989&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjI1NTUyZDJiMzM5YmIwM2FiZTM0MzJkL2FkNTI2Y2JmZTNlYjc1NTY4NjAzZDYyMjk1MDY2ZWJkMjQ5MTEzNzQwM2YwMTIxODZjMzBmOTQxNjgzOTE0MWRcXD9yZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dGVzdC0wMDAwMC1vZi0wMDAwMS5wYXJxdWV0JTNCK2ZpbGVuYW1lJTNEJTIydGVzdC0wMDAwMC1vZi0wMDAwMS5wYXJxdWV0JTIyJTNCJnVzZXJfaWQ9cHVibGljJlgtWGV0LUNhcy1VaWQ9cHVibGljIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3ODMyMzE5ODl9fX1dfQ__&Signature=MEYCIQCP%7EyGGUhXYyGElSMlisb49-PrHS1S5wgpyXOx%7EWsOkBgIhAO4RJgZZuWr7gEG1tHruP%7Eeel9d5zt2Mr4XadyFQ6gvy&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+  verified_at: '2026-07-05T05:13:09.398889Z'
+- artifact_hash: aa627ba9d1fa9898198f4d16a5f389c3fdde714429994e47f63ea3261da7848a
+  artifact_path: projects/PROJ-582-socratic-transformers-dialogue-based-sel/specs/001-socratic-transformers-dialogue-based-sel/research.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: train-00000-of-00001-7320a6f3aba8ebd2.parquet
+  kind: url
+  value: https://huggingface.co/datasets/qwedsacf/competition_math/resolve/main/data/train-00000-of-00001-7320a6f3aba8ebd2.parquet`
+  verification_status: verified
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/63d56d2963c8bec466d31748/25032e7230e89efcaccff6d670bce9f074cfa8043bef3027717f8a90a973c82e?user_id=public&X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27train-00000-of-00001-7320a6f3aba8ebd2.parquet%3B+filename%3D%22train-00000-of-00001-7320a6f3aba8ebd2.parquet%22%3B&Expires=1783231989&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjNkNTZkMjk2M2M4YmVjNDY2ZDMxNzQ4LzI1MDMyZTcyMzBlODllZmNhY2NmZjZkNjcwYmNlOWYwNzRjZmE4MDQzYmVmMzAyNzcxN2Y4YTkwYTk3M2M4MmVcXD91c2VyX2lkPXB1YmxpYyZYLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dHJhaW4tMDAwMDAtb2YtMDAwMDEtNzMyMGE2ZjNhYmE4ZWJkMi5wYXJxdWV0JTNCK2ZpbGVuYW1lJTNEJTIydHJhaW4tMDAwMDAtb2YtMDAwMDEtNzMyMGE2ZjNhYmE4ZWJkMi5wYXJxdWV0JTIyJTNCIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3ODMyMzE5ODl9fX1dfQ__&Signature=MEYCIQD9zyP2k5PfURxGiDAejfncMbIHAjiwJjpD07q5lQ0kFAIhAKL2NBesIIZogTVPnJcRscjWDYn7TN5gF-9TmRKxwi4%7E&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+  verified_at: '2026-07-05T05:13:09.398889Z'
