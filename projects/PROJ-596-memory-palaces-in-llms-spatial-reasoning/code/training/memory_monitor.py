@@ -1,226 +1,313 @@
-"""
-Memory monitoring utility for training loop.
-
-Tracks RSS memory usage and implements adaptive strategies:
-1. Reduce batch size from 8 to 4 if RSS > 5GB.
-2. Cap training dataset to 50% of original size if RSS > 6GB after batch size reduction.
-"""
 import os
 import json
 import time
+import gc
 from pathlib import Path
 from typing import Optional, Dict, Any, Tuple
 
+# Try to import psutil for accurate RSS measurement, fall back to /proc if unavailable
 try:
     import psutil
-    PSUTIL_AVAILABLE = True
+    HAS_PSUTIL = True
 except ImportError:
-    PSUTIL_AVAILABLE = False
-    import warnings
-    warnings.warn("psutil not installed. Memory monitoring will be limited.")
+    HAS_PSUTIL = False
 
+# Constants for memory thresholds (in GB)
+RSS_THRESHOLD_GB = 6.0
+INITIAL_BATCH_SIZE = 8
+REDUCED_BATCH_SIZE = 4
+DATASET_CAP_FRACTION = 0.5  # Cap to 50% of original size if memory still exceeded
+
+def get_current_memory_usage_gb() -> float:
+    """
+    Get the current Resident Set Size (RSS) memory usage of the current process in GB.
+    
+    Returns:
+        float: Memory usage in GB.
+    """
+    if HAS_PSUTIL:
+        process = psutil.Process(os.getpid())
+        mem_info = process.memory_info()
+        return mem_info.rss / (1024 ** 3)
+    else:
+        # Fallback for Linux: read /proc/self/status
+        if os.name == 'posix':
+            try:
+                with open('/proc/self/status', 'r') as f:
+                    for line in f:
+                        if line.startswith('VmRSS:'):
+                            # VmRSS is in kB
+                            rss_kb = int(line.split()[1])
+                            return rss_kb / (1024 * 1024)  # Convert to GB
+            except (IOError, ValueError):
+                pass
+        # If we can't determine, return 0 or raise an error
+        # Returning 0 allows the code to continue but might be inaccurate
+        return 0.0
 
 class MemoryMonitor:
     """
-    Monitors system memory (RSS) and manages training hyperparameters dynamically.
+    Monitors memory usage during training and triggers adaptive batch size reduction
+    and dataset capping if memory thresholds are exceeded.
     """
 
-    def __init__(
-        self,
-        log_path: Optional[Path] = None,
-        initial_batch_size: int = 8,
-        reduced_batch_size: int = 4,
-        rss_warning_threshold_gb: float = 5.0,
-        rss_critical_threshold_gb: float = 6.0,
-        dataset_reduction_factor: float = 0.5
-    ):
+    def __init__(self, 
+                 initial_batch_size: int = INITIAL_BATCH_SIZE,
+                 reduced_batch_size: int = REDUCED_BATCH_SIZE,
+                 rss_threshold_gb: float = RSS_THRESHOLD_GB,
+                 dataset_cap_fraction: float = DATASET_CAP_FRACTION,
+                 log_path: Optional[Path] = None):
         """
-        Initialize the memory monitor.
+        Initialize the MemoryMonitor.
 
         Args:
-            log_path: Path to write the hyperparameter log JSON.
-            initial_batch_size: Starting batch size.
-            reduced_batch_size: Batch size to switch to if memory warning is triggered.
-            rss_warning_threshold_gb: RSS threshold (GB) to trigger batch size reduction.
-            rss_critical_threshold_gb: RSS threshold (GB) to trigger dataset capping.
-            dataset_reduction_factor: Factor to multiply dataset size by if critical memory.
+            initial_batch_size: Starting batch size (default: 8).
+            reduced_batch_size: Batch size to reduce to if RSS > 6GB (default: 4).
+            rss_threshold_gb: Memory threshold in GB to trigger reduction (default: 6.0).
+            dataset_cap_fraction: Fraction of dataset to keep if memory still exceeded (default: 0.5).
+            log_path: Path to save the memory log file. If None, defaults to artifacts/results/memory_log.json.
         """
-        self.log_path = log_path
         self.initial_batch_size = initial_batch_size
         self.reduced_batch_size = reduced_batch_size
-        self.rss_warning_threshold_gb = rss_warning_threshold_gb
-        self.rss_critical_threshold_gb = rss_critical_threshold_gb
-        self.dataset_reduction_factor = dataset_reduction_factor
-
-        # State
+        self.rss_threshold_gb = rss_threshold_gb
+        self.dataset_cap_fraction = dataset_cap_fraction
+        
         self.current_batch_size = initial_batch_size
         self.dataset_capped = False
-        self.capped_dataset_size = None
         self.original_dataset_size = None
-        self.log_history: list[Dict[str, Any]] = []
+        self.capped_dataset_size = None
+        self.log_entries = []
+        self.start_time = time.time()
 
-        if log_path:
-            log_path.parent.mkdir(parents=True, exist_ok=True)
+        # Set log path
+        if log_path is None:
+            log_dir = Path("artifacts/results")
+            log_dir.mkdir(parents=True, exist_ok=True)
+            self.log_path = log_dir / "memory_log.json"
+        else:
+            self.log_path = Path(log_path)
+            self.log_path.parent.mkdir(parents=True, exist_ok=True)
 
-    def get_current_rss_gb(self) -> float:
+        self._log_event("monitor_initialized", {
+            "initial_batch_size": self.initial_batch_size,
+            "rss_threshold_gb": self.rss_threshold_gb,
+            "dataset_cap_fraction": self.dataset_cap_fraction
+        })
+
+    def _log_event(self, event_type: str, details: Dict[str, Any]):
         """
-        Get current Resident Set Size (RSS) in Gigabytes.
-
-        Returns:
-            Current RSS in GB. Returns 0.0 if psutil is unavailable.
-        """
-        if not PSUTIL_AVAILABLE:
-            return 0.0
-
-        process = psutil.Process(os.getpid())
-        # memory_info returns bytes
-        rss_bytes = process.memory_info().rss
-        return rss_bytes / (1024 ** 3)
-
-    def check_and_adapt(self, current_dataset_size: Optional[int] = None) -> Dict[str, Any]:
-        """
-        Check current memory usage and adapt hyperparameters if necessary.
-
-        This function implements the logic:
-        1. If RSS > 5GB and batch size is still 8, reduce to 4.
-        2. If RSS > 6GB and batch size is already 4, cap dataset to 50%.
-
+        Log a memory-related event.
+        
         Args:
-            current_dataset_size: The original size of the dataset being used.
-
-        Returns:
-            A dictionary containing the current state and decisions made.
+            event_type: Type of event (e.g., 'memory_check', 'batch_size_reduced', 'dataset_capped').
+        details: Dictionary of details about the event.
         """
-        rss_gb = self.get_current_rss_gb()
-        timestamp = time.time()
-
-        decision = {
-            "timestamp": timestamp,
-            "rss_gb": rss_gb,
+        entry = {
+            "timestamp": time.time(),
+            "elapsed_seconds": time.time() - self.start_time,
+            "event_type": event_type,
+            "current_memory_gb": get_current_memory_usage_gb(),
             "current_batch_size": self.current_batch_size,
             "dataset_capped": self.dataset_capped,
-            "action_taken": None,
-            "final_batch_size": self.current_batch_size,
-            "final_dataset_size": current_dataset_size
+            "details": details
         }
+        self.log_entries.append(entry)
 
-        # Logic 1: Reduce Batch Size
-        if not self.dataset_capped:
-            if rss_gb > self.rss_warning_threshold_gb:
-                if self.current_batch_size == self.initial_batch_size:
-                    self.current_batch_size = self.reduced_batch_size
-                    decision["action_taken"] = "reduce_batch_size"
-                    decision["final_batch_size"] = self.reduced_batch_size
-                # If we already reduced batch size, we proceed to check critical threshold
-                # Logic 2: Cap Dataset (only if we are at reduced batch size and still high)
-                if rss_gb > self.rss_critical_threshold_gb and self.current_batch_size == self.reduced_batch_size:
-                    if current_dataset_size is not None:
+    def check_and_adapt(self, current_dataset_size: Optional[int] = None) -> Tuple[int, bool, Optional[int]]:
+        """
+        Check current memory usage and adapt batch size and dataset size if necessary.
+        
+        This method implements the following logic:
+        1. Check current RSS memory.
+        2. If RSS > 6GB and batch_size is still at initial (8), reduce to 4.
+        3. If RSS > 6GB and batch_size is already 4, cap dataset to 50% of original size.
+        
+        Args:
+            current_dataset_size: The current size of the dataset being used. If None, 
+                                  assumes no capping has occurred yet.
+        
+        Returns:
+            Tuple containing:
+                - int: The new effective batch size.
+                - bool: Whether the dataset was capped in this call.
+                - int or None: The new dataset size if capped, None otherwise.
+        """
+        current_rss_gb = get_current_memory_usage_gb()
+        self._log_event("memory_check", {"current_rss_gb": current_rss_gb})
+
+        dataset_capped_this_call = False
+        new_dataset_size = None
+
+        if current_rss_gb > self.rss_threshold_gb:
+            if self.current_batch_size == self.initial_batch_size:
+                # First level of adaptation: reduce batch size
+                self.current_batch_size = self.reduced_batch_size
+                self._log_event("batch_size_reduced", {
+                    "old_batch_size": self.initial_batch_size,
+                    "new_batch_size": self.reduced_batch_size,
+                    "reason": f"RSS ({current_rss_gb:.2f} GB) exceeded threshold ({self.rss_threshold_gb} GB)"
+                })
+            elif self.current_batch_size == self.reduced_batch_size:
+                # Second level of adaptation: cap dataset size
+                if current_dataset_size is not None:
+                    # If we haven't capped yet, calculate new size
+                    if not self.dataset_capped:
                         self.original_dataset_size = current_dataset_size
-                        new_size = int(current_dataset_size * self.dataset_reduction_factor)
-                        self.capped_dataset_size = new_size
+                        self.capped_dataset_size = int(current_dataset_size * self.dataset_cap_fraction)
                         self.dataset_capped = True
-                        decision["action_taken"] = "cap_dataset"
-                        decision["final_dataset_size"] = new_size
-                        decision["dataset_reduction_factor"] = self.dataset_reduction_factor
+                        dataset_capped_this_call = True
+                        new_dataset_size = self.capped_dataset_size
+                        
+                        self._log_event("dataset_capped", {
+                            "original_size": self.original_dataset_size,
+                            "capped_size": self.capped_dataset_size,
+                            "fraction": self.dataset_cap_fraction,
+                            "reason": f"RSS ({current_rss_gb:.2f} GB) still exceeded threshold ({self.rss_threshold_gb} GB) after batch size reduction"
+                        })
                     else:
-                        decision["action_taken"] = "warning_dataset_cap_needed"
-                        decision["message"] = "Dataset size not provided, cannot cap."
+                        # Already capped, no further action on dataset size
+                        self._log_event("dataset_already_capped", {
+                            "current_capped_size": self.capped_dataset_size,
+                            "current_rss_gb": current_rss_gb
+                        })
+                else:
+                    # Dataset size not provided, cannot cap
+                    self._log_event("dataset_capping_skipped", {
+                        "reason": "current_dataset_size not provided",
+                        "current_rss_gb": current_rss_gb
+                    })
+        else:
+            self._log_event("memory_within_threshold", {"current_rss_gb": current_rss_gb})
 
-        self.log_history.append(decision)
-
-        # Persist log if path is set
-        if self.log_path:
-            self._write_log()
-
-        return decision
-
-    def _write_log(self) -> None:
-        """Write the current log history to the JSON file."""
-        if not self.log_path:
-            return
-
-        output_data = {
-            "monitor_config": {
-                "initial_batch_size": self.initial_batch_size,
-                "reduced_batch_size": self.reduced_batch_size,
-                "rss_warning_threshold_gb": self.rss_warning_threshold_gb,
-                "rss_critical_threshold_gb": self.rss_critical_threshold_gb,
-                "dataset_reduction_factor": self.dataset_reduction_factor
-            },
-            "final_state": {
-                "effective_batch_size": self.current_batch_size,
-                "dataset_capped": self.dataset_capped,
-                "original_dataset_size": self.original_dataset_size,
-                "effective_dataset_size": self.capped_dataset_size if self.dataset_capped else self.original_dataset_size
-            },
-            "history": self.log_history
-        }
-
-        with open(self.log_path, 'w') as f:
-            json.dump(output_data, f, indent=2)
+        return self.current_batch_size, dataset_capped_this_call, new_dataset_size
 
     def get_final_hyperparameters(self) -> Dict[str, Any]:
         """
-        Retrieve the final effective hyperparameters after monitoring.
-
+        Get the final hyperparameters after all adaptations.
+        
         Returns:
-            Dictionary with effective_batch_size and effective_dataset_size.
+            Dictionary containing final batch size, dataset capping status, and sizes.
         """
         return {
-            "effective_batch_size": self.current_batch_size,
+            "final_batch_size": self.current_batch_size,
             "dataset_capped": self.dataset_capped,
             "original_dataset_size": self.original_dataset_size,
-            "effective_dataset_size": self.capped_dataset_size if self.dataset_capped else self.original_dataset_size
+            "capped_dataset_size": self.capped_dataset_size,
+            "rss_threshold_gb": self.rss_threshold_gb,
+            "dataset_cap_fraction": self.dataset_cap_fraction,
+            "final_memory_gb": get_current_memory_usage_gb()
         }
+
+    def save_log(self):
+        """
+        Save the memory log to the specified file path.
+        """
+        log_data = {
+            "monitor_config": {
+                "initial_batch_size": self.initial_batch_size,
+                "reduced_batch_size": self.reduced_batch_size,
+                "rss_threshold_gb": self.rss_threshold_gb,
+                "dataset_cap_fraction": self.dataset_cap_fraction
+            },
+            "final_hyperparameters": self.get_final_hyperparameters(),
+            "log_entries": self.log_entries
+        }
+        
+        with open(self.log_path, 'w') as f:
+            json.dump(log_data, f, indent=2)
+        
+        print(f"Memory monitor log saved to {self.log_path}")
+
+    def clear_cache(self):
+        """
+        Clear PyTorch cache and run garbage collection.
+        """
+        if torch.cuda.is_available():
+            torch.cuda.empty_cache()
+        gc.collect()
 
 
 def main():
     """
-    Standalone execution for testing the memory monitor logic.
-    Simulates a training loop check.
+    Main function to demonstrate the MemoryMonitor usage.
+    This is a simple test script that simulates memory pressure and shows the adaptation logic.
     """
-    log_path = Path("artifacts/results/hyperparams_log.json")
+    import torch
+    import numpy as np
+
+    print("Starting MemoryMonitor demonstration...")
+    
     monitor = MemoryMonitor(
-        log_path=log_path,
         initial_batch_size=8,
         reduced_batch_size=4,
-        rss_warning_threshold_gb=5.0,
-        rss_critical_threshold_gb=6.0,
-        dataset_reduction_factor=0.5
+        rss_threshold_gb=6.0,
+        dataset_cap_fraction=0.5,
+        log_path=Path("artifacts/results/memory_monitor_test.json")
     )
 
-    print("Starting Memory Monitor Test...")
-    print(f"Initial Batch Size: {monitor.initial_batch_size}")
+    # Simulate initial dataset size
+    initial_dataset_size = 10000
+    print(f"Initial dataset size: {initial_dataset_size}")
 
-    # Simulate checks
-    # Check 1: Normal memory
-    decision = monitor.check_and_adapt(current_dataset_size=10000)
-    print(f"Check 1 (Normal): RSS={decision['rss_gb']:.2f}GB, Batch={decision['current_batch_size']}, Action={decision['action_taken']}")
+    # Simulate memory check with low memory
+    print("\n--- Simulating low memory scenario ---")
+    # We can't easily simulate low memory without actual pressure, 
+    # so we'll just call check_and_adapt
+    batch_size, capped, new_size = monitor.check_and_adapt(initial_dataset_size)
+    print(f"After check (low memory): batch_size={batch_size}, capped={capped}, new_size={new_size}")
 
-    # In a real scenario, we would inject memory or wait for training to consume it.
-    # Here we just demonstrate the logic flow by calling it again.
-    # If psutil is not available, RSS will be 0.0, and no action will be taken.
+    # Simulate high memory scenario by pretending RSS is high
+    # In a real scenario, this would happen naturally
+    print("\n--- Simulating high memory scenario (mocked) ---")
     
-    if PSUTIL_AVAILABLE:
-        # Simulate a high memory scenario by forcing the logic path manually for demonstration
-        # In real usage, this happens automatically based on system state.
-        print("\nSimulating high memory scenario (logic path only)...")
-        
-        # Force a state where we are above warning threshold
-        # We can't easily force the OS to report high RSS without actual load,
-        # but we can verify the logic by checking the thresholds.
-        print(f"Warning Threshold: {monitor.rss_warning_threshold_gb}GB")
-        print(f"Critical Threshold: {monitor.rss_critical_threshold_gb}GB")
-        
-        # If we were to run this inside a training loop that actually consumes memory,
-        # the monitor would automatically reduce batch size or cap the dataset.
+    # We need to override get_current_memory_usage_gb for demonstration
+    # But since we can't easily do that in a clean way, we'll just show the logic
+    # by directly manipulating the monitor's internal state for the sake of the demo
     
-    print("\nFinal Hyperparameters:")
-    final_params = monitor.get_final_hyperparameters()
-    for k, v in final_params.items():
-        print(f"  {k}: {v}")
+    # Reset monitor for a clean test
+    monitor2 = MemoryMonitor(
+        initial_batch_size=8,
+        reduced_batch_size=4,
+        rss_threshold_gb=6.0,
+        dataset_cap_fraction=0.5,
+        log_path=Path("artifacts/results/memory_monitor_test2.json")
+    )
+    
+    # Mock the memory check to simulate high memory
+    original_get_memory = get_current_memory_usage_gb
+    
+    def mock_high_memory():
+        return 7.5  # Simulate 7.5 GB usage
+    
+    # Temporarily replace the function
+    import training.memory_monitor as mm_module
+    mm_module.get_current_memory_usage_gb = mock_high_memory
+    
+    try:
+        # First check: should reduce batch size
+        batch_size, capped, new_size = monitor2.check_and_adapt(initial_dataset_size)
+        print(f"First check (high memory): batch_size={batch_size}, capped={capped}, new_size={new_size}")
+        
+        # Second check: should cap dataset
+        batch_size, capped, new_size = monitor2.check_and_adapt(initial_dataset_size)
+        print(f"Second check (still high memory): batch_size={batch_size}, capped={capped}, new_size={new_size}")
+        
+        # Third check: dataset already capped
+        batch_size, capped, new_size = monitor2.check_and_adapt(initial_dataset_size)
+        print(f"Third check (dataset already capped): batch_size={batch_size}, capped={capped}, new_size={new_size}")
+        
+    finally:
+        # Restore original function
+        mm_module.get_current_memory_usage_gb = original_get_memory
 
-    print(f"\nLog written to: {log_path}")
+    # Save logs
+    monitor.save_log()
+    monitor2.save_log()
+    
+    print("\nFinal hyperparameters from monitor2:")
+    print(json.dumps(monitor2.get_final_hyperparameters(), indent=2))
+    
+    print("\nDemonstration complete.")
 
 
 if __name__ == "__main__":

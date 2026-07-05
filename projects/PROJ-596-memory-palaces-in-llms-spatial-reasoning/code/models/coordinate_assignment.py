@@ -1,330 +1,220 @@
 """
-Coordinate assignment logic for episodic chunks.
+Coordinate assignment logic for episodic chunks (FR-001).
 
-Implements FR-001: Assigns 2D spatial coordinates to episodic chunks within
-a logical memory grid to enable spatial indexing and retrieval.
+This module implements the logic to assign 2D spatial coordinates to episodic
+chunks within the Memory Palace grid. The assignment is deterministic based on
+the chunk's content hash to ensure reproducibility, while distributing chunks
+to minimize immediate collision in the local neighborhood (simulating a hash
+map with open addressing or a deterministic scatter).
 """
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import List, Tuple, Optional, Dict, Any
 import math
 import hashlib
 import numpy as np
-
 from models.memory_slot import MemoryGrid
-from models.episodic_chunk import EpisodicChunk, EpisodicMemoryCollection
+from models.episodic_chunk import EpisodicChunk
 
 
 @dataclass
 class CoordinateAssignmentResult:
-    """Result of assigning coordinates to a collection of chunks."""
-    assigned_chunks: List[EpisodicChunk]
-    grid_state: MemoryGrid
-    assignment_log: List[Dict[str, Any]]
+    """Result of assigning coordinates to a set of episodic chunks."""
+    chunk_id: str
+    assigned_coordinate: Tuple[int, int]
+    hash_input: str
+    interference_potential: float
+    is_collision: bool = False
+    collision_resolution_steps: int = 0
 
 
 class CoordinateAssigner:
     """
-    Assigns 2D coordinates to episodic chunks based on a deterministic
-    hashing strategy and grid occupancy checks.
+    Assigns 2D coordinates to episodic chunks based on their content hash.
 
-    This implements the 'Memory Palace' spatial indexing strategy where
-    semantic content is mapped to specific (x, y) locations.
+    The strategy uses the SHA-256 hash of the chunk's text content to derive
+    an initial (x, y) coordinate. If that slot is occupied (collision), a
+    deterministic probing sequence is used to find the next available slot.
+    This implements a form of open addressing in the spatial memory grid.
     """
 
-    def __init__(self, grid_size: int = 10, seed: int = 42):
+    def __init__(self, grid: MemoryGrid):
         """
-        Initialize the coordinate assigner.
+        Initialize the assigner with a reference to the memory grid.
 
         Args:
-            grid_size: The dimension of the square grid (grid_size x grid_size).
-            seed: Random seed for any stochastic tie-breaking (currently deterministic).
+            grid: The MemoryGrid instance representing the 2D spatial slots.
         """
-        self.grid_size = grid_size
-        self.seed = seed
-        self.rng = np.random.default_rng(seed)
+        self.grid = grid
+        self.grid_size = grid.size
+        self.max_probes = grid.size * grid.size  # Safety limit
 
-    def _hash_content_to_seed(self, content: str) -> int:
+    def _compute_hash_coordinates(self, text_content: str) -> Tuple[int, int]:
         """
-        Generate a deterministic integer seed from chunk content.
+        Derive a 2D coordinate from the SHA-256 hash of the text content.
+
+        The first 8 hex characters (32 bits) are used:
+        - First 16 bits -> x coordinate
+        - Next 16 bits -> y coordinate
 
         Args:
-            content: The text content of the episodic chunk.
+            text_content: The text content of the episodic chunk.
 
         Returns:
-            A 32-bit integer derived from the SHA-256 hash of the content.
+            A tuple (x, y) representing the initial coordinate.
         """
-        if not content:
-            return 0
-        digest = hashlib.sha256(content.encode('utf-8')).digest()
-        # Take first 4 bytes and convert to int
-        return int.from_bytes(digest[:4], byteorder='big', signed=False)
+        hash_obj = hashlib.sha256(text_content.encode('utf-8'))
+        hash_hex = hash_obj.hexdigest()
 
-    def _deterministic_coords(self, seed_val: int) -> Tuple[int, int]:
+        # Extract bits for coordinates
+        x_bits = int(hash_hex[0:4], 16)
+        y_bits = int(hash_hex[4:8], 16)
+
+        # Map to grid dimensions
+        x = x_bits % self.grid_size
+        y = y_bits % self.grid_size
+
+        return x, y
+
+    def _calculate_interference_potential(self, x: int, y: int) -> float:
         """
-        Generate a deterministic (x, y) coordinate pair from a seed integer.
+        Calculate the interference potential for a given coordinate.
 
-        Uses a simple linear congruential generator approach for distribution
-        across the grid.
+        This metric estimates the likelihood of retrieval interference based on
+        the density of existing chunks in the local neighborhood (3x3 window).
+        Higher density implies higher potential for interference.
 
         Args:
-            seed_val: An integer seed derived from content.
+            x: X coordinate.
+            y: Y coordinate.
 
         Returns:
-            Tuple of (x, y) coordinates within [0, grid_size-1].
+            A float representing the interference potential (0.0 to 1.0).
         """
-        # Simple LCG to spread values across the grid
-        a = 1103515245
-        c = 12345
-        m = 2**31
+        neighborhood_count = 0
+        total_slots = 0
 
-        x = (a * seed_val + c) % m % self.grid_size
-        y = (a * (x + seed_val) + c) % m % self.grid_size
+        # Define a 3x3 neighborhood
+        for dx in [-1, 0, 1]:
+            for dy in [-1, 0, 1]:
+                nx, ny = x + dx, y + dy
+                # Wrap around for toroidal grid (optional, but good for boundaries)
+                nx = nx % self.grid_size
+                ny = ny % self.grid_size
 
-        return int(x), int(y)
+                if self.grid.is_occupied(nx, ny):
+                    neighborhood_count += 1
+                total_slots += 1
 
-    def assign_coordinates(
-        self,
-        chunks: List[EpisodicChunk],
-        grid: Optional[MemoryGrid] = None
-    ) -> CoordinateAssignmentResult:
+        return neighborhood_count / total_slots
+
+    def assign_coordinate(self, chunk: EpisodicChunk) -> CoordinateAssignmentResult:
         """
-        Assign 2D coordinates to a list of episodic chunks.
-
-        This method implements FR-001 by:
-        1. Hashing content to a seed.
-        2. Mapping seed to (x, y) coordinates.
-        3. Resolving collisions by probing adjacent cells.
-        4. Updating the MemoryGrid state.
+        Assign a coordinate to a single episodic chunk.
 
         Args:
-            chunks: List of EpisodicChunk objects to assign.
-            grid: Optional existing MemoryGrid to update. If None, creates a new one.
+            chunk: The EpisodicChunk to assign.
 
         Returns:
-            CoordinateAssignmentResult containing assigned chunks and final grid state.
+            CoordinateAssignmentResult containing the assigned coordinate and metadata.
         """
-        if grid is None:
-            grid = MemoryGrid(size=self.grid_size)
+        text_content = chunk.text_content
+        initial_coords = self._compute_hash_coordinates(text_content)
+        x, y = initial_coords
 
-        assignment_log = []
-        assigned_chunks = []
+        probes = 0
+        is_collision = False
+        final_x, final_y = x, y
 
-        for idx, chunk in enumerate(chunks):
-            original_content = chunk.content
-            seed_val = self._hash_content_to_seed(original_content)
-            base_x, base_y = self._deterministic_coords(seed_val)
+        # Open addressing with linear probing
+        while self.grid.is_occupied(x, y):
+            is_collision = True
+            probes += 1
+            if probes >= self.max_probes:
+                raise RuntimeError(f"Failed to assign coordinate for chunk {chunk.id}: grid full or infinite loop.")
 
-            # Collision resolution: probe neighbors in a spiral pattern
-            assigned = False
-            probe_x, probe_y = base_x, base_y
-            probe_radius = 0
+            # Linear probe: move to next slot in a pseudo-random but deterministic order
+            # Using the next 4 hex digits of the hash for the offset direction
+            hash_obj = hashlib.sha256(text_content.encode('utf-8'))
+            hash_hex = hash_obj.hexdigest()
+            offset_val = int(hash_hex[8:12], 16)
 
-            while not assigned and probe_radius < self.grid_size:
-                # Check current probe position
-                if (0 <= probe_x < self.grid_size and
-                    0 <= probe_y < self.grid_size):
-                    slot = grid.get_slot(probe_x, probe_y)
-                    if slot.is_empty:
-                        # Assign this coordinate
-                        chunk.spatial_x = probe_x
-                        chunk.spatial_y = probe_y
-                        slot.assign(chunk)
-                        assigned = True
-                    else:
-                        # Slot occupied, continue probing
-                        pass
-                else:
-                    # Out of bounds, expand radius
-                    pass
+            # Move diagonally or orthogonally based on offset
+            x = (x + (offset_val % self.grid_size)) % self.grid_size
+            y = (y + ((offset_val // self.grid_size) % self.grid_size)) % self.grid_size
 
-                if not assigned:
-                    # Spiral probe logic
-                    # Right
-                    for _ in range(2 * probe_radius + 1):
-                        probe_x += 1
-                        if (0 <= probe_x < self.grid_size and
-                            0 <= probe_y < self.grid_size):
-                            slot = grid.get_slot(probe_x, probe_y)
-                            if slot.is_empty:
-                                chunk.spatial_x = probe_x
-                                chunk.spatial_y = probe_y
-                                slot.assign(chunk)
-                                assigned = True
-                                break
-                        if assigned: break
-                    if assigned: break
+        # Mark the slot as occupied in the grid
+        self.grid.assign_slot(x, y, chunk.id)
 
-                    # Down
-                    for _ in range(2 * probe_radius + 1):
-                        probe_y += 1
-                        if (0 <= probe_x < self.grid_size and
-                            0 <= probe_y < self.grid_size):
-                            slot = grid.get_slot(probe_x, probe_y)
-                            if slot.is_empty:
-                                chunk.spatial_x = probe_x
-                                chunk.spatial_y = probe_y
-                                slot.assign(chunk)
-                                assigned = True
-                                break
-                        if assigned: break
-                    if assigned: break
-
-                    # Left
-                    for _ in range(2 * probe_radius + 2):
-                        probe_x -= 1
-                        if (0 <= probe_x < self.grid_size and
-                            0 <= probe_y < self.grid_size):
-                            slot = grid.get_slot(probe_x, probe_y)
-                            if slot.is_empty:
-                                chunk.spatial_x = probe_x
-                                chunk.spatial_y = probe_y
-                                slot.assign(chunk)
-                                assigned = True
-                                break
-                        if assigned: break
-                    if assigned: break
-
-                    # Up
-                    for _ in range(2 * probe_radius + 2):
-                        probe_y -= 1
-                        if (0 <= probe_x < self.grid_size and
-                            0 <= probe_y < self.grid_size):
-                            slot = grid.get_slot(probe_x, probe_y)
-                            if slot.is_empty:
-                                chunk.spatial_x = probe_x
-                                chunk.spatial_y = probe_y
-                                slot.assign(chunk)
-                                assigned = True
-                                break
-                        if assigned: break
-                    if assigned: break
-
-                    probe_radius += 1
-                    # Reset probe to base for next radius if needed, 
-                    # but spiral logic above handles continuous movement.
-                    # If we exhausted the grid, we break the inner loop.
-                    if probe_radius >= self.grid_size:
-                        break
-
-            if not assigned:
-                # Fallback: if grid is full, assign to a random empty slot if any,
-                # or raise an error if completely full.
-                empty_slots = grid.get_empty_slots()
-                if empty_slots:
-                    chosen = empty_slots[0]
-                    chunk.spatial_x = chosen.x
-                    chunk.spatial_y = chosen.y
-                    chosen.assign(chunk)
-                    assigned = True
-                else:
-                    # Grid is full. Log warning and skip or handle as needed.
-                    # For now, we log and keep the base coordinate (even if collision)
-                    # to indicate the pressure, but technically it's an error state.
-                    assignment_log.append({
-                        "chunk_id": chunk.id,
-                        "status": "grid_full",
-                        "attempted_x": base_x,
-                        "attempted_y": base_y
-                    })
-                    # We still assign the base coordinates for tracking, 
-                    # though the slot might be overwritten or invalid.
-                    chunk.spatial_x = base_x
-                    chunk.spatial_y = base_y
-
-            log_entry = {
-                "chunk_id": chunk.id,
-                "content_hash": seed_val,
-                "assigned_x": chunk.spatial_x,
-                "assigned_y": chunk.spatial_y,
-                "status": "assigned" if assigned else "failed"
-            }
-            assignment_log.append(log_entry)
-            assigned_chunks.append(chunk)
+        interference = self._calculate_interference_potential(x, y)
 
         return CoordinateAssignmentResult(
-            assigned_chunks=assigned_chunks,
-            grid_state=grid,
-            assignment_log=assignment_log
+            chunk_id=chunk.id,
+            assigned_coordinate=(x, y),
+            hash_input=text_content[:50] + "...", # Truncate for logging
+            interference_potential=interference,
+            is_collision=is_collision,
+            collision_resolution_steps=probes
         )
+
+    def assign_coordinates_batch(self, chunks: List[EpisodicChunk]) -> List[CoordinateAssignmentResult]:
+        """
+        Assign coordinates to a list of episodic chunks.
+
+        Args:
+            chunks: List of EpisodicChunk instances.
+
+        Returns:
+            List of CoordinateAssignmentResult instances.
+        """
+        results = []
+        for chunk in chunks:
+            result = self.assign_coordinate(chunk)
+            results.append(result)
+        return results
+
+
+def calculate_interference_potential(grid: MemoryGrid, x: int, y: int) -> float:
+    """
+    Standalone helper to calculate interference potential for a coordinate.
+
+    Args:
+        grid: The MemoryGrid instance.
+        x: X coordinate.
+        y: Y coordinate.
+
+    Returns:
+        Float interference potential.
+    """
+    assigner = CoordinateAssigner(grid)
+    return assigner._calculate_interference_potential(x, y)
 
 
 def main():
     """
-    Demonstration of coordinate assignment logic.
-    Reads from a hypothetical data source or creates dummy data for testing.
+    Main entry point for testing coordinate assignment logic.
     """
-    print("Initializing Coordinate Assignment Logic (FR-001)...")
-    
-    # Create sample chunks
-    sample_data = [
-        EpisodicChunk(
-            content="The cat sat on the mat.",
-            timestamp="2023-01-01T10:00:00Z",
-            source="babi_task3"
-        ),
-        EpisodicChunk(
-            content="The dog barked at the mailman.",
-            timestamp="2023-01-01T10:05:00Z",
-            source="babi_task3"
-        ),
-        EpisodicChunk(
-            content="The ball rolled under the sofa.",
-            timestamp="2023-01-01T10:10:00Z",
-            source="babi_task3"
-        ),
-        EpisodicChunk(
-            content="John moved the cup to the kitchen.",
-            timestamp="2023-01-01T10:15:00Z",
-            source="babi_task3"
-        ),
-        EpisodicChunk(
-            content="The cup was then moved to the garden.",
-            timestamp="2023-01-01T10:20:00Z",
-            source="babi_task3"
-        )
+    # Initialize a small grid for testing
+    test_grid = MemoryGrid(size=10)
+
+    # Create some dummy chunks
+    chunks = [
+        EpisodicChunk(id="chunk_1", text_content="The cat sat on the mat."),
+        EpisodicChunk(id="chunk_2", text_content="The quick brown fox jumps."),
+        EpisodicChunk(id="chunk_3", text_content="Memory palaces require spatial reasoning."),
+        EpisodicChunk(id="chunk_4", text_content="Repetition enhances synaptic strength."),
     ]
 
-    assigner = CoordinateAssigner(grid_size=5)
-    grid = MemoryGrid(size=5)
+    assigner = CoordinateAssigner(test_grid)
+    results = assigner.assign_coordinates_batch(chunks)
 
-    result = assigner.assign_coordinates(sample_data, grid)
-
-    print(f"Assigned {len(result.assigned_chunks)} chunks to grid.")
-    print("Assignment Log:")
-    for entry in result.assignment_log:
-        print(f"  Chunk {entry['chunk_id'][:8]}... -> ({entry['assigned_x']}, {entry['assigned_y']}) [{entry['status']}]")
-
-    print("\nGrid State:")
-    grid.print_grid()
-
-    # Save the result to a data file as per project conventions
-    import json
-    import os
-    from pathlib import Path
-
-    output_dir = Path("data/processed")
-    output_dir.mkdir(parents=True, exist_ok=True)
-    output_file = output_dir / "coordinate_assignment_results.json"
-
-    serializable_result = {
-        "grid_size": assigner.grid_size,
-        "total_chunks": len(result.assigned_chunks),
-        "assignments": [
-            {
-                "chunk_id": c.id,
-                "content_preview": c.content[:50],
-                "x": c.spatial_x,
-                "y": c.spatial_y
-            }
-            for c in result.assigned_chunks
-        ],
-        "grid_occupancy": grid.get_occupancy_stats()
-    }
-
-    with open(output_file, 'w') as f:
-        json.dump(serializable_result, f, indent=2)
-
-    print(f"\nResults saved to {output_file}")
+    print("Coordinate Assignment Results:")
+    print("-" * 60)
+    for res in results:
+        print(f"Chunk ID: {res.chunk_id}")
+        print(f"  Assigned Coordinate: {res.assigned_coordinate}")
+        print(f"  Collision: {res.is_collision} (Steps: {res.collision_resolution_steps})")
+        print(f"  Interference Potential: {res.interference_potential:.2f}")
+        print("-" * 60)
 
 
 if __name__ == "__main__":

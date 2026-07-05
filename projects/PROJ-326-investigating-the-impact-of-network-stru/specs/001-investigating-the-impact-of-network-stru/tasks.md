@@ -40,7 +40,7 @@
 - [X] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools in `code/`
 - [X] T004 [P] Create `code/config.yaml` for global seeds, topology targets, and simulation parameters
 - [X] T004b [P] Implement logic to inject specific random seeds used during a run into `data/run_log.json` (do NOT update config.yaml) to ensure reproducibility (FR-007)
-- [ ] T005 [P] Implement logging infrastructure in `code/src/utils/logging.py` to capture seeds, parameters, and runtime metrics, writing to `data/run_log.json`
+- [X] T005 [P] Implement logging infrastructure in `code/src/utils/logging.py` to capture seeds, parameters, and runtime metrics, writing to `data/run_log.json`
 - [ ] T006 [P] Create `code/src/utils/io.py` for saving/loading graphs (`gpickle`, `json`) and managing `data/` directory checksums
 - [ ] T007 [P] Implement base configuration loader in `code/src/utils/config.py` to validate `config.yaml` against required schema
 - [X] T008 [P] Setup `code/tests/conftest.py` with fixtures for temporary data directories and seeded random states
@@ -60,9 +60,9 @@
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
 - [X] T009 [P] [US1] Unit test for Erdős-Rényi generation in `code/tests/test_generators.py`
-- [~] T010 [P] [US1] Unit test for Watts-Strogatz (Small-World) generation with retry logic in `code/tests/test_generators.py` <!-- ATOMIZE: requested -->
-- [~] T011 [P] [US1] Unit test for Barabási-Albert (Scale-Free) generation in `code/tests/test_generators.py`
-- [~] T012 [P] [US1] Integration test verifying connectivity and clustering target success rates in `code/tests/test_integration.py`
+- [ ] T010 [P] [US1] Unit test for Watts-Strogatz (Small-World) generation with retry logic in `code/tests/test_generators.py` <!-- ATOMIZE: requested -->
+- [ ] T011 [P] [US1] Unit test for Barabási-Albert (Scale-Free) generation in `code/tests/test_generators.py`
+- [ ] T012 [P] [US1] Integration test verifying connectivity and clustering target success rates in `code/tests/test_integration.py`
 
 ### Implementation for User Story 1
 

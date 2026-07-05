@@ -53,10 +53,10 @@
  - `DistilGPT2` as a fallback when the memory budget is exceeded.
 - [X] T007 [P] Implement 2‑D grid memory slot data structures (`code/models/memory_slot.py`) and EpisodicChunk schema (`code/models/episodic_chunk.py`).
 - [ ] T007b Implement coordinate assignment logic for episodic chunks (FR‑001).
-- [~] T008 [P] Configure experiment logging and artifact storage (`code/utils/logger.py`) to write JSON/CSV to `artifacts/results/`.
-- [~] T008b Create YAML schema for training run metadata: `artifacts/schemas/training_run.yaml`.
-- [~] T008c Draft quickstart guide: `docs/quickstart.md`.
-- [~] T008d Draft contracts document: `docs/contracts.md`.
+- [X] T008 [P] Configure experiment logging and artifact storage (`code/utils/logger.py`) to write JSON/CSV to `artifacts/results/`.
+- [ ] T008b Create YAML schema for training run metadata: `artifacts/schemas/training_run.yaml`.
+- [ ] T008c Draft quickstart guide: `docs/quickstart.md`.
+- [ ] T008d Draft contracts document: `docs/contracts.md`.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -124,9 +124,9 @@
 ### Implementation for User Story 3
 
 - [~] T024 [P] [US3] Implement interference distance metric in `code/evaluation/metrics.py`. The metric must be computed **separately** for the spatial variant and the non‑spatial baseline, and the results stored in `artifacts/results/interference_distance.json` with fields `spatial`, `baseline`, and `delta`.
-- [ ] T025 [P] [US3] Implement slot occupancy distribution logger in `code/evaluation/metrics.py` that records the distribution **per epoch** for each run; output to `artifacts/results/slot_occupancy_epoch_{epoch}.csv`.
-- [ ] T026 [P] [US3] Implement coordinate variance logger in `code/evaluation/metrics.py` that records variance **per epoch**; output to `artifacts/results/coordinate_variance_epoch_{epoch}.csv`.
-- [ ] T027 [US3] Extend `code/main.py` to run interference‑injection experiments after standard evaluation, log results to `artifacts/results/interference_metrics.json`, and ensure the file includes both variant results and statistical significance.
+- [~] T025 [P] [US3] Implement slot occupancy distribution logger in `code/evaluation/metrics.py` that records the distribution **per epoch** for each run; output to `artifacts/results/slot_occupancy_epoch_{epoch}.csv`.
+- [~] T026 [P] [US3] Implement coordinate variance logger in `code/evaluation/metrics.py` that records variance **per epoch**; output to `artifacts/results/coordinate_variance_epoch_{epoch}.csv`.
+- [~] T027 [US3] Extend `code/main.py` to run interference‑injection experiments after standard evaluation, log results to `artifacts/results/interference_metrics.json`, and ensure the file includes both variant results and statistical significance.
 - [ ] T028 [US3] Add documentation to `research.md` under a new “Structural Metrics” heading, describing the interference‑distance methodology, slot‑occupancy logging, and coordinate‑variance tracking.
 
 **Checkpoint**: All user stories should now be independently functional

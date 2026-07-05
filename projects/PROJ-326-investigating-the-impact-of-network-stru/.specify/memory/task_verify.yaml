@@ -1,9 +1,13 @@
-? T005 [P] Implement logging infrastructure in `code/src/utils/logging.py` to capture
-  seeds, parameters, and runtime metrics, writing to `data/run_log.json`
-: 2
 ? T006 [P] Create `code/src/utils/io.py` for saving/loading graphs (`gpickle`, `json`)
   and managing `data/` directory checksums
-: 1
+: 2
 ? T007 [P] Implement base configuration loader in `code/src/utils/config.py` to validate
   `config.yaml` against required schema
+: 2
+? 'T010 [P] [US1] Unit test for Watts-Strogatz (Small-World) generation with retry
+  logic in `code/tests/test_generators.py` <!-- ATOMIZE: requested -->'
+: 1
+"T011 [P] [US1] Unit test for Barab\xE1si-Albert (Scale-Free) generation in `code/tests/test_generators.py`": 1
+? T012 [P] [US1] Integration test verifying connectivity and clustering target success
+  rates in `code/tests/test_integration.py`
 : 1
