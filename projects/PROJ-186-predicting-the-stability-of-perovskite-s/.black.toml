@@ -1,0 +1,19 @@
+# Standalone Black configuration file (alternative to pyproject.toml)
+# This file is used if the project prefers explicit config files over pyproject.toml.
+
+line-length = 88
+target-version = ["py311"]
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
+)/
+'''

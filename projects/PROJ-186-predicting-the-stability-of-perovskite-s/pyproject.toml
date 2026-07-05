@@ -1,0 +1,66 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "perovskite-stability-ml"
+version = "0.1.0"
+description = "Predicting the Stability of Perovskite Structures Using Machine Learning"
+requires-python = ">=3.11"
+dependencies = [
+    "pymatgen>=2024.0.0",
+    "scikit-learn>=1.4.0",
+    "pandas>=2.0.0",
+    "numpy>=1.26.0",
+    "requests>=2.31.0",
+    "pyyaml>=6.0.1",
+    "ruff>=0.1.0",
+    "black>=23.0.0",
+]
+
+[tool.black]
+line-length = 100
+target-version = ['py311']
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
+)/
+'''
+
+[tool.ruff]
+target-version = "py311"
+line-length = 100
+src = ["code", "tests", "specs"]
+
+[tool.ruff.lint]
+select = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # Pyflakes
+    "I",  # isort
+    "C",  # flake8-comprehensions
+    "B",  # flake8-bugbear
+]
+ignore = [
+    "E501", # line too long (handled by black)
+    "B008", # do not perform function calls in argument defaults (common in data pipelines)
+    "C901", # too complex (allow some complexity in data processing)
+]
+
+[tool.ruff.lint.per-file-ignores]
+"code/data/download.py" = ["E402"] # Allow imports after comments in main scripts
+"code/models/train.py" = ["E402"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["code", "utils", "data", "models", "viz"]
+force-single-line = false
+lines-after-imports = 2

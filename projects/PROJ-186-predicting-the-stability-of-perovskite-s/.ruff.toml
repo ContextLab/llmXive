@@ -1,0 +1,25 @@
+# Standalone Ruff configuration for CLI usage
+# This file mirrors settings in pyproject.toml for IDE/CLI consistency
+target-version = "py311"
+line-length = 100
+src = ["code", "tests", "specs"]
+
+[lint]
+select = [
+    "E",
+    "W",
+    "F",
+    "I",
+    "C",
+    "B",
+]
+ignore = [
+    "E501",
+    "B008",
+    "C901",
+]
+
+[lint.isort]
+known-first-party = ["code", "utils", "data", "models", "viz"]
+force-single-line = false
+lines-after-imports = 2

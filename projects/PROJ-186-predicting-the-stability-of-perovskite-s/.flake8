@@ -1,0 +1,13 @@
+[flake8]
+max-line-length = 100
+exclude = .git,__pycache__,build,dist
+extend-ignore = E501, B008, C901
+# E501: line too long (handled by black)
+# B008: do not perform function calls in argument defaults
+# C901: too complex (allow some complexity in data processing)
+ignore = E501, B008, C901
+max-complexity = 15
+per-file-ignores =
+    code/data/download.py:E402
+    code/models/train.py:E402
+# E402: module level import not at top of file (needed for __main__ guards)

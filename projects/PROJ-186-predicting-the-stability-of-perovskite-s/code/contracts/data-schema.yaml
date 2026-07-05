@@ -1,0 +1,75 @@
+# Data Schema Definitions for Perovskite Stability Pipeline
+# This file defines the expected structure of generated data artifacts.
+# Used by contract tests to validate data integrity.
+
+features:
+  description: "Processed features dataset containing perovskite descriptors and target variable."
+  source: "code/data/descriptors.py"
+  output_path: "data/processed/features.csv"
+  
+  # Columns that MUST be present
+  required_columns:
+    - formula
+    - space_group
+    - tolerance_factor
+    - octahedral_factor
+    - ionic_mismatch
+    - electronegativity_diff
+    - decomposition_energy
+
+  # Columns allowed in the dataset (strict validation)
+  allowed_columns:
+    - formula
+    - space_group
+    - tolerance_factor
+    - octahedral_factor
+    - ionic_mismatch
+    - electronegativity_diff
+    - decomposition_energy
+    - source  # Optional: 'MP' or 'OQMD'
+    - is_ood  # Optional: Added during screening phase
+
+  # Type expectations for validation
+  column_types:
+    formula: string
+    space_group: int
+    tolerance_factor: float
+    octahedral_factor: float
+    ionic_mismatch: float
+    electronegativity_diff: float
+    decomposition_energy: float
+    source: string
+    is_ood: bool
+
+  # Validation rules
+  constraints:
+    - column: decomposition_energy
+      rule: "not_null"
+      message: "Target variable cannot have null values"
+    - column: tolerance_factor
+      rule: "range"
+      min: 0.0
+      max: 2.0
+      message: "Tolerance factor must be between 0 and 2"
+    - column: space_group
+      rule: "in_list"
+      allowed_values: [148, 221]
+      message: "Only cubic (221) and rhombohedral (148) space groups allowed"
+
+model_metrics:
+  description: "Model performance metrics"
+  output_path: "results/metrics.json"
+  required_keys:
+    - test_rmse
+    - cv_mean_rmse
+    - best_params
+    - feature_importances
+
+screening_results:
+  description: "Virtual screening output"
+  output_path: "results/screening_full.csv"
+  required_columns:
+    - formula
+    - predicted_decomposition_energy
+    - is_feasible
+    - is_ood
