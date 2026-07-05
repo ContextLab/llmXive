@@ -1,0 +1,6 @@
+T001 Create `data/` directory at repository root: 2
+T002 Create `data/raw/` directory: 2
+T003 Create `data/processed/` directory: 2
+T004 Create `data/metadata/` directory: 2
+T005 Create `code/` directory: 2
+T006 Create `code/tests/` directory: 2

@@ -1,0 +1,55 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: AlloyComposition Dataset Schema
+description: Schema for processed alloy composition dataset with thermodynamic descriptors
+type: object
+properties:
+  sample_id:
+    type: string
+    description: "Unique identifier for the alloy sample"
+  composition:
+    type: object
+    description: "Elemental fractions as key-value pairs"
+    additionalProperties:
+      type: number
+      minimum: 0
+      maximum: 1
+  gfa_label:
+    type: string
+    enum: ["glass-forming", "non-glass-forming"]
+    description: "Binary GFA label (derived from Rc < 100 K/s if continuous)"
+  critical_cooling_rate:
+    type: number
+    description: "Continuous Rc value (K/s) if available, else null"
+  delta_h_mix:
+    type: number
+    description: "Mixing enthalpy in kJ/mol"
+  delta:
+    type: number
+    description: "Atomic size mismatch in percent"
+  vec:
+    type: number
+    description: "Valence electron concentration"
+  delta_chi:
+    type: number
+    description: "Electronegativity difference"
+  source:
+    type: string
+    description: "Dataset origin (e.g., Zenodo-GFA-DB, Synthetic)"
+  checksum:
+    type: string
+    description: "SHA256 checksum of raw record"
+  family:
+    type: string
+    description: "Inferred chemical family (Fe, Zr, etc.) based on max atomic fraction"
+required:
+  - sample_id
+  - composition
+  - gfa_label
+  - delta_h_mix
+  - delta
+  - vec
+  - delta_chi
+  - source
+  - checksum
+  - family
+additionalProperties: false

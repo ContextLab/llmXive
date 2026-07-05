@@ -1,0 +1,61 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "llmxive-gfa-prediction"
+version = "0.1.0"
+description = "Predicting the Glass Forming Region of Metallic Glass Alloys via Machine Learning"
+requires-python = ">=3.11"
+dependencies = [
+    "pandas",
+    "numpy",
+    "scikit-learn",
+    "pyyaml",
+    "requests",
+    "pytest",
+    "pytest-cov",
+]
+
+[tool.black]
+line-length = 88
+target-version = ['py311']
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+    | \.venv
+    | build
+    | dist
+    | \.egg-info
+)/
+'''
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = "-v --cov=code --cov-report=term-missing --cov-report=html:results/validation/coverage_html"
+
+[tool.isort]
+profile = "black"
+line_length = 88
+skip = [".git", ".venv", "build", "dist"]
+
+[tool.coverage.run]
+source = ["code"]
+omit = ["*/tests/*", "*/setup_*.py"]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+    "if TYPE_CHECKING:",
+    "@abstractmethod",
+]
+precision = 2
+show_missing = true

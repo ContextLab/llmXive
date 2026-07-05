@@ -1,0 +1,70 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: ValidationReport Schema
+description: Schema for validation report including VIF, sensitivity analysis, and associational conclusion
+type: object
+properties:
+  report_id:
+    type: string
+    description: "Unique identifier for the validation report"
+  vif_scores:
+    type: object
+    description: "Variance Inflation Factor scores per predictor"
+    additionalProperties:
+      type: number
+      minimum: 0
+  threshold_sensitivity:
+    type: array
+    description: "Performance metrics for thresholds {0.4, 0.5, 0.6}"
+    items:
+      type: object
+      properties:
+        threshold:
+          type: number
+          enum: [0.4, 0.5, 0.6]
+        false_positive_rate:
+          type: number
+          minimum: 0
+          maximum: 1
+        true_positive_rate:
+          type: number
+          minimum: 0
+          maximum: 1
+      required:
+        - threshold
+        - false_positive_rate
+        - true_positive_rate
+  max_vif:
+    type: number
+    description: "Maximum VIF score across all predictors"
+  conclusion:
+    type: string
+    pattern: "associational"
+    description: "Explicitly states findings are associational"
+  generated_at:
+    type: string
+    format: date-time
+    description: "Timestamp of report generation"
+  power_status:
+    type: string
+    enum: ["Confirmatory", "Exploratory"]
+    description: "Statistical power status based on sample size"
+  split_type:
+    type: string
+    enum: ["Cross-System", "Stratified Random"]
+    description: "Type of split used for validation"
+  permutation_p_value:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: "P-value from permutation test"
+required:
+  - report_id
+  - vif_scores
+  - threshold_sensitivity
+  - max_vif
+  - conclusion
+  - generated_at
+  - power_status
+  - split_type
+  - permutation_p_value
+additionalProperties: false

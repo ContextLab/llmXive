@@ -1,0 +1,1 @@
+"""Integration tests for the Metallic Glass GFA prediction pipeline."""
