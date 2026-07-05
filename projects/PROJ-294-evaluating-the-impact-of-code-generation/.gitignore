@@ -1,0 +1,33 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.python-version
+.venv/
+venv/
+ENV/
+env/
+
+# Data
+data/raw/
+data/generated/
+data/analysis/
+state/artifact_hashes.yaml
+
+# Reports
+results/figures/
+results_report.md
+
+# Logs
+*.log
+errors.log
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db

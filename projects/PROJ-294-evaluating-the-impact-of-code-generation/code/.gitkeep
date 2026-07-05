@@ -1,0 +1,6 @@
+# Code directory placeholder
+# This directory will contain:
+# - Utility modules (utils.py, artifact_manager.py)
+# - Data processing scripts (download_data.py, generate_code.py)
+# - Analysis scripts (analyze_metrics.py, statistical_tests.py)
+# - Report generation (report_generator.py)

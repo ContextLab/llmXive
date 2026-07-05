@@ -1,0 +1,5 @@
+? 'T007 [P] Implement Reference-Validator Agent wrapper in `code/validate_citations.py`
+  (FR-010). **BLOCKING**: Must complete before T010 starts.'
+: 2
+'T008 Create data directory structure: `data/raw/`, `data/generated/`, `data/analysis/`': 1
+'T009 Create results directory structure: `results/figures/`': 1

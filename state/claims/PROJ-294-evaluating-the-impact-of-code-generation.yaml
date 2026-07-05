@@ -1,0 +1,115 @@
+- artifact_path: projects/PROJ-294-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: metrics.json contains at least 40 valid samples with cyclomatic_complexity,
+    halstead_volume, branch_coverage_pct, and pass_rate
+  claim_id: c_ed996348
+  context: 'Independent Test: Run the pipeline on a local copy of HumanEval. Verify
+    that `data/analysis/metrics.json` contains...'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Metrics.json_contains_at_least_40_valid_samples_with_cycloma
+  kind: magnitude
+  raw_text: Verify that `data/analysis/metrics.json` contains `cyclomatic_complexity`,
+    `halstead_volume`, `branch_coverage_pct`, and `pass_rate` for every valid pair,
+    with at least 40 valid samples.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T05:28:55Z'
+- artifact_path: projects/PROJ-294-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: 'A Priori Power Analysis parameters: d=0.5, alpha=0.05, power=0.8'
+  claim_id: c_98e69549
+  context: "Implement A Priori Power Analysis in `code/statistical_tests.py` (d=0.5,\
+    \ \u03B1=0.05, power\u22650.8) to validate sample size (FR-008)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement A Priori Power Analysis in `code/statistical_tests.py` (d=0.5,\
+    \ \u03B1=0.05, power\u22650.8) to validate sample size"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T05:29:35Z'
+- artifact_path: projects/PROJ-294-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: power analysis requires n >= 38 and achieved power >= 0.8
+  claim_id: c_cd0c2da1
+  context: "Independent Test: Feed mock paired datasets; verify p-values are calculated\
+    \ correctly and power analysis reports required n \u2265 38 and achieved power\
+    \ \u2265 0.8."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "verify power analysis reports required n \u2265 38 and achieved power\
+    \ \u2265 0.8."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T05:29:35Z'
+- artifact_path: projects/PROJ-294-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: metrics.json contains at least 40 valid samples with cyclomatic_complexity,
+    halstead_volume, branch_coverage_pct, and pass_rate
+  claim_id: c_5c15a70b
+  context: 'Independent Test: Run the pipeline on a local copy of HumanEval. Verify
+    that data/analysis/metrics.json contains cyclomatic_complexity, halstead_volume,
+    branch_coverage_pct, and pass_rate for every valid pair, with at least 40 valid
+    samples.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Metrics.json_contains_at_least_40_valid_samples_with_cycloma
+  kind: magnitude
+  raw_text: Verify that data/analysis/metrics.json contains cyclomatic_complexity,
+    halstead_volume, branch_coverage_pct, and pass_rate for every valid pair, with
+    at least 40 valid samples.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T05:39:43Z'
+- artifact_path: projects/PROJ-294-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: A Priori Power Analysis uses d=0.5, alpha=0.05, and power>=0.8
+  claim_id: c_6859f57f
+  context: "Implement A Priori Power Analysis in code/statistical_tests.py (d=0.5,\
+    \ \u03B1=0.05, power\u22650.8) to validate sample size (FR-008)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement A Priori Power Analysis in code/statistical_tests.py (d=0.5,\
+    \ \u03B1=0.05, power\u22650.8) to validate sample size."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T05:39:43Z'
+- artifact_path: projects/PROJ-294-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: power analysis reports required sample size n >= 38 and achieved power
+    >= 0.8
+  claim_id: c_55dbf68d
+  context: "Independent Test: Feed mock paired datasets; verify p-values are calculated\
+    \ correctly and power analysis reports required n \u2265 38 and achieved power\
+    \ \u2265 0.8."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "verify power analysis reports required n \u2265 38 and achieved power\
+    \ \u2265 0.8."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T05:39:43Z'
