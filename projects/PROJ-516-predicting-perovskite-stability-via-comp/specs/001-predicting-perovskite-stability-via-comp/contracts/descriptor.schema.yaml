@@ -1,0 +1,91 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "CompositionalDescriptor"
+description: "Schema for perovskite compositional descriptors and derived features."
+type: object
+properties:
+  formula:
+    type: string
+    description: "Chemical formula of the perovskite."
+  source_db:
+    type: string
+    description: "Source database name."
+    enum:
+      - "NREL"
+      - "MaterialsProject"
+      - "Literature"
+  T_d:
+    type: number
+    description: "Decomposition temperature in degrees Celsius."
+  T_d_uncertainty:
+    type: number
+    description: "Measurement uncertainty in degrees Celsius."
+    minimum: 0
+  family:
+    type: string
+    description: "Perovskite family classification."
+    enum:
+      - "lead-halide"
+      - "tin-halide"
+      - "double"
+      - "other"
+  atomic_fraction_A:
+    type: number
+    description: "Atomic fraction of A-site elements."
+    minimum: 0
+    maximum: 1
+  atomic_fraction_B:
+    type: number
+    description: "Atomic fraction of B-site elements."
+    minimum: 0
+    maximum: 1
+  atomic_fraction_X:
+    type: number
+    description: "Atomic fraction of X-site elements."
+    minimum: 0
+    maximum: 1
+  weighted_ionic_radius:
+    type: number
+    description: "Weighted average ionic radius."
+  weighted_electronegativity:
+    type: number
+    description: "Weighted average electronegativity."
+  weighted_formation_enthalpy:
+    type: number
+    description: "Weighted average formation enthalpy."
+  weighted_ionization_energy:
+    type: number
+    description: "Weighted average first ionization energy."
+  variance_ionic_radius:
+    type: number
+    description: "Variance of ionic radius across sites."
+  variance_electronegativity:
+    type: number
+    description: "Variance of electronegativity across sites."
+  variance_ionization_energy:
+    type: number
+    description: "Variance of ionization energy across sites."
+  vif_score:
+    type: number
+    description: "Variance Inflation Factor for collinearity check."
+    minimum: 1
+  is_excluded:
+    type: boolean
+    description: "True if the entry was excluded due to missing data."
+required:
+  - formula
+  - source_db
+  - T_d
+  - family
+  - atomic_fraction_A
+  - atomic_fraction_B
+  - atomic_fraction_X
+  - weighted_ionic_radius
+  - weighted_electronegativity
+  - weighted_formation_enthalpy
+  - weighted_ionization_energy
+  - variance_ionic_radius
+  - variance_electronegativity
+  - variance_ionization_energy
+  - vif_score
+  - is_excluded
+additionalProperties: false

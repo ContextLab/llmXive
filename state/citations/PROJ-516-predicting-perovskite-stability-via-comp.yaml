@@ -1,1 +1,11 @@
-[]
+- artifact_hash: 824aabfb4848f6976a6eb7bafef8e98fa252eb90b970c02c4820dab7c8f76bad
+  artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: BSEBENCH_SOURCE.json
+  kind: url
+  value: https://huggingface.co/datasets/bsebench-org/nrel-pulse-diagnostics-2025-raw/resolve/main/BSEBENCH_SOURCE.json`
+  verification_status: verified
+  verified_against_url: https://huggingface.co/api/resolve-cache/datasets/bsebench-org/nrel-pulse-diagnostics-2025-raw/3a7b7d6e7a2d425aa67611a30f752cac95ea684d/BSEBENCH_SOURCE.json?%2Fdatasets%2Fbsebench-org%2Fnrel-pulse-diagnostics-2025-raw%2Fresolve%2Fmain%2FBSEBENCH_SOURCE.json=&etag=%224992767d453b219cc7d2967fa61735644b2265bd%22
+  verified_at: '2026-07-05T14:22:28.440529Z'

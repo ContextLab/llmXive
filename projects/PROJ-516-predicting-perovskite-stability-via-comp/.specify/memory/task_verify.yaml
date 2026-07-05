@@ -1,0 +1,9 @@
+? 'T001 Create project structure per implementation plan (`projects/PROJ-516-predicting-perovskite-stability-via-comp/`)
+  <!-- ATOMIZE: requested -->'
+: 1
+T003 [P] Configure linting (flake8/pylint) and formatting (black/isort) tools: 1
+T004 Implement `state_manager.py` to compute SHA-256 hashes for derived artifacts and update `state/...yaml`: 1
+T005 Create `contracts/descriptor.schema.yaml` defining the schema for `CompositionalDescriptor` entities: 1
+? T005b Create `contracts/metadata.schema.yaml` defining the schema for `PerovskiteEntry`
+  instrumentation metadata (TGA model, uncertainty)
+: 1

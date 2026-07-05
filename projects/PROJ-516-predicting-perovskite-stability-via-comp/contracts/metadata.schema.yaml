@@ -1,0 +1,67 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: PerovskiteEntry Metadata Schema
+description: |
+  Schema defining the instrumentation metadata for PerovskiteEntry entities.
+  This schema captures the specific thermogravimetric analyzer (TGA) model used
+  for the thermal stability measurement and the associated uncertainty bounds,
+  addressing the requirement for measurement precision over mere correlation.
+  See reviewer feedback from marie-curie-simulated regarding instrument specificity.
+type: object
+required:
+  - tga_model
+  - uncertainty
+  - uncertainty_unit
+  - source_citation
+properties:
+  tga_model:
+    type: string
+    description: |
+      The specific model name and manufacturer of the Thermogravimetric Analyzer
+      used to measure the decomposition temperature (T_d). Examples:
+      "TA Instruments Q500", "Mettler Toledo TGA/DSC 3+", "PerkinElmer TGA 4000".
+    minLength: 1
+  uncertainty:
+    type: number
+    description: |
+      The absolute uncertainty (error margin) of the temperature measurement.
+      Typically derived from the instrument's calibration certificate or
+      manufacturer specifications (e.g., ±5°C, ±10°C).
+      This value must be non-negative.
+    minimum: 0
+  uncertainty_unit:
+    type: string
+    description: |
+      The unit of the uncertainty value. For thermal stability, this is almost
+      exclusively "°C" or "Celsius".
+    enum:
+      - "°C"
+      - "Celsius"
+      - "K"
+  source_citation:
+    type: string
+    description: |
+      The DOI, URL, or bibliographic reference for the source where the
+      experimental data was obtained. This links the metadata to the specific
+      entry in the raw dataset.
+    minLength: 1
+  instrument_serial_number:
+    type: string
+    description: |
+      Optional. The serial number of the specific instrument unit used, if
+      available in the source metadata. Useful for traceability.
+    nullable: true
+  calibration_date:
+    type: string
+    format: date
+    description: |
+      Optional. The date of the last calibration for the instrument, if
+      recorded in the source metadata.
+    nullable: true
+  notes:
+    type: string
+    description: |
+      Optional. Any additional notes regarding the measurement conditions,
+      such as heating rate (e.g., "10°C/min"), atmosphere (e.g., "N2 flow"),
+      or specific sample preparation details that might affect the T_d reading.
+    nullable: true
+additionalProperties: false

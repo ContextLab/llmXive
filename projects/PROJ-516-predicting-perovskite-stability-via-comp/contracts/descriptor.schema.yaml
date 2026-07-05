@@ -1,0 +1,86 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: CompositionalDescriptor
+description: >
+  Schema for compositional descriptors derived from perovskite formulas.
+  Implements feature requirements from FR-002 (atomic fractions, weighted ionic radius,
+  electronegativity, formation enthalpy, first ionization energy) and variance metrics.
+type: object
+required:
+  - formula
+  - atomic_fraction_A
+  - atomic_fraction_B
+  - atomic_fraction_X
+  - weighted_ionic_radius
+  - weighted_electronegativity
+  - weighted_formation_enthalpy
+  - weighted_first_ionization_energy
+  - variance_ionic_radius
+  - variance_electronegativity
+  - variance_formation_enthalpy
+  - variance_first_ionization_energy
+properties:
+  formula:
+    type: string
+    description: "Chemical formula of the perovskite (e.g., 'CsPbI3')."
+    pattern: "^[A-Za-z0-9]+$"
+
+  atomic_fraction_A:
+    type: number
+    description: "Atomic fraction of the A-site cation."
+    minimum: 0
+    maximum: 1
+
+  atomic_fraction_B:
+    type: number
+    description: "Atomic fraction of the B-site cation."
+    minimum: 0
+    maximum: 1
+
+  atomic_fraction_X:
+    type: number
+    description: "Atomic fraction of the X-site anion."
+    minimum: 0
+    maximum: 1
+
+  weighted_ionic_radius:
+    type: number
+    description: "Stoichiometry-weighted average ionic radius (Å)."
+
+  weighted_electronegativity:
+    type: number
+    description: "Stoichiometry-weighted average electronegativity (Pauling scale)."
+
+  weighted_formation_enthalpy:
+    type: number
+    description: "Stoichiometry-weighted average formation enthalpy (eV/atom)."
+
+  weighted_first_ionization_energy:
+    type: number
+    description: "Stoichiometry-weighted average first ionization energy (eV)."
+
+  variance_ionic_radius:
+    type: number
+    description: "Variance of ionic radii across constituent elements."
+
+  variance_electronegativity:
+    type: number
+    description: "Variance of electronegativities across constituent elements."
+
+  variance_formation_enthalpy:
+    type: number
+    description: "Variance of formation enthalpies across constituent elements."
+
+  variance_first_ionization_energy:
+    type: number
+    description: "Variance of first ionization energies across constituent elements."
+
+  computed_at:
+    type: string
+    format: date-time
+    description: "ISO 8601 timestamp of descriptor computation."
+
+  source_formula:
+    type: string
+    description: "Original formula string from source data before normalization."
+
+additionalProperties: false
