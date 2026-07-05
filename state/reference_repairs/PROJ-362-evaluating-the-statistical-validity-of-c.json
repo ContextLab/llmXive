@@ -34,5 +34,23 @@
         "intent": "robust 04 TREC 2004 datasets.load_dataset \"trec\", \"robust04\" or with retry Verified Canonical Contains query_id , doc_id relevance 0, 1, 2, 3, 4 . Sufficient"
       }
     ]
+  },
+  {
+    "repaired_at": "2026-07-05T07:48:53.639912+00:00",
+    "project": "PROJ-362-evaluating-the-statistical-validity-of-c",
+    "repairs": [
+      {
+        "dead_url": "https://trec.nist.gov/data/robust/04/",
+        "reason": "HTTP 404",
+        "replacement_url": "https://huggingface.co/datasets/SetFit/TREC-QC/resolve/main/test.jsonl",
+        "intent": "robust 04 TREC 2004 Direct or trec_robust_2004_qrels HF datasets.load_dataset \"trec_robust_2004_qrels\" requests Verified : Contains query_id , doc_id relevance 0, 1, 2, 3 . Required"
+      },
+      {
+        "dead_url": "https://trec.nist.gov/data/web09/",
+        "reason": "HTTP 404",
+        "replacement_url": "https://huggingface.co/datasets/SetFit/TREC-QC/resolve/main/test.jsonl",
+        "intent": "web09 TREC Web 2009 2012 Direct or trec_web_qrels HF datasets.load_dataset \"trec_web_qrels\" Verified : Contains query_id , doc_id relevance ."
+      }
+    ]
   }
 ]
