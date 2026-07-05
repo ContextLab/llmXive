@@ -13,9 +13,6 @@
 ? "T003 {{claim:c_ef1634da}} (Wikidata Q19873191 [UNRESOLVED-CLAIM: c_8fd76726 \u2014\
   \ status=not_enough_info], https://www.wikidata.org/wiki/Q19873191) *(Alias of PT003)*"
 : 1
-? 'T003 {{claim:c_ef1634da}} (Wikidata Q19873191, https://www.wikidata.org/wiki/Q19873191)
-  *(Alias of PT003)* <!-- FAILED: unspecified -->'
-: 2
 ? "T012 Create CI workflow file `.github/workflows/audit.yml` that installs dependencies,\
   \ enforces CPU \u2264 2 vCPU [UNRESOLVED-CLAIM: c_cd37e346 \u2014 status=not_enough_info],\
   \ RAM \u2264 2 GB [UNRESOLVED-CLAIM: c_d04b4d02 \u2014 status=not_enough_info],\

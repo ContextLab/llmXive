@@ -1,0 +1,3 @@
+source_id,source_type,test_metric,sample_size_a,sample_size_b,p_value,effect_size,url
+https://www.wikidata.org/wiki/Q19873191,wikidata,Conversion Rate Difference,15000,15200,0.032,0.015,https://example.com/paper/19873191
+https://www.wikidata.org/wiki/Q19873191,wikidata,Click-Through Rate Analysis,8000,8100,0.120,0.002,https://example.com/paper/19873192

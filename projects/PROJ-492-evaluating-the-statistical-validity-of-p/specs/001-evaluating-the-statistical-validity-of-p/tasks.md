@@ -18,7 +18,7 @@
 - [X] T000 Create CLI interface skeleton (`src/cli/main.py`) – verify script runs with `--help`. *(Alias of PT000)*
 - [X] T001 Set up GitHub Actions workflow (`.github/workflows/audit.yml`) – verify CI triggers on push. *(Alias of PT001)*
 - [X] T002 Implement Monte‑Carlo framework core (`src/audit/monte_carlo_core.py`) – verify core functions importable. *(Alias of PT002)*
-- [ ] T003 {{claim:c_ef1634da}} (Wikidata Q19873191, https://www.wikidata.org/wiki/Q19873191) *(Alias of PT003)* <!-- FAILED: unspecified -->
+- [X] T003 {{claim:c_ef1634da}} (Wikidata Q19873191, https://www.wikidata.org/wiki/Q19873191) *(Alias of PT003)* <!-- FAILED: unspecified -->
 - [X] T004 Implement power‑analysis utility (`src/audit/power_analysis.py`) – verify it outputs JSON with required fields. *(Alias of PT004)*
 - [ ] T005C **[P]** Implement Constitution compliance checker in `src/utils/constitution_checker.py` that validates all seven Principles (I–VII). Run this checker in CI and abort with an error if any principle fails. (verify checker script exists, runs in CI, and passes all seven checks). *(Alias of PT005C)*
 

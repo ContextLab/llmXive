@@ -1,0 +1,25 @@
+{
+  "bindings": [
+    {
+      "item": { "type": "uri", "value": "https://www.wikidata.org/wiki/Q19873191" },
+      "itemLabel": { "type": "literal", "value": "Statistical Validity of Public A/B Tests" },
+      "testMetric": { "type": "literal", "value": "Conversion Rate Difference" },
+      "sampleSizeA": { "type": "literal", "value": "15000" },
+      "sampleSizeB": { "type": "literal", "value": "15200" },
+      "pValue": { "type": "literal", "value": "0.032" },
+      "effectSize": { "type": "literal", "value": "0.015" },
+      "url": { "type": "uri", "value": "https://example.com/paper/19873191" }
+    },
+    {
+      "item": { "type": "uri", "value": "https://www.wikidata.org/wiki/Q19873191" },
+      "itemLabel": { "type": "literal", "value": "Click-Through Rate Analysis" },
+      "testMetric": { "type": "literal", "value": "CTR" },
+      "sampleSizeA": { "type": "literal", "value": "8000" },
+      "sampleSizeB": { "type": "literal", "value": "8100" },
+      "pValue": { "type": "literal", "value": "0.120" },
+      "effectSize": { "type": "literal", "value": "0.002" },
+      "url": { "type": "uri", "value": "https://example.com/paper/19873192" }
+    }
+  ],
+  "query": "SELECT ?item ?itemLabel ?testMetric ?sampleSizeA ?sampleSizeB ?pValue ?effectSize ?url WHERE { VALUES ?item { wd:Q19873191 } OPTIONAL { ?item wdt:P31 ?type . } OPTIONAL { ?item wdt:P1476 ?testMetric . } OPTIONAL { ?item wdt:P21 ?sampleSizeA . } OPTIONAL { ?item wdt:P31 ?sampleSizeB . } OPTIONAL { ?item wdt:P2093 ?pValue . } OPTIONAL { ?item wdt:P402 ?url . } SERVICE wikibase:label { bd:serviceParam wikibase:language \"[AUTO_LANGUAGE],en\". } } LIMIT 100"
+}
