@@ -1,14 +1,7 @@
-last_used: albert-einstein
-last_used_at: '2026-07-05T00:45:45.481800+00:00'
-last_outcome: triage_rejected_advanced_as_abstain
+last_used: dan-rockmore
+last_used_at: '2026-07-05T09:08:31.098938+00:00'
+last_outcome: committed
 history:
-- slug: alan-turing
-  started_at: '2026-06-23T13:27:49.935149+00:00'
-  ended_at: '2026-06-23T14:20:46.460646+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-703-evoarena-tracking-memory-evolution-for-r/paper/reviews/alan-turing-simulated__2026-06-23__paper.md
 - slug: albert-einstein
   started_at: '2026-06-23T14:20:46.460646+00:00'
   ended_at: '2026-06-23T16:49:31.038178+00:00'
@@ -1218,3 +1211,10 @@ history:
   ended_at: '2026-07-05T00:45:45.481800+00:00'
   outcome: triage_rejected_advanced_as_abstain
   action: comment
+- slug: dan-rockmore
+  started_at: '2026-07-05T00:45:45.481800+00:00'
+  ended_at: '2026-07-05T09:08:31.098938+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-421-assessing-the-impact-of-data-resolution-/reviews/research/dan-rockmore-simulated__2026-07-05__research.md
