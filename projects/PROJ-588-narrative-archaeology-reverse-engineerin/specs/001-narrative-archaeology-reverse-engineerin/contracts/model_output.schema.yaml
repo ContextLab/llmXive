@@ -1,0 +1,55 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "NarrativeArchaeologyModelOutputSchema"
+description: "Schema for the outputs of the decoding models (Ridge/SVM)."
+type: "object"
+properties:
+  model_type:
+    type: "string"
+    enum:
+      - "ridge"
+      - "svm"
+    description: "Type of classifier used."
+  target_category:
+    type: "string"
+    enum:
+      - "plot"
+      - "character"
+      - "theme"
+    description: "The narrative category being predicted."
+  roi:
+    type: "string"
+    description: "Region of Interest used for features."
+  metrics:
+    type: "object"
+    properties:
+      accuracy:
+        type: "number"
+        description: "Cross-validated accuracy."
+      f1_score:
+        type: "number"
+        description: "F1 score."
+      chance_level:
+        type: "number"
+        description: "Expected accuracy by chance (1/N)."
+      p_value:
+        type: "number"
+        description: "P-value from permutation test."
+    required:
+      - "accuracy"
+      - "chance_level"
+      - "p_value"
+  weights:
+    type: "array"
+    items:
+      type: "number"
+    description: "Model coefficients (flattened)."
+  seed:
+    type: "integer"
+    description: "Random seed used for reproducibility."
+required:
+  - "model_type"
+  - "target_category"
+  - "roi"
+  - "metrics"
+  - "seed"
+additionalProperties: false

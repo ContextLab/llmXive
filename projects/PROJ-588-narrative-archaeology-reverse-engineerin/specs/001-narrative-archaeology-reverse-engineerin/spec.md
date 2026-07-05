@@ -17,40 +17,40 @@ The researcher needs to automatically download the Natural Stories fMRI dataset 
 
 **Acceptance Scenarios**:
 
-1. **Given** a valid OpenNeuro dataset ID, **When** the pipeline executes, **Then** it downloads the raw data and runs fMRIPrep without GPU acceleration, completing within 4 hours per subject on a 2-core CPU.
+1. **Given** a valid OpenNeuro dataset ID, **When** the pipeline executes on a GitHub Actions ubuntu-latest runner (vCPU, 7GB RAM) with parallel workers, **Then** it downloads the raw data and runs fMRIPrep, completing preprocessing for a 10-subject subset within 6 hours.
 2. **Given** the preprocessed fMRI data, **When** the event segmentation module runs, **Then** it outputs a CSV file mapping timepoints to specific narrative elements (plot, character, theme) with ≤ 5% missing timepoints.
 3. **Given** the segmented data, **When** the researcher inspects the ROI masks, **Then** the masks for hippocampus, mPFC, PCC, and lateral temporal cortex are correctly aligned to the preprocessed space.
 
 ---
 
-### User Story 2 - Encoding vs. Recall Pattern Comparison (Priority: P2)
+### User Story 2 - Encoding vs. Recognition Pattern Comparison (Priority: P2)
 
-The researcher needs to compare neural activity patterns between the encoding (listening) and recall (recounting) phases to identify regions where patterns overlap and where they diverge, specifically focusing on hippocampal and prefrontal reconfiguration.
+The researcher needs to compare neural activity patterns between the encoding (listening) and recognition (delayed task) phases to identify regions where patterns overlap and where they diverge, specifically focusing on hippocampal and prefrontal reconfiguration.
 
 **Why this priority**: This addresses the core research question regarding the transformation of memory traces. It establishes the baseline for whether reconstruction is even theoretically possible.
 
-**Independent Test**: Can be fully tested by computing Representational Similarity Analysis (RSA) matrices for encoding and recall phases and verifying that the correlation between encoding-recall pairs is significantly lower than encoding-encoding pairs (p < 0.05).
+**Independent Test**: Can be fully tested by computing Representational Similarity Analysis (RSA) matrices for encoding and recognition phases and verifying that the dissimilarity between encoding-recognition pairs is significantly higher than encoding-encoding pairs (dissimilarity difference > 0.1 or p < 0.05).
 
 **Acceptance Scenarios**:
 
-1. **Given** preprocessed timecourses for encoding and recall, **When** the RSA module computes similarity matrices, **Then** it outputs a dissimilarity matrix showing distinct reconfiguration in the hippocampus compared to sensory cortices.
-2. **Given** the similarity matrices, **When** the system performs a permutation test (1000 iterations), **Then** it reports a p-value indicating whether the observed pattern similarity difference is statistically significant.
+1. **Given** preprocessed timecourses for encoding and recognition, **When** the RSA module computes dissimilarity matrices, **Then** it outputs a dissimilarity matrix showing distinct reconfiguration in the hippocampus compared to sensory cortices (dissimilarity difference > 0.1 or p < 0.05).
+2. **Given** the dissimilarity matrices, **When** the system performs a permutation test (A sufficient number of iterations will be performed to ensure convergence of the algorithm, as outlined in the research question and method, following the framework established by the cited references.) with FDR correction (q < 0.05) across ROIs, **Then** it reports a p-value indicating whether the observed pattern dissimilarity difference is statistically significant.
 3. **Given** the results, **When** the researcher visualizes the top differing ROIs, **Then** the mPFC and hippocampus are highlighted as having the largest divergence scores.
 
 ---
 
 ### User Story 3 - Narrative Element Reconstruction (Priority: P3)
 
-The researcher needs to train linear classifiers to predict specific narrative elements (plot points, characters, themes) from neural patterns during recall and evaluate if plot points are reconstructed with higher accuracy than character details.
+The researcher needs to train linear classifiers to predict specific narrative elements (plot points, characters, themes) from neural patterns during recognition and evaluate if plot points are reconstructed with higher accuracy than character details.
 
 **Why this priority**: This is the ultimate "archaeology" step—attempting to reverse-engineer the story content. It validates the practical utility of the memory traces identified in US-2.
 
-**Independent Test**: Can be fully tested by training a ridge regression classifier on [deferred] of the recall data and evaluating accuracy on the held-out [deferred] for each narrative category, verifying accuracy exceeds chance ([deferred]) for at least one category.
+**Independent Test**: Can be fully tested by training a ridge regression classifier on A substantial majority of the recognition data (with semantic feature extraction) and evaluating accuracy on the held-out A balanced distribution across each narrative category, verifying accuracy exceeds the calculated chance level (1/N) for at least one category.
 
 **Acceptance Scenarios**:
 
-1. **Given** the labeled recall fMRI data, **When** the decoder trains a linear model with 5-fold cross-validation, **Then** it achieves a decoding accuracy of ≥ 55% for plot points.
-2. **Given** the trained model, **When** it attempts to reconstruct character details, **Then** the accuracy is recorded and compared to plot point accuracy to test the hypothesis that plot points are more reliable.
+1. **Given** the labeled recognition fMRI data, **When** the decoder trains a linear model with K-fold cross-validation using semantic features (N=20 for plot points), **Then** it reports the observed decoding accuracy for each category.
+2. **Given** the trained model, **When** it attempts to reconstruct character details (N=10), **Then** the accuracy is recorded and compared to plot point accuracy to test for statistical difference.
 3. **Given** the reconstruction results, **When** a null model (shuffled labels) is tested, **Then** the real model's performance is significantly higher (p < 0.01) than the null distribution.
 
 ### Edge Cases
@@ -63,35 +63,43 @@ The researcher needs to train linear classifiers to predict specific narrative e
 
 ### Functional Requirements
 
-- **FR-001**: System MUST download and preprocess fMRI data from OpenNeuro ds000234 using fMRIPrep without requiring GPU acceleration or CUDA libraries (See US-1).
+- **FR-001**: System MUST download and preprocess fMRI data from OpenNeuro ds000234 using fMRIPrep on a GitHub Actions ubuntu-latest runner with -core parallelization, completing a 10-subject subset within 6 hours (See US-1).
 - **FR-002**: System MUST segment the continuous story timeline into discrete events (plot, character, theme) and align these labels with the preprocessed BOLD signal timecourses (See US-1).
-- **FR-003**: System MUST extract timecourse data from specific Regions of Interest (hippocampus, mPFC, PCC, lateral temporal cortex) for both encoding and recall phases (See US-2).
-- **FR-004**: System MUST compute Representational Similarity Analysis (RSA) matrices to quantify the similarity between encoding and recall neural patterns and perform permutation testing for significance (See US-2).
-- **FR-005**: System MUST train linear classifiers (ridge regression or SVM) to predict narrative elements from recall patterns and report cross-validated accuracy against a chance baseline (See US-3).
-- **FR-006**: System MUST implement a multiple-comparison correction (e.g., Bonferroni or FDR) when testing significance across multiple narrative categories and ROIs to control family-wise error (See US-3).
+- **FR-003**: System MUST extract timecourse data from specific Regions of Interest (hippocampus, mPFC, PCC, lateral temporal cortex) for both encoding and recognition phases (See US-2).
+- **FR-004**: System MUST compute Representational Similarity Analysis (RSA) dissimilarity matrices to quantify the difference between encoding and recognition neural patterns and perform permutation testing for significance (See US-2).
+- **FR-005**: System MUST train linear classifiers (ridge regression or SVM) to predict narrative elements from recognition patterns using semantic feature extraction and report cross-validated accuracy against a chance baseline (1/N) (See US-3).
+- **FR-006**: System MUST implement a multiple-comparison correction (e.g., FDR q < 0.05) when testing significance across multiple narrative categories and ROIs to control family-wise error (See US-3).
+- **FR-007**: System MUST extract semantic features using a pre-trained model (e.g., BERT or CLIP) to map fMRI data to semantic space before classification (See US-3).
 
 ### Key Entities
 
 - **NeuralPattern**: A vector representing the BOLD signal amplitude across voxels in a specific ROI at a specific timepoint, associated with an event label.
 - **NarrativeEvent**: A discrete unit of the story defined by its type (plot, character, theme), timestamp, and semantic content.
-- **DecodingModel**: A trained linear classifier mapping NeuralPattern inputs to NarrativeEvent labels, storing weights and performance metrics.
+- **DecodingModel**: A trained linear classifier mapping SemanticFeature inputs to NarrativeEvent labels, storing weights and performance metrics.
 
 ## Success Criteria
 
 ### Measurable Outcomes
 
-> Planning docs state *what* will be measured and the *source/reference* it is measured against; defer specific empirical values (counts, dataset sizes, measured quantities, percentages) to the implementation/research phase.
+> Planning docs state *what* will be measured and the *source/reference* it is
+> measured against; defer specific empirical values (counts, dataset sizes,
+> measured quantities, percentages) to the implementation/research phase.
 
-- **SC-001**: Decoding accuracy for narrative elements is measured against a null distribution generated by a sufficient number of permutations of event labels. to establish statistical significance (See US-3).
-- **SC-002**: Pattern similarity between encoding and recall is measured against the similarity within the same phase (encoding-encoding) to quantify memory reconfiguration (See US-2).
-- **SC-003**: The false-positive rate of the decoding model is measured against the expected chance level (% for binary, 1/N for N-class) corrected for multiple comparisons (See US-3).
-- **SC-004**: Computational feasibility is measured against the constraint of completing the full analysis (preprocessing + decoding) on a standard GitHub Actions free-tier runner (2 CPU, 7 GB RAM) within 6 hours (See FR-001).
+- **SC-001**: Decoding accuracy for narrative elements is measured against a null distribution generated by a sufficient number of permutations of event labels to establish statistical significance (See US-3).
+- **SC-002**: Pattern dissimilarity between encoding and recognition is measured against the dissimilarity within the same phase (encoding-encoding) to quantify memory reconfiguration (See US-2).
+- **SC-003**: The false-positive rate of the decoding model is measured against the expected chance level (1/N for N-class, where N=20 for plot points, N=10 for characters) corrected for multiple comparisons (See US-3).
+- **SC-005**: Computational feasibility is measured against the constraint of completing the full analysis (preprocessing + decoding) for a 10-subject subset on a GitHub Actions free-tier runner (parallel workers) within 6 hours (See FR-001).
+
+## Constraints
+
+- **C-001**: The full analysis must complete within 6 hours on a GitHub Actions free-tier runner (2 vCPU, 7GB RAM) with parallel workers, processing a subject subset.
 
 ## Assumptions
 
 - The OpenNeuro ds000234 dataset contains sufficient temporal resolution and signal-to-noise ratio to detect event-related patterns in the hippocampus and mPFC without requiring ultra-high-field scanners.
 - The provided story annotation files (event onset/duration) are accurate and sufficient to align with the fMRI timecourse without manual correction.
-- Linear models (ridge regression/SVM) are sufficient to capture the semantic structure of narrative memories; non-linear deep learning approaches are excluded to ensure CPU feasibility and interpretability.
-- The fMRIPrep pipeline, when run on a 2-core CPU, will complete preprocessing for a single subject within 2 hours, allowing the full dataset (50 subjects) to be processed within the 6-hour CI job limit by parallelizing across subjects or processing a representative subset (e.g., 20 subjects).
-- The distinction between "encoding" and "recall" in the dataset is clearly demarcated in the metadata, allowing for separate extraction of neural patterns for each phase.
-- **[NEEDS CLARIFICATION]**: Does the Natural Stories dataset explicitly include a "recall" phase where subjects recount the story, or is the "recall" phase inferred from a delayed recognition task? If the dataset only contains listening (encoding) data, the recall analysis will need to be reframed as a "delayed recognition" or "reinstatement" analysis.
+- Linear models (ridge regression/SVM) are sufficient to capture the semantic structure of narrative memories when combined with pre-trained semantic feature extraction (e.g., BERT/CLIP); non-linear deep learning approaches are excluded to ensure CPU feasibility and interpretability.
+- The fMRIPrep pipeline, when run on a GitHub Actions ubuntu-latest runner with 8 parallel workers, will complete preprocessing for a single subject within 2 hours, allowing the full 10-subject subset (A moderate amount of total work) to be processed within the 6-hour CI job limit (20h / 8 workers = 2.5h).
+- The distinction between "encoding" and "recognition" in the dataset is clearly demarcated in the metadata, allowing for separate extraction of neural patterns for each phase.
+- The Natural Stories dataset (ds000234) does NOT contain a free-recall phase; the analysis is scoped to "encoding vs. recognition" and "reinstatement" patterns.
+- The hypothesis that plot points are more reliably reconstructed than character details (e.g., accuracy ≥ 55% vs. [deferred]) is a research hypothesis to be tested, not a fixed system requirement.
