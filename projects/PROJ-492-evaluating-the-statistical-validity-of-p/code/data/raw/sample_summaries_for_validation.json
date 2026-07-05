@@ -1,0 +1,54 @@
+[
+  {
+    "url": "https://example.com/test1",
+    "domain": "example.com",
+    "n_control": 1000,
+    "n_treatment": 1000,
+    "n_total": 2000,
+    "conversions_control": 100,
+    "conversions_treatment": 110,
+    "reported_p_value": "0.03",
+    "reported_effect_size": 0.10,
+    "reconstructed_p_value": 0.031,
+    "reconstructed_effect_size": 0.101
+  },
+  {
+    "url": "https://example.com/test2",
+    "domain": "example.com",
+    "n_control": 500,
+    "n_treatment": 500,
+    "n_total": 1000,
+    "conversions_control": 50,
+    "conversions_treatment": 55,
+    "reported_p_value": "0.01",
+    "reported_effect_size": 0.10,
+    "reconstructed_p_value": 0.09,
+    "reconstructed_effect_size": 0.10
+  },
+  {
+    "url": "https://example.com/test3",
+    "domain": "example.com",
+    "n_control": -50,
+    "n_treatment": 500,
+    "n_total": 450,
+    "conversions_control": 5,
+    "conversions_treatment": 55,
+    "reported_p_value": "0.05",
+    "reported_effect_size": 0.10,
+    "reconstructed_p_value": 0.05,
+    "reconstructed_effect_size": 0.10
+  },
+  {
+    "url": "https://example.com/test4",
+    "domain": "example.com",
+    "n_control": 1000,
+    "n_treatment": 1000,
+    "n_total": 2000,
+    "conversions_control": 100,
+    "conversions_treatment": 110,
+    "reported_p_value": "0.04",
+    "reported_effect_size": 0.10,
+    "reconstructed_p_value": 0.039,
+    "reconstructed_effect_size": 0.101
+  }
+]
