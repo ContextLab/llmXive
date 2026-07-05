@@ -160,5 +160,29 @@
         "intent": "robust 04 TREC 2004 via datasets or direct HTTP Primary relevance judgments for permutation tests Verified: Public archive"
       }
     ]
+  },
+  {
+    "repaired_at": "2026-07-05T21:03:54.442870+00:00",
+    "project": "PROJ-362-evaluating-the-statistical-validity-of-c",
+    "repairs": [
+      {
+        "dead_url": "https://trec.nist.gov/data/robust/04/robust04.tar.gz",
+        "reason": "HTTP 404",
+        "replacement_url": "https://huggingface.co/datasets/SetFit/TREC-QC/resolve/main/test.jsonl",
+        "intent": "robust 04 TREC 2004 Verified via datasets library datasets.load_dataset \"trec 2004\" Primary source for qrels. If direct URL fails 404 , the loader is"
+      },
+      {
+        "dead_url": "https://trec.nist.gov/data/web/09/",
+        "reason": "HTTP 403",
+        "replacement_url": "https://huggingface.co/datasets/SetFit/TREC-QC/resolve/main/test.jsonl",
+        "intent": "web 09 TREC Track 2009 2012 Verified datasets.load_dataset \"trec 2009\" Used for robustness checks."
+      },
+      {
+        "dead_url": "https://trec.nist.gov/data/robust/04/",
+        "reason": "HTTP 404",
+        "replacement_url": "https://huggingface.co/datasets/SetFit/TREC-QC/resolve/main/test.jsonl",
+        "intent": "robust 04 TREC 2004 Verified via datasets library datasets.load_dataset \"trec 2004\" Primary source for qrels. If direct URL fails 404 , the loader is"
+      }
+    ]
   }
 ]
