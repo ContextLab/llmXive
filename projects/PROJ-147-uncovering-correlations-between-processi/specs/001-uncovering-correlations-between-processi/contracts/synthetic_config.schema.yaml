@@ -1,0 +1,36 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "SyntheticDataConfigSchema"
+description: "Schema for the configuration of the synthetic data generator."
+type: "object"
+properties:
+  num_samples:
+    type: "integer"
+    description: "Total number of samples to generate."
+    minimum: 1
+  alloy_families:
+    type: "array"
+    items:
+      type: "string"
+      enum:
+        - "Al"
+        - "Cu"
+        - "Steel"
+    description: "List of alloy families to include."
+  noise_level:
+    type: "number"
+    description: "Standard deviation of Gaussian noise (σ) in MRD."
+    minimum: 0
+    default: 0.05
+  seed:
+    type: "integer"
+    description: "Random seed for reproducibility."
+  generate_odf_files:
+    type: "boolean"
+    description: "Whether to generate synthetic pole-figure/ODF files."
+    default: true
+required:
+  - num_samples
+  - alloy_families
+  - noise_level
+  - seed
+additionalProperties: false

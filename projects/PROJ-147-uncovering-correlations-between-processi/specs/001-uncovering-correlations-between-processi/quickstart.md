@@ -2,99 +2,88 @@
 
 ## Prerequisites
 
-- Python 3.x or higher
-- Docker (optional, for containerized execution)
+- Python 3.11+
+- Docker (optional, for CI)
 - Git
-- Sufficient free disk space (≈ 2 GB)
 
 ## Installation
+
+1. Clone the repository and navigate to the feature branch:
+   ```bash
+   git clone <repo-url>
+   cd projects/PROJ-147-uncovering-correlations-between-processi
+   git checkout 001-uncovering-correlations
+   ```
+
+2. Install dependencies:
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+## Running the Pipeline
 
 ### Option 1: Local Execution (Recommended for Development)
 
 ```bash
-# Clone repository
-git clone <repo-url>
-cd projects/PROJ-147-uncovering-correlations-between-processi
-
-# Create virtual environment
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-
-# Install dependencies
-pip install -r requirements.txt
-```
-
-### Option 2: Containerized Execution (Recommended for CI)
-
-```bash
-# Build Docker image
-docker build -t texture-pipeline:latest .
-
-# Run pipeline
-docker run -v $(pwd)/data:/app/data texture-pipeline:latest python code/main.py
-```
-
-## Running the Pipeline
-
-### Full End-to-End Execution
-
-```bash
+# Run the full pipeline (real data fallback → synthetic)
 python code/main.py --mode full
+
+# Generate synthetic data only
+python code/main.py --mode synthetic --num-samples 150
+
+# Train model on existing data
+python code/main.py --mode train
+
+# Predict on new data (provide new_processing.csv)
+python code/main.py --mode predict --input new_processing.csv
 ```
 
-This will:
-1. **Download** datasets from verified sources (OMDB, NIST) **or** generate **synthetic** data when paired data are missing (see `research.md` for details).  
-2. **Preprocess** and validate data (standardization, median imputation, outlier removal).  
-3. **Train** a multi‑output RandomForest model (5‑fold CV, grid search).  
-4. **Evaluate** and generate reports (R², MAE, RMSE, importance plot).  
-5. **Output** predictions and importance visualisation **(pipeline validated on synthetic data only)**; real‑world predictions will be possible once genuine paired data are supplied.
-
-### Predicting New Samples
+### Option 2: Docker (Reproducibility)
 
 ```bash
-python code/main.py --mode predict --input new_samples.csv --output new_predictions.csv
+# Build the Docker image
+docker build -t texture-pipeline .
+
+# Run the pipeline inside container
+docker run --rm -v $(pwd)/data:/app/data -v $(pwd)/output:/app/output texture-pipeline python code/main.py --mode full
 ```
 
-### CI Execution (GitHub Actions)
+### Option 3: GitHub Actions (CI)
 
+Push to the feature branch to trigger the CI workflow:
 ```yaml
-# .github/workflows/ci.yaml
-name: Texture Pipeline CI
-on: [push, pull_request]
+# .github/workflows/ci.yml (auto-generated)
+name: Run Texture Pipeline
+on: [push]
 jobs:
-  run-pipeline:
+  pipeline:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: [3.11]
     steps:
-      - uses: actions/checkout@v3
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: ${{ matrix.python-version }}
-      - name: Install dependencies
-        run: pip install -r requirements.txt
+      - uses: actions/checkout@v4
       - name: Run pipeline
-        run: python code/main.py --mode full
+        run: |
+          pip install -r requirements.txt
+          python code/main.py --mode full
 ```
 
-## Limitations
+## Expected Outputs
 
-- **Synthetic Data Only**: The current pipeline operates **only** on synthetic data because **no** verified public dataset provides paired rolling‑process parameters **and** texture measurements. This limitation limits the scientific conclusions we can draw about real material behavior; the pipeline is intended as a **validation of the workflow** pending acquisition of real data.
+- `output/predictions.csv`: Predicted texture coefficients for test set.
+- `output/new_predictions.csv`: Predictions for new input data (if provided).
+- `output/evaluation_report.json`: R², MAE, RMSE per coefficient and alloy family.
+- `output/importance_plot.png`: Permutation importance visualization.
+- `output/pipeline.log`: Detailed logs of all steps, warnings, and errors.
+- `models/trained_model.joblib`: Serialized model artifact.
 
----  
+## Troubleshooting
 
-## Verification
+- **Missing Data**: If `Data quality insufficient` error occurs, check `output/pipeline.log` for missing percentage.
+- **VIF Warning**: Features with VIF ≥ 5 are removed; review `pipeline.log` for details.
+- **Out-of-Range Predictions**: Warnings logged; predictions still generated.
+- **CI Failure**: Check GitHub Actions logs for resource limits (RAM/CPU) or missing data files.
 
-To verify **the pipeline**:
+## Next Steps
 
-```bash
-# Run unit tests
-pytest tests/unit/
-
-# Run contract tests
-pytest tests/contract/
-```
-
-All tests must pass before committing.
+- Review `output/evaluation_report.json` for model performance.
+- Inspect `output/importance_plot.png` to understand key drivers.
+- For scientific validation, acquire real paired rolling-process/texture data.

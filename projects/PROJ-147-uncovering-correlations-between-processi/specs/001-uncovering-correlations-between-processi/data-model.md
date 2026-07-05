@@ -1,113 +1,84 @@
 # Data Model: Uncovering Correlations Between Processing Conditions and Texture in Rolled Metals
 
-## Entity Definitions
+## Overview
+
+This document defines the core data entities, relationships, and transformations used throughout the pipeline. It ensures consistency between data ingestion, preprocessing, modeling, and output.
+
+## Core Entities
 
 ### ProcessingRecord
-
 Represents a single rolling experiment.
-
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| `sample_id` | string | Yes | Unique identifier |
-| `alloy_id` | string | Yes | Alloy identifier |
-| `alloy_family` | string | Yes | Classification (e.g., "FCC_Al", "FCC_Cu", "BCC_steel") |
-| `rolling_speed` | float | Yes | Rolling speed (m s⁻¹) |
-| `temperature` | float | Yes | Rolling temperature (°C) |
-| `reduction_ratio` | float | Yes | Thickness reduction (%) |
-| `composition` | array[float] | No | Optional composition vector |
-| `source` | string | Yes | Dataset source (e.g., "OMDB", "NIST", "synthetic") |
-| `checksum` | string | Yes | SHA256 of raw data row |
-
-### TextureDescriptor
-
-Quantitative representation of crystallographic texture.
-
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| `sample_id` | string | Yes | Links to ProcessingRecord |
-| `odf_100` | float | Yes | Peak ODF intensity for {100} plane (MRD) |
-| `odf_110` | float | Yes | Peak ODF intensity for {110} plane (MRD) |
-| `odf_111` | float | Yes | Peak ODF intensity for {111} plane (MRD) |
-| `raw_diffraction_file` | string | No | Path to raw diffraction data (optional for synthetic data) |
-| `computation_script` | string | Yes | Path to ODF computation script |
+- `sample_id`: str (unique identifier)
+- `alloy_id`: str (links to AlloyFamily)
+- `rolling_speed`: float (m/s)
+- `temperature`: float (°C)
+- `reduction_ratio`: float (%)
+- `composition_vector`: list[float] (normalized elemental composition)
+- `prior_history`: str (categorical: e.g., "annealed", "cold-worked")
+- `raw_diffraction_file`: str (path to raw ODF/pole-figure file)
+- `source`: str (e.g., "OMDB", "synthetic")
 
 ### AlloyFamily
-
 Classification of alloys by composition and crystal structure.
+- `family_id`: str (e.g., "FCC_Al", "FCC_Cu", "BCC_Steel")
+- `crystal_structure`: str (e.g., "FCC", "BCC")
+- `composition_range`: dict (min/max for key elements)
 
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| `family_id` | string | Yes | Unique identifier (e.g., "FCC_Al") |
-| `crystal_structure` | string | Yes | "FCC", "BCC", "HCP" |
-| `composition_range` | object | Yes | Min/max for each element |
-| `sample_count` | integer | Yes | Number of samples in family |
+### TextureDescriptor
+Quantitative representation of crystallographic texture.
+- `sample_id`: str (links to ProcessingRecord)
+- `odf_100`: float (MRD)
+- `odf_110`: float (MRD)
+- `odf_111`: float (MRD)
+- `computed_by`: str (e.g., "pymtex", "synthetic_generator")
 
 ### TrainedModel
-
 Serialized multi-output RandomForest model.
+- `model_id`: str (content hash)
+- `hyperparameters`: dict (n_estimators, max_depth, etc.)
+- `training_seed`: int
+- `feature_names`: list[str]
+- `alloy_families`: list[str]
+- `created_at`: datetime
 
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| `model_id` | string | Yes | Unique identifier for the model |
-| `model_file` | string | Yes | Path to serialized model (joblib) |
-| `hyperparameters` | object | Yes | n_estimators, max_depth, etc. |
-| `training_checksum` | string | Yes | SHA256 of training data |
-| `validation_metrics` | object | Yes | R², MAE, RMSE per coefficient |
-| `created_at` | string | Yes | ISO timestamp |
+### SyntheticDataConfig
+Configuration for synthetic data generation.
+- `num_samples`: int (≥50 per family)
+- `alloy_families`: list[str]
+- `noise_level`: float (σ=0.05 MRD)
+- `seed`: int
 
-## Derived Features
+## Relationships
 
-| Feature | Formula | Description |
-|---------|---------|-------------|
-| `strain_rate` | rolling_speed / (initial_thickness - final_thickness) | Deformation rate |
-| `zener_hollomon` | strain_rate * exp(Q / (R * temperature_K)) | Temperature‑compensated strain rate (Q: activation energy, R: gas constant) |
-| `normalized_speed` | (rolling_speed - mean) / std | Standardized rolling speed |
-| `normalized_temp` | (temperature - mean) / std | Standardized temperature |
-
-## Synthetic Data Generation (New)
-
-To satisfy **FR‑008** (≥ 50 paired samples per alloy family), a synthetic generator (`code/pipeline/synthetic_data.py`) creates **60 samples per alloy family** (Al, Cu, steel). Parameters are sampled from realistic bounded ranges:
-
-- `rolling_speed`: Uniform [0.1, 5.0] m s⁻¹  
-- `temperature`: Uniform [200, 1200] °C  
-- `reduction_ratio`: Uniform [10, 80] %  
-
-Each synthetic record receives a SHA‑256 checksum and a `source` value of `"synthetic"`.
-
-## Synthetic Texture Computation (New)
-
-For each synthetic sample, a parametric ODF model with Gaussian peaks on the {100}, {110}, and {111} crystallographic planes is generated. The ODF is then processed by **pymtex** (or a spherical‑harmonic fallback) to extract the peak MRD intensities (`odf_100`, `odf_110`, `odf_111`). This procedure satisfies **FR‑003** with an equivalence tolerance of ±5 % MRD relative to a reference implementation.
+- `ProcessingRecord` ↔ `TextureDescriptor`: One-to-one via `sample_id` and `alloy_id`.
+- `ProcessingRecord` ↔ `AlloyFamily`: Many-to-one via `alloy_id`.
+- `TrainedModel` → `ProcessingRecord`: Trained on processed `ProcessingRecord` data.
+- `SyntheticDataConfig` → `ProcessingRecord` + `TextureDescriptor`: Generates both.
 
 ## Data Flow
 
-```
-raw_data/
-  ├── omdb_co_0.parquet    # Downloaded from verified URL
-  �├── nist_800_53.jsonl    # Downloaded from verified URL
-  └── synthetic_data.json  # Generated if no paired data is available
-processed_data/
-  ├── processed_records.csv      # Ingested + validated ProcessingRecords
-  ├── texture_descriptors.csv    # Computed TextureDescriptors
-  ├── derived_features.csv       # Physics‑based features
-  └── train_test_split.csv       # Final training/test split
-artifacts/
-  ├── trained_model.joblib       # TrainedModel
-  ├── predictions.csv            # Output predictions
-  ├── evaluation_report.json     # Metrics
-  └── importance_plot.png        # Feature importance visualization
-```
+1. **Ingestion**: Raw files (CSV/JSON) → `ProcessingRecord` + `TextureDescriptor` (via `pymtex`).
+2. **Preprocessing**: `ProcessingRecord` → cleaned/derived features (VIF-checked).
+3. **Training**: Cleaned features + `TextureDescriptor` → `TrainedModel`.
+4. **Prediction**: New `ProcessingRecord` → predicted `TextureDescriptor`.
+5. **Evaluation**: Predicted vs. actual `TextureDescriptor` → metrics + importance.
 
-## Validation Rules
+## Transformations
 
-| Rule | Condition | Action |
-|------|-----------|--------|
-| Sample count per family | ≥50 per alloy_family | Abort if not met (FR‑008) |
-| Missing numeric values | >20 % NaN for any parameter | Abort with "Data quality insufficient" (Edge Case) |
-| Outlier removal | >3σ from mean | Remove and log |
-| Unit standardization | °C, m s⁻¹, % reduction | Convert if needed |
-| ODF equivalence | ±5 % MRD of pymtex | Document alternative tool |
+| Step | Input | Output | Transformation |
+|------|-------|--------|----------------|
+| Unit Standardization | Raw `ProcessingRecord` | Cleaned `ProcessingRecord` | Convert to SI units (°C, m/s, %) |
+| Imputation | Cleaned `ProcessingRecord` | Imputed `ProcessingRecord` | Median imputation for missing values |
+| Outlier Removal | Imputed `ProcessingRecord` | Filtered `ProcessingRecord` | Remove samples beyond 3σ |
+| Feature Engineering | Filtered `ProcessingRecord` | Derived `ProcessingRecord` | Add strain rate, Zener-Hollomon, composition |
+| VIF Check | Derived `ProcessingRecord` | Final `ProcessingRecord` | Remove features with VIF ≥ 5 |
+| Texture Computation | Raw diffraction files | `TextureDescriptor` | `pymtex` ODF peak extraction |
+| Synthetic Generation | `SyntheticDataConfig` | `ProcessingRecord` + `TextureDescriptor` | Physics-informed simulation |
 
----
+## Constraints & Validations
 
-
-
+- **Sample Size**: ≥ 50 per alloy family (abort if not met).
+- **Missing Data**: >20% missing in any feature → abort.
+- **VIF Threshold**: ≥ 5 → remove feature.
+- **ODF Accuracy**: Synthetic descriptors must match generator within ±5% MRD.
+- **Seeds**: All random operations use fixed seeds for reproducibility.

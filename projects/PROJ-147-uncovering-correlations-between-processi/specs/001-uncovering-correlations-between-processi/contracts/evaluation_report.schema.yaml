@@ -1,0 +1,115 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Evaluation Report Schema"
+description: "Schema for the model evaluation report containing metrics per texture coefficient and alloy family."
+type: "object"
+properties:
+  overall_metrics:
+    type: "object"
+    description: "Aggregate metrics across all families."
+    properties:
+      r2:
+        type: "number"
+        description: "Cross-validated R² score."
+      mae:
+        type: "number"
+        description: "Mean Absolute Error."
+      rmse:
+        type: "number"
+        description: "Root Mean Squared Error."
+    required:
+      - r2
+      - mae
+      - rmse
+  per_family_metrics:
+    type: "object"
+    description: "Metrics broken down by alloy family."
+    additionalProperties:
+      type: "object"
+      properties:
+        odf_100:
+          type: "object"
+          properties:
+            r2:
+              type: "number"
+            mae:
+              type: "number"
+            rmse:
+              type: "number"
+          required:
+            - r2
+            - mae
+            - rmse
+        odf_110:
+          type: "object"
+          properties:
+            r2:
+              type: "number"
+            mae:
+              type: "number"
+            rmse:
+              type: "number"
+          required:
+            - r2
+            - mae
+            - rmse
+        odf_111:
+          type: "object"
+          properties:
+            r2:
+              type: "number"
+            mae:
+              type: "number"
+            rmse:
+              type: "number"
+          required:
+            - r2
+            - mae
+            - rmse
+      required:
+        - odf_100
+        - odf_110
+        - odf_111
+  feature_importance:
+    type: "array"
+    description: "Permutation importance ranking for features."
+    items:
+      type: "object"
+      properties:
+        feature:
+          type: "string"
+        importance:
+          type: "number"
+      required:
+        - feature
+        - importance
+  sensitivity_analysis:
+    type: "object"
+    description: "Results from R² threshold sweep or seed stability analysis."
+    properties:
+      r2_sweep:
+        type: "array"
+        items:
+          type: "object"
+          properties:
+            threshold:
+              type: "number"
+            stability_metric:
+              type: "number"
+          required:
+            - threshold
+            - stability_metric
+      seed_stability:
+        type: "object"
+        properties:
+          r2_variance:
+            type: "number"
+          importance_variance:
+            type: "number"
+        required:
+          - r2_variance
+          - importance_variance
+required:
+  - overall_metrics
+  - per_family_metrics
+  - feature_importance
+additionalProperties: false

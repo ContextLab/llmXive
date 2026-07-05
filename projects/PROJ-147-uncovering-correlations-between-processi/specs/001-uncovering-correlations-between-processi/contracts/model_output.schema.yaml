@@ -1,0 +1,153 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "ModelEvaluationOutputSchema"
+description: "Schema for the evaluation report generated after model training."
+type: "object"
+properties:
+  model_id:
+    type: "string"
+    description: "Unique identifier for the trained model."
+  training_samples:
+    type: "integer"
+    description: "Number of samples used for training."
+  validation_metrics:
+    type: "object"
+    description: "Validation metrics per coefficient AND per alloy family."
+    properties:
+      overall:
+        type: "object"
+        description: "Aggregate metrics across all families."
+        properties:
+          odf_100:
+            type: "object"
+            properties:
+              r_squared:
+                type: "number"
+              mae:
+                type: "number"
+              rmse:
+                type: "number"
+            required:
+              - r_squared
+              - mae
+              - rmse
+          odf_110:
+            type: "object"
+            properties:
+              r_squared:
+                type: "number"
+              mae:
+                type: "number"
+              rmse:
+                type: "number"
+            required:
+              - r_squared
+              - mae
+              - rmse
+          odf_111:
+            type: "object"
+            properties:
+              r_squared:
+                type: "number"
+              mae:
+                type: "number"
+              rmse:
+                type: "number"
+            required:
+              - r_squared
+              - mae
+              - rmse
+      by_family:
+        type: "object"
+        description: "Metrics broken down by alloy family (Al, Cu, Steel)."
+        additionalProperties:
+          type: "object"
+          properties:
+            odf_100:
+              type: "object"
+              properties:
+                r_squared:
+                  type: "number"
+                mae:
+                  type: "number"
+                rmse:
+                  type: "number"
+              required:
+                - r_squared
+                - mae
+                - rmse
+            odf_110:
+              type: "object"
+              properties:
+                r_squared:
+                  type: "number"
+                mae:
+                  type: "number"
+                rmse:
+                  type: "number"
+              required:
+                - r_squared
+                - mae
+                - rmse
+            odf_111:
+              type: "object"
+              properties:
+                r_squared:
+                  type: "number"
+                mae:
+                  type: "number"
+                rmse:
+                  type: "number"
+              required:
+                - r_squared
+                - mae
+                - rmse
+          required:
+            - odf_100
+            - odf_110
+            - odf_111
+    required:
+      - overall
+      - by_family
+  feature_importance:
+    type: "object"
+    additionalProperties:
+      type: "number"
+    description: "Map of feature names to their permutation importance scores."
+  sensitivity_analysis:
+    type: "object"
+    description: "Results of the sensitivity analysis (FR-010)."
+    properties:
+      threshold_sweep:
+        type: "array"
+        description: "R² thresholds swept (0.40, 0.50, 0.60)."
+        items:
+          type: "object"
+          properties:
+            threshold:
+              type: "number"
+            pass_rate:
+              type: "number"
+              description: "Percentage of models meeting the threshold."
+      seed_stability:
+        type: "object"
+        description: "Stability of metrics across random seeds."
+        properties:
+          r_squared_std:
+            type: "number"
+          importance_std:
+            type: "number"
+    required:
+      - threshold_sweep
+      - seed_stability
+  timestamp:
+    type: "string"
+    format: "date-time"
+    description: "Timestamp of the evaluation."
+required:
+  - model_id
+  - training_samples
+  - validation_metrics
+  - feature_importance
+  - sensitivity_analysis
+  - timestamp
+additionalProperties: false

@@ -1,0 +1,27 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "TextureDescriptor Schema"
+description: "Schema for quantitative texture descriptors derived from ODF or pole-figure data."
+type: "object"
+properties:
+  sample_id:
+    type: "string"
+    description: "Unique identifier linking to the ProcessingRecord."
+  odf_100:
+    type: "number"
+    description: "ODF peak intensity for {100} plane in multiples of random distribution (MRD)."
+  odf_110:
+    type: "number"
+    description: "ODF peak intensity for {110} plane in MRD."
+  odf_111:
+    type: "number"
+    description: "ODF peak intensity for {111} plane in MRD."
+  computed_by:
+    type: "string"
+    description: "Tool used for computation (e.g., 'pymtex', 'synthetic_generator')."
+required:
+  - sample_id
+  - odf_100
+  - odf_110
+  - odf_111
+  - computed_by
+additionalProperties: false

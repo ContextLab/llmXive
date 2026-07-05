@@ -16,28 +16,18 @@ properties:
       n_estimators:
         type: integer
         description: "Number of trees in the forest"
-        minimum: a sufficient number
-
-The research question is: To what extent does pre-training on a large corpus of code improve the performance of large language models on downstream software engineering tasks?
-The method is: We will fine-tune a pre-trained large language model (CodeLLama-7b) on a suite of software engineering benchmarks and compare its performance to a randomly initialized model with the same architecture.
-minimum: a sufficient number of examples will be used to ensure statistically significant results. (Vaswani et al., 2017)
+        minimum: 10
       max_depth:
         type: ["integer", "null"]
         description: "Maximum depth of the tree"
       min_samples_split:
         type: integer
         description: "Minimum samples required to split a node"
-        minimum: a small number 
-
-The research question is: To what extent does the presence of collaborative filtering recommendations influence user exploration of items?
-The method is: We will conduct an A/B test with a large user base, randomly assigning users to either a control group (no recommendations) or a treatment group (receiving collaborative filtering recommendations). We will measure the number of unique items explored by each user over a one-week period.
-References: (Smith & Jones, 2020), (Brown et al., 2022)
+        minimum: 2
       min_samples_leaf:
         type: integer
         description: "Minimum samples required at a leaf node"
-        minimum: a small number 
-
-The research question is: To what extent does the presence of adversarial examples affect the robustness of deep learning models in image classification tasks? The method is: We will conduct a series of experiments using the FGSM method (Goodfellow et al., 2014) to generate adversarial examples and evaluate their impact on the accuracy of pre-trained convolutional neural networks. References: Goodfellow et al., 2014 (https://arxiv.org/abs/1412.6572).
+        minimum: 1
     required:
       - n_estimators
   training_checksum:
@@ -59,7 +49,7 @@ The research question is: To what extent does the presence of adversarial exampl
             description: "Mean absolute error"
           rmse:
             type: number
-            description: "Root mean squared error"
+            description: "Root mean square error"
       odf_110:
         type: object
         properties:

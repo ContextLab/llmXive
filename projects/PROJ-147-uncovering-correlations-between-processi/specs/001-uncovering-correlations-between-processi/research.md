@@ -1,97 +1,96 @@
 # Research: Uncovering Correlations Between Processing Conditions and Texture in Rolled Metals
 
-## Executive Summary
+## Overview
 
-This research phase validates dataset availability, documents variable fit, and establishes the methodological foundation for the texture prediction pipeline. **Critical Finding**: An exhaustive search of the verified datasets (Materials Project, OMDB, NIST) confirms **no publicly available source contains paired rolling‑process parameters and texture measurements** (see **Verified Data Search** below). This gap prevents empirical evaluation of the core hypothesis. The pipeline will therefore be validated on a **synthetic dataset** that satisfies the quantitative requirements of the specification, serving as a proof‑of‑concept for the workflow rather than a scientific conclusion about real materials.
+This document details the research strategy, dataset selection, methodological rationale, and risk mitigation for implementing the feature specification. It addresses the core question: *Can processing parameters (rolling speed, temperature, reduction ratio) predict crystallographic texture coefficients across alloy families?*
 
-## Verified Data Search
+**Decoupling Note**: This research plan explicitly separates **Pipeline Validation** (synthetic data) from **Scientific Discovery** (real data). Synthetic data is used solely to verify code logic and data flow; it cannot validate the physical hypothesis of "how parameters influence texture."
 
-| Dataset | Purpose | Verified URL | Variable Fit Status | Notes |
-|---------|---------|--------------|---------------------|-------|
-| JARVIS_OMDB (OMDB) | Processing parameters (proxy) | `https://huggingface.co/datasets/colabfit/JARVIS_OMDB/resolve/main/co/co_0.parquet` | ⚠️ Partial | Contains computational materials properties; **does NOT contain rolling speed/temperature/reduction ratio** |
-| OMD-Bench (OMDB) | Processing parameters (proxy) | `https://huggingface.co/datasets/zabir-nabil/OMD-Bench/resolve/main/data/real-00000-of-00001.parquet` | ⚠️ Partial | Benchmark dataset; **does NOT contain rolling parameters** |
-| NIST (jsonl) | Reference standards | `https://huggingface.co/datasets/rkreddyp/nist_800_53/resolve/main/nist.jsonl` | ❌ No | Security standards; not materials data |
-| **FR-003: ODF/Texture** | Texture coefficients | **NO verified source found** | ❌ Missing | Spec requires ODF data; **no verified URL available** |
-| **FR-008: Paired Samples** | Training data | **NO verified source found** | ❌ Missing | Spec requires ≥50 paired samples per alloy; **no verified source** |
+## Dataset Strategy
 
-### Dataset‑Variable Fit Analysis (FATAL GAP)
+| Dataset Source | Verified URL | Status | Usage |
+|----------------|--------------|--------|-------|
+| Materials Project | NO verified source found | ❌ Unavailable | Fallback to synthetic |
+| Open Materials Database (OMDB) | https://huggingface.co/datasets/colabfit/JARVIS_OMDB/resolve/main/co/co_0.parquet | ⚠️ Partial | May contain composition but lacks paired rolling/texture data; will be checked for required fields. |
+| NIST Materials Data Repository | NO verified source found | ❌ Unavailable | Fallback to synthetic |
+| Synthetic Generator (FR-011) | N/A (internal) | ✅ Required | Primary data source if real data insufficient; validates pipeline logic only. **Must generate raw ODF files.** |
 
-The spec assumes Materials Project, OMDB, and NIST contain:
-- **Required**: rolling_speed (m s⁻¹), temperature (°C), reduction_ratio (%), pole‑figure/ODF data
-- **Available in verified sources**: Computational material properties (JARVIS_OMDB), benchmark tasks (OMD‑Bench), security standards (NIST)
+**Rationale**: The spec explicitly states that public datasets likely lack paired rolling-process and texture data. The verified dataset block confirms no direct source for ODF/rolling pairs. OMDB contains compositional data but not the required processing-texture pairs. Therefore, the synthetic generator (FR-011) is the primary data source, with real data checked as a fallback. Synthetic data is strictly for pipeline validation (code logic, data flow), not scientific hypothesis testing.
 
-**Mismatch Statement**: None of the verified datasets contain the required rolling‑process parameters **and** texture measurements. This is a **blocking flaw** per the plan completeness guidelines.
+## Methodology
 
-**Synthetic Data Fallback**:
-1. **Generation**: `code/pipeline/synthetic_data.py` creates **60 synthetic samples per alloy family** (Al, Cu, steel) by sampling rolling parameters from realistic bounded distributions (speed ∈ [0.1, 5.0] m s⁻¹, temperature ∈ [200, 1200] °C, reduction ∈ [10, 80] %).  
-2. **Texture Descriptor Creation**: For each synthetic sample, a **parametric ODF model** (Gaussian peaks on {100}, {110}, {111}) is sampled. `pymtex` (or spherical‑harmonic fallback) computes the peak MRD intensities for the three planes, guaranteeing ≤ 5 % deviation from the reference equivalence criterion.  
-3. **Sample Count Guarantee**: The generator enforces **≥ 50 paired samples per alloy family** (60 generated) to satisfy FR‑008.  
-4. **Documentation**: All synthetic rows receive a SHA‑256 checksum and a `source` tag of `"synthetic"`.
+### 1. Data Ingestion & Validation (FR-001)
+- Attempt to load real data from OMDB (if fields match: rolling_speed, temperature, reduction_ratio, ODF/pole-figure).
+- If < 50 paired samples per alloy family, trigger synthetic generator.
+- **Synthetic Requirement**: The generator MUST produce raw diffraction/ODF files (e.g., synthetic .txt or .xml pole figures) to satisfy Constitution Principle VI and FR-003.
+- Validate ≥ 50 samples/family; abort if total < 50/family.
 
-### Statistical Approach
+### 2. Preprocessing (FR-002)
+- **Unit Standardization**: Convert all units to SI (°C, m/s, %).
+- **Imputation**: Median imputation for missing numeric values.
+- **Outlier Removal**: 3σ threshold; log removed samples.
+- **Feature Engineering**: 
+  - **Forced Confounders**: Alloy composition and prior history are **always included** as inputs, regardless of VIF, to control for confounding.
+  - **Derived Features**: Derive strain rate and Zener-Hollomon parameter (Z) for **logging and physics context only**.
+  - **Collinearity Check**: Compute VIF for all features. 
+    - **Rule**: If a derived feature (e.g., Z) has VIF ≥ 5, it is **excluded from the model training** to prevent multicollinearity artifacts in feature importance. 
+    - **Exception**: Known confounders (composition, history) are **not removed** even if VIF ≥ 5, as they are mandatory for causal adjustment (though causal claims are limited).
+  - **Final Input Set**: Rolling speed, temperature, reduction ratio, composition, prior history. (Z is excluded from model training).
 
-| Component | Method | Justification |
-|-----------|--------|---------------|
-| Model | Multi-output RandomForestRegressor | Captures non‑linear relationships; robust to outliers; provides permutation importance |
-| Validation | 5‑fold cross‑validation (stratified by alloy family) | Standard for small datasets; controls for alloy‑family confounding |
-| Hyperparameter Tuning | Grid search (`n_estimators ∈ {[deferred]}`, `max_depth ∈ {10,20,30,None}`) with `GridSearchCV` (`n_jobs=2`, wall‑clock cap ≤ 30 min) | Limits runtime while exploring relevant space |
-| Multiple Comparisons | Not applicable (single multi‑output model) | No family‑wise error correction needed |
-| Power Analysis | Minimum detectable effect size (Cohen’s f² ≈ 0.15) for N≈180 (3 families × 60 samples), 5 predictors, α = 0.05, power = 0.80. This size is detectable with the planned sample, justifying the dataset size. | Provides quantitative justification for sample size |
-| Causal Claims | Associational only | Observational data; no randomization |
-| Collinearity | Variance Inflation Factor (VIF) reported in `pipeline/evaluate.py`; high VIF noted but interpreted descriptively. | Acknowledges multicollinearity |
-| Confounding Control | Alloy composition vectors are included as covariates; stratified CV by alloy family isolates processing‑parameter effects from alloy‑specific baseline texture. | Addresses potential confounding (methodology‑d02bc1c6) |
+### 3. Texture Descriptor Computation (FR-003)
+- Use `pymtex` to compute ODF peak intensities (MRD) for {100}, {110}, {111} planes from raw pole-figure/ODF files.
+- **Fallback**: If `pymtex` is unavailable, use spherical-harmonic approximation with equivalence criterion (±5% MRD on reference).
+- For synthetic data, verify computed descriptors match generator values within ±5% MRD.
 
-### Sensitivity Analysis (FR‑010)
+### 4. Model Training (FR-004)
+- **Algorithm**: Multi-output `RandomForestRegressor` (scikit-learn) for all three texture coefficients jointly.
+- **Tuning**: Grid search over `n_estimators` (50–200), `max_depth` (5–20) via 5-fold CV.
+- **Constraint**: ≤ 30 min wall-clock time on 2 CPU cores.
+- **Seeds**: Fixed random seed for reproducibility (Constitution Principle I).
 
-- **Performance Threshold Sweep**: R² thresholds {0.50, 0.60, 0.70} evaluated on the synthetic test set.  
-- **Importance Threshold Sweep**: Permutation‑importance scores examined across alloy families, revealing variation in feature importance.  
-- **Scope Clarification**: For synthetic data, sensitivity analysis assesses internal consistency only. When real paired data become available, the same sweeps will be rerun to evaluate robustness on empirical data.
+### 5. Evaluation & Reporting (FR-005, FR-009, FR-010)
+- **Metrics**: R², MAE, RMSE per texture coefficient; reported per alloy family.
+- **Importance**: Permutation importance ranking; visualize as `importance_plot.png`. **Interpretation**: Scores reflect "predictive contribution" only, not "physical influence" (causal claims require real data and causal design).
+- **Sensitivity Analysis**: Sweep R² thresholds (e.g., 0.4–0.6) to assess impact; for synthetic data, test stability across ≥5 random seeds (variance metric).
+- **Edge Cases**: 
+  - Out-of-range predictions: Flag and log warning; still produce prediction.
+  - Missing texture data: Skip sample; log omission.
+  - >20% missing data: Abort training with error.
 
-### Decision/Rationale
+### 6. Synthetic Data Generator (FR-011)
+- **Inputs**: Rolling speed, temperature, reduction ratio, alloy composition, prior history.
+- **Outputs**: Texture coefficients (with Gaussian noise σ=0.05 MRD), **synthetic ODF/pole-figure files** (raw data), and derived features.
+- **Physical Relationships**: Simulate known physics (e.g., higher reduction → stronger texture; temperature dependence).
+- **Power Analysis**: Calculate minimum detectable effect size for N=50/family; log warning if |r| > 0.3 (underpowered).
 
-| Decision | Rationale |
-|----------|-----------|
-| Use synthetic data for pipeline validation | No verified paired data; synthetic data meet ≥ 50 samples per family (FR‑008) and provide a controlled environment to test the end‑to‑end workflow. |
-| RandomForest over neural networks | CPU‑tractable; provides interpretable feature importance; aligns with FR‑004 |
-| 5‑fold CV over 10‑fold | Balances validation quality with ≤ 30 min tuning constraint |
-| Median imputation over mean | Robust to outliers per FR‑002 |
-| 3σ outlier removal | Standard statistical practice; documented in FR‑002 |
-| Include composition as covariate | Controls for alloy‑specific confounding (methodology‑d02bc1c6) |
-| Sensitivity analysis on synthetic data | Satisfies FR‑010 while acknowledging limitation (methodology‑80464571) |
+## Causal Inference Strategy & Statistical Rigor
 
-## FR/SC Coverage
+- **Causal Claims**: None made for synthetic data. For real data, the model is purely **associational**. To claim "influence" or "drivers," a causal design (e.g., instrumental variables, propensity scoring) would be required, which is outside the current scope due to data limitations. Feature importance is strictly interpreted as "predictive contribution."
+- **Multiple Comparisons**: Not applicable (single model, three outputs); however, per-family metrics are reported separately.
+- **Power Analysis for Real Data**: 
+  - If real data is found, a formal power analysis will calculate the Minimum Detectable Effect Size (MDES) for the given N.
+  - If N < 50, the study is flagged as underpowered for small effects (|r| < 0.3). Success criteria (SC-001) for real data will be interpreted as "associational strength" rather than "scientific proof."
+- **Measurement Validity**: `pymtex` is community-standard; synthetic data validated against generator ground truth.
+- **Collinearity**: VIF check ensures no spurious feature importance for derived features. Zener-Hollomon is excluded from training to avoid perfect multicollinearity.
 
-| ID | Coverage | Notes |
-|----|----------|-------|
-| FR‑001 | ✅ | Ingest from OMDB/NIST; synthetic fallback ensures ≥ 50 samples per family |
-| FR‑002 | ✅ | Standardization, imputation, outlier removal, Zener‑Hollomon derivation |
-| FR‑003 | ✅ | Synthetic ODF generation + `pymtex` (or fallback) meets ±5 % MRD equivalence |
-| FR‑004 | ✅ | Multi‑output RandomForest; 5‑fold CV |
-| FR‑005 | ✅ | Prediction CSVs; evaluation report; importance plot |
-| FR‑006 | ✅ | Docker + GitHub Actions |
-| FR‑007 | ✅ | `pipeline.log` records all steps |
-| FR‑008 | ✅ | Synthetic generator creates **60 samples per alloy family** (≥ 50) |
-| FR‑009 | ✅ | Report metrics per alloy family (Al, Cu, steel) |
-| FR‑010 | ✅ | Sensitivity sweeps performed on synthetic data; will be repeated on real data |
-| SC‑001 | ✅ | Cross‑validated R² per coefficient |
-| SC‑002 | ✅ | Permutation importance ≥ threshold per alloy |
-| SC‑003 | ✅ | CI ≤ 6 h, ≤ 2 CPU, ≤ 6 GB RAM |
+## Success Criteria Validation
 
-## Risk Register
+- **SC-001 (Synthetic)**: R² ≥ 0.50 is a **Pipeline Sanity Check** only. It verifies the model can learn the generator's function. It does **not** validate the physical hypothesis.
+- **SC-001 (Real)**: If real data is available, validation requires comparison against a **Physics-Based Baseline** (e.g., Taylor model) or a **Null Model** that preserves variance structure. If no physics baseline exists, validation is limited to "associational strength" (R²) and "stability," with explicit acknowledgment that causal claims cannot be made.
+- **SC-002**: At least one processing variable attains a permutation-importance score ≥ 0.10 for every AlloyFamily (interpreted as predictive contribution).
+- **SC-003**: End-to-end pipeline execution completes within 6 hours, using ≤ 2 CPU cores and ≤ 6 GB RAM on the GitHub Actions runner.
 
-| Risk | Impact | Mitigation |
-|------|--------|------------|
-| No paired rolling + texture data | High | Synthetic fallback; explicit limitation statement; flag for future data acquisition |
-| `pymtex` unavailable | Medium | Fallback to spherical_harmonics implementation |
-| CI timeout | Medium | Sample data; limit CV folds; `n_jobs=2` |
-| Memory overflow | Medium | Process in chunks; stream data where possible |
+## Risk Mitigation
 
-## Limitations
+| Risk | Mitigation |
+|------|------------|
+| No real data available | Synthetic generator (FR-011) ensures pipeline execution; clearly labeled as non-scientific. |
+| `pymtex` dependency failure | Fallback to spherical-harmonic approximation; equivalence criterion enforced. |
+| CI resource exhaustion | Sample data to ≤ 7GB RAM; limit CV folds; monitor runtime. |
+| Model underperforms (R² < 0.5) | Sensitivity analysis; report stability; no scientific claims made for synthetic data. |
+| Missing critical features | Power analysis warns; synthetic generator includes confounding variables. |
+| Multicollinearity in derived features | Exclude Zener-Hollomon from training; force inclusion of confounders. |
 
-- **Empirical Validity**: Without real paired rolling‑process and texture measurements, the pipeline cannot test the scientific hypothesis about how processing conditions influence texture. Results on synthetic data only demonstrate that the workflow functions correctly.
-- **Synthetic Circularity**: Synthetic texture coefficients are generated from a parametric model; performance metrics therefore reflect internal consistency rather than predictive power on unseen real data.
-- **Confounding Variables**: Real‑world confounders (e.g., grain size, prior heat treatment) are not represented in the synthetic dataset; their effects are only approximated via composition vectors.
+## Conclusion
 
----
-
-
+This research plan prioritizes pipeline reproducibility and data hygiene over scientific hypothesis validation (which requires real paired data and causal design). Synthetic data enables full end-to-end testing under CI constraints. All methodological choices are justified by the spec and constitution, with explicit acknowledgment of limitations regarding causal inference and statistical power.
