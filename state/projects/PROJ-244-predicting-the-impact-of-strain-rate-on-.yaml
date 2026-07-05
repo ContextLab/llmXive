@@ -1,18 +1,18 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-04T09:00:08.394027Z'
-current_stage: project_initialized
+current_stage: planned
 failed_stage: null
 field: materials science
 human_escalation_reason: null
 id: PROJ-244-predicting-the-impact-of-strain-rate-on-
-last_run_id: ea655f0b-257f-42a8-b018-eb3c9215b357
+last_run_id: 1b871930-c838-403b-9b57-7fc6cfb6a50c
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
 revision_spec_path: null
 speckit_paper_dir: null
-speckit_research_dir: null
+speckit_research_dir: projects/PROJ-244-predicting-the-impact-of-strain-rate-on-/specs/001-predicting-the-impact-of-strain-rate-on
 title: Predicting the Impact of Strain Rate on the Yield Strength of Metals
-updated_at: '2026-06-26T19:13:58.309389Z'
+updated_at: '2026-07-05T14:26:32.479454Z'

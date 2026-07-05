@@ -1,0 +1,58 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "TensileTestRecord"
+description: "Schema for standardized and imputed tensile test records."
+type: "object"
+properties:
+  record_id:
+    type: "string"
+    description: "Unique identifier for the record."
+  alloy_family:
+    type: "string"
+    description: "Categorical grouping of metals (e.g., 'AA-6061')."
+  yield_strength_mpa:
+    type: "number"
+    description: "Yield strength in MPa. Required field."
+    minimum: 0
+    maximum: 5000
+  strain_rate_s_inv:
+    type: "number"
+    description: "Strain rate in s⁻¹. Required field."
+    minimum: 1e-05
+    maximum: 10000
+  temperature_k:
+    type: ["number", "null"]
+    description: "Temperature in Kelvin. Optional."
+  grain_size_um:
+    type: ["number", "null"]
+    description: "Grain size in µm. Can be null if imputation failed."
+  composition_vector:
+    type: "array"
+    items:
+      type: "number"
+    minItems: 10
+    maxItems: 10
+    description: "10-dimensional elemental fraction vector."
+  source_id:
+    type: "string"
+    description: "Original ID from the source repository."
+  is_imputed:
+    type: "boolean"
+    description: "True if any value was imputed."
+  imputation_confidence:
+    type: ["number", "null"]
+    description: "Correlation score (r) from KNN validation. Null if not imputed."
+  raw_data_hash:
+    type: "string"
+    description: "SHA-256 hash of the original raw record."
+  is_low_confidence:
+    type: "boolean"
+    description: "True if KNN correlation r < 0.3."
+required:
+  - record_id
+  - alloy_family
+  - yield_strength_mpa
+  - strain_rate_s_inv
+  - composition_vector
+  - source_id
+  - raw_data_hash
+additionalProperties: false

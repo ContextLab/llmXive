@@ -1,0 +1,247 @@
+resolved_at: '2026-07-05T13:58:54.298376+00:00'
+datasets:
+- intent: NIST
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/nisten/opus-doctor-patient-conversations-all-human-diseases/resolve/main/opusdiseaseconversations.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/open-llm-leaderboard-old/details_nisten__shqiponja-59b-v1/resolve/main/2024-01-14T05-56-39.495831/details_harness|arc:challenge|25_2024-01-14T05-56-39.495831.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/open-llm-leaderboard-old/details_nisten__bigdoc-c34b-instruct-tf32/resolve/main/2024-02-02T03-54-56.700611/details_harness|arc:challenge|25_2024-02-02T03-54-56.700611.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/nisten/opus-doctor-patient-conversations-all-human-diseases/resolve/main/opusdiseaseconversations.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/open-llm-leaderboard-old/details_nisten__shqiponja-59b-v1/resolve/main/2024-01-14T05-56-39.495831/details_harness|arc:challenge|25_2024-01-14T05-56-39.495831.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/open-llm-leaderboard-old/details_nisten__bigdoc-c34b-instruct-tf32/resolve/main/2024-02-02T03-54-56.700611/details_harness|arc:challenge|25_2024-02-02T03-54-56.700611.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/open-llm-leaderboard-old/details_nisten__BigCodeLlama-92b/resolve/main/2024-02-02T12-17-18.661697/details_harness|arc:challenge|25_2024-02-02T12-17-18.661697.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/open-llm-leaderboard-old/details_nisten__shqiponja-15b-v1/resolve/main/2024-02-09T14-57-48.901535/details_harness|arc:challenge|25_2024-02-09T14-57-48.901535.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/journal_contribution/_b_Locating_the_R_m_ya_b_b_b_b_a_b_/32902778
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/OCE-3D_Shaft_Orbit_Dataset/31999131
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Algorithmic_Landscapes_and_the_Logic_of_the_Collection/32902757
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/DATA_-_b_Rainwater_Harvesting_from_Bitumen_Roof_for_Managed_Aquifer_Recharge_First_Flush_Characterization_and_the_Organic_Carbon_Challenge_b_Netzer_et_al_2026/32902763
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Public_Search_Behavior_and_Tuberculosis_Cases_in_Indonesia_2019-2023_An_Infodemiology_Method_Using_Google_Trends/31969371
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14189804
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6384789
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7254581
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3382347
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/12807749
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21206365
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21206365
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://usiena-air.unisi.it//handle/11365/1144376
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21205070
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21205070
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: CPU-only
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/AdityaMayukhSom/MixSub-LLaMA-3.2-Text-Only-Overlap-CPU-Score/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/AdityaMayukhSom/MixSub-LLaMA-3.2-Text-Only-Overlap-CPU-Score/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/journal_contribution/_b_Locating_the_R_m_ya_b_b_b_b_a_b_/32902778
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/OCE-3D_Shaft_Orbit_Dataset/31999131
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Algorithmic_Landscapes_and_the_Logic_of_the_Collection/32902757
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/DATA_-_b_Rainwater_Harvesting_from_Bitumen_Roof_for_Managed_Aquifer_Recharge_First_Flush_Characterization_and_the_Organic_Carbon_Challenge_b_Netzer_et_al_2026/32902763
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Public_Search_Behavior_and_Tuberculosis_Cases_in_Indonesia_2019-2023_An_Infodemiology_Method_Using_Google_Trends/31969371
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://beei.org/index.php/EEI/article/view/1972
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14352943
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6127654
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3810211
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://kjet.kardan.edu.af/Journal?Journal=KJET&id=3183
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://unige.iris.cineca.it/handle/11567/929442
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21204132
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21204132
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17071173
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17071173
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: GPU-intensive
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/journal_contribution/_b_Locating_the_R_m_ya_b_b_b_b_a_b_/32902778
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/OCE-3D_Shaft_Orbit_Dataset/31999131
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Algorithmic_Landscapes_and_the_Logic_of_the_Collection/32902757
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/DATA_-_b_Rainwater_Harvesting_from_Bitumen_Roof_for_Managed_Aquifer_Recharge_First_Flush_Characterization_and_the_Organic_Carbon_Challenge_b_Netzer_et_al_2026/32902763
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Public_Search_Behavior_and_Tuberculosis_Cases_in_Indonesia_2019-2023_An_Infodemiology_Method_Using_Google_Trends/31969371
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7679728
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19546411
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14019209
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8124749
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10298950
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://publica.fraunhofer.de/entities/publication/a4e108b6-6c81-4703-87e1-28ad6e64a5be
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.24406/publica-3221
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: ConnectionError: (''Connection aborted.'', RemoteDisconnected(''Remote
+      end closed connection without response''))'
+  - url: https://www.repository.cam.ac.uk/handle/1810/296793
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.5281/zenodo.21157157
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: HTTP 404'
+  - url: https://doi.org/10.5281/zenodo.21157158
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: HTTP 404'

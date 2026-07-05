@@ -1,0 +1,73 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "ModelEvaluationOutput"
+description: "Schema for model performance metrics and statistical test results."
+type: "object"
+properties:
+  model_name:
+    type: "string"
+    description: "Name of the model (e.g., 'RandomForest', 'Johnson-Cook')."
+  model_type:
+    type: "string"
+    enum:
+      - "ML"
+      - "Empirical"
+    description: "Type of model."
+  metrics:
+    type: "object"
+    properties:
+      r2:
+        type: "number"
+        description: "Coefficient of determination."
+      mae:
+        type: "number"
+        description: "Mean Absolute Error."
+      rmse:
+        type: "number"
+        description: "Root Mean Square Error."
+    required:
+      - r2
+      - mae
+      - rmse
+  feature_importance:
+    type: "array"
+    items:
+      type: "object"
+      properties:
+        feature:
+          type: "string"
+        importance_score:
+          type: "number"
+        shap_value:
+          type: "number"
+    description: "Ranked list of feature importance."
+  statistical_tests:
+    type: "object"
+    properties:
+      wilcoxon_p_value:
+        type: "number"
+        description: "P-value from Wilcoxon signed-rank test comparing errors."
+      sensitivity_analysis_r2_diff:
+        type: "number"
+        description: "Difference in R² between raw and imputed data models."
+    required:
+      - wilcoxon_p_value
+      - sensitivity_analysis_r2_diff
+  baseline_saturation:
+    type: "object"
+    properties:
+      is_saturated:
+        type: "boolean"
+        description: "True if empirical baseline R² ≈ 1.0."
+      r2_value:
+        type: "number"
+        description: "R² value of the empirical baseline."
+    required:
+      - is_saturated
+      - r2_value
+required:
+  - model_name
+  - model_type
+  - metrics
+  - statistical_tests
+  - baseline_saturation
+additionalProperties: false
