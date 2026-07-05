@@ -1,0 +1,95 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Model Results Schema"
+description: "Schema for model training results, including CV scores, feature importance, and baseline comparisons."
+type: "object"
+properties:
+  model_type:
+    type: "string"
+    description: "Type of model trained."
+    enum:
+      - "GradientBoosting"
+      - "RandomForest"
+  hyperparameters:
+    type: "object"
+    description: "Hyperparameters used for training."
+    additionalProperties: true
+  cv_scores:
+    type: "object"
+    description: "Cross-validation scores for each fold."
+    additionalProperties:
+      type: "object"
+      properties:
+        r2:
+          type: "number"
+          description: "R² score for the fold."
+        rmse:
+          type: "number"
+          description: "RMSE for the fold."
+        mae:
+          type: "number"
+          description: "MAE for the fold."
+      required:
+        - "r2"
+        - "rmse"
+        - "mae"
+  feature_importance_ranking:
+    type: "array"
+    description: "Ranked list of top 10 features by importance."
+    items:
+      type: "object"
+      properties:
+        feature_name:
+          type: "string"
+          description: "Name of the feature."
+        importance:
+          type: "number"
+          description: "Importance score (e.g., mean |SHAP|)."
+      required:
+        - "feature_name"
+        - "importance"
+    maxItems: 10
+  shap_values:
+    type: "object"
+    description: "SHAP values for each feature (if computed)."
+    additionalProperties:
+      type: "array"
+      items:
+        type: "number"
+  baseline_comparison:
+    type: "object"
+    description: "Statistical comparison with baseline models."
+    properties:
+      full_vs_comp:
+        type: "object"
+        properties:
+          p_value:
+            type: "number"
+            description: "P-value from corrected t-test."
+          significant:
+            type: "boolean"
+            description: "Whether the full model is significantly better."
+        required:
+          - "p_value"
+          - "significant"
+      full_vs_surface:
+        type: "object"
+        properties:
+          p_value:
+            type: "number"
+            description: "P-value from corrected t-test."
+          significant:
+            type: "boolean"
+            description: "Whether the full model is significantly better."
+        required:
+          - "p_value"
+          - "significant"
+    required:
+      - "full_vs_comp"
+      - "full_vs_surface"
+required:
+  - "model_type"
+  - "hyperparameters"
+  - "cv_scores"
+  - "feature_importance_ranking"
+  - "baseline_comparison"
+additionalProperties: false

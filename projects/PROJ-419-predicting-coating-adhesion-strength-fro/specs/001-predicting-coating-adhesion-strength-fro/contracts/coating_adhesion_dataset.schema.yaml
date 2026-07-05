@@ -1,0 +1,60 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Coating Adhesion Dataset Schema"
+description: "Schema for the unified coating-substrate dataset used in adhesion strength prediction."
+type: "object"
+properties:
+  coating_id:
+    type: "string"
+    description: "Unique identifier for the coating formulation."
+    minLength: 1
+  substrate_id:
+    type: "string"
+    description: "Unique identifier for the substrate material."
+    minLength: 1
+  adhesion_strength:
+    type: "number"
+    description: "Adhesion strength in MPa (target variable)."
+    minimum: 0
+  publication_date:
+    type: "string"
+    format: "date"
+    description: "Publication date of the source record."
+  sample_count:
+    type: "integer"
+    description: "Number of samples in the source record."
+    minimum: 1
+  source:
+    type: "string"
+    description: "Source of the data."
+    enum:
+      - "Materials Project"
+      - "NIST Surface Metrology"
+      - "Literature"
+  compositional_features:
+    type: "object"
+    description: "Encoded compositional features (elemental one-hot + derived descriptors)."
+    additionalProperties:
+      type: "number"
+  surface_features:
+    type: "object"
+    description: "Encoded surface features (roughness metrics + derived descriptors)."
+    additionalProperties:
+      type: "number"
+  validation_status:
+    type: "string"
+    description: "Validation status of the record."
+    enum:
+      - "pending"
+      - "verified"
+      - "rejected"
+required:
+  - "coating_id"
+  - "substrate_id"
+  - "adhesion_strength"
+  - "publication_date"
+  - "sample_count"
+  - "source"
+  - "compositional_features"
+  - "surface_features"
+  - "validation_status"
+additionalProperties: false
