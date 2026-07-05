@@ -1,0 +1,16 @@
+[flake8]
+max-line-length = 88
+extend-ignore = E203, E266, W503
+exclude = .git,__pycache__,venv,.venv,build,dist
+per-file-ignores =
+    # Allow unused imports in __init__.py for public API exposure
+    */__init__.py:F401
+    # Allow magic numbers in test files for specific test cases
+    */test_*.py:ARG001,PLR2004
+inline-quotes = double
+docstring-quotes = double
+multiline-quotes = double
+count = True
+statistics = True
+show-source = True
+show-pep8 = False

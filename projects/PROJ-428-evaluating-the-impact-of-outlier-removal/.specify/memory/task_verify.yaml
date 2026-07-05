@@ -1,0 +1,7 @@
+? 'T001 Create project structure per implementation plan (`projects/PROJ-428-evaluating-the-impact-of-outlier-removal/`)
+  <!-- FAILED: unspecified -->'
+: 1
+T003 [P] Configure linting (flake8/ruff) and formatting (black) tools: 1
+? 'T005 [P] Implement data directory structure: `data/raw/`, `data/processed/`, `data/results/`,
+  `state/` (ensure atomic creation using `mkdir -p`)'
+: 1

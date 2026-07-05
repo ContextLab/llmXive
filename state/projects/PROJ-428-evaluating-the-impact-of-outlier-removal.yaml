@@ -1,18 +1,18 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-08T07:40:13.462030Z'
-current_stage: project_initialized
+current_stage: in_progress
 failed_stage: null
 field: statistics
 human_escalation_reason: null
 id: PROJ-428-evaluating-the-impact-of-outlier-removal
-last_run_id: ad8b2e70-23b8-498c-bbea-047e74b71751
+last_run_id: b193e1c3-42e1-4fa8-989f-b07dbbd84dc5
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
 revision_spec_path: null
 speckit_paper_dir: null
-speckit_research_dir: null
+speckit_research_dir: projects/PROJ-428-evaluating-the-impact-of-outlier-removal/specs/001-evaluating-the-impact-of-outlier-removal
 title: Evaluating the Impact of Outlier Removal Methods on Variance Estimation
-updated_at: '2026-06-26T05:42:57.763306Z'
+updated_at: '2026-07-05T01:20:49.033864Z'

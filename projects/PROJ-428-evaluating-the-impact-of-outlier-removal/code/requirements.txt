@@ -1,0 +1,10 @@
+# llmXive PROJ-428: Evaluating the Impact of Outlier Removal Methods on Variance Estimation
+# Python 3.11+ dependencies
+pandas>=2.0.0
+numpy>=1.24.0
+scipy>=1.10.0
+statsmodels>=0.14.0
+matplotlib>=3.7.0
+seaborn>=0.12.0
+pyyaml>=6.0
+linearmodels>=6.0.0

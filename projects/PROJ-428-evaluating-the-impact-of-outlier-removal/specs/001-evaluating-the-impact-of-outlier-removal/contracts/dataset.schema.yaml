@@ -1,0 +1,36 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Dataset
+description: "Schema for a dataset source or synthetic generation configuration."
+type: object
+properties:
+  dataset_id:
+    type: string
+    description: "Unique identifier for the dataset."
+  source:
+    type: string
+    description: "URL of the source or 'synthetic'."
+  distribution_type:
+    type: string
+    enum:
+      - normal
+      - lognormal
+      - exponential
+      - beta
+      - gamma
+      - real
+    description: "Type of distribution (synthetic types or 'real' for UCI)."
+  parameters:
+    type: object
+    description: "Dictionary of generation parameters (mean, std, shape, etc.)."
+    additionalProperties: true
+  continuous_vars:
+    type: array
+    items:
+      type: string
+    description: "List of column names identified as continuous."
+required:
+  - dataset_id
+  - source
+  - distribution_type
+  - continuous_vars
+additionalProperties: false

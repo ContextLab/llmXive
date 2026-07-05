@@ -1,0 +1,36 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: RemovalMethod
+description: "Schema defining the outlier removal strategy and parameters."
+type: object
+properties:
+  method_name:
+    type: string
+    enum:
+      - iqr
+      - winsorize
+      - trim
+    description: "Name of the removal method (IQR, Winsorization, Trimming)."
+  parameters:
+    type: object
+    description: "Parameters specific to the method."
+    properties:
+      iqr_multiplier:
+        type: number
+        description: "Multiplier for IQR rule (default 1.5)."
+      winsorize_percentiles:
+        type: array
+        items:
+          type: number
+        minItems: 2
+        maxItems: 2
+        description: "Lower and upper percentiles for Winsorization (e.g., [5, 95])."
+      trim_percent:
+        type: number
+        minimum: 0.0
+        maximum: 50.0
+        description: "Percentage of values to trim from each tail."
+    required: []
+    additionalProperties: true
+required:
+  - method_name
+additionalProperties: false

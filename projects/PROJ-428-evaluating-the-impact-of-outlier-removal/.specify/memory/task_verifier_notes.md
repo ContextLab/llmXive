@@ -1,0 +1,7 @@
+# Tasks an independent verifier REJECTED (redo these)
+
+A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
+
+- **T001 Create project structure per implementation plan (`projects/PROJ-428-evaluating-the-impact-of-outlier-removal/`) <!-- FAILED: unspecified -->** — No evidence of the `projects/PROJ-428-evaluating-the-impact-of-outlier-removal/` directory or any of its expected sub‑folders/files is provided; the implementer did not supply the required project structure.
+- **T003 [P] Configure linting (flake8/ruff) and formatting (black) tools** — No linting or formatting configuration files (e.g., `.flake8`, `pyproject.toml` with ruff/black settings, or a `pre-commit` config) are present in the provided evidence, so the requirement to configure flake8/ruff and black is not satisfied. The implementer must add the appropriate configuration artifacts.
+- **T005 [P] Implement data directory structure: `data/raw/`, `data/processed/`, `data/results/`, `state/` (ensure atomic creation using `mkdir -p`)** — No evidence of the required directories (`data/raw/`, `data/processed/`, `data/results/`, `state/`) or a script/command using `mkdir -p` is provided; without visible artifacts we cannot confirm the directory structure was created.

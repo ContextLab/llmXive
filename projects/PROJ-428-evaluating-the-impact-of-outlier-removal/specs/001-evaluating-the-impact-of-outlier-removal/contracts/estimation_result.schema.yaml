@@ -1,0 +1,68 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: EstimationResult
+description: "Schema for a single Monte Carlo replicate result containing bias and MSE metrics."
+type: object
+properties:
+  run_id:
+    type: integer
+    description: "Unique integer identifier for the replicate run."
+  dataset_id:
+    type: string
+    description: "Identifier for the source dataset (e.g., 'synthetic_normal_01')."
+  contamination_rate:
+    type: number
+    minimum: 0.0
+    maximum: 1.0
+    description: "Proportion of outliers injected (0.0 to 1.0)."
+  distribution_type:
+    type: string
+    enum:
+      - normal
+      - lognormal
+      - exponential
+      - beta
+      - gamma
+    description: "Type of distribution used for the base data."
+  method_name:
+    type: string
+    enum:
+      - iqr
+      - winsorize
+      - trim
+    description: "Outlier removal method applied (IQR, Winsorization, Trimming)."
+  true_variance:
+    type: number
+    minimum: 0.0
+    description: "Known ground truth variance (theoretical parameter) of the underlying distribution."
+  estimated_variance:
+    type: number
+    minimum: 0.0
+    description: "Variance calculated after outlier removal."
+  bias:
+    type: number
+    description: "Absolute difference between estimated and true variance."
+  mse:
+    type: number
+    minimum: 0.0
+    description: "Mean Squared Error of the variance estimate."
+  n_original:
+    type: integer
+    minimum: 1
+    description: "Number of rows in the contaminated dataset."
+  n_remaining:
+    type: integer
+    minimum: 0
+    description: "Number of rows remaining after outlier removal."
+required:
+  - run_id
+  - dataset_id
+  - contamination_rate
+  - distribution_type
+  - method_name
+  - true_variance
+  - estimated_variance
+  - bias
+  - mse
+  - n_original
+  - n_remaining
+additionalProperties: false

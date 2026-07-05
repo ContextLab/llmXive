@@ -1,0 +1,26 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: ContaminationProfile
+description: "Schema defining the experimental condition for outlier injection."
+type: object
+properties:
+  profile_id:
+    type: string
+    description: "Unique identifier for the contamination profile."
+  contamination_rate:
+    type: number
+    minimum: 0.0
+    maximum: 1.0
+    description: "Percentage of rows to be modified with extreme values."
+  outlier_magnitude:
+    type: number
+    minimum: 1.0
+    description: "Multiplier for injected values to ensure they are extreme."
+  seed:
+    type: integer
+    description: "Random seed for reproducibility of this specific injection."
+required:
+  - profile_id
+  - contamination_rate
+  - outlier_magnitude
+  - seed
+additionalProperties: false
