@@ -1,4 +1,4 @@
-resolved_at: '2026-07-05T15:30:01.474553+00:00'
+resolved_at: '2026-07-05T15:56:02.414720+00:00'
 datasets:
 - intent: FARS
   status: verified
@@ -45,23 +45,23 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://figshare.com/articles/media/_b__Mostbet__2026_MAX200_b_/32902880
+  - url: https://figshare.com/articles/dataset/Call_09152489563_For_Lagos_State_College_of_Nursing_LASCON_2026_2027_Admission_Application_Form_Is_Out_Call_09152489563_/32902979
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Call_09152489563_For_College_of_Nursing_Sciences_Lagos_University_Teaching_Hospital_LUTH_Idi-Araba_2026_2027_Admission_Application_Form_Is_Out_Call_09152489563_/32902886
+  - url: https://figshare.com/articles/figure/uimagenees_articulo/32902946
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/_Testing_an_Elastic_Vacuum_Relaxation_Cosmology_with_Supernovae_BAO_Expansion-Rate_and_Growth_Data_/32902868
+  - url: https://figshare.com/articles/dataset/Call_09152489563_For_Unique_College_of_Nursing_2026_2027_Admission_Application_Form_Is_Out_Call_09152489563_/32902973
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Call_09152489563_For_Apex_College_of_Nursing_Sciences_Igbo-Ukwu_2026_2027_Admission_Application_Form_Is_Out_Call_09152489563_/32902874
+  - url: https://figshare.com/articles/dataset/Call_09152489563_For_Department_of_Nursing_Science_University_of_Lagos_UNILAG_2026_2027_Admission_Application_Form_Is_Out_Call_09152489563_/32902970
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://tandf.figshare.com/articles/journal_contribution/Ginsenosides_mitigate_multi-organ_aging_mechanistic_insights_from_a_preclinical_systematic_review_and_meta-analysis/32902873
+  - url: https://figshare.com/articles/dataset/Call_09152489563_For_Nigerian_Army_College_of_Nursing_NACON_2026_2027_Admission_Application_Form_Is_Out_Call_09152489563_/32902964
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -69,19 +69,19 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/17241655
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/4925814
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/4612724
+  - url: https://zenodo.org/records/17241655
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/17029230
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4612724
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -158,39 +158,39 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://rs.figshare.com/articles/journal_contribution/supplementary_material-7_from_CDK1-Cyclin_B_mediated_phosphorylation_of_PP2A-B56_on_B56_sup_Par1_sup_T73T75_controls_mitotic_entry_timing_and_i_Schizosaccharomyces_pombe_i_cell_size/32902924
+  - url: https://figshare.com/articles/dataset/Call_09152489563_For_Lagos_State_College_of_Nursing_LASCON_2026_2027_Admission_Application_Form_Is_Out_Call_09152489563_/32902979
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://rs.figshare.com/articles/figure/supplementary_material-3_from_CDK1-Cyclin_B_mediated_phosphorylation_of_PP2A-B56_on_B56_sup_Par1_sup_T73T75_controls_mitotic_entry_timing_and_i_Schizosaccharomyces_pombe_i_cell_size/32902921
+  - url: https://figshare.com/articles/figure/uimagenees_articulo/32902946
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://rs.figshare.com/articles/figure/supplementary_material-5_from_CDK1-Cyclin_B_mediated_phosphorylation_of_PP2A-B56_on_B56_sup_Par1_sup_T73T75_controls_mitotic_entry_timing_and_i_Schizosaccharomyces_pombe_i_cell_size/32902918
+  - url: https://figshare.com/articles/dataset/Call_09152489563_For_Unique_College_of_Nursing_2026_2027_Admission_Application_Form_Is_Out_Call_09152489563_/32902973
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://rs.figshare.com/articles/dataset/supplementary_material_from_CDK1-Cyclin_B_mediated_phosphorylation_of_PP2A-B56_on_B56_sup_Par1_sup_T73T75_controls_mitotic_entry_timing_and_i_Schizosaccharomyces_pombe_i_cell_size/32902915
+  - url: https://figshare.com/articles/dataset/Call_09152489563_For_Department_of_Nursing_Science_University_of_Lagos_UNILAG_2026_2027_Admission_Application_Form_Is_Out_Call_09152489563_/32902970
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://rs.figshare.com/articles/dataset/supplementary_material-10_from_CDK1-Cyclin_B_mediated_phosphorylation_of_PP2A-B56_on_B56_sup_Par1_sup_T73T75_controls_mitotic_entry_timing_and_i_Schizosaccharomyces_pombe_i_cell_size/32902912
+  - url: https://figshare.com/articles/dataset/Call_09152489563_For_Nigerian_Army_College_of_Nursing_NACON_2026_2027_Admission_Application_Form_Is_Out_Call_09152489563_/32902964
     source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18893503
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7505022
+    source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://doi.org/10.135212/slp
     source: zenodo
     status: unreachable
     reason: 'reachability failed: HTTP 404'
-  - url: https://zenodo.org/records/7505022
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/5787067
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/18893503
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -218,79 +218,338 @@ datasets:
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-- intent: GHCN-Daily
+- intent: ISD
   status: verified
   candidates:
-  - url: https://huggingface.co/datasets/ml-project-group-3/NOAA_GHCN_Daily/resolve/main/data/train-00000-of-00001.parquet
+  - url: https://huggingface.co/datasets/kapilw25/ISD-Instruction-Switch-Dataset/resolve/main/data/train-00000-of-00001.parquet
     source: huggingface
     format: parquet
     relevance: 1.0
     sample_check:
+      downloaded_bytes: 18307
+      parsed: true
+  - url: https://huggingface.co/datasets/ISdept/piper_arm/resolve/main/data/chunk-000/file-000.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 11422
+      parsed: true
+  - url: https://huggingface.co/datasets/Sigurdur/is-declension-qa/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
       downloaded_bytes: 262144
       parsed: true
   candidates_tried:
-  - url: https://huggingface.co/datasets/ml-project-group-3/NOAA_GHCN_Daily/resolve/main/data/train-00000-of-00001.parquet
+  - url: https://huggingface.co/api/resolve-cache/datasets/IsDeeCee/StoryMaker/8c35054fdab44df1e09cb557c9bf7b16015b5152/Ai%20prompts%20-%20Sheet1.csv?%2Fdatasets%2FIsDeeCee%2FStoryMaker%2Fresolve%2Fmain%2FAi+prompts+-+Sheet1.csv=&etag=%22183ef069d279529b6e407f1deab930cc4dfe4040%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/ISdept/piper_arm/resolve/main/data/chunk-000/file-000.parquet
     source: huggingface
     status: verified
     format: parquet
-  - url: https://rs.figshare.com/articles/journal_contribution/supplementary_material-7_from_CDK1-Cyclin_B_mediated_phosphorylation_of_PP2A-B56_on_B56_sup_Par1_sup_T73T75_controls_mitotic_entry_timing_and_i_Schizosaccharomyces_pombe_i_cell_size/32902924
+  - url: https://huggingface.co/datasets/kapilw25/ISD-Instruction-Switch-Dataset/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/Sigurdur/is-declension-qa/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/SOGANG-ISDS/K-Culture-Desc/resolve/main/K-Culture_desc.json
+    source: huggingface
+    status: wrong_format
+    reason: HTTP 401
+  - url: https://figshare.com/articles/dataset/Call_09152489563_For_School_of_Nursing_Lagos_University_Teaching_Hospital_LUTH_2026_2027_Admission_Application_Form_Is_Out_Call_09152489563_/32902985
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://rs.figshare.com/articles/figure/supplementary_material-3_from_CDK1-Cyclin_B_mediated_phosphorylation_of_PP2A-B56_on_B56_sup_Par1_sup_T73T75_controls_mitotic_entry_timing_and_i_Schizosaccharomyces_pombe_i_cell_size/32902921
+  - url: https://figshare.com/articles/dataset/Call_09152489563_For_Lagos_State_College_of_Nursing_LASCON_2026_2027_Admission_Application_Form_Is_Out_Call_09152489563_/32902979
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://rs.figshare.com/articles/figure/supplementary_material-5_from_CDK1-Cyclin_B_mediated_phosphorylation_of_PP2A-B56_on_B56_sup_Par1_sup_T73T75_controls_mitotic_entry_timing_and_i_Schizosaccharomyces_pombe_i_cell_size/32902918
+  - url: https://figshare.com/articles/figure/uimagenees_articulo/32902946
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://rs.figshare.com/articles/dataset/supplementary_material_from_CDK1-Cyclin_B_mediated_phosphorylation_of_PP2A-B56_on_B56_sup_Par1_sup_T73T75_controls_mitotic_entry_timing_and_i_Schizosaccharomyces_pombe_i_cell_size/32902915
+  - url: https://figshare.com/articles/dataset/Call_09152489563_For_Unique_College_of_Nursing_2026_2027_Admission_Application_Form_Is_Out_Call_09152489563_/32902973
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://rs.figshare.com/articles/dataset/supplementary_material-10_from_CDK1-Cyclin_B_mediated_phosphorylation_of_PP2A-B56_on_B56_sup_Par1_sup_T73T75_controls_mitotic_entry_timing_and_i_Schizosaccharomyces_pombe_i_cell_size/32902912
+  - url: https://figshare.com/articles/dataset/Call_09152489563_For_Department_of_Nursing_Science_University_of_Lagos_UNILAG_2026_2027_Admission_Application_Form_Is_Out_Call_09152489563_/32902970
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/15402876
+  - url: https://zenodo.org/records/400088
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://datadryad.org/dataset/doi:10.5061/dryad.c866t1gfp
+  - url: https://zenodo.org/records/269940
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://doi.org/10.5281/zenodo.8308359
-    source: zenodo
-    status: unreachable
-    reason: 'reachability failed: ReadTimeout: HTTPSConnectionPool(host=''zenodo.org'',
-      port=443): Read timed out. (read timeout=20.0)'
-  - url: https://datadryad.org/dataset/doi:10.5061/dryad.9kd51c5d1
+  - url: https://zenodo.org/records/439976
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/4518811
+  - url: https://zenodo.org/records/321636
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://redivis.com/workflows/x7kh-5pvd4mbf1
+  - url: https://zenodo.org/records/377042
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21200203
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21185540
+  - url: https://zenodo.org/records/21200203
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21185540
+  - url: https://zenodo.org/records/21193914
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://osf.io/abhng/
+  - url: https://zenodo.org/records/21193914
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://data.mendeley.com/datasets/7n9gb9kcz9/1
+  - url: https://zenodo.org/records/21193217
     source: datacite
     status: wrong_format
-    reason: HTTP 403
+    reason: unrecognized/non-dataset content
+- intent: URLs
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/FINAL-Bench/service-urls/resolve/main/urls.json
+    source: huggingface
+    format: json
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 911
+      parsed: true
+  - url: https://huggingface.co/datasets/marksverdhei/reddit-syac-urls/resolve/main/test.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 107077
+      parsed: true
+  - url: https://huggingface.co/datasets/joshtobin/malicious_urls/resolve/main/data/train-00000-of-00001-0ac5e739002d814a.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 9837
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/FINAL-Bench/service-urls/resolve/main/urls.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://huggingface.co/datasets/marksverdhei/reddit-syac-urls/resolve/main/test.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/api/resolve-cache/datasets/AmirulOm/lottie-urls/709fd56c19915e82eafc9bc39780e078daee5e00/data%2Flots%2Furls.csv?%2Fdatasets%2FAmirulOm%2Flottie-urls%2Fresolve%2Fmain%2Fdata%2Flots%2Furls.csv=&etag=%226b32914e2f563eb13122769f44977e30c2b266f8%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/joshtobin/malicious_urls/resolve/main/data/train-00000-of-00001-0ac5e739002d814a.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/jkorsvik/nowiki_abstract_urls_20230120/resolve/main/data/train-00000-of-00001-30f05e15b92b5fa5.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/dataset/Call_09152489563_For_School_of_Nursing_Lagos_University_Teaching_Hospital_LUTH_2026_2027_Admission_Application_Form_Is_Out_Call_09152489563_/32902985
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Call_09152489563_For_Lagos_State_College_of_Nursing_LASCON_2026_2027_Admission_Application_Form_Is_Out_Call_09152489563_/32902979
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/uimagenees_articulo/32902946
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Call_09152489563_For_Unique_College_of_Nursing_2026_2027_Admission_Application_Form_Is_Out_Call_09152489563_/32902973
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Call_09152489563_For_Department_of_Nursing_Science_University_of_Lagos_UNILAG_2026_2027_Admission_Application_Form_Is_Out_Call_09152489563_/32902970
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/50969
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8371046
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21014453
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10622995
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15573303
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/online_resource/Videos_of_South_American_sea_lions_i_Otaria_flavescens_i_preying_on_invasive_Chinook_salmon_i_Oncorhynchus_tshawytscha_i_in_river_south_Chile/30267214/4
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/online_resource/Videos_of_South_American_sea_lions_i_Otaria_flavescens_i_preying_on_invasive_Chinook_salmon_i_Oncorhynchus_tshawytscha_i_in_river_south_Chile/30267214/5
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/online_resource/Videos_of_South_American_sea_lions_i_Otaria_flavescens_i_preying_on_invasive_Chinook_salmon_i_Oncorhynchus_tshawytscha_i_in_river_south_Chile/30267214
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/online_resource/Videos_of_South_American_sea_lions_i_Otaria_flavescens_i_preying_on_invasive_Chinook_salmon_i_Oncorhynchus_tshawytscha_i_in_river_south_Chile/30267214/3
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21204262
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: MergedDataset
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/blanchon/merged_dataset/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/joaosanches/merged_dataset_no_duplicates/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/aizenSosuke/merged_dataset/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/blanchon/merged_dataset/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/joaosanches/merged_dataset_no_duplicates/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/aizenSosuke/merged_dataset/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/aizenSosuke/merged_dataset_final/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/dataset/Call_09152489563_For_School_of_Nursing_Lagos_University_Teaching_Hospital_LUTH_2026_2027_Admission_Application_Form_Is_Out_Call_09152489563_/32902985
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Call_09152489563_For_Lagos_State_College_of_Nursing_LASCON_2026_2027_Admission_Application_Form_Is_Out_Call_09152489563_/32902979
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/uimagenees_articulo/32902946
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Call_09152489563_For_Unique_College_of_Nursing_2026_2027_Admission_Application_Form_Is_Out_Call_09152489563_/32902973
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Call_09152489563_For_Department_of_Nursing_Science_University_of_Lagos_UNILAG_2026_2027_Admission_Application_Form_Is_Out_Call_09152489563_/32902970
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: AccidentRecord
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/dataset/Call_09152489563_For_School_of_Nursing_Lagos_University_Teaching_Hospital_LUTH_2026_2027_Admission_Application_Form_Is_Out_Call_09152489563_/32902985
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Call_09152489563_For_Lagos_State_College_of_Nursing_LASCON_2026_2027_Admission_Application_Form_Is_Out_Call_09152489563_/32902979
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/uimagenees_articulo/32902946
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Call_09152489563_For_Unique_College_of_Nursing_2026_2027_Admission_Application_Form_Is_Out_Call_09152489563_/32902973
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Call_09152489563_For_Department_of_Nursing_Science_University_of_Lagos_UNILAG_2026_2027_Admission_Application_Form_Is_Out_Call_09152489563_/32902970
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: WeatherStationData
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/dataset/Call_09152489563_For_Nigerian_Army_College_of_Nursing_NACON_2026_2027_Admission_Application_Form_Is_Out_Call_09152489563_/32902991
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Call_09152489563_For_School_of_Nursing_Lagos_University_Teaching_Hospital_LUTH_2026_2027_Admission_Application_Form_Is_Out_Call_09152489563_/32902985
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Call_09152489563_For_Lagos_State_College_of_Nursing_LASCON_2026_2027_Admission_Application_Form_Is_Out_Call_09152489563_/32902979
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/uimagenees_articulo/32902946
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Call_09152489563_For_Unique_College_of_Nursing_2026_2027_Admission_Application_Form_Is_Out_Call_09152489563_/32902973
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14205913
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3979234
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14205913
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14205913
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

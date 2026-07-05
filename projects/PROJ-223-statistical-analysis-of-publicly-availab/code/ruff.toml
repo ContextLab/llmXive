@@ -1,0 +1,26 @@
+[tool.ruff]
+# Same target version as the project setup
+target-version = "py311"
+
+# Exclude generated or external directories
+extend-exclude = [
+    "__pycache__",
+    ".git",
+    ".venv",
+    "venv",
+    "data",
+    "figures",
+    "build",
+]
+
+# Line length consistent with Black
+line-length = 88
+
+[tool.ruff.lint]
+# Enable pycodestyle (E), Pyflakes (F), and isort (I)
+select = ["E", "F", "I", "W", "UP"]
+ignore = []
+
+# Allow unused variables in __init__.py for imports
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = ["F401"]

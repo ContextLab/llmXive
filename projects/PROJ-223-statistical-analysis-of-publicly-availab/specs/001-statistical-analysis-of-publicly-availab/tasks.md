@@ -1,6 +1,6 @@
-# Tasks: Statistical Analysis of Publicly Available Traffic Accident Data
+# Tasks: Traffic-Weather Severity Analysis
 
-**Input**: Design documents from `/specs/001-statistical-analysis-of-publicly-available-traffic-accident-data/`
+**Input**: Design documents from `/specs/001-traffic-weather-severity/`
 **Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
 
 **Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
@@ -43,9 +43,11 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure per implementation plan. Create directories: `code/`, `data/raw/`, `data/processed/`, `output/`, `tests/`, `docs/`, `state/`.
-- [ ] T002 Initialize Python 3.11 project with `requirements.txt`. Create `requirements.txt` with pinned versions: `pandas==2.1.0`, `numpy==1.26.0`, `scikit-learn==1.3.0`, `statsmodels==0.14.0`, `matplotlib==3.8.0`, `seaborn==0.13.0`, `requests==2.31.0`, `pyyaml==6.0.1`, `scipy==1.11.0`.
-- [ ] T003 [P] Configure linting (ruff) and formatting (black) tools. Create `pyproject.toml` with `[tool.ruff]` and `[tool.black]` sections in `code/`.
+- [ ] T001a [P] Create `code/` directory structure (`__init__.py`, `config.py`, `ingest.py`, `model.py`, `diagnostics.py`, `utils.py`, `main.py`)
+- [ ] T001b [P] Create `tests/` directory structure (`__init__.py`, `test_ingest.py`, `test_model.py`, `test_diagnostics.py`)
+- [ ] T001c [P] Create `data/` directory structure (`raw/`, `processed/`, `reports/`)
+- [ ] T002 Initialize Python 3.11 project with `requirements.txt` (pinned `pandas`, `numpy`, `scikit-learn`, `statsmodels`, `geopy`, `pyyaml`, `matplotlib`, `seaborn`, `pyarrow`, `h3`)
+- [ ] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools
 
 ---
 
@@ -55,12 +57,11 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-Examples of foundational tasks (adjust based on your project):
-
-- [ ] T004 [P] Setup environment configuration management. Create `code/config.py` to load FARS/NOAA URLs from `research.md` and expose them as constants. <!-- FAILED: unspecified -->
-- [ ] T005 [P] Implement schema validation helpers for raw and merged datasets
-- [ ] T006 [P] Setup logging infrastructure to record data drop counts and model convergence status
-- [~] T007 [P] Create base data processing utilities. Create `code/utils.py` with functions: `load_csv_chunked(path, chunk_size=10000)`, `optimize_memory(df)`.
+- [X] T004 Create `code/config.py` for paths, `random_state=42` seed, and constants
+- [~] T005 [P] Implement `code/utils.py` with helper functions for geo-matching and encoding
+- [~] T006 [P] Setup `tests/` directory structure with `__init__.py` and `pytest` configuration
+- [~] T007b Create `merged_dataset.schema.yaml` contract file defining required fields and types for contract validation
+- [~] T008 Configure environment variable management for data paths
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -68,57 +69,52 @@ Examples of foundational tasks (adjust based on your project):
 
 ## Phase 3: User Story 1 - Data Ingestion and Merging (Priority: P1) 🎯 MVP
 
-**Goal**: Download, clean, and merge FARS and NOAA datasets, filtering for valid records.
+**Goal**: Download FARS and NOAA ISD data, merge based on location/time, and produce a unified dataset with ≥85% weather coverage [UNRESOLVED-CLAIM: c_d126a534 — status=not_enough_info].
 
-**Independent Test**: Verify output CSV contains only rows with non-null severity/weather data, row count ≤ min(input counts), and log reports dropped records.
+**Independent Test**: Run ingestion script on a deterministic sample; verify output CSV contains non-null values for `severity`, `precipitation`, `visibility`, `temperature` and matches `merged_dataset.schema.yaml`.
 
-### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
+### Tests for User Story 1
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [~] T008 [P] [US1] Unit test for data download and checksum verification in `tests/test_data_ingestion.py`
-- [~] T009 [P] [US1] Integration test for merge logic and null filtering in `tests/test_data_ingestion.py`
+- [~] T009 [P] [US1] Unit test for severity encoding logic in `tests/test_ingest.py`
+- [~] T010 [P] [US1] Integration test for FARS/NOAA merge logic in `tests/test_ingest.py` (mock URLs or small sample)
+- [~] T011 [P] [US1] Contract test verifying `match_method` field population in `tests/test_ingest.py`
 
 ### Implementation for User Story 1
 
-- [~] T010 [US1] Implement `code/01_data_ingestion.py` to download FARS (NHTSA) and NOAA GHCN-Daily data using verified URLs. Download to `data/raw/`, compute SHA-256, save to `state/checksums.json`.
-- [~] T011 [US1] Implement schema validation in `code/01_data_ingestion.py` to ensure required columns exist.
-- [~] T012 [US1] Implement merge logic in `code/01_data_ingestion.py` on timestamp/location. **Drop rows ONLY if structural keys (ID, Lat/Lon) are missing**. **Do NOT drop rows with missing weather data yet**; retain them for imputation in T019.
-- [~] T013 [US1] Add robust clipping/winsorization in `code/01_data_ingestion.py`. Apply winsorization at the extreme lower and upper percentiles to temperature and precipitation columns.
-- [~] T014 [US1] Log dropped record counts (structural only) and save interim merged dataset to `data/processed/merged_data_interim.csv`.
-- [~] T015 [US1] Verify output row count and schema completeness in `code/01_data_ingestion.py`.
+- [~] T012 [US1] Implement FARS download and pre-filtering in `code/ingest.py` (use deterministic NHTSA 2022 URL, verify checksums)
+- [~] T012b [US1] Implement chunking logic for datasets >7GB in `code/ingest.py` (process in chunks, write intermediate results to disk to prevent OOM)
+- [ ] T013 [US1] Implement NOAA ISD download and pre-filtering in `code/ingest.py` (use HuggingFace `noaa/isd-hourly` fallback, filter by proximity)
+- [ ] T014 [US1] Implement spatial-temporal merge logic: MUST implement linear interpolation for time gaps between weather stations; fallback to nearest-hour ONLY if interpolation fails; verify output contains `match_method=interpolated` for time-delta > 0 in `code/ingest.py`
+- [ ] T015 [US1] Implement severity encoding (=Property, Injury, Fatality) and exclusion logic in `code/ingest.py`
+- [ ] T016 [US1] Implement contract validation step to ensure output matches `merged_dataset.schema.yaml` in `code/ingest.py`
+- [ ] T017 [US1] Add logging for merge coverage rate (target ≥85%) and exclusion counts in `code/ingest.py`
+- [ ] T017b [US1] Implement calculation and verification of SC-001 coverage metric (valid weather records / total FARS records) and verify ≥85% target [UNRESOLVED-CLAIM: c_22e946e3 — status=not_enough_info]; MUST log exclusion counts for records failing proximity check in `code/ingest.py`
 
-**Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
+**Checkpoint**: At this point, User Story 1 is only considered 'complete' if T017b passes (coverage ≥85% AND exclusion counts logged)
 
 ---
 
 ## Phase 4: User Story 2 - Ordinal Logistic Regression Modeling (Priority: P2)
 
-**Goal**: Fit Ordinal Logistic Regression (or fallback) to quantify weather impact on severity.
+**Goal**: Fit an Ordinal Logistic Regression (Cumulative Link Model) to quantify weather influence on severity.
 
-**Independent Test**: Model converges (or falls back) on CPU, returns coefficients, and produces odds ratios without GPU usage.
+**Independent Test**: Run modeling script; verify output includes coefficients table with odds ratios, AIC/BIC, and Brant test p-value > 0.05.
 
-### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
+### Tests for User Story 2
 
-- [ ] T016 [P] [US2] Unit test for ordinal encoding and model convergence in `tests/test_model_fitting.py`
-- [ ] T017 [P] [US2] Integration test for fallback logic (Ordinal → Multinomial) in `tests/test_model_fitting.py`
+- [ ] T018 [P] [US2] Unit test for model convergence on sample data in `tests/test_model.py`
+- [ ] T019 [P] [US2] Integration test for full model fit and coefficient extraction in `tests/test_model.py`
 
 ### Implementation for User Story 2
 
-- [ ] T018 [US2] [Preprocessing] Implement severity encoding (0=Property, 1=Injury, 2=Fatality) in `code/02_preprocessing.py`.
-- [ ] T019 [US2] [Preprocessing] Implement Multiple Imputation (MICE) for missing **non-critical** weather data in `code/02_preprocessing.py`. **Execute this AFTER T012**. After imputation, **drop any remaining rows with missing weather data** to ensure the final dataset is complete.
-- [ ] T020 [US2] [Modeling] Implement `code/03_model_fitting.py` to fit Ordinal Logistic Regression using `statsmodels`.
-- [ ] T021 [US2] [Modeling] Implement proportional odds assumption check (Brant test/LRT) in `code/03_model_fitting.py`.
-- [ ] T022 [US2] [Modeling] Implement fallback to Multinomial Logistic Regression if assumption violated in `code/03_model_fitting.py`.
-- [ ] T023 [US2] [Modeling] Calculate and report odds ratios (or relative risk ratios) with confidence intervals in `code/03_model_fitting.py`.
-- [ ] T024 [US2] [Modeling] Add a timeout wrapper in `code/03_model_fitting.py` that raises `TimeoutError` if execution exceeds **6 hours**, and log the duration.
-- [ ] T025 [US2] [Diagnostics] **Check Multicollinearity**. Calculate VIF scores for all predictors in `code/03_model_fitting.py`. Flag if VIF > 5.
-- [ ] T026 [US2] [Modeling] **Apply Regularization if Needed**. If VIF > 5 (from T025):
- 1. Attempt to re-fit the model using `statsmodels` `OrderedModel` with `fit_regularized` (L2 penalty) if available.
- 2. If that fails, switch to `statsmodels` `GLM` with `family=Binomial` (Binary Logistic) as a fallback for the ordinal outcome, OR
- 3. Switch to `statsmodels` `GLM` with `family=Binomial` and `cov_type='HC3'` (Robust estimator) if Ridge is unsuitable.
- **Report the regularized/robust coefficients** to `output/reports/regularized_coefficients.json`.
-- [ ] T027 [US2] [Diagnostics] **Sensitivity Analysis (MDE)**. Calculate the **Minimum Detectable Effect (MDE)** for OR=1.5 using `statsmodels.stats.power` on the final model (after switch and Ridge/Robust). Write result (MDE value, sample size) to `output/reports/sensitivity_analysis.json`. Verify **MDE < 1.5** (sufficient).
+- [ ] T020 [US2] Implement Ordinal Logistic Regression (Cumulative Logit) using `statsmodels.miscmodels.ordinal_model.OrderedModel` in `code/model.py`
+- [ ] T021 [US2] Implement model fitting with weather predictors (precip, visibility, temp) and controls (hour, day, road type) in `code/model.py`
+- [ ] T022 [US2] Implement extraction of odds ratios with confidence intervals in `code/model.py`
+- [ ] T023 [US2] Implement Brant test for proportional odds assumption in `code/model.py`
+- [ ] T024 [US2] Add convergence logging and error handling for non-convergence in `code/model.py`
+- [ ] T024b [US2] Implement calculation and verification of SC-002 convergence rate (≥95% (Wikipedia: Delta (rocket family), https://en.wikipedia.org/wiki/Delta_(rocket_family)) success within 50 iterations [UNRESOLVED-CLAIM: c_6b6dbdaf — status=not_enough_info]) and fail pipeline if target missed in `code/model.py`
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -126,36 +122,37 @@ Examples of foundational tasks (adjust based on your project):
 
 ## Phase 5: User Story 3 - Model Diagnostics and Visualization (Priority: P3)
 
-**Goal**: Perform diagnostics (VIF, LRT) and generate visualizations.
+**Goal**: Generate diagnostic plots (VIF), perform sensitivity analysis, and validate methodological soundness.
 
-**Independent Test**: VIF scores calculated, Ridge applied if VIF>5, plots generated as image files.
+**Independent Test**: Run diagnostics script; verify output includes VIF table (all < 5.0), coefficient plot image, and sensitivity analysis table.
 
-### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
+### Tests for User Story 3
 
-- [ ] T028 [P] [US3] Unit test for VIF calculation and Ridge fallback in `tests/test_diagnostics.py`
-- [ ] T029 [P] [US3] Integration test for plot generation and file output in `tests/test_diagnostics.py`
+- [ ] T025 [P] [US3] Unit test for VIF calculation in `tests/test_diagnostics.py`
+- [ ] T026 [P] [US3] Integration test for sensitivity analysis sweep in `tests/test_diagnostics.py`
 
 ### Implementation for User Story 3
 
-- [ ] T030 [US3] Implement Likelihood Ratio Test and McFadden's Pseudo R-squared calculation in `code/04_diagnostics.py`.
-- [ ] T031 [US3] Implement Cluster-Robust Standard Errors (CRSE) calculation if needed in `code/04_diagnostics.py`.
-- [ ] T032 [US3] Generate coefficient plot and odds ratio table. Generate `coefficient_plot.png` and **`odds_ratio_table.png`** (visual artifact) and `odds_ratio_table.csv` (data artifact) in `code/05_visualization.py`.
-- [ ] T033 [US3] Save visualizations to `output/plots/` and statistical summaries to `output/reports/`.
-- [ ] T034 [US3] Verify all required outputs exist and are non-empty in `code/05_visualization.py`. Ensure `odds_ratio_table.csv` is machine-readable.
+- [ ] T027 [US3] Implement VIF calculation for all predictors in `code/diagnostics.py`
+- [ ] T028 [US3] Implement sensitivity analysis for FR-005/SC-003: Sweep precipitation thresholds across a range of low values. on the *continuous* variable; calculate the *maximum percentage change* in odds ratios across the sweep; verify variation < 15% [UNRESOLVED-CLAIM: c_030f2fe7 — status=not_enough_info]; produce 'stability metric table' in `code/diagnostics.py`
+- [ ] T029 [US3] Generate coefficient plot image using `matplotlib`/`seaborn` in `code/diagnostics.py`
+- [ ] T030 [US3] Implement logic to flag VIF > 5.0 as a limitation in `code/diagnostics.py`
+- [ ] T031 [US3] Generate final associational summary report in `code/diagnostics.py`; MUST include a verification step (e.g., regex scan for causal keywords like 'cause', 'effect', 'determine') to ensure *all* statistics are framed as associational per FR-006
 
 **Checkpoint**: All user stories should now be independently functional
 
 ---
 
-## Phase N: Polish & Cross-Cutting Concerns
+## Phase 6: Polish & Cross-Cutting Concerns
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T035 [P] Documentation updates in `docs/` and `README.md`
-- [ ] T036 Code cleanup and refactoring across `code/`
-- [ ] T037 Performance optimization (memory usage) across all scripts
-- [ ] T038 [P] Additional unit tests for edge cases (empty data, extreme outliers) in `tests/`
-- [ ] T039 [P] Execute the command defined in `quickstart.md` (e.g., `python code/01_data_ingestion.py && python code/03_model_fitting.py`) and verify exit code 0.
+- [ ] T032 [P] Documentation updates in `docs/` and `README.md`
+- [ ] T033 Code cleanup and refactoring for general optimization, preserving chunking logic in `code/ingest.py` implemented in T012b
+- [ ] T034a [P] Implement chunking logic in `code/ingest.py` to ensure memory usage < 6GB peak [UNRESOLVED-CLAIM: c_4c5ebbc1 — status=not_enough_info] (if not already covered by T012b)
+- [ ] T034b [P] Profile full pipeline execution and {{claim:c_7a6ad4b8}} (Wikipedia: Dhurandhar, https://en.wikipedia.org/wiki/Dhurandhar); record duration in `data/reports/runtime.log`
+- [ ] T035 [P] Additional unit tests for edge cases (missing severity, interpolation) in `tests/`
+- [ ] T036 Run `quickstart.md` validation and verify all artifacts checksummed
 
 ---
 
@@ -175,12 +172,12 @@ Examples of foundational tasks (adjust based on your project):
 - **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
 - **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Depends on US1 data output
 - **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on US2 model output
-- **Data Flow**: T010 (Ingestion) → T012 (Structural Drop) → T019 (MICE + Final Drop) → T018 (Preprocessing) → T020 (Modeling) → T025 (VIF) → T026 (Ridge/Robust) → T027 (MDE) → T030 (Diagnostics) → T032 (Visualization)
 
 ### Within Each User Story
 
 - Tests (if included) MUST be written and FAIL before implementation
-- Models before services (Preprocessing before Modeling)
+- Models before services
+- Services before endpoints
 - Core implementation before integration
 - Story complete before moving to next priority
 
@@ -198,13 +195,16 @@ Examples of foundational tasks (adjust based on your project):
 ## Parallel Example: User Story 1
 
 ```bash
-# Launch all tests for User Story 1 together (if tests requested):
-Task: "Unit test for data download and checksum verification in tests/test_data_ingestion.py"
-Task: "Integration test for merge logic and null filtering in tests/test_data_ingestion.py"
+# Launch all tests for User Story 1 together:
+Task: "Unit test for severity encoding logic in tests/test_ingest.py"
+Task: "Integration test for FARS/NOAA merge logic in tests/test_ingest.py"
+Task: "Contract test verifying match_method field population in tests/test_ingest.py"
 
-# Launch all models for User Story 1 together:
-Task: "Implement schema validation in code/01_data_ingestion.py"
-Task: "Implement robust clipping for outliers in code/01_data_ingestion.py"
+# Launch implementation tasks (sequentially due to data flow):
+Task: "Implement FARS download and pre-filtering in code/ingest.py"
+Task: "Implement NOAA ISD download and pre-filtering in code/ingest.py"
+Task: "Implement spatial-temporal merge logic in code/ingest.py"
+Task: "Implement severity encoding and exclusion logic in code/ingest.py"
 ```
 
 ---
@@ -216,7 +216,7 @@ Task: "Implement robust clipping for outliers in code/01_data_ingestion.py"
 1. Complete Phase 1: Setup
 2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
 3. Complete Phase 3: User Story 1
-4. **STOP and VALIDATE**: Test User Story 1 independently
+4. **STOP and VALIDATE**: Test User Story 1 independently (ensure T017b passes)
 5. Deploy/demo if ready
 
 ### Incremental Delivery
@@ -249,5 +249,3 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Constraint**: All tasks must run on CPU-only CI with limited core count, constrained RAM, and limited disk. No GPU/CUDA.
-- **Data Integrity**: Use only real datasets from verified URLs (NHTSA, NOAA). No synthetic data fabrication.

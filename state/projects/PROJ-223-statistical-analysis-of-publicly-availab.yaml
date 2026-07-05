@@ -6,7 +6,7 @@ failed_stage: null
 field: statistics
 human_escalation_reason: null
 id: PROJ-223-statistical-analysis-of-publicly-availab
-last_run_id: 6917b0d0-27f3-4695-80dc-b75d15cf7a8f
+last_run_id: e4e42f7e-7ce3-4e3e-82ca-56329159991a
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-223-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab
 title: Statistical Analysis of Publicly Available Traffic Accident Data
-updated_at: '2026-07-05T16:06:20.627977Z'
+updated_at: '2026-07-05T16:38:27.997330Z'

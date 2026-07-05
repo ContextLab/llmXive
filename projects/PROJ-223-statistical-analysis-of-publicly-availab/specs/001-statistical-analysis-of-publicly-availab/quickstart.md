@@ -1,79 +1,74 @@
-# Quickstart: Statistical Analysis of Publicly Available Traffic Accident Data
+# Quickstart: Traffic-Weather Severity Analysis
 
 ## Prerequisites
 
 - Python 3.11+
-- `pip` package manager
-- Access to GitHub Actions (for CI execution)
+- `pip`
+- Access to the internet (for downloading datasets)
+- Sufficient disk space (for raw data and processing)
 
 ## Installation
 
-1. **Clone the repository**:
-   ```bash
-   git clone <repo-url>
-   cd specs/001-statistical-analysis-of-publicly-available-traffic-accident-data
-   ```
+1.  **Clone the repository** and navigate to the project directory.
+2.  **Create a virtual environment**:
+    ```bash
+    python -m venv venv
+    source venv/bin/activate  # On Windows: venv\Scripts\activate
+    ```
+3.  **Install dependencies**:
+    ```bash
+    pip install -r requirements.txt
+    ```
+    *Note: `requirements.txt` is generated during the implementation phase and will pin `statsmodels`, `pandas`, `numpy`, `scikit-learn`, `geopy`, `matplotlib`, `seaborn`, `pyyaml`, `pyarrow`, `h3`.*
 
-2. **Create a virtual environment**:
-   ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   ```
+## Data Setup
 
-3. **Install dependencies**:
-   ```bash
-   pip install -r code/requirements.txt
-   ```
+The project requires two datasets. Due to potential mismatches in the provided URLs, the script includes a fallback mechanism with **pinned sources**.
 
-## Running the Pipeline
+1.  **Run the ingestion script**:
+    ```bash
+    python code/ingest.py
+    ```
+    - This script will:
+        - Invoke the Reference-Validator Agent to verify the pinned URLs (NHTSA 2022, HuggingFace `noaa/isd-hourly`).
+        - If invalid, abort and flag the spec for update.
+        - **Pre-filter** NOAA data to reduce memory footprint (using H3/geohash).
+        - Merge the data based on location and time.
+        - **Validate** the output against `merged_dataset.schema.yaml`, ensuring `match_method` is populated correctly.
+        - Generate `data/processed/excluded_records_summary.csv` for bias quantification.
+        - Save the result to `data/processed/merged_dataset.csv`.
+        - Generate a checksum file `data/raw/checksums.json`.
 
-The pipeline is executed sequentially via the provided scripts.
+2.  **Verify the data**:
+    Ensure `data/processed/merged_dataset.csv` exists and contains at least 85% of records with valid weather data. Check `data/processed/excluded_records_summary.csv` for bias analysis.
 
-### Step 1: Data Ingestion
-Downloads and merges raw data. Includes schema validation for FARS and NOAA.
+## Running the Analysis
+
+Execute the full pipeline:
+
 ```bash
-python code/01_data_ingestion.py
+python code/main.py
 ```
-*Output*: `data/processed/merged_data.csv`
 
-### Step 2: Preprocessing
-Handles missing data via MICE and encodes data.
+This will:
+1.  Load the merged dataset.
+2.  Fit the Ordinal Logistic Regression model (`model.py`).
+3.  Run diagnostics (VIF, Brant test) (`diagnostics.py`).
+4.  Perform the **Primary Robustness Check** (Subset-based Continuous Coefficient Stability) and **Secondary Hypothesis** (Binary Threshold Sweep).
+5.  Generate plots and a summary report in `data/reports/`.
+
+## Testing
+
+Run the unit tests to verify logic:
+
 ```bash
-python code/02_preprocessing.py
+pytest tests/ -v
 ```
-*Output*: `data/processed/preprocessed_data.csv`
 
-### Step 3: Model Fitting
-Fits the regression model (Ordinal, Multinomial, or Penalized GLM).
-```bash
-python code/03_model_fitting.py
-```
-*Output*: `output/models/model_results.pkl`
+## Output
 
-### Step 4: Diagnostics
-Runs VIF, LRT, CRSE, and Sensitivity Analysis (MDE).
-```bash
-python code/04_diagnostics.py
-```
-*Output*: `output/reports/diagnostics.json`
-
-### Step 5: Visualization
-Generates plots and tables.
-```bash
-python code/05_visualization.py
-```
-*Output*: `output/plots/`
-
-## Verification
-
-To verify the pipeline on a small dataset:
-1. Run the `tests/test_data_ingestion.py` unit tests.
-2. Check `output/reports/diagnostics.json` for the `convergence` flag and `mde` value.
-3. Ensure `output/plots/` contains `coefficient_plot.png` and `odds_ratio_table.png`.
-
-## Troubleshooting
-
-- **Memory Error**: If the pipeline fails due to memory, reduce the sampling ratio in `02_preprocessing.py`.
-- **Model Non-Convergence**: Check `output/reports/diagnostics.json` for the `fallback_model` flag. If true, the system switched to Multinomial Logistic Regression or Penalized GLM.
-- **Data Mismatch**: If the ingestion step fails, verify that the FARS dataset URL in `research.md` points to valid traffic data and that the NOAA schema matches.
-- **Missing Weather Data**: If imputation fails, check `data/processed/preprocessed_data.csv` for NaN values. Ensure the MICE parameters are appropriate for the dataset size.
+- **Model Summary**: `data/reports/model_summary.txt` (Coefficients, Odds Ratios, AIC/BIC).
+- **Diagnostics**: `data/reports/diagnostics.csv` (VIF values, Brant test p-value, PPO feasibility status).
+- **Bias Report**: `data/reports/bias_quantification.txt` (Chi-square results).
+- **Plots**: `data/reports/coefficient_plot.png`, `data/reports/spline_plot.png`, `data/reports/binary_sweep_plot.png`.
+- **Final Report**: `paper/analysis_findings.md` (Generated from the above artifacts).

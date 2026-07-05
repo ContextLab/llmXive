@@ -1,0 +1,72 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "MergedDatasetSchema"
+description: "Schema for the merged FARS and NOAA ISD dataset used in the ordinal logistic regression analysis."
+type: "object"
+properties:
+  accident_id:
+    type: "string"
+    description: "Unique identifier from the FARS dataset."
+  timestamp:
+    type: "string"
+    format: "date-time"
+    description: "Date and time of the accident in ISO 8601 format."
+  lat:
+    type: "number"
+    description: "Latitude of the accident location (WGS84)."
+    minimum: -90
+    maximum: 90
+  lon:
+    type: "number"
+    description: "Longitude of the accident location (WGS84)."
+    minimum: -180
+    maximum: 180
+  severity:
+    type: "integer"
+    description: "Ordinal severity level: 0=Property Damage, 1=Injury, 2=Fatality."
+    minimum: 0
+    maximum: 2
+  road_type:
+    type: "string"
+    description: "Classification of the road where the accident occurred."
+  vehicle_type:
+    type: "string"
+    description: "Classification of the vehicle involved in the accident."
+  station_id:
+    type: "string"
+    description: "NOAA station ID used for weather data."
+  distance_km:
+    type: "number"
+    description: "Distance in kilometers between the accident and the weather station."
+    minimum: 0
+  precipitation_amount:
+    type: "number"
+    description: "Precipitation amount in inches."
+    minimum: 0
+  visibility_miles:
+    type: "number"
+    description: "Visibility in miles."
+    minimum: 0
+  temperature_f:
+    type: "number"
+    description: "Temperature in Fahrenheit."
+  match_method:
+    type: "string"
+    enum:
+      - "nearest"
+      - "interpolated"
+    description: "Method used to match weather data to the accident. 'interpolated' if time delta > 0, else 'nearest'."
+required:
+  - accident_id
+  - timestamp
+  - lat
+  - lon
+  - severity
+  - road_type
+  - vehicle_type
+  - station_id
+  - distance_km
+  - precipitation_amount
+  - visibility_miles
+  - temperature_f
+  - match_method
+additionalProperties: false

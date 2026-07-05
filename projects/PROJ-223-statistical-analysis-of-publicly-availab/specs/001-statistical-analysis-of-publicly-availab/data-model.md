@@ -1,72 +1,97 @@
-# Data Model: Statistical Analysis of Publicly Available Traffic Accident Data
+# Data Model: Traffic-Weather Severity Analysis
 
-## Entity Relationship Overview
+## 1. Entity-Relationship Overview
 
-The data model consists of three primary entities: `AccidentRecord`, `WeatherObservation`, and the derived `MergedDataset`.
+The data model consists of three primary entities: `AccidentRecord`, `WeatherStationData`, and the derived `MergedDataset`.
 
-### 1. AccidentRecord
-Represents a single traffic accident event.
-- **Source**: FARS dataset (NHTSA).
-- **Key Attributes**:
-  - `accident_id`: Unique identifier (String/Int).
-  - `severity`: Ordinal outcome (0=Property, 1=Injury, 2=Fatality).
-  - `timestamp`: Date and time of accident (DateTime).
-  - `location_lat`: Latitude (Float).
-  - `location_lon`: Longitude (Float).
-  - `road_type`: Categorical (e.g., Highway, Residential).
-  - `vehicle_type`: Categorical (e.g., Car, Truck, Motorcycle).
-  - `hour`: Extracted hour (Int).
-  - `day_of_week`: Extracted day (Int 0-6).
+### AccidentRecord (Source: FARS)
+Represents a single traffic crash event.
 
-### 2. WeatherObservation
-Represents weather conditions at a specific time and location.
-- **Source**: NOAA GHCN-Daily dataset.
-- **Key Attributes**:
-  - `station_id`: Weather station identifier (String).
-  - `date`: Date of observation (Date).
-  - `precipitation`: Total precipitation (Float, mm).
-  - `visibility`: Visibility distance (Float, km).
-  - `temperature`: Average temperature (Float, °C).
-  - `station_lat`: Station latitude (Float).
-  - `station_lon`: Station longitude (Float).
-
-### 3. MergedDataset
-The analytical dataset resulting from joining `AccidentRecord` and `WeatherObservation`.
-- **Join Key**: Temporal proximity (e.g., same day or nearest hour) and spatial proximity (e.g., within 50km radius).
-- **Derived Columns**:
-  - `weather_precipitation`: Mapped from `WeatherObservation`.
-  - `weather_visibility`: Mapped from `WeatherObservation`.
-  - `weather_temperature`: Mapped from `WeatherObservation`.
-  - `is_missing_weather`: Boolean flag for records where weather data was not found (to be imputed).
-
-## Data Dictionary
-
-| Column Name | Type | Description | Constraints |
+| Field | Type | Description | Constraints |
 | :--- | :--- | :--- | :--- |
-| `severity` | Int (Ordinal) | 0=Property, 1=Injury, 2=Fatality | 0 ≤ x ≤ 2 |
-| `precipitation` | Float | Total precipitation (mm) | ≥ 0 |
-| `visibility` | Float | Visibility (km) | ≥ 0 |
-| `temperature` | Float | Temperature (°C) | No specific range |
-| `hour` | Int | Hour of day (0-23) | 0 ≤ x ≤ 23 |
-| `day_of_week` | Int | Day of week (0-6) | 0 ≤ x ≤ 6 |
-| `road_type` | String | Categorical road type | Non-null |
-| `vehicle_type` | String | Categorical vehicle type | Non-null |
-| `sample_weight` | Float | Weight for stratified sampling | ≥ 0 |
+| `accident_id` | str | Unique identifier from FARS | Primary Key |
+| `timestamp` | datetime | Date and time of accident | Not Null |
+| `lat` | float | Latitude (WGS84) | Not Null, [-90, 90] |
+| `lon` | float | Longitude (WGS84) | Not Null, [-180, 180] |
+| `severity_raw` | int | Raw FARS severity code | 0-9 |
+| `severity` | int | Encoded ordinal (0, 1, 2) | 0=Prop, 1=Injury, 2=Fatal |
+| `road_type` | str | Road classification | Not Null |
+| `vehicle_type` | str | Vehicle classification | Not Null |
+| `state` | str | US State code | Not Null |
 
-## Transformation Logic
+### WeatherStationData (Source: NOAA ISD)
+Represents meteorological conditions at a specific station.
 
-1. **Ingestion**: Load raw CSV/Parquet files.
-2. **Cleaning**:
-   - Drop rows with missing `severity`, `accident_id`, `location_lat`, or `location_lon`.
-   - **Missing Weather**: Do NOT drop rows with missing `precipitation`, `visibility`, or `temperature`. Instead, flag them for imputation.
-3. **Imputation**:
-   - Apply Multiple Imputation by Chained Equations (MICE) using `sklearn.impute.IterativeImputer` to fill missing weather variables based on other predictors.
-   - No Winsorization is applied to preserve the distribution of extreme weather events.
-4. **Encoding**:
-   - Convert `severity` to ordinal integer.
-   - One-hot encode `road_type` and `vehicle_type` for model input.
-5. **Merging**:
-   - Join on `date` (from `timestamp`) and spatial proximity.
-   - Retain only rows with successful accident ID match; weather data may be missing initially but will be imputed.
-6. **Sampling**:
-   - If `n_rows` > 5,000,000, apply stratified sampling (strata=`severity`) to reduce to ~5M rows.
+| Field | Type | Description | Constraints |
+| :--- | :--- | :--- | :--- |
+| `station_id` | str | NOAA Station ID | Primary Key |
+| `timestamp` | datetime | Observation time | Not Null |
+| `lat` | float | Station Latitude | Not Null |
+| `lon` | float | Station Longitude | Not Null |
+| `precipitation_amount` | float | Precipitation (inches) | >= 0.0 |
+| `visibility_miles` | float | Visibility (miles) | >= 0.0 |
+| `temperature_f` | float | Temperature (Fahrenheit) | No bounds |
+
+### MergedDataset (Derived)
+The unified dataset for analysis.
+
+| Field | Type | Source | Description |
+| :--- | :--- | :--- | :--- |
+| `accident_id` | str | AccidentRecord | Link to original record |
+| `timestamp` | datetime | AccidentRecord | Accident time |
+| `lat` | float | AccidentRecord | Accident location |
+| `lon` | float | AccidentRecord | Accident location |
+| `severity` | int | AccidentRecord | Encoded outcome |
+| `road_type` | str | AccidentRecord | Control variable |
+| `vehicle_type` | str | AccidentRecord | Control variable |
+| `station_id` | str | WeatherStationData | Source station |
+| `distance_km` | float | Calculated | **Distance to station** (Control for spatial error) |
+| `precipitation_amount` | float | WeatherStationData | Predictor |
+| `visibility_miles` | float | WeatherStationData | Predictor |
+| `temperature_f` | float | WeatherStationData | Predictor |
+| `match_method` | str | Logic | 'nearest' or 'interpolated' |
+
+### ExcludedRecordsSummary (Derived)
+**New Artifact**: Summary of records excluded due to missing weather data (for Bias Quantification).
+
+| Field | Type | Description |
+| :--- | :--- | :--- |
+| `severity_level` | int | Encoded severity (0, 1, 2) or "Unknown" |
+| `count` | int | Number of excluded records with this severity |
+| `percentage` | float | Percentage of total excluded records |
+
+## 2. Transformation Logic
+
+### Severity Encoding (FR-002)
+- **Input**: `severity_raw` (FARS code).
+- **Mapping**:
+  - `0`, `1` (No Injury, Property Damage Only) → `0`
+  - `2` through `8` (Minor, Serious, Severe, Fatal but not [deferred]) → `1` (Injury)
+  - `9` (Fatality) → `2` (Fatality)
+- **Exclusion**: Any record with `severity_raw` not in the mapped set or missing is excluded and logged in `ExcludedRecordsSummary`.
+
+### Spatial-Temporal Merge (FR-001)
+1.  **Filter**: Select NOAA stations within 100km of FARS centroids (Pre-filtering).
+2.  **Match**: For each accident, find the nearest station within 50km and within ±1 hour.
+3.  **Selection**:
+    - If multiple readings: Use linear interpolation to the exact accident time, or the nearest hour if interpolation fails.
+4.  **Fallback**: If no station within 50km:
+    - **Action**: Record is **excluded** from the `MergedDataset`.
+    - **Logging**: Record is added to `ExcludedRecordsSummary` with its `severity` (if known) or "Unknown".
+    - **Bias Check**: This step enables the Bias Quantification analysis.
+5.  **Match Method Assignment**:
+    - **Logic**: If the time difference between the accident timestamp and the weather observation is > 0 minutes (i.e., interpolation was used), set `match_method` = "interpolated".
+    - **Logic**: If the time difference is 0 minutes (exact match), set `match_method` = "nearest".
+    - **Validation**: `ingest.py` must assert that `match_method` is populated for every record in the `MergedDataset`.
+
+### Missing Data Handling
+- **Severity**: Excluded from model, logged in `ExcludedRecordsSummary`.
+- **Weather**: If `precipitation`, `visibility`, or `temperature` is missing after the merge, the record is excluded from the model and logged in `ExcludedRecordsSummary`.
+- **Controls**: If `road_type` or `vehicle_type` is missing, a "Unknown" category is created.
+
+## 3. Data Quality Metrics
+
+- **Coverage Rate (SC-001)**: `(Total Records with Valid Weather) / (Total Valid Accident Records)`. Target: ≥ 85%.
+- **Convergence Rate (SC-002)**: `(Successful Model Fits) / (Total Model Fits)`. Target: ≥ 95%.
+- **Stability (SC-003)**: **Note**: Spec requires binary sweep stability. Plan implements continuous subset stability as primary robustness + binary sweep as distinct hypothesis.
+- **Bias Quantification**: Chi-square p-value comparing `MergedDataset` severity distribution vs. `ExcludedRecordsSummary`.

@@ -1,0 +1,87 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Merged Traffic-Weather Dataset Schema
+description: >
+  Contract definition for the merged FARS and NOAA ISD dataset.
+  Validates fields required for Ordinal Logistic Regression modeling
+  and ensures data integrity before analysis.
+type: object
+properties:
+  accident_id:
+    description: Unique identifier for the accident record (from FARS).
+    type: string
+  severity:
+    description: >
+      Ordinal severity level: 0=Property Damage Only, 1=Injury, 2=Fatality.
+      Encoded from FARS 'MGL' or similar severity columns.
+    type: integer
+    enum: [0, 1, 2]
+  latitude:
+    description: Latitude of the accident location.
+    type: number
+  longitude:
+    description: Longitude of the accident location.
+    type: number
+  accident_date:
+    description: Date of the accident (YYYY-MM-DD).
+    type: string
+    format: date
+  accident_hour:
+    description: Hour of the accident (0-23).
+    type: integer
+    minimum: 0
+    maximum: 23
+  precipitation:
+    description: >
+      Hourly precipitation in inches. NaN if no precipitation or missing.
+      Source: NOAA ISD.
+    type: number
+  visibility:
+    description: Visibility in miles. NaN if missing.
+    type: number
+  temperature:
+    description: Air temperature in Fahrenheit. NaN if missing.
+    type: number
+  wind_speed:
+    description: Wind speed in knots. NaN if missing.
+    type: number
+  weather_condition:
+    description: Categorical weather condition code.
+    type: string
+  match_method:
+    description: >
+      Method used to associate weather with accident.
+      Values: 'exact', 'interpolated', 'nearest'.
+    type: string
+    enum: ['exact', 'interpolated', 'nearest']
+  time_delta_minutes:
+    description: Time difference in minutes between accident and weather observation.
+    type: number
+  station_id:
+    description: NOAA ISD station ID used for the match.
+    type: string
+  distance_km:
+    description: Distance in km between accident location and weather station.
+    type: number
+  road_type:
+    description: Categorical road type from FARS.
+    type: string
+  day_of_week:
+    description: Day of week (0=Monday, 6=Sunday).
+    type: integer
+    minimum: 0
+    maximum: 6
+required:
+  - accident_id
+  - severity
+  - latitude
+  - longitude
+  - accident_date
+  - accident_hour
+  - precipitation
+  - visibility
+  - temperature
+  - match_method
+  - station_id
+  - distance_km
+  - road_type
+additionalProperties: false

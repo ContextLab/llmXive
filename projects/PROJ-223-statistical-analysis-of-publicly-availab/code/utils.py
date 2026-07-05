@@ -1,47 +1,126 @@
-import pandas as pd
+"""
+Utility functions for geo-matching, encoding, and data handling.
+"""
+from geopy.distance import geodesic
 import numpy as np
-from typing import Optional, List, Dict, Any, Generator
+import pandas as pd
+from typing import Tuple, Optional
 import logging
 
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-def load_csv_chunked(path: str, chunk_size: int = 10000) -> pd.DataFrame:
+def encode_severity(value) -> Optional[str]:
     """
-    Load a CSV file in chunks to optimize memory usage.
+    Encode FARS severity codes to standard categories.
+    Expected input: Integer codes (1, 2, 3) or similar.
+    Returns: 'Property', 'Injury', 'Fatality', or None if invalid.
     """
-    logger.info(f"Loading CSV in chunks: {path}")
-    chunks = []
-    for chunk in pd.read_csv(path, chunksize=chunk_size):
-        chunks.append(chunk)
-    df = pd.concat(chunks, ignore_index=True)
-    logger.info(f"Loaded {len(df)} rows from {path}")
-    return df
-
-def optimize_memory(df: pd.DataFrame) -> pd.DataFrame:
-    """
-    Optimize memory usage of a DataFrame by downcasting numeric types.
-    """
-    logger.info("Optimizing memory usage")
-    for col in df.columns:
-        col_type = df[col].dtype
-        if col_type != object:
-            c_min = df[col].min()
-            c_max = df[col].max()
-            if str(col_type).startswith('float'):
-                if c_min >= np.finfo(np.float32).min and c_max <= np.finfo(np.float32).max:
-                    df[col] = df[col].astype(np.float32)
-                else:
-                    df[col] = df[col].astype(np.float64)
-            else:
-                if c_min >= np.iinfo(np.int8).min and c_max <= np.iinfo(np.int8).max:
-                    df[col] = df[col].astype(np.int8)
-                elif c_min >= np.iinfo(np.int16).min and c_max <= np.iinfo(np.int16).max:
-                    df[col] = df[col].astype(np.int16)
-                elif c_min >= np.iinfo(np.int32).min and c_max <= np.iinfo(np.int32).max:
-                    df[col] = df[col].astype(np.int32)
-                else:
-                    df[col] = df[col].astype(np.int64)
+    if pd.isna(value):
+        return None
+    
+    try:
+        val = int(value)
+        if val == 1:
+            return 'Property'
+        elif val == 2:
+            return 'Injury'
+        elif val == 3:
+            return 'Fatality'
         else:
-            df[col] = df[col].astype('category')
-    logger.info("Memory optimization complete")
-    return df
+            # NHTSA sometimes has 0 or other codes for unknown
+            logger.warning(f"Unknown severity code encountered: {val}")
+            return None
+    except (ValueError, TypeError):
+        return None
+
+def geo_distance(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
+    """
+    Calculate distance in km between two lat/lon points.
+    """
+    if any(np.isnan([lat1, lon1, lat2, lon2])):
+        return np.nan
+    return geodesic((lat1, lon1), (lat2, lon2)).km
+
+def interpolate_weather(
+    target_time: pd.Timestamp,
+    station_data: pd.DataFrame,
+    time_col: str = 'date',
+    value_col: str = 'value'
+) -> Optional[float]:
+    """
+    Linearly interpolate weather value for a specific time.
+    """
+    # Sort by time
+    sorted_data = station_data.sort_values(by=time_col)
+    
+    # Find surrounding points
+    before = sorted_data[sorted_data[time_col] <= target_time]
+    after = sorted_data[sorted_data[time_col] >= target_time]
+    
+    if before.empty or after.empty:
+        return None
+    
+    latest_before = before.iloc[-1]
+    earliest_after = after.iloc[0]
+    
+    if latest_before[time_col] == earliest_after[time_col]:
+        return latest_before[value_col]
+    
+    # Linear interpolation
+    t0 = latest_before[time_col].timestamp()
+    t1 = earliest_after[time_col].timestamp()
+    t_target = target_time.timestamp()
+    
+    v0 = latest_before[value_col]
+    v1 = earliest_after[value_col]
+    
+    if t1 == t0:
+        return v0
+        
+    ratio = (t_target - t0) / (t1 - t0)
+    return v0 + ratio * (v1 - v0)
+
+def find_nearest_station(
+    target_lat: float,
+    target_lon: float,
+    station_list: pd.DataFrame,
+    lat_col: str = 'LAT',
+    lon_col: str = 'LON',
+    max_distance_km: float = 50.0
+) -> Optional[str]:
+    """
+    Find the nearest NOAA station within max_distance_km.
+    Returns station ID or None.
+    """
+    if station_list.empty:
+        return None
+    
+    # Vectorized distance calculation for performance
+    # Assuming station_list has LAT and LON columns
+    if lat_col not in station_list.columns or lon_col not in station_list.columns:
+        logger.error(f"Station list missing columns {lat_col} or {lon_col}")
+        return None
+        
+    dists = station_list.apply(
+        lambda row: geo_distance(target_lat, target_lon, row[lat_col], row[lon_col]),
+        axis=1
+    )
+    
+    if dists.isna().all():
+        return None
+        
+    min_idx = dists.idxmin()
+    min_dist = dists[min_idx]
+    
+    if min_dist > max_distance_km:
+        logger.debug(f"Nearest station is too far: {min_dist:.2f} km")
+        return None
+        
+    return station_list.loc[min_idx, 'STATION'] # Assuming 'STATION' is ID
+
+def validate_geo_coordinates(lat: float, lon: float) -> bool:
+    """
+    Validate latitude and longitude ranges.
+    """
+    return -90 <= lat <= 90 and -180 <= lon <= 180

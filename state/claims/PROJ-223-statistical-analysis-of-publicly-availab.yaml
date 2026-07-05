@@ -1,0 +1,171 @@
+- artifact_path: projects/PROJ-223-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: unified dataset with at least 85% weather coverage
+  claim_id: c_d126a534
+  context: "Goal: Download FARS and NOAA ISD data, merge based on location/time, and\
+    \ produce a unified dataset with \u226585% weather coverage."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Unified_dataset_with_at_least_85%25_weather_coverage
+  kind: magnitude
+  raw_text: "produce a unified dataset with \u226585% weather coverage"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T16:35:57Z'
+- artifact_path: projects/PROJ-223-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: verify at least 85% target for weather coverage
+  claim_id: c_22e946e3
+  context: "Implement calculation and verification of SC-001 coverage metric (valid\
+    \ weather records / total FARS records) and verify \u226585% target"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_at_least_85%25_target_for_weather_coverage
+  kind: magnitude
+  raw_text: "verify \u226585% target"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T16:36:26Z'
+- artifact_path: projects/PROJ-223-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: all VIF values less than 5.0
+  claim_id: c_e37066a9
+  context: 'Independent Test: Run diagnostics script; verify output includes VIF table
+    (all < 5.0)'
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: 'P1533: Q113107166'
+      source_id: Q113106917
+      url: https://www.wikidata.org/wiki/Q113106917
+      value: '33'
+    filled: true
+  kind: magnitude
+  raw_text: verify all VIF values < 5.0
+  resolved_value: '33'
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-05T16:36:37Z'
+- artifact_path: projects/PROJ-223-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: maximum percentage change in odds ratios variation less than 15%
+  claim_id: c_030f2fe7
+  context: calculate the *maximum percentage change* in odds ratios across the sweep;
+    verify variation < 15%
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Maximum_percentage_change_in_odds_ratios_variation_less_than
+  kind: magnitude
+  raw_text: verify variation < 15%
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T16:36:56Z'
+- artifact_path: projects/PROJ-223-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: memory usage less than 6GB peak
+  claim_id: c_4c5ebbc1
+  context: Implement chunking logic in `code/ingest.py` to ensure memory usage < 6GB
+    peak
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Memory_usage_less_than_6GB_peak
+  kind: magnitude
+  raw_text: ensure memory usage < 6GB peak
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T16:37:30Z'
+- artifact_path: projects/PROJ-223-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: total runtime less than or equal to 6 hours
+  claim_id: c_7a6ad4b8
+  context: "Profile full pipeline execution and verify total runtime \u2264 6 hours"
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: The film's storyline draws loose inspiration from multiple real-life
+        geopolitical events and conflicts in South Asia, including the 1999 IC-814
+        hijacking, the 2001 Indian Parliament attack, the 2008 Mumbai attacks, and
+        developments linked to Pakistan's Operation Lyari. Principal photography for
+        Dhurandhar took place from July 2024 to October 2025 across multiple locations
+        in India and abroad, including the states and union territories of Punjab,
+        Maharashtra, Chandigarh, Ladakh and Himachal Pradesh, as well as Thailand.
+        The film features music composed by Shashwat Sachdev, cinematography by Vikash
+        Nowlakha, and editing by Shivkumar V. Panicker. With a runtime of 214 minutes,
+        Dhurandhar ranks as one of the longest Indian films ever produced.
+      source_id: Dhurandhar
+      url: https://en.wikipedia.org/wiki/Dhurandhar
+      value: 214 minutes
+    filled: true
+  kind: magnitude
+  raw_text: "verify total runtime \u2264 6 hours"
+  resolved_value: 214 minutes
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-05T16:37:41Z'
+- artifact_path: projects/PROJ-223-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: convergence success within 50 iterations
+  claim_id: c_6b6dbdaf
+  context: "Implement calculation and verification of SC-002 convergence rate (\u2265\
+    95% success within 50 iterations)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: success within 50 iterations
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T16:37:56Z'
+- artifact_path: projects/PROJ-223-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: convergence success rate of at least 95%
+  claim_id: c_db93beea
+  context: "Implement calculation and verification of SC-002 convergence rate (\u2265\
+    95% success within 50 iterations)"
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: The Delta rocket family was a versatile range of American rocket-powered
+        expendable launch systems that provided space launch capability in the United
+        States from 1960 to 2024. Japan also launched license-built derivatives (N-I,
+        N-II, and H-I) from 1975 to 1992. More than 300 Delta rockets were launched
+        with a 95% success rate.  The series was phased out in favor of the Vulcan
+        Centaur, with the Delta IV Heavy rocket's last launch occurring on April 9,
+        2024.
+      source_id: Delta (rocket family)
+      url: https://en.wikipedia.org/wiki/Delta_(rocket_family)
+      value: 95%
+    filled: true
+  kind: magnitude
+  raw_text: "\u226595% success rate"
+  resolved_value: 95%
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-05T16:38:17Z'

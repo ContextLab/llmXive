@@ -1,33 +1,33 @@
-- artifact_hash: 923f1012af9997953cfb83e80543e888464b17f1d02ea15f98f3d9b30387267c
+- artifact_hash: 67f733421deefa2f52045ac4eaf17f01fb47d0f033a894f9e40051ede0c5c207
   artifact_path: projects/PROJ-223-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/research.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
   fetched_title: null
   kind: url
-  value: https://data.nhtsa.gov/FARS/FARS2021CSV.zip`
-  verification_status: unreachable
-  verified_against_url: https://data.nhtsa.gov/FARS/FARS2021CSV.zip
-  verified_at: '2026-07-05T15:38:58.952972Z'
-- artifact_hash: 923f1012af9997953cfb83e80543e888464b17f1d02ea15f98f3d9b30387267c
-  artifact_path: projects/PROJ-223-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/research.md
+  value: https://nhtsa.gov/sites/nhtsa.gov/files/2022-fars.csv`
+  verification_status: pending
+  verified_against_url: https://www.nhtsa.gov/sites/nhtsa.gov/files/2022-fars.csv
+  verified_at: '2026-07-05T16:11:23.980560Z'
+- artifact_hash: 9f2beecb82075c66a4dc019aa1464cb1f41b570efdb930603d460aed3f4a5102
+  artifact_path: projects/PROJ-223-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: Delta - Wikipedia
+  kind: url
+  value: https://en.wikipedia.org/wiki/Delta_
+  verification_status: verified
+  verified_against_url: https://en.wikipedia.org/wiki/Delta
+  verified_at: '2026-07-05T16:38:17.487613Z'
+- artifact_hash: 9f2beecb82075c66a4dc019aa1464cb1f41b570efdb930603d460aed3f4a5102
+  artifact_path: projects/PROJ-223-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
   cite_id: c-002
   cited_authors: []
   cited_title: null
-  fetched_title: train-00000-of-00001.parquet
+  fetched_title: Dhurandhar - Wikipedia
   kind: url
-  value: https://huggingface.co/datasets/ml-project-group-3/NOAA_GHCN_Daily/resolve/main/data/train-00000-of-00001.parquet`
+  value: https://en.wikipedia.org/wiki/Dhurandhar
   verification_status: verified
-  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/6859973205fe37d5d98cfb4d/3a1f970174cf9f1f9e690b2e308fe5918bb1784c3ae29148ddb4f6579d0dfb74?response-content-disposition=inline%3B+filename*%3DUTF-8%27%27train-00000-of-00001.parquet%3B+filename%3D%22train-00000-of-00001.parquet%22%3B&user_id=public&X-Xet-Cas-Uid=public&Expires=1783269551&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjg1OTk3MzIwNWZlMzdkNWQ5OGNmYjRkLzNhMWY5NzAxNzRjZjlmMWY5ZTY5MGIyZTMwOGZlNTkxOGJiMTc4NGMzYWUyOTE0OGRkYjRmNjU3OWQwZGZiNzRcXD9yZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dHJhaW4tMDAwMDAtb2YtMDAwMDEucGFycXVldCUzQitmaWxlbmFtZSUzRCUyMnRyYWluLTAwMDAwLW9mLTAwMDAxLnBhcnF1ZXQlMjIlM0ImdXNlcl9pZD1wdWJsaWMmWC1YZXQtQ2FzLVVpZD1wdWJsaWMiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkVwb2NoVGltZSI6MTc4MzI2OTU1MX19fV19&Signature=MEYCIQCFib4rrbbHMI9kz%7E7eh-FR6qNv-g9Fvz1qwPjnL8MuMQIhAIqFVBZd5a7NxCIQZmG3kekOStQqFvpvQG13Q8itP1C8&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
-  verified_at: '2026-07-05T15:38:58.952972Z'
-- artifact_hash: 923f1012af9997953cfb83e80543e888464b17f1d02ea15f98f3d9b30387267c
-  artifact_path: projects/PROJ-223-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/research.md
-  cite_id: c-003
-  cited_authors: []
-  cited_title: null
-  fetched_title: full_2023_remove_flawed.parquet
-  kind: url
-  value: https://huggingface.co/datasets/Qdrant/NOAA-Buoy/resolve/main/full_2023_remove_flawed.parquet`
-  verification_status: verified
-  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/6538f137ee5888edef6860de/6485c4566749068043602ae2a93520b6c1f5120ce51c5e03fa629dfac2c7d158?response-content-disposition=inline%3B+filename*%3DUTF-8%27%27full_2023_remove_flawed.parquet%3B+filename%3D%22full_2023_remove_flawed.parquet%22%3B&user_id=public&X-Xet-Cas-Uid=public&Expires=1783269551&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjUzOGYxMzdlZTU4ODhlZGVmNjg2MGRlLzY0ODVjNDU2Njc0OTA2ODA0MzYwMmFlMmE5MzUyMGI2YzFmNTEyMGNlNTFjNWUwM2ZhNjI5ZGZhYzJjN2QxNThcXD9yZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3ZnVsbF8yMDIzX3JlbW92ZV9mbGF3ZWQucGFycXVldCUzQitmaWxlbmFtZSUzRCUyMmZ1bGxfMjAyM19yZW1vdmVfZmxhd2VkLnBhcnF1ZXQlMjIlM0ImdXNlcl9pZD1wdWJsaWMmWC1YZXQtQ2FzLVVpZD1wdWJsaWMiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkVwb2NoVGltZSI6MTc4MzI2OTU1MX19fV19&Signature=MEUCIEctnXDmzIfDm9q9fDrllJzOPPe1ZVVL4nzqm6iIFhnxAiEAlT%7EFjewfvaDNNuaMODmBvf4qbZ8P054rN3UmrZZbQZc_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
-  verified_at: '2026-07-05T15:38:58.952972Z'
+  verified_against_url: https://en.wikipedia.org/wiki/Dhurandhar
+  verified_at: '2026-07-05T16:38:17.487613Z'

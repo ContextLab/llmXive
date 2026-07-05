@@ -1,105 +1,94 @@
 # Feature Specification: Statistical Analysis of Publicly Available Traffic Accident Data
 
-**Feature Branch**: `001-statistical-analysis-of-publicly-available-traffic-accident-data`  
+**Feature Branch**: `001-traffic-weather-severity`  
 **Created**: 2024-05-21  
 **Status**: Draft  
-**Input**: User description: "How do specific weather conditions (precipitation, visibility, temperature) statistically influence traffic accident severity (property damage, injury, fatality) after controlling for temporal and infrastructural variables?"
+**Input**: User description: "Statistical Analysis of Publicly Available Traffic Accident Data"
 
 ## User Scenarios & Testing
 
 ### User Story 1 - Data Ingestion and Merging (Priority: P1)
 
-The system must successfully download, clean, and merge the FARS accident dataset with the NOAA GHCN-Daily weather dataset, filtering for records where both accident severity and weather variables are present and valid.
+As a researcher, I need to download the FARS crash dataset and the corresponding NOAA ISD (Integrated Surface Database) weather data, then merge them based on location and time, so that I have a single unified dataset containing both accident outcomes and environmental conditions.
 
-**Why this priority**: Without a merged, clean dataset, no statistical analysis can occur. This is the foundational step that enables all subsequent modeling and insights.
+**Why this priority**: Without a merged dataset containing both predictors (weather) and outcomes (severity), no statistical analysis can be performed. This is the foundational step for the entire research question.
 
-**Independent Test**: Can be fully tested by verifying that the output CSV contains only rows with non-null values for severity, precipitation, visibility, temperature, and control variables, and that the output row count is less than or equal to the minimum of the input dataset row counts (representing the intersection of keys).
+**Independent Test**: Can be fully tested by running the ingestion script and verifying that the output CSV contains non-null values for `severity`, `precipitation`, `visibility`, `temperature`, and control variables for a deterministic sample of [deferred] randomly selected records (seed=42).
 
 **Acceptance Scenarios**:
-1. **Given** raw FARS and NOAA CSV files exist, **When** the ingestion script runs, **Then** the output file contains only records with complete weather and severity data, the output row count is ≤ min(input_row_count_fars, input_row_count_noaa), and a log reports the count of dropped records.
-2. **Given** a record with missing visibility data, **When** the cleaning process runs, **Then** that record is excluded from the final merged dataset.
-3. **Given** the merged dataset, **When** a schema validation check runs, **Then** all required columns (severity, precipitation, visibility, temperature, hour, day_of_week, road_type, vehicle_type) are present and typed correctly.
+
+1. **Given** the FARS and NOAA ISD datasets are accessible via public URLs, **When** the ingestion script executes, **Then** a merged CSV file is generated with ≥85% of records having valid weather data for the accident timestamp and location.
+2. **Given** a record exists in FARS but no matching weather station data within the defined proximity radius, **When** the merge logic runs, **Then** that record is either flagged for exclusion or imputed based on the nearest station, and the exclusion count is logged.
 
 ---
 
 ### User Story 2 - Ordinal Logistic Regression Modeling (Priority: P2)
 
-The system must fit an Ordinal Logistic Regression model using `statsmodels` to quantify the relationship between weather conditions and accident severity, controlling for temporal and infrastructural variables. If the ordinal assumption is violated, the system must fall back to a Multinomial Logistic Regression model.
+As a researcher, I need to fit an Ordinal Logistic Regression (Cumulative Link Model) where accident severity (Property/Injury/Fatality) is the outcome and weather conditions (precipitation, visibility, temperature) are predictors, while controlling for temporal and infrastructural variables, so that I can quantify the statistical influence of weather on severity.
 
-**Why this priority**: This is the core analytical engine that directly addresses the research question by providing the statistical evidence of weather impact.
+**Why this priority**: This directly addresses the core research question. It transforms the raw merged data into the primary statistical evidence required to answer "How do specific weather conditions influence traffic accident severity?"
 
-**Independent Test**: Can be fully tested by running the model on a small, synthetic subset of the merged data and verifying that the model converges (or falls back to Multinomial Regression), returns coefficients, and produces odds ratios (or relative risk ratios) without GPU usage.
+**Independent Test**: Can be fully tested by running the modeling script and verifying that the output includes a coefficients table with odds ratios for all weather predictors, a model fit statistic (e.g., AIC/BIC), and a Brant test p-value > 0.05 indicating the proportional odds assumption holds.
 
 **Acceptance Scenarios**:
-1. **Given** the merged dataset, **When** the regression script executes, **Then** the model converges (or successfully falls back to Multinomial Regression) and outputs a table of coefficients for all predictors (weather and controls).
-2. **Given** the fitted model, **When** odds ratios (or relative risk ratios) are calculated, **Then** the output table includes the ratio and confidence intervals for precipitation, visibility, and temperature.
-3. **Given** the model execution environment, **When** the script runs, **Then** it completes within the 6-hour GitHub Actions job limit on CPU-only hardware without requesting CUDA/GPU resources.
+
+1. **Given** the merged dataset is loaded and severity is encoded as an ordinal variable (0, 1, 2), **When** the Cumulative Link Model is fitted with weather and control variables, **Then** the model converges successfully within 60 seconds on the CPU runner without memory errors.
+2. **Given** the model is fitted, **When** the coefficients are extracted, **Then** the odds ratios for precipitation and low visibility are reported with confidence intervals.
 
 ---
 
 ### User Story 3 - Model Diagnostics and Visualization (Priority: P3)
 
-The system must perform model diagnostics (VIF for multicollinearity with Ridge fallback, Likelihood Ratio Test for fit) and generate visualizations (coefficient plots, odds ratio tables) to interpret the results.
+As a researcher, I need to generate diagnostic plots (VIF for multicollinearity, coefficient plots) and a sensitivity analysis for any decision thresholds used, so that I can validate the methodological soundness and interpretability of the findings.
 
-**Why this priority**: This step validates the statistical soundness of the model and makes the results interpretable for stakeholders, ensuring the findings are trustworthy and actionable.
+**Why this priority**: This ensures the results are methodologically defensible (addressing collinearity and threshold justification) and provides the visual evidence required for the final report.
 
-**Independent Test**: Can be tested by running the diagnostic script on the fitted model and verifying that VIF scores are calculated, multicollinearity remediation is applied if needed, and plots are generated as image files.
+**Independent Test**: Can be fully tested by running the diagnostics script and verifying that the output includes a VIF table (all values < 5.0), a coefficient plot image, and a sensitivity analysis table showing how odds ratios shift when the precipitation threshold is swept.
 
 **Acceptance Scenarios**:
-1. **Given** the fitted model, **When** the VIF diagnostic runs, **Then** the output reports VIF scores for all predictors. If any VIF > 5, the system automatically applies Ridge regularization and reports the regularized coefficients.
-2. **Given** the fitted model, **When** the Likelihood Ratio Test runs, **Then** the output provides a p-value and McFadden's Pseudo R-squared indicating model fit adequacy.
-3. **Given** the model results, **When** the visualization script runs, **Then** it generates a coefficient plot and an odds ratio table saved as image/PDF files in the output directory.
+
+1. **Given** the fitted model, **When** the VIF diagnostic runs, **Then** the output confirms no predictor has a VIF > 5.0, or if it does, the report flags it as a limitation.
+2. **Given** a precipitation threshold is defined (e.g., >0.01 inches), **When** the sensitivity analysis runs, **Then** the output reports odds ratios for representative thresholds to demonstrate stability.
 
 ---
 
 ### Edge Cases
 
-- What happens when the weather data has no records matching the accident timestamps? (System should log a warning and proceed with available data, potentially reducing sample size).
-- How does the system handle extreme outliers in temperature or precipitation values? (System should apply a robust clipping or winsorization method as defined in the preprocessing step).
-- What if the ordinal logistic regression fails to converge or the ordinal assumption is violated? (System should log the failure, validate the assumption, and automatically switch to Multinomial Logistic Regression as defined in FR-010).
+- **What happens when** the accident time falls exactly between two weather station readings? (System uses linear interpolation or nearest-hour fallback).
+- **How does system handle** missing severity codes (e.g., "Unknown" or "Not Reported") in the FARS dataset? (Records are excluded from the ordinal model but logged in a "missing data" summary).
+- **What happens when** the dataset size exceeds 7GB RAM during the merge? (The script processes data in chunks of [deferred] rows, or dynamically adjusts to [deferred] rows if available RAM is < 4GB, and writes intermediate results to disk).
 
 ## Requirements
 
 ### Functional Requirements
 
-- **FR-001**: System MUST download the FARS dataset and NOAA GHCN-Daily weather data for the specified time range and locations (See US-1).
-- **FR-002**: System MUST merge the datasets on timestamp and location, filtering out records with missing critical variables (See US-1).
-- **FR-003**: System MUST encode accident severity as an ordinal variable (0=Property, 1=Injury, 2=Fatality) (See US-2).
-- **FR-004**: System MUST fit an Ordinal Logistic Regression model using `statsmodels` with weather predictors and control variables (See US-2).
-- **FR-005**: System MUST perform VIF diagnostics to check for multicollinearity among predictors (See US-3).
-- **FR-006**: System MUST calculate and report odds ratios with confidence intervals for all weather predictors (See US-2).
-- **FR-007**: System MUST generate a coefficient plot and an odds ratio table as visual outputs (See US-3).
-- **FR-008**: System MUST execute entirely on CPU without requiring GPU or CUDA resources (See US-2).
-- **FR-009**: System MUST perform a post-hoc power analysis to verify the sample size is sufficient to detect an odds ratio of 1.5 with 80% power at alpha=0.05, and report the result (See US-2).
-- **FR-010**: System MUST validate the proportional odds assumption; if violated, the system MUST automatically switch to a Multinomial Logistic Regression model and report the switch (See US-2).
-- **FR-011**: System MUST automatically apply L2 regularization (Ridge regression) if any predictor has a VIF > 5, and report the regularized coefficients (See US-3).
+- **FR-001**: System MUST download the FARS CSV dataset and the NOAA ISD (Integrated Surface Database) weather data corresponding to accident locations and times, and merge them into a single DataFrame. (See US-1)
+- **FR-002**: System MUST encode accident severity as an ordinal variable (0=Property Damage, 1=Injury, 2=Fatality) using the following FARS code mapping: 0 for 'No Injury' or 'Property Damage Only', 1 for 'Injury' (Minor, Serious, Severe), and 2 for 'Fatality'. Records with non-ordinal or missing severity values MUST be excluded. (See US-2)
+- **FR-003**: System MUST fit an Ordinal Logistic Regression model using `statsmodels.miscmodels.ordinal_model.OrderedModel` (Cumulative Logit) with weather predictors (precipitation amount, visibility, temperature) and control variables (hour, day of week, road type, vehicle type). (See US-2)
+- **FR-004**: System MUST calculate Variance Inflation Factors (VIF) for all predictors to detect multicollinearity and report any values exceeding 5.0. (See US-3)
+- **FR-005**: System MUST perform a sensitivity analysis sweeping the precipitation detection threshold over a set of low-magnitude candidate values (converting continuous precipitation to a binary flag for this specific test) and report the resulting variation in odds ratios to demonstrate robustness. (See US-3)
+- **FR-006**: System MUST frame all statistical findings as associational (not causal) in the final output, given the observational nature of the data. (See US-2)
 
 ### Key Entities
 
-- **Accident Record**: Represents a single traffic accident with attributes for severity, location, time, and vehicle type.
-- **Weather Observation**: Represents a weather reading with attributes for precipitation, visibility, and temperature at a specific time and location.
-- **Merged Dataset**: The combined entity containing both accident and weather data, used for analysis.
-- **Regression Model**: The statistical model object containing coefficients, odds ratios, and diagnostic metrics.
+- **AccidentRecord**: Represents a single traffic crash event; attributes include `severity_level`, `timestamp`, `location_lat`, `location_lon`, `road_type`, `vehicle_type`.
+- **WeatherStationData**: Represents meteorological conditions at a specific location/time; attributes include `precipitation_amount`, `visibility_miles`, `temperature_f`, `station_id`.
+- **MergedDataset**: The unified dataset combining `AccidentRecord` and `WeatherStationData` via spatial-temporal join.
 
 ## Success Criteria
 
 ### Measurable Outcomes
 
-> Planning docs state *what* will be measured and the *source/reference* it is
-> measured against; defer specific empirical values (counts, dataset sizes,
-> measured quantities, percentages) to the implementation/research phase.
-
-- **SC-001**: Model convergence rate is measured against the requirement that the Ordinal Logistic Regression (or fallback Multinomial) must converge on the merged dataset (See US-2).
-- **SC-002**: Multicollinearity is measured against the VIF threshold of 5; if exceeded, the system MUST apply Ridge regularization and report the action taken (See US-3).
-- **SC-003**: Model fit is measured against the Likelihood Ratio Test p-value and McFadden's Pseudo R-squared; the system MUST report these values and flag the fit as 'adequate' or 'inadequate' based on the p-value > 0.05 convention (See US-3).
-- **SC-004**: Compute resource usage is measured against the constraint of running on a 2-core, 7GB RAM CPU-only runner within 6 hours (See US-2).
-- **SC-005**: Data completeness is measured against the post-hoc power analysis result, ensuring the reported power is ≥ 0.80 for an effect size of OR=1.5 (See US-2).
+- **SC-001**: The percentage of FARS records successfully matched with valid NOAA ISD weather data is measured against a target of ≥ 85% coverage. (See US-1)
+- **SC-002**: The model convergence rate (percentage of successful fits where the algorithm converges within 50 iterations with log-likelihood change < 1e-6) is measured against a target of ≥ 95% on the sampled dataset. (See US-2)
+- **SC-003**: The stability of the primary odds ratio for precipitation is measured by the maximum percentage change across the sensitivity sweep {0.01, 0.05, 0.10}, targeting a variation of < 15%. (See US-3)
+- **SC-004**: The Brant test p-value for the proportional odds assumption is measured against the threshold of > 0.05 to confirm model validity. (See US-2)
+- **SC-005**: The execution time of the full analysis pipeline (ingest to visualization) is measured against the constraint of ≤ 6 hours on the GitHub Actions free-tier runner. (See US-1, US-2, US-3)
 
 ## Assumptions
 
-- The FARS dataset and NOAA GHCN-Daily data are publicly accessible and can be downloaded via `wget` without authentication.
-- The merged dataset will fit within the 7GB RAM and 14GB disk constraints of the GitHub Actions free-tier runner after appropriate sampling or chunking if necessary.
-- The `statsmodels` library is available and compatible with the Python environment on the CI runner.
-- The ordinal encoding of severity (0=Property, 1=Injury, 2=Fatality) is appropriate for the research question and aligns with standard practice in traffic safety analysis, subject to validation by FR-010.
-- The weather data will have sufficient temporal and spatial resolution to match accident records without excessive interpolation or aggregation.
-- The analysis will treat weather variables as fixed effects in the regression model, assuming no significant random effects from location or time that would require a mixed-effects model.
+- The FARS dataset and NOAA ISD dataset are publicly accessible via direct download links provided in the methodology, without requiring authentication or complex API key rotation.
+- The "severity" variable in FARS can be reliably mapped to the ordinal scale (0, 1, 2) using standard NHTSA coding guidelines without requiring extensive manual review of unstructured text fields.
+- The weather station density in the US is sufficient to find a valid station within 50km of ≥85% of recorded accidents; records failing this proximity check are excluded rather than imputed from distant stations.
+- The `statsmodels` library is available in the GitHub Actions runner environment and supports the `OrderedModel` (Cumulative Logit) without requiring GPU acceleration.
+- The analysis is strictly observational; therefore, any significant correlation found between weather and severity is interpreted as an association, not a causal effect, unless randomization is explicitly introduced (which it is not).
