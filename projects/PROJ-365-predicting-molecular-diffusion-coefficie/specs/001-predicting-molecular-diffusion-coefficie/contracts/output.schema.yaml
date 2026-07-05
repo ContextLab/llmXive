@@ -1,0 +1,76 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Model Evaluation Output"
+description: "Schema for the results report containing metrics and statistical tests."
+type: "object"
+properties:
+  model_type:
+    type: "string"
+    enum: ["MPNN", "LinearRegression"]
+    description: "Type of model evaluated."
+  metrics:
+    type: "object"
+    properties:
+      pearson_r:
+        type: "number"
+        description: "Pearson correlation coefficient."
+      rmse:
+        type: "number"
+        description: "Root Mean Squared Error."
+      n_samples:
+        type: "integer"
+        description: "Number of samples in the test set."
+    required:
+      - pearson_r
+      - rmse
+      - n_samples
+  statistical_test:
+    type: "object"
+    properties:
+      test_type:
+        type: "string"
+        description: "Type of test performed (e.g., Wilcoxon Signed-Rank)."
+      comparisons:
+        type: "array"
+        items:
+          type: "object"
+          properties:
+            model_a:
+              type: "string"
+            model_b:
+              type: "string"
+            p_value:
+              type: "number"
+            significant:
+              type: "boolean"
+          required:
+            - model_a
+            - model_b
+            - p_value
+            - significant
+    required:
+      - test_type
+      - comparisons
+  sensitivity_analysis:
+    type: "array"
+    items:
+      type: "object"
+      properties:
+        hyperparameter:
+          type: "string"
+        value:
+          type: "number"
+          description: "Value of the hyperparameter."
+        pearson_r:
+          type: "number"
+        rmse:
+          type: "number"
+      required:
+        - hyperparameter
+        - value
+        - pearson_r
+        - rmse
+    description: "Results of the hyperparameter sweep."
+required:
+  - model_type
+  - metrics
+  - statistical_test

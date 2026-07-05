@@ -1,0 +1,84 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Featurized Diffusion Dataset Record"
+type: object
+properties:
+  id:
+    type: string
+    description: "Unique identifier for the record"
+  smiles:
+    type: string
+    description: "Valid SMILES string of the solute"
+  solvent:
+    type: string
+    description: "Solvent name or ID"
+  target:
+    type: number
+    description: "Experimental diffusion coefficient (cm^2/s)"
+    minimum: 0
+  solvent_descriptors:
+    type: object
+    properties:
+      viscosity:
+        type: number
+        description: "Viscosity in cP"
+        minimum: 0
+      dielectric:
+        type: number
+        description: "Dielectric constant"
+        minimum: 0
+    required:
+      - viscosity
+      - dielectric
+  graph:
+    type: object
+    properties:
+      node_features:
+        type: array
+        items:
+          type: array
+          items:
+            type: integer
+          minItems: 4
+          maxItems: 4
+        description: "Atom features: [atomic_number, degree, hybridization, formal_charge]"
+      edge_index:
+        type: array
+        items:
+          type: array
+          items:
+            type: integer
+          minItems: 2
+          maxItems: 2
+        description: "Edge indices in COO format"
+      edge_features:
+        type: array
+        items:
+          type: array
+          items:
+            type: integer
+          minItems: 3
+          maxItems: 3
+        description: "Bond features: [bond_type, conjugation, stereo]"
+    required:
+      - node_features
+      - edge_index
+      - edge_features
+  fingerprint:
+    type: array
+    items:
+      type: integer
+      enum:
+        - 0
+        - 1
+    minItems: 2048
+    maxItems: 2048
+    description: "Morgan fingerprint bit vector (radius=2)"
+required:
+  - id
+  - smiles
+  - solvent
+  - target
+  - solvent_descriptors
+  - graph
+  - fingerprint
+additionalProperties: false
