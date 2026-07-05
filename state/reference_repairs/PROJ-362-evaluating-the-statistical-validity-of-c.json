@@ -22,5 +22,17 @@
         "intent": "web TREC Track 2009 2012 Large scale ranking benchmarks. Aggregated via NIST archives Secondary source for robustness checks on larger, noisier datasets."
       }
     ]
+  },
+  {
+    "repaired_at": "2026-07-05T00:18:39.486782+00:00",
+    "project": "PROJ-362-evaluating-the-statistical-validity-of-c",
+    "repairs": [
+      {
+        "dead_url": "https://trec.nist.gov/data/robust/04/",
+        "reason": "HTTP 404",
+        "replacement_url": "https://huggingface.co/datasets/SetFit/TREC-QC/resolve/main/test.jsonl",
+        "intent": "robust 04 TREC 2004 datasets.load_dataset \"trec\", \"robust04\" or with retry Verified Canonical Contains query_id , doc_id relevance 0, 1, 2, 3, 4 . Sufficient"
+      }
+    ]
   }
 ]
