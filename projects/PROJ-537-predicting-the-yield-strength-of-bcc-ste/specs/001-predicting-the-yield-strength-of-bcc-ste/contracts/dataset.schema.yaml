@@ -1,47 +1,44 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "BCC Alloy Dataset Schema"
+title: "Unified BCC Steel Dataset Schema"
 description: "Schema for the merged dataset containing experimental yield strength and DFT descriptors."
 type: "object"
 properties:
-  alloy_id:
-    type: "string"
-    description: "Unique identifier for the alloy."
-  chemical_formula:
+  formula:
     type: "string"
     description: "Chemical formula of the alloy (e.g., Fe0.95Cr0.05)."
   yield_strength_MPa:
     type: "number"
-    description: "Experimental yield strength in Megapascals."
+    description: "Experimental yield strength in MPa."
     minimum: 0
   shear_modulus_GPa:
     type: "number"
-    description: "Shear modulus from DFT in Gigapascals."
+    description: "DFT Shear Modulus in GPa."
     minimum: 0
   bulk_modulus_GPa:
     type: "number"
-    description: "Bulk modulus from DFT in Gigapascals."
+    description: "DFT Bulk Modulus in GPa."
     minimum: 0
-  crystal_structure:
-    type: "string"
-    description: "Crystal structure type."
-    enum: ["BCC", "FCC", "HCP"]
   space_group:
     type: "integer"
-    description: "Space group number."
-  pughs_ratio:
-    type: "number"
-    description: "Ratio of Bulk to Shear modulus."
-  is_valid:
+    description: "Crystal space group number (must be 229 for BCC)."
+    enum:
+      - 229
+  element_fractions:
+    type: "object"
+    description: "Map of elemental fractions."
+    additionalProperties:
+      type: "number"
+      minimum: 0
+      maximum: 1
+  uncertainty_flag:
     type: "boolean"
-    description: "True if the row passed all filtering criteria."
+    description: "True if the original yield strength was a range."
 required:
-  - alloy_id
-  - chemical_formula
+  - formula
   - yield_strength_MPa
   - shear_modulus_GPa
   - bulk_modulus_GPa
-  - crystal_structure
   - space_group
-  - pughs_ratio
-  - is_valid
+  - element_fractions
+  - uncertainty_flag
 additionalProperties: false

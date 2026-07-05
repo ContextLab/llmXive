@@ -1,69 +1,74 @@
-# Quickstart: Predicting the Yield Strength of BCC Steels
+# Quickstart: Predicting the Yield Strength of BCC Steels from Density Functional Theory
 
 ## Prerequisites
+
 - Python 3.11+
-- `pip` or `conda`
-- Access to the project repository
-- Internet access (to download datasets from HuggingFace)
+- Access to the Materials Project API (API Key required).
+- Internet access to fetch experimental data (MatNavi/NIST).
 
 ## Installation
 
-1. **Clone the repository**:
-   ```bash
-   git clone <repo-url>
-   cd projects/PROJ-537-predicting-the-yield-strength-of-bcc-ste
-   ```
-
+1. **Clone the repository** and navigate to the project directory.
 2. **Create a virtual environment**:
-   ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   ```
-
+ ```bash
+ python -m venv venv
+ source venv/bin/activate # On Windows: venv\Scripts\activate
+ ```
 3. **Install dependencies**:
-   ```bash
-   pip install -r code/requirements.txt
-   ```
-   *Note: `requirements.txt` will pin versions of `pandas`, `scikit-learn`, `numpy`, `matplotlib`, `seaborn`, `shap`, `datasets`, `pytest`.*
+ ```bash
+ pip install -r code/requirements.txt
+ ```
+ *Note: `requirements.txt` pins versions compatible with CPU-only execution.*
+
+## Configuration
+
+1. Set your **Materials Project API Key** as an environment variable:
+ ```bash
+ export MP_API_KEY="your_api_key_here"
+ ```
+2. Ensure the `data/` directory exists.
 
 ## Running the Pipeline
 
-The pipeline is orchestrated via `code/main.py`.
+Execute the main pipeline script:
 
-1. **Download Datasets**:
-   ```bash
-   python code/data/fetch_experimental.py
-   python code/data/fetch_dft.py
-   ```
-   *This step downloads verified datasets from HuggingFace and saves them to `data/raw/`.*
-
-2. **Run the Full Pipeline**:
-   ```bash
-   python code/main.py
-   ```
-   This script will:
-   - Load and merge data.
-   - Filter for BCC structure.
-   - Check sample size (n >= 20). If n < 20, it will log a warning and switch to "Exploratory Mode" (omit t-test, report effect sizes). If n = 0, it will raise `DataAvailabilityError`.
-   - Train the Random Forest models (with and without DFT).
-   - Perform 5-fold cross-validation.
-   - Run statistical tests (Pearson correlation; paired t-test **only if n >= 20**).
-   - Generate SHAP values, sensitivity analysis, and feature importance plots.
-   - Save results to `data/processed/`.
-
-3. **Verify Results**:
-   Check `data/processed/model_results.json` for R², MAE, p-values (if applicable), and SHAP values.
-   Check `data/processed/feature_importance.csv` for stability metrics.
-
-## Testing
-
-Run unit and integration tests:
 ```bash
-pytest tests/ -v
+python code/main.py
 ```
 
+### What happens during execution?
+
+1. **Data Fetching**:
+ - Downloads experimental data from MatNavi ().
+ - Queries the Materials Project API for DFT elastic constants.
+ - **Stop Condition**: If the merged dataset has fewer than 20 valid rows, the script halts with `ERR_INSUFFICIENT_DATA`.
+2. **Data Processing**:
+ - Filters for BCC structure (Space Group 229).
+ - Merges datasets, encodes composition, and calculates VIF scores.
+ - Calculates Pearson correlation between Shear Modulus and Yield Strength.
+3. **Modeling**:
+ - Trains Random Forest (with DFT) and Baseline (Composition only) using **Nested Cross-Validation**.
+ - Performs **Wilcoxon signed-rank test** on the hold-out test set errors.
+4. **Analysis**:
+ - Calculates R², MAE, and statistical power.
+ - Generates TreeSHAP and Permutation Importance plots.
+ - Runs **Full-Dataset Bootstrap** Stability analysis.
+ - Checks if `std_dev < 0.05` for key features and reports `is_stable`.
+5. **Output**:
+ - Results saved to `data/results/output.json` (matching `contracts/output.schema.yaml`).
+ - Plots saved to `data/results/plots/`.
+ - Provenance logs in `data/provenance/`.
+
+## Verifying Results
+
+Check the `data/results/output.json` file for:
+- `p_value`: From the Wilcoxon test (should be < 0.05 to reject the null hypothesis).
+- `power`: Should be reported (warning if < 0.8).
+- `row_count`: Must be >= 20.
+- `is_stable`: Boolean indicating if feature importance is stable (< 0.05 std).
+
 ## Troubleshooting
-- **Error: "Data Availability Failure"**: The merged dataset has n = 0. This means no BCC Fe-alloys were found in the overlap of the verified datasets. The study cannot proceed.
-- **Error: "Power Warning"**: The merged dataset has n < 20. The study will proceed in "Exploratory Mode", reporting effect sizes and confidence intervals instead of p-values. The paired t-test will be omitted.
-- **Error: "No BCC entries found"**: The filter logic is strict. Ensure the datasets contain BCC entries.
-- **Memory Error**: The dataset is small (<1GB). If this occurs, check for memory leaks.
+
+- **`ERR_INSUFFICIENT_DATA`**: The public datasets did not yield enough BCC Fe-alloy matches. No synthetic data is generated.
+- **API Rate Limit**: The script includes exponential backoff. If it fails after 3 retries, that specific entry is skipped.
+- **Memory Error**: Unlikely on this dataset size, but ensure no other heavy processes are running.

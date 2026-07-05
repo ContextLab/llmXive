@@ -1,0 +1,2 @@
+{"timestamp": "2023-10-27T10:00:00Z", "event_type": "dft_fetch_started", "details": {"source": "materials_project", "count": 0}}
+{"timestamp": "2023-10-27T10:00:01Z", "event_type": "dft_fetch_complete", "details": {"total_requested": 0, "successful": 0, "failed": 0}}

@@ -1,0 +1,99 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Model Evaluation Output
+description: Schema for the final model evaluation results including metrics and statistical tests.
+type: object
+required:
+  - metadata
+  - metrics
+  - statistical_significance
+  - interpretability
+properties:
+  metadata:
+    type: object
+    required:
+      - timestamp
+      - model_type
+      - dataset_rows
+    properties:
+      timestamp:
+        type: string
+        format: date-time
+      model_type:
+        type: string
+        enum:
+          - "RandomForest_Composition_Only"
+          - "RandomForest_Composition_DFT"
+      dataset_rows:
+        type: integer
+        minimum: 20
+  metrics:
+    type: object
+    required:
+      - r2
+      - mae
+    properties:
+      r2:
+        type: number
+        description: Coefficient of determination.
+      mae:
+        type: number
+        description: Mean Absolute Error.
+      pearson_correlation_shear_yield:
+        type: number
+        description: Pearson correlation between Shear Modulus and Yield Strength (SC-001).
+  statistical_significance:
+    type: object
+    required:
+      - p_value
+      - power
+      - test_method
+    properties:
+      p_value:
+        type: number
+        description: P-value from paired t-test comparing models.
+      power:
+        type: number
+        description: Statistical power (1 - beta).
+      test_method:
+        type: string
+        enum:
+          - "paired_t_test"
+      is_significant:
+        type: boolean
+        description: True if p_value < 0.05.
+  interpretability:
+    type: object
+    required:
+      - top_features
+      - shap_summary
+      - stability_analysis
+    properties:
+      top_features:
+        type: array
+        description: Top 5 most important features.
+        items:
+          type: object
+          properties:
+            feature:
+              type: string
+            importance:
+              type: number
+      shap_summary:
+        type: object
+        description: Summary of SHAP values.
+      stability_analysis:
+        type: object
+        required:
+          - sample_size_sweep_std
+          - bootstrap_std
+          - is_stable
+        properties:
+          sample_size_sweep_std:
+            type: number
+            description: Std dev of feature importance across sample size sweep (FR-007).
+          bootstrap_std:
+            type: number
+            description: Std dev of feature importance across 10 bootstrapped samples (FR-008).
+          is_stable:
+            type: boolean
+            description: True if bootstrap_std < 0.05 for key DFT descriptors.

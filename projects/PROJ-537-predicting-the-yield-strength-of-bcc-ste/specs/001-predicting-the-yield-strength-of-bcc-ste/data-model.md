@@ -1,80 +1,71 @@
-# Data Model: Predicting the Yield Strength of BCC Steels
+# Data Model: Predicting the Yield Strength of BCC Steels from Density Functional Theory
 
-## Entity Relationship Diagram (Conceptual)
+## 1. Entity Relationship Overview
 
-```mermaid
-erDiagram
-    EXPERIMENTAL_DATA ||--o{ MERGED_DATASET : "contains"
-    DFT_DATA ||--o{ MERGED_DATASET : "contains"
-    MERGED_DATASET ||--o{ MODEL_INPUT : "transforms to"
-    MODEL_INPUT ||--o{ PREDICTION : "generates"
-    MODEL_INPUT ||--o{ SHAP_OUTPUT : "generates"
-```
+The data model consists of three primary entities: `AlloyComposition`, `ExperimentalProperty`, and `DFTDescriptor`. These are merged into a single `UnifiedDataset` for modeling.
 
-## Schema Definitions
+### Entities
 
-### 1. Raw Experimental Data (Verified Proxy)
-- **Source**: `data/raw/experimental_raw.csv` (or JSONL)
-- **Fields**:
-  - `alloy_id`: String (Unique ID)
-  - `chemical_formula`: String (e.g., "Fe0.95Cr0.05")
-  - `yield_strength_MPa`: Float (Target)
-  - `temperature_K`: Float
-  - `source`: String
-  - `uncertainty`: Float (Optional, for range values)
+1.  **AlloyComposition**
+    -   **Description**: Represents the chemical makeup of a BCC iron alloy.
+    -   **Key Attributes**: `formula` (string), `element_fractions` (map), `atomic_number_sum` (numeric).
 
-### 2. Raw DFT Data (Verified Proxy)
-- **Source**: `data/raw/dft_raw.parquet`
-- **Fields**:
-  - `material_id`: String (Unique ID)
-  - `chemical_formula`: String
-  - `shear_modulus_GPa`: Float
-  - `bulk_modulus_GPa`: Float
-  - `crystal_structure`: String (e.g., "BCC", "FCC")
-  - `space_group`: Integer
+2.  **ExperimentalProperty**
+    -   **Description**: Macroscopic physical properties measured in a lab.
+    -   **Key Attributes**: `yield_strength_MPa` (numeric), `source` (string), `temperature_K` (numeric).
 
-### 3. Merged Dataset (Processed)
-- **Source**: `data/processed/merged_bcc_alloys.csv`
-- **Fields**:
-  - `alloy_id`: String
-  - `chemical_formula`: String
-  - `yield_strength_MPa`: Float (Target)
-  - `shear_modulus_GPa`: Float (Feature)
-  - `bulk_modulus_GPa`: Float (Feature)
-  - `pughs_ratio`: Float (Derived: Bulk/Shear)
-  - `elemental_fractions`: JSON (Dict of element -> fraction)
-  - `is_valid`: Boolean (True if BCC and non-null)
+3.  **DFTDescriptor**
+    -   **Description**: Atomic-scale properties computed via Density Functional Theory.
+    -   **Key Attributes**: `shear_modulus_GPa` (numeric), `bulk_modulus_GPa` (numeric), `space_group` (integer).
 
-### 4. Model Output
-- **Source**: `data/processed/model_results.json`
-- **Fields**:
-  - `fold_id`: Integer
-  - `model_type`: String ("RF_DFT", "RF_Baseline")
-  - `r2_score`: Float
-  - `mae`: Float
-  - `rmse`: Float
-  - `p_value`: Float (For t-test comparison, **only if n >= 20**)
-  - `correlation_r`: Float (Pearson r for shear vs yield)
-  - `correlation_p`: Float (Pearson p-value)
-  - `feature_importance`: JSON (Dict of feature -> score)
-  - `shap_values`: JSON (Dict of feature -> SHAP value)
-  - `effect_size_cohen_d`: Float (Reported if n < 20)
-  - `statistical_mode`: String ("Full" or "Exploratory")
-  - `provenance`: JSON (Content hashes of scripts and data)
+## 2. Schema Definitions
 
-### 5. State Tracking (Versioning)
-- **Source**: `state.json`
-- **Fields**:
-  - `scripts`: JSON (Content hash of `fetch_experimental.py`, `merge.py`, etc.)
-  - `datasets`: JSON (Content hash of raw datasets)
-  - `updated_at`: String (ISO 8601 timestamp)
+### 2.1 Raw Experimental Data (Input)
+-   **Source**: MatNavi / NIST
+-   **Format**: CSV
+-   **Columns**:
+    -   `formula`: Chemical formula (e.g., "Fe0.95Cr0.05").
+    -   `yield_strength_MPa`: Yield strength value.
+    -   `source_id`: Reference to the study.
 
-## Data Transformations
-1. **Filtering**: `crystal_structure` == "BCC" AND `space_group` in [229, 221, 222, 223, 224, 225, 226, 227, 228, 229] (BCC variants).
-2. **Imputation**: No imputation allowed for `yield_strength` or `shear_modulus`. Rows with nulls are dropped.
-3. **Feature Extraction**:
-   - Parse `chemical_formula` to calculate atomic fractions.
-   - Calculate `pughs_ratio` = `bulk_modulus_GPa` / `shear_modulus_GPa`.
-4. **Splitting**: Stratified 5-fold split based on `yield_strength` bins.
-5. **SHAP Generation**: Generate SHAP values for all features and store in `shap_values` field.
-6. **Provenance Logging**: Record content hashes of all scripts and datasets in `provenance` field of output and `state.json`.
+### 2.2 Raw DFT Data (Input)
+-   **Source**: Materials Project API
+-   **Format**: JSON (parsed to DataFrame)
+-   **Columns**:
+    -   `material_id`: MP unique ID.
+    -   `formula`: Chemical formula.
+    -   `bulk_modulus`: GPa.
+    -   `shear_modulus`: GPa.
+    -   `space_group_number`: Integer (229 for BCC).
+
+### 2.3 Unified Dataset (Intermediate/Processed)
+-   **Format**: CSV / Parquet
+-   **Columns**:
+    -   `formula`: Primary key for merge.
+    -   `yield_strength_MPa`: Target variable.
+    -   `shear_modulus_GPa`: Predictor.
+    -   `bulk_modulus_GPa`: Predictor.
+    -   `element_fractions`: JSON string or separate columns (Fe, Cr, Ni, etc.).
+    -   `uncertainty_flag`: Boolean (true if experimental value was a range).
+    -   `vif_scores`: JSON string (Variance Inflation Factors for each feature).
+
+### 2.4 Model Output (Results)
+-   **Format**: JSON (`output.json`)
+-   **Structure**:
+    -   `metrics`: { `r2_rf`, `mae_rf`, `r2_baseline`, `mae_baseline`, `p_value`, `power` }
+    -   `correlation`: { `shear_yield_r`, `shear_yield_p` } (SC-001)
+    -   `feature_importance`: { `shap_values`: [], `permutation_importance`: [] }
+    -   `stability`: { `std_shap`: [], `std_permutation`: [], `is_stable`: boolean }
+    -   `multicollinearity`: { `vif_scores`: {} }
+
+## 3. Data Flow
+
+1.  **Ingestion**: Raw CSV (Exp) + API JSON (DFT) -> `raw/`.
+2.  **Cleaning**: Filter for BCC (space_group=229), handle ranges (midpoint).
+3.  **Merging**: Join on `formula`. Drop rows with missing DFT data.
+4.  **Validation**: Check `len(df) >= 20`.
+5.  **Feature Engineering**: Encode composition, normalize DFT, **Calculate VIF**.
+6.  **Correlation Analysis**: Calculate Pearson correlation between Shear Modulus and Yield Strength.
+7.  **Modeling**: Train RF (Nested CV), Calculate metrics.
+8.  **Interpretability**: SHAP, Bootstrap (full dataset), Threshold Check.
+9.  **Export**: `data/results/output.json`.

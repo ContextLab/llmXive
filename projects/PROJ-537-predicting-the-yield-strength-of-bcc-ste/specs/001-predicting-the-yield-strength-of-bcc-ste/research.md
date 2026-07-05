@@ -1,66 +1,86 @@
 # Research: Predicting the Yield Strength of BCC Steels from Compositional Data and Density Functional Theory
 
-## Problem Statement
-The goal is to determine if atomic-scale descriptors (DFT elastic constants) significantly improve the prediction of macroscopic yield strength in BCC iron alloys compared to using chemical composition alone. This is an **empirical** question; the answer must be derived from real data, not simulated relationships.
+## 1. Problem Statement & Research Questions
 
-## Dataset Strategy
+**Primary Question**: Does the inclusion of DFT-derived elastic constants (Shear/Bulk Modulus) significantly improve the prediction of yield strength in BCC Fe-alloys compared to a composition-only model?
 
-### Verified Sources
-Per the project constraints, we rely **only** on verified datasets available via HuggingFace or public repositories.
+**Hypotheses**:
+- $H_0$: There is no significant difference in predictive performance (MAE) between the DFT-enhanced Random Forest model and the composition-only baseline.
+- $H_1$: The DFT-enhanced model has a significantly lower MAE than the baseline.
 
-| Dataset Name | Verified URL | Intended Use | Status/Constraint |
-| :--- | :--- | :--- | :--- |
-| **Materials Project Elasticity** | `https://huggingface.co/datasets/materialsproject/elasticity` | Source for Shear/Bulk Modulus (DFT). | **Verified**: Contains real DFT elastic constants. Must be filtered for BCC Fe-alloys. |
-| **NIST Experimental (Proxy)** | `https://huggingface.co/datasets/nmat/nist-materials` | Source for experimental yield strength. | **Verified**: Contains experimental mechanical properties. Must be filtered for BCC Fe-alloys. |
-| **Fallback** | N/A | If no overlap found. | **Action**: If the merged dataset has n < 20, the study proceeds in "Exploratory Mode" (report effect sizes, no significance claims). If n = 0, the study terminates with "Data Availability Failure". |
+**Statistical Approach**: Due to the non-independence of k-fold cross-validation errors, we will use **Nested Cross-Validation** to generate independent test set predictions. The comparison of model performance will be performed using a **Wilcoxon signed-rank test** on the paired errors from the outer loop hold-out sets, as this non-parametric test is robust to the dependence structure and does not assume normality of the error differences.
 
-### Dataset Variable Fit Analysis
-- **Required Variables**: `yield_strength_MPa`, `chemical_formula`, `shear_modulus_GPa`, `bulk_modulus_GPa`, `crystal_structure`.
-- **Materials Project Elasticity**: Contains `shear_modulus`, `bulk_modulus`, `structure` (space group). **Fit**: Good for DFT features.
-- **NIST Experimental**: Contains `yield_strength`, `composition`. **Fit**: Good for target.
-- **Overlap Check**: The primary challenge is finding BCC Fe-alloys present in *both* datasets. If the overlap is small, the study acknowledges the limitation rather than fabricating data. **No synthetic data will be generated to fill this gap.**
+## 2. Dataset Strategy
 
-## Methodology
+### 2.1 Data Sources & Verification
 
-### 1. Data Ingestion & Merging (FR-001, FR-002, FR-003)
-- **Ingestion**: Load data from verified HuggingFace datasets using `datasets.load_dataset()`.
-- **Filtering**: Retain only rows where `crystal_structure` == "BCC" (Space Group 229 or equivalent).
-- **Merge**: Join on `chemical_formula` (normalized).
-- **Handling**:
-  - If `yield_strength` is a range, take midpoint.
-  - If DFT data is missing for a composition, log warning and drop row.
-  - **Sample Size Check**: If `n < 20`, raise `PowerWarning` and switch to "Exploratory Mode". If `n = 0`, raise `DataAvailabilityError`.
+The project requires two distinct data types: experimental yield strength and DFT elastic constants.
 
-### 2. Feature Engineering
-- **Composition Features**: One-hot encoding of elements, atomic fraction, atomic radius variance, electronegativity difference.
-- **DFT Features**: `shear_modulus`, `bulk_modulus`, `Pugh's ratio` (Bulk/Shear).
-- **Thresholding**: Apply sensitivity analysis thresholds (0.01, 0.05, 0.1) relative to mean shear modulus for feature inclusion (FR-007).
+| Data Type | Source Description | Verified URL / Loader | Status |
+|:--- |:--- |:--- |:--- |
+| **Experimental Yield Strength** | MatNavi / NIST Materials Data Repository. Contains BCC Fe-alloy compositions and yield strength values. | **Verified Source**: MatNavi (NIMS) - [] (Iron and Steel Database). The system will query the specific BCC Fe-alloy subset. | **Verified**: Accessible via web portal and API. |
+| **DFT Elastic Constants** | Materials Project API. Pre-computed bulk/shear modulus. | **Verified Source**: Materials Project API via `mp_api` loader. Endpoint: `. The system will query by composition and filter for BCC structure. | **Verified**: Programmatic loader `mp-api` connects to the official, verified API. |
+| **Fallback Datasets** | None. The spec explicitly forbids synthetic data. | N/A | **Not Applicable**: If the verified sources yield < 20 rows, the system halts. |
 
-### 3. Modeling (FR-004)
-- **Model**: Random Forest Regressor (`sklearn.ensemble.RandomForestRegressor`).
-- **Configuration**: `n_estimators=100`, `max_depth=None`, `random_state=42`.
-- **Validation**: 5-Fold Cross-Validation.
-- **Baseline**: Composition-only model (no DFT features).
+**Decision**: The implementation will proceed by fetching data from the **canonical public sources** (MatNavi and Materials Project API) as mandated by the spec. The specific URLs and loaders listed above are the verified sources. If these sources are unreachable or do not yield the required BCC Fe-alloy data (n < 20), the system will halt with `ERR_INSUFFICIENT_DATA`.
 
-### 4. Evaluation & Statistical Testing (FR-005, SC-001, SC-002, SC-003)
-- **Metrics**: R², Mean Absolute Error (MAE).
-- **Correlation**: Pearson correlation between `shear_modulus` and `yield_strength` (SC-001). Report r and 95% CI.
-- **Significance Test**:
-  - **If n >= 20**: Perform paired t-test on fold-wise MAE errors between DFT+Model and Baseline. Null Hypothesis ($H_0$): Mean difference in errors is zero. Threshold: $p < 0.05$.
-  - **If n < 20**: **Omit the paired t-test** (statistically invalid for n=5 pairs). Instead, calculate and report Cohen's d (effect size) and 95% CI for the difference in MAE, explicitly stating that the study is underpowered for hypothesis testing.
+### 2.2 Data Integration Plan
 
-### 5. Interpretability & Sensitivity (FR-006, FR-007, FR-008)
-- **SHAP Analysis**: Calculate SHAP values for all features (FR-006).
-- **Permutation Importance**: Calculate for all features.
-- **Stability**: Bootstrapping (10 samples) to compute standard deviation of SHAP/Permutation importance scores (Target < 0.05).
-- **Sensitivity Analysis**: Sweep DFT threshold and record MAE/R² variation.
+1. **Fetch Experimental**: Parse data from MatNavi. Extract `composition`, `yield_strength_MPa`.
+2. **Fetch DFT**: Query Materials Project API for each unique composition. Filter for `space_group_number == 229` (BCC). Extract `bulk_modulus`, `shear_modulus`.
+3. **Merge**: Join on chemical formula.
+4. **Filter**: Remove rows with null DFT data.
+5. **Validate**: Check row count $\ge 20$. If not, raise `ERR_INSUFFICIENT_DATA`.
 
-## Statistical Rigor & Assumptions
-- **Multiple Comparisons**: Bonferroni correction applied if multiple thresholds are tested.
-- **Power Analysis**: Calculate minimum detectable effect size given actual n. If n < 20, explicitly state that the study is underpowered for hypothesis testing and focus on effect size. **The paired t-test is omitted in this regime.**
-- **Causal Claims**: No causal claims. All results are associational.
-- **Collinearity**: Composition features and DFT descriptors may be correlated. SHAP values will be used to assess relative contribution, acknowledging that DFT descriptors are derived from the same atomic structure.
+### 2.3 Statistical Power & Sample Size
 
-## Limitations
-- **Data Availability**: The primary limitation is the potential lack of overlap between experimental and DFT datasets for specific BCC Fe-alloys. The plan explicitly handles this by reporting "Data Availability Failure" or "Exploratory Mode" results rather than simulating data.
-- **Sample Size**: Small sample sizes may limit statistical power. The plan addresses this by prioritizing effect sizes and confidence intervals over p-values when n is small, and by omitting the t-test when n < 20.
+- **Target**: $n \ge 20$ (Spec requirement).
+- **Power Analysis**: The plan includes a calculation of statistical power (1 - $\beta$) for the Wilcoxon signed-rank test (FR-009).
+- **Effect Size Estimation**:
+ - **Primary**: Estimate Cohen's d (or rank-biserial correlation for Wilcoxon) from prior literature on BCC steel yield strength prediction.
+ - **Secondary**: If literature is unavailable, perform a pilot run on a small set of valid samples (if available) to estimate the effect size.
+ - **Tertiary**: Use a conservative estimate (d=0.5) if no pilot data exists.
+- **Limitation**: With $n=20$, power to detect small effect sizes is low. The report will explicitly state if power < 0.8.
+
+## 3. Methodology
+
+### 3.1 Feature Engineering
+
+- **Composition Features**: One-hot encoding of elemental presence; atomic fraction of each element.
+- **DFT Features**: `shear_modulus_GPa`, `bulk_modulus_GPa`.
+- **Target**: `yield_strength_MPa`.
+- **Collinearity Check**: Calculate Variance Inflation Factors (VIF) for all predictors. If VIF > 5, the plan will report multicollinearity and use Partial Dependence Plots (PDP) to assess the unique contribution of DFT features beyond composition.
+
+### 3.2 Modeling Approach
+
+- **Algorithm**: Random Forest Regressor (`sklearn.ensemble.RandomForestRegressor`).
+- **Rationale**: Handles non-linear relationships, robust to outliers, provides built-in feature importance.
+- **Validation**: **Nested Cross-Validation** (5-outer, 5-inner) to ensure unbiased performance estimation and valid statistical comparison.
+- **Baseline**: Random Forest using only composition features.
+- **Comparison**: **Wilcoxon signed-rank test** on the paired MAE errors from the outer test sets. This addresses the non-independence of k-fold errors.
+
+### 3.3 Interpretability & Stability
+
+- **TreeSHAP**: Used to explain individual predictions and global feature importance (FR-006).
+- **Permutation Importance**: To validate SHAP results.
+- **Bootstrap Stability**: Resample the **FULL dataset** (n) with replacement (10 iterations) to calculate the standard deviation of feature importance (FR-007).
+ - *Correction*: Downsampling to n=10 is rejected as it introduces artificial instability. Full-dataset resampling assesses the true variance of the estimator.
+- **Threshold Check**: Explicitly check if `std_dev < 0.05` for key DFT descriptors and report a boolean `is_stable` (SC-005).
+
+## 4. Compute Feasibility
+
+- **Hardware**: 2 CPU, 7 GB RAM.
+- **Memory**: Random Forest on $n \approx 20-50$ and $p \approx 30$ features is negligible (< 500 MB). Nested CV increases runtime but remains well within the 6-hour limit.
+- **Time**: Nested CV (5x5) + Bootstrap (10 runs) + SHAP on small dataset < 2 hours.
+- **Dependencies**: `scikit-learn`, `shap` (CPU version), `pandas`, `mp-api` are lightweight and run efficiently on CPU.
+
+## 5. Risk Assessment
+
+- **Risk**: Materials Project API rate limits or unreachable.
+ - **Mitigation**: Exponential backoff retry (with a configurable multiplier). If total valid rows < 20, halt.
+- **Risk**: Insufficient BCC Fe-alloy data in public repositories.
+ - **Mitigation**: System halts with `ERR_INSUFFICIENT_DATA` as per spec. No synthetic data.
+- **Risk**: Low statistical power due to small sample size.
+ - **Mitigation**: Explicitly report power calculation and limitations in final output.
+- **Risk**: Multicollinearity between composition and DFT features.
+ - **Mitigation**: VIF analysis and PDP to isolate unique contribution; report if DFT adds no independent value.

@@ -1,0 +1,137 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Model Output Schema"
+description: "Schema for the final metrics and analysis results."
+type: "object"
+properties:
+  metrics:
+    type: "object"
+    description: "Performance metrics for both models."
+    properties:
+      r2_rf:
+        type: "number"
+        description: "R-squared score for the Random Forest model."
+      mae_rf:
+        type: "number"
+        description: "Mean Absolute Error for the Random Forest model."
+      r2_baseline:
+        type: "number"
+        description: "R-squared score for the composition-only baseline."
+      mae_baseline:
+        type: "number"
+        description: "Mean Absolute Error for the composition-only baseline."
+      p_value:
+        type: "number"
+        description: "P-value from the Wilcoxon signed-rank test on hold-out errors."
+      power:
+        type: "number"
+        description: "Statistical power (1 - beta) of the test."
+      null_hypothesis:
+        type: "string"
+        description: "Description of the null hypothesis tested."
+    required:
+      - r2_rf
+      - mae_rf
+      - r2_baseline
+      - mae_baseline
+      - p_value
+      - power
+  correlation_analysis:
+    type: "object"
+    description: "Pearson correlation between shear modulus and yield strength (SC-001)."
+    properties:
+      r_value:
+        type: "number"
+      p_value:
+        type: "number"
+      confidence_interval_95:
+        type: "array"
+        items:
+          type: "number"
+    required:
+      - r_value
+      - p_value
+      - confidence_interval_95
+  feature_importance:
+    type: "object"
+    description: "Feature importance rankings."
+    properties:
+      top_5_shap:
+        type: "array"
+        description: "Top 5 features by mean absolute SHAP value."
+        items:
+          type: "object"
+          properties:
+            feature:
+              type: "string"
+            importance:
+              type: "number"
+      permutation_std:
+        type: "array"
+        description: "Standard deviation of permutation importance across 10 bootstraps."
+        items:
+          type: "object"
+          properties:
+            feature:
+              type: "string"
+            std_dev:
+              type: "number"
+    required:
+      - top_5_shap
+      - permutation_std
+  stability_analysis:
+    type: "object"
+    description: "Bootstrap stability metrics."
+    properties:
+      sample_sizes:
+        type: "array"
+        description: "Sample sizes tested (Full dataset with replacement)."
+        items:
+          type: "integer"
+      std_dev_dft_descriptors:
+        type: "array"
+        description: "Standard deviation of importance for DFT descriptors."
+        items:
+          type: "number"
+      is_stable:
+        type: "boolean"
+        description: "True if std_dev < 0.05 for key DFT descriptors (SC-005)."
+    required:
+      - sample_sizes
+      - std_dev_dft_descriptors
+      - is_stable
+  multicollinearity:
+    type: "object"
+    description: "Variance Inflation Factor (VIF) scores for features."
+    properties:
+      vif_scores:
+        type: "object"
+        additionalProperties:
+          type: "number"
+        description: "VIF score for each feature."
+      max_vif:
+        type: "number"
+        description: "Maximum VIF score observed."
+    required:
+      - vif_scores
+      - max_vif
+  data_validation:
+    type: "object"
+    description: "Data validation results."
+    properties:
+      row_count:
+        type: "integer"
+        description: "Total number of valid rows in the merged dataset."
+      min_threshold_met:
+        type: "boolean"
+        description: "True if row_count >= 20."
+    required:
+      - row_count
+      - min_threshold_met
+required:
+  - metrics
+  - correlation_analysis
+  - feature_importance
+  - stability_analysis
+  - multicollinearity
+  - data_validation
+additionalProperties: false

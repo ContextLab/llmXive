@@ -1,34 +1,43 @@
 # Implementation Plan: Predicting the Yield Strength of BCC Steels from Compositional Data and Density Functional Theory
 
-**Branch**: `001-predict-yield-strength-bcc` | **Date**: 2023-10-27 | **Spec**: `specs/001-predicting-the-yield-strength-of-bcc-ste/spec.md`
+**Branch**: `001-predict-yield-strength-bcc` | **Date**: 2026-06-24 | **Spec**: `specs/001-predict-yield-strength-bcc/spec.md`
+**Input**: Feature specification from `/specs/001-predict-yield-strength-bcc/spec.md`
 
 ## Summary
 
-This project implements a machine learning pipeline to predict the macroscopic yield strength of Body-Centered Cubic (BCC) iron alloys using a combination of chemical composition features and atomic-scale descriptors derived from Density Functional Theory (DFT). The approach involves merging experimental yield strength data from verified public repositories (MatNavi/NIST proxies) with pre-computed DFT elastic constants (bulk and shear modulus) from the Materials Project dataset (hosted on HuggingFace). A Random Forest regressor will be trained and compared against a composition-only baseline to quantify the added predictive value of physics-based descriptors.
-
-**Critical Methodological Constraint**: This project **strictly prohibits the use of synthetic/mock data** for the core analysis. The research question ("Do DFT descriptors improve prediction?") requires empirical validation. If the verified real-world datasets do not contain sufficient overlap of BCC Fe-alloys (n < 20), the study will **not** fabricate data. Instead, it will report a "Data Availability Failure" (if n=0) or proceed in "Exploratory Mode" (if 0 < n < 20), focusing on effect sizes and confidence intervals without making statistical significance claims (omitting the paired t-test).
+This project implements a machine learning pipeline to predict the yield strength of Body-Centered Cubic (BCC) iron alloys. The approach integrates experimental yield strength data (from MatNavi/NIST) with pre-computed Density Functional Theory (DFT) elastic constants (from the Materials Project API). The system trains a Random Forest regressor using both compositional features and DFT descriptors, compares it against a composition-only baseline, and performs rigorous statistical testing (Wilcoxon signed-rank on hold-out errors) and interpretability analysis (TreeSHAP, permutation importance, full-dataset bootstrap stability). The implementation strictly adheres to the constraint of running on free-tier CPU-only CI (a small number of cores, limited RAM) and forbids synthetic data generation.
 
 ## Technical Context
 
-**Language/Version**: Python 3.11  
-**Primary Dependencies**: `pandas`, `scikit-learn`, `numpy`, `matplotlib`, `seaborn`, `shap`, `datasets` (HuggingFace), `pytest`  
-**Storage**: Local CSV/Parquet files in `data/` (raw and processed); JSONL logs in `data/provenance/`; `state.json` for versioning.  
-**Testing**: `pytest` (unit tests for data merging, integration tests for pipeline execution)  
-**Target Platform**: Linux (GitHub Actions Free Tier: 2 CPU, ~7 GB RAM)  
-**Project Type**: Computational Research / Data Analysis Pipeline  
-**Performance Goals**: Complete full pipeline (data fetch -> merge -> train -> evaluate) within 6 hours on free-tier CPU.  
-**Constraints**: No GPU usage; no on-the-fly DFT calculations; memory usage < 7 GB; strict adherence to verified dataset sources.  
-**Scale/Scope**: Merged dataset expected < 1000 rows (small sample size necessitates careful cross-validation and effect-size reporting).
+**Language/Version**: Python 3.11
+**Primary Dependencies**: `pandas`, `scikit-learn`, `requests`, `numpy`, `shap` (CPU-only), `pyyaml`, `mp-api`
+**Storage**: Local CSV/Parquet files in `data/` (raw, processed, provenance logs)
+**Testing**: `pytest` (unit, integration, contract validation)
+**Target Platform**: Linux (GitHub Actions free-tier runner)
+**Project Type**: Data Science / Research Pipeline
+**Performance Goals**: Complete full pipeline (data fetch -> model -> analysis) in < 6 hours on 2 CPU cores. Memory usage < 6 GB.
+**Constraints**:
+- NO GPU usage (no CUDA, no mixed precision).
+- NO synthetic data fallback (halt on < 20 rows).
+- DFT descriptors MUST come from Materials Project API (Constitution Principle VII).
+- Random seeds pinned for reproducibility (Constitution Principle I).
+- All data files checksummed (Constitution Principle III).
+
+> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
 
 ## Constitution Check
 
-- **I. Reproducibility**: All random seeds (`np.random.seed`, `random.seed`) will be pinned in `code/`. Data fetch scripts will log checksums of the downloaded datasets. The **content hash of the data ingestion and processing scripts** (`fetch_experimental.py`, `merge.py`) will be recorded in the `state.json` file as the canonical source for data derivation, ensuring the transformation logic is reproducible.
-- **II. Verified Accuracy**: All data sources are cited by their verified HuggingFace URLs. The `research.md` will explicitly record the dataset version and hash. No synthetic data is used for the primary analysis.
-- **III. Data Hygiene**: Raw data (downloaded from HuggingFace) will be checksummed. All transformations (merge, filter) will produce new files with derivation logs.
-- **IV. Single Source of Truth**: All figures and statistics will be generated programmatically from `data/` artifacts.
-- **V. Versioning**: `requirements.txt` will pin versions. The content hash of the downloaded datasets and the **content hash of the data processing code** will be recorded in `state.json`.
-- **VI. Statistical Significance Transparency**: All hypothesis tests (paired t-test, Pearson correlation) will report null hypotheses, test statistics, and p-values **only if n >= 20**. If n < 20, the plan will omit p-values and report effect sizes (Cohen's d) and confidence intervals, explicitly acknowledging the lack of power.
-- **VII. DFT Descriptor Provenance**: The source of DFT descriptors is the `materialsproject/elasticity` dataset on HuggingFace. A provenance log will record the dataset version, query parameters, and the specific material IDs used. **Synthetic data is explicitly prohibited** to satisfy this principle.
+*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
+
+| Principle | Requirement | Plan Compliance Strategy |
+|:--- |:--- |:--- |
+| **I. Reproducibility** | Random seeds pinned; external datasets fetched from canonical sources. | `code/` will set `numpy.random.seed` and `random.seed` to a fixed integer to ensure reproducibility. Data fetch scripts will use hardcoded URLs/API endpoints. |
+| **II. Verified Accuracy** | Citations verified against primary sources. | `research.md` cites specific MatNavi URL and Materials Project API loader. If no verified source exists, the system halts as per spec. |
+| **III. Data Hygiene** | Checksums recorded; no in-place modification; new files for derivations. | `data/` structure will include `raw/`, `intermediate/`, `processed/`. A `checksums.txt` will be generated by the ingestion script. |
+| **IV. Single Source of Truth** | Figures/stats trace to one row in `data/` and one block in `code/`. | All statistical outputs (R², MAE, p-values) will be written to `data/results/output.json` derived from the final model run. |
+| **V. Versioning Discipline** | Content hashes; artifact updates trigger state updates. | Implementation will generate cryptographic hashes for all data artifacts and record them in `state/projects/PROJ-537-predicting-the-yield-strength-of-bcc-ste.yaml` under `artifact_hashes`. |
+| **VI. Statistical Significance** | Include null hypothesis, test, p-value, CI; compare p < 0.05. | `research.md` and `code/` will explicitly calculate and report p-values for Wilcoxon signed-rank tests and confidence intervals for metrics. |
+| **VII. DFT Descriptor Provenance** | DFT data from Materials Project API; query params logged. | Data ingestion script will log API version, query params, and raw response to `data/provenance/dft_queries.jsonl`. |
 
 ## Project Structure
 
@@ -36,89 +45,114 @@ This project implements a machine learning pipeline to predict the macroscopic y
 
 ```text
 specs/001-predict-yield-strength-bcc/
-├── plan.md              # This file
-├── research.md          # Phase 0 output
-├── data-model.md        # Phase 1 output
-├── quickstart.md        # Phase 1 output
-├── contracts/
-│   ├── dataset.schema.yaml
-│   ├── model_output.schema.yaml
-│   └── state.schema.yaml
-└── tasks.md             # Phase 2 output
+├── plan.md # This file
+├── research.md # Phase 0 output
+├── data-model.md # Phase 1 output
+├── quickstart.md # Phase 1 output
+├── contracts/ # Phase 1 output
+│ ├── dataset.schema.yaml
+│ └── output.schema.yaml
+└── tasks.md # Phase 2 output (created later)
 ```
 
 ### Source Code (repository root)
 
 ```text
-projects/PROJ-537-predicting-the-yield-strength-of-bcc-ste/code/
+code/
 ├── __init__.py
-├── config.py            # Paths, seeds, thresholds
-├── data/
-│   ├── __init__.py
-│   ├── fetch_experimental.py   # FR-001: Fetch/Load NIST/MatNavi data (Real Verified Proxy)
-│   ├── fetch_dft.py            # FR-002: Fetch/Load DFT data (Materials Project via HuggingFace)
-│   ├── merge.py                # FR-003: Merge & Filter
-│   └── preprocessing.py        # Feature engineering
-├── models/
-│   ├── __init__.py
-│   ├── train.py                # FR-004: Train RF
-│   ├── evaluate.py             # FR-005, SC-001, SC-002, SC-003
-│   ├── shap_analysis.py        # FR-006: SHAP values
-│   └── sensitivity.py          # FR-007, FR-008
+├── config.py # Paths, seeds, API keys
+├── ingestion/
+│ ├── __init__.py
+│ ├── fetch_experimental.py # MatNavi/NIST logic
+│ ├── fetch_dft.py # Materials Project API logic
+│ └── merge_and_filter.py # BCC filter, join, validation
+├── modeling/
+│ ├── __init__.py
+│ ├── features.py # Composition encoding, DFT scaling, VIF check
+│ ├── train.py # RF training, Nested CV loop
+│ └── evaluate.py # Metrics, Wilcoxon test, power analysis
+├── interpretability/
+│ ├── __init__.py
+│ ├── shap_analysis.py # TreeSHAP, permutation, PDP
+│ └── bootstrap_stability.py # Full-dataset bootstrap stability
 ├── utils/
-│   ├── logging.py
-│   └── stats.py                # T-tests, bootstrapping, power analysis
-└── main.py                     # Pipeline orchestrator
+│ ├── logging.py
+│ └── checksums.py
+├── main.py # Orchestration script
+└── requirements.txt
+
+data/
+├── raw/ # Unmodified downloads
+├── intermediate/ # Merged, filtered CSVs
+├── processed/ # Final feature matrices
+├── provenance/ # API logs, checksums
+└── results/ # Metrics, plots, reports (output.json)
 
 tests/
-├── contract/
-├── integration/
-└── unit/
+├── contract/ # Schema validation tests
+├── integration/ # Pipeline end-to-end (mocked API for speed)
+└── unit/ # Feature engineering, stats logic
 ```
 
-**Structure Decision**: A modular Python package structure is chosen to separate data ingestion, modeling, and evaluation. This supports the "Reproducibility" principle by isolating side effects (data fetch) in `data/` and ensuring `models/` are pure functions of inputs.
+**Structure Decision**: The single-project structure (`code/`, `data/`, `tests/`) is selected. This minimizes overhead for a data-science research pipeline and aligns with the requirement for a single source of truth and easy reproducibility on a CI runner.
 
 ## Complexity Tracking
 
 | Violation | Why Needed | Simpler Alternative Rejected Because |
 |-----------|------------|-------------------------------------|
-| Verified Real Data | Synthetic data violates scientific soundness and Constitution Principle VII. | Using synthetic data creates a circular validation where the answer is pre-determined by the generator. |
-| 5-Fold CV + Bootstrapping | Required by FR-005 and FR-008 for statistical rigor on small datasets. | Single train/test split would violate the statistical significance transparency principle (VI) and fail the sample size robustness checks. |
-| SHAP Analysis | Required by FR-006 for interpretability. | Permutation importance alone is insufficient for detailed feature contribution analysis in complex models. |
-| Conditional Statistical Testing | Required to maintain rigor when n < 20. | Performing a t-test on 5 fold-wise pairs (n=5) is statistically invalid. The plan now omits the t-test if n < 20. |
+| **DFT API Integration** | Constitution Principle VII mandates DFT data from Materials Project API. | Using pre-downloaded static DFT datasets would violate the provenance requirement and potentially lack the specific BCC Fe-alloy matches needed. |
+| **Nested Cross-Validation** | Required to avoid data leakage and inflated Type I error rates in model comparison. | Simple k-fold t-tests on fold-wise errors violate independence assumptions. |
+| **Bootstrap Stability (Full Dataset)** | Required by FR-007/FR-008 to ensure robustness on small datasets. | Downsampling to n=10 introduces artificial instability and underfitting; full-dataset resampling assesses true estimator variance. |
+| **No Synthetic Data** | Spec explicitly forbids synthetic fallback. | A simpler pipeline might generate mock data to pass tests, but this would invalidate the research goal and violate the spec. |
 
-## Phase Breakdown
+## Implementation Phases
 
-### Phase 1: Data Ingestion & Validation (FR-001, FR-002, FR-003)
-1. **Fetch Experimental Data**: Load experimental yield strength data from verified NIST/MatNavi sources (or a verified proxy dataset on HuggingFace). **FR-001**.
-2. **Fetch DFT Data**: Load DFT elastic constants from `materialsproject/elasticity` on HuggingFace. **FR-002**.
-3. **Merge & Filter**: Join on chemical formula. Filter for BCC structure (Space Group corresponding to the body-centered cubic lattice). **FR-003**.
-4. **Validation**: Check sample size.
-   - If n = 0: Raise `DataAvailabilityError` and terminate.
-   - If 0 < n < 20: Log `PowerWarning`, switch to "Exploratory Mode" (report effect sizes, omit p-values).
-   - If n >= 20: Proceed with full statistical testing.
+### Phase 0: Data Ingestion & Validation
+1. **Fetch Experimental**: Download BCC Fe-alloy data from MatNavi (URL: `). Parse CSV/JSON.
+2. **Fetch DFT**: Query Materials Project API via `mp-api` for matching compositions. Filter for the body-centered cubic (BCC) space group.
+3. **Merge & Filter**: Join on formula. Remove rows with null DFT data.
+4. **Validate**: Check row count $\ge 20$. If not, raise `ERR_INSUFFICIENT_DATA`.
+5. **Checksum**: Generate SHA-256 for raw/processed files and update `state/...yaml`.
 
-### Phase 2: Feature Engineering & Modeling (FR-004, FR-005)
-1. **Feature Engineering**: Create composition features (one-hot, atomic fractions) and DFT features (shear, bulk, Pugh's ratio).
-2. **Model Training**: Train Random Forest (with DFT) and Baseline (composition only) using k-fold cross-validation.
-3. **Evaluation**: Calculate R², MAE, and RMSE for each fold.
-4. **Statistical Testing**:
-   - **Pearson Correlation**: Calculate r and p-value (or CI) between `shear_modulus` and `yield_strength` (SC-001).
-   - **Significance Test**: If n >= 20, perform paired t-test on fold-wise errors. If n < 20, calculate and report Cohen's d and 95% CI for the difference in MAE, explicitly stating that p-values are invalid.
+### Phase 1: Feature Engineering & Collinearity Check
+1. **Encode Composition**: One-hot encoding of elements; atomic fractions.
+2. **Normalize DFT**: Scale `shear_modulus` and `bulk_modulus`.
+3. **Collinearity Analysis**: Calculate Variance Inflation Factors (VIF) for all predictors. If VIF > 5, report multicollinearity and consider partial correlation analysis.
+4. **Correlation Check**: Calculate Pearson correlation between Shear Modulus and Yield Strength (SC-001).
 
-### Phase 3: Interpretability & Sensitivity (FR-006, FR-007, FR-008)
-1. **SHAP Analysis**: Generate SHAP values to quantify feature contributions (FR-006). **Explicitly implemented in `shap_analysis.py`**.
-2. **Sensitivity Analysis**: Sweep DFT threshold and report MAE/R² variation (FR-007).
-3. **Stability Analysis**: Bootstrap 10 samples to calculate standard deviation of importance scores (FR-008).
+### Phase 2: Modeling & Statistical Testing
+1. **Nested Cross-Validation**:
+ * Outer Loop: k-fold (Hold-out test set).
+ * Inner Loop: k-fold (Hyperparameter tuning).
+
+The specific value to remove/generalize: 'k'
+
+Rewritten passage:
+Inner Loop: k-fold (Hyperparameter tuning).
+2. **Baseline Model**: Train RF on composition features only.
+3. **DFT Model**: Train RF on composition + DFT features.
+4. **Comparison**: Calculate MAE on the *outer* test set for both models. Perform a **Wilcoxon signed-rank test** on the paired errors to determine significance (p-value).
+5. **Power Analysis**: Calculate statistical power (1 - $\beta$) using the observed effect size (Cohen's d) from the test set. Report if < 0.8.
+
+### Phase 3: Interpretability & Stability
+1. **TreeSHAP**: Generate SHAP values for the DFT model.
+2. **Permutation Importance**: Calculate importance scores.
+3. **Stability Check**: Run multiple bootstrap iterations on the **full dataset** (resampling with replacement). Calculate standard deviation of feature importance.
+4. **Threshold Validation**: Check if std_dev < 0.05 for key DFT descriptors. Report boolean `is_stable` (SC-005).
+5. **Output**: Write `data/results/output.json` (SC-001 to SC-008).
 
 ### Phase 4: Reporting
-1. **Generate Reports**: Compile all metrics, plots, and statistical tests into `data/processed/model_results.json`.
-2. **Constitution Check**: Verify all results trace back to `data/` and `code/`. Record content hashes in `state.json`.
+1. Generate plots (SHAP summary, Stability distribution).
+2. Compile `output.json` and `provenance` logs.
+3. Final validation against `contracts/output.schema.yaml`.
 
-## Success Criteria (Revised)
+## Risk Assessment
 
-- **SC-001**: Report Pearson correlation (r) between `shear_modulus` and `yield_strength` with 95% confidence interval. (Target: r > 0.5, but report actual value).
-- **SC-002**: Report MAE difference between DFT model and Baseline with a confidence interval.
-- **SC-003**: Report p-value from paired t-test **only if n >= 20**. If n < 20, report Cohen's d and 95% CI.
-- **SC-004**: Report variation in MAE/R² across sensitivity sweep.
-- **SC-005**: Report standard deviation of SHAP importance scores across bootstraps.
+- **Risk**: Materials Project API rate limits.
+ - **Mitigation**: Exponential backoff (a limited number of retries). Skip entry if failed.
+- **Risk**: Insufficient BCC Fe-alloy data.
+ - **Mitigation**: System halts with `ERR_INSUFFICIENT_DATA`. No synthetic data.
+- **Risk**: Low statistical power.
+ - **Mitigation**: Explicitly report power calculation and limitations.
+- **Risk**: Multicollinearity between composition and DFT features.
+ - **Mitigation**: VIF analysis and Partial Dependence Plots to isolate unique contribution.

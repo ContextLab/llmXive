@@ -1,0 +1,62 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Merged BCC Steel Dataset
+description: Schema for the merged experimental and DFT dataset used in yield strength prediction.
+type: object
+required:
+  - columns
+  - data
+properties:
+  columns:
+    type: array
+    description: List of column names in the dataset.
+    items:
+      type: string
+    minItems: 8
+    contains:
+      const: "yield_strength_MPa"
+  data:
+    type: array
+    description: List of records (rows) in the dataset.
+    items:
+      type: object
+      required:
+        - composition
+        - yield_strength_MPa
+      properties:
+        composition:
+          type: object
+          description: Chemical composition with element symbols as keys and atomic fractions as values.
+          additionalProperties:
+            type: number
+            minimum: 0
+            maximum: 1
+        yield_strength_MPa:
+          type: number
+          description: Yield strength in MPa.
+          minimum: 0
+        shear_modulus_GPa:
+          type: number
+          description: Shear modulus in GPa from DFT.
+          minimum: 0
+        bulk_modulus_GPa:
+          type: number
+          description: Bulk modulus in GPa from DFT.
+          minimum: 0
+        space_group:
+          type: integer
+          description: Space group number.
+          minimum: 1
+          maximum: 230
+        dft_id:
+          type: string
+          description: Materials Project ID or source identifier.
+        source:
+          type: string
+          description: Source of the experimental data (e.g., MatNavi, NIST).
+        uncertainty_flag:
+          type: boolean
+          description: True if the yield strength was derived from a range.
+  row_count:
+    type: integer
+    description: Total number of rows in the dataset.
+    minimum: 20

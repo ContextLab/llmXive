@@ -1,0 +1,10 @@
+? 'T001 Create project directories: `code/`, `data/`, `data/raw/`, `data/intermediate/`,
+  `data/processed/`, `data/provenance/`, `data/results/`, `tests/`, `tests/unit/`,
+  `tests/integration/`, `tests/contract/`'
+: 1
+? T002 [P] Create `code/requirements.txt` with pinned versions for `pandas`, `scikit-learn`,
+  `requests`, `numpy`, `shap`, `pyyaml`, `mp-api`, `pytest`
+: 1
+T003 [P] Configure linting (flake8/black) and formatting tools in `code/`: 1
+T004 [P] Setup Git hooks for pre-commit checks (seeds, imports): 1
+T005 Implement `code/config.py` with paths, seeds (42), and API key handling: 1
