@@ -1,0 +1,47 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "FatigueRecordSchema"
+description: "Schema for the raw input fatigue crack growth dataset. Note: Processed data used by ML models will have flattened/encoded features."
+type: "object"
+properties:
+  record_id:
+    type: "string"
+    description: "Unique identifier for the record."
+  da_dN:
+    type: "number"
+    description: "Crack growth rate in m/cycle."
+    minimum: 0
+  delta_K:
+    type: "number"
+    description: "Stress intensity factor range in MPa√m."
+    minimum: 0
+  log_da_dN:
+    type: "number"
+    description: "Log10 transformed crack growth rate (computed during preprocessing)."
+  log_delta_K:
+    type: "number"
+    description: "Log10 transformed stress intensity factor (computed during preprocessing)."
+  composition:
+    type: "object"
+    description: "Material composition in weight percent. Keys are element symbols, values are floats."
+    additionalProperties:
+      type: "number"
+  heat_treatment:
+    type: "string"
+    description: "Categorical heat treatment description. May be 'Unknown/Not Specified'."
+  alloy_family:
+    type: "string"
+    description: "Alloy family classification (e.g., Aluminum, Steel)."
+  source:
+    type: "string"
+    description: "Source dataset identifier."
+required:
+  - record_id
+  - da_dN
+  - delta_K
+  - log_da_dN
+  - log_delta_K
+  - composition
+  - heat_treatment
+  - alloy_family
+  - source
+additionalProperties: false

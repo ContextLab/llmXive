@@ -1,4 +1,4 @@
-resolved_at: '2026-07-04T05:46:38.416649+00:00'
+resolved_at: '2026-07-05T23:21:38.949308+00:00'
 datasets:
 - intent: FCG
   status: verified
@@ -45,23 +45,23 @@ datasets:
     source: huggingface
     status: verified
     format: gzip
-  - url: https://figshare.com/articles/dataset/_b_i_ESR1_i_b_b_and_b_b_i_PIK3CA_i_b_b_Polymorphisms_as_Potential_Genetic_Susceptibility_Markers_for_Breast_Cancer_Risk_in_Bangladeshi_Women_A_Case-Control_Study_b_/32898884
+  - url: https://figshare.com/articles/poster/Redeemer_s_University_Ede_admission_form_for_2026_2027_is_out_call_The_Admin_Dr_Mrs_Faith_070409-6-4654_to_Check_courses_offered_cut-off_mark_screening_dates_and_admission_requirements_07040964654_The_University_has_officially_opened_its_ad/32904005
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/MS_dataset_plates/32898878
+  - url: https://figshare.com/articles/dataset/Bowen_University_Iwo_2026_2027_Admission_Form_is_out_call_DR_MRS_FAITH_i_0704-0964654_i_or_07040964654_Prospective_candidates_seeking_admission_i_Qualified_candidates_can_now_apply_into_a_wide_range_of_undergraduate_programmes_across_scienc/32904008
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/thesis/Protection_of_Consumer_Rights_in_India_and_Bangladesh_A_Comparative_Study/32898875
+  - url: https://figshare.com/articles/dataset/Westland_University_Iwo_2026_2027_Admission_Form_is_out_call_DR_MRS_FAITH_i_0704-0964654_i_or_07040964654_Prospective_candidates_seeking_admission_i_Qualified_candidates_can_now_apply_into_a_wide_range_of_undergraduate_programmes_across_sci/32904002
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Mosquito_fauna_in_the_Ria_Celest_n_Biosphere_Reserve_with_a_new_report_for_Yucat_n_M_xico/32898143
+  - url: https://figshare.com/articles/dataset/Topfaith_University_Mkpatak_2026_2027_Admission_Form_is_out_call_DR_MRS_FAITH_i_0704-0964654_i_or_07040964654_Prospective_candidates_seeking_admission_i_Qualified_candidates_can_now_apply_into_a_wide_range_of_undergraduate_programmes_across/32903999
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/A_curated_atomistic_dataset_and_machine_learning_potential_for_calcium_aluminate_silicate_hydrates/32887406
+  - url: https://griffith.figshare.com/articles/figure/Witnessing_Resistance/28826783
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -69,30 +69,35 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/15419277
+  - url: https://doi.org/10.5281/zenodo.15419277
     source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/5720260
+    status: unreachable
+    reason: 'reachability failed: ReadTimeout: HTTPSConnectionPool(host=''zenodo.org'',
+      port=443): Read timed out. (read timeout=20.0)'
+  - url: https://doi.org/10.5281/zenodo.5720260
     source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/5720362
+    status: unreachable
+    reason: 'reachability failed: ReadTimeout: HTTPSConnectionPool(host=''zenodo.org'',
+      port=443): Read timed out. (read timeout=20.0)'
+  - url: https://doi.org/10.5281/zenodo.5720362
     source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
+    status: unreachable
+    reason: 'reachability failed: ReadTimeout: HTTPSConnectionPool(host=''zenodo.org'',
+      port=443): Read timed out. (read timeout=20.0)'
   - url: https://ijphs.iaescore.com/index.php/IJPHS/article/view/22788
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21173329
+  - url: https://doi.org/10.5281/zenodo.21173328
     source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21173329
+    status: unreachable
+    reason: 'reachability failed: ReadTimeout: HTTPSConnectionPool(host=''zenodo.org'',
+      port=443): Read timed out. (read timeout=20.0)'
+  - url: https://doi.org/10.5281/zenodo.21173329
     source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
+    status: unreachable
+    reason: 'reachability failed: ReadTimeout: HTTPSConnectionPool(host=''zenodo.org'',
+      port=443): Read timed out. (read timeout=20.0)'
   - url: https://arxiv.org/abs/2607.01929
     source: datacite
     status: wrong_format
@@ -108,20 +113,19 @@ datasets:
 - intent: NASA
   status: verified
   candidates:
-  - url: https://huggingface.co/datasets/hmnshudhmn24/igbt-accelerated-aging-nasa/resolve/main/SMU
-      Data for new devices/IGBT-IRG4BC30K/Part 11/Breakdown.csv
-    source: huggingface
-    format: csv
-    relevance: 1.0
-    sample_check:
-      downloaded_bytes: 5000
-      parsed: true
   - url: https://huggingface.co/datasets/jiang12/nasa/resolve/main/diff-svc-v0.1.1-alpha.zip
     source: huggingface
     format: zip
     relevance: 1.0
     sample_check:
       downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/nasa-cisto-data-science-group/legacy-satvision-sr-pretrain-small/resolve/main/metadata/training_0/A2001013_h11v10_dataset_metadata.json
+    source: huggingface
+    format: json
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 16577
       parsed: true
   - url: https://huggingface.co/datasets/liuyanchen1015/MULTI_VALUE_mnli_nasal_possessive_pron/resolve/main/data/dev_matched-00000-of-00001-f5c89bab96bb3fae.parquet
     source: huggingface
@@ -131,11 +135,6 @@ datasets:
       downloaded_bytes: 262144
       parsed: true
   candidates_tried:
-  - url: https://huggingface.co/datasets/hmnshudhmn24/igbt-accelerated-aging-nasa/resolve/main/SMU
-      Data for new devices/IGBT-IRG4BC30K/Part 11/Breakdown.csv
-    source: huggingface
-    status: verified
-    format: csv
   - url: https://huggingface.co/datasets/liuyanchen1015/MULTI_VALUE_mnli_nasal_possessive_pron/resolve/main/data/dev_matched-00000-of-00001-f5c89bab96bb3fae.parquet
     source: huggingface
     status: verified
@@ -144,23 +143,30 @@ datasets:
     source: huggingface
     status: verified
     format: zip
-  - url: https://figshare.com/articles/dataset/_b_i_ESR1_i_b_b_and_b_b_i_PIK3CA_i_b_b_Polymorphisms_as_Potential_Genetic_Susceptibility_Markers_for_Breast_Cancer_Risk_in_Bangladeshi_Women_A_Case-Control_Study_b_/32898884
+  - url: https://huggingface.co/datasets/nasa-cisto-data-science-group/legacy-satvision-sr-pretrain-small/resolve/main/metadata/training_0/A2001013_h11v10_dataset_metadata.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://figshare.com/articles/poster/Eko_University_of_Medical_and_Health_Sciences_Ijanikin_2026_2027_Admission_Form_is_out_call_DR_MRS_FAITH_i_0704-0964654_i_or_07040964654_Prospective_candidates_seeking_admission_i_Qualified_candidates_can_now_apply_into_a_wide_range_of_unde/32904029
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/MS_dataset_plates/32898878
+  - url: https://bridges.monash.edu/articles/thesis/Environment-related_Literacies_Curriculum_Opportunities_and_Challenges_in_Indonesian_Public_High_Schools/32904011
+    source: figshare
+    status: unreachable
+    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''bridges.monash.edu'',
+      port=443): Max retries exceeded with url: /articles/thesis/Environment-related_Literacies_Curriculum_Opportunities_and_Challenges_in_Indonesian_Public_High_Schools/32904011
+      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
+      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
+  - url: https://figshare.com/articles/poster/Skyline_University_Kano_2026_2027_Admission_Form_is_out_call_DR_MRS_FAITH_i_0704-0964654_i_or_07040964654_Prospective_candidates_seeking_admission_i_Qualified_candidates_can_now_apply_into_a_wide_range_of_undergraduate_programmes_across_sci/32904026
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/thesis/Protection_of_Consumer_Rights_in_India_and_Bangladesh_A_Comparative_Study/32898875
+  - url: https://figshare.com/articles/media/Dominion_University_Ibadan_2026_2027_Admission_Form_is_out_call_DR_MRS_FAITH_i_0704-0964654_i_or_07040964654_Prospective_candidates_seeking_admission_i_Qualified_candidates_can_now_apply_into_a_wide_range_of_undergraduate_programmes_across_/32904023
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Mosquito_fauna_in_the_Ria_Celest_n_Biosphere_Reserve_with_a_new_report_for_Yucat_n_M_xico/32898143
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/A_curated_atomistic_dataset_and_machine_learning_potential_for_calcium_aluminate_silicate_hydrates/32887406
+  - url: https://figshare.com/articles/media/Novena_University_Ogume_admission_form_for_2026_2027_is_out_call_The_Admin_Dr_Mrs_Faith_070409-6-4654_to_Check_courses_offered_cut-off_mark_screening_dates_and_admission_requirements_07040964654_The_University_has_officially_opened_its_admi/32904017
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -172,11 +178,11 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/2628412
+  - url: https://zenodo.org/records/7655414
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/7655414
+  - url: https://zenodo.org/records/2628412
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -184,23 +190,23 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://pds.nasa.gov/ds-view/pds/viewBundle.jsp?identifier=urn%3Anasa%3Apds%3Alro-l-lroc-2-edr&amp;version=38.0
+  - url: https://www.researchgate.net/doi/10.13140/RG.2.2.26675.39206
+    source: datacite
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://zenodo.org/records/20839781
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://pds.nasa.gov/ds-view/pds/viewBundle.jsp?identifier=urn%3Anasa%3Apds%3Alro-l-lroc-3-cdr&amp;version=37.0
+  - url: https://zenodo.org/records/20839781
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21152944
+  - url: https://zenodo.org/records/21210423
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21152944
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://publica.fraunhofer.de/entities/publication/65a447f8-4342-4b1e-90aa-a1b8c1540aa7
+  - url: https://zenodo.org/records/21210423
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -249,26 +255,29 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://figshare.com/articles/dataset/_b_i_ESR1_i_b_b_and_b_b_i_PIK3CA_i_b_b_Polymorphisms_as_Potential_Genetic_Susceptibility_Markers_for_Breast_Cancer_Risk_in_Bangladeshi_Women_A_Case-Control_Study_b_/32898884
+  - url: https://openaccess.wgtn.ac.nz/articles/journal_contribution/How_engagement_dynamics_shape_collaborative_writing_processes_Perspectives_from_EAL_learners/32904038
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/MS_dataset_plates/32898878
+  - url: https://figshare.com/articles/media/Lead_City_University_Ibadan_admission_form_for_2026_2027_is_out_call_The_Admin_Dr_Mrs_Faith_070409-6-4654_to_Check_courses_offered_cut-off_mark_screening_dates_and_admission_requirements_07040964654_The_University_has_officially_opened_its_/32904032
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/thesis/Protection_of_Consumer_Rights_in_India_and_Bangladesh_A_Comparative_Study/32898875
+  - url: https://figshare.com/articles/dataset/Atiba_University_Oyo_2026_2027_Admission_Form_is_out_call_DR_MRS_FAITH_i_0704-0964654_i_or_07040964654_Prospective_candidates_seeking_admission_i_Qualified_candidates_can_now_apply_into_a_wide_range_of_undergraduate_programmes_across_scienc/32904035
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Mosquito_fauna_in_the_Ria_Celest_n_Biosphere_Reserve_with_a_new_report_for_Yucat_n_M_xico/32898143
+  - url: https://figshare.com/articles/poster/Eko_University_of_Medical_and_Health_Sciences_Ijanikin_2026_2027_Admission_Form_is_out_call_DR_MRS_FAITH_i_0704-0964654_i_or_07040964654_Prospective_candidates_seeking_admission_i_Qualified_candidates_can_now_apply_into_a_wide_range_of_unde/32904029
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/A_curated_atomistic_dataset_and_machine_learning_potential_for_calcium_aluminate_silicate_hydrates/32887406
+  - url: https://bridges.monash.edu/articles/thesis/Environment-related_Literacies_Curriculum_Opportunities_and_Challenges_in_Indonesian_Public_High_Schools/32904011
     source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
+    status: unreachable
+    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''bridges.monash.edu'',
+      port=443): Max retries exceeded with url: /articles/thesis/Environment-related_Literacies_Curriculum_Opportunities_and_Challenges_in_Indonesian_Public_High_Schools/32904011
+      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
+      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
   - url: https://zenodo.org/records/14189804
     source: zenodo
     status: wrong_format
@@ -277,11 +286,11 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/3382347
+  - url: https://zenodo.org/records/7254581
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/7254581
+  - url: https://zenodo.org/records/3382347
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -289,23 +298,23 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21182989
+  - url: https://zenodo.org/records/21209037
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21182989
+  - url: https://zenodo.org/records/21209037
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21182469
+  - url: https://usiena-air.unisi.it//handle/11365/1144376
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21179719
+  - url: https://zenodo.org/records/21207197
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21179719
+  - url: https://zenodo.org/records/21207197
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content

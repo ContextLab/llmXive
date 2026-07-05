@@ -1,0 +1,70 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "ModelPerformanceSchema"
+description: "Schema for model evaluation metrics and regime analysis results."
+type: "object"
+properties:
+  model_id:
+    type: "string"
+    description: "Unique identifier for the model run."
+  model_type:
+    type: "string"
+    enum:
+      - "Baseline"
+      - "RandomForest"
+      - "XGBoost"
+    description: "Type of model trained."
+  fold:
+    type: "integer"
+    description: "Cross-validation fold number."
+    minimum: 0
+    maximum: 4
+  r2_score:
+    type: "number"
+    description: "Coefficient of determination."
+  rmse:
+    type: "number"
+    description: "Root Mean Squared Error."
+  delta_r2:
+    type: "number"
+    description: "Improvement over baseline R2 (for augmented models)."
+  p_value:
+    type: "number"
+    description: "Statistical significance of the improvement."
+  feature_importance:
+    type: "array"
+    description: "List of feature importance scores."
+    items:
+      type: "object"
+      properties:
+        feature:
+          type: "string"
+        importance:
+          type: "number"
+  regime_analysis:
+    type: "object"
+    description: "Results stratified by Delta K regime."
+    properties:
+      low:
+        $ref: "#/properties/regime_analysis/properties/mid"
+      mid:
+        $ref: "#/properties/regime_analysis/properties/mid"
+      high:
+        $ref: "#/properties/regime_analysis/properties/mid"
+    additionalProperties: false
+required:
+  - model_id
+  - model_type
+  - r2_score
+  - rmse
+definitions:
+  mid:
+    type: "object"
+    properties:
+      local_r2:
+        type: "number"
+      dominant_features:
+        type: "array"
+        items:
+          type: "string"
+      stability_score:
+        type: "number"
