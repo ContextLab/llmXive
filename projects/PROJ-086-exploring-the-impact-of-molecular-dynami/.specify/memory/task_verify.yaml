@@ -1,0 +1,12 @@
+? T001 Create project structure per implementation plan (`code/simulation`, `code/analysis`,
+  `data/raw`, `data/processed`, `results`)
+: 1
+? T002 Initialize Python project with `requirements.txt` containing `openmm`, `openmmtools`,
+  `mdtraj`, `pandas`, `scipy`, `statsmodels`, `pyyaml`, `requests`, `pytest`
+: 1
+T003 [P] Configure linting (ruff) and formatting (black) tools in `pyproject.toml`: 1
+T004 Implement `code/utils/io.py` for SHA256 checksumming, file I/O, and state updates (Principle V): 1
+T005 [P] Implement `code/utils/logger.py` for error handling, logging, and 300s timeout enforcement for 1.5ns runs: 1
+? T006 [P] Create `code/simulation/config.py` defining parameter sets (ffSB, CHARMM36m;
+  0.5ns, 1.0ns, 1.5ns; 300K) and random seeds
+: 1

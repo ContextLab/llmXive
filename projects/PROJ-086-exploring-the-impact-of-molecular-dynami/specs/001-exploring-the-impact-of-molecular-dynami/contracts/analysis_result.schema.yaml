@@ -1,0 +1,77 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "AnalysisResult"
+description: "Schema for the aggregated LMM and variance analysis results."
+type: "object"
+properties:
+  analysis_id:
+    type: "string"
+    description: "Unique ID for the analysis run"
+  timestamp:
+    type: "string"
+    format: "date-time"
+    description: "Time of analysis execution"
+  model_type:
+    type: "string"
+    const: "LinearMixedEffects"
+    description: "Type of statistical model used"
+  fixed_effects:
+    type: "object"
+    description: "Fixed effect estimates (coefficient, SE, CI) for Force_Field and Duration"
+    properties:
+      force_field:
+        type: "object"
+        properties:
+          coefficient:
+            type: "number"
+          std_error:
+            type: "number"
+          ci_lower:
+            type: "number"
+          ci_upper:
+            type: "number"
+      duration:
+        type: "object"
+        properties:
+          coefficient:
+            type: "number"
+          std_error:
+            type: "number"
+          ci_lower:
+            type: "number"
+          ci_upper:
+            type: "number"
+    required:
+      - force_field
+      - duration
+  random_effects:
+    type: "object"
+    description: "Variance components for random effects"
+    properties:
+      complex_variance:
+        type: "number"
+        minimum: 0
+      residual_variance:
+        type: "number"
+        minimum: 0
+    required:
+      - complex_variance
+      - residual_variance
+  rmse_summary:
+    type: "number"
+    description: "Post-hoc RMSE calculated from model residuals (not a model parameter)"
+  mae_baseline:
+    type: "number"
+    description: "MAE of the baseline configuration (ff14SB, 1ns)"
+  cv_total:
+    type: "number"
+    description: "Coefficient of Variation for the total dataset"
+required:
+  - analysis_id
+  - timestamp
+  - model_type
+  - fixed_effects
+  - random_effects
+  - rmse_summary
+  - mae_baseline
+  - cv_total
+additionalProperties: false

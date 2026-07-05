@@ -1,19 +1,19 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-01T12:32:33.218413Z'
-current_stage: project_initialized
+current_stage: in_progress
 failed_stage: null
 field: chemistry
 human_escalation_reason: null
 id: PROJ-086-exploring-the-impact-of-molecular-dynami
-last_run_id: 4507ff5a-20a0-4182-b7cb-382b311fe6cc
+last_run_id: 63a3b029-ca4b-413e-9bd5-9ffda811549c
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
 revision_spec_path: null
 speckit_paper_dir: null
-speckit_research_dir: null
+speckit_research_dir: projects/PROJ-086-exploring-the-impact-of-molecular-dynami/specs/001-exploring-the-impact-of-molecular-dynami
 title: Exploring the Impact of Molecular Dynamics Simulation Parameters on Predicted
   Protein-Ligand Binding Affinity
-updated_at: '2026-06-26T06:25:59.433587Z'
+updated_at: '2026-07-05T07:13:21.036804Z'

@@ -1,0 +1,57 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "SimulationRun"
+description: "Schema for a single MD simulation run record."
+type: "object"
+properties:
+  run_id:
+    type: "string"
+    pattern: "^run_[A-Z0-9]+_[a-z0-9]+_[0-9.]+_[0-9]+$"
+    description: "Unique identifier: run_{complex_id}_{ff}_{duration}_{temp}"
+  complex_id:
+    type: "string"
+    description: "PDB ID of the complex (e.g., 1J22)"
+  force_field:
+    type: "string"
+    enum:
+      - "ff14SB"
+      - "CHARMM36m"
+    description: "Selected force field"
+  duration_ns:
+    type: "number"
+    enum:
+      - 0.5
+      - 1.0
+      - 1.5
+    description: "Simulation duration in nanoseconds (Deviation from Constitution VI)"
+  temperature_k:
+    type: "number"
+    const: 300.0
+    description: "Simulation temperature in Kelvin"
+  status:
+    type: "string"
+    enum:
+      - "pending"
+      - "running"
+      - "completed"
+      - "failed"
+    description: "Current status of the run"
+  wall_clock_minutes:
+    type: "number"
+    minimum: 0
+    description: "Actual wall-clock time taken (minutes)"
+  file_path_trajectory:
+    type: "string"
+    description: "Relative path to the generated trajectory file"
+  checksum_trajectory:
+    type: "string"
+    pattern: "^[a-f0-9]{64}$"
+    description: "SHA256 checksum of the trajectory file"
+required:
+  - run_id
+  - complex_id
+  - force_field
+  - duration_ns
+  - temperature_k
+  - status
+  - wall_clock_minutes
+additionalProperties: false

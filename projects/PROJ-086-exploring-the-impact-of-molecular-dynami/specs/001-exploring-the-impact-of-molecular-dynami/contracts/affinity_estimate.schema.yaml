@@ -1,0 +1,45 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "AffinityEstimate"
+description: "Schema for a calculated binding free energy estimate."
+type: "object"
+properties:
+  estimate_id:
+    type: "string"
+    pattern: "^energy_run_[A-Z0-9]+_[a-z0-9]+_[0-9.]+_[0-9]+$"
+    description: "Unique identifier linking to SimulationRun"
+  run_id:
+    type: "string"
+    description: "Foreign key to SimulationRun"
+  method:
+    type: "string"
+    enum:
+      - "MM-PBSA"
+      - "MM-GBSA"
+    description: "Method used for calculation"
+  delta_g_kcal_mol:
+    type: "number"
+    description: "Calculated binding free energy in kcal/mol"
+  std_error:
+    type: "number"
+    description: "Standard error of the estimate"
+  num_snapshots:
+    type: "integer"
+    minimum: 1
+    description: "Number of snapshots used in calculation"
+  status:
+    type: "string"
+    enum:
+      - "success"
+      - "failed"
+      - "non_physical"
+    description: "Status of the calculation"
+  error_message:
+    type: "string"
+    description: "Error details if status is failed"
+required:
+  - estimate_id
+  - run_id
+  - method
+  - delta_g_kcal_mol
+  - status
+additionalProperties: false

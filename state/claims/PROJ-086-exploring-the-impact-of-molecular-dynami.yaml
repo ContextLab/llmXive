@@ -1,0 +1,215 @@
+- artifact_path: projects/PROJ-086-exploring-the-impact-of-molecular-dynami/specs/001-exploring-the-impact-of-molecular-dynami/tasks.md
+  attempts: 1
+  canonical: 'PDBbind v2020 refined subset selection criteria: resolution <= 2.0 Angstroms
+    and residues <= 200'
+  claim_id: c_ab4c14b4
+  context: "T007 Create `code/analysis/load_data.py` to fetch PDBbind v2020 'refined'\
+    \ subset (\u22642.0\xC5, \u2264200 residues) from ` or a verified script"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "fetch PDBbind v2020 'refined' subset (\u22642.0\xC5, \u2264200 residues)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T07:03:43Z'
+- artifact_path: projects/PROJ-086-exploring-the-impact-of-molecular-dynami/specs/001-exploring-the-impact-of-molecular-dynami/tasks.md
+  attempts: 1
+  canonical: Single simulation test for complex 1J22 with ff14SB force field at 1.5ns
+    duration and 300K temperature on 2 cores must complete in less than 7 minutes
+  claim_id: c_b26a290c
+  context: 'Independent Test: Run a single simulation (complex 1J22, ff14SB, 1.5ns,
+    300K) on a 2-core CPU runner; verify `.nc` output exists and job completes < 7
+    mins.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Single_simulation_test_for_complex_1J22_with_ff14SB_force_fi
+  kind: magnitude
+  raw_text: run a single simulation (complex 1J22, ff14SB, 1.5ns, 300K) on a 2-core
+    CPU runner; verify `.nc` output exists and job completes < 7 mins
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T07:04:38Z'
+- artifact_path: projects/PROJ-086-exploring-the-impact-of-molecular-dynami/specs/001-exploring-the-impact-of-molecular-dynami/tasks.md
+  attempts: 1
+  canonical: MM-PBSA/GBSA post-processing truncates trajectories to 20 frames or fewer
+  claim_id: c_e0372c56
+  context: "T020 [US2] Implement `code/simulation/mm_pbsa.py` to perform MM-PBSA/GBSA\
+    \ post-processing on trajectory files from `data/processed/` (truncating to \u2264\
+    20 frames to save RAM)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "truncating to \u226420 frames to save RAM"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T07:04:38Z'
+- artifact_path: projects/PROJ-086-exploring-the-impact-of-molecular-dynami/specs/001-exploring-the-impact-of-molecular-dynami/tasks.md
+  attempts: 1
+  canonical: PDBbind subset validation requires at least 10 valid complexes
+  claim_id: c_6440286e
+  context: T040 [US2] Add a fallback mechanism in `code/analysis/load_data.py` to
+    verify the PDBbind subset contains at least 10 valid complexes; if fewer are found,
+    raise a `DataInsufficientError` with a clear message and halt execution
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/PDBbind_subset_validation_requires_at_least_10_valid_complex
+  kind: magnitude
+  raw_text: verify the PDBbind subset contains at least 10 valid complexes
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T07:05:05Z'
+- artifact_path: projects/PROJ-086-exploring-the-impact-of-molecular-dynami/specs/001-exploring-the-impact-of-molecular-dynami/tasks.md
+  attempts: 1
+  canonical: Total pipeline runtime limit is 6 hours (21600 seconds)
+  claim_id: c_bc9b629a
+  context: 'T035 Performance optimization: Implement a timer wrapper in `code/main.py`
+    that asserts total_time < 21600s (6 hours) for the full run and logs the result'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: total_time < 21600s (6 hours) for the full run
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T07:05:05Z'
+- artifact_path: projects/PROJ-086-exploring-the-impact-of-molecular-dynami/specs/001-exploring-the-impact-of-molecular-dynami/tasks.md
+  attempts: 1
+  canonical: Job termination threshold for peak RAM usage is 6GB
+  claim_id: c_87177216
+  context: T043 [All] Add a resource monitoring wrapper in `code/main.py` that tracks
+    peak RAM usage per simulation and automatically terminates the job if it exceeds
+    6GB to prevent CI runner crashes
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Job_termination_threshold_for_peak_RAM_usage_is_6GB
+  kind: entity_fact
+  raw_text: exceeds 6GB to prevent CI runner crashes
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T07:05:51Z'
+- artifact_path: projects/PROJ-086-exploring-the-impact-of-molecular-dynami/specs/001-exploring-the-impact-of-molecular-dynami/tasks.md
+  attempts: 1
+  canonical: CI runner constraints include 7GB RAM
+  claim_id: c_bc3fe2d6
+  context: "Critical Constraint: All simulation tasks must run on CPU-only CI (cores,\
+    \ 7GB RAM) with \u22646h total runtime."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/CI_runner_constraints_include_7GB_RAM
+  kind: entity_fact
+  raw_text: CI (cores, 7GB RAM)
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T07:06:28Z'
+- artifact_path: projects/PROJ-086-exploring-the-impact-of-molecular-dynami/specs/001-exploring-the-impact-of-molecular-dynami/tasks.md
+  attempts: 1
+  canonical: fetch PDBbind v2020 refined subset with resolution <= 2.0 Angstrom and
+    <= 200 residues
+  claim_id: c_a4323056
+  context: "T007 Create code/analysis/load_data.py to fetch PDBbind v2020 'refined'\
+    \ subset (\u22642.0\xC5, \u2264200 residues) from or a verified script"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "fetch PDBbind v2020 'refined' subset (\u22642.0\xC5, \u2264200 residues)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T07:12:17Z'
+- artifact_path: projects/PROJ-086-exploring-the-impact-of-molecular-dynami/specs/001-exploring-the-impact-of-molecular-dynami/tasks.md
+  attempts: 1
+  canonical: verify PDBbind subset contains at least 10 valid complexes
+  claim_id: c_49770151
+  context: T040 [US2] Add a fallback mechanism in code/analysis/load_data.py to verify
+    the PDBbind subset contains at least 10 valid complexes; if fewer are found, raise
+    a DataInsufficientError
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_PDBbind_subset_contains_at_least_10_valid_complexes
+  kind: magnitude
+  raw_text: verify the PDBbind subset contains at least 10 valid complexes
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T07:12:19Z'
+- artifact_path: projects/PROJ-086-exploring-the-impact-of-molecular-dynami/specs/001-exploring-the-impact-of-molecular-dynami/tasks.md
+  attempts: 1
+  canonical: acknowledge low statistical power with N equals 10
+  claim_id: c_4e6574d6
+  context: T042 [US3] Enhance code/analysis/viz.py to include confidence intervals
+    on the variance component plot, acknowledging the low statistical power (N=10)
+    and wide confidence intervals
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: acknowledging the low statistical power (N=10)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T07:12:42Z'
+- artifact_path: projects/PROJ-086-exploring-the-impact-of-molecular-dynami/specs/001-exploring-the-impact-of-molecular-dynami/tasks.md
+  attempts: 1
+  canonical: statistical findings framed as associational due to N equals 10
+  claim_id: c_a1db0d28
+  context: T032 [US3] Add validation to ensure statistical findings are framed as
+    associational (observational study) with wide confidence intervals due to N=10
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: ensure statistical findings are framed as associational (observational
+    study) with wide confidence intervals due to N=10
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T07:12:59Z'
+- artifact_path: projects/PROJ-086-exploring-the-impact-of-molecular-dynami/specs/001-exploring-the-impact-of-molecular-dynami/tasks.md
+  attempts: 1
+  canonical: terminate job if peak RAM usage exceeds 6 GB
+  claim_id: c_42c229c5
+  context: T043 [All] Add a resource monitoring wrapper in code/main.py that tracks
+    peak RAM usage per simulation and automatically terminates the job if it exceeds
+    6GB to prevent CI runner crashes
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: automatically terminates the job if it exceeds 6GB to prevent CI runner
+    crashes
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T07:13:10Z'
