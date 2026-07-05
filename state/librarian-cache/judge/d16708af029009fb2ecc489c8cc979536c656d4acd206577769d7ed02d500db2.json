@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2108.11634",
+  "judged_at": "2026-07-05T21:35:51Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "asymptotic behavior of random matrix eigenvalues with sparse perturbations mathematics",
+  "rationale": "This paper directly addresses the user's question by studying the asymptotic behavior (specifically higher-order fluctuations and rigidity) of eigenvalues for sparse random matrices, which corresponds to the \"sparse perturbations\" context in the user's query. It satisfies acceptance criteria (a) and (b) as it measures the same mathematical mechanism and variables (eigenvalue fluctuations in sparse regimes) central to the research question.",
+  "relevant": true
+}

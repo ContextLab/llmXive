@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2211.12792",
+  "judged_at": "2026-07-05T21:33:46Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting molecular ionization energies with graph neural networks chemistry",
+  "rationale": "The paper proposes a general architecture for heterogeneous graphs using metapaths and validates it on generic node classification and link prediction tasks, but it does not measure molecular ionization energies, apply the method to molecular graphs, or address the specific chemical property prediction domain required by the user's question. This falls under the rejection rule for \"off-domain entirely\" or \"no measurable connection to the user's mechanism, domain, variables, or empirical setting,",
+  "relevant": false
+}

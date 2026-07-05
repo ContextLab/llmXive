@@ -1,0 +1,607 @@
+{
+  "fetched_at": "2026-07-05T21:37:19Z",
+  "field": "computer science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "computer science",
+      "idea_body_excerpt": "llmXive follow-up: extending \"AgenticSTS: A Bounded-Memory Testbed for Long-Horizon LLM Agents\"",
+      "target_n": 5
+    },
+    "duration_seconds": 55.096,
+    "ended_at": "2026-07-05T21:37:19Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "bounded memory architectures for long-horizon LLM agents"
+        ],
+        [
+          2,
+          "long-horizon planning in large language model agents"
+        ],
+        [
+          3,
+          "testbeds for evaluating LLM agent memory constraints"
+        ],
+        [
+          4,
+          "context window limitations in agentic LLM systems"
+        ],
+        [
+          5,
+          "memory management strategies for autonomous AI agents"
+        ],
+        [
+          6,
+          "persistent state handling in long-duration LLM interactions"
+        ],
+        [
+          7,
+          "AgenticSTS evaluation framework extensions"
+        ],
+        [
+          8,
+          "retrieval-augmented memory for LLM agents"
+        ],
+        [
+          9,
+          "hierarchical memory systems for long-horizon tasks"
+        ],
+        [
+          10,
+          "cognitive architectures for bounded-memory LLM agents"
+        ],
+        [
+          11,
+          "episodic memory mechanisms in generative agents"
+        ],
+        [
+          12,
+          "scaling LLM agents to extended time horizons"
+        ],
+        [
+          13,
+          "memory compression techniques for long-context agents"
+        ],
+        [
+          14,
+          "benchmarking long-term autonomy in language models"
+        ],
+        [
+          15,
+          "stateful LLM agents with limited context windows"
+        ],
+        [
+          16,
+          "external memory augmentation for agentic workflows"
+        ],
+        [
+          17,
+          "continual learning in long-horizon LLM agent environments"
+        ],
+        [
+          18,
+          "resource-constrained reasoning for autonomous agents"
+        ],
+        [
+          19,
+          "multi-step planning under memory constraints"
+        ],
+        [
+          20,
+          "iterative refinement of agent state in bounded memory"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "bounded memory architectures for long-horizon LLM agents": 5,
+        "llmXive follow-up: extending \"AgenticSTS: A Bounded-Memory Testbed for Long-Horizon LLM Agents\" computer science": 0
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "bounded context window memory management LLM agents",
+      "AgenticSTS benchmark long-horizon planning evaluation",
+      "context limit recurrence LLM agent failure modes",
+      "episodic memory retrieval multi-step task performance",
+      "finite state machine LLM agent architecture constraints"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "success_after_expansion",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2604.14140"
+      ]
+    },
+    "per_query_hit_count": {
+      "AgenticSTS benchmark long-horizon planning evaluation": 3,
+      "bounded context window memory management LLM agents": 3,
+      "context limit recurrence LLM agent failure modes": 3,
+      "episodic memory retrieval multi-step task performance": 3,
+      "finite state machine LLM agent architecture constraints": 2,
+      "llmXive follow-up: extending \"AgenticSTS: A Bounded-Memory Testbed for Long-Horizon LLM Agents\" computer science": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 0,
+      "rejections": []
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-07-05T21:36:24Z",
+    "term_input": {
+      "normalized": "llmxive follow-up: extending \"agenticsts: a bounded-memory testbed for long-horizon llm agents\" computer science",
+      "raw": "llmXive follow-up: extending \"AgenticSTS: A Bounded-Memory Testbed for Long-Horizon LLM Agents\" computer science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This white paper describes the LSST Dark Energy Science Collaboration (DESC), whose goal is the study of dark energy and related topics in fundamental physics with data from the Large Synoptic Survey Telescope (LSST). It provides an overview of dark energy science and describes the current and anticipated state of the field. It makes the case for the DESC by laying out a robust analytical framework for dark energy science that has been defined by its members and the comprehensive three-year work plan they have developed for implementing that framework. The analysis working groups cover five key probes of dark energy: weak lensing, large scale structure, galaxy clusters, Type Ia supernovae, and strong lensing. The computing working groups span cosmological simulations, galaxy catalogs, photon simulations and a systematic software and computational framework for LSST dark energy data analysis. The technical working groups make the connection between dark energy science and the LSST system. The working groups have close linkages, especially through the use of the photon simulations to study the impact of instrument design and survey strategy on analysis methodology and cosmological parameter estimation. The white paper describes several high priority tasks identified by each of the 16 working groups. Over the next three years these tasks will help prepare for LSST analysis, make synergistic connections with ongoing cosmological surveys and provide the dark energy community with state of the art analysis tools. Members of the community are invited to join the LSST DESC, according to the membership policies described in the white paper. Applications to sign up for associate membership may be made by submitting the Web form at http://www.slac.stanford.edu/exp/lsst/desc/signup.html with a short statement of the work they wish to pursue that is relevant to the LSST DESC.",
+          "claimed_authors": [
+            " LSST Dark Energy Science Collaboration"
+          ],
+          "claimed_title": "Large Synoptic Survey Telescope: Dark Energy Science Collaboration",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1211.0310"
+        },
+        "details": "query-relevance 0.077 < 0.3 (query='llmXive follow-up: extending \"AgenticSTS: A Bounded-Memory Testbed for Long-Hori', candidate_title='Large Synoptic Survey Telescope: Dark Energy Science Collaboration')",
+        "failed_at": "2026-07-05T21:36:52Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The large instantaneous sensitivity, a wide frequency coverage and flexible observation modes with large number of beams in the sky are the main features of the SKA observatory's two telescopes, the SKA-Low and the SKA-Mid, which are located on two different continents. Owing to these capabilities, the SKAO telescopes are going to be a game-changer for radio astronomy in general and pulsar astronomy in particular. The eleven articles in this special issue on pulsar science with the SKA Observatory describe its impact on different areas of pulsar science. In this lead article, a brief description of the two telescopes highlighting the relevant features for pulsar science is presented followed by an overview of each accompanying article, exploring the inter-relationship between different pulsar science use cases.",
+          "claimed_authors": [
+            "Bhal Chandra Joshi",
+            "Aris Karastergiou",
+            "Marta Burgay",
+            "The SKA pulsar science working group"
+          ],
+          "claimed_title": "Pulsar Science with the SKA Observatory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.16152"
+        },
+        "details": "query-relevance 0.077 < 0.3 (query='llmXive follow-up: extending \"AgenticSTS: A Bounded-Memory Testbed for Long-Hori', candidate_title='Pulsar Science with the SKA Observatory')",
+        "failed_at": "2026-07-05T21:36:52Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A Human Computer Interface (HCI) System for playing games is designed here for more natural communication with the machines. The system presented here is a vision-based system for detection of long voluntary eye blinks and interpretation of blink patterns for communication between man and machine. This system replaces the mouse with the human face as a new way to interact with the computer. Facial features (nose tip and eyes) are detected and tracked in realtime to use their actions as mouse events. The coordinates and movement of the nose tip in the live video feed are translated to become the coordinates and movement of the mouse pointer on the application. The left or right eye blinks fire left or right mouse click events. The system works with inexpensive USB cameras and runs at a frame rate of 30 frames per second.",
+          "claimed_authors": [
+            "S. Sumathi",
+            "S. K. Srivatsa",
+            "M. Uma Maheswari"
+          ],
+          "claimed_title": "Vision Based Game Development Using Human Computer Interaction",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1002.2191"
+        },
+        "details": "query-relevance 0.154 < 0.3 (query='llmXive follow-up: extending \"AgenticSTS: A Bounded-Memory Testbed for Long-Hori', candidate_title='Vision Based Game Development Using Human Computer Interaction')",
+        "failed_at": "2026-07-05T21:36:52Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "LLM recommendation agents increasingly produce structured recommendation reports: sets of items accompanied by natural-language justifications. Yet existing evaluations often reduce this setting to reranking small shortlisted candidate sets or judge reports mainly by semantic plausibility. We introduce Recommendation Atlas (Agentic Tool-Level Assessment for Shopping), or RecoAtlas, a benchmark and toolkit for evaluating shopping agents with behavior-grounded metrics. RecoAtlas complements held-out interaction metrics with learned utility proxies for relevance, complementarity, and diversity derived from interaction data, while separately measuring semantic coherence and explanation quality. Its controlled tool environment exposes agents to either semantic, behavior-aligned, or faulty tools, enabling diagnosis of whether performance gains arise from stronger reasoning, better signals, or more effective tool-use policies. Across controlled experiments, we show that RecoAtlas exhibits key properties of a meaningful benchmark for agentic systems: performance scales with model capacity and test-time compute, improves with stronger and better-aligned tools, degrades under noisy or misaligned signals, and reveals that semantic plausibility does not necessarily capture behavior-grounded utility. RecoAtlas provides a foundation for developing and evaluating shopping assistants that optimize not only for plausible recommendations, but also for coherent, behaviorally grounded recommendation sets.",
+          "claimed_authors": [
+            "Imad Aouali",
+            "Flavian Vasile",
+            "Otmane Sakhi",
+            "Alexandre Gilotte",
+            "Benjamin Heymann"
+          ],
+          "claimed_title": "RecoAtlas: From Semantic Plausibility to Set-Level Utility in LLM Recommendation Agents",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2605.18805"
+        },
+        "details": "query-relevance 0.154 < 0.3 (query='llmXive follow-up: extending \"AgenticSTS: A Bounded-Memory Testbed for Long-Hori', candidate_title='RecoAtlas: From Semantic Plausibility to Set-Level Utility in LLM Recommendation Agents')",
+        "failed_at": "2026-07-05T21:36:53Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Recent advances in artificial intelligence have produced systems capable of remarkable performance across a wide range of tasks. These gains, however, are increasingly accompanied by concerns regarding long-horizon developmental behavior, as many systems converge toward repetitive solution patterns rather than sustained growth.\n  We argue that a central limitation of contemporary AI systems lies not in capability per se, but in the premature fixation of their performance frontier. To address this issue, we introduce the concept of a \\emph{Dynamic Intelligence Ceiling} (DIC), defined as the highest level of effective intelligence attainable by a system at a given time under its current resources, internal intent, and structural configuration.\n  To make this notion empirically tractable, we propose a trajectory-centric evaluation framework that measures intelligence as a moving frontier rather than a static snapshot. We operationalize DIC using two estimators: the \\emph{Progressive Difficulty Ceiling} (PDC), which captures the maximal reliably solvable difficulty under constrained resources, and the \\emph{Ceiling Drift Rate} (CDR), which quantifies the temporal evolution of this frontier. These estimators are instantiated through a procedurally generated benchmark that jointly evaluates long-horizon planning and structural creativity within a single controlled environment.\n  Our results reveal a qualitative distinction between systems that deepen exploitation within a fixed solution manifold and those that sustain frontier expansion over time. Importantly, our framework does not posit unbounded intelligence, but reframes limits as dynamic and trajectory-dependent rather than static and prematurely fixed.\n  \\vspace{0.5em} \\noindent\\textbf{Keywords:} AI evaluation, planning and creativity, developmental intelligence, dynamic intelligence ceilings, complex adaptive systems",
+          "claimed_authors": [
+            "Truong Xuan Khanh",
+            "Truong Quynh Hoa"
+          ],
+          "claimed_title": "Dynamic Intelligence Ceilings: Measuring Long-Horizon Limits of Planning and Creativity in Artificial Systems",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2601.06102"
+        },
+        "details": "query-relevance 0.154 < 0.3 (query='llmXive follow-up: extending \"AgenticSTS: A Bounded-Memory Testbed for Long-Hori', candidate_title='Dynamic Intelligence Ceilings: Measuring Long-Horizon Limits of Planning and Creativity in Artificial Systems')",
+        "failed_at": "2026-07-05T21:36:53Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Existing Vision-Language Navigation (VLN) methods primarily focus on single-stage navigation, limiting their effectiveness in multi-stage and long-horizon tasks within complex and dynamic environments. To address these limitations, we propose a novel VLN task, named Long-Horizon Vision-Language Navigation (LH-VLN), which emphasizes long-term planning and decision consistency across consecutive subtasks. Furthermore, to support LH-VLN, we develop an automated data generation platform NavGen, which constructs datasets with complex task structures and improves data utility through a bidirectional, multi-granularity generation approach. To accurately evaluate complex tasks, we construct the Long-Horizon Planning and Reasoning in VLN (LHPR-VLN) benchmark consisting of 3,260 tasks with an average of 150 task steps, serving as the first dataset specifically designed for the long-horizon vision-language navigation task. Furthermore, we propose Independent Success Rate (ISR), Conditional Success Rate (CSR), and CSR weight by Ground Truth (CGT) metrics, to provide fine-grained assessments of task completion. To improve model adaptability in complex tasks, we propose a novel Multi-Granularity Dynamic Memory (MGDM) module that integrates short-term memory blurring with long-term memory retrieval to enable flexible navigation in dynamic environments. Our platform, benchmark and method supply LH-VLN with a robust data generation pipeline, comprehensive model evaluation dataset, reasonable metrics, and a novel VLN model, establishing a foundational framework for advancing LH-VLN.",
+          "claimed_authors": [
+            "Xinshuai Song",
+            "Weixing Chen",
+            "Yang Liu",
+            "Weikai Chen",
+            "Guanbin Li",
+            "Liang Lin"
+          ],
+          "claimed_title": "Towards Long-Horizon Vision-Language Navigation: Platform, Benchmark and Method",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2412.09082"
+        },
+        "details": "query-relevance 0.231 < 0.3 (query='llmXive follow-up: extending \"AgenticSTS: A Bounded-Memory Testbed for Long-Hori', candidate_title='Towards Long-Horizon Vision-Language Navigation: Platform, Benchmark and Method')",
+        "failed_at": "2026-07-05T21:36:53Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Large Language Models (LLMs) have shown promise in automating code generation and software engineering tasks, yet they often struggle with complex, multi-file projects due to context limitations and knowledge gaps. We propose a novel context engineering workflow that combines multiple AI components: an Intent Translator (GPT-5) for clarifying user requirements, an Elicit-powered semantic literature retrieval for injecting domain knowledge, NotebookLM-based document synthesis for contextual understanding, and a Claude Code multi-agent system for code generation and validation. Our integrated approach leverages intent clarification, retrieval-augmented generation, and specialized sub-agents orchestrated via Claude's agent framework. We demonstrate that this method significantly improves the accuracy and reliability of code assistants in real-world repositories, yielding higher single-shot success rates and better adherence to project context than baseline single-agent approaches. Qualitative results on a large Next.js codebase show the multi-agent system effectively plans, edits, and tests complex features with minimal human intervention. We compare our system with recent frameworks like CodePlan, MASAI, and HyperAgent, highlighting how targeted context injection and agent role decomposition lead to state-of-the-art performance. Finally, we discuss the implications for deploying LLM-based coding assistants in production, along with lessons learned on context management and future research directions.",
+          "claimed_authors": [
+            "Muhammad Haseeb"
+          ],
+          "claimed_title": "Context Engineering for Multi-Agent LLM Code Assistants Using Elicit, NotebookLM, ChatGPT, and Claude Code",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2508.08322"
+        },
+        "details": "query-relevance 0.154 < 0.3 (query='llmXive follow-up: extending \"AgenticSTS: A Bounded-Memory Testbed for Long-Hori', candidate_title='Context Engineering for Multi-Agent LLM Code Assistants Using Elicit, NotebookLM, ChatGPT, and Claude Code')",
+        "failed_at": "2026-07-05T21:36:53Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Self-evolving skill libraries face a silent failure mode we term \\emph{library drift}: unbounded skill accumulation without outcome-driven lifecycle management causes retrieval degradation, false-positive injections, and performance stagnation. Recent evaluation confirms the symptom (LLM-authored skills deliver +0.0pp gain while human-curated ones deliver +16.2pp (SkillsBench)), yet the underlying mechanism has not been isolated. We provide (1) a \\textbf{reproducible trigger}: ablations that isolate drift: one disables skill injection (flat floor, +0.002), one imposes premature retirement (active harm, $-$0.019); (2) \\textbf{trace-level diagnostics}: an append-only evidence log with per-skill contribution scores, attribution verdicts, and router engagement metrics that make the failure visible before it reaches end-task scores; and (3) a \\textbf{verified fix}: a minimal governance recipe (outcome-driven retirement + bounded active-cap + meta-skill authoring prior) that lifts held-out pass@1 from a 0.258 baseline to a late-window mean of 0.584 (rolling gain $+$0.328) on MBPP+ hard-100 over 100 rounds. Eight ablations decompose which governance mechanisms are load-bearing and which are subsumed, providing a concrete playbook for diagnosing library drift in any self-evolving agent.",
+          "claimed_authors": [
+            "Xing Zhang",
+            "Yanwei Cui",
+            "Guanghui Wang",
+            "Ziyuan Li",
+            "Wei Qiu",
+            "Bing Zhu",
+            "Peiyang He"
+          ],
+          "claimed_title": "Library Drift: Diagnosing and Fixing a Silent Failure Mode in Self-Evolving LLM Skill Libraries",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2605.19576"
+        },
+        "details": "query-relevance 0.154 < 0.3 (query='llmXive follow-up: extending \"AgenticSTS: A Bounded-Memory Testbed for Long-Hori', candidate_title='Library Drift: Diagnosing and Fixing a Silent Failure Mode in Self-Evolving LLM Skill Libraries')",
+        "failed_at": "2026-07-05T21:36:53Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In the domain of Human-Computer Interaction, focus groups represent a widely utilised yet resource-intensive methodology, often demanding the expertise of skilled moderators and meticulous preparatory efforts. This study introduces the ``Focus Agent,'' a Large Language Model (LLM) powered framework that simulates both the focus group (for data collection) and acts as a moderator in a focus group setting with human participants. To assess the data quality derived from the Focus Agent, we ran five focus group sessions with a total of 23 human participants as well as deploying the Focus Agent to simulate these discussions with AI participants. Quantitative analysis indicates that Focus Agent can generate opinions similar to those of human participants. Furthermore, the research exposes some improvements associated with LLMs acting as moderators in focus group discussions that include human participants.",
+          "claimed_authors": [
+            "Taiyu Zhang",
+            "Xuesong Zhang",
+            "Robbe Cools",
+            "Adalberto L. Simeone"
+          ],
+          "claimed_title": "Focus Agent: LLM-Powered Virtual Focus Group",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2409.01907"
+        },
+        "details": "query-relevance 0.154 < 0.3 (query='llmXive follow-up: extending \"AgenticSTS: A Bounded-Memory Testbed for Long-Hori', candidate_title='Focus Agent: LLM-Powered Virtual Focus Group')",
+        "failed_at": "2026-07-05T21:36:53Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The complexity of multimedia applications in terms of intensity of computation and heterogeneity of treated data led the designers to embark them on multiprocessor systems on chip. The complexity of these systems on one hand and the expectations of the consumers on the other hand complicate the designers job to conceive and supply strong and successful systems in the shortest deadlines. They have to explore the different solutions of the design space and estimate their performances in order to deduce the solution that respects their design constraints. In this context, we propose the modeling of one of the design space possible solutions: the software to hardware task migration. This modeling exploits the synchronous dataflow graphs to take into account the different migration impacts and estimate their performances in terms of throughput.",
+          "claimed_authors": [
+            "Dorsaf Sebai",
+            "Abderrazak Jemai",
+            "Imed Bennour"
+          ],
+          "claimed_title": "Performance Analysis of Software to Hardware Task Migration in Codesign",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1002.1154"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"AgenticSTS: A Bounded-Memory Testbed for Long-Hori', candidate_title='Performance Analysis of Software to Hardware Task Migration in Codesign')",
+        "failed_at": "2026-07-05T21:36:53Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Continual Learning (CL) is an emerging machine learning paradigm that aims to learn from a continuous stream of tasks without forgetting knowledge learned from the previous tasks. To avoid performance decrease caused by forgetting, prior studies exploit episodic memory (EM), which stores a subset of the past observed samples while learning from new non-i.i.d. data. Despite the promising results, since CL is often assumed to execute on mobile or IoT devices, the EM size is bounded by the small hardware memory capacity and makes it infeasible to meet the accuracy requirements for real-world applications. Specifically, all prior CL methods discard samples overflowed from the EM and can never retrieve them back for subsequent training steps, incurring loss of information that would exacerbate catastrophic forgetting. We explore a novel hierarchical EM management strategy to address the forgetting issue. In particular, in mobile and IoT devices, real-time data can be stored not just in high-speed RAMs but in internal storage devices as well, which offer significantly larger capacity than the RAMs. Based on this insight, we propose to exploit the abundant storage to preserve past experiences and alleviate the forgetting by allowing CL to efficiently migrate samples between memory and storage without being interfered by the slow access speed of the storage. We call it Carousel Memory (CarM). As CarM is complementary to existing CL methods, we conduct extensive evaluations of our method with seven popular CL methods and show that CarM significantly improves the accuracy of the methods across different settings by large margins in final average accuracy (up to 28.4%) while retaining the same training efficiency.",
+          "claimed_authors": [
+            "Soobee Lee",
+            "Minindu Weerakoon",
+            "Jonghyun Choi",
+            "Minjia Zhang",
+            "Di Wang",
+            "Myeongjae Jeon"
+          ],
+          "claimed_title": "Carousel Memory: Rethinking the Design of Episodic Memory for Continual Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2110.07276"
+        },
+        "details": "query-relevance 0.154 < 0.3 (query='llmXive follow-up: extending \"AgenticSTS: A Bounded-Memory Testbed for Long-Hori', candidate_title='Carousel Memory: Rethinking the Design of Episodic Memory for Continual Learning')",
+        "failed_at": "2026-07-05T21:36:53Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Episodic memory plays an important role in the behavior of animals and humans. It allows the accumulation of information about current state of the environment in a task-agnostic way. This episodic representation can be later accessed by down-stream tasks in order to make their execution more efficient. In this work, we introduce the neural architecture with shared episodic memory (SEM) for learning and the sequential execution of multiple tasks. We explicitly split the encoding of episodic memory and task-specific memory into separate recurrent sub-networks. An agent augmented with SEM was able to effectively reuse episodic knowledge collected during other tasks to improve its policy on a current task in the Taxi problem. Repeated use of episodic representation in continual learning experiments facilitated acquisition of novel skills in the same environment.",
+          "claimed_authors": [
+            "Artyom Y. Sorokin",
+            "Mikhail S. Burtsev"
+          ],
+          "claimed_title": "Continual and Multi-task Reinforcement Learning With Shared Episodic Memory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1905.02662"
+        },
+        "details": "query-relevance 0.077 < 0.3 (query='llmXive follow-up: extending \"AgenticSTS: A Bounded-Memory Testbed for Long-Hori', candidate_title='Continual and Multi-task Reinforcement Learning With Shared Episodic Memory')",
+        "failed_at": "2026-07-05T21:36:53Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We present an interactive version of an evidence-driven state-merging (EDSM) algorithm for learning variants of finite state automata. Learning these automata often amounts to recovering or reverse engineering the model generating the data despite noisy, incomplete, or imperfectly sampled data sources rather than optimizing a purely numeric target function. Domain expertise and human knowledge about the target domain can guide this process, and typically is captured in parameter settings. Often, domain expertise is subconscious and not expressed explicitly. Directly interacting with the learning algorithm makes it easier to utilize this knowledge effectively.",
+          "claimed_authors": [
+            "Christian A. Hammerschmidt",
+            "Radu State",
+            "Sicco Verwer"
+          ],
+          "claimed_title": "Human in the Loop: Interactive Passive Automata Learning via Evidence-Driven State-Merging Algorithms",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1707.09430"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"AgenticSTS: A Bounded-Memory Testbed for Long-Hori', candidate_title='Human in the Loop: Interactive Passive Automata Learning via Evidence-Driven State-Merging Algorithms')",
+        "failed_at": "2026-07-05T21:36:53Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Integrating large language models (LLMs) into personal assistants, like Xiao Ai and Blue Heart V, effectively enhances their ability to interact with humans, solve complex tasks, and manage IoT devices. Such assistants are also termed LLM-driven agents. Upon receiving user requests, the LLM-driven agent generates plans using an LLM, executes these plans through various tools, and then returns the response to the user. During this process, the latency for generating a plan with an LLM can reach tens of seconds, significantly degrading user experience. Real-world dataset analysis shows that about 30% of the requests received by LLM-driven agents are identical or similar, which allows the reuse of previously generated plans to reduce latency. However, it is difficult to accurately define the similarity between the request texts received by the LLM-driven agent through directly evaluating the original request texts. Moreover, the diverse expressions of natural language and the unstructured format of plan texts make implementing plan reuse challenging. To address these issues, we present and implement a plan reuse mechanism for LLM-driven agents called AgentReuse. AgentReuse leverages the similarities and differences among requests' semantics and uses intent classification to evaluate the similarities between requests and enable the reuse of plans. Experimental results based on a real-world dataset demonstrate that AgentReuse achieves a 93% effective plan reuse rate, an F1 score of 0.9718, and an accuracy of 0.9459 in evaluating request similarities, reducing latency by 93.12% compared with baselines without using the reuse mechanism.",
+          "claimed_authors": [
+            "Guopeng Li",
+            "Ruiqi Wu",
+            "Haisheng Tan"
+          ],
+          "claimed_title": "A Plan Reuse Mechanism for LLM-Driven Agent",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.21309"
+        },
+        "details": "query-relevance 0.154 < 0.3 (query='llmXive follow-up: extending \"AgenticSTS: A Bounded-Memory Testbed for Long-Hori', candidate_title='A Plan Reuse Mechanism for LLM-Driven Agent')",
+        "failed_at": "2026-07-05T21:36:53Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Yedidel Louck"
+          ],
+          "title": "Securing LLM-Agent Long-Term Memory Against Poisoning: Non-Malleable, Origin-Bound Authority with Machine-Checked Guarantees",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2606.24322",
+        "summary": "LLM agents increasingly rely on persistent long-term memory, which creates a critical vulnerability that we study here: memory poisoning. An adversary can store untrusted content in one session that later steers a consequential action, such as a payment, a setting change, or data exfiltration, in a future session. Existing defenses base a memory item's authority to act on either its content (detection or trust-scoring) or its derivation history (lineage). We show that both signals are malleable. An attacker can launder an untrusted origin through three channels specific to LLM agents: the agent's own summarization, a trusted-tool echo, and manufactured corroboration. Each makes the content look benign and breaks or flips its derivation edge to ``trusted.'' We formalize malleability for the memory write-retrieve-act pipeline and prove a machine-checked separation theorem. No content- or lineage-based defense is sound under laundering (T1), write-time origin binding is necessary (T2), and non-malleable origin-bound authority with Sybil-resistant corroboration-gated elevation is sufficient (T3). Our construction, TMA-NM (Tamper-evident Memory Authority, Non-Malleable), instantiates non-malleable information-flow control (IFC) for LLM-agent memory. A cross-defense, cross-attack, and cross-model benchmark over eight frontier models shows that existing defenses fail exactly where the theory predicts (up to 68% laundering attack-success), while TMA-NM reaches 0% attack success on both direct and laundering attacks across all models and channels, at full legitimate utility. We release the benchmark, harness, and machine-checked TLA+ models to support reproducibility.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2606.24322",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3077,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-05T21:36:52Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Chenyu Zhou",
+            "Huacan Chai",
+            "Wenteng Chen",
+            "Zihan Guo",
+            "Rong Shan",
+            "Yuanyi Song",
+            "Tianyi Xu",
+            "Yingxuan Yang",
+            "Aofan Yu",
+            "Weiming Zhang",
+            "Congming Zheng",
+            "Jiachen Zhu",
+            "Zeyu Zheng",
+            "Zhuosheng Zhang",
+            "Xingyu Lou",
+            "Changwang Zhang",
+            "Zhihui Fu",
+            "Jun Wang",
+            "Weiwen Liu",
+            "Jianghao Lin",
+            "Weinan Zhang"
+          ],
+          "title": "Externalization in LLM Agents: A Unified Review of Memory, Skills, Protocols and Harness Engineering",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2604.08224",
+        "summary": "Large language model (LLM) agents are increasingly built less by changing model weights than by reorganizing the runtime around them. Capabilities that earlier systems expected the model to recover internally are now externalized into memory stores, reusable skills, interaction protocols, and the surrounding harness that makes these modules reliable in practice. This paper reviews that shift through the lens of externalization. Drawing on the idea of cognitive artifacts, we argue that agent infrastructure matters not merely because it adds auxiliary components, but because it transforms hard cognitive burdens into forms that the model can solve more reliably. Under this view, memory externalizes state across time, skills externalize procedural expertise, protocols externalize interaction structure, and harness engineering serves as the unification layer that coordinates them into governed execution. We trace a historical progression from weights to context to harness, analyze memory, skills, and protocols as three distinct but coupled forms of externalization, and examine how they interact inside a larger agent system. We further discuss the trade-off between parametric and externalized capability, identify emerging directions such as self-evolving harnesses and shared agent infrastructure, and discuss open challenges in evaluation, governance, and the long-term co-evolution of models and external infrastructure. The result is a systems-level framework for explaining why practical agent progress increasingly depends not only on stronger models, but on better external cognitive infrastructure.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2604.08224",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3077,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-05T21:36:53Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Sumeet Ramesh Motwani",
+            "Daniel Nichols",
+            "Charles London",
+            "Peggy Li",
+            "Fabio Pizzati",
+            "Acer Blake",
+            "Hasan Hammoud",
+            "Tavish McDonald",
+            "Akshat Naik",
+            "Alesia Ivanova",
+            "Vignesh Baskaran",
+            "Ivan Laptev",
+            "Ruben Glatt",
+            "Tal Ben-Nun",
+            "Philip Torr",
+            "Natasha Jaques",
+            "Ameya Prabhu",
+            "Brian Bartoldson",
+            "Bhavya Kailkhura",
+            "Christian Schroeder de Witt"
+          ],
+          "title": "LongCoT: Benchmarking Long-Horizon Chain-of-Thought Reasoning",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2604.14140",
+        "summary": "As language models are increasingly deployed for complex autonomous tasks, their ability to reason accurately over longer horizons becomes critical. An essential component of this ability is planning and managing a long, complex chain-of-thought (CoT). We introduce LongCoT, a scalable benchmark of 2,500 expert-designed problems spanning chemistry, mathematics, computer science, chess, and logic to isolate and directly measure the long-horizon CoT reasoning capabilities of frontier models. Problems consist of a short input with a verifiable answer; solving them requires navigating a graph of interdependent steps that span tens to hundreds of thousands of reasoning tokens. Each local step is individually tractable for frontier models, so failures reflect long-horizon reasoning limitations. At release, the best models achieve <10% accuracy (GPT 5.2: 9.8%; Gemini 3 Pro: 6.1%) on LongCoT, revealing a substantial gap in current capabilities. Overall, LongCoT provides a rigorous measure of long-horizon reasoning, tracking the ability of frontier models to reason reliably over extended periods.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2604.14140",
+          "http_status": 200,
+          "pdf_sample_score": 0.211,
+          "query_relevance_score": 0.3077,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-05T21:36:53Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Vasundra Srininvasan"
+          ],
+          "title": "Four-Axis Decision Alignment for Long-Horizon Enterprise AI Agents",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2604.19457",
+        "summary": "Long-horizon enterprise agents make high-stakes decisions (loan underwriting, claims adjudication, clinical review, prior authorization) under lossy memory, multi-step reasoning, and binding regulatory constraints. Current evaluation reports a single task-success scalar that conflates distinct failure modes and hides whether an agent is aligned with the standards its deployment environment requires. We propose that long-horizon decision behavior decomposes into four orthogonal alignment axes, each independently measurable and failable: factual precision (FRP), reasoning coherence (RCS), compliance reconstruction (CRR), and calibrated abstention (CAR). CRR is a novel regulatory-grounded axis; CAR is a measurement axis separating coverage from accuracy. We exercise the decomposition on a controlled benchmark (LongHorizon-Bench) covering loan qualification and insurance claims adjudication with deterministic ground-truth construction. Running six memory architectures, we find structure aggregate accuracy cannot see: retrieval collapses on factual precision; schema-anchored architectures pay a scaffolding tax; plain summarization under a fact-preservation prompt is a strong baseline on FRP, RCS, EDA, and CRR; and all six architectures commit on every case, exposing a decisional-alignment axis the field has not targeted. The decomposition also surfaced a pre-registered prediction of our own, that summarization would fail factual recall, which the data reversed at large magnitude, an axis-level reversal aggregate accuracy would have hidden. Institutional alignment (regulatory reconstruction) and decisional alignment (calibrated abstention) are under-represented in the alignment literature and become load-bearing once decisions leave the laboratory. The framework transfers to any regulated decisioning domain via two steps: build a fact schema, and calibrate the CRR auditor prompt.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2604.19457",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.7143,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-05T21:37:00Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Joe Logan"
+          ],
+          "title": "Continuum Memory Architectures for Long-Horizon LLM Agents",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2601.09913",
+        "summary": "Retrieval-augmented generation (RAG) has become the default strategy for providing large language model (LLM) agents with contextual knowledge. Yet RAG treats memory as a stateless lookup table: information persists indefinitely, retrieval is read-only, and temporal continuity is absent. We define the \\textit{Continuum Memory Architecture} (CMA), a class of systems that maintain and update internal state across interactions through persistent storage, selective retention, associative routing, temporal chaining, and consolidation into higher-order abstractions. Rather than disclosing implementation specifics, we specify the architectural requirements CMA imposes and show consistent behavioral advantages on tasks that expose RAG's structural inability to accumulate, mutate, or disambiguate memory. The empirical probes (knowledge updates, temporal association, associative recall, contextual disambiguation) demonstrate that CMA is a necessary architectural primitive for long-horizon agents while highlighting open challenges around latency, drift, and interpretability.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2601.09913",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.8571,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-05T21:37:01Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Vasundra Srinivasan"
+          ],
+          "title": "Stateless Decision Memory for Enterprise AI Agents",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2604.20158",
+        "summary": "Enterprise deployment of long-horizon decision agents in regulated domains (underwriting, claims adjudication, tax examination) is dominated by retrieval-augmented pipelines despite a decade of increasingly sophisticated stateful memory architectures. We argue this reflects a hidden requirement: regulated deployment is load-bearing on four systems properties (deterministic replay, auditable rationale, multi-tenant isolation, statelessness for horizontal scale), and stateful architectures violate them by construction. We propose Deterministic Projection Memory (DPM): an append-only event log plus one task-conditioned projection at decision time. On ten regulated decisioning cases at three memory budgets, DPM matches summarization-based memory at generous budgets and substantially outperforms it when the budget binds: at a 20x compression ratio, DPM improves factual precision by +0.52 (Cohen's h=1.17, p=0.0014) and reasoning coherence by +0.53 (h=1.13, p=0.0034), paired permutation, n=10. DPM is additionally 7-15x faster at binding budgets, making one LLM call at decision time instead of N. A determinism study of 10 replays per case at temperature zero shows both architectures inherit residual API-level nondeterminism, but the asymmetry is structural: DPM exposes one nondeterministic call; summarization exposes N compounding calls. The audit surface follows the same one-versus-N pattern: DPM logs two LLM calls per decision while summarization logs 83-97 on LongHorizon-Bench. We conclude with TAMS, a practitioner heuristic for architecture selection, and a failure analysis of stateful memory under enterprise operating conditions. The contribution is the argument that statelessness is the load-bearing property explaining enterprise's preference for weaker but replayable retrieval pipelines, and that DPM demonstrates this property is attainable without the decisioning penalty retrieval pays.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2604.20158",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.8571,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-05T21:37:01Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "llmxive follow-up: extending \"agenticsts: a bounded-memory testbed for long-horizon llm agents\" computer science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

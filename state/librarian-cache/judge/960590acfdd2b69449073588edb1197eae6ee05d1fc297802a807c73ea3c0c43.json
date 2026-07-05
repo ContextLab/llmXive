@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1504.05170",
+  "judged_at": "2026-07-05T21:36:00Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "asymptotic behavior of random matrix eigenvalues with sparse perturbations mathematics",
+  "rationale": "This paper satisfies criteria (a) and (b) as it investigates the asymptotic behavior (bulk universality and eigenvalue gap distributions) of sparse random matrices, which directly corresponds to the user's query regarding eigenvalue behavior under sparsity conditions, even though it focuses on the Erdős-Rényi ensemble rather than a general \"perturbation\" framework.",
+  "relevant": true
+}

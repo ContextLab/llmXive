@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1012.2752",
+  "judged_at": "2026-07-05T21:35:41Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "asymptotic behavior of random matrix eigenvalues with sparse perturbations mathematics",
+  "rationale": "This paper addresses the asymptotic behavior of random matrix eigenvalues (specifically the maximal eigenvalue distribution via the Tracy-Widom law), which satisfies acceptance criterion (a) as it measures the same physical observable and mathematical mechanism central to the user's question, even though it focuses on the hard edge limit rather than sparse perturbations specifically.",
+  "relevant": true
+}

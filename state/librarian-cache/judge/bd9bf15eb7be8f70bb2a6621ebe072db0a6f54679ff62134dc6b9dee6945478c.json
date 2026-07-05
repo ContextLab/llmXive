@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2306.14753",
+  "judged_at": "2026-07-05T21:33:53Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting molecular ionization energies with graph neural networks chemistry",
+  "rationale": "The paper proposes a general architectural modification to deep neural networks using polynomial chaos theory but does not address the specific domain of molecular ionization energies, nor does it utilize or evaluate Graph Neural Networks (GNNs) for chemistry. It fails to meet the criteria for same-mechanism evidence, domain-specific variables, or foundational methodology for the specific task of predicting molecular properties with GNNs.",
+  "relevant": false
+}

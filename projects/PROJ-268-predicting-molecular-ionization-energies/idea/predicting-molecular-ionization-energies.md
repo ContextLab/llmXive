@@ -9,38 +9,73 @@ submitter: google.gemma-3-27b-it
 
 ## Research question
 
-Can a lightweight graph neural network trained on a public molecular dataset predict molecular ionization energies with accuracy comparable to quantum chemical methods, while reducing computational cost by orders of magnitude?
+Which structural features of small organic molecules (atom types, bond types, 3D conformation, functional groups) carry the most predictive signal for ionization energy, and to what extent can structure-only models approximate quantum-chemical accuracy across diverse chemical space?
 
 ## Motivation
 
-Accurate ionization energy prediction is essential for understanding chemical reactivity and spectroscopic behavior, but high-level quantum calculations are prohibitively expensive for large-scale virtual screening. Machine learning offers a potential acceleration, yet existing approaches often require specialized infrastructure or proprietary data. This project addresses the gap for a lightweight, reproducible GNN method that runs on standard compute resources while maintaining predictive accuracy.
+High-level quantum chemical calculations for ionization energies are accurate but computationally prohibitive for large-scale screening. While graph neural networks (GNNs) offer a faster alternative, it remains unclear which specific molecular structural components drive predictive performance and whether lightweight, CPU-based models can reliably capture the necessary physics without expensive 3D conformer generation or proprietary descriptors.
 
 ## Related work
 
-- [Machine learning of molecular electronic properties in chemical compound space (2013)](https://doi.org/10.1088/1367-2630/15/9/095003) — Pioneering work demonstrating ML can predict electronic properties from molecular descriptors with quantum-chemistry accuracy.
-- [Chemist versus Machine: Traditional Knowledge versus Machine Learning Techniques (2020)](https://doi.org/10.1016/j.trechm.2020.10.007) — Reviews the transition from chemical heuristics to ML approaches in materials discovery.
-- [Social Influence Prediction with Train and Test Time Augmentation for Graph Neural Networks (2021)](http://arxiv.org/abs/2104.11641v1) — Demonstrates GNN data augmentation strategies that could transfer to molecular graph preprocessing.
-- [MECCH: Metapath Context Convolution-based Heterogeneous Graph Neural Networks (2022)](http://arxiv.org/abs/2211.12792v2) — Shows heterogeneous GNN architectures for complex structural data, relevant to multi-atom molecular graphs.
+- [MolGraphBench: A Benchmark of GNN Architectures for Molecular Regression Tasks (2026)](https://arxiv.org/abs/2602.20573) — Establishes a benchmark for evaluating GNN architectures on molecular regression tasks, demonstrating that converting SMILES to descriptors or fingerprints remains a viable baseline for property prediction.
 
 ## Expected results
 
-We expect the GNN to achieve mean absolute error (MAE) below 0.3 eV on held-out test molecules, comparable to DFT-level accuracy. Performance will be measured against a baseline of semi-empirical quantum methods, with statistical significance confirmed via paired t-test on test predictions. Success requires consistent accuracy across diverse functional groups, not just on training-set analogues.
+We expect to identify that specific local substructures (e.g., conjugated pi-systems and specific heteroatom environments) dominate the predictive signal for ionization energy, while global 3D conformation contributes minimally for small rigid molecules. The structure-only GNN is expected to achieve a mean absolute error (MAE) < 0.4 eV, approaching the accuracy of semi-empirical methods, thereby validating that lightweight 2D graph representations are sufficient for this specific property.
 
 ## Methodology sketch
 
-- Download QM9 dataset (https://figshare.com/articles/dataset/qm9/1224189) containing ~134k molecules with computed ionization energies.
-- Preprocess SMILES strings into molecular graphs using RDKit (Python package, CPU-only).
-- Split data 80/10/10 into train/validation/test sets with scaffold-based splitting to prevent data leakage.
-- Implement Message-Passing Neural Network (MPNN) using PyTorch Geometric (lightweight, CPU-compatible).
-- Train for ≤50 epochs with early stopping on validation loss; batch size ≤64 to fit 7GB RAM.
-- Evaluate MAE, RMSE, and R² on test set; compare against DFTB semi-empirical baseline.
-- Perform ablation study on graph augmentation (from arxiv.2104.11641) to assess robustness.
-- Generate feature importance visualization via gradient-based attribution.
-- All code and trained weights packaged in single GitHub repo for reproducibility.
-- Target runtime: ≤4 hours end-to-end on 2 CPU cores.
+- Download the QM9 dataset (https://figshare.com/articles/dataset/qm9/1224189) containing ~134k molecules with computed ionization energies and structural data.
+- Preprocess molecules into 2D molecular graphs using RDKit, extracting atom types, bond types, and local functional group fingerprints.
+- Implement a Message-Passing Neural Network (MPNN) using PyTorch Geometric, configured to run on CPU with memory constraints (batch size ≤ 64).
+- Train the model on an 80/10/10 split (scaffold-based) to ensure generalization to unseen chemical scaffolds.
+- Perform ablation studies by masking specific structural features (e.g., removing 3D coordinates if available, or masking specific bond types) to quantify their individual predictive contribution.
+- Evaluate performance using Mean Absolute Error (MAE) and Root Mean Squared Error (RMSE) against the held-out test set.
+- Compare results against a baseline semi-empirical quantum method (DFTB) and a simple fingerprint-based linear regression model.
+- Apply gradient-based attribution methods to visualize which atoms/bonds contribute most to the predicted ionization energy.
+- Validate findings by checking if the model's error distribution correlates with known chemical heuristics (e.g., higher error for flexible, large molecules).
+- Ensure the entire pipeline executes within a 6-hour window on a 2-core, 7GB RAM runner.
 
 ## Duplicate-check
 
 - Reviewed existing ideas: None provided in context.
 - Closest match: None identified.
 - Verdict: NOT a duplicate
+
+
+## Search trail
+
+**Generated by**: librarian (prompt v1.6.0) on 2026-07-05T21:34:00Z
+**Outcome**: exhausted
+**Original term**: Predicting Molecular Ionization Energies with Graph Neural Networks chemistry
+**Verified citation count**: 1
+
+### Search terms used
+
+| Rank | Term | Hit count |
+|-|-|-|
+| 0 (initial) | Predicting Molecular Ionization Energies with Graph Neural Networks chemistry | 0 |
+| 1 | Graph neural networks for ionization potential prediction | 5 |
+| 2 | Deep learning models for molecular ionization energy | 0 |
+| 3 | Machine learning prediction of vertical ionization energies | 0 |
+| 4 | GNN-based quantum chemical property estimation | 0 |
+| 5 | Neural networks for computing HOMO energy levels | 0 |
+| 6 | Graph convolutional networks for ionization potential | 0 |
+| 7 | Data-driven prediction of molecular ionization potentials | 0 |
+| 8 | Graph representation learning for electronic properties | 0 |
+| 9 | Machine learning approaches to Koopmans' theorem applications | 0 |
+| 10 | Deep learning for first ionization energy in molecules | 0 |
+| 11 | Graph neural networks for orbital energy prediction | 0 |
+| 12 | AI methods for estimating molecular ionization thresholds | 0 |
+| 13 | Computational chemistry ionization energy with graph models | 0 |
+| 14 | Molecular property prediction using graph attention networks | 0 |
+| 15 | Neural network regression for ionization potentials | 0 |
+| 16 | Graph-based quantum machine learning for ionization | 0 |
+| 17 | Predicting adiabatic and vertical ionization energies with GNNs | 0 |
+| 18 | Graph neural networks for valence electron binding energies | 0 |
+| 19 | Automated ionization energy calculation using deep learning | 0 |
+| 20 | Transfer learning for molecular ionization energy prediction | 0 |
+
+### Verified citations
+
+1. **MolGraphBench: A Benchmark of GNN Architectures for Molecular Regression Tasks** (2026).  Rajan, Ishaan Gupta. arXiv. [2602.20573](https://arxiv.org/abs/2602.20573). PDF-sampled: No.

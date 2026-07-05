@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-06-03T03:47:20Z",
+  "fetched_at": "2026-07-05T21:36:03Z",
   "field": "mathematics",
   "prompt_version": "1.6.0",
   "result": {
@@ -9,123 +9,15 @@
       "idea_body_excerpt": "Asymptotic Behavior of Random Matrix Eigenvalues with Sparse Perturbations",
       "target_n": 5
     },
-    "duration_seconds": 225.473,
-    "ended_at": "2026-06-03T03:47:20Z",
-    "expansion": {
-      "expanded_terms_ranked": [
-        [
-          1,
-          "Spectral properties of deformed random matrices"
-        ],
-        [
-          2,
-          "Spiked random matrix models"
-        ],
-        [
-          3,
-          "BBP phase transition for eigenvalues"
-        ],
-        [
-          4,
-          "Outlier eigenvalues in random matrix theory"
-        ],
-        [
-          5,
-          "Limiting spectral distribution with low-rank perturbations"
-        ],
-        [
-          6,
-          "Local laws for sparse random matrices"
-        ],
-        [
-          7,
-          "Universality of eigenvalue statistics under perturbation"
-        ],
-        [
-          8,
-          "Wigner matrices with sparse noise"
-        ],
-        [
-          9,
-          "Eigenvalue outliers in spiked covariance models"
-        ],
-        [
-          10,
-          "Free probability and additive perturbations"
-        ],
-        [
-          11,
-          "Asymptotic spectral distribution of large sparse matrices"
-        ],
-        [
-          12,
-          "Perturbation theory for large random operators"
-        ],
-        [
-          13,
-          "Edge universality in perturbed random matrices"
-        ],
-        [
-          14,
-          "Sparse Wigner ensemble asymptotic limits"
-        ],
-        [
-          15,
-          "Non-Hermitian random matrix perturbations"
-        ],
-        [
-          16,
-          "Delocalization of eigenvectors in sparse perturbations"
-        ],
-        [
-          17,
-          "High-dimensional covariance estimation with sparsity"
-        ],
-        [
-          18,
-          "Concentration inequalities for sparse random matrices"
-        ],
-        [
-          19,
-          "Macroscopic spectral density of perturbed ensembles"
-        ],
-        [
-          20,
-          "Rank-one perturbations of random matrices"
-        ]
-      ],
-      "original_term": "",
-      "per_term_hit_count": {
-        "Asymptotic Behavior of Random Matrix Eigenvalues with Sparse Perturbations mathematics": 0,
-        "Asymptotic spectral distribution of large sparse matrices": 0,
-        "BBP phase transition for eigenvalues": 0,
-        "Concentration inequalities for sparse random matrices": 0,
-        "Delocalization of eigenvectors in sparse perturbations": 0,
-        "Edge universality in perturbed random matrices": 0,
-        "Eigenvalue outliers in spiked covariance models": 0,
-        "Free probability and additive perturbations": 0,
-        "High-dimensional covariance estimation with sparsity": 0,
-        "Limiting spectral distribution with low-rank perturbations": 0,
-        "Local laws for sparse random matrices": 0,
-        "Macroscopic spectral density of perturbed ensembles": 0,
-        "Non-Hermitian random matrix perturbations": 0,
-        "Outlier eigenvalues in random matrix theory": 0,
-        "Perturbation theory for large random operators": 0,
-        "Rank-one perturbations of random matrices": 0,
-        "Sparse Wigner ensemble asymptotic limits": 0,
-        "Spectral properties of deformed random matrices": 0,
-        "Spiked random matrix models": 0,
-        "Universality of eigenvalue statistics under perturbation": 0,
-        "Wigner matrices with sparse noise": 0
-      },
-      "total_queries_issued": 20
-    },
+    "duration_seconds": 108.441,
+    "ended_at": "2026-07-05T21:36:03Z",
+    "expansion": null,
     "extracted_queries": [
-      "finite rank spiked model eigenvalues",
-      "Wigner ensemble sparse perturbation spectrum",
-      "BBP phase transition spectral outliers",
-      "limiting spectral distribution convergence",
-      "universality class random matrix theory"
+      "eigenvalue outliers sparse perturbation",
+      "spiked covariance matrix low-rank update",
+      "Wigner matrix sparse noise universality",
+      "spectral edge fluctuation Tracy-Widom distribution",
+      "local law delocalization eigenvector statistics"
     ],
     "failure_reason": null,
     "librarian_prompt_version": "1.6.0",
@@ -134,28 +26,36 @@
       "invoked": false,
       "verdict": null
     },
-    "outcome": "exhausted",
+    "outcome": "success",
     "pdf_sample": {
-      "sample_size_target": 0,
-      "sampled_count": 0,
-      "sampled_pointers": []
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2304.07893"
+      ]
     },
     "per_query_hit_count": {
       "Asymptotic Behavior of Random Matrix Eigenvalues with Sparse Perturbations mathematics": 3,
-      "BBP phase transition spectral outliers": 0,
-      "Wigner ensemble sparse perturbation spectrum": 0,
-      "finite rank spiked model eigenvalues": 0,
-      "limiting spectral distribution convergence": 0,
-      "universality class random matrix theory": 0
+      "Wigner matrix sparse noise universality": 3,
+      "eigenvalue outliers sparse perturbation": 3,
+      "local law delocalization eigenvector statistics": 3,
+      "spectral edge fluctuation Tracy-Widom distribution": 3,
+      "spiked covariance matrix low-rank update": 3
     },
     "relevance_judge": {
       "enabled": true,
       "marginal_fallback_used": false,
-      "rejected_count": 0,
-      "rejections": []
+      "rejected_count": 1,
+      "rejections": [
+        {
+          "primary_pointer": "2007.10254",
+          "rationale": "The paper focuses on algorithmic complexity for solving sparse linear systems and only mentions eigenvalue gaps as a technical tool for numerical stability analysis, rather than studying the asymptotic behavior of eigenvalues under sparse perturbations as a primary mathematical object. It fails to satisfy the criteria for same-mechanism evidence or domain overlap because its core contribution is computational speedup, not the spectral theory of perturbed random matrices.",
+          "title": "Solving Sparse Linear Systems Faster than Matrix Multiplication"
+        }
+      ]
     },
     "schema_version": "1.0.0",
-    "started_at": "2026-06-03T03:43:34Z",
+    "started_at": "2026-07-05T21:34:15Z",
     "term_input": {
       "normalized": "asymptotic behavior of random matrix eigenvalues with sparse perturbations mathematics",
       "raw": "Asymptotic Behavior of Random Matrix Eigenvalues with Sparse Perturbations mathematics"
@@ -174,7 +74,7 @@
           "primary_pointer": "1005.0979"
         },
         "details": "query-relevance 0.250 < 0.3 (query='Asymptotic Behavior of Random Matrix Eigenvalues with Sparse Perturbations mathe', candidate_title='Supersymmetry in Random Matrix Theory')",
-        "failed_at": "2026-06-03T03:46:42Z",
+        "failed_at": "2026-07-05T21:35:33Z",
         "reason": "query_irrelevant"
       },
       {
@@ -190,7 +90,7 @@
           "primary_pointer": "0904.1432"
         },
         "details": "query-relevance 0.250 < 0.3 (query='Asymptotic Behavior of Random Matrix Eigenvalues with Sparse Perturbations mathe', candidate_title='Applications of random matrix theory to condensed matter and optical physics')",
-        "failed_at": "2026-06-03T03:46:42Z",
+        "failed_at": "2026-07-05T21:35:33Z",
         "reason": "query_irrelevant"
       },
       {
@@ -207,11 +107,521 @@
           "primary_pointer": "0911.5645"
         },
         "details": "query-relevance 0.250 < 0.3 (query='Asymptotic Behavior of Random Matrix Eigenvalues with Sparse Perturbations mathe', candidate_title='Non-Hermitian Random Matrix Ensembles')",
-        "failed_at": "2026-06-03T03:46:42Z",
+        "failed_at": "2026-07-05T21:35:33Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Outliers have been widely observed in Large Language Models (LLMs), significantly impacting model performance and posing challenges for model compression. Understanding the functionality and formation mechanisms of these outliers is critically important. Existing works, however, largely focus on reducing the impact of outliers from an algorithmic perspective, lacking an in-depth investigation into their causes and roles. In this work, we provide a detailed analysis of the formation process, underlying causes, and functions of outliers in LLMs. We define and categorize three types of outliers-activation outliers, weight outliers, and attention outliers-and analyze their distributions across different dimensions, uncovering inherent connections between their occurrences and their ultimate influence on the attention mechanism. Based on these observations, we hypothesize and explore the mechanisms by which these outliers arise and function, demonstrating through theoretical derivations and experiments that they emerge due to the self-attention mechanism's softmax operation. These outliers act as implicit context-aware scaling factors within the attention mechanism. As these outliers stem from systematic influences, we term them systematic outliers. Our study not only enhances the understanding of Transformer-based LLMs but also shows that structurally eliminating outliers can accelerate convergence and improve model compression. The code is avilable at https://github.com/an-yongqi/systematic-outliers.",
+          "claimed_authors": [
+            "Yongqi An",
+            "Xu Zhao",
+            "Tao Yu",
+            "Ming Tang",
+            "Jinqiao Wang"
+          ],
+          "claimed_title": "Systematic Outliers in Large Language Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2502.06415"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Asymptotic Behavior of Random Matrix Eigenvalues with Sparse Perturbations mathe', candidate_title='Systematic Outliers in Large Language Models')",
+        "failed_at": "2026-07-05T21:35:33Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A popular approach within the signal processing and machine learning communities consists in modelling signals as sparse linear combinations of atoms selected from a learned dictionary. While this paradigm has led to numerous empirical successes in various fields ranging from image to audio processing, there have only been a few theoretical arguments supporting these evidences. In particular, sparse coding, or sparse dictionary learning, relies on a non-convex procedure whose local minima have not been fully analyzed yet. In this paper, we consider a probabilistic model of sparse signals, and show that, with high probability, sparse coding admits a local minimum around the reference dictionary generating the signals. Our study takes into account the case of over-complete dictionaries, noisy signals, and possible outliers, thus extending previous work limited to noiseless settings and/or under-complete dictionaries. The analysis we conduct is non-asymptotic and makes it possible to understand how the key quantities of the problem, such as the coherence or the level of noise, can scale with respect to the dimension of the signals, the number of atoms, the sparsity and the number of observations.",
+          "claimed_authors": [
+            "Rémi Gribonval",
+            "Rodolphe Jenatton",
+            "Francis Bach"
+          ],
+          "claimed_title": "Sparse and spurious: dictionary learning with noise and outliers",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2014,
+          "primary_pointer": "1407.5155"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Asymptotic Behavior of Random Matrix Eigenvalues with Sparse Perturbations mathe', candidate_title='Sparse and spurious: dictionary learning with noise and outliers')",
+        "failed_at": "2026-07-05T21:35:33Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We study here the so-called spiked Wigner and Wishart models, where one observes a low-rank matrix perturbed by some Gaussian noise. These models encompass many classical statistical tasks such as sparse PCA, submatrix localization, community detection or Gaussian mixture clustering. The goal of these notes is to present in a unified manner recent results (as well as new developments) on the information-theoretic limits of these spiked matrix models. We compute the minimal mean squared error for the estimation of the low-rank signal and compare it to the performance of spectral estimators and message passing algorithms. Phase transition phenomena are observed: depending on the noise level it is either impossible, easy (i.e. using polynomial-time estimators) or hard (information-theoretically possible, but no efficient algorithm is known to succeed) to recover the signal.",
+          "claimed_authors": [
+            "Léo Miolane"
+          ],
+          "claimed_title": "Phase transitions in spiked matrix estimation: information-theoretic analysis",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1806.04343"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Asymptotic Behavior of Random Matrix Eigenvalues with Sparse Perturbations mathe', candidate_title='Phase transitions in spiked matrix estimation: information-theoretic analysis')",
+        "failed_at": "2026-07-05T21:35:33Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Weighted low-rank approximation (WLRA), a dimensionality reduction technique for data analysis, has been successfully used in several applications, such as in collaborative filtering to design recommender systems or in computer vision to recover structure from motion. In this paper, we study the computational complexity of WLRA and prove that it is NP-hard to find an approximate solution, even when a rank-one approximation is sought. Our proofs are based on a reduction from the maximum-edge biclique problem, and apply to strictly positive weights as well as binary weights (the latter corresponding to low-rank matrix approximation with missing data).",
+          "claimed_authors": [
+            "Nicolas Gillis",
+            "François Glineur"
+          ],
+          "claimed_title": "Low-Rank Matrix Approximation with Weights or Missing Data is NP-hard",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1012.0197"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Asymptotic Behavior of Random Matrix Eigenvalues with Sparse Perturbations mathe', candidate_title='Low-Rank Matrix Approximation with Weights or Missing Data is NP-hard')",
+        "failed_at": "2026-07-05T21:35:33Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Regression with $χ^2$ constructed from the covariance matrix should not be used for some combinations of covariance matrices and fitting functions. Using the technique for unsuitable combinations can amplify systematic errors. This amplification is uncontrolled, and can produce arbitrarily inaccurate results that might not be ruled out by a $χ^2$ test. In addition, this technique can give incorrect (artificially small) errors for fit parameters. I give a test for this instability and a more robust (but computationally more intensive) method for fitting correlated data.",
+          "claimed_authors": [
+            "David Seibert"
+          ],
+          "claimed_title": "Undesirable effects of covariance matrix techniques for error analysis",
+          "claimed_venue": "arXiv",
+          "claimed_year": 1993,
+          "primary_pointer": "hep-lat/9305014"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Asymptotic Behavior of Random Matrix Eigenvalues with Sparse Perturbations mathe', candidate_title='Undesirable effects of covariance matrix techniques for error analysis')",
+        "failed_at": "2026-07-05T21:35:33Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Sparse matrix-vector multiplication (spMVM) is the dominant operation in many sparse solvers. We investigate performance properties of spMVM with matrices of various sparsity patterns on the nVidia \"Fermi\" class of GPGPUs. A new \"padded jagged diagonals storage\" (pJDS) format is proposed which may substantially reduce the memory overhead intrinsic to the widespread ELLPACK-R scheme. In our test scenarios the pJDS format cuts the overall spMVM memory footprint on the GPGPU by up to 70%, and achieves 95% to 130% of the ELLPACK-R performance. Using a suitable performance model we identify performance bottlenecks on the node level that invalidate some types of matrix structures for efficient multi-GPGPU parallelization. For appropriate sparsity patterns we extend previous work on distributed-memory parallel spMVM to demonstrate a scalable hybrid MPI-GPGPU code, achieving efficient overlap of communication and computation.",
+          "claimed_authors": [
+            "Moritz Kreutzer",
+            "Georg Hager",
+            "Gerhard Wellein",
+            "Holger Fehske",
+            "Achim Basermann",
+            "Alan R. Bishop"
+          ],
+          "claimed_title": "Sparse matrix-vector multiplication on GPGPU clusters: A new storage format and a scalable implementation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2011,
+          "primary_pointer": "1112.5588"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Asymptotic Behavior of Random Matrix Eigenvalues with Sparse Perturbations mathe', candidate_title='Sparse matrix-vector multiplication on GPGPU clusters: A new storage format and a scalable implementation')",
+        "failed_at": "2026-07-05T21:35:33Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We provide two simple universality criteria. Our first criterion states that $\\mathcal{S}\\subset G_d:=U(d)$ is universal if and only if $\\mathcal{S}$ forms a $δ$-approximate $t(d)$-design, where $t(2)=6$ and $t(d)=4$ for $d\\geq3$. Our second universality criterion says that $\\mathcal{S}\\subset G_d$ is universal if and only if the centralizer of $\\mathcal{S}^{t(d),t(d)}=\\{U^{\\otimes t(d)}\\otimes \\bar{U}^{\\otimes t(d)}|U\\in \\mathcal{S}\\}$ is equal to the centralizer of $G_d^{t(d),t(d)}=\\{U^{\\otimes t(d)}\\otimes \\bar{U}^{\\otimes t(d)}|U\\in G_d\\}$, where $t(2)=3$, and $t(d)=2$ for $d\\geq 3$. The equality of the centralizers can be verified by comparing their dimensions.",
+          "claimed_authors": [
+            "Adam Sawicki",
+            "Lorenzo Mattioli",
+            "Zoltán Zimborás"
+          ],
+          "claimed_title": "How to check universality of quantum gates?",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2111.03862"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Asymptotic Behavior of Random Matrix Eigenvalues with Sparse Perturbations mathe', candidate_title='How to check universality of quantum gates?')",
+        "failed_at": "2026-07-05T21:35:33Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "From the beginning of quantum mechanics, there has been a discussion about the concept of reality, as exemplified by the EPR paradox. To many, the idea of the paradox and the possibility of local hidden variables was dismissed by the Bell inequality. Yet, there remains considerable evidence that this inequality can be violated even by classical systems, so that experiments showing quantum behavior and the violation of the inequality must be questioned. Here, we demonstrate that classical optical polarization experiments based upon noise in the system can be shown to violate the Bell inequality.",
+          "claimed_authors": [
+            "David K. Ferry",
+            "Laszlo B. Kish"
+          ],
+          "claimed_title": "Noise and Bell's inequality",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1008.0667"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Asymptotic Behavior of Random Matrix Eigenvalues with Sparse Perturbations mathe', candidate_title=\"Noise and Bell's inequality\")",
+        "failed_at": "2026-07-05T21:35:33Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We study the Tracy-Widom distribution function for Dyson's $β$-ensemble with $β= 6$. The starting point of our analysis is the recent work of I. Rumanov where he produces a Lax-pair representation for the Bloemendal-Virág equation. The latter is a linear PDE which describes the Tracy-Widom functions corresponding to general values of $β$. Using his Lax pair, Rumanov derives an explicit formula for the Tracy-Widom $β=6$ function in terms of the second Painlevé transcendent and the solution of an auxiliary ODE. Rumanov also shows that this formula allows him to derive formally the asymptotic expansion of the Tracy-Widom function. Our goal is to make Rumanov's approach and hence the asymptotic analysis it provides rigorous. In this paper, the first one in a sequel, we show that Rumanov's Lax-pair can be interpreted as a certain gauge transformation of the standard Lax pair for the second Painlevé equation. This gauge transformation though contains functional parameters which are defined via some auxiliary nonlinear ODE which is equivalent to the auxiliary ODE of Rumanov's formula. The gauge-interpretation of Rumanov's Lax-pair allows us to highlight the steps of the original Rumanov's method which needs rigorous justifications in order to make the method complete. We provide a rigorous justification of one of these steps. Namely, we prove that the Painlevé function involved in Rumanov's formula is indeed, as it has been suggested by Rumanov, the Hastings-McLeod solution of the second Painlevé equation. The key issue which we also discuss and which is still open is the question of integrability of the auxiliary ODE in Rumanov's formula. We note that this question is crucial for the rigorous asymptotic analysis of the Tracy-Widom function.",
+          "claimed_authors": [
+            "Tamara Grava",
+            "Alexander Its",
+            "Andrey Kapaev",
+            "Francesco Mezzadri"
+          ],
+          "claimed_title": "On the Tracy-Widom$_β$ Distribution for $β=6$",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1607.01351"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Asymptotic Behavior of Random Matrix Eigenvalues with Sparse Perturbations mathe', candidate_title='On the Tracy-Widom$_β$ Distribution for $β=6$')",
+        "failed_at": "2026-07-05T21:35:33Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We prove a local law and eigenvector delocalization for general Wigner-type matrices. Our methods allow us to get the best possible interval length and optimal eigenvector delocalization in the dense case, and the first results of such kind for the sparse case down to $p=\\frac{g(n)\\log n}{n}$ with $g(n)\\to\\infty$. We specialize our results to the case of the Stochastic Block Model, and we also obtain a local law for the case when the number of classes is unbounded.",
+          "claimed_authors": [
+            "Ioana Dumitriu",
+            "Yizhe Zhu"
+          ],
+          "claimed_title": "Sparse General Wigner-type Matrices: Local Law and Eigenvector Delocalization",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1808.07611"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Asymptotic Behavior of Random Matrix Eigenvalues with Sparse Perturbations mathe', candidate_title='Sparse General Wigner-type Matrices: Local Law and Eigenvector Delocalization')",
+        "failed_at": "2026-07-05T21:35:34Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In recent years, sparse principal component analysis has emerged as an extremely popular dimension reduction technique for high-dimensional data. The theoretical challenge, in the simplest case, is to estimate the leading eigenvector of a population covariance matrix under the assumption that this eigenvector is sparse. An impressive range of estimators have been proposed; some of these are fast to compute, while others are known to achieve the minimax optimal rate over certain Gaussian or sub-Gaussian classes. In this paper, we show that, under a widely-believed assumption from computational complexity theory, there is a fundamental trade-off between statistical and computational performance in this problem. More precisely, working with new, larger classes satisfying a restricted covariance concentration condition, we show that there is an effective sample size regime in which no randomised polynomial time algorithm can achieve the minimax optimal rate. We also study the theoretical performance of a (polynomial time) variant of the well-known semidefinite relaxation estimator, revealing a subtle interplay between statistical and computational efficiency.",
+          "claimed_authors": [
+            "Tengyao Wang",
+            "Quentin Berthet",
+            "Richard J. Samworth"
+          ],
+          "claimed_title": "Statistical and computational trade-offs in estimation of sparse principal components",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2014,
+          "primary_pointer": "1408.5369"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Asymptotic Behavior of Random Matrix Eigenvalues with Sparse Perturbations mathe', candidate_title='Statistical and computational trade-offs in estimation of sparse principal components')",
+        "failed_at": "2026-07-05T21:35:34Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Complex functional brain network analyses have exploded over the last eight years, gaining traction due to their profound clinical implications. The application of network science (an interdisciplinary offshoot of graph theory) has facilitated these analyses and enabled examining the brain as an integrated system that produces complex behaviors. While the field of statistics has been integral in advancing activation analyses and some connectivity analyses in functional neuroimaging research, it has yet to play a commensurate role in complex network analyses. Fusing novel statistical methods with network-based functional neuroimage analysis will engender powerful analytical tools that will aid in our understanding of normal brain function as well as alterations due to various brain disorders. Here we survey widely used statistical and network science tools for analyzing fMRI network data and discuss the challenges faced in filling some of the remaining methodological gaps. When applied and interpreted correctly, the fusion of network scientific and statistical methods has a chance to revolutionize the understanding of brain function.",
+          "claimed_authors": [
+            "Sean L. Simpson",
+            "F. DuBois Bowman",
+            "Paul J. Laurienti"
+          ],
+          "claimed_title": "Analyzing complex functional brain networks: fusing statistics and network science to understand the brain",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2013,
+          "primary_pointer": "1302.5721"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Asymptotic Behavior of Random Matrix Eigenvalues with Sparse Perturbations mathe', candidate_title='Analyzing complex functional brain networks: fusing statistics and network science to understand the brain')",
+        "failed_at": "2026-07-05T21:35:34Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "Multiple hypothesis testing is a significant problem in nearly all neuroimaging studies. In order to correct for this phenomena, we require a reliable estimate of the Family-Wise Error Rate (FWER). The well known Bonferroni correction method, while simple to implement, is quite conservative, and can substantially under-power a study because it ignores dependencies between test statistics. Permutation testing, on the other hand, is an exact, non-parametric method of estimating the FWER for a given $α$-threshold, but for acceptably low thresholds the computational burden can be prohibitive. In this paper, we show that permutation testing in fact amounts to populating the columns of a very large matrix ${\\bf P}$. By analyzing the spectrum of this matrix, under certain conditions, we see that ${\\bf P}$ has a low-rank plus a low-variance residual decomposition which makes it suitable for highly sub--sampled --- on the order of $0.5\\%$ --- matrix completion methods. Based on this observation, we propose a novel permutation testing methodology which offers a large speedup, without sacrificing the fidelity of the estimated FWER. Our evaluations on four different neuroimaging datasets show that a computational speedup factor of roughly $50\\times$ can be achieved while recovering the FWER distribution up to very high accuracy. Further, we show that the estimated $α$-threshold is also recovered faithfully, and is stable.",
+          "claimed_authors": [
+            "Chris Hinrichs",
+            "Vamsi K Ithapu",
+            "Qinyuan Sun",
+            "Sterling C Johnson",
+            "Vikas Singh"
+          ],
+          "claimed_title": "Speeding up Permutation Testing in Neuroimaging",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2015,
+          "primary_pointer": "1502.03536"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Asymptotic Behavior of Random Matrix Eigenvalues with Sparse Perturbations mathe', candidate_title='Speeding up Permutation Testing in Neuroimaging')",
+        "failed_at": "2026-07-05T21:35:35Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "In this paper, we explain the dependance of the fluctuations of the largest eigenvalues of a Deformed Wigner model with respect to the eigenvectors of the perturbation matrix. We exhibit quite general situations that will give rise to universality or non universality of the fluctuations.",
+          "claimed_authors": [
+            "Mireille Capitaine",
+            "Catherine Donati-Martin",
+            "Delphine Féral"
+          ],
+          "claimed_title": "Central limit theorems for eigenvalues of deformations of Wigner matrices",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2009,
+          "primary_pointer": "0903.4740"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Asymptotic Behavior of Random Matrix Eigenvalues with Sparse Perturbations mathe', candidate_title='Central limit theorems for eigenvalues of deformations of Wigner matrices')",
+        "failed_at": "2026-07-05T21:35:36Z",
         "reason": "query_irrelevant"
       }
     ],
-    "verified_citations": []
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Jiaoyang Huang"
+          ],
+          "title": "Mesoscopic Perturbations of Large Random Matrices",
+          "venue": "arXiv",
+          "year": 2014
+        },
+        "primary_pointer": "1412.4193",
+        "summary": "We consider the eigenvalues and eigenvectors of small rank perturbations of random $N\\times N$ matrices. We allow the rank of perturbation $M$ increases with $N$, and the only assumption is $M=o(N)$. In both additive and multiplicative perturbation models, we prove rigidity results for the outliers of the perturbed random matrices. Based on the rigidity results we derive the empirical distribution of outliers of the perturbed random matrices. We also compute the appropriate projection of eigenvectors corresponding to the outliers of the perturbed random matrices, which are approximate eigenvectors of the perturbing matrix. Our results can be regarded as the extension of the finite rank perturbation case to the full generality up to $M=o(N)$.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1412.4193",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-05T21:35:33Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Gaetan Borot",
+            "Bertrand Eynard"
+          ],
+          "title": "The asymptotic expansion of Tracy-Widom GUE law and symplectic invariants",
+          "venue": "arXiv",
+          "year": 2010
+        },
+        "primary_pointer": "1012.2752",
+        "summary": "We establish the relation between two objects: an integrable system related to Painlevé II equation, and the symplectic invariants of a certain plane curve S(TW). This curve describes the average eigenvalue density of a random hermitian matrix spectrum near a hard edge (a bound for its maximal eigenvalue). This shows that the s -> -infinity asymptotic expansion of Tracy-Widow law F_{GUE}(s), governing the distribution of the maximal eigenvalue in hermitian random matrices, is given by symplectic invariants.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1012.2752",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.375,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-05T21:35:33Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Xiucai Ding",
+            "Jiahui Xie"
+          ],
+          "title": "Tracy-Widom distribution for the edge eigenvalues of elliptical model",
+          "venue": "arXiv",
+          "year": 2023
+        },
+        "primary_pointer": "2304.07893",
+        "summary": "In this paper, we study the largest eigenvalues of sample covariance matrices with elliptically distributed data. We consider the sample covariance matrix $Q=YY^*,$ where the data matrix $Y \\in \\mathbb{R}^{p \\times n}$ contains i.i.d. $p$-dimensional observations $\\mathbf{y}_i=ξ_iT\\mathbf{u}_i,\\;i=1,\\dots,n.$ Here $\\mathbf{u}_i$ is distributed on the unit sphere, $ξ_i \\sim ξ$ is independent of $\\mathbf{u}_i$ and $T^*T=Σ$ is some deterministic matrix. Under some mild regularity assumptions of $Σ,$ assuming $ξ^2$ has bounded support and certain proper behavior near its edge so that the limiting spectral distribution (LSD) of $Q$ has a square decay behavior near the spectral edge, we prove that the Tracy-Widom law holds for the largest eigenvalues of $Q$ when $p$ and $n$ are comparably large.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2304.07893",
+          "http_status": 200,
+          "pdf_sample_score": 0.2025,
+          "query_relevance_score": 0.375,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-05T21:35:34Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Yukun He",
+            "Antti Knowles"
+          ],
+          "title": "Fluctuations of extreme eigenvalues of sparse Erdős-Rényi graphs",
+          "venue": "arXiv",
+          "year": 2020
+        },
+        "primary_pointer": "2005.02254",
+        "summary": "We consider a class of sparse random matrices which includes the adjacency matrix of the Erdős-Rényi graph $\\mathcal{G}(N,p)$. We show that if $N^{\\varepsilon} \\leq Np \\leq N^{1/3-\\varepsilon}$ then all nontrivial eigenvalues away from 0 have asymptotically Gaussian fluctuations. These fluctuations are governed by a single random variable, which has the interpretation of the total degree of the graph. This extends the result [19] on the fluctuations of the extreme eigenvalues from $Np \\geq N^{2/9 + \\varepsilon}$ down to the optimal scale $Np \\geq N^{\\varepsilon}$. The main technical achievement of our proof is a rigidity bound of accuracy $N^{-1/2-\\varepsilon} \\, (Np)^{-1/2}$ for the extreme eigenvalues, which avoids the $(Np)^{-1}$-expansions from [9,19,24]. Our result is the last missing piece, added to [8, 12, 19, 24], of a complete description of the eigenvalue fluctuations of sparse random matrices for $Np \\geq N^{\\varepsilon}$.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "theoremsearch",
+          "final_url": "https://arxiv.org/abs/2005.02254",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-05T21:35:34Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Yi Han"
+          ],
+          "title": "Deformed Fréchet law for Wigner and sample covariance matrices with tail in crossover regime",
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2402.05590",
+        "summary": "Given $A_n:=\\frac{1}{\\sqrt{n}}(a_{ij})$ an $n\\times n$ symmetric random matrix, with elements above the diagonal given by i.i.d. random variables having mean zero and unit variance. It is known that when $\\lim_{x\\to\\infty}x^4\\mathbb{P}(|a_{ij}|>x)=0$, then fluctuation of the largest eigenvalue of $A_n$ follows a Tracy-Widom distribution. When the law of $a_{ij}$ is regularly varying with index $α\\in(0,4)$, then the largest eigenvalue has a Fréchet distribution. An intermediate regime is recently uncovered in \\cite{diaconu2023more}: when $\\lim_{x\\to\\infty}x^4\\mathbb{P}(|a_{ij}|>x)=c\\in(0,\\infty)$, then the law of the largest eigenvalue follows a deformed Fréchet distribution. In this work we vastly extend the scope where the latter distribution may arise. We show that the same deformed Fréchet distribution arises (1) for sparse Wigner matrices with an average of $n^{O(1)}$ nonzero entries on each row; (2) for periodically banded Wigner matrices with bandwidth $d_n=n^{O(1)}$; and more generally for weighted adjacency matrices of any $k_n$-regular graphs with $k_n=n^{O(1)}$. In all these cases, we further prove that the joint distribution of the finitely many largest eigenvalues of $A_n$ form a deformed Poisson process, and that eigenvectors of the outlying eigenvalues of $A_n$ are localized, implying a mobility edge phenomenon at the spectral edge $2$. The sparser case with average degree $n^{o(1)}$ is also explored. Our technique extends to sample covariance matrices, proving for the first time that its largest eigenvalue still follows a deformed Fréchet distribution, assuming the matrix entries satisfy $\\lim_{x\\to\\infty}x^4\\mathbb{P}(|a_{ij}|>x)=c\\in(0,\\infty)$.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "theoremsearch",
+          "final_url": "https://arxiv.org/abs/2402.05590",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-05T21:35:35Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Jaehun Lee"
+          ],
+          "title": "Higher order fluctuations of extremal eigenvalues of sparse random matrices",
+          "venue": "arXiv",
+          "year": 2021
+        },
+        "primary_pointer": "2108.11634",
+        "summary": "We consider extremal eigenvalues of sparse random matrices, a class of random matrices including the adjacency matrices of Erdős-Rényi graphs $\\mathcal{G}(N,p)$. Recently, it was shown that the leading order fluctuations of extremal eigenvalues are given by a single random variable associated with the total degree of the graph (Ann. Probab., 48(2):916-962, 2020; Probab. Theory Related Fields, 180:985-1056, 2021). We construct a sequence of random correction terms to capture higher (sub-leading) order fluctuations of extremal eigenvalues in the regime $N^ε < pN < N^{1/3-ε}$. Using these random correction terms, we prove a local law up to a shifted edge and recover the rigidity of extremal eigenvalues under some corrections for $pN>N^ε$.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "theoremsearch",
+          "final_url": "https://arxiv.org/abs/2108.11634",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.375,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-05T21:35:35Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Sean O'Rourke",
+            "Philip Matchett Wood"
+          ],
+          "title": "Spectra of nearly Hermitian random matrices",
+          "venue": "arXiv",
+          "year": 2015
+        },
+        "primary_pointer": "1510.00039",
+        "summary": "We consider the eigenvalues and eigenvectors of matrices of the form M + P, where M is an n by n Wigner random matrix and P is an arbitrary n by n deterministic matrix with low rank. In general, we show that none of the eigenvalues of M + P need be real, even when P has rank one. We also show that, except for a few outlier eigenvalues, most of the eigenvalues of M + P are within 1/n of the real line, up to small order corrections. We also prove a new result quantifying the outlier eigenvalues for multiplicative perturbations of the form S ( I + P ), where S is a sample covariance matrix and I is the identity matrix. We extend our result showing all eigenvalues except the outliers are close to the real line to this case as well. As an application, we study the critical points of the characteristic polynomials of nearly Hermitian random matrices.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "theoremsearch",
+          "final_url": "https://arxiv.org/abs/1510.00039",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-05T21:35:35Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Yi Han"
+          ],
+          "title": "Finite rank perturbation of non-Hermitian random matrices: heavy tail and sparse regimes",
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2407.21543",
+        "summary": "We revisit the problem of perturbing a large, i.i.d. random matrix by a finite rank error. It is known that when elements of the i.i.d. matrix have finite fourth moment, then the outlier eigenvalues of the perturbed matrix are close to the outlier eigenvalues of the error, as long as the perturbation is relatively small. We first prove that under a merely second moment condition, for a large class of perturbation matrix with bounded rank and bounded operator norm, the outlier eigenvalues of perturbed matrix still converge to that of the perturbation. We then prove that for a matrix with i.i.d. Bernoulli $(d/n)$ entries or Bernoulli $(d_n/n)$ entries with $d_n=n^{o(1)}$, the same result holds for perturbation matrices with a bounded number of nonzero elements.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "theoremsearch",
+          "final_url": "https://arxiv.org/abs/2407.21543",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-05T21:35:35Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Jiaoyang Huang",
+            "Benjamin Landon",
+            "Horng-Tzer Yau"
+          ],
+          "title": "Bulk universality of sparse random matrices",
+          "venue": "arXiv",
+          "year": 2015
+        },
+        "primary_pointer": "1504.05170",
+        "summary": "We consider the adjacency matrix of the ensemble of Erdős-Rényi random graphs which consists of graphs on $N$ vertices in which each edge occurs independently with probability $p$. We prove that in the regime $pN \\gg 1$ these matrices exhibit bulk universality in the sense that both the averaged $n$-point correlation functions and distribution of a single eigenvalue gap coincide with those of the GOE. Our methods extend to a class of random matrices which includes sparse ensembles whose entries have different variances.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "theoremsearch",
+          "final_url": "https://arxiv.org/abs/1504.05170",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.375,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-05T21:35:36Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Philip Matchett Wood"
+          ],
+          "title": "Universality and the circular law for sparse random matrices",
+          "venue": "arXiv",
+          "year": 2010
+        },
+        "primary_pointer": "1010.1726",
+        "summary": "The universality phenomenon asserts that the distribution of the eigenvalues of random matrix with i.i.d. zero mean, unit variance entries does not depend on the underlying structure of the random entries. For example, a plot of the eigenvalues of a random sign matrix, where each entry is +1 or -1 with equal probability, looks the same as an analogous plot of the eigenvalues of a random matrix where each entry is complex Gaussian with zero mean and unit variance. In the current paper, we prove a universality result for sparse random n by n matrices where each entry is nonzero with probability $1/n^{1-α}$ where $0<α\\le1$ is any constant. One consequence of the sparse universality principle is that the circular law holds for sparse random matrices so long as the entries have zero mean and unit variance, which is the most general result for sparse random matrices to date.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "theoremsearch",
+          "final_url": "https://arxiv.org/abs/1010.1726",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-05T21:35:36Z"
+        }
+      }
+    ]
   },
   "target_n": 5,
   "term_normalized": "asymptotic behavior of random matrix eigenvalues with sparse perturbations mathematics",

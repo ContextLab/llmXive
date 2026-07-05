@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2304.07893",
+  "judged_at": "2026-07-05T21:35:44Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "asymptotic behavior of random matrix eigenvalues with sparse perturbations mathematics",
+  "rationale": "This paper qualifies under category (a) and (d) as it investigates the asymptotic behavior of random matrix eigenvalues (specifically the Tracy-Widom distribution at the spectral edge), which is the core mechanism the user is asking about, even though the specific perturbation model (elliptical data) differs from the user's \"sparse perturbations\" specification. It serves as a foundational reference for the asymptotic edge behavior of random matrices, a necessary component for any literature revi",
+  "relevant": true
+}

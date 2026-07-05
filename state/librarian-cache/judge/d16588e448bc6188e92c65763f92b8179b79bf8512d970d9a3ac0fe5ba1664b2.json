@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1510.00039",
+  "judged_at": "2026-07-05T21:35:54Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "asymptotic behavior of random matrix eigenvalues with sparse perturbations mathematics",
+  "rationale": "This paper satisfies criteria (a) and (b) as it investigates the asymptotic behavior of eigenvalues for random matrices (Wigner and sample covariance) under low-rank deterministic perturbations, which is the canonical mathematical mechanism for studying \"sparse\" or structured perturbations in random matrix theory. Although the paper specifies \"low rank\" rather than \"sparse\" in the strict sense of sparsity patterns, low-rank perturbations are the standard theoretical proxy for sparse structural c",
+  "relevant": true
+}

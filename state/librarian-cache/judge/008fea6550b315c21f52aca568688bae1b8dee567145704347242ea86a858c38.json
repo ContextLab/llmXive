@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2602.20573",
+  "judged_at": "2026-07-05T21:33:49Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting molecular ionization energies with graph neural networks chemistry",
+  "rationale": "This paper satisfies criteria (d) and (f) as it provides a foundational benchmark and comparative analysis of Graph Neural Network architectures (GCN, GIN) specifically for molecular property regression tasks, which is the canonical methodological reference required for any study predicting molecular properties like ionization energies using GNNs. Although it does not explicitly list \"ionization energy\" in the abstract, it establishes the empirical baseline and architectural best practices for t",
+  "relevant": true
+}

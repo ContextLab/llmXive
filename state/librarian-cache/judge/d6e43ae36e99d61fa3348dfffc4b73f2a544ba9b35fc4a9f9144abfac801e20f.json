@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1412.4193",
+  "judged_at": "2026-07-05T21:35:39Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "asymptotic behavior of random matrix eigenvalues with sparse perturbations mathematics",
+  "rationale": "This paper satisfies criteria (a) and (b) as it investigates the asymptotic behavior of eigenvalues (rigidity and empirical distribution) under perturbations where the rank $M$ grows with $N$ (specifically $M=o(N)$), which directly addresses the mechanism of sparse perturbations in random matrix theory. Although the paper focuses on the \"mesoscopic\" regime ($M=o(N)$) rather than strictly fixed sparse rank, it provides the canonical theoretical framework and results for the asymptotic behavior of",
+  "relevant": true
+}

@@ -1,0 +1,15 @@
+{
+  "project_id": "PROJ-284-investigating-the-relationship-between-b",
+  "ok": false,
+  "reason": "12 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/data/preprocess.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026nput to output (assuming synthetic input is already 'corrected' f\u2026\u201d; code/tools/verify_batching.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u20262 ) -> Path:     \"\"\"     Generates a synthetic NIfTI-like file (numpy .\u2026\u201d; code/tools/verify_batching.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026logger.info(f\"Generating synthetic data at {output_path} with sh\u2026\u201d; 4 run-book script(s) missing (plan/impl path mismatch): python code/main.py --step download_preprocess --subjects 50; python code/main.py --step extract_metrics; python code/main.py --step analyze; 1 declared deliverable(s) absent: data/analysis/full_metrics.csv",
+  "artifacts": [],
+  "failures": [
+    "python code/main.py --step download_preprocess --subjects 50 -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-284-investigating-the-relationship-between-b/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-284-investigating-the-relationship-between-b/code/main.py': [Errno 2] No such file or directory",
+    "python code/main.py --step extract_metrics -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-284-investigating-the-relationship-between-b/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-284-investigating-the-relationship-between-b/code/main.py': [Errno 2] No such file or directory",
+    "python code/main.py --step analyze -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-284-investigating-the-relationship-between-b/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-284-investigating-the-relationship-between-b/code/main.py': [Errno 2] No such file or directory",
+    "python code/main.py --step viz_report -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-284-investigating-the-relationship-between-b/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-284-investigating-the-relationship-between-b/code/main.py': [Errno 2] No such file or directory"
+  ],
+  "fix_rounds": 1,
+  "model_tier": 0,
+  "updated_at": "2026-07-05T21:31:21Z"
+}

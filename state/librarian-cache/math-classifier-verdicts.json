@@ -215,6 +215,10 @@
     "classified_at": "2026-06-24T14:39:27Z",
     "verdict": false
   },
+  "PROJ-268-predicting-molecular-ionization-energies::1.6.0": {
+    "classified_at": "2026-07-05T21:33:34Z",
+    "verdict": false
+  },
   "PROJ-268-the-impact-of-network-centrality-on-neur::1.6.0": {
     "classified_at": "2026-06-25T14:39:17Z",
     "verdict": false
@@ -917,6 +921,10 @@
   },
   "PROJ-979-llmxive-follow-up-extending-loopcoder-v2::1.6.0": {
     "classified_at": "2026-07-04T12:37:43Z",
+    "verdict": false
+  },
+  "PROJ-990-llmxive-follow-up-extending-agenticsts-a::1.6.0": {
+    "classified_at": "2026-07-05T21:36:52Z",
     "verdict": false
   }
 }

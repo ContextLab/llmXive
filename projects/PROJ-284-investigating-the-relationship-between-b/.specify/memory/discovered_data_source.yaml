@@ -1,0 +1,84 @@
+status: verified
+kind: pypi_package
+ref: nilearn
+access_python: "import os\nfrom nilearn import datasets\n\nbunch = datasets.fetch_adhd(\n\
+  \    data_dir=os.path.join(os.getenv(\"HOME\"), \"nilearn_data\"),\n    verbose=0,\n\
+  )\n\nrecords = len(bunch.phenotypic)\nprint(f\"RECORDS={records}\")\n\nfields =\
+  \ list(bunch.phenotypic.columns)\nprint(\"FIELDS=\" + \",\".join(fields))"
+record_count: 30
+sample_fields:
+- 'Unnamed: 0'
+- Subject
+- Rest.Scan
+- MeanFD
+- NumFD_greater_than_0.20
+- rootMeanSquareFD
+- FDquartile.top1.4thFD.
+- PercentFD_greater_than_0.20
+- MeanDVARS
+- MeanFD_Jenkinson
+- site
+- sibling_id
+- data_set
+- age
+- sex
+- handedness
+- full_2_iq
+- full_4_iq
+- viq
+- piq
+- iq_measure
+- tdc
+- adhd
+- adhd_inattentive
+- adhd_combined
+- adhd_subthreshold
+- diagnosis_using_cdis
+- notes
+- sess_1_anat_2
+- oppositional
+- cog_inatt
+- hyperac
+- anxious_shy
+- perfectionism
+- social_problems
+- psychosomatic
+- conn_adhd
+- restless_impulsive
+- emot_lability
+- conn_gi_tot
+- dsm_iv_inatt
+- dsm_iv_h_i
+- dsm_iv_tot
+- study
+- sess_1_rest_1
+- sess_1_rest_1_eyes
+- sess_1_rest_2
+- sess_1_rest_2_eyes
+- sess_1_rest_3
+- sess_1_rest_3_eyes
+- sess_1_rest_4
+- sess_1_rest_4_eyes
+- sess_1_rest_5
+- sess_1_rest_5_eyes
+- sess_1_rest_6
+- sess_1_rest_6_eyes
+- sess_1_anat_1
+- sess_1_which_anat
+- sess_2_rest_1
+- sess_2_rest_1_eyes
+- sess_2_rest_2
+- sess_2_rest_2_eyes
+- sess_2_anat_1
+- defacing_ok
+- defacing_notes
+field_coverage: 0.5
+required_fields:
+- subject_id
+- age
+- sex
+- motor_task_performance_composite_score
+- resting_state_fmri_4d_nifti_file_path
+- behavioural_metrics_csv_path
+intent: Human Connectome Project S1200 ICA-FIX preprocessed resting state fMRI download
+  python package dataset

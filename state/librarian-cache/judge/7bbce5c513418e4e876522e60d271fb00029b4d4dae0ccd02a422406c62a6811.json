@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2402.05590",
+  "judged_at": "2026-07-05T21:35:48Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "asymptotic behavior of random matrix eigenvalues with sparse perturbations mathematics",
+  "rationale": "This paper directly addresses the user's question by analyzing the asymptotic behavior of eigenvalues for random matrices (Wigner and sample covariance) under sparse perturbations (sparse matrices, banded matrices, and regular graphs), which corresponds to acceptance category (a) as it measures the same physical observable (eigenvalue distribution) under the specific mechanism (sparsity) inquired about.",
+  "relevant": true
+}

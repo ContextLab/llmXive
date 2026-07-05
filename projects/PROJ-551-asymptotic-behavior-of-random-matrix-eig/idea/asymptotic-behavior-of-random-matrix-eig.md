@@ -5,69 +5,67 @@ submitter: google.gemma-3-27b-it
 
 # Asymptotic Behavior of Random Matrix Eigenvalues with Sparse Perturbations
 
-I need to search the literature for relevant papers on random matrix eigenvalue perturbations and sparse perturbations before I can flesh out this idea.
+**Field**: mathematics
 
-```json
-{
-  "lit_search": {
-    "query": "sparse perturbations random matrix eigenvalues asymptotic behavior",
-    "max_results": 8
-  }
-}
-```
+## Research question
 
-```json
-{
-  "lit_search": {
-    "query": "free probability random matrix perturbation eigenvalue distribution",
-    "max_results": 8
-  }
-}
-```
+How does the rank and sparsity pattern of a deterministic perturbation affect the emergence of outlier eigenvalues in the limiting spectral distribution of Wigner matrices as matrix dimension approaches infinity?
 
-```json
-{
-  "lit_search": {
-    "query": "Wigner semicircle law perturbation theory sparse matrix",
-    "max_results": 8
-  }
-}
-```
+## Motivation
+
+Understanding the stability of spectral properties under sparse, structured perturbations is critical for applications in network science and signal processing, where data often contains low-rank signals embedded in high-dimensional noise. While classical random matrix theory establishes the Wigner semicircle law for unperturbed ensembles, the behavior of eigenvalues when the perturbation is both finite-rank and spatially sparse (or when the sparsity of the base matrix interacts with the perturbation) remains less characterized, particularly regarding the precise threshold for outlier emergence.
+
+## Related work
+
+- [Spectra of nearly Hermitian random matrices (2015)](https://arxiv.org/abs/1510.00039) — Analyzes the spectrum of $M+P$ where $P$ is an arbitrary low-rank deterministic matrix, establishing conditions for outlier eigenvalues but assuming a full Wigner base.
+- [Finite rank perturbation of non-Hermitian random matrices: heavy tail and sparse regimes (2024)](https://arxiv.org/abs/2407.21543) — Investigates outlier eigenvalues under finite-rank perturbations specifically in the context of sparse and heavy-tailed base matrices, directly addressing the intersection of sparsity and perturbation.
+- [Fluctuations of extreme eigenvalues of sparse Erdős-Rényi graphs (2020)](https://arxiv.org/abs/2005.02254) — Characterizes the extreme eigenvalue fluctuations in sparse random graphs, providing the baseline behavior for the unperturbed sparse ensemble.
+- [Mesoscopic Perturbations of Large Random Matrices (2014)](https://arxiv.org/abs/1412.4193) — Studies small rank perturbations where the rank $M$ grows with $N$, offering theoretical bounds on spectral shifts relevant to the transition regimes.
+- [Bulk universality of sparse random matrices (2015)](https://arxiv.org/abs/1504.05170) — Proves universality for the bulk spectrum of sparse Erdős-Rényi matrices, establishing the stable background distribution against which outliers must be detected.
+
+## Expected results
+
+We expect to identify a phase transition threshold dependent on the interplay between the perturbation rank $k$, its sparsity pattern (e.g., diagonal vs. block-sparse), and the sparsity parameter $p$ of the underlying Wigner matrix. Specifically, the result will likely show that for a fixed rank, sufficiently high sparsity in the perturbation delays or suppresses the emergence of outliers compared to dense low-rank perturbations, or conversely, that specific sparse patterns can induce outliers even when the spectral norm of the perturbation is below the classical BBP threshold.
+
+## Methodology sketch
+
+- Download the source code for random matrix generators and spectral analysis libraries (e.g., `numpy`, `scipy`, `eigenpy`) from public repositories or implement lightweight generators for Wigner and Erdős-Rényi ensembles.
+- Generate a sequence of Wigner matrices $W_N$ of increasing dimension $N$ (e.g., $N \in [100, 2000]$) with entries drawn from a standard normal distribution.
+- Construct deterministic perturbation matrices $P_N$ with fixed rank $k$ (e.g., $k=1, 2, 5$) but varying sparsity patterns (e.g., diagonal, block-diagonal, random sparse support) and varying spectral norms $\theta$.
+- Compute the perturbed matrices $A_N = W_N + P_N$ and calculate their full eigenvalue spectra using efficient iterative solvers (e.g., ARPACK) suitable for the 7GB RAM constraint.
+- Track the position of the largest eigenvalues relative to the theoretical edge of the semicircle law ($\pm 2$) to detect "outliers" (eigenvalues exceeding the bulk support by a statistically significant margin).
+- Perform a statistical analysis (e.g., logistic regression or threshold detection) to determine the critical value of $\theta$ required for outlier emergence as a function of $N$ and the sparsity pattern of $P_N$.
+- Visualize the spectral density and outlier trajectories to confirm the theoretical phase transition and compare against the BBP transition predictions for dense perturbations.
+
+## Duplicate-check
+
+- Reviewed existing ideas: (none in corpus).
+- Closest match: None found.
+- Verdict: NOT a duplicate
 
 
 ## Search trail
 
-**Generated by**: librarian (prompt v1.6.0) on 2026-06-03T03:47:20Z
-**Outcome**: exhausted
+**Generated by**: librarian (prompt v1.6.0) on 2026-07-05T21:36:03Z
+**Outcome**: success
 **Original term**: Asymptotic Behavior of Random Matrix Eigenvalues with Sparse Perturbations mathematics
-**Verified citation count**: 0
+**Verified citation count**: 10
 
 ### Search terms used
 
 | Rank | Term | Hit count |
 |-|-|-|
-| 0 (initial) | Asymptotic Behavior of Random Matrix Eigenvalues with Sparse Perturbations mathematics | 0 |
-| 1 | Spectral properties of deformed random matrices | 0 |
-| 2 | Spiked random matrix models | 0 |
-| 3 | BBP phase transition for eigenvalues | 0 |
-| 4 | Outlier eigenvalues in random matrix theory | 0 |
-| 5 | Limiting spectral distribution with low-rank perturbations | 0 |
-| 6 | Local laws for sparse random matrices | 0 |
-| 7 | Universality of eigenvalue statistics under perturbation | 0 |
-| 8 | Wigner matrices with sparse noise | 0 |
-| 9 | Eigenvalue outliers in spiked covariance models | 0 |
-| 10 | Free probability and additive perturbations | 0 |
-| 11 | Asymptotic spectral distribution of large sparse matrices | 0 |
-| 12 | Perturbation theory for large random operators | 0 |
-| 13 | Edge universality in perturbed random matrices | 0 |
-| 14 | Sparse Wigner ensemble asymptotic limits | 0 |
-| 15 | Non-Hermitian random matrix perturbations | 0 |
-| 16 | Delocalization of eigenvectors in sparse perturbations | 0 |
-| 17 | High-dimensional covariance estimation with sparsity | 0 |
-| 18 | Concentration inequalities for sparse random matrices | 0 |
-| 19 | Macroscopic spectral density of perturbed ensembles | 0 |
-| 20 | Rank-one perturbations of random matrices | 0 |
+| 0 (initial) | Asymptotic Behavior of Random Matrix Eigenvalues with Sparse Perturbations mathematics | 10 |
 
 ### Verified citations
 
-(none)
+1. **Mesoscopic Perturbations of Large Random Matrices** (2014). Jiaoyang Huang. arXiv. [1412.4193](https://arxiv.org/abs/1412.4193). PDF-sampled: No.
+2. **The asymptotic expansion of Tracy-Widom GUE law and symplectic invariants** (2010). Gaetan Borot, Bertrand Eynard. arXiv. [1012.2752](https://arxiv.org/abs/1012.2752). PDF-sampled: No.
+3. **Tracy-Widom distribution for the edge eigenvalues of elliptical model** (2023). Xiucai Ding, Jiahui Xie. arXiv. [2304.07893](https://arxiv.org/abs/2304.07893). PDF-sampled: No.
+4. **Fluctuations of extreme eigenvalues of sparse Erdős-Rényi graphs** (2020). Yukun He, Antti Knowles. arXiv. [2005.02254](https://arxiv.org/abs/2005.02254). PDF-sampled: No.
+5. **Deformed Fréchet law for Wigner and sample covariance matrices with tail in crossover regime** (2024). Yi Han. arXiv. [2402.05590](https://arxiv.org/abs/2402.05590). PDF-sampled: No.
+6. **Higher order fluctuations of extremal eigenvalues of sparse random matrices** (2021). Jaehun Lee. arXiv. [2108.11634](https://arxiv.org/abs/2108.11634). PDF-sampled: No.
+7. **Spectra of nearly Hermitian random matrices** (2015). Sean O'Rourke, Philip Matchett Wood. arXiv. [1510.00039](https://arxiv.org/abs/1510.00039). PDF-sampled: No.
+8. **Finite rank perturbation of non-Hermitian random matrices: heavy tail and sparse regimes** (2024). Yi Han. arXiv. [2407.21543](https://arxiv.org/abs/2407.21543). PDF-sampled: No.
+9. **Bulk universality of sparse random matrices** (2015). Jiaoyang Huang, Benjamin Landon, Horng-Tzer Yau. arXiv. [1504.05170](https://arxiv.org/abs/1504.05170). PDF-sampled: No.
+10. **Universality and the circular law for sparse random matrices** (2010). Philip Matchett Wood. arXiv. [1010.1726](https://arxiv.org/abs/1010.1726). PDF-sampled: No.

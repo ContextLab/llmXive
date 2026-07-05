@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2005.02254",
+  "judged_at": "2026-07-05T21:35:46Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "asymptotic behavior of random matrix eigenvalues with sparse perturbations mathematics",
+  "rationale": "This paper directly addresses the user's question by studying the asymptotic behavior (specifically Gaussian fluctuations) of eigenvalues for sparse random matrices (Erdős-Rényi graphs), which satisfies criteria (a) and (b) as it measures the exact same mathematical mechanism and variables (eigenvalue fluctuations in sparse regimes) the user is inquiring about.",
+  "relevant": true
+}

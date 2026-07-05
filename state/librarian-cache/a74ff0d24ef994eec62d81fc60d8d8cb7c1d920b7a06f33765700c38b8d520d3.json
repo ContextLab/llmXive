@@ -1,0 +1,541 @@
+{
+  "fetched_at": "2026-07-05T21:34:00Z",
+  "field": "chemistry",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "chemistry",
+      "idea_body_excerpt": "Predicting Molecular Ionization Energies with Graph Neural Networks",
+      "target_n": 5
+    },
+    "duration_seconds": 53.721,
+    "ended_at": "2026-07-05T21:34:00Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "Graph neural networks for ionization potential prediction"
+        ],
+        [
+          2,
+          "Deep learning models for molecular ionization energy"
+        ],
+        [
+          3,
+          "Machine learning prediction of vertical ionization energies"
+        ],
+        [
+          4,
+          "GNN-based quantum chemical property estimation"
+        ],
+        [
+          5,
+          "Neural networks for computing HOMO energy levels"
+        ],
+        [
+          6,
+          "Graph convolutional networks for ionization potential"
+        ],
+        [
+          7,
+          "Data-driven prediction of molecular ionization potentials"
+        ],
+        [
+          8,
+          "Graph representation learning for electronic properties"
+        ],
+        [
+          9,
+          "Machine learning approaches to Koopmans' theorem applications"
+        ],
+        [
+          10,
+          "Deep learning for first ionization energy in molecules"
+        ],
+        [
+          11,
+          "Graph neural networks for orbital energy prediction"
+        ],
+        [
+          12,
+          "AI methods for estimating molecular ionization thresholds"
+        ],
+        [
+          13,
+          "Computational chemistry ionization energy with graph models"
+        ],
+        [
+          14,
+          "Molecular property prediction using graph attention networks"
+        ],
+        [
+          15,
+          "Neural network regression for ionization potentials"
+        ],
+        [
+          16,
+          "Graph-based quantum machine learning for ionization"
+        ],
+        [
+          17,
+          "Predicting adiabatic and vertical ionization energies with GNNs"
+        ],
+        [
+          18,
+          "Graph neural networks for valence electron binding energies"
+        ],
+        [
+          19,
+          "Automated ionization energy calculation using deep learning"
+        ],
+        [
+          20,
+          "Transfer learning for molecular ionization energy prediction"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "Graph neural networks for ionization potential prediction": 5,
+        "Predicting Molecular Ionization Energies with Graph Neural Networks chemistry": 0
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "ionization potential DFT benchmark dataset",
+      "QM9 ANI-1x molecular property prediction",
+      "electron removal energy HOMO-LUMO gap",
+      "GNN molecular property regression error",
+      "Koopmans theorem DFT functional accuracy"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2602.20573"
+      ]
+    },
+    "per_query_hit_count": {
+      "GNN molecular property regression error": 1,
+      "Koopmans theorem DFT functional accuracy": 3,
+      "Predicting Molecular Ionization Energies with Graph Neural Networks chemistry": 3,
+      "QM9 ANI-1x molecular property prediction": 3,
+      "electron removal energy HOMO-LUMO gap": 3,
+      "ionization potential DFT benchmark dataset": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 5,
+      "rejections": [
+        {
+          "primary_pointer": "2211.12792",
+          "rationale": "The paper proposes a general architecture for heterogeneous graphs using metapaths and validates it on generic node classification and link prediction tasks, but it does not measure molecular ionization energies, apply the method to molecular graphs, or address the specific chemical property prediction domain required by the user's question. This falls under the rejection rule for \"off-domain entirely\" or \"no measurable connection to the user's mechanism, domain, variables, or empirical setting,",
+          "title": "MECCH: Metapath Context Convolution-based Heterogeneous Graph Neural Networks"
+        },
+        {
+          "primary_pointer": "2212.06370",
+          "rationale": "The paper proposes a general method for generating prediction intervals in regression tasks and validates it on synthetic, benchmark, and crop yield datasets, but it does not address the specific domain of molecular ionization energies, nor does it utilize Graph Neural Networks or study the specific chemical mechanism requested. It fails to meet the criteria for same-mechanism evidence, domain-specific variables, or foundational methodology for this specific chemistry application.",
+          "title": "Dual Accuracy-Quality-Driven Neural Network for Prediction Interval Generation"
+        },
+        {
+          "primary_pointer": "2306.14753",
+          "rationale": "The paper proposes a general architectural modification to deep neural networks using polynomial chaos theory but does not address the specific domain of molecular ionization energies, nor does it utilize or evaluate Graph Neural Networks (GNNs) for chemistry. It fails to meet the criteria for same-mechanism evidence, domain-specific variables, or foundational methodology for the specific task of predicting molecular properties with GNNs.",
+          "title": "The Deep Arbitrary Polynomial Chaos Neural Network or how Deep Artificial Neural Networks could benefit from Data-Driven Homogeneous Chaos Theory"
+        },
+        {
+          "primary_pointer": "2307.05639",
+          "rationale": "The paper proposes a general machine learning method (Gaussian RBF Neural Networks with learnable precision matrices) for interpretability and feature selection on generic tabular data, but it does not address the specific domain of molecular ionization energies, nor does it utilize Graph Neural Networks (GNNs) or molecular graph structures. It fails to meet the criteria for same-mechanism evidence, domain-specific variables, or foundational methodology for the specific intersection of GNNs and ",
+          "title": "Learning Active Subspaces and Discovering Important Features with Gaussian Radial Basis Functions Neural Networks"
+        },
+        {
+          "primary_pointer": "1901.06610",
+          "rationale": "The paper focuses on document classification using natural language processing techniques, which is an entirely different domain (text data) from the user's question regarding molecular ionization energies (chemical data). It fails the \"Off-domain entirely\" rejection rule as it shares no measurable connection to the user's mechanism, variables, or empirical setting.",
+          "title": "Hierarchical Attentional Hybrid Neural Networks for Document Classification"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-07-05T21:33:06Z",
+    "term_input": {
+      "normalized": "predicting molecular ionization energies with graph neural networks chemistry",
+      "raw": "Predicting Molecular Ionization Energies with Graph Neural Networks chemistry"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Artificial Intelligence and Machine learning have been widely used in various fields of mathematical computing, physical modeling, computational science, communication science, and stochastic analysis. Approaches based on Deep Artificial Neural Networks (DANN) are very popular in our days. Depending on the learning task, the exact form of DANNs is determined via their multi-layer architecture, activation functions and the so-called loss function. However, for a majority of deep learning approaches based on DANNs, the kernel structure of neural signal processing remains the same, where the node response is encoded as a linear superposition of neural activity, while the non-linearity is triggered by the activation functions. In the current paper, we suggest to analyze the neural signal processing in DANNs from the point of view of homogeneous chaos theory as known from polynomial chaos expansion (PCE). From the PCE perspective, the (linear) response on each node of a DANN could be seen as a $1^{st}$ degree multi-variate polynomial of single neurons from the previous layer, i.e. linear weighted sum of monomials. From this point of view, the conventional DANN structure relies implicitly (but erroneously) on a Gaussian distribution of neural signals. Additionally, this view revels that by design DANNs do not necessarily fulfill any orthogonality or orthonormality condition for a majority of data-driven applications. Therefore, the prevailing handling of neural signals in DANNs could lead to redundant representation as any neural signal could contain some partial information from other neural signals. To tackle that challenge, we suggest to employ the data-driven generalization of PCE theory known as arbitrary polynomial chaos (aPC) to construct a corresponding multi-variate orthonormal representations on each node of a DANN to obtain Deep arbitrary polynomial chaos neural networks.",
+          "claimed_authors": [
+            "Sergey Oladyshkin",
+            "Timothy Praditia",
+            "Ilja Kröker",
+            "Farid Mohammadi",
+            "Wolfgang Nowak",
+            "Sebastian Otte"
+          ],
+          "claimed_title": "The Deep Arbitrary Polynomial Chaos Neural Network or how Deep Artificial Neural Networks could benefit from Data-Driven Homogeneous Chaos Theory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2306.14753"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Predicting Molecular Ionization Energies with Graph Neural Networks chemistry', candidate_title='The Deep Arbitrary Polynomial Chaos Neural Network or how Deep Artificial Neural Networks could benefit from Data-Driven Homogeneous Chaos Theory')",
+        "failed_at": "2026-07-05T21:33:34Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Providing a model that achieves a strong predictive performance and is simultaneously interpretable by humans is one of the most difficult challenges in machine learning research due to the conflicting nature of these two objectives. To address this challenge, we propose a modification of the radial basis function neural network model by equipping its Gaussian kernel with a learnable precision matrix. We show that precious information is contained in the spectrum of the precision matrix that can be extracted once the training of the model is completed. In particular, the eigenvectors explain the directions of maximum sensitivity of the model revealing the active subspace and suggesting potential applications for supervised dimensionality reduction. At the same time, the eigenvectors highlight the relationship in terms of absolute variation between the input and the latent variables, thereby allowing us to extract a ranking of the input variables based on their importance to the prediction task enhancing the model interpretability. We conducted numerical experiments for regression, classification, and feature selection tasks, comparing our model against popular machine learning models, the state-of-the-art deep learning-based embedding feature selection techniques, and a transformer model for tabular data. Our results demonstrate that the proposed model does not only yield an attractive prediction performance compared to the competitors but also provides meaningful and interpretable results that potentially could assist the decision-making process in real-world applications. A PyTorch implementation of the model is available on GitHub at the following link. https://github.com/dannyzx/Gaussian-RBFNN",
+          "claimed_authors": [
+            "Danny D'Agostino",
+            "Ilija Ilievski",
+            "Christine Annette Shoemaker"
+          ],
+          "claimed_title": "Learning Active Subspaces and Discovering Important Features with Gaussian Radial Basis Functions Neural Networks",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2307.05639"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Predicting Molecular Ionization Energies with Graph Neural Networks chemistry', candidate_title='Learning Active Subspaces and Discovering Important Features with Gaussian Radial Basis Functions Neural Networks')",
+        "failed_at": "2026-07-05T21:33:34Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The RSNA Abdominal Traumatic Injury CT (RATIC) dataset is the largest publicly available collection of adult abdominal CT studies annotated for traumatic injuries. This dataset includes 4,274 studies from 23 institutions across 14 countries. The dataset is freely available for non-commercial use via Kaggle at https://www.kaggle.com/competitions/rsna-2023-abdominal-trauma-detection. Created for the RSNA 2023 Abdominal Trauma Detection competition, the dataset encourages the development of advanced machine learning models for detecting abdominal injuries on CT scans. The dataset encompasses detection and classification of traumatic injuries across multiple organs, including the liver, spleen, kidneys, bowel, and mesentery. Annotations were created by expert radiologists from the American Society of Emergency Radiology (ASER) and Society of Abdominal Radiology (SAR). The dataset is annotated at multiple levels, including the presence of injuries in three solid organs with injury grading, image-level annotations for active extravasations and bowel injury, and voxelwise segmentations of each of the potentially injured organs. With the release of this dataset, we hope to facilitate research and development in machine learning and abdominal trauma that can lead to improved patient care and outcomes.",
+          "claimed_authors": [
+            "Jeffrey D. Rudie",
+            "Hui-Ming Lin",
+            "Robyn L. Ball",
+            "Sabeena Jalal",
+            "Luciano M. Prevedello",
+            "Savvas Nicolaou",
+            "Brett S. Marinelli",
+            "Adam E. Flanders",
+            "Kirti Magudia",
+            "George Shih",
+            "Melissa A. Davis",
+            "John Mongan",
+            "Peter D. Chang",
+            "Ferco H. Berger",
+            "Sebastiaan Hermans",
+            "Meng Law",
+            "Tyler Richards",
+            "Jan-Peter Grunz",
+            "Andreas Steven Kunz",
+            "Shobhit Mathur",
+            "Sandro Galea-Soler",
+            "Andrew D. Chung",
+            "Saif Afat",
+            "Chin-Chi Kuo",
+            "Layal Aweidah",
+            "Ana Villanueva Campos",
+            "Arjuna Somasundaram",
+            "Felipe Antonio Sanchez Tijmes",
+            "Attaporn Jantarangkoon",
+            "Leonardo Kayat Bittencourt",
+            "Michael Brassil",
+            "Ayoub El Hajjami",
+            "Hakan Dogan",
+            "Muris Becircic",
+            "Agrahara G. Bharatkumar",
+            "Eduardo Moreno Júdice de Mattos Farina",
+            "Dataset Curator Group",
+            "Dataset Contributor Group",
+            "Dataset Annotator Group",
+            "Errol Colak"
+          ],
+          "claimed_title": "The RSNA Abdominal Traumatic Injury CT (RATIC) Dataset",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2405.19595"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Molecular Ionization Energies with Graph Neural Networks chemistry', candidate_title='The RSNA Abdominal Traumatic Injury CT (RATIC) Dataset')",
+        "failed_at": "2026-07-05T21:33:35Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The Radiological Society of North America (RSNA) Lumbar Degenerative Imaging Spine Classification (LumbarDISC) dataset is the largest publicly available dataset of adult MRI lumbar spine examinations annotated for degenerative changes. The dataset includes 2,697 patients with a total of 8,593 image series from 8 institutions across 6 countries and 5 continents. The dataset is available for free for non-commercial use via Kaggle and RSNA Medical Imaging Resource of AI (MIRA). The dataset was created for the RSNA 2024 Lumbar Spine Degenerative Classification competition where competitors developed deep learning models to grade degenerative changes in the lumbar spine. The degree of spinal canal, subarticular recess, and neural foraminal stenosis was graded at each intervertebral disc level in the lumbar spine. The images were annotated by expert volunteer neuroradiologists and musculoskeletal radiologists from the RSNA, American Society of Neuroradiology, and the American Society of Spine Radiology. This dataset aims to facilitate research and development in machine learning and lumbar spine imaging to lead to improved patient care and clinical efficiency.",
+          "claimed_authors": [
+            "Tyler J. Richards",
+            "Adam E. Flanders",
+            "Errol Colak",
+            "Luciano M. Prevedello",
+            "Robyn L. Ball",
+            "Felipe Kitamura",
+            "John Mongan",
+            "Maryam Vazirabad",
+            "Hui-Ming Lin",
+            "Anne Kendell",
+            "Thanat Kanthawang",
+            "Salita Angkurawaranon",
+            "Emre Altinmakas",
+            "Hakan Dogan",
+            "Paulo Eduardo de Aguiar Kuriki",
+            "Arjuna Somasundaram",
+            "Christopher Ruston",
+            "Deniz Bulja",
+            "Naida Spahovic",
+            "Jennifer Sommer",
+            "Sirui Jiang",
+            "Eduardo Moreno Judice de Mattos Farina",
+            "Eduardo Caminha Nunes",
+            "Michael Brassil",
+            "Megan McNamara",
+            "Johanna Ortiz",
+            "Jacob Peoples",
+            "Vinson L. Uytana",
+            "Anthony Kam",
+            "Venkata N. S. Dola",
+            "Daniel Murphy",
+            "David Vu",
+            "Dataset Contributor Group",
+            "Dataset Annotator Group",
+            "Competition Data Notebook Group",
+            "Jason F. Talbott"
+          ],
+          "claimed_title": "The RSNA Lumbar Degenerative Imaging Spine Classification (LumbarDISC) Dataset",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2506.09162"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Predicting Molecular Ionization Energies with Graph Neural Networks chemistry', candidate_title='The RSNA Lumbar Degenerative Imaging Spine Classification (LumbarDISC) Dataset')",
+        "failed_at": "2026-07-05T21:33:35Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The past decade has witnessed great strides in video recovery by specialist technologies, like video inpainting, completion, and error concealment. However, they typically simulate the missing content by manual-designed error masks, thus failing to fill in the realistic video loss in video communication (e.g., telepresence, live streaming, and internet video) and multimedia forensics. To address this, we introduce the bitstream-corrupted video (BSCV) benchmark, the first benchmark dataset with more than 28,000 video clips, which can be used for bitstream-corrupted video recovery in the real world. The BSCV is a collection of 1) a proposed three-parameter corruption model for video bitstream, 2) a large-scale dataset containing rich error patterns, multiple corruption levels, and flexible dataset branches, and 3) a plug-and-play module in video recovery framework that serves as a benchmark. We evaluate state-of-the-art video inpainting methods on the BSCV dataset, demonstrating existing approaches' limitations and our framework's advantages in solving the bitstream-corrupted video recovery problem. The benchmark and dataset are released at https://github.com/LIUTIGHE/BSCV-Dataset.",
+          "claimed_authors": [
+            "Tianyi Liu",
+            "Kejun Wu",
+            "Yi Wang",
+            "Wenyang Liu",
+            "Kim-Hui Yap",
+            "Lap-Pui Chau"
+          ],
+          "claimed_title": "Bitstream-Corrupted Video Recovery: A Novel Benchmark Dataset and Method",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2309.13890"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Molecular Ionization Energies with Graph Neural Networks chemistry', candidate_title='Bitstream-Corrupted Video Recovery: A Novel Benchmark Dataset and Method')",
+        "failed_at": "2026-07-05T21:33:35Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "AI-assisted molecular property prediction has become a promising technique in early-stage drug discovery and materials design in recent years. However, due to high-cost and complex wet-lab experiments, real-world molecules usually experience the issue of scarce annotations, leading to limited labeled data for effective supervised AI model learning. In light of this, few-shot molecular property prediction (FSMPP) has emerged as an expressive paradigm that enables learning from only a few labeled examples. Despite rapidly growing attention, existing FSMPP studies remain fragmented, without a coherent framework to capture methodological advances and domain-specific challenges. In this work, we present the first comprehensive and systematic survey of few-shot molecular property prediction. We begin by analyzing the few-shot phenomenon in molecular datasets and highlighting two core challenges: (1) cross-property generalization under distribution shifts, where each task corresponding to each property, may follow a different data distribution or even be inherently weakly related to others from a biochemical perspective, requiring the model to transfer knowledge across heterogeneous prediction tasks, and (2) cross-molecule generalization under structural heterogeneity, where molecules involved in different or same properties may exhibit significant structural diversity, making model difficult to achieve generalization. Then, we introduce a unified taxonomy that organizes existing methods into data, model, and learning paradigm levels, reflecting their strategies for extracting knowledge from scarce supervision in few-shot molecular property prediction. Next, we compare representative methods, summarize benchmark datasets and evaluation protocols. In the end, we identify key trends and future directions for advancing the continued research on FSMPP.",
+          "claimed_authors": [
+            "Zeyu Wang",
+            "Tianyi Jiang",
+            "Huanchang Ma",
+            "Yao Lu",
+            "Xiaoze Bao",
+            "Shanqing Yu",
+            "Qi Xuan",
+            "Shirui Pan",
+            "Xin Zheng"
+          ],
+          "claimed_title": "Few-shot Molecular Property Prediction: A Survey",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2510.08900"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Predicting Molecular Ionization Energies with Graph Neural Networks chemistry', candidate_title='Few-shot Molecular Property Prediction: A Survey')",
+        "failed_at": "2026-07-05T21:33:35Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We aim to characterize the U-band variability of young brown dwarfs in the Taurus Molecular Cloud and discuss its origin. We used the XMM-Newton Extended Survey of the Taurus Molecular Cloud, where a sample of 11 young bona fide brown dwarfs (spectral type later than M6) were observed simultaneously in X-rays with XMM-Newton and in the U-band with the XMM-Newton Optical/UV Monitor (OM). We obtained upper limits to the U-band emission of 10 brown dwarfs (U>19.6-20.6 mag), whereas 2MASSJ04141188+2811535 was detected in the U-band. Remarkably, the magnitude of this brown dwarf increased regularly from U~19.5 mag at the beginning of the observation, peaked 6h later at U~18.4 mag, and then decreased to U~18.65 mag in the next 2h. The first OM U-band measurement is consistent with the quiescent level observed about one year later thanks to ground follow-up observations. This brown dwarf was not detected in X-rays by XMM-Newton during the OM observation. We discuss the possible sources of U-band variability for this young brown dwarf, namely a magnetic flare, non-steady accretion onto the substellar surface, and rotational modulation of a hot spot. We conclude that this event is related to accretion from a circumsubstellar disk, where the mass accretion rate was about a factor of 3 higher than during the quiescent level.",
+          "claimed_authors": [
+            "Nicolas Grosso",
+            "Marc Audard",
+            "Jérôme Bouvier",
+            "Kevin R. Briggs",
+            "Manuel Güdel",
+            "the The XMM-Newton Extended Surveyof the Taurus Molecular Cloud",
+            " Collaboration"
+          ],
+          "claimed_title": "A U-band survey of brown dwarfs in the Taurus Molecular Cloud with the XMM-Newton Optical/UV Monitor",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2006,
+          "primary_pointer": "astro-ph/0609027"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Predicting Molecular Ionization Energies with Graph Neural Networks chemistry', candidate_title='A U-band survey of brown dwarfs in the Taurus Molecular Cloud with the XMM-Newton Optical/UV Monitor')",
+        "failed_at": "2026-07-05T21:33:35Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Molecular systems involve interactions across multiple spatial scales, from local coordination and short-range perturbations to long-range electrostatic and solvent-mediated effects. However, most molecular representation learning methods rely on manually predefined scales, and the task-optimal modeling scale may not coincide with these fixed levels. This study introduces a loss-guided adaptive scale refinement framework for molecular force prediction, treating predefined scales as initial anchors and discovering task-effective resolutions through interpolation, routing, differentiable scale updates, and scale pool refinement.\n  Using a NaCl aqueous ionic system as a minimal testbed, this study constructs short-scale and long-range force prediction branches and analyzes their complementarity. Oracle hard routing reduces the overall force MAE from 399.65 to 382.67, while continuous oracle interpolation further reduces it to 380.96. In close-contact regimes with nearest-ion distance below 0.6 nm, the close-contact MAE decreases from 327.22 to 260.51. A minimal scale pool update experiment shows that starting from endpoint anchors {0,1}, loss-guided updates automatically generate intermediate scales and recover most of the continuous oracle performance. The final updated scale pool {0,0.125,0.25,0.375,0.5,0.75,1} achieves an overall MAE of 381.23.\n  These results support adaptive scale refinement as a promising direction for molecular representation learning, especially when fixed-scale modeling is insufficient.",
+          "claimed_authors": [
+            "Limin Yu"
+          ],
+          "claimed_title": "Loss-Guided Adaptive Scale Refinement for Molecular Force Prediction",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2606.09480"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Predicting Molecular Ionization Energies with Graph Neural Networks chemistry', candidate_title='Loss-Guided Adaptive Scale Refinement for Molecular Force Prediction')",
+        "failed_at": "2026-07-05T21:33:35Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In this paper we study spectral properties of graphs which are constructed from two given invertible graphs by bridging them over a bipartite graph. We analyze the so-called HOMO-LUMO spectral gap which is the difference between the smallest positive and largest negative eigenvalue of the adjacency matrix of a graph. We investigate its dependence on the bridging bipartite graph and we construct a mixed integer semidefinite program for maximization of the HOMO-LUMO gap with respect to the bridging bipartite graph. We also derive upper and lower bounds for the optimal HOMO-LUMO spectral graph by means of semidefinite relaxation techniques. Several computational examples are also presented in this paper.",
+          "claimed_authors": [
+            "Sona Pavlikova",
+            "Daniel Sevcovic"
+          ],
+          "claimed_title": "On Construction of Upper and Lower Bounds for the HOMO-LUMO Spectral Gap",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1806.00870"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Predicting Molecular Ionization Energies with Graph Neural Networks chemistry', candidate_title='On Construction of Upper and Lower Bounds for the HOMO-LUMO Spectral Gap')",
+        "failed_at": "2026-07-05T21:33:35Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A detailed study of energy differences between the highest occupied and lowest unoccupied molecular orbitals (HOMO-LUMO gaps) in protein systems and water clusters is presented. Recent work questioning the applicability of Kohn-Sham density-functional theory to proteins and large water clusters (E. Rudberg, J. Phys.: Condens. Mat. 2012, 24, 072202) has demonstrated vanishing HOMO-LUMO gaps for these systems, which is generally attributed to the treatment of exchange in the functional used. The present work shows that the vanishing gap is, in fact, an electrostatic artefact of the method used to prepare the system. Practical solutions for ensuring the gap is maintained when the system size is increased are demonstrated. This work has important implications for the use of large-scale density-functional theory in biomolecular systems, particularly in the simulation of photoemission, optical absorption and electronic transport, all of which depend critically on differences between energies of molecular orbitals.",
+          "claimed_authors": [
+            "Greg Lever",
+            "Daniel J Cole",
+            "Nicholas D M Hine",
+            "Peter D Haynes",
+            "Mike C Payne"
+          ],
+          "claimed_title": "Electrostatic considerations affecting the calculated HOMO-LUMO gap in protein molecules",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2013,
+          "primary_pointer": "1302.4696"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Predicting Molecular Ionization Energies with Graph Neural Networks chemistry', candidate_title='Electrostatic considerations affecting the calculated HOMO-LUMO gap in protein molecules')",
+        "failed_at": "2026-07-05T21:33:35Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In this work we present and evaluate an implementation of the purify-shift-and-project method [J. Chem. Phys. 128, 176101 (2008)] for linear scaling computation of multiple eigenvectors around the homo-lumo gap of the Fock/Kohn-Sham matrix. Recursive polynomial expansions allow for linear scaling density matrix construction if matrices are sufficiently sparse. However, a drawback is that, compared to the traditional diagonalization approach, eigenvectors of the Fock/Kohn-Sham matrix are not readily available. The sharp polynomial filter, constructed in intermediate iterations of the recursive polynomial expansion, increases the relative separation of eigenvalues near the homo-lumo gap. The computed density matrix approximation is used to project away the uninteresting part of the spectrum, so that the eigenvalues of interest become the extreme eigenvalues, enabling fast convergence of a Lanczos eigensolver. We implement the purify-shift-and-project algorithm in the quantum chemistry program Ergo [SoftwareX 7, 107 (2018)]. We illustrate the performance of the method by computing 30 eigenvectors around the homo-lumo gap for large scale systems.",
+          "claimed_authors": [
+            "Anastasia Kruchinina"
+          ],
+          "claimed_title": "Multiple eigenvectors around the homo-lumo gap as a cheap by-product in linear scaling electronic structure calculations",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1909.11662"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Predicting Molecular Ionization Energies with Graph Neural Networks chemistry', candidate_title='Multiple eigenvectors around the homo-lumo gap as a cheap by-product in linear scaling electronic structure calculations')",
+        "failed_at": "2026-07-05T21:33:35Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Given a monotone convex function on the space of essentially bounded random variables with the Lebesgue property (order continuity), we consider its extension preserving the Lebesgue property to as big solid vector space of random variables as possible. We show that there exists a maximum such extension, with explicit construction, where the maximum domain of extension is obtained as a (possibly proper) subspace of a natural Orlicz-type space, characterized by a certain uniform integrability property. As an application, we provide a characterization of the Lebesgue property of monotone convex function on arbitrary solid spaces of random variables in terms of uniform integrability and a \"nice\" dual representation of the function.",
+          "claimed_authors": [
+            "Keita Owari"
+          ],
+          "claimed_title": "Maximum Lebesgue Extension of Monotone Convex Functions",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2013,
+          "primary_pointer": "1304.7934"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Molecular Ionization Energies with Graph Neural Networks chemistry', candidate_title='Maximum Lebesgue Extension of Monotone Convex Functions')",
+        "failed_at": "2026-07-05T21:33:35Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This article presents a construction of the concept of stochastic integration in Riemannian manifolds from a purely functional-analytic point of view. We show that there are infinitely many such integrals, and that any two of them are related by a simple formula. We also find that the Stratonovich and Itô integrals known to probability theorists are two instances of the general concept constructed herein.",
+          "claimed_authors": [
+            "Alexandru Mustăţea"
+          ],
+          "claimed_title": "Stochastic integration in Riemannian manifolds from a functional-analytic point of view",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2207.08285"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Molecular Ionization Energies with Graph Neural Networks chemistry', candidate_title='Stochastic integration in Riemannian manifolds from a functional-analytic point of view')",
+        "failed_at": "2026-07-05T21:33:35Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A remarkable result by S. Artstein-Avidan and V. Milman states that, up to pre-composition with affine operators, addition of affine functionals, and multiplication by positive scalars, the only fully order preserving mapping acting on the class of lower semicontinuous proper convex functions defined on $\\mathbb{R}^n$ is the identity operator, and the only fully order reversing one acting on the same set is the Fenchel conjugation. Here fully order preserving (reversing) mappings are understood to be those which preserve (reverse) the pointwise order among convex functions, are invertible, and such that their inverses also preserve (reverse) such order. In this paper we establish a suitable extension of these results to order preserving and order reversing operators acting on the class of lower semicontinous proper convex functions defined on arbitrary infinite dimensional Banach spaces.",
+          "claimed_authors": [
+            "Alfredo N. Iusem",
+            "Daniel Reem",
+            "Benar F. Svaiter"
+          ],
+          "claimed_title": "Order preserving and order reversing operators on the class of convex functions in Banach spaces",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1212.1120"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Molecular Ionization Energies with Graph Neural Networks chemistry', candidate_title='Order preserving and order reversing operators on the class of convex functions in Banach spaces')",
+        "failed_at": "2026-07-05T21:33:35Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            " Rajan",
+            "Ishaan Gupta"
+          ],
+          "title": "MolGraphBench: A Benchmark of GNN Architectures for Molecular Regression Tasks",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2602.20573",
+        "summary": "Molecules are often represented as SMILES strings, which can be readily converted to hand-crafted descriptors or fingerprints (FP) for molecular property prediction. Research has demonstrated that SMILES can be converted to molecular graphs $G = (V, E)$, with atoms as nodes $(V)$ and bonds as edges $(E)$. These molecular graphs can subsequently be used to train graph neural networks (GNN) models. Despite the recent surge in application of GNN (existing and novel architectures) for molecular property prediction, a rigorous benchmark is still lacking. We propose MolGraphBench, a comprehensive benchmark of four commonly used GNN models for molecular property prediction. Benchmarking results demonstrate graph convolutional network (GCN) and graph isomorphism networks (GIN) as the optimal GNN architectures for molecular graph regression tasks, based on absolute performance, training efficiency, transfer learning and prediction quality. The study also indicates the non-complementary nature of molecular fingerprints in the fusion (GNN-FP) framework. Furthermore, our GNN models achieved performance superior or comparable performance to current state-of-the-art GNN baselines across three datasets (GCN with RMSE of $0.518$ on B3DB, GIN-FP with RMSE of $1.022$ on FreeSolv and GIN with MAE of $63.783$ on RT datasets). Findings from this study indicate that type of GNN-layer, should be treated as a tunable hyperparameter rather than a fixed design choice to achieve superior performance.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2602.20573",
+          "http_status": 200,
+          "pdf_sample_score": 0.2753,
+          "query_relevance_score": 0.5714,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-05T21:33:35Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "predicting molecular ionization energies with graph neural networks chemistry",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}
