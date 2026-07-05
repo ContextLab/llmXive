@@ -9,3 +9,14 @@
   verification_status: verified
   verified_against_url: https://api.materialsproject.org/docs
   verified_at: '2026-07-05T12:46:01.813077Z'
+- artifact_hash: 6014c5257a5a5f01fab5f8133400c8408cdccc587a79149166535095c8edac99
+  artifact_path: projects/PROJ-360-quantifying-the-impact-of-network-struct/docs/environment_setup.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://materialsproject.org
+  verification_status: pending
+  verified_against_url: https://next-gen.materialsproject.org/
+  verified_at: '2026-07-05T15:09:54.236160Z'

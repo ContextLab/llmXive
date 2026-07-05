@@ -1,0 +1,41 @@
+? 'T015 [US2] Implement extraction of thermal conductivity scalar ($\frac{k_x + k_y
+  + k_z}{3}$) for `data/processed/metrics.csv` (Network metrics only per FR-003) <!--
+  FAILED: unspecified -->'
+: 1
+? 'T015 [US2] Implement extraction of thermal conductivity scalar ($\frac{k_x + k_y
+  + k_z}{3}$) for `data/processed/metrics.csv` (Network metrics only per FR-003) <!--
+  FAILED: unspecified --> <!-- FAILED: unspecified -->'
+: 2
+? 'T015b [US2] Implement extraction of physical descriptors (columns: `unit_cell_volume`,
+  `total_atom_count`, `mean_atomic_mass`) for `data/processed/metrics.csv`. **Action**:
+  Append these columns to the existing CSV with a header comment `# DIAGNOSTICS: Physical
+  descriptors excluded from regression features` to distinguish them from primary
+  features.'
+: 1
+? 'T015b [US2] Implement extraction of physical descriptors (columns: `unit_cell_volume`,
+  `total_atom_count`, `mean_atomic_mass`) for `data/processed/metrics.csv`. **Action**:
+  Append these columns to the existing CSV with a header comment `# DIAGNOSTICS: Physical
+  descriptors excluded from regression features` to distinguish them from primary
+  features. <!-- ATOMIZE: requested -->'
+: 1
+? 'T015b [US2] Implement extraction of physical descriptors (columns: `unit_cell_volume`,
+  `total_atom_count`, `mean_atomic_mass`) for `data/processed/metrics.csv`. **Action**:
+  Append these columns to the existing CSV with a header comment `# DIAGNOSTICS: Physical
+  descriptors excluded from regression features` to distinguish them from primary
+  features. <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->'
+: 1
+? T016 [P] [US2] Implement `code/analyze.py` to compute Pearson and Spearman correlations
+  between each **network metric** (average degree, path length, clustering) and thermal
+  conductivity, storing results in `results/correlations.json`. Do NOT include physical
+  descriptors in this analysis.
+: 2
+? "T017 [US2] Implement Bonferroni correction in `code/analyze.py` for the 3 correlation\
+  \ tests to control family-wise error rate at \u03B1 \u2264 0.05"
+: 2
+? T018 [US2] Implement power analysis logging in `code/analyze.py` to record warnings
+  if $n < 50$ in `results/power_analysis.log`
+: 1
+? 'T020 [US3] Implement `code/analyze.py` to calculate Variance Inflation Factor (VIF)
+  for network metrics using `statsmodels` OLS. **Input**: `data/processed/metrics.csv`.
+  **Output**: VIF values for each network metric.'
+: 1

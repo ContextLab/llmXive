@@ -1,0 +1,13 @@
+pymatgen>=2023.0.0
+networkx>=3.0
+scikit-learn>=1.0
+pandas>=1.5
+requests>=2.28
+numpy>=1.23
+statsmodels>=0.13
+scipy>=1.9
+pytest>=7.0
+black>=22.0
+isort>=5.10
+flake8>=5.0
+pylint>=2.15

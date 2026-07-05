@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-06T13:43:59.792620Z'
-current_stage: analyzed
+current_stage: in_progress
 failed_stage: null
 field: physics
 human_escalation_reason: null
 id: PROJ-360-quantifying-the-impact-of-network-struct
-last_run_id: 6b99ddc1-cd7c-439a-9f94-afd561fc20df
+last_run_id: 1262f94f-d9b2-49c9-9f95-52614f041963
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-360-quantifying-the-impact-of-network-struct/specs/001-quantifying-the-impact-of-network-struct
 title: Quantifying the Impact of Network Structure on Heat Diffusion in Crystalline
   Solids
-updated_at: '2026-07-05T13:13:27.581625Z'
+updated_at: '2026-07-05T14:55:58.848636Z'
