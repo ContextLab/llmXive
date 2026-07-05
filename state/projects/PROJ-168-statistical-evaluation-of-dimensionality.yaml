@@ -6,7 +6,7 @@ failed_stage: null
 field: statistics
 human_escalation_reason: null
 id: PROJ-168-statistical-evaluation-of-dimensionality
-last_run_id: 343c4bef-614e-46c2-9c3b-7db3dcea03e0
+last_run_id: 14264685-5dfa-4cc6-8776-6cb6bb34d035
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-168-statistical-evaluation-of-dimensionality/specs/001-statistical-evaluation-of-dimensionality
 title: Statistical Evaluation of Dimensionality Reduction Techniques on Gene Expression
   Data
-updated_at: '2026-07-05T02:40:21.700272Z'
+updated_at: '2026-07-05T04:09:20.484546Z'

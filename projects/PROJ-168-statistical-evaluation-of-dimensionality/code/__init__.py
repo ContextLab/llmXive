@@ -1,18 +1,22 @@
 """
-llmXive Statistical Evaluation of Dimensionality Reduction Techniques.
+llmXive Gene Regulation Analysis Pipeline.
 
-This package provides the core modules for downloading, preprocessing,
-analyzing, and modeling gene expression data.
+This package contains the core modules for downloading, preprocessing,
+embedding, clustering, and statistically evaluating gene expression data.
 """
 
-from .config import ensure_paths, set_global_seed, get_accession_seed, set_case_study_mode, Config
-
-__all__ = [
-    "ensure_paths",
-    "set_global_seed",
-    "get_accession_seed",
-    "set_case_study_mode",
-    "Config"
-]
+from config import Config
+from utils import ResourceMonitor, time_wrapper, run_script_with_monitoring, get_resource_monitor
+from data_gap_resolver import DatasetStatus, DataGapResolver, main as data_gap_main
 
 __version__ = "0.1.0"
+__all__ = [
+    "Config",
+    "ResourceMonitor",
+    "time_wrapper",
+    "run_script_with_monitoring",
+    "get_resource_monitor",
+    "DatasetStatus",
+    "DataGapResolver",
+    "data_gap_main"
+]

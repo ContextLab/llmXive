@@ -63,10 +63,10 @@ The system must fit a mixed-effects model to test the effect of method type on f
 
 ### Functional Requirements
 
-- **FR-001**: System MUST download and preprocess at least three public scRNA-seq datasets (specifically: GSE, GSE, GSE150728) using log-CPM transformation and retaining the top N highly variable genes, where N is determined by the variance-stabilizing selection method (See US-1).
+- **FR-001**: System MUST download and preprocess at least three public scRNA-seq datasets (specifically: GSE, GSE, GSE) using log-CPM transformation and retaining the top N highly variable genes, where N is determined by the variance-stabilizing selection method (See US-1).
 - **FR-002**: System MUST compute a global linearity score defined as the Trustworthiness metric (k=15) on the high-dimensional space, calculated [deferred] randomly sampled cell pairs to ensure computational feasibility (See US-1).
 - **FR-003**: System MUST compute a local continuity estimate defined as the Local Continuity (LCA) metric (k=15) on the high-dimensional space (See US-1).
-- **FR-004**: System MUST generate three embeddings per dataset: PCA (top 30 components), t-SNE (perplexity=30, 1000 iterations), and UMAP (n_neighbors=15, min_dist=0.1) (See US-1).
+- **FR-004**: System MUST generate three embeddings per dataset: PCA (top principal components), t-SNE (perplexity=30, 1000 iterations), and UMAP (n_neighbors=15, min_dist=0.1) (See US-1).
 - **FR-005**: System MUST calculate Adjusted Rand Index (ARI) and Normalized Mutual Information (NMI) between Leiden clusters (where the number of clusters is optimized to maximize the Silhouette Score) and ground-truth labels for every embedding (See US-2).
 - **FR-006**: System MUST fit a mixed-effects model with the formula `fidelity ~ method + (1|dataset)` to test the fixed effect of the dimensionality reduction method on fidelity, with dataset as a random intercept (See US-3).
 - **FR-007**: System MUST perform a sensitivity analysis by sweeping the Silhouette Score optimization threshold over the set {0.4, 0.5, 0.6} and reporting the variance in ARI/NMI (See US-3).

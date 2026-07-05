@@ -1,156 +1,250 @@
+# Snakemake workflow for Statistical Evaluation of Dimensionality Reduction
+# on Gene Expression Data
+#
+# Rules: download, preprocess, embeddings, geometry, cluster, fidelity, stats
+
 import os
 import sys
 from pathlib import Path
 
-# Ensure the code directory is in the path for imports
-code_dir = Path(__file__).parent / "code"
+# Add code directory to path for imports
+code_dir = Path("code").resolve()
 if str(code_dir) not in sys.path:
     sys.path.insert(0, str(code_dir))
 
-from config import get_all_accessions, ensure_paths, CASE_STUDY_MODE
-from download import download_accession
-from preprocess import preprocess_accession
-from embeddings import run_embedding_pipeline
-from clustering import process_accession as cluster_process
-from stats import save_results
-from validators import validate_accession_data, RealDataValidationError
+from config import Config
+from utils import get_resource_monitor
 
-# Global configuration
-config = {
-    "cores": int(os.getenv("SNAKE_CORES", 1)),
-    "ram_limit_gb": 7.0,
-    "log_level": "INFO",
+config = Config()
+
+# Global resources
+_resources = {
+    "mem_mb": 7000,  # 7GB limit per rule as per CI constraints
+    "time": 3600,    # 1 hour default timeout
+    "threads": 4
 }
 
-# Initialize paths
-ensure_paths()
+# Input/Output directories
+RAW_DIR = config.DATA_RAW
+PROCESSED_DIR = config.DATA_PROCESSED
+RESULTS_DIR = config.RESULTS
+FIGURES_DIR = config.FIGURES
 
-# Rule: verify_data_availability
-# This rule runs before 'download' to ensure at least one valid source exists.
-# It imports logic from code/download.py to attempt source verification without downloading full files.
-rule verify_data_availability:
-    message: "Verifying data availability for required accessions..."
-    input:
-        # Dummy input to force execution order; actual check is in the shell command
-        check_marker = "data/.check_availability"
-    output:
-        touch("data/.availability_verified")
-    run:
-        import logging
-        from download import verify_source_availability
-        
-        logging.basicConfig(level=logging.INFO)
-        logger = logging.getLogger(__name__)
-        
-        accessions = get_all_accessions()
-        logger.info(f"Checking availability for accessions: {accessions}")
-        
-        available = []
-        for acc in accessions:
-            if verify_source_availability(acc):
-                available.append(acc)
-            else:
-                logger.warning(f"No valid raw count source found for {acc}")
-        
-        if not available:
-            logger.error("CRITICAL: No valid raw count sources found for any required accessions. Aborting workflow.")
-            logger.error("Please verify GEO accessions or network connectivity.")
-            sys.exit(1)
-        
-        logger.info(f"Data verification successful. Available accessions: {available}")
-        # Write available list to a temp file for downstream rules if needed
-        with open("data/available_accessions.txt", "w") as f:
-            for acc in available:
-                f.write(f"{acc}\n")
+# Ensure directories exist
+for d in [RAW_DIR, PROCESSED_DIR, RESULTS_DIR, FIGURES_DIR]:
+    d.mkdir(parents=True, exist_ok=True)
 
+# Accession list from config
+ACCESSIONS = config.DATASET_ACCESSIONS
+
+# --------------------------------------------------------------------------
 # Rule: download
+# Fetches raw count matrices for specified GEO accessions
+# --------------------------------------------------------------------------
 rule download:
     input:
-        "data/.availability_verified"
+        lambda wildcards: config.get_raw_path(wildcards.accession)
     output:
-        lambda wildcards: f"data/raw/{wildcards.accession}_counts.h5ad"
-    message: "Downloading raw count matrix for {wildcards.accession}"
-    run:
-        from download import download_accession as dl_func
-        acc = wildcards.accession
-        dl_func(acc)
+        raw=config.get_raw_path("{accession}", ext=".h5ad"),
+        meta=config.get_raw_path("{accession}", ext=".json")
+    resources:
+        _resources
+    log:
+        "results/logs/download_{accession}.log"
+    shell:
+        """
+        python code/download.py \
+            --accession {wildcards.accession} \
+            --output-dir {RAW_DIR} \
+            --log {log}
+        """
 
+# --------------------------------------------------------------------------
 # Rule: preprocess
+# Applies QC, HVG selection, and deterministic sampling
+# --------------------------------------------------------------------------
 rule preprocess:
     input:
-        "data/raw/{accession}_counts.h5ad"
+        raw=lambda wildcards: config.get_raw_path(wildcards.accession, ext=".h5ad")
     output:
-        "data/processed/{accession}_processed.h5ad"
-    message: "Preprocessing {wildcards.accession}: QC and HVG selection"
-    run:
-        from preprocess import preprocess_accession as pp_func
-        acc = wildcards.accession
-        pp_func(acc)
+        processed=config.get_processed_path("{accession}", ext=".h5ad"),
+        hvg_list=config.get_processed_path("{accession}", ext="_hvg.txt")
+    resources:
+        _resources
+    log:
+        "results/logs/preprocess_{accession}.log"
+    shell:
+        """
+        python code/preprocess.py \
+            --input {input.raw} \
+            --output {output.processed} \
+            --hvg-list {output.hvg_list} \
+            --log {log}
+        """
 
-# Rule: geometry (computed on raw space as per spec)
-rule geometry:
-    input:
-        "data/raw/{accession}_counts.h5ad"
-    output:
-        "results/geometry/{accession}_metrics.json"
-    message: "Computing geometry metrics for {wildcards.accession}"
-    run:
-        # Placeholder for geometry logic (T007)
-        pass
-
+# --------------------------------------------------------------------------
 # Rule: embeddings
+# Generates PCA, t-SNE, and UMAP embeddings
+# --------------------------------------------------------------------------
 rule embeddings:
     input:
-        "data/processed/{accession}_processed.h5ad"
+        processed=config.get_processed_path("{accession}", ext=".h5ad")
     output:
-        "results/embeddings/{accession}_embeddings.h5ad"
-    message: "Generating embeddings for {wildcards.accession}"
-    run:
-        from embeddings import run_embedding_pipeline as emb_func
-        acc = wildcards.accession
-        emb_func(acc)
+        pca=config.get_processed_path("{accession}", ext="_pca.h5ad"),
+        tsne=config.get_processed_path("{accession}", ext="_tsne.h5ad"),
+        umap=config.get_processed_path("{accession}", ext="_umap.h5ad")
+    resources:
+        _resources
+    log:
+        "results/logs/embeddings_{accession}.log"
+    shell:
+        """
+        python code/embeddings.py \
+            --input {input.processed} \
+            --output-pca {output.pca} \
+            --output-tsne {output.tsne} \
+            --output-umap {output.umap} \
+            --log {log}
+        """
 
+# --------------------------------------------------------------------------
+# Rule: geometry
+# Computes Global Linearity (Trustworthiness) and Local Continuity (LCA)
+# --------------------------------------------------------------------------
+rule geometry:
+    input:
+        processed=config.get_processed_path("{accession}", ext=".h5ad"),
+        pca=config.get_processed_path("{accession}", ext="_pca.h5ad")
+    output:
+        metrics=config.get_results_path("{accession}", ext="_geometry.csv")
+    resources:
+        _resources
+    log:
+        "results/logs/geometry_{accession}.log"
+    shell:
+        """
+        python code/geometry.py \
+            --input {input.processed} \
+            --pca {input.pca} \
+            --output {output.metrics} \
+            --log {log}
+        """
+
+# --------------------------------------------------------------------------
 # Rule: cluster
+# Applies Leiden clustering with resolution optimization
+# --------------------------------------------------------------------------
 rule cluster:
     input:
-        "results/embeddings/{accession}_embeddings.h5ad"
+        umap=config.get_processed_path("{accession}", ext="_umap.h5ad")
     output:
-        "results/clustering/{accession}_clusters.json"
-    message: "Clustering embeddings for {wildcards.accession}"
-    run:
-        from clustering import process_accession as cluster_func
-        acc = wildcards.accession
-        cluster_func(acc)
+        clustered=config.get_processed_path("{accession}", ext="_clustered.h5ad"),
+        report=config.get_results_path("{accession}", ext="_clustering.json")
+    resources:
+        _resources
+    log:
+        "results/logs/cluster_{accession}.log"
+    shell:
+        """
+        python code/clustering.py \
+            --input {input.umap} \
+            --output {output.clustered} \
+            --report {output.report} \
+            --log {log}
+        """
 
+# --------------------------------------------------------------------------
 # Rule: fidelity
+# Calculates ARI and NMI against ground-truth labels
+# --------------------------------------------------------------------------
 rule fidelity:
     input:
-        "results/clustering/{accession}_clusters.json",
-        "data/processed/{accession}_processed.h5ad"
+        clustered=config.get_processed_path("{accession}", ext="_clustered.h5ad"),
+        raw=config.get_raw_path("{accession}", ext=".h5ad")
     output:
-        "results/fidelity/{accession}_fidelity.json"
-    message: "Calculating fidelity metrics for {wildcards.accession}"
-    run:
-        # Placeholder for fidelity logic (T023)
-        pass
+        metrics=config.get_results_path("{accession}", ext="_fidelity.csv")
+    resources:
+        _resources
+    log:
+        "results/logs/fidelity_{accession}.log"
+    shell:
+        """
+        python code/fidelity.py \
+            --clustered {input.clustered} \
+            --raw {input.raw} \
+            --output {output.metrics} \
+            --log {log}
+        """
 
+# --------------------------------------------------------------------------
 # Rule: stats
+# Performs Fixed-Effects ANOVA or Mixed-Effects modeling
+# --------------------------------------------------------------------------
 rule stats:
     input:
-        expand("results/fidelity/{acc}_fidelity.json", acc=get_all_accessions())
+        geometry=expand(config.get_results_path("{acc}", ext="_geometry.csv"), acc=ACCESSIONS),
+        fidelity=expand(config.get_results_path("{acc}", ext="_fidelity.csv"), acc=ACCESSIONS)
     output:
-        "results/stats/mixed_effects_results.json"
-    message: "Running statistical analysis"
-    run:
-        from stats import main as stats_main
-        stats_main()
+        report=config.get_results_path("statistical_analysis.json"),
+        plot=config.get_results_path("statistical_analysis.png")
+    resources:
+        _resources
+    log:
+        "results/logs/stats.log"
+    shell:
+        """
+        python code/stats.py \
+            --geometry-files {input.geometry} \
+            --fidelity-files {input.fidelity} \
+            --report {output.report} \
+            --plot {output.plot} \
+            --log {log}
+        """
 
-# Main entry point
+# --------------------------------------------------------------------------
+# Rule: aggregate
+# Joins geometry and fidelity metrics for modeling
+# --------------------------------------------------------------------------
+rule aggregate:
+    input:
+        geometry=expand(config.get_results_path("{acc}", ext="_geometry.csv"), acc=ACCESSIONS),
+        fidelity=expand(config.get_results_path("{acc}", ext="_fidelity.csv"), acc=ACCESSIONS)
+    output:
+        combined=config.get_results_path("combined_metrics.csv")
+    resources:
+        _resources
+    log:
+        "results/logs/aggregate.log"
+    shell:
+        """
+        python code/aggregate.py \
+            --geometry-files {input.geometry} \
+            --fidelity-files {input.fidelity} \
+            --output {output.combined} \
+            --log {log}
+        """
+
+# --------------------------------------------------------------------------
+# Rule: resource_monitor
+# Aggregates resource usage logs
+# --------------------------------------------------------------------------
+rule resource_monitor:
+    input:
+        logs=expand("results/logs/{step}_{acc}.log", step=["download", "preprocess", "embeddings", "geometry", "cluster", "fidelity"], acc=ACCESSIONS)
+    output:
+        csv="results/monitoring.csv"
+    resources:
+        _resources
+    shell:
+        """
+        python code/utils.py --aggregate-monitoring --output {output.csv}
+        """
+
+# --------------------------------------------------------------------------
+# Default target
+# --------------------------------------------------------------------------
 rule all:
     input:
-        "results/stats/mixed_effects_results.json"
-
-# Helper function to get all accessions (defined in config)
-def get_all_accessions():
-    from config import get_all_accessions as cfg_accessions
-    return cfg_accessions()
+        stats=config.get_results_path("statistical_analysis.json"),
+        plot=config.get_results_path("statistical_analysis.png"),
+        monitoring="results/monitoring.csv"
