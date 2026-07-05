@@ -1,0 +1,70 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: SimulationResult
+description: "Schema for the aggregated results of the Monte Carlo simulation study."
+type: object
+properties:
+  dataset_name:
+    type: string
+    description: "Name of the source dataset (e.g., 'uci_har_test')."
+  contamination_type:
+    type: string
+    description: "Type of contamination applied."
+    enum:
+      - "gaussian"
+      - "adversarial"
+  contamination_rate:
+    type: number
+    description: "Fraction of data points contaminated (e.g., 0.05)."
+    minimum: 0.0
+    maximum: 1.0
+  method:
+    type: string
+    description: "Statistical method used."
+    enum:
+      - "standard"
+      - "trimmed"
+      - "winsorized"
+  iteration:
+    type: integer
+    description: "Iteration number within the Monte Carlo run (1000 per condition)."
+    minimum: 1
+  n_samples:
+    type: integer
+    description: "Total number of samples in the dataset for this iteration."
+    minimum: 1
+  effect_size:
+    type: number
+    description: "True effect size injected (0.0 for Type I error tests)."
+  test_statistic:
+    type: number
+    description: "Calculated t-statistic or F-statistic."
+  p_value:
+    type: number
+    description: "Raw p-value from the test."
+    minimum: 0.0
+    maximum: 1.0
+  p_value_corrected:
+    type: number
+    description: "Bonferroni-corrected p-value."
+    minimum: 0.0
+    maximum: 1.0
+  null_rejected:
+    type: boolean
+    description: "Whether the null hypothesis was rejected at alpha=0.05."
+  power_or_error:
+    type: number
+    description: "1.0 if null rejected under alternative (power), 1.0 if null rejected under null (Type I error), 0.0 otherwise."
+    minimum: 0.0
+    maximum: 1.0
+required:
+  - dataset_name
+  - contamination_type
+  - contamination_rate
+  - method
+  - iteration
+  - n_samples
+  - test_statistic
+  - p_value
+  - null_rejected
+  - power_or_error
+additionalProperties: false
