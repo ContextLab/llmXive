@@ -106,3 +106,168 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-01T19:08:29Z'
+- artifact_path: projects/PROJ-472-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: US1 test downloads sub-001 to sub-010 from OpenNeuro and generates synthetic
+    EEG for 10 participants
+  claim_id: c_3b0f5a2d
+  context: 'Independent Test: Can be fully tested by successfully downloading a subset
+    of dMRI data from OpenNeuro (sub-001 to sub-010), preprocessing it to adjacency
+    matrices, and generating synthetic EEG time-series for at least 10 participants
+    with matching subject identifiers.'
+  evidence:
+    candidates:
+    - - ''
+      - 1.0
+    - - ''
+      - -1.0
+    - - ''
+      - -10.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/US1_test_downloads_sub-001_to_sub-010_from_OpenNeuro_and_gen
+  kind: magnitude
+  raw_text: The independent test for User Story 1 involves downloading a subset of
+    dMRI data from OpenNeuro (sub-001 to sub-010), preprocessing it to adjacency matrices,
+    and generating synthetic EEG time-series for at least 10 participants.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-07-05T04:41:29Z'
+- artifact_path: projects/PROJ-472-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: Project uses HCP-MMP1.0 parcellation registered to OpenNeuro data
+  claim_id: c_eb47275b
+  context: '**Note**: This is a staged simplification due to HCP data availability;
+    FR-001''s HCP requirement is adapted by applying HCP-MMP1.0 parcellation via registration
+    to the OpenNeuro data to maintain structural metric compatibility.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses HCP-MMP1.0 parcellation applied via registration to the
+    OpenNeuro data.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T04:41:48Z'
+- artifact_path: projects/PROJ-472-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: Removed channels defined as SNR less than 5dB in simulated data
+  claim_id: c_6a8669fe
+  context: T012 [US1] Implement quality control checks in `code/data/quality_control.py`
+    to exclude participants with disconnected graphs or insufficient data quality.
+    **Define** 'removed channels' as channels with SNR < 5dB in simulated data.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Removed_channels_defined_as_SNR_less_than_5dB_in_simulated_d
+  kind: magnitude
+  raw_text: The quality control metric defines 'removed channels' as channels with
+    SNR < 5dB in simulated data.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T04:42:14Z'
+- artifact_path: projects/PROJ-472-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: Simulation uses EEG derived from dMRI due to lack of matched real-world
+    datasets
+  claim_id: c_7308bbeb
+  context: '**Simulation Approach**: This project uses simulated EEG data derived
+    from dMRI structural connectomes due to the unavailability of matched real-world
+    datasets.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Simulation_uses_EEG_derived_from_dMRI_due_to_lack_of_matched
+  kind: entity_fact
+  raw_text: The simulation approach uses simulated EEG data derived from dMRI structural
+    connectomes due to the unavailability of matched real-world datasets.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T04:42:43Z'
+- artifact_path: projects/PROJ-472-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: Permutation test uses Holm-Bonferroni method for error correction
+  claim_id: c_3f5f33cd
+  context: T020 [US3] Implement non-parametric permutation test (sufficient shuffles)
+    and family-wise error correction using **Holm-Bonferroni** method in `code/analysis/stats.py`
+    (FR-007).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The non-parametric permutation test in User Story 3 uses the Holm-Bonferroni
+    method for family-wise error correction.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T04:43:05Z'
+- artifact_path: projects/PROJ-472-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: Collinearity diagnostics flag VIF >= 5
+  claim_id: c_e822306a
+  context: "T021 [US3] Implement collinearity diagnostics (VIF) in `code/analysis/stats.py`\
+    \ with flagging logic for VIF \u2265 5 (FR-009)."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Collinearity_diagnostics_flag_VIF_%3E=_5
+  kind: magnitude
+  raw_text: Collinearity diagnostics flag VIF values greater than or equal to 5.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T04:43:24Z'
+- artifact_path: projects/PROJ-472-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: Permutation loop runtime <= 6 hours for 10 subjects on CPU
+  claim_id: c_488ab918
+  context: "T027 Profile `code/analysis/stats.py` and optimize the permutation loop\
+    \ using multiprocessing to ensure total runtime \u2264 6 hours on CPU-only runner\
+    \ for **N=10 subjects** (SC-006)."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Permutation_loop_runtime_%3C=_6_hours_for_10_subjects_on_CPU
+  kind: magnitude
+  raw_text: The optimization goal for the permutation loop is to ensure a total runtime
+    of less than or equal to 6 hours on a CPU-only runner for N=10 subjects.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T04:43:50Z'
+- artifact_path: projects/PROJ-472-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: Correlation analysis halts if fewer than 10 usable subjects remain
+  claim_id: c_61563805
+  context: 'T029b Implement the ''Null Result Protocol'' in `code/main.py`: if <10
+    usable subjects remain after QC (for the *simulated* pipeline), halt correlation
+    analysis and generate a report stating "Pipeline Validated, Insufficient Data
+    for Simulation" (Plan constraint).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Correlation_analysis_halts_if_fewer_than_10_usable_subjects
+  kind: magnitude
+  raw_text: The Null Result Protocol halts correlation analysis if fewer than 10 usable
+    subjects remain after QC.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T04:44:05Z'

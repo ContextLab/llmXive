@@ -1,0 +1,625 @@
+{
+  "fetched_at": "2026-07-05T04:34:19Z",
+  "field": "computer science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "computer science",
+      "idea_body_excerpt": "llmXive follow-up: extending \"Beyond Scalar Rewards by Internalizing Reasoning into Score Distributi\"",
+      "target_n": 5
+    },
+    "duration_seconds": 49.352,
+    "ended_at": "2026-07-05T04:34:19Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "internalizing reasoning in language model reward signals"
+        ],
+        [
+          2,
+          "reasoning-aware reward distributions for LLMs"
+        ],
+        [
+          3,
+          "moving beyond scalar rewards in reinforcement learning for language models"
+        ],
+        [
+          4,
+          "probabilistic reward modeling for chain-of-thought reasoning"
+        ],
+        [
+          5,
+          "latent reasoning scores in large language models"
+        ],
+        [
+          6,
+          "non-scalar reward functions for generative AI"
+        ],
+        [
+          7,
+          "distributional reinforcement learning for language model alignment"
+        ],
+        [
+          8,
+          "reasoning trace integration into reward signals"
+        ],
+        [
+          9,
+          "structured reward shaping for complex reasoning tasks"
+        ],
+        [
+          10,
+          "uncertainty-aware reward distributions for LLMs"
+        ],
+        [
+          11,
+          "multi-dimensional reward metrics for language model reasoning"
+        ],
+        [
+          12,
+          "reasoning-guided policy optimization with distributional rewards"
+        ],
+        [
+          13,
+          "internalizing cognitive processes into reward functions"
+        ],
+        [
+          14,
+          "vector-valued rewards for language model reasoning"
+        ],
+        [
+          15,
+          "reward function design for reasoning-intensive LLM tasks"
+        ],
+        [
+          16,
+          "probabilistic internal states in language model reward learning"
+        ],
+        [
+          17,
+          "reasoning quality estimation via reward distribution analysis"
+        ],
+        [
+          18,
+          "extending scalar reward paradigms in LLM training"
+        ],
+        [
+          19,
+          "reward signal granularity for language model reasoning"
+        ],
+        [
+          20,
+          "cognitive-aware reward modeling for generative language models"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "internalizing reasoning in language model reward signals": 4,
+        "llmXive follow-up: extending \"Beyond Scalar Rewards by Internalizing Reasoning into Score Distributi\" computer science": 0
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "reasoning score distribution internalization",
+      "LLM reasoning trace reward modeling",
+      "process supervision outcome supervision divergence",
+      "reward model calibration distributional shift",
+      "chain-of-thought reward signal leakage"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "success_after_expansion",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2309.02144"
+      ]
+    },
+    "per_query_hit_count": {
+      "LLM reasoning trace reward modeling": 2,
+      "chain-of-thought reward signal leakage": 3,
+      "llmXive follow-up: extending \"Beyond Scalar Rewards by Internalizing Reasoning into Score Distributi\" computer science": 3,
+      "process supervision outcome supervision divergence": 3,
+      "reasoning score distribution internalization": 3,
+      "reward model calibration distributional shift": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 0,
+      "rejections": []
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-07-05T04:33:30Z",
+    "term_input": {
+      "normalized": "llmxive follow-up: extending \"beyond scalar rewards by internalizing reasoning into score distributi\" computer science",
+      "raw": "llmXive follow-up: extending \"Beyond Scalar Rewards by Internalizing Reasoning into Score Distributi\" computer science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This white paper describes the LSST Dark Energy Science Collaboration (DESC), whose goal is the study of dark energy and related topics in fundamental physics with data from the Large Synoptic Survey Telescope (LSST). It provides an overview of dark energy science and describes the current and anticipated state of the field. It makes the case for the DESC by laying out a robust analytical framework for dark energy science that has been defined by its members and the comprehensive three-year work plan they have developed for implementing that framework. The analysis working groups cover five key probes of dark energy: weak lensing, large scale structure, galaxy clusters, Type Ia supernovae, and strong lensing. The computing working groups span cosmological simulations, galaxy catalogs, photon simulations and a systematic software and computational framework for LSST dark energy data analysis. The technical working groups make the connection between dark energy science and the LSST system. The working groups have close linkages, especially through the use of the photon simulations to study the impact of instrument design and survey strategy on analysis methodology and cosmological parameter estimation. The white paper describes several high priority tasks identified by each of the 16 working groups. Over the next three years these tasks will help prepare for LSST analysis, make synergistic connections with ongoing cosmological surveys and provide the dark energy community with state of the art analysis tools. Members of the community are invited to join the LSST DESC, according to the membership policies described in the white paper. Applications to sign up for associate membership may be made by submitting the Web form at http://www.slac.stanford.edu/exp/lsst/desc/signup.html with a short statement of the work they wish to pursue that is relevant to the LSST DESC.",
+          "claimed_authors": [
+            " LSST Dark Energy Science Collaboration"
+          ],
+          "claimed_title": "Large Synoptic Survey Telescope: Dark Energy Science Collaboration",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1211.0310"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Beyond Scalar Rewards by Internalizing Reasoning i', candidate_title='Large Synoptic Survey Telescope: Dark Energy Science Collaboration')",
+        "failed_at": "2026-07-05T04:34:01Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The large instantaneous sensitivity, a wide frequency coverage and flexible observation modes with large number of beams in the sky are the main features of the SKA observatory's two telescopes, the SKA-Low and the SKA-Mid, which are located on two different continents. Owing to these capabilities, the SKAO telescopes are going to be a game-changer for radio astronomy in general and pulsar astronomy in particular. The eleven articles in this special issue on pulsar science with the SKA Observatory describe its impact on different areas of pulsar science. In this lead article, a brief description of the two telescopes highlighting the relevant features for pulsar science is presented followed by an overview of each accompanying article, exploring the inter-relationship between different pulsar science use cases.",
+          "claimed_authors": [
+            "Bhal Chandra Joshi",
+            "Aris Karastergiou",
+            "Marta Burgay",
+            "The SKA pulsar science working group"
+          ],
+          "claimed_title": "Pulsar Science with the SKA Observatory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.16152"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Beyond Scalar Rewards by Internalizing Reasoning i', candidate_title='Pulsar Science with the SKA Observatory')",
+        "failed_at": "2026-07-05T04:34:01Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A Human Computer Interface (HCI) System for playing games is designed here for more natural communication with the machines. The system presented here is a vision-based system for detection of long voluntary eye blinks and interpretation of blink patterns for communication between man and machine. This system replaces the mouse with the human face as a new way to interact with the computer. Facial features (nose tip and eyes) are detected and tracked in realtime to use their actions as mouse events. The coordinates and movement of the nose tip in the live video feed are translated to become the coordinates and movement of the mouse pointer on the application. The left or right eye blinks fire left or right mouse click events. The system works with inexpensive USB cameras and runs at a frame rate of 30 frames per second.",
+          "claimed_authors": [
+            "S. Sumathi",
+            "S. K. Srivatsa",
+            "M. Uma Maheswari"
+          ],
+          "claimed_title": "Vision Based Game Development Using Human Computer Interaction",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1002.2191"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Beyond Scalar Rewards by Internalizing Reasoning i', candidate_title='Vision Based Game Development Using Human Computer Interaction')",
+        "failed_at": "2026-07-05T04:34:01Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Flow theory describes an optimal cognitive state where individuals experience deep focus and intrinsic motivation when a task's difficulty aligns with their skill level. In AI-augmented reasoning, interventions that disrupt the state of cognitive flow can hinder rather than enhance decision-making. This paper proposes a context-aware cognitive augmentation framework that adapts interventions based on three key contextual factors: type, timing, and scale. By leveraging multimodal behavioral cues (e.g., gaze behavior, typing hesitation, interaction speed), AI can dynamically adjust cognitive support to maintain or restore flow. We introduce the concept of cognitive flow, an extension of flow theory in AI-augmented reasoning, where interventions are personalized, adaptive, and minimally intrusive. By shifting from static interventions to context-aware augmentation, our approach ensures that AI systems support deep engagement in complex decision-making and reasoning without disrupting cognitive immersion.",
+          "claimed_authors": [
+            "Dinithi Dissanayake",
+            "Suranga Nanayakkara"
+          ],
+          "claimed_title": "Navigating the State of Cognitive Flow: Context-Aware AI Interventions for Effective Reasoning Support",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2504.16021"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Beyond Scalar Rewards by Internalizing Reasoning i', candidate_title='Navigating the State of Cognitive Flow: Context-Aware AI Interventions for Effective Reasoning Support')",
+        "failed_at": "2026-07-05T04:34:01Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Previous research has shown that journal article quality ratings from the cloud based Large Language Model (LLM) families ChatGPT and Gemini and the medium sized open weights LLM Gemma3 27b correlate moderately with expert research quality scores. This article assesses whether other medium sized LLMs, smaller LLMs, and reasoning models have similar abilities. This is tested with Gemma3 variants, Llama4 Scout, Qwen3, Magistral Small and DeepSeek R1 on a dataset of 2,780 medical, health and life science papers in 6 fields, with two different gold standards, one novel. Few-shot and score averaging approaches are also evaluated. The results suggest that medium-sized LLMs have similar performance to ChatGPT 4o-mini and Gemini 2.0 Flash, but that 1b parameters may often, and 4b sometimes, be too few. Reasoning models did not have a clear advantage. Moreover, averaging scores from multiple identical queries seems to be a universally successful strategy, and there is weak evidence that few-shot prompts (four examples) tend to help. Overall, the results show, for the first time, that smaller LLMs >4b have a substantial capability to rate journal articles for research quality, especially if score averaging is used, but that reasoning does not give an advantage for this task; it is therefore not recommended because it is slow. The use of LLMs to support research evaluation is now more credible since multiple variants have a similar ability, including many that can be deployed offline in a secure environment without substantial computing resources.",
+          "claimed_authors": [
+            "Mike Thelwall",
+            "Ehsan Mohammadi"
+          ],
+          "claimed_title": "Can Small and Reasoning Large Language Models Score Journal Articles for Research Quality and Do Averaging and Few-shot Help?",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2510.22389"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='llmXive follow-up: extending \"Beyond Scalar Rewards by Internalizing Reasoning i', candidate_title='Can Small and Reasoning Large Language Models Score Journal Articles for Research Quality and Do Averaging and Few-shot Help?')",
+        "failed_at": "2026-07-05T04:34:01Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Large Language Models (LLMs) consistently benefit from scaled Chain-of-Thought (CoT) reasoning, but also suffer from heavy computational overhead. To address this issue, efficient reasoning aims to incentivize short yet accurate thinking trajectories, typically through reward shaping with Reinforcement Learning (RL). In this paper, we systematically investigate the mechanics of efficient reasoning for LLMs. For comprehensive evaluation, we advocate for more fine-grained metrics, including length distribution conditioned on correctness and performance across a wide spectrum of token budgets ranging from 2k to 32k. First, we reveal that the training process follows a two-stage paradigm: length adaptation and reasoning refinement. Through extensive experiments (about 0.2 million GPU hours) in a unified protocol, we deconstruct training prompts and rollouts, reward shaping, and optimization strategies. A central finding is to maintain a sufficient density of positive reward signals and avoid the short-is-correct trap. Moreover, the learned length bias generalizes across domains and difficulty levels. We distill these findings into valuable insights and practical guidelines, and validate them across the Qwen3 models ranging from 0.6B to 30B, demonstrating the robustness and generalization. Weights are available at https://wutaiqiang.github.io/project/Art",
+          "claimed_authors": [
+            "Taiqiang Wu",
+            "Zenan Xu",
+            "Bo Zhou",
+            "Ngai Wong"
+          ],
+          "claimed_title": "The Art of Efficient Reasoning: Data, Reward, and Optimization",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2602.20945"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Beyond Scalar Rewards by Internalizing Reasoning i', candidate_title='The Art of Efficient Reasoning: Data, Reward, and Optimization')",
+        "failed_at": "2026-07-05T04:34:01Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Knowledge graphs can guide large language models (LLMs) reasoning, but the graph seen by a system is usually a retrieved, linked, temporally scoped, and incomplete evidence state rather than a complete account of truth. We develop a theoretical perspective on grounding observable LLM trajectories under such incomplete graph evidence.The evidence state induces entity anchors, typed relation residuals, path energies, and support regions, while the language model supplies a prior over candidate trajectories. We show that, under open-world incompleteness, no hard rule based only on the observed state can both reject every false unsupported trajectory and retain every true-but-unobserved one.We then characterize soft grounding as a KL-regularized deformation of the LLM prior: finite slack preserves support for unsupported but non-contradicted trajectories, whereas hard conditioning appears as an infinite-penalty limit.The framework also yields stability bounds under evidence perturbations and clarifies the constraint regimes appropriate for GraphRAG, KGQA, graph agents, constrained decoding, and faithful generation. The claims are evidence-relative: KG compatibility is treated as declared support, not factual truth.",
+          "claimed_authors": [
+            "Jiaqi Li",
+            "Fanghui Song"
+          ],
+          "claimed_title": "Grounding LLM Reasoning under Incomplete Graph Evidence",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2606.30247"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Beyond Scalar Rewards by Internalizing Reasoning i', candidate_title='Grounding LLM Reasoning under Incomplete Graph Evidence')",
+        "failed_at": "2026-07-05T04:34:01Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This work evaluated several cutting-edge large-scale foundation models based on self-supervision or weak supervision, including SeamlessM4T, SeamlessM4T v2, and Whisper-large-v3, on three code-switched corpora. We found that self-supervised models can achieve performances close to the supervised model, indicating the effectiveness of multilingual self-supervised pre-training. We also observed that these models still have room for improvement as they kept making similar mistakes and had unsatisfactory performances on modeling intra-sentential code-switching. In addition, the validity of several variants of Whisper was explored, and we concluded that they remained effective in a code-switching scenario, and similar techniques for self-supervised models are worth studying to boost the performance of code-switched tasks.",
+          "claimed_authors": [
+            "Chih-Kai Yang",
+            "Kuan-Po Huang",
+            "Ke-Han Lu",
+            "Chun-Yi Kuan",
+            "Chi-Yuan Hsiao",
+            "Hung-yi Lee"
+          ],
+          "claimed_title": "Investigating Zero-Shot Generalizability on Mandarin-English Code-Switched ASR and Speech-to-text Translation of Recent Foundation Models with Self-Supervision and Weak Supervision",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2401.00273"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Beyond Scalar Rewards by Internalizing Reasoning i', candidate_title='Investigating Zero-Shot Generalizability on Mandarin-English Code-Switched ASR and Speech-to-text Translation of Recent Foundation Models with Self-Supervision and Weak Supervision')",
+        "failed_at": "2026-07-05T04:34:01Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The central challenge of reinforcement learning for reasoning lies not only in the sparsity of outcome-level supervision, but more fundamentally in how to transform feedback provided only at the end of a sequence into fine-grained learning signals that can guide intermediate reasoning steps. Existing approaches either rely on outcome-level rewards for sequence-level optimization, which makes precise credit assignment difficult, or depend on externally constructed process supervision, which is costly and difficult to scale sustainably. To address this, we propose a new perspective: reinforcement learning for reasoning can be understood as the problem of internalizing outcome supervision into process supervision. From this perspective, we introduce a supervision-internalization method for reinforcement learning for reasoning, enabling the model to automatically extract process-level learning signals through identifying, correcting, and reusing failed reasoning trajectories, thereby achieving finer-grained policy optimization under outcome-only supervision. We further abstract this idea into a new training paradigm, in which the model continually generates and refines its own internal process supervision during reinforcement learning, opening a new path for fine-grained credit assignment in reinforcement learning for reasoning that differs from externally provided process supervision.",
+          "claimed_authors": [
+            "Fei Ding",
+            "Yongkang Zhang",
+            "Runhao Liu",
+            "Yuhao Liao",
+            "Zijian Zeng",
+            "Sibo wang",
+            "Huiming Yang"
+          ],
+          "claimed_title": "Internalizing Outcome Supervision into Process Supervision: A New Paradigm for Reinforcement Learning for Reasoning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2605.05226"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='llmXive follow-up: extending \"Beyond Scalar Rewards by Internalizing Reasoning i', candidate_title='Internalizing Outcome Supervision into Process Supervision: A New Paradigm for Reinforcement Learning for Reasoning')",
+        "failed_at": "2026-07-05T04:34:01Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Thin, reflective objects such as forks and whisks are common in our daily lives, but they are particularly challenging for robot perception because it is hard to reconstruct them using commodity RGB-D cameras or multi-view stereo techniques. While traditional pipelines struggle with objects like these, Neural Radiance Fields (NeRFs) have recently been shown to be remarkably effective for performing view synthesis on objects with thin structures or reflective materials. In this paper we explore the use of NeRF as a new source of supervision for robust robot vision systems. In particular, we demonstrate that a NeRF representation of a scene can be used to train dense object descriptors. We use an optimized NeRF to extract dense correspondences between multiple views of an object, and then use these correspondences as training data for learning a view-invariant representation of the object. NeRF's usage of a density field allows us to reformulate the correspondence problem with a novel distribution-of-depths formulation, as opposed to the conventional approach of using a depth map. Dense correspondence models supervised with our method significantly outperform off-the-shelf learned descriptors by 106% (PCK@3px metric, more than doubling performance) and outperform our baseline supervised with multi-view stereo by 29%. Furthermore, we demonstrate the learned dense descriptors enable robots to perform accurate 6-degree of freedom (6-DoF) pick and place of thin and reflective objects.",
+          "claimed_authors": [
+            "Lin Yen-Chen",
+            "Pete Florence",
+            "Jonathan T. Barron",
+            "Tsung-Yi Lin",
+            "Alberto Rodriguez",
+            "Phillip Isola"
+          ],
+          "claimed_title": "NeRF-Supervision: Learning Dense Object Descriptors from Neural Radiance Fields",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2203.01913"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Beyond Scalar Rewards by Internalizing Reasoning i', candidate_title='NeRF-Supervision: Learning Dense Object Descriptors from Neural Radiance Fields')",
+        "failed_at": "2026-07-05T04:34:01Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Reward models learned from human preferences are central to aligning large language models (LLMs) via reinforcement learning from human feedback, yet they are often vulnerable to reward hacking due to noisy annotations and systematic biases such as response length or style. We propose Bayesian Non-Negative Reward Model (BNRM), a principled reward modeling framework that integrates non-negative factor analysis into Bradley-Terry (BT) preference model. BNRM represents rewards through a sparse, non-negative latent factor generative process that operates at two complementary levels: instance-specific latent variables induce disentangled reward representations, while sparsity over global latent factors acts as an implicit debiasing mechanism that suppresses spurious correlations. Together, this disentanglement-then-debiasing structure enables robust uncertainty-aware reward learning. To scale BNRM to modern LLMs, we develop an amortized variational inference network conditioned on deep model representations, allowing efficient end-to-end training. Extensive empirical results demonstrate that BNRM substantially mitigates reward over-optimization, improves robustness under distribution shifts, and yields more interpretable reward decompositions than strong baselines.",
+          "claimed_authors": [
+            "Zhibin Duan",
+            "Guowei Rong",
+            "Zhuo Li",
+            "Bo Chen",
+            "Mingyuan Zhou",
+            "Dandan Guo"
+          ],
+          "claimed_title": "Mitigating Reward Hacking in RLHF via Bayesian Non-negative Reward Modeling",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2602.10623"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Beyond Scalar Rewards by Internalizing Reasoning i', candidate_title='Mitigating Reward Hacking in RLHF via Bayesian Non-negative Reward Modeling')",
+        "failed_at": "2026-07-05T04:34:01Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Reinforcement learning from human feedback (RLHF) has emerged as the primary method for aligning large language models (LLMs) with human preferences. The RLHF process typically starts by training a reward model (RM) using human preference data. Conventional RMs are trained on pairwise responses to the same user request, with relative ratings indicating which response humans prefer. The trained RM serves as a proxy for human preferences. However, due to the black-box nature of RMs, their outputs lack interpretability, as humans cannot intuitively understand why an RM thinks a response is good or not. As RMs act as human preference proxies, we believe they should be human-interpretable to ensure that their internal decision processes are consistent with human preferences and to prevent reward hacking in LLM alignment. To build RMs with interpretable preferences, we propose a two-stage approach: i) train an Absolute-Rating Multi-Objective Reward Model (ArmoRM) with multi-dimensional absolute-rating data, each dimension corresponding to a human-interpretable objective (e.g., honesty, verbosity, safety); ii) employ a Mixture-of-Experts (MoE) strategy with a gating network that automatically selects the most suitable reward objectives based on the context. We efficiently trained an ArmoRM with Llama-3 8B and a gating network consisting of a shallow MLP on top of the ArmoRM. Our trained model, ArmoRM-Llama3-8B, obtains state-of-the-art performance on RewardBench, a benchmark evaluating RMs for language modeling. Notably, the performance of our model surpasses the LLM-as-a-judge method with GPT-4 judges by a margin, and approaches the performance of the much larger Nemotron-4 340B reward model.",
+          "claimed_authors": [
+            "Haoxiang Wang",
+            "Wei Xiong",
+            "Tengyang Xie",
+            "Han Zhao",
+            "Tong Zhang"
+          ],
+          "claimed_title": "Interpretable Preferences via Multi-Objective Reward Modeling and Mixture-of-Experts",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2406.12845"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Beyond Scalar Rewards by Internalizing Reasoning i', candidate_title='Interpretable Preferences via Multi-Objective Reward Modeling and Mixture-of-Experts')",
+        "failed_at": "2026-07-05T04:34:01Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In reinforcement learning, specification gaming occurs when AI systems learn undesired behaviors that are highly rewarded due to misspecified training goals. Specification gaming can range from simple behaviors like sycophancy to sophisticated and pernicious behaviors like reward-tampering, where a model directly modifies its own reward mechanism. However, these more pernicious behaviors may be too complex to be discovered via exploration. In this paper, we study whether Large Language Model (LLM) assistants which find easily discovered forms of specification gaming will generalize to perform rarer and more blatant forms, up to and including reward-tampering. We construct a curriculum of increasingly sophisticated gameable environments and find that training on early-curriculum environments leads to more specification gaming on remaining environments. Strikingly, a small but non-negligible proportion of the time, LLM assistants trained on the full curriculum generalize zero-shot to directly rewriting their own reward function. Retraining an LLM not to game early-curriculum environments mitigates, but does not eliminate, reward-tampering in later environments. Moreover, adding harmlessness training to our gameable environments does not prevent reward-tampering. These results demonstrate that LLMs can generalize from common forms of specification gaming to more pernicious reward tampering and that such behavior may be nontrivial to remove.",
+          "claimed_authors": [
+            "Carson Denison",
+            "Monte MacDiarmid",
+            "Fazl Barez",
+            "David Duvenaud",
+            "Shauna Kravec",
+            "Samuel Marks",
+            "Nicholas Schiefer",
+            "Ryan Soklaski",
+            "Alex Tamkin",
+            "Jared Kaplan",
+            "Buck Shlegeris",
+            "Samuel R. Bowman",
+            "Ethan Perez",
+            "Evan Hubinger"
+          ],
+          "claimed_title": "Sycophancy to Subterfuge: Investigating Reward-Tampering in Large Language Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2406.10162"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Beyond Scalar Rewards by Internalizing Reasoning i', candidate_title='Sycophancy to Subterfuge: Investigating Reward-Tampering in Large Language Models')",
+        "failed_at": "2026-07-05T04:34:01Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In this paper, we propose an interpretable denoising method for graph signals using regularization by denoising (RED). RED is a technique developed for image restoration that uses an efficient (and sometimes black-box) denoiser in the regularization term of the optimization problem. By using RED, optimization problems can be designed with the explicit use of the denoiser, and the gradient of the regularization term can be easily computed under mild conditions. We adapt RED for denoising of graph signals beyond image processing. We show that many graph signal denoisers, including graph neural networks, theoretically or practically satisfy the conditions for RED. We also study the effectiveness of RED from a graph filter perspective. Furthermore, we propose supervised and unsupervised parameter estimation methods based on deep algorithm unrolling. These methods aim to enhance the algorithm applicability, particularly in the unsupervised setting. Denoising experiments for synthetic and real-world datasets show that our proposed method improves signal denoising accuracy in mean squared error compared to existing graph signal denoising methods.",
+          "claimed_authors": [
+            "Hayate Kojima",
+            "Hiroshi Higashi",
+            "Yuichi Tanaka"
+          ],
+          "claimed_title": "Graph Signal Denoising Using Regularization by Denoising and Its Parameter Estimation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.14213"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Beyond Scalar Rewards by Internalizing Reasoning i', candidate_title='Graph Signal Denoising Using Regularization by Denoising and Its Parameter Estimation')",
+        "failed_at": "2026-07-05T04:34:01Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Time-vertex graph signal (TVGS) models describe time-varying data with irregular structures. The bandlimitedness in the joint time-vertex Fourier spectral domain reflects smoothness in both temporal and graph topology. In this paper, we study the critical sampling of three types of TVGS including continuous-time signals, infinite-length sequences, and finite-length sequences in the time domain for each vertex on the graph. For a jointly bandlimited TVGS, we prove a lower bound on sampling density or sampling ratio, which depends on the measure of the spectral support in the joint time-vertex Fourier spectral domain. We also provide a lower bound on the sampling density or sampling ratio of each vertex on sampling sets for perfect recovery. To demonstrate that critical sampling is achievable, we propose the sampling and reconstruction procedures for the different types of TVGS. Finally, we show how the proposed sampling schemes can be applied to numerical as well as real datasets.",
+          "claimed_authors": [
+            "Hang Sheng",
+            "Hui Feng",
+            "Junhao Yu",
+            "Feng Ji",
+            "Bo Hu"
+          ],
+          "claimed_title": "Sampling Theory of Jointly Bandlimited Time-vertex Graph Signals",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2508.21412"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Beyond Scalar Rewards by Internalizing Reasoning i', candidate_title='Sampling Theory of Jointly Bandlimited Time-vertex Graph Signals')",
+        "failed_at": "2026-07-05T04:34:01Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Advances in machine learning technology have enabled real-time extraction of semantic information in signals which can revolutionize signal processing techniques and improve their performance significantly for the next generation of applications. With the objective of a concrete representation and efficient processing of the semantic information, we propose and demonstrate a formal graph-based semantic language and a goal filtering method that enables goal-oriented signal processing. The proposed semantic signal processing framework can easily be tailored for specific applications and goals in a diverse range of signal processing applications. To illustrate its wide range of applicability, we investigate several use cases and provide details on how the proposed goal-oriented semantic signal processing framework can be customized. We also investigate and propose techniques for communications where sensor data is semantically processed and semantic information is exchanged across a sensor network.",
+          "claimed_authors": [
+            "Mert Kalfa",
+            "Mehmetcan Gok",
+            "Arda Atalik",
+            "Busra Tegin",
+            "Tolga M. Duman",
+            "Orhan Arikan"
+          ],
+          "claimed_title": "Towards Goal-Oriented Semantic Signal Processing: Applications and Future Challenges",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2109.11885"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Beyond Scalar Rewards by Internalizing Reasoning i', candidate_title='Towards Goal-Oriented Semantic Signal Processing: Applications and Future Challenges')",
+        "failed_at": "2026-07-05T04:34:01Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Xin Jin",
+            "Huanqia Cai",
+            "Zhen Li",
+            "Zechao Zhan",
+            "Dengyang Jiang",
+            "Aiming Hao",
+            "Yuming Jiang",
+            "Chunle Guo",
+            "Peng Gao",
+            "Ming-Ming Cheng",
+            "Steven C. H. Hoi"
+          ],
+          "title": "Beyond Scalar Rewards by Internalizing Reasoning into Score Distributions",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2606.09076",
+        "summary": "Reward models are central to text-to-image post-training, but visual preference is subjective and better represented as a distribution over rubric scores than as a deterministic scalar. Existing scalar, score-token, and pairwise reward models over-compress uncertainty and fine-grained score differences, while reasoning-based generative rewards provide stronger judgments but are costly to deploy and difficult to use as direct optimization signals. We propose Z-Reward, a teacher-student reward modeling framework that decouples reasoning-heavy judgment from efficient reward deployment. The teacher is a large VLM that uses reasoning to infer rubric-aligned score distributions, and is trained with Group-wise Direct Score Optimization (GDSO), which combines policy-gradient rewards from distribution expectations with direct pointwise and pairwise supervision on score distributions and score gaps. The student is trained with Reasoning-Internalized Score Distillation (RISD), which transfers the teacher's reasoning-conditioned score distribution into a compact VLM without requiring explicit reasoning chains at inference time. On our internally annotated evaluation set, the 27B GDSO teacher reaches 89.6% human preference accuracy, outperforming SFT, RewardDance, and GRPO, while the 9B RISD student reaches 88.6%, outperforming the OPD baseline and closely matching the larger teacher. We further show that Z-Reward can serve as a differentiable reward signal for text-to-image optimization, yielding a 41.3% net human-preference improvement over the SFT baseline.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2606.09076",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-05T04:34:01Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Taiqiang Wu",
+            "Zenan Xu",
+            "Bo Zhou",
+            "Ngai Wong"
+          ],
+          "title": "The Art of Efficient Reasoning: Data, Reward, and Optimization",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2602.20945",
+        "summary": "Large Language Models (LLMs) consistently benefit from scaled Chain-of-Thought (CoT) reasoning, but also suffer from heavy computational overhead. To address this issue, efficient reasoning aims to incentivize short yet accurate thinking trajectories, typically through reward shaping with Reinforcement Learning (RL). In this paper, we systematically investigate the mechanics of efficient reasoning for LLMs. For comprehensive evaluation, we advocate for more fine-grained metrics, including length distribution conditioned on correctness and performance across a wide spectrum of token budgets ranging from 2k to 32k. First, we reveal that the training process follows a two-stage paradigm: length adaptation and reasoning refinement. Through extensive experiments (about 0.2 million GPU hours) in a unified protocol, we deconstruct training prompts and rollouts, reward shaping, and optimization strategies. A central finding is to maintain a sufficient density of positive reward signals and avoid the short-is-correct trap. Moreover, the learned length bias generalizes across domains and difficulty levels. We distill these findings into valuable insights and practical guidelines, and validate them across the Qwen3 models ranging from 0.6B to 30B, demonstrating the robustness and generalization. Weights are available at https://wutaiqiang.github.io/project/Art",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2602.20945",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6667,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-05T04:34:06Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Chen Zhang",
+            "Dading Chong",
+            "Feng Jiang",
+            "Chengguang Tang",
+            "Anningzhe Gao",
+            "Guohua Tang",
+            "Haizhou Li"
+          ],
+          "title": "Aligning Language Models Using Follow-up Likelihood as Reward Signal",
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2409.13948",
+        "summary": "In natural human-to-human conversations, participants often receive feedback signals from one another based on their follow-up reactions. These reactions can include verbal responses, facial expressions, changes in emotional state, and other non-verbal cues. Similarly, in human-machine interactions, the machine can leverage the user's follow-up utterances as feedback signals to assess whether it has appropriately addressed the user's request. Therefore, we propose using the likelihood of follow-up utterances as rewards to differentiate preferred responses from less favored ones, without relying on human or commercial LLM-based preference annotations. Our proposed reward mechanism, ``Follow-up Likelihood as Reward\" (FLR), matches the performance of strong reward models trained on large-scale human or GPT-4 annotated data on 8 pairwise-preference and 4 rating-based benchmarks. Building upon the FLR mechanism, we propose to automatically mine preference data from the online generations of a base policy model. The preference data are subsequently used to boost the helpfulness of the base model through direct alignment from preference (DAP) methods, such as direct preference optimization (DPO). Lastly, we demonstrate that fine-tuning the language model that provides follow-up likelihood with natural language feedback significantly enhances FLR's performance on reward modeling benchmarks and effectiveness in aligning the base policy model's helpfulness.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2409.13948",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6667,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-05T04:34:06Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Dongqi Zheng"
+          ],
+          "title": "ARS: Adaptive Reasoning Suppression for Efficient Large Reasoning Language Models",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2510.00071",
+        "summary": "Large Reasoning Language Models (LRLMs or LRMs) demonstrate remarkable capabilities in complex reasoning tasks, but suffer from significant computational inefficiencies due to overthinking phenomena. Existing efficient reasoning methods face the challenge of balancing reasoning quality with inference cost reduction. We propose \\textbf{Adaptive Reasoning Suppression (ARS)}, a novel training-free approach that dynamically suppresses redundant reasoning steps while preserving accuracy through adaptive certainty monitoring. ARS introduces a multi-checkpoint certainty estimation mechanism with progressive suppression thresholds, achieving superior efficiency compared to static suppression methods. Our extensive evaluation across mathematical reasoning benchmarks using multiple model architectures demonstrates that ARS achieves up to 53%, 46.1%, and 57.9% in token, latency and energy reduction, while maintaining or improving accuracy.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2510.00071",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-05T04:34:06Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Peiyi Wang",
+            "Lei Li",
+            "Liang Chen",
+            "Feifan Song",
+            "Binghuai Lin",
+            "Yunbo Cao",
+            "Tianyu Liu",
+            "Zhifang Sui"
+          ],
+          "title": "Making Large Language Models Better Reasoners with Alignment",
+          "venue": "arXiv",
+          "year": 2023
+        },
+        "primary_pointer": "2309.02144",
+        "summary": "Reasoning is a cognitive process of using evidence to reach a sound conclusion. The reasoning capability is essential for large language models (LLMs) to serve as the brain of the artificial general intelligence agent. Recent studies reveal that fine-tuning LLMs on data with the chain of thought (COT) reasoning process can significantly enhance their reasoning capabilities. However, we find that the fine-tuned LLMs suffer from an \\textit{Assessment Misalignment} problem, i.e., they frequently assign higher scores to subpar COTs, leading to potential limitations in their reasoning abilities. To address this problem, we introduce an \\textit{Alignment Fine-Tuning (AFT)} paradigm, which involves three steps: 1) fine-tuning LLMs with COT training data; 2) generating multiple COT responses for each question, and categorizing them into positive and negative ones based on whether they achieve the correct answer; 3) calibrating the scores of positive and negative responses given by LLMs with a novel constraint alignment loss. Specifically, the constraint alignment loss has two objectives: a) Alignment, which guarantees that positive scores surpass negative scores to encourage answers with high-quality COTs; b) Constraint, which keeps the negative scores confined to a reasonable range to prevent the model degradation. Beyond just the binary positive and negative feedback, the constraint alignment loss can be seamlessly adapted to the ranking situations when ranking feedback is accessible. Furthermore, we also delve deeply into recent ranking-based alignment methods, such as DPO, RRHF, and PRO, and discover that the constraint, which has been overlooked by these approaches, is also crucial for their performance. Extensive experiments on four reasoning benchmarks with both binary and ranking feedback demonstrate the effectiveness of AFT.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2309.02144",
+          "http_status": 200,
+          "pdf_sample_score": 0.4087,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-05T04:34:07Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "llmxive follow-up: extending \"beyond scalar rewards by internalizing reasoning into score distributi\" computer science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

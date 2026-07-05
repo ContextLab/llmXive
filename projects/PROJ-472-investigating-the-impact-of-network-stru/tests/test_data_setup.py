@@ -1,159 +1,133 @@
-"""
-Tests for data directory setup and checksum tracking.
-"""
 import os
 import json
 import tempfile
 import shutil
 from pathlib import Path
 import pytest
+import sys
 
-# We will mock the data root for testing to avoid polluting the real project structure
-# by temporarily changing the working directory or mocking the function.
-# However, since the code uses relative paths based on "data", we'll run these
-# in a temporary directory structure that mimics the project layout.
+# Add code directory to path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent / 'code'))
 
-@pytest.fixture
-def temp_project_root(tmp_path):
-    """Create a temporary project root with data directory structure."""
-    # Create the structure
-    data_dir = tmp_path / "data"
-    data_dir.mkdir()
-    
-    # Create subdirectories
-    (data_dir / "raw").mkdir()
-    (data_dir / "processed").mkdir()
-    (data_dir / "results").mkdir()
-    
-    # Create a test file
-    test_file = data_dir / "raw" / "test_file.txt"
-    test_file.write_text("test content")
-    
-    # Change to the temp directory to make relative paths work
-    original_cwd = os.getcwd()
-    os.chdir(tmp_path)
-    
-    yield tmp_path
-    
-    # Restore original working directory
-    os.chdir(original_cwd)
+from utils.data_setup import (
+    compute_file_checksum,
+    load_checksums,
+    save_checksums,
+    update_checksum_for_file,
+    verify_file_integrity,
+    setup_data_environment
+)
+from config import get_data_root
 
+class TestDataSetup:
+    @pytest.fixture(autouse=True)
+    def setup_and_teardown(self):
+        # Create a temporary directory to act as data root for testing
+        self.test_data_root = Path(tempfile.mkdtemp())
+        # Mock get_data_root by monkeypatching
+        self.original_get_data_root = get_data_root
+        import config
+        config.get_data_root = lambda: self.test_data_root
+        yield
+        # Cleanup
+        shutil.rmtree(self.test_data_root)
+        config.get_data_root = self.original_get_data_root
 
-def test_ensure_data_directories_creates_missing(temp_project_root):
-    """Test that ensure_data_directories creates missing directories."""
-    import sys
-    sys.path.insert(0, str(temp_project_root / ".."))
-    from code.utils.data_setup import ensure_data_directories, get_data_root
-    
-    # Remove one directory
-    target_dir = get_data_root() / "new_dir"
-    if target_dir.exists():
-        shutil.rmtree(target_dir)
-        
-    # Ensure it gets created
-    created = ensure_data_directories()
-    assert target_dir in created
-    assert target_dir.exists()
+    def test_setup_creates_directories(self):
+        paths = setup_data_environment()
+        assert 'raw' in paths
+        assert 'processed' in paths
+        assert 'results' in paths
+        assert paths['raw'].exists()
+        assert paths['processed'].exists()
+        assert paths['results'].exists()
+        assert paths['raw'].is_dir()
+        assert paths['processed'].is_dir()
+        assert paths['results'].is_dir()
 
-
-def test_compute_file_checksum(temp_project_root):
-    """Test checksum computation."""
-    import sys
-    sys.path.insert(0, str(temp_project_root / ".."))
-    from code.utils.data_setup import compute_file_checksum, get_data_root
-    
-    test_file = get_data_root() / "raw" / "test_file.txt"
-    checksum = compute_file_checksum(test_file)
-    
-    # SHA256 of "test content"
-    expected = "d8e8fca2dc0f896fd7cb4cb0031ba249b7b15717495474219078218728497809" # This is actually incorrect, let's calculate properly
-    # Correct SHA256 for "test content":
-    import hashlib
-    correct_hash = hashlib.sha256(b"test content").hexdigest()
-    
-    assert checksum == correct_hash
-
-
-def test_load_and_save_checksums(temp_project_root):
-    """Test loading and saving checksums."""
-    import sys
-    sys.path.insert(0, str(temp_project_root / ".."))
-    from code.utils.data_setup import load_checksums, save_checksums, get_data_root
-    
-    # Test empty load
-    checksums = load_checksums()
-    assert checksums == {}
-    
-    # Save some checksums
-    test_data = {"raw/test.txt": "abc123"}
-    save_checksums(test_data)
-    
-    # Load and verify
-    loaded = load_checksums()
-    assert loaded == test_data
-    
-    # Verify file exists
-    checksum_file = get_data_root() / "checksums.json"
-    assert checksum_file.exists()
-
-
-def test_update_checksum_for_file(temp_project_root):
-    """Test updating checksum for a specific file."""
-    import sys
-    sys.path.insert(0, str(temp_project_root / ".."))
-    from code.utils.data_setup import update_checksum_for_file, load_checksums, get_data_root
-    
-    test_file = get_data_root() / "raw" / "test_file.txt"
-    update_checksum_for_file(test_file)
-    
-    checksums = load_checksums()
-    assert "raw/test_file.txt" in checksums
-    assert checksums["raw/test_file.txt"] != ""
-
-
-def test_verify_file_integrity(temp_project_root):
-    """Test file integrity verification."""
-    import sys
-    sys.path.insert(0, str(temp_project_root / ".."))
-    from code.utils.data_setup import update_checksum_for_file, verify_file_integrity, get_data_root
-    
-    test_file = get_data_root() / "raw" / "test_file.txt"
-    
-    # Initially no checksum stored
-    assert not verify_file_integrity(test_file)
-    
-    # Store checksum
-    update_checksum_for_file(test_file)
-    assert verify_file_integrity(test_file)
-    
-    # Modify file
-    test_file.write_text("modified content")
-    assert not verify_file_integrity(test_file)
-    
-    # Restore and verify again
-    test_file.write_text("test content")
-    assert verify_file_integrity(test_file)
-
-
-def test_setup_data_environment(temp_project_root):
-    """Test the main setup function."""
-    import sys
-    sys.path.insert(0, str(temp_project_root / ".."))
-    from code.utils.data_setup import setup_data_environment, get_data_root
-    
-    # Remove checksum file to test initialization
-    checksum_file = get_data_root() / "checksums.json"
-    if checksum_file.exists():
-        checksum_file.unlink()
-        
-    result = setup_data_environment()
-    
-    assert result["status"] == "success"
-    assert "directories_created" in result
-    assert "checksum_file" in result
-    assert checksum_file.exists()
-    
-    # Verify checksum file is valid JSON
-    with open(checksum_file, "r") as f:
-        data = json.load(f)
+    def test_setup_creates_checksum_manifest(self):
+        setup_data_environment()
+        checksum_file = self.test_data_root / '.checksums.json'
+        assert checksum_file.exists()
+        with open(checksum_file, 'r') as f:
+            data = json.load(f)
         assert isinstance(data, dict)
+
+    def test_compute_file_checksum(self):
+        test_file = self.test_data_root / 'raw' / 'test.txt'
+        test_file.parent.mkdir(parents=True, exist_ok=True)
+        test_file.write_text("Hello, World!")
+
+        checksum = compute_file_checksum(test_file)
+        assert len(checksum) == 64  # SHA256 hex length
+        assert isinstance(checksum, str)
+
+        # Verify determinism
+        checksum2 = compute_file_checksum(test_file)
+        assert checksum == checksum2
+
+    def test_save_and_load_checksums(self):
+        test_checksums = {
+            'raw/file1.txt': 'abc123',
+            'processed/file2.txt': 'def456'
+        }
+        checksum_file = self.test_data_root / '.checksums.json'
+        save_checksums(test_checksums, checksum_file)
+
+        loaded = load_checksums(checksum_file)
+        assert loaded == test_checksums
+
+    def test_update_checksum_for_file(self):
+        test_file = self.test_data_root / 'raw' / 'update_test.txt'
+        test_file.parent.mkdir(parents=True, exist_ok=True)
+        test_file.write_text("Update me")
+
+        checksums = {}
+        checksum_file = self.test_data_root / '.checksums.json'
+        save_checksums({}, checksum_file)
+
+        update_checksum_for_file(test_file, checksums, checksum_file)
+
+        assert 'raw/update_test.txt' in checksums
+        assert len(checksums['raw/update_test.txt']) == 64
+
+    def test_verify_file_integrity_success(self):
+        test_file = self.test_data_root / 'raw' / 'verify_test.txt'
+        test_file.parent.mkdir(parents=True, exist_ok=True)
+        test_file.write_text("Verify me")
+
+        checksums = {}
+        checksum_file = self.test_data_root / '.checksums.json'
+        save_checksums({}, checksum_file)
+
+        # First update to store the correct checksum
+        update_checksum_for_file(test_file, checksums, checksum_file)
+
+        # Now verify
+        assert verify_file_integrity(test_file, checksums, checksum_file) is True
+
+    def test_verify_file_integrity_failure(self):
+        test_file = self.test_data_root / 'raw' / 'verify_fail_test.txt'
+        test_file.parent.mkdir(parents=True, exist_ok=True)
+        test_file.write_text("Original")
+
+        checksums = {}
+        checksum_file = self.test_data_root / '.checksums.json'
+        save_checksums({}, checksum_file)
+
+        # Update with original content
+        update_checksum_for_file(test_file, checksums, checksum_file)
+
+        # Modify file
+        test_file.write_text("Modified")
+
+        # Verify should fail
+        assert verify_file_integrity(test_file, checksums, checksum_file) is False
+
+    def test_verify_missing_file(self):
+        test_file = self.test_data_root / 'raw' / 'nonexistent.txt'
+        checksums = {}
+        checksum_file = self.test_data_root / '.checksums.json'
+        save_checksums({}, checksum_file)
+
+        assert verify_file_integrity(test_file, checksums, checksum_file) is False

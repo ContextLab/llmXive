@@ -1,1 +1,2 @@
-# Processed data directory (e.g., adjacency matrices, filtered EEG)
+# This directory stores processed dMRI data (adjacency matrices, etc.)
+# Generated from raw data after preprocessing

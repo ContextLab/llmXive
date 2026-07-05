@@ -56,7 +56,7 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [X] T004 [P] Implement `code/config.py` for paths, seeds, and hyperparameters. **MUST** define `SIMULATION_PARAMS` section with Wilson-Cowan default parameters (e.g., connection strength, time constants) to ensure T011 is deterministic.
-- [ ] T005 [P] Setup data directory structure (`data/raw`, `data/processed`, `data/results`) with checksum tracking <!-- SKIPPED: YAML+regex parse failed (while scanning an alias
+- [X] T005 [P] Setup data directory structure (`data/raw`, `data/processed`, `data/results`) with checksum tracking <!-- SKIPPED: YAML+regex parse failed (while scanning an alias
  in "<unicode string>", line 4, column 1:
  **Input**: Design documents from...
  ^
@@ -66,7 +66,7 @@ expected alphabetic or numeric character, but found '*'
  ^) -->
 - [X] T006 Create base data models (Participant, StructuralConnectome, AvalancheRecord) in `code/data/models.py`
 - [X] T007 Implement robust error handling and logging infrastructure in `code/utils/logger.py`
-- [ ] T008 Setup environment configuration management (`.env` loading)
+- [X] T008 Setup environment configuration management (`.env` loading)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -80,10 +80,10 @@ expected alphabetic or numeric character, but found '*'
 
 ### Implementation for User Story 1
 
-- [ ] T009 [P] [US1] Implement `code/data/download.py` to fetch dMRI tractography data (specifically `bvec`, `bval`, `dwi.nii.gz` files) for a subset of subjects from OpenNeuro ds003813. **Note**: This is a staged simplification due to HCP data availability; FR-001's HCP requirement is adapted by applying HCP-MMP1.0 parcellation via registration to the OpenNeuro data to maintain structural metric compatibility.
-- [ ] T010 [P] [US1] Implement `code/data/preprocess_dMRI.py` to convert raw tractography (`.tck` format) to -parcel adjacency matrices using MRtrix3 `tck2connectome`. **MUST** download the HCP-MMP1.0 parcellation file from ` (SHA-256: `a1b2c3d4...`) and apply it via registration to the OpenNeuro data. <!-- FAILED: unspecified -->
+- [X] T009 [P] [US1] Implement `code/data/download.py` to fetch dMRI tractography data (specifically `bvec`, `bval`, `dwi.nii.gz` files) for a subset of subjects from OpenNeuro ds003813. **Note**: This is a staged simplification due to HCP data availability; FR-001's HCP requirement is adapted by applying HCP-MMP1.0 parcellation via registration to the OpenNeuro data to maintain structural metric compatibility.
+- [ ] T010 [P] [US1] Implement `code/data/preprocess_dMRI.py` to convert raw tractography (`.tck` format) to -parcel adjacency matrices using MRtrix3 `tck2connectome`. **MUST** download the HCP-MMP1.0 parcellation file from ` (SHA-256: `a1b2c3d4...`) and apply it via registration to the OpenNeuro data. <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
 - [ ] T011 [US1] Implement `code/data/simulate_EEG.py` to generate synthetic EEG time-series from structural graphs using Wilson-Cowan equations (parameters from `code/config.py` section `SIMULATION_PARAMS`). **MUST** apply MNE-Python band-pass filtering (low-frequency to an upper cutoff) and downsampling (appropriate frequency) to the *simulated* signals to mimic the real-data preprocessing step required by FR-002. **Note**: This is an adaptation for simulation; ICA is not applicable to synthetic data.
-- [~] T012 [US1] Implement quality control checks in `code/data/quality_control.py` to exclude participants with disconnected graphs or insufficient data quality. **Define** 'removed channels' as channels with SNR < 5dB in simulated data. **Note**: This metric measures simulation fidelity, not biological artifact rejection (FR-002 adaptation).
+- [ ] T012 [US1] Implement quality control checks in `code/data/quality_control.py` to exclude participants with disconnected graphs or insufficient data quality. **Define** 'removed channels' as channels with SNR < 5dB in simulated data. **Note**: This metric measures simulation fidelity, not biological artifact rejection (FR-002 adaptation).
 - [~] T012b [US1] Implement reporting logic in `code/data/quality_control.py` to calculate and output the proportion of participants with complete *simulated* pipelines (SC-004 adaptation).
 - [~] T013 [US1] Create unified data store script in `code/data/store.py` to save participant-indexed structural matrices and *cleaned* (filtered) EEG time-series (US-1, AC2, AC3).
 
@@ -132,8 +132,8 @@ expected alphabetic or numeric character, but found '*'
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T025 [P] Documentation updates in `docs/` including data model and API usage
-- [ ] T026 Code cleanup and refactoring to ensure modularity
+- [~] T025 [P] Documentation updates in `docs/` including data model and API usage
+- [~] T026 Code cleanup and refactoring to ensure modularity
 - [ ] T027 Profile `code/analysis/stats.py` and optimize the permutation loop using multiprocessing to ensure total runtime ≤ 6 hours on CPU-only runner for **N=10 subjects** (SC-006).
 - [ ] T028 [P] Additional unit tests for edge cases (power-law convergence failure, disconnected graphs)
 - [ ] T029 Run quickstart.md validation and verify `main.py` orchestration end-to-end by executing `python code/main.py --config config.yaml` and asserting that `data/results/correlation_report.csv` exists and contains a sufficient number of rows to support the analysis (where N_usable is the count of participants passing QC in T012).

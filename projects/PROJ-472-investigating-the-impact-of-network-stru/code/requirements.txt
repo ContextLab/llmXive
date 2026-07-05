@@ -3,25 +3,26 @@ numpy>=1.24.0
 pandas>=2.0.0
 scipy>=1.10.0
 matplotlib>=3.7.0
+networkx>=3.1.0
+python-dotenv>=1.0.0
 
-# Network analysis
-networkx>=3.1
-bctpy>=0.6
-
-# Power law fitting
-powerlaw>=1.5
-
-# Simulation and EEG
+# Data handling
+nibabel>=5.1.0
 mne>=1.5.0
 
-# Utilities
-python-dotenv>=1.0.0
-tqdm>=4.65.0
+# Statistical analysis
+powerlaw>=1.5.0
+statsmodels>=0.14.0
 
-# Testing
+# Download utilities
+requests>=2.31.0
+wget>=3.2
+
+# Development tools
 pytest>=7.4.0
-pytest-cov>=4.1.0
-
-# Linting/Formatting
-ruff>=0.1.0
 black>=23.0.0
+ruff>=0.1.0
+
+# Note: datalad is required for OpenNeuro access but may need system installation
+# Install with: pip install datalad
+# Or system package: apt-get install datalad

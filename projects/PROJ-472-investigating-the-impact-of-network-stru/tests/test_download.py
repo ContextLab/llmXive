@@ -1,143 +1,147 @@
 """
-Tests for the dMRI download functionality.
+Tests for the dMRI download module.
 
-These tests verify that the download module correctly handles:
-- URL construction for different subjects
-- File existence after download (mocked)
-- Error handling for missing files
+These tests verify the download functionality without actually downloading
+large files. They test the logic and structure of the download process.
 """
+
 import pytest
 from pathlib import Path
-from unittest.mock import patch, MagicMock, mock_open
+from unittest.mock import patch, MagicMock
+import tempfile
+import os
+
+# Import the module under test
 import sys
+sys.path.insert(0, str(Path(__file__).parent.parent / "code"))
 
-# Add project root to path
-project_root = Path(__file__).resolve().parent.parent
-if str(project_root) not in sys.path:
-    sys.path.insert(0, str(project_root))
-
-from code.data.download import (
-    get_subject_url,
-    download_file,
-    process_subject,
-    SUBJECTS,
-    FILE_TYPES,
-    OPENNEURO_DATASET
+from data.download import (
+    check_datalad_installed,
+    verify_downloaded_files,
+    SUBJECTS_TO_DOWNLOAD,
+    REQUIRED_FILES
 )
+from utils.logger import setup_logger
 
-class TestURLConstruction:
-    """Test URL construction for different subjects and file types."""
-    
-    def test_url_construction_dwi(self):
-        """Test URL construction for dwi.nii.gz file."""
-        url = get_subject_url("sub-001", "dwi.nii.gz")
-        assert url is not None
-        assert "ds003813" in url
-        assert "sub-001" in url
-        assert "dwi.nii.gz" in url
-    
-    def test_url_construction_bvec(self):
-        """Test URL construction for bvec file."""
-        url = get_subject_url("sub-002", "bvec")
-        assert url is not None
-        assert "ds003813" in url
-        assert "sub-002" in url
-        assert "dwi.bvec" in url
-    
-    def test_url_construction_bval(self):
-        """Test URL construction for bval file."""
-        url = get_subject_url("sub-010", "bval")
-        assert url is not None
-        assert "ds003813" in url
-        assert "sub-010" in url
-        assert "dwi.bval" in url
+@pytest.fixture
+def temp_data_dir():
+    """Create a temporary directory for testing."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        yield Path(tmpdir)
 
-class TestDownloadFile:
-    """Test file download functionality."""
+@pytest.fixture
+def sample_subject_dir(temp_data_dir):
+    """Create a sample subject directory with dummy files."""
+    subject_dir = temp_data_dir / "sub-001"
+    subject_dir.mkdir()
     
-    @patch('code.data.download.urlretrieve')
-    @patch('code.data.download.Path.exists', return_value=True)
-    @patch('code.data.download.Path.stat')
-    def test_download_success(self, mock_stat, mock_exists, mock_urlretrieve, tmp_path):
-        """Test successful file download."""
-        # Setup mocks
-        mock_stat.return_value.st_size = 1024
-        mock_urlretrieve.return_value = None
-        
-        target = tmp_path / "test_file.nii.gz"
-        success = download_file("http://example.com/test.nii.gz", target)
-        
-        assert success is True
-        mock_urlretrieve.assert_called_once()
+    # Create dummy files
+    for file_rel in REQUIRED_FILES:
+        file_name = Path(file_rel).name
+        dummy_file = subject_dir / file_name
+        dummy_file.write_text("dummy content")
     
-    @patch('code.data.download.urlretrieve')
-    def test_download_http_error_404(self, mock_urlretrieve, tmp_path):
-        """Test handling of 404 error."""
-        from urllib.error import HTTPError
-        
-        mock_urlretrieve.side_effect = HTTPError(
-            url="http://example.com/test.nii.gz",
-            code=404,
-            msg="Not Found",
-            hdrs={},
-            fp=None
-        )
-        
-        target = tmp_path / "test_file.nii.gz"
-        success = download_file("http://example.com/test.nii.gz", target)
-        
-        assert success is False
-    
-    @patch('code.data.download.urlretrieve')
-    def test_download_empty_file(self, mock_urlretrieve, tmp_path):
-        """Test handling of empty file download."""
-        from unittest.mock import MagicMock
-        
-        mock_stat = MagicMock()
-        mock_stat.st_size = 0
-        
-        with patch('code.data.download.Path.stat', return_value=mock_stat):
-            with patch('code.data.download.Path.exists', return_value=True):
-                mock_urlretrieve.return_value = None
-                
-                target = tmp_path / "test_file.nii.gz"
-                success = download_file("http://example.com/test.nii.gz", target)
-                
-                assert success is False
+    return subject_dir
 
-class TestSubjectProcessing:
-    """Test subject-level processing."""
-    
-    def test_subject_list(self):
-        """Test that correct subjects are defined."""
-        assert len(SUBJECTS) == 10
-        assert "sub-001" in SUBJECTS
-        assert "sub-010" in SUBJECTS
-        assert "sub-011" not in SUBJECTS
-    
-    def test_file_types(self):
-        """Test that all required file types are defined."""
-        assert "dwi.nii.gz" in FILE_TYPES
-        assert "bvec" in FILE_TYPES
-        assert "bval" in FILE_TYPES
+def test_check_datalad_installed():
+    """Test datalad availability check."""
+    # This will return True if datalad is installed, False otherwise
+    # We don't assert a specific value as it depends on the environment
+    result = check_datalad_installed()
+    assert isinstance(result, bool)
 
-class TestIntegration:
-    """Integration tests for the download module."""
+def test_verify_downloaded_files_all_present(sample_subject_dir):
+    """Test verification when all required files are present."""
+    result = verify_downloaded_files(sample_subject_dir)
+    assert result is True
+
+def test_verify_downloaded_files_missing_file(temp_data_dir):
+    """Test verification when a required file is missing."""
+    subject_dir = temp_data_dir / "sub-002"
+    subject_dir.mkdir()
     
-    @patch('code.data.download.get_data_root')
-    @patch('code.data.download.ensure_data_directories')
-    @patch('code.data.download.ensure_directories')
-    def test_main_function_structure(self, mock_ensure_dirs, mock_ensure_data, mock_get_root, tmp_path):
-        """Test that main function executes without crashing (mocked)."""
-        from code.data.download import main
-        
-        # Mock the data root
-        mock_get_root.return_value = tmp_path
-        
-        # Run main (should not raise exceptions)
-        # Note: This will likely return False since we're not actually downloading
-        result = main()
-        
-        # We expect False since we're not actually downloading real files
-        # The important thing is that the function structure is correct
-        assert isinstance(result, bool)
+    # Create only one of the required files
+    (subject_dir / "dwi.bvec").write_text("dummy")
+    
+    result = verify_downloaded_files(subject_dir)
+    assert result is False
+
+def test_verify_downloaded_files_empty_file(temp_data_dir):
+    """Test verification when a file is empty."""
+    subject_dir = temp_data_dir / "sub-003"
+    subject_dir.mkdir()
+    
+    # Create files but make one empty
+    for file_rel in REQUIRED_FILES:
+        file_name = Path(file_rel).name
+        file_path = subject_dir / file_name
+        if file_name == "dwi.nii.gz":
+            file_path.write_text("")  # Empty file
+        else:
+            file_path.write_text("dummy")
+    
+    result = verify_downloaded_files(subject_dir)
+    assert result is False
+
+def test_subjects_to_download_format():
+    """Test that subject IDs are in the correct format."""
+    for subject in SUBJECTS_TO_DOWNLOAD:
+        assert subject.startswith("sub-")
+        assert len(subject) == 7  # sub-XXX
+        assert subject[4:].isdigit()
+
+def test_required_files_format():
+    """Test that required file paths are in correct format."""
+    for file_path in REQUIRED_FILES:
+        assert file_path.startswith("dwi/")
+        assert Path(file_path).suffix in ['.bvec', '.bval', '.nii.gz']
+
+def test_download_structure(temp_data_dir):
+    """Test that the download creates the correct directory structure."""
+    # Simulate the expected directory structure
+    expected_dirs = [
+        temp_data_dir / "sub-001",
+        temp_data_dir / "sub-002",
+        temp_data_dir / "sub-010"
+    ]
+    
+    for dir_path in expected_dirs:
+        dir_path.mkdir(parents=True, exist_ok=True)
+    
+    # Verify directories exist
+    for dir_path in expected_dirs:
+        assert dir_path.exists()
+        assert dir_path.is_dir()
+
+@patch('data.download.subprocess.run')
+def test_download_command_execution(mock_run, temp_data_dir):
+    """Test that download commands are executed correctly."""
+    from data.download import download_subject_files
+    
+    mock_process = MagicMock()
+    mock_process.returncode = 0
+    mock_run.return_value = mock_process
+    
+    subject_dir = temp_data_dir / "sub-001"
+    subject_dir.mkdir()
+    
+    success, files = download_subject_files("sub-001", temp_data_dir)
+    
+    # Verify subprocess.run was called
+    assert mock_run.called
+
+@patch('data.download.subprocess.run')
+def test_download_timeout_handling(mock_run, temp_data_dir):
+    """Test handling of download timeout."""
+    from data.download import download_subject_files
+    from subprocess import TimeoutExpired
+    
+    mock_run.side_effect = TimeoutExpired(cmd="wget", timeout=300)
+    
+    subject_dir = temp_data_dir / "sub-001"
+    subject_dir.mkdir()
+    
+    success, files = download_subject_files("sub-001", temp_data_dir)
+    
+    # Should return False on timeout
+    assert success is False

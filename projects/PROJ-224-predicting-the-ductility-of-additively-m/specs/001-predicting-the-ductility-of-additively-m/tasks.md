@@ -87,7 +87,7 @@
  - **Merge**: Combine all successful sources.
  - **Error Handling**: If HuggingFace is unreachable or returns empty, log a CRITICAL warning but **DO NOT** fail. Proceed with the data from the primary source (papers).
  - **Output**: A unified DataFrame.
-- [ ] T016 [US1] Implement Materials Project descriptor fetch in `code/data/acquisition.py`: <!-- FAILED: unspecified -->
+- [ ] T016 [US1] Implement Materials Project descriptor fetch in `code/data/acquisition.py`: <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
  - Query the Materials Project API **only** for alloy crystallographic descriptors (lattice parameters, space group) for the alloys present in the dataset.
  - Merge these descriptors into the unified DataFrame.
  - Log any API failures but proceed with available data.
@@ -100,10 +100,10 @@
  - Calculate volumetric energy density: `E_v = P / (v * h * t)`.
  - Add `E_v` to the dataset.
  - Verify column integrity.
-- [ ] T019 [US1] Add validation check in `code/data/cleaning.py`:
+- [X] T019 [US1] Add validation check in `code/data/cleaning.py`:
  - If row count < 50, log critical warning but proceed.
  - Log total excluded records and reasons.
-- [ ] T020 [US1] Version the `data/curated_builds.csv` artifact:
+- [ ] T020 [US1] Version the `data/curated_builds.csv` artifact: <!-- ATOMIZE: requested -->
  - Compute SHA-256 hash of the CSV file.
  - **MANDATORY**: Record the hash in `state/projects/PROJ-224-predicting-the-ductility-of-additively-m.yaml` under the `artifact_hashes` key.
  - Do not store hashes in alternative locations (e.g., `data/.checksums` or `state/` root).
@@ -120,12 +120,12 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T021 [P] [US2] Unit test for VIF calculation logic in `code/tests/test_models.py`
-- [~] T022 [P] [US2] Unit test for mixed-effects convergence check in `code/tests/test_models.py`
+- [X] T021 [P] [US2] Unit test for VIF calculation logic in `code/tests/test_models.py`
+- [ ] T022 [P] [US2] Unit test for mixed-effects convergence check in `code/tests/test_models.py`
 
 ### Implementation for User Story 2
 
-- [~] T023 [US2] Implement VIF analysis and feature filtering in `code/data/preprocessing.py`:
+- [X] T023 [US2] Implement VIF analysis and feature filtering in `code/data/preprocessing.py`:
  - Calculate VIF for all fixed-effect predictors (Power, Speed, Hatch, Thickness, Energy Density).
  - **Logic**: IF Energy Density VIF > 5 THEN:
  - Drop the individual constituent predictors (Power, Speed, Hatch, Thickness).

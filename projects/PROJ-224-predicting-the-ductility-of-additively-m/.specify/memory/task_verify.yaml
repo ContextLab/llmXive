@@ -1,4 +1,8 @@
 'T016 [US1] Implement Materials Project descriptor fetch in `code/data/acquisition.py`:': 2
 'T016 [US1] Implement Materials Project descriptor fetch in `code/data/acquisition.py`: <!-- FAILED: unspecified -->': 1
-'T019 [US1] Add validation check in `code/data/cleaning.py`:': 2
+? 'T016 [US1] Implement Materials Project descriptor fetch in `code/data/acquisition.py`:
+  <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->'
+: 1
 'T020 [US1] Version the `data/curated_builds.csv` artifact:': 1
+'T020 [US1] Version the `data/curated_builds.csv` artifact: <!-- ATOMIZE: requested -->': 1
+T022 [P] [US2] Unit test for mixed-effects convergence check in `code/tests/test_models.py`: 1

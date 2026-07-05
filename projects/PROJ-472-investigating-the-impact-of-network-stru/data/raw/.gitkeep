@@ -1,1 +1,2 @@
-# Raw data directory (e.g., OpenNeuro downloads)
+# This directory stores raw dMRI data downloaded from OpenNeuro ds003813
+# Files will be organized by subject: data/raw/ds003813/sub-XXX/dwi/
