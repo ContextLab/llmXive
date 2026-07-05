@@ -1,0 +1,191 @@
+%YAML 1.2
+---
+# Schema for Avian Vocal Complexity Dataset
+# Used for validation of data/interim and data/processed files
+# Defines the expected structure for noise-mapped and final vocal metric datasets
+
+name: avian_vocal_complexity_dataset
+version: 1.0.0
+description: >
+  Schema defining the input (noise mapped) and output (vocal metrics) 
+  structures for the avian vocal complexity pipeline.
+
+columns:
+  # Core identifiers and metadata
+  - name: species_id
+    type: string
+    required: true
+    description: Unique identifier for the bird species (e.g., Xeno-canto species code)
+    example: "XCN-12345"
+
+  - name: recording_id
+    type: string
+    required: true
+    description: Unique identifier for the specific audio recording
+    example: "XC123456"
+
+  - name: location_name
+    type: string
+    required: false
+    description: Human-readable name of the recording location
+    example: "Central Park, NY"
+
+  - name: latitude
+    type: float
+    required: true
+    description: Latitude coordinate (WGS84)
+    min: -90.0
+    max: 90.0
+
+  - name: longitude
+    type: float
+    required: true
+    description: Longitude coordinate (WGS84)
+    min: -180.0
+    max: 180.0
+
+  # Environmental Noise Metrics (Input/Intermediate)
+  - name: noise_level_db
+    type: float
+    required: true
+    description: Estimated ambient noise level in decibels (dB) derived from OSM land-use
+    source: osmnx_land_use_mapping
+    constraints:
+      - "Must be >= 0 and <= 120"
+    notes: >
+      Mapped from OSM land-use: Urban=60, Rural=40, Wild=30.
+      Records missing OSM data are dropped (see T015).
+
+  - name: osm_land_use
+    type: string
+    required: true
+    description: The OSM land-use tag used to derive the noise level
+    allowed_values:
+      - "urban"
+      - "rural"
+      - "wild"
+      - "residential"
+      - "commercial"
+      - "industrial"
+      - "forest"
+      - "grass"
+      - "water"
+    notes: "Raw land-use tag from OSM query."
+
+  # Audio Quality Metrics (Intermediate/Filtered)
+  - name: snr_db
+    type: float
+    required: false
+    description: Signal-to-Noise Ratio in decibels
+    notes: >
+      Calculated during preprocessing. Records with SNR <= 10 dB are filtered out (T017).
+      May be null if not calculated yet.
+
+  - name: audio_duration_seconds
+    type: float
+    required: true
+    description: Duration of the audio file in seconds
+    min: 0.0
+
+  # Vocal Complexity Metrics (Output/Processed)
+  - name: syllable_count
+    type: integer
+    required: false
+    description: Number of detected syllables in the vocalization
+    min: 0
+    notes: "Extracted via librosa (T019)."
+
+  - name: duration_seconds
+    type: float
+    required: false
+    description: Duration of the vocalization segment (subset of audio_duration)
+    min: 0.0
+
+  - name: bandwidth_hz
+    type: float
+    required: false
+    description: Spectral bandwidth of the vocalization in Hertz
+    min: 0.0
+    notes: "Calculated using librosa.feature.spectral_bandwidth."
+
+  - name: spectral_entropy
+    type: float
+    required: false
+    description: Spectral entropy of the vocalization (measure of complexity)
+    min: 0.0
+    notes: "Calculated using spectral power distribution."
+
+  - name: dominant_frequency_hz
+    type: float
+    required: false
+    description: Frequency with the highest amplitude
+    min: 0.0
+
+validation_rules:
+  - name: "complete_noise_mapping"
+    description: "All records must have a valid noise_level_db and osm_land_use."
+    condition: "not (noise_level_db is null or osm_land_use is null)"
+
+  - name: "valid_coordinates"
+    description: "Coordinates must be within valid geographic ranges."
+    condition: "-90 <= latitude <= 90 and -180 <= longitude <= 180"
+
+  - name: "snr_filter_applied"
+    description: "For final datasets, SNR must be > 10 if present."
+    condition: "snr_db is null or snr_db > 10.0"
+
+file_mappings:
+  - file_path: "data/interim/noise_mapped.csv"
+    stage: "interim"
+    required_columns:
+      - species_id
+      - recording_id
+      - latitude
+      - longitude
+      - noise_level_db
+      - osm_land_use
+    optional_columns:
+      - location_name
+      - snr_db
+      - audio_duration_seconds
+
+  - file_path: "data/interim/dropped_missing_osm.csv"
+    stage: "interim"
+    description: "Log of records dropped due to missing OSM data."
+    required_columns:
+      - species_id
+      - recording_id
+      - latitude
+      - longitude
+      - reason: "missing_osm_data"
+
+  - file_path: "data/interim/filtered_snr.csv"
+    stage: "interim"
+    description: "Dataset after SNR filtering."
+    required_columns:
+      - species_id
+      - recording_id
+      - noise_level_db
+      - snr_db
+      - audio_duration_seconds
+
+  - file_path: "data/processed/final_dataset.csv"
+    stage: "processed"
+    description: "Final dataset with all metrics extracted."
+    required_columns:
+      - species_id
+      - recording_id
+      - noise_level_db
+      - syllable_count
+      - duration_seconds
+      - bandwidth_hz
+      - spectral_entropy
+      - dominant_frequency_hz
+    optional_columns:
+      - location_name
+      - osm_land_use
+
+notes:
+  - "This schema enforces the 'drop missing' strategy for OSM data as per Plan constraints."
+  - "Interpolation for missing noise data is explicitly NOT supported."
+  - "All dB values are assumed to be A-weighted (dBA) unless specified otherwise."

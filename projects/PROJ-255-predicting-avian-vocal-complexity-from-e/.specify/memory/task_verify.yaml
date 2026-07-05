@@ -1,0 +1,8 @@
+? 'T004 Create `src/utils/config.py` for paths, seeds, and constants <!-- SKIPPED:
+  YAML+regex parse failed (while scanning an alias'
+: 1
+T005 Create `src/utils/logging.py` for error handling and filtered logs: 1
+T006 Create `contracts/dataset.schema.yaml` defining input/output schemas: 1
+T007 Create `contracts/output.schema.yaml` defining model result schemas: 1
+T009 [P] Implement unit tests for config and logging utilities: 1
+T010 [P] [US1] Write contract test for the `noise_mapped.csv` schema definition in `tests/contract/test_dataset_schema.py`: 1

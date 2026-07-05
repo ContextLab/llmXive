@@ -1,0 +1,295 @@
+- artifact_path: projects/PROJ-255-predicting-avian-vocal-complexity-from-e/specs/001-predicting-avian-vocal-complexity-from-e/tasks.md
+  attempts: 1
+  canonical: 'OpenStreetMap land-use to noise mapping: Urban=60 dB, Rural=40 dB, Wild=30
+    dB'
+  claim_id: c_5fe173cb
+  context: 'T015 [US1] Primary Source: Implement src/data/acquisition.py to query
+    OpenStreetMap via osmnx for land-use at coordinates and map to noise levels (Urban=60,
+    Rural=40, Wild=30).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement src/data/acquisition.py to query OpenStreetMap via osmnx for
+    land-use at coordinates and map to noise levels (Urban=60, Rural=40, Wild=30).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T16:33:41Z'
+- artifact_path: projects/PROJ-255-predicting-avian-vocal-complexity-from-e/specs/001-predicting-avian-vocal-complexity-from-e/tasks.md
+  attempts: 1
+  canonical: 'Noise mapped output file: data/interim/noise_mapped.csv'
+  claim_id: c_85201435
+  context: 'T015 [US1] Primary Source: Implement src/data/acquisition.py to query
+    OpenStreetMap via osmnx for land-use at coordinates and map to noise levels (Urban=60,
+    Rural=40, Wild=30). Constraint: If OSM data is missing, drop the record (Plan
+    Summary). Output: data/interim/noise_mapped.csv.'
+  evidence:
+    entailment_evidence: 'Noise mapped output file: data/interim/noise mapped.'
+    entailment_status: contradicted
+    source_url: https://en.wikipedia.org/wiki/Noise_mapped_output_file:_data/interim/noise_mapped.csv
+  kind: entity_fact
+  raw_text: 'Output: data/interim/noise_mapped.csv.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-07-05T16:34:04Z'
+- artifact_path: projects/PROJ-255-predicting-avian-vocal-complexity-from-e/specs/001-predicting-avian-vocal-complexity-from-e/tasks.md
+  attempts: 1
+  canonical: "OSM noise proxy validation against Global Soundscapes dataset deviation\
+    \ \u22642 dB(A)"
+  claim_id: c_f75c4315
+  context: "T015c [US1] Validation: Implement logic to validate OSM noise proxies\
+    \ against the Global Soundscapes dataset (if available) with \u22642 dB(A) deviation."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Validate OSM noise proxies against the Global Soundscapes dataset (if\
+    \ available) with \u22642 dB(A) deviation."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T16:34:04Z'
+- artifact_path: projects/PROJ-255-predicting-avian-vocal-complexity-from-e/specs/001-predicting-avian-vocal-complexity-from-e/tasks.md
+  attempts: 1
+  canonical: Modeling blocked if valid species count < 50
+  claim_id: c_3a810716
+  context: "T029b [US2] Species Count Verification: Count valid species in data/processed/final_dataset.csv\
+    \ and verify count \u2265 50 (SC-004). Block modeling if count < 50."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Block modeling if valid species count in data/processed/final_dataset.csv
+    is < 50.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T16:34:04Z'
+- artifact_path: projects/PROJ-255-predicting-avian-vocal-complexity-from-e/specs/001-predicting-avian-vocal-complexity-from-e/tasks.md
+  attempts: 1
+  canonical: Power analysis sample size N=50 species
+  claim_id: c_bac73399
+  context: 'T029 [US2] Power Analysis: Implement src/analysis/modeling.py to run Power
+    Analysis for N=50 species and report minimum detectable effect size (References
+    FR-005).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run Power Analysis for N=50 species.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T16:34:46Z'
+- artifact_path: projects/PROJ-255-predicting-avian-vocal-complexity-from-e/specs/001-predicting-avian-vocal-complexity-from-e/tasks.md
+  attempts: 1
+  canonical: 'Sensitivity analysis SNR thresholds: 5 dB, 10 dB, 15 dB'
+  claim_id: c_b267dad1
+  context: 'T030a [US2] Sensitivity Execution: Execute the filtering engine (Ta) with
+    SNR thresholds ranging from low to high values, including 10 and 15 dB.. Generate
+    data/processed/sensitivity_5db.csv, data/processed/sensitivity_10db.csv, data/processed/sensitivity_15db.csv.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate sensitivity analysis outputs for SNR thresholds of 5 dB, 10 dB,
+    and 15 dB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T16:35:07Z'
+- artifact_path: projects/PROJ-255-predicting-avian-vocal-complexity-from-e/specs/001-predicting-avian-vocal-complexity-from-e/tasks.md
+  attempts: 1
+  canonical: "Sensitivity analysis variation threshold \u2264 10%"
+  claim_id: c_2420d14f
+  context: "T031 [US2] Stability Metric: Calculate variation in effect size/power\
+    \ and sample size across thresholds. Output data/processed/sensitivity_summary.csv\
+    \ with columns: threshold, sample_size, correlation_r, variation_percent. Verify\
+    \ variation \u2264 10% (SC-005)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify variation in effect size/power and sample size across thresholds\
+    \ is \u2264 10%."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T16:35:07Z'
+- artifact_path: projects/PROJ-255-predicting-avian-vocal-complexity-from-e/specs/001-predicting-avian-vocal-complexity-from-e/tasks.md
+  attempts: 1
+  canonical: Visualization output requires at least 3 image files and 1 text summary
+    file
+  claim_id: c_93bf3534
+  context: 'Independent Test: Execute the visualization script and verify the output
+    directory contains at least three distinct image files and a text summary file.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Visualization_output_requires_at_least_3_image_files_and_1_t
+  kind: magnitude
+  raw_text: Generate at least three distinct image files and a text summary file.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T16:36:04Z'
+- artifact_path: projects/PROJ-255-predicting-avian-vocal-complexity-from-e/specs/001-predicting-avian-vocal-complexity-from-e/tasks.md
+  attempts: 1
+  canonical: 'OSM land-use to noise mapping: Urban 60 dB, Rural 40 dB, Wild 30 dB'
+  claim_id: c_0d061333
+  context: 'T015 [US1] Primary Source: Implement src/data/acquisition.py to query
+    OpenStreetMap via osmnx for land-use at coordinates and map to noise levels (Urban=60,
+    Rural=40, Wild=30).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement src/data/acquisition.py to query OpenStreetMap via osmnx for
+    land-use at coordinates and map to noise levels (Urban=60, Rural=40, Wild=30).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T16:37:35Z'
+- artifact_path: projects/PROJ-255-predicting-avian-vocal-complexity-from-e/specs/001-predicting-avian-vocal-complexity-from-e/tasks.md
+  attempts: 1
+  canonical: Validation of OSM noise proxies against Global Soundscapes dataset must
+    be within 2 dB(A) deviation
+  claim_id: c_dff98666
+  context: "T015c [US1] Validation: Implement logic to validate OSM noise proxies\
+    \ against the Global Soundscapes dataset (if available) with \u22642 dB(A) deviation."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement src/data/acquisition.py to validate OSM noise proxies against\
+    \ the Global Soundscapes dataset (if available) with \u22642 dB(A) deviation."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T16:37:35Z'
+- artifact_path: projects/PROJ-255-predicting-avian-vocal-complexity-from-e/specs/001-predicting-avian-vocal-complexity-from-e/tasks.md
+  attempts: 1
+  canonical: Filtering engine excludes records with SNR less than or equal to 10 dB
+  claim_id: c_64c81ba8
+  context: "T021 [US1] Logging: Generate data/interim/dropped_records.csv containing\
+    \ all records excluded by T015 (missing OSM), T017 (SNR \u2264 10 dB), and T018\
+    \ (species count) to satisfy US-1 Acceptance Scenario 3."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Filtering_engine_excludes_records_with_SNR_less_than_or_equa
+  kind: magnitude
+  raw_text: "Execute the filtering engine from T017a with the default dB threshold\
+    \ to generate the primary data/interim/filtered_snr.csv with SNR \u2264 10 dB\
+    \ exclusion."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T16:38:09Z'
+- artifact_path: projects/PROJ-255-predicting-avian-vocal-complexity-from-e/specs/001-predicting-avian-vocal-complexity-from-e/tasks.md
+  attempts: 1
+  canonical: Power analysis run for N equals 50 species
+  claim_id: c_c870bf1a
+  context: 'T029 [US2] Power Analysis: Implement src/analysis/modeling.py to run Power
+    Analysis for N=50 species and report minimum detectable effect size (References
+    FR-005).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement src/analysis/modeling.py to run Power Analysis for N=50 species
+    and report minimum detectable effect size.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T16:38:38Z'
+- artifact_path: projects/PROJ-255-predicting-avian-vocal-complexity-from-e/specs/001-predicting-avian-vocal-complexity-from-e/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis thresholds include 10 dB and 15 dB
+  claim_id: c_f75c63d1
+  context: 'T030a [US2] Sensitivity Execution: Execute the filtering engine (Ta) with
+    SNR thresholds ranging from low to high values, including 10 and 15 dB..'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Execute the filtering engine with SNR thresholds ranging from low to high
+    values, including 10 and 15 dB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T16:39:02Z'
+- artifact_path: projects/PROJ-255-predicting-avian-vocal-complexity-from-e/specs/001-predicting-avian-vocal-complexity-from-e/tasks.md
+  attempts: 1
+  canonical: 'OSM land-use noise mapping values: Urban 60 dB, Rural 40 dB, Wild 30
+    dB'
+  claim_id: c_ee9f1273
+  context: 'T015 [US1] **Primary Source**: Implement src/data/acquisition.py to query
+    OpenStreetMap via osmnx for land-use at coordinates and map to noise levels (Urban=60,
+    Rural=40, Wild=30).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement src/data/acquisition.py to query OpenStreetMap via osmnx for
+    land-use at coordinates and map to noise levels (Urban=60, Rural=40, Wild=30).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T16:46:24Z'
+- artifact_path: projects/PROJ-255-predicting-avian-vocal-complexity-from-e/specs/001-predicting-avian-vocal-complexity-from-e/tasks.md
+  attempts: 1
+  canonical: Filter species with fewer than 5 valid recordings per location
+  claim_id: c_04ebf7b6
+  context: '- [~] T018 [US1] Implement src/data/preprocessing.py to filter species
+    with <5 valid recordings per location and log exclusions.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Filter_species_with_fewer_than_5_valid_recordings_per_locati
+  kind: magnitude
+  raw_text: Implement src/data/preprocessing.py to filter species with <5 valid recordings
+    per location and log exclusions.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T16:46:46Z'
+- artifact_path: projects/PROJ-255-predicting-avian-vocal-complexity-from-e/specs/001-predicting-avian-vocal-complexity-from-e/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis executed with SNR thresholds of 10 dB and 15 dB
+  claim_id: c_2066f826
+  context: '- [X] T030a [US2] **Sensitivity Execution**: Execute the filtering engine
+    (Ta) with SNR thresholds ranging from low to high values, including 10 and 15
+    dB..'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Execute the filtering engine (Ta) with SNR thresholds ranging from low
+    to high values, including 10 and 15 dB..
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T16:46:46Z'

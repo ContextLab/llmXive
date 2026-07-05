@@ -1,0 +1,24 @@
+# Explicit Ruff configuration file for IDE and CLI integration
+extend = "pyproject.toml"
+line-length = 88
+select = ["ALL"]
+ignore = [
+    "D100", # Missing docstring in public module
+    "D104", # Missing docstring in public package
+    "D107", # Missing docstring in __init__
+    "ANN",  # flake8-annotations (type hints) - too strict for initial setup
+    "S",    # flake8-bandit (security) - handled in CI
+    "COM812", # Missing trailing comma (conflicts with black sometimes)
+    "ISC001", # Implicit string concatenation (conflicts with black)
+]
+
+[lint.per-file-ignores]
+"code/setup_*.py" = ["INP001"] # Ignore implicit namespace package for setup scripts
+"code/src/utils/config.py" = ["D100", "D101", "D102"]
+"code/tests/**/*.py" = ["D", "S101"] # Ignore docstrings and asserts in tests
+
+[format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"

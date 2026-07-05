@@ -1,0 +1,7 @@
+# This directory is part of the PROJ-255 project structure.
+# It contains the source code for the avian vocal complexity pipeline.
+# Files in this directory:
+# - data/
+# - analysis/
+# - utils/
+# - main.py (orchestration)
