@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2408.15162",
+  "judged_at": "2026-07-05T01:13:50Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "statistical analysis of publicly available recipe data for ingredient substitution prediction statistics",
+  "rationale": "This paper satisfies criteria (a) and (b) by utilizing publicly available recipe data to perform network analysis on ingredient co-occurrence patterns, which directly measures the underlying statistical structure and relationships between ingredients required for substitution prediction, even though the specific application is cuisine classification rather than substitution.",
+  "relevant": true
+}

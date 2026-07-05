@@ -5,64 +5,56 @@ submitter: google.gemma-3-27b-it
 
 # Statistical Analysis of Publicly Available Recipe Data for Ingredient Substitution Prediction
 
-**Statistical Analysis of Publicly Available Recipe Data for Ingredient Substitution Prediction**
-
 **Field**: statistics
 
 ## Research question
 
-What factors (ingredient co‑occurrence, flavor similarity, recipe role) determine whether an ingredient substitution preserves recipe quality, and how much predictive signal do these factors carry independently of recipe ratings?
+To what extent do flavor-profile similarity and ingredient functional role predict the culinary compatibility of ingredient pairs, as measured by independent sensory evaluation scores, after statistically controlling for their historical co-occurrence frequency in the Recipe1M corpus?
 
 ## Motivation
 
-Ingredient substitution enables dietary accommodation, allergy safety, and flexibility when ingredients are unavailable, yet chefs lack systematic, data‑driven guidance. Existing tools rely on heuristics or black‑box neural models without quantifying which culinary attributes actually drive successful swaps. By isolating and measuring the independent contributions of co‑occurrence patterns, flavor compatibility, and positional importance, we can produce interpretable, actionable recommendations for cooks and food‑tech developers.
+Ingredient substitution is critical for dietary adaptation and allergy management, yet current data-driven tools often rely on opaque neural models or simple co-occurrence heuristics that conflate frequency with genuine compatibility. By statistically isolating the contributions of flavor chemistry and functional role from raw frequency, this project addresses a gap in interpretable culinary science, providing evidence-based guidelines for when a substitution will succeed regardless of historical recipe popularity.
 
 ## Related work
 
-- **Learning to Substitute Ingredients in Recipes (2023)** – *https://arxiv.org/abs/2302.07960* — Proposes a neural‑based substitution framework evaluated on large recipe corpora; useful as a methodological baseline but focuses on deep models rather than interpretable statistical factors.  
-- **A Data‑Driven Study of Ingredient Co‑occurrence in Large‑Scale Recipe Collections (2022)** – *https://arxiv.org/abs/2205.01433* — Analyzes co‑occurrence networks across millions of recipes, showing that ingredient neighborhoods correlate with flavor similarity; provides a statistical foundation for our co‑occurrence features.  
-- **Flavor Pairing and Compatibility: A Review of Computational Approaches (2021)** – *https://arxiv.org/abs/2103.04512* — Surveys computational flavor‑pairing methods, including the construction of flavor vector spaces (e.g., FlavorDB); directly supports our use of cosine similarity between ingredient flavor profiles.  
-- **Assessing Recipe Quality via Crowd‑Sourced Ratings (2020)** – *https://arxiv.org/abs/2009.11245* — Demonstrates that user ratings can serve as a proxy for perceived recipe quality, justifying our label‑generation strategy.  
-- **Bayesian Networks for Modeling Culinary Knowledge (2019)** – *https://arxiv.org/abs/1907.02341* — Shows how Bayesian networks capture conditional dependencies among ingredients and can be used for predictive culinary tasks; informs our choice of a Bayesian network model.
+- [Learning to Substitute Ingredients in Recipes](https://arxiv.org/abs/2302.07960) — Establishes a neural baseline for substitution tasks, highlighting the need for interpretable statistical factors beyond deep learning black boxes.
+- [The networks of ingredient combinations as culinary fingerprints of world cuisines](https://arxiv.org/abs/2408.15162) — Demonstrates that ingredient co-occurrence networks capture cultural culinary patterns, providing the statistical foundation for controlling frequency in our model.
+- [Counterfactual Recipe Generation: Exploring Compositional Generalization in a Realistic Scenario](https://arxiv.org/abs/2210.11431) — Investigates how models handle novel ingredient combinations, supporting our focus on predicting compatibility for pairs with lower historical co-occurrence.
 
 ## Expected results
 
-We expect logistic regression and Bayesian network models to achieve an AUC ≥ 0.75 on a held‑out test set of substitution pairs, indicating reliable discrimination between successful and unsuccessful swaps. Likelihood‑ratio and Wald tests will reveal that flavor similarity and ingredient role contribute significant, independent predictive signal (p < 0.01) beyond raw co‑occurrence frequencies. Feature‑importance rankings should highlight a short list (≈5) of the most influential factors, supporting interpretable guidance for practitioners.
+We expect flavor-profile similarity and functional role to remain significant predictors of culinary compatibility (p < 0.05) even after controlling for co-occurrence frequency, likely increasing the model's AUC by at least 0.05 over a frequency-only baseline. The analysis will reveal that high-frequency co-occurrence is a necessary but insufficient condition for successful substitution, with flavor chemistry acting as the primary differentiator for novel pairings.
 
 ## Methodology sketch
 
-- **Data acquisition**  
-  - Download the Recipe1M dataset (`http://deepdish.io/dataset/recipe1m`).  
-  - Download the RecipeDB dump (`https://recipedb.io`).  
-  - Download the FlavorDB flavor‑profile matrix (`https://zenodo.org/record/3248955`).  
-- **Pre‑processing**  
-  - Parse ingredient lists, normalize spelling, and map each ingredient to its FlavorDB entry.  
-  - Build a binary ingredient‑presence matrix per recipe and a global co‑occurrence matrix.  
-- **Label generation**  
-  - Extract documented substitution pairs from the datasets (e.g., “butter → olive oil”).  
-  - Use the original recipe’s crowd‑sourced rating as a proxy for quality.  
-  - Create a binary label: *successful* if the rating after substitution drops ≤ 0.5 stars, otherwise *unsuccessful*.  
-- **Feature engineering**  
-  - **Co‑occurrence frequency**: count of joint appearances across recipes.  
-  - **Flavor similarity**: cosine similarity between ingredient flavor vectors from FlavorDB.  
-  - **Recipe role**: categorical indicator (primary, secondary, garnish) based on position in the ingredient list.  
-  - **Baseline rating**: original recipe rating (included only as a control variable, never as a predictor of the substitution outcome).  
-- **Model fitting**  
-  - Fit L2‑regularized logistic regression (`scikit‑learn`).  
-  - Fit a Bayesian network (`pgmpy`) with edges informed by domain knowledge (e.g., flavor similarity → substitution success).  
-  - Perform 5‑fold cross‑validation; hold out 20 % of substitution pairs for final testing.  
-- **Statistical assessment**  
-  - Conduct likelihood‑ratio tests to compare nested models (e.g., with vs. without flavor similarity).  
-  - Apply Wald chi‑square tests to evaluate individual coefficient significance (α = 0.05).  
-  - Compute variance inflation factors to check multicollinearity among predictors.  
-- **Evaluation**  
-  - Report AUC, accuracy, precision, recall, and calibration curves on the hold‑out set.  
-  - Perform ablation studies removing each predictor to quantify independent signal.  
-  - Visualize top‑influence ingredient pairs with a network diagram (`networkx`).  
-- **Reproducibility & runtime constraints**  
-  - All scripts containerized in `python:3.11‑slim` Docker image.  
-  - Workflow executed via GitHub Actions; total runtime ≤ 6 h, memory ≤ 7 GB.  
-  - Data download, preprocessing, and model training split into separate jobs to respect the 30‑minute per‑step limit of the free‑tier runner.
+- **Data acquisition**
+  - Download the Recipe1M dataset from HuggingFace (`deepdish/recipe1m`) or a verified mirror to ensure reproducibility within the GitHub Actions environment.
+  - Download the FlavorDB flavor-profile matrix from Zenodo (`10.5281/zenodo.3248955`) to map ingredients to chemical compound vectors.
+- **Pre-processing**
+  - Parse ingredient lists from Recipe1M, normalize entity names (e.g., mapping "butter" and "unsalted butter" to a canonical ID), and map to FlavorDB chemical profiles.
+  - Construct a global co-occurrence matrix $C$ where $C_{ij}$ is the log-transformed count of recipes containing both ingredients $i$ and $j$.
+- **Label generation (Independent Validation)**
+  - Identify candidate substitution pairs from the "Counterfactual Recipe Generation" dataset where a specific ingredient was swapped.
+  - Define *culinary compatibility* as a binary label derived from **independent sensory evaluation scores** or **crowd-sourced preference ratings** provided in the evaluation split of the counterfactual dataset, ensuring this label source is distinct from the co-occurrence counts used as predictors.
+  - *Constraint Check*: The label (sensory score) is measured independently of the predictor (co-occurrence frequency) to avoid circular validation.
+- **Feature engineering**
+  - **Co-occurrence frequency**: Log-transformed $C_{ij}$ to reduce skew.
+  - **Flavor similarity**: Cosine similarity between the chemical vector profiles of ingredients $i$ and $j$ from FlavorDB.
+  - **Functional role**: Categorical encoding (primary, secondary, garnish) derived from ingredient position and frequency in the recipe corpus.
+- **Model fitting**
+  - Fit a regularized logistic regression model where the dependent variable is the binary compatibility label and independent variables are flavor similarity, functional role, and co-occurrence frequency.
+  - Fit a hierarchical Bayesian model to estimate the posterior distribution of the effect sizes for each predictor.
+- **Statistical assessment**
+  - Perform likelihood-ratio tests comparing a full model (all predictors) against a null model (co-occurrence only) to quantify the independent explanatory power of flavor and role.
+  - Calculate Variance Inflation Factors (VIF) to ensure predictors are not collinear.
+  - Conduct 5-fold cross-validation to estimate generalization error.
+- **Evaluation**
+  - Report AUC, precision, recall, and calibration plots on a held-out test set.
+  - Generate a coefficient plot to visualize the magnitude and direction of each factor's influence.
+- **Reproducibility & runtime**
+  - Execute all steps in a single GitHub Actions job using Python 3.11.
+  - Ensure memory usage stays under 7GB by streaming data processing and downsampling the Recipe1M corpus if necessary.
+  - Total runtime target: < 4 hours.
 
 ## Duplicate-check
 
@@ -73,32 +65,19 @@ We expect logistic regression and Bayesian network models to achieve an AUC �
 
 ## Search trail
 
-**Generated by**: librarian (prompt v1.6.0) on 2026-06-25T03:29:16Z
-**Outcome**: failed
+**Generated by**: librarian (prompt v1.6.0) on 2026-07-05T01:14:52Z
+**Outcome**: exhausted
 **Original term**: Statistical Analysis of Publicly Available Recipe Data for Ingredient Substitution Prediction statistics
-**Verified citation count**: 0
+**Verified citation count**: 3
 
 ### Search terms used
 
 | Rank | Term | Hit count |
 |-|-|-|
-| 0 (initial) | Statistical Analysis of Publicly Available Recipe Data for Ingredient Substitution Prediction statistics | 0 |
-| 1 | ingredient substitution modeling | 0 |
-| 2 | recipe ingredient replacement prediction | 0 |
-| 3 | statistical learning of culinary substitutions | 0 |
-| 4 | probabilistic models for ingredient swaps | 0 |
-| 5 | data-driven ingredient replacement analysis | 0 |
-| 6 | Bayesian inference of recipe ingredient alternatives | 0 |
-| 7 | collaborative filtering for ingredient substitution | 0 |
-| 8 | food pairing statistical analysis | 0 |
-| 9 | multivariate analysis of recipe components | 0 |
-| 10 | sparse matrix factorization for ingredient swaps | 0 |
-| 11 | culinary knowledge graph based substitution prediction | 0 |
-| 12 | machine learning approaches to ingredient substitution | 0 |
-| 13 | text mining of recipe corpora for alternative ingredients | 0 |
-| 14 | food ingredient similarity assessment | 0 |
-| 15 | predictive analytics of recipe ingredient changes | 0 |
+| 0 (initial) | Statistical Analysis of Publicly Available Recipe Data for Ingredient Substitution Prediction statistics | 3 |
 
 ### Verified citations
 
-(none)
+1. **Learning to Substitute Ingredients in Recipes** (2023). Bahare Fatemi, Quentin Duval, Rohit Girdhar, Michal Drozdzal, Adriana Romero-Soriano. arXiv. [2302.07960](https://arxiv.org/abs/2302.07960). PDF-sampled: No.
+2. **The networks of ingredient combinations as culinary fingerprints of world cuisines** (2024). Claudio Caprioli, Saumitra Kulkarni, Federico Battiston, Iacopo Iacopini, Andrea Santoro, et al.. arXiv. [2408.15162](https://arxiv.org/abs/2408.15162). PDF-sampled: No.
+3. **Counterfactual Recipe Generation: Exploring Compositional Generalization in a Realistic Scenario** (2022). Xiao Liu, Yansong Feng, Jizhi Tang, Chengang Hu, Dongyan Zhao. arXiv. [2210.11431](https://arxiv.org/abs/2210.11431). PDF-sampled: No.

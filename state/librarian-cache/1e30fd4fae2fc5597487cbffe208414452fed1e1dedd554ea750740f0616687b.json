@@ -1,0 +1,598 @@
+{
+  "fetched_at": "2026-07-05T01:14:09Z",
+  "field": "statistics",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "statistics",
+      "idea_body_excerpt": "Statistical Analysis of Publicly Available Recipe Data for Ingredient Substitution Prediction",
+      "target_n": 5
+    },
+    "duration_seconds": 170.211,
+    "ended_at": "2026-07-05T01:14:09Z",
+    "expansion": null,
+    "extracted_queries": [
+      "ingredient substitution recommendation systems culinary",
+      "recipe dataset AllRecipes Food.com substitution patterns",
+      "flavor compatibility graph neural networks food pairing",
+      "substitution accuracy held-out recipe evaluation metrics",
+      "missing data imputation ingredient co-occurrence matrices"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": false,
+      "verdict": null
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2408.15162"
+      ]
+    },
+    "per_query_hit_count": {
+      "Statistical Analysis of Publicly Available Recipe Data for Ingredient Substitution Prediction statistics": 3,
+      "flavor compatibility graph neural networks food pairing": 3,
+      "ingredient substitution recommendation systems culinary": 3,
+      "missing data imputation ingredient co-occurrence matrices": 3,
+      "recipe dataset AllRecipes Food.com substitution patterns": 3,
+      "substitution accuracy held-out recipe evaluation metrics": 2
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 3,
+      "rejections": [
+        {
+          "primary_pointer": "0906.3662",
+          "rationale": "The paper focuses on statistical methods for functional Magnetic Resonance Imaging (fMRI) data in neuroscience, which is an entirely different domain from the user's question regarding recipe data and ingredient substitution. This falls under the rejection rule for \"off-domain entirely\" and \"distinct construct sharing only homonym keywords\" (sharing only the word \"statistical\" and \"data\" but addressing unrelated biological vs. culinary mechanisms).",
+          "title": "The Statistical Analysis of fMRI Data"
+        },
+        {
+          "primary_pointer": "1106.2895",
+          "rationale": "The paper is a philosophical overview of statistical inference frameworks (pragmatism vs. frequentist/Bayesian) and does not measure any variables related to recipe data, ingredient substitution, or the specific predictive mechanisms the user is investigating. It fails to meet criteria (a) or (b) as it lacks empirical connection to the user's domain or mechanism, and it is not a foundational methodology paper (d) for the specific task of ingredient substitution prediction.",
+          "title": "Statistical Inference: The Big Picture"
+        },
+        {
+          "primary_pointer": "1910.01734",
+          "rationale": "The paper focuses on statistical inference for community membership profiles in network graphs, which is a distinct construct from the user's question regarding ingredient substitution prediction in recipe data. Although both involve \"statistics,\" the paper addresses network topology and latent link identification (a graph theory problem) rather than the specific domain of food science, ingredient relationships, or recipe data analysis, failing to meet the criteria for same-mechanism evidence or",
+          "title": "SIMPLE: Statistical Inference on Membership Profiles in Large Networks"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-07-05T01:11:19Z",
+    "term_input": {
+      "normalized": "statistical analysis of publicly available recipe data for ingredient substitution prediction statistics",
+      "raw": "Statistical Analysis of Publicly Available Recipe Data for Ingredient Substitution Prediction statistics"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Bell's [Physics 1 (1964) 195-200] theorem is popularly supposed to establish the nonlocality of quantum physics. Violation of Bell's inequality in experiments such as that of Aspect, Dalibard and Roger [Phys. Rev. Lett. 49 (1982) 1804-1807] provides empirical proof of nonlocality in the real world. This paper reviews recent work on Bell's theorem, linking it to issues in causality as understood by statisticians. The paper starts with a proof of a strong, finite sample, version of Bell's inequality and thereby also of Bell's theorem, which states that quantum theory is incompatible with the conjunction of three formerly uncontroversial physical principles, here referred to as locality, realism and freedom. Locality is the principle that the direction of causality matches the direction of time, and that causal influences need time to propagate spatially. Realism and freedom are directly connected to statistical thinking on causality: they relate to counterfactual reasoning, and to randomisation, respectively. Experimental loopholes in state-of-the-art Bell type experiments are related to statistical issues of post-selection in observational studies, and the missing at random assumption. They can be avoided by properly matching the statistical analysis to the actual experimental design, instead of by making untestable assumptions of independence between observed and unobserved variables. Methodological and statistical issues in the design of quantum Randi challenges (QRC) are discussed. The paper argues that Bell's theorem (and its experimental confirmation) should lead us to relinquish not locality, but realism.",
+          "claimed_authors": [
+            "Richard D. Gill"
+          ],
+          "claimed_title": "Statistics, Causality and Bell's Theorem",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1207.5103"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Statistical Analysis of Publicly Available Recipe Data for Ingredient Substituti', candidate_title=\"Statistics, Causality and Bell's Theorem\")",
+        "failed_at": "2026-07-05T01:13:32Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Recommendation systems are being explored by Cable TV operators to improve user satisfaction with services, such as Live TV and Video on Demand (VOD) services. More recently, Catch-up TV has been introduced, allowing users to watch recent broadcast content whenever they want to. These services give users a large set of options from which they can choose from, creating an information overflow problem. Thus, recommendation systems arise as essential tools to solve this problem by helping users in their selection, which increases not only user satisfaction but also user engagement and content consumption. In this paper we present a learning to rank approach that uses contextual information and implicit feedback to improve recommendation systems for a Cable TV operator that provides Live and Catch-up TV services. We compare our approach with existing state-of-the-art algorithms and show that our approach is superior in accuracy, while maintaining high scores of diversity and serendipity.",
+          "claimed_authors": [
+            "Diogo Goncalves",
+            "Miguel Costa",
+            "Francisco M. Couto"
+          ],
+          "claimed_title": "A Flexible Recommendation System for Cable TV",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1609.02451"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Statistical Analysis of Publicly Available Recipe Data for Ingredient Substituti', candidate_title='A Flexible Recommendation System for Cable TV')",
+        "failed_at": "2026-07-05T01:13:32Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The RSNA Abdominal Traumatic Injury CT (RATIC) dataset is the largest publicly available collection of adult abdominal CT studies annotated for traumatic injuries. This dataset includes 4,274 studies from 23 institutions across 14 countries. The dataset is freely available for non-commercial use via Kaggle at https://www.kaggle.com/competitions/rsna-2023-abdominal-trauma-detection. Created for the RSNA 2023 Abdominal Trauma Detection competition, the dataset encourages the development of advanced machine learning models for detecting abdominal injuries on CT scans. The dataset encompasses detection and classification of traumatic injuries across multiple organs, including the liver, spleen, kidneys, bowel, and mesentery. Annotations were created by expert radiologists from the American Society of Emergency Radiology (ASER) and Society of Abdominal Radiology (SAR). The dataset is annotated at multiple levels, including the presence of injuries in three solid organs with injury grading, image-level annotations for active extravasations and bowel injury, and voxelwise segmentations of each of the potentially injured organs. With the release of this dataset, we hope to facilitate research and development in machine learning and abdominal trauma that can lead to improved patient care and outcomes.",
+          "claimed_authors": [
+            "Jeffrey D. Rudie",
+            "Hui-Ming Lin",
+            "Robyn L. Ball",
+            "Sabeena Jalal",
+            "Luciano M. Prevedello",
+            "Savvas Nicolaou",
+            "Brett S. Marinelli",
+            "Adam E. Flanders",
+            "Kirti Magudia",
+            "George Shih",
+            "Melissa A. Davis",
+            "John Mongan",
+            "Peter D. Chang",
+            "Ferco H. Berger",
+            "Sebastiaan Hermans",
+            "Meng Law",
+            "Tyler Richards",
+            "Jan-Peter Grunz",
+            "Andreas Steven Kunz",
+            "Shobhit Mathur",
+            "Sandro Galea-Soler",
+            "Andrew D. Chung",
+            "Saif Afat",
+            "Chin-Chi Kuo",
+            "Layal Aweidah",
+            "Ana Villanueva Campos",
+            "Arjuna Somasundaram",
+            "Felipe Antonio Sanchez Tijmes",
+            "Attaporn Jantarangkoon",
+            "Leonardo Kayat Bittencourt",
+            "Michael Brassil",
+            "Ayoub El Hajjami",
+            "Hakan Dogan",
+            "Muris Becircic",
+            "Agrahara G. Bharatkumar",
+            "Eduardo Moreno Júdice de Mattos Farina",
+            "Dataset Curator Group",
+            "Dataset Contributor Group",
+            "Dataset Annotator Group",
+            "Errol Colak"
+          ],
+          "claimed_title": "The RSNA Abdominal Traumatic Injury CT (RATIC) Dataset",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2405.19595"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Statistical Analysis of Publicly Available Recipe Data for Ingredient Substituti', candidate_title='The RSNA Abdominal Traumatic Injury CT (RATIC) Dataset')",
+        "failed_at": "2026-07-05T01:13:32Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The Radiological Society of North America (RSNA) Lumbar Degenerative Imaging Spine Classification (LumbarDISC) dataset is the largest publicly available dataset of adult MRI lumbar spine examinations annotated for degenerative changes. The dataset includes 2,697 patients with a total of 8,593 image series from 8 institutions across 6 countries and 5 continents. The dataset is available for free for non-commercial use via Kaggle and RSNA Medical Imaging Resource of AI (MIRA). The dataset was created for the RSNA 2024 Lumbar Spine Degenerative Classification competition where competitors developed deep learning models to grade degenerative changes in the lumbar spine. The degree of spinal canal, subarticular recess, and neural foraminal stenosis was graded at each intervertebral disc level in the lumbar spine. The images were annotated by expert volunteer neuroradiologists and musculoskeletal radiologists from the RSNA, American Society of Neuroradiology, and the American Society of Spine Radiology. This dataset aims to facilitate research and development in machine learning and lumbar spine imaging to lead to improved patient care and clinical efficiency.",
+          "claimed_authors": [
+            "Tyler J. Richards",
+            "Adam E. Flanders",
+            "Errol Colak",
+            "Luciano M. Prevedello",
+            "Robyn L. Ball",
+            "Felipe Kitamura",
+            "John Mongan",
+            "Maryam Vazirabad",
+            "Hui-Ming Lin",
+            "Anne Kendell",
+            "Thanat Kanthawang",
+            "Salita Angkurawaranon",
+            "Emre Altinmakas",
+            "Hakan Dogan",
+            "Paulo Eduardo de Aguiar Kuriki",
+            "Arjuna Somasundaram",
+            "Christopher Ruston",
+            "Deniz Bulja",
+            "Naida Spahovic",
+            "Jennifer Sommer",
+            "Sirui Jiang",
+            "Eduardo Moreno Judice de Mattos Farina",
+            "Eduardo Caminha Nunes",
+            "Michael Brassil",
+            "Megan McNamara",
+            "Johanna Ortiz",
+            "Jacob Peoples",
+            "Vinson L. Uytana",
+            "Anthony Kam",
+            "Venkata N. S. Dola",
+            "Daniel Murphy",
+            "David Vu",
+            "Dataset Contributor Group",
+            "Dataset Annotator Group",
+            "Competition Data Notebook Group",
+            "Jason F. Talbott"
+          ],
+          "claimed_title": "The RSNA Lumbar Degenerative Imaging Spine Classification (LumbarDISC) Dataset",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2506.09162"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Statistical Analysis of Publicly Available Recipe Data for Ingredient Substituti', candidate_title='The RSNA Lumbar Degenerative Imaging Spine Classification (LumbarDISC) Dataset')",
+        "failed_at": "2026-07-05T01:13:32Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Existing approaches to recipe generation are unable to create recipes for users with culinary preferences but incomplete knowledge of ingredients in specific dishes. We propose a new task of personalized recipe generation to help these users: expanding a name and incomplete ingredient details into complete natural-text instructions aligned with the user's historical preferences. We attend on technique- and recipe-level representations of a user's previously consumed recipes, fusing these 'user-aware' representations in an attention fusion layer to control recipe text generation. Experiments on a new dataset of 180K recipes and 700K interactions show our model's ability to generate plausible and personalized recipes compared to non-personalized baselines.",
+          "claimed_authors": [
+            "Bodhisattwa Prasad Majumder",
+            "Shuyang Li",
+            "Jianmo Ni",
+            "Julian McAuley"
+          ],
+          "claimed_title": "Generating Personalized Recipes from Historical User Preferences",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1909.00105"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Statistical Analysis of Publicly Available Recipe Data for Ingredient Substituti', candidate_title='Generating Personalized Recipes from Historical User Preferences')",
+        "failed_at": "2026-07-05T01:13:32Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Artificial Intelligence and Machine learning have been widely used in various fields of mathematical computing, physical modeling, computational science, communication science, and stochastic analysis. Approaches based on Deep Artificial Neural Networks (DANN) are very popular in our days. Depending on the learning task, the exact form of DANNs is determined via their multi-layer architecture, activation functions and the so-called loss function. However, for a majority of deep learning approaches based on DANNs, the kernel structure of neural signal processing remains the same, where the node response is encoded as a linear superposition of neural activity, while the non-linearity is triggered by the activation functions. In the current paper, we suggest to analyze the neural signal processing in DANNs from the point of view of homogeneous chaos theory as known from polynomial chaos expansion (PCE). From the PCE perspective, the (linear) response on each node of a DANN could be seen as a $1^{st}$ degree multi-variate polynomial of single neurons from the previous layer, i.e. linear weighted sum of monomials. From this point of view, the conventional DANN structure relies implicitly (but erroneously) on a Gaussian distribution of neural signals. Additionally, this view revels that by design DANNs do not necessarily fulfill any orthogonality or orthonormality condition for a majority of data-driven applications. Therefore, the prevailing handling of neural signals in DANNs could lead to redundant representation as any neural signal could contain some partial information from other neural signals. To tackle that challenge, we suggest to employ the data-driven generalization of PCE theory known as arbitrary polynomial chaos (aPC) to construct a corresponding multi-variate orthonormal representations on each node of a DANN to obtain Deep arbitrary polynomial chaos neural networks.",
+          "claimed_authors": [
+            "Sergey Oladyshkin",
+            "Timothy Praditia",
+            "Ilja Kröker",
+            "Farid Mohammadi",
+            "Wolfgang Nowak",
+            "Sebastian Otte"
+          ],
+          "claimed_title": "The Deep Arbitrary Polynomial Chaos Neural Network or how Deep Artificial Neural Networks could benefit from Data-Driven Homogeneous Chaos Theory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2306.14753"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Statistical Analysis of Publicly Available Recipe Data for Ingredient Substituti', candidate_title='The Deep Arbitrary Polynomial Chaos Neural Network or how Deep Artificial Neural Networks could benefit from Data-Driven Homogeneous Chaos Theory')",
+        "failed_at": "2026-07-05T01:13:32Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Blockchain is an emerging digital technology allowing ubiquitous financial transactions among distributed untrusted parties, without the need of intermediaries such as banks. This article examines the impact of blockchain technology in agriculture and food supply chain, presents existing ongoing projects and initiatives, and discusses overall implications, challenges and potential, with a critical view over the maturity of these projects. Our findings indicate that blockchain is a promising technology towards a transparent supply chain of food, with many ongoing initiatives in various food products and food-related issues, but many barriers and challenges still exist, which hinder its wider popularity among farmers and systems. These challenges involve technical aspects, education, policies and regulatory frameworks.",
+          "claimed_authors": [
+            "Andreas Kamilaris",
+            "Agusti Fonts",
+            "Francesc X. Prenafeta-Boldu"
+          ],
+          "claimed_title": "The Rise of Blockchain Technology in Agriculture and Food Supply Chains",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1908.07391"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Statistical Analysis of Publicly Available Recipe Data for Ingredient Substituti', candidate_title='The Rise of Blockchain Technology in Agriculture and Food Supply Chains')",
+        "failed_at": "2026-07-05T01:13:32Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Providing a model that achieves a strong predictive performance and is simultaneously interpretable by humans is one of the most difficult challenges in machine learning research due to the conflicting nature of these two objectives. To address this challenge, we propose a modification of the radial basis function neural network model by equipping its Gaussian kernel with a learnable precision matrix. We show that precious information is contained in the spectrum of the precision matrix that can be extracted once the training of the model is completed. In particular, the eigenvectors explain the directions of maximum sensitivity of the model revealing the active subspace and suggesting potential applications for supervised dimensionality reduction. At the same time, the eigenvectors highlight the relationship in terms of absolute variation between the input and the latent variables, thereby allowing us to extract a ranking of the input variables based on their importance to the prediction task enhancing the model interpretability. We conducted numerical experiments for regression, classification, and feature selection tasks, comparing our model against popular machine learning models, the state-of-the-art deep learning-based embedding feature selection techniques, and a transformer model for tabular data. Our results demonstrate that the proposed model does not only yield an attractive prediction performance compared to the competitors but also provides meaningful and interpretable results that potentially could assist the decision-making process in real-world applications. A PyTorch implementation of the model is available on GitHub at the following link. https://github.com/dannyzx/Gaussian-RBFNN",
+          "claimed_authors": [
+            "Danny D'Agostino",
+            "Ilija Ilievski",
+            "Christine Annette Shoemaker"
+          ],
+          "claimed_title": "Learning Active Subspaces and Discovering Important Features with Gaussian Radial Basis Functions Neural Networks",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2307.05639"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Statistical Analysis of Publicly Available Recipe Data for Ingredient Substituti', candidate_title='Learning Active Subspaces and Discovering Important Features with Gaussian Radial Basis Functions Neural Networks')",
+        "failed_at": "2026-07-05T01:13:32Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Generative models have revolutionized multiple domains, yet their application to tabular data remains underexplored. Evaluating generative models for tabular data presents unique challenges due to structural complexity, large-scale variability, and mixed data types, making it difficult to intuitively capture intricate patterns. Existing evaluation metrics offer only partial insights, lacking a comprehensive measure of generative performance. To address this limitation, we propose three novel evaluation metrics: FAED, FPCAD, and RFIS. Our extensive experimental analysis, conducted on three standard network intrusion detection datasets, compares these metrics with established evaluation methods such as Fidelity, Utility, TSTR, and TRTS. Our results demonstrate that FAED effectively captures generative modeling issues overlooked by existing metrics. While FPCAD exhibits promising performance, further refinements are necessary to enhance its reliability. Our proposed framework provides a robust and practical approach for assessing generative models in tabular data applications.",
+          "claimed_authors": [
+            "Dayananda Herurkar",
+            "Ahmad Ali",
+            "Andreas Dengel"
+          ],
+          "claimed_title": "Evaluating Generative Models for Tabular Data: Novel Metrics and Benchmarking",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2504.20900"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Statistical Analysis of Publicly Available Recipe Data for Ingredient Substituti', candidate_title='Evaluating Generative Models for Tabular Data: Novel Metrics and Benchmarking')",
+        "failed_at": "2026-07-05T01:13:32Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Recently, it has been proposed to analyse the literary works, plays or novels, using graphs to display the social network of their interacting characters. In this approach, the timeline of the literary work is lost, because the storyline is projected on a planar graph. However, timelines can be used to build some time series and analyse the work by means of vectors and matrices. These series can be used to describe the presence and relevance, not only of words in the text, but also of persons and places portrayed in the drama or novel. In this framework, we discuss here an approach with co-occurrence matrices plotted over time, concerning the presence of characters in the pages of a novel. These matrices are similar to those appearing in recurrence plots.",
+          "claimed_authors": [
+            "Amelia Carolina Sparavigna"
+          ],
+          "claimed_title": "Co-occurrence matrices of time series applied to literary works",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2014,
+          "primary_pointer": "1406.7168"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Statistical Analysis of Publicly Available Recipe Data for Ingredient Substituti', candidate_title='Co-occurrence matrices of time series applied to literary works')",
+        "failed_at": "2026-07-05T01:13:32Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We study distributed optimization in the presence of Byzantine adversaries, where both data and computation are distributed among $m$ worker machines, $t$ of which may be corrupt. The compromised nodes may collaboratively and arbitrarily deviate from their pre-specified programs, and a designated (master) node iteratively computes the model/parameter vector for generalized linear models. In this work, we primarily focus on two iterative algorithms: Proximal Gradient Descent (PGD) and Coordinate Descent (CD). Gradient descent (GD) is a special case of these algorithms. PGD is typically used in the data-parallel setting, where data is partitioned across different samples, whereas, CD is used in the model-parallelism setting, where data is partitioned across the parameter space.\n  In this paper, we propose a method based on data encoding and error correction over real numbers to combat adversarial attacks. We can tolerate up to $t\\leq \\lfloor\\frac{m-1}{2}\\rfloor$ corrupt worker nodes, which is information-theoretically optimal. We give deterministic guarantees, and our method does not assume any probability distribution on the data. We develop a {\\em sparse} encoding scheme which enables computationally efficient data encoding and decoding. We demonstrate a trade-off between the corruption threshold and the resource requirements (storage, computational, and communication complexity). As an example, for $t\\leq\\frac{m}{3}$, our scheme incurs only a {\\em constant} overhead on these resources, over that required by the plain distributed PGD/CD algorithms which provide no adversarial protection. To the best of our knowledge, ours is the first paper that makes CD secure against adversarial attacks.\n  Our encoding scheme extends efficiently to the data streaming model and for stochastic gradient descent (SGD). We also give experimental results to show the efficacy of our proposed schemes.",
+          "claimed_authors": [
+            "Deepesh Data",
+            "Linqi Song",
+            "Suhas Diggavi"
+          ],
+          "claimed_title": "Data Encoding for Byzantine-Resilient Distributed Optimization",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1907.02664"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Statistical Analysis of Publicly Available Recipe Data for Ingredient Substituti', candidate_title='Data Encoding for Byzantine-Resilient Distributed Optimization')",
+        "failed_at": "2026-07-05T01:13:32Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We study distributed stochastic gradient descent (SGD) in the master-worker architecture under Byzantine attacks. We consider the heterogeneous data model, where different workers may have different local datasets, and we do not make any probabilistic assumptions on data generation. At the core of our algorithm, we use the polynomial-time outlier-filtering procedure for robust mean estimation proposed by Steinhardt et al. (ITCS 2018) to filter-out corrupt gradients. In order to be able to apply their filtering procedure in our {\\em heterogeneous} data setting where workers compute {\\em stochastic} gradients, we derive a new matrix concentration result, which may be of independent interest.\n  We provide convergence analyses for smooth strongly-convex and non-convex objectives. We derive our results under the bounded variance assumption on local stochastic gradients and a {\\em deterministic} condition on datasets, namely, gradient dissimilarity; and for both these quantities, we provide concrete bounds in the statistical heterogeneous data model. We give a trade-off between the mini-batch size for stochastic gradients and the approximation error. Our algorithm can tolerate up to $\\frac{1}{4}$ fraction Byzantine workers. It can find approximate optimal parameters in the strongly-convex setting exponentially fast and reach to an approximate stationary point in the non-convex setting with a linear speed, thus, matching the convergence rates of vanilla SGD in the Byzantine-free setting.\n  We also propose and analyze a Byzantine-resilient SGD algorithm with gradient compression, where workers send $k$ random coordinates of their gradients. Under mild conditions, we show a $\\frac{d}{k}$-factor saving in communication bits as well as decoding complexity over our compression-free algorithm without affecting its convergence rate (order-wise) and the approximation error.",
+          "claimed_authors": [
+            "Deepesh Data",
+            "Suhas Diggavi"
+          ],
+          "claimed_title": "Byzantine-Resilient SGD in High Dimensions on Heterogeneous Data",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2005.07866"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Statistical Analysis of Publicly Available Recipe Data for Ingredient Substituti', candidate_title='Byzantine-Resilient SGD in High Dimensions on Heterogeneous Data')",
+        "failed_at": "2026-07-05T01:13:32Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "We propose in this work to derive a CLT in the functional linear regression model to get confidence sets for prediction based on functional linear regression. The main difficulty is due to the fact that estimation of the functional parameter leads to a kind of ill-posed inverse problem. We consider estimators that belong to a large class of regularizing methods and we first show that, contrary to the multivariate case, it is not possible to state a CLT in the topology of the considered functional space. However, we show that we can get a CLT for the weak topology under mild hypotheses and in particular without assuming any strong assumptions on the decay of the eigenvalues of the covariance operator. Rates of convergence depend on the smoothness of the functional coefficient and on the point in which the prediction is made.",
+          "claimed_authors": [
+            "Hervé Cardot",
+            "André Mas",
+            "Pascal Sarda"
+          ],
+          "claimed_title": "CLT in Functional Linear Regression Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2005,
+          "primary_pointer": "math/0508073"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Statistical Analysis of Publicly Available Recipe Data for Ingredient Substituti', candidate_title='CLT in Functional Linear Regression Models')",
+        "failed_at": "2026-07-05T01:13:33Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "In this paper, we study reliability properties of a k-out-of-n system with a single cold standby unit. We mainly focus on the case when the system operates in discrete time. In order to describe its aging behavior we consider three different mean residual life functions. By using some properties of order statistics we present several monotonicity results associated with these reliability characteristics. Since the calculation of the described quantities requires finding sums of infinite series, we provide a procedure to approximate them with an error not greater than a desired value. As an illustration we consider three special cases when the component lifetimes have geometric, negative binomial and discrete Weibull distributions.",
+          "claimed_authors": [
+            "Anna Dembińska",
+            "Nikolay I. Nikolov",
+            "Eugenia Stoimenova"
+          ],
+          "claimed_title": "Reliability properties of k-out-of-n systems with one cold standby unit",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1911.11818"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Statistical Analysis of Publicly Available Recipe Data for Ingredient Substituti', candidate_title='Reliability properties of k-out-of-n systems with one cold standby unit')",
+        "failed_at": "2026-07-05T01:13:33Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "In this work, several convergence results are established for nearly critical self-excited systems in which event arrivals are described by multivariate marked Hawkes point processes. Under some mild high-frequency assumptions, the rescaled density process behaves asymptotically like a multi-type continuous-state branching process with immigration, which is the unique solution to a multi-dimensional stochastic differential equation with dynamical mechanism similar to that of multivariate Hawkes processes. To illustrate the strength of these limit results, we further establish diffusion approximations for multi-type Crump-Mode-Jagers branching processes counted with various characteristics by linking them to marked Hawkes shot noise processes. In particular, an interesting phenomenon in queueing theory, well-known as state space collapse, is observed in the behavior of the population structure at a large time scale. This phenomenon reveals that the rescaled complex biological system can be recovered from its population process by a lifting map.",
+          "claimed_authors": [
+            "Wei Xu"
+          ],
+          "claimed_title": "Diffusion Approximations for Self-excited Systems with Applications to General Branching Processes",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2101.01288"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Statistical Analysis of Publicly Available Recipe Data for Ingredient Substituti', candidate_title='Diffusion Approximations for Self-excited Systems with Applications to General Branching Processes')",
+        "failed_at": "2026-07-05T01:13:33Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "Predicting sets of outcomes -- instead of unique outcomes -- is a promising solution to uncertainty quantification in statistical learning. Despite a rich literature on constructing prediction sets with statistical guarantees, adapting to unknown covariate shift -- a prevalent issue in practice -- poses a serious unsolved challenge. In this paper, we show that prediction sets with finite-sample coverage guarantee are uninformative and propose a novel flexible distribution-free method, PredSet-1Step, to efficiently construct prediction sets with an asymptotic coverage guarantee under unknown covariate shift. We formally show that our method is \\textit{asymptotically probably approximately correct}, having well-calibrated coverage error with high confidence for large samples. We illustrate that it achieves nominal coverage in a number of experiments and a data set concerning HIV risk prediction in a South African cohort study. Our theory hinges on a new bound for the convergence rate of the coverage of Wald confidence intervals based on general asymptotically linear estimators.",
+          "claimed_authors": [
+            "Hongxiang Qiu",
+            "Edgar Dobriban",
+            "Eric Tchetgen Tchetgen"
+          ],
+          "claimed_title": "Prediction Sets Adaptive to Unknown Covariate Shift",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2203.06126"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Statistical Analysis of Publicly Available Recipe Data for Ingredient Substituti', candidate_title='Prediction Sets Adaptive to Unknown Covariate Shift')",
+        "failed_at": "2026-07-05T01:13:33Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "We prove a multivariate version of Hoeffding's inequality about the distribution of homogeneous polynomials of Rademacher functions. The proof is based on such an estimate about the moments of homogeneous polynomials of Rademacher functions which can be considered as an improvement of Borell's inequality in a most important special case.",
+          "claimed_authors": [
+            "P. Major"
+          ],
+          "claimed_title": "A multivariate generalization of Hoeffding's inequality",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2004,
+          "primary_pointer": "math/0411288"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Statistical Analysis of Publicly Available Recipe Data for Ingredient Substituti', candidate_title=\"A multivariate generalization of Hoeffding's inequality\")",
+        "failed_at": "2026-07-05T01:13:33Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "Subshifts of deterministic substitutions are ubiquitous objects in dynamical systems and aperiodic order (the mathematical theory of quasicrystals). Two of their most striking features are that they have low complexity (zero topological entropy) and are uniquely ergodic. Random substitutions are a generalisation of deterministic substitutions where the substituted image of a letter is determined by a Markov process. In stark contrast to their deterministic counterparts, subshifts of random substitutions often have positive topological entropy, and support uncountably many ergodic measures. The underlying Markov process singles out one of the ergodic measures, called the frequency measure. Here, we develop new techniques for computing and studying the entropy of these frequency measures. As an application of our results, we obtain closed form formulas for the entropy of frequency measures for a wide range of random substitution subshifts and show that in many cases there exists a frequency measure of maximal entropy. Further, for a class of random substitution subshifts, we prove that this measure is the unique measure of maximal entropy. These subshifts do not satisfy Bowen's specification property or the weaker specification property of Climenhaga and Thompson and hence provide an interesting new class of intrinsically ergodic subshifts.",
+          "claimed_authors": [
+            "Philipp Gohlke",
+            "Andrew Mitchell",
+            "Dan Rust",
+            "Tony Samuel"
+          ],
+          "claimed_title": "Measure theoretic entropy of random substitution subshifts",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2105.11224"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Statistical Analysis of Publicly Available Recipe Data for Ingredient Substituti', candidate_title='Measure theoretic entropy of random substitution subshifts')",
+        "failed_at": "2026-07-05T01:13:33Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "Difference-in-differences is a widely-used evaluation strategy that draws causal inference from observational panel data. Its causal identification relies on the assumption of parallel trends, which is scale dependent and may be questionable in some applications. A common alternative is a regression model that adjusts for the lagged dependent variable, which rests on the assumption of ignorability conditional on past outcomes. In the context of linear models, \\citet{APbook} show that the difference-in-differences and lagged-dependent-variable regression estimates have a bracketing relationship. Namely, for a true positive effect, if ignorability is correct, then mistakenly assuming parallel trends will overestimate the effect; in contrast, if the parallel trends assumption is correct, then mistakenly assuming ignorability will underestimate the effect. We show that the same bracketing relationship holds in general nonparametric (model-free) settings. We also extend the result to semiparametric estimation based on inverse probability weighting. We provide three examples to illustrate the theoretical results with replication files in \\citet{ding2019bracketingData}.",
+          "claimed_authors": [
+            "Peng Ding",
+            "Fan Li"
+          ],
+          "claimed_title": "A bracketing relationship between difference-in-differences and lagged-dependent-variable adjustment",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1903.06286"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Statistical Analysis of Publicly Available Recipe Data for Ingredient Substituti', candidate_title='A bracketing relationship between difference-in-differences and lagged-dependent-variable adjustment')",
+        "failed_at": "2026-07-05T01:13:33Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "A new test is proposed for the weak white noise null hypothesis. The test is based on a new automatic choice of the order for a Box-Pierce or Hong test statistic. The test uses Lobato (2001) or Kuan and Lee (2006) HAC critical values. The data-driven order choice is tailored to detect a new class of alternatives with autocorrelation coefficients which can be $o(n^{-1/2})$ provided there are enough of them. A simulation experiment illustrates the good behavior of the test both under the weak white noise null and the alternative.",
+          "claimed_authors": [
+            "Alain Guay",
+            "Emmanuel Guerre",
+            "Stepana Lazarova"
+          ],
+          "claimed_title": "Robust Adaptive Rate-Optimal Testing for the White Noise Hypothesis",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2011,
+          "primary_pointer": "1106.2014"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Statistical Analysis of Publicly Available Recipe Data for Ingredient Substituti', candidate_title='Robust Adaptive Rate-Optimal Testing for the White Noise Hypothesis')",
+        "failed_at": "2026-07-05T01:13:33Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Bahare Fatemi",
+            "Quentin Duval",
+            "Rohit Girdhar",
+            "Michal Drozdzal",
+            "Adriana Romero-Soriano"
+          ],
+          "title": "Learning to Substitute Ingredients in Recipes",
+          "venue": "arXiv",
+          "year": 2023
+        },
+        "primary_pointer": "2302.07960",
+        "summary": "Recipe personalization through ingredient substitution has the potential to help people meet their dietary needs and preferences, avoid potential allergens, and ease culinary exploration in everyone's kitchen. To address ingredient substitution, we build a benchmark, composed of a dataset of substitution pairs with standardized splits, evaluation metrics, and baselines. We further introduce Graph-based Ingredient Substitution Module (GISMo), a novel model that leverages the context of a recipe as well as generic ingredient relational information encoded within a graph to rank plausible substitutions. We show through comprehensive experimental validation that GISMo surpasses the best performing baseline by a large margin in terms of mean reciprocal rank. Finally, we highlight the benefits of GISMo by integrating it in an improved image-to-recipe generation pipeline, enabling recipe personalization through user intervention. Quantitative and qualitative results show the efficacy of our proposed system, paving the road towards truly personalized cooking and tasting experiences.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2302.07960",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.375,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-05T01:13:32Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Claudio Caprioli",
+            "Saumitra Kulkarni",
+            "Federico Battiston",
+            "Iacopo Iacopini",
+            "Andrea Santoro",
+            "Vito Latora"
+          ],
+          "title": "The networks of ingredient combinations as culinary fingerprints of world cuisines",
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2408.15162",
+        "summary": "Investigating how different ingredients are combined in popular dishes is crucial to uncover the principles behind food preferences. Here, we use data from public food repositories and network analysis to characterize and compare worldwide cuisines. Ingredients are first grouped into broader types, and each cuisine is then represented as a network in which nodes correspond to ingredient types and weighted links describe how frequently pairs of types co-occur in recipes. Cuisines differ not only in the popularity of ingredient types and range of recipe sizes, but also in the structural organization of ingredient-type combinations. By analyzing these networks, we uncover distinctive patterns of type associations that serve as culinary fingerprints. For example, European cuisines typically distribute ingredients across different types, whereas certain Asian and South American traditions emphasize one dominant type, such as vegetables or spices. The essence of these patterns is well captured by the networks' maximum spanning trees, which offer a simplified yet representative backbone for each cuisine. We demonstrate that both these full and simplified network representations enable machine learning models to identify cuisines from subsets of recipes with very high accuracy. Networks of ingredient combinations also cluster global cuisines into meaningful geo-cultural groups, reflecting shared patterns in culinary traditions. More broadly, our study offers novel insights into the structure of world cuisines, enabling data-driven approaches to their characterization, cross-cultural comparison, and potential adaptation.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2408.15162",
+          "http_status": 200,
+          "pdf_sample_score": 0.278,
+          "query_relevance_score": 0.375,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-05T01:13:32Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Xiao Liu",
+            "Yansong Feng",
+            "Jizhi Tang",
+            "Chengang Hu",
+            "Dongyan Zhao"
+          ],
+          "title": "Counterfactual Recipe Generation: Exploring Compositional Generalization in a Realistic Scenario",
+          "venue": "arXiv",
+          "year": 2022
+        },
+        "primary_pointer": "2210.11431",
+        "summary": "People can acquire knowledge in an unsupervised manner by reading, and compose the knowledge to make novel combinations. In this paper, we investigate whether pretrained language models can perform compositional generalization in a realistic setting: recipe generation. We design the counterfactual recipe generation task, which asks models to modify a base recipe according to the change of an ingredient. This task requires compositional generalization at two levels: the surface level of incorporating the new ingredient into the base recipe, and the deeper level of adjusting actions related to the changing ingredient. We collect a large-scale recipe dataset in Chinese for models to learn culinary knowledge, and a subset of action-level fine-grained annotations for evaluation. We finetune pretrained language models on the recipe corpus, and use unsupervised counterfactual generation methods to generate modified recipes. Results show that existing models have difficulties in modifying the ingredients while preserving the original text style, and often miss actions that need to be adjusted. Although pretrained language models can generate fluent recipe texts, they fail to truly learn and use the culinary knowledge in a compositional way. Code and data are available at https://github.com/xxxiaol/counterfactual-recipe-generation.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2210.11431",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-05T01:13:32Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "statistical analysis of publicly available recipe data for ingredient substitution prediction statistics",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

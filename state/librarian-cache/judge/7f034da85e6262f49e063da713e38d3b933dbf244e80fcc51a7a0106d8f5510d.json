@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2302.07960",
+  "judged_at": "2026-07-05T01:13:44Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "statistical analysis of publicly available recipe data for ingredient substitution prediction statistics",
+  "rationale": "This paper satisfies criteria (a) and (b) as it directly measures the core dependent variable (ingredient substitution prediction) and the domain (recipe data) specified in the user's question, providing the necessary empirical baseline and methodological framework for the task even though it focuses on model performance rather than a specific statistical analysis of the dataset itself.",
+  "relevant": true
+}

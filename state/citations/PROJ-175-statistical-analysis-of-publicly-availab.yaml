@@ -1,0 +1,11 @@
+- artifact_hash: ec20b7125a163e4ac7a7719765119dc409dd15cee12d15e596fd11544f896339
+  artifact_path: projects/PROJ-175-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: train-00000-of-00002.parquet
+  kind: url
+  value: https://huggingface.co/datasets/AnonymousSub/recipe1m_vit_base_embeddings/resolve/main/data/train-00000-of-00002.parquet`
+  verification_status: verified
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/636ffca2d019077ea24b81d6/1e9f4166106b2853bd5b1a4366c4d084af33437ffd41767349212179f883860f?X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27train-00000-of-00002.parquet%3B+filename%3D%22train-00000-of-00002.parquet%22%3B&user_id=public&Expires=1783218621&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjM2ZmZjYTJkMDE5MDc3ZWEyNGI4MWQ2LzFlOWY0MTY2MTA2YjI4NTNiZDViMWE0MzY2YzRkMDg0YWYzMzQzN2ZmZDQxNzY3MzQ5MjEyMTc5Zjg4Mzg2MGZcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dHJhaW4tMDAwMDAtb2YtMDAwMDIucGFycXVldCUzQitmaWxlbmFtZSUzRCUyMnRyYWluLTAwMDAwLW9mLTAwMDAyLnBhcnF1ZXQlMjIlM0ImdXNlcl9pZD1wdWJsaWMiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkVwb2NoVGltZSI6MTc4MzIxODYyMX19fV19&Signature=MEUCIBQ45OwxoYquYOF8YwwPrFJnv7zgxnkDxrRoMotIaMquAiEA0N97I2i7gS7gCwYdrSnC3wFOld5dsBoumYRcZ0Cpxuc_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+  verified_at: '2026-07-05T01:30:21.244936Z'

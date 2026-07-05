@@ -1,0 +1,75 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Model Output Schema"
+description: "Schema for the results of the statistical modeling process."
+type: object
+properties:
+  model_type:
+    type: string
+    description: "Type of model fitted."
+    enum:
+      - "logistic_regression"
+      - "bayesian_hierarchical"
+  coefficients:
+    type: object
+    description: "Dictionary of predictor names to coefficients."
+    additionalProperties:
+      type: number
+  p_values:
+    type: object
+    description: "Dictionary of predictor names to p-values."
+    additionalProperties:
+      type: number
+  vif_scores:
+    type: object
+    description: "Variance Inflation Factors for predictors."
+    additionalProperties:
+      type: number
+  performance_metrics:
+    type: object
+    description: "Evaluation metrics."
+    properties:
+      auc:
+        type: number
+        description: "Area Under the ROC Curve."
+      precision:
+        type: number
+        description: "Precision score."
+      recall:
+        type: number
+        description: "Recall score."
+      calibration_error:
+        type: number
+        description: "Maximum deviation from ideal calibration."
+    required:
+      - auc
+      - precision
+      - recall
+      - calibration_error
+  posterior_distributions:
+    type: object
+    description: "Bayesian posterior summaries."
+    properties:
+      posterior_mean_semantic:
+        type: number
+        description: "Mean of posterior for semantic similarity."
+      credible_interval_semantic:
+        type: object
+        description: "95% Credible Interval."
+        properties:
+          lower:
+            type: number
+          upper:
+            type: number
+        required:
+          - lower
+          - upper
+    required:
+      - posterior_mean_semantic
+      - credible_interval_semantic
+required:
+  - model_type
+  - coefficients
+  - p_values
+  - vif_scores
+  - performance_metrics
+additionalProperties: false

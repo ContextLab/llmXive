@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "0906.3662",
+  "judged_at": "2026-07-05T01:13:35Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "statistical analysis of publicly available recipe data for ingredient substitution prediction statistics",
+  "rationale": "The paper focuses on statistical methods for functional Magnetic Resonance Imaging (fMRI) data in neuroscience, which is an entirely different domain from the user's question regarding recipe data and ingredient substitution. This falls under the rejection rule for \"off-domain entirely\" and \"distinct construct sharing only homonym keywords\" (sharing only the word \"statistical\" and \"data\" but addressing unrelated biological vs. culinary mechanisms).",
+  "relevant": false
+}

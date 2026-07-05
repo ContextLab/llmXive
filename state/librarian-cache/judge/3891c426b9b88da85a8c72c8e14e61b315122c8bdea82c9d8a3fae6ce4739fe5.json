@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2210.11431",
+  "judged_at": "2026-07-05T01:14:02Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "statistical analysis of publicly available recipe data for ingredient substitution prediction statistics",
+  "rationale": "This paper satisfies criteria (a) and (b) as it investigates the core mechanism of ingredient substitution (specifically \"counterfactual recipe generation\" based on changing an ingredient) within the exact domain of recipe data, providing essential empirical evidence on the current capabilities and limitations of models performing this specific task.",
+  "relevant": true
+}
