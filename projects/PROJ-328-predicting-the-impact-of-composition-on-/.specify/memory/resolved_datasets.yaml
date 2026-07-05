@@ -1,0 +1,630 @@
+resolved_at: '2026-07-05T07:54:50.333472+00:00'
+datasets:
+- intent: NIST
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/nisten/opus-doctor-patient-conversations-all-human-diseases/resolve/main/opusdiseaseconversations.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/open-llm-leaderboard-old/details_nisten__shqiponja-59b-v1/resolve/main/2024-01-14T05-56-39.495831/details_harness|arc:challenge|25_2024-01-14T05-56-39.495831.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/open-llm-leaderboard-old/details_nisten__bigdoc-c34b-instruct-tf32/resolve/main/2024-02-02T03-54-56.700611/details_harness|arc:challenge|25_2024-02-02T03-54-56.700611.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/nisten/opus-doctor-patient-conversations-all-human-diseases/resolve/main/opusdiseaseconversations.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/open-llm-leaderboard-old/details_nisten__shqiponja-59b-v1/resolve/main/2024-01-14T05-56-39.495831/details_harness|arc:challenge|25_2024-01-14T05-56-39.495831.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/open-llm-leaderboard-old/details_nisten__bigdoc-c34b-instruct-tf32/resolve/main/2024-02-02T03-54-56.700611/details_harness|arc:challenge|25_2024-02-02T03-54-56.700611.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/open-llm-leaderboard-old/details_nisten__BigCodeLlama-92b/resolve/main/2024-02-02T12-17-18.661697/details_harness|arc:challenge|25_2024-02-02T12-17-18.661697.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/open-llm-leaderboard-old/details_nisten__shqiponja-15b-v1/resolve/main/2024-02-09T14-57-48.901535/details_harness|arc:challenge|25_2024-02-09T14-57-48.901535.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/dataset/Crescent_University_2026_2027_Admission_Form_is_out_call_DR_MRS_FAITH_0704-0964654_or_07040964654_Prospective_candidates_seeking_admission_The_education_system_is_divided_into_kindergarten_primary_education_secondary_education_and_tertiary_/32901587
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Lead_City_University_Ibadan_2026_2027_Admission_Form_is_out_call_DR_MRS_FAITH_0704-0964654_or_07040964654_Prospective_candidates_seeking_admission_The_education_system_is_divided_into_kindergarten_primary_education_secondary_education_and_t/32901575
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/Principles_Comparative_Advantages_and_Disadvantages_of_SGD_Adam_and_Muon_Optimizers_and_Prospects_for_Comprehensive_Optimizer_Research/32901557
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/Novena_University_Ogume_2026_2027_Admission_Form_is_out_call_DR_MRS_FAITH_0704-0964654_or_07040964654_Prospective_candidates_seeking_admission_The_education_system_is_divided_into_kindergarten_primary_education_secondary_education_and_terti/32901569
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Redeemer_s_University_Ede_2026_2027_Admission_Form_is_out_call_DR_MRS_FAITH_0704-0964654_or_07040964654_Prospective_candidates_seeking_admission_The_education_system_is_divided_into_kindergarten_primary_education_secondary_education_and_ter/32901551
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14189804
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3382347
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6384789
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7254581
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6570898
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://usiena-air.unisi.it//handle/11365/1144376
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21201565
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21201565
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20483861
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20483861
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: OpenAlloy
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/journal_contribution/Crawford_University_Igbesa_2026_2027_Admission_Form_is_out_call_DR_MRS_FAITH_0704-0964654_or_07040964654_Prospective_candidates_seeking_admission_The_education_system_is_divided_into_kindergarten_primary_education_secondary_education_and_te/32901593
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Crescent_University_2026_2027_Admission_Form_is_out_call_DR_MRS_FAITH_0704-0964654_or_07040964654_Prospective_candidates_seeking_admission_The_education_system_is_divided_into_kindergarten_primary_education_secondary_education_and_tertiary_/32901587
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Lead_City_University_Ibadan_2026_2027_Admission_Form_is_out_call_DR_MRS_FAITH_0704-0964654_or_07040964654_Prospective_candidates_seeking_admission_The_education_system_is_divided_into_kindergarten_primary_education_secondary_education_and_t/32901575
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/Principles_Comparative_Advantages_and_Disadvantages_of_SGD_Adam_and_Muon_Optimizers_and_Prospects_for_Comprehensive_Optimizer_Research/32901557
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/Novena_University_Ogume_2026_2027_Admission_Form_is_out_call_DR_MRS_FAITH_0704-0964654_or_07040964654_Prospective_candidates_seeking_admission_The_education_system_is_divided_into_kindergarten_primary_education_secondary_education_and_terti/32901569
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: XGBoost
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/xgboost-lover/Skin_Disease_Dataset/resolve/main/Combined_Data.zip
+    source: huggingface
+    format: zip
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/sujinwo/hybrid_tft_xgboost/resolve/main/dataset_tft_tbm_v2.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/Wezenite/nse-xgboost-swing-model/resolve/main/predictions.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 93098
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/XGBooster/github-issues/resolve/main/issues-datasets-with-comments.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/xgboost-lover/Skin_Disease_Dataset/resolve/main/Combined_Data.zip
+    source: huggingface
+    status: verified
+    format: zip
+  - url: https://huggingface.co/datasets/sujinwo/hybrid_tft_xgboost/resolve/main/dataset_tft_tbm_v2.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/Wezenite/nse-xgboost-swing-model/resolve/main/predictions.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://figshare.com/articles/journal_contribution/Crawford_University_Igbesa_2026_2027_Admission_Form_is_out_call_DR_MRS_FAITH_0704-0964654_or_07040964654_Prospective_candidates_seeking_admission_The_education_system_is_divided_into_kindergarten_primary_education_secondary_education_and_te/32901593
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Crescent_University_2026_2027_Admission_Form_is_out_call_DR_MRS_FAITH_0704-0964654_or_07040964654_Prospective_candidates_seeking_admission_The_education_system_is_divided_into_kindergarten_primary_education_secondary_education_and_tertiary_/32901587
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Lead_City_University_Ibadan_2026_2027_Admission_Form_is_out_call_DR_MRS_FAITH_0704-0964654_or_07040964654_Prospective_candidates_seeking_admission_The_education_system_is_divided_into_kindergarten_primary_education_secondary_education_and_t/32901575
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/Principles_Comparative_Advantages_and_Disadvantages_of_SGD_Adam_and_Muon_Optimizers_and_Prospects_for_Comprehensive_Optimizer_Research/32901557
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/Novena_University_Ogume_2026_2027_Admission_Form_is_out_call_DR_MRS_FAITH_0704-0964654_or_07040964654_Prospective_candidates_seeking_admission_The_education_system_is_divided_into_kindergarten_primary_education_secondary_education_and_terti/32901569
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20667903
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/13357843
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8400945
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15009821
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15309798
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21202211
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21202211
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21201934
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21201934
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21201149
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: SHAP
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://huggingface.co/datasets/ShapeNet/ShapeNetSem-archive/resolve/main/ShapeNetSem.zip
+    source: huggingface
+    status: wrong_format
+    reason: HTTP 401
+  - url: https://huggingface.co/datasets/ShapeNet/ShapeNetCore/resolve/main/02691156.zip
+    source: huggingface
+    status: wrong_format
+    reason: HTTP 401
+  - url: https://huggingface.co/datasets/ShapeNet/shapenetcore-gltf/resolve/main/taxonomy.json
+    source: huggingface
+    status: wrong_format
+    reason: HTTP 401
+  - url: https://huggingface.co/datasets/ShapeNet/shapenetcore-glb/resolve/main/taxonomy.json
+    source: huggingface
+    status: wrong_format
+    reason: HTTP 401
+  - url: https://figshare.com/articles/journal_contribution/Crawford_University_Igbesa_2026_2027_Admission_Form_is_out_call_DR_MRS_FAITH_0704-0964654_or_07040964654_Prospective_candidates_seeking_admission_The_education_system_is_divided_into_kindergarten_primary_education_secondary_education_and_te/32901593
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Crescent_University_2026_2027_Admission_Form_is_out_call_DR_MRS_FAITH_0704-0964654_or_07040964654_Prospective_candidates_seeking_admission_The_education_system_is_divided_into_kindergarten_primary_education_secondary_education_and_tertiary_/32901587
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Lead_City_University_Ibadan_2026_2027_Admission_Form_is_out_call_DR_MRS_FAITH_0704-0964654_or_07040964654_Prospective_candidates_seeking_admission_The_education_system_is_divided_into_kindergarten_primary_education_secondary_education_and_t/32901575
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/Principles_Comparative_Advantages_and_Disadvantages_of_SGD_Adam_and_Muon_Optimizers_and_Prospects_for_Comprehensive_Optimizer_Research/32901557
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/Novena_University_Ogume_2026_2027_Admission_Form_is_out_call_DR_MRS_FAITH_0704-0964654_or_07040964654_Prospective_candidates_seeking_admission_The_education_system_is_divided_into_kindergarten_primary_education_secondary_education_and_terti/32901569
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5092866
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19967496
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16147484
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ijece.iaescore.com/index.php/IJECE/article/view/29923
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18102223
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21202211
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21202211
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21201149
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21201149
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21200919
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: VIF
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/tranthaihoa/vifactcheck/resolve/main/data/dev-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/tranthaihoa/vifactcheck/resolve/main/data/dev-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/dongguanting/VIF-RAG-QA-20K/resolve/main/VIF-RAG_sampled%20(20K).json
+    source: huggingface
+    status: wrong_format
+    reason: HTTP 401
+  - url: https://us.aws.cdn.hf.co/xet-bridge-us/66d42cebcf97d88019c1c54d/e794cd49b01e2c46b3321bf498b047ffc0aeffb59911b11c645521b4581f9d82?response-content-type=application%2Fjson&user_id=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27gpt4_single_multi_autoif_sharegpt_rag_mix.json%3B+filename%3D%22gpt4_single_multi_autoif_sharegpt_rag_mix.json%22%3B&X-Xet-Cas-Uid=public&Expires=1783241579&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjZkNDJjZWJjZjk3ZDg4MDE5YzFjNTRkL2U3OTRjZDQ5YjAxZTJjNDZiMzMyMWJmNDk4YjA0N2ZmYzBhZWZmYjU5OTExYjExYzY0NTUyMWI0NTgxZjlkODJcXD9yZXNwb25zZS1jb250ZW50LXR5cGU9YXBwbGljYXRpb24lMkZqc29uJnVzZXJfaWQ9cHVibGljJnJlc3BvbnNlLWNvbnRlbnQtZGlzcG9zaXRpb249aW5saW5lJTNCK2ZpbGVuYW1lJTJBJTNEVVRGLTglMjclMjdncHQ0X3NpbmdsZV9tdWx0aV9hdXRvaWZfc2hhcmVncHRfcmFnX21peC5qc29uJTNCK2ZpbGVuYW1lJTNEJTIyZ3B0NF9zaW5nbGVfbXVsdGlfYXV0b2lmX3NoYXJlZ3B0X3JhZ19taXguanNvbiUyMiUzQiZYLVhldC1DYXMtVWlkPXB1YmxpYyIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzgzMjQxNTc5fX19XX0_&Signature=MEYCIQCbKyX8LFnyrs0Kt--0MYNlnU8RLTbawN15Duk~~e0cdQIhAJe~2-QJAQthxAbc3-oP6n9ZfR2BLCI~wLZ~0-TojPuN&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/Caritas_University_Enugu_2026_2027_Admission_Form_is_out_call_DR_MRS_FAITH_0704-0964654_or_07040964654_Prospective_candidates_seeking_admission_The_education_system_is_divided_into_kindergarten_primary_education_secondary_education_and_tert/32901596
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/Crawford_University_Igbesa_2026_2027_Admission_Form_is_out_call_DR_MRS_FAITH_0704-0964654_or_07040964654_Prospective_candidates_seeking_admission_The_education_system_is_divided_into_kindergarten_primary_education_secondary_education_and_te/32901593
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Crescent_University_2026_2027_Admission_Form_is_out_call_DR_MRS_FAITH_0704-0964654_or_07040964654_Prospective_candidates_seeking_admission_The_education_system_is_divided_into_kindergarten_primary_education_secondary_education_and_tertiary_/32901587
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Lead_City_University_Ibadan_2026_2027_Admission_Form_is_out_call_DR_MRS_FAITH_0704-0964654_or_07040964654_Prospective_candidates_seeking_admission_The_education_system_is_divided_into_kindergarten_primary_education_secondary_education_and_t/32901575
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/Principles_Comparative_Advantages_and_Disadvantages_of_SGD_Adam_and_Muon_Optimizers_and_Prospects_for_Comprehensive_Optimizer_Research/32901557
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20926278
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19154354
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20191456
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14837515
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19827885
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21201877
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21201877
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21191746
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21191746
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21192034
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: RMSE
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/arjunashok/medical-5day-zeroshot-freshexps-test-plot_with_rmsesort/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/arjunashok/medical-5day-zeroshot-freshexps-test-no-context-plot_with_rmsesort_noctx/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/arjunashok/medical-5day-zeroshot-freshexps-test-plot_with_rmsesort/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/arjunashok/medical-5day-zeroshot-freshexps-test-no-context-plot_with_rmsesort_noctx/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://us.aws.cdn.hf.co/xet-bridge-us/68edd46259f14f21c698aa28/f44f703ecd57d1ddffab68ea166dffcb818f02a0274566ab4651239ed85fffff?X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27dataset_list.json%3B+filename%3D%22dataset_list.json%22%3B&user_id=public&response-content-type=application%2Fjson&Expires=1783241614&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjhlZGQ0NjI1OWYxNGYyMWM2OThhYTI4L2Y0NGY3MDNlY2Q1N2QxZGRmZmFiNjhlYTE2NmRmZmNiODE4ZjAyYTAyNzQ1NjZhYjQ2NTEyMzllZDg1ZmZmZmZcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3ZGF0YXNldF9saXN0Lmpzb24lM0IrZmlsZW5hbWUlM0QlMjJkYXRhc2V0X2xpc3QuanNvbiUyMiUzQiZ1c2VyX2lkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LXR5cGU9YXBwbGljYXRpb24lMkZqc29uIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3ODMyNDE2MTR9fX1dfQ__&Signature=MEYCIQDnzvJBmfo5LDrDcgMnXV67Ea-GmG5go7SejmWaE-~-xgIhAK~2UXZ3mkDg8WlHBL1Sb1JdwrCtszfE3hB3eOdqdUjv&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/Caritas_University_Enugu_2026_2027_Admission_Form_is_out_call_DR_MRS_FAITH_0704-0964654_or_07040964654_Prospective_candidates_seeking_admission_The_education_system_is_divided_into_kindergarten_primary_education_secondary_education_and_tert/32901596
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/Crawford_University_Igbesa_2026_2027_Admission_Form_is_out_call_DR_MRS_FAITH_0704-0964654_or_07040964654_Prospective_candidates_seeking_admission_The_education_system_is_divided_into_kindergarten_primary_education_secondary_education_and_te/32901593
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Crescent_University_2026_2027_Admission_Form_is_out_call_DR_MRS_FAITH_0704-0964654_or_07040964654_Prospective_candidates_seeking_admission_The_education_system_is_divided_into_kindergarten_primary_education_secondary_education_and_tertiary_/32901587
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Lead_City_University_Ibadan_2026_2027_Admission_Form_is_out_call_DR_MRS_FAITH_0704-0964654_or_07040964654_Prospective_candidates_seeking_admission_The_education_system_is_divided_into_kindergarten_primary_education_secondary_education_and_t/32901575
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/Principles_Comparative_Advantages_and_Disadvantages_of_SGD_Adam_and_Muon_Optimizers_and_Prospects_for_Comprehensive_Optimizer_Research/32901557
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20325172
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17593144
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17750460
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10972798
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10966066
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://fair.unifg.it//handle/11369/382362
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21201149
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21201149
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/dataset/Impact_of_electrostriction_under_unequal_biaxial_deformation_on_the_nonlinear_dynamics_of_dielectric_elastomer_actuators/29486829/2
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Impact_of_electrostriction_under_unequal_biaxial_deformation_on_the_nonlinear_dynamics_of_dielectric_elastomer_actuators/29486829/1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: ASSOCIATIONAL
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/journal_contribution/Bingham_University_2026_2027_Admission_Form_is_out_call_DR_MRS_FAITH_0704-0964654_or_07040964654_Prospective_candidates_seeking_admission_The_education_system_is_divided_into_kindergarten_primary_education_secondary_education_and_tertiary_e/32901611
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/Caritas_University_Enugu_2026_2027_Admission_Form_is_out_call_DR_MRS_FAITH_0704-0964654_or_07040964654_Prospective_candidates_seeking_admission_The_education_system_is_divided_into_kindergarten_primary_education_secondary_education_and_tert/32901596
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/Crawford_University_Igbesa_2026_2027_Admission_Form_is_out_call_DR_MRS_FAITH_0704-0964654_or_07040964654_Prospective_candidates_seeking_admission_The_education_system_is_divided_into_kindergarten_primary_education_secondary_education_and_te/32901593
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Crescent_University_2026_2027_Admission_Form_is_out_call_DR_MRS_FAITH_0704-0964654_or_07040964654_Prospective_candidates_seeking_admission_The_education_system_is_divided_into_kindergarten_primary_education_secondary_education_and_tertiary_/32901587
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Lead_City_University_Ibadan_2026_2027_Admission_Form_is_out_call_DR_MRS_FAITH_0704-0964654_or_07040964654_Prospective_candidates_seeking_admission_The_education_system_is_divided_into_kindergarten_primary_education_secondary_education_and_t/32901575
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.8sj63
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.x3ffbg7n5
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.tk033rk
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.f4245
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.88365
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21181282
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21181282
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Scale_development_and_validation_of_digital_financial_literacy_in_Indonesia_a_PLS-SEM_approach/32897315/1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Scale_development_and_validation_of_digital_financial_literacy_in_Indonesia_a_PLS-SEM_approach/32897315
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/659wp/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: NOT
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/leolee99/NotInject/resolve/main/data/NotInject_one-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 10859
+      parsed: true
+  - url: https://huggingface.co/datasets/Nottybro/Minecraft-Fable-Raw/resolve/main/amulet_processed/manifest.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 2431
+      parsed: true
+  - url: https://huggingface.co/datasets/notune/fable5-repos/resolve/main/manifest.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/leolee99/NotInject/resolve/main/data/NotInject_one-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/Nottybro/Minecraft-Fable-Raw/resolve/main/amulet_processed/manifest.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/notune/fable5-repos/resolve/main/manifest.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://us.aws.cdn.hf.co/xet-bridge-us/621ffdd236468d709f1835ac/f813331e385a1262352d21b9bc0a6152170575b5e627b54ce0a54f73daeaf5fd?user_id=public&response-content-type=application%2Fjson&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27datasets.json%3B+filename%3D%22datasets.json%22%3B&X-Xet-Cas-Uid=public&Expires=1783241670&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjIxZmZkZDIzNjQ2OGQ3MDlmMTgzNWFjL2Y4MTMzMzFlMzg1YTEyNjIzNTJkMjFiOWJjMGE2MTUyMTcwNTc1YjVlNjI3YjU0Y2UwYTU0ZjczZGFlYWY1ZmRcXD91c2VyX2lkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LXR5cGU9YXBwbGljYXRpb24lMkZqc29uJnJlc3BvbnNlLWNvbnRlbnQtZGlzcG9zaXRpb249aW5saW5lJTNCK2ZpbGVuYW1lJTJBJTNEVVRGLTglMjclMjdkYXRhc2V0cy5qc29uJTNCK2ZpbGVuYW1lJTNEJTIyZGF0YXNldHMuanNvbiUyMiUzQiZYLVhldC1DYXMtVWlkPXB1YmxpYyIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzgzMjQxNjcwfX19XX0_&Signature=MEYCIQDhUIvK0IghEoa~wd1WEddHe3aMY68d-62burtAs3ErwAIhAIC5NpwVOQO1AHWyIYA4MeWo06UOeEPbNOe72wvJa5Ix&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/Bingham_University_2026_2027_Admission_Form_is_out_call_DR_MRS_FAITH_0704-0964654_or_07040964654_Prospective_candidates_seeking_admission_The_education_system_is_divided_into_kindergarten_primary_education_secondary_education_and_tertiary_e/32901611
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/Caritas_University_Enugu_2026_2027_Admission_Form_is_out_call_DR_MRS_FAITH_0704-0964654_or_07040964654_Prospective_candidates_seeking_admission_The_education_system_is_divided_into_kindergarten_primary_education_secondary_education_and_tert/32901596
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/Crawford_University_Igbesa_2026_2027_Admission_Form_is_out_call_DR_MRS_FAITH_0704-0964654_or_07040964654_Prospective_candidates_seeking_admission_The_education_system_is_divided_into_kindergarten_primary_education_secondary_education_and_te/32901593
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Crescent_University_2026_2027_Admission_Form_is_out_call_DR_MRS_FAITH_0704-0964654_or_07040964654_Prospective_candidates_seeking_admission_The_education_system_is_divided_into_kindergarten_primary_education_secondary_education_and_tertiary_/32901587
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Lead_City_University_Ibadan_2026_2027_Admission_Form_is_out_call_DR_MRS_FAITH_0704-0964654_or_07040964654_Prospective_candidates_seeking_admission_The_education_system_is_divided_into_kindergarten_primary_education_secondary_education_and_t/32901575
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15525595
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16413212
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16413231
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7654336
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3824448
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content

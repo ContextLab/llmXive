@@ -1,4 +1,4 @@
-- artifact_hash: 4712110748876cbc5536aff61985991906b77e9cb8ee2c0586fca4ac92b8d742
+- artifact_hash: 733fc97bd13d21645fbef545b43cf53a3d8c492486985884bd0b4ae130463f4d
   artifact_path: projects/PROJ-328-predicting-the-impact-of-composition-on-/specs/001-predicting-the-impact-of-composition-on/spec.md
   cite_id: c-001
   cited_authors: []
@@ -10,4 +10,4 @@
   value: http://arxiv.org/abs/2410.20402v1
   verification_status: verified
   verified_against_url: https://arxiv.org/abs/2410.20402v1
-  verified_at: '2026-06-29T00:51:57.875812Z'
+  verified_at: '2026-07-05T07:50:23.808042Z'

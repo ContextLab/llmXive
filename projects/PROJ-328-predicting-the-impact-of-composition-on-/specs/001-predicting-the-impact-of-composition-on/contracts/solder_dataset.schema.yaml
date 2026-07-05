@@ -1,0 +1,87 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: SolderCompositionDataset
+description: Schema for the aggregated solder alloy dataset.
+type: object
+properties:
+  metadata:
+    type: object
+    properties:
+      version:
+        type: string
+        description: "Version of the schema (e.g., 1.0.0)"
+      generated_at:
+        type: string
+        format: date-time
+        description: "Timestamp of generation"
+      source_count:
+        type: integer
+        description: "Number of unique sources aggregated"
+  records:
+    type: array
+    items:
+      type: object
+      required:
+        - id
+        - source_citation
+        - alloy_family
+        - elements
+        - hardness_hv
+      properties:
+        id:
+          type: string
+          description: "Unique identifier for the record"
+        source_citation:
+          type: string
+          description: "Citation string (Author, Year, Title)"
+        source_url:
+          type: string
+          description: "URL if available, else null"
+        alloy_family:
+          type: string
+          enum:
+            - "Sn-Pb"
+            - "Sn-Ag-Cu"
+            - "Sn-Zn"
+            - "Sn-Cu"
+            - "Sn-Bi"
+            - "Other"
+          description: "Classification of the alloy family"
+        elements:
+          type: object
+          description: "Map of element symbol to percentage"
+          additionalProperties:
+            type: number
+            minimum: 0
+            maximum: 100
+          description: "Elemental composition. Must sum to >= 95%."
+        hardness_hv:
+          type: number
+          minimum: 0
+          description: "Vickers Hardness in HV units"
+        temperature_c:
+          type: number
+          default: 25
+          description: "Measurement temperature in Celsius"
+        notes:
+          type: string
+          description: "Optional notes on data anomalies"
+      additionalProperties: false
+  validation:
+    type: object
+    properties:
+      total_records:
+        type: integer
+      valid_records:
+        type: integer
+      dropped_records:
+        type: integer
+      warnings:
+        type: array
+        items:
+          type: string
+        description: "List of validation warnings (e.g., N < 100)"
+required:
+  - metadata
+  - records
+  - validation
+additionalProperties: false
