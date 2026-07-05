@@ -1,0 +1,43 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Analysis Output Schema"
+description: "Schema for the final statistical analysis results."
+type: "array"
+items:
+  type: "object"
+  properties:
+    metric_pair:
+      type: "string"
+      description: "Identifier for the predictor-outcome pair."
+    correlation_r:
+      type: "number"
+      description: "Pearson correlation coefficient."
+    p_value_raw:
+      type: "number"
+      description: "Raw p-value from the correlation test."
+    p_value_adj:
+      type: "number"
+      description: "Holm-Bonferroni adjusted p-value."
+    beta_coef:
+      type: ["number", "null"]
+      description: "Regression coefficient (null if not significant)."
+    ci_lower:
+      type: ["number", "null"]
+      description: "95% CI lower bound for beta."
+    ci_upper:
+      type: ["number", "null"]
+      description: "95% CI upper bound for beta."
+    bootstrap_ci:
+      type: ["array", "null"]
+      description: "95% CI from bootstrap resampling [lower, upper]."
+    vif_score:
+      type: ["number", "null"]
+      description: "Variance Inflation Factor (if multi-regression used)."
+    pca_component_1:
+      type: ["number", "null"]
+      description: "First principal component score (if VIF >= 5 triggered PCA)."
+  required:
+    - metric_pair
+    - correlation_r
+    - p_value_raw
+    - p_value_adj
+additionalProperties: false

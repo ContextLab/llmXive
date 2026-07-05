@@ -1,0 +1,48 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Participant Dataset Schema"
+description: "Schema for the merged participant data (cognitive + visual metrics)."
+type: "object"
+properties:
+  participant_id:
+    type: "string"
+    description: "Unique identifier for the participant."
+  reaction_time:
+    type: "number"
+    minimum: 0
+    description: "Mean reaction time in milliseconds."
+  accuracy:
+    type: "number"
+    minimum: 0
+    maximum: 1
+    description: "Mean accuracy as a proportion (0.0 to 1.0)."
+  edge_density:
+    type: "number"
+    minimum: 0
+    maximum: 1
+    description: "Normalized edge density metric [0, 1]."
+  color_entropy:
+    type: "number"
+    minimum: 0
+    description: "Color entropy value."
+  object_count:
+    type: ["number", "null"]
+    description: "Detected object count. Null if detection failed."
+  lighting_condition:
+    type: "string"
+    description: "Simulated lighting condition (low/medium/high)."
+  room_type:
+    type: "string"
+    description: "Simulated room type (office/living/dining)."
+  demographic_group:
+    type: "string"
+    description: "Simulated demographic group."
+required:
+  - participant_id
+  - reaction_time
+  - accuracy
+  - edge_density
+  - color_entropy
+  - lighting_condition
+  - room_type
+  - demographic_group
+additionalProperties: false
