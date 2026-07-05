@@ -11,12 +11,6 @@ psutil
 ruff
 black
 pre-commit
-pydantic
 pytest
-pytest-cov
 jupyter
-notebook
-matplotlib
-seaborn
-act
-docker
+nbconvert

@@ -1,5 +1,5 @@
-'|contain least must real row set validation world':
-  quote: train images and 100 validation images with very little cor-
-  source_id: '1911.07850'
-  url: https://arxiv.org/abs/1911.07850
-  value: '100'
+'|each replicate statistical test':
+  quote: '10000'
+  source_id: Permutation test
+  url: https://en.wikipedia.org/wiki/Permutation_test
+  value: '10000'

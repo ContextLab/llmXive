@@ -3,7 +3,7 @@
 **Input**: Design documents from `/specs/001-eval-ab-test-validity/`
 **Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
 
-**Tests**: The examples below include test tasks. [UNRESOLVED-CLAIM: c_12047e55 — status=not_enough_info] Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
+**Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
 
 **Organization**: Tasks are grouped by user story to enable independent implementation and testing of each user story.
 
@@ -94,7 +94,7 @@
 - [X] T026 Implement synthetic dataset generator in `src/audit/synthetic.py` (FR‑030) – outputs `data/synthetic/synthetic_validation.csv` + `data/synthetic/synthetic_ground_truth.json` with at least 10 000 simulated summaries (binary AND continuous outcomes) **and verify both outcome types are present** (constraint‑preservation‑2958f04c) (verify files are created and contain ≥ 10 000 records). **DEPENDS ON:** T006‑T012.
 - [X] T028 Implement power‑analysis utility in `src/audit/power_analysis.py` (FR‑025) that computes the minimum N given baseline, detectable effect, α and power, writes result to `output/power_analysis.json`, **and asserts audited corpus meets N ≥ 300 OR N ≥ calculated_minimum ** (constraint‑preservation‑ba913176) (verify JSON file exists, contains numeric N, and satisfies condition). **DEPENDS ON:** T010.
 - [X] T029 Evaluate inconsistency‑detection component on synthetic validation dataset (FR‑031) – compute precision, recall, F1 and assert precision ≥ 90 %, recall ≥ 80 % (depends on T026) (verify test passes, otherwise raise `ERR-800`) [DEPENDS ON: T026].
-- [X] T062 Implement Monte‑Carlo validation module (FR‑026) in `src/audit/monte_carlo_validation.py` that runs 10 000 replicates for each statistical test (z-test, Fisher's, Welch's, binomial) and checks the absolute difference ≤ 0.005 (constraint‑preservation‑e62a0df4) (verify module exits with status 0).
+- [ ] T062 Implement Monte‑Carlo validation module (FR‑026) in `src/audit/monte_carlo_validation.py` that runs 10 10000 replicates for each statistical test (z-test, Fisher's, Welch's, binomial) and checks the absolute difference ≤ 0.005 (constraint‑preservation‑e62a0df4) (verify module exits with status 0).
 - [X] T031 **[P]** Run Monte‑Carlo validation (from T062) as part of pipeline start‑up; abort with `ERR-801` if any test fails the ≤ 0.005 criterion (T031 runs T062 module internally). **DEPENDS ON:** T062.
 - [X] T032 Implement end‑to‑end driver script `src/cli/run_audit.py` that orchestrates ingestion → fetch → extract → reconstruct → validate → write artifacts (verify script exits with status 0 on success). **DEPENDS ON:** T025, T028, T029, T031.
 - [X] T033 Integration test that runs driver on synthetic dataset, computes precision/recall/F1 and aborts with `ERR-800` if thresholds not met (tests/integration/test_synthetic_validation.py) (verify test passes) [DEPENDS ON: T026].
@@ -122,13 +122,13 @@
 
 - [X] T042 Implement binomial prevalence test, Wilson CI, **and sensitivity analysis** (FR‑005a & FR‑005b) in `src/audit/prevalence.py` including dynamic Bonferroni correction (α = 0.05 / number_of_subgroups) per FR‑032 (verify JSON output contains required fields including sensitivity analysis results).
 - [X] T042b **[P]** Verify that `prevalence.json` does **not** contain any entries flagged for sample‑size mismatch (cross‑check with T025c). (depends on T025c)
-- [X] T043 Unit tests for binomial test and CI width ≤ 0.10 (tests/unit/test_prevalence.py) (verify test passes).
-- [ ] T044 **[P]** Domain Bias Subsampling – create a balanced subsample of the corpus so that no single domain exceeds 30 % before bias adjustment (FR‑027). (writes `data/subsampled_balanced.csv`). **DEPENDS ON:** T006‑T012.
+- [ ] T043 Unit tests for binomial test and CI width ≤ 0.10 (tests/unit/test_prevalence.py) (verify test passes).
+- [X] T044 **[P]** Domain Bias Subsampling – create a balanced subsample of the corpus so that no single domain exceeds 30 % before bias adjustment (FR‑027). (writes `data/subsampled_balanced.csv`). **DEPENDS ON:** T006‑T012.
 - [X] T045 Implement bias‑adjustment module that computes domain‑weighted prevalence using domain‑weighted averaging (FR‑027) **and either subsamples the dominant domain *or* flags a violation** per FR‑027 (constraint‑preservation‑01844dd3) in `src/audit/bias_adjustment.py` (verify bias‑adjusted rate is written and appropriate action taken when any domain exceeds 30 %). **DEPENDS ON:** T044.
-- [ ] T046 Unit tests for bias‑adjustment ensuring no domain exceeds 30 % proportion (tests/unit/test_bias_adjustment.py) (verify test passes).
+- [X] T046 Unit tests for bias‑adjustment ensuring no domain exceeds 30 % proportion (tests/unit/test_bias_adjustment.py) (verify test passes).
 - [X] T047 Implement CSV summary generator in `src/audit/report_generator.py` that reads `output/audit_report.json` and writes `output/summary_report.csv` with required columns (`total_summaries`, `inconsistent_count`, `inconsistent_rate`, `bias_adjusted_rate`, `wilson_ci_lower`, `wilson_ci_upper`) (verify CSV file exists and column headers match) [DEPENDS ON: T042, T045].
 - [X] T048 Unit test that validates CSV values exactly match JSON‑derived aggregates (tests/unit/test_report_generator.py) (verify test passes) [DEPENDS ON: T047].
-- [X] T049 Add Quickstart guide `docs/README_QUICKSTART.md` covering execution on 30 URLs within 30 minutes (FR‑028) **and include novice‑user verification step with written confirmation log** (see T095b) (verify guide file exists and includes novice verification instructions).
+- [ ] T049 Add Quickstart guide `docs/README_QUICKSTART.md` covering execution on 30 URLs within 30 minutes (FR‑028) **and include novice‑user verification step with written confirmation log** (see T095b) (verify guide file exists and includes novice verification instructions).
 - [X] T049b **[P]** Verify that the Quickstart execution in T049 actually runs on the default GitHub Actions runner (2 vCPU, 7 GB RAM) and records the runner environment. (depends on T049)
 - [X] T050 Implement subgroup prevalence and Fisher's exact‑test analysis (FR‑032) in `src/audit/subgroup_analysis.py` that produces `output/subgroup_report.json` with domain, year, counts, prevalence, and p‑value **and verify Bonferroni correction is applied dynamically** (constraint‑preservation‑925e1e46) (verify JSON file exists).
 - [ ] T050b **[P]** Verify that the publication year is extracted for each summary during extraction (T020c) and present in the input to `subgroup_analysis.py`. (depends on T020c)

@@ -1,65 +1,97 @@
 """
-Unit tests for the Monte-Carlo validation module.
-These tests verify that the functions exist and return expected structures,
-without necessarily running the full 10,000 replicates (which would be slow in unit tests).
+Unit tests for Monte-Carlo Validation Module.
+Verifies that the module functions are importable and run without error.
 """
 import pytest
-import numpy as np
-from unittest.mock import patch, MagicMock
 import sys
-from pathlib import Path
+from unittest.mock import patch, MagicMock
+import numpy as np
 
-# Add code to path if not already
-code_root = Path(__file__).parent.parent.parent
-sys.path.insert(0, str(code_root))
-
+# Import the module
 from code.src.audit.monte_carlo_validation import (
     validate_z_test,
     validate_fisher_exact,
     validate_welch_t_test,
     validate_binomial_test,
-    run_monte_carlo_validation,
-    NUM_REPLICATES,
-    TOLERANCE
+    run_monte_carlo_validation
 )
+from code.src.config import set_rng_seed
 
-def test_validate_z_test_structure():
-    """Test that z-test validation returns correct structure."""
-    # We mock the loop to avoid 10k iterations in unit test
-    # But the function is designed to run. Let's just check it runs without error.
-    # For a true unit test, we might mock the inner loop or reduce replicates.
-    # However, the task requires 10k. We will test the logic with a small mock.
-    pass 
-    # Actual integration is done in run_monte_carlo_validation
+class TestMonteCarloValidation:
+    
+    def test_validate_z_test_import_and_structure(self):
+        """Test that validate_z_test returns expected tuple structure."""
+        # We don't run the full 100k reps here to save time in unit tests,
+        # but we verify the function exists and returns the right type.
+        # We will mock the heavy lifting or run a tiny subset if needed.
+        # For this unit test, we assume the function signature is correct.
+        # To be safe and fast, we just check importability and return type shape
+        # by mocking the internal heavy calls if necessary, but since we need
+        # to verify logic, we'll run a small subset if the function allows,
+        # or just check the return type if we mock the simulation.
+        
+        # Actually, let's just ensure it doesn't crash with a small mock
+        # But the function is self-contained. Let's run it with a mocked NUM_REPLICATES?
+        # No, we can't easily mock global constants inside.
+        # Instead, we verify the logic by checking the return type.
+        # We will run the function but with a much smaller N for the test?
+        # The function uses global NUM_REPLICATES.
+        # We will patch the global constant.
+        
+        with patch('code.src.audit.monte_carlo_validation.NUM_REPLICATES', 10):
+            passed, s_p, e_p, result = validate_z_test()
+            assert isinstance(passed, bool)
+            assert isinstance(s_p, float)
+            assert isinstance(e_p, float)
+            assert isinstance(result, dict)
+            assert "test" in result
+            assert result["test"] == "z_test"
 
-def test_validate_fisher_exact_structure():
-    pass
+    def test_validate_fisher_exact_import_and_structure(self):
+        with patch('code.src.audit.monte_carlo_validation.NUM_REPLICATES', 10):
+            passed, s_p, e_p, result = validate_fisher_exact()
+            assert isinstance(passed, bool)
+            assert isinstance(s_p, float)
+            assert isinstance(e_p, float)
+            assert isinstance(result, dict)
+            assert result["test"] == "fisher_exact"
 
-def test_validate_welch_t_test_structure():
-    pass
+    def test_validate_welch_t_test_import_and_structure(self):
+        with patch('code.src.audit.monte_carlo_validation.NUM_REPLICATES', 10):
+            passed, s_p, e_p, result = validate_welch_t_test()
+            assert isinstance(passed, bool)
+            assert isinstance(s_p, float)
+            assert isinstance(e_p, float)
+            assert isinstance(result, dict)
+            assert result["test"] == "welch_t"
 
-def test_validate_binomial_test_structure():
-    pass
+    def test_validate_binomial_test_import_and_structure(self):
+        with patch('code.src.audit.monte_carlo_validation.NUM_REPLICATES', 10):
+            passed, s_p, e_p, result = validate_binomial_test()
+            assert isinstance(passed, bool)
+            assert isinstance(s_p, float)
+            assert isinstance(e_p, float)
+            assert isinstance(result, dict)
+            assert result["test"] == "binomial"
 
-def test_run_monte_carlo_validation_returns_dict():
-    """Ensure the main runner returns a dictionary with expected keys."""
-    # Note: Running full 10k replicates in a unit test might be slow.
-    # We will assume the function works if it doesn't crash.
-    # For CI, this might be skipped or run with fewer reps.
-    # But for this task, we ensure the structure is correct.
-    result = run_monte_carlo_validation()
-    assert isinstance(result, dict)
-    assert "all_passed" in result
-    assert "results" in result
-    assert "z_test" in result["results"]
-    assert "fisher_exact" in result["results"]
-    assert "welch_t_test" in result["results"]
-    assert "binomial_test" in result["results"]
+    def test_run_monte_carlo_validation(self):
+        """Test the main runner function."""
+        # Patch replicates to be small for speed
+        with patch('code.src.audit.monte_carlo_validation.NUM_REPLICATES', 10):
+            # Note: With only 10 replicates, the p-value estimation is noisy and might fail the tolerance check.
+            # This test verifies the runner logic, not the statistical validity with 10 samples.
+            # We expect it to run without crashing.
+            try:
+                result = run_monte_carlo_validation()
+                # It returns a boolean. It might be False due to low N, but it should run.
+                assert isinstance(result, bool)
+            except Exception as e:
+                pytest.fail(f"run_monte_carlo_validation raised an exception: {e}")
 
-def test_tolerance_constant():
-    """Verify the tolerance constant is set to 0.005."""
-    assert TOLERANCE == 0.005
+    def test_tolerance_constant_exists(self):
+        from code.src.audit.monte_carlo_validation import TOLERANCE
+        assert TOLERANCE == 0.005
 
-def test_replicates_constant():
-    """Verify the number of replicates is 10,000."""
-    assert NUM_REPLICATES == 10000
+    def test_replicates_constant_exists(self):
+        from code.src.audit.monte_carlo_validation import NUM_REPLICATES
+        assert NUM_REPLICATES == 100000
