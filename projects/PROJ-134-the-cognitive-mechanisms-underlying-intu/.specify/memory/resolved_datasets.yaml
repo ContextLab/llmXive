@@ -1,0 +1,249 @@
+resolved_at: '2026-07-05T18:11:34.479028+00:00'
+datasets:
+- intent: MFQ
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/lukebruhns/identity-refusal-mfq2/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/lukebruhns/identity-refusal-mfq2/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/dataset/Call_09152489563_For_College_of_Nursing_Sciences_Muslim_Medical_Foundation_2026_2027_Admission_Application_Form_Is_Out_Call_09152489563_/32903345
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Practical_3D-Connected_Atomistic_Kerogen_Models_over_a_Large_Maturity_Range/32903333
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Roles_of_Anion_and_Cation_Doping_in_g_C_sub_3_sub_N_sub_4_sub_as_Artificial_SEI_for_Regulating_Interfacial_Zn_sup_2_sup_Deposition_in_Aqueous_Zinc_Metal_Anodes/32903327
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Strong_Acid_Modification_Unlocks_Synergy_of_Dissociation_and_Hydration_in_Hydrogels_for_High-Performance_Osmotic_Energy_Conversion/32903324
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Quartz_Crystal_Microbalance-Based_Point-of-Care_Testing_Systems_Principles_Device_Design_and_Applications/32903321
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17507780
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10700440
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17560283
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17045203
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18109606
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/qfd93/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2604.09945
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/bt9nh/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/xmau9/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/9nke7/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: OSF
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/cjziems/osf_loglikelihood/resolve/main/inconclusive/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/SreekarB/OSFData/resolve/main/FC_graph_covariate_data.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 727
+      parsed: true
+  - url: https://huggingface.co/datasets/SreekarB/OSFData1/resolve/main/FC_graph_covariate_data.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 727
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/SreekarB/OSFData/resolve/main/FC_graph_covariate_data.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/SreekarB/OSFData1/resolve/main/FC_graph_covariate_data.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/cjziems/osf_loglikelihood/resolve/main/inconclusive/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/dataset/Call_09152489563_For_College_of_Nursing_Sciences_Muslim_Medical_Foundation_2026_2027_Admission_Application_Form_Is_Out_Call_09152489563_/32903345
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Practical_3D-Connected_Atomistic_Kerogen_Models_over_a_Large_Maturity_Range/32903333
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Roles_of_Anion_and_Cation_Doping_in_g_C_sub_3_sub_N_sub_4_sub_as_Artificial_SEI_for_Regulating_Interfacial_Zn_sup_2_sup_Deposition_in_Aqueous_Zinc_Metal_Anodes/32903327
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Strong_Acid_Modification_Unlocks_Synergy_of_Dissociation_and_Hydration_in_Hydrogels_for_High-Performance_Osmotic_Energy_Conversion/32903324
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Quartz_Crystal_Microbalance-Based_Point-of-Care_Testing_Systems_Principles_Device_Design_and_Applications/32903321
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8356815
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8208834
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7032367
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3554292
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10821345
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/5ns2h/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/vaepw/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/6wzg3/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/9ucms/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/6rstf/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: CPU-only
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/AdityaMayukhSom/MixSub-LLaMA-3.2-Text-Only-Overlap-CPU-Score/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/AdityaMayukhSom/MixSub-LLaMA-3.2-Text-Only-Overlap-CPU-Score/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/dataset/Call_09152489563_For_College_of_Nursing_Sciences_Muslim_Medical_Foundation_2026_2027_Admission_Application_Form_Is_Out_Call_09152489563_/32903345
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Practical_3D-Connected_Atomistic_Kerogen_Models_over_a_Large_Maturity_Range/32903333
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Roles_of_Anion_and_Cation_Doping_in_g_C_sub_3_sub_N_sub_4_sub_as_Artificial_SEI_for_Regulating_Interfacial_Zn_sup_2_sup_Deposition_in_Aqueous_Zinc_Metal_Anodes/32903327
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Strong_Acid_Modification_Unlocks_Synergy_of_Dissociation_and_Hydration_in_Hydrogels_for_High-Performance_Osmotic_Energy_Conversion/32903324
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Quartz_Crystal_Microbalance-Based_Point-of-Care_Testing_Systems_Principles_Device_Design_and_Applications/32903321
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.11591/eei.v9i2.1972
+    source: zenodo
+    status: unreachable
+    reason: 'reachability failed: HTTP 415'
+  - url: https://zenodo.org/records/5951740
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6127654
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14352943
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3810211
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://unige.iris.cineca.it/handle/11567/929442
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21204132
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21204132
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17071173
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17071173
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

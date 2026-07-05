@@ -1,0 +1,63 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Final Analysis Dataset Schema"
+description: "Schema for the unified dataset used in Bayesian modeling and regression analysis. Note: Current phase uses synthetic data."
+type: object
+properties:
+  participant_id:
+    type: string
+    description: "Unique identifier for the participant."
+  story_id:
+    type: string
+    description: "Unique identifier for the moral vignette."
+  salience_level:
+    type: string
+    enum:
+      - "low"
+      - "high"
+    description: "Experimental condition: low or high visual salience."
+  blend_shape_1:
+    type: number
+    description: "Avatar blend shape parameter 1 (0.0 to 1.0)."
+  blend_shape_2:
+    type: number
+    description: "Avatar blend shape parameter 2 (0.0 to 1.0)."
+  care_score:
+    type: number
+    description: "Moral foundation score for Care (0-5)."
+  fairness_score:
+    type: number
+    description: "Moral foundation score for Fairness (0-5)."
+  loyalty_score:
+    type: number
+    description: "Moral foundation score for Loyalty (0-5)."
+  authority_score:
+    type: number
+    description: "Moral foundation score for Authority (0-5)."
+  sanctity_score:
+    type: number
+    description: "Moral foundation score for Sanctity (0-5)."
+  judgment_rating:
+    type: number
+    description: "Moral judgment rating (1-7)."
+  response_time:
+    type: number
+    description: "Response time in milliseconds."
+  gaze_metrics:
+    type: string
+    description: "JSON string containing gaze tracking data."
+  ground_truth_effect:
+    type: number
+    description: "The known effect size used in simulation for validation (internal use)."
+required:
+  - participant_id
+  - story_id
+  - salience_level
+  - care_score
+  - fairness_score
+  - loyalty_score
+  - authority_score
+  - sanctity_score
+  - judgment_rating
+  - response_time
+  - ground_truth_effect
+additionalProperties: false

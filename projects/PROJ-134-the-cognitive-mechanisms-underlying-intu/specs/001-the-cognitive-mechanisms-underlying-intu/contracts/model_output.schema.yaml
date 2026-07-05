@@ -1,0 +1,106 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Model Output Schema"
+description: "Schema for the output of the Bayesian model and validation steps. Includes parameter recovery metrics."
+type: object
+properties:
+  model_type:
+    type: string
+    description: "Type of model (e.g., 'BayesianSalience', 'Baseline')."
+  convergence_status:
+    type: string
+    enum:
+      - "converged"
+      - "inconclusive"
+      - "failed"
+    description: "Convergence status of the model."
+  r_hat_max:
+    type: number
+    description: "Maximum R-hat value across all parameters."
+  effective_sample_size:
+    type: integer
+    description: "Minimum effective sample size across all parameters."
+  aic:
+    type: number
+    description: "Akaike Information Criterion score."
+  waic:
+    type: number
+    description: "Widely Applicable Information Criterion score."
+  delta_aic:
+    type: number
+    description: "Difference in AIC compared to baseline model."
+  delta_waic:
+    type: number
+    description: "Difference in WAIC compared to baseline model."
+  salience_effect_posterior:
+    type: object
+    properties:
+      mean:
+        type: number
+      std:
+        type: number
+      probability_positive:
+        type: number
+        description: "Posterior probability that salience effect > 0."
+      credible_interval_95:
+        type: array
+        items:
+          type: number
+        description: "95% Credible Interval [lower, upper]."
+    required:
+      - mean
+      - std
+      - probability_positive
+      - credible_interval_95
+  ground_truth_recovery:
+    type: object
+    properties:
+      ground_truth_value:
+        type: number
+      recovered_within_ci:
+        type: boolean
+        description: "True if ground_truth_value is within the 95% CI."
+    required:
+      - ground_truth_value
+      - recovered_within_ci
+  bonferroni_p_values:
+    type: object
+    description: "Dictionary of foundation interaction p-values (Bonferroni corrected)."
+    additionalProperties:
+      type: number
+  sensitivity_analysis:
+    type: array
+    items:
+      type: object
+      properties:
+        threshold:
+          type: integer
+          enum:
+            - 2
+            - 10
+            - 20
+        model_selection_stability:
+          type: string
+          enum:
+            - "stable"
+            - "unstable"
+      required:
+        - threshold
+        - model_selection_stability
+  pipeline_validation_status:
+    type: string
+    enum:
+      - "PASSED"
+      - "FAILED"
+    description: "Overall pipeline validation status based on parameter recovery."
+required:
+  - model_type
+  - convergence_status
+  - r_hat_max
+  - aic
+  - delta_aic
+  - salience_effect_posterior
+  - ground_truth_recovery
+  - bonferroni_p_values
+  - sensitivity_analysis
+  - pipeline_validation_status
+additionalProperties: false
