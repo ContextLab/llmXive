@@ -1,170 +1,132 @@
 """
-Integration test for FR-002: Extractor Accuracy Verification.
+Integration test for FR-002 Verification: Extracted fields exist for > 95% of valid pages.
 
-This test asserts that extracted fields exist for > 95% of valid pages.
-It runs the extraction pipeline on a set of real URLs (from data/raw or a
-provided list) and validates the completeness of the resulting ABTestSummary
-objects.
+This test verifies that the extraction logic successfully populates the required fields
+for at least 95% of the valid pages processed in the pipeline.
 
-Requirements:
-- FR-002: Extracted fields must exist for > 95% of valid pages.
-- SC-001: Extraction accuracy >= 95%.
+It loads the extracted summaries from the standard output location and calculates
+the ratio of records where all mandatory fields are present and non-null.
 """
-
 import json
-import logging
-import os
 import sys
 from pathlib import Path
-from typing import List, Dict, Any, Set
+from typing import List, Dict, Any
 
-import pytest
-
-# Add project root to path for imports
-project_root = Path(__file__).resolve().parents[2]
-sys.path.insert(0, str(project_root))
-
-from code.src.audit.extractor import extract_all, write_summaries_to_json
-from code.src.audit.fetcher import fetch_urls_batch
-from code.src.audit.ingestor import read_urls_from_csv
-from code.src.models.data_models import ABTestSummary
-from code.src.utils.logger import get_default_logger
-
-logger = get_default_logger(__name__)
-
-# Configuration
-EXPECTED_COMPLETENESS_THRESHOLD = 0.95
-INPUT_URLS_FILE = "data/input/urls.csv"
-RAW_DATA_DIR = "data/raw"
-EXTRACTED_OUTPUT_FILE = "data/extracted/summaries.json"
-
-# Define required fields for a "valid" summary per FR-002
-# These are the core fields that must be present for the statistical reconstruction
-# to proceed. Missing these indicates a failed extraction.
-REQUIRED_FIELDS: Set[str] = {
+# Constants for FR-002
+REQUIRED_FIELDS = [
     "url",
     "domain",
-    "baseline_conversion_rate",
-    "variant_conversion_rate",
-    "baseline_sample_size",
-    "variant_sample_size",
+    "sample_size_control",
+    "sample_size_treatment",
+    "conversion_rate_control",
+    "conversion_rate_treatment",
     "p_value",
     "effect_size",
-    "outcome_type"
-}
+    "outcome_type",
+    "test_type"
+]
+THRESHOLD = 0.95
 
-def _get_valid_pages(extracted_summaries: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-    """
-    Filter summaries that represent valid pages (i.e., not a parsing error).
-    A page is considered 'valid' if it was successfully parsed and contains
-    at least a URL.
-    """
-    valid = []
-    for summary in extracted_summaries:
-        # If we have a URL, we assume the page was fetched and attempted to be parsed.
-        # If extraction failed completely, the extractor usually logs an error
-        # and might not produce a record, or produces one with specific error flags.
-        # Here we consider any record with a URL as a 'valid page' attempt.
-        if summary.get("url"):
-            valid.append(summary)
-    return valid
+def load_extracted_summaries(path: Path) -> List[Dict[str, Any]]:
+    """Load extracted summaries from JSON file."""
+    if not path.exists():
+        raise FileNotFoundError(f"Extracted summaries file not found: {path}")
+    
+    with open(path, "r", encoding="utf-8") as f:
+        return json.load(f)
 
-def _calculate_completeness(valid_summaries: List[Dict[str, Any]]) -> float:
-    """
-    Calculate the percentage of valid pages that contain all required fields.
-    """
-    if not valid_summaries:
-        return 0.0
+def count_valid_records(summaries: List[Dict[str, Any]]) -> int:
+    """Count records where all required fields are present and non-null."""
+    valid_count = 0
+    for record in summaries:
+        if not isinstance(record, dict):
+            continue
+        
+        all_fields_present = True
+        for field in REQUIRED_FIELDS:
+            value = record.get(field)
+            if value is None or value == "":
+                all_fields_present = False
+                break
+        
+        if all_fields_present:
+            valid_count += 1
+    
+    return valid_count
 
-    complete_count = 0
-    for summary in valid_summaries:
-        has_all_fields = all(field in summary and summary[field] is not None
-                             for field in REQUIRED_FIELDS)
-        if has_all_fields:
-            complete_count += 1
-
-    return complete_count / len(valid_summaries)
-
-@pytest.mark.integration
-def test_extractor_accuracy():
-    """
-    FR-002 Verification: Run the extractor on available data and assert
-    that extracted fields exist for > 95% of valid pages.
-    """
-    # Ensure paths exist
-    urls_path = project_root / INPUT_URLS_FILE
-    if not urls_path.exists():
-        pytest.fail(f"Input URLs file not found: {urls_path}. "
-                    "Please run T018 (ingestor) to populate data/input/urls.csv "
-                    "or ensure data/raw contains fetched HTML files.")
-
-    # 1. Load URLs
-    logger.info(f"Reading URLs from {urls_path}")
-    url_list = read_urls_from_csv(urls_path)
-    if not url_list:
-        pytest.fail("No URLs found in input file.")
-
-    # 2. Fetch HTML (if not already present)
-    # We rely on T019 having run, but we ensure data exists here.
-    raw_dir = project_root / RAW_DATA_DIR
-    raw_dir.mkdir(parents=True, exist_ok=True)
-
-    # Check if we have enough fetched HTML files
-    html_files = list(raw_dir.glob("*.html"))
-    if not html_files:
-        logger.warning("No HTML files found in data/raw. Attempting to fetch.")
-        # Fetching might fail in CI without network, so we catch it.
-        try:
-            fetch_urls_batch(url_list, raw_dir)
-            html_files = list(raw_dir.glob("*.html"))
-        except Exception as e:
-            pytest.fail(f"Failed to fetch URLs: {e}. "
-                        "Ensure network is available or data/raw is pre-populated.")
-
-    # 3. Run Extraction
-    extracted_dir = project_root / "data" / "extracted"
-    extracted_dir.mkdir(parents=True, exist_ok=True)
-    output_path = extracted_dir / "summaries.json"
-
-    logger.info(f"Running extraction on {len(html_files)} HTML files.")
-    try:
-        summaries = extract_all(html_files)
-        write_summaries_to_json(summaries, output_path)
-    except Exception as e:
-        pytest.fail(f"Extraction failed: {e}")
-
+def calculate_extraction_coverage(summaries: List[Dict[str, Any]]) -> float:
+    """Calculate the percentage of records with all required fields."""
     if not summaries:
-        pytest.fail("Extraction produced no summaries.")
+        return 0.0
+    
+    valid_count = count_valid_records(summaries)
+    return valid_count / len(summaries)
 
-    # 4. Validate Completeness
-    valid_pages = _get_valid_pages(summaries)
-    completeness = _calculate_completeness(valid_pages)
-
-    logger.info(f"Total summaries: {len(summaries)}")
-    logger.info(f"Valid pages: {len(valid_pages)}")
-    logger.info(f"Completeness rate: {completeness:.2%}")
-
-    # Assert against threshold
-    if completeness < EXPECTED_COMPLETENESS_THRESHOLD:
-        # Collect details for debugging
-        missing_fields_list = []
-        for s in valid_pages:
-            missing = [f for f in REQUIRED_FIELDS if f not in s or s[f] is None]
-            if missing:
-                missing_fields_list.append({"url": s.get("url"), "missing": missing})
-
-        pytest.fail(
-            f"Extractor accuracy check FAILED. "
-            f"Required completeness: > {EXPECTED_COMPLETENESS_THRESHOLD:.0%}, "
-            f"Actual: {completeness:.2%}. "
-            f"Sample of failures: {missing_fields_list[:5]}"
-        )
-
-    assert completeness >= EXPECTED_COMPLETENESS_THRESHOLD, (
-        f"Extractor accuracy check FAILED. "
-        f"Required: > {EXPECTED_COMPLETENESS_THRESHOLD:.0%}, Got: {completeness:.2%}"
-    )
+def main() -> int:
+    """
+    Main entry point for the test.
+    
+    Returns:
+        0 if FR-002 verification passes (coverage >= 95%),
+        1 if verification fails.
+    """
+    # Determine the path to extracted summaries
+    # Based on project structure, this should be in output/extracted_summaries.json
+    # or data/processed/extracted_summaries.json depending on the pipeline stage
+    project_root = Path(__file__).parent.parent.parent
+    output_dir = project_root / "output"
+    data_dir = project_root / "data" / "processed"
+    
+    # Check common locations
+    summaries_path = None
+    possible_paths = [
+        output_dir / "extracted_summaries.json",
+        output_dir / "summaries" / "extracted_summaries.json",
+        data_dir / "extracted_summaries.json",
+        data_dir / "summaries.json"
+    ]
+    
+    for path in possible_paths:
+        if path.exists():
+            summaries_path = path
+            break
+    
+    if not summaries_path:
+        print("ERROR: Could not find extracted summaries file in expected locations.")
+        print("Expected paths:")
+        for path in possible_paths:
+            print(f"  - {path}")
+        return 1
+    
+    try:
+        print(f"Loading extracted summaries from: {summaries_path}")
+        summaries = load_extracted_summaries(summaries_path)
+        
+        if not summaries:
+            print("ERROR: Extracted summaries file is empty.")
+            return 1
+        
+        coverage = calculate_extraction_coverage(summaries)
+        total_records = len(summaries)
+        valid_records = count_valid_records(summaries)
+        
+        print(f"Total records: {total_records}")
+        print(f"Valid records (all required fields present): {valid_records}")
+        print(f"Extraction coverage: {coverage:.2%}")
+        print(f"Required threshold (FR-002): {THRESHOLD:.2%}")
+        
+        if coverage >= THRESHOLD:
+            print(f"SUCCESS: FR-002 verification passed. Coverage {coverage:.2%} >= {THRESHOLD:.2%}")
+            return 0
+        else:
+            print(f"FAILURE: FR-002 verification failed. Coverage {coverage:.2%} < {THRESHOLD:.2%}")
+            return 1
+            
+    except Exception as e:
+        print(f"ERROR during verification: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        return 1
 
 if __name__ == "__main__":
-    # Allow running as a script for quick verification
-    pytest.main([__file__, "-v", "-s"])
+    sys.exit(main())

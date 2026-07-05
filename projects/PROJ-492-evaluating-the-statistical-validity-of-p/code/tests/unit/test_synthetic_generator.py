@@ -1,106 +1,204 @@
 """
-Unit tests for the synthetic dataset generator (T026).
-Verifies that the generator produces at least 10,000 records with both binary and continuous outcomes.
+Unit tests for synthetic dataset generator (T026).
+
+Verifies:
+- Generation of at least 10,000 records
+- Presence of both binary and continuous outcomes
+- Correct output file creation
+- Data integrity and schema compliance
 """
 import csv
 import json
-import pytest
+import os
+import tempfile
 from pathlib import Path
-import sys
+from unittest.mock import patch
 
-# Add code directory to path
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
+import pytest
+import numpy as np
 
 from code.src.audit.synthetic import (
+    set_all_seeds,
+    generate_sample_sizes,
+    generate_binary_outcome,
+    generate_continuous_outcome,
     generate_synthetic_dataset,
-    verify_outcome_types,
-    write_csv_output,
-    write_json_output,
-    MIN_RECORDS
+    verify_outcome_types
 )
-from code.src.config import set_rng_seed
+from code.src.config import SEED
 
-@pytest.fixture
-def seed():
-    set_rng_seed(42)
-    return 42
+class TestSyntheticGenerator:
+    """Test suite for synthetic dataset generation."""
 
-def test_generate_synthetic_dataset_count(seed):
-    """Test that the generator produces at least 10,000 records."""
-    records = generate_synthetic_dataset(MIN_RECORDS)
-    assert len(records) >= MIN_RECORDS, f"Expected at least {MIN_RECORDS} records, got {len(records)}"
-
-def test_generate_synthetic_dataset_outcome_types(seed):
-    """Test that both binary and continuous outcomes are present."""
-    records = generate_synthetic_dataset(MIN_RECORDS)
-    binary_count, continuous_count = verify_outcome_types(records)
-    
-    assert binary_count > 0, "No binary outcomes found"
-    assert continuous_count > 0, "No continuous outcomes found"
-    assert binary_count + continuous_count == len(records), "Record count mismatch"
-
-def test_write_csv_output(seed, tmp_path):
-    """Test CSV output generation."""
-    records = generate_synthetic_dataset(100)
-    csv_path = tmp_path / "test_output.csv"
-    
-    write_csv_output(records, csv_path)
-    
-    assert csv_path.exists(), "CSV file not created"
-    
-    with open(csv_path, 'r', newline='', encoding='utf-8') as f:
-        reader = csv.DictReader(f)
-        rows = list(reader)
-    
-    assert len(rows) == len(records), "CSV row count mismatch"
-    assert "outcome_type" in rows[0], "Missing outcome_type column"
-
-def test_write_json_output(seed, tmp_path):
-    """Test JSON output generation."""
-    records = generate_synthetic_dataset(100)
-    json_path = tmp_path / "test_output.json"
-    
-    write_json_output(records, json_path)
-    
-    assert json_path.exists(), "JSON file not created"
-    
-    with open(json_path, 'r', encoding='utf-8') as f:
-        loaded_records = json.load(f)
-    
-    assert len(loaded_records) == len(records), "JSON record count mismatch"
-
-def test_verify_outcome_types_raises_on_missing_binary(seed):
-    """Test that verify_outcome_types raises if binary outcomes are missing."""
-    # Create a fake dataset with only continuous outcomes
-    fake_records = [{"outcome_type": "continuous", "is_binary": False} for _ in range(10)]
-    
-    with pytest.raises(ValueError, match="No binary outcomes"):
-        verify_outcome_types(fake_records)
-
-def test_verify_outcome_types_raises_on_missing_continuous(seed):
-    """Test that verify_outcome_types raises if continuous outcomes are missing."""
-    # Create a fake dataset with only binary outcomes
-    fake_records = [{"outcome_type": "binary", "is_binary": True} for _ in range(10)]
-    
-    with pytest.raises(ValueError, match="No continuous outcomes"):
-        verify_outcome_types(fake_records)
-
-def test_synthetic_data_structure(seed):
-    """Test that generated records have the expected structure."""
-    records = generate_synthetic_dataset(10)
-    
-    required_fields = [
-        "id", "domain", "year", "outcome_type", "n_control", "n_treatment",
-        "p_value", "effect_size", "inconsistent"
-    ]
-    
-    for record in records:
-        for field in required_fields:
-            assert field in record, f"Missing field: {field}"
+    def test_set_all_seeds_reproducibility(self):
+        """Test that setting seeds produces reproducible results."""
+        set_all_seeds(SEED)
+        result1 = np.random.random()
         
-        # Validate types
-        assert isinstance(record["n_control"], int), "n_control must be int"
-        assert isinstance(record["n_treatment"], int), "n_treatment must be int"
-        assert 0.0 <= record["p_value"] <= 1.0, "p_value must be in [0, 1]"
-        assert record["domain"] in ["tech", "finance", "health", "retail", "education"]
-        assert 2018 <= record["year"] <= 2024
+        set_all_seeds(SEED)
+        result2 = np.random.random()
+        
+        assert result1 == result2, "Seeding should produce reproducible random values"
+
+    def test_generate_sample_sizes_range(self):
+        """Test that sample sizes are within expected ranges."""
+        for _ in range(100):
+            n_control, n_treatment = generate_sample_sizes()
+            assert 50 <= n_control <= 5000, f"Control size {n_control} out of range"
+            assert 50 <= n_treatment <= 5000, f"Treatment size {n_treatment} out of range"
+
+    def test_generate_binary_outcome_structure(self):
+        """Test binary outcome generation produces correct structure."""
+        result = generate_binary_outcome(100, 100)
+        
+        required_fields = [
+            "outcome_type", "n_control", "n_treatment",
+            "successes_control", "successes_treatment",
+            "baseline_rate", "treatment_rate", "effect_size",
+            "p_value_reported", "p_value_reconstructed",
+            "z_statistic", "true_baseline_rate", "true_effect_size"
+        ]
+        
+        for field in required_fields:
+            assert field in result, f"Missing required field: {field}"
+        
+        assert result["outcome_type"] == "binary"
+        assert 0 <= result["successes_control"] <= result["n_control"]
+        assert 0 <= result["successes_treatment"] <= result["n_treatment"]
+
+    def test_generate_continuous_outcome_structure(self):
+        """Test continuous outcome generation produces correct structure."""
+        result = generate_continuous_outcome(100, 100)
+        
+        required_fields = [
+            "outcome_type", "n_control", "n_treatment",
+            "mean_control", "mean_treatment", "std_control", "std_treatment",
+            "baseline_mean", "effect_size", "p_value_reported",
+            "p_value_reconstructed", "t_statistic", "true_baseline_mean",
+            "true_effect_size"
+        ]
+        
+        for field in required_fields:
+            assert field in result, f"Missing required field: {field}"
+        
+        assert result["outcome_type"] == "continuous"
+        assert result["std_control"] >= 0
+        assert result["std_treatment"] >= 0
+
+    @pytest.mark.integration
+    def test_generate_synthetic_dataset_minimum_records(self):
+        """Test that dataset generation produces at least 10,000 records."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            output_dir = Path(tmpdir)
+            records = generate_synthetic_dataset(
+                total_records=10000,
+                output_dir=output_dir
+            )
+            
+            assert len(records) >= 10000, f"Expected >= 10000 records, got {len(records)}"
+
+    @pytest.mark.integration
+    def test_generate_synthetic_dataset_both_outcome_types(self):
+        """Test that both binary and continuous outcomes are present."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            output_dir = Path(tmpdir)
+            records = generate_synthetic_dataset(
+                total_records=10000,
+                binary_ratio=0.5,
+                output_dir=output_dir
+            )
+            
+            binary_count = sum(1 for r in records if r["outcome_type"] == "binary")
+            continuous_count = sum(1 for r in records if r["outcome_type"] == "continuous")
+            
+            assert binary_count > 0, "No binary outcomes generated"
+            assert continuous_count > 0, "No continuous outcomes generated"
+            assert binary_count + continuous_count == len(records)
+
+    @pytest.mark.integration
+    def test_generate_synthetic_dataset_output_files(self):
+        """Test that output files are created correctly."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            output_dir = Path(tmpdir)
+            generate_synthetic_dataset(
+                total_records=10000,
+                output_dir=output_dir
+            )
+            
+            csv_path = output_dir / "synthetic_summaries.csv"
+            json_path = output_dir / "synthetic_summaries.json"
+            
+            assert csv_path.exists(), f"CSV file not created: {csv_path}"
+            assert json_path.exists(), f"JSON file not created: {json_path}"
+            
+            # Verify CSV is readable
+            with open(csv_path, 'r') as f:
+                reader = csv.DictReader(f)
+                rows = list(reader)
+                assert len(rows) >= 10000, f"CSV has {len(rows)} rows, expected >= 10000"
+            
+            # Verify JSON is readable
+            with open(json_path, 'r') as f:
+                data = json.load(f)
+                assert len(data) >= 10000, f"JSON has {len(data)} records, expected >= 10000"
+
+    @pytest.mark.integration
+    def test_generate_synthetic_dataset_inconsistency_flag(self):
+        """Test that inconsistency flags are set correctly."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            output_dir = Path(tmpdir)
+            records = generate_synthetic_dataset(
+                total_records=10000,
+                inconsistency_rate=0.20,
+                output_dir=output_dir
+            )
+            
+            inconsistent_count = sum(1 for r in records if r.get("is_inconsistent", False))
+            expected_min = int(10000 * 0.15)  # Allow some variance
+            
+            assert inconsistent_count >= expected_min, \
+                f"Expected at least {expected_min} inconsistent records, got {inconsistent_count}"
+
+    def test_verify_outcome_types_success(self):
+        """Test verification passes with correct data."""
+        records = [
+            {"outcome_type": "binary"},
+            {"outcome_type": "binary"},
+            {"outcome_type": "continuous"}
+        ]
+        
+        # Should not raise
+        verify_outcome_types(records, 2, 1)
+
+    def test_verify_outcome_types_missing_binary(self):
+        """Test verification fails when binary outcomes are missing."""
+        records = [
+            {"outcome_type": "continuous"},
+            {"outcome_type": "continuous"}
+        ]
+        
+        with pytest.raises(AssertionError, match="No binary outcomes"):
+            verify_outcome_types(records, 0, 2)
+
+    def test_verify_outcome_types_missing_continuous(self):
+        """Test verification fails when continuous outcomes are missing."""
+        records = [
+            {"outcome_type": "binary"},
+            {"outcome_type": "binary"}
+        ]
+        
+        with pytest.raises(AssertionError, match="No continuous outcomes"):
+            verify_outcome_types(records, 2, 0)
+
+    def test_verify_outcome_types_insufficient_records(self):
+        """Test verification fails with insufficient records."""
+        records = [
+            {"outcome_type": "binary"},
+            {"outcome_type": "continuous"}
+        ]
+        
+        with pytest.raises(AssertionError, match="Insufficient records"):
+            verify_outcome_types(records, 1, 1)
+
+if __name__ == "__main__":
+    pytest.main([__file__, "-v"])
