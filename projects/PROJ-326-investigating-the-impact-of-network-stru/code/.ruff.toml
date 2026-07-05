@@ -1,0 +1,12 @@
+[lint]
+select = ["E", "F", "W", "I", "N", "B", "C4", "UP"]
+ignore = ["E501"]
+extend-fixable = []
+dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+
+[format]
+line-length = 88
+indent-style = "space"
+quote-style = "double"
+skip-magic-trailing-comma = false
+preview = false

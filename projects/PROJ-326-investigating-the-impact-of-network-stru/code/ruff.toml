@@ -1,0 +1,28 @@
+target-version = "py39"
+line-length = 88
+select = [
+    "E",
+    "W",
+    "F",
+    "I",
+    "C",
+    "B",
+]
+ignore = [
+    "E501",
+    "B008",
+    "C901",
+]
+exclude = [
+    ".git",
+    "__pycache__",
+    "build",
+    "dist",
+    ".eggs",
+    "*.egg-info",
+]
+
+[isort]
+known-first-party = ["code"]
+force-single-line = true
+order-by-type = true

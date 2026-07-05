@@ -1,0 +1,110 @@
+# Global Configuration for Network Topology Energy Transfer in Spin Systems
+# This file defines global seeds, topology targets, and simulation parameters.
+# Used by code/src/utils/config.py for validation and loading.
+
+# ---------------------------------------------------------------------------
+# Global Random Seeds
+# Used to ensure reproducibility across all generation and simulation steps.
+# ---------------------------------------------------------------------------
+global_seed: 42
+
+# ---------------------------------------------------------------------------
+# Topology Generation Targets
+# Defines parameters for the three network classes: Erdős-Rényi (ER),
+# Watts-Strogatz (WS/Small-World), and Barabási-Albert (BA/Scale-Free).
+# ---------------------------------------------------------------------------
+topology_targets:
+  # Erdős-Rényi (ER) Parameters
+  er:
+    num_nodes: 100
+    edge_probability: 0.05
+    min_clustering_coefficient: 0.01
+    max_clustering_coefficient: 0.2
+    connectivity_retry_limit: 50
+    timeout_seconds: 30
+
+  # Watts-Strogatz (Small-World) Parameters
+  ws:
+    num_nodes: 100
+    initial_neighbors: 4
+    rewiring_probability: 0.1
+    target_clustering_coefficient: 0.5
+    min_clustering_coefficient: 0.3
+    connectivity_retry_limit: 50
+    timeout_seconds: 30
+
+  # Barabási-Albert (Scale-Free) Parameters
+  ba:
+    num_nodes: 100
+    edges_to_attach: 2
+    min_clustering_coefficient: 0.0
+    connectivity_retry_limit: 50
+    timeout_seconds: 30
+
+  # Batch Generation Settings
+  batch:
+    min_graphs_per_class: 34
+    total_target_graphs: 100
+    output_directory: "data/raw"
+
+# ---------------------------------------------------------------------------
+# Simulation Parameters (Ising Spin Dynamics)
+# Parameters for the energy propagation simulation on generated networks.
+# ---------------------------------------------------------------------------
+simulation:
+  # Physical Parameters
+  temperature: 1.0
+  coupling_constant: 1.0
+  external_field: 0.0
+  initial_energy_density: 0.1
+
+  # Dynamics Parameters
+  time_steps: 100
+  dt: 0.1
+  spin_flip_probability: 0.5
+
+  # Stability & Monitoring
+  divergence_threshold: 1e6
+  check_interval: 10
+
+  # Output Settings
+  output_frequency: 10  # Save state every N steps
+  output_directory: "data/analysis"
+
+# ---------------------------------------------------------------------------
+# Analysis Parameters
+# Settings for statistical analysis and visualization.
+# ---------------------------------------------------------------------------
+analysis:
+  regression:
+    model_types:
+      - linear
+      - polynomial
+    polynomial_degree: 2
+
+  anova:
+    correction_methods:
+      - bonferroni
+      - benjamini_hochberg
+
+  sensitivity_sweep:
+    parameter: "clustering_coefficient"
+    min_cutoff: 0.0
+    max_cutoff: 0.8
+    num_cuts: 5
+
+  plotting:
+    dpi: 300
+    figure_formats:
+      - png
+      - pdf
+    style: "seaborn-v0_8-whitegrid"
+
+# ---------------------------------------------------------------------------
+# Logging & Reproducibility
+# ---------------------------------------------------------------------------
+logging:
+  level: "INFO"
+  log_file: "data/run_log.json"
+  save_seeds: true
+  save_parameters: true
