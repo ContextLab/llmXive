@@ -1,0 +1,114 @@
+- artifact_path: projects/PROJ-421-assessing-the-impact-of-data-resolution-/README.md
+  attempts: 1
+  canonical: Statistical power drops below 0.80 at 240m resolution
+  claim_id: c_7d8726cc
+  context: Key Findings section lists threshold resolution results.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Statistical power drops below 0.80 at 240m resolution.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T11:13:29Z'
+- artifact_path: projects/PROJ-421-assessing-the-impact-of-data-resolution-/README.md
+  attempts: 1
+  canonical: Type II error delta at 480m resolution relative to 30m baseline is significant
+  claim_id: c_645fcbd7
+  context: Key Findings section lists Type II error results.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: At 480m resolution, the Type II error delta relative to 30m baseline is
+    significant.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T11:13:50Z'
+- artifact_path: projects/PROJ-421-assessing-the-impact-of-data-resolution-/README.md
+  attempts: 1
+  canonical: Threshold stability within 10% sensitivity sweeps varies by no more than
+    one resolution step
+  claim_id: c_9f030d1a
+  context: Key Findings section lists sensitivity analysis results.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Threshold_stability_within_10%25_sensitivity_sweeps_varies_by
+  kind: magnitude
+  raw_text: "The threshold is stable within \xB110% sensitivity sweeps, varying by\
+    \ no more than one resolution step."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T11:14:17Z'
+- artifact_path: projects/PROJ-421-assessing-the-impact-of-data-resolution-/docs/RELEASE_NOTES.md
+  attempts: 1
+  canonical: Statistical power drops below 0.80 at 240m resolution
+  claim_id: c_16c7b68b
+  context: Key Results section listing threshold findings.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Statistical power drops below 0.80 at 240m resolution.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T11:14:22Z'
+- artifact_path: projects/PROJ-421-assessing-the-impact-of-data-resolution-/docs/FAQ.md
+  attempts: 1
+  canonical: 0.80 power is standard benchmark indicating 80% chance of rejecting null
+    hypothesis when false
+  claim_id: c_fb7194f8
+  context: 'Q: What is the significance of the 0.80 power threshold? A: A power of
+    0.80 is a standard benchmark in statistical analysis, indicating an 80% chance
+    of correctly rejecting the null hypothesis when it is false.'
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: In nutrition science, for most food ingredients, there were studies that
+        found that the ingredient has an effect on cancer risk. Specifically, out
+        of a random sample of 50 ingredients from a cookbook, 80% had articles reporting
+        on their cancer risk. Statistical significance decreased for meta-analyses.
+      source_id: Replication crisis
+      url: https://en.wikipedia.org/wiki/Replication_crisis
+      value: 80%
+    filled: true
+  kind: entity_fact
+  raw_text: A power of 0.80 is a standard benchmark in statistical analysis, indicating
+    an 80% chance of correctly rejecting the null hypothesis when it is false.
+  resolved_value: 80%
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-05T11:14:49Z'
+- artifact_path: projects/PROJ-421-assessing-the-impact-of-data-resolution-/docs/TROUBLESHOOTING.md
+  attempts: 1
+  canonical: minimum 7GB free RAM required
+  claim_id: c_7fb5bb87
+  context: '### Issue: Memory error
+
+    **Solution**: Ensure you have at least 7GB of free RAM. The pipeline uses memory-mapped
+    I/O, but large datasets still require significant memory.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Minimum_7GB_free_RAM_required
+  kind: magnitude
+  raw_text: Ensure you have at least 7GB of free RAM.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T11:15:23Z'

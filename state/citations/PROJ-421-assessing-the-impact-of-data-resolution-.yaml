@@ -42,14 +42,14 @@
   verification_status: verified
   verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/674d837f78acceaf43ac2441/c2e296b3133ed497ef6eb49f149b1b484fcdb0a3c1df5fe5048065e7a37c8645?X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27group_0_9-00000-of-00001.parquet%3B+filename%3D%22group_0_9-00000-of-00001.parquet%22%3B&user_id=public&Expires=1783242193&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjc0ZDgzN2Y3OGFjY2VhZjQzYWMyNDQxL2MyZTI5NmIzMTMzZWQ0OTdlZjZlYjQ5ZjE0OWIxYjQ4NGZjZGIwYTNjMWRmNWZlNTA0ODA2NWU3YTM3Yzg2NDVcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3Z3JvdXBfMF85LTAwMDAwLW9mLTAwMDAxLnBhcnF1ZXQlM0IrZmlsZW5hbWUlM0QlMjJncm91cF8wXzktMDAwMDAtb2YtMDAwMDEucGFycXVldCUyMiUzQiZ1c2VyX2lkPXB1YmxpYyIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzgzMjQyMTkzfX19XX0_&Signature=MEUCIQDXngo-Fhn1zgl-wu3gk43FCcE9AutpL7wSRdnx9GtYcAIgO%7EOMqqlCBS0oCLwhZ0u7XqjqI2oBWIJ%7E%7Ey%7ENtbREbIc_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
   verified_at: '2026-07-05T08:01:28.338136Z'
-- artifact_hash: ee700c86735a7f0f62dab05e55d743752abfecbfcf1cac1ca08fceddf500fd67
-  artifact_path: projects/PROJ-421-assessing-the-impact-of-data-resolution-/specs/001-assessing-the-impact-of-data-resolution/tasks.md
+- artifact_hash: 49c9da34c0429689c2056adb59d79bb301ee8ef001df73d2e9bda1c04905282a
+  artifact_path: projects/PROJ-421-assessing-the-impact-of-data-resolution-/docs/CODE_OF_CONDUCT.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
-  fetched_title: null
+  fetched_title: Contributor Covenant |
   kind: url
-  value: https://huggingface.co/datasets/nlcd/col/30m`
-  verification_status: mismatch
-  verified_against_url: https://huggingface.co/datasets/nlcd/col/30m
-  verified_at: '2026-07-05T08:32:22.256549Z'
+  value: https://www.contributor-covenant.org/version/1/4/code-of-conduct.html
+  verification_status: verified
+  verified_against_url: https://www.contributor-covenant.org/version/1/4/code-of-conduct/
+  verified_at: '2026-07-05T11:15:36.779405Z'

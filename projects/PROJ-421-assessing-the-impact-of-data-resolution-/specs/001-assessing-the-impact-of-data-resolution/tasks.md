@@ -43,9 +43,9 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project directory structure: `mkdir -p projects/PROJ-421-assessing-the-impact-of-data-resolution-/code projects/PROJ-421-assessing-the-impact-of-data-resolution-/data/raw projects/PROJ-421-assessing-the-impact-of-data-resolution-/data/derived projects/PROJ-421-assessing-the-impact-of-data-resolution-/data/results projects/PROJ-421-assessing-the-impact-of-data-resolution-/tests`
-- [ ] T002 Create `projects/PROJ-421-assessing-the-impact-of-data-resolution-/code/requirements.txt` pinning `rasterio`, `geopandas`, `pysal`, `numpy`, `scipy`, `matplotlib`, `pandas`, `libpysal`.
-- [ ] T003 [P] Configure linting (ruff) and formatting (black) tools in `projects/PROJ-421-assessing-the-impact-of-data-resolution-/code/`.
+- [X] T001 Create project directory structure: `mkdir -p projects/PROJ-421-assessing-the-impact-of-data-resolution-/code projects/PROJ-421-assessing-the-impact-of-data-resolution-/data/raw projects/PROJ-421-assessing-the-impact-of-data-resolution-/data/derived projects/PROJ-421-assessing-the-impact-of-data-resolution-/data/results projects/PROJ-421-assessing-the-impact-of-data-resolution-/tests`
+- [X] T002 Create `projects/PROJ-421-assessing-the-impact-of-data-resolution-/code/requirements.txt` pinning `rasterio`, `geopandas`, `pysal`, `numpy`, `scipy`, `matplotlib`, `pandas`, `libpysal`.
+- [X] T003 [P] Configure linting (ruff) and formatting (black) tools in `projects/PROJ-421-assessing-the-impact-of-data-resolution-/code/`.
 
 ---
 
@@ -55,13 +55,13 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete. **Phase 2 is a hard prerequisite for Phase 4.**
 
-- [ ] T004 Create base data models: Implement classes `ResolutionRaster` (fields: resolution, path, values) and `BinaryIndicatorMap` (fields: class_id, binary_values) in `projects/PROJ-421-assessing-the-impact-of-data-resolution-/code/models.py`.
-- [ ] T005 [P] Implement `projects/PROJ-421-assessing-the-impact-of-data-resolution-/code/utils.py` with memory-mapped I/O helpers and windowed raster readers.
-- [ ] T006 [P] Setup logging infrastructure in `projects/PROJ-421-assessing-the-impact-of-data-resolution-/code/utils.py`.
-- [ ] T007 Setup `projects/PROJ-421-assessing-the-impact-of-data-resolution-/code/config.py` for resolutions (30, 60, 120, 240, 480), seeds (seed=42), and paths.
-- [ ] T008 [P] Implement error handling and retry logic with exponential backoff in `projects/PROJ-421-assessing-the-impact-of-data-resolution-/code/utils.py`.
+- [X] T004 Create base data models: Implement classes `ResolutionRaster` (fields: resolution, path, values) and `BinaryIndicatorMap` (fields: class_id, binary_values) in `projects/PROJ-421-assessing-the-impact-of-data-resolution-/code/models.py`.
+- [X] T005 [P] Implement `projects/PROJ-421-assessing-the-impact-of-data-resolution-/code/utils.py` with memory-mapped I/O helpers and windowed raster readers.
+- [X] T006 [P] Setup logging infrastructure in `projects/PROJ-421-assessing-the-impact-of-data-resolution-/code/utils.py`.
+- [X] T007 Setup `projects/PROJ-421-assessing-the-impact-of-data-resolution-/code/config.py` for resolutions (30, 60, 120, 240, 480), seeds (seed=42), and paths.
+- [X] T008 [P] Implement error handling and retry logic with exponential backoff in `projects/PROJ-421-assessing-the-impact-of-data-resolution-/code/utils.py`.
 - [ ] T009 [P] [US1] Implement checksumming and metadata validation utilities in `projects/PROJ-421-assessing-the-impact-of-data-resolution-/code/utils.py::checksum_file`.
-- [ ] T010 [US2] Implement `projects/PROJ-421-assessing-the-impact-of-data-resolution-/code/calibration.py::estimate_lambda(sample_path)` to estimate spatial lag parameter ($\lambda$) via MLE on a **[deferred] random sample (seed=42)** of the 30m data located at `data/raw/`. **Output**: Save fixed $\lambda$ value to `projects/PROJ-421-assessing-the-impact-of-data-resolution-/data/results/calibration_lambda.json`.
+- [ ] T010 [US2] Implement `projects/PROJ-421-assessing-the-impact-of-data-resolution-/code/calibration.py::estimate_lambda(sample_path)` to estimate spatial lag parameter ($\lambda$) via MLE on a **[deferred] random sample (seed=42)** of the 30m data located at `data/raw/`. **Output**: Save fixed $\lambda$ value to `projects/PROJ-421-assessing-the-impact-of-data-resolution-/data/results/calibration_lambda.json`. <!-- FAILED: unspecified -->
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -84,9 +84,9 @@
 
 - [ ] T013 [P] [US1] Implement `projects/PROJ-421-assessing-the-impact-of-data-resolution-/code/data_ingestion.py` to download NLCD 30m subset for Colorado from verified HuggingFace URL: ` (configurable via `code/config.py` for API keys). Validate checksum using `utils.py::checksum_file`. Implement retry logic using `utils.py` utilities.
 - [ ] T014 [US1] Implement `projects/PROJ-421-assessing-the-impact-of-data-resolution-/code/resampling.py::generate_resolution(input_path, factor)` function to generate a single coarser resolution raster using nearest-neighbor resampling, and implement the CLI loop to call it for factors [2, 4, 8, 16] (60m, 120m, 240m, 480m).
-- [ ] T015 [US1] Implement bounds checking to skip invalid resolutions that exceed dataset bounds in `projects/PROJ-421-assessing-the-impact-of-data-resolution-/code/resampling.py`.
-- [ ] T016 [US1] Apply checksumming and metadata validation for all generated rasters using `code/utils.py::checksum_file`.
-- [ ] T017 [US1] Ensure chunked processing (windowed reads) is used in `code/resampling.py` to stay within 7GB RAM limit.
+- [~] T015 [US1] Implement bounds checking to skip invalid resolutions that exceed dataset bounds in `projects/PROJ-421-assessing-the-impact-of-data-resolution-/code/resampling.py`.
+- [~] T016 [US1] Apply checksumming and metadata validation for all generated rasters using `code/utils.py::checksum_file`.
+- [~] T017 [US1] Ensure chunked processing (windowed reads) is used in `code/resampling.py` to stay within 7GB RAM limit.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -100,17 +100,17 @@
 
 ### Tests for User Story 2
 
-- [ ] T018 [P] [US2] Unit test for binary indicator map transformation in `projects/PROJ-421-assessing-the-impact-of-data-resolution-/tests/test_analysis.py`.
-- [ ] T019 [P] [US2] Unit test for Moran's I calculation and p-value generation in `projects/PROJ-421-assessing-the-impact-of-data-resolution-/tests/test_analysis.py`.
+- [~] T018 [P] [US2] Unit test for binary indicator map transformation in `projects/PROJ-421-assessing-the-impact-of-data-resolution-/tests/test_analysis.py`.
+- [~] T019 [P] [US2] Unit test for Moran's I calculation and p-value generation in `projects/PROJ-421-assessing-the-impact-of-data-resolution-/tests/test_analysis.py`.
 
 ### Implementation for User Story 2
 
-- [ ] T020 [P] [US2] Implement binary indicator map transformation in `projects/PROJ-421-assessing-the-impact-of-data-resolution-/code/analysis.py` (e.g., Forest=1, Others=0).
-- [ ] T021 [US2] Implement H0 null distribution generation in `projects/PROJ-421-assessing-the-impact-of-data-resolution-/code/analysis.py` using `pysal.esda.moran` with **EXACTLY 1,000 random permutations** to estimate p-values (FR-004).
-- [ ] T022 [US2] Implement `projects/PROJ-421-assessing-the-impact-of-data-resolution-/code/analysis.py::simulate_h1_gibbs(fixed_lambda, binary_map, seed)` using a **Gibbs Sampler (binary spatial autoregressive process)** to generate synthetic H1 data, and implement the execution loop to run **1,000 simulations** using the fixed $\lambda$ read from `data/results/calibration_lambda.json` with **seed=42** (from config) for reproducibility.
-- [ ] T023 [US2] Implement statistical power calculation in `projects/PROJ-421-assessing-the-impact-of-data-resolution-/code/analysis.py`: compute the rejection rate of the H1 simulations (proportion where p < 0.05) by comparing against the critical value derived from the H0 distribution. This metric represents the statistical power (FR-005).
-- [ ] T024 [US2] Implement `projects/PROJ-421-assessing-the-impact-of-data-resolution-/code/analysis.py::validate_h1_structure` to compare synthetic H1 data's spatial autocorrelation against observed 30m data. The metric is the **absolute difference in Moran's I**; ensure it is within 5% error.
-- [ ] T025 [US2] Save results (Moran's I, p-values, power estimates) to CSV in `projects/PROJ-421-assessing-the-impact-of-data-resolution-/data/results/`.
+- [~] T020 [P] [US2] Implement binary indicator map transformation in `projects/PROJ-421-assessing-the-impact-of-data-resolution-/code/analysis.py` (e.g., Forest=1, Others=0).
+- [~] T021 [US2] Implement H0 null distribution generation in `projects/PROJ-421-assessing-the-impact-of-data-resolution-/code/analysis.py` using `pysal.esda.moran` with **EXACTLY 1,000 random permutations** to estimate p-values (FR-004).
+- [~] T022 [US2] Implement `projects/PROJ-421-assessing-the-impact-of-data-resolution-/code/analysis.py::simulate_h1_gibbs(fixed_lambda, binary_map, seed)` using a **Gibbs Sampler (binary spatial autoregressive process)** to generate synthetic H1 data, and implement the execution loop to run **1,000 simulations** using the fixed $\lambda$ read from `data/results/calibration_lambda.json` with **seed=42** (from config) for reproducibility.
+- [~] T023 [US2] Implement statistical power calculation in `projects/PROJ-421-assessing-the-impact-of-data-resolution-/code/analysis.py`: compute the rejection rate of the H1 simulations (proportion where p < 0.05) by comparing against the critical value derived from the H0 distribution. This metric represents the statistical power (FR-005).
+- [~] T024 [US2] Implement `projects/PROJ-421-assessing-the-impact-of-data-resolution-/code/analysis.py::validate_h1_structure` to compare synthetic H1 data's spatial autocorrelation against observed 30m data. The metric is the **absolute difference in Moran's I**; ensure it is within 5% error.
+- [~] T025 [US2] Save results (Moran's I, p-values, power estimates) to CSV in `projects/PROJ-421-assessing-the-impact-of-data-resolution-/data/results/`.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -124,18 +124,18 @@
 
 ### Tests for User Story 3
 
-- [ ] T026 [P] [US3] Unit test for threshold identification logic in `projects/PROJ-421-assessing-the-impact-of-data-resolution-/tests/test_analysis.py`.
-- [ ] T027 [P] [US3] Unit test for sensitivity analysis (±10% sweep) in `projects/PROJ-421-assessing-the-impact-of-data-resolution-/tests/test_analysis.py`.
+- [~] T026 [P] [US3] Unit test for threshold identification logic in `projects/PROJ-421-assessing-the-impact-of-data-resolution-/tests/test_analysis.py`.
+- [~] T027 [P] [US3] Unit test for sensitivity analysis (±10% sweep) in `projects/PROJ-421-assessing-the-impact-of-data-resolution-/tests/test_analysis.py`.
 
 ### Implementation for User Story 3
 
-- [ ] T028 [P] [US3] Implement `projects/PROJ-421-assessing-the-impact-of-data-resolution-/code/visualization.py` to generate Power-vs-Resolution curve.
-- [ ] T029 [US3] Implement `projects/PROJ-421-assessing-the-impact-of-data-resolution-/code/visualization.py::find_threshold(power_csv_path)` which returns the resolution string (e.g., '240m') where power < 0.80, and writes this to `projects/PROJ-421-assessing-the-impact-of-data-resolution-/data/results/threshold_report.txt`.
-- [ ] T030 [US3] Calculate Type II error delta (1 - power) relative to 30m baseline.
-- [ ] T031 [US3] Implement sensitivity analysis: sweep resolution aggregation factor by ±10% around inflection point. Verify the threshold does not vary by more than **one resolution step** (defined as the transition between adjacent levels in the geometric series, e.g., 30m->60m, 60m->120m).
-- [ ] T032 [US3] Generate sensitivity analysis report confirming threshold stability.
-- [ ] T033 [US3] Generate `projects/PROJ-421-assessing-the-impact-of-data-resolution-/data/results/final_report.md` containing the specific resolution threshold, Type II error delta, and sensitivity analysis results.
-- [ ] T034 [US3] Ensure p-value = 0.05 is treated as significant but flagged (add specific log flag and output column for p=0.05 cases).
+- [~] T028 [P] [US3] Implement `projects/PROJ-421-assessing-the-impact-of-data-resolution-/code/visualization.py` to generate Power-vs-Resolution curve.
+- [~] T029 [US3] Implement `projects/PROJ-421-assessing-the-impact-of-data-resolution-/code/visualization.py::find_threshold(power_csv_path)` which returns the resolution string (e.g., '240m') where power < 0.80, and writes this to `projects/PROJ-421-assessing-the-impact-of-data-resolution-/data/results/threshold_report.txt`.
+- [~] T030 [US3] Calculate Type II error delta (1 - power) relative to 30m baseline.
+- [~] T031 [US3] Implement sensitivity analysis: sweep resolution aggregation factor by ±10% around inflection point. Verify the threshold does not vary by more than **one resolution step** (defined as the transition between adjacent levels in the geometric series, e.g., 30m->60m, 60m->120m).
+- [~] T032 [US3] Generate sensitivity analysis report confirming threshold stability.
+- [~] T033 [US3] Generate `projects/PROJ-421-assessing-the-impact-of-data-resolution-/data/results/final_report.md` containing the specific resolution threshold, Type II error delta, and sensitivity analysis results.
+- [~] T034 [US3] Ensure p-value = 0.05 is treated as significant but flagged (add specific log flag and output column for p=0.05 cases).
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -145,13 +145,13 @@
 
 **Purpose**: Improvements that affect multiple user stories and final verification
 
-- [ ] T035 [P] Documentation updates in `docs/` and `README.md`.
-- [ ] T036 Code cleanup and refactoring.
-- [ ] T037 Performance optimization (verify < 6h runtime on CPU-only runner).
-- [ ] T038 [P] Additional unit tests in `tests/unit/`.
-- [ ] T039 [P] Execute Reference-Validator Agent to confirm NLCD URLs (verified HuggingFace/proxy URLs) are reachable and match primary sources (Title-token-overlap ≥ 0.7 where applicable) using command: `python -m code.reference_validator --input data/ --config code/config.py`.
-- [ ] T040 Run full pipeline on GitHub Actions runner to verify < 6h runtime and < 7GB RAM.
-- [ ] T041 Run `quickstart.md` validation.
+- [~] T035 [P] Documentation updates in `docs/` and `README.md`.
+- [~] T036 Code cleanup and refactoring.
+- [~] T037 Performance optimization (verify < 6h runtime on CPU-only runner). <!-- ATOMIZE: requested -->
+- [~] T038 [P] Additional unit tests in `tests/unit/`.
+- [~] T039 [P] Execute Reference-Validator Agent to confirm NLCD URLs (verified HuggingFace/proxy URLs) are reachable and match primary sources (Title-token-overlap ≥ 0.7 where applicable) using command: `python -m code.reference_validator --input data/ --config code/config.py`.
+- [~] T040 Run full pipeline on GitHub Actions runner to verify < 6h runtime and < 7GB RAM. <!-- ATOMIZE: requested -->
+- [~] T041 Run `quickstart.md` validation.
 
 ---
 

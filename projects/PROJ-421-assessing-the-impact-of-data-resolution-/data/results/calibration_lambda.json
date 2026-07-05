@@ -1,0 +1,5 @@
+{
+  "lambda": 0.42,
+  "seed": 42,
+  "method": "OLS_on_spatial_lag"
+}

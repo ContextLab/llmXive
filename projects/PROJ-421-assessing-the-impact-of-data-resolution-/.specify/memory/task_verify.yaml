@@ -1,0 +1,23 @@
+? T009 [P] [US1] Implement checksumming and metadata validation utilities in `projects/PROJ-421-assessing-the-impact-of-data-resolution-/code/utils.py::checksum_file`.
+: 2
+? 'T010 [US2] Implement `projects/PROJ-421-assessing-the-impact-of-data-resolution-/code/calibration.py::estimate_lambda(sample_path)`
+  to estimate spatial lag parameter ($\lambda$) via MLE on a **[deferred] random sample
+  (seed=42)** of the 30m data located at `data/raw/`. **Output**: Save fixed $\lambda$
+  value to `projects/PROJ-421-assessing-the-impact-of-data-resolution-/data/results/calibration_lambda.json`.
+  <!-- FAILED: unspecified -->'
+: 2
+? T011 [P] [US1] Unit test for nearest-neighbor resampling logic in `projects/PROJ-421-assessing-the-impact-of-data-resolution-/tests/test_resampling.py::test_nearest_neighbor_preserves_integers`
+  (asserts that unique values in output == unique values in input).
+: 2
+? T012 [P] [US1] Integration test for download and aggregation pipeline in `projects/PROJ-421-assessing-the-impact-of-data-resolution-/tests/test_integration.py`.
+: 1
+? 'T013 [P] [US1] Implement `projects/PROJ-421-assessing-the-impact-of-data-resolution-/code/data_ingestion.py`
+  to download NLCD 30m subset for Colorado from verified HuggingFace URL: ` (configurable
+  via `code/config.py` for API keys). Validate checksum using `utils.py::checksum_file`.
+  Implement retry logic using `utils.py` utilities.'
+: 1
+? T014 [US1] Implement `projects/PROJ-421-assessing-the-impact-of-data-resolution-/code/resampling.py::generate_resolution(input_path,
+  factor)` function to generate a single coarser resolution raster using nearest-neighbor
+  resampling, and implement the CLI loop to call it for factors [2, 4, 8, 16] (60m,
+  120m, 240m, 480m).
+: 1
