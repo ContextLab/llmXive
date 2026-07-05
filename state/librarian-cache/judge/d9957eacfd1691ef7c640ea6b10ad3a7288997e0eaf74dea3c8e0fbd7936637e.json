@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2509.21375",
+  "judged_at": "2026-07-05T17:41:48Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "analyzing the trade‑off between prompt size and code generation quality computer science",
+  "rationale": "The paper focuses on text-to-image synthesis and the specific challenge of \"counterfactual size\" in visual generation, which is an off-domain application compared to the user's question about code generation quality. While both involve \"prompt size\" as a concept, the paper does not measure the trade-off between prompt length and code quality, nor does it study the code generation domain, failing to meet any of the inclusion criteria (a-f).",
+  "relevant": false
+}

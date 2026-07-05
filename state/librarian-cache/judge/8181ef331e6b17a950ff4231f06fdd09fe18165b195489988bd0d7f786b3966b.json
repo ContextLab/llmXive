@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2401.10065",
+  "judged_at": "2026-07-05T17:41:51Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "analyzing the trade‑off between prompt size and code generation quality computer science",
+  "rationale": "This paper satisfies criterion (b) as it empirically measures the dependent variable (code generation/reasoning quality) in the context of prompt engineering, providing essential baseline data on how specific prompt structures (code prompting) affect model performance, which is a critical component of analyzing the prompt size vs. quality trade-off. Additionally, it falls under criterion (f) by addressing the \"prompting\" and \"in-context learning\" vocabulary cluster relevant to the user's questio",
+  "relevant": true
+}

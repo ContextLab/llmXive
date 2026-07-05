@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2507.22923",
+  "judged_at": "2026-07-05T17:41:53Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "analyzing the trade‑off between prompt size and code generation quality computer science",
+  "rationale": "The paper focuses on the impact of translation strategies and language mismatch in multilingual RAG systems, which is a distinct construct from the user's specific question about the trade-off between prompt size (length) and code generation quality. While both involve LLM prompting, the paper does not measure prompt length, code generation, or the specific efficiency-quality trade-off requested, failing to meet the criteria for same-mechanism evidence or shared variables.",
+  "relevant": false
+}

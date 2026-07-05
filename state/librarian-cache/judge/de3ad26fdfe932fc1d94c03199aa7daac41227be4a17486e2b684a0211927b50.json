@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2303.12869",
+  "judged_at": "2026-07-05T17:41:46Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "analyzing the trade‑off between prompt size and code generation quality computer science",
+  "rationale": "This paper satisfies criterion (b) because it explicitly investigates the impact of scaling input length (prompt size) on code generation performance, which is a core component of the user's trade-off analysis, even though the primary focus is on model architecture and state-of-the-art results. Additionally, it serves as a foundational empirical baseline (c) for Java code generation quality against which prompt-size trade-offs can be evaluated.",
+  "relevant": true
+}
