@@ -1,0 +1,31 @@
+? 'T001 Create project structure per implementation plan: `mkdir -p projects/PROJ-040-robustness-of-statistical-tests-to-data-/code/data
+  projects/PROJ-040-robustness-of-statistical-tests-to-data-/code/utils projects/PROJ-040-robustness-of-statistical-tests-to-data-/code/viz
+  projects/PROJ-040-robustness-of-statistical-tests-to-data-/tests projects/PROJ-040-robustness-of-statistical-tests-to-data-/data/raw
+  projects/PROJ-040-robustness-of-statistical-tests-to-data-/data/processed projects/PROJ-040-robustness-of-statistical-tests-to-data-/data/results
+  projects/PROJ-040-robustness-of-statistical-tests-to-data-/docs` <!-- ATOMIZE: requested
+  -->'
+: 1
+? T008.0 [P] Update spec.md FR-002 to reference the contamination rates that will
+  be determined in `research.md` (e.g., "See research.md for resolved rates") or maintain
+  '[deferred]' if research is pending. Do NOT hardcode specific values [0.01, 0.05,
+  0.10, 0.20] into the spec. Ensure the spec reflects the research output, not the
+  other way around.
+: 1
+? T008.0.1 [P] Add a 'Spec Deviation' section to spec.md explicitly documenting that
+  empirical quantities (contamination rates) are deferred to the research phase, aligning
+  with Constitution Principle II.
+: 1
+? "T008.1 [P] Update spec.md FR-003 to reflect dataset substitution (UCI HAR/Wine\
+  \ instead of Iris/Breast Cancer) and explicitly reference the 'Spec Deviation Log'\
+  \ in plan.md. Add a new 'Spec Deviation' section to spec.md detailing this change\
+  \ and update the 'Key Entities' section to reflect the actual datasets used (UCI\
+  \ HAR (2505.06730, https://arxiv.org/abs/2505.06730) [UNRESOLVED-CLAIM: c_4bb2bbc1\
+  \ \u2014 status=verified], UCI Wine)."
+: 1
+? T008.2 [P] Update spec.md User Story 2 acceptance criteria to require 'resampling
+  from a single homogeneous population' instead of 'shuffling labels', aligning with
+  the plan.
+: 1
+? T008.3 [P] Update spec.md FR-007 to mandate 'associational observations' instead
+  of 'causal findings', resolving the internal contradiction.
+: 1

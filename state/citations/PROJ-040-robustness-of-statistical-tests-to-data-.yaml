@@ -20,3 +20,15 @@
   verification_status: pending
   verified_against_url: https://huggingface.co/datasets/uci-ml-repository/wine-quality-red/resolve/main/winequality-red.csv
   verified_at: '2026-07-05T10:14:52.984495Z'
+- artifact_hash: a1625b28d9a021c88204f97db7161c48af1192a37dde0d0982b0bfee00496bd0
+  artifact_path: projects/PROJ-040-robustness-of-statistical-tests-to-data-/specs/001-robustness-of-statistical-tests-to-data/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: '[2505.06730] Activity and Subject Detection for UCI HAR Dataset
+    with &amp; without missing Sensor Data'
+  kind: url
+  value: https://arxiv.org/abs/2505.06730
+  verification_status: verified
+  verified_against_url: https://arxiv.org/abs/2505.06730
+  verified_at: '2026-07-05T13:51:21.298038Z'
