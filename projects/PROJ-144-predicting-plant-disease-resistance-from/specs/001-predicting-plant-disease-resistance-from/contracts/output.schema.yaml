@@ -1,0 +1,204 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Model Output Schema"
+description: "Schema for the final model output and interpretation report"
+type: "object"
+properties:
+  model_info:
+    type: "object"
+    properties:
+      model_type:
+        type: "string"
+        const: "RandomForestClassifier"
+      hyperparameters:
+        type: "object"
+        properties:
+          n_estimators:
+            type: "integer"
+          max_depth:
+            type: "integer"
+          min_samples_split:
+            type: "integer"
+          min_samples_leaf:
+            type: "integer"
+        required:
+          - n_estimators
+          - max_depth
+      random_state:
+        type: "integer"
+    required:
+      - model_type
+      - hyperparameters
+      - random_state
+  feature_importance:
+    type: "array"
+    description: "Top 10 features by mean decrease in impurity"
+    items:
+      type: "object"
+      properties:
+        rank:
+          type: "integer"
+          minimum: 1
+        metabolite_inchi_key:
+          type: "string"
+        importance_score:
+          type: "number"
+          minimum: 0
+        significance_threshold:
+          type: "number"
+          description: "Permutation-based significance threshold"
+        is_significant:
+          type: "boolean"
+          description: "True if importance_score > significance_threshold"
+        pathway_mapping:
+          type: "array"
+          items:
+            type: "object"
+            properties:
+              database:
+                type: "string"
+                enum: ["KEGG", "MetaCyc"]
+              pathway_id:
+                type: "string"
+              pathway_name:
+                type: "string"
+            required:
+              - database
+              - pathway_id
+              - pathway_name
+      required:
+        - rank
+        - metabolite_inchi_key
+        - importance_score
+        - significance_threshold
+        - is_significant
+    minItems: 1
+    maxItems: 10
+  collinearity_diagnostics:
+    type: "array"
+    description: "SHAP values for top features"
+    items:
+      type: "object"
+      properties:
+        metabolite_inchi_key:
+          type: "string"
+        shap_mean_abs:
+          type: "number"
+          minimum: 0
+        shap_stability:
+          type: "number"
+          minimum: 0
+          maximum: 1
+          description: "Stability of SHAP values across CV folds"
+      required:
+        - metabolite_inchi_key
+        - shap_mean_abs
+        - shap_stability
+  validation_summary:
+    type: "object"
+    properties:
+      cross_validation_scores:
+        type: "array"
+        items:
+          type: "number"
+        description: "Balanced accuracy for each fold"
+      hold_out_metrics:
+        type: "object"
+        properties:
+          balanced_accuracy:
+            type: "number"
+          roc_auc:
+            type: "number"
+          precision:
+            type: "number"
+          recall:
+            type: "number"
+        required:
+          - balanced_accuracy
+          - roc_auc
+      permutation_test:
+        type: "object"
+        properties:
+          n_permutations:
+            type: "integer"
+            minimum: 1000
+          p_value:
+            type: "number"
+            minimum: 0
+            maximum: 1
+          null_distribution_mean:
+            type: "number"
+        required:
+          - n_permutations
+          - p_value
+      learning_curve_data:
+        type: "object"
+        description: "Learning curve metrics for sample size sufficiency"
+        properties:
+          train_sizes:
+            type: "array"
+            items:
+              type: "integer"
+          train_scores:
+            type: "array"
+            items:
+              type: "number"
+          test_scores:
+            type: "array"
+            items:
+              type: "number"
+          sufficiency_flag:
+            type: "string"
+            enum: ["sufficient", "underpowered", "exploratory"]
+        required:
+          - train_sizes
+          - train_scores
+          - test_scores
+          - sufficiency_flag
+    required:
+      - cross_validation_scores
+      - hold_out_metrics
+      - permutation_test
+      - learning_curve_data
+  sensitivity_analysis:
+    type: "object"
+    description: "Results of decision cutoff sensitivity sweep"
+    properties:
+      cutoffs:
+        type: "array"
+        items:
+          type: "number"
+          enum: [0.01, 0.05, 0.1]
+      false_positive_rates:
+        type: "array"
+        items:
+          type: "number"
+      false_negative_rates:
+        type: "array"
+        items:
+          type: "number"
+    required:
+      - cutoffs
+      - false_positive_rates
+      - false_negative_rates
+  interpretation:
+    type: "object"
+    properties:
+      biological_plausibility:
+        type: "string"
+        description: "Narrative summary of pathway mappings"
+      limitation_notes:
+        type: "array"
+        items:
+          type: "string"
+        description: "Notes on sample size, power, or data gaps"
+    required:
+      - biological_plausibility
+      - limitation_notes
+required:
+  - model_info
+  - feature_importance
+  - collinearity_diagnostics
+  - validation_summary
+  - sensitivity_analysis
+  - interpretation
+additionalProperties: false

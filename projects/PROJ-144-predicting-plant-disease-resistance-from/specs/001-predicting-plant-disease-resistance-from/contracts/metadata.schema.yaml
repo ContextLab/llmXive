@@ -1,0 +1,113 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Metabolomics Resistance Prediction Metadata Schema"
+description: "Schema for validation of project metadata and artifact hashes"
+type: "object"
+properties:
+  project_id:
+    type: "string"
+    pattern: "^PROJ-\\d{3}-[a-z-]+$"
+    description: "Unique project identifier"
+  feature_branch:
+    type: "string"
+    description: "Git branch name for this feature"
+  constitution_version:
+    type: "string"
+    pattern: "^\\d+\\.\\d+\\.\\d+$"
+    description: "Version of the project constitution"
+  data_artifacts:
+    type: "object"
+    description: "Checksums for data files to ensure reproducibility"
+    additionalProperties:
+      type: "object"
+      properties:
+        file_path:
+          type: "string"
+        checksum_md5:
+          type: "string"
+          pattern: "^[a-f0-9]{32}$"
+        checksum_sha256:
+          type: "string"
+          pattern: "^[a-f0-9]{64}$"
+        source_url:
+          type: "string"
+          format: "uri"
+          description: "Original source URL (Metabolomics Workbench)"
+        processed_date:
+          type: "string"
+          format: "date-time"
+    required:
+      - file_path
+      - checksum_sha256
+      - source_url
+  model_metrics:
+    type: "object"
+    description: "Key performance metrics"
+    properties:
+      balanced_accuracy:
+        type: "number"
+        minimum: 0
+        maximum: 1
+      roc_auc:
+        type: "number"
+        minimum: 0
+        maximum: 1
+      permutation_p_value:
+        type: "number"
+        minimum: 0
+        maximum: 1
+      fdr_corrected_correlations:
+        type: "array"
+        items:
+          type: "object"
+          properties:
+            metabolite:
+              type: "string"
+            correlation:
+              type: "number"
+            p_value:
+              type: "number"
+            adjusted_p_value:
+              type: "number"
+          required:
+            - metabolite
+            - correlation
+            - p_value
+            - adjusted_p_value
+    required:
+      - balanced_accuracy
+      - roc_auc
+      - permutation_p_value
+  constraints:
+    type: "object"
+    description: "Constraints applied during analysis"
+    properties:
+      max_depth:
+        type: "integer"
+        minimum: 1
+        maximum: 100
+      n_estimators:
+        type: "integer"
+        minimum: 10
+        maximum: 2000
+      fdr_threshold:
+        type: "number"
+        minimum: 0
+        maximum: 1
+      shap_stability_threshold:
+        type: "number"
+        minimum: 0
+        maximum: 1
+        description: "Threshold for SHAP value stability"
+    required:
+      - max_depth
+      - n_estimators
+      - fdr_threshold
+      - shap_stability_threshold
+required:
+  - project_id
+  - feature_branch
+  - constitution_version
+  - data_artifacts
+  - model_metrics
+  - constraints
+additionalProperties: false

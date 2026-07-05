@@ -1,0 +1,275 @@
+resolved_at: '2026-07-05T17:46:42.303407+00:00'
+datasets:
+- intent: FDR
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/RyanSaleh/fdr/resolve/main/dataset_info.json
+    source: huggingface
+    format: json
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 766
+      parsed: true
+  - url: https://huggingface.co/datasets/PhillyMac/fdr-training-corpus/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/leonadase/fdRE/resolve/main/fdRE.zip
+    source: huggingface
+    format: zip
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 27026
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/leonadase/fdRE/resolve/main/fdRE.zip
+    source: huggingface
+    status: verified
+    format: zip
+  - url: https://huggingface.co/api/resolve-cache/datasets/Ant-j-a/fdr_pc/eaa55dcc52ce3a34a2476e5ee83e770b90f0597b/fdr_ft_data.json?%2Fdatasets%2FAnt-j-a%2Ffdr_pc%2Fresolve%2Fmain%2Ffdr_ft_data.json=&etag=%22abf005552883ffb0cb56efb92dd40704626e6119%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/api/resolve-cache/datasets/Ant-j-a/fdr_data/d17d474aa35707f6f6963bc81dc9b780c12c4a84/fdr_ft_data.jsonl?%2Fdatasets%2FAnt-j-a%2Ffdr_data%2Fresolve%2Fmain%2Ffdr_ft_data.jsonl=&etag=%22abf005552883ffb0cb56efb92dd40704626e6119%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/RyanSaleh/fdr/resolve/main/dataset_info.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://huggingface.co/datasets/PhillyMac/fdr-training-corpus/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/dataset/Call_09152489563_For_Sacred_Heart_College_of_Nursing_Sciences_Lantoro_Abeokuta_2026_2027_Admission_Application_Form_Is_Out_Call_09152489563_/32903279
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Call_09152489563_For_Ogun_State_College_of_Nursing_Sciences_OGCON_2026_2027_Admission_Application_Form_Is_Out_Call_09152489563_/32903273
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/An_integrated_real-time_tool_wear_monitoring_and_prediction_framework_with_autonomous_in-situ_machine_vision-based_labeling/32903232
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/dataset/Treatment_patterns_among_pediatric_and_adult_patients_with_ulcerative_colitis_in_the_United_States_a_retrospective_cohort_study/32903247
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Call_09152489563_For_Emirates_College_of_Nursing_Sciences_2026_2027_Admission_Application_Form_Is_Out_Call_09152489563_/32903267
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19485037
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15629319
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16743754
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7756151
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.tandfonline.com/doi/full/10.1080/2150704X.2025.2478664
+    source: zenodo
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://knowledge.uchicago.edu/records/vhvb8-qfb32
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://knowledge.uchicago.edu/records/vhvb8-qfb32
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Public_Search_Behavior_and_Tuberculosis_Cases_in_Indonesia_2019-2023_An_Infodemiology_Method_Using_Google_Trends/31969371/2
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Public_Search_Behavior_and_Tuberculosis_Cases_in_Indonesia_2019-2023_An_Infodemiology_Method_Using_Google_Trends/31969371
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21204109
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: VIF
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/tranthaihoa/vifactcheck/resolve/main/data/dev-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/tranthaihoa/vifactcheck/resolve/main/data/dev-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/dongguanting/VIF-RAG-QA-20K/resolve/main/VIF-RAG_sampled%20(20K).json
+    source: huggingface
+    status: wrong_format
+    reason: HTTP 401
+  - url: https://us.aws.cdn.hf.co/xet-bridge-us/66d42cebcf97d88019c1c54d/e794cd49b01e2c46b3321bf498b047ffc0aeffb59911b11c645521b4581f9d82?response-content-type=application%2Fjson&user_id=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27gpt4_single_multi_autoif_sharegpt_rag_mix.json%3B+filename%3D%22gpt4_single_multi_autoif_sharegpt_rag_mix.json%22%3B&X-Xet-Cas-Uid=public&Expires=1783277143&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjZkNDJjZWJjZjk3ZDg4MDE5YzFjNTRkL2U3OTRjZDQ5YjAxZTJjNDZiMzMyMWJmNDk4YjA0N2ZmYzBhZWZmYjU5OTExYjExYzY0NTUyMWI0NTgxZjlkODJcXD9yZXNwb25zZS1jb250ZW50LXR5cGU9YXBwbGljYXRpb24lMkZqc29uJnVzZXJfaWQ9cHVibGljJnJlc3BvbnNlLWNvbnRlbnQtZGlzcG9zaXRpb249aW5saW5lJTNCK2ZpbGVuYW1lJTJBJTNEVVRGLTglMjclMjdncHQ0X3NpbmdsZV9tdWx0aV9hdXRvaWZfc2hhcmVncHRfcmFnX21peC5qc29uJTNCK2ZpbGVuYW1lJTNEJTIyZ3B0NF9zaW5nbGVfbXVsdGlfYXV0b2lmX3NoYXJlZ3B0X3JhZ19taXguanNvbiUyMiUzQiZYLVhldC1DYXMtVWlkPXB1YmxpYyIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzgzMjc3MTQzfX19XX0_&Signature=MEUCIHQrFdu0lqrrdCz3LIc0UluCYkRaiBq7frsDH1V4S8OuAiEAzwT8Xjk0k-NmkEysHOhtuqzhRuWpawjvUspAOitwAUA_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Call_09152489563_For_Sacred_Heart_College_of_Nursing_Sciences_Lantoro_Abeokuta_2026_2027_Admission_Application_Form_Is_Out_Call_09152489563_/32903279
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Call_09152489563_For_Ogun_State_College_of_Nursing_Sciences_OGCON_2026_2027_Admission_Application_Form_Is_Out_Call_09152489563_/32903273
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/An_integrated_real-time_tool_wear_monitoring_and_prediction_framework_with_autonomous_in-situ_machine_vision-based_labeling/32903232
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/dataset/Treatment_patterns_among_pediatric_and_adult_patients_with_ulcerative_colitis_in_the_United_States_a_retrospective_cohort_study/32903247
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Call_09152489563_For_Emirates_College_of_Nursing_Sciences_2026_2027_Admission_Application_Form_Is_Out_Call_09152489563_/32903267
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19154354
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20926278
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20191456
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14837515
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19827885
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21208327
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21208327
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/Evaluasi_Usability_Aplikasi_Gojek_Menggunakan_Model_Nielsen_dan_Analisis_PLS-SEM/32902802
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/Evaluasi_Usability_Aplikasi_Gojek_Menggunakan_Model_Nielsen_dan_Analisis_PLS-SEM/32902802/1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21205275
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: AND
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/Andyrasika/cat_kingdom/resolve/main/data/train-00000-of-00001-c6ddc870796e4f24.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 230721
+      parsed: true
+  - url: https://huggingface.co/datasets/mychen76/invoices-and-receipts_ocr_v1/resolve/main/data/test-00000-of-00001-af2d92d1cee28514.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/sarahwei/cyber_MITRE_attack_tactics-and-techniques/resolve/main/MITRE-attack-tactics-and-techniques.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/Andyrasika/cat_kingdom/resolve/main/data/train-00000-of-00001-c6ddc870796e4f24.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/mychen76/invoices-and-receipts_ocr_v1/resolve/main/data/test-00000-of-00001-af2d92d1cee28514.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/sarahwei/cyber_MITRE_attack_tactics-and-techniques/resolve/main/MITRE-attack-tactics-and-techniques.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/K-and-K/knights-and-knaves/resolve/main/test/people2_num100.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/active-vision-lab/oxford-day-and-night/resolve/main/aria/scene_durations.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://figshare.com/articles/dataset/Call_09152489563_For_Jafad_College_of_Nursing_Science_Oru-Ijebu_2026_2027_Admission_Application_Form_Is_Out_Call_09152489563_/32903282
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/_p_dir_ltr_b_Dataset_and_Source_Code_for_b_b_b_b_Calderon-Regularized_Boundary_Element_and_Adjoint_Framework_for_Shape_Identification_in_Perfusion-Modified_Bioheat_Interface_Problems_b_p_/32817299
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Call_09152489563_For_Sacred_Heart_College_of_Nursing_Sciences_Lantoro_Abeokuta_2026_2027_Admission_Application_Form_Is_Out_Call_09152489563_/32903279
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Call_09152489563_For_Ogun_State_College_of_Nursing_Sciences_OGCON_2026_2027_Admission_Application_Form_Is_Out_Call_09152489563_/32903273
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/An_integrated_real-time_tool_wear_monitoring_and_prediction_framework_with_autonomous_in-situ_machine_vision-based_labeling/32903232
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://link.springer.com/article/10.1007/BF01977446
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7714657
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3365578
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5336157
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3367816
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content

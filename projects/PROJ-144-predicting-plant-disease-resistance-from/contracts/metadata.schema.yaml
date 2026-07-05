@@ -1,0 +1,115 @@
+%YAML 1.2
+---
+$schema: http://json-schema.org/draft-07/schema#
+title: Plant Disease Resistance Metabolomic Data Schema
+description: >
+  Defines the structure for metabolite profiles and resistance labels
+  used in the plant disease resistance prediction pipeline.
+type: object
+properties:
+  MetaboliteProfile:
+    type: object
+    description: >
+      Represents a single sample's metabolomic profile including
+      intensity values, metadata, and InChIKey identifiers.
+    properties:
+      sample_id:
+        type: string
+        description: Unique identifier for the sample (e.g., from Metabolomics Workbench).
+      study_id:
+        type: string
+        description: Source study identifier (e.g., ST000001).
+      inchikey:
+        type: string
+        description: InChIKey for the metabolite, used for cross-study alignment.
+      metabolite_name:
+        type: string
+        description: Common name or synonym for the metabolite.
+      intensity:
+        type: number
+        description: Raw or normalized intensity value (log-transformed if applicable).
+      batch_id:
+        type: string
+        description: Batch identifier for ComBat correction.
+      collection_time:
+        type: string
+        format: date-time
+        description: Timestamp of sample collection (ISO 8601).
+      challenge_time:
+        type: string
+        format: date-time
+        description: Timestamp of pathogen challenge (if applicable).
+      biological_confounders:
+        type: object
+        description: >
+          Dictionary of biological confounders (e.g., age, tissue_type, genotype)
+          used for residualization.
+        additionalProperties: true
+      missing_indicator:
+        type: boolean
+        description: Flag indicating if the value was originally missing (imputed).
+    required:
+      - sample_id
+      - study_id
+      - inchikey
+      - intensity
+      - batch_id
+    additionalProperties: false
+
+  ResistanceLabel:
+    type: object
+    description: >
+      Represents the resistance phenotype label for a sample,
+      harmonized across studies.
+    properties:
+      sample_id:
+        type: string
+        description: Unique identifier matching the MetaboliteProfile.
+      resistance_class:
+        type: string
+        enum:
+          - Resistant
+          - Susceptible
+          - Intermediate
+          - Unknown
+        description: Harmonized resistance classification.
+      resistance_score:
+        type: number
+        description: >
+          Continuous resistance score (z-scored or normalized) if available.
+          Range typically [-3, 3] or [0, 1].
+      assay_method:
+        type: string
+        description: Method used to determine resistance (e.g., lesion_size, survival_rate).
+      pathogen_species:
+        type: string
+        description: Scientific name of the challenging pathogen.
+      binary_label:
+        type: integer
+        enum: [0, 1]
+        description: >
+          Binary classification (0: Susceptible, 1: Resistant) derived from
+          resistance_class for model training.
+    required:
+      - sample_id
+      - resistance_class
+      - binary_label
+    additionalProperties: false
+
+definitions:
+  CommonMetadata:
+    type: object
+    properties:
+      created_at:
+        type: string
+        format: date-time
+      version:
+        type: string
+        description: Schema version used for validation.
+      source:
+        type: string
+        description: Original data source (e.g., Metabolomics Workbench).
+
+oneOf:
+  - $ref: '#/properties/MetaboliteProfile'
+  - $ref: '#/properties/ResistanceLabel'

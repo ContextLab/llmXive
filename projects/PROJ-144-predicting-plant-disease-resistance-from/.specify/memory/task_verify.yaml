@@ -1,0 +1,10 @@
+T001 Create project structure per implementation plan (`code/`, `data/raw`, `data/processed`, `tests/`, `state/`): 1
+? T002 Initialize Python 3.11 project with pinned dependencies in `requirements.txt`
+  (pandas, numpy, scikit-learn, statsmodels, shap, biopython, requests, pytest, pyyaml)
+: 1
+T003 [P] Configure linting (flake8/black) and formatting tools in `.pre-commit-config.yaml`: 1
+? 'T005 [P] Implement `code/utils/io.py` for checksumming (MD5/SHA256) and logging
+  artifacts to `state/artifact_hashes.yaml` <!-- SKIPPED: YAML+regex parse failed
+  (while scanning for the next token'
+: 1
+T006 [P] Create `contracts/metadata.schema.yaml` defining `MetaboliteProfile` and `ResistanceLabel` schemas: 1

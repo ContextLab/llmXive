@@ -1,1 +1,11 @@
-[]
+- artifact_hash: b0766c243c5be121e2fd3ee800aa037637db0792c9b36f45c61fd58f5da1b21e
+  artifact_path: projects/PROJ-144-predicting-plant-disease-resistance-from/specs/001-predicting-plant-disease-resistance-from/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: 'Metabolomics Workbench : Home'
+  kind: url
+  value: https://www.metabolomicsworkbench.org/
+  verification_status: verified
+  verified_against_url: https://www.metabolomicsworkbench.org/
+  verified_at: '2026-07-05T17:59:41.519957Z'
