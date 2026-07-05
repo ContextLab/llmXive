@@ -1,1 +1,77 @@
-[]
+- artifact_hash: 799b1a9678800136095f824600495fdc7260f67465fd98fbd38205f002702cf3
+  artifact_path: projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/docs/data_schema.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: Pydantic Docs - Validation, AI Agents, Logfire Observability
+  kind: url
+  value: https://docs.pydantic.dev/
+  verification_status: verified
+  verified_against_url: https://pydantic.dev/docs/
+  verified_at: '2026-07-05T20:07:44.477848Z'
+- artifact_hash: 799b1a9678800136095f824600495fdc7260f67465fd98fbd38205f002702cf3
+  artifact_path: projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/docs/data_schema.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: Moral Foundations Theory | moralfoundations.org
+  kind: url
+  value: https://moralfoundations.org/
+  verification_status: verified
+  verified_against_url: https://moralfoundations.org/
+  verified_at: '2026-07-05T20:07:44.477848Z'
+- artifact_hash: 9bb571e8a335684fba7d3d5dc5510fba792f10eea481a55270674cb377dc723e
+  artifact_path: projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/docs/usage_examples.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: OSF
+  kind: url
+  value: https://osf.io/your-project-id/
+  verification_status: pending
+  verified_against_url: https://osf.io/your-project-id/
+  verified_at: '2026-07-05T20:07:46.574241Z'
+- artifact_hash: 9b330fc8cd808f74eb710a394eece44b61515ed93a4cbef74b112d61ea9c2c3e
+  artifact_path: projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/docs/README_docs_index.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: PyMC Documentation
+  fetched_title: null
+  kind: url
+  value: https://www.pymc.io/projects/docs/
+  verification_status: pending
+  verified_against_url: https://www.pymc.io/projects/docs/en/stable/
+  verified_at: '2026-07-05T20:07:50.132710Z'
+- artifact_hash: 9b330fc8cd808f74eb710a394eece44b61515ed93a4cbef74b112d61ea9c2c3e
+  artifact_path: projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/docs/README_docs_index.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: Pydantic Documentation
+  fetched_title: Pydantic Docs - Validation, AI Agents, Logfire Observability
+  kind: url
+  value: https://docs.pydantic.dev/
+  verification_status: mismatch
+  verified_against_url: https://pydantic.dev/docs/
+  verified_at: '2026-07-05T20:07:50.132710Z'
+- artifact_hash: 9b330fc8cd808f74eb710a394eece44b61515ed93a4cbef74b112d61ea9c2c3e
+  artifact_path: projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/docs/README_docs_index.md
+  cite_id: c-003
+  cited_authors: []
+  cited_title: Moral Foundations Theory
+  fetched_title: Moral Foundations Theory | moralfoundations.org
+  kind: url
+  value: https://moralfoundations.org/
+  verification_status: verified
+  verified_against_url: https://moralfoundations.org/
+  verified_at: '2026-07-05T20:07:50.132710Z'
+- artifact_hash: 9b330fc8cd808f74eb710a394eece44b61515ed93a4cbef74b112d61ea9c2c3e
+  artifact_path: projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/docs/README_docs_index.md
+  cite_id: c-004
+  cited_authors: []
+  cited_title: Open Science Framework
+  fetched_title: OSF
+  kind: url
+  value: https://osf.io/
+  verification_status: pending
+  verified_against_url: https://osf.io/
+  verified_at: '2026-07-05T20:07:50.132710Z'

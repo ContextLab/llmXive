@@ -1,0 +1,4 @@
+# Development dependencies for linting and formatting
+ruff>=0.4.8
+black>=24.4.2
+pre-commit>=3.7.1

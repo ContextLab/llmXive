@@ -1,0 +1,504 @@
+- artifact_path: projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/specs/001-the-cognitive-mechanisms-underlying-intu/tasks.md
+  attempts: 1
+  canonical: Pipeline validation verifies output matches Gervais et al. norms
+  claim_id: c_a339e83b
+  context: 'Independent Test: The pipeline can be tested by running the ingestion
+    and construction scripts against the synthetic data and verifying that the output
+    CSV contains correctly merged rows, valid salience labels, and matches Gervais
+    et al. norms.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pipeline_validation_verifies_output_matches_Gervais_et_al._n
+  kind: entity_fact
+  raw_text: The pipeline can be tested by running the ingestion and construction scripts
+    against the synthetic data and verifying that the output CSV contains correctly
+    merged rows, valid salience labels, and matches Gervais et al. norms.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T19:40:20Z'
+- artifact_path: projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/specs/001-the-cognitive-mechanisms-underlying-intu/tasks.md
+  attempts: 1
+  canonical: Model recovery requires ground_truth_effect within 95% credible interval
+    and R-hat < 1.05
+  claim_id: c_e76f8e60
+  context: 'Independent Test: The model execution can be tested by running the PyMC3
+    script on the synthetic data and verifying that the model recovers the ground_truth_effect
+    within the 95% credible interval and converges (R-hat < 1.05).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The model execution can be tested by running the PyMC3 script on the synthetic
+    data and verifying that the model recovers the ground_truth_effect within the
+    95% credible interval and converges (R-hat < 1.05).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T19:40:34Z'
+- artifact_path: projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/specs/001-the-cognitive-mechanisms-underlying-intu/tasks.md
+  attempts: 1
+  canonical: Validation requires Bonferroni-corrected p-value for salience x foundation
+    interaction
+  claim_id: c_5e5d339e
+  context: "Independent Test: The validation step can be tested by running the regression\
+    \ and verifying that the interaction term (salience \xD7 foundation) is reported\
+    \ with a Bonferroni-corrected p-value and the report includes the sensitivity\
+    \ analysis."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Validation_requires_Bonferroni-corrected_p-value_for_salienc
+  kind: entity_fact
+  raw_text: "The validation step can be tested by running the regression and verifying\
+    \ that the interaction term (salience \xD7 foundation) is reported with a Bonferroni-corrected\
+    \ p-value and the report includes the sensitivity analysis."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T19:41:03Z'
+- artifact_path: projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/specs/001-the-cognitive-mechanisms-underlying-intu/tasks.md
+  attempts: 1
+  canonical: Parameter recovery requires ground_truth_effect within 95% credible interval
+  claim_id: c_08c2752e
+  context: 'Implement code/analysis/validation.py to verify Parameter Recovery: check
+    if ground_truth_effect is within the 95% credible interval of the posterior (Primary
+    Validation Metric)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The model must recover the ground_truth_effect within the 95% credible
+    interval of the posterior.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T19:41:03Z'
+- artifact_path: projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/specs/001-the-cognitive-mechanisms-underlying-intu/tasks.md
+  attempts: 1
+  canonical: Strong evidence defined as delta AIC greater than 10
+  claim_id: c_0f93f0b8
+  context: "if 'real', flag 'strong evidence' (\u0394AIC > 10) as required by SC-002"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Strong_evidence_defined_as_delta_AIC_greater_than_10
+  kind: magnitude
+  raw_text: "Strong evidence is defined as \u0394AIC > 10."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T19:41:22Z'
+- artifact_path: projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/specs/001-the-cognitive-mechanisms-underlying-intu/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis thresholds are 2, 10, and 20
+  claim_id: c_fedcc784
+  context: Implement code/analysis/validation.py to conduct sensitivity analysis sweeping
+    decision thresholds over the specific set {2, 10, 20} and report model selection
+    stability matrix
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sensitivity analysis sweeps decision thresholds over the specific set
+    {2, 10, 20}.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T19:41:38Z'
+- artifact_path: projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/specs/001-the-cognitive-mechanisms-underlying-intu/tasks.md
+  attempts: 1
+  canonical: Full pipeline execution time must be under 6 hours
+  claim_id: c_51f78792
+  context: Performance optimization for CPU-only execution (ensure full pipeline <
+    6h)
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Full_pipeline_execution_time_must_be_under_6_hours
+  kind: magnitude
+  raw_text: The full pipeline must run in less than 6 hours on CPU-only execution.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T19:41:59Z'
+- artifact_path: projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/specs/001-the-cognitive-mechanisms-underlying-intu/tasks.md
+  attempts: 1
+  canonical: Project uses Python version 3.11
+  claim_id: c_4241a930
+  context: Initialize Python 3.11 project with requirements.txt (pymc>=5.0.0, pandas,
+    numpy, scikit-learn, pyyaml, requests, seaborn, statsmodels)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses Python 3.11.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T19:42:24Z'
+- artifact_path: projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/specs/001-the-cognitive-mechanisms-underlying-intu/tasks.md
+  attempts: 1
+  canonical: Project uses pymc version 5.0.0 or higher
+  claim_id: c_fae4e16d
+  context: Initialize Python 3.11 project with requirements.txt (pymc>=5.0.0, pandas,
+    numpy, scikit-learn, pyyaml, requests, seaborn, statsmodels)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses pymc version 5.0.0 or higher.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T19:42:55Z'
+- artifact_path: projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/specs/001-the-cognitive-mechanisms-underlying-intu/tasks.md
+  attempts: 1
+  canonical: Synthetic MFQ distribution must be within 1 standard deviation of published
+    norms
+  claim_id: c_108b0c82
+  context: Add validation logic to existing code/utils/norms.py to compare synthetic
+    MFQ distribution against published norms (must be within 1 SD)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Validation logic must compare synthetic MFQ distribution against published
+    norms within 1 standard deviation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T19:42:57Z'
+- artifact_path: projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/specs/001-the-cognitive-mechanisms-underlying-intu/tasks.md
+  attempts: 1
+  canonical: Project utilizes Gervais et al. 2011 psychometric norms
+  claim_id: c_5ac26eb4
+  context: Create code/utils/norms.py to load and reference Gervais et al. (2011)
+    psychometric norms
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project utilizes Gervais et al. (2011) psychometric norms.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T19:42:59Z'
+- artifact_path: projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/specs/001-the-cognitive-mechanisms-underlying-intu/tasks.md
+  attempts: 1
+  canonical: Bayesian model must recover ground truth effect within 95% credible interval
+    and achieve R-hat less than 1.05
+  claim_id: c_c17d0194
+  context: Independent Test description for User Story 2
+  evidence:
+    candidates:
+    - - ''
+      - 95.0
+    - - ''
+      - 25.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Bayesian_model_must_recover_ground_truth_effect_within_95%25_c
+  kind: magnitude
+  raw_text: 'Independent Test: The model execution can be tested by running the PyMC3
+    script on the synthetic data and verifying that the model recovers the ground_truth_effect
+    within the 95% credible interval and converges (R-hat < 1.05).'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-07-05T19:43:43Z'
+- artifact_path: projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/specs/001-the-cognitive-mechanisms-underlying-intu/tasks.md
+  attempts: 1
+  canonical: synthetic MFQ data based on Gervais et al. (2011) multivariate normal
+    distributions
+  claim_id: c_9ec0d66a
+  context: Task T013 in Phase 3 specifies generating synthetic MFQ data based on the
+    multivariate normal distributions from Gervais et al. (2011).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement code/data/simulation_mfq.py to generate synthetic MFQ data based
+    on Gervais et al. (2011) multivariate normal distributions
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T19:49:26Z'
+- artifact_path: projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/specs/001-the-cognitive-mechanisms-underlying-intu/tasks.md
+  attempts: 1
+  canonical: load and merge synthetic MFQ and Moral Stories datasets
+  claim_id: c_2cfee5db
+  context: Task T015 in Phase 3 involves loading and merging synthetic MFQ and Moral
+    Stories datasets.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Load_and_merge_synthetic_MFQ_and_Moral_Stories_datasets
+  kind: entity_fact
+  raw_text: Implement code/data/ingest.py to load and merge synthetic MFQ and Moral
+    Stories datasets, handling ID mismatches
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T19:49:44Z'
+- artifact_path: projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/specs/001-the-cognitive-mechanisms-underlying-intu/tasks.md
+  attempts: 1
+  canonical: synthetic MFQ distribution within 1 SD of published norms
+  claim_id: c_7bb7e263
+  context: Task T017 in Phase 3 requires validation logic to compare synthetic MFQ
+    distribution against published norms, ensuring it is within 1 standard deviation.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Validate that synthetic MFQ distribution against published norms (must
+    be within 1 SD)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T19:49:55Z'
+- artifact_path: projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/specs/001-the-cognitive-mechanisms-underlying-intu/tasks.md
+  attempts: 1
+  canonical: model recovers ground_truth_effect within 95% credible interval
+  claim_id: c_c8bebe4b
+  context: The independent test for User Story 2 requires verifying that the model
+    recovers the ground_truth_effect within the 95% credible interval.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify that the model recovers the ground_truth_effect within the 95%
+    credible interval
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T19:49:55Z'
+- artifact_path: projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/specs/001-the-cognitive-mechanisms-underlying-intu/tasks.md
+  attempts: 1
+  canonical: model converges with R-hat less than 1.05
+  claim_id: c_bb05459d
+  context: The independent test for User Story 2 requires verifying that the model
+    converges with an R-hat value less than 1.05.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Model_converges_with_R-hat_less_than_1.05
+  kind: magnitude
+  raw_text: Verify that the model converges (R-hat < 1.05)
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T19:50:26Z'
+- artifact_path: projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/specs/001-the-cognitive-mechanisms-underlying-intu/tasks.md
+  attempts: 1
+  canonical: sensitivity analysis sweeping decision thresholds over set 2, 10, 20
+  claim_id: c_faf11f86
+  context: Task T032 in Phase 5 requires conducting a sensitivity analysis by sweeping
+    decision thresholds over the specific set {2, 10, 20}.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: conduct sensitivity analysis sweeping decision thresholds over the specific
+    set {2, 10, 20}
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T19:50:43Z'
+- artifact_path: projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/specs/001-the-cognitive-mechanisms-underlying-intu/tasks.md
+  attempts: 1
+  canonical: full pipeline execution time less than 6 hours
+  claim_id: c_d2d4958a
+  context: Task T037 in Phase N requires performance optimization to ensure the full
+    pipeline runs in less than 6 hours on CPU-only execution.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Full_pipeline_execution_time_less_than_6_hours
+  kind: magnitude
+  raw_text: ensure full pipeline < 6h
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T19:50:56Z'
+- artifact_path: projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/specs/001-the-cognitive-mechanisms-underlying-intu/tasks.md
+  attempts: 1
+  canonical: Synthetic MFQ data based on Gervais et al. 2011 multivariate normal distributions
+  claim_id: c_d76c5f44
+  context: 'Phase 3: User Story 1 - Data Ingestion, Experimental Construction, and
+    Preprocessing Pipeline'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement code/data/simulation_mfq.py to generate synthetic MFQ data based
+    on Gervais et al. (2011) multivariate normal distributions
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T20:04:43Z'
+- artifact_path: projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/specs/001-the-cognitive-mechanisms-underlying-intu/tasks.md
+  attempts: 1
+  canonical: Synthetic MFQ data generated based on Gervais et al. 2011 multivariate
+    normal distributions
+  claim_id: c_dc9fbaaa
+  context: Implementation for User Story 1 - T013
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement code/data/simulation_mfq.py to generate synthetic MFQ data based
+    on Gervais et al. (2011) multivariate normal distributions
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T20:08:38Z'
+- artifact_path: projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/specs/001-the-cognitive-mechanisms-underlying-intu/tasks.md
+  attempts: 1
+  canonical: Psychometric norms from Gervais et al. 2011 used for validation
+  claim_id: c_f5c0c651
+  context: Foundational phase - T007
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement code/utils/norms.py to load and reference Gervais et al. (2011)
+    psychometric norms
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T20:08:47Z'
+- artifact_path: projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/specs/001-the-cognitive-mechanisms-underlying-intu/tasks.md
+  attempts: 1
+  canonical: Bayesian model recovers ground truth effect within 95% credible interval
+    with R-hat less than 1.05
+  claim_id: c_3cf15727
+  context: Independent Test description for User Story 2
+  evidence:
+    candidates:
+    - - ''
+      - 95.0
+    - - ''
+      - 25.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Bayesian_model_recovers_ground_truth_effect_within_95%25_credi
+  kind: magnitude
+  raw_text: The model recovers the ground_truth_effect within the 95% credible interval
+    and converges (R-hat < 1.05)
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-07-05T20:09:42Z'
+- artifact_path: projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/specs/001-the-cognitive-mechanisms-underlying-intu/tasks.md
+  attempts: 1
+  canonical: Parameter recovery validation checks if ground truth effect is within
+    95% credible interval
+  claim_id: c_fc9f2168
+  context: Independent Test description for User Story 2
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: verify that the model recovers the ground_truth_effect within the 95%
+    credible interval
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T20:09:42Z'
+- artifact_path: projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/specs/001-the-cognitive-mechanisms-underlying-intu/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis performed on decision thresholds 2, 10, and 20
+  claim_id: c_c39584c5
+  context: Implementation for User Story 3 - T032
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: conduct sensitivity analysis sweeping decision thresholds over the specific
+    set {2, 10, 20}
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T20:09:42Z'
+- artifact_path: projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/specs/001-the-cognitive-mechanisms-underlying-intu/tasks.md
+  attempts: 1
+  canonical: Full pipeline execution time under 6 hours on CPU-only environment
+  claim_id: c_491eca4a
+  context: Phase N - Polish & Cross-Cutting Concerns - T037
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: ensure full pipeline < 6h
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T20:09:42Z'
+- artifact_path: projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/specs/001-the-cognitive-mechanisms-underlying-intu/tasks.md
+  attempts: 1
+  canonical: synthetic MFQ data based on Gervais et al. 2011 multivariate normal distributions
+  claim_id: c_ad8cb909
+  context: T013 [US1] Implement code/data/simulation_mfq.py to generate synthetic
+    MFQ data based on Gervais et al. (2011) multivariate normal distributions
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: generate synthetic MFQ data based on Gervais et al. (2011) multivariate
+    normal distributions
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T20:12:14Z'
+- artifact_path: projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/specs/001-the-cognitive-mechanisms-underlying-intu/tasks.md
+  attempts: 1
+  canonical: load Gervais et al. 2011 psychometric norms
+  claim_id: c_0faae073
+  context: T007 Create code/utils/norms.py to load and reference Gervais et al. (2011)
+    psychometric norms
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: load and reference Gervais et al. (2011) psychometric norms
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T20:12:22Z'

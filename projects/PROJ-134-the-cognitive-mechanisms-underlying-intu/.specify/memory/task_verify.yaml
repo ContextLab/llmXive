@@ -1,0 +1,7 @@
+? "T007 Create `code/utils/norms.py` to load and reference Gervais et al. (2011) psychometric\
+  \ norms [UNRESOLVED-CLAIM: c_0faae073 \u2014 status=not_enough_info] <!-- FAILED:\
+  \ unspecified -->"
+: 1
+'T008a [P] Create directories: `data/raw/`, `data/processed/`, `data/logs/`': 1
+T008b [P] Implement `code/utils/schema.py` using Pydantic to validate data schemas (MFQ, Stories, VR Logs): 1
+T009 Implement base logging infrastructure to capture exclusion reasons and VR mapping logs: 1

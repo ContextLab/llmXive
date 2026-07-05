@@ -1,0 +1,13 @@
+pymc>=5.0.0
+pandas
+numpy
+scikit-learn
+pyyaml
+requests
+seaborn
+statsmodels
+pytest
+pytest-cov
+ruff
+black
+pydantic
