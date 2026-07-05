@@ -20,23 +20,23 @@
 - **Mobile**: `api/src/`, `ios/src/` or `android/src/`
 - Paths shown below assume single project - adjust based on plan.md structure
 
-<!-- 
-  ============================================================================
-  IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-  
-  The /speckit-tasks command MUST replace these with actual tasks based on:
-  - User stories from spec.md (with their priorities P1, P2, P3...)
-  - Feature requirements from plan.md
-  - Entities from data-model.md
-  - Endpoints from contracts/
-  
-  Tasks MUST be organized by user story so each story can be:
-  - Implemented independently
-  - Tested independently
-  - Delivered as an MVP increment
-  
-  DO NOT keep these sample tasks in the generated tasks.md file.
-  ============================================================================
+<!--
+ ============================================================================
+ IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
+
+ The /speckit-tasks command MUST replace these with actual tasks based on:
+ - User stories from spec.md (with their priorities P1, P2, P3...)
+ - Feature requirements from plan.md
+ - Entities from data-model.md
+ - Endpoints from contracts/
+
+ Tasks MUST be organized by user story so each story can be:
+ - Implemented independently
+ - Tested independently
+ - Delivered as an MVP increment
+
+ DO NOT keep these sample tasks in the generated tasks.md file.
+ ============================================================================
 -->
 
 ## Phase 0: Spec Updates (Critical Prerequisites)
@@ -45,21 +45,21 @@
 
 **⚠️ BLOCKING**: No other phase can begin until Phase 0 is complete and the spec artifact is updated.
 
-- [ ] T004 [US2] **Spec Update**: Update `spec.md` to add **FR-008** and **SC-008**.
-  - **FR-008 Text**: "The system MUST calculate `diff_complexity_score` = (lines_added + lines_deleted) / total_lines if lines_deleted > 0 else 0. It MUST flag 'AI Noise' if `diff_complexity_score` > 0.3 AND commit message contains 'fix', 'hotfix', or 'patch'."
-  - **SC-008 Text**: "The analysis must produce a stratified result showing how the 'LLM Adoption' effect size changes when controlling for 'AI Noise' or when filtering for specific commit types."
-  - **Rationale**: Authorizes the 'Signal Separation' analysis (Phase 7) to address Feynman's concern.
+- [ ] T004 [US2] **Spec Update**: Update `spec.md` to add **FR-008** and **SC-008**. <!-- FAILED: unspecified -->
+ - **FR-008 Text**: "The system MUST calculate `diff_complexity_score` = (lines_added + lines_deleted) / total_lines if lines_deleted > 0 else 0. It MUST flag 'AI Noise' if `diff_complexity_score` > 0.3 AND commit message contains 'fix', 'hotfix', or 'patch'."
+ - **SC-008 Text**: "The analysis must produce a stratified result showing how the 'LLM Adoption' effect size changes when controlling for 'AI Noise' or when filtering for specific commit types."
+ - **Rationale**: Authorizes the 'Signal Separation' analysis (Phase 7) to address Feynman's concern.
 
-- [ ] T005 [US3] **Spec Update**: Update `spec.md` to add **FR-009** and **SC-009**.
-  - **FR-009 Text**: "The final report MUST include a 'Theoretical Grounding' section citing Holland et al. on distributed cognition and a 'Data Gap' section explicitly stating the unavailability of self-report scales (e.g., NASA-TLX)."
-  - **SC-009 Text**: "The report must explicitly state: 'Note: This study uses proxy metrics for cognitive load. Self-report measures (e.g., NASA-TLX) were not available.'"
-  - **Rationale**: Authorizes specific report content (Phase 5) not previously in the spec.
+- [X] T005 [US3] **Spec Update**: Update `spec.md` to add **FR-009** and **SC-009**.
+ - **FR-009 Text**: "The final report MUST include a 'Theoretical Grounding' section citing Holland et al. on distributed cognition and a 'Data Gap' section explicitly stating the unavailability of self-report scales (e.g., NASA-TLX)."
+ - **SC-009 Text**: "The report must explicitly state: 'Note: This study uses proxy metrics for cognitive load. Self-report measures (e.g., NASA-TLX) were not available.' "
+ - **Rationale**: Authorizes specific report content (Phase 5) not previously in the spec.
 
-- [ ] T006 [US2] **Spec Update**: Update `spec.md` **FR-003** to replace "linear regression analysis" with "Mixed-Effects Models (GLMM) with random intercepts for repositories; Zero-Inflated Negative Binomial (ZINB) or Hurdle models for zero-inflated outcomes."
-  - **Rationale**: Authorizes the statistical engine change from the plan to the spec, ensuring implementation aligns with updated requirements.
+- [X] T006 [US2] **Spec Update**: Update `spec.md` **FR-003** to replace "linear regression analysis" with "Mixed-Effects Models (GLMM) with random intercepts for repositories; Zero-Inflated Negative Binomial (ZINB) or Hurdle models for zero-inflated outcomes."
+ - **Rationale**: Authorizes the statistical engine change from the plan to the spec, ensuring implementation aligns with updated requirements.
 
-- [ ] T007 [US1] **Spec Update**: Update `spec.md` **FR-002** to replace "EXCLUDING any push event where the commit message contains 'Copilot' OR the diff size is < 100 lines" with "Count TOTAL push events between PR open and merge (no exclusions)."
-  - **Rationale**: Resolves the circular bias conflict in the original spec; authorizes the implementation logic in T023.
+- [X] T007 [US1] **Spec Update**: Update `spec.md` **FR-002** to replace "EXCLUDING any push event where the commit message contains 'Copilot' OR the diff size is < 100 lines" with "Count TOTAL push events between PR open and merge (no exclusions)."
+ - **Rationale**: Resolves the circular bias conflict in the original spec; authorizes the implementation logic in T023.
 
 **Checkpoint**: Spec is updated and ready for implementation.
 
@@ -69,8 +69,8 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T008 Create directory `projects/PROJ-508-evaluating-the-impact-of-llm-based-code-/data/raw/`
-- [ ] T009 Create directory `projects/PROJ-508-evaluating-the-impact-of-llm-based-code-/data/derived/`
+- [X] T008 Create directory `projects/PROJ-508-evaluating-the-impact-of-llm-based-code-/data/raw/`
+- [X] T009 Create directory `projects/PROJ-508-evaluating-the-impact-of-llm-based-code-/data/derived/`
 - [ ] T010 Create directory `projects/PROJ-508-evaluating-the-impact-of-llm-based-code-/docs/output/`
 
 ---
@@ -83,11 +83,11 @@
 
 - [ ] T011 Initialize Python 3.11 project with `requirements.txt` dependencies: `pandas`, `requests`, `scikit-learn`, `statsmodels`, `matplotlib`, `seaborn`, `pyyaml`, `scipy`
 - [ ] T012 [P] Configure linting (ruff) and formatting (black) tools
-- [ ] T013 [P] Implement `code/utils/github_client.py` with exponential backoff retry logic (a limited number of retries with a fixed delay)
+- [X] T013 [P] Implement `code/utils/github_client.py` with exponential backoff retry logic (a limited number of retries with a fixed delay)
 - [ ] T014 [P] Create `code/utils/metrics.py` for cognitive load proxy calculation (NO Copilot exclusion logic)
-- [ ] T015 Create `code/utils/config.py` for environment variables and API key handling
-- [ ] T016 Setup `pytest` configuration and basic test scaffolding in `tests/`
-- [ ] T017 Implement `code/utils/data_validation.py` for PII scanning and schema validation
+- [~] T015 Create `code/utils/config.py` for environment variables and API key handling
+- [~] T016 Setup `pytest` configuration and basic test scaffolding in `tests/`
+- [~] T017 Implement `code/utils/data_validation.py` for PII scanning and schema validation
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -103,26 +103,26 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T018 [P] [US1] Unit test for `.cursorrules` detection in `tests/test_ingest.py`
-- [ ] T019 [P] [US1] Unit test for commit message "Copilot" frequency calculation in `tests/test_ingest.py`
-- [ ] T020 [P] [US1] Integration test for GitHub API retry logic in `tests/test_github_client.py`
+- [~] T018 [P] [US1] Unit test for `.cursorrules` detection in `tests/test_ingest.py`
+- [~] T019 [P] [US1] Unit test for commit message "Copilot" frequency calculation in `tests/test_ingest.py`
+- [~] T020 [P] [US1] Integration test for GitHub API retry logic in `tests/test_github_client.py`
 
 ### Implementation for User Story 1
 
-- [ ] T021 [US1] Implement `code/ingest.py` to fetch repository list and metadata (PRs, commits, config files)
-- [ ] T022 [US1] Implement `llm_adoption_flag` logic in `code/ingest.py`:
-  - Check for `.cursorrules` or `copilot` config files
-  - Check `README.md`/`CONTRIBUTING.md` for "Copilot"/"LLM" mentions (A fixed-length context window of moderate size will be employed to evaluate performance.)
-  - Check commit messages for ≥5% "Copilot"/"LLM" frequency
-- [ ] T023 [US1] Implement `iteration_count` logic in `code/utils/metrics.py` **[FR-002-UPDATED]**:
-  - **Logic**: Count TOTAL push events between PR open and merge (NO exclusions).
-  - **Rationale**: Per updated `spec.md` FR-002 (Task T007).
-- [ ] T024 [US1] Implement extraction of `avg_comment_length`, `review_thread_depth`, and `revert_frequency`
-- [ ] T025 [US1] Implement logic to exclude repositories with <10 PRs in last 12 months (SC-001)
-- [ ] T026 [US1] Implement `code/ingest.py` to log "ambiguous LLM signal" warnings for repos with generic configs (e.g., `config.json` without tool naming) to support sensitivity analysis
-- [ ] T027 [US1] Implement domain complexity calculation (unique languages + dependency count from manifests)
-- [ ] T028 [US1] Generate `data/derived/master_dataset.csv` with all required columns
-- [ ] T029 [US1] Generate `data/manifest.json` with API endpoints, parameters, and timestamps
+- [~] T021 [US1] Implement `code/ingest.py` to fetch repository list and metadata (PRs, commits, config files)
+- [~] T022 [US1] Implement `llm_adoption_flag` logic in `code/ingest.py`:
+ - Check for `.cursorrules` or `copilot` config files
+ - Check `README.md`/`CONTRIBUTING.md` for "Copilot"/"LLM" mentions (A fixed-length context window of moderate size will be employed to evaluate performance.)
+ - Check commit messages for ≥5% "Copilot"/"LLM" frequency
+- [~] T023 [US1] Implement `iteration_count` logic in `code/utils/metrics.py` **[FR-002-UPDATED]**:
+ - **Logic**: Count TOTAL push events between PR open and merge (NO exclusions).
+ - **Rationale**: Per updated `spec.md` FR-002 (Task T007).
+- [~] T024 [US1] Implement extraction of `avg_comment_length`, `review_thread_depth`, and `revert_frequency`
+- [~] T025 [US1] Implement logic to exclude repositories with <10 PRs in last 12 months (SC-001)
+- [~] T026 [US1] Implement `code/ingest.py` to log "ambiguous LLM signal" warnings for repos with generic configs (e.g., `config.json` without tool naming) to support sensitivity analysis
+- [~] T027 [US1] Implement domain complexity calculation (unique languages + dependency count from manifests)
+- [~] T028 [US1] Generate `data/derived/master_dataset.csv` with all required columns
+- [~] T029 [US1] Generate `data/manifest.json` with API endpoints, parameters, and timestamps
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -136,23 +136,23 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T030 [P] [US2] Unit test for Bonferroni correction logic in `tests/test_analysis.py`
-- [ ] T031 [P] [US2] Unit test for VIF calculation in `tests/test_analysis.py`
-- [ ] T032 [P] [US2] Unit test for sensitivity analysis sweep logic in `tests/test_analysis.py`
+- [~] T030 [P] [US2] Unit test for Bonferroni correction logic in `tests/test_analysis.py`
+- [~] T031 [P] [US2] Unit test for VIF calculation in `tests/test_analysis.py`
+- [~] T032 [P] [US2] Unit test for sensitivity analysis sweep logic in `tests/test_analysis.py`
 
 ### Implementation for User Story 2
 
-- [ ] T033 [US2] Implement `code/analyze.py` to load `data/derived/master_dataset.csv`
-- [ ] T034 [US2] Implement Mixed-Effects Models (GLMM) with random intercepts for repositories **[FR-003-UPDATED]**:
-  - **Rationale**: Per updated `spec.md` FR-003 (Task T006) and plan.md "Critical Methodological Update".
-- [ ] T035 [US2] Implement Zero-Inflated Negative Binomial (ZINB) or Hurdle models for zero-inflated outcomes (reverts/iterations) **[FR-003-UPDATED]**:
-  - **Rationale**: Per updated `spec.md` FR-003 (Task T006) and plan.md "Critical Methodological Update".
-- [ ] T036 [US2] Implement control variable adjustment: Project size (LOC), Team size (contributors), Domain complexity, and `diff_complexity_score` (FR-008)
-- [ ] T037 [US2] Implement Variance Inflation Factor (VIF) check; flag if >5.0
-- [ ] T038 [US2] Implement Multiple-Comparison Correction (Bonferroni) for p-values (FR-004)
-- [ ] T039 [US2] Implement Sensitivity Analysis: Sweep `iteration_count` threshold over a range of low integer values. and record effect estimates
-- [ ] T040 [US2] Generate `data/derived/analysis_results.json` containing coefficients, SEs, p-values, adjusted p-values, and CI
-- [ ] T041 [US2] Generate `data/derived/sensitivity_analysis.json` with threshold sweep results
+- [~] T033 [US2] Implement `code/analyze.py` to load `data/derived/master_dataset.csv`
+- [~] T034 [US2] Implement Mixed-Effects Models (GLMM) with random intercepts for repositories **[FR-003-UPDATED]**:
+ - **Rationale**: Per updated `spec.md` FR-003 (Task T006) and plan.md "Critical Methodological Update".
+- [~] T035 [US2] Implement Zero-Inflated Negative Binomial (ZINB) or Hurdle models for zero-inflated outcomes (reverts/iterations) **[FR-003-UPDATED]**:
+ - **Rationale**: Per updated `spec.md` FR-003 (Task T006) and plan.md "Critical Methodological Update".
+- [~] T036 [US2] Implement control variable adjustment: Project size (LOC), Team size (contributors), Domain complexity, and `diff_complexity_score` (FR-008)
+- [~] T037 [US2] Implement Variance Inflation Factor (VIF) check; flag if >5.0
+- [~] T038 [US2] Implement Multiple-Comparison Correction (Bonferroni) for p-values (FR-004)
+- [~] T039 [US2] Implement Sensitivity Analysis: Sweep `iteration_count` threshold over a range of low integer values. and record effect estimates
+- [~] T040 [US2] Generate `data/derived/analysis_results.json` containing coefficients, SEs, p-values, adjusted p-values, and CI
+- [~] T041 [US2] Generate `data/derived/sensitivity_analysis.json` with threshold sweep results
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -166,21 +166,21 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T042 [P] [US3] Unit test for plot generation (matplotlib/seaborn) in `tests/test_report.py`
-- [ ] T043 [P] [US3] Unit test for report text generation (associational framing) in `tests/test_report.py`
+- [~] T042 [P] [US3] Unit test for plot generation (matplotlib/seaborn) in `tests/test_report.py`
+- [~] T043 [P] [US3] Unit test for report text generation (associational framing) in `tests/test_report.py`
 
 ### Implementation for User Story 3
 
-- [ ] T044 [US3] Implement `code/report.py` to load analysis results
-- [ ] T045 [US3] Generate Forest Plot of effect sizes with confidence intervals for all proxies
-- [ ] T046 [US3] Generate Sensitivity Analysis plot/table showing effect variation across thresholds
-- [ ] T047 [US3] Implement text generation for the report:
-  - Explicitly frame findings as "associational" (not causal)
-  - Reference observational study design
-  - State null hypothesis rejection status per corrected p-value
-  - **Include "Theoretical Grounding" section citing Holland (Per T005/FR-009)**
-  - **Include "Data Gap" section stating NASA-TLX unavailability (Per T005/FR-009)**
-  - **Include exact warning string: "Note: This study uses proxy metrics for cognitive load. Self-report measures (e.g., NASA-TLX) were not available."**
+- [~] T044 [US3] Implement `code/report.py` to load analysis results
+- [~] T045 [US3] Generate Forest Plot of effect sizes with confidence intervals for all proxies
+- [~] T046 [US3] Generate Sensitivity Analysis plot/table showing effect variation across thresholds
+- [~] T047 [US3] Implement text generation for the report:
+ - Explicitly frame findings as "associational" (not causal)
+ - Reference observational study design
+ - State null hypothesis rejection status per corrected p-value
+ - **Include "Theoretical Grounding" section citing Holland (Per T005/FR-009)**
+ - **Include "Data Gap" section stating NASA-TLX unavailability (Per T005/FR-009)**
+ - **Include exact warning string: "Note: This study uses proxy metrics for cognitive load. Self-report measures (e.g., NASA-TLX) were not available."**
 - [ ] T048 [US3] Generate `docs/output/final_report.pdf`
 
 **Checkpoint**: All user stories should now be independently functional
@@ -196,15 +196,15 @@
 ### Implementation for Signal Separation
 
 - [ ] T049 [US2] **New Metric**: Implement `code/utils/metrics.py` function to calculate `diff_complexity_score`:
-  - **Formula**: `(lines_added + lines_deleted) / total_lines` if `lines_deleted > 0` else `0`.
-  - **Flag Logic**: Flag "AI Noise" if `diff_complexity_score` > 0.3 AND commit message contains "fix", "hotfix", or "patch".
-  - **Rationale**: Per updated `spec.md` FR-008 (Task T004).
+ - **Formula**: `(lines_added + lines_deleted) / total_lines` if `lines_deleted > 0` else `0`.
+ - **Flag Logic**: Flag "AI Noise" if `diff_complexity_score` > 0.3 AND commit message contains "fix", "hotfix", or "patch".
+ - **Rationale**: Per updated `spec.md` FR-008 (Task T004).
 - [ ] T050 [US2] **Control Variable**: Add `diff_complexity_score` as a control variable in the GLMM/ZINB models (T034/T035) to isolate the pure "LLM Adoption" effect.
 - [ ] T051 [US2] **Stratified Analysis**: Implement a secondary analysis in `code/analyze.py` that splits the dataset into "High AI-Noise" (high diff complexity) and "Low AI-Noise" groups to compare effect sizes.
 - [ ] T052 [US3] **Reporting Update**: Update `code/report.py` to include a dedicated subsection "Signal Separation: Distinguishing Tool Utility from AI Noise" that discusses the stratified results.
 - [ ] T053 [US3] **Data Flow Diagram**: Generate a diagram in `docs/output/` using Mermaid syntax illustrating the data flow and where "load" is inferred, explicitly marking the point where AI-generated code is conflated with human problem-solving.
-  - **Nodes**: Repository, PR, Commit, Metric Calculation, GLMM, Report.
-  - **Edges**: Data flow arrows, highlighting the `diff_complexity_score` calculation point.
+ - **Nodes**: Repository, PR, Commit, Metric Calculation, GLMM, Report.
+ - **Edges**: Data flow arrows, highlighting the `diff_complexity_score` calculation point.
 
 **Checkpoint**: The study now explicitly addresses the confounding variable of "AI-generated noise" and provides a methodological boundary for the findings.
 
@@ -230,8 +230,8 @@
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
-  - User stories can then proceed in parallel (if staffed)
-  - Or sequentially in priority order (P1 → P2 → P3)
+ - User stories can then proceed in parallel (if staffed)
+ - Or sequentially in priority order (P1 → P2 → P3)
 - **Review Revision (Phase 6)**: Depends on US1 (Data), US2 (Analysis), and US3 (Report) completion
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 
@@ -264,7 +264,7 @@
 
 ```bash
 # Launch all tests for User Story 1 together (if tests requested):
-Task: "Unit test for .cursorrules detection in tests/test_ingest.py"
+Task: "Unit test for.cursorrules detection in tests/test_ingest.py"
 Task: "Unit test for commit message Copilot frequency calculation in tests/test_ingest.py"
 Task: "Integration test for GitHub API retry logic in tests/test_github_client.py"
 
@@ -302,10 +302,10 @@ With multiple developers:
 
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
-   - Developer A: User Story 1 (Data Ingestion)
-   - Developer B: User Story 2 (Analysis) - *Must wait for US1 data*
-   - Developer C: User Story 3 (Reporting) - *Must wait for US2 results*
-   - Developer D: Phase 6 (Signal Separation) - *Can work on new metric logic in parallel*
+ - Developer A: User Story 1 (Data Ingestion)
+ - Developer B: User Story 2 (Analysis) - *Must wait for US1 data*
+ - Developer C: User Story 3 (Reporting) - *Must wait for US2 results*
+ - Developer D: Phase 6 (Signal Separation) - *Can work on new metric logic in parallel*
 3. Stories complete and integrate independently
 
 ---

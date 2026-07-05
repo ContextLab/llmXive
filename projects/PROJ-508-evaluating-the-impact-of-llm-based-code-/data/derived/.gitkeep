@@ -1,0 +1,3 @@
+# This directory is for derived data artifacts generated during analysis.
+# Files here are intermediate or final processed datasets (e.g., master_dataset.csv).
+# Do not commit large binary files; use .gitattributes to track if necessary.

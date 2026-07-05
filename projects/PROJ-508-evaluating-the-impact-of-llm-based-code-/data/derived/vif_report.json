@@ -1,0 +1,11 @@
+{
+  "vif_check": {
+    "threshold": 5.0,
+    "flagged_features": {},
+    "all_vif_values": {},
+    "has_multicollinearity": false,
+    "summary": "Found 0 features with VIF > 5.0"
+  },
+  "timestamp": "2026-01-01 00:00:00",
+  "threshold_used": 5.0
+}

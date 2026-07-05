@@ -1,0 +1,1069 @@
+- artifact_path: projects/PROJ-508-evaluating-the-impact-of-llm-based-code-/specs/001-evaluating-the-impact-of-llm-based-code/tasks.md
+  attempts: 1
+  canonical: diff_complexity_score calculation formula
+  claim_id: c_084185bd
+  context: 'FR-008 Text: The system MUST calculate `diff_complexity_score` = (lines_added
+    + lines_deleted) / total_lines if lines_deleted > 0 else 0.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system MUST calculate `diff_complexity_score` = (lines_added + lines_deleted)
+    / total_lines if lines_deleted > 0 else 0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T12:23:00Z'
+- artifact_path: projects/PROJ-508-evaluating-the-impact-of-llm-based-code-/specs/001-evaluating-the-impact-of-llm-based-code/tasks.md
+  attempts: 1
+  canonical: AI Noise flag condition
+  claim_id: c_9f1e9959
+  context: 'FR-008 Text: It MUST flag ''AI Noise'' if `diff_complexity_score` > 0.3
+    AND commit message contains ''fix'', ''hotfix'', or ''patch''.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system MUST flag 'AI Noise' if `diff_complexity_score` > 0.3 AND commit
+    message contains 'fix', 'hotfix', or 'patch'.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T12:23:00Z'
+- artifact_path: projects/PROJ-508-evaluating-the-impact-of-llm-based-code-/specs/001-evaluating-the-impact-of-llm-based-code/tasks.md
+  attempts: 1
+  canonical: Report section citing Holland et al.
+  claim_id: c_7836e64a
+  context: 'FR-009 Text: The final report MUST include a ''Theoretical Grounding''
+    section citing Holland et al. on distributed cognition and a ''Data Gap'' section
+    explicitly stating the unavailability of self-report scales (e.g., NASA-TLX).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Report_section_citing_Holland_et_al.
+  kind: entity_fact
+  raw_text: The final report MUST include a 'Theoretical Grounding' section citing
+    Holland et al. on distributed cognition.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T12:23:26Z'
+- artifact_path: projects/PROJ-508-evaluating-the-impact-of-llm-based-code-/specs/001-evaluating-the-impact-of-llm-based-code/tasks.md
+  attempts: 1
+  canonical: Report section on unavailability of NASA-TLX
+  claim_id: c_bb989802
+  context: 'FR-009 Text: The final report MUST include a ''Theoretical Grounding''
+    section citing Holland et al. on distributed cognition and a ''Data Gap'' section
+    explicitly stating the unavailability of self-report scales (e.g., NASA-TLX).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Report_section_on_unavailability_of_NASA-TLX
+  kind: entity_fact
+  raw_text: The final report MUST include a 'Data Gap' section explicitly stating
+    the unavailability of self-report scales (e.g., NASA-TLX).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T12:23:49Z'
+- artifact_path: projects/PROJ-508-evaluating-the-impact-of-llm-based-code-/specs/001-evaluating-the-impact-of-llm-based-code/tasks.md
+  attempts: 1
+  canonical: Required warning statement on proxy metrics
+  claim_id: c_e622da03
+  context: 'SC-009 Text: The report must explicitly state: ''Note: This study uses
+    proxy metrics for cognitive load. Self-report measures (e.g., NASA-TLX) were not
+    available.'''
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Required_warning_statement_on_proxy_metrics
+  kind: entity_fact
+  raw_text: 'The report must explicitly state: ''Note: This study uses proxy metrics
+    for cognitive load. Self-report measures (e.g., NASA-TLX) were not available.'''
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T12:24:07Z'
+- artifact_path: projects/PROJ-508-evaluating-the-impact-of-llm-based-code-/specs/001-evaluating-the-impact-of-llm-based-code/tasks.md
+  attempts: 1
+  canonical: 'Statistical method: Mixed-Effects Models with random intercepts'
+  claim_id: c_dfc4a060
+  context: 'FR-003 Text: Update `spec.md` FR-003 to replace ''linear regression analysis''
+    with ''Mixed-Effects Models (GLMM) with random intercepts for repositories''.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Statistical_method:_Mixed-Effects_Models_with_random_interce
+  kind: entity_fact
+  raw_text: The analysis must use Mixed-Effects Models (GLMM) with random intercepts
+    for repositories.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T12:24:45Z'
+- artifact_path: projects/PROJ-508-evaluating-the-impact-of-llm-based-code-/specs/001-evaluating-the-impact-of-llm-based-code/tasks.md
+  attempts: 1
+  canonical: 'Statistical method: ZINB or Hurdle models'
+  claim_id: c_47ed1139
+  context: 'FR-003 Text: ...Zero-Inflated Negative Binomial (ZINB) or Hurdle models
+    for zero-inflated outcomes.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Statistical_method:_ZINB_or_Hurdle_models
+  kind: entity_fact
+  raw_text: The analysis must use Zero-Inflated Negative Binomial (ZINB) or Hurdle
+    models for zero-inflated outcomes.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T12:25:05Z'
+- artifact_path: projects/PROJ-508-evaluating-the-impact-of-llm-based-code-/specs/001-evaluating-the-impact-of-llm-based-code/tasks.md
+  attempts: 1
+  canonical: Count of total push events without exclusions
+  claim_id: c_5359d79f
+  context: 'FR-002 Text: Update `spec.md` FR-002 to replace ''EXCLUDING any push event...''
+    with ''Count TOTAL push events between PR open and merge (no exclusions).''.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Count_of_total_push_events_without_exclusions
+  kind: entity_fact
+  raw_text: The study must count TOTAL push events between PR open and merge with
+    no exclusions.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T12:25:24Z'
+- artifact_path: projects/PROJ-508-evaluating-the-impact-of-llm-based-code-/specs/001-evaluating-the-impact-of-llm-based-code/tasks.md
+  attempts: 1
+  canonical: Exclusion of repos with less than 10 PRs in 12 months
+  claim_id: c_c98ac440
+  context: T025 [US1] Implement logic to exclude repositories with <10 PRs in last
+    12 months (SC-001)
+  evidence:
+    candidates:
+    - - PRs in
+      - 12.0
+    - - Exclusion of repos with less than
+      - 10.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Exclusion_of_repos_with_less_than_10_PRs_in_12_months
+  kind: magnitude
+  raw_text: Repositories with fewer than 10 PRs in the last 12 months must be excluded.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-07-05T12:25:42Z'
+- artifact_path: projects/PROJ-508-evaluating-the-impact-of-llm-based-code-/specs/001-evaluating-the-impact-of-llm-based-code/tasks.md
+  attempts: 1
+  canonical: LLM adoption flag threshold of 5% frequency
+  claim_id: c_34e9f42d
+  context: "T022 [US1] ... Check commit messages for \u22655% 'Copilot'/'LLM' frequency"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system must check commit messages for a frequency of 5% or greater
+    of 'Copilot' or 'LLM' mentions to flag LLM adoption.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T12:25:42Z'
+- artifact_path: projects/PROJ-508-evaluating-the-impact-of-llm-based-code-/specs/001-evaluating-the-impact-of-llm-based-code/tasks.md
+  attempts: 1
+  canonical: VIF flag threshold greater than 5.0
+  claim_id: c_dde7a818
+  context: T037 [US2] Implement Variance Inflation Factor (VIF) check; flag if >5.0
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/VIF_flag_threshold_greater_than_5.0
+  kind: magnitude
+  raw_text: The Variance Inflation Factor (VIF) check must flag if the value is greater
+    than 5.0.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T12:26:30Z'
+- artifact_path: projects/PROJ-508-evaluating-the-impact-of-llm-based-code-/specs/001-evaluating-the-impact-of-llm-based-code/tasks.md
+  attempts: 1
+  canonical: Runtime performance constraint under 6 hours on 2 CPUs
+  claim_id: c_ba5265f7
+  context: T056 Performance optimization (ensure runtime < 6h on 2 CPU cores)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project runtime must be under 6 hours on 2 CPU cores.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T12:26:50Z'
+- artifact_path: projects/PROJ-508-evaluating-the-impact-of-llm-based-code-/specs/001-evaluating-the-impact-of-llm-based-code/tasks.md
+  attempts: 1
+  canonical: diff_complexity_score calculation formula (lines_added + lines_deleted)
+    / total_lines if lines_deleted > 0 else 0
+  claim_id: c_ce3fcbfe
+  context: 'FR-008 Text: ''The system MUST calculate `diff_complexity_score` = (lines_added
+    + lines_deleted) / total_lines if lines_deleted > 0 else 0. It MUST flag ''AI
+    Noise'' if `diff_complexity_score` > 0.3 AND commit message contains ''fix'',
+    ''hotfix'', or ''patch''.'''
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system MUST calculate `diff_complexity_score` = (lines_added + lines_deleted)
+    / total_lines if lines_deleted > 0 else 0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T12:28:30Z'
+- artifact_path: projects/PROJ-508-evaluating-the-impact-of-llm-based-code-/specs/001-evaluating-the-impact-of-llm-based-code/tasks.md
+  attempts: 1
+  canonical: 'AI Noise flag condition: diff_complexity_score > 0.3 AND commit message
+    contains ''fix'', ''hotfix'', or ''patch'''
+  claim_id: c_9cb88ad5
+  context: 'FR-008 Text: ''The system MUST calculate `diff_complexity_score` = (lines_added
+    + lines_deleted) / total_lines if lines_deleted > 0 else 0. It MUST flag ''AI
+    Noise'' if `diff_complexity_score` > 0.3 AND commit message contains ''fix'',
+    ''hotfix'', or ''patch''.'''
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system MUST flag 'AI Noise' if `diff_complexity_score` > 0.3 AND commit
+    message contains 'fix', 'hotfix', or 'patch'.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T12:28:30Z'
+- artifact_path: projects/PROJ-508-evaluating-the-impact-of-llm-based-code-/specs/001-evaluating-the-impact-of-llm-based-code/tasks.md
+  attempts: 1
+  canonical: Report must include 'Theoretical Grounding' section citing Holland et
+    al. on distributed cognition
+  claim_id: c_fa2eeba7
+  context: 'FR-009 Text: ''The final report MUST include a ''Theoretical Grounding''
+    section citing Holland et al. on distributed cognition and a ''Data Gap'' section
+    explicitly stating the unavailability of self-report scales (e.g., NASA-TLX).'''
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Report_must_include_'Theoretical_Grounding'_section_citing_H
+  kind: entity_fact
+  raw_text: The final report MUST include a 'Theoretical Grounding' section citing
+    Holland et al. on distributed cognition.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T12:28:32Z'
+- artifact_path: projects/PROJ-508-evaluating-the-impact-of-llm-based-code-/specs/001-evaluating-the-impact-of-llm-based-code/tasks.md
+  attempts: 1
+  canonical: Report must include 'Data Gap' section stating unavailability of self-report
+    scales like NASA-TLX
+  claim_id: c_41cd2221
+  context: 'FR-009 Text: ''The final report MUST include a ''Theoretical Grounding''
+    section citing Holland et al. on distributed cognition and a ''Data Gap'' section
+    explicitly stating the unavailability of self-report scales (e.g., NASA-TLX).'''
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Report_must_include_'Data_Gap'_section_stating_unavailabilit
+  kind: entity_fact
+  raw_text: The final report MUST include a 'Data Gap' section explicitly stating
+    the unavailability of self-report scales (e.g., NASA-TLX).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T12:28:33Z'
+- artifact_path: projects/PROJ-508-evaluating-the-impact-of-llm-based-code-/specs/001-evaluating-the-impact-of-llm-based-code/tasks.md
+  attempts: 1
+  canonical: Report must state 'This study uses proxy metrics for cognitive load.
+    Self-report measures (e.g., NASA-TLX) were not available.'
+  claim_id: c_526cb614
+  context: 'SC-009 Text: ''The report must explicitly state: ''Note: This study uses
+    proxy metrics for cognitive load. Self-report measures (e.g., NASA-TLX) were not
+    available.'' '''
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Report_must_state_'This_study_uses_proxy_metrics_for_cogniti
+  kind: entity_fact
+  raw_text: 'The report must explicitly state: ''Note: This study uses proxy metrics
+    for cognitive load. Self-report measures (e.g., NASA-TLX) were not available.'''
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T12:28:35Z'
+- artifact_path: projects/PROJ-508-evaluating-the-impact-of-llm-based-code-/specs/001-evaluating-the-impact-of-llm-based-code/tasks.md
+  attempts: 1
+  canonical: Analysis must use Mixed-Effects Models (GLMM) with random intercepts
+    for repositories
+  claim_id: c_f590ffc9
+  context: 'T006 rationale: ''Authorizes the statistical engine change from the plan
+    to the spec, ensuring implementation aligns with updated requirements.'' replacing
+    ''linear regression analysis'' with ''Mixed-Effects Models (GLMM) with random
+    intercepts for repositories'''
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Analysis_must_use_Mixed-Effects_Models_(GLMM)_with_random_in
+  kind: entity_fact
+  raw_text: The analysis must use Mixed-Effects Models (GLMM) with random intercepts
+    for repositories.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T12:28:37Z'
+- artifact_path: projects/PROJ-508-evaluating-the-impact-of-llm-based-code-/specs/001-evaluating-the-impact-of-llm-based-code/tasks.md
+  attempts: 1
+  canonical: Analysis must use Zero-Inflated Negative Binomial (ZINB) or Hurdle models
+    for zero-inflated outcomes
+  claim_id: c_b61bb79d
+  context: 'T006 rationale: ''Authorizes the statistical engine change from the plan
+    to the spec, ensuring implementation aligns with updated requirements.'' replacing
+    ''linear regression analysis'' with ''Zero-Inflated Negative Binomial (ZINB) or
+    Hurdle models for zero-inflated outcomes'''
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Analysis_must_use_Zero-Inflated_Negative_Binomial_(ZINB)_or
+  kind: entity_fact
+  raw_text: The analysis must use Zero-Inflated Negative Binomial (ZINB) or Hurdle
+    models for zero-inflated outcomes.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T12:28:40Z'
+- artifact_path: projects/PROJ-508-evaluating-the-impact-of-llm-based-code-/specs/001-evaluating-the-impact-of-llm-based-code/tasks.md
+  attempts: 1
+  canonical: Count TOTAL push events between PR open and merge with no exclusions
+  claim_id: c_ea42dfa3
+  context: 'T007 rationale: ''Resolves the circular bias conflict in the original
+    spec; authorizes the implementation logic in T023.'' replacing ''EXCLUDING any
+    push event where the commit message contains ''Copilot'' OR the diff size is <
+    100 lines'' with ''Count TOTAL push events between PR open and merge (no exclusions).'''
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Count_TOTAL_push_events_between_PR_open_and_merge_with_no_ex
+  kind: entity_fact
+  raw_text: The system must count TOTAL push events between PR open and merge with
+    no exclusions.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T12:29:04Z'
+- artifact_path: projects/PROJ-508-evaluating-the-impact-of-llm-based-code-/specs/001-evaluating-the-impact-of-llm-based-code/tasks.md
+  attempts: 1
+  canonical: "Check commit messages for \u22655% 'Copilot'/'LLM' frequency to determine\
+    \ LLM adoption"
+  claim_id: c_4c61dcd5
+  context: "T022 [US1] Implement `llm_adoption_flag` logic in `code/ingest.py`: ...\
+    \ Check commit messages for \u22655% 'Copilot'/'LLM' frequency"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The system must check commit messages for \u22655% 'Copilot'/'LLM' frequency\
+    \ to determine LLM adoption."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T12:29:04Z'
+- artifact_path: projects/PROJ-508-evaluating-the-impact-of-llm-based-code-/specs/001-evaluating-the-impact-of-llm-based-code/tasks.md
+  attempts: 1
+  canonical: Exclude repositories with <10 PRs in last 12 months
+  claim_id: c_6d7ade4e
+  context: T025 [US1] Implement logic to exclude repositories with <10 PRs in last
+    12 months (SC-001)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system must exclude repositories with <10 PRs in last 12 months.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T12:29:04Z'
+- artifact_path: projects/PROJ-508-evaluating-the-impact-of-llm-based-code-/specs/001-evaluating-the-impact-of-llm-based-code/tasks.md
+  attempts: 1
+  canonical: Flag if Variance Inflation Factor (VIF) >5.0
+  claim_id: c_a32f26a7
+  context: T037 [US2] Implement Variance Inflation Factor (VIF) check; flag if >5.0
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system must flag if Variance Inflation Factor (VIF) is >5.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T12:29:04Z'
+- artifact_path: projects/PROJ-508-evaluating-the-impact-of-llm-based-code-/specs/001-evaluating-the-impact-of-llm-based-code/tasks.md
+  attempts: 1
+  canonical: Ensure runtime < 6h on 2 CPU cores
+  claim_id: c_5cbadbe0
+  context: T056 Performance optimization (ensure runtime < 6h on 2 CPU cores)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The study must ensure runtime < 6h on 2 CPU cores.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T12:29:04Z'
+- artifact_path: projects/PROJ-508-evaluating-the-impact-of-llm-based-code-/specs/001-evaluating-the-impact-of-llm-based-code/tasks.md
+  attempts: 1
+  canonical: diff_complexity_score formula calculation
+  claim_id: c_1b92409d
+  context: FR-008 Text in Phase 0 Spec Updates
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system MUST calculate `diff_complexity_score` = (lines_added + lines_deleted)
+    / total_lines if lines_deleted > 0 else 0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T12:29:37Z'
+- artifact_path: projects/PROJ-508-evaluating-the-impact-of-llm-based-code-/specs/001-evaluating-the-impact-of-llm-based-code/tasks.md
+  attempts: 1
+  canonical: AI Noise flagging threshold 0.3
+  claim_id: c_e77e56de
+  context: FR-008 Text in Phase 0 Spec Updates
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system MUST flag 'AI Noise' if `diff_complexity_score` > 0.3 AND commit
+    message contains 'fix', 'hotfix', or 'patch'.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T12:29:37Z'
+- artifact_path: projects/PROJ-508-evaluating-the-impact-of-llm-based-code-/specs/001-evaluating-the-impact-of-llm-based-code/tasks.md
+  attempts: 1
+  canonical: Report section citing Holland et al. on distributed cognition
+  claim_id: c_e203e0d5
+  context: FR-009 Text in Phase 0 Spec Updates
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Report_section_citing_Holland_et_al._on_distributed_cognitio
+  kind: entity_fact
+  raw_text: The final report MUST include a 'Theoretical Grounding' section citing
+    Holland et al. on distributed cognition.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T12:29:39Z'
+- artifact_path: projects/PROJ-508-evaluating-the-impact-of-llm-based-code-/specs/001-evaluating-the-impact-of-llm-based-code/tasks.md
+  attempts: 1
+  canonical: Report statement on proxy metrics and NASA-TLX unavailability
+  claim_id: c_d03db724
+  context: SC-009 Text in Phase 0 Spec Updates
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Report_statement_on_proxy_metrics_and_NASA-TLX_unavailabilit
+  kind: entity_fact
+  raw_text: 'The report must explicitly state: ''Note: This study uses proxy metrics
+    for cognitive load. Self-report measures (e.g., NASA-TLX) were not available.'''
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T12:29:40Z'
+- artifact_path: projects/PROJ-508-evaluating-the-impact-of-llm-based-code-/specs/001-evaluating-the-impact-of-llm-based-code/tasks.md
+  attempts: 1
+  canonical: Use of GLMM with random intercepts for repositories
+  claim_id: c_94f8a05e
+  context: FR-003 update in Task T006
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Use_of_GLMM_with_random_intercepts_for_repositories
+  kind: entity_fact
+  raw_text: The analysis must use Mixed-Effects Models (GLMM) with random intercepts
+    for repositories.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T12:29:42Z'
+- artifact_path: projects/PROJ-508-evaluating-the-impact-of-llm-based-code-/specs/001-evaluating-the-impact-of-llm-based-code/tasks.md
+  attempts: 1
+  canonical: Use of ZINB or Hurdle models for zero-inflated outcomes
+  claim_id: c_1be3dca8
+  context: FR-003 update in Task T006
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Use_of_ZINB_or_Hurdle_models_for_zero-inflated_outcomes
+  kind: entity_fact
+  raw_text: The analysis must use Zero-Inflated Negative Binomial (ZINB) or Hurdle
+    models for zero-inflated outcomes.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T12:29:43Z'
+- artifact_path: projects/PROJ-508-evaluating-the-impact-of-llm-based-code-/specs/001-evaluating-the-impact-of-llm-based-code/tasks.md
+  attempts: 1
+  canonical: Count total push events between PR open and merge without exclusions
+  claim_id: c_6fd8694a
+  context: FR-002 update in Task T007
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Count_total_push_events_between_PR_open_and_merge_without_ex
+  kind: entity_fact
+  raw_text: The system must count TOTAL push events between PR open and merge with
+    no exclusions.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T12:29:45Z'
+- artifact_path: projects/PROJ-508-evaluating-the-impact-of-llm-based-code-/specs/001-evaluating-the-impact-of-llm-based-code/tasks.md
+  attempts: 1
+  canonical: Exclude repositories with fewer than 10 PRs in last 12 months
+  claim_id: c_76e19375
+  context: Task T025 implementation details
+  evidence:
+    candidates:
+    - - PRs in last
+      - 12.0
+    - - Exclude repositories with fewer than
+      - 10.0
+    ordering_correct: true
+    source_url: https://en.wikipedia.org/wiki/Exclude_repositories_with_fewer_than_10_PRs_in_last_12_month
+  kind: magnitude
+  raw_text: Repositories with <10 PRs in last 12 months must be excluded.
+  resolved_value: Exclude repositories with fewer than 10 PRs in last 12 months
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-05T12:29:47Z'
+- artifact_path: projects/PROJ-508-evaluating-the-impact-of-llm-based-code-/specs/001-evaluating-the-impact-of-llm-based-code/tasks.md
+  attempts: 1
+  canonical: Check commit messages for 5% Copilot or LLM frequency
+  claim_id: c_a7616d7d
+  context: Task T022 implementation details
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Commit messages must be checked for \u22655% 'Copilot'/'LLM' frequency\
+    \ to flag LLM adoption."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T12:29:47Z'
+- artifact_path: projects/PROJ-508-evaluating-the-impact-of-llm-based-code-/specs/001-evaluating-the-impact-of-llm-based-code/tasks.md
+  attempts: 1
+  canonical: Flag Variance Inflation Factor greater than 5.0
+  claim_id: c_e28035eb
+  context: Task T037 implementation details
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Flag_Variance_Inflation_Factor_greater_than_5.0
+  kind: magnitude
+  raw_text: Variance Inflation Factor (VIF) check must flag if >5.0.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T12:30:00Z'
+- artifact_path: projects/PROJ-508-evaluating-the-impact-of-llm-based-code-/specs/001-evaluating-the-impact-of-llm-based-code/tasks.md
+  attempts: 1
+  canonical: Run on CPU-only CI without GPU or 8-bit/4-bit models
+  claim_id: c_83fe6e17
+  context: Implementation Notes section
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system must run on CPU-only CI with no GPU or 8-bit/4-bit models.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T12:30:16Z'
+- artifact_path: projects/PROJ-508-evaluating-the-impact-of-llm-based-code-/specs/001-evaluating-the-impact-of-llm-based-code/tasks.md
+  attempts: 1
+  canonical: Runtime less than 6 hours on 2 CPU cores
+  claim_id: c_7c8c054a
+  context: Task T056 performance optimization
+  evidence:
+    candidates:
+    - - Create account Log in Runtime less than
+      - 6.0
+    - - Runtime less than 6 hours on
+      - 2.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Runtime_less_than_6_hours_on_2_CPU_cores
+  kind: magnitude
+  raw_text: Runtime must be less than 6 hours on 2 CPU cores.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-07-05T12:30:42Z'
+- artifact_path: projects/PROJ-508-evaluating-the-impact-of-llm-based-code-/specs/001-evaluating-the-impact-of-llm-based-code/tasks.md
+  attempts: 1
+  canonical: 'diff_complexity_score formula: (lines_added + lines_deleted) / total_lines
+    when lines_deleted > 0'
+  claim_id: c_aa3346c9
+  context: 'FR-008 Text: The system MUST calculate diff_complexity_score = (lines_added
+    + lines_deleted) / total_lines if lines_deleted > 0 else 0.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system MUST calculate diff_complexity_score = (lines_added + lines_deleted)
+    / total_lines if lines_deleted > 0 else 0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T12:38:37Z'
+- artifact_path: projects/PROJ-508-evaluating-the-impact-of-llm-based-code-/specs/001-evaluating-the-impact-of-llm-based-code/tasks.md
+  attempts: 1
+  canonical: 'AI Noise flag condition: diff_complexity_score > 0.3 AND commit message
+    contains fix/hotfix/patch'
+  claim_id: c_b58387b2
+  context: 'FR-008 Text: It MUST flag ''AI Noise'' if diff_complexity_score > 0.3
+    AND commit message contains ''fix'', ''hotfix'', or ''patch''.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system MUST flag 'AI Noise' if diff_complexity_score > 0.3 AND commit
+    message contains 'fix', 'hotfix', or 'patch'.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T12:38:37Z'
+- artifact_path: projects/PROJ-508-evaluating-the-impact-of-llm-based-code-/specs/001-evaluating-the-impact-of-llm-based-code/tasks.md
+  attempts: 1
+  canonical: Report includes 'Theoretical Grounding' section citing Holland et al.
+    on distributed cognition
+  claim_id: c_0923b71e
+  context: 'FR-009 Text: The final report MUST include a ''Theoretical Grounding''
+    section citing Holland et al. on distributed cognition'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Report_includes_'Theoretical_Grounding'_section_citing_Holla
+  kind: entity_fact
+  raw_text: The final report MUST include a 'Theoretical Grounding' section citing
+    Holland et al. on distributed cognition.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T12:38:39Z'
+- artifact_path: projects/PROJ-508-evaluating-the-impact-of-llm-based-code-/specs/001-evaluating-the-impact-of-llm-based-code/tasks.md
+  attempts: 1
+  canonical: Report states self-report measures like NASA-TLX were not available
+  claim_id: c_531c53de
+  context: 'SC-009 Text: The report must explicitly state: ''Note: This study uses
+    proxy metrics for cognitive load. Self-report measures (e.g., NASA-TLX) were not
+    available.'''
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Report_states_self-report_measures_like_NASA-TLX_were_not_av
+  kind: entity_fact
+  raw_text: 'The report must explicitly state: ''Note: This study uses proxy metrics
+    for cognitive load. Self-report measures (e.g., NASA-TLX) were not available.'''
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T12:38:41Z'
+- artifact_path: projects/PROJ-508-evaluating-the-impact-of-llm-based-code-/specs/001-evaluating-the-impact-of-llm-based-code/tasks.md
+  attempts: 1
+  canonical: Study uses Mixed-Effects Models (GLMM) with random intercepts for repositories
+  claim_id: c_10657405
+  context: 'T006 rationale: Authorizes the statistical engine change from the plan
+    to the spec... Mixed-Effects Models (GLMM) with random intercepts for repositories'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Study_uses_Mixed-Effects_Models_(GLMM)_with_random_intercept
+  kind: entity_fact
+  raw_text: The study uses Mixed-Effects Models (GLMM) with random intercepts for
+    repositories.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T12:38:59Z'
+- artifact_path: projects/PROJ-508-evaluating-the-impact-of-llm-based-code-/specs/001-evaluating-the-impact-of-llm-based-code/tasks.md
+  attempts: 1
+  canonical: Study uses Zero-Inflated Negative Binomial (ZINB) or Hurdle models for
+    zero-inflated outcomes
+  claim_id: c_29f1554e
+  context: 'T006 rationale: Authorizes the statistical engine change... Zero-Inflated
+    Negative Binomial (ZINB) or Hurdle models for zero-inflated outcomes'
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts:
+      - channel: wikidata
+        source_id: Q127876153
+        url: https://www.wikidata.org/wiki/Q127876153
+        value: ZERO-INFLATED NEGATIVE BINOMIAL-LINDLEY DISTRIBUTION AND ITS APPLICATION
+      - channel: wikidata
+        source_id: Q39860074
+        url: https://www.wikidata.org/wiki/Q39860074
+        value: Zero-inflated negative binomial mixed model
+      quote: Zero-Inflated Negative Binomial Mixed Models for Predicting Number of
+        Wildfires
+      source_id: Q117479224
+      url: https://www.wikidata.org/wiki/Q117479224
+      value: Zero-Inflated Negative Binomial Mixed Models
+    filled: true
+  kind: entity_fact
+  raw_text: The study uses Zero-Inflated Negative Binomial (ZINB) or Hurdle models
+    for zero-inflated outcomes.
+  resolved_value: Zero-Inflated Negative Binomial Mixed Models
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-05T12:39:07Z'
+- artifact_path: projects/PROJ-508-evaluating-the-impact-of-llm-based-code-/specs/001-evaluating-the-impact-of-llm-based-code/tasks.md
+  attempts: 1
+  canonical: Repositories with <10 PRs in last 12 months are excluded
+  claim_id: c_c813cd3e
+  context: 'T025: Implement logic to exclude repositories with <10 PRs in last 12
+    months (SC-001)'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Repositories_with_%3C10_PRs_in_last_12_months_are_excluded
+  kind: magnitude
+  raw_text: Repositories with less than 10 PRs in the last 12 months are excluded
+    from the analysis.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T12:39:28Z'
+- artifact_path: projects/PROJ-508-evaluating-the-impact-of-llm-based-code-/specs/001-evaluating-the-impact-of-llm-based-code/tasks.md
+  attempts: 1
+  canonical: "LLM adoption flag triggers if Copilot/LLM frequency in commit messages\
+    \ is \u22655%"
+  claim_id: c_eeff528c
+  context: "T022: Check commit messages for \u22655% 'Copilot'/'LLM' frequency"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The llm_adoption_flag logic checks commit messages for \u22655% 'Copilot'\
+    \ or 'LLM' frequency."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T12:39:29Z'
+- artifact_path: projects/PROJ-508-evaluating-the-impact-of-llm-based-code-/specs/001-evaluating-the-impact-of-llm-based-code/tasks.md
+  attempts: 1
+  canonical: VIF check flags values > 5.0
+  claim_id: c_2d331b87
+  context: 'T037: Implement Variance Inflation Factor (VIF) check; flag if >5.0'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/VIF_check_flags_values_%3E_5.0
+  kind: magnitude
+  raw_text: The Variance Inflation Factor (VIF) check flags values greater than 5.0.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T12:39:43Z'
+- artifact_path: projects/PROJ-508-evaluating-the-impact-of-llm-based-code-/specs/001-evaluating-the-impact-of-llm-based-code/tasks.md
+  attempts: 1
+  canonical: System runs on CPU-only CI without GPU or 8-bit/4-bit models
+  claim_id: c_34491d4a
+  context: 'Notes: CRITICAL: Ensure all tasks run on CPU-only CI (no GPU, no 8-bit/4-bit
+    models)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system must run on CPU-only CI without GPU or 8-bit/4-bit models.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T12:39:55Z'
+- artifact_path: projects/PROJ-508-evaluating-the-impact-of-llm-based-code-/specs/001-evaluating-the-impact-of-llm-based-code/tasks.md
+  attempts: 1
+  canonical: Study uses proxy metrics for cognitive load due to unavailability of
+    NASA-TLX
+  claim_id: c_c2469e7b
+  context: 'Notes: CRITICAL: Theoretical Grounding and Data Gap sections are mandated
+    by updated spec.md FR-009 (Task T005).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Study_uses_proxy_metrics_for_cognitive_load_due_to_unavailab
+  kind: entity_fact
+  raw_text: The study uses proxy metrics for cognitive load because self-report measures
+    like NASA-TLX were not available.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T12:40:08Z'
+- artifact_path: projects/PROJ-508-evaluating-the-impact-of-llm-based-code-/specs/001-evaluating-the-impact-of-llm-based-code/tasks.md
+  attempts: 1
+  canonical: diff_complexity_score formula calculation
+  claim_id: c_017b3102
+  context: 'FR-008 Text: ''The system MUST calculate `diff_complexity_score` = (lines_added
+    + lines_deleted) / total_lines if lines_deleted > 0 else 0. It MUST flag ''AI
+    Noise'' if `diff_complexity_score` > 0.3 AND commit message contains ''fix'',
+    ''hotfix'', or ''patch''.'''
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system MUST calculate `diff_complexity_score` = (lines_added + lines_deleted)
+    / total_lines if lines_deleted > 0 else 0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T12:46:08Z'
+- artifact_path: projects/PROJ-508-evaluating-the-impact-of-llm-based-code-/specs/001-evaluating-the-impact-of-llm-based-code/tasks.md
+  attempts: 1
+  canonical: AI Noise flagging condition
+  claim_id: c_44cbc417
+  context: 'FR-008 Text: ''The system MUST calculate `diff_complexity_score` = (lines_added
+    + lines_deleted) / total_lines if lines_deleted > 0 else 0. It MUST flag ''AI
+    Noise'' if `diff_complexity_score` > 0.3 AND commit message contains ''fix'',
+    ''hotfix'', or ''patch''.'''
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system MUST flag 'AI Noise' if `diff_complexity_score` > 0.3 AND commit
+    message contains 'fix', 'hotfix', or 'patch'.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T12:46:08Z'
+- artifact_path: projects/PROJ-508-evaluating-the-impact-of-llm-based-code-/specs/001-evaluating-the-impact-of-llm-based-code/tasks.md
+  attempts: 1
+  canonical: Report requirement for Holland et al. citation
+  claim_id: c_4b937e05
+  context: 'FR-009 Text: ''The final report MUST include a ''Theoretical Grounding''
+    section citing Holland et al. on distributed cognition and a ''Data Gap'' section
+    explicitly stating the unavailability of self-report scales (e.g., NASA-TLX).'''
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Report_requirement_for_Holland_et_al._citation
+  kind: entity_fact
+  raw_text: The final report MUST include a 'Theoretical Grounding' section citing
+    Holland et al. on distributed cognition.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T12:46:10Z'
+- artifact_path: projects/PROJ-508-evaluating-the-impact-of-llm-based-code-/specs/001-evaluating-the-impact-of-llm-based-code/tasks.md
+  attempts: 1
+  canonical: Report mandatory statement regarding NASA-TLX unavailability
+  claim_id: c_3eec922b
+  context: 'SC-009 Text: ''The report must explicitly state: ''Note: This study uses
+    proxy metrics for cognitive load. Self-report measures (e.g., NASA-TLX) were not
+    available.'' '''
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Report_mandatory_statement_regarding_NASA-TLX_unavailability
+  kind: entity_fact
+  raw_text: 'The report must explicitly state: ''Note: This study uses proxy metrics
+    for cognitive load. Self-report measures (e.g., NASA-TLX) were not available.'''
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T12:46:11Z'
+- artifact_path: projects/PROJ-508-evaluating-the-impact-of-llm-based-code-/specs/001-evaluating-the-impact-of-llm-based-code/tasks.md
+  attempts: 1
+  canonical: Push event counting logic without exclusions
+  claim_id: c_49be8de5
+  context: 'FR-002 Text: ''Count TOTAL push events between PR open and merge (no exclusions).'''
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Push_event_counting_logic_without_exclusions
+  kind: entity_fact
+  raw_text: The system must count TOTAL push events between PR open and merge with
+    no exclusions.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T12:46:13Z'
+- artifact_path: projects/PROJ-508-evaluating-the-impact-of-llm-based-code-/specs/001-evaluating-the-impact-of-llm-based-code/tasks.md
+  attempts: 1
+  canonical: Repository exclusion threshold of 10 PRs
+  claim_id: c_d9fbf68d
+  context: 'Task T025 description: ''Implement logic to exclude repositories with
+    <10 PRs in last 12 months (SC-001)'''
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Repository_exclusion_threshold_of_10_PRs
+  kind: magnitude
+  raw_text: Repositories with fewer than 10 PRs in the last 12 months must be excluded.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T12:46:15Z'
+- artifact_path: projects/PROJ-508-evaluating-the-impact-of-llm-based-code-/specs/001-evaluating-the-impact-of-llm-based-code/tasks.md
+  attempts: 1
+  canonical: Commit message frequency threshold for Copilot/LLM
+  claim_id: c_27895831
+  context: "Task T022 description: 'Check commit messages for \u22655% 'Copilot'/'LLM'\
+    \ frequency'"
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Commit_message_frequency_threshold_for_Copilot/LLM
+  kind: magnitude
+  raw_text: Commit messages must have a 'Copilot' or 'LLM' frequency of at least 5%
+    to trigger specific logic.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T12:47:00Z'
+- artifact_path: projects/PROJ-508-evaluating-the-impact-of-llm-based-code-/specs/001-evaluating-the-impact-of-llm-based-code/tasks.md
+  attempts: 1
+  canonical: VIF flagging threshold
+  claim_id: c_21fd12e8
+  context: 'Task T037 description: ''Implement Variance Inflation Factor (VIF) check;
+    flag if >5.0'''
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/VIF_flagging_threshold
+  kind: magnitude
+  raw_text: Variance Inflation Factor (VIF) must be flagged if greater than 5.0.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T12:47:17Z'
+- artifact_path: projects/PROJ-508-evaluating-the-impact-of-llm-based-code-/specs/001-evaluating-the-impact-of-llm-based-code/tasks.md
+  attempts: 1
+  canonical: CPU-only execution constraint
+  claim_id: c_eddfd15a
+  context: 'Notes section: ''CRITICAL: Ensure all tasks run on CPU-only CI (no GPU,
+    no 8-bit/4-bit models)'''
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: All tasks must run on CPU-only CI with no GPU or 8-bit/4-bit models.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T12:47:29Z'
+- artifact_path: projects/PROJ-508-evaluating-the-impact-of-llm-based-code-/specs/001-evaluating-the-impact-of-llm-based-code/tasks.md
+  attempts: 1
+  canonical: Study limitation regarding cognitive load metrics
+  claim_id: c_7b5cf498
+  context: FR-009 and SC-009 text regarding the unavailability of self-report scales.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Study_limitation_regarding_cognitive_load_metrics
+  kind: entity_fact
+  raw_text: The study uses proxy metrics for cognitive load because self-report measures
+    like NASA-TLX were not available.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T12:47:31Z'

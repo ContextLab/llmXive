@@ -1,0 +1,3 @@
+# This directory is reserved for raw data ingested from external sources.
+# Do not modify files here directly; all data must be processed into derived/
+.gitkeep
