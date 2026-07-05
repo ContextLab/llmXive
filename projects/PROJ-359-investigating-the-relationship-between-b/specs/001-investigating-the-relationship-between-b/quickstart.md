@@ -1,74 +1,76 @@
-# Quickstart: Investigating the Relationship Between Brain Network Dynamics and Response to Cognitive Training (Pivoted: Baseline Association)
+# Quickstart: Investigating the Relationship Between Brain Network Dynamics and Baseline Working Memory Performance
 
 ## Prerequisites
 
 - Python 3.11+
-- Docker (required for fMRIPrep) or fMRIPrep binary installed.
-- Sufficient free disk space (for dataset download and preprocessing).
-- Internet connection (to download `ds000277`).
+- Docker (for fMRIPrep)
+- Git
+- Sufficient Disk Space (for dataset and temporary files)
 
 ## Installation
 
-1. **Clone the repository** and navigate to the project directory.
-2. **Create a virtual environment**:
-   ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   ```
-3. **Install dependencies**:
-   ```bash
-   pip install -r requirements.txt
-   ```
-   *Note: `requirements.txt` pins versions for `nibabel`, `pandas`, `networkx`, `bctpy`, `scikit-learn`, `matplotlib`, `requests`, `tqdm`, `pytest`, `statsmodels`.*
+1.  **Clone the repository**:
+    ```bash
+    git clone <repo-url>
+    cd projects/PROJ-359-investigating-the-relationship-between-b
+    ```
 
-## Data Setup
+2.  **Create a virtual environment**:
+    ```bash
+    python -m venv venv
+    source venv/bin/activate
+    ```
 
-1. **Download the dataset**:
-   Run the download script. This will fetch `ds000277` from OpenNeuro.
-   ```bash
-   python code/download.py --dataset ds000277 --output data/raw
-   ```
-   *Note: If the dataset is not available at the expected URL, the script will raise a `RuntimeError`. Verify the URL in `research.md` if this fails.*
-
-2. **Verify checksums**:
-   The script automatically verifies file integrity. Ensure the log shows `Checksum OK`.
+3.  **Install dependencies**:
+    ```bash
+    pip install -r requirements.txt
+    ```
 
 ## Running the Pipeline
 
-Execute the full pipeline from preprocessing to regression:
+The pipeline is executed via the main CLI entry point.
 
+### Step 1: Download Data
 ```bash
-python code/main.py
+python src/cli.py download --dataset ds000277 --output data/raw --sample-size 15
+```
+*Note: This downloads the dataset from OpenNeuro. The `--sample-size` flag is used for CI feasibility (N=15). Remove for full analysis.*
+
+### Step 2: Preprocess (fMRIPrep)
+```bash
+python src/cli.py preprocess --input data/raw --output data/preprocessed --fmriprep-version 23.1.3 --nprocs 1 --mem 6000
+```
+*This step runs fMRIPrep. It may take several hours. Memory limits are enforced.*
+
+### Step 3: Extract Metrics
+```bash
+python src/cli.py metrics --preprocessed data/preprocessed --atlas Schaefer400 --output data/metrics
 ```
 
-This will:
-1. Preprocess rs-fMRI data (fMRIPrep).
-2. Exclude participants with mean FD > 0.3mm. (Corrected from 3.0).
-3. Compute network metrics (Global Efficiency, Modularity, FPN/DMN Strength).
-4. Fit the regression model predicting **Baseline WM** (not Gain) with 1,000 permutations.
-5. Apply Holm-Bonferroni correction.
-6. Generate `effect_sizes.pdf`, `model_summary.csv`, `power_analysis.txt`, `runtime.log`, and `reproducibility_report.txt`.
+### Step 4: Run Analysis
+```bash
+python src/cli.py analyze --metrics data/metrics --behavioral data/raw/phenotypic.tsv --output data/results
+```
+*This performs the regression, permutation testing, and power analysis. The `baseline_wm_score` column is verified before execution. Power analysis output is written to `data/results/power_analysis.txt`.*
 
-### Output Files
+### Step 5: Visualize
+```bash
+python src/cli.py viz --results data/results --output data/results/effect_sizes.pdf --seed 42
+```
+*Seed pinning is enforced for reproducibility (SC-004). The `--seed` flag ensures identical hashes on re-run.*
 
-- `data/derived/baseline_metrics.csv`: Network metrics per participant.
-- `data/derived/model_summary.csv`: Regression coefficients and p-values.
-- `data/derived/effect_sizes.pdf`: Visualization of effect sizes.
-- `data/derived/power_analysis.txt`: A priori and achieved power analysis.
-- `data/logs/pipeline_log.json`: Runtime, exclusion counts, and warnings.
-- `runtime.log`: Total runtime in seconds (SC-005). **Note**: This is the definitive file for SC-005 compliance.
-- `reproducibility_report.txt`: Hash verification results (SC-004).
+## Verification
+
+Check the `data/results/pipeline_log.json` for the following:
+- `id_validation_status`: "PASS"
+- `exclusion_motion`: Count of excluded participants (threshold > 3.0mm)
+- `exclusion_missing_wm`: Count of excluded participants (missing WM score)
+- `runtime`: Total execution time
+- `power_analysis.txt`: Check for achieved power report.
 
 ## Troubleshooting
 
-- **fMRIPrep fails**: Ensure Docker is running and has sufficient memory (≥4GB). Check `data/logs/fmriprep.log`.
-- **Out of Memory**: The pipeline automatically downsamples to N=30 if the full run exceeds 6 hours or memory limits. Check `data/logs/pipeline_log.json` for the `sample_size_reduction` warning.
-- **Missing Behavioral Data**: If the dataset lacks `baseline_wm`, the pipeline will halt with a `FatalError`. This indicates a dataset mismatch (see `research.md`).
-
-## Reproducibility
-
-To reproduce results exactly:
-1. Set the random seed in `code/main.py` (default: `42`).
-2. Ensure the same version of fMRIPrep (23.1.3) is used.
-3. Re-run the pipeline on the same raw data.
-4. Verify `reproducibility_report.txt` matches the original run.
+- **fMRIPrep OOM**: Reduce `--mem` flag in the preprocessing step or reduce `--sample-size`.
+- **Missing Behavioral Data**: Ensure the `ds000277` download includes the phenotypic TSV file. If `baseline_wm_score` is missing, the pipeline will halt.
+- **Motion Exclusion**: Check `data/motion/exclusions.csv` to see how many participants were dropped due to FD > 3.0mm.
+- **Reproducibility**: Ensure `--seed` is set in the visualization step.
