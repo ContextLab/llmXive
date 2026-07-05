@@ -1,0 +1,110 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Analysis Output Schema"
+description: "Schema for correlation and regression analysis results."
+type: "object"
+properties:
+  correlation_results:
+    type: "array"
+    items:
+      type: "object"
+      properties:
+        metric_pair:
+          type: "string"
+          description: "Name of the variables compared, e.g., 'flux_vs_t_eff'."
+        correlation_type:
+          type: "string"
+          enum: ["Pearson", "Spearman"]
+          description: "Type of correlation coefficient."
+        r_value:
+          type: "number"
+          description: "Correlation coefficient value."
+        p_value:
+          type: "number"
+          description: "P-value for the correlation test."
+        sample_size:
+          type: "integer"
+          description: "Number of data points used."
+        pre_whitened:
+          type: "boolean"
+          description: "True if AR(1) residuals were used."
+      required:
+        - "metric_pair"
+        - "correlation_type"
+        - "r_value"
+        - "p_value"
+        - "sample_size"
+        - "pre_whitened"
+  regression_results:
+    type: "array"
+    items:
+      type: "object"
+      properties:
+        slope:
+          type: "number"
+          description: "Slope of the linear regression (muon flux per degree)."
+        intercept:
+          type: "number"
+          description: "Intercept of the linear regression."
+        r_squared:
+          type: "number"
+          description: "Coefficient of determination."
+        slope_ci_lower:
+          type: "number"
+          description: "Lower bound of the 95% confidence interval for the slope (Newey-West)."
+        slope_ci_upper:
+          type: "number"
+          description: "Upper bound of the 95% confidence interval for the slope (Newey-West)."
+        season:
+          type: "string"
+          description: "Season subset if applicable, or 'All'."
+        method:
+          type: "string"
+          description: "Method used for inference, e.g., 'OLS with Newey-West SEs'."
+      required:
+        - "slope"
+        - "intercept"
+        - "r_squared"
+        - "slope_ci_lower"
+        - "slope_ci_upper"
+        - "season"
+        - "method"
+  sensitivity_results:
+    type: "array"
+    items:
+      type: "object"
+      properties:
+        parameter_set:
+          type: "string"
+          description: "Identifier for the weighting function variant used."
+        correlation_coefficient:
+          type: "number"
+          description: "Pearson correlation coefficient for this variant."
+        slope:
+          type: "number"
+          description: "Regression slope for this variant."
+        p_value:
+          type: "number"
+          description: "P-value for this variant."
+      required:
+        - "parameter_set"
+        - "correlation_coefficient"
+        - "slope"
+        - "p_value"
+  seasonal_stratification_status:
+    type: "object"
+    properties:
+      status:
+        type: "string"
+        enum: ["Completed", "Insufficient Data"]
+        description: "Status of the seasonal stratification test."
+      reason:
+        type: "string"
+        description: "Reason for status, e.g., 'n < 30 in Winter'."
+    required:
+      - "status"
+required:
+  - "correlation_results"
+  - "regression_results"
+  - "sensitivity_results"
+  - "seasonal_stratification_status"
+additionalProperties: false

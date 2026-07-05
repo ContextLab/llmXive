@@ -1,0 +1,10 @@
+? T001a [P] Create project directory structure (`src/`, `tests/`, `data/raw/`, `data/processed/`,
+  `data/results/`, `logs/`, `config/`) per implementation plan
+: 1
+T001b [P] Initialize git repository and create `.gitignore` for Python/Project data artifacts: 1
+T002a [P] Create Python 3.11 virtual environment and activate script: 1
+? T002b [P] Generate `requirements.txt` with pinned versions (pandas, numpy, scipy,
+  scikit-learn, statsmodels, requests, h5py, pyyaml, cdsapi)
+: 1
+T003 [P] Configure linting (ruff) and formatting (black) tools: 1
+T004 [P] Create `src/data/utils.py` with logging, checksum, and date-parsing utilities: 1

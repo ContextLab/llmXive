@@ -1,19 +1,19 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-08T09:42:32.836400Z'
-current_stage: project_initialized
+current_stage: in_progress
 failed_stage: null
 field: physics
 human_escalation_reason: null
 id: PROJ-432-investigating-the-correlation-between-mu
-last_run_id: a369d765-ac8c-4186-bddf-ea623bbb4ef9
+last_run_id: ecead6d9-7549-49aa-be58-833a6102c7c7
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
 revision_spec_path: null
 speckit_paper_dir: null
-speckit_research_dir: null
+speckit_research_dir: projects/PROJ-432-investigating-the-correlation-between-mu/specs/001-investigating-the-correlation-between-mu
 title: Investigating the Correlation Between Muon Flux and Atmospheric Temperature
   Profiles
-updated_at: '2026-06-26T05:54:28.326166Z'
+updated_at: '2026-07-05T02:14:07.099915Z'

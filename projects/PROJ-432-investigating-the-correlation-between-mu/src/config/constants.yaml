@@ -1,0 +1,94 @@
+# Configuration constants for Muon Flux vs Atmospheric Temperature Correlation Study
+# Based on Grieder (1985) and standard atmospheric physics models
+
+# Effective Temperature (T_eff) Weighting Parameters
+# Reference: Grieder, K. P. F. (2001). Cosmic Rays at Earth: Researcher's Reference Manual and Data Book
+t_eff:
+  # Peak altitude (km) for the weighting function
+  z_peak: 24.0
+  # Width parameter (km) for the Gaussian weighting function
+  sigma: 6.5
+  # Reference temperature (K) at sea level for normalization
+  T_ref: 288.15
+  # Pressure level thresholds for integration (hPa)
+  pressure_levels:
+    - 1000
+    - 925
+    - 850
+    - 700
+    - 500
+    - 400
+    - 300
+    - 250
+    - 200
+    - 150
+    - 100
+    - 70
+    - 50
+    - 30
+    - 20
+    - 10
+  # Interpolation settings for missing pressure levels
+  interpolation:
+    method: linear
+    fill_value: extrapolate
+    max_gap_hPa: 50  # Maximum gap in hPa allowed for interpolation
+
+# Analysis Thresholds
+thresholds:
+  # Minimum correlation coefficient for significance reporting
+  min_correlation: 0.3
+  # P-value threshold for statistical significance
+  p_value_significance: 0.01
+  # Standard deviation multiplier for outlier detection
+  outlier_sigma: 3.0
+  # Minimum sample size for seasonal stratification
+  min_seasonal_samples: 30
+
+# Data Processing Settings
+processing:
+  # Temporal alignment settings
+  resample_frequency: "D"  # Daily resampling
+  date_column_name: "date"
+  muon_count_column: "muon_count"
+  temperature_column: "temperature"
+  pressure_column: "pressure"
+  
+  # Missing data handling
+  drop_missing_dates: true
+  log_exclusion_events: true
+  exclusion_log_path: "logs/alignment.json"
+
+# Seasonal Definitions (Northern Hemisphere)
+seasons:
+  summer:
+    start_month: 6
+    end_month: 8
+    name: "Summer"
+  winter:
+    start_month: 12
+    end_month: 2
+    name: "Winter"
+    # Note: Winter spans year boundary; handled by stratification logic
+
+# File Paths (relative to project root)
+paths:
+  raw_data_dir: "data/raw"
+  processed_data_dir: "data/processed"
+  results_dir: "data/results"
+  figures_dir: "figures"
+  logs_dir: "logs"
+
+# Source Metadata
+sources:
+  icecube:
+    name: "IceCube Neutrino Observatory"
+    dataset: "daily_muon_counts"
+    url_template: "https://icecube.wisc.edu/data-releases/"
+  era5:
+    name: "ECMWF ERA5 Reanalysis"
+    dataset: "reanalysis-era5-pressure-levels"
+    provider: "cdsapi"
+    request_parameters:
+      product_type: "reanalysis"
+      format: "netcdf"
