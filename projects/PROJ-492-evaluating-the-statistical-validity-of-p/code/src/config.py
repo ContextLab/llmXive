@@ -1,212 +1,90 @@
 """
-Configuration constants for the A/B Test Audit Pipeline.
+Configuration constants for the A/B Test Validity Audit Pipeline.
 
-This module defines all deterministic seeds, statistical thresholds,
-and resource caps used throughout the pipeline. Per Constitution
-Principle I, all random number generators must be seeded using the
-SEED value defined here at module startup.
-
-Import pattern for other modules:
-    from code.src.config import SEED, set_rng_seed
-
-    # At startup of any module using RNGs:
-    set_rng_seed()
+This module centralizes all deterministic seeds, statistical thresholds,
+and resource caps to ensure reproducibility (Constitution Principle I)
+and compliance with FR-009 (Resource Limits).
 """
-
 import random
 import os
-from typing import Optional
+import numpy as np
+from typing import Optional, Dict, Any
 
-# =============================================================================
-# Random Seed Configuration (Constitution Principle I)
-# =============================================================================
+# ==============================================================================
+# DETERMINISTIC SEEDS (Constitution Principle I)
+# ==============================================================================
+# All random number generation in the pipeline MUST be seeded from this value.
+SEED = 42
 
-SEED: int = 42
-"""Deterministic random seed for all stochastic operations.
+# Statistical thresholds (FR-004)
+P_VALUE_THRESHOLD_ABSOLUTE = 0.05  # Absolute difference threshold
+EFFECT_SIZE_THRESHOLD_RELATIVE = 0.05  # 5% relative effect size threshold
+MIN_CORPUS_SIZE = 300  # Minimum N for power analysis (SC-020)
 
-This seed ensures reproducibility across all pipeline runs.
-All modules using random number generators MUST seed their RNGs
-using set_rng_seed() at startup.
-"""
+# Resource caps (FR-009)
+MAX_RAM_GB = 2.0
+MAX_CPU_VCORES = 2
+MAX_RUNTIME_SECONDS = 21600  # 6 hours
 
-# =============================================================================
-# Statistical Thresholds (FR-004, FR-012)
-# =============================================================================
+# Monte Carlo parameters (FR-026)
+MONTE_CARLO_REPLICATES = 10000
+MONTE_CARLO_P_VALUE_TOLERANCE = 0.005
 
-P_VALUE_THRESHOLD: float = 0.05
-"""Threshold for p-value discrepancy detection.
-
-Absolute p-value difference > 0.05 triggers inconsistency flag.
-"""
-
-EFFECT_SIZE_THRESHOLD: float = 0.05
-"""Threshold for effect size discrepancy detection.
-
-Relative effect size difference > 5% triggers inconsistency flag.
-"""
-
-SAMPLE_SIZE_MINIMUM: int = 300
-"""Minimum audited corpus size per FR-025.
-
-Power analysis requires N >= 300 or N >= calculated_minimum.
-"""
-
-MIN_SUBGROUP_SIZE: int = 10
-"""Minimum summaries required for subgroup analysis (FR-032).
-
-Fisher's exact test applied only to groups with >= 10 summaries.
-"""
-
-MAX_DOMAIN_PROPORTION: float = 0.30
-"""Maximum allowed proportion for any single domain (FR-027).
-
-If a domain exceeds 30%, bias adjustment or subsampling is triggered.
-"""
-
-P_VALUE_CUTOFF: float = 0.05
-"""Default p-value cutoff for statistical significance.
-
-Used for binomial prevalence tests and Fisher's exact tests.
-"""
-
-# =============================================================================
-# Resource Caps (FR-009, SC-008)
-# =============================================================================
-
-MAX_CPU_VCPUS: int = 2
-"""Maximum CPU vCPUs for CI execution.
-
-Pipeline must complete within 2 vCPU limit.
-"""
-
-MAX_RAM_GB: float = 2.0
-"""Maximum RAM in GB for CI execution.
-
-Pipeline must not exceed 2 GB memory usage.
-"""
-
-MAX_RUNTIME_HOURS: float = 6.0
-"""Maximum runtime in hours for CI execution.
-
-Full pipeline must complete within 6 hours.
-"""
-
-MAX_URLS_PER_RUN: int = 1000
-"""Maximum number of URLs to process per pipeline run.
-
-Prevents excessive resource consumption on large corpora.
-"""
-
-# =============================================================================
-# File and Path Configuration
-# =============================================================================
-
-DATA_DIR: str = "data"
-"""Base directory for data artifacts."""
-
-OUTPUT_DIR: str = "output"
-"""Base directory for output artifacts."""
-
-CONTRACTS_DIR: str = "contracts"
-"""Base directory for JSON schema contracts."""
-
-LOG_FILE: str = "pipeline.log"
-"""Default log file name."""
-
-MANIFEST_FILE: str = "manifest.json"
-"""Manifest file for artifact checksums."""
-
-PROVENANCE_LOG: str = "provenance_log.csv"
-"""Provenance tracking log file."""
-
-# =============================================================================
-# Error Code Ranges (FR-007)
-# =============================================================================
-
-ERROR_CODE_RANGE_START: int = 0
-"""Start of error code range."""
-
-ERROR_CODE_RANGE_END: int = 999
-"""End of error code range."""
-
-# =============================================================================
-# Monte Carlo Configuration (FR-026)
-# =============================================================================
-
-MONTE_CARLO_REPLICATES: int = 10000
-"""Number of Monte Carlo replicates for validation."""
-
-MONTE_CARLO_TOLERANCE: float = 0.005
-"""Maximum acceptable difference between Monte Carlo and library results."""
-
-# =============================================================================
-# RNG Seeding Utility
-# =============================================================================
+# ==============================================================================
+# SEEDING UTILITIES
+# ==============================================================================
 
 def set_rng_seed(seed: Optional[int] = None) -> None:
-    """Set random seeds for all Python RNGs.
-
-    Per Constitution Principle I, all stochastic operations must use
-    deterministic seeds for reproducibility. Call this function at
-    the startup of any module that uses random number generators.
-
+    """
+    Set the random seed for all major RNGs used in the pipeline.
+    
+    This ensures reproducibility across runs (Constitution Principle I).
+    If no seed is provided, defaults to the global SEED constant.
+    
     Args:
-        seed: Optional seed value. Defaults to SEED constant if None.
+        seed: Optional integer seed. Defaults to config.SEED if None.
     """
     if seed is None:
         seed = SEED
-
-    # Seed Python's built-in random module
+    
+    # Seed Python's random module
     random.seed(seed)
-
-    # Seed numpy if available
+    
+    # Seed NumPy's RNG
+    np.random.seed(seed)
+    
+    # Log the action if logging is available (optional, non-fatal if missing)
     try:
-        import numpy as np
-        np.random.seed(seed)
+        from code.src.utils.logger import get_default_logger
+        logger = get_default_logger()
+        logger.info(f"RNG seeds initialized globally with value: {seed}")
     except ImportError:
+        # Fallback if logger isn't initialized yet during early import
         pass
 
-    # Seed torch if available
-    try:
-        import torch
-        torch.manual_seed(seed)
-        if torch.cuda.is_available():
-            torch.cuda.manual_seed_all(seed)
-    except ImportError:
-        pass
-
-    # Seed tensorflow if available
-    try:
-        import tensorflow as tf
-        tf.random.set_seed(seed)
-    except ImportError:
-        pass
-
-    # Seed pytorch lightning if available
-    try:
-        import pytorch_lightning as pl
-        pl.seed_everything(seed)
-    except ImportError:
-        pass
-
-def get_config_summary() -> dict:
-    """Return a summary of all configuration values.
-
-    Useful for logging and debugging to ensure consistent configuration.
-
+def get_config_summary() -> Dict[str, Any]:
+    """
+    Returns a summary of the current configuration state.
+    
+    Useful for logging, manifest generation, and reproducibility checks.
+    
     Returns:
-        Dictionary containing all configuration constants.
+        Dictionary containing key configuration parameters.
     """
     return {
-        "SEED": SEED,
-        "P_VALUE_THRESHOLD": P_VALUE_THRESHOLD,
-        "EFFECT_SIZE_THRESHOLD": EFFECT_SIZE_THRESHOLD,
-        "SAMPLE_SIZE_MINIMUM": SAMPLE_SIZE_MINIMUM,
-        "MIN_SUBGROUP_SIZE": MIN_SUBGROUP_SIZE,
-        "MAX_DOMAIN_PROPORTION": MAX_DOMAIN_PROPORTION,
-        "MAX_CPU_VCPUS": MAX_CPU_VCPUS,
-        "MAX_RAM_GB": MAX_RAM_GB,
-        "MAX_RUNTIME_HOURS": MAX_RUNTIME_HOURS,
-        "MONTE_CARLO_REPLICATES": MONTE_CARLO_REPLICATES,
-        "MONTE_CARLO_TOLERANCE": MONTE_CARLO_TOLERANCE,
+        "seed": SEED,
+        "p_value_threshold_absolute": P_VALUE_THRESHOLD_ABSOLUTE,
+        "effect_size_threshold_relative": EFFECT_SIZE_THRESHOLD_RELATIVE,
+        "min_corpus_size": MIN_CORPUS_SIZE,
+        "max_ram_gb": MAX_RAM_GB,
+        "max_cpu_vcores": MAX_CPU_VCORES,
+        "monte_carlo_replicates": MONTE_CARLO_REPLICATES,
+        "monte_carlo_tolerance": MONTE_CARLO_P_VALUE_TOLERANCE,
     }
+
+# ==============================================================================
+# IMMEDIATE EXECUTION GUARANTEE
+# ==============================================================================
+# Ensure seeds are set immediately upon module import to satisfy the requirement
+# that "all RNGs are seeded at startup".
+set_rng_seed(SEED)

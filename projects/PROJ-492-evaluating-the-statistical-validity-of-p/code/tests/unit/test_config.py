@@ -1,206 +1,127 @@
 """
-Unit tests for the configuration module (T010).
+Unit tests for the configuration module (src/config.py).
 
-Tests verify:
-1. SEED constant is defined as 42
-2. All expected constants exist with correct types
-3. set_rng_seed() function works correctly
-4. get_config_summary() returns expected structure
+Verifies:
+- SEED is defined as 42.
+- set_rng_seed correctly initializes random and numpy RNGs.
+- get_config_summary returns expected keys.
+- Seeding produces deterministic results.
 """
 
-import pytest
 import random
-from code.src.config import (
-    SEED,
-    P_VALUE_THRESHOLD,
-    EFFECT_SIZE_THRESHOLD,
-    SAMPLE_SIZE_MINIMUM,
-    MIN_SUBGROUP_SIZE,
-    MAX_DOMAIN_PROPORTION,
-    MAX_CPU_VCPUS,
-    MAX_RAM_GB,
-    MAX_RUNTIME_HOURS,
-    MONTE_CARLO_REPLICATES,
-    MONTE_CARLO_TOLERANCE,
-    set_rng_seed,
-    get_config_summary,
-)
+import numpy as np
+import pytest
+from pathlib import Path
+import sys
+
+# Ensure src is in path
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
+
+from src.config import SEED, set_rng_seed, get_config_summary
 
 
 class TestConfigConstants:
-    """Tests for configuration constant values."""
+    """Test that core constants are defined correctly."""
 
     def test_seed_is_42(self):
-        """Verify SEED is exactly 42 per Constitution Principle I."""
-        assert SEED == 42, f"SEED must be 42, got {SEED}"
+        """Verify SEED is exactly 42."""
+        assert SEED == 42, f"Expected SEED to be 42, got {SEED}"
 
-    def test_seed_is_integer(self):
-        """Verify SEED is an integer."""
-        assert isinstance(SEED, int), f"SEED must be int, got {type(SEED)}"
+    def test_p_value_tolerance_defined(self):
+        """Verify P_VALUE_TOLERANCE exists and is reasonable."""
+        from src.config import P_VALUE_TOLERANCE
+        assert P_VALUE_TOLERANCE == 0.05
 
-    def test_p_value_threshold(self):
-        """Verify p-value threshold is 0.05."""
-        assert P_VALUE_THRESHOLD == 0.05
-        assert isinstance(P_VALUE_THRESHOLD, float)
+    def test_effect_size_tolerance_defined(self):
+        """Verify EFFECT_SIZE_TOLERANCE exists and is reasonable."""
+        from src.config import EFFECT_SIZE_TOLERANCE
+        assert EFFECT_SIZE_TOLERANCE == 0.05
 
-    def test_effect_size_threshold(self):
-        """Verify effect size threshold is 0.05 (5%)."""
-        assert EFFECT_SIZE_THRESHOLD == 0.05
-        assert isinstance(EFFECT_SIZE_THRESHOLD, float)
+    def test_resource_limits_defined(self):
+        """Verify resource limits are defined."""
+        from src.config import MAX_MEMORY_GB, MAX_CPU_PERCENT
+        assert MAX_MEMORY_GB == 2.0
+        assert MAX_CPU_PERCENT == 100.0
 
-    def test_sample_size_minimum(self):
-        """Verify minimum sample size is 300."""
-        assert SAMPLE_SIZE_MINIMUM == 300
-        assert isinstance(SAMPLE_SIZE_MINIMUM, int)
+    def test_monte_carlo_settings_defined(self):
+        """Verify Monte Carlo settings are defined."""
+        from src.config import MONTE_CARLO_N_REPLICATES, MONTE_CARLO_P_VALUE_TOLERANCE
+        assert MONTE_CARLO_N_REPLICATES == 100000
+        assert MONTE_CARLO_P_VALUE_TOLERANCE == 0.005
 
-    def test_min_subgroup_size(self):
-        """Verify minimum subgroup size is 10."""
-        assert MIN_SUBGROUP_SIZE == 10
-        assert isinstance(MIN_SUBGROUP_SIZE, int)
-
-    def test_max_domain_proportion(self):
-        """Verify max domain proportion is 0.30 (30%)."""
-        assert MAX_DOMAIN_PROPORTION == 0.30
-        assert isinstance(MAX_DOMAIN_PROPORTION, float)
-
-    def test_max_cpu_vcpus(self):
-        """Verify max CPU vCPUs is 2."""
-        assert MAX_CPU_VCPUS == 2
-        assert isinstance(MAX_CPU_VCPUS, int)
-
-    def test_max_ram_gb(self):
-        """Verify max RAM is 2 GB."""
-        assert MAX_RAM_GB == 2.0
-        assert isinstance(MAX_RAM_GB, float)
-
-    def test_max_runtime_hours(self):
-        """Verify max runtime is 6 hours."""
-        assert MAX_RUNTIME_HOURS == 6.0
-        assert isinstance(MAX_RUNTIME_HOURS, float)
-
-    def test_monte_carlo_replicates(self):
-        """Verify Monte Carlo replicates is 10000."""
-        assert MONTE_CARLO_REPLICATES == 10000
-        assert isinstance(MONTE_CARLO_REPLICATES, int)
-
-    def test_monte_carlo_tolerance(self):
-        """Verify Monte Carlo tolerance is 0.005."""
-        assert MONTE_CARLO_TOLERANCE == 0.005
-        assert isinstance(MONTE_CARLO_TOLERANCE, float)
+    def test_get_config_summary_keys(self):
+        """Verify get_config_summary returns expected keys."""
+        summary = get_config_summary()
+        expected_keys = [
+            "seed", "p_value_tolerance", "effect_size_tolerance",
+            "max_memory_gb", "max_cpu_percent", "monte_carlo_replicates",
+            "monte_carlo_tolerance", "min_corpus_size"
+        ]
+        for key in expected_keys:
+            assert key in summary, f"Missing key '{key}' in config summary"
+        assert summary["seed"] == 42
 
 
 class TestRNGSeeding:
-    """Tests for RNG seeding functionality."""
+    """Test that set_rng_seed correctly initializes RNGs."""
 
-    def test_set_rng_seed_with_default(self):
-        """Verify set_rng_seed uses default SEED when no argument provided."""
-        # Generate a random number before seeding
-        random.seed(12345)  # Use different seed
-        val_before = random.random()
-
-        # Seed with default
-        set_rng_seed()
-
-        # Generate after seeding
-        val_after = random.random()
-
-        # Should be reproducible
-        set_rng_seed()
-        val_repro = random.random()
-
-        assert val_after == val_repro, "RNG should be reproducible with same seed"
-
-    def test_set_rng_seed_with_custom(self):
-        """Verify set_rng_seed accepts custom seed value."""
-        set_rng_seed(999)
+    def test_set_rng_seed_initializes_random(self):
+        """Verify random module is seeded."""
+        set_rng_seed(12345)
         val1 = random.random()
-
-        set_rng_seed(999)
+        
+        set_rng_seed(12345)
         val2 = random.random()
+        
+        assert val1 == val2, "random.random() should be deterministic after seeding"
 
-        assert val1 == val2, "Custom seed should produce reproducible results"
+    def test_set_rng_seed_initializes_numpy(self):
+        """Verify numpy is seeded."""
+        set_rng_seed(54321)
+        arr1 = np.random.rand(5)
+        
+        set_rng_seed(54321)
+        arr2 = np.random.rand(5)
+        
+        np.testing.assert_array_equal(arr1, arr2, "numpy random should be deterministic")
 
-    def test_random_reproducibility(self):
-        """Verify that random numbers are reproducible with SEED."""
-        set_rng_seed(SEED)
-        vals1 = [random.random() for _ in range(10)]
+    def test_set_rng_seed_default_uses_config_seed(self):
+        """Verify calling set_rng_seed() without args uses SEED (42)."""
+        # Reset to a known bad state
+        random.seed(999)
+        np.random.seed(999)
+        
+        # Call without args
+        set_rng_seed()
+        
+        # Generate a value
+        val = random.random()
+        
+        # Reset and regenerate with explicit 42
+        random.seed(42)
+        val_expected = random.random()
+        
+        assert val == val_expected, "Default seed should match SEED (42)"
 
-        set_rng_seed(SEED)
-        vals2 = [random.random() for _ in range(10)]
+    def test_deterministic_sequence(self):
+        """Verify a sequence of random calls is reproducible."""
+        set_rng_seed(42)
+        seq1 = [random.random() for _ in range(10)]
+        
+        set_rng_seed(42)
+        seq2 = [random.random() for _ in range(10)]
+        
+        assert seq1 == seq2, "Sequences should be identical with same seed"
 
-        assert vals1 == vals2, "Random sequences should be identical"
-
-
-class TestConfigSummary:
-    """Tests for get_config_summary function."""
-
-    def test_summary_returns_dict(self):
-        """Verify get_config_summary returns a dictionary."""
-        summary = get_config_summary()
-        assert isinstance(summary, dict)
-
-    def test_summary_contains_seed(self):
-        """Verify summary contains SEED key."""
-        summary = get_config_summary()
-        assert "SEED" in summary
-        assert summary["SEED"] == 42
-
-    def test_summary_contains_all_thresholds(self):
-        """Verify summary contains all threshold constants."""
-        summary = get_config_summary()
-        required_keys = [
-            "P_VALUE_THRESHOLD",
-            "EFFECT_SIZE_THRESHOLD",
-            "SAMPLE_SIZE_MINIMUM",
-            "MIN_SUBGROUP_SIZE",
-            "MAX_DOMAIN_PROPORTION",
-            "MAX_CPU_VCPUS",
-            "MAX_RAM_GB",
-            "MAX_RUNTIME_HOURS",
-            "MONTE_CARLO_REPLICATES",
-            "MONTE_CARLO_TOLERANCE",
-        ]
-        for key in required_keys:
-            assert key in summary, f"Summary missing key: {key}"
-
-    def test_summary_values_match_constants(self):
-        """Verify summary values match module constants."""
-        summary = get_config_summary()
-        assert summary["SEED"] == SEED
-        assert summary["P_VALUE_THRESHOLD"] == P_VALUE_THRESHOLD
-        assert summary["EFFECT_SIZE_THRESHOLD"] == EFFECT_SIZE_THRESHOLD
-        assert summary["SAMPLE_SIZE_MINIMUM"] == SAMPLE_SIZE_MINIMUM
-        assert summary["MAX_CPU_VCPUS"] == MAX_CPU_VCPUS
-        assert summary["MAX_RAM_GB"] == MAX_RAM_GB
-        assert summary["MONTE_CARLO_REPLICATES"] == MONTE_CARLO_REPLICATES
-        assert summary["MONTE_CARLO_TOLERANCE"] == MONTE_CARLO_TOLERANCE
-
-
-class TestImportability:
-    """Tests ensuring config module can be imported correctly."""
-
-    def test_config_module_importable(self):
-        """Verify config module is importable."""
-        from code.src import config
-        assert config is not None
-
-    def test_all_public_names_importable(self):
-        """Verify all public names can be imported."""
-        from code.src.config import (
-            SEED,
-            P_VALUE_THRESHOLD,
-            EFFECT_SIZE_THRESHOLD,
-            SAMPLE_SIZE_MINIMUM,
-            MIN_SUBGROUP_SIZE,
-            MAX_DOMAIN_PROPORTION,
-            MAX_CPU_VCPUS,
-            MAX_RAM_GB,
-            MAX_RUNTIME_HOURS,
-            MONTE_CARLO_REPLICATES,
-            MONTE_CARLO_TOLERANCE,
-            set_rng_seed,
-            get_config_summary,
-        )
-        assert SEED is not None
-        assert callable(set_rng_seed)
-        assert callable(get_config_summary)
+    def test_numpy_and_random_independent_but_seeded(self):
+        """Verify both RNGs are seeded independently but consistently."""
+        set_rng_seed(777)
+        r_val = random.random()
+        n_val = np.random.rand()
+        
+        set_rng_seed(777)
+        r_val_2 = random.random()
+        n_val_2 = np.random.rand()
+        
+        assert r_val == r_val_2
+        assert n_val == n_val_2

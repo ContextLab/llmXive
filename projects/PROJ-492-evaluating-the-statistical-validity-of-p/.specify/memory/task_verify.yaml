@@ -14,9 +14,17 @@
   \ status=not_enough_info], https://www.wikidata.org/wiki/Q19873191) *(Alias of PT003)*"
 : 1
 ? "T009 Set up structured logging infrastructure in `src/utils/logger.py` with error\u2011\
+  code format `ERR-###` (verify logs contain correct codes)."
+: 2
+? "T009 Set up structured logging infrastructure in `src/utils/logger.py` with error\u2011\
   code format `ERR-###` [UNRESOLVED-CLAIM: c_a556a205 \u2014 status=not_enough_info]\
   \ (verify logs contain correct codes)."
 : 1
+? T010 Initialize configuration constants (random seeds, thresholds, resource caps)
+  in `src/config.py` with deterministic seed (`SEED = 42`) AND ensure all modules
+  import SEED from config and set RNG seeds at startup (verify `src/config.py` defines
+  `SEED = 42` and all RNGs are seeded per Constitution Principle I).
+: 2
 ? "T010 Initialize configuration constants (random seeds, thresholds, resource caps)\
   \ in `src/config.py` with deterministic seed (`SEED = 42`) [UNRESOLVED-CLAIM: c_c5ddd110\
   \ \u2014 status=not_enough_info] AND ensure all modules import SEED from config\
@@ -186,6 +194,10 @@
   \ (verify test passes)."
 : 1
 ? "T037 FR\u2011003 Verification: Run `tests/integration/test_reconstructor_completeness.py`\
+  \ to assert reconstructed p\u2011values computed for all records (coverage\u2011\
+  executability\u201108d5764f) (verify test passes)."
+: 1
+? "T037 FR\u2011003 Verification: Run `tests/integration/test_reconstructor_completeness.py`\
   \ to assert reconstructed p\u2011values computed for all records [UNRESOLVED-CLAIM:\
   \ c_c95cee25 \u2014 status=not_enough_info] (coverage\u2011executability\u201108d5764f)\
   \ (verify test passes)."
@@ -201,6 +213,12 @@
 : 1
 ? "T043 Unit tests for binomial test and CI width \u2264 0.10 [UNRESOLVED-CLAIM: c_e3a7e8b9\
   \ \u2014 status=not_enough_info] (tests/unit/test_prevalence.py) (verify test passes)."
+: 1
+? 'T047 Implement CSV summary generator in `src/audit/report_generator.py` that reads
+  `output/audit_report.json` and writes `output/summary_report.csv` with required
+  columns (`total_summaries`, `inconsistent_count`, `inconsistent_rate`, `bias_adjusted_rate`,
+  `wilson_ci_lower`, `wilson_ci_upper`) (verify CSV file exists and column headers
+  match) [DEPENDS ON: T042, T045].'
 : 1
 ? "T049 Add Quickstart guide `docs/README_QUICKSTART.md` covering execution on 30\
   \ URLs within 30 minutes [UNRESOLVED-CLAIM: c_67ec5a88 \u2014 status=not_enough_info]\
