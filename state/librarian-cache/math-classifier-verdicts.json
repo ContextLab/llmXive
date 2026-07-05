@@ -883,6 +883,10 @@
     "classified_at": "2026-07-04T10:08:59Z",
     "verdict": false
   },
+  "PROJ-937-llmxive-follow-up-extending-minimax-spar::1.6.0": {
+    "classified_at": "2026-07-05T12:50:25Z",
+    "verdict": false
+  },
   "PROJ-939-llmxive-follow-up-extending-redesign-mix::1.6.0": {
     "classified_at": "2026-07-05T10:35:40Z",
     "verdict": false

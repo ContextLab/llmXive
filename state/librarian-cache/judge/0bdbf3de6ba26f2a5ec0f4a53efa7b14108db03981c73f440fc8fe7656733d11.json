@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2501.08313",
+  "judged_at": "2026-07-05T12:50:37Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"minimax sparse attention\" computer science",
+  "rationale": "This paper satisfies criteria (a) and (d) as it introduces the \"MiniMax-01\" series which explicitly utilizes \"lightning attention\" (the specific sparse attention mechanism referenced in the user's \"MiniMax Sparse Attention\" query) to achieve long-context scaling, serving as the foundational technical report for the mechanism the user intends to extend.",
+  "relevant": true
+}

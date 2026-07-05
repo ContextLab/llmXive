@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2506.13585",
+  "judged_at": "2026-07-05T12:50:39Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"minimax sparse attention\" computer science",
+  "rationale": "This paper satisfies criteria (a) and (d) as it presents the \"MiniMax-M1\" model which explicitly implements and evaluates the \"lightning attention\" mechanism (a specific form of sparse attention) that is the core subject of the user's \"MiniMax Sparse Attention\" follow-up research. It provides the canonical empirical evidence and technical baseline for the specific mechanism the user is investigating.",
+  "relevant": true
+}

@@ -1,0 +1,1014 @@
+{
+  "fetched_at": "2026-07-05T12:50:52Z",
+  "field": "computer science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "computer science",
+      "idea_body_excerpt": "llmXive follow-up: extending \"MiniMax Sparse Attention\"",
+      "target_n": 5
+    },
+    "duration_seconds": 55.052,
+    "ended_at": "2026-07-05T12:50:52Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "MiniMax sparse attention mechanism"
+        ],
+        [
+          2,
+          "sparse attention patterns in large language models"
+        ],
+        [
+          3,
+          "efficient attention mechanisms for LLMs"
+        ],
+        [
+          4,
+          "linear attention approximations for transformers"
+        ],
+        [
+          5,
+          "sparse matrix multiplication in transformer models"
+        ],
+        [
+          6,
+          "memory-efficient attention algorithms"
+        ],
+        [
+          7,
+          "long-context sparse attention strategies"
+        ],
+        [
+          8,
+          "MiniMax model architecture optimization"
+        ],
+        [
+          9,
+          "dynamic sparse attention selection"
+        ],
+        [
+          10,
+          "low-rank sparse attention methods"
+        ],
+        [
+          11,
+          "sliding window attention mechanisms"
+        ],
+        [
+          12,
+          "block-sparse attention for large scale models"
+        ],
+        [
+          13,
+          "context-aware sparse attention"
+        ],
+        [
+          14,
+          "scaling laws for sparse attention models"
+        ],
+        [
+          15,
+          "hardware-aware sparse attention implementations"
+        ],
+        [
+          16,
+          "pruning attention heads for efficiency"
+        ],
+        [
+          17,
+          "hybrid dense-sparse attention architectures"
+        ],
+        [
+          18,
+          "sub-quadratic complexity attention models"
+        ],
+        [
+          19,
+          "adaptive sparse attention routing"
+        ],
+        [
+          20,
+          "inference acceleration via sparse attention"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "MiniMax sparse attention mechanism": 4,
+        "llmXive follow-up: extending \"MiniMax Sparse Attention\" computer science": 0,
+        "sparse attention patterns in large language models": 4
+      },
+      "total_queries_issued": 2
+    },
+    "extracted_queries": [
+      "sparse attention mechanisms memory efficiency",
+      "MiniMax sparse attention long context",
+      "linear attention kernels flash attention",
+      "perplexity sequence length scaling law",
+      "attention sparsity pattern compression overhead"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2501.08313"
+      ]
+    },
+    "per_query_hit_count": {
+      "MiniMax sparse attention long context": 2,
+      "attention sparsity pattern compression overhead": 3,
+      "linear attention kernels flash attention": 2,
+      "llmXive follow-up: extending \"MiniMax Sparse Attention\" computer science": 3,
+      "perplexity sequence length scaling law": 3,
+      "sparse attention mechanisms memory efficiency": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 4,
+      "rejections": [
+        {
+          "primary_pointer": "2501.05032",
+          "rationale": "The paper focuses on enhancing human-like qualities (emotional intelligence, reasoning patterns) in LLMs, which is a distinct construct from the user's specific question about \"MiniMax Sparse Attention\" (a computational efficiency mechanism). It fails to address the mechanism, variables, or domain of sparse attention architectures and thus falls under the rejection rule for distinct constructs sharing only homonym keywords (LLMs).",
+          "title": "Enhancing Human-Like Responses in Large Language Models"
+        },
+        {
+          "primary_pointer": "2402.14679",
+          "rationale": "The paper investigates LLM personality consistency and self-knowledge, which is a distinct construct from the user's question regarding \"MiniMax Sparse Attention\" (a specific algorithmic mechanism for computational efficiency). There is no overlap in the independent/dependent variables, mechanisms, or empirical domain, and the paper does not serve as a foundational reference for sparse attention techniques.",
+          "title": "Is Self-knowledge and Action Consistent or Not: Investigating Large Language Model's Personality"
+        },
+        {
+          "primary_pointer": "1002.1150",
+          "rationale": "The paper focuses on general sequential pattern mining algorithms for data mining applications (e.g., web logs, DNA, stock trends) and does not address the specific mechanism of \"Sparse Attention\" in Large Language Models (LLMs) or the \"MiniMax\" architecture. It fails to meet any inclusion criteria as it lacks the specific domain (LLM inference/attention mechanisms), the specific variable (sparse attention patterns), and the specific mechanism (computational efficiency in transformer models) req",
+          "title": "Finding Sequential Patterns from Large Sequence Data"
+        },
+        {
+          "primary_pointer": "2405.11357",
+          "rationale": "The paper investigates a fundamental limitation in LLMs regarding character-level understanding, which is a distinct construct from the user's specific focus on \"Sparse Attention\" mechanisms and the \"MiniMax\" architecture. It does not measure the same mechanism, provide a baseline for sparse attention efficiency, or belong to the canonical alternative-vocabulary cluster for attention optimization, thus failing all inclusion criteria (a-f).",
+          "title": "Large Language Models Lack Understanding of Character Composition of Words"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-07-05T12:49:57Z",
+    "term_input": {
+      "normalized": "llmxive follow-up: extending \"minimax sparse attention\" computer science",
+      "raw": "llmXive follow-up: extending \"MiniMax Sparse Attention\" computer science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This white paper describes the LSST Dark Energy Science Collaboration (DESC), whose goal is the study of dark energy and related topics in fundamental physics with data from the Large Synoptic Survey Telescope (LSST). It provides an overview of dark energy science and describes the current and anticipated state of the field. It makes the case for the DESC by laying out a robust analytical framework for dark energy science that has been defined by its members and the comprehensive three-year work plan they have developed for implementing that framework. The analysis working groups cover five key probes of dark energy: weak lensing, large scale structure, galaxy clusters, Type Ia supernovae, and strong lensing. The computing working groups span cosmological simulations, galaxy catalogs, photon simulations and a systematic software and computational framework for LSST dark energy data analysis. The technical working groups make the connection between dark energy science and the LSST system. The working groups have close linkages, especially through the use of the photon simulations to study the impact of instrument design and survey strategy on analysis methodology and cosmological parameter estimation. The white paper describes several high priority tasks identified by each of the 16 working groups. Over the next three years these tasks will help prepare for LSST analysis, make synergistic connections with ongoing cosmological surveys and provide the dark energy community with state of the art analysis tools. Members of the community are invited to join the LSST DESC, according to the membership policies described in the white paper. Applications to sign up for associate membership may be made by submitting the Web form at http://www.slac.stanford.edu/exp/lsst/desc/signup.html with a short statement of the work they wish to pursue that is relevant to the LSST DESC.",
+          "claimed_authors": [
+            " LSST Dark Energy Science Collaboration"
+          ],
+          "claimed_title": "Large Synoptic Survey Telescope: Dark Energy Science Collaboration",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1211.0310"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='llmXive follow-up: extending \"MiniMax Sparse Attention\" computer science', candidate_title='Large Synoptic Survey Telescope: Dark Energy Science Collaboration')",
+        "failed_at": "2026-07-05T12:50:25Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The large instantaneous sensitivity, a wide frequency coverage and flexible observation modes with large number of beams in the sky are the main features of the SKA observatory's two telescopes, the SKA-Low and the SKA-Mid, which are located on two different continents. Owing to these capabilities, the SKAO telescopes are going to be a game-changer for radio astronomy in general and pulsar astronomy in particular. The eleven articles in this special issue on pulsar science with the SKA Observatory describe its impact on different areas of pulsar science. In this lead article, a brief description of the two telescopes highlighting the relevant features for pulsar science is presented followed by an overview of each accompanying article, exploring the inter-relationship between different pulsar science use cases.",
+          "claimed_authors": [
+            "Bhal Chandra Joshi",
+            "Aris Karastergiou",
+            "Marta Burgay",
+            "The SKA pulsar science working group"
+          ],
+          "claimed_title": "Pulsar Science with the SKA Observatory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.16152"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='llmXive follow-up: extending \"MiniMax Sparse Attention\" computer science', candidate_title='Pulsar Science with the SKA Observatory')",
+        "failed_at": "2026-07-05T12:50:25Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A Human Computer Interface (HCI) System for playing games is designed here for more natural communication with the machines. The system presented here is a vision-based system for detection of long voluntary eye blinks and interpretation of blink patterns for communication between man and machine. This system replaces the mouse with the human face as a new way to interact with the computer. Facial features (nose tip and eyes) are detected and tracked in realtime to use their actions as mouse events. The coordinates and movement of the nose tip in the live video feed are translated to become the coordinates and movement of the mouse pointer on the application. The left or right eye blinks fire left or right mouse click events. The system works with inexpensive USB cameras and runs at a frame rate of 30 frames per second.",
+          "claimed_authors": [
+            "S. Sumathi",
+            "S. K. Srivatsa",
+            "M. Uma Maheswari"
+          ],
+          "claimed_title": "Vision Based Game Development Using Human Computer Interaction",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1002.2191"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='llmXive follow-up: extending \"MiniMax Sparse Attention\" computer science', candidate_title='Vision Based Game Development Using Human Computer Interaction')",
+        "failed_at": "2026-07-05T12:50:25Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The computational burden of attention in long-context language models has motivated two largely independent lines of work: sparse attention mechanisms that reduce complexity by attending to selected tokens, and gated attention variants that improve training sta-bility while mitigating the attention sink phenomenon. We observe that these approaches address complementary weaknesses and propose Gated Sparse Attention (GSA), an architecture that realizes the benefits of both. GSA incorporates a gated lightning indexer with sigmoid activations that produce bounded, interpretable selection scores, an adaptive sparsity controller that modulates the number of attended tokens based on local uncertainty, and dual gating at the value and output stages. We establish theoretical foundations for the approach, including complexity analysis, expressiveness results, and convergence guarantees. In experiments with 1.7B parameter models trained on 400B tokens, GSA matches the efficiency of sparse-only baselines (12-16x speedup at 128K context) while achieving the quality gains associated with gated attention: perplexity improves from 6.03 to 5.70, RULER scores at 128K context nearly double, and attention to the first token, a proxy for attention sinks, drops from 47% to under 4%. Training stability improves markedly, with loss spikes reduced by 98%.",
+          "claimed_authors": [
+            "Alfred Shen",
+            "Aaron Shen"
+          ],
+          "claimed_title": "Gated Sparse Attention: Combining Computational Efficiency with Training Stability for Long-Context Language Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2601.15305"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='llmXive follow-up: extending \"MiniMax Sparse Attention\" computer science', candidate_title='Gated Sparse Attention: Combining Computational Efficiency with Training Stability for Long-Context Language Models')",
+        "failed_at": "2026-07-05T12:50:25Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Modern large language models increasingly require long contexts for reasoning and multi-document tasks, but attention's quadratic complexity creates a severe computational bottleneck. We present Block-Sparse FlashAttention (BSFA), a drop-in replacement that accelerates long-context inference while preserving model quality. Unlike methods that predict importance before computing scores, BSFA computes exact query-key similarities to select the top-k most important value blocks for each query. By comparing per-block maximum scores against calibrated thresholds, we skip approximately 50% of the computation and memory transfers for pruned blocks. Our training-free approach requires only a one-time threshold calibration on a small dataset to learn the per-layer and per-head attention score distributions. We provide a CUDA kernel implementation that can be used as a drop-in replacement for FlashAttention. On Llama-3.1-8B, BSFA achieves up to 1.10x speedup on real-world reasoning benchmarks and up to 1.24x for needle-in-a-haystack retrieval tasks while maintaining above 99% baseline accuracy, with certain configurations even improving accuracy by focusing on the most relevant content, substantially outperforming existing sparse attention methods. The implementation is available at https://github.com/Danielohayon/Block-Sparse-Flash-Attention",
+          "claimed_authors": [
+            "Daniel Ohayon",
+            "Itay Lamprecht",
+            "Itay Hubara",
+            "Israel Cohen",
+            "Daniel Soudry",
+            "Noam Elata"
+          ],
+          "claimed_title": "Block Sparse Flash Attention",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.07011"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='llmXive follow-up: extending \"MiniMax Sparse Attention\" computer science', candidate_title='Block Sparse Flash Attention')",
+        "failed_at": "2026-07-05T12:50:25Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Self-attention has recently been adopted for a wide range of sequence modeling problems. Despite its effectiveness, self-attention suffers from quadratic compute and memory requirements with respect to sequence length. Successful approaches to reduce this complexity focused on attending to local sliding windows or a small set of locations independent of content. Our work proposes to learn dynamic sparse attention patterns that avoid allocating computation and memory to attend to content unrelated to the query of interest. This work builds upon two lines of research: it combines the modeling flexibility of prior work on content-based sparse attention with the efficiency gains from approaches based on local, temporal sparse attention. Our model, the Routing Transformer, endows self-attention with a sparse routing module based on online k-means while reducing the overall complexity of attention to $O\\left(n^{1.5}d\\right)$ from $O\\left(n^2d\\right)$ for sequence length $n$ and hidden dimension $d$. We show that our model outperforms comparable sparse attention models on language modeling on Wikitext-103 (15.8 vs 18.3 perplexity) as well as on image generation on ImageNet-64 (3.43 vs 3.44 bits/dim) while using fewer self-attention layers. Additionally, we set a new state-of-the-art on the newly released PG-19 data-set, obtaining a test perplexity of 33.2 with a 22 layer Routing Transformer model trained on sequences of length 8192.",
+          "claimed_authors": [
+            "Aurko Roy",
+            "Mohammad Saffar",
+            "Ashish Vaswani",
+            "David Grangier"
+          ],
+          "claimed_title": "Efficient Content-Based Sparse Attention with Routing Transformers",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2003.05997"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='llmXive follow-up: extending \"MiniMax Sparse Attention\" computer science', candidate_title='Efficient Content-Based Sparse Attention with Routing Transformers')",
+        "failed_at": "2026-07-05T12:50:25Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We introduce MiniMax-01 series, including MiniMax-Text-01 and MiniMax-VL-01, which are comparable to top-tier models while offering superior capabilities in processing longer contexts. The core lies in lightning attention and its efficient scaling. To maximize computational capacity, we integrate it with Mixture of Experts (MoE), creating a model with 32 experts and 456 billion total parameters, of which 45.9 billion are activated for each token. We develop an optimized parallel strategy and highly efficient computation-communication overlap techniques for MoE and lightning attention. This approach enables us to conduct efficient training and inference on models with hundreds of billions of parameters across contexts spanning millions of tokens. The context window of MiniMax-Text-01 can reach up to 1 million tokens during training and extrapolate to 4 million tokens during inference at an affordable cost. Our vision-language model, MiniMax-VL-01 is built through continued training with 512 billion vision-language tokens. Experiments on both standard and in-house benchmarks show that our models match the performance of state-of-the-art models like GPT-4o and Claude-3.5-Sonnet while offering 20-32 times longer context window. We publicly release MiniMax-01 at https://github.com/MiniMax-AI.",
+          "claimed_authors": [
+            " MiniMax",
+            "Aonian Li",
+            "Bangwei Gong",
+            "Bo Yang",
+            "Boji Shan",
+            "Chang Liu",
+            "Cheng Zhu",
+            "Chunhao Zhang",
+            "Congchao Guo",
+            "Da Chen",
+            "Dong Li",
+            "Enwei Jiao",
+            "Gengxin Li",
+            "Guojun Zhang",
+            "Haohai Sun",
+            "Houze Dong",
+            "Jiadai Zhu",
+            "Jiaqi Zhuang",
+            "Jiayuan Song",
+            "Jin Zhu",
+            "Jingtao Han",
+            "Jingyang Li",
+            "Junbin Xie",
+            "Junhao Xu",
+            "Junjie Yan",
+            "Kaishun Zhang",
+            "Kecheng Xiao",
+            "Kexi Kang",
+            "Le Han",
+            "Leyang Wang",
+            "Lianfei Yu",
+            "Liheng Feng",
+            "Lin Zheng",
+            "Linbo Chai",
+            "Long Xing",
+            "Meizhi Ju",
+            "Mingyuan Chi",
+            "Mozhi Zhang",
+            "Peikai Huang",
+            "Pengcheng Niu",
+            "Pengfei Li",
+            "Pengyu Zhao",
+            "Qi Yang",
+            "Qidi Xu",
+            "Qiexiang Wang",
+            "Qin Wang",
+            "Qiuhui Li",
+            "Ruitao Leng",
+            "Shengmin Shi",
+            "Shuqi Yu",
+            "Sichen Li",
+            "Songquan Zhu",
+            "Tao Huang",
+            "Tianrun Liang",
+            "Weigao Sun",
+            "Weixuan Sun",
+            "Weiyu Cheng",
+            "Wenkai Li",
+            "Xiangjun Song",
+            "Xiao Su",
+            "Xiaodong Han",
+            "Xinjie Zhang",
+            "Xinzhu Hou",
+            "Xu Min",
+            "Xun Zou",
+            "Xuyang Shen",
+            "Yan Gong",
+            "Yingjie Zhu",
+            "Yipeng Zhou",
+            "Yiran Zhong",
+            "Yongyi Hu",
+            "Yuanxiang Fan",
+            "Yue Yu",
+            "Yufeng Yang",
+            "Yuhao Li",
+            "Yunan Huang",
+            "Yunji Li",
+            "Yunpeng Huang",
+            "Yunzhi Xu",
+            "Yuxin Mao",
+            "Zehan Li",
+            "Zekang Li",
+            "Zewei Tao",
+            "Zewen Ying",
+            "Zhaoyang Cong",
+            "Zhen Qin",
+            "Zhenhua Fan",
+            "Zhihang Yu",
+            "Zhuo Jiang",
+            "Zijia Wu"
+          ],
+          "claimed_title": "MiniMax-01: Scaling Foundation Models with Lightning Attention",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2501.08313"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='llmXive follow-up: extending \"MiniMax Sparse Attention\" computer science', candidate_title='MiniMax-01: Scaling Foundation Models with Lightning Attention')",
+        "failed_at": "2026-07-05T12:50:25Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We introduce MiniMax-M1, the world's first open-weight, large-scale hybrid-attention reasoning model. MiniMax-M1 is powered by a hybrid Mixture-of-Experts (MoE) architecture combined with a lightning attention mechanism. The model is developed based on our previous MiniMax-Text-01 model, which contains a total of 456 billion parameters with 45.9 billion parameters activated per token. The M1 model natively supports a context length of 1 million tokens, 8x the context size of DeepSeek R1. Furthermore, the lightning attention mechanism in MiniMax-M1 enables efficient scaling of test-time compute. These properties make M1 particularly suitable for complex tasks that require processing long inputs and thinking extensively. MiniMax-M1 is trained using large-scale reinforcement learning (RL) on diverse problems including sandbox-based, real-world software engineering environments. In addition to M1's inherent efficiency advantage for RL training, we propose CISPO, a novel RL algorithm to further enhance RL efficiency. CISPO clips importance sampling weights rather than token updates, outperforming other competitive RL variants. Combining hybrid-attention and CISPO enables MiniMax-M1's full RL training on 512 H800 GPUs to complete in only three weeks, with a rental cost of just $534,700. We release two versions of MiniMax-M1 models with 40K and 80K thinking budgets respectively, where the 40K model represents an intermediate phase of the 80K training. Experiments on standard benchmarks show that our models are comparable or superior to strong open-weight models such as the original DeepSeek-R1 and Qwen3-235B, with particular strengths in complex software engineering, tool utilization, and long-context tasks. We publicly release MiniMax-M1 at https://github.com/MiniMax-AI/MiniMax-M1.",
+          "claimed_authors": [
+            " MiniMax",
+            " :",
+            "Aili Chen",
+            "Aonian Li",
+            "Bangwei Gong",
+            "Binyang Jiang",
+            "Bo Fei",
+            "Bo Yang",
+            "Boji Shan",
+            "Changqing Yu",
+            "Chao Wang",
+            "Cheng Zhu",
+            "Chengjun Xiao",
+            "Chengyu Du",
+            "Chi Zhang",
+            "Chu Qiao",
+            "Chunhao Zhang",
+            "Chunhui Du",
+            "Congchao Guo",
+            "Da Chen",
+            "Deming Ding",
+            "Dianjun Sun",
+            "Dong Li",
+            "Enwei Jiao",
+            "Haigang Zhou",
+            "Haimo Zhang",
+            "Han Ding",
+            "Haohai Sun",
+            "Haoyu Feng",
+            "Huaiguang Cai",
+            "Haichao Zhu",
+            "Jian Sun",
+            "Jiaqi Zhuang",
+            "Jiaren Cai",
+            "Jiayuan Song",
+            "Jin Zhu",
+            "Jingyang Li",
+            "Jinhao Tian",
+            "Jinli Liu",
+            "Junhao Xu",
+            "Junjie Yan",
+            "Junteng Liu",
+            "Junxian He",
+            "Kaiyi Feng",
+            "Ke Yang",
+            "Kecheng Xiao",
+            "Le Han",
+            "Leyang Wang",
+            "Lianfei Yu",
+            "Liheng Feng",
+            "Lin Li",
+            "Lin Zheng",
+            "Linge Du",
+            "Lingyu Yang",
+            "Lunbin Zeng",
+            "Minghui Yu",
+            "Mingliang Tao",
+            "Mingyuan Chi",
+            "Mozhi Zhang",
+            "Mujie Lin",
+            "Nan Hu",
+            "Nongyu Di",
+            "Peng Gao",
+            "Pengfei Li",
+            "Pengyu Zhao",
+            "Qibing Ren",
+            "Qidi Xu",
+            "Qile Li",
+            "Qin Wang",
+            "Rong Tian",
+            "Ruitao Leng",
+            "Shaoxiang Chen",
+            "Shaoyu Chen",
+            "Shengmin Shi",
+            "Shitong Weng",
+            "Shuchang Guan",
+            "Shuqi Yu",
+            "Sichen Li",
+            "Songquan Zhu",
+            "Tengfei Li",
+            "Tianchi Cai",
+            "Tianrun Liang",
+            "Weiyu Cheng",
+            "Weize Kong",
+            "Wenkai Li",
+            "Xiancai Chen",
+            "Xiangjun Song",
+            "Xiao Luo",
+            "Xiao Su",
+            "Xiaobo Li",
+            "Xiaodong Han",
+            "Xinzhu Hou",
+            "Xuan Lu",
+            "Xun Zou",
+            "Xuyang Shen",
+            "Yan Gong",
+            "Yan Ma",
+            "Yang Wang",
+            "Yiqi Shi",
+            "Yiran Zhong",
+            "Yonghong Duan",
+            "Yongxiang Fu",
+            "Yongyi Hu",
+            "Yu Gao",
+            "Yuanxiang Fan",
+            "Yufeng Yang",
+            "Yuhao Li",
+            "Yulin Hu",
+            "Yunan Huang",
+            "Yunji Li",
+            "Yunzhi Xu",
+            "Yuxin Mao",
+            "Yuxuan Shi",
+            "Yuze Wenren",
+            "Zehan Li",
+            "Zelin Li",
+            "Zhanxu Tian",
+            "Zhengmao Zhu",
+            "Zhenhua Fan",
+            "Zhenzhen Wu",
+            "Zhichao Xu",
+            "Zhihang Yu",
+            "Zhiheng Lyu",
+            "Zhuo Jiang",
+            "Zibo Gao",
+            "Zijia Wu",
+            "Zijian Song",
+            "Zijun Sun"
+          ],
+          "claimed_title": "MiniMax-M1: Scaling Test-Time Compute Efficiently with Lightning Attention",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2506.13585"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='llmXive follow-up: extending \"MiniMax Sparse Attention\" computer science', candidate_title='MiniMax-M1: Scaling Test-Time Compute Efficiently with Lightning Attention')",
+        "failed_at": "2026-07-05T12:50:25Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Linear RNNs with gating recently demonstrated competitive performance compared to Transformers in language modeling. Although their linear compute scaling in sequence length offers theoretical runtime advantages over Transformers, realizing these benefits in practice requires optimized custom kernels, as Transformers rely on the highly efficient Flash Attention kernels (Dao, 2024). Leveraging the chunkwise-parallel formulation of linear RNNs, Flash Linear Attention (FLA) (Yang & Zhang, 2024) shows that linear RNN kernels are faster than Flash Attention, by parallelizing over chunks of the input sequence. However, since the chunk size of FLA is limited, many intermediate states must be materialized in GPU memory. This leads to low arithmetic intensity and causes high memory consumption and IO cost, especially for long-context pre-training. In this work, we present Tiled Flash Linear Attention (TFLA), a novel kernel algorithm for linear RNNs, that enables arbitrary large chunk sizes and high arithmetic intensity by introducing an additional level of sequence parallelization within each chunk. First, we apply TFLA to the xLSTM with matrix memory, the mLSTM (Beck et al., 2024). Second, we propose an mLSTM variant with sigmoid input gate and reduced computation for even faster kernel runtimes at equal language modeling performance. In our speed benchmarks, we show that our new mLSTM kernels based on TFLA outperform highly optimized Flash Attention, Linear Attention and Mamba kernels, setting a new state of the art for efficient long-context sequence modeling primitives.",
+          "claimed_authors": [
+            "Maximilian Beck",
+            "Korbinian Pöppel",
+            "Phillip Lippe",
+            "Sepp Hochreiter"
+          ],
+          "claimed_title": "Tiled Flash Linear Attention: More Efficient Linear RNN and xLSTM Kernels",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2503.14376"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='llmXive follow-up: extending \"MiniMax Sparse Attention\" computer science', candidate_title='Tiled Flash Linear Attention: More Efficient Linear RNN and xLSTM Kernels')",
+        "failed_at": "2026-07-05T12:50:25Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Attention mechanisms, especially self-attention, have played an increasingly important role in deep feature representation for visual tasks. Self-attention updates the feature at each position by computing a weighted sum of features using pair-wise affinities across all positions to capture the long-range dependency within a single sample. However, self-attention has quadratic complexity and ignores potential correlation between different samples. This paper proposes a novel attention mechanism which we call external attention, based on two external, small, learnable, shared memories, which can be implemented easily by simply using two cascaded linear layers and two normalization layers; it conveniently replaces self-attention in existing popular architectures. External attention has linear complexity and implicitly considers the correlations between all data samples. We further incorporate the multi-head mechanism into external attention to provide an all-MLP architecture, external attention MLP (EAMLP), for image classification. Extensive experiments on image classification, object detection, semantic segmentation, instance segmentation, image generation, and point cloud analysis reveal that our method provides results comparable or superior to the self-attention mechanism and some of its variants, with much lower computational and memory costs.",
+          "claimed_authors": [
+            "Meng-Hao Guo",
+            "Zheng-Ning Liu",
+            "Tai-Jiang Mu",
+            "Shi-Min Hu"
+          ],
+          "claimed_title": "Beyond Self-attention: External Attention using Two Linear Layers for Visual Tasks",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2105.02358"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='llmXive follow-up: extending \"MiniMax Sparse Attention\" computer science', candidate_title='Beyond Self-attention: External Attention using Two Linear Layers for Visual Tasks')",
+        "failed_at": "2026-07-05T12:50:25Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In this article, we propose an anomalous chaotic system of the scaling-law ordinary differential equations involving the Mandelbrot scaling law. This chaotic behavior shows the \"Wukong\" effect. The comparison among the Lorenz and scaling-law attractors is discussed in detail. We also suggest the conjecture for the fixed point theory for the fractal SL attractor. The scaling-law chaos may be open a new door in the study of the chaos theory.",
+          "claimed_authors": [
+            "Xiao-Jun Yang"
+          ],
+          "claimed_title": "A scaling law chaotic system",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2111.09816"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"MiniMax Sparse Attention\" computer science', candidate_title='A scaling law chaotic system')",
+        "failed_at": "2026-07-05T12:50:25Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In this paper, the scaling-law vector calculus, which is related to the connection between the vector calculus and the scaling law in fractal geometry, is addressed based on the Leibniz derivative and Stieltjes integral for the first time. The Gauss-Ostrogradsky-like theorem, Stokes-like theorem, Green-like theorem, and Green-like identities are considered in the sense of the scaling-law vector calculus. The Navier-Stokes-like equations are obtained in detail. The obtained result is as a potentially mathematical tool proposed to develop an important way of approaching this challenge for the scaling-law flows.",
+          "claimed_authors": [
+            "Xiao-Jun Yang"
+          ],
+          "claimed_title": "The scaling-law flows: An attempt at scaling-law vector calculus",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2010.13897"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"MiniMax Sparse Attention\" computer science', candidate_title='The scaling-law flows: An attempt at scaling-law vector calculus')",
+        "failed_at": "2026-07-05T12:50:25Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Two basic features of assemblages of unicellular plankton: (1) their high biodiversity and (2) the power-law structure of their abundance, can be explained by an allometric scaling of cell growth and mortality with respect to cell size. To show this, we describe a numerical study of a size-structured, multispecies, population-dynamic model; the model has a single resource, supporting an arbitrary number of phytoplankton and zooplankton species. If the number of plankton species is large enough, the death rate of prey and cell growth rate of predators have approximate allometric scalings with cell size. Together, these scalings give rise to an equilibrium distribution of abundance near the power law, on which many species can coexist. Scalings of this kind cannot be achieved if the number of species is small. This suggests that the conjunction of species-richness and power-law structures in plankton communities is more than a coincidence. Although the exact allometric scalings used here should not be expected in practice, exclusion of species should be relatively slow if they lie close to the power law. Thus the forces needed to achieve coexistence could be effective, even if they are relatively weak.",
+          "claimed_authors": [
+            "Richard Law",
+            "José A. Cuesta",
+            "Gustav W. Delius"
+          ],
+          "claimed_title": "Plankton: the paradox and the power law",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1705.05327"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"MiniMax Sparse Attention\" computer science', candidate_title='Plankton: the paradox and the power law')",
+        "failed_at": "2026-07-05T12:50:25Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Deploying local AI models, such as Large Language Models (LLMs), to edge devices can substantially enhance devices' independent capabilities, alleviate the server's burden, and lower the response time. Owing to these tremendous potentials, many big tech companies have released several lightweight Small Language Models (SLMs) to bridge this gap. However, we still have huge motivations to deploy more powerful (LLMs) AI models on edge devices and enhance their smartness level. Unlike the conventional approaches for AI model compression, we investigate activation sparsity. The activation sparsity method is orthogonal and combinable with existing techniques to maximize the compression rate while maintaining great accuracy. LLMs' Feed-Forward Network (FFN) components, which typically comprise a large proportion of parameters (around 2/3), ensure that our FFN optimizations would have a better chance of achieving effective compression. Moreover, our findings are beneficial to general LLMs and are not restricted to ReLU-based models. This work systematically investigates the tradeoff between enforcing activation sparsity and perplexity (accuracy) on state-of-the-art LLMs. Our empirical analysis demonstrates that we can obtain around 50% of main memory and computing reductions for critical FFN components with negligible accuracy degradation. This extra 50% sparsity does not naturally exist in the current LLMs, which require tuning LLMs' activation outputs by injecting zero-enforcing thresholds. To obtain the benefits of activation sparsity, we provide a guideline for the system architect for LLM prediction and prefetching. The success prediction allows the system to prefetch the necessary weights while omitting the inactive ones and their successors, therefore lowering cache and memory pollution and reducing LLM execution time on resource-constrained edge devices.",
+          "claimed_authors": [
+            "Nobel Dhar",
+            "Bobin Deng",
+            "Md Romyull Islam",
+            "Kazi Fahim Ahmad Nasif",
+            "Liang Zhao",
+            "Kun Suo"
+          ],
+          "claimed_title": "Activation Sparsity Opportunities for Compressing General Large Language Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2412.12178"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"MiniMax Sparse Attention\" computer science', candidate_title='Activation Sparsity Opportunities for Compressing General Large Language Models')",
+        "failed_at": "2026-07-05T12:50:25Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This paper explores a new version of the Levenberg-Marquardt algorithm used for Tensor Canonical Polyadic (CP) decomposition with an emphasis on image compression and reconstruction. Tensor computation, especially CP decomposition, holds significant applications in data compression and analysis. In this study, we formulate CP as a nonlinear least squares optimization problem. Then, we present an iterative Levenberg-Marquardt (LM) based algorithm for computing the CP decomposition. Ultimately, we test the algorithm on various datasets, including randomly generated tensors and RGB images. The proposed method proves to be both efficient and effective, offering a reduced computational burden when compared to the traditional Levenberg-Marquardt technique.",
+          "claimed_authors": [
+            "Ramin Goudarzi Karim",
+            "Dipak Dulal",
+            "Carmeliza Navasca"
+          ],
+          "claimed_title": "Modified Levenberg-Marquardt Algorithm For Tensor CP Decomposition in Image Compression",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2401.04670"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"MiniMax Sparse Attention\" computer science', candidate_title='Modified Levenberg-Marquardt Algorithm For Tensor CP Decomposition in Image Compression')",
+        "failed_at": "2026-07-05T12:50:25Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Recent neural networks (NNs) with self-attention exhibit competitiveness across different AI domains, but the essential attention mechanism brings massive computation and memory demands. To this end, various sparsity patterns are introduced to reduce the quadratic computation complexity, among which the structured butterfly sparsity has been proven efficient in computation reduction while maintaining model accuracy. However, its complicated data accessing pattern brings utilization degradation and makes parallelism hard to exploit in general block-oriented architecture like GPU. Since the reconfigurable dataflow architecture is known to have better data reusability and architectural flexibility in general NN-based acceleration, we want to apply it to the butterfly sparsity for acquiring better computational efficiency for attention workloads. We first propose a hybrid butterfly-sparsity network to obtain better trade-offs between attention accuracy and performance. Next, we propose a scalable multilayer dataflow method supported by coarse-grained streaming parallelism designs, to orchestrate the butterfly sparsity computation on the dataflow array. The experiments show that compared with Jetson Xavier NX, our design has a speedup of up to $14.34\\times$ ($9.29\\times$ on average) as well as $11.14\\times$ energy efficiency advancement in attention workloads. In comparison with SOTA attention accelerators of the same peak performance, our dataflow architecture acquires $2.38\\times$-$4.7\\times$ efficiency improvement as well as $6.60\\times$-$15.37\\times$ energy reduction with butterfly sparsity optimization.",
+          "claimed_authors": [
+            "Haibin Wu",
+            "Wenming Li",
+            "Kai Yan",
+            "Zhihua Fan",
+            "Peiyang Wu",
+            "Yuqun Liu",
+            "Yanhuan Liu",
+            "Ziqing Qiang",
+            "Meng Wu",
+            "Kunming Liu",
+            "Xiaochun Ye",
+            "Dongrui Fan"
+          ],
+          "claimed_title": "Multilayer Dataflow: Orchestrate Butterfly Sparsity to Accelerate Attention Computation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2411.00734"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='llmXive follow-up: extending \"MiniMax Sparse Attention\" computer science', candidate_title='Multilayer Dataflow: Orchestrate Butterfly Sparsity to Accelerate Attention Computation')",
+        "failed_at": "2026-07-05T12:50:25Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            " MiniMax",
+            "Aonian Li",
+            "Bangwei Gong",
+            "Bo Yang",
+            "Boji Shan",
+            "Chang Liu",
+            "Cheng Zhu",
+            "Chunhao Zhang",
+            "Congchao Guo",
+            "Da Chen",
+            "Dong Li",
+            "Enwei Jiao",
+            "Gengxin Li",
+            "Guojun Zhang",
+            "Haohai Sun",
+            "Houze Dong",
+            "Jiadai Zhu",
+            "Jiaqi Zhuang",
+            "Jiayuan Song",
+            "Jin Zhu",
+            "Jingtao Han",
+            "Jingyang Li",
+            "Junbin Xie",
+            "Junhao Xu",
+            "Junjie Yan",
+            "Kaishun Zhang",
+            "Kecheng Xiao",
+            "Kexi Kang",
+            "Le Han",
+            "Leyang Wang",
+            "Lianfei Yu",
+            "Liheng Feng",
+            "Lin Zheng",
+            "Linbo Chai",
+            "Long Xing",
+            "Meizhi Ju",
+            "Mingyuan Chi",
+            "Mozhi Zhang",
+            "Peikai Huang",
+            "Pengcheng Niu",
+            "Pengfei Li",
+            "Pengyu Zhao",
+            "Qi Yang",
+            "Qidi Xu",
+            "Qiexiang Wang",
+            "Qin Wang",
+            "Qiuhui Li",
+            "Ruitao Leng",
+            "Shengmin Shi",
+            "Shuqi Yu",
+            "Sichen Li",
+            "Songquan Zhu",
+            "Tao Huang",
+            "Tianrun Liang",
+            "Weigao Sun",
+            "Weixuan Sun",
+            "Weiyu Cheng",
+            "Wenkai Li",
+            "Xiangjun Song",
+            "Xiao Su",
+            "Xiaodong Han",
+            "Xinjie Zhang",
+            "Xinzhu Hou",
+            "Xu Min",
+            "Xun Zou",
+            "Xuyang Shen",
+            "Yan Gong",
+            "Yingjie Zhu",
+            "Yipeng Zhou",
+            "Yiran Zhong",
+            "Yongyi Hu",
+            "Yuanxiang Fan",
+            "Yue Yu",
+            "Yufeng Yang",
+            "Yuhao Li",
+            "Yunan Huang",
+            "Yunji Li",
+            "Yunpeng Huang",
+            "Yunzhi Xu",
+            "Yuxin Mao",
+            "Zehan Li",
+            "Zekang Li",
+            "Zewei Tao",
+            "Zewen Ying",
+            "Zhaoyang Cong",
+            "Zhen Qin",
+            "Zhenhua Fan",
+            "Zhihang Yu",
+            "Zhuo Jiang",
+            "Zijia Wu"
+          ],
+          "title": "MiniMax-01: Scaling Foundation Models with Lightning Attention",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2501.08313",
+        "summary": "We introduce MiniMax-01 series, including MiniMax-Text-01 and MiniMax-VL-01, which are comparable to top-tier models while offering superior capabilities in processing longer contexts. The core lies in lightning attention and its efficient scaling. To maximize computational capacity, we integrate it with Mixture of Experts (MoE), creating a model with 32 experts and 456 billion total parameters, of which 45.9 billion are activated for each token. We develop an optimized parallel strategy and highly efficient computation-communication overlap techniques for MoE and lightning attention. This approach enables us to conduct efficient training and inference on models with hundreds of billions of parameters across contexts spanning millions of tokens. The context window of MiniMax-Text-01 can reach up to 1 million tokens during training and extrapolate to 4 million tokens during inference at an affordable cost. Our vision-language model, MiniMax-VL-01 is built through continued training with 512 billion vision-language tokens. Experiments on both standard and in-house benchmarks show that our models match the performance of state-of-the-art models like GPT-4o and Claude-3.5-Sonnet while offering 20-32 times longer context window. We publicly release MiniMax-01 at https://github.com/MiniMax-AI.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2501.08313",
+          "http_status": 200,
+          "pdf_sample_score": 0.2553,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-05T12:50:29Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            " MiniMax",
+            " :",
+            "Aili Chen",
+            "Aonian Li",
+            "Bangwei Gong",
+            "Binyang Jiang",
+            "Bo Fei",
+            "Bo Yang",
+            "Boji Shan",
+            "Changqing Yu",
+            "Chao Wang",
+            "Cheng Zhu",
+            "Chengjun Xiao",
+            "Chengyu Du",
+            "Chi Zhang",
+            "Chu Qiao",
+            "Chunhao Zhang",
+            "Chunhui Du",
+            "Congchao Guo",
+            "Da Chen",
+            "Deming Ding",
+            "Dianjun Sun",
+            "Dong Li",
+            "Enwei Jiao",
+            "Haigang Zhou",
+            "Haimo Zhang",
+            "Han Ding",
+            "Haohai Sun",
+            "Haoyu Feng",
+            "Huaiguang Cai",
+            "Haichao Zhu",
+            "Jian Sun",
+            "Jiaqi Zhuang",
+            "Jiaren Cai",
+            "Jiayuan Song",
+            "Jin Zhu",
+            "Jingyang Li",
+            "Jinhao Tian",
+            "Jinli Liu",
+            "Junhao Xu",
+            "Junjie Yan",
+            "Junteng Liu",
+            "Junxian He",
+            "Kaiyi Feng",
+            "Ke Yang",
+            "Kecheng Xiao",
+            "Le Han",
+            "Leyang Wang",
+            "Lianfei Yu",
+            "Liheng Feng",
+            "Lin Li",
+            "Lin Zheng",
+            "Linge Du",
+            "Lingyu Yang",
+            "Lunbin Zeng",
+            "Minghui Yu",
+            "Mingliang Tao",
+            "Mingyuan Chi",
+            "Mozhi Zhang",
+            "Mujie Lin",
+            "Nan Hu",
+            "Nongyu Di",
+            "Peng Gao",
+            "Pengfei Li",
+            "Pengyu Zhao",
+            "Qibing Ren",
+            "Qidi Xu",
+            "Qile Li",
+            "Qin Wang",
+            "Rong Tian",
+            "Ruitao Leng",
+            "Shaoxiang Chen",
+            "Shaoyu Chen",
+            "Shengmin Shi",
+            "Shitong Weng",
+            "Shuchang Guan",
+            "Shuqi Yu",
+            "Sichen Li",
+            "Songquan Zhu",
+            "Tengfei Li",
+            "Tianchi Cai",
+            "Tianrun Liang",
+            "Weiyu Cheng",
+            "Weize Kong",
+            "Wenkai Li",
+            "Xiancai Chen",
+            "Xiangjun Song",
+            "Xiao Luo",
+            "Xiao Su",
+            "Xiaobo Li",
+            "Xiaodong Han",
+            "Xinzhu Hou",
+            "Xuan Lu",
+            "Xun Zou",
+            "Xuyang Shen",
+            "Yan Gong",
+            "Yan Ma",
+            "Yang Wang",
+            "Yiqi Shi",
+            "Yiran Zhong",
+            "Yonghong Duan",
+            "Yongxiang Fu",
+            "Yongyi Hu",
+            "Yu Gao",
+            "Yuanxiang Fan",
+            "Yufeng Yang",
+            "Yuhao Li",
+            "Yulin Hu",
+            "Yunan Huang",
+            "Yunji Li",
+            "Yunzhi Xu",
+            "Yuxin Mao",
+            "Yuxuan Shi",
+            "Yuze Wenren",
+            "Zehan Li",
+            "Zelin Li",
+            "Zhanxu Tian",
+            "Zhengmao Zhu",
+            "Zhenhua Fan",
+            "Zhenzhen Wu",
+            "Zhichao Xu",
+            "Zhihang Yu",
+            "Zhiheng Lyu",
+            "Zhuo Jiang",
+            "Zibo Gao",
+            "Zijia Wu",
+            "Zijian Song",
+            "Zijun Sun"
+          ],
+          "title": "MiniMax-M1: Scaling Test-Time Compute Efficiently with Lightning Attention",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2506.13585",
+        "summary": "We introduce MiniMax-M1, the world's first open-weight, large-scale hybrid-attention reasoning model. MiniMax-M1 is powered by a hybrid Mixture-of-Experts (MoE) architecture combined with a lightning attention mechanism. The model is developed based on our previous MiniMax-Text-01 model, which contains a total of 456 billion parameters with 45.9 billion parameters activated per token. The M1 model natively supports a context length of 1 million tokens, 8x the context size of DeepSeek R1. Furthermore, the lightning attention mechanism in MiniMax-M1 enables efficient scaling of test-time compute. These properties make M1 particularly suitable for complex tasks that require processing long inputs and thinking extensively. MiniMax-M1 is trained using large-scale reinforcement learning (RL) on diverse problems including sandbox-based, real-world software engineering environments. In addition to M1's inherent efficiency advantage for RL training, we propose CISPO, a novel RL algorithm to further enhance RL efficiency. CISPO clips importance sampling weights rather than token updates, outperforming other competitive RL variants. Combining hybrid-attention and CISPO enables MiniMax-M1's full RL training on 512 H800 GPUs to complete in only three weeks, with a rental cost of just $534,700. We release two versions of MiniMax-M1 models with 40K and 80K thinking budgets respectively, where the 40K model represents an intermediate phase of the 80K training. Experiments on standard benchmarks show that our models are comparable or superior to strong open-weight models such as the original DeepSeek-R1 and Qwen3-235B, with particular strengths in complex software engineering, tool utilization, and long-context tasks. We publicly release MiniMax-M1 at https://github.com/MiniMax-AI/MiniMax-M1.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2506.13585",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.75,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-05T12:50:29Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Alfred Shen",
+            "Aaron Shen"
+          ],
+          "title": "Gated Sparse Attention: Combining Computational Efficiency with Training Stability for Long-Context Language Models",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2601.15305",
+        "summary": "The computational burden of attention in long-context language models has motivated two largely independent lines of work: sparse attention mechanisms that reduce complexity by attending to selected tokens, and gated attention variants that improve training sta-bility while mitigating the attention sink phenomenon. We observe that these approaches address complementary weaknesses and propose Gated Sparse Attention (GSA), an architecture that realizes the benefits of both. GSA incorporates a gated lightning indexer with sigmoid activations that produce bounded, interpretable selection scores, an adaptive sparsity controller that modulates the number of attended tokens based on local uncertainty, and dual gating at the value and output stages. We establish theoretical foundations for the approach, including complexity analysis, expressiveness results, and convergence guarantees. In experiments with 1.7B parameter models trained on 400B tokens, GSA matches the efficiency of sparse-only baselines (12-16x speedup at 128K context) while achieving the quality gains associated with gated attention: perplexity improves from 6.03 to 5.70, RULER scores at 128K context nearly double, and attention to the first token, a proxy for attention sinks, drops from 47% to under 4%. Training stability improves markedly, with loss spikes reduced by 98%.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2601.15305",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-05T12:50:29Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Daniel Ohayon",
+            "Itay Lamprecht",
+            "Itay Hubara",
+            "Israel Cohen",
+            "Daniel Soudry",
+            "Noam Elata"
+          ],
+          "title": "Block Sparse Flash Attention",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2512.07011",
+        "summary": "Modern large language models increasingly require long contexts for reasoning and multi-document tasks, but attention's quadratic complexity creates a severe computational bottleneck. We present Block-Sparse FlashAttention (BSFA), a drop-in replacement that accelerates long-context inference while preserving model quality. Unlike methods that predict importance before computing scores, BSFA computes exact query-key similarities to select the top-k most important value blocks for each query. By comparing per-block maximum scores against calibrated thresholds, we skip approximately 50% of the computation and memory transfers for pruned blocks. Our training-free approach requires only a one-time threshold calibration on a small dataset to learn the per-layer and per-head attention score distributions. We provide a CUDA kernel implementation that can be used as a drop-in replacement for FlashAttention. On Llama-3.1-8B, BSFA achieves up to 1.10x speedup on real-world reasoning benchmarks and up to 1.24x for needle-in-a-haystack retrieval tasks while maintaining above 99% baseline accuracy, with certain configurations even improving accuracy by focusing on the most relevant content, substantially outperforming existing sparse attention methods. The implementation is available at https://github.com/Danielohayon/Block-Sparse-Flash-Attention",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2512.07011",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-05T12:50:30Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "llmxive follow-up: extending \"minimax sparse attention\" computer science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

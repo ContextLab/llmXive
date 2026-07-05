@@ -1,0 +1,570 @@
+{
+  "fetched_at": "2026-07-05T12:52:46Z",
+  "field": "statistics",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "statistics",
+      "idea_body_excerpt": "Statistical Analysis of Publicly Available COVID-19 Vaccine Adverse Event Reports",
+      "target_n": 5
+    },
+    "duration_seconds": 95.015,
+    "ended_at": "2026-07-05T12:52:46Z",
+    "expansion": null,
+    "extracted_queries": [
+      "vaccine injury compensation program data mining",
+      "VAERS spontaneous reporting system pharmacovigilance",
+      "disproportionality analysis signal detection reporting bias",
+      "adverse event frequency temporal clustering anomaly detection",
+      "confounding by indication underreporting rate estimation"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": false,
+      "verdict": null
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2008.03340"
+      ]
+    },
+    "per_query_hit_count": {
+      "Statistical Analysis of Publicly Available COVID-19 Vaccine Adverse Event Reports statistics": 3,
+      "VAERS spontaneous reporting system pharmacovigilance": 3,
+      "adverse event frequency temporal clustering anomaly detection": 3,
+      "confounding by indication underreporting rate estimation": 3,
+      "disproportionality analysis signal detection reporting bias": 3,
+      "vaccine injury compensation program data mining": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 3,
+      "rejections": [
+        {
+          "primary_pointer": "2103.05499",
+          "rationale": "The paper focuses on the statistical methodology and reporting of efficacy results from a controlled Phase 3 clinical trial, which is a distinct domain from the user's question regarding the analysis of passive surveillance data (adverse event reports) from the general population. It does not measure the same variables, mechanisms, or empirical populations (controlled trial participants vs. public reporting system data) required for inclusion under the provided criteria.",
+          "title": "Lessons Learned from the Bayesian Design and Analysis for the BNT162b2 COVID-19 Vaccine Phase 3 Trial"
+        },
+        {
+          "primary_pointer": "2606.09412",
+          "rationale": "The paper focuses on cryptographic security (post-quantum encryption and digital signatures) for pharmacovigilance data pipelines, which is a distinct construct from the user's question regarding the statistical analysis of adverse event report frequencies and patterns. While both involve \"adverse event reports,\" the paper does not measure the biological mechanism, statistical properties, or empirical baseline of the adverse events themselves, failing to meet any inclusion criteria (a-f) and fal",
+          "title": "Towards Post-Quantum Secure Pharmacovigilance with ML-KEM and ML-DSA"
+        },
+        {
+          "primary_pointer": "2010.02304",
+          "rationale": "The paper is rejected because it addresses the statistical concept of \"power\" (the probability of correctly rejecting a false null hypothesis) in the context of variable selection algorithms, which is a distinct construct from the user's query about \"adverse event reports\" (medical safety data). This falls under the rejection rule for \"Distinct construct sharing only homonym keywords,\" as the paper does not study vaccine safety, adverse events, or the specific epidemiological data the user is an",
+          "title": "A Power Analysis of the Conditional Randomization Test and Knockoffs"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-07-05T12:51:11Z",
+    "term_input": {
+      "normalized": "statistical analysis of publicly available covid-19 vaccine adverse event reports statistics",
+      "raw": "Statistical Analysis of Publicly Available COVID-19 Vaccine Adverse Event Reports statistics"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Clinicians in the frontline need to assess quickly whether a patient with symptoms indeed has COVID-19 or not. The difficulty of this task is exacerbated in low resource settings that may not have access to biotechnology tests. Furthermore, Tuberculosis (TB) remains a major health problem in several low- and middle-income countries and its common symptoms include fever, cough and tiredness, similarly to COVID-19. In order to help in the detection of COVID-19, we propose the extraction of deep features (DF) from chest X-ray images, a technology available in most hospitals, and their subsequent classification using machine learning methods that do not require large computational resources. We compiled a five-class dataset of X-ray chest images including a balanced number of COVID-19, viral pneumonia, bacterial pneumonia, TB, and healthy cases. We compared the performance of pipelines combining 14 individual state-of-the-art pre-trained deep networks for DF extraction with traditional machine learning classifiers. A pipeline consisting of ResNet-50 for DF computation and ensemble of subspace discriminant classifier was the best performer in the classification of the five classes, achieving a detection accuracy of 91.6+ 2.6% (accuracy + 95% Confidence Interval). Furthermore, the same pipeline achieved accuracies of 98.6+1.4% and 99.9+0.5% in simpler three-class and two-class classification problems focused on distinguishing COVID-19, TB and healthy cases; and COVID-19 and healthy images, respectively. The pipeline was computationally efficient requiring just 0.19 second to extract DF per X-ray image and 2 minutes for training a traditional classifier with more than 2000 images on a CPU machine. The results suggest the potential benefits of using our pipeline in the detection of COVID-19, particularly in resource-limited settings and it can run with limited computational resources.",
+          "claimed_authors": [
+            "Ali H. Al-Timemy",
+            "Rami N. Khushaba",
+            "Zahraa M. Mosa",
+            "Javier Escudero"
+          ],
+          "claimed_title": "An Efficient Mixture of Deep and Machine Learning Models for COVID-19 and Tuberculosis Detection Using X-Ray Images in Resource Limited Settings",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2007.08223"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='Statistical Analysis of Publicly Available COVID-19 Vaccine Adverse Event Report', candidate_title='An Efficient Mixture of Deep and Machine Learning Models for COVID-19 and Tuberculosis Detection Using X-Ray Images in Resource Limited Settings')",
+        "failed_at": "2026-07-05T12:52:31Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Huge volume of data from domain specific applications such as medical, financial, library, telephone, shopping records and individual are regularly generated. Sharing of these data is proved to be beneficial for data mining application. On one hand such data is an important asset to business decision making by analyzing it. On the other hand data privacy concerns may prevent data owners from sharing information for data analysis. In order to share data while preserving privacy, data owner must come up with a solution which achieves the dual goal of privacy preservation as well as an accuracy of data mining task - clustering and classification. An efficient and effective approach has been proposed that aims to protect privacy of sensitive information and obtaining data clustering with minimum information loss.",
+          "claimed_authors": [
+            "Hitesh Chhinkaniwala",
+            "Sanjay Garg"
+          ],
+          "claimed_title": "Tuple Value Based Multiplicative Data Perturbation Approach To Preserve Privacy In Data Stream Mining",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2013,
+          "primary_pointer": "1306.1334"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Statistical Analysis of Publicly Available COVID-19 Vaccine Adverse Event Report', candidate_title='Tuple Value Based Multiplicative Data Perturbation Approach To Preserve Privacy In Data Stream Mining')",
+        "failed_at": "2026-07-05T12:52:32Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Electronic health records (EHR's) are only a first step in capturing and utilizing health-related data - the problem is turning that data into useful information. Models produced via data mining and predictive analysis profile inherited risks and environmental/behavioral factors associated with patient disorders, which can be utilized to generate predictions about treatment outcomes. This can form the backbone of clinical decision support systems driven by live data based on the actual population. The advantage of such an approach based on the actual population is that it is \"adaptive\". Here, we evaluate the predictive capacity of a clinical EHR of a large mental healthcare provider (~75,000 distinct clients a year) to provide decision support information in a real-world clinical setting. Initial research has achieved a 70% success rate in predicting treatment outcomes using these methods.",
+          "claimed_authors": [
+            "Casey Bennett",
+            "Thomas Doub"
+          ],
+          "claimed_title": "Data Mining and Electronic Health Records: Selecting Optimal Clinical Treatments in Practice",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2011,
+          "primary_pointer": "1112.1668"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Statistical Analysis of Publicly Available COVID-19 Vaccine Adverse Event Report', candidate_title='Data Mining and Electronic Health Records: Selecting Optimal Clinical Treatments in Practice')",
+        "failed_at": "2026-07-05T12:52:32Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We study distributed optimization in the presence of Byzantine adversaries, where both data and computation are distributed among $m$ worker machines, $t$ of which may be corrupt. The compromised nodes may collaboratively and arbitrarily deviate from their pre-specified programs, and a designated (master) node iteratively computes the model/parameter vector for generalized linear models. In this work, we primarily focus on two iterative algorithms: Proximal Gradient Descent (PGD) and Coordinate Descent (CD). Gradient descent (GD) is a special case of these algorithms. PGD is typically used in the data-parallel setting, where data is partitioned across different samples, whereas, CD is used in the model-parallelism setting, where data is partitioned across the parameter space.\n  In this paper, we propose a method based on data encoding and error correction over real numbers to combat adversarial attacks. We can tolerate up to $t\\leq \\lfloor\\frac{m-1}{2}\\rfloor$ corrupt worker nodes, which is information-theoretically optimal. We give deterministic guarantees, and our method does not assume any probability distribution on the data. We develop a {\\em sparse} encoding scheme which enables computationally efficient data encoding and decoding. We demonstrate a trade-off between the corruption threshold and the resource requirements (storage, computational, and communication complexity). As an example, for $t\\leq\\frac{m}{3}$, our scheme incurs only a {\\em constant} overhead on these resources, over that required by the plain distributed PGD/CD algorithms which provide no adversarial protection. To the best of our knowledge, ours is the first paper that makes CD secure against adversarial attacks.\n  Our encoding scheme extends efficiently to the data streaming model and for stochastic gradient descent (SGD). We also give experimental results to show the efficacy of our proposed schemes.",
+          "claimed_authors": [
+            "Deepesh Data",
+            "Linqi Song",
+            "Suhas Diggavi"
+          ],
+          "claimed_title": "Data Encoding for Byzantine-Resilient Distributed Optimization",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1907.02664"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Statistical Analysis of Publicly Available COVID-19 Vaccine Adverse Event Report', candidate_title='Data Encoding for Byzantine-Resilient Distributed Optimization')",
+        "failed_at": "2026-07-05T12:52:32Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Inferring adverse events (AEs) of medical products from Spontaneous Reporting Systems (SRS) databases is a core challenge in contemporary pharmacovigilance. Bayesian methods for pharmacovigilance are attractive for their rigorous ability to simultaneously detect potential AE signals and estimate their strengths/degrees of relevance. However, existing Bayesian and empirical Bayesian methods impose restrictive parametric assumptions and/or demand substantial computational resources, limiting their practical utility. This paper introduces a suite of novel, scalable empirical Bayes methods for pharmacovigilance that utilize flexible non-parametric priors and custom, efficient data-driven estimation techniques to enhance signal detection and signal strength estimation at a low computational cost. Our highly flexible methods accommodate a broader range of data and achieve signal detection performance comparable to or better than existing Bayesian and empirical Bayesian approaches. More importantly, they provide coherent and high-fidelity estimation and uncertainty quantification for potential AE signal strengths, offering deeper insights into the comparative importance and relevance of AEs. Extensive simulation experiments across diverse data-generating scenarios demonstrate the superiority of our methods in terms of accurate signal strength estimation, as measured by replication root mean squared errors. Additionally, our methods maintain or exceed the signal detection performance of state-of-the-art techniques, as evaluated by frequentist false discovery rates and sensitivity metrics. Applications on FDA FAERS data for the statin group of drugs reveal interesting insights through Bayesian posterior probabilities.",
+          "claimed_authors": [
+            "Yihao Tan",
+            "Marianthi Markatou",
+            "Saptarshi Chakraborty"
+          ],
+          "claimed_title": "Flexible Empirical Bayesian Approaches to Pharmacovigilance for Simultaneous Signal Detection and Signal Strength Estimation in Spontaneous Reporting Systems Data",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2502.09816"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Statistical Analysis of Publicly Available COVID-19 Vaccine Adverse Event Report', candidate_title='Flexible Empirical Bayesian Approaches to Pharmacovigilance for Simultaneous Signal Detection and Signal Strength Estimation in Spontaneous Reporting Systems Data')",
+        "failed_at": "2026-07-05T12:52:33Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The number of biomedical image analysis challenges organized per year is steadily increasing. These international competitions have the purpose of benchmarking algorithms on common data sets, typically to identify the best method for a given problem. Recent research, however, revealed that common practice related to challenge reporting does not allow for adequate interpretation and reproducibility of results. To address the discrepancy between the impact of challenges and the quality (control), the Biomedical I mage Analysis ChallengeS (BIAS) initiative developed a set of recommendations for the reporting of challenges. The BIAS statement aims to improve the transparency of the reporting of a biomedical image analysis challenge regardless of field of application, image modality or task category assessed. This article describes how the BIAS statement was developed and presents a checklist which authors of biomedical image analysis challenges are encouraged to include in their submission when giving a paper on a challenge into review. The purpose of the checklist is to standardize and facilitate the review process and raise interpretability and reproducibility of challenge results by making relevant information explicit.",
+          "claimed_authors": [
+            "Lena Maier-Hein",
+            "Annika Reinke",
+            "Michal Kozubek",
+            "Anne L. Martel",
+            "Tal Arbel",
+            "Matthias Eisenmann",
+            "Allan Hanbuary",
+            "Pierre Jannin",
+            "Henning Müller",
+            "Sinan Onogur",
+            "Julio Saez-Rodriguez",
+            "Bram van Ginneken",
+            "Annette Kopp-Schneider",
+            "Bennett Landman"
+          ],
+          "claimed_title": "BIAS: Transparent reporting of biomedical image analysis challenges",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1910.04071"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Statistical Analysis of Publicly Available COVID-19 Vaccine Adverse Event Report', candidate_title='BIAS: Transparent reporting of biomedical image analysis challenges')",
+        "failed_at": "2026-07-05T12:52:33Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Bias in web search has been in the spotlight of bias detection research for quite a while. At the same time, little attention has been paid to query suggestions in this regard. Awareness of the problem of biased query suggestions has been raised. Likewise, there is a rising need for automatic bias detection approaches. This paper adds on the bias detection pipeline for bias detection in query suggestions of person-related search developed by Bonart et al. \\cite{Bonart_2019a}. The sparseness and lack of contextual metadata of query suggestions make them a difficult subject for bias detection. Furthermore, query suggestions are perceived very briefly and subliminally. To overcome these issues, perception-aware metrics are introduced. Consequently, the enhanced pipeline is able to better detect systematic topical bias in search engine query suggestions for person-related searches. The results of an analysis performed with the developed pipeline confirm this assumption. Due to the perception-aware bias detection metrics, findings produced by the pipeline can be assumed to reflect bias that users would discern.",
+          "claimed_authors": [
+            "Fabian Haak",
+            "Philipp Schaer"
+          ],
+          "claimed_title": "Perception-Aware Bias Detection for Query Suggestions",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2601.03730"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Statistical Analysis of Publicly Available COVID-19 Vaccine Adverse Event Report', candidate_title='Perception-Aware Bias Detection for Query Suggestions')",
+        "failed_at": "2026-07-05T12:52:33Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Anomaly detection presents a unique challenge in machine learning, due to the scarcity of labeled anomaly data. Recent work attempts to mitigate such problems by augmenting training of deep anomaly detection models with additional labeled anomaly samples. However, the labeled data often does not align with the target distribution and introduces harmful bias to the trained model. In this paper, we aim to understand the effect of a biased anomaly set on anomaly detection. Concretely, we view anomaly detection as a supervised learning task where the objective is to optimize the recall at a given false positive rate. We formally study the relative scoring bias of an anomaly detector, defined as the difference in performance with respect to a baseline anomaly detector. We establish the first finite sample rates for estimating the relative scoring bias for deep anomaly detection, and empirically validate our theoretical results on both synthetic and real-world datasets. We also provide an extensive empirical study on how a biased training anomaly set affects the anomaly score function and therefore the detection performance on different anomaly classes. Our study demonstrates scenarios in which the biased anomaly set can be useful or problematic, and provides a solid benchmark for future research.",
+          "claimed_authors": [
+            "Ziyu Ye",
+            "Yuxin Chen",
+            "Haitao Zheng"
+          ],
+          "claimed_title": "Understanding the Effect of Bias in Deep Anomaly Detection",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2105.07346"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Statistical Analysis of Publicly Available COVID-19 Vaccine Adverse Event Report', candidate_title='Understanding the Effect of Bias in Deep Anomaly Detection')",
+        "failed_at": "2026-07-05T12:52:33Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Traditional anomaly detection in human mobility has primarily focused on trajectory-level analysis, identifying statistical outliers or spatiotemporal inconsistencies across aggregated movement traces. However, detecting individual-level anomalies, i.e., unusual deviations in a person's mobility behavior relative to their own historical patterns, within datasets encompassing large populations remains a significant challenge. In this paper, we present BeSTAD (Behavior-aware Spatio-Temporal Anomaly Detection for Human Mobility Data), an unsupervised framework that captures individualized behavioral signatures across large populations and uncovers fine-grained anomalies by jointly modeling spatial context and temporal dynamics. BeSTAD learns semantically enriched mobility representations that integrate location meaning and temporal patterns, enabling the detection of subtle deviations in individual movement behavior. BeSTAD further employs a behavior-cluster-aware modeling mechanism that builds personalized behavioral profiles from normal activity and identifies anomalies through cross-period behavioral comparison with consistent semantic alignment. Building on prior work in mobility behavior clustering, this approach enables not only the detection of behavioral shifts and deviations from established routines but also the identification of individuals exhibiting such changes within large-scale mobility datasets. By learning individual behaviors directly from unlabeled data, BeSTAD advances anomaly detection toward personalized and interpretable mobility analysis.",
+          "claimed_authors": [
+            "Junyi Xie",
+            "Jina Kim",
+            "Yao-Yi Chiang",
+            "Lingyi Zhao",
+            "Khurram Shafique"
+          ],
+          "claimed_title": "BeSTAD: Behavior-Aware Spatio-Temporal Anomaly Detection for Human Mobility Data",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2510.12076"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Statistical Analysis of Publicly Available COVID-19 Vaccine Adverse Event Report', candidate_title='BeSTAD: Behavior-Aware Spatio-Temporal Anomaly Detection for Human Mobility Data')",
+        "failed_at": "2026-07-05T12:52:33Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Large language models (LLMs) have shown their potential in long-context understanding and mathematical reasoning. In this paper, we study the problem of using LLMs to detect tabular anomalies and show that pre-trained LLMs are zero-shot batch-level anomaly detectors. That is, without extra distribution-specific model fitting, they can discover hidden outliers in a batch of data, demonstrating their ability to identify low-density data regions. For LLMs that are not well aligned with anomaly detection and frequently output factual errors, we apply simple yet effective data-generating processes to simulate synthetic batch-level anomaly detection datasets and propose an end-to-end fine-tuning strategy to bring out the potential of LLMs in detecting real anomalies. Experiments on a large anomaly detection benchmark (ODDS) showcase i) GPT-4 has on-par performance with the state-of-the-art transductive learning-based anomaly detection methods and ii) the efficacy of our synthetic dataset and fine-tuning strategy in aligning LLMs to this task.",
+          "claimed_authors": [
+            "Aodong Li",
+            "Yunhan Zhao",
+            "Chen Qiu",
+            "Marius Kloft",
+            "Padhraic Smyth",
+            "Maja Rudolph",
+            "Stephan Mandt"
+          ],
+          "claimed_title": "Anomaly Detection of Tabular Data Using LLMs",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2406.16308"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Statistical Analysis of Publicly Available COVID-19 Vaccine Adverse Event Report', candidate_title='Anomaly Detection of Tabular Data Using LLMs')",
+        "failed_at": "2026-07-05T12:52:33Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We present new methods for batch anomaly detection in multivariate time series. Our methods are based on maximizing the Kullback-Leibler divergence between the data distribution within and outside an interval of the time series. An empirical analysis shows the benefits of our algorithms compared to methods that treat each time step independently from each other without optimizing with respect to all possible intervals.",
+          "claimed_authors": [
+            "Erik Rodner",
+            "Björn Barz",
+            "Yanira Guanche",
+            "Milan Flach",
+            "Miguel Mahecha",
+            "Paul Bodesheim",
+            "Markus Reichstein",
+            "Joachim Denzler"
+          ],
+          "claimed_title": "Maximally Divergent Intervals for Anomaly Detection",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1610.06761"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Statistical Analysis of Publicly Available COVID-19 Vaccine Adverse Event Report', candidate_title='Maximally Divergent Intervals for Anomaly Detection')",
+        "failed_at": "2026-07-05T12:52:33Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The success of the multilingual automatic speech recognition systems empowered many voice-driven applications. However, measuring the performance of such systems remains a major challenge, due to its dependency on manually transcribed speech data in both mono- and multilingual scenarios. In this paper, we propose a novel multilingual framework -- eWER3 -- jointly trained on acoustic and lexical representation to estimate word error rate. We demonstrate the effectiveness of eWER3 to (i) predict WER without using any internal states from the ASR and (ii) use the multilingual shared latent space to push the performance of the close-related languages. We show our proposed multilingual model outperforms the previous monolingual word error rate estimation method (eWER2) by an absolute 9\\% increase in Pearson correlation coefficient (PCC), with better overall estimation between the predicted and reference WER.",
+          "claimed_authors": [
+            "Shammur Absar Chowdhury",
+            "Ahmed Ali"
+          ],
+          "claimed_title": "Multilingual Word Error Rate Estimation: e-WER3",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2304.00649"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Statistical Analysis of Publicly Available COVID-19 Vaccine Adverse Event Report', candidate_title='Multilingual Word Error Rate Estimation: e-WER3')",
+        "failed_at": "2026-07-05T12:52:33Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In this paper, we propose a novel motion-compensated frame rate up-conversion (MC-FRUC) algorithm. The proposed algorithm creates interpolated frames by first estimating motion vectors using unilateral (jointing forward and backward) and bilateral motion estimation. Then motion vectors are combined based on adaptive threshold, in order to creates high-quality interpolated frames and reduce block artifacts. Since motion-compensated frame interpolation along unilateral motion trajectories yields holes, a new algorithm is introduced to resolve this problem. The experimental results show that the quality of the interpolated frames using the proposed algorithm is much higher than the existing algorithms.",
+          "claimed_authors": [
+            "Hanieh Naderi",
+            "Mohammad Rahmati"
+          ],
+          "claimed_title": "Triple Motion Estimation and Frame Interpolation based on Adaptive Threshold for Frame Rate Up-Conversion",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2203.03621"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Statistical Analysis of Publicly Available COVID-19 Vaccine Adverse Event Report', candidate_title='Triple Motion Estimation and Frame Interpolation based on Adaptive Threshold for Frame Rate Up-Conversion')",
+        "failed_at": "2026-07-05T12:52:33Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In the context of kernel density estimation, we give a characterization of the kernels for which the parametric mean integrated squared error rate $n^{-1}$ may be obtained, where $n$ is the sample size. Also, for the cases where this rate is attainable, we give an asymptotic bandwidth choice that makes the kernel estimator consistent in mean integrated squared error at that rate and a numerical example showing the superior performance of the superkernel estimator when the bandwidth is properly chosen.",
+          "claimed_authors": [
+            "J. E. Chacón",
+            "J. Montanero",
+            "A. G. Nogales"
+          ],
+          "claimed_title": "A note on kernel density estimation at a parametric rate",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2011,
+          "primary_pointer": "1111.4542"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Statistical Analysis of Publicly Available COVID-19 Vaccine Adverse Event Report', candidate_title='A note on kernel density estimation at a parametric rate')",
+        "failed_at": "2026-07-05T12:52:33Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "In this paper, we develop new test statistics for private hypothesis testing. These statistics are designed specifically so that their asymptotic distributions, after accounting for noise added for privacy concerns, match the asymptotics of the classical (non-private) chi-square tests for testing if the multinomial data parameters lie in lower dimensional manifolds (examples include goodness of fit and independence testing). Empirically, these new test statistics outperform prior work, which focused on noisy versions of existing statistics.",
+          "claimed_authors": [
+            "Daniel Kifer",
+            "Ryan Rogers"
+          ],
+          "claimed_title": "A New Class of Private Chi-Square Tests",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1610.07662"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Statistical Analysis of Publicly Available COVID-19 Vaccine Adverse Event Report', candidate_title='A New Class of Private Chi-Square Tests')",
+        "failed_at": "2026-07-05T12:52:33Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "In feature selection problems, knockoffs are synthetic controls for the original features. Employing knockoffs allows analysts to use nearly any variable importance measure or \"feature statistic\" to select features while rigorously controlling false positives. However, it is not clear which statistic maximizes power. In this paper, we argue that state-of-the-art lasso-based feature statistics often prioritize features that are unlikely to be discovered, leading to low power in real applications. Instead, we introduce masked likelihood ratio (MLR) statistics, which prioritize features according to one's ability to distinguish each feature from its knockoff. Although no single feature statistic is uniformly most powerful in all situations, we show that MLR statistics asymptotically maximize the number of discoveries under a user-specified Bayesian model of the data. (Like all feature statistics, MLR statistics always provide frequentist error control.) This result places no restrictions on the problem dimensions and makes no parametric assumptions; instead, we require a \"local dependence\" condition that depends only on known quantities. In simulations and three real applications, MLR statistics outperform state-of-the-art feature statistics, including in settings where the Bayesian model is misspecified. We implement MLR statistics in the python package knockpy; our implementation is often faster than computing a cross-validated lasso.",
+          "claimed_authors": [
+            "Asher Spector",
+            "William Fithian"
+          ],
+          "claimed_title": "Asymptotically Optimal Knockoff Statistics via the Masked Likelihood Ratio",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2212.08766"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Statistical Analysis of Publicly Available COVID-19 Vaccine Adverse Event Report', candidate_title='Asymptotically Optimal Knockoff Statistics via the Masked Likelihood Ratio')",
+        "failed_at": "2026-07-05T12:52:33Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "We consider the problem of conditional independence testing of $X$ and $Y$ given $Z$ where $X,Y$ and $Z$ are three real random variables and $Z$ is continuous. We focus on two main cases - when $X$ and $Y$ are both discrete, and when $X$ and $Y$ are both continuous. In view of recent results on conditional independence testing (Shah and Peters, 2018), one cannot hope to design non-trivial tests, which control the type I error for all absolutely continuous conditionally independent distributions, while still ensuring power against interesting alternatives. Consequently, we identify various, natural smoothness assumptions on the conditional distributions of $X,Y|Z=z$ as $z$ varies in the support of $Z$, and study the hardness of conditional independence testing under these smoothness assumptions. We derive matching lower and upper bounds on the critical radius of separation between the null and alternative hypotheses in the total variation metric. The tests we consider are easily implementable and rely on binning the support of the continuous variable $Z$. To complement these results, we provide a new proof of the hardness result of Shah and Peters.",
+          "claimed_authors": [
+            "Matey Neykov",
+            "Sivaraman Balakrishnan",
+            "Larry Wasserman"
+          ],
+          "claimed_title": "Minimax Optimal Conditional Independence Testing",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2001.03039"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Statistical Analysis of Publicly Available COVID-19 Vaccine Adverse Event Report', candidate_title='Minimax Optimal Conditional Independence Testing')",
+        "failed_at": "2026-07-05T12:52:33Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "We consider the problem of generating confidence sets in randomized experiments with noncompliance. We show that a refinement of a randomization-based procedure proposed by Imbens and Rosenbaum (2005) has desirable properties. Namely, we show that using a studentized Anderson--Rubin-type statistic as a test statistic yields confidence sets that are finite-sample exact under treatment effect homogeneity, and remain asymptotically valid for the Local Average Treatment Effect when the treatment effect is heterogeneous. We provide a uniform analysis of this procedure and efficient algorithms to construct the confidence set.",
+          "claimed_authors": [
+            "P. M. Aronow",
+            "Haoge Chang",
+            "Patrick Lopatto"
+          ],
+          "claimed_title": "Randomization-based confidence sets for the local average treatment effect",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2404.18786"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Statistical Analysis of Publicly Available COVID-19 Vaccine Adverse Event Report', candidate_title='Randomization-based confidence sets for the local average treatment effect')",
+        "failed_at": "2026-07-05T12:52:33Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "In science and medicine, model interpretations may be reported as discoveries of natural phenomena or used to guide patient treatments. In such high-stakes tasks, false discoveries may lead investigators astray. These applications would therefore benefit from control over the finite-sample error rate of interpretations. We reframe black box model interpretability as a multiple hypothesis testing problem. The task is to discover \"important\" features by testing whether the model prediction is significantly different from what would be expected if the features were replaced with uninformative counterfactuals. We propose two testing methods: one that provably controls the false discovery rate but which is not yet feasible for large-scale applications, and an approximate testing method which can be applied to real-world data sets. In simulation, both tests have high power relative to existing interpretability methods. When applied to state-of-the-art vision and language models, the framework selects features that intuitively explain model predictions. The resulting explanations have the additional advantage that they are themselves easy to interpret.",
+          "claimed_authors": [
+            "Collin Burns",
+            "Jesse Thomason",
+            "Wesley Tansey"
+          ],
+          "claimed_title": "Interpreting Black Box Models via Hypothesis Testing",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1904.00045"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Statistical Analysis of Publicly Available COVID-19 Vaccine Adverse Event Report', candidate_title='Interpreting Black Box Models via Hypothesis Testing')",
+        "failed_at": "2026-07-05T12:52:33Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "The perturbation of a transcription factor should affect the expression levels of its direct targets. However, not all genes showing changes in expression are direct targets. To increase the chance of detecting direct targets, we propose a modified two-group model where the null group corresponds to genes which are not direct targets, but can have small non-zero effects. We model the behaviour of genes from the null set by a Gaussian distribution with unknown variance $τ^2$, and we discuss and compare three methods which adaptively estimate $τ^2$ from the data: the iterated empirical Bayes estimator, the truncated MLE and the central moment matching estimator. We conduct a detailed analysis of the properties of the iterated EB estimate which has the best performance in the simulations. In particular, we provide theoretical guarantee of its good performance under mild conditions.\n  We provide simulations comparing the new modeling approach with existing methods, and the new approach shows more stable and better performance under different situations. We also apply it to a real data set from gene knock-down experiments and obtained better results compared with the original two-group model testing for non-zero effects.",
+          "claimed_authors": [
+            "Leying Guan",
+            "Xi Chen",
+            "Wing Hung Wong"
+          ],
+          "claimed_title": "Detecting strong signals in gene perturbation experiments: An adaptive approach with power guarantee and FDR control",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1807.06776"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Statistical Analysis of Publicly Available COVID-19 Vaccine Adverse Event Report', candidate_title='Detecting strong signals in gene perturbation experiments: An adaptive approach with power guarantee and FDR control')",
+        "failed_at": "2026-07-05T12:52:33Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "Designing efficient algorithms for multi-agent reinforcement learning (MARL) is fundamentally challenging because the size of the joint state and action spaces grows exponentially in the number of agents. These difficulties are exacerbated when balancing sequential global decision-making with local agent interactions. In this work, we propose a new algorithm $\\texttt{SUBSAMPLE-MFQ}$ ($\\textbf{Subsample}$-$\\textbf{M}$ean-$\\textbf{F}$ield-$\\textbf{Q}$-learning) and a decentralized randomized policy for a system with $n$ agents. For any $k\\leq n$, our algorithm learns a policy for the system in time polynomial in $k$. We prove that this learned policy converges to the optimal policy on the order of $\\tilde{O}(1/\\sqrt{k})$ as the number of subsampled agents $k$ increases. In particular, this bound is independent of the number of agents $n$.",
+          "claimed_authors": [
+            "Emile Anand",
+            "Ishani Karmarkar",
+            "Guannan Qu"
+          ],
+          "claimed_title": "Mean-Field Sampling for Cooperative Multi-Agent Reinforcement Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2412.00661"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Statistical Analysis of Publicly Available COVID-19 Vaccine Adverse Event Report', candidate_title='Mean-Field Sampling for Cooperative Multi-Agent Reinforcement Learning')",
+        "failed_at": "2026-07-05T12:52:33Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "Let $X:=(X_1, \\ldots, X_p)$ be random objects (the inputs), defined on some probability space $(Ω,{\\mathcal{F}}, \\mathbb P)$ and valued in some measurable space $E=E_1\\times\\ldots \\times E_p$. Further, let $Y:=Y = f(X_1, \\ldots, X_p)$ be the output. Here, $f$ is a measurable function from $E$ to some Hilbert space $\\mathbb{H}$ ($\\mathbb{H}$ could be either of finite or infinite dimension). In this work, we give a natural generalization of the Sobol indices (that are classically defined when $Y\\in\\mathbb R$ ), when the output belongs to $\\mathbb{H}$. These indices have very nice properties. First, they are invariant. under isometry and scaling. Further they can be, as in dimension $1$, easily estimated by using the so-called Pick and Freeze method. We investigate the asymptotic behaviour of such estimation scheme.",
+          "claimed_authors": [
+            "Fabrice Gamboa",
+            "Alexandre Janon",
+            "Thierry Klein",
+            "Agnès Lagnoux"
+          ],
+          "claimed_title": "Sensitivity analysis for multidimensional and functional outputs",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2013,
+          "primary_pointer": "1311.1797"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Statistical Analysis of Publicly Available COVID-19 Vaccine Adverse Event Report', candidate_title='Sensitivity analysis for multidimensional and functional outputs')",
+        "failed_at": "2026-07-05T12:52:33Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "It is known that for a certain class of single index models (SIMs) $Y = f(\\boldsymbol{X}_{p \\times 1}^\\intercal\\boldsymbolβ_0, \\varepsilon)$, support recovery is impossible when $\\boldsymbol{X} \\sim \\mathcal{N}(0, \\mathbb{I}_{p \\times p})$ and a model complexity adjusted sample size is below a critical threshold. Recently, optimal algorithms based on Sliced Inverse Regression (SIR) were suggested. These algorithms work provably under the assumption that the design $\\boldsymbol{X}$ comes from an i.i.d. Gaussian distribution. In the present paper we analyze algorithms based on covariance screening and least squares with $L_1$ penalization (i.e. LASSO) and demonstrate that they can also enjoy optimal (up to a scalar) rescaled sample size in terms of support recovery, albeit under slightly different assumptions on $f$ and $\\varepsilon$ compared to the SIR based algorithms. Furthermore, we show more generally, that LASSO succeeds in recovering the signed support of $\\boldsymbolβ_0$ if $\\boldsymbol{X} \\sim \\mathcal{N}(0, \\boldsymbolΣ)$, and the covariance $\\boldsymbolΣ$ satisfies the irrepresentable condition. Our work extends existing results on the support recovery of LASSO for the linear model, to a more general class of SIMs.",
+          "claimed_authors": [
+            "Matey Neykov",
+            "Jun S. Liu",
+            "Tianxi Cai"
+          ],
+          "claimed_title": "L1-Regularized Least Squares for Support Recovery of High Dimensional Single Index Models with Gaussian Designs",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2015,
+          "primary_pointer": "1511.08102"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Statistical Analysis of Publicly Available COVID-19 Vaccine Adverse Event Report', candidate_title='L1-Regularized Least Squares for Support Recovery of High Dimensional Single Index Models with Gaussian Designs')",
+        "failed_at": "2026-07-05T12:52:33Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Bangyao Zhao",
+            "Yuan Zhong",
+            "Jian Kang",
+            "Lili Zhao"
+          ],
+          "title": "Bayesian learning of COVID-19 Vaccine safety while incorporating Adverse Events ontology",
+          "venue": "arXiv",
+          "year": 2022
+        },
+        "primary_pointer": "2202.05370",
+        "summary": "While vaccines are crucial to end the COVID-19 pandemic, public confidence in vaccine safety has always been vulnerable. Many statistical methods have been applied to VAERS (Vaccine Adverse Event Reporting System) database to study the safety of COVID-19 vaccines. However, all these methods ignored the adverse event (AE) ontology. AEs are naturally related; for example, events of retching, dysphagia, and reflux are all related to an abnormal digestive system. Explicitly bringing AE relationships into the model can aid in the detection of true AE signals amid the noise while reducing false positives. We propose a Bayesian graphical model to estimate all AEs while incorporating the AE ontology simultaneously. We proposed strategies to construct conjugate forms leading to an efficient Gibbs sampler. Built upon the posterior distributions, we proposed a negative control approach to mitigate reporting bias and an enrichment approach to detect AE groups of concern. The proposed methods were evaluated using simulation studies and were further illustrated on studying the safety of COVID-19 vaccines. The proposed methods were implemented in R package \\textit{BGrass} and source code are available at https://github.com/BangyaoZhao/BGrass.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2202.05370",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6667,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-05T12:52:31Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Xiruo Ding",
+            "Trevor Cohen"
+          ],
+          "title": "Retrofitting Vector Representations of Adverse Event Reporting Data to Structured Knowledge to Improve Pharmacovigilance Signal Detection",
+          "venue": "arXiv",
+          "year": 2020
+        },
+        "primary_pointer": "2008.03340",
+        "summary": "Adverse drug events (ADE) are prevalent and costly. Clinical trials are constrained in their ability to identify potential ADEs, motivating the development of spontaneous reporting systems for post-market surveillance. Statistical methods provide a convenient way to detect signals from these reports but have limitations in leveraging relationships between drugs and ADEs given their discrete count-based nature. A previously proposed method, aer2vec, generates distributed vector representations of ADE report entities that capture patterns of similarity but cannot utilize lexical knowledge. We address this limitation by retrofitting aer2vec drug embeddings to knowledge from RxNorm and developing a novel retrofitting variant using vector rescaling to preserve magnitude. When evaluated in the context of a pharmacovigilance signal detection task, aer2vec with retrofitting consistently outperforms disproportionality metrics when trained on minimally preprocessed data. Retrofitting with rescaling results in further improvements in the larger and more challenging of two pharmacovigilance reference sets used for evaluation.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2008.03340",
+          "http_status": 200,
+          "pdf_sample_score": 0.245,
+          "query_relevance_score": 0.4444,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-05T12:52:33Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "statistical analysis of publicly available covid-19 vaccine adverse event reports statistics",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

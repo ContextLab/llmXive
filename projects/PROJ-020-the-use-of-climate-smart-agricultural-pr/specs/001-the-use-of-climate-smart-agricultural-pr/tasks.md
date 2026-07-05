@@ -59,9 +59,9 @@
 - [X] T004 Setup directory structure for `data/raw/`, `data/processed/`, and `state/` for checksums
 - [X] T005 [P] Implement `code/utils/logging.py` for provenance logging (mapping derived variables to raw IDs)
 - [X] T006 [P] Create `code/utils/config.py` to manage environment variables (target countries, years, RAM limits)
-- [~] T007 Create base data schema definitions in `specs/001-csa-food-security/contracts/dataset.schema.yaml`
-- [~] T008 [P] Implement `code/data/download.py` with function stubs: `download_lsms(country, year)`, `download_nasa_power(lat, lon, start, end)`, `download_faostat(indicator)`
-- [~] T009 Setup pytest environment in `tests/` with configuration for CPU-only execution
+- [ ] T007 Create base data schema definitions in `specs/001-csa-food-security/contracts/dataset.schema.yaml`
+- [ ] T008 [P] Implement `code/data/download.py` with function stubs: `download_lsms(country, year)`, `download_nasa_power(lat, lon, start, end)`, `download_faostat(indicator)`
+- [ ] T009 Setup pytest environment in `tests/` with configuration for CPU-only execution
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -77,12 +77,12 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [~] T010 [P] [US1] Contract test for data schema validation in `tests/contract/test_dataset_schema.py`
-- [~] T011 [P] [US1] Integration test for download and merge pipeline in `tests/integration/test_data_pipeline.py` <!-- FAILED: unspecified -->
+- [ ] T010 [P] [US1] Contract test for data schema validation in `tests/contract/test_dataset_schema.py`
+- [ ] T011 [P] [US1] Integration test for download and merge pipeline in `tests/integration/test_data_pipeline.py` <!-- FAILED: unspecified -->
 
 ### Implementation for User Story 1
 
-- [~] T012 [P] [US1] Implement LSMS downloader in `code/data/download.py` targeting Kenya, India, Vietnam (-2023) with error handling for missing years
+- [ ] T012 [P] [US1] Implement LSMS downloader in `code/data/download.py` targeting Kenya, India, Vietnam (-2023) with error handling for missing years
 - [~] T013 [P] [US1] Implement NASA POWER climate downloader in `code/data/download.py` using `requests` and nearest-neighbor spatial interpolation for gaps ≤ 3 months
 - [~] T014 [P] [US1] Implement FAOSTAT agricultural indicator downloader in `code/data/download.py`
 - [~] T015 [US1] Implement data cleaning and merging logic in `code/data/clean.py`:
@@ -126,11 +126,11 @@
 - [~] T025 [US2] Implement multiple hypothesis correction in `code/analysis/model.py`:
  - Apply **Benjamini-Hochberg FDR correction** (replacing Bonferroni) for > 5 hypotheses to control false discovery rate in hierarchical data
 - [~] T025b [US2] Verify Benjamini-Hochberg FDR correction implementation against Plan requirements in `tests/unit/test_model_correction.py`
-- [ ] T026 [US2] Implement robustness check logic in `code/analysis/model.py`:
+- [~] T026 [US2] Implement robustness check logic in `code/analysis/model.py`:
  - Alternative variable specifications
  - Sensitivity analysis on CSA adoption threshold (sweep moderate to strict cutoffs) and **report variance in significance rates** as per FR-007
-- [ ] T027 [US2] Implement timeout handling in `code/analysis/model.py` to log state and **attempt a reduced-batch retry** if > 6 hours
-- [ ] T028 [US2] Implement timeout verification and performance benchmarking in `tests/integration/test_model_timeout.py` to measure convergence time against GitHub Actions free-tier limit (SC-002)
+- [~] T027 [US2] Implement timeout handling in `code/analysis/model.py` to log state and **attempt a reduced-batch retry** if > 6 hours
+- [~] T028 [US2] Implement timeout verification and performance benchmarking in `tests/integration/test_model_timeout.py` to measure convergence time against GitHub Actions free-tier limit (SC-002)
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently (model fitted, diagnostics run, results outputted)
 
@@ -144,15 +144,15 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T029 [P] [US3] Contract test for plot output files in `tests/contract/test_plot_outputs.py`
-- [ ] T030 [P] [US3] Integration test for robustness check execution in `tests/integration/test_robustness.py`
+- [~] T029 [P] [US3] Contract test for plot output files in `tests/contract/test_plot_outputs.py`
+- [~] T030 [P] [US3] Integration test for robustness check execution in `tests/integration/test_robustness.py`
 
 ### Implementation for User Story 3
 
-- [ ] T031 [US3] Implement scatter plot generation in `code/viz/plots.py` (CSA Index vs. Food Security) **(Must run after T023)**
-- [ ] T032 [US3] Implement coefficient plot generation in `code/viz/plots.py` (standardized coefficients with confidence intervals)
-- [ ] T033 [US3] Implement regional map generation in `code/viz/plots.py` using `geopandas` to visualize spatial distribution of CSA adoption and outcomes
-- [ ] T034 [US3] Implement distribution plot generation in `code/viz/plots.py`
+- [~] T031 [US3] Implement scatter plot generation in `code/viz/plots.py` (CSA Index vs. Food Security) **(Must run after T023)**
+- [~] T032 [US3] Implement coefficient plot generation in `code/viz/plots.py` (standardized coefficients with confidence intervals)
+- [~] T033 [US3] Implement regional map generation in `code/viz/plots.py` using `geopandas` to visualize spatial distribution of CSA adoption and outcomes
+- [~] T034 [US3] Implement distribution plot generation in `code/viz/plots.py`
 - [ ] T035 [US3] Implement leave-one-region-out cross-validation in `code/analysis/robustness.py` **(Must run after T023)**
 - [ ] T036 [US3] Implement bootstrap resampling with a sufficient number of iterations. in `code/analysis/robustness.py` to validate model stability and report variance estimates
 - [ ] T037 [US3] Create `code/main.py` entry point extension to orchestrate the full analysis and viz pipeline (Model → Diagnostics → Robustness → Plots)

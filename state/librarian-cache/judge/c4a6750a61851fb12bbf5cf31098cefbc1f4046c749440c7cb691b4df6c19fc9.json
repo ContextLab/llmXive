@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2606.09412",
+  "judged_at": "2026-07-05T12:52:40Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "statistical analysis of publicly available covid-19 vaccine adverse event reports statistics",
+  "rationale": "The paper focuses on cryptographic security (post-quantum encryption and digital signatures) for pharmacovigilance data pipelines, which is a distinct construct from the user's question regarding the statistical analysis of adverse event report frequencies and patterns. While both involve \"adverse event reports,\" the paper does not measure the biological mechanism, statistical properties, or empirical baseline of the adverse events themselves, failing to meet any inclusion criteria (a-f) and fal",
+  "relevant": false
+}

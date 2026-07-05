@@ -1,5 +1,9 @@
 ? T001 Create project structure by executing `mkdir -p projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/{data/raw,data/processed,models,services,experiments,validation,utils,tests/unit,tests/integration,tests/contract,scripts}`
+: 2
+? T004b [P] Create `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/scripts/record_commit_hashes.py`
+  to record specific commit hashes for ALFWorld/TextWorld into `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/data/commit_hashes.txt`
+  (Constitution Principle I).
 : 1
-? T003b [P] Create `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/.black.toml`
-  (or `pyproject.toml` section) for formatting.
+? T004c [P] Create `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/scripts/profile_memory.py`
+  to verify memory footprint < 7GB during index construction.
 : 1

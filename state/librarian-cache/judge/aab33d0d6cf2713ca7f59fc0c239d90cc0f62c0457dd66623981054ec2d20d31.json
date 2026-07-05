@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2202.05370",
+  "judged_at": "2026-07-05T12:52:38Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "statistical analysis of publicly available covid-19 vaccine adverse event reports statistics",
+  "rationale": "This paper directly addresses the user's question by proposing and applying a specific statistical methodology (Bayesian graphical models) to analyze the exact same data source (VAERS) for the same subject (COVID-19 vaccine safety), satisfying criteria (a) for same-mechanism evidence and (b) for measuring the dependent variable on the user's domain.",
+  "relevant": true
+}

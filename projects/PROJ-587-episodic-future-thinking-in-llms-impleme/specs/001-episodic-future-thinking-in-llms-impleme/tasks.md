@@ -51,7 +51,7 @@
 
 - [X] T003a [P] Create `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/.ruff.toml` with strict linting rules.
 
-- [ ] T003b [P] Create `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/.black.toml` (or `pyproject.toml` section) for formatting.
+- [X] T003b [P] Create `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/.black.toml` (or `pyproject.toml` section) for formatting.
 
 - [X] T003c [P] Create `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/.pre-commit-config.yaml` to enforce ruff and black.
 
@@ -63,13 +63,13 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [~] T004a [P] Create `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/scripts/download_data.sh` to fetch ALFWorld/TextWorld datasets from official repositories.
+- [X] T004a [P] Create `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/scripts/download_data.sh` to fetch ALFWorld/TextWorld datasets from official repositories.
 
 - [ ] T004b [P] Create `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/scripts/record_commit_hashes.py` to record specific commit hashes for ALFWorld/TextWorld into `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/data/commit_hashes.txt` (Constitution Principle I).
 
 - [ ] T004c [P] Create `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/scripts/profile_memory.py` to verify memory footprint < 7GB during index construction.
 
-- [ ] T005 [P] Implement `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/utils/update_state.py` to manage artifact hashes and timestamps (Constitution Principle V).
+- [X] T005 [P] Implement `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/utils/update_state.py` to manage artifact hashes and timestamps (Constitution Principle V).
 
 - [ ] T006 [P] Implement `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/utils/reference_validator.py` and pre-commit hook for citation verification (Constitution Principle II). Note: Updated scope to validate `plan.md` as it is the `implementation-plan` artifact.
 
@@ -93,7 +93,7 @@
 
 **Goal**: Implement a CPU-optimized neural episodic control module that stores (state, action, outcome) tuples with semantic embeddings and supports high-precision retrieval.
 
-**Independent Test**: Record 100 planning trajectories, store them, and verify top-5 retrieval precision ≥ 0.80 with cosine similarity ≥ 0.75 within 500ms on CPU. [UNRESOLVED-CLAIM: c_b101b948 — status=not_enough_info]
+**Independent Test**: Record 100 planning trajectories, store them, and verify top-5 retrieval precision ≥ 0.80 with cosine similarity ≥ 0.75 within 500ms on CPU. [UNRESOLVED-CLAIM: c_50506279 — status=not_enough_info]
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
@@ -118,7 +118,7 @@
 
 - [ ] T014 [US1] Implement `RetrievalService` with conflict resolution logic in `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/services/retrieval_service.py`.
  - *Conflict Definition*: Same `state_hash`, different `outcome_hash`.
- - *Logic*: Flag conflict if similarity difference < 0.15; default to most recent. [UNRESOLVED-CLAIM: c_6ca9aa15 — status=not_enough_info]
+ - *Logic*: Flag conflict if similarity difference < 0.15; default to most recent.
  - *Addressing Eric Kandel*: Implement "consolidation" (timestamp-based) to distinguish specific events.
 
 - [ ] T015 [US1] Implement fallback logic: if retrieval count ≤ 2, default to baseline transformer and log event in `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/services/retrieval_service.py`.
@@ -135,7 +135,7 @@
 
 **Goal**: Generate future planning scenarios by combining retrieved episodic memories with current state, ensuring coherence and statistical validity.
 
-**Independent Test**: Generate plans for 50 held-out tasks; measure accuracy against baseline; report effect size d≥0.8. [UNRESOLVED-CLAIM: c_b2168e11 — status=not_enough_info]
+**Independent Test**: Generate plans for 50 held-out tasks; measure accuracy against baseline; report effect size d≥0.8. [UNRESOLVED-CLAIM: c_60b64a45 — status=not_enough_info]
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
@@ -303,6 +303,6 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **CPU Constraint**: All models and data processing MUST fit within 7GB RAM and run on 2 CPU cores. [UNRESOLVED-CLAIM: c_c1f5e728 — status=not_enough_info] No CUDA, no 8-bit quantization, no large LLMs.
+- **CPU Constraint**: All models and data processing MUST fit within 7GB RAM and run on 2 CPU cores. No CUDA, no 8-bit quantization, no large LLMs.
 - **Data Integrity**: Use real ALFWorld/TextWorld datasets via official repositories. No synthetic/fake data generation for inputs.
 - **Reproducibility**: All evaluation metrics (including human evaluation) must be reproducible via deterministic recording of raw ratings and calculation of inter-rater reliability in CI.

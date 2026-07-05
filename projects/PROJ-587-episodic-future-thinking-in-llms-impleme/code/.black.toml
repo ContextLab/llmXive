@@ -1,0 +1,22 @@
+[tool.black]
+line-length = 88
+target-version = ["py39", "py310", "py311"]
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
+    | node_modules
+)/
+'''
+skip-string-normalization = false
+skip-magic-trailing-comma = false
+exclude-regex = ""
+force-exclude = ""

@@ -234,3 +234,123 @@
   source_type: external
   status: verified
   updated_at: '2026-07-05T10:34:59Z'
+- artifact_path: projects/PROJ-020-the-use-of-climate-smart-agricultural-pr/specs/001-the-use-of-climate-smart-agricultural-pr/tasks.md
+  attempts: 1
+  canonical: target sample size of 5000 households per country
+  claim_id: c_0c8ebeb2
+  context: "Implement stratified sampling with design weights in code/data/clean.py\
+    \ to ensure \u2264 7GB RAM and target N \u2265 5000 households per country"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "target N \u2265 5000 households per country"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T12:47:25Z'
+- artifact_path: projects/PROJ-020-the-use-of-climate-smart-agricultural-pr/specs/001-the-use-of-climate-smart-agricultural-pr/tasks.md
+  attempts: 1
+  canonical: ensure memory usage is less than or equal to 7GB
+  claim_id: c_a8bfa2ce
+  context: "Implement stratified sampling with design weights in code/data/clean.py\
+    \ to ensure \u2264 7GB RAM and target N \u2265 5000 households per country"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Ensure_memory_usage_is_less_than_or_equal_to_7GB
+  kind: magnitude
+  raw_text: "ensure \u2264 7GB RAM"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T12:47:56Z'
+- artifact_path: projects/PROJ-020-the-use-of-climate-smart-agricultural-pr/specs/001-the-use-of-climate-smart-agricultural-pr/tasks.md
+  attempts: 1
+  canonical: verify merged sample contains 95% valid records
+  claim_id: c_066c25df
+  context: "Execute code/data/pipeline.py and verify data/processed/merged_sample.parquet\
+    \ contains \u2265 95% valid records, no missing values in key predictors after\
+    \ imputation, and matches the schema"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "verify data/processed/merged_sample.parquet contains \u2265 95% valid\
+    \ records"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T12:47:56Z'
+- artifact_path: projects/PROJ-020-the-use-of-climate-smart-agricultural-pr/specs/001-the-use-of-climate-smart-agricultural-pr/tasks.md
+  attempts: 1
+  canonical: apply Benjamini-Hochberg FDR correction for more than 5 hypotheses
+  claim_id: c_80a62319
+  context: Apply Benjamini-Hochberg FDR correction (replacing Bonferroni) for > 5
+    hypotheses to control false discovery rate in hierarchical data
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Apply_Benjamini-Hochberg_FDR_correction_for_more_than_5_hypo
+  kind: magnitude
+  raw_text: Apply Benjamini-Hochberg FDR correction for > 5 hypotheses
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T12:48:16Z'
+- artifact_path: projects/PROJ-020-the-use-of-climate-smart-agricultural-pr/specs/001-the-use-of-climate-smart-agricultural-pr/tasks.md
+  attempts: 1
+  canonical: flag predictors with VIF greater than 5.0
+  claim_id: c_5ef1a3ad
+  context: Calculate VIF for all predictors. Flag predictors exceeding VIF > 5.0 (log
+    warning, do not auto-exclude mediators)
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Flag_predictors_with_VIF_greater_than_5.0
+  kind: magnitude
+  raw_text: Flag predictors exceeding VIF > 5.0
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T12:48:36Z'
+- artifact_path: projects/PROJ-020-the-use-of-climate-smart-agricultural-pr/specs/001-the-use-of-climate-smart-agricultural-pr/tasks.md
+  attempts: 1
+  canonical: attempt reduced-batch retry if execution exceeds 6 hours
+  claim_id: c_b5a34120
+  context: Implement timeout handling in code/analysis/model.py to log state and attempt
+    a reduced-batch retry if > 6 hours
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: attempt a reduced-batch retry if > 6 hours
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T12:48:36Z'
+- artifact_path: projects/PROJ-020-the-use-of-climate-smart-agricultural-pr/specs/001-the-use-of-climate-smart-agricultural-pr/tasks.md
+  attempts: 1
+  canonical: use nearest-neighbor spatial interpolation for gaps of 3 months or less
+  claim_id: c_e2092b2e
+  context: "Implement NASA POWER climate downloader in code/data/download.py using\
+    \ requests and nearest-neighbor spatial interpolation for gaps \u2264 3 months"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "nearest-neighbor spatial interpolation for gaps \u2264 3 months"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-05T12:48:36Z'

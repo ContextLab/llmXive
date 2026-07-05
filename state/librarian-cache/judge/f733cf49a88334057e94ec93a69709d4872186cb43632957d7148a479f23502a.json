@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2010.02304",
+  "judged_at": "2026-07-05T12:52:45Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "statistical analysis of publicly available covid-19 vaccine adverse event reports statistics",
+  "rationale": "The paper is rejected because it addresses the statistical concept of \"power\" (the probability of correctly rejecting a false null hypothesis) in the context of variable selection algorithms, which is a distinct construct from the user's query about \"adverse event reports\" (medical safety data). This falls under the rejection rule for \"Distinct construct sharing only homonym keywords,\" as the paper does not study vaccine safety, adverse events, or the specific epidemiological data the user is an",
+  "relevant": false
+}

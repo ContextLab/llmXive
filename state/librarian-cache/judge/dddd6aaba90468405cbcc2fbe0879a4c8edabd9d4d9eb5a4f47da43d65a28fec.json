@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2008.03340",
+  "judged_at": "2026-07-05T12:52:43Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "statistical analysis of publicly available covid-19 vaccine adverse event reports statistics",
+  "rationale": "This paper addresses the user's question by providing foundational methodology (category d) and empirical baselines (category c) for the statistical analysis of spontaneous adverse event reporting systems, which is the exact domain of the user's inquiry into COVID-19 vaccine reports. Although the paper focuses on general pharmacovigilance rather than COVID-19 specifically, it establishes the canonical statistical frameworks (e.g., disproportionality metrics vs. vector-based methods) that any lit",
+  "relevant": true
+}
