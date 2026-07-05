@@ -1,0 +1,7 @@
+{
+  "project_id": "PROJ-336-investigating-the-impact-of-simulated-se",
+  "stage": "clarified",
+  "last_error": "research.md reference is unreachable: 'https://github.com/ThomasYeoLab/CBIG/releases/download/v0.15-Schaefer2018/Schaefer2018_400Parcels_7Networks_order_FSLMNI152.txt' (HTTP 404). FR-006 admits NO transient-retry leniency \u2014 re-run when the source recovers or fix the reference.",
+  "last_seen": "2026-07-05T16:36:44.706348+00:00",
+  "count": 1
+}
