@@ -1,0 +1,86 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Model Output Schema"
+description: "Schema for the validation report and model artifacts."
+type: "object"
+properties:
+  model_type:
+    type: "string"
+    enum:
+      - "RandomForest"
+      - "GradientBoosting"
+      - "LinearRegression"
+  hyperparameters:
+    type: "object"
+    description: "Hyperparameters used for training."
+  performance_metrics:
+    type: "object"
+    properties:
+      R2:
+        type: "number"
+      RMSE:
+        type: "number"
+      MAE:
+        type: "number"
+    required:
+      - R2
+      - RMSE
+      - MAE
+  coefficients:
+    type: "object"
+    description: "Coefficients for Linear Regression (null for RF/GB)."
+    additionalProperties:
+      type: "number"
+  p_values:
+    type: "object"
+    description: "P-values for Linear Regression coefficients."
+    additionalProperties:
+      type: "number"
+  bootstrap_ci:
+    type: "object"
+    description: "95% Confidence Intervals for Linear Regression coefficients."
+    additionalProperties:
+      type: "array"
+      items:
+        type: "number"
+      minItems: 2
+      maxItems: 2
+  sensitivity_analysis:
+    type: "object"
+    description: "Results of the threshold sweep (0.45 to 0.55 eV)."
+    properties:
+      threshold_range:
+        type: "array"
+        items:
+          type: "number"
+      classification_rates:
+        type: "array"
+        items:
+          type: "number"
+      stability_std_dev:
+        type: "number"
+        description: "Standard deviation of the classification rate across the threshold sweep. Measures absolute variation in stability."
+    required:
+      - threshold_range
+      - classification_rates
+      - stability_std_dev
+  power_analysis:
+    type: "object"
+    description: "Statistical power analysis results."
+    properties:
+      sample_size:
+        type: "integer"
+      achieved_power:
+        type: "number"
+        description: "Calculated power to detect the observed effect size."
+      minimum_detectable_effect:
+        type: "number"
+        description: "Minimum effect size detectable with [deferred] power."
+    required:
+      - sample_size
+      - achieved_power
+      - minimum_detectable_effect
+required:
+  - model_type
+  - hyperparameters
+  - performance_metrics
+additionalProperties: false

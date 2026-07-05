@@ -1,0 +1,515 @@
+resolved_at: '2026-07-05T16:55:16.286747+00:00'
+datasets:
+- intent: NIST
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/nisten/opus-doctor-patient-conversations-all-human-diseases/resolve/main/opusdiseaseconversations.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/open-llm-leaderboard-old/details_nisten__shqiponja-59b-v1/resolve/main/2024-01-14T05-56-39.495831/details_harness|arc:challenge|25_2024-01-14T05-56-39.495831.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/open-llm-leaderboard-old/details_nisten__bigdoc-c34b-instruct-tf32/resolve/main/2024-02-02T03-54-56.700611/details_harness|arc:challenge|25_2024-02-02T03-54-56.700611.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/nisten/opus-doctor-patient-conversations-all-human-diseases/resolve/main/opusdiseaseconversations.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/open-llm-leaderboard-old/details_nisten__shqiponja-59b-v1/resolve/main/2024-01-14T05-56-39.495831/details_harness|arc:challenge|25_2024-01-14T05-56-39.495831.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/open-llm-leaderboard-old/details_nisten__bigdoc-c34b-instruct-tf32/resolve/main/2024-02-02T03-54-56.700611/details_harness|arc:challenge|25_2024-02-02T03-54-56.700611.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/open-llm-leaderboard-old/details_nisten__BigCodeLlama-92b/resolve/main/2024-02-02T12-17-18.661697/details_harness|arc:challenge|25_2024-02-02T12-17-18.661697.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/open-llm-leaderboard-old/details_nisten__shqiponja-15b-v1/resolve/main/2024-02-09T14-57-48.901535/details_harness|arc:challenge|25_2024-02-09T14-57-48.901535.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://tandf.figshare.com/articles/figure/Effectiveness_of_polycaprolactone-based_dermal_fillers_for_full-face_rejuvenation/32903147
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Call_09152489563_For_FCT_College_of_Nursing_Sciences_2026_2027_Admission_Application_Form_Is_Out_Call_09152489563_/32903144
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Call_09152489563_For_Department_of_Nursing_Sciences_Gregory_University_Uturu_2026_2027_Admission_Application_Form_Is_Out_Call_09152489563_/32903141
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Call_09152489563_For_Department_of_Nursing_Sciences_Abia_State_University_ABSU_Uturu_2026_2027_Admission_Application_Form_Is_Out_Call_09152489563_/32903138
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Replication_Data_and_Code_for_From_Persistent_Innovation_Setbacks_to_Organizational_Resilience_The_Role_of_AI_Integration_/32903093
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14189804
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6384789
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7254581
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3382347
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6626065
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://usiena-air.unisi.it//handle/11365/1144376
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21207197
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21207197
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21206365
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21206365
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: FCC
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/slnader/fcc-comments/resolve/main/attachments.tar.gz
+    source: huggingface
+    format: gzip
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/lucyd/fcc-regulations/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/lucyd/fcc-evalset/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 12169
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/slnader/fcc-comments/resolve/main/attachments.tar.gz
+    source: huggingface
+    status: verified
+    format: gzip
+  - url: https://huggingface.co/datasets/lucyd/fcc-regulations/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/lucyd/fcc-evalset/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/lucyd/fcc-regulations_1/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/dataset/Call_09152489563_For_College_of_Nursing_Sciences_National_Hospital_2026_2027_Admission_Application_Form_Is_Out_Call_09152489563_/32903150
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/figure/Effectiveness_of_polycaprolactone-based_dermal_fillers_for_full-face_rejuvenation/32903147
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Call_09152489563_For_FCT_College_of_Nursing_Sciences_2026_2027_Admission_Application_Form_Is_Out_Call_09152489563_/32903144
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Call_09152489563_For_Department_of_Nursing_Sciences_Gregory_University_Uturu_2026_2027_Admission_Application_Form_Is_Out_Call_09152489563_/32903141
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Call_09152489563_For_Department_of_Nursing_Sciences_Abia_State_University_ABSU_Uturu_2026_2027_Admission_Application_Form_Is_Out_Call_09152489563_/32903138
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3416414
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4064419
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/2152002
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3266032
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6802732
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21206290
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21206290
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/82hrj/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21204144
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21204144
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: BCC
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/BCCard/BCAI-Finance-Kor-Embedding-Triplet/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/BCCard/bc-finance-llm-golden-set/resolve/main/data/financial_edge_cases_200.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 45035
+      parsed: true
+  - url: https://huggingface.co/datasets/bccnf/MeLiDC-shuffled-completo/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/BCCard/BCAI-Finance-Kor-Embedding-Triplet/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/api/resolve-cache/datasets/BCCard/bc-finance-llm-benchmark/6e4f5531845e9d3f5be80ffd1e832147cba00930/data%2Fbenchmark_dataset.csv?%2Fdatasets%2FBCCard%2Fbc-finance-llm-benchmark%2Fresolve%2Fmain%2Fdata%2Fbenchmark_dataset.csv=&etag=%225c51b00d3e624b0b63794e4ec394b55d69e0e778%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/BCCard/bc-finance-llm-golden-set/resolve/main/data/financial_edge_cases_200.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/bccnf/MeLiDC-shuffled-completo/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/bccnf/NER-portugues-shuffled/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/dataset/Call_09152489563_For_Unity_College_of_Nursing_Sciences_2026_2027_Admission_Application_Form_Is_Out_Call_09152489563_/32903156
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/dataset/Decrypting_the_allosteric_network_multi-scale_dynamics_of_SARS-CoV-2_main_protease_inhibition_by_i_Moringa_oleifera_i_flavonoids/32903159
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Call_09152489563_For_College_of_Nursing_Sciences_National_Hospital_2026_2027_Admission_Application_Form_Is_Out_Call_09152489563_/32903150
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/figure/Effectiveness_of_polycaprolactone-based_dermal_fillers_for_full-face_rejuvenation/32903147
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Call_09152489563_For_FCT_College_of_Nursing_Sciences_2026_2027_Admission_Application_Form_Is_Out_Call_09152489563_/32903144
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/13882218
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20814414
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.6d52b
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://onlinelibrary.wiley.com/doi/10.1111/jdv.13895
+    source: zenodo
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://zenodo.org/records/8170114
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://unige.iris.cineca.it/handle/11567/945743
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://iris.luiss.it//handle/11385/204144
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21206290
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21206290
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21205751
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: HCP
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/7eu7d7/HCP-Diffusion-datas/resolve/main/Lexica.art.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/ramandeepsaha/hcp/resolve/main/train.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/jonxuxu/HCP-flat/resolve/main/data/train-00000-of-00001-ecc38ed386fa0d8c.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/7eu7d7/HCP-Diffusion-datas/resolve/main/Lexica.art.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/ramandeepsaha/hcp/resolve/main/train.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/jonxuxu/HCP-flat/resolve/main/data/train-00000-of-00001-ecc38ed386fa0d8c.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/atta00/cpt-hcpcs-codes/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/Kavi1622/Synthetic_hcp/resolve/main/8_slot.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://figshare.com/articles/dataset/Call_09152489563_For_Unity_College_of_Nursing_Sciences_2026_2027_Admission_Application_Form_Is_Out_Call_09152489563_/32903156
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/dataset/Decrypting_the_allosteric_network_multi-scale_dynamics_of_SARS-CoV-2_main_protease_inhibition_by_i_Moringa_oleifera_i_flavonoids/32903159
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Call_09152489563_For_College_of_Nursing_Sciences_National_Hospital_2026_2027_Admission_Application_Form_Is_Out_Call_09152489563_/32903150
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/figure/Effectiveness_of_polycaprolactone-based_dermal_fillers_for_full-face_rejuvenation/32903147
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Call_09152489563_For_FCT_College_of_Nursing_Sciences_2026_2027_Admission_Application_Form_Is_Out_Call_09152489563_/32903144
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5607652
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://linkinghub.elsevier.com/retrieve/pii/S1053811922006656
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15581959
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7736031
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4643074
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/je6cg/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/gfprk/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/6bpca/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/k6mpj/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/bng9v/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: CUDA
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/SakanaAI/AI-CUDA-Engineer-Archive/resolve/main/level_1.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/deepreinforce-ai/CUDA-L1/resolve/main/more_baselines/cuda_graph.json
+    source: huggingface
+    format: jsonl
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/deepreinforce-ai/CUDA-L2/resolve/main/eval_results/cuda_l2_a100_F16F16F16F16_speedup_offline.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 74288
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/SakanaAI/AI-CUDA-Engineer-Archive/resolve/main/level_1.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/deepreinforce-ai/CUDA-L1/resolve/main/more_baselines/cuda_graph.json
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/deepreinforce-ai/CUDA-L2/resolve/main/eval_results/cuda_l2_a100_F16F16F16F16_speedup_offline.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://figshare.com/articles/dataset/Call_09152489563_For_Unity_College_of_Nursing_Sciences_2026_2027_Admission_Application_Form_Is_Out_Call_09152489563_/32903156
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/dataset/Decrypting_the_allosteric_network_multi-scale_dynamics_of_SARS-CoV-2_main_protease_inhibition_by_i_Moringa_oleifera_i_flavonoids/32903159
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Call_09152489563_For_College_of_Nursing_Sciences_National_Hospital_2026_2027_Admission_Application_Form_Is_Out_Call_09152489563_/32903150
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/figure/Effectiveness_of_polycaprolactone-based_dermal_fillers_for_full-face_rejuvenation/32903147
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Call_09152489563_For_FCT_College_of_Nursing_Sciences_2026_2027_Admission_Application_Form_Is_Out_Call_09152489563_/32903144
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5550909
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16299984
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.1653/024.099.0440
+    source: zenodo
+    status: unreachable
+    reason: 'reachability failed: HTTP 500'
+  - url: https://zenodo.org/records/19228158
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7683127
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21206391
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21206391
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21206700
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21206700
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21201149
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
