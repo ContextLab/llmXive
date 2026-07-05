@@ -1,0 +1,106 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Model Output Schema"
+type: "object"
+properties:
+  run_id:
+    type: "string"
+    description: "Unique identifier for the model run"
+  model_type:
+    type: "string"
+    description: "Type of model trained"
+    enum: ["RandomForest", "GradientBoosting"]
+  cv_folds:
+    type: "integer"
+    description: "Number of cross-validation folds"
+    minimum: 1
+  metrics:
+    type: "object"
+    description: "Performance metrics per halide"
+    properties:
+      F-:
+        type: "object"
+        properties:
+          r2_mean: { type: "number" }
+          r2_std: { type: "number" }
+          rmse_mean: { type: "number" }
+          rmse_std: { type: "number" }
+          r2_ci_lower: { type: "number" }
+          r2_ci_upper: { type: "number" }
+          rmse_ci_lower: { type: "number" }
+          rmse_ci_upper: { type: "number" }
+      Cl-:
+        type: "object"
+        properties:
+          r2_mean: { type: "number" }
+          r2_std: { type: "number" }
+          rmse_mean: { type: "number" }
+          rmse_std: { type: "number" }
+          r2_ci_lower: { type: "number" }
+          r2_ci_upper: { type: "number" }
+          rmse_ci_lower: { type: "number" }
+          rmse_ci_upper: { type: "number" }
+      Br-:
+        type: "object"
+        properties:
+          r2_mean: { type: "number" }
+          r2_std: { type: "number" }
+          rmse_mean: { type: "number" }
+          rmse_std: { type: "number" }
+          r2_ci_lower: { type: "number" }
+          r2_ci_upper: { type: "number" }
+          rmse_ci_lower: { type: "number" }
+          rmse_ci_upper: { type: "number" }
+      I-:
+        type: "object"
+        properties:
+          r2_mean: { type: "number" }
+          r2_std: { type: "number" }
+          rmse_mean: { type: "number" }
+          rmse_std: { type: "number" }
+          r2_ci_lower: { type: "number" }
+          r2_ci_upper: { type: "number" }
+          rmse_ci_lower: { type: "number" }
+          rmse_ci_upper: { type: "number" }
+    required: ["F-", "Cl-", "Br-", "I-"]
+  feature_importance:
+    type: "array"
+    description: "Top 10 features by importance"
+    items:
+      type: "object"
+      properties:
+        feature_name: { type: "string" }
+        importance_score: { type: "number" }
+      required: ["feature_name", "importance_score"]
+  statistical_test:
+    type: "object"
+    description: "Results of Bootstrap Resampling"
+    properties:
+      method: { type: "string", const: "Bootstrap Resampling" }
+      iterations: { type: "integer", const: 1000 }
+      correction: { type: "string", const: "Benjamini-Hochberg" }
+      p_values: { type: "object" }
+      ci_lower: { type: "object" }
+      ci_upper: { type: "object" }
+    required: ["method", "iterations", "correction"]
+  associational_disclaimer:
+    type: "boolean"
+    description: "Flag indicating findings are associational"
+    const: true
+  domain_sanity_check:
+    type: "object"
+    description: "Results of Domain Sanity Check"
+    properties:
+      top_features_in_curated_list: { type: "boolean" }
+      slope_direction_valid: { type: "boolean" }
+      is_chemically_implausible: { type: "boolean" }
+    required: ["top_features_in_curated_list", "slope_direction_valid", "is_chemically_implausible"]
+required:
+  - run_id
+  - model_type
+  - cv_folds
+  - metrics
+  - feature_importance
+  - statistical_test
+  - associational_disclaimer
+  - domain_sanity_check
+additionalProperties: false

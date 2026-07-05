@@ -1,0 +1,39 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Halide Binding Dataset Schema"
+type: "object"
+properties:
+  host_id:
+    type: "string"
+    description: "Unique identifier for the host molecule"
+  host_smiles:
+    type: "string"
+    description: "Canonical SMILES string of the host"
+    pattern: "^[A-Za-z0-9@#$%&*\\-+=\\[\\]{}()<>|~_]+$"
+  halide_identity:
+    type: "string"
+    description: "Identity of the halide ion"
+    enum: ["F-", "Cl-", "Br-", "I-"]
+  binding_constant:
+    type: "number"
+    description: "Binding constant (log K)"
+    minimum: -100
+    maximum: 100
+  solvent:
+    type: "string"
+    description: "Solvent used in the measurement"
+  source:
+    type: "string"
+    description: "Source of the data"
+    enum: ["NIST", "PubChem", "Simulated"]
+  units:
+    type: "string"
+    description: "Units of the binding constant"
+    enum: ["logK", "kcal/mol"]
+required:
+  - host_id
+  - host_smiles
+  - halide_identity
+  - binding_constant
+  - solvent
+  - source
+additionalProperties: false

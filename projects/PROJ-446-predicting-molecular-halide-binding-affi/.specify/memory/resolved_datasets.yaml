@@ -1,0 +1,569 @@
+resolved_at: '2026-07-05T10:23:21.712999+00:00'
+datasets:
+- intent: NIST
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/nisten/opus-doctor-patient-conversations-all-human-diseases/resolve/main/opusdiseaseconversations.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/open-llm-leaderboard-old/details_nisten__shqiponja-59b-v1/resolve/main/2024-01-14T05-56-39.495831/details_harness|arc:challenge|25_2024-01-14T05-56-39.495831.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/open-llm-leaderboard-old/details_nisten__bigdoc-c34b-instruct-tf32/resolve/main/2024-02-02T03-54-56.700611/details_harness|arc:challenge|25_2024-02-02T03-54-56.700611.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/nisten/opus-doctor-patient-conversations-all-human-diseases/resolve/main/opusdiseaseconversations.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/open-llm-leaderboard-old/details_nisten__shqiponja-59b-v1/resolve/main/2024-01-14T05-56-39.495831/details_harness|arc:challenge|25_2024-01-14T05-56-39.495831.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/open-llm-leaderboard-old/details_nisten__bigdoc-c34b-instruct-tf32/resolve/main/2024-02-02T03-54-56.700611/details_harness|arc:challenge|25_2024-02-02T03-54-56.700611.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/open-llm-leaderboard-old/details_nisten__BigCodeLlama-92b/resolve/main/2024-02-02T12-17-18.661697/details_harness|arc:challenge|25_2024-02-02T12-17-18.661697.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/open-llm-leaderboard-old/details_nisten__shqiponja-15b-v1/resolve/main/2024-02-09T14-57-48.901535/details_harness|arc:challenge|25_2024-02-09T14-57-48.901535.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/media/Bowen_University_Iwo_Jupeb_2026_2027_FORM_PORTAL_IS_OPEN_NOW_O9167660199_09165949470_Admission_form_Applications_are_now_ongoing_for_the_2026_2027_academic_session_Interested_candidates_09167660199_for_Post_UTME_Undergraduate_Form_JUPEB_For/32902118
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Bingham_University_New_Karu_Jupeb_2026_2027_FORM_PORTAL_IS_OPEN_NOW_O9167660199_09165949470_Admission_form_Applications_are_now_ongoing_for_the_2026_2027_academic_session_Interested_candidates_09167660199_for_Post_UTME_Undergraduate_Form_JU/32902109
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/book/Benson_Idahosa_University_Benin_City_Jupeb_2026_2027_FORM_PORTAL_IS_OPEN_NOW_O9167660199_09165949470_Admission_form_Applications_are_now_ongoing_for_the_2026_2027_academic_session_Interested_candidates_09167660199_for_Post_UTME_Undergraduat/32902106
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Bells_University_of_Technology_Otta_Jupeb_2026_2027_FORM_PORTAL_IS_OPEN_NOW_O9167660199_09165949470_Admission_form_Applications_are_now_ongoing_for_the_2026_2027_academic_session_Interested_candidates_09167660199_for_Post_UTME_Undergraduate/32902103
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Baze_University_Jupeb_2026_2027_FORM_PORTAL_IS_OPEN_NOW_O9167660199_09165949470_Admission_form_Applications_are_now_ongoing_for_the_2026_2027_academic_session_Interested_candidates_09167660199_for_Post_UTME_Undergraduate_Form_JUPEB_Form_IJM/32902097
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14189804
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6384789
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7254581
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3382347
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/2592705
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://usiena-air.unisi.it//handle/11365/1144376
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.48577/jpl.qmz9cl
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: ConnectTimeout: HTTPConnectionPool(host=''dataverse.jpl.nasa.gov'',
+      port=80): Max retries exceeded with url: /citation?persistentId=doi:10.48577/jpl.QMZ9CL
+      (Caused by ConnectTimeoutError(<HTTPConnection(host=''dataverse.jpl.nasa.gov'',
+      port=80) at 0x7f5ce89419d0>, ''Connection to dataverse.jpl.nasa.gov timed out.
+      (connect timeout=20.0)''))'
+  - url: https://zenodo.org/records/18672036
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18672036
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21201565
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: WebBook
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/Raziel1234/WebBooks-1/resolve/main/books_dataset.txt
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/api/resolve-cache/datasets/Raziel1234/WebBooks/2f2b00f8c5950b40699b2fb59087d4a39f0efa94/books.txt?%2Fdatasets%2FRaziel1234%2FWebBooks%2Fresolve%2Fmain%2Fbooks.txt=&etag=%2299b13804082c421d7085681ea02e6206286f0a1a%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/Raziel1234/WebBooks-1/resolve/main/books_dataset.txt
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://us.aws.cdn.hf.co/xet-bridge-us/699de5cedc97b135d3781f71/22a41e641d0d956c4b0b5ccf28986e7f5bd434bf8454559404c641ec4613a389?X-Xet-Cas-Uid=public&response-content-type=text%2Fplain&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27books.txt%3B+filename%3D%22books.txt%22%3B&user_id=public&Expires=1783250481&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjk5ZGU1Y2VkYzk3YjEzNWQzNzgxZjcxLzIyYTQxZTY0MWQwZDk1NmM0YjBiNWNjZjI4OTg2ZTdmNWJkNDM0YmY4NDU0NTU5NDA0YzY0MWVjNDYxM2EzODlcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LXR5cGU9dGV4dCUyRnBsYWluJnJlc3BvbnNlLWNvbnRlbnQtZGlzcG9zaXRpb249aW5saW5lJTNCK2ZpbGVuYW1lJTJBJTNEVVRGLTglMjclMjdib29rcy50eHQlM0IrZmlsZW5hbWUlM0QlMjJib29rcy50eHQlMjIlM0ImdXNlcl9pZD1wdWJsaWMiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkVwb2NoVGltZSI6MTc4MzI1MDQ4MX19fV19&Signature=MEUCIQCcjWhBcWnVijG3NOtznCgmfqO6hwbi7n68mH1jxgANnwIgFzGn2mWSJnatr5XscZvQ4525-WWEMqp5CvsmhauLAcA_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/Caritas_University_Enugu_Jupeb_2026_2027_FORM_PORTAL_IS_OPEN_NOW_O9167660199_09165949470_Admission_form_Applications_are_now_ongoing_for_the_2026_2027_academic_session_Interested_candidates_09167660199_for_Post_UTME_Undergraduate_Form_JUPEB/32902124
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/Caleb_University_Lagos_Jupeb_2026_2027_FORM_PORTAL_IS_OPEN_NOW_O9167660199_09165949470_Admission_form_Applications_are_now_ongoing_for_the_2026_2027_academic_session_Interested_candidates_09167660199_for_Post_UTME_Undergraduate_Form_JUPEB_F/32902121
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/Bowen_University_Iwo_Jupeb_2026_2027_FORM_PORTAL_IS_OPEN_NOW_O9167660199_09165949470_Admission_form_Applications_are_now_ongoing_for_the_2026_2027_academic_session_Interested_candidates_09167660199_for_Post_UTME_Undergraduate_Form_JUPEB_For/32902118
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Bingham_University_New_Karu_Jupeb_2026_2027_FORM_PORTAL_IS_OPEN_NOW_O9167660199_09165949470_Admission_form_Applications_are_now_ongoing_for_the_2026_2027_academic_session_Interested_candidates_09167660199_for_Post_UTME_Undergraduate_Form_JU/32902109
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/book/Benson_Idahosa_University_Benin_City_Jupeb_2026_2027_FORM_PORTAL_IS_OPEN_NOW_O9167660199_09165949470_Admission_form_Applications_are_now_ongoing_for_the_2026_2027_academic_session_Interested_candidates_09167660199_for_Post_UTME_Undergraduat/32902106
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17909312
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8132046
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/12786324
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18602435
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4157813
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20811485
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20811485
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19446323
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19446323
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20316418
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: PubChem
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/sagawa/pubchem-10m-canonicalized/resolve/main/data/train-00000-of-00001-e9b227f8c7259c8b.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/zpn/pubchem_selfies/resolve/main/dataset_infos.json
+    source: huggingface
+    format: json
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 65908
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/sagawa/pubchem-10m-canonicalized/resolve/main/data/train-00000-of-00001-e9b227f8c7259c8b.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/zpn/pubchem_selfies/resolve/main/dataset_infos.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://us.aws.cdn.hf.co/xet-bridge-us/644d439797a3b0904a5408ee/bfd168ffc7b989cd5190192535085fe2052dcb5d5733c22218a211f19a114195?X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27PubChem10M_SELFIES.csv%3B+filename%3D%22PubChem10M_SELFIES.csv%22%3B&response-content-type=text%2Fcsv&user_id=public&Expires=1783250510&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjQ0ZDQzOTc5N2EzYjA5MDRhNTQwOGVlL2JmZDE2OGZmYzdiOTg5Y2Q1MTkwMTkyNTM1MDg1ZmUyMDUyZGNiNWQ1NzMzYzIyMjE4YTIxMWYxOWExMTQxOTVcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3UHViQ2hlbTEwTV9TRUxGSUVTLmNzdiUzQitmaWxlbmFtZSUzRCUyMlB1YkNoZW0xME1fU0VMRklFUy5jc3YlMjIlM0ImcmVzcG9uc2UtY29udGVudC10eXBlPXRleHQlMkZjc3YmdXNlcl9pZD1wdWJsaWMiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkVwb2NoVGltZSI6MTc4MzI1MDUxMH19fV19&Signature=MEUCIQDIHquJOjhjOCbdMGS6SRl-WAQzWE9gBoHcyRQqcT7JWwIgHCUDLRSdL4q8RHbXCfRodDqHD3rEIgpaOsswJwV~j1k_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://us.aws.cdn.hf.co/xet-bridge-us/644ed4c5a00f4b11d39aaac7/d43fe0e1abeffe5259c320645710e98605e42616aa50b4403d6cfa37ae862ab7?response-content-disposition=inline%3B+filename*%3DUTF-8%27%27PubChem10M_SELFIES_Tokenized.csv%3B+filename%3D%22PubChem10M_SELFIES_Tokenized.csv%22%3B&X-Xet-Cas-Uid=public&response-content-type=text%2Fcsv&user_id=public&Expires=1783250511&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjQ0ZWQ0YzVhMDBmNGIxMWQzOWFhYWM3L2Q0M2ZlMGUxYWJlZmZlNTI1OWMzMjA2NDU3MTBlOTg2MDVlNDI2MTZhYTUwYjQ0MDNkNmNmYTM3YWU4NjJhYjdcXD9yZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3UHViQ2hlbTEwTV9TRUxGSUVTX1Rva2VuaXplZC5jc3YlM0IrZmlsZW5hbWUlM0QlMjJQdWJDaGVtMTBNX1NFTEZJRVNfVG9rZW5pemVkLmNzdiUyMiUzQiZYLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LXR5cGU9dGV4dCUyRmNzdiZ1c2VyX2lkPXB1YmxpYyIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzgzMjUwNTExfX19XX0_&Signature=MEUCIH9S66BvBUIkwn0DqwPR9u5xubKXmZ2iFnER~NSDofV0AiEA9gFpfm9EWNW-I79O1aMo9iuAt7~LNx2LaN~J65Vm7U0_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/Figure_3_16S_rRNA_gene_based_phylogenetic_tree_of_i_L_rhamnosus_i_B7-1-12/31077352
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/Caritas_University_Enugu_Jupeb_2026_2027_FORM_PORTAL_IS_OPEN_NOW_O9167660199_09165949470_Admission_form_Applications_are_now_ongoing_for_the_2026_2027_academic_session_Interested_candidates_09167660199_for_Post_UTME_Undergraduate_Form_JUPEB/32902124
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/Caleb_University_Lagos_Jupeb_2026_2027_FORM_PORTAL_IS_OPEN_NOW_O9167660199_09165949470_Admission_form_Applications_are_now_ongoing_for_the_2026_2027_academic_session_Interested_candidates_09167660199_for_Post_UTME_Undergraduate_Form_JUPEB_F/32902121
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/Bowen_University_Iwo_Jupeb_2026_2027_FORM_PORTAL_IS_OPEN_NOW_O9167660199_09165949470_Admission_form_Applications_are_now_ongoing_for_the_2026_2027_academic_session_Interested_candidates_09167660199_for_Post_UTME_Undergraduate_Form_JUPEB_For/32902118
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Bingham_University_New_Karu_Jupeb_2026_2027_FORM_PORTAL_IS_OPEN_NOW_O9167660199_09165949470_Admission_form_Applications_are_now_ongoing_for_the_2026_2027_academic_session_Interested_candidates_09167660199_for_Post_UTME_Undergraduate_Form_JU/32902109
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.95x69p8jd
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8173428
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7562008
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15174498
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8052664
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21201327
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21201327
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19798185
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19798185
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19824576
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: SMILES
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/maykcaldas/smiles-transformers/resolve/main/data/test-00000-of-00015-27ed436361d9186e.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/HUBioDataLab/SELFormer-smiles/resolve/main/data.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/maykcaldas/smiles-transformers/resolve/main/data/test-00000-of-00015-27ed436361d9186e.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://us.aws.cdn.hf.co/xet-bridge-us/644260f772b4ca7eeee6a0a2/ee5e0945c5893ba9e9d61a5a44e33ed2c6c53949715c546f42243abbcb858121?user_id=public&X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27smiles40m.txt%3B+filename%3D%22smiles40m.txt%22%3B&response-content-type=text%2Fplain&Expires=1783250535&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjQ0MjYwZjc3MmI0Y2E3ZWVlZTZhMGEyL2VlNWUwOTQ1YzU4OTNiYTllOWQ2MWE1YTQ0ZTMzZWQyYzZjNTM5NDk3MTVjNTQ2ZjQyMjQzYWJiY2I4NTgxMjFcXD91c2VyX2lkPXB1YmxpYyZYLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3c21pbGVzNDBtLnR4dCUzQitmaWxlbmFtZSUzRCUyMnNtaWxlczQwbS50eHQlMjIlM0ImcmVzcG9uc2UtY29udGVudC10eXBlPXRleHQlMkZwbGFpbiIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzgzMjUwNTM1fX19XX0_&Signature=MEYCIQC6vIuhKwVs102qzgqfyUV7BmXMpQNcftXBlwatQtSnMgIhAKK95QNSHOBmKYGzvEhsZcZCfA3zp5UoCYnY179hlv5~&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://us.aws.cdn.hf.co/xet-bridge-us/6442697272b4ca7eeee79576/fb2d3ed18b9a6500524ccf2ebae2a495d4e8c931ce3f999cd436852984f0e424?X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27smiles4m.txt%3B+filename%3D%22smiles4m.txt%22%3B&user_id=public&response-content-type=text%2Fplain&Expires=1783250536&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjQ0MjY5NzI3MmI0Y2E3ZWVlZTc5NTc2L2ZiMmQzZWQxOGI5YTY1MDA1MjRjY2YyZWJhZTJhNDk1ZDRlOGM5MzFjZTNmOTk5Y2Q0MzY4NTI5ODRmMGU0MjRcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3c21pbGVzNG0udHh0JTNCK2ZpbGVuYW1lJTNEJTIyc21pbGVzNG0udHh0JTIyJTNCJnVzZXJfaWQ9cHVibGljJnJlc3BvbnNlLWNvbnRlbnQtdHlwZT10ZXh0JTJGcGxhaW4iLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkVwb2NoVGltZSI6MTc4MzI1MDUzNn19fV19&Signature=MEQCIE6o2PzEHyGuie39jbtQl74GRBV31rDzoikIDeuNttQkAiBDwktCXsE8qNfOwamAe4ZNtSlAUJSNwg6dPHqgjHTGaQ__&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/HUBioDataLab/SELFormer-smiles/resolve/main/data.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://figshare.com/articles/figure/Figure_3_16S_rRNA_gene_based_phylogenetic_tree_of_i_L_rhamnosus_i_B7-1-12/31077352
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/Caritas_University_Enugu_Jupeb_2026_2027_FORM_PORTAL_IS_OPEN_NOW_O9167660199_09165949470_Admission_form_Applications_are_now_ongoing_for_the_2026_2027_academic_session_Interested_candidates_09167660199_for_Post_UTME_Undergraduate_Form_JUPEB/32902124
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/Caleb_University_Lagos_Jupeb_2026_2027_FORM_PORTAL_IS_OPEN_NOW_O9167660199_09165949470_Admission_form_Applications_are_now_ongoing_for_the_2026_2027_academic_session_Interested_candidates_09167660199_for_Post_UTME_Undergraduate_Form_JUPEB_F/32902121
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/Bowen_University_Iwo_Jupeb_2026_2027_FORM_PORTAL_IS_OPEN_NOW_O9167660199_09165949470_Admission_form_Applications_are_now_ongoing_for_the_2026_2027_academic_session_Interested_candidates_09167660199_for_Post_UTME_Undergraduate_Form_JUPEB_For/32902118
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Bingham_University_New_Karu_Jupeb_2026_2027_FORM_PORTAL_IS_OPEN_NOW_O9167660199_09165949470_Admission_form_Applications_are_now_ongoing_for_the_2026_2027_academic_session_Interested_candidates_09167660199_for_Post_UTME_Undergraduate_Form_JU/32902109
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://onlinelibrary.wiley.com/doi/10.1002/jctb.5000412311
+    source: zenodo
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://pubs.rsc.org/ct/article/120735
+    source: zenodo
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://pubs.rsc.org/ct/article/208076
+    source: zenodo
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://zenodo.org/records/18002214
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://chemistry-europe.onlinelibrary.wiley.com/doi/10.1002/cber.19140470182
+    source: zenodo
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://osf.io/7wgf5/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/hmcj4/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/c6294/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/ajmsz/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/y7ptz/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: RMSE
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/arjunashok/medical-5day-zeroshot-freshexps-test-plot_with_rmsesort/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/arjunashok/medical-5day-zeroshot-freshexps-test-no-context-plot_with_rmsesort_noctx/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/arjunashok/medical-5day-zeroshot-freshexps-test-plot_with_rmsesort/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/arjunashok/medical-5day-zeroshot-freshexps-test-no-context-plot_with_rmsesort_noctx/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://us.aws.cdn.hf.co/xet-bridge-us/68edd46259f14f21c698aa28/f44f703ecd57d1ddffab68ea166dffcb818f02a0274566ab4651239ed85fffff?response-content-disposition=inline%3B+filename*%3DUTF-8%27%27dataset_list.json%3B+filename%3D%22dataset_list.json%22%3B&response-content-type=application%2Fjson&X-Xet-Cas-Uid=public&user_id=public&Expires=1783250550&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjhlZGQ0NjI1OWYxNGYyMWM2OThhYTI4L2Y0NGY3MDNlY2Q1N2QxZGRmZmFiNjhlYTE2NmRmZmNiODE4ZjAyYTAyNzQ1NjZhYjQ2NTEyMzllZDg1ZmZmZmZcXD9yZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3ZGF0YXNldF9saXN0Lmpzb24lM0IrZmlsZW5hbWUlM0QlMjJkYXRhc2V0X2xpc3QuanNvbiUyMiUzQiZyZXNwb25zZS1jb250ZW50LXR5cGU9YXBwbGljYXRpb24lMkZqc29uJlgtWGV0LUNhcy1VaWQ9cHVibGljJnVzZXJfaWQ9cHVibGljIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3ODMyNTA1NTB9fX1dfQ__&Signature=MEUCIQCwh9SgeS~~PRTVlxD2cnIFplP9Hm7bPVlOLaskBIYR~wIgNjZ0ybJmWnR1g-MDel-arY4T9fxPcP5o7-kD1GT~e6o_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/Chrisland_University_Jupeb_2026_2027_FORM_PORTAL_IS_OPEN_NOW_O9167660199_09165949470_Admission_form_Applications_are_now_ongoing_for_the_2026_2027_academic_session_Interested_candidates_09167660199_for_Post_UTME_Undergraduate_Form_JUPEB_For/32902127
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/Figure_3_16S_rRNA_gene_based_phylogenetic_tree_of_i_L_rhamnosus_i_B7-1-12/31077352
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/Caritas_University_Enugu_Jupeb_2026_2027_FORM_PORTAL_IS_OPEN_NOW_O9167660199_09165949470_Admission_form_Applications_are_now_ongoing_for_the_2026_2027_academic_session_Interested_candidates_09167660199_for_Post_UTME_Undergraduate_Form_JUPEB/32902124
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/Caleb_University_Lagos_Jupeb_2026_2027_FORM_PORTAL_IS_OPEN_NOW_O9167660199_09165949470_Admission_form_Applications_are_now_ongoing_for_the_2026_2027_academic_session_Interested_candidates_09167660199_for_Post_UTME_Undergraduate_Form_JUPEB_F/32902121
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/Bowen_University_Iwo_Jupeb_2026_2027_FORM_PORTAL_IS_OPEN_NOW_O9167660199_09165949470_Admission_form_Applications_are_now_ongoing_for_the_2026_2027_academic_session_Interested_candidates_09167660199_for_Post_UTME_Undergraduate_Form_JUPEB_For/32902118
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20325172
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17593144
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17750460
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10972798
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10966066
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://fair.unifg.it//handle/11369/382362
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21185889
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21185889
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21201149
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21201149
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: RDKit
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/nglebm19/rdkit_chemical/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/fabikru/chembl-2025-randomized-smiles-cleaned-rdkit-descriptors/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/fabikru/half-of-chembl-2025-randomized-smiles-cleaned-rdkit-descriptors/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/nglebm19/rdkit_chemical/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/fabikru/chembl-2025-randomized-smiles-cleaned-rdkit-descriptors/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/fabikru/half-of-chembl-2025-randomized-smiles-cleaned-rdkit-descriptors/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/poster/Chrisland_University_Jupeb_2026_2027_FORM_PORTAL_IS_OPEN_NOW_O9167660199_09165949470_Admission_form_Applications_are_now_ongoing_for_the_2026_2027_academic_session_Interested_candidates_09167660199_for_Post_UTME_Undergraduate_Form_JUPEB_For/32902127
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/Figure_3_16S_rRNA_gene_based_phylogenetic_tree_of_i_L_rhamnosus_i_B7-1-12/31077352
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/Caritas_University_Enugu_Jupeb_2026_2027_FORM_PORTAL_IS_OPEN_NOW_O9167660199_09165949470_Admission_form_Applications_are_now_ongoing_for_the_2026_2027_academic_session_Interested_candidates_09167660199_for_Post_UTME_Undergraduate_Form_JUPEB/32902124
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/Caleb_University_Lagos_Jupeb_2026_2027_FORM_PORTAL_IS_OPEN_NOW_O9167660199_09165949470_Admission_form_Applications_are_now_ongoing_for_the_2026_2027_academic_session_Interested_candidates_09167660199_for_Post_UTME_Undergraduate_Form_JUPEB_F/32902121
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/Bowen_University_Iwo_Jupeb_2026_2027_FORM_PORTAL_IS_OPEN_NOW_O9167660199_09165949470_Admission_form_Applications_are_now_ongoing_for_the_2026_2027_academic_session_Interested_candidates_09167660199_for_Post_UTME_Undergraduate_Form_JUPEB_For/32902118
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/32402
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8369849
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/1322631
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8331714
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6248289
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20435115
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20435115
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21178734
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21178734
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.17632/v3vpnpwhyk.1
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: HTTP 404'
