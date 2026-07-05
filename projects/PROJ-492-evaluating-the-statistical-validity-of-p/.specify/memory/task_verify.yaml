@@ -123,14 +123,6 @@
   \ c_c95cee25 \u2014 status=not_enough_info] (coverage\u2011executability\u201108d5764f)\
   \ (verify test passes)."
 : 1
-? "T038 FR\u2011004 Verification: Run `tests/integration/test_validator_thresholds.py`\
-  \ to assert flags correspond to defined thresholds (coverage\u2011executability\u2011\
-  08d5764f) (verify test passes)."
-: 1
-? "T042b **[P]** Verify that `prevalence.json` does **not** contain any entries flagged\
-  \ for sample\u2011size mismatch (cross\u2011check with T025c). (depends on T025c)"
-: 1
-"T043 Unit tests for binomial test and CI width \u2264 0.10 (tests/unit/test_prevalence.py) (verify test passes).": 2
 ? "T043 Unit tests for binomial test and CI width \u2264 0.10 (tests/unit/test_prevalence.py)\
   \ (verify test passes). [UNRESOLVED-CLAIM: c_ae78747a \u2014 status=not_enough_info]"
 : 1
