@@ -54,7 +54,7 @@
   verification_status: mismatch
   verified_against_url: https://example.com/ab-test-summary-2
   verified_at: '2026-07-05T16:33:16.906324Z'
-- artifact_hash: 2b35139e5821fbb279e8403b5323cd548dfc46920582801239d2b8ffe5131c7b
+- artifact_hash: 6eb01335f240053f7857a756200027feb15fcef0090a932798d894d6330263a0
   artifact_path: projects/PROJ-492-evaluating-the-statistical-validity-of-p/specs/001-evaluating-the-statistical-validity-of-p/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -64,8 +64,8 @@
   value: https://www.wikidata.org/wiki/Q19873191
   verification_status: verified
   verified_against_url: https://www.wikidata.org/wiki/Q19873191
-  verified_at: '2026-07-05T18:13:24.350121Z'
-- artifact_hash: 2b35139e5821fbb279e8403b5323cd548dfc46920582801239d2b8ffe5131c7b
+  verified_at: '2026-07-05T19:08:58.659819Z'
+- artifact_hash: 6eb01335f240053f7857a756200027feb15fcef0090a932798d894d6330263a0
   artifact_path: projects/PROJ-492-evaluating-the-statistical-validity-of-p/specs/001-evaluating-the-statistical-validity-of-p/tasks.md
   cite_id: c-002
   cited_authors: []
@@ -76,8 +76,8 @@
   value: https://arxiv.org/abs/1807.00365
   verification_status: verified
   verified_against_url: https://arxiv.org/abs/1807.00365
-  verified_at: '2026-07-05T18:13:24.350121Z'
-- artifact_hash: 2b35139e5821fbb279e8403b5323cd548dfc46920582801239d2b8ffe5131c7b
+  verified_at: '2026-07-05T19:08:58.659819Z'
+- artifact_hash: 6eb01335f240053f7857a756200027feb15fcef0090a932798d894d6330263a0
   artifact_path: projects/PROJ-492-evaluating-the-statistical-validity-of-p/specs/001-evaluating-the-statistical-validity-of-p/tasks.md
   cite_id: c-003
   cited_authors: []
@@ -88,4 +88,4 @@
   value: https://arxiv.org/abs/2506.09162
   verification_status: verified
   verified_against_url: https://arxiv.org/abs/2506.09162
-  verified_at: '2026-07-05T18:13:24.350121Z'
+  verified_at: '2026-07-05T19:08:58.659819Z'

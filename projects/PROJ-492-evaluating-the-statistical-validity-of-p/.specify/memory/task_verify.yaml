@@ -91,6 +91,22 @@
   T012."
 : 1
 ? "T026 Implement synthetic dataset generator in `src/audit/synthetic.py` (FR\u2011\
+  030) \u2013 The synthetic dataset generator outputs at least 10\u202F000 simulated\
+  \ summaries (binary AND continuous outcomes). [UNRESOLVED-CLAIM: c_aeacfe01 \u2014\
+  \ status=not_enough_info] (binary AND continuous outcomes) **and verify both outcome\
+  \ types are present** (constraint\u2011preservation\u20112958f04c) (verify files\
+  \ are created and contain \u2265\u202F10\u202F000 records). **DEPENDS ON:** T006\u2011\
+  T012."
+: 1
+? "T026 Implement synthetic dataset generator in `src/audit/synthetic.py` (FR\u2011\
+  030) \u2013 The synthetic dataset generator outputs at least 10\u202F000 simulated\
+  \ summaries (binary AND continuous outcomes). [UNRESOLVED-CLAIM: c_fe681e08 \u2014\
+  \ status=not_enough_info] (binary AND continuous outcomes) **and verify both outcome\
+  \ types are present** (constraint\u2011preservation\u20112958f04c) (verify files\
+  \ are created and contain \u2265\u202F10\u202F000 records). **DEPENDS ON:** T006\u2011\
+  T012."
+: 1
+? "T026 Implement synthetic dataset generator in `src/audit/synthetic.py` (FR\u2011\
   030) \u2013 outputs `data/synthetic/synthetic_validation.csv` + `data/synthetic/synthetic_ground_truth.json`\
   \ with at least 10\u202F000 simulated summaries [UNRESOLVED-CLAIM: c_15e13729 \u2014\
   \ status=not_enough_info] (binary AND continuous outcomes) **and verify both outcome\
@@ -250,11 +266,6 @@
   \ c_9b059f74 \u2014 status=not_enough_info] (constraint\u2011preservation\u2011\
   e62a0df4) (verify module exits with status 0)."
 : 1
-? "T062 Implement Monte\u2011Carlo validation module (FR\u2011026) in `src/audit/monte_carlo_validation.py`\
-  \ that runs 10\u202F10000 replicates for each statistical test (z-test, Fisher's,\
-  \ Welch's, binomial) and checks the absolute difference \u2264 0.005 (constraint\u2011\
-  preservation\u2011e62a0df4) (verify module exits with status 0)."
-: 2
 ? "T062 Implement Monte\u2011Carlo validation module (FR\u2011026) in `src/audit/monte_carlo_validation.py`\
   \ that runs 10\u202F10000 replicates for each statistical test (z-test, Fisher's,\
   \ Welch's, binomial) and checks the absolute difference \u2264 0.005 [UNRESOLVED-CLAIM:\
