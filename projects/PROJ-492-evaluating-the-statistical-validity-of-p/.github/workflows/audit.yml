@@ -7,15 +7,14 @@ on:
     branches: [ main ]
 
 jobs:
-  run-audit:
+  audit:
+    name: Run Audit Pipeline
     runs-on: ubuntu-latest
     
-    # Enforce resource limits per FR-009 and SC-008
-    # GitHub Actions default runners provide ~2 vCPU and 7GB RAM.
-    # We enforce logical CPU limits via environment variables and monitor memory
-    # within the pipeline script which will abort if limits are breached.
-    strategy:
-      fail-fast: false
+    # Resource constraints as per FR-009 and SC-008
+    # GitHub Actions default runner provides 2 vCPU and 7GB RAM.
+    # We enforce limits within the workflow steps and via the resource monitor module.
+    timeout-minutes: 30
 
     steps:
       - name: Checkout repository
@@ -24,9 +23,9 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.10'
+          python-version: '3.9'
 
-      - name: Cache pip dependencies
+      - name: Cache pip packages
         uses: actions/cache@v4
         with:
           path: ~/.cache/pip
@@ -39,39 +38,40 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Validate Constitution Compliance
+      - name: Run Constitution Compliance Check (PT005C)
         run: |
           python -m code.src.utils.constitution_checker
-        continue-on-error: false
 
-      - name: Run Schema Validation
+      - name: Schema Validation Step
         run: |
           python -m code.src.audit.export_schema_validator
-        continue-on-error: false
+          python -m code.src.audit.manifest_schema_validator
 
-      - name: Run Synthetic Validation (Precision/Recall Check)
+      - name: Synthetic Validation (Precision/Recall Check)
         run: |
+          python -m code.src.audit.monte_carlo_validation
           python -m code.src.audit.evaluation
-        continue-on-error: false
 
-      - name: Run Resource Monitor & Main Pipeline
-        # This step invokes the main audit driver which internally checks
-        # CPU/Memory usage and aborts with ERR-301 if limits are exceeded.
-        # We set a hard timeout at the job level as well.
+      - name: Resource Monitor Check (Pre-flight)
         run: |
-          python -m code.src.cli.run_audit
-        env:
-          # Logical CPU limit enforcement (optional, depends on runner config)
-          PYTHON_MAX_CPU: "2"
-        timeout-minutes: 360  # 6 hours max per SC-008
+          # Verify resource limits are respected before main run
+          python -m code.src.utils.resource_monitor --check-limits
+
+      - name: Run Main Audit Pipeline
+        run: |
+          python -m code.cli.run_audit
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: audit-results
+          name: audit-output
           path: |
             output/
-            data/provenance_log.csv
-            data/checksums.txt
-            state/projects/PROJ-492-evaluating-the-statistical-validity-of-p.yaml
+            data/processed/
+            logs/
+          retention-days: 7
+
+      - name: Verify Resource Limits Post-Run
+        run: |
+          python -m code.src.utils.resource_monitor --verify-log

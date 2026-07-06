@@ -1,6 +1,5 @@
-'|binomial ci less meet output test width':
-  quote: "\uFB01dence level 1 \u2212 \u03B1 (usually\u03B1 is 0. 1, 0. 05, or 0. 01).\
-    \ The width of an empirical"
-  source_id: '1807.00365'
-  url: https://arxiv.org/abs/1807.00365
-  value: '0.10'
+'|ci complete hour must pipeline within':
+  quote: runs fuzzers for 10 minutes (max 6 hours) over 30 day old/public
+  source_id: '2205.14964'
+  url: https://arxiv.org/abs/2205.14964
+  value: 6 hours
