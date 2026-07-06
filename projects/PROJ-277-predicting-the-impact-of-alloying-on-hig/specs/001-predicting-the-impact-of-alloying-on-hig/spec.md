@@ -18,8 +18,8 @@ A materials scientist uploads a list of candidate nickel-based superalloy compos
 **Acceptance Scenarios**:
 
 1. **Given** a CSV file containing 50 alloy rows with columns for Ni, Cr, Al, Co, Ti (wt%) and no microstructural data, **When** the user uploads the file and runs the "Composition-Only Prediction" pipeline, **Then** the system outputs a CSV with an additional column `predicted_weight_gain` and `prediction_uncertainty` for every row.
-2. **Given** a single alloy composition with [deferred] Aluminum (a known failure case for alumina scale formation), **When** the model predicts, **Then** the predicted weight gain value is within the top [deferred] of the training distribution (indicating high oxidation), consistent with known materials science principles.
-3. **Given** a dataset of 500 samples, **When** the 5-fold cross-validation completes, **Then** the system reports an R² score ≥ 0.5 and RMSE ≤ 15 mg/cm² (based on the idea's expected results).
+2. **Given** a single alloy composition with ≤0.5 wt% Aluminum (a known failure case for alumina scale formation), **When** the model predicts, **Then** the predicted weight gain value is within the top [deferred] of the training distribution (indicating high oxidation), specifically > 20 mg/cm², consistent with known materials science principles.
+3. **Given** a dataset of 500 samples measured at 1000°C for 100 hours, **When** the 5-fold cross-validation completes, **Then** the system reports an R² score ≥ 0.5 and RMSE ≤ 15 mg/cm² (based on the idea's expected results).
 
 ---
 
@@ -33,7 +33,7 @@ A researcher identifies specific alloys where the composition-only model fails b
 
 **Acceptance Scenarios**:
 
-1. **Given** a dataset where [deferred] of samples have `grain_size` and `precipitate_fraction` columns populated, **When** the "Gap Analysis" is executed, **Then** the system outputs a report comparing `RMSE_composition_only` vs `RMSE_composition_plus_microstructure`, highlighting the error reduction percentage.
+1. **Given** a dataset where ≥10 samples have `grain_size` and `precipitate_fraction` columns populated, **When** the "Gap Analysis" is executed, **Then** the system outputs a report comparing `RMSE_composition_only` vs `RMSE_composition_plus_microstructure`, highlighting the error reduction percentage.
 2. **Given** an alloy with a known fine grain size but average composition, **When** the model predicts, **Then** the residual error (Actual - Predicted) for this specific sample is flagged as "High Microstructural Sensitivity" if the error exceeds 2x the global median absolute error.
 3. **Given** the results of the gap analysis, **When** the user requests a summary, **Then** the system identifies the top 3 alloys with the largest prediction residuals and lists their specific microstructural annotations.
 
@@ -55,7 +55,9 @@ A domain expert reviews the model's decision logic to understand which elemental
 
 ### Edge Cases
 
-- **Missing Elements**: What happens when an alloy contains an element not in the training set (e.g., a trace rare earth)? The system must flag the row with a `[NEEDS CLARIFICATION: unknown element detected]` warning and exclude it from the prediction or impute using a periodic table average with a high uncertainty flag.
+- **Missing Elements**: If an alloy contains an element not in the training set (e.g., a trace rare earth):
+  - If the unknown element constitutes > 0.5 wt% of the total composition, the system MUST flag the row with a `UNKNOWN_ELEMENT_EXCLUDED` warning and exclude it from the prediction.
+  - If the unknown element constitutes ≤ 0.5 wt%, the system MAY impute its value using the periodic table average for that group, but MUST attach a high uncertainty flag (±20%) to the prediction.
 - **Zero Variance**: How does the system handle a dataset where a key element (e.g., Aluminum) is constant across all samples? The system must detect zero-variance features, exclude them from the model, and log a warning to prevent division-by-zero errors in thermodynamic calculations.
 - **Data Scarcity**: What happens if the public dataset contains fewer than 50 samples with microstructural annotations? The system must still run the composition-only model but report the gap analysis as "Inconclusive due to insufficient microstructural data (< 50 samples)" rather than failing.
 
@@ -64,12 +66,12 @@ A domain expert reviews the model's decision logic to understand which elemental
 ### Functional Requirements
 
 - **FR-001**: System MUST download and parse tabular alloy data from the NIST Materials Data Repository and Zenodo, filtering for entries containing Nickel, Chromium, and Aluminum weight percentages and oxidation weight gain measurements (See US-1).
-- **FR-002**: System MUST calculate thermodynamic descriptors (oxide formation enthalpies) for the primary alloying elements using a CPU-efficient lookup table or simplified calculation, ensuring no external GPU-dependent libraries are invoked (See US-1).
+- **FR-002**: System MUST calculate thermodynamic descriptors (oxide formation enthalpies) and periodic table descriptors (atomic radius, electronegativity, valence electron count) for the primary alloying elements using a CPU-efficient lookup table (source: IUPAC standard values for periodic table; NIST-JANAF or Materials Project for enthalpies) calculated at 1000°C and 1 atm, ensuring no external GPU-dependent libraries are invoked (See US-1).
 - **FR-003**: System MUST train at least three distinct regression models (Random Forest, Gradient Boosting, Gaussian Process) using `scikit-learn` with 5-fold cross-validation to select the best-performing model for composition-only prediction (See US-1).
 - **FR-004**: System MUST perform a comparative error analysis between the composition-only model and a model augmented with microstructural features (grain size, precipitate fraction) for any samples where these annotations exist (See US-2).
 - **FR-005**: System MUST generate SHAP (SHapley Additive exPlanations) plots and feature importance tables to identify the contribution of each elemental and thermodynamic descriptor to the predicted oxidation weight gain (See US-3).
-- **FR-006**: System MUST enforce a hard memory limit of 7 GB and a runtime limit of 6 hours, automatically downsampling the dataset to ≤500 rows if the initial fetch exceeds this threshold (See Assumptions).
-- **FR-007**: System MUST explicitly frame all reported correlations as associational and not causal, unless the input data explicitly includes randomized experimental conditions (See Methodological Soundness).
+- **FR-006**: System MUST enforce a hard memory limit and a runtime limit. For production/CI runs, the system MUST automatically downsample the dataset to ≤500 rows if the initial fetch exceeds this threshold. For offline/local modes, the system MAY process up to 1000 rows to support sensitivity analysis (See US-1).
+- **FR-007**: System MUST explicitly frame all reported correlations as associational and not causal, unless the input data explicitly includes randomized experimental conditions (See US-1, US-2, US-3).
 
 ### Key Entities
 
@@ -81,19 +83,21 @@ A domain expert reviews the model's decision logic to understand which elemental
 
 ### Measurable Outcomes
 
-> Planning docs state *what* will be measured and the *source/reference* it is measured against; defer specific empirical values (counts, dataset sizes, measured quantities, percentages) to the implementation/research phase.
+> Planning docs state *what* will be measured and the *source/reference* it is
+> measured against; defer specific empirical values (counts, dataset sizes,
+> measured quantities, percentages) to the implementation/research phase.
 
-- **SC-001**: The predictive accuracy (R²) of the composition-only model is measured against the baseline of random guessing and the expected range of 0.5–0.7 derived from the literature review (See US-1).
+- **SC-001**: The predictive accuracy (R²) of the composition-only model is measured against the baseline of the variance of the target variable in the test set and the expected range of 0.5–0.7 derived from the literature review (See US-1).
 - **SC-002**: The reduction in prediction error (RMSE) when adding microstructural features is measured against the composition-only baseline to quantify the "microstructural effect gap" (See US-2).
-- **SC-003**: The top predictive features identified by SHAP analysis are measured against established materials science principles (specifically the dominance of Al and Cr for scale formation) to validate physical consistency (See US-3).
-- **SC-004**: The computational feasibility is measured against the constraint of running end-to-end on a GitHub Actions free-tier runner (2 CPU, 7 GB RAM) within 6 hours (See FR-006).
-- **SC-005**: The validity of the dataset is measured by confirming that all required predictor variables (composition, thermodynamics) are present in the source data, or explicitly flagging `[NEEDS CLARIFICATION]` if missing (See Methodological Soundness).
+- **SC-003**: The top predictive features identified by SHAP analysis are measured against established materials science principles (specifically the dominance of Al and Cr for scale formation) to validate physical consistency, ensuring thermodynamic descriptors provide independent predictive power beyond raw elemental percentages (See US-3).
+- **SC-004**: The computational feasibility is measured against the constraint of running end-to-end on a GitHub Actions free-tier runner (2 CPU, 7 GB RAM) within 6 hours (See US-1).
+- **SC-005**: The validity of the dataset is measured by confirming that all required predictor variables (composition, thermodynamics) are present in the source data, or explicitly flagging `[NEEDS CLARIFICATION]` if missing (See US-1).
 
 ## Assumptions
 
-- **Dataset Availability**: We assume the NIST Materials Data Repository and Zenodo contain at least 300–500 entries with explicit elemental weight percentages and corresponding high-temperature oxidation weight gain measurements. If fewer than 100 samples are found, the statistical power will be insufficient to detect microstructural effects, and the project scope will be limited to composition-only correlation.
+- **Dataset Availability**: We assume the NIST Materials Data Repository and Zenodo contain at least 300–500 entries with explicit elemental weight percentages and corresponding high-temperature oxidation weight gain measurements. If an insufficient number of samples are found, the statistical power will be insufficient to detect microstructural effects, and the project scope will be limited to composition-only correlation.
 - **Thermodynamic Data**: We assume that oxide formation enthalpies for the relevant elements (Ni, Cr, Al, Co, Ti) can be approximated using standard reference values (e.g., NIST-JANAF or Materials Project) without requiring real-time, GPU-accelerated quantum chemistry calculations.
 - **Linearity of Microstructural Effects**: We assume that the impact of microstructural features (grain size, precipitates) on oxidation weight gain can be captured by standard tree-based or Gaussian process regressors without requiring deep learning architectures or complex physics-informed neural networks.
-- **No GPU Dependency**: We assume that `scikit-learn` and `SHAP` libraries can perform all necessary computations (including cross-validation and feature importance) on CPU-only hardware within the 6-hour limit, provided the dataset is capped at 500 samples.
+- **No GPU Dependency**: We assume that `scikit-learn` and `SHAP` libraries can perform all necessary computations (including cross-validation and feature importance) on CPU-only hardware within the 6-hour limit, provided the dataset is capped at 500 samples for CI runs.
 - **Associational Framing**: We assume that the public datasets provided are observational (non-randomized), and therefore all model outputs will be framed strictly as associational predictions rather than causal claims of elemental influence.
-- **Threshold Justification**: We assume that the decision to cap the dataset at 500 samples is a defensible standard for CPU-only feasibility on free-tier runners, and that a sensitivity analysis will sweep this cap (e.g., 200, 500, 1000) to verify stability, as required by the methodological soundness guidelines.
+- **Threshold Justification**: We assume that the decision to cap the dataset at 500 samples for CI runs is a defensible standard for CPU-only feasibility, and that a sensitivity analysis will sweep this cap (e.g., 200, 500, 1000) in offline modes to verify stability, as required by the methodological soundness guidelines.

@@ -4,10 +4,9 @@ from pathlib import Path
 def ensure_processed_directory():
     """
     Creates the 'data/processed' directory if it does not exist.
-    Returns the Path object of the created directory.
+    This fulfills task T004: Create `projects/PROJ-267-exploring-the-relationship-between-atmos/data/processed/` directory.
     """
-    # Determine project root relative to this script's location
-    # Assuming script is in code/, root is parent of code/
+    # The project root is assumed to be the parent of the 'code' directory
     project_root = Path(__file__).resolve().parent.parent
     processed_dir = project_root / "data" / "processed"
 
@@ -16,7 +15,11 @@ def ensure_processed_directory():
         print(f"Created directory: {processed_dir}")
     else:
         print(f"Directory already exists: {processed_dir}")
-
+    
+    # Verify creation
+    if not processed_dir.is_dir():
+        raise RuntimeError(f"Failed to create directory: {processed_dir}")
+    
     return processed_dir
 
 def main():

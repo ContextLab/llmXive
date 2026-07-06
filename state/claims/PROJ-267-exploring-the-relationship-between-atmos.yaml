@@ -289,3 +289,518 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-04T18:37:45Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: bootstrap resampling with 1000 iterations and seed 42
+  claim_id: c_1842e682
+  context: Task T021 [US2] Create bootstrap correction script that implements bootstrap
+    resampling (1000 iterations, seed=42) for 95% confidence intervals.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: implements bootstrap resampling (1000 iterations, seed=42) for 95% confidence
+    intervals
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-06T18:57:08Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: effective sample size calculation formula n_eff equals n times 1 minus
+    rho divided by 1 plus rho
+  claim_id: c_ad840fa8
+  context: "Task T020 [US2] Create correlation computation script that implements\
+    \ effective sample size calculation (n_eff = n \xD7 (1-\u03C1)/(1+\u03C1))."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "implements effective sample size calculation (n_eff = n \xD7 (1-\u03C1\
+    )/(1+\u03C1))"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-06T18:57:40Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: data completeness validation with 90 percent threshold
+  claim_id: c_48c79a2b
+  context: "Task T017 [US1] Create merge output script that validates completeness\
+    \ (\u2265 90% threshold) with warning logging."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "validates completeness (\u2265 90% threshold) with warning logging"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-06T18:57:40Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: sensitivity analysis sweeping correlation thresholds at 0.4, 0.5, and
+    0.6
+  claim_id: c_429fe449
+  context: 'Phase 5 Goal: Generate time-series overlays, scatter plots with regression
+    lines, spatial anomaly maps, and sensitivity report sweeping correlation thresholds
+    (0.4, 0.5, 0.6).'
+  evidence:
+    asserted: '0.4'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: sensitivity report sweeping correlation thresholds (0.4, 0.5, 0.6)
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-07-06T18:57:40Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: West Coast NA region filtering from 35N to 50N and 120W to 125W
+  claim_id: c_a6d32354
+  context: "Phase 3 Goal: Retrieve GRACE-FO mascon and NOAA AR catalog data, align\
+    \ to monthly resolution for West Coast NA region (35\xB0N-50\xB0N, 120\xB0W-125\xB0\
+    W), apply GRACE-FO preprocessing."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "regions filtered for West Coast NA (35\xB0N-50\xB0N, 120\xB0W-125\xB0\
+    W)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-06T18:58:11Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: citation title token overlap of 0.7 or greater against primary source
+  claim_id: c_48d089c4
+  context: "Task T008 Create citation verification script that validates both URL\
+    \ reachability AND citation validation (title-token-overlap \u2265 0.7 against\
+    \ primary source)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "title-token-overlap \u2265 0.7 against primary source"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-06T18:58:12Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: handling null results with correlation less than 0.1 by reporting p-value
+    and confidence intervals
+  claim_id: c_707a1fe5
+  context: Task T022 [US2] Create control validation script that handles null results
+    (correlation < 0.1) by reporting with p-value and confidence intervals without
+    forcing positive finding.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Handling_null_results_with_correlation_less_than_0.1_by_repo
+  kind: magnitude
+  raw_text: handles null results (correlation < 0.1) by reporting with p-value and
+    confidence intervals
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-06T18:58:33Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: computation of Pearson correlation between AR intensity and gravity anomalies
+  claim_id: c_211d29f2
+  context: Task T020 [US2] Create correlation computation script that computes Pearson
+    correlation between AR intensity and gravity anomalies.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Computation_of_Pearson_correlation_between_AR_intensity_and
+  kind: entity_fact
+  raw_text: uses Pearson correlation between AR intensity and gravity anomalies
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-06T18:59:11Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: lag window analysis across multiple lag intervals
+  claim_id: c_311acaa8
+  context: Task T020 [US2] Create correlation computation script that implements lag
+    window analysis (across multiple lag intervals).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Lag_window_analysis_across_multiple_lag_intervals
+  kind: entity_fact
+  raw_text: implements lag window analysis (across multiple lag intervals)
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-06T18:59:41Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: autocorrelation correction using AR(1) pre-whitening and Newey-West standard
+    errors
+  claim_id: c_8396a886
+  context: 'Task T020 [US2] Create correlation computation script that implements
+    autocorrelation correction: AR(1) pre-whitening and Newey-West standard errors.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'implements autocorrelation correction: AR(1) pre-whitening and Newey-West
+    standard errors'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-06T18:59:58Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: fetching of GRACE-FO processed mascon solutions
+  claim_id: c_0cfc4cfd
+  context: Task T015 [US1] Create data fetching script that fetches GRACE-FO processed
+    mascon solutions.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fetching_of_GRACE-FO_processed_mascon_solutions
+  kind: entity_fact
+  raw_text: fetches GRACE-FO processed mascon solutions
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-06T19:00:52Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: fetching of NOAA CPC Atmospheric River Catalog data
+  claim_id: c_2a6a8af7
+  context: Task T015 [US1] Create data fetching script that fetches NOAA CPC Atmospheric
+    River Catalog data.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fetching_of_NOAA_CPC_Atmospheric_River_Catalog_data
+  kind: entity_fact
+  raw_text: fetches NOAA CPC Atmospheric River Catalog data
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-06T19:01:15Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: application of GRACE-FO degree-1 coefficient correction
+  claim_id: c_a529420d
+  context: Task T016 [US1] Create preprocessing script that applies GRACE-FO degree-1
+    coefficient correction.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: applies GRACE-FO degree-1 coefficient correction
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-06T19:01:33Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: application of GRACE-FO C20 coefficient replacement
+  claim_id: c_668aab4c
+  context: Task T016 [US1] Create preprocessing script that applies GRACE-FO C20 coefficient
+    replacement.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Application_of_GRACE-FO_C20_coefficient_replacement
+  kind: entity_fact
+  raw_text: applies GRACE-FO C20 coefficient replacement
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-06T19:01:54Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: multiple-comparison correction using Bonferroni method
+  claim_id: c_9476e82d
+  context: Task T021 [US2] Create bootstrap correction script that implements multiple-comparison
+    correction (Bonferroni method selected for reproducibility) for p-values.
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts:
+      - channel: wikidata
+        source_id: Q858572
+        url: https://www.wikidata.org/wiki/Q858572
+        value: "Holm\u2013Bonferroni method"
+      quote: 'P138: Bonferroni inequalities'
+      source_id: Q385989
+      url: https://www.wikidata.org/wiki/Q385989
+      value: Bonferroni inequalities
+    filled: true
+  kind: entity_fact
+  raw_text: implements multiple-comparison correction (Bonferroni method selected
+    for reproducibility)
+  resolved_value: Bonferroni inequalities
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-06T19:02:04Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: bootstrap resampling with 1000 iterations and seed 42 for 95% confidence
+    intervals
+  claim_id: c_8ed8c4cb
+  context: 'Create bootstrap correction script... that: (1) implements bootstrap resampling
+    (1000 iterations, seed=42) for 95% confidence intervals...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: implements bootstrap resampling (1000 iterations, seed=42) for 95% confidence
+    intervals
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-06T19:02:35Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: effective sample size calculation formula n_eff equals n times 1 minus
+    rho divided by 1 plus rho
+  claim_id: c_cdcf270d
+  context: "Create correlation computation script... that: ... (4) implements effective\
+    \ sample size calculation (n_eff = n \xD7 (1-\u03C1)/(1+\u03C1))..."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "implements effective sample size calculation (n_eff = n \xD7 (1-\u03C1\
+    )/(1+\u03C1))"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-06T19:02:35Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: data merge validates completeness with 90 percent threshold
+  claim_id: c_c9638a57
+  context: "Create merge output script... that: ... (2) validates completeness (\u2265\
+    \ 90% threshold) with warning logging..."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "validates completeness (\u2265 90% threshold) with warning logging"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-06T19:02:35Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: data pipeline output contains 90 percent of expected monthly rows with
+    no NaN values in primary columns
+  claim_id: c_3713311e
+  context: "Independent Test: Can be fully tested by executing the data pipeline script\
+    \ and verifying the output contains a merged CSV with \u2265 90% of expected monthly\
+    \ rows and no NaN values in the primary columns"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "verifies the output contains a merged CSV with \u2265 90% of expected\
+    \ monthly rows and no NaN values in the primary columns"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-06T19:02:35Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: citation validation requires title-token-overlap greater than or equal
+    to 0.7
+  claim_id: c_9a9b033c
+  context: "Create citation verification script... that validates both URL reachability\
+    \ AND citation validation (title-token-overlap \u2265 0.7 against primary source)\
+    \ per Constitution Principle II"
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Citation_validation_requires_title-token-overlap_greater_tha
+  kind: magnitude
+  raw_text: "title-token-overlap \u2265 0.7 against primary source"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-06T19:04:12Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: data pipeline output must contain at least 90 percent of expected monthly
+    rows
+  claim_id: c_4b8d4ca7
+  context: "Independent Test: Can be fully tested by executing the data pipeline script\
+    \ and verifying the output contains a merged CSV with \u2265 90% of expected monthly\
+    \ rows"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Data_pipeline_output_must_contain_at_least_90_percent_of_exp
+  kind: magnitude
+  raw_text: "\u2265 90% of expected monthly rows"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-06T19:04:37Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: West Coast NA region filtering defined as 35 degrees North to 50 degrees
+    North and 120 degrees West to 125 degrees West
+  claim_id: c_3173fdb3
+  context: "align to monthly resolution for West Coast NA region (35\xB0N-50\xB0N,\
+    \ 120\xB0W-125\xB0W)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "35\xB0N-50\xB0N, 120\xB0W-125\xB0W"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-06T19:04:54Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: bootstrap resampling uses 1000 iterations with random seed 42
+  claim_id: c_51b1238f
+  context: apply bootstrap resampling (1000 iterations, seed=42)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 1000 iterations, seed=42
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-06T19:05:32Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: effective sample size calculation formula is n times 1 minus rho divided
+    by 1 plus rho
+  claim_id: c_44f0e752
+  context: "implements effective sample size calculation (n_eff = n \xD7 (1-\u03C1\
+    )/(1+\u03C1))"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "n_eff = n \xD7 (1-\u03C1)/(1+\u03C1)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-06T19:06:54Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: signal magnitude comparison requires threshold greater than or equal
+    to 3 standard deviations
+  claim_id: c_8065161c
+  context: "implements signal magnitude comparison to GRACE-FO measurement noise floor\
+    \ (\u2265 3\u03C3 threshold per FR-004)"
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Signal_magnitude_comparison_requires_threshold_greater_than
+  kind: magnitude
+  raw_text: "\u2265 3\u03C3 threshold"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-06T19:07:15Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: null results are defined as correlation less than 0.1
+  claim_id: c_ac8e8058
+  context: handles null results (correlation < 0.1) by reporting with p-value and
+    confidence intervals
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Null_results_are_defined_as_correlation_less_than_0.1
+  kind: magnitude
+  raw_text: correlation < 0.1
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-06T19:07:48Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: runtime verification requires execution within 6 hours on 2 CPU and 7
+    GB RAM
+  claim_id: c_e3d4fb48
+  context: "Measure 03_merge_output.py runtime to verify \u2264 6 hours on 2 CPU,\
+    \ 7 GB RAM (SC-004)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "\u2264 6 hours on 2 CPU, 7 GB RAM"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-06T19:07:48Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: Wikidata identifier Q385989 referenced for statistical method
+  claim_id: c_0af1b0df
+  context: '{{claim:c_9476e82d}} (Wikidata Q385989, https://www.wikidata.org/wiki/Q385989)
+    for p-values'
+  evidence:
+    entailment_evidence: Wikidata identifier Q385989 referenced for statistical metho
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Wikidata_identifier_Q385989_referenced_for_statistical_metho
+  kind: entity_fact
+  raw_text: Wikidata Q385989
+  resolved_value: Wikidata identifier Q385989 referenced for statistical method
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-06T19:07:50Z'

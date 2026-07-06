@@ -1,8 +1,9 @@
-T004 Create `projects/PROJ-267-exploring-the-relationship-between-atmos/data/processed/` directory: 2
-T005 Create `projects/PROJ-267-exploring-the-relationship-between-atmos/tests/` directory: 2
-? 'T007 [P] Configure linting and formatting tools: create `.flake8` and `pyproject.toml`
-  in `projects/PROJ-267-exploring-the-relationship-between-atmos/code/`'
-: 2
+? "T008 [P] Create citation verification script `projects/PROJ-267-exploring-the-relationship-between-atmos/code/00_verify_citations.py`\
+  \ that validates both URL reachability AND citation validation (title-token-overlap\
+  \ \u2265 0.7 against primary source [UNRESOLVED-CLAIM: c_9a9b033c \u2014 status=not_enough_info])\
+  \ per Constitution Principle II before Phase 0 begins. Script must exit with error\
+  \ code if any citation fails verification."
+: 1
 ? "T008 [P] Create citation verification script `projects/PROJ-267-exploring-the-relationship-between-atmos/code/00_verify_citations.py`\
   \ that validates both URL reachability AND citation validation (title-token-overlap\
   \ \u2265 0.7 against primary source) per Constitution Principle II before Phase\
@@ -15,4 +16,12 @@ T005 Create `projects/PROJ-267-exploring-the-relationship-between-atmos/tests/` 
 ? T010 [P] Create `projects/PROJ-267-exploring-the-relationship-between-atmos/data-model.md`
   with entity definitions (AR Event, Gravity Anomaly, Correlation Result) per plan.md
   Phase 1 output
+: 1
+? T011 [P] Create `projects/PROJ-267-exploring-the-relationship-between-atmos/docs/frame-of-reference.md`
+  documenting gravity anomaly definition (geoid height at satellite altitude) per
+  spec.md Assumptions section, explicitly distinguishing physical curvature from coordinate
+  artifacts
+: 1
+? T012 Create `projects/PROJ-267-exploring-the-relationship-between-atmos/state/projects/PROJ-267-exploring-the-relationship-between-atmos.yaml`
+  with project metadata
 : 1
