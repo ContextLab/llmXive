@@ -1,86 +1,66 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "AlloyRecord"
-description: "Schema for a single aluminum alloy entry after cleaning and filtering."
+description: "Schema for a single aluminum alloy record with compositional and property data."
 type: "object"
+required:
+  - "alloy_id"
+  - "source"
+  - "poissons_ratio"
+  - "youngs_modulus_gpa"
+  - "fraction_cu"
+  - "fraction_mg"
+  - "fraction_si"
+  - "fraction_zn"
+  - "fraction_mn"
 properties:
-  source_id:
+  alloy_id:
     type: "string"
-    description: "Unique identifier from the source database."
+    description: "Unique identifier for the alloy entry."
   source:
     type: "string"
-    enum: ["Open Alloys", "Materials Cloud"]
-    description: "Name of the source database."
-  composition:
-    type: "object"
-    description: "Atomic fractions of alloying elements."
-    properties:
-      Cu:
-        type: "number"
-        minimum: 0
-        maximum: 1
-        description: "Atomic fraction of Copper."
-      Mg:
-        type: "number"
-        minimum: 0
-        maximum: 1
-        description: "Atomic fraction of Magnesium."
-      Si:
-        type: "number"
-        minimum: 0
-        maximum: 1
-        description: "Atomic fraction of Silicon."
-      Zn:
-        type: "number"
-        minimum: 0
-        maximum: 1
-        description: "Atomic fraction of Zinc."
-      Mn:
-        type: "number"
-        minimum: 0
-        maximum: 1
-        description: "Atomic fraction of Manganese."
-      Al:
-        type: "number"
-        minimum: 0
-        maximum: 1
-        description: "Atomic fraction of Aluminum (calculated balance)."
-    required:
-      - Cu
-      - Mg
-      - Si
-      - Zn
-      - Mn
-      - Al
+    description: "Source of the data (Materials Project or NIST)."
+    enum:
+      - "Materials Project"
+      - "NIST"
   poissons_ratio:
     type: "number"
+    description: "Poisson's ratio of the alloy."
     minimum: 0
-    maximum: 0.5
-    description: "Poisson's ratio (dimensionless)."
-  youngs_modulus:
+    maximum: 1
+  youngs_modulus_gpa:
     type: "number"
-    minimum: 0
     description: "Young's modulus in GPa."
-  shear_modulus:
-    type: "number"
     minimum: 0
-    description: "Shear modulus in GPa (required for independence verification)."
-  measurement_method:
-    type: "string"
-    description: "Method used to measure Poisson's ratio (e.g., 'Ultrasonic', 'Calculated')."
-  is_measured:
+  fraction_cu:
+    type: "number"
+    description: "Atomic fraction of Copper."
+    minimum: 0
+    maximum: 1
+  fraction_mg:
+    type: "number"
+    description: "Atomic fraction of Magnesium."
+    minimum: 0
+    maximum: 1
+  fraction_si:
+    type: "number"
+    description: "Atomic fraction of Silicon."
+    minimum: 0
+    maximum: 1
+  fraction_zn:
+    type: "number"
+    description: "Atomic fraction of Zinc."
+    minimum: 0
+    maximum: 1
+  fraction_mn:
+    type: "number"
+    description: "Atomic fraction of Manganese."
+    minimum: 0
+    maximum: 1
+  sum_major_elements:
+    type: "number"
+    description: "Sum of the five major element fractions."
+    minimum: 0
+    maximum: 1
+  is_independent_measurement:
     type: "boolean"
-    default: false
-    description: "Flag indicating if the measurement was independent (e.g., ultrasonic)."
-  is_synthetic:
-    type: "boolean"
-    default: false
-    description: "Flag indicating if the data is synthetic (for testing)."
-required:
-  - source_id
-  - source
-  - composition
-  - poissons_ratio
-  - youngs_modulus
-  - shear_modulus
-  - measurement_method
-  - is_measured
+    description: "True if Poisson's ratio is an independent measurement."

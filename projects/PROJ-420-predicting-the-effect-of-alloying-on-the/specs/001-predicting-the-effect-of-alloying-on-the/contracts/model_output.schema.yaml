@@ -61,7 +61,7 @@ properties:
     description: "True if rankings changed with alternative ILR basis."
   vif_scores:
     type: "object"
-    description: "Variance Inflation Factors for raw predictors."
+    description: "Variance Inflation Factors for raw predictors. High values are expected."
     properties:
       Cu:
         type: "number"
@@ -86,7 +86,7 @@ properties:
       - Mn
   high_vif_flag:
     type: "boolean"
-    description: "True if any VIF score > 5 (expected artifact)."
+    description: "True if any VIF score > 5. Indicates high collinearity in raw space (expected), not a model failure."
 required:
   - cv_mae
   - test_mae

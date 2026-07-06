@@ -1,4 +1,4 @@
-resolved_at: '2026-07-05T22:25:08.767125+00:00'
+resolved_at: '2026-07-06T15:29:47.734711+00:00'
 datasets:
 - intent: ILR
   status: verified
@@ -27,23 +27,23 @@ datasets:
     source: huggingface
     status: wrong_format
     reason: HTTP 401
-  - url: https://figshare.com/articles/poster/Sorting_Signals_Machine_Learning_Classification_of_PUEO_Radio_Events/32903873
+  - url: https://figshare.com/articles/dataset/Executive_Function_and_Early_Literacy_performance_for_emergent_bilinguals_and_monolinguals_aged_4-7_years/32911424
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/poster/Development_of_Resonant_Cavities_for_Project_8_Neutrino_Mass_Experiment/32903867
+  - url: https://figshare.com/articles/online_resource/Ethical_Approval_Letter_for_i_Interest_Rate_Parity_Trade_Openness_and_Sustainable_Economic_Growth_An_Empirical_Investigation_i_/32834954
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/poster/Using_a_Convolutional_Neural_Network_to_Reconstruct_Neutrino_Events_in_ANITA/32903861
+  - url: https://opticapublishing.figshare.com/articles/journal_contribution/Supplementary_document_for_Dispersion-free_photon-pair_generation_enabled_by_tailored_multipolar_flatband_resonances_from_a_nonlinear_metasurface_-_7952575_pdf/32760225
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/dataset/Table_2_Complementary_structure_of_statistical_significance_and_predictive_relevance_in_explainable_machine_learning_based_transcriptomic_tissue_classification_of_Hanwoo_cattle_xlsx/32903858
+  - url: https://figshare.com/articles/dataset/_b_Aerobic_exercise_suppresses_colorectal_tumor_progression_by_coordinating_immune_activation_and_metabolic_remodeling_in_the_tumor_microenvironment_b_/32911328
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/dataset/Table_1_Complementary_structure_of_statistical_significance_and_predictive_relevance_in_explainable_machine_learning_based_transcriptomic_tissue_classification_of_Hanwoo_cattle_xlsx/32903855
+  - url: https://figshare.com/articles/dataset/Provides_the_main_datasets_used_in_the_pre_print_Climate-driven_spatiotemporal_dynamics_of_Aedes_infestation_and_dengue_transmission_in_Porto_Alegre_Southern_Brazil_doi_https_doi_org_10_64898_2026_03_31_26349860/32911403
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -63,7 +63,7 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/4770204
+  - url: https://zenodo.org/records/20534961
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -132,66 +132,46 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://figshare.com/articles/poster/Sorting_Signals_Machine_Learning_Classification_of_PUEO_Radio_Events/32903873
+  - url: https://repository.lboro.ac.uk/articles/conference_contribution/Design_research_during_and_after_Artificial_Intelligence/32896100
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/poster/Development_of_Resonant_Cavities_for_Project_8_Neutrino_Mass_Experiment/32903867
+  - url: https://tandf.figshare.com/articles/journal_contribution/Honey_origin_authentication_using_cyclic_voltammetry_and_nanostructured_carbon_electrodes/32911463
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/poster/Using_a_Convolutional_Neural_Network_to_Reconstruct_Neutrino_Events_in_ANITA/32903861
+  - url: https://figshare.com/articles/dataset/Executive_Function_and_Early_Literacy_performance_for_emergent_bilinguals_and_monolinguals_aged_4-7_years/32911424
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/dataset/Table_2_Complementary_structure_of_statistical_significance_and_predictive_relevance_in_explainable_machine_learning_based_transcriptomic_tissue_classification_of_Hanwoo_cattle_xlsx/32903858
+  - url: https://figshare.com/articles/online_resource/Ethical_Approval_Letter_for_i_Interest_Rate_Parity_Trade_Openness_and_Sustainable_Economic_Growth_An_Empirical_Investigation_i_/32834954
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/dataset/Table_1_Complementary_structure_of_statistical_significance_and_predictive_relevance_in_explainable_machine_learning_based_transcriptomic_tissue_classification_of_Hanwoo_cattle_xlsx/32903855
+  - url: https://opticapublishing.figshare.com/articles/journal_contribution/Supplementary_document_for_Dispersion-free_photon-pair_generation_enabled_by_tailored_multipolar_flatband_resonances_from_a_nonlinear_metasurface_-_7952575_pdf/32760225
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/14189804
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/6384789
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/7254581
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/3382347
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/12807749
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21209037
+  - url: https://zenodo.org/records/21193809
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21209037
+  - url: https://zenodo.org/records/21193809
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://usiena-air.unisi.it//handle/11365/1144376
+  - url: https://zenodo.org/records/21222819
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21207197
+  - url: https://zenodo.org/records/21222819
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21207197
+  - url: https://zenodo.org/records/18496905
     source: datacite
     status: wrong_format
-    reason: unrecognized/non-dataset content
+    reason: HTTP 500
 - intent: CPU-only
   status: verified
   candidates:
@@ -207,23 +187,23 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://figshare.com/articles/poster/Sorting_Signals_Machine_Learning_Classification_of_PUEO_Radio_Events/32903873
+  - url: https://repository.lboro.ac.uk/articles/conference_contribution/Design_research_during_and_after_Artificial_Intelligence/32896100
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/poster/Development_of_Resonant_Cavities_for_Project_8_Neutrino_Mass_Experiment/32903867
+  - url: https://tandf.figshare.com/articles/journal_contribution/Honey_origin_authentication_using_cyclic_voltammetry_and_nanostructured_carbon_electrodes/32911463
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/poster/Using_a_Convolutional_Neural_Network_to_Reconstruct_Neutrino_Events_in_ANITA/32903861
+  - url: https://figshare.com/articles/dataset/Executive_Function_and_Early_Literacy_performance_for_emergent_bilinguals_and_monolinguals_aged_4-7_years/32911424
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/dataset/Table_2_Complementary_structure_of_statistical_significance_and_predictive_relevance_in_explainable_machine_learning_based_transcriptomic_tissue_classification_of_Hanwoo_cattle_xlsx/32903858
+  - url: https://figshare.com/articles/online_resource/Ethical_Approval_Letter_for_i_Interest_Rate_Parity_Trade_Openness_and_Sustainable_Economic_Growth_An_Empirical_Investigation_i_/32834954
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/dataset/Table_1_Complementary_structure_of_statistical_significance_and_predictive_relevance_in_explainable_machine_learning_based_transcriptomic_tissue_classification_of_Hanwoo_cattle_xlsx/32903855
+  - url: https://opticapublishing.figshare.com/articles/journal_contribution/Supplementary_document_for_Dispersion-free_photon-pair_generation_enabled_by_tailored_multipolar_flatband_resonances_from_a_nonlinear_metasurface_-_7952575_pdf/32760225
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -235,35 +215,35 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/10199277
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/17854610
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/6127654
+  - url: https://zenodo.org/records/10199277
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21210112
+  - url: https://kjet.kardan.edu.af/Journal?Journal=KJET&id=3183
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21222324
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21210112
+  - url: https://zenodo.org/records/21222324
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://www.repository.cam.ac.uk/handle/1810/344958
+  - url: https://unige.iris.cineca.it/handle/11567/929442
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21209070
+  - url: https://figshare.com/articles/preprint/Securing_tomorrow_s_Secrets_Today_A_Post-Quantum_Cryptography_Defense_Framework_Using_CRYSTALS-Dilithium_and_CRYSTALSKyber_for_Email_Security_in_Resource-Constrained_Institutions_/32906735/1
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21209070
+  - url: https://figshare.com/articles/preprint/Securing_tomorrow_s_Secrets_Today_A_Post-Quantum_Cryptography_Defense_Framework_Using_CRYSTALS-Dilithium_and_CRYSTALSKyber_for_Email_Security_in_Resource-Constrained_Institutions_/32906735
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -304,28 +284,24 @@ datasets:
     source: huggingface
     status: verified
     format: csv
-  - url: https://figshare.com/articles/poster/Sorting_Signals_Machine_Learning_Classification_of_PUEO_Radio_Events/32903873
+  - url: https://repository.lboro.ac.uk/articles/conference_contribution/Design_research_during_and_after_Artificial_Intelligence/32896100
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/poster/Development_of_Resonant_Cavities_for_Project_8_Neutrino_Mass_Experiment/32903867
+  - url: https://tandf.figshare.com/articles/journal_contribution/Honey_origin_authentication_using_cyclic_voltammetry_and_nanostructured_carbon_electrodes/32911463
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/poster/Using_a_Convolutional_Neural_Network_to_Reconstruct_Neutrino_Events_in_ANITA/32903861
+  - url: https://figshare.com/articles/dataset/Executive_Function_and_Early_Literacy_performance_for_emergent_bilinguals_and_monolinguals_aged_4-7_years/32911424
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/dataset/Table_2_Complementary_structure_of_statistical_significance_and_predictive_relevance_in_explainable_machine_learning_based_transcriptomic_tissue_classification_of_Hanwoo_cattle_xlsx/32903858
+  - url: https://figshare.com/articles/online_resource/Ethical_Approval_Letter_for_i_Interest_Rate_Parity_Trade_Openness_and_Sustainable_Economic_Growth_An_Empirical_Investigation_i_/32834954
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/dataset/Table_1_Complementary_structure_of_statistical_significance_and_predictive_relevance_in_explainable_machine_learning_based_transcriptomic_tissue_classification_of_Hanwoo_cattle_xlsx/32903855
+  - url: https://opticapublishing.figshare.com/articles/journal_contribution/Supplementary_document_for_Dispersion-free_photon-pair_generation_enabled_by_tailored_multipolar_flatband_resonances_from_a_nonlinear_metasurface_-_7952575_pdf/32760225
     source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/5550909
-    source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://doi.org/10.1653/024.099.0440
@@ -336,31 +312,35 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/19228158
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/7683127
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21210067
+  - url: https://zenodo.org/records/5550909
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19228158
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21218821
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21210067
+  - url: https://zenodo.org/records/21218821
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21206391
+  - url: https://zenodo.org/records/21135104
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21206391
+  - url: https://zenodo.org/records/21135104
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21206700
+  - url: https://doi.org/10.34726/hss.2026.138663
     source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
+    status: unreachable
+    reason: 'reachability failed: HTTP 503'

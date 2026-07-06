@@ -2,90 +2,81 @@ $schema: "http://json-schema.org/draft-07/schema#"
 title: "ModelMetrics"
 description: "Schema for the output metrics of the Random Forest model."
 type: "object"
+required:
+  - "cv_mae"
+  - "test_mae"
+  - "model_type"
+  - "random_seed"
 properties:
   cv_mae:
     type: "number"
     description: "Mean Absolute Error from 5-fold cross-validation."
+    minimum: 0
   test_mae:
     type: "number"
     description: "Mean Absolute Error on the held-out test set."
-  feature_importance_raw:
-    type: "object"
-    description: "Back-transformed feature importance scores for original elements."
-    properties:
-      Cu:
-        type: "number"
-        minimum: 0
-      Mg:
-        type: "number"
-        minimum: 0
-      Si:
-        type: "number"
-        minimum: 0
-      Zn:
-        type: "number"
-        minimum: 0
-      Mn:
-        type: "number"
-        minimum: 0
-      Al:
-        type: "number"
-        minimum: 0
-    required:
-      - Cu
-      - Mg
-      - Si
-      - Zn
-      - Mn
-      - Al
-  vif_scores:
-    type: "object"
-    description: "Variance Inflation Factors for raw predictors."
-    properties:
-      Cu:
-        type: "number"
-        minimum: 1
-      Mg:
-        type: "number"
-        minimum: 1
-      Si:
-        type: "number"
-        minimum: 1
-      Zn:
-        type: "number"
-        minimum: 1
-      Mn:
-        type: "number"
-        minimum: 1
-    required:
-      - Cu
-      - Mg
-      - Si
-      - Zn
-      - Mn
-  is_associational:
-    type: "boolean"
-    const: true
-    description: "Flag indicating the results are associational, not causal."
-  high_vif_flag:
-    type: "boolean"
-    description: "True if any VIF score > 5 (expected artifact)."
-  power_analysis_log:
+    minimum: 0
+  model_type:
     type: "string"
-    description: "Log of the power analysis (detectable effect size)."
-  null_model_threshold:
-    type: "number"
-    description: "95th percentile of null model importance scores."
-  basis_sensitivity_flag:
-    type: "boolean"
-    description: "True if rankings changed with alternative ILR basis."
-required:
-  - cv_mae
-  - test_mae
-  - feature_importance_raw
-  - vif_scores
-  - is_associational
-  - high_vif_flag
-  - power_analysis_log
-  - null_model_threshold
-  - basis_sensitivity_flag
+    description: "Type of model used."
+    const: "Random Forest"
+  random_seed:
+    type: "integer"
+    description: "Random seed used for reproducibility."
+  feature_importance:
+    type: "array"
+    description: "List of feature importance scores mapped back to compositional space via perturbation analysis."
+    items:
+      type: "object"
+      required:
+        - "element"
+        - "importance"
+      properties:
+        element:
+          type: "string"
+          description: "Name of the alloying element."
+          enum:
+            - "Cu"
+            - "Mg"
+            - "Si"
+            - "Zn"
+            - "Mn"
+        importance:
+          type: "number"
+          description: "Importance score."
+          minimum: 0
+  collinearity_flags:
+    type: "array"
+    description: "VIF diagnostic flags. is_flagged=true indicates high collinearity in raw space (expected), not a model failure."
+    items:
+      type: "object"
+      required:
+        - "element"
+        - "vif_score"
+        - "is_flagged"
+      properties:
+        element:
+          type: "string"
+        vif_score:
+          type: "number"
+        is_flagged:
+          type: "boolean"
+          description: "True if VIF > 5. Indicates high collinearity in raw space (expected)."
+  mae_confidence_interval:
+    type: "object"
+    description: "95% confidence interval for MAE derived from bootstrap resampling."
+    required:
+      - "lower_bound"
+      - "upper_bound"
+      - "iterations"
+    properties:
+      lower_bound:
+        type: "number"
+        description: "Lower bound of the 95% CI."
+      upper_bound:
+        type: "number"
+        description: "Upper bound of the 95% CI."
+      iterations:
+        type: "integer"
+        description: "Number of bootstrap iterations performed."
+        minimum: 1

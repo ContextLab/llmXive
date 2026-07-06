@@ -4,45 +4,74 @@
 
 - Python 3.11+
 - `pip`
-- Access to the internet (for dataset fetching)
+- Access to a terminal with internet connectivity (for data extraction).
 
 ## Installation
 
-1. Clone the repository and navigate to the project directory.
-2. Create a virtual environment:
-   ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   ```
-3. Install dependencies:
-   ```bash
-   pip install -r projects/PROJ-420-predicting-the-effect-of-alloying-on-the/code/requirements.txt
-   ```
+1.  **Clone the repository** and navigate to the project directory.
+    ```bash
+    git clone <repo-url>
+    cd projects/PROJ-420-predicting-the-effect-of-alloying-on-the
+    ```
+
+2.  **Create a virtual environment**:
+    ```bash
+    python -m venv venv
+    source venv/bin/activate  # On Windows: venv\Scripts\activate
+    ```
+
+3.  **Install dependencies**:
+    ```bash
+    pip install -r requirements.txt
+    ```
+    *Note: `requirements.txt` will include `pandas`, `scikit-learn`, `numpy`, `requests`, `pyyaml`, `joblib`.*
+
+## Data Extraction (Manual Step)
+
+*Note: The automated script will attempt to fetch data. If the public APIs are restricted, you may need to download a sample dataset manually and place it in `data/raw`.*
+
+1.  Run the extraction script:
+    ```bash
+    python code/data_extraction.py
+    ```
+    This will attempt to query Materials Project and NIST.
+    - **Success**: `data/raw/raw_data.json` (or similar) is created.
+    - **Failure**: An error message is printed. Check the "Verified datasets" status.
 
 ## Running the Pipeline
 
-The pipeline is executed via the master orchestrator script `00_run_pipeline.py` which coordinates the sequential execution of data extraction, cleaning, training, and analysis:
+Execute the full pipeline (Cleaning, Modeling, Analysis) with a single command:
 
 ```bash
-# Run the full pipeline (Data Extraction -> Cleaning -> Training -> Analysis)
-python projects/PROJ-420-predicting-the-effect-of-alloying-on-the/code/00_run_pipeline.py
+python code/data_cleaning.py && python code/modeling.py && python code/analysis.py
 ```
 
-**Note**: If the Materials Project or NIST APIs are unreachable, or if the dataset lacks sufficient independent measurements (N < 50) after filtering, the script will halt with an error message indicating the data source failure or data unavailability.
+Alternatively, run the master script if provided:
+```bash
+python code/run_pipeline.py
+```
 
-## Verifying Results
+## Expected Outputs
 
-1. **Check Data**: Inspect `data/processed/processed_data.parquet` to ensure rows are present.
-2. **Check Metrics**: Inspect `data/processed/model_results.json` for `cv_mae`, `test_mae`, `vif_scores`, and `null_model_threshold`.
-3. **Check Contracts**: Run the contract validation tests:
-   ```bash
-   pytest tests/test_contracts.py
-   ```
+After successful execution, the following files will be generated in `data/processed/`:
+
+- `cleaned_records.parquet`: The filtered and normalized dataset.
+- `ilr_features.parquet`: The ILR-transformed features.
+- `model_metrics.json`: Contains `cv_mae`, `test_mae`, and `random_seed`.
+- `diagnostics.json`: Contains VIF scores for each element.
+- `feature_importance.json`: Ranked list of alloying elements.
+
+## Verification
+
+1.  **Check Data Integrity**:
+    ```bash
+    python -c "import pandas as pd; df = pd.read_parquet('data/processed/cleaned_records.parquet'); print(f'Rows: {len(df)}'); print(df.head())"
+    ```
+2.  **Verify Associational Framing**:
+    Open `docs/results.md` (or the generated report) and ensure the text "associational (not causal)" appears in the conclusion.
 
 ## Troubleshooting
 
-- **Error: "Insufficient Data: <50 independent measurements found"**: The dataset contained too many entries where Poisson's ratio was derived from Young's modulus alone. The pipeline cannot proceed without a minimum of 50 independent measurements.
-- **Error: "Data Source Unavailable"**: The Materials Project or NIST APIs are unreachable or require authentication.
-- **Error: "Insufficient Power"**: The sample size is too small to detect meaningful effects (MDES > 0.1).
-- **Error: "VIF > 5"**: This is a warning, not a crash. The pipeline continues but flags high collinearity in the diagnostics (check `vif_scores` in results).
-- **Error: "Poisson's ratio derived"**: Entries where Poisson's ratio is calculated from Young's modulus are excluded per FR-009.
+- **Error: "No data found"**: The public APIs for Materials Project or NIST may not have returned the specific aluminum alloy data with Poisson's ratio. Check the logs in `data/raw/` for the raw response.
+- **Error: "Sum of elements < 0.95"**: This is expected behavior. The script excludes incomplete entries.
+- **Memory Error**: Unlikely with this dataset size, but ensure no other heavy processes are running.

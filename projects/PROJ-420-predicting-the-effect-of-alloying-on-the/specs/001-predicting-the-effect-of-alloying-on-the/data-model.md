@@ -1,50 +1,76 @@
 # Data Model: Predicting the Effect of Alloying on the Poisson's Ratio of Aluminum Alloys
 
+## Overview
+
+This document defines the data structures and transformations used in the project. It ensures consistency between the raw data extraction, the modeling pipeline, and the final output.
+
 ## Entities
 
-### AlloyRecord
-Represents a single aluminum alloy entry after cleaning and normalization.
+### 1. AlloyRecord (Raw & Processed)
+
+Represents a single aluminum alloy entry.
 
 | Field | Type | Description | Constraints |
 | :--- | :--- | :--- | :--- |
-| `id` | string | Unique identifier from source | Unique, Non-null |
-| `source` | string | "Materials Project" or "NIST" | Enum |
-| `poissons_ratio` | float | Poisson's ratio (dimensionless) | Range: 0.0 - 0.5 |
-| `youngs_modulus_gpa` | float | Young's modulus in GPa | > 0 |
-| `shear_modulus_gpa` | float | Shear modulus in GPa | > 0 (Required for FR-009 verification) |
-| `measurement_method` | string | Method used (e.g., "Ultrasonic") | Required for FR-009 verification |
-| `composition_cu` | float | Atomic fraction of Cu | 0.0 - 1.0 |
-| `composition_mg` | float | Atomic fraction of Mg | 0.0 - 1.0 |
-| `composition_si` | float | Atomic fraction of Si | 0.0 - 1.0 |
-| `composition_zn` | float | Atomic fraction of Zn | 0.0 - 1.0 |
-| `composition_mn` | float | Atomic fraction of Mn | 0.0 - 1.0 |
-| `composition_al` | float | Calculated atomic fraction of Al | 1.0 - sum(others) |
-| `is_independent_measurement` | boolean | True if Poisson's ratio is not derived from E | Required (derived from G and method) |
-| `raw_vif_cu` | float | VIF for Cu in raw space | Diagnostic |
-| `raw_vif_mg` | float | VIF for Mg in raw space | Diagnostic |
-| `raw_vif_si` | float | VIF for Si in raw space | Diagnostic |
-| `raw_vif_zn` | float | VIF for Zn in raw space | Diagnostic |
-| `raw_vif_mn` | float | VIF for Mn in raw space | Diagnostic |
+| `alloy_id` | string | Unique identifier from source. | Non-null, unique. |
+| `source` | string | "Materials Project" or "NIST". | Non-null. |
+| `poissons_ratio` | float | Poisson's ratio. | Non-null, > 0, < 1. |
+| `youngs_modulus_gpa` | float | Young's modulus in GPa. | Non-null, > 0. |
+| `fraction_cu` | float | Atomic fraction of Copper. | ≥ 0, ≤ 1. |
+| `fraction_mg` | float | Atomic fraction of Magnesium. | ≥ 0, ≤ 1. |
+| `fraction_si` | float | Atomic fraction of Silicon. | ≥ 0, ≤ 1. |
+| `fraction_zn` | float | Atomic fraction of Zinc. | ≥ 0, ≤ 1. |
+| `fraction_mn` | float | Atomic fraction of Manganese. | ≥ 0, ≤ 1. |
+| `fraction_al` | float | Calculated atomic fraction of Aluminum. | `1.0 - sum(other fractions)`. |
+| `sum_major_elements` | float | Sum of Cu, Mg, Si, Zn, Mn fractions. | Must be ≥ 0.95 (else excluded). |
+| `measurement_method` | string | Method used to measure Poisson's ratio. | Must be "ultrasonic" or "experimental" (else excluded). |
+| `is_independent_measurement` | boolean | Flag for Poisson's ratio independence. | Must be True (else excluded/flagged). |
 
-### ModelMetrics
-Aggregated performance metrics from the training pipeline.
+### 2. ILRFeatureVector
 
-| Field | Type | Description |
-| :--- | :--- | :--- |
-| `cv_mae` | float | Mean Absolute Error from 5-fold CV |
-| `test_mae` | float | Mean Absolute Error on held-out test set |
-| `n_train` | int | Number of training samples |
-| `n_test` | int | Number of test samples |
-| `feature_importance` | object | Map of element name to importance score |
-| `null_model_threshold` | float | 95th percentile of null importance scores |
-| `is_associational` | boolean | True (always) |
-| `high_vif_flag` | boolean | True if any VIF > 5 |
-| `power_analysis_log` | string | Log of the power analysis (MDES) |
-| `basis_sensitivity_flag` | boolean | True if rankings changed with alternative basis |
+The transformed feature set used for modeling.
+
+| Field | Type | Description | Constraints |
+| :--- | :--- | :--- | :--- |
+| `alloy_id` | string | Reference to source. | Non-null. |
+| `ilr_1` ... `ilr_4` | float | Isometric Log-Ratio transformed coordinates. | Real numbers. |
+| *Note*: ILR transforms D components into D-1 coordinates. Here D=5 (Cu, Mg, Si, Zn, Mn), so 4 coordinates. |
+
+### 3. ModelMetrics
+
+Output metrics from the modeling phase.
+
+| Field | Type | Description | Constraints |
+| :--- | :--- | :--- | :--- |
+| `cv_mae` | float | Mean Absolute Error from 5-fold CV. | ≥ 0. |
+| `test_mae` | float | Mean Absolute Error on held-out test set. | ≥ 0. |
+| `model_type` | string | "Random Forest". | Constant. |
+| `random_seed` | integer | Seed used for reproducibility. | Pinned. |
+
+### 4. CollinearityDiagnostic
+
+Diagnostic output for raw composition collinearity.
+
+| Field | Type | Description | Constraints |
+| :--- | :--- | :--- | :--- |
+| `element` | string | Element name (Cu, Mg, Si, Zn, Mn). | Non-null. |
+| `vif_score` | float | Variance Inflation Factor. | ≥ 1.0. |
+| `is_flagged` | boolean | True if VIF > 5. | **Clarification**: Indicates "High collinearity in raw space (expected)", not a model failure. |
+
+## Transformations
+
+1.  **Normalization**: Convert all elastic constants to GPa.
+2.  **Filtering**: Remove rows where `sum_major_elements` < 0.95 or missing required fields.
+3.  **Independence Filter**: Remove rows where `measurement_method` is not "ultrasonic" or "experimental".
+4.  **ILR Transformation**:
+    - Input: Vector $x = [x_1, x_2, x_3, x_4, x_5]$ (atomic fractions).
+    - Method: Apply sequential binary partition or standard basis to compute ILR coordinates.
+    - Output: Vector $z = [z_1, z_2, z_3, z_4]$.
+5.  **Back-transformation for Importance**: Map feature importance from $z$ space to $x$ space using a perturbation-based sensitivity analysis (shuffling original components and measuring impact on ILR-transformed predictions).
 
 ## Data Flow
 
-1. **Raw Download**: `raw_data.csv` (Source: MP/NIST)
-2. **Filtering**: `filtered_data.csv` (Monolithic, complete, unit-normalized, G present)
-3. **Feature Engineering**: `processed_data.parquet` (ILR transformed, VIF calculated)
-4. **Model Output**: `model_results.json` (Metrics, importance, null thresholds)
+1.  `data/raw` (JSON/CSV) -> `data_extraction.py` -> `data/processed/alloy_records.parquet`
+2.  `alloy_records.parquet` -> `data_cleaning.py` -> `data/processed/cleaned_records.parquet`
+3.  `cleaned_records.parquet` -> `modeling.py` -> `data/processed/ilr_features.parquet` + `models/random_forest.joblib`
+4.  `models/random_forest.joblib` + `cleaned_records.parquet` -> `analysis.py` -> `data/processed/metrics.json`, `data/processed/diagnostics.json`
