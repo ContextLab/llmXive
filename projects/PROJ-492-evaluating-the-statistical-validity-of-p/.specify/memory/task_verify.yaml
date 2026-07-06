@@ -198,8 +198,9 @@
   \ (verify test passes)."
 : 1
 ? "T036 FR\u2011002 Verification: Extracted fields exist for > 95% of valid pages.\
-  \ (coverage\u2011executability\u201108d5764f) (verify test passes)."
-: 2
+  \ [UNRESOLVED-CLAIM: c_6cb3b2d0 \u2014 status=not_enough_info] (coverage\u2011executability\u2011\
+  08d5764f) (verify test passes)."
+: 1
 ? "T036 FR\u2011002 Verification: Extracted fields exist for >\u202F95\u202F% of valid\
   \ pages. [UNRESOLVED-CLAIM: c_962bb9e3 \u2014 status=not_enough_info] (coverage\u2011\
   executability\u201108d5764f) (verify test passes)."
@@ -345,6 +346,14 @@
   \ --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested\
   \ --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested\
   \ --> <!-- ATOMIZE: requested -->"
+: 1
+? "T064 Update `.github/workflows/audit.yml` to include steps: (a) schema validation,\
+  \ (b) synthetic validation (ensure precision/recall thresholds), (c) resource\u2011\
+  monitor check, (d) main pipeline run (verify workflow runs all steps) [DEPENDS ON:\
+  \ T098]. <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested\
+  \ --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested\
+  \ --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested\
+  \ --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->"
 : 1
 ? "T095b Verify Quickstart Docker guide also reproduces environment via `requirements.txt`\
   \ and isolated venv (Constitution Principle I) (verify Dockerfile runs `pip install\
