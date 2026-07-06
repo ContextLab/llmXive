@@ -1,0 +1,43 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "ParameterEstimationResult"
+description: "Schema for inference results and error metrics."
+type: "object"
+properties:
+  waveform_id:
+    type: "string"
+    description: "Reference to the source waveform."
+  bit_depth:
+    type: "integer"
+    description: "Bit depth used for this signal."
+  inference_method:
+    type: "string"
+    enum: ["MCMC", "Fisher", "Hybrid"]
+    description: "Method used for parameter estimation."
+  mean_params:
+    type: "object"
+    properties:
+      chirp_mass:
+        type: "number"
+      spin:
+        type: "number"
+      distance:
+        type: "number"
+    required: ["chirp_mass", "distance"]
+  mse:
+    type: "object"
+    properties:
+      chirp_mass:
+        type: "number"
+        description: "Mean Squared Error for chirp mass."
+      distance:
+        type: "number"
+        description: "Mean Squared Error for luminosity distance."
+    required: ["chirp_mass", "distance"]
+  convergence_status:
+    type: "string"
+    enum: ["success", "failed", "non-detection"]
+    description: "Status of the inference run."
+  snr:
+    type: "number"
+    description: "SNR of the injected signal."
+required: ["waveform_id", "bit_depth", "mean_params", "mse", "convergence_status", "snr"]

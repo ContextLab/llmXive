@@ -1,0 +1,141 @@
+resolved_at: '2026-07-06T04:22:06.666198+00:00'
+datasets:
+- intent: LIGO
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/klzhong/ligo/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/klzhong/ligo/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.mq.edu.au/articles/thesis/Accounting_for_and_Reporting_on_Supply_Chain_Emissions_Global_and_Australian_Perspectives/31825183
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Investigating_the_Source_and_Impact_of_Elevated_Intraocular_Insulin_Levels_in_High_Myopia/32904841
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Regulation_and_Evolution_of_Iron_Oxide_Nanoparticles_by_Flame_Synthesis_A_Systematic_Study_of_Solvent_and_Oxygen_Concentration_Effects/32904844
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://curate.nd.edu/articles/journal_contribution/An_SNP-based_second-generation_genetic_map_of_Daphnia_magna_and_its_application_to_QTL_analysis_of_phenotypic_traits/32350938
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://adelaide.figshare.com/articles/online_resource/The_Status_of_Early_Childhood_Health_and_Development_in_Kiribati/32904854
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7527303
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15474960
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8349547
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4437579
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17257984
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21211964
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21211964
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21182552
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21182552
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21210441
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: GWOSC
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://frontiersin.figshare.com/articles/dataset/Data_Sheet_1_Protocol_for_a_clinical_practice_guideline_on_acupuncture_for_chronic_non-specific_low_back_pain_pdf/32905139
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/dataset/Data_Sheet_3_Protocol_for_a_clinical_practice_guideline_on_acupuncture_for_chronic_non-specific_low_back_pain_pdf/32905064
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/dataset/Supplementary_file_1_Modelling_forage_fish_species_distribution_in_the_Canadian_Salish_Sea_docx/32905136
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/dataset/Supplementary_file_1_Economic_value_of_finotonlimab_plus_bevacizumab_versus_sorafenib_for_first-line_treatment_of_unresectable_hepatocellular_carcinoma_in_China_and_the_United_States_docx/32905151
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/dataset/Table_1_Economic_value_of_finotonlimab_plus_bevacizumab_versus_sorafenib_for_first-line_treatment_of_unresectable_hepatocellular_carcinoma_in_China_and_the_United_States_docx/32905055
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5191361
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20418856
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20918160
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10995271
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15259941
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/4x2ht/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21183235
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21183235
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21109217
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21109217
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

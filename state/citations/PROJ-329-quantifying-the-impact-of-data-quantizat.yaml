@@ -1,1 +1,22 @@
-[]
+- artifact_hash: 26a62c033bba1d621dc83cd297f71a3624a0413ed6d9ed1da059480e8cbd63a1
+  artifact_path: projects/PROJ-329-quantifying-the-impact-of-data-quantizat/specs/001-quantifying-the-impact-of-data-quantizat/plan.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: Data Sets
+  kind: url
+  value: https://www.gw-openscience.org/data/`
+  verification_status: verified
+  verified_against_url: https://gwosc.org/data/
+  verified_at: '2026-07-06T04:33:34.894851Z'
+- artifact_hash: 2c65c488b1004bcc2fc00c46ff0683ef3b76d7f0cf6fd570b2de3f9445b707c4
+  artifact_path: projects/PROJ-329-quantifying-the-impact-of-data-quantizat/specs/001-quantifying-the-impact-of-data-quantizat/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: train-00000-of-00001.parquet
+  kind: url
+  value: https://huggingface.co/datasets/klzhong/ligo/resolve/main/data/train-00000-of-00001.parquet`
+  verification_status: verified
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/6603c1c5d16ae60d045a38d0/20d7fb77cc191f74c3c152932f10fc59f60de35f123626b47cf5794e23892156?response-content-disposition=inline%3B+filename*%3DUTF-8%27%27train-00000-of-00001.parquet%3B+filename%3D%22train-00000-of-00001.parquet%22%3B&user_id=public&X-Xet-Cas-Uid=public&Expires=1783316073&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjYwM2MxYzVkMTZhZTYwZDA0NWEzOGQwLzIwZDdmYjc3Y2MxOTFmNzRjM2MxNTI5MzJmMTBmYzU5ZjYwZGUzNWYxMjM2MjZiNDdjZjU3OTRlMjM4OTIxNTZcXD9yZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dHJhaW4tMDAwMDAtb2YtMDAwMDEucGFycXVldCUzQitmaWxlbmFtZSUzRCUyMnRyYWluLTAwMDAwLW9mLTAwMDAxLnBhcnF1ZXQlMjIlM0ImdXNlcl9pZD1wdWJsaWMmWC1YZXQtQ2FzLVVpZD1wdWJsaWMiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkVwb2NoVGltZSI6MTc4MzMxNjA3M319fV19&Signature=MEYCIQD8F7tM1-17U0XG%7EsoeJH6qkhRU%7EvTZgXJiqyTSNSKYAAIhAJkz7lPjlYV90vfPGCWBh4SscGe2DZ-NNtLJhex6yhK6&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+  verified_at: '2026-07-06T04:34:33.238525Z'
