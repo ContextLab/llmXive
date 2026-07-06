@@ -1,0 +1,84 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "LMM Results Schema"
+description: "Schema for statistical results from the Linear Mixed-Effects Model analysis with interaction terms."
+type: "object"
+properties:
+  model_id:
+    type: "string"
+    description: "Unique identifier for the model run."
+  metric_type:
+    type: "string"
+    description: "The synchrony metric used (e.g., 'IPD', 'wPLI')."
+    enum:
+      - "IPD"
+      - "wPLI"
+  electrode_pair:
+    type: "string"
+    description: "The electrode pair analyzed (e.g., 'F3-P3')."
+  frequency_band:
+    type: "string"
+    description: "The frequency band analyzed (e.g., 'theta', 'gamma')."
+    enum:
+      - "theta"
+      - "gamma"
+  fixed_effect_sin:
+    type: "number"
+    description: "Fixed effect coefficient for sin(phase):Condition interaction (IPD only)."
+  fixed_effect_cos:
+    type: "number"
+    description: "Fixed effect coefficient for cos(phase):Condition interaction (IPD only)."
+  fixed_effect_wpli:
+    type: "number"
+    description: "Fixed effect coefficient for wPLI:Condition interaction (wPLI only)."
+  std_error_sin:
+    type: "number"
+    description: "Standard error for sin interaction (IPD only)."
+  std_error_cos:
+    type: "number"
+    description: "Standard error for cos interaction (IPD only)."
+  std_error_wpli:
+    type: "number"
+    description: "Standard error for wPLI interaction (wPLI only)."
+  p_value_uncorrected:
+    type: "number"
+    description: "Uncorrected p-value for the interaction term(s)."
+    minimum: 0
+    maximum: 1
+  p_value_corrected:
+    type: "number"
+    description: "Multiple-comparison corrected p-value."
+    minimum: 0
+    maximum: 1
+  correction_method:
+    type: "string"
+    description: "Method used for correction (e.g., 'bonferroni', 'fdr')."
+  permutation_p_value:
+    type: "number"
+    description: "Empirical p-value from permutation test."
+    minimum: 0
+    maximum: 1
+  joint_test_p_value:
+    type: "number"
+    description: "Likelihood Ratio Test p-value for joint significance of sin/cos interactions (IPD only)."
+    minimum: 0
+    maximum: 1
+  convergence_status:
+    type: "string"
+    description: "Status of the model convergence."
+    enum:
+      - "converged"
+      - "failed"
+  direction_vector:
+    type: "string"
+    description: "JSON string representing the (sin, cos) interaction vector for IPD directionality check."
+required:
+  - model_id
+  - metric_type
+  - electrode_pair
+  - frequency_band
+  - p_value_uncorrected
+  - p_value_corrected
+  - correction_method
+  - permutation_p_value
+  - convergence_status
+additionalProperties: false
