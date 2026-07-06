@@ -1,0 +1,4 @@
+failure_class: PermanentBackendError
+filed_at: '2026-07-06T02:49:58.650449+00:00'
+issue_number: 517
+project_id: PROJ-329-quantifying-the-impact-of-data-quantizat
