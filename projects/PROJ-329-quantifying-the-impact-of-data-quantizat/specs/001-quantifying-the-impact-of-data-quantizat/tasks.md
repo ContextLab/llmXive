@@ -20,35 +20,35 @@
 - **Mobile**: `api/src/`, `ios/src/` or `android/src/`
 - Paths shown below assume single project - adjust based on plan.md structure
 
-<!-- 
-  ============================================================================
-  IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-  
-  The /speckit-tasks command MUST replace these with actual tasks based on:
-  - User stories from spec.md (with their priorities P1, P2, P3...)
-  - Feature requirements from plan.md
-  - Entities from data-model.md
-  - Endpoints from contracts/
-  
-  Tasks MUST be organized by user story so each story can:
-  - Be implemented independently
-  - Be tested independently
-  - Be delivered as an MVP increment
-  
-  DO NOT keep these sample tasks in the generated tasks.md file.
-  ============================================================================
+<!--
+ ============================================================================
+ IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
+
+ The /speckit-tasks command MUST replace these with actual tasks based on:
+ - User stories from spec.md (with their priorities P1, P2, P3...)
+ - Feature requirements from plan.md
+ - Entities from data-model.md
+ - Endpoints from contracts/
+
+ Tasks MUST be organized by user story so each story can:
+ - Be implemented independently
+ - Be tested independently
+ - Be delivered as an MVP increment
+
+ DO NOT keep these sample tasks in the generated tasks.md file.
+ ============================================================================
 -->
 
 ## Phase 1: Setup (Shared Infrastructure)
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001a [P] Create directory structure: `projects/PROJ-329-quantifying-the-impact-of-data-quantizat/code/` with `src/`, `tests/`, `data/raw/`, `data/processed/`, `data/results/` and verify tree via `tree` command, saving output to `logs/setup_tree.txt`
-- [ ] T001b [P] Create empty placeholder files: `src/__init__.py`, `tests/__init__.py`, `requirements.txt`
-- [ ] T001c [P] Verify directory tree matches plan.md 'Project Structure' section exactly
+- [X] T001a [P] Create directory structure: `projects/PROJ-329-quantifying-the-impact-of-data-quantizat/code/` with `src/`, `tests/`, `data/raw/`, `data/processed/`, `data/results/` and verify tree via `tree` command, saving output to `logs/setup_tree.txt` <!-- FAILED: unspecified -->
+- [X] T001b [P] Create empty placeholder files: `src/__init__.py`, `tests/__init__.py`, `requirements.txt`
+- [X] T001c [P] Verify directory tree matches plan.md 'Project Structure' section exactly
 
-- [ ] T002 Initialize Python 3.11 project with `requirements.txt` (pycbc, bilby, numpy, scipy, matplotlib, pandas, h5py, astropy)
-- [ ] T003 [P] Configure linting (flake8/black) and formatting tools
+- [X] T002 Initialize Python 3.11 project with `requirements.txt` (pycbc, bilby, numpy, scipy, matplotlib, pandas, h5py, astropy)
+- [X] T003 [P] Configure linting (flake8/black) and formatting tools
 
 ---
 
@@ -58,7 +58,7 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 Setup `src/state_manager.py` to record artifact hashes (Constitution V) after each phase
+- [X] T004 Setup `src/state_manager.py` to record artifact hashes (Constitution V) after each phase
 - [ ] T005 [P] Implement data hygiene utilities: checksumming for `data/raw/` and `data/processed/`
 - [ ] T006 [P] Setup `src/utils.py` with quantization logic (Fixed FSR) and SNR calculation helpers
 - [ ] T007 Create base data schemas in `contracts/` (`waveform.schema.yaml`, `result.schema.yaml`)
@@ -80,17 +80,17 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T011 [P] [US1] Unit test for quantization logic: verify 1-bit and 16-bit edge cases in `tests/unit/test_quantization.py`
-- [ ] T012 [P] [US1] Integration test for noise injection: verify SNR range [8, 50] in `tests/integration/test_injection.py`
+- [~] T011 [P] [US1] Unit test for quantization logic: verify 1-bit and 16-bit edge cases in `tests/unit/test_quantization.py`
+- [~] T012 [P] [US1] Integration test for noise injection: verify SNR range [8, 50] in `tests/integration/test_injection.py`
 
 ### Implementation for User Story 1
 
-- [ ] T013 [US1] Implement `src/data_generation.py`: Generate BBH waveforms (IMRPhenomPv) with masses [10, 50] $M_\odot$ and distances [100, 1000] Mpc.
-- [ ] T013a [US1] Verify that the stratified bins (8-14, 14-20, 20-30, 30-50) collectively cover the full [8, 50] range, and that individual injected signals meet the ±0.5 SNR tolerance (US-1 Acceptance Scenario 1)
-- [ ] T014 [US1] Implement `src/data_generation.py`: Apply Fixed Full-Scale Range (FSR) quantization for all required bit depths:, 8, 10, 12, 14, and 16 bits (FR-002)
-- [ ] T015 [US1] [after T014] Implement `src/data_generation.py`: Generate parallel float64 baseline waveforms for every quantized signal (FR-007)
-- [ ] T016 [US1] [after T015] Save output dataset to `data/processed/waveforms_pilot_{seed}.h5` in HDF5 format, ensuring batch size fits 7 GB RAM limit; verify file size < 4GB and checksum recorded in `state.yaml`
-- [ ] T017 [US1] Add validation: verify quantized signals contain **no more than** $2^N$ unique levels (accounting for signal amplitude clipping) and SNR tolerance ±0.5
+- [~] T013 [US1] Implement `src/data_generation.py`: Generate BBH waveforms (IMRPhenomPv) with masses [10, 50] $M_\odot$ and distances [100, 1000] Mpc.
+- [~] T013a [US1] Verify that the stratified bins (8-14, 14-20, 20-30, 30-50) collectively cover the full [8, 50] range, and that individual injected signals meet the ±0.5 SNR tolerance (US-1 Acceptance Scenario 1)
+- [~] T014 [US1] Implement `src/data_generation.py`: Apply Fixed Full-Scale Range (FSR) quantization for all required bit depths:, 8, 10, 12, 14, and 16 bits (FR-002)
+- [~] T015 [US1] [after T014] Implement `src/data_generation.py`: Generate parallel float64 baseline waveforms for every quantized signal (FR-007)
+- [~] T016 [US1] [after T015] Save output dataset to `data/processed/waveforms_pilot_{seed}.h5` in HDF5 format, ensuring batch size fits 7 GB RAM limit; verify file size < 4GB and checksum recorded in `state.yaml`
+- [~] T017 [US1] Add validation: verify quantized signals contain **no more than** $2^N$ unique levels (accounting for signal amplitude clipping) and SNR tolerance ±0.5
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -104,17 +104,17 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T018 [P] [US2] Unit test for MSE calculation: verify bias < 10% for known injected values in `tests/unit/test_metrics.py`
-- [ ] T019 [P] [US2] Integration test for inference pipeline: verify convergence on SNR > 10 signal in `tests/integration/test_inference.py`
+- [~] T018 [P] [US2] Unit test for MSE calculation: verify bias < 10% for known injected values in `tests/unit/test_metrics.py`
+- [~] T019 [P] [US2] Integration test for inference pipeline: verify convergence on SNR > 10 signal in `tests/integration/test_inference.py`
 
 ### Implementation for User Story 2
 
-- [ ] T020 [P] [US2] Implement `src/inference_engine.py`: CPU-optimized Bilby/PyCBC-Inference wrapper with Uniform MCMC (fixed steps)
-- [ ] T021 [US2] Implement `src/inference_engine.py`: Stratified batch processing loop for bit depths (1, 8, 10, 12, 14, 16) × SNR bins (8-14, 14-20, 20-30, 30-50) × 50 signals = 1200 signals/run (full FR-002 set)
-- [ ] T022 [US2] Implement `src/inference_engine.py`: Parallel execution strategy to fit within 6-hour CI limit (2 cores)
-- [ ] T023 [US2] Compute MSE between injected ground-truth and recovered posterior means for chirp mass, spin, and distance
-- [ ] T024 [US2] Save inference results to `data/results/inference_pilot_{seed}.json` as JSON/CSV, including 90% credible intervals
-- [ ] T025 [US2] Handle edge cases: record "non-detections" for SNR < 8 or failed convergence instead of crashing
+- [~] T020 [P] [US2] Implement `src/inference_engine.py`: CPU-optimized Bilby/PyCBC-Inference wrapper with Uniform MCMC (fixed steps)
+- [~] T021 [US2] Implement `src/inference_engine.py`: Stratified batch processing loop for bit depths (1, 8, 10, 12, 14, 16) × SNR bins (8-14, 14-20, 20-30, 30-50) × 50 signals = 1200 signals/run (full FR-002 set)
+- [~] T022 [US2] Implement `src/inference_engine.py`: Parallel execution strategy to fit within 6-hour CI limit (2 cores)
+- [~] T023 [US2] Compute MSE between injected ground-truth and recovered posterior means for chirp mass, spin, and distance
+- [~] T024 [US2] Save inference results to `data/results/inference_pilot_{seed}.json` as JSON/CSV, including 90% credible intervals
+- [~] T025 [US2] Handle edge cases: record "non-detections" for SNR < 8 or failed convergence instead of crashing
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -128,8 +128,8 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T026 [P] [US3] Unit test for threshold fitting: verify crossover detection logic in `tests/unit/test_analysis.py`
-- [ ] T027 [P] [US3] Integration test for reproducibility: verify std dev of crossover SNR < 0.5 across 10 runs in `tests/integration/test_reproducibility.py`
+- [~] T026 [P] [US3] Unit test for threshold fitting: verify crossover detection logic in `tests/unit/test_analysis.py`
+- [~] T027 [P] [US3] Integration test for reproducibility: verify std dev of crossover SNR < 0.5 across 10 runs in `tests/integration/test_reproducibility.py`
 
 ### Implementation for User Story 3
 
@@ -164,8 +164,8 @@
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
-  - User stories can then proceed in parallel (if staffed)
-  - Or sequentially in priority order (P1 → P2 → P3)
+ - User stories can then proceed in parallel (if staffed)
+ - Or sequentially in priority order (P1 → P2 → P3)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
@@ -230,9 +230,9 @@ With multiple developers:
 
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
-   - Developer A: User Story 1
-   - Developer B: User Story 2
-   - Developer C: User Story 3
+ - Developer A: User Story 1
+ - Developer B: User Story 2
+ - Developer C: User Story 3
 3. Stories complete and integrate independently
 
 ---

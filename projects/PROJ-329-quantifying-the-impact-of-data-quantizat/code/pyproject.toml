@@ -1,0 +1,50 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "quantization-impact-gw"
+version = "0.1.0"
+description = "Quantifying the impact of data quantization on gravitational wave signal reconstruction"
+requires-python = ">=3.11"
+dependencies = [
+    "pycbc>=2.2.0",
+    "bilby>=1.1.0",
+    "numpy>=1.24.0",
+    "scipy>=1.10.0",
+    "matplotlib>=3.7.0",
+    "pandas>=2.0.0",
+    "h5py>=3.8.0",
+    "astropy>=5.2.0",
+]
+
+[tool.black]
+line-length = 88
+target-version = ['py311']
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
+    | \.eggs
+)/
+'''
+
+[tool.isort]
+profile = "black"
+line_length = 88
+known_first_party = ["src", "scripts", "tests"]
+known_third_party = ["pycbc", "bilby", "numpy", "scipy", "matplotlib", "pandas", "h5py", "astropy", "yaml", "pytest"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_functions = ["test_*"]
+addopts = "-v --tb=short"

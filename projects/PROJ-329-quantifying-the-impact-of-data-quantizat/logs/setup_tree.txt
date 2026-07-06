@@ -1,0 +1,16 @@
+# Project Structure Verification
+# Generated: 2023-10-27T10:00:00.000000
+# Command: tree code
+#--------------------------------------------------
+
+projects/PROJ-329-quantifying-the-impact-of-data-quantizat/code/
+├── data
+│   ├── processed
+│   ├── raw
+│   └── results
+├── logs
+├── requirements.txt
+├── src
+│   └── __init__.py
+└── tests
+    └── __init__.py

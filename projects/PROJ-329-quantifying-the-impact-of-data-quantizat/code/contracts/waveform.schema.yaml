@@ -1,0 +1,166 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Gravitational Waveform Dataset Schema
+description: Schema for simulated gravitational waveforms injected into LIGO noise and quantized at various bit depths.
+type: object
+required:
+  - metadata
+  - signals
+properties:
+  metadata:
+    type: object
+    required:
+      - version
+      - creation_date
+      - generator
+      - parameters
+    properties:
+      version:
+        type: string
+        description: Schema version
+        const: "1.0"
+      creation_date:
+        type: string
+        format: date-time
+        description: ISO 8601 timestamp of generation
+      generator:
+        type: string
+        description: Script or module that generated the data
+      parameters:
+        type: object
+        required:
+          - mass_range
+          - distance_range
+          - snr_range
+          - bit_depths
+        properties:
+          mass_range:
+            type: object
+            required: [min, max]
+            properties:
+              min:
+                type: number
+                description: Minimum total mass in solar masses
+              max:
+                type: number
+                description: Maximum total mass in solar masses
+          distance_range:
+            type: object
+            required: [min, max]
+            properties:
+              min:
+                type: number
+                description: Minimum luminosity distance in Mpc
+              max:
+                type: number
+                description: Maximum luminosity distance in Mpc
+          snr_range:
+            type: object
+            required: [min, max]
+            properties:
+              min:
+                type: number
+                description: Target minimum SNR
+              max:
+                type: number
+                description: Target maximum SNR
+          bit_depths:
+            type: array
+            items:
+              type: integer
+            description: List of quantization bit depths used (e.g., [1, 8, 10, 12, 14, 16])
+          waveform_model:
+            type: string
+            description: Name of the waveform approximant (e.g., IMRPhenomPv2)
+          sampling_frequency:
+            type: number
+            description: Sampling frequency in Hz
+          duration:
+            type: number
+            description: Signal duration in seconds
+  signals:
+    type: array
+    description: Array of waveform signal records
+    items:
+      type: object
+      required:
+        - signal_id
+        - truth_parameters
+        - injection_snr
+        - quantized_signals
+      properties:
+        signal_id:
+          type: string
+          description: Unique identifier for this signal
+        truth_parameters:
+          type: object
+          required:
+            - mass1
+            - mass2
+            - distance
+            - spin1
+            - spin2
+            - inclination
+            - polarization
+            - phase
+            - time
+            - snr
+          properties:
+            mass1:
+              type: number
+              description: Primary mass in solar masses
+            mass2:
+              type: number
+              description: Secondary mass in solar masses
+            distance:
+              type: number
+              description: Luminosity distance in Mpc
+            spin1:
+              type: number
+              description: Dimensionless spin magnitude of primary
+            spin2:
+              type: number
+              description: Dimensionless spin magnitude of secondary
+            inclination:
+              type: number
+              description: Inclination angle in radians
+            polarization:
+              type: number
+              description: Polarization angle in radians
+            phase:
+              type: number
+              description: Coalescence phase in radians
+            time:
+              type: number
+              description: Coalescence time in seconds
+            snr:
+              type: number
+              description: Injected SNR
+        injection_snr:
+          type: number
+          description: Actual measured SNR after injection
+        quantized_signals:
+          type: array
+          description: List of quantized waveform versions
+          items:
+            type: object
+            required:
+              - bit_depth
+              - fsr
+              - levels_count
+              - data_ref
+            properties:
+              bit_depth:
+                type: integer
+                description: Number of bits used for quantization
+              fsr:
+                type: number
+                description: Full Scale Range used for quantization
+              levels_count:
+                type: integer
+                description: Number of unique levels actually present (should be <= 2^bit_depth)
+              data_ref:
+                type: string
+                description: Reference to the location of the time-series data in the HDF5 dataset (e.g., "/signals/{signal_id}/bit_{bit_depth}")
+        noise_file:
+          type: string
+          description: Path or identifier of the noise PSD file used

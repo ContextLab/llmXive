@@ -1,0 +1,15 @@
+# Directory Tree generated at 2023-10-27T10:00:00
+
+PROJ-329-quantifying-the-impact-of-data-quantizat
+├── code
+│   ├── data
+│   │   ├── processed
+│   │   ├── raw
+│   │   └── results
+│   ├── logs
+│   │   └── setup_tree.txt
+│   ├── requirements.txt
+│   ├── src
+│   │   └── __init__.py
+│   └── tests
+│       └── __init__.py

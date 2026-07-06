@@ -1,0 +1,17 @@
+# Core dependencies
+numpy>=1.24.0
+scipy>=1.10.0
+pandas>=2.0.0
+matplotlib>=3.7.0
+h5py>=3.8.0
+astropy>=5.2.0
+pyyaml>=6.0
+
+# GW specific (optional for full run, but needed for real likelihoods)
+# pycbc>=2.3.0
+# bilby>=2.2.0
+
+# Testing
+pytest>=7.3.0
+black>=23.0.0
+flake8>=6.0.0

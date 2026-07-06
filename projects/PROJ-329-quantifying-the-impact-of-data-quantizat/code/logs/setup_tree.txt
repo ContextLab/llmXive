@@ -1,0 +1,34 @@
+code/
+├── data
+│   ├── processed
+│   ├── raw
+│   └── results
+├── logs
+│   └── setup_tree.txt
+├── scripts
+│   ├── format_and_lint.py
+│   ├── setup_project.py
+│   └── verify_pilot_feasibility.py
+├── src
+│   ├── __init__.py
+│   ├── config.py
+│   ├── data_generation.py
+│   ├── data_hygiene.py
+│   ├── error_handling.py
+│   ├── state_manager.py
+│   ├── utils.py
+│   └── verify_snr_bins.py
+├── tests
+│   ├── __init__.py
+│   ├── test_config.py
+│   ├── test_data_hygiene.py
+│   ├── test_error_handling.py
+│   ├── test_pilot_feasibility.py
+│   ├── test_schemas.py
+│   ├── test_state_manager.py
+│   ├── test_utils.py
+│   └── unit
+│       ├── test_quantization.py
+│       └── test_verify_snr_bins.py
+├── requirements.txt
+└── verify_structure.py

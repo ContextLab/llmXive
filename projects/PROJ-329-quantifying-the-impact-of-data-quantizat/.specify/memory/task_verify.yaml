@@ -1,0 +1,10 @@
+'T005 [P] Implement data hygiene utilities: checksumming for `data/raw/` and `data/processed/`': 1
+T006 [P] Setup `src/utils.py` with quantization logic (Fixed FSR) and SNR calculation helpers: 1
+T007 Create base data schemas in `contracts/` (`waveform.schema.yaml`, `result.schema.yaml`): 1
+T008 Configure error handling for missing/corrupted noise files (fail gracefully): 1
+? T009 [P] Setup environment configuration for random seeds and CI limits (2 CPU,
+  7 GB RAM) and calculate batch size constraints for N=1200 pilot
+: 1
+? "T010 [P] Calculate and document batch sizes: Verify N=1200 (6 depths \xD7 4 bins\
+  \ \xD7 50) fits within 6-hour CI limit and 7 GB RAM (based on T009)"
+: 1

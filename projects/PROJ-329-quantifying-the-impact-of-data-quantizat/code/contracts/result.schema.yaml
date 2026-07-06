@@ -1,0 +1,150 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Parameter Estimation Result Schema
+description: Schema for Bayesian parameter estimation results on quantized gravitational wave signals.
+type: object
+required:
+  - metadata
+  - results
+properties:
+  metadata:
+    type: object
+    required:
+      - version
+      - creation_date
+      - inference_engine
+      - run_config
+    properties:
+      version:
+        type: string
+        description: Schema version
+        const: "1.0"
+      creation_date:
+        type: string
+        format: date-time
+        description: ISO 8601 timestamp of result generation
+      inference_engine:
+        type: string
+        description: Name and version of the inference engine (e.g., Bilby 2.1.0)
+      run_config:
+        type: object
+        required:
+          - sampler
+          - n_steps
+          - n_walkers
+          - priors
+        properties:
+          sampler:
+            type: string
+            description: Sampler type (e.g., 'dynesty', 'emcee')
+          n_steps:
+            type: integer
+            description: Number of MCMC steps per walker
+          n_walkers:
+            type: integer
+            description: Number of walkers
+          priors:
+            type: object
+            description: Dictionary of prior distributions used
+          convergence_threshold:
+            type: number
+            description: R-hat or other convergence metric threshold
+  results:
+    type: array
+    description: Array of inference results for each signal
+    items:
+      type: object
+      required:
+        - signal_id
+        - bit_depth
+        - injection_snr
+        - status
+        - recovered_parameters
+      properties:
+        signal_id:
+          type: string
+          description: Unique identifier matching the waveform schema
+        bit_depth:
+          type: integer
+          description: Bit depth of the quantized signal analyzed
+        injection_snr:
+          type: number
+          description: True SNR of the injected signal
+        status:
+          type: string
+          enum: [converged, failed, non-detection]
+          description: Status of the inference run
+        recovered_parameters:
+          type: object
+          description: Recovered posterior statistics (only if status is 'converged')
+          required:
+            - chirp_mass
+            - distance
+            - spin_effective
+          properties:
+            chirp_mass:
+              type: object
+              required: [mean, median, std, ci_90_low, ci_90_high]
+              properties:
+                mean:
+                  type: number
+                median:
+                  type: number
+                std:
+                  type: number
+                ci_90_low:
+                  type: number
+                ci_90_high:
+                  type: number
+            distance:
+              type: object
+              required: [mean, median, std, ci_90_low, ci_90_high]
+              properties:
+                mean:
+                  type: number
+                median:
+                  type: number
+                std:
+                  type: number
+                ci_90_low:
+                  type: number
+                ci_90_high:
+                  type: number
+            spin_effective:
+              type: object
+              required: [mean, median, std, ci_90_low, ci_90_high]
+              properties:
+                mean:
+                  type: number
+                median:
+                  type: number
+                std:
+                  type: number
+                ci_90_low:
+                  type: number
+                ci_90_high:
+                  type: number
+        error_metrics:
+          type: object
+          description: Error metrics comparing recovered vs ground truth
+          properties:
+            mse_chirp_mass:
+              type: number
+            mse_distance:
+              type: number
+            mse_spin:
+              type: number
+            bias_chirp_mass:
+              type: number
+            bias_distance:
+              type: number
+            bias_spin:
+              type: number
+        failure_reason:
+          type: string
+          description: Reason for failure if status is not 'converged'
+        quantization_error:
+          type: number
+          description: Difference in SNR or likelihood due to quantization
+        instrumental_error:
+          type: number
+          description: Error baseline from float64 (unquantized) analysis
