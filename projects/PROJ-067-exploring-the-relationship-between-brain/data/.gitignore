@@ -1,0 +1,24 @@
+# Ignore all data files by default
+*
+
+# Explicitly keep the directory structure and this file
+!.gitignore
+
+# Un-ignore specific subdirectories to allow files inside them
+!raw/
+!processed/
+!metrics/
+!atlas/
+
+# Un-ignore specific file types we expect to generate
+!raw/*.nii
+!raw/*.nii.gz
+!raw/*.json
+!processed/*.nii
+!processed/*.nii.gz
+!metrics/*.csv
+!metrics/*.json
+!atlas/*.csv
+!atlas/*.tsv
+!atlas/*.nii
+!atlas/*.nii.gz

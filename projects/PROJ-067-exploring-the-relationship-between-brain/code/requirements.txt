@@ -1,0 +1,14 @@
+nilearn>=0.10.0
+networkx>=3.0
+scikit-learn>=1.2.0
+scipy>=1.10.0
+pandas>=2.0.0
+numpy>=1.24.0
+joblib>=1.2.0
+requests>=2.28.0
+nibabel>=5.0.0
+matplotlib>=3.7.0
+pytest>=7.0.0
+black>=23.0.0
+ruff>=0.0.200
+pyyaml>=6.0

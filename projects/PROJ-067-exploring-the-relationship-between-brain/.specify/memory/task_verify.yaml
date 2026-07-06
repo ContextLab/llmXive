@@ -1,0 +1,8 @@
+T008 [P] Create `contracts/` directory with `subject_metrics.schema.yaml` and `results_schema.yaml`: 2
+? T009 [P] Initialize `data/` directory structure (`raw/`, `processed/`, `metrics/`,
+  `atlas/`) and `.gitignore` for large files
+: 2
+T010 [P] Initialize `results/` directory structure (`plots/`) and `tests/` directory structure (`contract/`, `unit/`): 2
+T011 [P] [US1] Contract test for downloaded metadata schema in `tests/contract/test_metadata_schema.py`: 1
+T012 [P] [US1] Unit test for memory monitor threshold violation in `tests/unit/test_memory_monitor.py`: 1
+T013 [P] [US1] Unit test for FD calculation and exclusion logic in `tests/unit/test_preprocess.py`: 1

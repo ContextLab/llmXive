@@ -1,0 +1,402 @@
+- artifact_path: projects/PROJ-067-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: target of 50 valid subjects for analysis
+  claim_id: c_090a1134
+  context: If fewer than 50 valid subjects are found, raise a FatalError with message
+    'Insufficient subjects for N=50 target'. The output file MUST contain exactly
+    50 entries before T016 executes
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline targets exactly 50 valid subjects for analysis.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-06T18:41:49Z'
+- artifact_path: projects/PROJ-067-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: exclude subjects with FD greater than 0.5mm
+  claim_id: c_94b2933e
+  context: Implement Framewise Displacement (FD) calculation in preprocess.py and
+    exclude subjects with FD >0.5mm (Edge Case).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Exclude_subjects_with_FD_greater_than_0.5mm
+  kind: magnitude
+  raw_text: Subjects with Framewise Displacement (FD) greater than 0.5mm are excluded
+    from the analysis.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-06T18:42:27Z'
+- artifact_path: projects/PROJ-067-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: total runtime limit of 4 hours
+  claim_id: c_5a62830e
+  context: Implement a check in main.py that raises a RuntimeError if total runtime
+    > 4 hours and logs results to results/runtime_log.json, asserting total <= 4 hours
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The analysis pipeline must complete within a total runtime of 4 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-06T18:42:43Z'
+- artifact_path: projects/PROJ-067-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: memory usage limit of 7GB
+  claim_id: c_3173ba25
+  context: Implement code/utils/memory_monitor.py to track RSS via /proc/self/status
+    and raise exceptions if >7GB
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Memory_usage_limit_of_7GB
+  kind: entity_fact
+  raw_text: The memory usage of the preprocessing pipeline is constrained to a peak
+    of 7GB.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-06T18:43:12Z'
+- artifact_path: projects/PROJ-067-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: total directory size limit of 7GB
+  claim_id: c_7cba9b96
+  context: "verify output NIfTI files exist, directory size \u22647GB, and peak memory\
+    \ log entry <7GB"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Total_directory_size_limit_of_7GB
+  kind: magnitude
+  raw_text: The total directory size for intermediate and output files must be less
+    than or equal to 7GB.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-06T18:43:23Z'
+- artifact_path: projects/PROJ-067-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: permutation test with 1000 iterations
+  claim_id: c_0f6fe31a
+  context: Implement permutation test with exactly 1000 iterations to generate null
+    distribution (FR-007, SC-003).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The statistical analysis uses a permutation test with exactly 1000 iterations.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-06T18:43:40Z'
+- artifact_path: projects/PROJ-067-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: use of Schaefer-100 atlas instead of Schaefer-400
+  claim_id: c_3c7070f6
+  context: The Plan's decision to use Schaefer-100 for statistical validity... formally
+    amended to 'Schaefer-100' due to statistical validity constraints (rank-deficiency)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The study utilizes the Schaefer-100 atlas instead of Schaefer-400 for
+    statistical validity.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-06T18:44:29Z'
+- artifact_path: projects/PROJ-067-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: download OpenNeuro dataset ds000228
+  claim_id: c_c3e1da05
+  context: Implement code/data/validate_metadata.py to fetch ds000228 metadata...
+    Implement code/data/download.py to fetch ds000228 NIfTI files
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Download_OpenNeuro_dataset_ds000228
+  kind: entity_fact
+  raw_text: The data acquisition targets the OpenNeuro dataset ds000228.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-06T18:44:43Z'
+- artifact_path: projects/PROJ-067-exploring-the-relationship-between-brain/docs/requirement_change_record_Schaefer100.md
+  attempts: 1
+  canonical: study sample size of 50 subjects for correlation between network dynamics
+    and dream recall frequency
+  claim_id: c_b609d4bf
+  context: The original requirement to use the Schaefer-400 atlas (400 regions) creates
+    a statistical validity issue for the planned analysis. The study aims to correlate
+    network dynamics (flexibility, stability) with Dream Recall Frequency (DRF) using
+    a sample size of N=50.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The study aims to correlate network dynamics (flexibility, stability)
+    with Dream Recall Frequency (DRF) using a sample size of N=50.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-06T18:51:58Z'
+- artifact_path: projects/PROJ-067-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: Raise FatalError if fewer than 50 valid subjects found
+  claim_id: c_570e38c3
+  context: 'T015 [US1] Subject Filtering & N=50 Enforcement: Implement code/data/filter_subjects.py
+    to load validated metadata... If fewer than 50 valid subjects are found, raise
+    a FatalError...'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Raise_FatalError_if_fewer_than_50_valid_subjects_found
+  kind: magnitude
+  raw_text: If fewer than 50 valid subjects are found, raise a FatalError with message
+    'Insufficient subjects for N=50 target'.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-06T19:09:49Z'
+- artifact_path: projects/PROJ-067-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: Permutation test with exactly 1000 iterations
+  claim_id: c_07004181
+  context: T040 [US3] Implement permutation test with exactly 1000 iterations to generate
+    null distribution (FR-007, SC-003).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Perform a permutation test with exactly 1000 iterations to generate null
+    distribution.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-06T19:10:05Z'
+- artifact_path: projects/PROJ-067-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: Pipeline aborts if RSS exceeds 7GB
+  claim_id: c_40d6927b
+  context: T007 [P] Implement code/utils/memory_monitor.py to track RSS via /proc/self/status
+    and raise exceptions if >7GB... T018 [US1] Integrate memory_monitor.py into preprocess.py
+    to abort if RSS >7GB...
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pipeline_aborts_if_RSS_exceeds_7GB
+  kind: entity_fact
+  raw_text: The pipeline must abort if RSS exceeds 7GB.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-06T19:10:29Z'
+- artifact_path: projects/PROJ-067-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: Exclude subjects with FD greater than 0.5mm
+  claim_id: c_91cc0848
+  context: T019 [US1] Implement Framewise Displacement (FD) calculation in preprocess.py
+    and exclude subjects with FD >0.5mm (Edge Case).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Exclude_subjects_with_FD_greater_than_0.5mm
+  kind: magnitude
+  raw_text: Subjects with Framewise Displacement (FD) greater than 0.5mm must be excluded.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-06T19:10:56Z'
+- artifact_path: projects/PROJ-067-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: Total directory size must be less than or equal to 7GB
+  claim_id: c_a174cce1
+  context: "Independent Test: Execute download and preprocessing on a subset of subjects;\
+    \ verify output NIfTI files exist, directory size \u22647GB..."
+  evidence:
+    entailment_evidence: Total directory size must be less than or equal to 7GB
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Total_directory_size_must_be_less_than_or_equal_to_7GB
+  kind: magnitude
+  raw_text: The total directory size must be less than or equal to 7GB.
+  resolved_value: Total directory size must be less than or equal to 7GB
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-06T19:10:57Z'
+- artifact_path: projects/PROJ-067-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: Raise RuntimeError if total runtime exceeds 4 hours
+  claim_id: c_2e2d6afa
+  context: 'T049 [P] Runtime Verification: Implement a check in main.py that raises
+    a RuntimeError if total runtime > 4 hours...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline must raise a RuntimeError if total runtime exceeds 4 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-06T19:11:12Z'
+- artifact_path: projects/PROJ-067-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: Analysis uses Schaefer-100 atlas
+  claim_id: c_8199a6bf
+  context: T005b [P] ...formally amended to 'Schaefer-100' due to statistical validity
+    constraints... T025 [US2] Implement code/analysis/metrics.py to load Schaefer-100
+    atlas...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The analysis uses the Schaefer-100 atlas.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-06T19:12:05Z'
+- artifact_path: projects/PROJ-067-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: Data source is OpenNeuro dataset ds000228
+  claim_id: c_02dee355
+  context: T014 [US1] ...fetch ds000228 metadata... T016 [US1] ...fetch ds000228 NIfTI
+    files...
+  evidence:
+    entailment_evidence: Data source is OpenNeuro dataset ds000228
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Data_source_is_OpenNeuro_dataset_ds000228
+  kind: entity_fact
+  raw_text: The data source is OpenNeuro dataset ds000228.
+  resolved_value: Data source is OpenNeuro dataset ds000228
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-06T19:12:08Z'
+- artifact_path: projects/PROJ-067-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: Spatial normalization template is MNI152NLin2009cAsym
+  claim_id: c_d29be639
+  context: T017 [US1] ...perform ICA-AROMA denoising and spatial normalization to
+    MNI152NLin2009cAsym template.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Spatial_normalization_template_is_MNI152NLin2009cAsym
+  kind: entity_fact
+  raw_text: The spatial normalization template is MNI152NLin2009cAsym.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-06T19:12:31Z'
+- artifact_path: projects/PROJ-067-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: Analysis targets DMN, Salience, and Hippocampal-Memory networks
+  claim_id: c_5dcd93e9
+  context: 'Goal: Calculate network flexibility and stability metrics for DMN, Salience,
+    and Hippocampal networks... T029 [US2] Calculate Flexibility... for DMN, Salience,
+    and mapped Hippocampal-Memory networks...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Analysis_targets_DMN,_Salience,_and_Hippocampal-Memory_netwo
+  kind: entity_fact
+  raw_text: The analysis targets DMN, Salience, and Hippocampal-Memory networks.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-06T19:13:09Z'
+- artifact_path: projects/PROJ-067-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: Analysis uses Spearman correlation
+  claim_id: c_c11b8280
+  context: 'Goal: Perform Spearman correlation between network metrics and dream recall
+    frequency... T038 [US3] Perform Spearman correlation analysis...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Analysis_uses_Spearman_correlation
+  kind: entity_fact
+  raw_text: The analysis uses Spearman correlation.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-06T19:13:28Z'
+- artifact_path: projects/PROJ-067-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: Analysis applies False Discovery Rate (FDR) correction
+  claim_id: c_e582039f
+  context: 'Goal: ...apply FDR correction... T039 [US3] Apply False Discovery Rate
+    (FDR) correction to all correlation p-values...'
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts:
+      - channel: wikidata
+        source_id: Q5432696
+        url: https://www.wikidata.org/wiki/Q5432696
+        value: False discovery rate
+      quote: False discovery rate control for spatial data
+      source_id: Q137442773
+      url: https://www.wikidata.org/wiki/Q137442773
+      value: False discovery rate control for spatial data
+    filled: true
+  kind: entity_fact
+  raw_text: The analysis applies False Discovery Rate (FDR) correction.
+  resolved_value: False discovery rate control for spatial data
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-06T19:13:38Z'
+- artifact_path: projects/PROJ-067-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: Post-hoc power analysis calculated for N=50
+  claim_id: c_c7842392
+  context: T041 [US3] Calculate and report post-hoc power analysis (detectable effect
+    size) for N=50...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The post-hoc power analysis is calculated for N=50.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-06T19:14:00Z'

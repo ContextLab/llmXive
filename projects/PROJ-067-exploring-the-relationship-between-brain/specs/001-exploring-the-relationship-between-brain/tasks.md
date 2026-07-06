@@ -18,33 +18,33 @@
 - **Single project**: `code/`, `data/`, `results/`, `tests/` at repository root
 - Paths shown below assume single project - adjust based on plan.md structure
 
-<!-- 
-  ============================================================================
-  IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-  
-  The /speckit-tasks command MUST replace these with actual tasks based on:
-  - User stories from spec.md (with their priorities P1, P2, P3...)
-  - Feature requirements from plan.md
-  - Entities from data-model.md
-  - Endpoints from contracts/
-  
-  Tasks MUST be organized by user story so each story can be:
-  - Implemented independently
-  - Tested independently
-  - Delivered as an MVP increment
-  
-  DO NOT keep these sample tasks in the generated tasks.md file.
-  ============================================================================
+<!--
+ ============================================================================
+ IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
+
+ The /speckit-tasks command MUST replace these with actual tasks based on:
+ - User stories from spec.md (with their priorities P1, P2, P3...)
+ - Feature requirements from plan.md
+ - Entities from data-model.md
+ - Endpoints from contracts/
+
+ Tasks MUST be organized by user story so each story can be:
+ - Implemented independently
+ - Tested independently
+ - Delivered as an MVP increment
+
+ DO NOT keep these sample tasks in the generated tasks.md file.
+ ============================================================================
 -->
 
 ## Phase 1: Setup (Shared Infrastructure)
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 [P] Create directory structure: `code/`, `data/`, `results/`, `tests/`, `contracts/`
-- [ ] T002 [P] Create `code/__init__.py` to establish package structure
-- [ ] T003 [P] Initialize a Python project with pinned dependencies in `code/requirements.txt` (nilearn, networkx, scikit-learn, scipy, pandas, numpy, joblib, requests, nibabel) using a compatible modern Python version.
-- [ ] T004 [P] Configure linting (ruff) and formatting (black) tools in `code/.pre-commit-config.yaml`
+- [X] T001 [P] Create directory structure: `code/`, `data/`, `results/`, `tests/`, `contracts/`
+- [X] T002 [P] Create `code/__init__.py` to establish package structure
+- [X] T003 [P] Initialize a Python project with pinned dependencies in `code/requirements.txt` (nilearn, networkx, scikit-learn, scipy, pandas, numpy, joblib, requests, nibabel) using a compatible modern Python version.
+- [X] T004 [P] Configure linting (ruff) and formatting (black) tools in `code/.pre-commit-config.yaml`
 
 ---
 
@@ -54,10 +54,10 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T005 [P] **Spec Deviation Log (Documentation)**: Create `docs/deviation_log.md` to formally record the "Schaefer-400 vs Schaefer-100" conflict, the Plan's decision to use Schaefer-100 for statistical validity, and reference the formal Requirement Change Record (RCR) created in T005b. This task MUST complete before T006.
-- [ ] T005b [P] **Formal Requirement Change Record (RCR)**: Create `docs/requirement_change_record_Schaefer100.md` as a formal artifact to update the requirement traceability for FR-004. This document MUST explicitly state that FR-004's mandate for "Schaefer-400" is formally amended to "Schaefer-100" due to statistical validity constraints (rank-deficiency), and link to the Plan's deviation note. This resolves the traceability gap between the Spec and the implemented artifact. This task MUST complete before T025.
-- [ ] T006 [P] **Config Initialization**: Initialize `code/utils/config.py` with default values for seeds, paths, and constants (window_size=30, step_size=10, atlas='Schaefer100', deviation_flag=True), explicitly initializing the flag referenced in T005.
-- [ ] T007 [P] Implement `code/utils/memory_monitor.py` to track RSS via `/proc/self/status` and raise exceptions if >7GB
+- [X] T005 [P] **Spec Deviation Log (Documentation)**: Create `docs/deviation_log.md` to formally record the "Schaefer-400 vs Schaefer-100" conflict, the Plan's decision to use Schaefer-100 for statistical validity, and reference the formal Requirement Change Record (RCR) created in T005b. This task MUST complete before T006.
+- [X] T005b [P] **Formal Requirement Change Record (RCR)**: Create `docs/requirement_change_record_Schaefer100.md` as a formal artifact to update the requirement traceability for FR-004. This document MUST explicitly state that FR-004's mandate for "Schaefer-400" is formally amended to "Schaefer-100" due to statistical validity constraints (rank-deficiency), and link to the Plan's deviation note. This resolves the traceability gap between the Spec and the implemented artifact. This task MUST complete before T025.
+- [X] T006 [P] **Config Initialization**: Initialize `code/utils/config.py` with default values for seeds, paths, and constants (window_size=30, step_size=10, atlas='Schaefer100', deviation_flag=True), explicitly initializing the flag referenced in T005.
+- [X] T007 [P] Implement `code/utils/memory_monitor.py` to track RSS via `/proc/self/status` and raise exceptions if >7GB
 - [ ] T008 [P] Create `contracts/` directory with `subject_metrics.schema.yaml` and `results_schema.yaml`
 - [ ] T009 [P] Initialize `data/` directory structure (`raw/`, `processed/`, `metrics/`, `atlas/`) and `.gitignore` for large files
 - [ ] T010 [P] Initialize `results/` directory structure (`plots/`) and `tests/` directory structure (`contract/`, `unit/`)
@@ -82,14 +82,14 @@
 
 ### Implementation for User Story 1
 
-- [ ] T014 [US1] **Metadata Validation (Phase 0 Gate)**: Implement `code/data/validate_metadata.py` to fetch ds000228 metadata, verify existence of "dream recall frequency" field, and **HALT** execution if missing (FR-001, Plan Phase 0).
-- [ ] T015 [US1] **Subject Filtering & N=50 Enforcement**: Implement `code/data/filter_subjects.py` to load validated metadata, filter for subjects with "dream recall frequency", **sort by subject ID ascending, select the first valid subjects, and truncate the list to a fixed number of entries**, then generate `data/raw/valid_subjects.json`. **If fewer than 50 valid subjects are found, raise a FatalError with message "Insufficient subjects for N=50 target"**. The output file MUST contain exactly 50 entries before T016 executes (FR-001, US1 Acceptance Scenario 2).
-- [ ] T016 [US1] Implement `code/data/download.py` to fetch ds000228 NIfTI files for subjects listed in `data/raw/valid_subjects.json` (T015 output) (FR-001).
-- [ ] T017 [US1] Implement `code/data/preprocess.py` to run ICA-AROMA denoising and spatial normalization to **MNI152NLin2009cAsym** template. **Use specific ICA-AROMA flags: --afni, --no-reports**. Ensure the pipeline accepts preprocessed NIfTI inputs and outputs normalized, denoised files (FR-002).
-- [ ] T018 [US1] Integrate `memory_monitor.py` into `preprocess.py` to abort if RSS >7GB (FR-002, SC-004).
-- [ ] T019 [US1] Implement Framewise Displacement (FD) calculation in `preprocess.py` and exclude subjects with FD >0.5mm (Edge Case).
-- [ ] T020 [US1] Add logging for excluded subjects (missing metadata or high motion) and total processing count.
-- [ ] T021 [US1] Ensure intermediate files are cleaned up or compressed to stay within 7GB total directory size (US1 Acceptance Scenario 1).
+- [~] T014 [US1] **Metadata Validation (Phase 0 Gate)**: Implement `code/data/validate_metadata.py` to fetch ds000228 metadata, verify existence of "dream recall frequency" field, and **HALT** execution if missing (FR-001, Plan Phase 0).
+- [~] T015 [US1] **Subject Filtering & N=50 Enforcement**: Implement `code/data/filter_subjects.py` to load validated metadata, filter for subjects with "dream recall frequency", **sort by subject ID ascending, select the first valid subjects, and truncate the list to a fixed number of entries**, then generate `data/raw/valid_subjects.json`. **If fewer than 50 valid subjects are found, raise a FatalError with message "Insufficient subjects for N=50 target"**. The output file MUST contain exactly 50 entries before T016 executes (FR-001, US1 Acceptance Scenario 2).
+- [~] T016 [US1] Implement `code/data/download.py` to fetch ds000228 NIfTI files for subjects listed in `data/raw/valid_subjects.json` (T015 output) (FR-001).
+- [~] T017 [US1] Implement `code/data/preprocess.py` to run ICA-AROMA denoising and spatial normalization to **MNI152NLin2009cAsym** template. **Use specific ICA-AROMA flags: --afni, --no-reports**. Ensure the pipeline accepts preprocessed NIfTI inputs and outputs normalized, denoised files (FR-002).
+- [~] T018 [US1] Integrate `memory_monitor.py` into `preprocess.py` to abort if RSS >7GB (FR-002, SC-004).
+- [~] T019 [US1] Implement Framewise Displacement (FD) calculation in `preprocess.py` and exclude subjects with FD >0.5mm (Edge Case).
+- [~] T020 [US1] Add logging for excluded subjects (missing metadata or high motion) and total processing count.
+- [~] T021 [US1] Ensure intermediate files are cleaned up or compressed to stay within 7GB total directory size (US1 Acceptance Scenario 1).
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -103,20 +103,20 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T022 [P] [US2] Contract test for metrics CSV schema in `tests/contract/test_metrics_schema.py`
-- [ ] T023 [P] [US2] Unit test for sliding window correlation matrix generation in `tests/unit/test_metrics.py`
-- [ ] T024 [P] [US2] Unit test for Louvain clustering state transition calculation in `tests/unit/test_metrics.py`
+- [~] T022 [P] [US2] Contract test for metrics CSV schema in `tests/contract/test_metrics_schema.py`
+- [~] T023 [P] [US2] Unit test for sliding window correlation matrix generation in `tests/unit/test_metrics.py`
+- [~] T024 [P] [US2] Unit test for Louvain clustering state transition calculation in `tests/unit/test_metrics.py`
 
 ### Implementation for User Story 2
 
-- [ ] T026 [US2] **Atlas Label Verification & Mapping**: Implement `code/analysis/verify_atlas_labels.py` to check if Schaefer-100 contains "Hippocampal-Memory" label. If missing, generate `data/atlas/network_label_map.csv` with columns `region_id`, `network_name`, `source_label`, `mapped_label`. **Mapping Logic**: Map any region where `source_label` contains 'Hippocampal' or 'Memory' to `mapped_label`='Hippocampal-Memory'. This task MUST complete before T025.
-- [ ] T025 [US2] Implement `code/analysis/metrics.py` to load Schaefer-100 atlas (verified by T026) and parcellate preprocessed NIfTI files. **If `network_label_map.csv` exists (from T026), use it to dynamically map regions to the required network ROIs (DMN, Salience, Hippocampal-Memory)**. (Plan Deviation, T005b).
-- [ ] T027 [US2] Implement sliding window correlation (a fixed-duration window, a defined time step) in `metrics.py` (FR-003).
-- [ ] T028 [US2] Implement Louvain clustering on time-varying connectivity matrices to generate discrete community partitions (FR-003).
-- [ ] T029 [US2] Calculate Flexibility (state transitions per unit time) for DMN, Salience, and **mapped** Hippocampal-Memory networks using `network_label_map.csv` (FR-004, T026).
-- [ ] T030 [US2] Calculate Stability (Mean Dwell Time) for the same networks (FR-004).
-- [ ] T031 [US2] Output subject-level metrics to `data/metrics/subject_metrics.csv` with proper headers and JSON/CSV validation (FR-008).
-- [ ] T032 [US2] Add logic to exclude subjects from analysis if metadata is missing at this stage with a warning (US2 Acceptance Scenario 4).
+- [~] T026 [US2] **Atlas Label Verification & Mapping**: Implement `code/analysis/verify_atlas_labels.py` to check if Schaefer-100 contains "Hippocampal-Memory" label. If missing, generate `data/atlas/network_label_map.csv` with columns `region_id`, `network_name`, `source_label`, `mapped_label`. **Mapping Logic**: Map any region where `source_label` contains 'Hippocampal' or 'Memory' to `mapped_label`='Hippocampal-Memory'. This task MUST complete before T025.
+- [~] T025 [US2] Implement `code/analysis/metrics.py` to load Schaefer-100 atlas (verified by T026) and parcellate preprocessed NIfTI files. **If `network_label_map.csv` exists (from T026), use it to dynamically map regions to the required network ROIs (DMN, Salience, Hippocampal-Memory)**. (Plan Deviation, T005b).
+- [~] T027 [US2] Implement sliding window correlation (a fixed-duration window, a defined time step) in `metrics.py` (FR-003).
+- [~] T028 [US2] Implement Louvain clustering on time-varying connectivity matrices to generate discrete community partitions (FR-003).
+- [~] T029 [US2] Calculate Flexibility (state transitions per unit time) for DMN, Salience, and **mapped** Hippocampal-Memory networks using `network_label_map.csv` (FR-004, T026).
+- [~] T030 [US2] Calculate Stability (Mean Dwell Time) for the same networks (FR-004).
+- [~] T031 [US2] Output subject-level metrics to `data/metrics/subject_metrics.csv` with proper headers and JSON/CSV validation (FR-008).
+- [~] T032 [US2] Add logic to exclude subjects from analysis if metadata is missing at this stage with a warning (US2 Acceptance Scenario 4).
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -130,18 +130,18 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T033 [P] [US3] Contract test for final results JSON schema in `tests/contract/test_results_schema.py`
-- [ ] T034 [P] [US3] Unit test for Spearman correlation calculation in `tests/unit/test_stats.py`
-- [ ] T035 [P] [US3] Unit test for FDR correction logic in `tests/unit/test_stats.py`
-- [ ] T036 [P] [US3] Unit test for permutation test loop and p-value derivation in `tests/unit/test_stats.py`
+- [~] T033 [P] [US3] Contract test for final results JSON schema in `tests/contract/test_results_schema.py`
+- [~] T034 [P] [US3] Unit test for Spearman correlation calculation in `tests/unit/test_stats.py`
+- [~] T035 [P] [US3] Unit test for FDR correction logic in `tests/unit/test_stats.py`
+- [~] T036 [P] [US3] Unit test for permutation test loop and p-value derivation in `tests/unit/test_stats.py`
 
 ### Implementation for User Story 3
 
-- [ ] T037 [US3] Implement `code/analysis/stats.py` to load metrics and dream recall frequency values (FR-005).
-- [ ] T038 [US3] Perform Spearman correlation analysis between metrics and dream recall frequency (FR-005).
-- [ ] T039 [US3] Apply False Discovery Rate (FDR) correction to all correlation p-values (FR-006, SC-002).
-- [ ] T040 [US3] Implement permutation test with **exactly 1000 iterations** to generate null distribution (FR-007, SC-003).
-- [ ] T041 [US3] Calculate and report post-hoc power analysis (detectable effect size) for N=50 (FR-009, SC-001).
+- [~] T037 [US3] Implement `code/analysis/stats.py` to load metrics and dream recall frequency values (FR-005).
+- [~] T038 [US3] Perform Spearman correlation analysis between metrics and dream recall frequency (FR-005).
+- [~] T039 [US3] Apply False Discovery Rate (FDR) correction to all correlation p-values (FR-006, SC-002).
+- [~] T040 [US3] Implement permutation test with **exactly 1000 iterations** to generate null distribution (FR-007, SC-003).
+- [~] T041 [US3] Calculate and report post-hoc power analysis (detectable effect size) for N=50 (FR-009, SC-001).
 - [ ] T042 [US3] Generate `results/stats.json` containing rho, uncorrected p, FDR-corrected p, and permutation p-value (FR-008).
 - [ ] T043 [US3] Generate correlation scatter plot and null distribution histogram in `results/plots/` (US3 Acceptance Scenario 3).
 - [ ] T044 [US3] Ensure null results (p > 0.05) are fully reported with plots and coefficients, not suppressed (Edge Case).
@@ -169,10 +169,10 @@
 
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
-  - **T005 (Spec Deviation Log)** and **T005b (RCR)** MUST complete before T006 (Config) and any downstream tasks.
+ - **T005 (Spec Deviation Log)** and **T005b (RCR)** MUST complete before T006 (Config) and any downstream tasks.
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
-  - User stories can then proceed in parallel (if staffed)
-  - Or sequentially in priority order (P1 → P2 → P3)
+ - User stories can then proceed in parallel (if staffed)
+ - Or sequentially in priority order (P1 → P2 → P3)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
@@ -238,9 +238,9 @@ With multiple developers:
 
 1. Team completes Setup + Foundational together.
 2. Once Foundational is done:
-   - Developer A: User Story 1 (Data Pipeline)
-   - Developer B: User Story 2 (Metrics - can start with mock data if needed, but final run waits for A)
-   - Developer C: User Story 3 (Stats - can start with mock data if needed, but final run waits for B)
+ - Developer A: User Story 1 (Data Pipeline)
+ - Developer B: User Story 2 (Metrics - can start with mock data if needed, but final run waits for A)
+ - Developer C: User Story 3 (Stats - can start with mock data if needed, but final run waits for B)
 3. Stories complete and integrate independently.
 
 ---

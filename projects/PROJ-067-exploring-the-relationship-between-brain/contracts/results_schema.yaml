@@ -1,0 +1,105 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Statistical Analysis Results Schema
+description: >
+  Schema for the final statistical analysis results stored in `results/stats.json`.
+  This includes correlation coefficients, p-values, and power analysis results.
+type: object
+required:
+  - analysis_version
+  - atlas_used
+  - correlation_results
+  - permutation_results
+  - power_analysis
+properties:
+  analysis_version:
+    type: string
+    description: Version string of the analysis pipeline (e.g., "1.0.0").
+  atlas_used:
+    type: string
+    description: Name of the atlas used (e.g., "Schaefer100").
+  correlation_results:
+    type: object
+    description: Results of the Spearman correlation between metrics and DRF.
+    required:
+      - dmn
+      - salience
+      - hippocampal
+    properties:
+      dmn:
+        $ref: '#/definitions/correlation_entry'
+      salience:
+        $ref: '#/definitions/correlation_entry'
+      hippocampal:
+        $ref: '#/definitions/correlation_entry'
+  permutation_results:
+    type: object
+    description: Results from the permutation test (1000 iterations).
+    required:
+      - iterations
+      - null_distribution_path
+      - observed_statistic
+      - permutation_p_value
+    properties:
+      iterations:
+        type: integer
+        minimum: 1000
+        description: Number of permutation iterations performed.
+      null_distribution_path:
+        type: string
+        description: Relative path to the file containing the null distribution.
+      observed_statistic:
+        type: number
+        description: The observed correlation coefficient.
+      permutation_p_value:
+        type: number
+        minimum: 0
+        maximum: 1
+        description: P-value derived from the permutation test.
+  power_analysis:
+    type: object
+    description: Post-hoc power analysis results.
+    required:
+      - n_subjects
+      - detectable_effect_size
+      - power_level
+    properties:
+      n_subjects:
+        type: integer
+        description: Number of subjects used in the analysis (N=50).
+      detectable_effect_size:
+        type: number
+        description: Minimum detectable effect size at 80% power.
+      power_level:
+        type: number
+        minimum: 0
+        maximum: 1
+        description: Calculated statistical power.
+  generated_at:
+    type: string
+    format: date-time
+    description: ISO 8601 timestamp of when the results were generated.
+definitions:
+  correlation_entry:
+    type: object
+    required:
+      - rho
+      - p_uncorrected
+      - p_fdr_corrected
+    properties:
+      rho:
+        type: number
+        description: Spearman correlation coefficient.
+      p_uncorrected:
+        type: number
+        minimum: 0
+        maximum: 1
+        description: Uncorrected p-value.
+      p_fdr_corrected:
+        type: number
+        minimum: 0
+        maximum: 1
+        description: P-value after False Discovery Rate correction.
+      network_name:
+        type: string
+        description: Name of the network (e.g., "DMN").
+additionalProperties: false
