@@ -1,0 +1,9 @@
+? 'T007b [P] **Definition Only**: Implement `mode_selector.py` logic to check for
+  pre-calculated VDOS/k availability and set execution mode (Full vs. Structure-Only)
+  *before* pipeline start. **Output: NONE (Execution deferred to Phase 3, T007b-exec)**.
+  This task defines the logic but does not run it.'
+: 1
+T008 Create `validation_utils.py` for checksum verification and file integrity checks (Constitution Principle III): 1
+T009 Configure logging infrastructure to output to `logs/analysis.log` and stdout: 1
+T010 Configure environment configuration management (loading `cutoff_radius`, `zenodo_url` from env vars): 1
+T011 [P] [US1] Unit test for checksum verification in `tests/unit/test_validation_utils.py`: 1

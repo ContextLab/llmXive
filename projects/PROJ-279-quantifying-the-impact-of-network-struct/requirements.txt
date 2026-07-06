@@ -1,0 +1,12 @@
+ase
+networkx
+scikit-learn
+pandas
+numpy
+matplotlib
+requests
+tqdm
+pyyaml
+python-dotenv
+ruff
+black

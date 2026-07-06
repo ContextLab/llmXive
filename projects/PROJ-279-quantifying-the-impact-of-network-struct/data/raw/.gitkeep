@@ -1,0 +1,2 @@
+# This directory stores raw downloaded data (e.g., MD trajectories from Zenodo).
+# Do not commit large files here; use .gitkeep to track the directory in git.

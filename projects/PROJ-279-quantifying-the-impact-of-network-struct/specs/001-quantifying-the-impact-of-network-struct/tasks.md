@@ -20,32 +20,32 @@
 - **Mobile**: `api/src/`, `ios/src/` or `android/src/`
 - Paths shown below assume single project - adjust based on plan.md structure
 
-<!-- 
-  ============================================================================
-  IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-  
-  The /speckit-tasks command MUST replace these with actual tasks based on:
-  - User stories from spec.md (with their priorities P1, P2, P3...)
-  - Feature requirements from plan.md
-  - Entities from data-model.md
-  - Endpoints from contracts/
-  
-  Tasks MUST be organized by user story so each story can be:
-  - Implemented independently
-  - Tested independently
-  - Delivered as an MVP increment
-  
-  DO NOT keep these sample tasks in the generated tasks.md file.
-  ============================================================================
+<!--
+ ============================================================================
+ IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
+
+ The /speckit-tasks command MUST replace these with actual tasks based on:
+ - User stories from spec.md (with their priorities P1, P2, P3...)
+ - Feature requirements from plan.md
+ - Entities from data-model.md
+ - Endpoints from contracts/
+
+ Tasks MUST be organized by user story so each story can be:
+ - Implemented independently
+ - Tested independently
+ - Delivered as an MVP increment
+
+ DO NOT keep these sample tasks in the generated tasks.md file.
+ ============================================================================
 -->
 
 ## Phase 1: Setup (Shared Infrastructure)
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure per implementation plan (`projects/PROJ-279-quantifying-the-impact-of-network-struct/`)
-- [ ] T002 Initialize Python 3.11 project with `requirements.txt` (ase, networkx, scikit-learn, pandas, numpy, matplotlib, requests, tqdm, pyyaml)
-- [ ] T003 [P] Configure linting (ruff) and formatting (black) tools
+- [X] T001 Create project structure per implementation plan (`projects/PROJ-279-quantifying-the-impact-of-network-struct/`)
+- [X] T002 Initialize Python 3.11 project with `requirements.txt` (ase, networkx, scikit-learn, pandas, numpy, matplotlib, requests, tqdm, pyyaml)
+- [X] T003 [P] Configure linting (ruff) and formatting (black) tools
 
 ---
 
@@ -55,10 +55,10 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete. Note: Logic is defined here, but execution occurs in Phase 3 after data ingestion.
 
-- [ ] T004 Setup `data/raw/` and `data/processed/` directories with `.gitkeep`
-- [ ] T005 [P] Implement `state/` YAML management for artifact checksums and versioning (Constitution Principle V)
-- [ ] T006 [P] Create base `AtomicConfiguration` dataclass in `code/models/atomic_config.py`
-- [ ] T007 [P] **Definition Only**: Implement `validation.py` logic for data independence, source, and convergence checks (FR-006, FR-007, Constitution Principle VI). **Output: NONE (Execution deferred to Phase 3, T007-exec)**. This task defines the logic but does not run it, as the input data (downloaded trajectories) does not exist yet.
+- [X] T004 Setup `data/raw/` and `data/processed/` directories with `.gitkeep`
+- [X] T005 [P] Implement `state/` YAML management for artifact checksums and versioning (Constitution Principle V)
+- [X] T006 [P] Create base `AtomicConfiguration` dataclass in `code/models/atomic_config.py`
+- [X] T007 [P] **Definition Only**: Implement `validation.py` logic for data independence, source, and convergence checks (FR-006, FR-007, Constitution Principle VI). **Output: NONE (Execution deferred to Phase 3, T007-exec)**. This task defines the logic but does not run it, as the input data (downloaded trajectories) does not exist yet.
 - [ ] T007b [P] **Definition Only**: Implement `mode_selector.py` logic to check for pre-calculated VDOS/k availability and set execution mode (Full vs. Structure-Only) *before* pipeline start. **Output: NONE (Execution deferred to Phase 3, T007b-exec)**. This task defines the logic but does not run it.
 - [ ] T008 Create `validation_utils.py` for checksum verification and file integrity checks (Constitution Principle III)
 - [ ] T009 Configure logging infrastructure to output to `logs/analysis.log` and stdout
@@ -77,22 +77,22 @@
 ### Tests for User Story 1
 
 - [ ] T011 [P] [US1] Unit test for checksum verification in `tests/unit/test_validation_utils.py`
-- [ ] T012 [P] [US1] Unit test for graph construction with known coordinates in `tests/unit/test_graph_builder.py`
-- [ ] T013 [P] [US1] Integration test for end-to-end download, validation, and graph build in `tests/integration/test_download_graph.py`
+- [~] T012 [P] [US1] Unit test for graph construction with known coordinates in `tests/unit/test_graph_builder.py`
+- [~] T013 [P] [US1] Integration test for end-to-end download, validation, and graph build in `tests/integration/test_download_graph.py`
 
 ### Implementation for User Story 1
 
-- [ ] T014 [P] [US1] Implement `download.py` to fetch trajectories from Zenodo/HuggingFace with checksum verification (FR-001)
+- [~] T014 [P] [US1] Implement `download.py` to fetch trajectories from Zenodo/HuggingFace with checksum verification (FR-001)
 - [ ] T007-exec [US1] **Execution of Validation**: Execute `validation.py` (defined in T007) on the downloaded data in `data/raw/`. **Input**: `data/raw/`. **Output**: `data/processed/validation_report.json` containing:
-  - `excluded_configs`: list of configuration IDs excluded from analysis.
-  - `reasons`: dictionary mapping each excluded ID to a string reason (e.g., "Size < 1000 atoms", "Source not independent").
-  - `validated_configs`: list of configuration IDs passing checks.
-  (FR-006, FR-007, Constitution Principle VI)
+ - `excluded_configs`: list of configuration IDs excluded from analysis.
+ - `reasons`: dictionary mapping each excluded ID to a string reason (e.g., "Size < 1000 atoms", "Source not independent").
+ - `validated_configs`: list of configuration IDs passing checks.
+ (FR-006, FR-007, Constitution Principle VI)
 - [ ] T007b-exec [US1] **Execution of Mode Selection**: Execute `mode_selector.py` (defined in T007b) on the downloaded data. **Input**: `data/raw/`. **Output**: `data/processed/mode_config.json` indicating 'Full' or 'Structure-Only' mode.
-- [ ] T015 [US1] **Execution of Sensitivity Analysis**: Implement the sensitivity analysis loop in `graph_builder.py` that calls the builder logic for radii {2.8, 3.0, 3.2} Å. **Constraint**: Run this loop **ONLY** on the `validated_configs` list generated by T007-exec. **Generate `data/processed/sensitivity_report.json`** containing a table of cutoff radius vs. average degree and component count (FR-002).
-- [ ] T016 [US1] Add validation logic to detect disconnected components and log warnings (Spec US-1, Scenario 3)
-- [ ] T017 [US1] Handle edge cases: corrupted files (abort with error), unexpected coordination numbers (flag/drop)
-- [ ] T018 [US1] Save constructed graphs and metadata to `data/processed/graphs/` in JSON/GraphML format
+- [~] T015 [US1] **Execution of Sensitivity Analysis**: Implement the sensitivity analysis loop in `graph_builder.py` that calls the builder logic for radii {2.8, 3.0, 3.2} Å. **Constraint**: Run this loop **ONLY** on the `validated_configs` list generated by T007-exec. **Generate `data/processed/sensitivity_report.json`** containing a table of cutoff radius vs. average degree and component count (FR-002).
+- [~] T016 [US1] Add validation logic to detect disconnected components and log warnings (Spec US-1, Scenario 3)
+- [~] T017 [US1] Handle edge cases: corrupted files (abort with error), unexpected coordination numbers (flag/drop)
+- [~] T018 [US1] Save constructed graphs and metadata to `data/processed/graphs/` in JSON/GraphML format
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -106,18 +106,18 @@
 
 ### Tests for User Story 2
 
-- [ ] T019 [P] [US2] Unit test for ring statistics calculation on a simple lattice in `tests/unit/test_descriptors.py`
-- [ ] T020 [P] [US2] Unit test for Steinhardt Q6 parameter calculation in `tests/unit/test_descriptors.py`
-- [ ] T021 [P] [US2] Integration test for full descriptor pipeline on a small sample in `tests/integration/test_descriptor_pipeline.py`
+- [~] T019 [P] [US2] Unit test for ring statistics calculation on a simple lattice in `tests/unit/test_descriptors.py`
+- [~] T020 [P] [US2] Unit test for Steinhardt Q6 parameter calculation in `tests/unit/test_descriptors.py`
+- [~] T021 [P] [US2] Integration test for full descriptor pipeline on a small sample in `tests/integration/test_descriptor_pipeline.py`
 
 ### Implementation for User Story 2
 
-- [ ] T022 [P] [US2] Implement `descriptors.py` with `calculate_ring_statistics()` (distribution of ring sizes 3-10) (FR-003)
-- [ ] T023 [US2] Implement `calculate_steinhardt_parameters()` (Q6) and clustering coefficients (FR-003)
-- [ ] T024 [US2] **VDOS Handling**: Implement `load_vdos()` and `calculate_participation_ratios()`. **Constraint**: Attempt to load pre-calculated VDOS data from the dataset. If missing for a configuration, **log `ERR-VDOS-MISSING` and EXCLUDE the configuration** from the final descriptor dataset. Do NOT calculate VDOS internally (Plan Constraint). **Generate `data/processed/vdos_missing_report.json`** listing excluded Config IDs and reasons to satisfy the "no silent drift" principle for FR-003 (Plan: Structure-Only Mode, FR-003).
-- [ ] T025 [US2] Aggregate all descriptors into a structured CSV/JSON dataset linking Config ID to metrics vector (only for configs with complete data)
-- [ ] T026 [US2] Handle missing thermal conductivity values: skip configuration and log count (Spec Edge Cases)
-- [ ] T027 [US2] Save processed descriptors to `data/processed/descriptors.csv`
+- [~] T022 [P] [US2] Implement `descriptors.py` with `calculate_ring_statistics()` (distribution of ring sizes 3-10) (FR-003)
+- [~] T023 [US2] Implement `calculate_steinhardt_parameters()` (Q6) and clustering coefficients (FR-003)
+- [~] T024 [US2] **VDOS Handling**: Implement `load_vdos()` and `calculate_participation_ratios()`. **Constraint**: Attempt to load pre-calculated VDOS data from the dataset. If missing for a configuration, **log `ERR-VDOS-MISSING` and EXCLUDE the configuration** from the final descriptor dataset. Do NOT calculate VDOS internally (Plan Constraint). **Generate `data/processed/vdos_missing_report.json`** listing excluded Config IDs and reasons to satisfy the "no silent drift" principle for FR-003 (Plan: Structure-Only Mode, FR-003).
+- [~] T025 [US2] Aggregate all descriptors into a structured CSV/JSON dataset linking Config ID to metrics vector (only for configs with complete data)
+- [~] T026 [US2] Handle missing thermal conductivity values: skip configuration and log count (Spec Edge Cases)
+- [~] T027 [US2] Save processed descriptors to `data/processed/descriptors.csv`
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -131,24 +131,24 @@
 
 ### Tests for User Story 3
 
-- [ ] T028 [P] [US3] Unit test for cross-validation logic (LOOCV vs 5-fold switch) in `tests/unit/test_models.py`
-- [ ] T029 [P] [US3] Unit test for feature importance extraction and p-value calculation in `tests/unit/test_models.py`
-- [ ] T030 [P] [US3] Integration test for full regression pipeline on synthetic data in `tests/integration/test_regression.py`
+- [~] T028 [P] [US3] Unit test for cross-validation logic (LOOCV vs 5-fold switch) in `tests/unit/test_models.py`
+- [~] T029 [P] [US3] Unit test for feature importance extraction and p-value calculation in `tests/unit/test_models.py`
+- [~] T030 [P] [US3] Integration test for full regression pipeline on synthetic data in `tests/integration/test_regression.py`
 
 ### Implementation for User Story 3
 
-- [ ] T031 [P] [US3] Implement `models.py` with Ridge Regression and Random Forest/Kernel Ridge (FR-004)
-- [ ] T032 [US3] Implement dimensionality reduction (PCA/Lasso) **as a preprocessing step for small N** to prevent overfitting, followed by stability selection (Plan: Complexity Tracking)
-- [ ] T033 [US3] Implement cross-validation logic: 5-fold if N ≥ 30, else LOOCV (FR-004, Spec US-3, Scenario 1)
-- [ ] T034 [US3] Calculate and log mean R², std dev, and p-values for top 3 features (FR-004, Spec US-3, Scenario 1)
-- [ ] T035 [US3] Implement `viz.py` to generate scatter plot (top predictor vs. k) with regression line and Pearson r (FR-005)
-- [ ] T036 [US3] Generate feature importance bar chart with error bars (std dev across folds) (FR-005)
-- [ ] T037 [US3] Implement Tiered Execution logic: if k/VDOS missing, skip regression, **Update `data/processed/results/hypothesis_status.json`**. 
-  - **H-001/H-002**: Mark 'UNTESTABLE' if regression is skipped.
-  - **H-003**: Mark 'TESTED' if ring statistics were successfully computed (Structure-Only Mode OK).
-  - **H-004**: Mark 'TESTED' if topological feature importance was computed (Structure-Only Mode OK).
-  - The JSON must contain keys H-001 through H-004, with values 'TESTED', 'UNTESTABLE', or 'FAILED', and a 'reason' field for non-TESTED statuses (Plan: Summary).
-- [ ] T038 [US3] Save results (metrics, plots) to `data/processed/results/` and update `state/`
+- [~] T031 [P] [US3] Implement `models.py` with Ridge Regression and Random Forest/Kernel Ridge (FR-004)
+- [~] T032 [US3] Implement dimensionality reduction (PCA/Lasso) **as a preprocessing step for small N** to prevent overfitting, followed by stability selection (Plan: Complexity Tracking)
+- [~] T033 [US3] Implement cross-validation logic: 5-fold if N ≥ 30, else LOOCV (FR-004, Spec US-3, Scenario 1)
+- [~] T034 [US3] Calculate and log mean R², std dev, and p-values for top 3 features (FR-004, Spec US-3, Scenario 1)
+- [~] T035 [US3] Implement `viz.py` to generate scatter plot (top predictor vs. k) with regression line and Pearson r (FR-005)
+- [~] T036 [US3] Generate feature importance bar chart with error bars (std dev across folds) (FR-005)
+- [~] T037 [US3] Implement Tiered Execution logic: if k/VDOS missing, skip regression, **Update `data/processed/results/hypothesis_status.json`**.
+ - **H-001/H-002**: Mark 'UNTESTABLE' if regression is skipped.
+ - **H-003**: Mark 'TESTED' if ring statistics were successfully computed (Structure-Only Mode OK).
+ - **H-004**: Mark 'TESTED' if topological feature importance was computed (Structure-Only Mode OK).
+ - The JSON must contain keys H-001 through H-004, with values 'TESTED', 'UNTESTABLE', or 'FAILED', and a 'reason' field for non-TESTED statuses (Plan: Summary).
+- [~] T038 [US3] Save results (metrics, plots) to `data/processed/results/` and update `state/`
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -162,7 +162,7 @@
 
 ### Tests for User Story 4
 
-- [ ] T039 [P] [US4] Unit test for metadata validation logic in `tests/unit/test_validation.py`
+- [~] T039 [P] [US4] Unit test for metadata validation logic in `tests/unit/test_validation.py`
 
 ### Implementation for User Story 4
 
@@ -194,13 +194,13 @@
 
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
-  - **T007 (Validation Definition)** and **T007b (Mode Selection Definition)** are critical for US4 and Tiered Execution.
+ - **T007 (Validation Definition)** and **T007b (Mode Selection Definition)** are critical for US4 and Tiered Execution.
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
-  - **US1 (Data/Graph)** and **US4 (Validation)** are P1. 
-  - **US1 Execution (T014, T007-exec, T007b-exec)**: T014 (Download) must complete first. T007-exec and T007b-exec depend on T014.
-  - **T015 (Sensitivity Analysis)**: Depends on **T007-exec** (Validation) completion to ensure only validated configs are processed.
-  - **US2 (Descriptors)**: Depends on US1 (needs graphs).
-  - **US3 (Regression)**: Depends on US2 (needs descriptors) and US4 (needs validated targets).
+ - **US1 (Data/Graph)** and **US4 (Validation)** are P1.
+ - **US1 Execution (T014, T007-exec, T007b-exec)**: T014 (Download) must complete first. T007-exec and T007b-exec depend on T014.
+ - **T015 (Sensitivity Analysis)**: Depends on **T007-exec** (Validation) completion to ensure only validated configs are processed.
+ - **US2 (Descriptors)**: Depends on US1 (needs graphs).
+ - **US3 (Regression)**: Depends on US2 (needs descriptors) and US4 (needs validated targets).
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
@@ -266,9 +266,9 @@ With multiple developers:
 
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
-   - Developer A: User Story 1 (Data Ingestion)
-   - Developer B: User Story 2 (Descriptors) (Starts after A completes T016)
-   - (Once B is done): Developer C: User Story 3 (Regression)
+ - Developer A: User Story 1 (Data Ingestion)
+ - Developer B: User Story 2 (Descriptors) (Starts after A completes T016)
+ - (Once B is done): Developer C: User Story 3 (Regression)
 3. Stories complete and integrate independently
 
 ---
