@@ -1,0 +1,46 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: TopologicalDescriptor Schema
+description: Schema for topological metrics derived from atomic graphs.
+type: object
+properties:
+  config_id:
+    type: string
+    description: "Foreign key to AtomicConfiguration"
+  cutoff_radius:
+    type: number
+    description: "Cutoff radius used for graph construction (Å)"
+  avg_degree:
+    type: number
+    description: "Average number of bonds per atom"
+  ring_distribution:
+    type: object
+    additionalProperties:
+      type: integer
+    description: "Mapping of ring size to count"
+  q6_order_parameter:
+    type: number
+    description: "Steinhardt Q6 order parameter"
+  clustering_coefficient:
+    type: number
+    description: "Average clustering coefficient"
+  num_components:
+    type: integer
+    minimum: 1
+    description: "Number of disconnected graph components"
+  local_density:
+    type: number
+    description: "Local atomic density (atoms/Å³) - Covariate"
+  mean_coordination:
+    type: number
+    description: "Mean coordination number - Covariate"
+required:
+  - config_id
+  - cutoff_radius
+  - avg_degree
+  - ring_distribution
+  - q6_order_parameter
+  - clustering_coefficient
+  - num_components
+  - local_density
+  - mean_coordination
+additionalProperties: false

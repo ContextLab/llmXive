@@ -1,0 +1,54 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: AtomicConfiguration Schema
+description: Schema for the raw atomic configuration data including thermal conductivity metadata.
+type: object
+properties:
+  config_id:
+    type: string
+    description: "Unique identifier for the configuration"
+  source_url:
+    type: string
+    description: "URL of the original trajectory source"
+  atom_count:
+    type: integer
+    minimum: 1
+    description: "Number of atoms in the system"
+  thermal_conductivity:
+    type: number
+    description: "Thermal conductivity in W/m·K (Optional if Structure-Only Mode)"
+  source_type:
+    type: string
+    enum:
+      - "Experimental"
+      - "Simulation"
+    description: "Origin of the thermal conductivity value"
+  system_size_converged:
+    type: boolean
+    description: "True if system size >= 1000 atoms or experimental"
+  coordinates:
+    type: array
+    items:
+      type: array
+      items:
+        type: number
+      minItems: 3
+      maxItems: 3
+    description: "List of [x, y, z] coordinates"
+  elements:
+    type: array
+    items:
+      type: string
+    description: "List of element symbols"
+  distinct_ensemble_flag:
+    type: boolean
+    description: "True if thermal conductivity/VDOS derived from distinct ensemble"
+required:
+  - config_id
+  - source_url
+  - atom_count
+  - source_type
+  - system_size_converged
+  - coordinates
+  - elements
+  - distinct_ensemble_flag
+additionalProperties: false

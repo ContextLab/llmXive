@@ -1,0 +1,56 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: RegressionResult Schema
+description: Schema for the output of the regression analysis.
+type: object
+properties:
+  model_type:
+    type: string
+    enum:
+      - "Ridge"
+      - "RandomForest"
+    description: "Type of regression model"
+  r2_score:
+    type: number
+    description: "Cross-validated R² score"
+  std_dev:
+    type: number
+    description: "Standard deviation of R² across folds"
+  top_predictor:
+    type: string
+    description: "Name of the most important feature"
+  top_predictor_pvalue:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: "P-value for the top predictor"
+  feature_importances:
+    type: object
+    additionalProperties:
+      type: number
+    description: "Mapping of feature name to importance score"
+  correlation_r:
+    type: number
+    description: "Pearson correlation coefficient (r)"
+  correlation_p:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: "P-value for Pearson correlation"
+  stability_score:
+    type: number
+    description: "Mean rank stability of top features across bootstraps"
+  partial_corr_r:
+    type: number
+    description: "Pearson r between top predictor and target controlling for density"
+required:
+  - model_type
+  - r2_score
+  - std_dev
+  - top_predictor
+  - top_predictor_pvalue
+  - feature_importances
+  - correlation_r
+  - correlation_p
+  - stability_score
+  - partial_corr_r
+additionalProperties: false

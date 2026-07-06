@@ -1,0 +1,66 @@
+resolved_at: '2026-07-06T16:35:20.920980+00:00'
+datasets:
+- intent: LOOCV
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/dataset/MPGRIDS_v1_01/28557569
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://agdatacommons.nal.usda.gov/articles/dataset/Data_from_Diversity_of_cereal_rye_Secale_cereale_germplasm_in_the_Southeast_United_States/31170643
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Access_to_Z_1_2-Dicyanoethylenes_via_Desulfurization_of_2_5-Dinitrothiophene/32911851
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://agdatacommons.nal.usda.gov/articles/dataset/Data_from_Linking_Fermentation_pH_Kinetics_to_i_Listeria_monocytogenes_i_Inactivation_in_Dry_Fermented_Sausages_Using_Dynamic_Process_Monitoring/32762325
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Resolving_Conformational_Preferences_of_Monosaccharides_from_sup_1_sup_H_and_sup_13_sup_C_NMR_Chemical_Shifts_Using_an_Integrated_MD_and_QM_Approach/32911848
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4317158
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5733366
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15319409
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18375139
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19546367
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21213625
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21213625
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2607.02032
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://publica.fraunhofer.de/entities/publication/ebf17d6f-6729-422d-99ff-8ee96be6b808
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/j8mg6/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
