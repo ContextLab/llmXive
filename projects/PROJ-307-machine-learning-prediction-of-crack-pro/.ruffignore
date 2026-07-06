@@ -1,0 +1,10 @@
+data/raw/
+data/processed/
+data/interin/
+__pycache__/
+.venv/
+.git/
+build/
+dist/
+*.egg-info/
+tests/

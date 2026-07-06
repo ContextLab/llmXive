@@ -1,0 +1,40 @@
+# Byte-compiled / optimized / DB files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Distribution / packaging
+dist/
+build/
+*.egg-info/
+*.egg
+
+# Virtual environments
+.venv/
+venv/
+ENV/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Data (Large files, keep .gitkeep for structure)
+data/raw/*.csv
+data/raw/*.json
+data/raw/*.parquet
+data/processed/*.csv
+data/interim/*.csv
+
+# Logs
+*.log
+
+# OS
+.DS_Store
+Thumbs.db

@@ -1,0 +1,45 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Crack Propagation Dataset Schema
+description: Schema for fatigue crack propagation datasets
+type: object
+required:
+  - da_dN
+  - delta_K
+properties:
+  da_dN:
+    type: number
+    description: Crack growth rate (m/cycle)
+    minimum: 0
+  delta_K:
+    type: number
+    description: Stress intensity factor range (MPa√m)
+    minimum: 0
+  composition:
+    type: object
+    description: Chemical composition (weight percent)
+    properties:
+      Fe:
+        type: number
+      C:
+        type: number
+      Mn:
+        type: number
+      Si:
+        type: number
+      # Add other common alloying elements as needed
+  heat_treatment:
+    type: string
+    description: Heat treatment process description
+  specimen_geometry:
+    type: string
+    description: Specimen geometry (CT, SENB, etc.)
+  test_temperature:
+    type: number
+    description: Test temperature (°C)
+  frequency:
+    type: number
+    description: Test frequency (Hz)
+  R_ratio:
+    type: number
+    description: Stress ratio (K_min/K_max)
+additionalProperties: true

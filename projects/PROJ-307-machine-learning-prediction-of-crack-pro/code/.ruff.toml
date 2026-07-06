@@ -1,0 +1,21 @@
+[lint]
+select = [
+  "E",   # pycodestyle errors
+  "W",   # pycodestyle warnings
+  "F",   # pyflakes
+  "I",   # isort
+  "C",   # flake8-comprehensions
+  "B",   # flake8-bugbear
+  "UP",  # pyupgrade
+]
+ignore = [
+  "E501", # line too long (handled by black)
+  "C901", # too complex (handled by separate complexity check if needed)
+]
+
+[lint.per-file-ignores]
+"__init__.py" = ["F401"]
+
+[lint.isort]
+known-first-party = ["config", "data", "models", "utils", "analysis", "logging_config", "main"]
+force-sort-within-sections = true

@@ -1,0 +1,25 @@
+# Core Data & ML
+pandas>=2.0.0
+numpy>=1.24.0
+scikit-learn>=1.3.0
+xgboost>=2.0.0
+optuna>=3.4.0
+
+# Data Handling & Validation
+pyyaml>=6.0
+jsonschema>=4.0.0
+requests>=2.31.0
+
+# Visualization
+matplotlib>=3.7.0
+seaborn>=0.12.0
+
+# Change Point Detection
+ruptures>=1.1.0
+
+# Testing
+pytest>=7.0.0
+
+# Linting & Formatting (Optional for dev)
+ruff>=0.1.0
+black>=23.0.0

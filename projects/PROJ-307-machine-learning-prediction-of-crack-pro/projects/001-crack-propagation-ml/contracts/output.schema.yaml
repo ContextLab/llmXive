@@ -1,0 +1,36 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Pipeline Output Schema
+description: Schema for pipeline output results
+type: object
+required:
+  - metrics
+  - model_type
+properties:
+  metrics:
+    type: object
+    properties:
+      r2:
+        type: number
+      rmse:
+        type: number
+      mse:
+        type: number
+      p_value:
+        type: number
+    required:
+      - r2
+  model_type:
+    type: string
+    enum:
+      - baseline
+      - augmented
+  features_used:
+    type: array
+    items:
+      type: string
+  parameter_values:
+    type: object
+  timestamp:
+    type: string
+    format: date-time
+additionalProperties: true

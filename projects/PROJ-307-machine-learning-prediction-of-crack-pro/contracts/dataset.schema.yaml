@@ -1,0 +1,88 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Crack Propagation Dataset Schema
+description: |
+  Schema for the crack propagation dataset used in the ML pipeline.
+  Defines required columns for Paris Law baseline and augmented models.
+  Expected units:
+    - da/dN: mm/cycle
+    - Delta_K: MPa*sqrt(m)
+    - composition: weight percentages (e.g., Fe, C, Ni, Cr, Mo)
+    - heat_treatment: categorical string (e.g., "Annealed", "Quenched & Tempered")
+type: object
+required:
+  - properties
+properties:
+  da_dN:
+    description: Crack growth rate (da/dN)
+    type: number
+    minimum: 0
+    unit: mm/cycle
+  delta_K:
+    description: Stress intensity factor range (Delta K)
+    type: number
+    minimum: 0
+    unit: MPa*sqrt(m)
+  material_id:
+    description: Unique identifier for the material specimen
+    type: string
+  composition:
+    description: |
+      Object containing weight percentages of alloying elements.
+      Keys are element symbols (e.g., "Fe", "C", "Ni", "Cr", "Mo", "Ti", "Al").
+      Values are numbers representing weight percent.
+      At least one element should be present.
+    type: object
+    additionalProperties:
+      type: number
+      minimum: 0
+      maximum: 100
+  heat_treatment:
+    description: |
+      Heat treatment condition of the material.
+      Allowed values include standard treatments or "Unknown/Not Specified".
+    type: string
+    minLength: 1
+  specimen_id:
+    description: Unique identifier for the specific specimen within a material
+    type: string
+    nullable: true
+  temperature:
+    description: Test temperature in Celsius (optional)
+    type: number
+    nullable: true
+  frequency:
+    description: Loading frequency in Hz (optional)
+    type: number
+    nullable: true
+  R_ratio:
+    description: Stress ratio (K_min/K_max) (optional)
+    type: number
+    nullable: true
+additionalProperties: false
+examples:
+  - da_dN: 1.2e-5
+    delta_K: 15.5
+    material_id: "AL-2024-T3"
+    composition:
+      Cu: 4.4
+      Mg: 1.5
+      Mn: 0.6
+      Al: 93.5
+    heat_treatment: "Solution Heat Treated and Artificially Aged"
+    specimen_id: "SP-001"
+    temperature: 25.0
+    frequency: 10.0
+    R_ratio: 0.1
+  - da_dN: 3.5e-4
+    delta_K: 35.2
+    material_id: "ST-4340"
+    composition:
+      Fe: 96.5
+      C: 0.3
+      Ni: 1.8
+      Cr: 0.8
+      Mo: 0.25
+    heat_treatment: "Quenched and Tempered"
+    specimen_id: "SP-042"
+    temperature: 22.0
+    R_ratio: 0.1

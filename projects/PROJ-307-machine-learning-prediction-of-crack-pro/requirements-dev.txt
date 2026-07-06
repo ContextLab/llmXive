@@ -1,0 +1,13 @@
+# Core dependencies
+-r requirements.txt
+
+# Linting and Formatting
+ruff>=0.1.0
+black>=23.0.0
+
+# Testing
+pytest>=7.4.0
+pytest-cov>=4.1.0
+
+# Type checking (optional but recommended)
+mypy>=1.7.0
