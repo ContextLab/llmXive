@@ -1,0 +1,292 @@
+resolved_at: '2026-07-06T11:05:28.024342+00:00'
+datasets:
+- intent: LPBF
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/ppak10/NIST-In-Situ-IN625-LPBF-Overhangs/resolve/main/frames/data-00000-of-00130.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/vedantpuri/LPBF_FLARE/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 25199
+      parsed: true
+  - url: https://huggingface.co/datasets/ppak10/ORNL-LPBF-Cylinders/resolve/main/source/2024-05-01
+      M2 AMMTO Fatigue Blanks 05.hdf5
+    source: huggingface
+    format: hdf5
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/ppak10/NIST-In-Situ-IN625-LPBF-Overhangs/resolve/main/frames/data-00000-of-00130.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/ppak10/RAISE-LPBF-Part-X16/resolve/main/data/C027/000-of-707.parquet
+    source: huggingface
+    status: wrong_format
+    reason: HTTP 401
+  - url: https://huggingface.co/datasets/vedantpuri/LPBF_FLARE/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/ppak10/ORNL-LPBF-Cylinders/resolve/main/source/2024-05-01
+      M2 AMMTO Fatigue Blanks 05.hdf5
+    source: huggingface
+    status: verified
+    format: hdf5
+  - url: https://aubh.figshare.com/articles/thesis/Untitled_Item/32907437
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://sussex.figshare.com/articles/journal_contribution/Competing_to_belong_How_midlife_exercisers_sustain_shared_social_identity_through_Peloton_participation/32263344
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://sussex.figshare.com/articles/journal_contribution/Sussex_Integrated_Dataset_SID_Data_Resource_Profile/32034648
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/2026_2027_Covenant_University_Ota_Post_UTME_Direct_Entry_FORM_Is_Out_CALL_07036366909_07036366909_DR_MRS_GRACE_AJAYI_To_apply_For_Application_and_make_your_proper_registration_before_the_deadline_/32907476
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/2026_2027_Benson_Idahosa_University_Benin_City_Post_UTME_Direct_Entry_FORM_Is_Out_CALL_07036366909_07036366909_DR_MRS_GRACE_AJAYI_To_apply_For_Application_and_make_your_proper_registration_before_the_deadline_/32907464
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/11094814
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17018311
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20059092
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18801386
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/11189615
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21198620
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21198620
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://publica.fraunhofer.de/entities/publication/6bd4db92-4af2-40b8-afa5-782bfcb83629
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://publica.fraunhofer.de/entities/publication/db85dfbe-cd47-41f7-b122-8341bb4e0651
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://publica.fraunhofer.de/entities/publication/9cc0cde4-150a-44de-bdaf-1705f558975c
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: MLP
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/tekkithorse/mlp-board-yuki-archive-html-text/resolve/main/mlp-2.tar.gz
+    source: huggingface
+    format: gzip
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/tekkithorse/mlp-show-scripts/resolve/main/archive.zip
+    source: huggingface
+    format: zip
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/mikezhu888/ml_papers_abstracts/resolve/main/data/train-00000-of-00001-d9a274137f7fc7c8.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/mikezhu888/ml_papers_abstracts/resolve/main/data/train-00000-of-00001-d9a274137f7fc7c8.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/tekkithorse/mlp-board-yuki-archive-html-text/resolve/main/mlp-2.tar.gz
+    source: huggingface
+    status: verified
+    format: gzip
+  - url: https://huggingface.co/datasets/tekkithorse/mlp-show-scripts/resolve/main/archive.zip
+    source: huggingface
+    status: verified
+    format: zip
+  - url: https://frontiersin.figshare.com/articles/media/Video_1_Case_report_Two_cases_of_juxtapapillary_retinal_capillary_hemangioma_treated_with_intraocular_cryotherapy_mp4/32907542
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/dataset/Table_1_Imaging-based_fibrosis_assessment_and_risk_stratification_in_MASLD_docx/32907521
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/dataset/Table_2_Applications_of_natural_language_processing_and_large_language_models_in_sports_injury_assessment_and_rehabilitation_decision-making_a_scoping_review_docx/32907518
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/dataset/Data_Sheet_1_Case_report_Two_cases_of_juxtapapillary_retinal_capillary_hemangioma_treated_with_intraocular_cryotherapy_pdf/32907524
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/dataset/Data_Sheet_1_CLEAR_report_1_a_scoping_review_and_meta-analysis_for_definitions_imaging_metrics_and_functional_correlates_of_photoreceptor_integrity_in_AMD_docx/32907530
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/1050921
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19568101
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/13996740
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5514903
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3755136
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21217279
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21217279
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19152757
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19152757
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21214571
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: RMSE
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/arjunashok/medical-5day-zeroshot-freshexps-test-plot_with_rmsesort/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/arjunashok/medical-5day-zeroshot-freshexps-test-no-context-plot_with_rmsesort_noctx/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/arjunashok/medical-5day-zeroshot-freshexps-test-plot_with_rmsesort/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/arjunashok/medical-5day-zeroshot-freshexps-test-no-context-plot_with_rmsesort_noctx/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://us.aws.cdn.hf.co/xet-bridge-us/68edd46259f14f21c698aa28/f44f703ecd57d1ddffab68ea166dffcb818f02a0274566ab4651239ed85fffff?user_id=public&X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27dataset_list.json%3B+filename%3D%22dataset_list.json%22%3B&response-content-type=application%2Fjson&Expires=1783339496&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjhlZGQ0NjI1OWYxNGYyMWM2OThhYTI4L2Y0NGY3MDNlY2Q1N2QxZGRmZmFiNjhlYTE2NmRmZmNiODE4ZjAyYTAyNzQ1NjZhYjQ2NTEyMzllZDg1ZmZmZmZcXD91c2VyX2lkPXB1YmxpYyZYLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3ZGF0YXNldF9saXN0Lmpzb24lM0IrZmlsZW5hbWUlM0QlMjJkYXRhc2V0X2xpc3QuanNvbiUyMiUzQiZyZXNwb25zZS1jb250ZW50LXR5cGU9YXBwbGljYXRpb24lMkZqc29uIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3ODMzMzk0OTZ9fX1dfQ__&Signature=MEUCIQC6~bCOQD6k~1b2ZMwR--jmpUgO~-YFaC6lt9Ayg-44SgIgc67F054~DbJIWhygyoRaW4lF497AEY5KNJZRAElX2i4_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/dataset/Data_Sheet_2_Digital_case-library_and_dual-mentor_teaching_for_medical_laboratory_science_internships_in_China_a_historical_comparison_educational_evaluation_pdf/32907560
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/dataset/Table_1_Digital_case-library_and_dual-mentor_teaching_for_medical_laboratory_science_internships_in_China_a_historical_comparison_educational_evaluation_xlsx/32907551
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/dataset/Data_Sheet_1_Digital_case-library_and_dual-mentor_teaching_for_medical_laboratory_science_internships_in_China_a_historical_comparison_educational_evaluation_zip/32907536
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/dataset/Table_1_Association_between_the_unaccompanied_nursing_care_model_and_postoperative_delirium_in_older_adults_with_hip_fractures_a_retrospective_before-and-after_cohort_study_docx/32907545
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/dataset/Table_2_Association_between_the_unaccompanied_nursing_care_model_and_postoperative_delirium_in_older_adults_with_hip_fractures_a_retrospective_before-and-after_cohort_study_docx/32907527
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20325172
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17593144
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17750460
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10972798
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10965999
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://fair.unifg.it//handle/11369/382362
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.zora.uzh.ch/handle/20.500.14742/248149
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://researchdata.durham.ac.uk/files/r2j96020698
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://researchdata.durham.ac.uk/files/r1st74cq558
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Streamflow_prediction_with_machine_learning_evaluating_predictability_across_hydroclimatic_regimes/32907048/1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

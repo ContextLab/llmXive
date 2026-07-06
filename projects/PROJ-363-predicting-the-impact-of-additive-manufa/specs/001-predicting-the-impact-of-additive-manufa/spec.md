@@ -41,17 +41,17 @@ As a data scientist, I need to train Gradient Boosting and MLP regression models
 
 ### User Story 3 - Explainability and Statistical Analysis (Priority: P3)
 
-As a domain expert, I need to generate SHAP plots and perform ANOVA on feature importance to understand which process parameters most significantly influence porosity, ensuring the model's predictions are physically interpretable.
+As a domain expert, I need to generate SHAP plots and perform statistical significance testing on feature contributions to understand which process parameters most significantly influence porosity, ensuring the model's predictions are physically interpretable.
 
 **Why this priority**: This provides the scientific insight required to fill the literature gap. It is the "value-add" that transforms a black-box prediction into a scientific finding.
 
-**Independent Test**: Can be fully tested by verifying the generation of a SHAP summary plot image and a statistical report table showing p-values for feature significance.
+**Independent Test**: Can be fully tested by verifying the generation of a SHAP summary plot image and a statistical report table showing 95% bootstrap confidence intervals for feature importance.
 
 **Acceptance Scenarios**:
 
 1. **Given** a trained Gradient Boosting model, **When** SHAP analysis is run, **Then** a summary plot visualizing the marginal effect of each parameter (power, speed, etc.) on porosity is saved.
-2. **Given** the feature importance scores from the model, **When** ANOVA is applied, **Then** a table is generated identifying which parameters have a statistically significant influence (p < 0.05) on porosity.
-3. **Given** the derived feature (Volumetric Energy Density), **When** the analysis runs, **Then** its relative importance is reported alongside the raw parameters to validate physical intuition.
+2. **Given** the feature importance scores from the model, **When** Permutation Importance with 1,000 permutations is applied, **Then** a table is generated identifying which parameters have a statistically significant influence (p < 0.05) on porosity.
+3. **Given** the derived feature (Volumetric Energy Density), **When** the analysis runs, **Then** its relative importance is reported alongside the raw parameters to validate physical intuition, provided it is not used simultaneously with raw parameters in the same model.
 
 ---
 
@@ -67,12 +67,14 @@ As a domain expert, I need to generate SHAP plots and perform ANOVA on feature i
 
 - **FR-001**: System MUST download a public LPBF 316L dataset from a specified URL (Zenodo/OpenML) and parse it into a structured DataFrame (See US-1).
 - **FR-002**: System MUST impute missing numerical values using the median of the respective column and normalize all input features to the range [0, 1] (See US-1).
-- **FR-003**: System MUST calculate the derived feature Volumetric Energy Density ($E_v = P / (v \cdot h \cdot t)$) for every record in the dataset (See US-1).
-- **FR-004**: System MUST train a Gradient Boosting Regressor and a Multi-Layer Perceptron (MLP) Regressor using 5-fold cross-validation on CPU-only hardware (See US-2).
+- **FR-003**: System MUST calculate the derived feature Volumetric Energy Density ($E_v = P / (v \cdot h \cdot t)$) for every record where scan_speed > 0, hatch_spacing > 0, and layer_thickness > 0. If raw parameters are unavailable but Ev is provided, use the provided column; otherwise, skip calculation (See US-1).
+- **FR-004**: System MUST train a Gradient Boosting Regressor and a Multi-Layer Perceptron (MLP) Regressor using 5-fold cross-validation (See US-2).
 - **FR-005**: System MUST compute and report RMSE and R² metrics for each fold and the aggregate mean performance for both models (See US-2).
 - **FR-006**: System MUST generate SHAP summary plots to visualize the marginal effect of each parameter on predicted porosity (See US-3).
-- **FR-007**: System MUST perform ANOVA on feature importance scores to determine statistical significance of parameters (See US-3).
+- **FR-007**: System MUST perform Permutation Importance testing with 1,000 permutations and calculate 95% Bootstrap Confidence Intervals on SHAP values to determine statistical significance of parameters (p < 0.05) (See US-3).
 - **FR-008**: System MUST save trained model artifacts, performance metrics, and visualization plots to the project directory (See US-2, US-3).
+- **FR-009**: System MUST NOT utilize GPU acceleration during training or inference (See US-2).
+- **FR-010**: System MUST NOT include both raw parameters and Volumetric Energy Density as simultaneous inputs in the same model to avoid multicollinearity (See US-3).
 
 ### Key Entities
 
@@ -87,8 +89,8 @@ As a domain expert, I need to generate SHAP plots and perform ANOVA on feature i
 
 > Planning docs state *what* will be measured and the *source/reference* it is measured against; defer specific empirical values (counts, dataset sizes, measured quantities, percentages) to the implementation/research phase.
 
-- **SC-001**: Model predictive accuracy (R²) is measured against the held-out test set to confirm if the relationship between parameters and porosity is strong enough for prediction (See US-2).
-- **SC-002**: Feature significance (p-values from ANOVA) is measured against the standard alpha level of 0.05 to identify which parameters drive porosity (See US-3).
+- **SC-001**: Model predictive accuracy (R²) is measured against the held-out test set; success is defined as R² ≥ 0.65 or strictly greater than a dummy regressor baseline (See US-2).
+- **SC-002**: Feature significance (p-values from Permutation Importance) is measured against the standard alpha level of 0.05 to identify which parameters drive porosity (See US-3).
 - **SC-003**: Computational feasibility is measured against the free-tier CI limits (≤6h runtime, ≤7GB RAM, CPU-only) to ensure the methodology is reproducible without specialized hardware (See US-2).
 - **SC-004**: Data completeness is measured against the requirement for zero missing values in the final training set after imputation (See US-1).
 
