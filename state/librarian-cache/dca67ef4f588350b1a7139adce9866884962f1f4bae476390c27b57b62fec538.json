@@ -1,0 +1,544 @@
+{
+  "fetched_at": "2026-07-06T16:47:03Z",
+  "field": "computer science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "computer science",
+      "idea_body_excerpt": "llmXive follow-up: extending \"ResearchClawBench: A Benchmark for End-to-End Autonomous Scientific Re\"",
+      "target_n": 5
+    },
+    "duration_seconds": 54.942,
+    "ended_at": "2026-07-06T16:47:03Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "autonomous scientific research agents"
+        ],
+        [
+          2,
+          "end-to-end automated literature review"
+        ],
+        [
+          3,
+          "self-directed scientific discovery systems"
+        ],
+        [
+          4,
+          "autonomous hypothesis generation and testing"
+        ],
+        [
+          5,
+          "AI-driven scientific paper analysis"
+        ],
+        [
+          6,
+          "automated systematic literature review"
+        ],
+        [
+          7,
+          "autonomous research workflow automation"
+        ],
+        [
+          8,
+          "LLM-based scientific reasoning benchmarks"
+        ],
+        [
+          9,
+          "autonomous agent for scientific exploration"
+        ],
+        [
+          10,
+          "automated experimental design by AI"
+        ],
+        [
+          11,
+          "self-improving research assistants"
+        ],
+        [
+          12,
+          "autonomous citation network analysis"
+        ],
+        [
+          13,
+          "automated gap detection in scientific literature"
+        ],
+        [
+          14,
+          "end-to-end autonomous knowledge synthesis"
+        ],
+        [
+          15,
+          "AI agents for scientific methodology"
+        ],
+        [
+          16,
+          "automated research question formulation"
+        ],
+        [
+          17,
+          "autonomous scientific writing and validation"
+        ],
+        [
+          18,
+          "LLMs for autonomous data extraction"
+        ],
+        [
+          19,
+          "automated peer review simulation"
+        ],
+        [
+          20,
+          "autonomous scientific problem solving frameworks"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "autonomous scientific research agents": 5,
+        "llmXive follow-up: extending \"ResearchClawBench: A Benchmark for End-to-End Autonomous Scientific Re\" computer science": 0
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "autonomous literature review data contamination",
+      "ResearchClawBench llmXive scientific discovery",
+      "literature mining retrieval augmentation generation",
+      "end-to-end automated hypothesis generation",
+      "scientific workflow automation reproducibility crisis"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2606.07591"
+      ]
+    },
+    "per_query_hit_count": {
+      "ResearchClawBench llmXive scientific discovery": 3,
+      "autonomous literature review data contamination": 3,
+      "end-to-end automated hypothesis generation": 3,
+      "literature mining retrieval augmentation generation": 3,
+      "llmXive follow-up: extending \"ResearchClawBench: A Benchmark for End-to-End Autonomous Scientific Re\" computer science": 3,
+      "scientific workflow automation reproducibility crisis": 2
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 6,
+      "rejections": [
+        {
+          "primary_pointer": "2506.11419",
+          "rationale": "The paper focuses on \"end-to-end autonomous driving\" (robotics/vehicle control), which is an entirely different domain from the user's question regarding \"autonomous scientific research\" (LLM agents for literature review and hypothesis generation). Although both share the phrase \"end-to-end autonomous,\" the underlying mechanisms, variables, and empirical populations are distinct, satisfying the rejection rule for off-domain topics sharing only homonym keywords.",
+          "title": "FocalAD: Local Motion Planning for End-to-End Autonomous Driving"
+        },
+        {
+          "primary_pointer": "2011.14743",
+          "rationale": "The paper focuses on science education outreach and resource databases for particle physics, which is an off-domain topic entirely unrelated to the user's question about autonomous scientific research benchmarks and LLMs. It shares no measurable connection to the mechanisms, variables, or empirical settings of LLM-driven research automation.",
+          "title": "IPPOG : Bridging the gap between science education at school and modern scientific research"
+        },
+        {
+          "primary_pointer": "2602.04518",
+          "rationale": "The paper focuses on learning value systems and ethical alignment in autonomous software agents using inverse reinforcement learning, which is a distinct construct from the user's question regarding benchmarks for end-to-end autonomous scientific research (specifically the \"ResearchClawBench\" follow-up). While both involve autonomous agents, the paper does not measure the same mechanism (scientific discovery workflows), variables (research task performance), or domain (scientific literature anal",
+          "title": "Learning the Value Systems of Agents with Preference-based and Inverse Reinforcement Learning"
+        },
+        {
+          "primary_pointer": "2305.09349",
+          "rationale": "The paper focuses on establishing shared query understanding and communication protocols between autonomous agents in an open multi-agent system, which is a distinct construct from the user's question regarding a benchmark for \"End-to-End Autonomous Scientific Research.\" While both involve autonomous agents, the candidate paper addresses the mechanism of inter-agent communication and ontology alignment rather than the specific domain of scientific research workflows, literature review generation",
+          "title": "Establishing Shared Query Understanding in an Open Multi-Agent System"
+        },
+        {
+          "primary_pointer": "1806.05028",
+          "rationale": "The paper focuses on the macro-sociological and economic drivers of national scientific output (social studies of science), which is a distinct construct from the user's question regarding the technical evaluation and benchmarking of autonomous AI agents for scientific research (computer science). This falls under the rejection rule for \"Distinct construct sharing only homonym keywords\" (sharing \"scientific research\" but addressing completely different mechanisms, domains, and variables).",
+          "title": "Socioeconomic driving forces of scientific research"
+        },
+        {
+          "primary_pointer": "1709.08071",
+          "rationale": "The paper is a general survey on multi-agent modeling and does not address the specific domain of \"autonomous scientific research,\" \"end-to-end scientific discovery,\" or the specific benchmarks (ResearchClawBench) mentioned in the user's question. It fails to meet criteria (a) or (b) as it lacks the specific mechanism (scientific research automation) or the specific empirical population (scientific agents) required, and it is not a foundational method for the specific task of autonomous science ",
+          "title": "Autonomous Agents Modelling Other Agents: A Comprehensive Survey and Open Problems"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-07-06T16:46:08Z",
+    "term_input": {
+      "normalized": "llmxive follow-up: extending \"researchclawbench: a benchmark for end-to-end autonomous scientific re\" computer science",
+      "raw": "llmXive follow-up: extending \"ResearchClawBench: A Benchmark for End-to-End Autonomous Scientific Re\" computer science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This white paper describes the LSST Dark Energy Science Collaboration (DESC), whose goal is the study of dark energy and related topics in fundamental physics with data from the Large Synoptic Survey Telescope (LSST). It provides an overview of dark energy science and describes the current and anticipated state of the field. It makes the case for the DESC by laying out a robust analytical framework for dark energy science that has been defined by its members and the comprehensive three-year work plan they have developed for implementing that framework. The analysis working groups cover five key probes of dark energy: weak lensing, large scale structure, galaxy clusters, Type Ia supernovae, and strong lensing. The computing working groups span cosmological simulations, galaxy catalogs, photon simulations and a systematic software and computational framework for LSST dark energy data analysis. The technical working groups make the connection between dark energy science and the LSST system. The working groups have close linkages, especially through the use of the photon simulations to study the impact of instrument design and survey strategy on analysis methodology and cosmological parameter estimation. The white paper describes several high priority tasks identified by each of the 16 working groups. Over the next three years these tasks will help prepare for LSST analysis, make synergistic connections with ongoing cosmological surveys and provide the dark energy community with state of the art analysis tools. Members of the community are invited to join the LSST DESC, according to the membership policies described in the white paper. Applications to sign up for associate membership may be made by submitting the Web form at http://www.slac.stanford.edu/exp/lsst/desc/signup.html with a short statement of the work they wish to pursue that is relevant to the LSST DESC.",
+          "claimed_authors": [
+            " LSST Dark Energy Science Collaboration"
+          ],
+          "claimed_title": "Large Synoptic Survey Telescope: Dark Energy Science Collaboration",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1211.0310"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='llmXive follow-up: extending \"ResearchClawBench: A Benchmark for End-to-End Auto', candidate_title='Large Synoptic Survey Telescope: Dark Energy Science Collaboration')",
+        "failed_at": "2026-07-06T16:46:37Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The large instantaneous sensitivity, a wide frequency coverage and flexible observation modes with large number of beams in the sky are the main features of the SKA observatory's two telescopes, the SKA-Low and the SKA-Mid, which are located on two different continents. Owing to these capabilities, the SKAO telescopes are going to be a game-changer for radio astronomy in general and pulsar astronomy in particular. The eleven articles in this special issue on pulsar science with the SKA Observatory describe its impact on different areas of pulsar science. In this lead article, a brief description of the two telescopes highlighting the relevant features for pulsar science is presented followed by an overview of each accompanying article, exploring the inter-relationship between different pulsar science use cases.",
+          "claimed_authors": [
+            "Bhal Chandra Joshi",
+            "Aris Karastergiou",
+            "Marta Burgay",
+            "The SKA pulsar science working group"
+          ],
+          "claimed_title": "Pulsar Science with the SKA Observatory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.16152"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='llmXive follow-up: extending \"ResearchClawBench: A Benchmark for End-to-End Auto', candidate_title='Pulsar Science with the SKA Observatory')",
+        "failed_at": "2026-07-06T16:46:37Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A Human Computer Interface (HCI) System for playing games is designed here for more natural communication with the machines. The system presented here is a vision-based system for detection of long voluntary eye blinks and interpretation of blink patterns for communication between man and machine. This system replaces the mouse with the human face as a new way to interact with the computer. Facial features (nose tip and eyes) are detected and tracked in realtime to use their actions as mouse events. The coordinates and movement of the nose tip in the live video feed are translated to become the coordinates and movement of the mouse pointer on the application. The left or right eye blinks fire left or right mouse click events. The system works with inexpensive USB cameras and runs at a frame rate of 30 frames per second.",
+          "claimed_authors": [
+            "S. Sumathi",
+            "S. K. Srivatsa",
+            "M. Uma Maheswari"
+          ],
+          "claimed_title": "Vision Based Game Development Using Human Computer Interaction",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1002.2191"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='llmXive follow-up: extending \"ResearchClawBench: A Benchmark for End-to-End Auto', candidate_title='Vision Based Game Development Using Human Computer Interaction')",
+        "failed_at": "2026-07-06T16:46:37Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We study distributed optimization in the presence of Byzantine adversaries, where both data and computation are distributed among $m$ worker machines, $t$ of which may be corrupt. The compromised nodes may collaboratively and arbitrarily deviate from their pre-specified programs, and a designated (master) node iteratively computes the model/parameter vector for generalized linear models. In this work, we primarily focus on two iterative algorithms: Proximal Gradient Descent (PGD) and Coordinate Descent (CD). Gradient descent (GD) is a special case of these algorithms. PGD is typically used in the data-parallel setting, where data is partitioned across different samples, whereas, CD is used in the model-parallelism setting, where data is partitioned across the parameter space.\n  In this paper, we propose a method based on data encoding and error correction over real numbers to combat adversarial attacks. We can tolerate up to $t\\leq \\lfloor\\frac{m-1}{2}\\rfloor$ corrupt worker nodes, which is information-theoretically optimal. We give deterministic guarantees, and our method does not assume any probability distribution on the data. We develop a {\\em sparse} encoding scheme which enables computationally efficient data encoding and decoding. We demonstrate a trade-off between the corruption threshold and the resource requirements (storage, computational, and communication complexity). As an example, for $t\\leq\\frac{m}{3}$, our scheme incurs only a {\\em constant} overhead on these resources, over that required by the plain distributed PGD/CD algorithms which provide no adversarial protection. To the best of our knowledge, ours is the first paper that makes CD secure against adversarial attacks.\n  Our encoding scheme extends efficiently to the data streaming model and for stochastic gradient descent (SGD). We also give experimental results to show the efficacy of our proposed schemes.",
+          "claimed_authors": [
+            "Deepesh Data",
+            "Linqi Song",
+            "Suhas Diggavi"
+          ],
+          "claimed_title": "Data Encoding for Byzantine-Resilient Distributed Optimization",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1907.02664"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"ResearchClawBench: A Benchmark for End-to-End Auto', candidate_title='Data Encoding for Byzantine-Resilient Distributed Optimization')",
+        "failed_at": "2026-07-06T16:46:37Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We study distributed stochastic gradient descent (SGD) in the master-worker architecture under Byzantine attacks. We consider the heterogeneous data model, where different workers may have different local datasets, and we do not make any probabilistic assumptions on data generation. At the core of our algorithm, we use the polynomial-time outlier-filtering procedure for robust mean estimation proposed by Steinhardt et al. (ITCS 2018) to filter-out corrupt gradients. In order to be able to apply their filtering procedure in our {\\em heterogeneous} data setting where workers compute {\\em stochastic} gradients, we derive a new matrix concentration result, which may be of independent interest.\n  We provide convergence analyses for smooth strongly-convex and non-convex objectives. We derive our results under the bounded variance assumption on local stochastic gradients and a {\\em deterministic} condition on datasets, namely, gradient dissimilarity; and for both these quantities, we provide concrete bounds in the statistical heterogeneous data model. We give a trade-off between the mini-batch size for stochastic gradients and the approximation error. Our algorithm can tolerate up to $\\frac{1}{4}$ fraction Byzantine workers. It can find approximate optimal parameters in the strongly-convex setting exponentially fast and reach to an approximate stationary point in the non-convex setting with a linear speed, thus, matching the convergence rates of vanilla SGD in the Byzantine-free setting.\n  We also propose and analyze a Byzantine-resilient SGD algorithm with gradient compression, where workers send $k$ random coordinates of their gradients. Under mild conditions, we show a $\\frac{d}{k}$-factor saving in communication bits as well as decoding complexity over our compression-free algorithm without affecting its convergence rate (order-wise) and the approximation error.",
+          "claimed_authors": [
+            "Deepesh Data",
+            "Suhas Diggavi"
+          ],
+          "claimed_title": "Byzantine-Resilient SGD in High Dimensions on Heterogeneous Data",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2005.07866"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"ResearchClawBench: A Benchmark for End-to-End Auto', candidate_title='Byzantine-Resilient SGD in High Dimensions on Heterogeneous Data')",
+        "failed_at": "2026-07-06T16:46:37Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Context is an important factor in computer vision as it offers valuable information to clarify and analyze visual data. Utilizing the contextual information inherent in an image or a video can improve the precision and effectiveness of object detectors. For example, where recognizing an isolated object might be challenging, context information can improve comprehension of the scene. This study explores the impact of various context-based approaches to object detection. Initially, we investigate the role of context in object detection and survey it from several perspectives. We then review and discuss the most recent context-based object detection approaches and compare them. Finally, we conclude by addressing research questions and identifying gaps for further studies. More than 265 publications are included in this survey, covering different aspects of context in different categories of object detection, including general object detection, video object detection, small object detection, camouflaged object detection, zero-shot, one-shot, and few-shot object detection. This literature review presents a comprehensive overview of the latest advancements in context-based object detection, providing valuable contributions such as a thorough understanding of contextual information and effective methods for integrating various context types into object detection, thus benefiting researchers.",
+          "claimed_authors": [
+            "Mahtab Jamali",
+            "Paul Davidsson",
+            "Reza Khoshkangini",
+            "Martin Georg Ljungqvist",
+            "Radu-Casian Mihailescu"
+          ],
+          "claimed_title": "Context in object detection: a systematic literature review",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2503.23249"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='llmXive follow-up: extending \"ResearchClawBench: A Benchmark for End-to-End Auto', candidate_title='Context in object detection: a systematic literature review')",
+        "failed_at": "2026-07-06T16:46:37Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The International Particle Physics Outreach Group (IPPOG) has been making concerted and systematic efforts to present and popularise particle physics across all audiences and age groups since 1997. Today the scientific community has in IPPOG a strategic pillar in fostering long-term, sustainable support for fundamental research around the world. One of the main tools IPPOG has been offering to the scientific community, teachers and educators for almost 10 years is the Resource Database (RDB), an online platform containing a collection of high quality engaging education and outreach materials in particle physics and related sciences.",
+          "claimed_authors": [
+            "Barbora Bruant Gulejova"
+          ],
+          "claimed_title": "IPPOG : Bridging the gap between science education at school and modern scientific research",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2011.14743"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='llmXive follow-up: extending \"ResearchClawBench: A Benchmark for End-to-End Auto', candidate_title='IPPOG : Bridging the gap between science education at school and modern scientific research')",
+        "failed_at": "2026-07-06T16:46:37Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In many scientific fields, large language models (LLMs) have revolutionized the way text and other modalities of data (e.g., molecules and proteins) are handled, achieving superior performance in various applications and augmenting the scientific discovery process. Nevertheless, previous surveys on scientific LLMs often concentrate on one or two fields or a single modality. In this paper, we aim to provide a more holistic view of the research landscape by unveiling cross-field and cross-modal connections between scientific LLMs regarding their architectures and pre-training techniques. To this end, we comprehensively survey over 260 scientific LLMs, discuss their commonalities and differences, as well as summarize pre-training datasets and evaluation tasks for each field and modality. Moreover, we investigate how LLMs have been deployed to benefit scientific discovery. Resources related to this survey are available at https://github.com/yuzhimanhua/Awesome-Scientific-Language-Models.",
+          "claimed_authors": [
+            "Yu Zhang",
+            "Xiusi Chen",
+            "Bowen Jin",
+            "Sheng Wang",
+            "Shuiwang Ji",
+            "Wei Wang",
+            "Jiawei Han"
+          ],
+          "claimed_title": "A Comprehensive Survey of Scientific Large Language Models and Their Applications in Scientific Discovery",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2406.10833"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='llmXive follow-up: extending \"ResearchClawBench: A Benchmark for End-to-End Auto', candidate_title='A Comprehensive Survey of Scientific Large Language Models and Their Applications in Scientific Discovery')",
+        "failed_at": "2026-07-06T16:46:37Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This research presents and compares multiple approaches to automate the generation of literature reviews using several Natural Language Processing (NLP) techniques and retrieval-augmented generation (RAG) with a Large Language Model (LLM). The ever-increasing number of research articles provides a huge challenge for manual literature review. It has resulted in an increased demand for automation. Developing a system capable of automatically generating the literature reviews from only the PDF files as input is the primary objective of this research work. The effectiveness of several Natural Language Processing (NLP) strategies, such as the frequency-based method (spaCy), the transformer model (Simple T5), and retrieval-augmented generation (RAG) with Large Language Model (GPT-3.5-turbo), is evaluated to meet the primary objective. The SciTLDR dataset is chosen for this research experiment and three distinct techniques are utilized to implement three different systems for auto-generating the literature reviews. The ROUGE scores are used for the evaluation of all three systems. Based on the evaluation, the Large Language Model GPT-3.5-turbo achieved the highest ROUGE-1 score, 0.364. The transformer model comes in second place and spaCy is at the last position. Finally, a graphical user interface is created for the best system based on the large language model.",
+          "claimed_authors": [
+            "Nurshat Fateh Ali",
+            "Md. Mahdi Mohtasim",
+            "Shakil Mosharrof",
+            "T. Gopi Krishna"
+          ],
+          "claimed_title": "Automated Literature Review Using NLP Techniques and LLM-Based Retrieval-Augmented Generation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2411.18583"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"ResearchClawBench: A Benchmark for End-to-End Auto', candidate_title='Automated Literature Review Using NLP Techniques and LLM-Based Retrieval-Augmented Generation')",
+        "failed_at": "2026-07-06T16:46:37Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We introduce Autoregressive Retrieval Augmentation (AR-RAG), a novel paradigm that enhances image generation by autoregressively incorporating knearest neighbor retrievals at the patch level. Unlike prior methods that perform a single, static retrieval before generation and condition the entire generation on fixed reference images, AR-RAG performs context-aware retrievals at each generation step, using prior-generated patches as queries to retrieve and incorporate the most relevant patch-level visual references, enabling the model to respond to evolving generation needs while avoiding limitations (e.g., over-copying, stylistic bias, etc.) prevalent in existing methods. To realize AR-RAG, we propose two parallel frameworks: (1) Distribution-Augmentation in Decoding (DAiD), a training-free plug-and-use decoding strategy that directly merges the distribution of model-predicted patches with the distribution of retrieved patches, and (2) Feature-Augmentation in Decoding (FAiD), a parameter-efficient fine-tuning method that progressively smooths the features of retrieved patches via multi-scale convolution operations and leverages them to augment the image generation process. We validate the effectiveness of AR-RAG on widely adopted benchmarks, including Midjourney-30K, GenEval and DPG-Bench, demonstrating significant performance gains over state-of-the-art image generation models.",
+          "claimed_authors": [
+            "Jingyuan Qi",
+            "Zhiyang Xu",
+            "Qifan Wang",
+            "Lifu Huang"
+          ],
+          "claimed_title": "AR-RAG: Autoregressive Retrieval Augmentation for Image Generation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2506.06962"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"ResearchClawBench: A Benchmark for End-to-End Auto', candidate_title='AR-RAG: Autoregressive Retrieval Augmentation for Image Generation')",
+        "failed_at": "2026-07-06T16:46:37Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Retrieval-augmented generation (RAG) equips large language models (LLMs) with reliable knowledge memory. To strengthen cross-text associations, recent research integrates graphs and hypergraphs into RAG to capture pairwise and multi-entity relations as structured links. However, their misaligned memory organization necessitates costly, disjointed retrieval. To address these limitations, we propose IGMiRAG, a framework inspired by human intuition-guided reasoning. It constructs a hierarchical heterogeneous hypergraph to align multi-granular knowledge, incorporating deductive pathways to simulate realistic memory structures. During querying, IGMiRAG distills intuitive strategies via a question parser to control mining depth and memory window, and activates instantaneous memories as anchors using dual-focus retrieval. Mirroring human intuition, the framework guides retrieval resource allocation dynamically. Furthermore, we design a bidirectional diffusion algorithm that navigates deductive paths to mine in-depth memories, emulating human reasoning processes. Extensive evaluations indicate IGMiRAG outperforms the state-of-the-art baseline by 4.8% EM and 5.0% F1 overall, with token costs adapting to task complexity (average 6.3k+, minimum 3.0k+). This work presents a cost-effective RAG paradigm that improves both efficiency and effectiveness.",
+          "claimed_authors": [
+            "Xingliang Hou",
+            "Yuyan Liu",
+            "Qi Sun",
+            "haoxiu wang",
+            "Hao Hu",
+            "Shaoyi Du",
+            "Zhiqiang Tian"
+          ],
+          "claimed_title": "IGMiRAG: Intuition-Guided Retrieval-Augmented Generation with Adaptive Mining of In-Depth Memory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2602.07525"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"ResearchClawBench: A Benchmark for End-to-End Auto', candidate_title='IGMiRAG: Intuition-Guided Retrieval-Augmented Generation with Adaptive Mining of In-Depth Memory')",
+        "failed_at": "2026-07-06T16:46:37Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Legged locomotion is arguably the most suited and versatile mode to deal with natural or unstructured terrains. Intensive research into dynamic walking and running controllers has recently yielded great advances, both in the optimal control and reinforcement learning (RL) literature. Hopping is a challenging dynamic task involving a flight phase and has the potential to increase the traversability of legged robots. Model based control for hopping typically relies on accurate detection of different jump phases, such as lift-off or touch down, and using different controllers for each phase. In this paper, we present a end-to-end RL based torque controller that learns to implicitly detect the relevant jump phases, removing the need to provide manual heuristics for state detection. We also extend a method for simulation to reality transfer of the learned controller to contact rich dynamic tasks, resulting in successful deployment on the robot after training without parameter tuning.",
+          "claimed_authors": [
+            "Raghav Soni",
+            "Daniel Harnack",
+            "Hannah Isermann",
+            "Sotaro Fushimi",
+            "Shivesh Kumar",
+            "Frank Kirchner"
+          ],
+          "claimed_title": "End-to-End Reinforcement Learning for Torque Based Variable Height Hopping",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2307.16676"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='llmXive follow-up: extending \"ResearchClawBench: A Benchmark for End-to-End Auto', candidate_title='End-to-End Reinforcement Learning for Torque Based Variable Height Hopping')",
+        "failed_at": "2026-07-06T16:46:37Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Reproducing game bugs, particularly crash bugs in continuously evolving games like Minecraft, is a notoriously manual, time-consuming, and challenging process to automate; insights from a key decision maker from Minecraft we interviewed confirm this, highlighting that a substantial portion of crash reports necessitate manual scenario reconstruction. Despite the success of LLM-driven bug reproduction in other software domains, games, with their complex interactive environments, remain largely unaddressed. This paper introduces BugCraft, a novel end-to-end framework designed to automate the reproduction of crash bugs in Minecraft directly from user-submitted bug reports, addressing the critical gap in automated game bug reproduction. BugCraft employs a two-stage approach: first, a Step Synthesizer leverages LLMs and Minecraft Wiki knowledge to transform bug reports into high-quality, structured steps to reproduce (S2R). Second, an Action Model, powered by a vision-based LLM agent and a custom macro API, executes these S2R steps within Minecraft to trigger the reported crash. To facilitate evaluation, we introduce BugCraft-Bench, a curated dataset of Minecraft crash bug reports. On BugCraft-Bench, our framework end-to-end reproduced 34.9% of crash bugs with GPT-4.1, outperforming baseline computer-use models by 37%. BugCraft demonstrates the feasibility of automated reproduction of crash bugs in complex game environments using LLMs, opening promising avenues for game testing and development. Finally, we make our code open at https://bugcraft2025.github.io",
+          "claimed_authors": [
+            "Eray Yapağcı",
+            "Yavuz Alp Sencer Öztürk",
+            "Eray Tüzün"
+          ],
+          "claimed_title": "Agents in the Sandbox: End-to-End Crash Bug Reproduction for Minecraft",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2503.20036"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='llmXive follow-up: extending \"ResearchClawBench: A Benchmark for End-to-End Auto', candidate_title='Agents in the Sandbox: End-to-End Crash Bug Reproduction for Minecraft')",
+        "failed_at": "2026-07-06T16:46:38Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Large Action Models (LAMs) extend large language models by enabling autonomous decision-making and tool execution, making them promising for automating scientific workflows. However, scientific workflows impose strict requirements on reproducibility, auditability, and deterministic execution, which are not satisfied by generic LLM-based agents. Unconstrained action generation can lead to silent state changes, non-deterministic executions, and irreproducible experimental results, limiting the applicability of LAMs in scientific settings.\n  In this paper, we propose R-LAM, a reproducibility-constrained framework for applying Large Action Models to scientific workflow automation. R-LAM introduces structured action schemas, deterministic execution policies, and explicit provenance tracking to ensure that every action and intermediate artifact is auditable and replayable. The framework supports failure-aware execution loops and controlled workflow forking, enabling iterative experimentation without compromising reproducibility.\n  We implement R-LAM as a lightweight Python framework and release it as an open-source PyPI package to facilitate reproducible research. An experimental evaluation of representative scientific workflows demonstrates that R-LAM improves reproducibility success rates and execution reliability compared to unconstrained LLM-based agents, while retaining adaptive control over workflow execution.",
+          "claimed_authors": [
+            "Suriya Sureshkumar"
+          ],
+          "claimed_title": "R-LAM: Reproducibility-Constrained Large Action Models for Scientific Workflow Automation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2601.09749"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='llmXive follow-up: extending \"ResearchClawBench: A Benchmark for End-to-End Auto', candidate_title='R-LAM: Reproducibility-Constrained Large Action Models for Scientific Workflow Automation')",
+        "failed_at": "2026-07-06T16:46:38Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "One of the foundations of science is that researchers must publish the methodology used to achieve their results so that others can attempt to reproduce them. This has the added benefit of allowing methods to be adopted and adapted for other purposes. In the field of e-Science, services -- often choreographed through workflow, process data to generate results. The reproduction of results is often not straightforward as the computational objects may not be made available or may have been updated since the results were generated. For example, services are often updated to fix bugs or improve algorithms. This paper addresses these problems in three ways. Firstly, it introduces a new framework to clarify the range of meanings of \"reproducibility\". Secondly, it describes a new algorithm, \\PDIFF, that uses a comparison of workflow provenance traces to determine whether an experiment has been reproduced; the main innovation is that if this is not the case then the specific point(s) of divergence are identified through graph analysis, assisting any researcher wishing to understand those differences. One key feature is support for user-defined, semantic data comparison operators. Finally, the paper describes an implementation of \\PDIFF that leverages the power of the e-Science Central platform which enacts workflows in the cloud. As well as automatically generating a provenance trace for consumption by \\PDIFF, the platform supports the storage and re-use of old versions of workflows, data and services; the paper shows how this can be powerfully exploited in order to achieve reproduction and re-use.",
+          "claimed_authors": [
+            "Paolo Missier",
+            "Simon Woodman",
+            "Hugo Hiden",
+            "Paul Watson"
+          ],
+          "claimed_title": "Provenance and data differencing for workflow reproducibility analysis",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2014,
+          "primary_pointer": "1406.0905"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='llmXive follow-up: extending \"ResearchClawBench: A Benchmark for End-to-End Auto', candidate_title='Provenance and data differencing for workflow reproducibility analysis')",
+        "failed_at": "2026-07-06T16:46:38Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Wanghan Xu",
+            "Shuo Li",
+            "Tianlin Ye",
+            "Qinglong Cao",
+            "Yixin Chen",
+            "Hengjian Gao",
+            "Yiheng Wang",
+            "Qi Li",
+            "Kun Li",
+            "Sheng Xu",
+            "Shengdu Chai",
+            "Fangchen Yu",
+            "Xiangyu Zhao",
+            "Zhangrui Zhao",
+            "Weijie Ma",
+            "Zijie Guo",
+            "Koutian Wu",
+            "Haoyu Zhou",
+            "Haoxiang Yin",
+            "Lixue Cheng",
+            "Chaofan Hu",
+            "Haoxuan Li",
+            "Lu Mi",
+            "Xuxuan Xie",
+            "Yifan Zhou",
+            "Ruizhe Chen",
+            "Zhiwang Zhou",
+            "Xingjian Guo",
+            "Yuhao Zhou",
+            "Xuming He",
+            "Shengyuan Xu",
+            "Xinyu Gu",
+            "Jiamin Wu",
+            "Mianxin Liu",
+            "Chunfeng Song",
+            "Fenghua Ling",
+            "Dongzhan Zhou",
+            "Shixiang Tang",
+            "Yuqiang Li",
+            "Mao Su",
+            "Peng Ye",
+            "Siqi Sun",
+            "Bin Wang",
+            "Xue Yang",
+            "Zhenfei Yin",
+            "Tianfan Fu",
+            "Guangtao Zhai",
+            "Wanli Ouyang",
+            "Bo Zhang",
+            "Lei Bai",
+            "Wenlong Zhang"
+          ],
+          "title": "ResearchClawBench: A Benchmark for End-to-End Autonomous Scientific Research",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2606.07591",
+        "summary": "AI coding agents are increasingly used for scientific work, but their end-to-end autonomous research capability remains difficult to verify. We present ResearchClawBench, a benchmark for evaluating autonomous scientific research across 40 tasks from 10 scientific domains. Each task is grounded in a real published paper, provides related literature and raw data, and hides the target paper during evaluation. Expert-curated multimodal rubrics decompose the target scientific artifacts into weighted criteria, enabling evaluation of target-paper-level re-discovery while leaving room for new discovery. We evaluate seven autonomous research (auto-research) agents under a unified protocol and seventeen native LLMs through the lightweight ResearchHarness. Current systems remain far from reliable re-discovery: the strongest autonomous agent, Claude Code, averages 21.5, and the strongest ResearchHarness LLM, Claude-Opus-4.7, averages 20.7, with an LLM frontier mean of only 26.5. Error analysis shows that failures concentrate in experimental protocol mismatch, evidence mismatch, and missing scientific core. ResearchClawBench provides a reproducible evaluation frontier for measuring progress toward autonomous scientific research.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2606.07591",
+          "http_status": 200,
+          "pdf_sample_score": 0.2511,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-06T16:46:37Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "llmxive follow-up: extending \"researchclawbench: a benchmark for end-to-end autonomous scientific re\" computer science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

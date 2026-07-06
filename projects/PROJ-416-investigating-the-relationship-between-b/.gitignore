@@ -2,38 +2,24 @@
 __pycache__/
 *.py[cod]
 *$py.class
-*.so
-.Python
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
+.pytest_cache/
+.coverage
+htmlcov/
 *.egg-info/
-.installed.cfg
-*.egg
+dist/
+build/
 
-# Virtual environments
-venv/
-ENV/
-env/
-.venv/
+# Environment
+.env
+.env.local
 
 # IDE
 .idea/
 .vscode/
 *.swp
 *.swo
-*~
 
-# Data
+# Data (Large files)
 data/raw/*
 !data/raw/.gitkeep
 data/processed/*
@@ -42,27 +28,9 @@ data/metrics/*
 !data/metrics/.gitkeep
 
 # Logs
-logs/*
-!logs/.gitkeep
+logs/
+*.log
 
 # Reports
-reports/*
+reports/*.md
 !reports/.gitkeep
-
-# Figures
-figures/*
-!figures/.gitkeep
-
-# OS
-.DS_Store
-Thumbs.db
-
-# Testing
-.pytest_cache/
-.coverage
-htmlcov/
-.tox/
-
-# Environment
-.env
-.env.local

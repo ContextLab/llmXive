@@ -1,2 +1,2 @@
-# This file ensures the data/processed directory is tracked by git.
-# Intermediate processed data (e.g., motion-corrected NIfTI) goes here.
+# This directory stores preprocessed fMRI data (NIfTI files).
+# Do not commit large files; add to .gitignore.

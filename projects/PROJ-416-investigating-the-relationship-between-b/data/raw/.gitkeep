@@ -1,2 +1,2 @@
-# This file ensures the data/raw directory is tracked by git.
-# Actual data files should be downloaded here via the pipeline.
+# This directory stores raw downloaded data (e.g., from OpenNeuro).
+# Do not commit large files; add to .gitignore.

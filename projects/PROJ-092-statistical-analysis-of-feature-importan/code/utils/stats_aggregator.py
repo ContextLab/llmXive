@@ -1,120 +1,153 @@
-"""
-Statistical aggregation utilities for the feature importance drift analysis pipeline.
-"""
 import os
 import sys
 import json
 import logging
 import csv
 from pathlib import Path
-from typing import List, Dict, Any
+from typing import Dict, List, Any, Optional
+import numpy as np
 
-from .config import get_config
-from .logger import get_logger
+from utils.config import get_config
+from utils.logger import get_logger
 
-logger = get_logger(__name__)
-
-
-def calculate_stability_metrics(
-    r_squared_values: List[float],
-    successful_windows: int,
-    total_windows: int
-) -> Dict[str, Any]:
+def calculate_stability_metrics(importance_scores: List[Dict[str, float]]) -> Dict[str, Any]:
     """
-    Calculate stability metrics from model performance.
-
+    Calculate stability metrics across multiple window importance profiles.
+    
     Args:
-        r_squared_values: List of R² values from successful windows
-        successful_windows: Count of windows with R² >= threshold
-        total_windows: Total number of windows processed
-
+        importance_scores: List of dicts mapping feature names to importance scores per window.
+        
     Returns:
-        Dictionary with stability metrics
+        Dict with mean, std, and coefficient of variation for each feature.
     """
-    if not r_squared_values:
-        return {
-            "mean_r_squared": 0.0,
-            "std_r_squared": 0.0,
-            "min_r_squared": 0.0,
-            "max_r_squared": 0.0,
-            "successful_window_count": 0,
-            "total_window_count": total_windows,
-            "success_rate": 0.0
+    if not importance_scores:
+        return {}
+    
+    # Aggregate scores by feature
+    feature_stats = {}
+    all_features = set()
+    for profile in importance_scores:
+        all_features.update(profile.keys())
+    
+    for feature in all_features:
+        scores = [profile.get(feature, 0.0) for profile in importance_scores]
+        scores = np.array(scores)
+        
+        feature_stats[feature] = {
+            "mean": float(np.mean(scores)),
+            "std": float(np.std(scores)),
+            "variance": float(np.var(scores)),
+            "cv": float(np.std(scores) / np.mean(scores)) if np.mean(scores) != 0 else 0.0,
+            "min": float(np.min(scores)),
+            "max": float(np.max(scores)),
+            "count": len(scores)
         }
+    
+    return feature_stats
 
-    mean_r2 = sum(r_squared_values) / len(r_squared_values)
-    variance = sum((x - mean_r2) ** 2 for x in r_squared_values) / len(r_squared_values)
-    std_r2 = variance ** 0.5
-
+def aggregate_from_profiles(profiles_dir: Path, logger: Optional[logging.Logger] = None) -> Dict[str, Any]:
+    """
+    Load all importance profile JSON files from a directory and aggregate metrics.
+    
+    Args:
+        profiles_dir: Directory containing window_XXX_importance.json files.
+        logger: Optional logger for progress updates.
+        
+    Returns:
+        Aggregated stability metrics and summary statistics.
+    """
+    if logger is None:
+        logger = get_logger("stats_aggregator")
+    
+    profile_files = list(profiles_dir.glob("window_*_importance.json"))
+    
+    if not profile_files:
+        logger.warning("No importance profile files found.")
+        return {"status": "no_profiles", "feature_stats": {}}
+    
+    logger.info(f"Found {len(profile_files)} importance profile files.")
+    
+    # Load all profiles
+    all_scores = []
+    valid_windows = 0
+    
+    for profile_file in sorted(profile_files):
+        try:
+            with open(profile_file, "r") as f:
+                profile = json.load(f)
+            
+            # Extract importance scores (assuming structure: {"features": {...}})
+            if "features" in profile:
+                all_scores.append(profile["features"])
+                valid_windows += 1
+            else:
+                logger.warning(f"Skipping malformed profile: {profile_file}")
+                
+        except (json.JSONDecodeError, IOError) as e:
+            logger.warning(f"Error loading {profile_file}: {e}")
+    
+    if not all_scores:
+        logger.warning("No valid profiles to aggregate.")
+        return {"status": "no_valid_profiles", "feature_stats": {}}
+    
+    logger.info(f"Aggregating {valid_windows} valid profiles.")
+    
+    # Calculate stability metrics
+    feature_stats = calculate_stability_metrics(all_scores)
+    
+    # Calculate overall stability score (average CV across features)
+    if feature_stats:
+        avg_cv = np.mean([stats["cv"] for stats in feature_stats.values()])
+        overall_stability = 1.0 - min(avg_cv, 1.0)  # Normalize to 0-1
+    else:
+        overall_stability = 0.0
+    
     return {
-        "mean_r_squared": mean_r2,
-        "std_r_squared": std_r2,
-        "min_r_squared": min(r_squared_values),
-        "max_r_squared": max(r_squared_values),
-        "successful_window_count": successful_windows,
-        "total_window_count": total_windows,
-        "success_rate": successful_windows / total_windows if total_windows > 0 else 0.0
+        "status": "success",
+        "window_count": valid_windows,
+        "feature_count": len(feature_stats),
+        "overall_stability_score": float(overall_stability),
+        "feature_stats": feature_stats
     }
 
-
-def aggregate_from_profiles(
-    profiles_path: Path
-) -> Dict[str, Any]:
+def save_stability_report(metrics: Dict[str, Any], output_path: Path, logger: Optional[logging.Logger] = None) -> None:
     """
-    Aggregate stability metrics from importance profile CSV.
-
+    Save aggregated stability metrics to a JSON file.
+    
     Args:
-        profiles_path: Path to importance_profiles.csv
-
-    Returns:
-        Aggregated stability metrics dictionary
+        metrics: Aggregated metrics from aggregate_from_profiles.
+        output_path: Path to save the JSON report.
+        logger: Optional logger.
     """
-    config = get_config()
-    r_squared_values = []
-    successful_windows = 0
-    total_windows = 0
+    if logger is None:
+        logger = get_logger("stats_aggregator")
+    
+    try:
+        with open(output_path, "w") as f:
+            json.dump(metrics, f, indent=2)
+        logger.info(f"Stability report saved to {output_path}")
+    except IOError as e:
+        logger.error(f"Failed to save stability report: {e}")
+        raise
 
-    if not profiles_path.exists():
-        logger.warning(f"Profiles file not found: {profiles_path}")
-        return calculate_stability_metrics([], 0, 0)
+def main():
+    """CLI entry point for standalone stability report generation."""
+    try:
+        config = get_config()
+        base_path = Path(config.get("base_path", "."))
+        profiles_dir = base_path / "outputs"
+        output_path = base_path / "outputs" / "stability_report.json"
+        
+        logger = get_logger("stats_aggregator")
+        metrics = aggregate_from_profiles(profiles_dir, logger)
+        save_stability_report(metrics, output_path, logger)
+        
+        print(f"Stability report generated: {output_path}")
+        sys.exit(0)
+        
+    except Exception as e:
+        print(f"Error generating stability report: {e}")
+        sys.exit(1)
 
-    with open(profiles_path, 'r', newline='') as f:
-        reader = csv.DictReader(f)
-        for row in reader:
-            total_windows += 1
-            try:
-                r2 = float(row.get('r_squared', 0.0))
-                if r2 >= config.min_r_squared:
-                    successful_windows += 1
-                    r_squared_values.append(r2)
-            except (ValueError, TypeError):
-                logger.warning(f"Invalid R² value in row: {row}")
-
-    return calculate_stability_metrics(r_squared_values, successful_windows, total_windows)
-
-
-def save_stability_report(
-    metrics: Dict[str, Any],
-    output_path: Path
-) -> None:
-    """
-    Save stability metrics report to JSON file.
-
-    Args:
-        metrics: Stability metrics dictionary
-        output_path: Path to save the JSON report
-    """
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(output_path, 'w') as f:
-        json.dump(metrics, f, indent=2)
-    logger.info(f"Stability report saved to {output_path}")
-
-
-def main() -> None:
-    """Main entry point for stats_aggregator module (testing)."""
-    config = get_config()
-    profiles_path = config.output_dir / "importance_profiles.csv"
-    metrics = aggregate_from_profiles(profiles_path)
-    report_path = config.output_dir / "stability_report.json"
-    save_stability_report(metrics, report_path)
-    print(f"Stability Report: {json.dumps(metrics, indent=2)}")
+if __name__ == "__main__":
+    main()

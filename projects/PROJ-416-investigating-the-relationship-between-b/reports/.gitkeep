@@ -1,1 +1,2 @@
-# Placeholder to ensure directory exists in version control
+# This directory stores generated reports.
+# Do not commit reports; add to .gitignore.

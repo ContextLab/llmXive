@@ -1,0 +1,302 @@
+- artifact_path: projects/PROJ-416-investigating-the-relationship-between-b/reports/results.md
+  attempts: 1
+  canonical: 10 subjects in study
+  claim_id: c_4dc86685
+  context: Study Design section listing dataset source and subject count.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Number of Subjects: 10'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-06T16:28:16Z'
+- artifact_path: projects/PROJ-416-investigating-the-relationship-between-b/reports/results.md
+  attempts: 1
+  canonical: Dataset source OpenNeuro ds000001
+  claim_id: c_6f4e512f
+  context: Study Design section specifying the origin of the data.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Dataset_source_OpenNeuro_ds000001
+  kind: entity_fact
+  raw_text: 'Dataset Source: OpenNeuro ds000001'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-06T16:28:34Z'
+- artifact_path: projects/PROJ-416-investigating-the-relationship-between-b/reports/results.md
+  attempts: 1
+  canonical: Minimum sample size 24 subjects for 80% power
+  claim_id: c_f537b462
+  context: Power Analysis section stating the required sample size.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Minimum sample size required for adequate power (80%): 24 subjects'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-06T16:29:02Z'
+- artifact_path: projects/PROJ-416-investigating-the-relationship-between-b/reports/results.md
+  attempts: 1
+  canonical: modularity coefficient 0.2341 p-value 0.0421
+  claim_id: c_7fce35d1
+  context: Statistical Analysis Results table showing ANCOVA results for modularity.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: modularity coefficient 0.2341 with p-value 0.0421
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-06T16:29:36Z'
+- artifact_path: projects/PROJ-416-investigating-the-relationship-between-b/reports/results.md
+  attempts: 1
+  canonical: modularity FDR-corrected p-value 0.0842
+  claim_id: c_2d5ad302
+  context: Statistical Analysis Results table showing FDR-corrected p-value for modularity.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: modularity FDR-corrected p-value 0.0842
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-06T16:30:00Z'
+- artifact_path: projects/PROJ-416-investigating-the-relationship-between-b/reports/results.md
+  attempts: 1
+  canonical: modularity effect size 0.4521
+  claim_id: c_a7f9c878
+  context: Statistical Analysis Results table showing effect size for modularity.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: modularity effect size 0.4521
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-06T16:30:29Z'
+- artifact_path: projects/PROJ-416-investigating-the-relationship-between-b/reports/results.md
+  attempts: 1
+  canonical: global_efficiency coefficient 0.1876 p-value 0.0512
+  claim_id: c_19191bc5
+  context: Statistical Analysis Results table showing ANCOVA results for global_efficiency.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: global_efficiency coefficient 0.1876 with p-value 0.0512
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-06T16:30:51Z'
+- artifact_path: projects/PROJ-416-investigating-the-relationship-between-b/reports/results.md
+  attempts: 1
+  canonical: global_efficiency FDR-corrected p-value 0.1024
+  claim_id: c_00d21815
+  context: Statistical Analysis Results table showing FDR-corrected p-value for global_efficiency.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: global_efficiency FDR-corrected p-value 0.1024
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-06T16:31:08Z'
+- artifact_path: projects/PROJ-416-investigating-the-relationship-between-b/reports/results.md
+  attempts: 1
+  canonical: global_efficiency effect size 0.3892
+  claim_id: c_ee66d8b9
+  context: Statistical Analysis Results table showing effect size for global_efficiency.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: global_efficiency effect size 0.3892
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-06T16:31:35Z'
+- artifact_path: projects/PROJ-416-investigating-the-relationship-between-b/reports/results.md
+  attempts: 1
+  canonical: local_efficiency coefficient 0.2103 p-value 0.0389
+  claim_id: c_fbb37d00
+  context: Statistical Analysis Results table showing ANCOVA results for local_efficiency.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: local_efficiency coefficient 0.2103 with p-value 0.0389
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-06T16:32:05Z'
+- artifact_path: projects/PROJ-416-investigating-the-relationship-between-b/reports/results.md
+  attempts: 1
+  canonical: local_efficiency FDR-corrected p-value 0.0778
+  claim_id: c_8dc636ad
+  context: Statistical Analysis Results table showing FDR-corrected p-value for local_efficiency.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: local_efficiency FDR-corrected p-value 0.0778
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-06T16:32:24Z'
+- artifact_path: projects/PROJ-416-investigating-the-relationship-between-b/reports/results.md
+  attempts: 1
+  canonical: local_efficiency effect size 0.4215
+  claim_id: c_bfd80301
+  context: Statistical Analysis Results table showing effect size for local_efficiency.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: local_efficiency effect size 0.4215
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-06T16:32:57Z'
+- artifact_path: projects/PROJ-416-investigating-the-relationship-between-b/reports/results.md
+  attempts: 1
+  canonical: modularity mean 0.4521 std dev 0.0823
+  claim_id: c_35e72096
+  context: Network Metrics Summary table showing descriptive statistics for modularity.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: modularity mean 0.4521 with std dev 0.0823
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-06T16:33:17Z'
+- artifact_path: projects/PROJ-416-investigating-the-relationship-between-b/reports/results.md
+  attempts: 1
+  canonical: modularity min 0.3215 max 0.5892
+  claim_id: c_513bb99a
+  context: Network Metrics Summary table showing range for modularity.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: modularity min 0.3215 max 0.5892
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-06T16:33:46Z'
+- artifact_path: projects/PROJ-416-investigating-the-relationship-between-b/reports/results.md
+  attempts: 1
+  canonical: global_efficiency mean 0.3412 std dev 0.0612
+  claim_id: c_7cdaf140
+  context: Network Metrics Summary table showing descriptive statistics for global_efficiency.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: global_efficiency mean 0.3412 with std dev 0.0612
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-06T16:34:06Z'
+- artifact_path: projects/PROJ-416-investigating-the-relationship-between-b/reports/results.md
+  attempts: 1
+  canonical: global_efficiency min 0.2456 max 0.4521
+  claim_id: c_d6438fbb
+  context: Network Metrics Summary table showing range for global_efficiency.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: global_efficiency min 0.2456 max 0.4521
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-06T16:35:03Z'
+- artifact_path: projects/PROJ-416-investigating-the-relationship-between-b/reports/results.md
+  attempts: 1
+  canonical: local_efficiency mean 0.3892 std dev 0.0734
+  claim_id: c_2b04d21d
+  context: Network Metrics Summary table showing descriptive statistics for local_efficiency.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: local_efficiency mean 0.3892 with std dev 0.0734
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-06T16:35:28Z'
+- artifact_path: projects/PROJ-416-investigating-the-relationship-between-b/reports/results.md
+  attempts: 1
+  canonical: local_efficiency min 0.2891 max 0.4982
+  claim_id: c_1ac154c2
+  context: Network Metrics Summary table showing range for local_efficiency.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: local_efficiency min 0.2891 max 0.4982
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-06T16:35:45Z'
+- artifact_path: projects/PROJ-416-investigating-the-relationship-between-b/reports/results.md
+  attempts: 1
+  canonical: fd_mean mean 0.1234 std dev 0.0456
+  claim_id: c_1ca36a33
+  context: Network Metrics Summary table showing descriptive statistics for fd_mean.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: fd_mean mean 0.1234 with std dev 0.0456
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-06T16:36:05Z'
+- artifact_path: projects/PROJ-416-investigating-the-relationship-between-b/reports/results.md
+  attempts: 1
+  canonical: fd_mean min 0.0523 max 0.2145
+  claim_id: c_7e685078
+  context: Network Metrics Summary table showing range for fd_mean.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: fd_mean min 0.0523 max 0.2145
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-06T16:36:29Z'

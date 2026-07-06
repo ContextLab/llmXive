@@ -1,1 +1,12 @@
-T007 Create data schema definitions in `contracts/` (dataset, drift_metric, importance_profile): 1
+T007 Create data schema definitions in `contracts/` (dataset, drift_metric, importance_profile): 2
+'T008 [P] Setup pytest environment: create `tests/conftest.py` and verify `pytest --collect-only` returns 0 errors (FR-001)': 1
+T009 [P] [US1] Implement dataset fetcher in `code/download.py` using `requests` to fetch from UCI archive (FR-001): 1
+? 'T010 [US1] Implement preprocessing in `code/preprocess.py`: handle missing values
+  via median imputation and split data into sequential 30-day windows (FR-001, FR-002)'
+: 1
+? 'T011 [US1] Implement model training in `code/train_and_importance.py`: train `RandomForestRegressor`
+  (n_estimators=100, max_depth=10, seed=42) on first window (FR-003)'
+: 1
+? "T012 [US1] Implement R\xB2 validation logic in `code/train_and_importance.py`:\
+  \ skip window if R\xB2 < 0.8 and log \"Model Failure\" (FR-003b)"
+: 1

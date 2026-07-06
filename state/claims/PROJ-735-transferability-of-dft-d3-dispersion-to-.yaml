@@ -1,0 +1,71 @@
+- artifact_path: projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/specs/001-transferability-of-dft-d3-dispersion-to/tasks.md
+  attempts: 1
+  canonical: dataset size is 20 ion pairs
+  claim_id: c_eb9237d4
+  context: 'Generate synthetic local fallback data: data/IL-Benchmark-local.zip (20
+    ion pairs with XYZ coords and CCSD(T)/CBS references) and data/experimental_bulk_properties.csv
+    (density/viscosity for 20 pairs).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The generated dataset size is 20 ion pairs.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-06T16:21:11Z'
+- artifact_path: projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/specs/001-transferability-of-dft-d3-dispersion-to/tasks.md
+  attempts: 1
+  canonical: dataset contains 20 ion pairs with XYZ coordinates and CCSD(T)/CBS reference
+    values
+  claim_id: c_2e65d613
+  context: 'Generate synthetic local fallback data: data/IL-Benchmark-local.zip (20
+    ion pairs with XYZ coords and CCSD(T)/CBS references) and data/experimental_bulk_properties.csv
+    (density/viscosity for 20 pairs).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The dataset contains 20 ion pairs with XYZ coordinates and CCSD(T)/CBS
+    reference values.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-06T16:21:47Z'
+- artifact_path: projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/specs/001-transferability-of-dft-d3-dispersion-to/tasks.md
+  attempts: 1
+  canonical: dataset includes density and viscosity data for 20 ion pairs
+  claim_id: c_922b295a
+  context: 'Generate synthetic local fallback data: data/IL-Benchmark-local.zip (20
+    ion pairs with XYZ coords and CCSD(T)/CBS references) and data/experimental_bulk_properties.csv
+    (density/viscosity for 20 pairs).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The dataset includes density and viscosity data for 20 ion pairs.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-06T16:22:03Z'
+- artifact_path: projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/specs/001-transferability-of-dft-d3-dispersion-to/tasks.md
+  attempts: 1
+  canonical: Plan restricts dataset to 20 pairs due to CI limits of 2 CPU and 6 hours
+  claim_id: c_cfe93eb6
+  context: "Constraint Note: The Plan restricts the dataset to 20 pairs due to CI\
+    \ limits (2 CPU, 6h). This contradicts the Spec's Assumption of \u2265100 pairs\
+    \ for statistical power (FR-007, FR-010, FR-014)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Plan restricts the dataset to 20 pairs due to CI limits of 2 CPU and
+    6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-06T16:22:19Z'

@@ -915,8 +915,16 @@
     "classified_at": "2026-07-05T10:35:40Z",
     "verdict": false
   },
+  "PROJ-945-llmxive-follow-up-extending-enterprisecl::1.6.0": {
+    "classified_at": "2026-07-06T16:45:02Z",
+    "verdict": false
+  },
   "PROJ-953-llmxive-follow-up-extending-code-as-agen::1.6.0": {
     "classified_at": "2026-07-04T21:28:03Z",
+    "verdict": false
+  },
+  "PROJ-957-llmxive-follow-up-extending-researchclaw::1.6.0": {
+    "classified_at": "2026-07-06T16:46:37Z",
     "verdict": false
   },
   "PROJ-964-llmxive-follow-up-extending-wan-streamer::1.6.0": {

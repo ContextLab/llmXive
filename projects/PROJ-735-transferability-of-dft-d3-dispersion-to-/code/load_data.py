@@ -1,101 +1,77 @@
-"""
-Data loading and validation module.
-
-Implements T004, T005: Load and validate synthetic dataset.
-"""
-
 import hashlib
 import os
 import zipfile
 import pandas as pd
 from pathlib import Path
 from typing import Dict, Tuple, Optional, List
+import json
 
-from code.models import IonPair
-from code.logger import get_logger
+from logger import get_logger
 
 logger = get_logger(__name__)
 
-def calculate_sha256(file_path: Path) -> str:
+def calculate_sha256(filepath: Path) -> str:
     """Calculate SHA256 checksum of a file."""
     sha256_hash = hashlib.sha256()
-    with open(file_path, "rb") as f:
+    with open(filepath, "rb") as f:
         for byte_block in iter(lambda: f.read(4096), b""):
             sha256_hash.update(byte_block)
     return sha256_hash.hexdigest()
 
-def validate_checksums(data_dir: Path) -> bool:
-    """
-    Validate checksums of raw data files.
-    
-    Note: This implementation assumes a checksum file exists or uses a known hash.
-    For this task, we skip strict validation if no checksum file is present,
-    but log a warning.
-    """
-    zip_path = data_dir / "IL-Benchmark-local.zip"
-    csv_path = data_dir / "experimental_bulk_properties.csv"
-    
-    if not zip_path.exists():
-        logger.error(f"Dataset zip not found: {zip_path}")
-        return False
-    
-    if not csv_path.exists():
-        logger.error(f"Bulk properties CSV not found: {csv_path}")
-        return False
-    
-    # In a real scenario, we would compare against a known checksum file
-    logger.info("Data files found. Skipping checksum verification (no checksum file provided).")
-    return True
-
-def load_synthetic_dataset(data_dir: Path) -> Tuple[List[IonPair], pd.DataFrame]:
-    """
-    Load the synthetic dataset generated in T000.
-    
-    Returns:
-        Tuple of (list of IonPair objects, DataFrame of bulk properties).
-    """
-    zip_path = data_dir / "IL-Benchmark-local.zip"
-    csv_path = data_dir / "experimental_bulk_properties.csv"
-    
-    if not validate_checksums(data_dir):
-        raise FileNotFoundError("Dataset validation failed.")
-    
-    # Load bulk properties
-    bulk_df = pd.read_csv(csv_path)
-    
-    # Load ion pairs from zip
-    ion_pairs = []
-    with zipfile.ZipFile(zip_path, 'r') as zf:
-        # Assume the zip contains a CSV of ion pair data and XYZ files
-        # We assume a file named 'ion_pairs.csv' exists in the zip
-        if 'ion_pairs.csv' in zf.namelist():
-            with zf.open('ion_pairs.csv') as f:
-                df = pd.read_csv(f)
-            
-            for _, row in df.iterrows():
-                pair = IonPair(
-                    id=str(row['id']),
-                    cation=row['cation'],
-                    anion=row['anion'],
-                    coordinates=row['xyz'],
-                    reference_energy=float(row['reference_energy']),
-                    cation_coords=row.get('cation_xyz', None),
-                    anion_coords=row.get('anion_xyz', None)
-                )
-                ion_pairs.append(pair)
+def validate_checksums(checksums: Dict[str, str]) -> bool:
+    """Validate files against provided checksums."""
+    all_valid = True
+    for filepath, expected_hash in checksums.items():
+        p = Path(filepath)
+        if not p.exists():
+            logger.error(f"File missing: {filepath}")
+            all_valid = False
+            continue
+        
+        actual_hash = calculate_sha256(p)
+        if actual_hash != expected_hash:
+            logger.error(f"Checksum mismatch for {filepath}: expected {expected_hash}, got {actual_hash}")
+            all_valid = False
         else:
-            # Fallback: try to parse from a different structure if 'ion_pairs.csv' is missing
-            # For T000, we generated 'ion_pairs.csv' inside the zip.
-            logger.error("ion_pairs.csv not found in the zip file.")
-            raise ValueError("Invalid dataset format.")
+            logger.info(f"Checksum valid: {filepath}")
+    return all_valid
+
+def load_synthetic_dataset(zip_path: Path) -> Tuple[List[dict], pd.DataFrame]:
+    """
+    Load the synthetic dataset from the zip file.
+    Returns:
+      - List of dicts with pair_id and reference_energy
+      - DataFrame with bulk properties
+    """
+    if not zip_path.exists():
+        raise FileNotFoundError(f"Dataset zip not found: {zip_path}")
     
-    return ion_pairs, bulk_df
+    pairs_data = []
+    
+    with zipfile.ZipFile(zip_path, 'r') as zip_ref:
+        for file_name in zip_ref.namelist():
+            if file_name.endswith("_meta.json"):
+                content = zip_ref.read(file_name).decode('utf-8')
+                data = json.loads(content)
+                pairs_data.append(data)
+    
+    # Load bulk properties CSV (assumed to be in the same directory)
+    csv_path = zip_path.parent / "experimental_bulk_properties.csv"
+    if not csv_path.exists():
+        raise FileNotFoundError(f"Bulk properties CSV not found: {csv_path}")
+    
+    df_bulk = pd.read_csv(csv_path)
+    
+    return pairs_data, df_bulk
 
 def main():
-    """Main entry point for data loading script."""
-    data_dir = Path("data")
+    # Example usage
+    zip_path = Path("data/IL-Benchmark-local.zip")
     try:
-        pairs, bulk = load_synthetic_dataset(data_dir)
-        logger.info(f"Loaded {len(pairs)} ion pairs and bulk properties for {len(bulk)} entries.")
+        pairs, bulk = load_synthetic_dataset(zip_path)
+        print(f"Loaded {len(pairs)} pairs and bulk properties shape {bulk.shape}")
     except Exception as e:
-        logger.error(f"Failed to load dataset: {e}")
+        print(f"Error loading data: {e}")
+
+if __name__ == "__main__":
+    main()

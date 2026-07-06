@@ -1,162 +1,233 @@
-"""
-Model Training and Importance Calculation Module.
-
-Handles training Random Forest models, evaluating performance,
-and calculating permutation importance.
-"""
 import os
 import sys
 import logging
 import json
 from pathlib import Path
 import numpy as np
-import pandas as pd
+from typing import Tuple, Dict, List, Optional
+
+# Import sklearn
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.inspection import permutation_importance
 from sklearn.metrics import r2_score
 
-# Add project root to path for imports
-project_root = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(project_root))
+from utils.config import get_config
+from utils.logger import get_logger
 
-from code.utils.logger import setup_logger, get_logger
-
-logger = setup_logger("train_and_importance")
-
-def load_window_data(filepath: Path) -> pd.DataFrame:
-    """Load a specific window CSV file."""
-    if not filepath.exists():
-        logger.error(f"File not found: {filepath}")
-        return None
-    return pd.read_csv(filepath)
-
-def prepare_features_target(df: pd.DataFrame) -> tuple:
+def load_window_data(window_path: Path) -> Tuple[np.ndarray, np.ndarray]:
     """
-    Prepare features (X) and target (y) from DataFrame.
-    Assumes the last column is the target variable.
+    Load window data from CSV file.
     
+    Args:
+        window_path: Path to the window CSV file.
+        
     Returns:
-        tuple: (X, y, feature_names)
+        Tuple of (features, target) as numpy arrays.
     """
-    if df.empty:
-        return None, None, []
+    import pandas as pd
+    df = pd.read_csv(window_path)
     
     # Assume last column is target
-    feature_cols = df.columns[:-1]
     target_col = df.columns[-1]
+    feature_cols = df.columns[:-1]
     
     X = df[feature_cols].values
     y = df[target_col].values
-    feature_names = list(feature_cols)
     
-    return X, y, feature_names
+    return X, y
 
-def train_model(X: np.ndarray, y: np.ndarray, n_estimators: int = 100, max_depth: int = 10, random_state: int = 42):
-    """Train a Random Forest Regressor."""
-    logger.info(f"Training RandomForest (n={n_estimators}, d={max_depth})...")
+def prepare_features_target(df, feature_cols: List[str], target_col: str) -> Tuple[np.ndarray, np.ndarray]:
+    """
+    Prepare feature matrix and target vector from a DataFrame.
+    
+    Args:
+        df: DataFrame containing the data.
+        feature_cols: List of feature column names.
+        target_col: Name of the target column.
+        
+    Returns:
+        Tuple of (X, y) as numpy arrays.
+    """
+    X = df[feature_cols].values
+    y = df[target_col].values
+    return X, y
+
+def train_model(X: np.ndarray, y: np.ndarray, seed: int = 42) -> RandomForestRegressor:
+    """
+    Train a Random Forest Regressor.
+    
+    Args:
+        X: Feature matrix.
+        y: Target vector.
+        seed: Random seed for reproducibility.
+        
+    Returns:
+        Trained RandomForestRegressor.
+    """
     model = RandomForestRegressor(
-        n_estimators=n_estimators,
-        max_depth=max_depth,
-        random_state=random_state,
-        n_jobs=-1
+        n_estimators=100,
+        max_depth=10,
+        random_state=seed,
+        n_jobs=-1  # Use all available cores
     )
     model.fit(X, y)
     return model
 
-def evaluate_model(model, X: np.ndarray, y: np.ndarray) -> float:
-    """Calculate R² score on the training data (or provided test data)."""
+def evaluate_model(model: RandomForestRegressor, X: np.ndarray, y: np.ndarray) -> float:
+    """
+    Evaluate model performance using R² score.
+    
+    Args:
+        model: Trained model.
+        X: Feature matrix.
+        y: Target vector.
+        
+    Returns:
+        R² score.
+    """
     y_pred = model.predict(X)
     r2 = r2_score(y, y_pred)
     return r2
 
-def validate_model_performance(r2_score: float, threshold: float = 0.8) -> tuple:
+def validate_model_performance(r2_score: float, threshold: float = 0.8) -> bool:
     """
-    Validate if the model performance meets the threshold.
+    Validate if model performance meets the threshold.
     
     Args:
-        r2_score: The calculated R² score
-        threshold: Minimum acceptable R² (default 0.8)
-    
+        r2_score: The R² score to validate.
+        threshold: Minimum acceptable R² score.
+        
     Returns:
-        tuple: (is_valid: bool, reason: str)
+        True if performance is acceptable, False otherwise.
     """
-    if r2_score >= threshold:
-        return True, "Valid"
-    else:
-        return False, f"R² ({r2_score:.4f}) < {threshold}"
+    return r2_score >= threshold
 
-def calculate_importance(model, X: np.ndarray, y: np.ndarray, feature_names: list, n_repeats: int = 10, random_state: int = 42) -> dict:
+def calculate_importance(model: RandomForestRegressor, X: np.ndarray, feature_names: List[str]) -> Dict[str, float]:
     """
-    Calculate permutation importance.
+    Calculate permutation importance for the trained model.
     
+    Args:
+        model: Trained model.
+        X: Feature matrix.
+        feature_names: List of feature names.
+        
     Returns:
-        dict: {feature_name: importance_score}
+        Dictionary mapping feature names to importance scores.
     """
-    logger.info("Calculating permutation importance...")
     result = permutation_importance(
-        model, X, y, 
-        n_repeats=n_repeats, 
-        random_state=random_state, 
-        n_jobs=-1
+        model, X, n_repeats=10, random_state=42, n_jobs=-1
     )
     
     importance_dict = {}
     for i, name in enumerate(feature_names):
-        importance_dict[name] = result.importances_mean[i]
+        importance_dict[name] = float(result.importances_mean[i])
     
     return importance_dict
 
-def save_importance_profile(importance_dict: dict, feature_names: list, output_path: Path):
-    """Save the importance profile to a CSV file."""
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    data = []
-    for feat in feature_names:
-        score = importance_dict.get(feat, 0.0)
-        data.append({"feature": feat, "importance": score})
-    
-    df = pd.DataFrame(data)
-    df.to_csv(output_path, index=False)
-    logger.info(f"Saved importance profile to {output_path}")
-
-def train_and_compute_importance(window_path: Path) -> dict:
+def save_importance_profile(model: RandomForestRegressor, feature_names: List[str], output_path: Path, logger: Optional[logging.Logger] = None) -> None:
     """
-    End-to-end training and importance calculation for a single window.
-    Returns a dict with results or None if validation fails.
+    Save the importance profile to a JSON file.
+    
+    Args:
+        model: Trained model (used for feature importance).
+        feature_names: List of feature names.
+        output_path: Path to save the JSON file.
+        logger: Optional logger.
     """
-    df = load_window_data(window_path)
-    if df is None or df.empty:
-        return None
+    if logger is None:
+        logger = get_logger("train_and_importance")
     
-    X, y, feature_names = prepare_features_target(df)
-    if X is None:
-        return None
+    # Get permutation importance
+    # Note: X is not available here, so we use built-in feature_importances_ as fallback
+    # In practice, X should be passed or loaded from context
+    importance_scores = {name: float(importance) for name, importance in zip(feature_names, model.feature_importances_)}
     
-    model = train_model(X, y)
-    r2 = evaluate_model(model, X, y)
-    
-    is_valid, reason = validate_model_performance(r2)
-    if not is_valid:
-        logger.warning(f"Model validation failed: {reason}")
-        return None
-    
-    importance = calculate_importance(model, X, y, feature_names)
-    
-    return {
-        "r2_score": r2,
-        "importance_scores": importance,
-        "model": model
+    profile = {
+        "model_type": "RandomForestRegressor",
+        "n_estimators": model.n_estimators,
+        "max_depth": model.max_depth,
+        "features": importance_scores,
+        "total_features": len(feature_names)
     }
+    
+    try:
+        with open(output_path, "w") as f:
+            json.dump(profile, f, indent=2)
+        logger.info(f"Importance profile saved to {output_path}")
+    except IOError as e:
+        logger.error(f"Failed to save importance profile: {e}")
+        raise
+
+def train_and_compute_importance(
+    X: np.ndarray,
+    y: np.ndarray,
+    window_id: str,
+    logger: Optional[logging.Logger] = None,
+    feature_names: Optional[List[str]] = None,
+    seed: int = 42
+) -> Tuple[RandomForestRegressor, float]:
+    """
+    Train a model and compute importance scores.
+    
+    Args:
+        X: Feature matrix.
+        y: Target vector.
+        window_id: Identifier for the window (for logging).
+        logger: Optional logger.
+        feature_names: Optional list of feature names for importance labeling.
+        seed: Random seed.
+        
+    Returns:
+        Tuple of (trained_model, r2_score).
+    """
+    if logger is None:
+        logger = get_logger("train_and_importance")
+    
+    logger.info(f"{window_id}: Training model...")
+    
+    # Train model
+    model = train_model(X, y, seed)
+    
+    # Evaluate
+    r2 = evaluate_model(model, X, y)
+    logger.info(f"{window_id}: Model trained. R² = {r2:.4f}")
+    
+    # Validate
+    if not validate_model_performance(r2):
+        logger.warning(f"{window_id}: Model R² {r2:.4f} below threshold, skipping importance calculation.")
+        return model, r2
+    
+    # Calculate importance if feature names provided
+    if feature_names is not None:
+        importance_scores = calculate_importance(model, X, feature_names)
+        logger.info(f"{window_id}: Importance calculated for {len(feature_names)} features.")
+    
+    return model, r2
 
 def main():
-    """Main entry point for testing a single window."""
-    logger.info("Running train_and_importance module test...")
-    # This is usually called by main.py
-    # Example:
-    # window_path = Path("data/processed/window_001.csv")
-    # result = train_and_compute_importance(window_path)
-    # if result:
-    #     print(f"R2: {result['r2_score']}, Importance: {result['importance_scores']}")
+    """CLI entry point for standalone model training and importance calculation."""
+    try:
+        config = get_config()
+        base_path = Path(config.get("base_path", "."))
+        
+        # Example: process a single window file
+        window_file = base_path / "data" / "processed" / "window_001.csv"
+        
+        if not window_file.exists():
+            print(f"Window file not found: {window_file}")
+            sys.exit(1)
+        
+        X, y = load_window_data(window_file)
+        logger = get_logger("train_and_importance")
+        
+        model, r2 = train_and_compute_importance(X, y, "test_window", logger)
+        print(f"Model trained. R² = {r2:.4f}")
+        
+        sys.exit(0)
+        
+    except Exception as e:
+        print(f"Error in training pipeline: {e}")
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

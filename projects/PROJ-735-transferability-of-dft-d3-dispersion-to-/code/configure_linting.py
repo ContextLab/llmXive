@@ -1,40 +1,41 @@
 """
-Configuration script for linting and formatting tools.
-This script ensures that .flake8 and pyproject.toml (for black/isort)
-are correctly set up in the project root.
+Linting and formatting configuration for the llmXive project.
+
+This module ensures that configuration files for flake8 and black are present
+in the project root. It also provides a main entry point to run these tools.
 """
 import os
 from pathlib import Path
+import subprocess
+import sys
 
 def ensure_config_files():
-    """Create or update linting configuration files if missing."""
-    project_root = Path(__file__).resolve().parent.parent
+    """Create .flake8 and pyproject.toml configuration files if they don't exist."""
+    root = Path(__file__).parent.parent
 
-    # 1. Ensure .flake8 exists
-    flake8_path = project_root / ".flake8"
-    if not flake8_path.exists():
+    # flake8 configuration
+    flake8_config = root / ".flake8"
+    if not flake8_config.exists():
         content = """[flake8]
 max-line-length = 88
 extend-ignore = E203, W503
 exclude =
     .git,
     __pycache__,
-    .eggs,
     build,
     dist,
+    .eggs,
     *.egg-info
 per-file-ignores =
-    code/__init__.py:F401
-    tests/__init__.py:F401
+    # Allow unused imports in __init__.py
+    */__init__.py:F401
 """
-        flake8_path.write_text(content)
-        print(f"Created {flake8_path}")
-    else:
-        print(f"Found existing {flake8_path}")
+        flake8_config.write_text(content)
+        print(f"Created {flake8_config}")
 
-    # 2. Ensure pyproject.toml exists with [tool.black] and [tool.isort]
-    pyproject_path = project_root / "pyproject.toml"
-    black_config = """[tool.black]
+    # Black configuration (in pyproject.toml)
+    pyproject = root / "pyproject.toml"
+    black_section = """[tool.black]
 line-length = 88
 target-version = ['py311']
 include = '\\.pyi?$'
@@ -49,39 +50,110 @@ exclude = '''
   | buck-out
   | build
   | dist
-  | \\.egg
+  | \\.egg-info
 )/
 '''
-
-[tool.isort]
-profile = "black"
-line_length = 88
-known_first_party = ["generate_synthetic_data", "setup_directories"]
-skip = [".git", ".venv", "build", "dist"]
 """
 
-    if pyproject_path.exists():
-        current_content = pyproject_path.read_text()
-        if "[tool.black]" not in current_content:
-            # Append black config
-            with open(pyproject_path, "a") as f:
-                f.write("\n" + black_config)
-            print(f"Appended [tool.black] and [tool.isort] to {pyproject_path}")
+    if pyproject.exists():
+        existing = pyproject.read_text()
+        if "[tool.black]" not in existing:
+            pyproject.write_text(existing + "\n" + black_section)
+            print(f"Added Black configuration to {pyproject}")
         else:
-            print(f"Found existing [tool.black] in {pyproject_path}")
+            print(f"Black configuration already present in {pyproject}")
     else:
-        pyproject_path.write_text(black_config)
-        print(f"Created {pyproject_path} with linting config")
+        pyproject.write_text(black_section)
+        print(f"Created {pyproject} with Black configuration")
+
+    # isort configuration (in pyproject.toml)
+    isort_section = """[tool.isort]
+profile = "black"
+line_length = 88
+skip = [".git", "__pycache__", "build", "dist", ".eggs", "*.egg-info"]
+known_first_party = ["code", "tests"]
+"""
+
+    if pyproject.exists():
+        existing = pyproject.read_text()
+        if "[tool.isort]" not in existing:
+            pyproject.write_text(existing + "\n" + isort_section)
+            print(f"Added isort configuration to {pyproject}")
+        else:
+            print(f"isort configuration already present in {pyproject}")
+    else:
+        # Should not happen as we create it above, but just in case
+        pyproject.write_text(isort_section)
+        print(f"Created {pyproject} with isort configuration")
+
+def run_flake8():
+    """Run flake8 on the code and tests directories."""
+    root = Path(__file__).parent.parent
+    try:
+        result = subprocess.run(
+            [sys.executable, "-m", "flake8", "code", "tests"],
+            cwd=root,
+            capture_output=False,
+            check=True
+        )
+        return result.returncode == 0
+    except subprocess.CalledProcessError as e:
+        return False
+
+def run_black(check_only=True):
+    """Run black on the code and tests directories."""
+    root = Path(__file__).parent.parent
+    args = [sys.executable, "-m", "black", "--check"] if check_only else [sys.executable, "-m", "black"]
+    args.extend(["code", "tests"])
+    try:
+        result = subprocess.run(
+            args,
+            cwd=root,
+            capture_output=False,
+            check=True
+        )
+        return result.returncode == 0
+    except subprocess.CalledProcessError as e:
+        return False
+
+def run_isort(check_only=True):
+    """Run isort on the code and tests directories."""
+    root = Path(__file__).parent.parent
+    args = [sys.executable, "-m", "isort", "--check-only"] if check_only else [sys.executable, "-m", "isort"]
+    args.extend(["code", "tests"])
+    try:
+        result = subprocess.run(
+            args,
+            cwd=root,
+            capture_output=False,
+            check=True
+        )
+        return result.returncode == 0
+    except subprocess.CalledProcessError as e:
+        return False
 
 def main():
-    """Entry point for the configuration script."""
-    print("Configuring linting (flake8) and formatting (black/isort) tools...")
+    """Main entry point for configuring and running linting/formatting."""
+    print("Setting up linting and formatting configuration...")
     ensure_config_files()
-    print("Configuration complete.")
-    print("\nYou can now run:")
-    print("  flake8 code/ tests/")
-    print("  black --check code/ tests/")
-    print("  isort --check-only code/ tests/")
+
+    print("\nRunning isort (sorting imports)...")
+    if not run_isort(check_only=False):
+        print("isort completed with changes or errors.")
+    else:
+        print("isort passed.")
+
+    print("\nRunning black (formatting)...")
+    if not run_black(check_only=False):
+        print("black completed with changes or errors.")
+    else:
+        print("black passed.")
+
+    print("\nRunning flake8 (linting)...")
+    if run_flake8():
+        print("flake8 passed.")
+    else:
+        print("flake8 found issues.")
 
 if __name__ == "__main__":
     main()

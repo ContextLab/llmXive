@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2203.08975",
+  "judged_at": "2026-07-06T16:45:31Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"enterpriseclawbench: benchmarking agents from real workplace sessions\" linguistics",
+  "rationale": "The paper is a general survey on communication mechanisms in Multi-Agent Deep Reinforcement Learning (MADRL) and does not address the specific domain of \"EnterpriseClawBench\" (real workplace sessions), the specific benchmarking of agents in that context, or the \"linguistics\" aspect of the user's query. It fails to meet criteria (a) or (b) as it lacks the specific empirical population (workplace agents) and the specific variable focus (linguistic analysis of workplace sessions) required for inclu",
+  "relevant": false
+}

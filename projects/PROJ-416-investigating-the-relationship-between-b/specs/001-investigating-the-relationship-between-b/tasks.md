@@ -79,14 +79,14 @@
 
 > **NOTE**: Write these tests FIRST. Ensure they FAIL before implementing the code they test.
 
-- [~] T010 [P] [US1] Unit test for `code/data/validate.py` to ensure it halts on missing `pre_treatment_score` or `post_treatment_score` in metadata
-- [~] T011 [P] [US1] Unit test for `code/data/preprocess.py` to verify motion threshold logic (>3mm/3°) flags subjects correctly <!-- ATOMIZE: requested -->
+- [ ] T010 [P] [US1] Unit test for `code/data/validate.py` to ensure it halts on missing `pre_treatment_score` or `post_treatment_score` in metadata
+- [ ] T011 [P] [US1] Unit test for `code/data/preprocess.py` to verify motion threshold logic (>3mm/3°) flags subjects correctly <!-- ATOMIZE: requested -->
 
 ### Code Implementation for User Story 1
 
-- [~] T012 [US1] Implement `code/data/download.py` to fetch data from OpenNeuro (or halt if no verified source ID is provided)
-- [~] T012a [US1] Implement `code/data/download.py` to explicitly check for a verified OpenNeuro ID; if missing, halt execution with a fatal error and log "Missing verified dataset source" to align with Plan Summary "STATUS: BLOCKED" and FR-011
-- [~] T013 [US1] Implement `code/data/validate.py` to check for paired pre/post fMRI and clinical scores; verify the instrument is a validated anxiety scale (e.g., GAD-7, HAM-A) with citable documentation or halt with fatal error (FR-011, FR-009)
+- [ ] T012 [US1] Implement `code/data/download.py` to fetch data from OpenNeuro (or halt if no verified source ID is provided)
+- [X] T012a [US1] Implement `code/data/download.py` to explicitly check for a verified OpenNeuro ID; if missing, halt execution with a fatal error and log "Missing verified dataset source" to align with Plan Summary "STATUS: BLOCKED" and FR-011
+- [ ] T013 [US1] Implement `code/data/validate.py` to check for paired pre/post fMRI and clinical scores; verify the instrument is a validated anxiety scale (e.g., GAD-7, HAM-A) with citable documentation or halt with fatal error (FR-011, FR-009)
 - [~] T014 [US1] Implement `code/data/preprocess.py` for motion correction, slice timing, and normalization using `nilearn` (CPU-optimized, subset N=10 for CI feasibility)
 - [~] T015 [US1] Implement quality control in `code/data/preprocess.py` to calculate Mean Framewise Displacement (FD) and exclude subjects >3mm/3° translation/rotation; ensure FD is saved as a mandatory covariate column in `data/metrics/network_metrics.csv` ONLY for subjects who PASSED the motion threshold (i.e., were not excluded) (FR-015b merged)
 - [~] T016 [US1] Add logging for excluded subjects and specific exclusion reasons in `logs/preprocessing.log`
@@ -140,7 +140,7 @@
 - [~] T031 [US3] Implement power analysis in `code/analysis/stats.py` (G*Power logic) to: HALT if N < 5; FLAG limitation if 5 <= N < 10; calculate and save the 'minimum N required' value to the report (SC-004)
 - [~] T032 [US3] Implement sensitivity analysis in `code/analysis/stats.py` sweeping motion thresholds {2mm, 3mm} and p-values {uncorrected, 0.05, 0.1}, ensuring 'uncorrected' is treated as a distinct sweep point (FR-010)
 - [~] T033 [US3] Implement `code/analysis/plots.py` to generate scatter plots with regression lines and residual diagnostics
-- [ ] T034 [US3] Generate final report in `reports/results.md` with associational framing (FR-008); include logic to check `metadata.study_design` for string 'randomized' OR `metadata.randomized` for boolean true; frame findings as ASSOCIATIONAL if neither condition is met (SC-005); include all metrics, coefficients, and the minimum N value
+- [~] T034 [US3] Generate final report in `reports/results.md` with associational framing (FR-008); include logic to check `metadata.study_design` for string 'randomized' OR `metadata.randomized` for boolean true; frame findings as ASSOCIATIONAL if neither condition is met (SC-005); include all metrics, coefficients, and the minimum N value
 - [ ] T035 [US3] Save all statistical outputs (coefficients, p-values, VIF, power calc, min_N) to `data/metrics/statistical_results.csv`
 
 **Checkpoint**: All user stories should now be independently functional

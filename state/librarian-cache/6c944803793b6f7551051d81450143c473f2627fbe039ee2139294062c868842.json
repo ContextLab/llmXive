@@ -1,0 +1,523 @@
+{
+  "fetched_at": "2026-07-06T16:45:50Z",
+  "field": "linguistics",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "linguistics",
+      "idea_body_excerpt": "llmXive follow-up: extending \"EnterpriseClawBench: Benchmarking Agents from Real Workplace Sessions\"",
+      "target_n": 5
+    },
+    "duration_seconds": 78.879,
+    "ended_at": "2026-07-06T16:45:50Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "benchmarking AI agents in workplace communication"
+        ],
+        [
+          2,
+          "evaluation of large language models in enterprise settings"
+        ],
+        [
+          3,
+          "linguistic analysis of workplace agent interactions"
+        ],
+        [
+          4,
+          "natural language processing for business process automation"
+        ],
+        [
+          5,
+          "conversational AI performance in professional environments"
+        ],
+        [
+          6,
+          "discourse analysis of human-agent collaboration in offices"
+        ],
+        [
+          7,
+          "pragmatics of enterprise-level language model deployment"
+        ],
+        [
+          8,
+          "corpus linguistics of workplace dialogue systems"
+        ],
+        [
+          9,
+          "syntactic and semantic patterns in agent-mediated business communication"
+        ],
+        [
+          10,
+          "human-computer interaction linguistics in corporate workflows"
+        ],
+        [
+          11,
+          "evaluation metrics for workplace-oriented conversational agents"
+        ],
+        [
+          12,
+          "real-world application of LLMs in organizational communication"
+        ],
+        [
+          13,
+          "sociolinguistic factors in enterprise AI agent adoption"
+        ],
+        [
+          14,
+          "task-oriented dialogue systems for professional contexts"
+        ],
+        [
+          15,
+          "linguistic variability in automated workplace support tools"
+        ],
+        [
+          16,
+          "benchmarking natural language understanding in business domains"
+        ],
+        [
+          17,
+          "agent behavior analysis in simulated workplace scenarios"
+        ],
+        [
+          18,
+          "language model alignment with professional communication norms"
+        ],
+        [
+          19,
+          "pragmatics of instruction following in enterprise AI"
+        ],
+        [
+          20,
+          "cross-domain transfer of LLM capabilities to workplace tasks"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "benchmarking AI agents in workplace communication": 1,
+        "evaluation of large language models in enterprise settings": 4,
+        "llmXive follow-up: extending \"EnterpriseClawBench: Benchmarking Agents from Real Workplace Sessions\" linguistics": 0
+      },
+      "total_queries_issued": 2
+    },
+    "extracted_queries": [
+      "workplace dialogue corpora agent interaction linguistics",
+      "EnterpriseClawBench real workplace sessions task-oriented dialogue",
+      "pragmatic competence workplace communication task success",
+      "agent benchmarking linguistic evaluation task completion rate",
+      "situated language grounding workplace workflow task execution"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2606.23654"
+      ]
+    },
+    "per_query_hit_count": {
+      "EnterpriseClawBench real workplace sessions task-oriented dialogue": 3,
+      "agent benchmarking linguistic evaluation task completion rate": 3,
+      "llmXive follow-up: extending \"EnterpriseClawBench: Benchmarking Agents from Real Workplace Sessions\" linguistics": 3,
+      "pragmatic competence workplace communication task success": 2,
+      "situated language grounding workplace workflow task execution": 3,
+      "workplace dialogue corpora agent interaction linguistics": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 5,
+      "rejections": [
+        {
+          "primary_pointer": "2203.08975",
+          "rationale": "The paper is a general survey on communication mechanisms in Multi-Agent Deep Reinforcement Learning (MADRL) and does not address the specific domain of \"EnterpriseClawBench\" (real workplace sessions), the specific benchmarking of agents in that context, or the \"linguistics\" aspect of the user's query. It fails to meet criteria (a) or (b) as it lacks the specific empirical population (workplace agents) and the specific variable focus (linguistic analysis of workplace sessions) required for inclu",
+          "title": "A Survey of Multi-Agent Deep Reinforcement Learning with Communication"
+        },
+        {
+          "primary_pointer": "2306.09265",
+          "rationale": "The paper focuses on Large Vision-Language Models (LVLMs) and multimodal evaluation benchmarks, which is a distinct domain from the user's question regarding \"linguistics\" and \"real workplace sessions\" for text-based agents. While both involve LLM benchmarks, the candidate paper does not measure the same biological/algorithmic mechanism, variables, or empirical population (workplace linguistics) as the user's specific query, failing to meet criteria (a) through (f).",
+          "title": "LVLM-eHub: A Comprehensive Evaluation Benchmark for Large Vision-Language Models"
+        },
+        {
+          "primary_pointer": "2501.05032",
+          "rationale": "The paper discusses general techniques for making LLMs more human-like (fine-tuning, psychological principles) but does not address the specific domain of \"workplace sessions,\" \"agent benchmarking,\" or the \"linguistics\" of real-world enterprise interactions required by the user's question. It fails to meet criteria (a) or (b) as it lacks the specific empirical population (workplace agents) and the specific mechanism (benchmarking linguistics in that context), representing a broad off-domain gene",
+          "title": "Enhancing Human-Like Responses in Large Language Models"
+        },
+        {
+          "primary_pointer": "2307.12114",
+          "rationale": "The paper evaluates LLM performance on clinical and biomedical NLP tasks (NER, QA, RE), which is a distinct domain from the user's focus on \"linguistics\" and \"real workplace sessions\" (EnterpriseClawBench). While both involve LLMs, the paper does not measure the same mechanism, variables, or empirical population required for a literature review on workplace agent linguistics, and thus fails to meet criteria (a) through (f).",
+          "title": "A Zero-shot and Few-shot Study of Instruction-Finetuned Large Language Models Applied to Clinical and Biomedical Tasks"
+        },
+        {
+          "primary_pointer": "2306.13394",
+          "rationale": "The paper is rejected because it focuses on a general multimodal benchmark (MME) for perception and cognition tasks, which is off-domain from the user's specific question regarding a linguistics-focused follow-up to a workplace agent benchmark (EnterpriseClawBench). It does not measure the same mechanism, variables, or empirical population (workplace sessions/linguistics) as the user's query, nor does it serve as a foundational reference for that specific niche.",
+          "title": "MME: A Comprehensive Evaluation Benchmark for Multimodal Large Language Models"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-07-06T16:44:31Z",
+    "term_input": {
+      "normalized": "llmxive follow-up: extending \"enterpriseclawbench: benchmarking agents from real workplace sessions\" linguistics",
+      "raw": "llmXive follow-up: extending \"EnterpriseClawBench: Benchmarking Agents from Real Workplace Sessions\" linguistics"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We provide an introductory review of Bayesian data analytical methods, with a focus on applications for linguistics, psychology, psycholinguistics, and cognitive science. The empirically oriented researcher will benefit from making Bayesian methods part of their statistical toolkit due to the many advantages of this framework, among them easier interpretation of results relative to research hypotheses, and flexible model specification. We present an informal introduction to the foundational ideas behind Bayesian data analysis, using, as an example, a linear mixed models analysis of data from a typical psycholinguistics experiment. We discuss hypothesis testing using the Bayes factor, and model selection using cross-validation. We close with some examples illustrating the flexibility of model specification in the Bayesian framework. Suggestions for further reading are also provided.",
+          "claimed_authors": [
+            "Bruno Nicenboim",
+            "Shravan Vasishth"
+          ],
+          "claimed_title": "Statistical methods for linguistic research: Foundational Ideas - Part II",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1602.00245"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='llmXive follow-up: extending \"EnterpriseClawBench: Benchmarking Agents from Real', candidate_title='Statistical methods for linguistic research: Foundational Ideas - Part II')",
+        "failed_at": "2026-07-06T16:45:02Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We present the fundamental ideas underlying statistical hypothesis testing using the frequentist framework. We begin with a simple example that builds up the one-sample t-test from the beginning, explaining important concepts such as the sampling distribution of the sample mean, and the iid assumption. Then we examine the p-value in detail, and discuss several important misconceptions about what a p-value does and does not tell us. This leads to a discussion of Type I, II error and power, and Type S and M error. An important conclusion from this discussion is that one should aim to carry out appropriately powered studies. Next, we discuss two common issues we have encountered in psycholinguistics and linguistics: running experiments until significance is reached, and the \"garden-of-forking-paths\" problem discussed by Gelman and others, whereby the researcher attempts to find statistical significance by analyzing the data in different ways. The best way to use frequentist methods is to run appropriately powered studies, check model assumptions, clearly separate exploratory data analysis from confirmatory hypothesis testing, and always attempt to replicate results.",
+          "claimed_authors": [
+            "Shravan Vasishth",
+            "Bruno Nicenboim"
+          ],
+          "claimed_title": "Statistical methods for linguistic research: Foundational Ideas - Part I",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1601.01126"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='llmXive follow-up: extending \"EnterpriseClawBench: Benchmarking Agents from Real', candidate_title='Statistical methods for linguistic research: Foundational Ideas - Part I')",
+        "failed_at": "2026-07-06T16:45:02Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Linguistics olympiad problems (LOPs) are a category of self-sufficient puzzles consisting of a scaled-down corpus representative of certain linguistic phenomena, from which the solver must deduce a primitive set of rules of the language and then translate a new set of elements. The linguistics olympiads (LOs) have become a worldwide phenomenon with 43 different territories taking part in the International Linguistics Olympiad (IOL) 2025. While the typology and solving strategies of LOPs have been analysed, their scientific facet and connections to academic linguistics have yet to be explored. LOPs are directly connected to many linguistic fields, e.g., linguistic typology, linguistic relativity, and linguistics fieldwork. Recently, LOPs have become a research focus as benchmarks for large language models, thus highlighting their usefulness in computational linguistics. Nevertheless, they have not yet been integrated into mainstream linguistics research. This paper attempts to open new directions of including this particular type of puzzle in academic research by offering a structured evaluation of LOPs as linguistic data sources and proposes criteria for their responsible use in academic research. Starting from a set of over 1800 LOPs, this study critically examines the potential of LOPs as a novel corpus for linguistics research by discussing their strengths and limitations as tools, as well as the areas of linguistics into which these problems could fit. This work forms the foundation for a broader initiative aimed at bridging the gap between LOs and academic linguistics, by establishing a robust theoretical framework for LOPs.",
+          "claimed_authors": [
+            "Vlad A. Neacsu"
+          ],
+          "claimed_title": "The Linguistics Olympiads: Towards a New Corpus for Linguistics Research?",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2606.14257"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='llmXive follow-up: extending \"EnterpriseClawBench: Benchmarking Agents from Real', candidate_title='The Linguistics Olympiads: Towards a New Corpus for Linguistics Research?')",
+        "failed_at": "2026-07-06T16:45:02Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In this paper, we introduce Dependency Dialogue Acts (DDA), a novel framework for capturing the structure of speaker-intentions in multi-party dialogues. DDA combines and adapts features from existing dialogue annotation frameworks, and emphasizes the multi-relational response structure of dialogues in addition to the dialogue acts and rhetorical relations. It represents the functional, discourse, and response structure in multi-party multi-threaded conversations. A few key features distinguish DDA from existing dialogue annotation frameworks such as SWBD-DAMSL and the ISO 24617-2 standard. First, DDA prioritizes the relational structure of the dialogue units and the dialog context, annotating both dialog acts and rhetorical relations as response relations to particular utterances. Second, DDA embraces overloading in dialogues, encouraging annotators to specify multiple response relations and dialog acts for each dialog unit. Lastly, DDA places an emphasis on adequately capturing how a speaker is using the full dialog context to plan and organize their speech. With these features, DDA is highly expressive and recall-oriented with regard to conversation dynamics between multiple speakers. In what follows, we present the DDA annotation framework and case studies annotating DDA structures in multi-party, multi-threaded conversations.",
+          "claimed_authors": [
+            "Jon Z. Cai",
+            "Brendan King",
+            "Margaret Perkoff",
+            "Shiran Dudy",
+            "Jie Cao",
+            "Marie Grace",
+            "Natalia Wojarnik",
+            "Ananya Ganesh",
+            "James H. Martin",
+            "Martha Palmer",
+            "Marilyn Walker",
+            "Jeffrey Flanigan"
+          ],
+          "claimed_title": "Dependency Dialogue Acts -- Annotation Scheme and Case Study",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2302.12944"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"EnterpriseClawBench: Benchmarking Agents from Real', candidate_title='Dependency Dialogue Acts -- Annotation Scheme and Case Study')",
+        "failed_at": "2026-07-06T16:45:02Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This study examines the factors that determine workplace autonomy in the choice of schedules, using GEIH data for formal employees from January 2023 to February 2024. A logistic regression model identified significant relationships between autonomy and variables such as company size, income, tenure, workplace, and job satisfaction. The results highlight the complexity of these factors and suggest the need for improvements in the predictive model.",
+          "claimed_authors": [
+            "Cristian Espinal Maya",
+            "Santiago Jiménez Londoño"
+          ],
+          "claimed_title": "Determinants of Workplace Flextime Flexibility: An Empirical Analysis",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2409.14271"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='llmXive follow-up: extending \"EnterpriseClawBench: Benchmarking Agents from Real', candidate_title='Determinants of Workplace Flextime Flexibility: An Empirical Analysis')",
+        "failed_at": "2026-07-06T16:45:02Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Eye-hand coordinated interaction is becoming a mainstream interaction modality in Virtual Reality (VR) user interfaces.Current paradigms for this multimodal interaction require users to learn predefined gestures and memorize multiple gesture-task associations, which can be summarized as an ``Operation-to-Intent\" paradigm. This paradigm increases users' learning costs and has low interaction error tolerance. In this paper, we propose SIAgent, a novel \"Intent-to-Operation\" framework allowing users to express interaction intents through natural eye-hand motions based on common sense and habits. Our system features two main components: (1) intent recognition that translates spatial interaction data into natural language and infers user intent, and (2) agent-based execution that generates an agent to execute corresponding tasks. This eliminates the need for gesture memorization and accommodates individual motion preferences with high error tolerance. We conduct two user studies across over 60 interaction tasks, comparing our method with two \"Operation-to-Intent\" techniques. Results show our method achieves higher intent recognition accuracy than gaze + pinch interaction (97.2% vs 93.1%) while reducing arm fatigue and improving usability, and user preference. Another study verifies the function of eye gaze and hand motion channels in intent recognition. Our work offers valuable insights into enhancing VR interaction intelligence through intent-driven design. Our source code and LLM prompts will be made available upon publication.",
+          "claimed_authors": [
+            "Zhimin Wang",
+            "Chenyu Gu",
+            "Feng Lu"
+          ],
+          "claimed_title": "SIAgent: Spatial Interaction Agent via LLM-powered Eye-Hand Motion Intent Understanding in VR",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2603.00522"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"EnterpriseClawBench: Benchmarking Agents from Real', candidate_title='SIAgent: Spatial Interaction Agent via LLM-powered Eye-Hand Motion Intent Understanding in VR')",
+        "failed_at": "2026-07-06T16:45:02Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Task-oriented dialogue systems use four connected modules, namely, Natural Language Understanding (NLU), a Dialogue State Tracking (DST), Dialogue Policy (DP) and Natural Language Generation (NLG). A research challenge is to learn each module with the least amount of samples (i.e., few-shots) given the high cost related to the data collection. The most common and effective technique to solve this problem is transfer learning, where large language models, either pre-trained on text or task-specific data, are fine-tuned on the few samples. These methods require fine-tuning steps and a set of parameters for each task. Differently, language models, such as GPT-2 (Radford et al., 2019) and GPT-3 (Brown et al., 2020), allow few-shot learning by priming the model with few examples. In this paper, we evaluate the priming few-shot ability of language models in the NLU, DST, DP and NLG tasks. Importantly, we highlight the current limitations of this approach, and we discuss the possible implication for future work.",
+          "claimed_authors": [
+            "Andrea Madotto",
+            "Zihan Liu",
+            "Zhaojiang Lin",
+            "Pascale Fung"
+          ],
+          "claimed_title": "Language Models as Few-Shot Learner for Task-Oriented Dialogue Systems",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2008.06239"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"EnterpriseClawBench: Benchmarking Agents from Real', candidate_title='Language Models as Few-Shot Learner for Task-Oriented Dialogue Systems')",
+        "failed_at": "2026-07-06T16:45:02Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Task-oriented queries (e.g., one-shot queries to play videos, order food, or call a taxi) are crucial for assessing the quality of virtual assistants, chatbots, and other large language model (LLM)-based services. However, a standard benchmark for task-oriented queries is not yet available, as existing benchmarks in the relevant NLP (Natural Language Processing) fields have primarily focused on task-oriented dialogues. Thus, we present a new methodology for efficiently generating the Task-oriented Queries Benchmark (ToQB) using existing task-oriented dialogue datasets and an LLM service. Our methodology involves formulating the underlying NLP task to summarize the original intent of a speaker in each dialogue, detailing the key steps to perform the devised NLP task using an LLM service, and outlining a framework for automating a major part of the benchmark generation process. Through a case study encompassing three domains (i.e., two single-task domains and one multi-task domain), we demonstrate how to customize the LLM prompts (e.g., omitting system utterances or speaker labels) for those three domains and characterize the generated task-oriented queries. The generated ToQB dataset is made available to the public. We further discuss new domains that can be added to ToQB by community contributors and its practical applications.",
+          "claimed_authors": [
+            "Keun Soo Yim"
+          ],
+          "claimed_title": "The Task-oriented Queries Benchmark (ToQB)",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2406.02943"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"EnterpriseClawBench: Benchmarking Agents from Real', candidate_title='The Task-oriented Queries Benchmark (ToQB)')",
+        "failed_at": "2026-07-06T16:45:02Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Current large language models (LLMs) have demonstrated emerging capabilities in social intelligence tasks, including implicature resolution and theory-of-mind reasoning, both of which require substantial pragmatic understanding. However, how LLMs acquire this pragmatic competence throughout the training process remains poorly understood. In this work, we introduce ALTPRAG, a dataset grounded in the pragmatic concept of alternatives, to evaluate whether LLMs at different training stages can accurately infer nuanced speaker intentions. Each instance pairs two equally plausible yet pragmatically divergent continuations and requires the model to (i) infer the speaker's intended meaning and (ii) explain when and why a speaker would choose one utterance over its alternative, thus directly probing pragmatic competence through contrastive reasoning. We systematically evaluate 22 LLMs across 3 key training stages: after pre-training, supervised fine-tuning (SFT), and preference optimization, to examine the development of pragmatic competence. Our results show that even base models exhibit notable sensitivity to pragmatic cues, which improves consistently with increases in model and data scale. Additionally, SFT and RLHF contribute further gains, particularly in cognitive-pragmatic scenarios. These findings highlight pragmatic competence as an emergent and compositional property of LLM training and offer new insights for aligning models with human communicative norms.",
+          "claimed_authors": [
+            "Kefan Yu",
+            "Qingcheng Zeng",
+            "Weihao Xuan",
+            "Wanxin Li",
+            "Jingyi Wu",
+            "Rob Voigt"
+          ],
+          "claimed_title": "The Pragmatic Mind of Machines: Tracing the Emergence of Pragmatic Competence in Large Language Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2505.18497"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"EnterpriseClawBench: Benchmarking Agents from Real', candidate_title='The Pragmatic Mind of Machines: Tracing the Emergence of Pragmatic Competence in Large Language Models')",
+        "failed_at": "2026-07-06T16:45:02Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This paper explores the impact of variable pragmatic competence on communicative success through simulating language learning and conversing between speakers and listeners with different levels of reasoning abilities. Through studying this interaction, we hypothesize that matching levels of reasoning between communication partners would create a more beneficial environment for communicative success and language learning. Our research findings indicate that learning from more explicit, literal language is advantageous, irrespective of the learner's level of pragmatic competence. Furthermore, we find that integrating pragmatic reasoning during language learning, not just during evaluation, significantly enhances overall communication performance. This paper provides key insights into the importance of aligning reasoning levels and incorporating pragmatic reasoning in optimizing communicative interactions.",
+          "claimed_authors": [
+            "Kata Naszadi",
+            "Frans A. Oliehoek",
+            "Christof Monz"
+          ],
+          "claimed_title": "Communicating with Speakers and Listeners of Different Pragmatic Levels",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2410.05851"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"EnterpriseClawBench: Benchmarking Agents from Real', candidate_title='Communicating with Speakers and Listeners of Different Pragmatic Levels')",
+        "failed_at": "2026-07-06T16:45:02Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Recent evaluations of Large Language Models (LLMs) have centered around testing their zero-shot/few-shot capabilities for basic natural language tasks and their ability to translate instructions into tool APIs. However, the evaluation of LLMs utilizing complex tools to finish multi-turn, multi-modal instructions in a complex multi-modal environment has not been investigated. To address this gap, we introduce the PowerPoint Task Completion (PPTC) benchmark to assess LLMs' ability to create and edit PPT files based on user instructions. It contains 279 multi-turn sessions covering diverse topics and hundreds of instructions involving multi-modal operations. We also propose the PPTX-Match Evaluation System that evaluates if LLMs finish the instruction based on the prediction file rather than the label API sequence, thus it supports various LLM-generated API sequences. We measure 3 closed LLMs and 6 open-source LLMs. The results show that GPT-4 outperforms other LLMs with 75.1\\% accuracy in single-turn dialogue testing but faces challenges in completing entire sessions, achieving just 6\\% session accuracy. We find three main error causes in our benchmark: error accumulation in the multi-turn session, long PPT template processing, and multi-modality perception. These pose great challenges for future LLM and agent systems. We release the data, code, and evaluation system of PPTC at \\url{https://github.com/gydpku/PPTC}.",
+          "claimed_authors": [
+            "Yiduo Guo",
+            "Zekai Zhang",
+            "Yaobo Liang",
+            "Dongyan Zhao",
+            "Nan Duan"
+          ],
+          "claimed_title": "PPTC Benchmark: Evaluating Large Language Models for PowerPoint Task Completion",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2311.01767"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='llmXive follow-up: extending \"EnterpriseClawBench: Benchmarking Agents from Real', candidate_title='PPTC Benchmark: Evaluating Large Language Models for PowerPoint Task Completion')",
+        "failed_at": "2026-07-06T16:45:02Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Recent advancements in visual generative models have enabled high-quality image and video generation, opening diverse applications. However, evaluating these models often demands sampling hundreds or thousands of images or videos, making the process computationally expensive, especially for diffusion-based models with inherently slow sampling. Moreover, existing evaluation methods rely on rigid pipelines that overlook specific user needs and provide numerical results without clear explanations. In contrast, humans can quickly form impressions of a model's capabilities by observing only a few samples. To mimic this, we propose the Evaluation Agent framework, which employs human-like strategies for efficient, dynamic, multi-round evaluations using only a few samples per round, while offering detailed, user-tailored analyses. It offers four key advantages: 1) efficiency, 2) promptable evaluation tailored to diverse user needs, 3) explainability beyond single numerical scores, and 4) scalability across various models and tools. Experiments show that Evaluation Agent reduces evaluation time to 10% of traditional methods while delivering comparable results. The Evaluation Agent framework is fully open-sourced to advance research in visual generative models and their efficient evaluation.",
+          "claimed_authors": [
+            "Fan Zhang",
+            "Shulin Tian",
+            "Ziqi Huang",
+            "Yu Qiao",
+            "Ziwei Liu"
+          ],
+          "claimed_title": "Evaluation Agent: Efficient and Promptable Evaluation Framework for Visual Generative Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2412.09645"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"EnterpriseClawBench: Benchmarking Agents from Real', candidate_title='Evaluation Agent: Efficient and Promptable Evaluation Framework for Visual Generative Models')",
+        "failed_at": "2026-07-06T16:45:02Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The growing dependence on Large Language Models (LLMs) for finishing user instructions necessitates a comprehensive understanding of their robustness to complex task completion in real-world situations. To address this critical need, we propose the PowerPoint Task Completion Robustness benchmark (PPTC-R) to measure LLMs' robustness to the user PPT task instruction and software version. Specifically, we construct adversarial user instructions by attacking user instructions at sentence, semantic, and multi-language levels. To assess the robustness of Language Models to software versions, we vary the number of provided APIs to simulate both the newest version and earlier version settings. Subsequently, we test 3 closed-source and 4 open-source LLMs using a benchmark that incorporates these robustness settings, aiming to evaluate how deviations impact LLMs' API calls for task completion. We find that GPT-4 exhibits the highest performance and strong robustness in our benchmark, particularly in the version update and the multilingual settings. However, we find that all LLMs lose their robustness when confronted with multiple challenges (e.g., multi-turn) simultaneously, leading to significant performance drops. We further analyze the robustness behavior and error reasons of LLMs in our benchmark, which provide valuable insights for researchers to understand the LLM's robustness in task completion and develop more robust LLMs and agents. We release the code and data at \\url{https://github.com/ZekaiGalaxy/PPTCR}.",
+          "claimed_authors": [
+            "Zekai Zhang",
+            "Yiduo Guo",
+            "Yaobo Liang",
+            "Dongyan Zhao",
+            "Nan Duan"
+          ],
+          "claimed_title": "PPTC-R benchmark: Towards Evaluating the Robustness of Large Language Models for PowerPoint Task Completion",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2403.03788"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='llmXive follow-up: extending \"EnterpriseClawBench: Benchmarking Agents from Real', candidate_title='PPTC-R benchmark: Towards Evaluating the Robustness of Large Language Models for PowerPoint Task Completion')",
+        "failed_at": "2026-07-06T16:45:02Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "As Kubernetes becomes the infrastructure of the cloud-native era, the integration of workflow systems with Kubernetes is gaining more and more popularity. To our knowledge, workflow systems employ scheduling algorithms that optimize task execution order of workflow to improve performance and execution efficiency. However, due to its inherent scheduling mechanism, Kubernetes does not execute containerized scheduling following the optimized task execution order of workflow amid migrating workflow systems to the Kubernetes platform. This inconsistency in task scheduling order seriously degrades the efficiency of workflow execution and brings numerous challenges to the containerized process of workflow systems on Kubernetes. In this paper, we propose a cloud-native workflow engine, also known as KubeAdaptor, a docking framework able to implement workflow containerization on Kubernetes, integrate workflow systems with Kubernetes, ensuring the consistency of task scheduling order. We introduce the design and architecture of the KubeAdaptor, elaborate on the functionality implementation and the event-trigger mechanism within the KubeAdaptor. Experimental results about four real-world workflows show that the KubeAdaptor ensures the consistency of the workflow systems and Kubernetes in the task scheduling order. Compared with the baseline Argo workflow engine, the KubeAdaptor achieves better performance in terms of the average execution time of task pod, average workflow lifecycle, and resource usage rate.",
+          "claimed_authors": [
+            "Chenggang Shan",
+            "Guan Wang",
+            "Yuanqing Xia",
+            "Yufeng Zhan",
+            "Jinhui Zhang"
+          ],
+          "claimed_title": "KubeAdaptor: A Docking Framework for Workflow Containerization on Kubernetes",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2207.01222"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='llmXive follow-up: extending \"EnterpriseClawBench: Benchmarking Agents from Real', candidate_title='KubeAdaptor: A Docking Framework for Workflow Containerization on Kubernetes')",
+        "failed_at": "2026-07-06T16:45:02Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Spoken Language Understanding (SLU) is a core task in most human-machine interaction systems. With the emergence of smart homes, smart phones and smart speakers, SLU has become a key technology for the industry. In a classical SLU approach, an Automatic Speech Recognition (ASR) module transcribes the speech signal into a textual representation from which a Natural Language Understanding (NLU) module extracts semantic information. Recently End-to-End SLU (E2E SLU) based on Deep Neural Networks has gained momentum since it benefits from the joint optimization of the ASR and the NLU parts, hence limiting the cascade of error effect of the pipeline architecture. However, little is known about the actual linguistic properties used by E2E models to predict concepts and intents from speech input. In this paper, we present a study identifying the signal features and other linguistic properties used by an E2E model to perform the SLU task. The study is carried out in the application domain of a smart home that has to handle non-English (here French) voice commands. The results show that a good E2E SLU performance does not always require a perfect ASR capability. Furthermore, the results show the superior capabilities of the E2E model in handling background noise and syntactic variation compared to the pipeline model. Finally, a finer-grained analysis suggests that the E2E model uses the pitch information of the input signal to identify voice command concepts. The results and methodology outlined in this paper provide a springboard for further analyses of E2E models in speech processing.",
+          "claimed_authors": [
+            "Thierry Desot",
+            "François Portet",
+            "Michel Vacher"
+          ],
+          "claimed_title": "End-to-End Spoken Language Understanding: Performance analyses of a voice command task in a low resource setting",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2207.08179"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"EnterpriseClawBench: Benchmarking Agents from Real', candidate_title='End-to-End Spoken Language Understanding: Performance analyses of a voice command task in a low resource setting')",
+        "failed_at": "2026-07-06T16:45:02Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Scientific workflow systems are increasingly popular for expressing and executing complex data analysis pipelines over large datasets, as they offer reproducibility, dependability, and scalability of analyses by automatic parallelization on large compute clusters. However, implementing workflows is difficult due to the involvement of many black-box tools and the deep infrastructure stack necessary for their execution. Simultaneously, user-supporting tools are rare, and the number of available examples is much lower than in classical programming languages. To address these challenges, we investigate the efficiency of Large Language Models (LLMs), specifically ChatGPT, to support users when dealing with scientific workflows. We performed three user studies in two scientific domains to evaluate ChatGPT for comprehending, adapting, and extending workflows. Our results indicate that LLMs efficiently interpret workflows but achieve lower performance for exchanging components or purposeful workflow extensions. We characterize their limitations in these challenging scenarios and suggest future research directions.",
+          "claimed_authors": [
+            "Mario Sänger",
+            "Ninon De Mecquenem",
+            "Katarzyna Ewa Lewińska",
+            "Vasilis Bountris",
+            "Fabian Lehmann",
+            "Ulf Leser",
+            "Thomas Kosch"
+          ],
+          "claimed_title": "Large Language Models to the Rescue: Reducing the Complexity in Scientific Workflow Development Using ChatGPT",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2311.01825"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='llmXive follow-up: extending \"EnterpriseClawBench: Benchmarking Agents from Real', candidate_title='Large Language Models to the Rescue: Reducing the Complexity in Scientific Workflow Development Using ChatGPT')",
+        "failed_at": "2026-07-06T16:45:02Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Jincheng Zhong",
+            "Weizhi Wang",
+            "Che Jiang",
+            "Kai Tian",
+            "Zhenzhao Yuan",
+            "Junlin Yang",
+            "Dianqiao Lei",
+            "Kaiyan Zhang"
+          ],
+          "title": "EnterpriseClawBench: Benchmarking Agents from Real Workplace Sessions",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2606.23654",
+        "summary": "Enterprise agents increasingly operate inside workspaces: they read heterogeneous files, invoke tools, and deliver business artifacts. We introduce EnterpriseClawBench, an enterprise agent benchmark constructed from proprietary, real-world agent sessions. Starting from a large archive of workplace sessions, the EnterpriseClawBench produces 852 reproducible tasks, each paired with recovered fixtures, rewritten prompts, role classes, skill subclasses, hard rules, and semantic rubrics. Because the sessions contain internal enterprise content, we do not release the benchmark data; instead, our reusable contribution is the construction and evaluation protocol. On EnterpriseClawBench, the best configuration reaches only 0.663 (Codex with GPT-5.5). These results show that enterprise agent evaluation must report harness--model combinations, artifact delivery, visual quality, cost, runtime, and skill-transfer behavior, rather than collapsing performance into a single score. Code: https://github.com/FrontisAI/EnterpriseClawBench",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2606.23654",
+          "http_status": 200,
+          "pdf_sample_score": 0.1958,
+          "query_relevance_score": 0.6,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-06T16:45:02Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "llmxive follow-up: extending \"enterpriseclawbench: benchmarking agents from real workplace sessions\" linguistics",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

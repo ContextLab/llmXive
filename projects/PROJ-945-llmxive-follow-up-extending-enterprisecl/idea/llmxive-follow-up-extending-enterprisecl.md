@@ -5,35 +5,74 @@ submitter: llmxive-preprint-followup
 
 # llmXive follow-up: extending "EnterpriseClawBench: Benchmarking Agents from Real Workplace Sessions"
 
-## Summary of the prior work
-EnterpriseClawBench introduces a benchmark constructed from real-world enterprise agent sessions to evaluate the multidimensional performance of agent harnesses and models on artifact delivery, cost, and skill transfer. The study reveals that performance is heavily dependent on the specific "harness-model" coupling, with significant drops observed when models interact with incompatible execution environments, and establishes a protocol for generating reproducible tasks from proprietary data without releasing the raw data itself.
+**Field**: linguistics
 
-## Proposed extension
-**Research Question:** Can a lightweight, CPU-tractable "Skill Adapter" module, trained solely on the *execution traces* (tool calls, error logs, and intermediate states) of a specific harness, mitigate the performance collapse observed when high-capability models are paired with restrictive harnesses (e.g., Claude models under the Hermes harness)?
+## Research question
 
-This question matters because the original paper identifies harness-model incompatibility as a primary bottleneck, yet current solutions rely on expensive model retraining or switching; a trace-based adapter could decouple model capability from harness constraints using only CPU resources, offering a practical deployment fix for enterprise systems.
+Does a lightweight, CPU-tractable "Skill Adapter" module, trained exclusively on execution traces (tool calls, error logs, and intermediate states), effectively mitigate performance collapse when high-capability language models are paired with restrictive execution harnesses?
+
+## Motivation
+
+The original EnterpriseClawBench study identifies "harness-model incompatibility" as a primary bottleneck causing significant drops in artifact delivery and cost efficiency when powerful models interact with restrictive environments. Current mitigation strategies rely on expensive full-model retraining or switching providers, leaving a gap for a decoupling mechanism that corrects trace-level syntax mismatches using only CPU resources.
+
+## Related work
+
+- [EnterpriseClawBench: Benchmarking Agents from Real Workplace Sessions](https://arxiv.org/abs/2606.23654) — Establishes the benchmark protocol and provides the primary dataset of real-world enterprise agent sessions, explicitly documenting the performance drops observed when models like Claude are paired with incompatible harnesses like Hermes.
+
+## Expected results
+
+The adapter is expected to significantly restore artifact delivery scores for previously failing combinations (e.g., Hermes/Claude) by rewriting tool-call syntax and injecting state-recovery logic, bringing performance close to native compatible pairs. Success will be measured by a statistically significant increase in the "Artifact Delivery Score" on the held-out 120-task Lite set compared to the baseline, with negligible increase in total runtime latency.
 
 ## Methodology sketch
-*   **Data:** Use the 852-task set from EnterpriseClawBench, specifically extracting the "failed" execution traces from the Hermes/Claude-family combinations (identified in the prior work as having high cost but low score) and the corresponding "successful" traces from the OpenClaw/Claude-family combinations.
-*   **Procedure:** 
-    1.  Construct a dataset of (Prompt, Failed_Trace, Success_Trace) triplets. 
-    2.  Train a small, CPU-optimized sequence-to-sequence model (e.g., a distilled T5 or a rule-based finetuned Llama-3-8B via 4-bit quantization on a CPU) to predict the *correction steps* required to transform a failed trace into a successful one, focusing only on tool-call syntax and state-recovery logic. 
-    3.  Integrate this trained adapter as a pre-processing layer that intercepts the agent's output before it reaches the restrictive harness, rewriting tool calls or injecting state-recovery commands. 
-    4.  Evaluate the new "Model + Adapter + Harness" configuration against the original "Model + Harness" baseline on the held-out 120-task Lite set.
-*   **Expected Result:** The adapter should significantly increase the artifact delivery score for the previously failing combinations (e.g., Hermes/Claude) by correcting the specific trace-level mismatches, approaching the performance of the native "Model + Compatible Harness" pairs, while incurring negligible additional runtime cost and requiring no GPU acceleration for the adapter itself.
 
-## Motivated by (source preprint — reviewed, not authored, by llmXive)
+*   **Data Acquisition**: Download the EnterpriseClawBench dataset (852 tasks) and filter for "failed" traces from the Hermes/Claude combinations and "successful" traces from OpenClaw/Claude combinations using the provided public repository or arXiv supplementary materials.
+*   **Triplet Construction**: Parse execution logs to construct a dataset of triplets: `(System_Prompt, Failed_Trace_Sequence, Successful_Correction_Sequence)`, focusing specifically on tool-call syntax errors and state-recovery transitions.
+*   **Adapter Training**: Train a small, CPU-optimized sequence-to-sequence model (e.g., a distilled T5 or 4-bit quantized Llama-3-8B) to predict the `Successful_Correction_Sequence` given the `Failed_Trace_Sequence`, using cross-entropy loss on the tool-call tokens.
+*   **Integration**: Implement the trained adapter as a pre-processing intercept layer that rewrites the agent's raw output before it is passed to the restrictive Hermes harness.
+*   **Evaluation**: Run the "Model + Adapter + Harness" configuration on the held-out 120-task Lite set and compare the Artifact Delivery Score against the baseline "Model + Harness" configuration.
+*   **Statistical Analysis**: Apply a paired t-test (or Wilcoxon signed-rank test if normality assumptions fail) to the per-task scores of the baseline versus the adapter-enhanced system to determine statistical significance (p < 0.05).
+*   **Resource Verification**: Log CPU usage and inference time to confirm the adapter operates within the 7GB RAM and 6-hour GHA runner constraints without GPU acceleration.
 
-- **EnterpriseClawBench: Benchmarking Agents from Real Workplace Sessions** — Jincheng Zhong, Weizhi Wang, Che Jiang, Kai Tian, Zhenzhao Yuan, Junlin Yang, Dianqiao Lei, Kaiyan Zhang. https://arxiv.org/abs/2606.23654.
+## Duplicate-check
 
-```bibtex
-@article{orig_arxiv_2606_23654,
-  title = {EnterpriseClawBench: Benchmarking Agents from Real Workplace Sessions},
-  author = {Jincheng Zhong and Weizhi Wang and Che Jiang and Kai Tian and Zhenzhao Yuan and Junlin Yang and Dianqiao Lei and Kaiyan Zhang},
-  year = {2026},
-  eprint = {2606.23654},
-  archivePrefix = {arXiv},
-  journal = {arXiv preprint arXiv:2606.23654},
-  url = {https://arxiv.org/abs/2606.23654}
-}
-```
+- Reviewed existing ideas: EnterpriseClawBench extension, Skill Adapter for trace correction.
+- Closest match: EnterpriseClawBench extension (similarity sketch: identical core concept of using traces to fix harness incompatibility).
+- Verdict: NOT a duplicate (This is a specific methodological proposal to extend the prior work, not a duplicate of an existing fleshed-out idea in the corpus).
+
+
+## Search trail
+
+**Generated by**: librarian (prompt v1.6.0) on 2026-07-06T16:45:50Z
+**Outcome**: exhausted
+**Original term**: llmXive follow-up: extending "EnterpriseClawBench: Benchmarking Agents from Real Workplace Sessions" linguistics
+**Verified citation count**: 1
+
+### Search terms used
+
+| Rank | Term | Hit count |
+|-|-|-|
+| 0 (initial) | llmXive follow-up: extending "EnterpriseClawBench: Benchmarking Agents from Real Workplace Sessions" linguistics | 0 |
+| 1 | benchmarking AI agents in workplace communication | 1 |
+| 2 | evaluation of large language models in enterprise settings | 4 |
+| 3 | linguistic analysis of workplace agent interactions | 0 |
+| 4 | natural language processing for business process automation | 0 |
+| 5 | conversational AI performance in professional environments | 0 |
+| 6 | discourse analysis of human-agent collaboration in offices | 0 |
+| 7 | pragmatics of enterprise-level language model deployment | 0 |
+| 8 | corpus linguistics of workplace dialogue systems | 0 |
+| 9 | syntactic and semantic patterns in agent-mediated business communication | 0 |
+| 10 | human-computer interaction linguistics in corporate workflows | 0 |
+| 11 | evaluation metrics for workplace-oriented conversational agents | 0 |
+| 12 | real-world application of LLMs in organizational communication | 0 |
+| 13 | sociolinguistic factors in enterprise AI agent adoption | 0 |
+| 14 | task-oriented dialogue systems for professional contexts | 0 |
+| 15 | linguistic variability in automated workplace support tools | 0 |
+| 16 | benchmarking natural language understanding in business domains | 0 |
+| 17 | agent behavior analysis in simulated workplace scenarios | 0 |
+| 18 | language model alignment with professional communication norms | 0 |
+| 19 | pragmatics of instruction following in enterprise AI | 0 |
+| 20 | cross-domain transfer of LLM capabilities to workplace tasks | 0 |
+
+### Verified citations
+
+1. **EnterpriseClawBench: Benchmarking Agents from Real Workplace Sessions** (2026). Jincheng Zhong, Weizhi Wang, Che Jiang, Kai Tian, Zhenzhao Yuan, et al.. arXiv. [2606.23654](https://arxiv.org/abs/2606.23654). PDF-sampled: No.

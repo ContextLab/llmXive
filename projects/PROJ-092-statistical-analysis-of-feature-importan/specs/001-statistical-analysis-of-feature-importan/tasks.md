@@ -61,7 +61,7 @@ Examples of foundational tasks (adjust based on your project):
 - [X] T005 [P] Implement data download and verification script in `code/download.py` (FR-001)
 - [X] T006 [P] Create base configuration and logging infrastructure in `code/utils/`
 - [ ] T007 Create data schema definitions in `contracts/` (dataset, drift_metric, importance_profile)
-- [~] T008 [P] Setup pytest environment: create `tests/conftest.py` and verify `pytest --collect-only` returns 0 errors (FR-001)
+- [ ] T008 [P] Setup pytest environment: create `tests/conftest.py` and verify `pytest --collect-only` returns 0 errors (FR-001)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -75,10 +75,10 @@ Examples of foundational tasks (adjust based on your project):
 
 ### Implementation for User Story 1
 
-- [~] T009 [P] [US1] Implement dataset fetcher in `code/download.py` using `requests` to fetch from UCI archive (FR-001)
-- [~] T010 [US1] Implement preprocessing in `code/preprocess.py`: handle missing values via median imputation and split data into sequential 30-day windows (FR-001, FR-002)
-- [~] T011 [US1] Implement model training in `code/train_and_importance.py`: train `RandomForestRegressor` (n_estimators=100, max_depth=10, seed=42) on first window (FR-003)
-- [~] T012 [US1] Implement R² validation logic in `code/train_and_importance.py`: skip window if R² < 0.8 and log "Model Failure" (FR-003b)
+- [ ] T009 [P] [US1] Implement dataset fetcher in `code/download.py` using `requests` to fetch from UCI archive (FR-001)
+- [ ] T010 [US1] Implement preprocessing in `code/preprocess.py`: handle missing values via median imputation and split data into sequential 30-day windows (FR-001, FR-002)
+- [ ] T011 [US1] Implement model training in `code/train_and_importance.py`: train `RandomForestRegressor` (n_estimators=100, max_depth=10, seed=42) on first window (FR-003)
+- [ ] T012 [US1] Implement R² validation logic in `code/train_and_importance.py`: skip window if R² < 0.8 and log "Model Failure" (FR-003b)
 - [~] T012b [US1] **NEW**: Implement stability metric aggregation in `code/utils/stats_aggregator.py`: calculate and report count of successful windows and average R² of valid windows per window (SC-003, FR-003b)
 - [~] T013 [US1] Implement permutation importance calculation in `code/train_and_importance.py` using `sklearn.inspection.permutation_importance` (FR-003)
 - [~] T014 [US1] Implement window iteration loop in `code/main.py` to process all multiple windows, **integrating the R² < 0.8 skip logic from T012**, **including per-window variance check from T015** to drop zero-variance features per window, **and aggregating stability metrics from T012b** to ensure invalid windows are excluded and metrics are updated per-window, and save `importance_profiles.csv` (FR-003, FR-003b)
@@ -131,11 +131,14 @@ Examples of foundational tasks (adjust based on your project):
 **Purpose**: Improvements that affect multiple user stories
 
 - [~] T027 [P] Documentation updates in `docs/` and `README.md`
-- [ ] T028 Code cleanup and refactoring for memory efficiency (ensure < 4GB RAM usage)
-- [ ] T029 Performance optimization for window processing loop
-- [ ] T030 [P] Additional unit tests in `tests/unit/` for edge cases (missing data, model failure)
-- [ ] T031 Security hardening for data handling
-- [ ] T032 Run quickstart.md validation and verify end-to-end pipeline execution
+- [~] T028 Code cleanup and refactoring for memory efficiency (ensure < 4GB RAM usage) <!-- SKIPPED: YAML+regex parse failed (mapping values are not allowed here
+ in "<unicode string>", line 2, column 13:
+ contents: |
+ ^) -->
+- [~] T029 Performance optimization for window processing loop
+- [~] T030 [P] Additional unit tests in `tests/unit/` for edge cases (missing data, model failure)
+- [~] T031 Security hardening for data handling <!-- ATOMIZE: requested -->
+- [~] T032 Run quickstart.md validation and verify end-to-end pipeline execution <!-- ATOMIZE: requested -->
 
 ---
 

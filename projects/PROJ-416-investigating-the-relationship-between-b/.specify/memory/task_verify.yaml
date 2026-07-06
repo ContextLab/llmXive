@@ -1,3 +1,14 @@
 ? 'T009 Setup `tests/unit` and `tests/integration` directory structures <!-- SKIPPED:
   YAML+regex parse failed (mapping values are not allowed here'
+: 2
+? T010 [P] [US1] Unit test for `code/data/validate.py` to ensure it halts on missing
+  `pre_treatment_score` or `post_treatment_score` in metadata
+: 1
+? "T011 [P] [US1] Unit test for `code/data/preprocess.py` to verify motion threshold\
+  \ logic (>3mm/3\xB0) flags subjects correctly <!-- ATOMIZE: requested -->"
+: 1
+T012 [US1] Implement `code/data/download.py` to fetch data from OpenNeuro (or halt if no verified source ID is provided): 1
+? T013 [US1] Implement `code/data/validate.py` to check for paired pre/post fMRI and
+  clinical scores; verify the instrument is a validated anxiety scale (e.g., GAD-7,
+  HAM-A) with citable documentation or halt with fatal error (FR-011, FR-009)
 : 1

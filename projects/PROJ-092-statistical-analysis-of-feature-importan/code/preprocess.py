@@ -1,299 +1,223 @@
-"""
-Preprocessing module for feature importance drift analysis.
-
-Handles missing values via median imputation and splits the dataset
-into sequential 30-day windows for time-series analysis.
-"""
-
 import os
 import sys
 import logging
 import numpy as np
 import pandas as pd
 from pathlib import Path
-from typing import List, Tuple, Optional, Dict
+from typing import List, Tuple, Dict, Optional, Generator
 
-# Add project root to path for imports if running as script
-if __name__ == "__main__":
-    sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
-
-from utils.logger import setup_logger, get_logger
 from utils.config import get_config
+from utils.logger import get_logger
 
-# Ensure logger is configured
-logger = setup_logger(__name__)
-config = get_config()
-
-
-def load_raw_dataset() -> pd.DataFrame:
+def load_raw_dataset(data_path: Path) -> pd.DataFrame:
     """
-    Loads the raw Electricity Load Diagrams dataset.
-    Expects the file to be present in data/raw/ as per T005/T009.
+    Load the raw dataset from a CSV file.
     
+    Args:
+        data_path: Path to the CSV file.
+        
     Returns:
-        pd.DataFrame: The loaded dataset.
-    
-    Raises:
-        FileNotFoundError: If the dataset file is not found.
+        DataFrame containing the raw data.
     """
-    data_dir = Path(config.get("data.raw_dir", "data/raw"))
-    # The dataset name from UCI is typically 'ElectricityLoadDiagrams20112014.csv'
-    # We look for the most recent .csv file if exact name varies, or use specific name
-    target_file = data_dir / "ElectricityLoadDiagrams20112014.csv"
+    logger = get_logger("preprocess")
+    logger.info(f"Loading raw data from {data_path}...")
     
-    if not target_file.exists():
-        # Fallback: try to find any csv in the directory
-        csv_files = list(data_dir.glob("*.csv"))
-        if not csv_files:
-            raise FileNotFoundError(
-                f"No dataset found in {data_dir}. "
-                "Please ensure T009 (download.py) has successfully fetched the data."
-            )
-        target_file = csv_files[0]
-        logger.warning(f"Using fallback dataset: {target_file.name}")
-
-    logger.info(f"Loading dataset from {target_file}")
-    df = pd.read_csv(target_file)
+    if not data_path.exists():
+        raise FileNotFoundError(f"Data file not found: {data_path}")
     
-    # Handle potential column name variations or missing 'M' column
-    # UCI dataset usually has 'M' (meter ID) and hourly columns (2011-01-01 00:00:00, etc.)
-    # We need to ensure we have a timestamp column and numeric data
+    df = pd.read_csv(data_path)
+    logger.info(f"Loaded {len(df)} rows, {len(df.columns)} columns.")
+    
     return df
-
 
 def prepare_dataframe(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Cleans and prepares the dataframe for time-series analysis.
+    Prepare the DataFrame: ensure correct types, sort by time if applicable.
     
-    - Converts index to datetime if necessary.
-    - Ensures numeric columns are numeric.
-    - Sets 'M' (Meter ID) as a separate column if present, or treats rows as time.
-    
-    The Electricity Load Diagrams dataset has 370 rows (meters) and 35064 columns (hours).
-    We need to transpose it so rows are timestamps and columns are meters (features).
-    
-    Returns:
-        pd.DataFrame: Processed dataframe with DatetimeIndex and numeric columns.
-    """
-    logger.info("Preparing dataframe structure...")
-    
-    # The UCI dataset format: First column 'M' (ID), then hourly columns.
-    # We need to transpose so time is the index.
-    if 'M' in df.columns:
-        df = df.set_index('M').T
-    else:
-        # If 'M' is not present, assume all columns are time series
-        df = df.T
+    Args:
+        df: Raw DataFrame.
         
-    # Rename columns to M1, M2... if they aren't already
-    df.columns = [f"M{c}" for c in range(len(df.columns))]
+    Returns:
+        Prepared DataFrame.
+    """
+    logger = get_logger("preprocess")
     
-    # Convert index to datetime
-    # The columns in the original file are strings like '2011-01-01 00:00:00'
-    # After transpose, these become the index
-    try:
-        df.index = pd.to_datetime(df.index)
-    except Exception as e:
-        logger.error(f"Failed to convert index to datetime: {e}")
-        raise
+    # Sort by index if it represents time (assuming numeric or datetime index)
+    if df.index.dtype == 'object' or pd.api.types.is_datetime64_any_dtype(df.index):
+        df = df.sort_index()
+        logger.info("Sorted DataFrame by index.")
     
-    # Sort by time
-    df = df.sort_index()
+    return df.reset_index(drop=True)
+
+def handle_missing_values(df: pd.DataFrame, strategy: str = "median") -> pd.DataFrame:
+    """
+    Handle missing values using the specified strategy.
     
-    # Convert all columns to numeric, coercing errors to NaN
-    df = df.apply(pd.to_numeric, errors='coerce')
+    Args:
+        df: DataFrame with missing values.
+        strategy: Imputation strategy ('median', 'mean', 'drop').
+        
+    Returns:
+        DataFrame with missing values handled.
+    """
+    logger = get_logger("preprocess")
+    missing_count = df.isnull().sum().sum()
     
-    logger.info(f"Dataframe shape after preparation: {df.shape}")
+    if missing_count == 0:
+        logger.info("No missing values found.")
+        return df
+    
+    logger.info(f"Found {missing_count} missing values. Using {strategy} imputation.")
+    
+    if strategy == "drop":
+        df = df.dropna()
+    elif strategy == "mean":
+        df = df.fillna(df.mean())
+    elif strategy == "median":
+        df = df.fillna(df.median())
+    else:
+        raise ValueError(f"Unknown strategy: {strategy}")
+    
+    logger.info(f"Missing values handled. Remaining rows: {len(df)}.")
     return df
 
-
-def handle_missing_values(df: pd.DataFrame) -> Tuple[pd.DataFrame, int]:
+def check_variance(
+    df: pd.DataFrame,
+    feature_cols: List[str],
+    threshold: float = 1e-7
+) -> Tuple[List[str], List[str]]:
     """
-    Handles missing values via median imputation.
+    Check for zero-variance features and drop them.
     
     Args:
-        df (pd.DataFrame): Input dataframe.
+        df: DataFrame.
+        feature_cols: List of feature column names.
+        threshold: Variance threshold below which features are considered zero-variance.
         
     Returns:
-        Tuple[pd.DataFrame, int]: Imputed dataframe and count of imputed values.
+        Tuple of (dropped_features, valid_features).
     """
-    logger.info("Handling missing values via median imputation...")
-    original_df = df.copy()
+    logger = get_logger("preprocess")
+    dropped = []
+    valid = []
     
-    # Calculate median for each column
-    medians = df.median()
+    for col in feature_cols:
+        var = df[col].var()
+        if var < threshold:
+            dropped.append(col)
+        else:
+            valid.append(col)
     
-    # Impute
-    df = df.fillna(medians)
+    if dropped:
+        logger.warning(f"Dropped {len(dropped)} zero-variance features: {dropped}")
     
-    # Count imputed values
-    missing_count = original_df.isna().sum().sum()
-    
-    logger.info(f"Imputed {missing_count} missing values using column medians.")
-    return df, int(missing_count)
+    return dropped, valid
 
-
-def check_variance(df: pd.DataFrame, threshold: float = 0.0) -> List[str]:
+def split_into_windows(
+    df: pd.DataFrame,
+    window_size_days: int = 30,
+    target_col: Optional[str] = None
+) -> Generator[pd.DataFrame, None, None]:
     """
-    Checks for zero-variance features and returns a list of columns to drop.
+    Split the DataFrame into sequential time windows.
     
     Args:
-        df (pd.DataFrame): Input dataframe.
-        threshold (float): Minimum variance threshold.
+        df: DataFrame with time-indexed or sequential data.
+        window_size_days: Size of each window in rows (assuming daily data).
+        target_col: Optional target column to exclude from features.
         
-    Returns:
-        List[str]: List of column names with variance below threshold.
+    Yields:
+        DataFrames for each window.
     """
-    logger.info("Checking feature variance...")
-    variance = df.var()
-    zero_var_cols = variance[variance <= threshold].index.tolist()
+    logger = get_logger("preprocess")
+    total_rows = len(df)
     
-    if zero_var_cols:
-        logger.warning(f"Dropping {len(zero_var_cols)} zero-variance features: {zero_var_cols[:5]}...")
-    else:
-        logger.info("No zero-variance features found.")
-        
-    return zero_var_cols
+    if target_col and target_col in df.columns:
+        # Ensure target is at the end for processing
+        cols = [c for c in df.columns if c != target_col] + [target_col]
+        df = df[cols]
+    
+    num_windows = total_rows // window_size_days
+    
+    logger.info(f"Splitting {total_rows} rows into {num_windows} windows of {window_size_days} rows.")
+    
+    for i in range(num_windows):
+        start_idx = i * window_size_days
+        end_idx = start_idx + window_size_days
+        window_df = df.iloc[start_idx:end_idx].copy()
+        yield window_df
 
-
-def split_into_windows(df: pd.DataFrame, window_days: int = 30) -> List[Tuple[pd.DataFrame, str]]:
+def process_and_save_windows(
+    df: pd.DataFrame,
+    output_dir: Path,
+    window_size_days: int = 30,
+    target_col: Optional[str] = None
+) -> List[Path]:
     """
-    Splits the dataframe into sequential windows based on days.
+    Process the DataFrame, split into windows, and save each window to CSV.
     
     Args:
-        df (pd.DataFrame): Time-indexed dataframe.
-        window_days (int): Number of days per window.
+        df: DataFrame to process.
+        output_dir: Directory to save window files.
+        window_size_days: Size of each window.
+        target_col: Optional target column.
         
     Returns:
-        List[Tuple[pd.DataFrame, str]]: List of (window_df, window_name) tuples.
+        List of paths to saved window files.
     """
-    logger.info(f"Splitting data into {window_days}-day windows...")
+    logger = get_logger("preprocess")
+    output_dir.mkdir(parents=True, exist_ok=True)
     
-    windows = []
-    start_date = df.index.min()
-    end_date = df.index.max()
+    window_paths = []
     
-    current_start = start_date
-    window_count = 0
+    for idx, window_df in enumerate(split_into_windows(df, window_size_days, target_col)):
+        window_id = f"window_{idx:03d}"
+        window_path = output_dir / f"{window_id}.csv"
+        window_df.to_csv(window_path, index=False)
+        window_paths.append(window_path)
+        logger.info(f"Saved {window_id} to {window_path}")
     
-    while current_start < end_date:
-        current_end = current_start + pd.Timedelta(days=window_days)
-        
-        # Clip end to dataset max
-        if current_end > end_date:
-            current_end = end_date + pd.Timedelta(seconds=1) # Ensure inclusive
-        
-        # Slice
-        window_df = df.loc[current_start:current_end].copy()
-        
-        if len(window_df) == 0:
-            break
-            
-        window_name = f"Window_{window_count:03d}_{current_start.strftime('%Y-%m-%d')}_to_{(current_start + pd.Timedelta(days=window_days)-pd.Timedelta(seconds=1)).strftime('%Y-%m-%d')}"
-        
-        windows.append((window_df, window_name))
-        
-        current_start = current_end + pd.Timedelta(hours=1) # Next window starts after this one? 
-        # Actually, standard sliding or chunking. 
-        # The task says "sequential 30-day windows". Usually implies non-overlapping chunks for drift detection over time.
-        # Let's do non-overlapping chunks: current_start = current_start + window_days
-        current_start = current_start + pd.Timedelta(days=window_days) - pd.Timedelta(hours=1) # Overlap? No, let's stick to strict chunks.
-        # Correction: If we want sequential non-overlapping:
-        # current_start = current_start + pd.Timedelta(days=window_days)
-        # But the loop condition `current_start < end_date` and the slice logic needs to be precise.
-        
-        # Let's restart the loop logic for clarity:
-        # We already did one iteration.
-        # Reset for the next iteration logic inside the loop is tricky with the `while` condition.
-        # Let's use a for loop over date ranges.
-        break # Break to rewrite logic below cleanly
-    
-    # Rewriting the loop for robustness
-    windows = []
-    current_start = df.index.min()
-    window_idx = 0
-    
-    while current_start < df.index.max():
-        current_end = current_start + pd.Timedelta(days=window_days)
-        window_df = df.loc[current_start:current_end].copy()
-        
-        if len(window_df) < 24: # Less than 1 day of data, skip
-            break
-        
-        window_name = f"Window_{window_idx:03d}_{current_start.strftime('%Y-%m-%d')}"
-        windows.append((window_df, window_name))
-        
-        current_start = current_end # Non-overlapping
-        window_idx += 1
-        
-    logger.info(f"Created {len(windows)} windows.")
-    return windows
-
-
-def process_and_save_windows(output_dir: str = "data/processed") -> Dict[str, str]:
-    """
-    Main entry point for preprocessing.
-    1. Loads raw data.
-    2. Prepares dataframe (transposes, datetime index).
-    3. Imputes missing values.
-    4. Checks variance.
-    5. Splits into windows.
-    6. Saves each window to CSV.
-    
-    Returns:
-        Dict[str, str]: Mapping of window name to file path.
-    """
-    logger.info("Starting preprocessing pipeline...")
-    
-    # Load
-    raw_df = load_raw_dataset()
-    
-    # Prepare
-    df = prepare_dataframe(raw_df)
-    
-    # Impute
-    df, imputed_count = handle_missing_values(df)
-    
-    # Variance Check (Global first, then per window later in training loop if needed)
-    # The task T010 asks to implement variance_check logic. 
-    # We can do a global check here or per-window. 
-    # T015 mentions "dropped_features list" per window. 
-    # We will store the logic here but apply per-window in the main loop if needed.
-    # For T010, we focus on the split and imputation.
-    
-    # Split
-    windows = split_into_windows(df, window_days=30)
-    
-    # Save
-    Path(output_dir).mkdir(parents=True, exist_ok=True)
-    saved_files = {}
-    
-    for window_df, name in windows:
-        # Check variance per window as per T015 requirement context
-        drop_cols = check_variance(window_df)
-        if drop_cols:
-            window_df = window_df.drop(columns=drop_cols)
-        
-        file_path = os.path.join(output_dir, f"{name}.csv")
-        window_df.to_csv(file_path)
-        saved_files[name] = file_path
-        logger.info(f"Saved {name} to {file_path} (Shape: {window_df.shape})")
-    
-    logger.info(f"Preprocessing complete. {len(saved_files)} windows saved.")
-    return saved_files
-
+    return window_paths
 
 def main():
-    """Main entry point for the script."""
+    """CLI entry point for preprocessing."""
     try:
-        results = process_and_save_windows()
-        print(f"Successfully processed {len(results)} windows.")
-        for name, path in results.items():
-            print(f"  - {name}: {path}")
+        config = get_config()
+        base_path = Path(config.get("base_path", "."))
+        
+        raw_data_path = base_path / config.get("raw_data_file", "data/raw/electricity_load.csv")
+        processed_dir = base_path / "data" / "processed"
+        
+        if not raw_data_path.exists():
+            print(f"Raw data file not found: {raw_data_path}")
+            sys.exit(1)
+        
+        logger = get_logger("preprocess")
+        
+        # Load and process
+        df = load_raw_dataset(raw_data_path)
+        df = prepare_dataframe(df)
+        df = handle_missing_values(df)
+        
+        # Check variance
+        feature_cols = [c for c in df.columns if c != config.get("target_col", "load")]
+        dropped, valid = check_variance(df, feature_cols)
+        df = df[valid + [config.get("target_col", "load")]]
+        
+        # Split and save
+        window_paths = process_and_save_windows(
+            df,
+            processed_dir,
+            window_size_days=30,
+            target_col=config.get("target_col", "load")
+        )
+        
+        print(f"Preprocessing complete. Saved {len(window_paths)} windows.")
+        sys.exit(0)
+        
     except Exception as e:
-        logger.error(f"Preprocessing failed: {e}", exc_info=True)
+        print(f"Error in preprocessing: {e}")
         sys.exit(1)
-
 
 if __name__ == "__main__":
     main()

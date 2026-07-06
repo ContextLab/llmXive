@@ -3,11 +3,11 @@
   \ (density/viscosity for 20 pairs). **Note**: This dataset size (20) is required\
   \ by Plan CI limits but contradicts Spec Assumption (\u2265100). The generated data\
   \ must be deterministic (fixed seed)."
-: 1
-T001a Create directory `data/raw/` and `data/derived/`: 1
-T001b Create directory `code/` and `tests/`: 1
-T001c Create file `code/__init__.py` and `tests/__init__.py`: 1
+: 2
+T001a Create directory `data/raw/` and `data/derived/`: 2
+T001b Create directory `code/` and `tests/`: 2
+T001c Create file `code/__init__.py` and `tests/__init__.py`: 2
 ? T002 Initialize Python 3.11 project with `requirements.txt` dependencies (psi4,
   pandas, numpy, scipy, scikit-learn, requests, pyyaml)
-: 1
-T003 [P] Configure linting (flake8/black) and formatting tools: 1
+: 2
+T003 [P] Configure linting (flake8/black) and formatting tools: 2
