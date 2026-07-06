@@ -1,0 +1,71 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Model Output Metrics"
+description: "Schema for the JSON output containing model performance metrics and feature importance."
+type: "object"
+properties:
+  r2_mean:
+    type: "number"
+    description: "Mean R² score from Cross-Validation."
+  r2_ci_lower:
+    type: "number"
+    description: "Lower bound of the 95% confidence interval for R²."
+  r2_ci_upper:
+    type: "number"
+    description: "Upper bound of the 95% confidence interval for R²."
+  mae:
+    type: "number"
+    description: "Mean Absolute Error on the hold-out test set or CV mean."
+  permutation_p_value:
+    type: "number"
+    description: "P-value from permutation test (1000 iterations) against Null model."
+  baseline_p_value:
+    type: "number"
+    description: "P-value for improvement over Linear Regression baseline (F-test)."
+  feature_importance:
+    type: "object"
+    description: "Map of feature names to their importance scores."
+    additionalProperties:
+      type: "number"
+  pearson_correlations:
+    type: "object"
+    description: "Map of feature names to their individual Pearson correlation coefficients (r) with Seebeck."
+    additionalProperties:
+      type: "number"
+  vif_scores:
+    type: "object"
+    description: "Map of feature names to their Variance Inflation Factor (VIF) scores."
+    additionalProperties:
+      type: "number"
+  classification:
+    type: "string"
+    enum:
+      - "Success"
+      - "Inconclusive"
+      - "Failure"
+    description: "Result classification based on R² threshold (>0.2) and statistical significance (p<0.05)."
+  split_strategy:
+    type: "string"
+    enum:
+      - "80/20"
+      - "RepeatedCV"
+    description: "The splitting strategy used (based on dataset size)."
+  n_samples:
+    type: "integer"
+    description: "Total number of samples used in the analysis."
+  retention_rate:
+    type: "number"
+    description: "Global retention rate of the filtered dataset (aggregated metric)."
+required:
+  - r2_mean
+  - r2_ci_lower
+  - r2_ci_upper
+  - mae
+  - permutation_p_value
+  - baseline_p_value
+  - feature_importance
+  - pearson_correlations
+  - vif_scores
+  - classification
+  - split_strategy
+  - n_samples
+  - retention_rate

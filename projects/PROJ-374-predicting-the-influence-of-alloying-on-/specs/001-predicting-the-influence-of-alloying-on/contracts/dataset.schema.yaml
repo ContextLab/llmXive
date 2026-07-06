@@ -1,0 +1,42 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Processed Material Record"
+description: "Schema for the cleaned and filtered dataset used in feature engineering."
+type: "object"
+properties:
+  material_id:
+    type: "string"
+    description: "Unique identifier from the source database."
+  formula:
+    type: "string"
+    description: "Normalized chemical formula (e.g., 'Bi2Te3')."
+  material_family:
+    type: "string"
+    enum:
+      - "Bi-Te"
+      - "Pb-Te"
+      - "Skutterudite"
+    description: "Inferred material family based on formula/name."
+  seebeck_coefficient:
+    type: "number"
+    description: "Seebeck coefficient in µV/K."
+  temperature:
+    type: "number"
+    description: "Measurement temperature in Kelvin."
+  elements:
+    type: "array"
+    items:
+      type: "string"
+    description: "List of constituent elements."
+  stoichiometry:
+    type: "array"
+    items:
+      type: "number"
+    description: "List of stoichiometric coefficients corresponding to elements."
+required:
+  - material_id
+  - formula
+  - material_family
+  - seebeck_coefficient
+  - temperature
+  - elements
+  - stoichiometry

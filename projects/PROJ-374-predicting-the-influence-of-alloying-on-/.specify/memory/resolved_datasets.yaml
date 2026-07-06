@@ -1,0 +1,285 @@
+resolved_at: '2026-07-06T01:08:01.648381+00:00'
+datasets:
+- intent: 10.1038/sdata.2017.85
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/dataset/EQUAL_Consortium_Workstream_5_b_b_b_Assessment_of_Quality_of_Maternal_and_Newborn_Health_Services_at_Health_Facilities_in_Conflict-Affected_Areas_of_Nigeria_and_the_Democratic_Republic_of_Congo_b_/30670904
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/Determinants_of_implementation_success_for_a_digital_single-session_intervention_for_workplace_mental_health_Mixed_methods_evaluation_in_a_cluster_trial/32904290
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Code_and_data_Australia_trait_coordination/32904287
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/ECT_HW_demo/32899904
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/Guided_self-determination_intervention_versus_an_attention_control_group_of_people_with_type_2_diabetes_in_an_outpatient_clinic_setting_the_OVERCOME_randomised_clinical_trial/32887235
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: VEC
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/vector/test_demo/resolve/main/ibean-master.zip
+    source: huggingface
+    format: zip
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/api/resolve-cache/datasets/vectara/open_ragbench/63f6b052ff83508b08e242db42263ee708815c26/pdf%2Farxiv%2Fanswers.json?%2Fdatasets%2Fvectara%2Fopen_ragbench%2Fresolve%2Fmain%2Fpdf%2Farxiv%2Fanswers.json=&etag=%22002a68aab56b3459e40d210c7955c61e5c269a73%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/ServiceNow/VectorGym/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: wrong_format
+    reason: HTTP 401
+  - url: https://huggingface.co/datasets/vector/test_demo/resolve/main/ibean-master.zip
+    source: huggingface
+    status: verified
+    format: zip
+  - url: https://huggingface.co/datasets/vector/structuretest/resolve/main/test.jsonl
+    source: huggingface
+    status: wrong_format
+    reason: HTTP 401
+  - url: https://figshare.com/articles/dataset/EQUAL_Consortium_Workstream_5_b_b_b_Assessment_of_Quality_of_Maternal_and_Newborn_Health_Services_at_Health_Facilities_in_Conflict-Affected_Areas_of_Nigeria_and_the_Democratic_Republic_of_Congo_b_/30670904
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/Determinants_of_implementation_success_for_a_digital_single-session_intervention_for_workplace_mental_health_Mixed_methods_evaluation_in_a_cluster_trial/32904290
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Code_and_data_Australia_trait_coordination/32904287
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/ECT_HW_demo/32899904
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/Guided_self-determination_intervention_versus_an_attention_control_group_of_people_with_type_2_diabetes_in_an_outpatient_clinic_setting_the_OVERCOME_randomised_clinical_trial/32887235
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10801308
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10948947
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19234304
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8038377
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5114875
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21210239
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21210239
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21210220
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21210220
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21210215
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: MAE
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/lucainiao/MAESTRO_2004_SYNTH/resolve/main/MAESTRO_2004_SYNTH.zip
+    source: huggingface
+    format: zip
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/RvTamaUraP/nva-Maekawa_Miku/resolve/main/LoRa_Maekawa_Miku_A.zip
+    source: huggingface
+    format: zip
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/tvergho/maestro/resolve/main/data/train-00000-of-00017-a44871a8bbf731f8.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/Maeji/autotrain-data-230121_t5_lcw99/resolve/main/raw/paper_summary.csv
+    source: huggingface
+    status: wrong_format
+    reason: HTTP 401
+  - url: https://huggingface.co/datasets/lucainiao/MAESTRO_2004_SYNTH/resolve/main/MAESTRO_2004_SYNTH.zip
+    source: huggingface
+    status: verified
+    format: zip
+  - url: https://huggingface.co/datasets/RvTamaUraP/nva-Maekawa_Miku/resolve/main/LoRa_Maekawa_Miku_A.zip
+    source: huggingface
+    status: verified
+    format: zip
+  - url: https://huggingface.co/datasets/tvergho/maestro/resolve/main/data/train-00000-of-00017-a44871a8bbf731f8.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/roszcz/maestro-v1-sustain/resolve/main/data/test-00000-of-00001-15d650750bca2093.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/dataset/EQUAL_Consortium_Workstream_5_b_b_b_Assessment_of_Quality_of_Maternal_and_Newborn_Health_Services_at_Health_Facilities_in_Conflict-Affected_Areas_of_Nigeria_and_the_Democratic_Republic_of_Congo_b_/30670904
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/Determinants_of_implementation_success_for_a_digital_single-session_intervention_for_workplace_mental_health_Mixed_methods_evaluation_in_a_cluster_trial/32904290
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Code_and_data_Australia_trait_coordination/32904287
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/ECT_HW_demo/32899904
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/Guided_self-determination_intervention_versus_an_attention_control_group_of_people_with_type_2_diabetes_in_an_outpatient_clinic_setting_the_OVERCOME_randomised_clinical_trial/32887235
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8299749
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/13984656
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10023439
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.mapress.com/zt/article/view/zootaxa.4420.3.6
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6068475
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21209149
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21209149
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21207072
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21207072
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/An_integrated_real-time_tool_wear_monitoring_and_prediction_framework_with_autonomous_in-situ_machine_vision-based_labeling/32903232
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: GradientBoostingRegressor
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://bridges.monash.edu/articles/thesis/Investigation_of_innate_immune_responses_to_Shigella_flexneri_infection/32904293
+    source: figshare
+    status: unreachable
+    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''bridges.monash.edu'',
+      port=443): Max retries exceeded with url: /articles/thesis/Investigation_of_innate_immune_responses_to_Shigella_flexneri_infection/32904293
+      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
+      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
+  - url: https://figshare.com/articles/dataset/EQUAL_Consortium_Workstream_5_b_b_b_Assessment_of_Quality_of_Maternal_and_Newborn_Health_Services_at_Health_Facilities_in_Conflict-Affected_Areas_of_Nigeria_and_the_Democratic_Republic_of_Congo_b_/30670904
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/Determinants_of_implementation_success_for_a_digital_single-session_intervention_for_workplace_mental_health_Mixed_methods_evaluation_in_a_cluster_trial/32904290
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Code_and_data_Australia_trait_coordination/32904287
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/ECT_HW_demo/32899904
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14721530
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/13285468
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15658126
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16420152
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16437728
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19728554
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19728127
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19728127
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19727960
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19727960
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
