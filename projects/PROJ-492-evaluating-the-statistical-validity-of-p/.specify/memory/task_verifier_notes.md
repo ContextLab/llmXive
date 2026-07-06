@@ -1,5 +1,0 @@
-# Tasks an independent verifier REJECTED (redo these)
-
-A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
-
-- **T026 Implement synthetic dataset generator in `src/audit/synthetic.py` (FR‑030) – The synthetic dataset generator outputs at least 10 000 simulated summaries (binary AND continuous outcomes). (binary AND continuous outcomes) **and verify both outcome types are present** (constraint‑preservation‑2958f04c) (verify files are created and contain ≥ 10 000 records). **DEPENDS ON:** T006‑T012.** — No `src/audit/synthetic.py` file or any generated dataset files are present in the provided evidence, and there is no proof that a synthetic generator creates ≥ 10 000 records with both binary and continuous outcomes. The required artifact and its verification are missing.
