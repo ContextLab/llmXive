@@ -1,0 +1,38 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: MBPP Task Schema
+description: >
+  Schema for a single MBPP programming task. Represents the input
+  data structure used for code generation evaluation.
+type: object
+required:
+  - task_id
+  - description
+  - test_list
+  - source_file
+properties:
+  task_id:
+    type: integer
+    description: Unique identifier for the task within the MBPP dataset.
+  description:
+    type: string
+    description: Natural language description of the programming task.
+  test_list:
+    type: array
+    description: List of test cases (assertions) to validate the solution.
+    items:
+      type: string
+      description: A string containing a Python assertion or test statement.
+    minItems: 1
+  source_file:
+    type: string
+    description: Path to the source file where this task was originally defined (if available).
+  code:
+    type: ["string", "null"]
+    description: >
+      Optional reference solution code. May be null if not provided
+      or if the task is for open-ended generation.
+  entry_point:
+    type: ["string", "null"]
+    description: >
+      Optional name of the function to call as the entry point for the solution.
+additionalProperties: false

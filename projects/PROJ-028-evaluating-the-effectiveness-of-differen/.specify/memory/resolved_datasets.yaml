@@ -1,0 +1,218 @@
+resolved_at: '2026-07-06T09:20:24.529388+00:00'
+datasets:
+- intent: MBPP
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/google-research-datasets/mbpp/resolve/main/full/prompt-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 7878
+      parsed: true
+  - url: https://huggingface.co/datasets/Muennighoff/mbpp/resolve/main/data/mbpp.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/reshinthadith/dfg_augmented_mbpp/resolve/main/data/train-00000-of-00001-4ebb86d98288602f.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 17897
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/google-research-datasets/mbpp/resolve/main/full/prompt-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/Muennighoff/mbpp/resolve/main/data/mbpp.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/reshinthadith/dfg_augmented_mbpp/resolve/main/data/train-00000-of-00001-4ebb86d98288602f.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/OllieStanley/humaneval-mbpp-codegen-qa/resolve/main/data/train-00000-of-00001-ac785dce89a6b31a.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/OllieStanley/humaneval-mbpp-testgen-qa/resolve/main/data/train-00000-of-00001-f74ac2f05bba8dfe.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://openarchive.ki.se/articles/thesis/Training_mental_health_practitioners_in_evidence-based_psychotherapies_behavior_change_in_context/32124298
+    source: figshare
+    status: unreachable
+    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''openarchive.ki.se'',
+      port=443): Max retries exceeded with url: /articles/thesis/Training_mental_health_practitioners_in_evidence-based_psychotherapies_behavior_change_in_context/32124298
+      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
+      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
+  - url: https://figshare.com/articles/dataset/Research_data/32906867
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/presentation/Neuro_Emotional_Bloom_Theory_NEBT_A_Conceptual_Framework_for_Adaptive_Positive_Emotional_Transformation/32906810
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Supplementary_files_to_Crous_et_al_2026_Fungal_Planet_description_sheets_1868_1920_-_Persoonia_56_1_173/30529955
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Experimental_study_molecular_docking_and_quantum_chemical_investigation_of_a_piperidinyl-acetamide_derivative_as_a_steel_corrosion_inhibitor/32800806
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/12658269
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/11649373
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17197937
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17198015
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15448879
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21074777
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21074777
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20766480
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20766480
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21149145
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: FP32
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/wangyanhui666/imagenet_vae_mds_fp32/resolve/main/0/index.json
+    source: huggingface
+    format: json
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 53406
+      parsed: true
+  - url: https://huggingface.co/datasets/Min-Jaewon/sdxl-coco-fp32/resolve/main/data/train-00000-of-00140.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/Min-Jaewon/sdxl-pickapic-fp32/resolve/main/data/train-00000-of-00094.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/wangyanhui666/imagenet_vae_mds_fp32/resolve/main/0/index.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://huggingface.co/datasets/Min-Jaewon/sdxl-coco-fp32/resolve/main/data/train-00000-of-00140.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/Min-Jaewon/sdxl-pickapic-fp32/resolve/main/data/train-00000-of-00094.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/Min-Jaewon/sdxl-coco-filtered-fp32/resolve/main/data/train-00000-of-00071.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/open-llm-leaderboard/tinycompany__SigmaBoi-nomic1.5-fp32-details/resolve/main/tinycompany__SigmaBoi-nomic1.5-fp32/samples_leaderboard_bbh_boolean_expressions_2025-03-08T18-02-14.443518.jsonl
+    source: huggingface
+    status: wrong_format
+    reason: HTTP 401
+  - url: https://figshare.com/articles/online_resource/Shallow_sea_reverberation_suppression_data/32906702
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://openarchive.ki.se/articles/thesis/Training_mental_health_practitioners_in_evidence-based_psychotherapies_behavior_change_in_context/32124298
+    source: figshare
+    status: unreachable
+    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''openarchive.ki.se'',
+      port=443): Max retries exceeded with url: /articles/thesis/Training_mental_health_practitioners_in_evidence-based_psychotherapies_behavior_change_in_context/32124298
+      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
+      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
+  - url: https://figshare.com/articles/dataset/Research_data/32906867
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/presentation/Neuro_Emotional_Bloom_Theory_NEBT_A_Conceptual_Framework_for_Adaptive_Positive_Emotional_Transformation/32906810
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Supplementary_files_to_Crous_et_al_2026_Fungal_Planet_description_sheets_1868_1920_-_Persoonia_56_1_173/30529955
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3923445
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7034509
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3906875
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3906910
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.mdpi.com/2078-2489/16/7/574
+    source: zenodo
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://zenodo.org/records/21215477
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21215477
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.5281/zenodo.21207028
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: HTTP 410'
+  - url: https://zenodo.org/records/21205418
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21205418
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

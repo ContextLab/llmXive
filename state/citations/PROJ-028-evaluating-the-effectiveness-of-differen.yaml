@@ -1,0 +1,11 @@
+- artifact_hash: d154242facdae673659e1a7320fb5e07069efd2b96dbcdcfaf3d4adf0dea7a13
+  artifact_path: projects/PROJ-028-evaluating-the-effectiveness-of-differen/specs/001-evaluating-the-effectiveness-of-differen/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: "google-research-datasets/mbpp \xB7 Datasets at Hugging Face"
+  kind: url
+  value: https://huggingface.co/datasets/google-research-datasets/mbpp`
+  verification_status: verified
+  verified_against_url: https://huggingface.co/datasets/google-research-datasets/mbpp
+  verified_at: '2026-07-06T09:27:53.389058Z'

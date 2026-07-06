@@ -1,0 +1,12 @@
+? 'T001 Create project structure per implementation plan: `src/`, `tests/`, `data/`,
+  `data/logs/`, `data/results/`, `data/reports/`, `specs/001-evaluate-prompting-strategies/contracts/`,
+  `state/projects/`'
+: 2
+T002 Initialize Python 3.11 project with `requirements.txt` (transformers, torch[cpu], datasets, scipy, pytest, psutil): 2
+T003 [P] Configure linting (ruff) and formatting (black) tools: 2
+T004 [P] Implement `src/utils/logging.py` for structured JSON resource logging and `data/logs/` directory setup: 2
+? T005 [P] Implement `src/models/loader.py` with FP32 default; explicitly implement
+  RAM monitoring and automatic model reload to FP16 if usage > 6.5GB (FR-002). Do
+  not use 8-bit/4-bit quantization.
+: 2
+T006 [P] Create `src/evaluation/prompts.py` with templates for Zero-shot, Few-shot (3 examples), and Chain-of-Thought: 2
