@@ -1,0 +1,11 @@
+- artifact_hash: 2612b8678e0ed3529c523df867352738c39360c7f7bb450e3b1bff51e50df8b6
+  artifact_path: projects/PROJ-184-exploring-the-statistical-significance-o/specs/001-exploring-the-statistical-significance-o/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: Atomic Spectra Database | NIST
+  kind: url
+  value: https://www.nist.gov/pml/atomic-spectra-database
+  verification_status: verified
+  verified_against_url: https://www.nist.gov/pml/atomic-spectra-database
+  verified_at: '2026-07-06T11:21:09.155575Z'

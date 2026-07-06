@@ -1,0 +1,34 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Delta Alpha Estimate Schema"
+description: "Schema for posterior estimates of Δα/α (data/results/delta_alpha_estimates.csv)"
+type: "object"
+properties:
+  absorber_id:
+    type: "string"
+    description: "Reference to the absorber ID"
+  mean:
+    type: "number"
+    description: "Posterior mean of Δα/α"
+  std:
+    type: "number"
+    description: "Posterior standard deviation"
+    minimum: 0
+  ci_95_lower:
+    type: "number"
+    description: "Lower bound of 95% credible interval"
+  ci_95_upper:
+    type: "number"
+    description: "Upper bound of 95% credible interval"
+  rhat:
+    type: "number"
+    description: "Convergence diagnostic (R-hat)"
+    minimum: 1
+    maximum: 2
+required:
+  - absorber_id
+  - mean
+  - std
+  - ci_95_lower
+  - ci_95_upper
+  - rhat
+additionalProperties: false

@@ -1,0 +1,182 @@
+resolved_at: '2026-07-06T11:38:37.224075+00:00'
+datasets:
+- intent: ESO
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/esoria3/french_simplified/resolve/main/data/test-00000-of-00001-4f49740b40c19029.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 12639
+      parsed: true
+  - url: https://huggingface.co/datasets/HUBioDataLab/esol/resolve/main/esol.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 90816
+      parsed: true
+  - url: https://huggingface.co/datasets/jxie/esol/resolve/main/data/test_0-00000-of-00001-209844b27b1f7a60.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 3607
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/esoria3/french_simplified/resolve/main/data/test-00000-of-00001-4f49740b40c19029.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/HUBioDataLab/esol/resolve/main/esol.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/jxie/esol/resolve/main/data/test_0-00000-of-00001-209844b27b1f7a60.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/figure/2026_2027_Adeleke_University_Ede_Post_UTME_Direct_Entry_FORM_Is_Out_CALL_07036366909_07036366909_DR_MRS_GRACE_AJAYI_To_apply_For_Application_and_make_your_proper_registration_before_the_deadline_/32907767
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/2026_2027_Oduduwa_University_Ipetumodu_Post_UTME_Direct_Entry_FORM_Is_Out_CALL_07036366909_07036366909_DR_MRS_GRACE_AJAYI_To_apply_For_Application_and_make_your_proper_registration_before_the_deadline_/32907755
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://bridges.monash.edu/articles/thesis/Economically_viable_bio-based_chemicals_production/32907728
+    source: figshare
+    status: unreachable
+    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''bridges.monash.edu'',
+      port=443): Max retries exceeded with url: /articles/thesis/Economically_viable_bio-based_chemicals_production/32907728
+      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
+      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
+  - url: https://figshare.com/articles/software/best_wfm_software_for_call_centers/32907716
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://sussex.figshare.com/articles/journal_contribution/Development_and_pilot_of_the_Whole_School_and_College_Approach_WSCA_measurement_toolkit_for_mental_health_and_wellbeing/32634018
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/1307749
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3517953
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6566232
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/1303344
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7506888
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21213945
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21213945
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://knowledge.uchicago.edu/records/tezb5-f1k58
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://knowledge.uchicago.edu/records/tezb5-f1k58
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://usiena-air.unisi.it//handle/11365/1120775
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: UVES
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/eddy-Wang/UVE-Subjective-Benchmark/resolve/main/BT
+      Scores/algorithm_all/bt_algorithm_diagnostics.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 82
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/eddy-Wang/UVE-Subjective-Benchmark/resolve/main/BT
+      Scores/algorithm_all/bt_algorithm_diagnostics.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://ore.exeter.ac.uk/articles/thesis/Audio_for_Flow_Monitoring_in_Wastewater/32907479
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://sussex.figshare.com/articles/journal_contribution/Living_it_the_resilient_way_an_autoethnographic_account_of_marketing_contribution_to_public_value_in_healthcare/32686047
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/2026_2027_Adeleke_University_Ede_Post_UTME_Direct_Entry_FORM_Is_Out_CALL_07036366909_07036366909_DR_MRS_GRACE_AJAYI_To_apply_For_Application_and_make_your_proper_registration_before_the_deadline_/32907767
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/2026_2027_Oduduwa_University_Ipetumodu_Post_UTME_Direct_Entry_FORM_Is_Out_CALL_07036366909_07036366909_DR_MRS_GRACE_AJAYI_To_apply_For_Application_and_make_your_proper_registration_before_the_deadline_/32907755
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://bridges.monash.edu/articles/thesis/Economically_viable_bio-based_chemicals_production/32907728
+    source: figshare
+    status: unreachable
+    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''bridges.monash.edu'',
+      port=443): Max retries exceeded with url: /articles/thesis/Economically_viable_bio-based_chemicals_production/32907728
+      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
+      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
+  - url: https://zenodo.org/records/4589444
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4589454
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4589466
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5483961
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4589450
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21157210
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21157210
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://cdsarc.cds.unistra.fr/viz-bin/cat/J/AJ/170/315
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20530181
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20530181
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

@@ -1,0 +1,43 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Absorber Data Schema"
+description: "Schema for processed absorber data (data/interim/absorber_data.csv)"
+type: "object"
+properties:
+  absorber_id:
+    type: "string"
+    description: "Unique identifier for the absorber (e.g., 'QSO_J1234+5678')"
+  redshift:
+    type: "number"
+    description: "Absorber redshift (z)"
+    minimum: 0
+  ra:
+    type: "number"
+    description: "Right Ascension in degrees"
+    minimum: 0
+    maximum: 360
+  dec:
+    type: "number"
+    description: "Declination in degrees"
+    minimum: -90
+    maximum: 90
+  snr:
+    type: "number"
+    description: "Signal-to-noise ratio of the spectrum"
+    minimum: 0
+  systematic_error:
+    type: "number"
+    description: "Estimated systematic error (calibration drift) in Angstroms"
+    minimum: 0
+  n_lines:
+    type: "integer"
+    description: "Number of absorption lines used in the analysis"
+    minimum: 1
+required:
+  - absorber_id
+  - redshift
+  - ra
+  - dec
+  - snr
+  - systematic_error
+  - n_lines
+additionalProperties: false

@@ -1,0 +1,30 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Model Output Schema"
+description: "Schema for model comparison results (data/results/bayes_factors.csv)"
+type: "object"
+properties:
+  model_name:
+    type: "string"
+    description: "Name of the model (e.g., 'null', 'dipole', 'temporal')"
+  ln_bf:
+    type: "number"
+    description: "Log Bayes factor vs. null model"
+  evidence_strength:
+    type: "string"
+    description: "Interpretation of ln(BF) (e.g., 'moderate', 'strong')"
+    enum:
+      - "none"
+      - "moderate"
+      - "strong"
+      - "decisive"
+  parameters:
+    type: "object"
+    description: "Model-specific parameters (e.g., beta_0, amplitude, direction)"
+    additionalProperties:
+      type: "number"
+required:
+  - model_name
+  - ln_bf
+  - evidence_strength
+  - parameters
+additionalProperties: false
