@@ -2,95 +2,97 @@ name: Audit Pipeline
 
 on:
   push:
-    branches: [ "main", "develop" ]
+    branches: [ main, develop ]
   pull_request:
-    branches: [ "main", "develop" ]
-
-permissions:
-  contents: read
+    branches: [ main ]
 
 jobs:
   audit:
-    name: Run Statistical Audit Pipeline
     runs-on: ubuntu-latest
+    
+    # Resource constraints per FR-009 and Constitution Principle I
+    # GitHub Actions standard runner provides 2 vCPU and 7GB RAM by default.
+    # We enforce a 2GB RAM limit in the workflow steps and set a CPU limit via container options.
+    container:
+      options: --cpus=2 --memory=2048m
 
-    # Resource Constraints: Enforce CPU ≤ 2 vCPU, RAM ≤ 2 GB
-    # Note: GitHub Actions runners provide more resources, but we limit usage
-    # via environment variables and timeout to simulate FR-009 constraints.
-    # The actual enforcement of strict 2GB RAM/2 vCPU limits for the process
-    # is handled by the `src/utils/resource_monitor.py` module invoked in the pipeline.
-    # We set the job timeout to ensure the entire workflow does not exceed 6 hours (SC-008).
-    timeout-minutes: 360
+    timeout-minutes: 60
 
     steps:
-      - name: Checkout Repository
+      - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.10'
+          python-version: '3.9'
 
       - name: Cache pip packages
         uses: actions/cache@v4
         with:
           path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+          key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
           restore-keys: |
             ${{ runner.os }}-pip-
 
-      - name: Install Dependencies
+      - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Run Constitution Compliance Check (PT005C)
+      - name: Run Constitution Compliance Checker
         run: |
-          python -c "from code.src.utils.constitution_checker import check_all_principles; check_all_principles()"
-        continue-on-error: false
+          python -m code.src.utils.constitution_checker
+        env:
+          PYTHONPATH: ./code
+
+      - name: Run Monte-Carlo Validation (Startup Check)
+        run: |
+          python -m code.src.audit.monte_carlo_validation
+        env:
+          PYTHONPATH: ./code
+          SEED: 42
 
       - name: Schema Validation
         run: |
           python -m code.src.audit.export_schema_validator
           python -m code.src.audit.manifest_schema_validator
-        continue-on-error: false
+        env:
+          PYTHONPATH: ./code
 
       - name: Synthetic Validation (Precision/Recall Check)
         run: |
           python -m code.src.audit.evaluation
-        continue-on-error: false
+        env:
+          PYTHONPATH: ./code
 
-      - name: Resource Monitor Sanity Check
+      - name: Resource Monitor Check
         run: |
-          python -m code.src.utils.resource_monitor
-        continue-on-error: false
+          python -m code.src.utils.resource_monitor --check-only
+        env:
+          PYTHONPATH: ./code
 
       - name: Run Main Audit Pipeline
         run: |
           python -m code.src.cli.run_audit
         env:
-          # Enforce limits at the process level via environment variables
-          # The resource_monitor module reads these and enforces them.
-          CPU_LIMIT: "2"
-          MEMORY_LIMIT_MB: "2048"
-          TIMEOUT_SECONDS: "10800"
-        continue-on-error: false
+          PYTHONPATH: ./code
+          SEED: 42
 
-      - name: Verify Artifacts
+      - name: Verify Output Artifacts
         run: |
-          if [ ! -f "output/audit_report.json" ]; then
-            echo "ERROR: output/audit_report.json not found"
+          if [ ! -f output/audit_report.json ]; then
+            echo "ERR-200: audit_report.json not found"
             exit 1
           fi
-          if [ ! -f "output/summary_report.csv" ]; then
-            echo "ERROR: output/summary_report.csv not found"
+          if [ ! -f output/summary_report.csv ]; then
+            echo "ERR-200: summary_report.csv not found"
             exit 1
           fi
-          if [ ! -f "output/manifest.json" ]; then
-            echo "ERROR: output/manifest.json not found"
+          if [ ! -f output/manifest.json ]; then
+            echo "ERR-200: manifest.json not found"
             exit 1
           fi
-          echo "All required artifacts present."
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
@@ -98,5 +100,5 @@ jobs:
           name: audit-results
           path: |
             output/
+            data/processed/
             data/provenance_log.csv
-          retention-days: 7

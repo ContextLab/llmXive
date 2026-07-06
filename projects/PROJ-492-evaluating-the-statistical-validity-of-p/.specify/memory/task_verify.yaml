@@ -50,7 +50,17 @@
   \ (verify workflow runs and respects limits) [DEPENDS ON: T010]."
 : 1
 ? "T012 Create CI workflow file `.github/workflows/audit.yml` that installs dependencies,\
+  \ enforces CPU \u2264 2 vCPU, RAM \u2264 2 GB [UNRESOLVED-CLAIM: c_a0f452cb \u2014\
+  \ status=not_enough_info], timeout a predefined duration, and runs audit pipeline\
+  \ (verify workflow runs and respects limits) [DEPENDS ON: T010]."
+: 1
+? "T012 Create CI workflow file `.github/workflows/audit.yml` that installs dependencies,\
   \ enforces CPU \u2264 2 vCPU, RAM \u2264 2 GB [UNRESOLVED-CLAIM: c_a5c2cfa2 \u2014\
+  \ status=not_enough_info], timeout a predefined duration, and runs audit pipeline\
+  \ (verify workflow runs and respects limits) [DEPENDS ON: T010]."
+: 1
+? "T012 Create CI workflow file `.github/workflows/audit.yml` that installs dependencies,\
+  \ enforces CPU \u2264 2 vCPU, RAM \u2264 2 GB [UNRESOLVED-CLAIM: c_e82d00a8 \u2014\
   \ status=not_enough_info], timeout a predefined duration, and runs audit pipeline\
   \ (verify workflow runs and respects limits) [DEPENDS ON: T010]."
 : 1
@@ -58,6 +68,10 @@
   \ enforces CPU \u2264 2 vCPU, RAM \u2264 2 GB, timeout a predefined duration [UNRESOLVED-CLAIM:\
   \ c_26bd3e2b \u2014 status=not_enough_info], and runs audit pipeline (verify workflow\
   \ runs and respects limits) [DEPENDS ON: T010]."
+: 1
+? "T012 Create CI workflow file `.github/workflows/audit.yml` that installs dependencies,\
+  \ enforces CPU \u2264 2 vCPU, RAM \u2264 2 GB, timeout a predefined duration, and\
+  \ runs audit pipeline (verify workflow runs and respects limits) [DEPENDS ON: T010]."
 : 1
 ? "T014 Configure `manifest.json` generation with content hashes in `src/utils/manifest.py`\
   \ (FR\u2011024) (verify `manifest.json` contains SHA256 hashes) [UNRESOLVED-CLAIM:\
@@ -95,6 +109,21 @@
   \ mismatch entries are excluded from aggregate prevalence estimates** per FR\u2011\
   004b (generate `AuditRecord` objects with data_quality_warning messages for sample\u2011\
   size discrepancies, writing `output/audit_report.json`). **DEPENDS ON:** T023."
+: 1
+? "T025 Implement inconsistency validator in `src/audit/validator.py` applying FR\u2011\
+  004 thresholds (absolute p\u2011difference > 0.05, relative effect\u2011size > 5\u202F\
+  % [UNRESOLVED-CLAIM: c_9ae4a784 \u2014 status=not_enough_info]) **and verify that\
+  \ sample\u2011size mismatch entries are excluded from aggregate prevalence estimates**\
+  \ per FR\u2011004b (generate `AuditRecord` objects with data_quality_warning messages\
+  \ for sample\u2011size discrepancies, writing `output/audit_report.json`). **DEPENDS\
+  \ ON:** T023."
+: 1
+? "T025 Implement inconsistency validator in `src/audit/validator.py` applying FR\u2011\
+  004 thresholds (absolute p\u2011difference > 0.05, relative effect\u2011size > 5\u202F\
+  %) **and verify that sample\u2011size mismatch entries are excluded from aggregate\
+  \ prevalence estimates** per FR\u2011004b (generate `AuditRecord` objects with data_quality_warning\
+  \ messages for sample\u2011size discrepancies, writing `output/audit_report.json`).\
+  \ **DEPENDS ON:** T023."
 : 1
 ? "T026 Implement synthetic dataset generator in `src/audit/synthetic.py` (FR\u2011\
   030) \u2013 The synthetic dataset generator outputs at least 10\u202F000 simulated\
@@ -184,11 +213,6 @@
   \ handling, sample\u2011size mismatch with data_quality_warning generation (tests/unit/test_validator.py)\
   \ (verify all tests pass) [DEPENDS ON: T025]."
 : 1
-? "T027 Unit tests for validator covering absolute p\u2011difference > 0.05, effect\u2011\
-  size > 5\u202F%, inequality handling, sample\u2011size mismatch with data_quality_warning\
-  \ generation (tests/unit/test_validator.py) (verify all tests pass) [DEPENDS ON:\
-  \ T025]."
-: 2
 ? "T028 Implement power\u2011analysis utility in `src/audit/power_analysis.py` (FR\u2011\
   025) that computes the minimum N given baseline, detectable effect, \u03B1 and power\
   \ [UNRESOLVED-CLAIM: c_21bdda9f \u2014 status=not_enough_info], writes result to\
@@ -284,6 +308,12 @@
   \ c_c95cee25 \u2014 status=not_enough_info] (coverage\u2011executability\u201108d5764f)\
   \ (verify test passes)."
 : 1
+? "T042 Implement binomial prevalence test, Wilson CI, **and sensitivity analysis**\
+  \ (FR\u2011005a & FR\u2011005b) in `src/audit/prevalence.py` including dynamic Bonferroni\
+  \ correction (\u03B1 = 0.05\u202F/\u202Fnumber_of_subgroups) [UNRESOLVED-CLAIM:\
+  \ c_958e12aa \u2014 status=not_enough_info] per FR\u2011032 (verify JSON output\
+  \ contains required fields including sensitivity analysis results)."
+: 1
 ? "T043 Unit tests for binomial test and CI width \u2264 0.10 (1807.00365, https://arxiv.org/abs/1807.00365)\
   \ (tests/unit/test_prevalence.py) (verify test passes)."
 : 1
@@ -303,6 +333,15 @@
 ? "T043 Unit tests for binomial test and CI width \u2264 0.10 [UNRESOLVED-CLAIM: c_e3a7e8b9\
   \ \u2014 status=not_enough_info] (tests/unit/test_prevalence.py) (verify test passes)."
 : 1
+? "T044 **[P]** Domain Bias Subsampling \u2013 create a balanced subsample of the\
+  \ corpus so that no single domain exceeds 30\u202F% before bias adjustment [UNRESOLVED-CLAIM:\
+  \ c_2f72044d \u2014 status=not_enough_info] (FR\u2011027). (writes `data/subsampled_balanced.csv`).\
+  \ **DEPENDS ON:** T006\u2011T012."
+: 1
+? "T046 Unit tests for bias\u2011adjustment ensuring no domain exceeds 30\u202F% proportion\
+  \ [UNRESOLVED-CLAIM: c_ea6bf183 \u2014 status=not_enough_info] (tests/unit/test_bias_adjustment.py)\
+  \ (verify test passes)."
+: 1
 ? "T049 Add Quickstart guide `docs/README_QUICKSTART.md` covering execution on 30\
   \ URLs within 30 minutes [UNRESOLVED-CLAIM: c_67ec5a88 \u2014 status=not_enough_info]\
   \ (FR\u2011028) **and include novice\u2011user verification step with written confirmation\
@@ -317,6 +356,11 @@
   \ URLs within 30 minutes [UNRESOLVED-CLAIM: c_cf59c7a8 \u2014 status=not_enough_info]\
   \ (FR\u2011028) **and include novice\u2011user verification step with written confirmation\
   \ log** (see T095b) (verify guide file exists and includes novice verification instructions)."
+: 1
+? "T049b **[P]** Verify that the Quickstart execution in T049 actually runs on the\
+  \ default GitHub Actions runner (2\u202FvCPU, 7\u202FGB RAM) [UNRESOLVED-CLAIM:\
+  \ c_e0252683 \u2014 status=not_enough_info] and records the runner environment.\
+  \ (depends on T049)"
 : 1
 ? "T062 Implement Monte\u2011Carlo validation module (FR\u2011026) in `src/audit/monte_carlo_validation.py`\
   \ that runs 10\u202F000 replicates for each statistical test (z-test, Fisher's,\
