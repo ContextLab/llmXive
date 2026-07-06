@@ -17,7 +17,7 @@ The researcher MUST be able to ingest the first non-trivial zeros of the Riemann
 
 **Acceptance Scenarios**:
 
-1. **Given** the segmented sieve is initialized with $N=10^{10}$, **When** the script executes, **Then** The output file `primes_gaps.csv` contains a large volume of gaps corresponding to the count of primes up to $10^{10}$ minus one. and the process completes without OOM errors.
+1. **Given** the segmented sieve is initialized with $N=10^{10}$, **When** the script executes, **Then** The output file `primes_gaps.csv` contains a large volume of gaps corresponding to the count of primes up to a sufficiently large magnitude minus one. and the process completes without OOM errors.
 2. **Given** the LMFDB/Odlyzko dataset URL is accessible, **When** the zero ingestion script runs, **Then** The output file `zeta_zeros.csv` contains a large number of zeros. with values increasing monotonically.
 
 ---

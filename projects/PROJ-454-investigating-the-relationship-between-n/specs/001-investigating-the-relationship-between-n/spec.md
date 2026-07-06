@@ -18,7 +18,7 @@ Researcher downloads resting-state EEG datasets from OpenNeuro, preprocesses the
 **Acceptance Scenarios**:
 
 1. **Given** an OpenNeuro EEG dataset (ds or ds003104) with participants aged +, **When** the preprocessing pipeline runs, **Then** EEG signals are filtered (low-frequency to a designated high-frequency bandpass, /60 Hz notch), bad channels are interpolated, and ICA artifacts are removed.
-2. **Given** preprocessed EEG data segmented into -second non-overlapping epochs, **When** entropy computation runs, **Then** sample entropy and approximate entropy values are output for each of the 5 frequency bands (delta: -4 Hz, theta: low-frequency range, alpha: -12 Hz, beta: Hz, gamma: a high-frequency band within the gamma range).
+2. **Given** preprocessed EEG data segmented into -second non-overlapping epochs, **When** entropy computation runs, **Then** sample entropy and approximate entropy values are output for each of the frequency bands (delta: -4 Hz, theta: low-frequency range, alpha: -12 Hz, beta: Hz, gamma: a high-frequency band within the gamma range).
 3. **Given** participants with missing or corrupted EEG segments exceeding a substantial proportion of recording time, **When** data quality checks run, **Then** those participants are flagged and excluded from entropy computation.
 
 ---
@@ -70,7 +70,7 @@ Researcher conducts sensitivity analyses excluding participants with neurologica
 - **FR-002**: System MUST preprocess EEG data by applying a bandpass filter within a low-frequency to mid-frequency range, notch filter (mains frequency), bad channel interpolation, and ICA artifact removal (See US-1)
 - **FR-003**: System MUST compute sample entropy and approximate entropy metrics across 5 frequency bands (delta: 1-4 Hz, theta: 4-8 Hz, alpha: 8-12 Hz, beta: 12 Hz, gamma: high-frequency band) (See US-1)
 - **FR-004**: System MUST perform partial Pearson correlation between entropy metrics and WCST perseverative errors controlling for age, education, and task accuracy (derived from a separate attention task) as covariates (See US-2)
-- **FR-005**: System MUST apply Benjamini-Hochberg False Discovery Rate (FDR) correction for multiple comparisons across Multiple hypothesis tests (multiple frequency bands × 2 entropy measures) with α ≤ 0.05 (See US-2)
+- **FR-005**: System MUST apply Benjamini-Hochberg False Discovery Rate (FDR) correction for multiple comparisons across Multiple hypothesis tests (multiple frequency bands × entropy measures) with α ≤ 0.05 (See US-2)
 - **FR-006**: System MUST conduct sensitivity analysis excluding participants with neurological conditions or medication use affecting EEG measures (See US-3)
 - **FR-007**: System MUST perform threshold sensitivity sweep over {, 0.05, 0.1} absolute difference for any decision cutoffs and report the variation in correlation coefficients (r) and p-values across the sweep (See US-3)
 - **FR-008**: System MUST run all computations on CPU-only hardware (GitHub Actions ubuntu-latest runner) with ≤7 GB RAM and ≤14 GB disk usage (via streaming/chunked processing), completing within 6 hours (See US-1, US-2, US-3)

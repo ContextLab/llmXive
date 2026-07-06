@@ -20,31 +20,31 @@
 - **Mobile**: `api/src/`, `ios/src/` or `android/src/`
 - Paths shown below assume single project - adjust based on plan.md structure
 
-<!-- 
-  ============================================================================
-  IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-  
-  The /speckit-tasks command MUST replace these with actual tasks based on:
-  - User stories from spec.md (with their priorities P1, P2, P3...)
-  - Feature requirements from plan.md
-  - Entities from data-model.md
-  - Endpoints from contracts/
-  
-  Tasks MUST be organized by user story so each story can be:
-  - Implemented independently
-  - Tested independently
-  - Delivered as an MVP increment
-  
-  DO NOT keep these sample tasks in the generated tasks.md file.
-  ============================================================================
+<!--
+ ============================================================================
+ IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
+
+ The /speckit-tasks command MUST replace these with actual tasks based on:
+ - User stories from spec.md (with their priorities P1, P2, P3...)
+ - Feature requirements from plan.md
+ - Entities from data-model.md
+ - Endpoints from contracts/
+
+ Tasks MUST be organized by user story so each story can be:
+ - Implemented independently
+ - Tested independently
+ - Delivered as an MVP increment
+
+ DO NOT keep these sample tasks in the generated tasks.md file.
+ ============================================================================
 -->
 
 ## Phase 1: Setup (Shared Infrastructure)
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure per implementation plan (`projects/PROJ-548-exploring-the-relationship-between-prime/`)
-- [ ] T002 Initialize Python 3.11 project with dependencies (`numpy`, `scipy`, `pandas`, `pyyaml`, `mpmath`, `requests`, `pytest`) in `requirements.txt`
+- [ ] T001 Create project structure per implementation plan: `src/data/`, `src/analysis/`, `src/utils/`, `src/cli/`, `tests/unit/`, `tests/integration/`, `data/raw/`, `data/processed/`, `data/results/`, `results/`, `state/`
+- [ ] T002 Initialize Python 3.11 project with dependencies (`numpy`, `scipy`, `pandas`, `pyyaml`, `requests`, `pytest`) in `requirements.txt`
 - [ ] T003 [P] Configure linting (ruff) and formatting (black) tools
 
 ---
@@ -55,11 +55,11 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 Implement memory-efficient logging infrastructure in `code/utils.py` (handles chunked processing logs and OOM warnings)
-- [ ] T005 [P] Create configuration management in `code/config.py` (defines N=10^10, W=10^6, seeds, file paths)
+- [ ] T004 Implement memory-efficient logging infrastructure in `src/utils/logging.py` (handles chunked processing logs and OOM warnings)
+- [ ] T005 [P] Create configuration management in `src/utils/config.py` (defines N=10^10, W=10^6, seeds, file paths)
 - [ ] T006 [P] Implement deterministic random seed management for all Monte Carlo and simulation tasks
-- [ ] T007 Create base data models in `code/data_models.py` (PrimeGap, ZetaZero, WindowStats entities per spec)
-- [ ] T008 Implement checksumming logic in `code/utils.py` for `state.yaml` updates on data changes
+- [ ] T007 Create base data models in `src/utils/models.py` (PrimeGap, ZetaZero, WindowStats entities per spec)
+- [ ] T008 Implement checksumming logic in `src/utils/io.py` for `state.yaml` updates on data changes
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -69,22 +69,19 @@
 
 **Goal**: Generate primes up to 10^10 and ingest zeta zeros, ensuring memory safety and data validity.
 
-**Independent Test**: Run `code/data_ingestion.py` in isolation; verify `data/processed/primes_gaps.csv` and `data/processed/zeta_zeros.csv` exist, contain correct counts, and peak RAM < 7GB.
+**Independent Test**: Run `src/data/generate_primes.py` and `src/data/ingest_zeros.py` in isolation; verify `data/processed/primes_gaps.csv` and `data/processed/zeta_zeros.csv` exist, contain correct counts, and peak RAM < 7GB.
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T009 [P] [US1] Unit test for segmented sieve logic in `tests/test_sieve.py` (verifies primality and chunk boundaries)
-- [ ] T010 [P] [US1] Integration test for data pipeline in `tests/test_data_ingestion.py` (verifies file generation and memory limits)
+- [ ] T009 [P] [US1] Unit test for segmented sieve logic in `tests/unit/test_sieve.py` (verifies primality and chunk boundaries)
+- [ ] T010 [P] [US1] Integration test for data pipeline in `tests/integration/test_data_ingestion.py` (verifies file generation and memory limits)
 
 ### Implementation for User Story 1
 
-- [ ] T011 [US1] Implement segmented sieve algorithm in `code/data_ingestion.py` to generate primes up to 10^10, processing in chunks to stay within 7GB RAM
-- [ ] T012 [US1] Implement logic in `code/data_ingestion.py` to compute consecutive prime gaps and stream results to `data/processed/primes_gaps.csv` (format: `prime_before, prime_after, gap_size, normalized_gap`)
-- [ ] T013a [US1] **Verified Accuracy Check**: Implement logic in `code/data_ingestion.py` to verify LMFDB/Odlyzko URLs for zeta zeros using the Reference-Validator Agent protocol. Target URLs: `https://www.lmfdb.org/zeros/zeta/` and `http://www.dtc.umn.edu/~odlyzko/doc/zeta.zeros/`. Record verification status in `state.yaml`. (Traces to Constitution Principle II)
-- [ ] T013b [US1] **Fallback Generation**: If T013a fails verification, implement local generation of a significant subset of non-trivial zeros using `mpmath` with fixed precision, storing in `data/processed/zeta_zeros.csv`. **(Depends on T013a completion)**. (Traces to FR-002 fallback)
-- [ ] T014 [US1] Implement data validation in `code/data_ingestion.py` to skip malformed zero entries and log warnings
-- [ ] T015a [US1] **Sampling Strategy**: Define the sampling strategy (stratified sampling by magnitude) to align the prime gap dataset size with the zeta zero dataset size. Document in `code/config.py`. (Traces to FR-004 KS test requirement)
-- [ ] T015b [US1] **Subsampling Implementation**: Implement the subsampling logic in `code/data_ingestion.py` using the strategy from T015a to produce `data/processed/primes_gaps_sampled.csv`. **(Depends on T013b completion to know zero count)**. (Traces to FR-004)
+- [ ] T011 [US1] Implement segmented sieve algorithm in `src/data/generate_primes.py` to generate primes up to 10^10, processing in chunks to stay within 7GB RAM
+- [ ] T012 [US1] Implement logic in `src/data/generate_primes.py` to compute consecutive prime gaps and stream results to `data/processed/primes_gaps.csv` (format: `prime_before, prime_after, gap_size, normalized_gap`)
+- [ ] T013a [US1] **Verified Accuracy Check**: Implement logic in `src/data/ingest_zeros.py` to verify LMFDB/Odlyzko URLs for zeta zeros using the Reference-Validator Agent protocol. Target URLs: ` and `. Record verification status in `state.yaml`. (Traces to Constitution Principle II)
+- [ ] T014 [US1] Implement data validation in `src/data/ingest_zeros.py` to skip malformed zero entries and log warnings. If verification fails, the pipeline MUST halt with a clear error message.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -94,25 +91,23 @@
 
 **Goal**: Compute distributional similarity between normalized prime spacings and zeta zero spacings using KS test and Cramér model.
 
-**Independent Test**: Run `code/analysis.py` on small synthetic datasets; verify `results/correlation_results.json` contains KS statistic, p-value, and plots.
+**Independent Test**: Run `src/analysis/distribution_test.py` on small synthetic datasets; verify `results/correlation_results.json` contains KS statistic, p-value, and plots.
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T016 [P] [US2] Unit test for normalization logic (log^2 p) in `tests/test_analysis.py`
-- [ ] T017 [P] [US2] Unit test for KS test calculation in `tests/test_analysis.py`
+- [ ] T016 [P] [US2] Unit test for normalization logic (log^2 p) in `tests/unit/test_analysis.py`
+- [ ] T017 [P] [US2] Unit test for KS test calculation in `tests/unit/test_analysis.py`
 
 ### Implementation for User Story 2
 
-- [ ] T018a [US2] **Primary Analysis (Plan)**: Implement sliding window analysis in `code/analysis.py` to compute *bulk* normalized prime spacings and their empirical distribution, aligning with the plan's "Methodological Correction" (Primary Approach).
-- [ ] T018b [US2] **Exploratory Analysis (Spec)**: Implement sliding window analysis in `code/analysis.py` to compute max gap $g_{max}$ within windows of length $W=10^6$ and normalize by $\log^2 p$, satisfying spec FR-003 as an exploratory check.
-- [ ] T019 [US2] Implement normalization of gaps by Cramér prediction ($\log^2 p$) in `code/analysis.py` for the exploratory analysis (T018b).
-- [ ] T020 [US2] Implement empirical distribution calculation for normalized maximal gaps (from T018b) in `code/analysis.py`.
-- [ ] T021a [US2] **Theoretical Distribution**: Implement the theoretical pair-correlation distribution calculation for zeta zero spacings using the GUE formula: $1 - (\sin(\pi x)/(\pi x))^2$ (Montgomery-Odlyzko law) in `code/analysis.py`.
-- [ ] T021b [US2] **Bulk Distribution**: Implement the theoretical pair-correlation distribution for *bulk* prime spacings (as per plan primary approach) in `code/analysis.py`.
-- [ ] T022 [US2] Perform Kolmogorov-Smirnov (KS) test comparing the *bulk* empirical distribution (from T018a) against the GUE theoretical distribution (from T021a).
-- [ ] T023 [US2] Implement Monte Carlo simulation using the Cramér model in `code/analysis.py` to generate a null distribution of the KS statistic.
+- [ ] T018b [US2] **Primary Analysis (FR-003)**: Implement sliding window analysis in `src/analysis/distribution_test.py` to compute *maximal* prime gap $g_{max}$ within windows of length $W=10^6$ and normalize by $\log^2 p$, satisfying spec FR-003.
+- [ ] T019 [US2] Implement normalization of gaps by Cramér prediction ($\log^2 p$) in `src/analysis/distribution_test.py`.
+- [ ] T020 [US2] Implement empirical distribution calculation for normalized maximal gaps (from T018b) in `src/analysis/distribution_test.py`.
+- [ ] T021a [US2] **Theoretical Distribution**: Implement the theoretical pair-correlation distribution calculation for zeta zero spacings using the GUE formula (Montgomery-Odlyzko law), which models the distribution with a functional form characterized by a central peak and oscillatory decay. in `src/analysis/distribution_test.py`.
+- [ ] T022 [US2] Perform Kolmogorov-Smirnov (KS) test comparing the *empirical maximal gap distribution* (from T020) against the GUE theoretical distribution (from T021a).
+- [ ] T023 [US2] Implement Monte Carlo simulation using the Cramér model in `src/analysis/monte_carlo.py` to generate a null distribution of the KS statistic.
 - [ ] T024 [US2] Calculate p-value for observed distributional alignment against the Cramér null distribution.
-- [ ] T025 [US2] Generate visualization (CDF overlay of empirical vs. theoretical bulk distributions) using `matplotlib` and save to `results/correlation_plot.png` and `results/correlation_results.json`.
+- [ ] T025 [US2] Generate visualization (CDF overlay of empirical vs. theoretical maximal gap distributions) using `matplotlib` and save to `results/correlation_plot.png` and `results/correlation_results.json`.
 - [ ] T026 [US2] Implement permutation test (shuffling gap sequence) as a secondary null hypothesis check (per Principle VI).
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
@@ -123,15 +118,15 @@
 
 **Goal**: Verify stability of results across window sizes and against synthetic Cramér data.
 
-**Independent Test**: Run analysis with $W \in \{\text{multiple large orders of magnitude}\}$; verify `results/robustness_report.md` lists KS statistics for each.
+**Independent Test**: Run analysis with $W \in \{10^5, 10^6, 2 \cdot 10^6\}$; verify `results/robustness_report.md` lists KS statistics for each.
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T027 [P] [US3] Integration test for sensitivity sweep in `tests/test_robustness.py`
+- [ ] T027 [P] [US3] Integration test for sensitivity sweep in `tests/integration/test_robustness.py`
 
 ### Implementation for User Story 3
 
-- [ ] T028 [US3] Implement sensitivity analysis loop in `code/analysis.py` sweeping window size $W$ over a range of magnitudes to measure stability (Traces to SC-002). **(Depends on T022 completion to access baseline KS statistic)**.
+- [ ] T028 [US3] Implement sensitivity analysis loop in `src/analysis/robustness.py` sweeping window size $W$ over a range of magnitudes to measure stability (Traces to SC-002). **(Depends on T022 completion to access baseline KS statistic)**.
 - [ ] T029 [US3] Generate synthetic Cramér model dataset of comparable size in `data/null/cramer_sample.csv`
 - [ ] T030 [US3] Perform distributional analysis on the synthetic Cramér dataset to establish a baseline
 - [ ] T031 [US3] Compare observed KS statistics from prime data against the synthetic Cramér baseline and the permutation test results
@@ -145,11 +140,15 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T036 [P] Documentation updates in `docs/` (including `quickstart.md` and `research.md`)
-- [ ] T037 Code cleanup and refactoring
-- [ ] T038 Performance optimization across all stories (ensure -hour runtime limit is met)
-- [ ] T039 [P] Additional unit tests (if requested) in `tests/unit/`
-- [ ] T040 Run `quickstart.md` validation to ensure full pipeline reproducibility
+- [ ] T038 [P] Documentation updates in `docs/` (including `quickstart.md` and `research.md`)
+- [ ] T039 Code cleanup and refactoring
+- [ ] T040 Performance optimization across all stories (ensure a reasonable runtime limit is met
+
+The research question remains: [Research Question]
+The method remains: [Method]
+The references remain: [References])
+- [ ] T041 [P] Additional unit tests (if requested) in `tests/unit/`
+- [ ] T042 Run `quickstart.md` validation to ensure full pipeline reproducibility
 
 ---
 
@@ -160,18 +159,17 @@
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
-  - User stories can then proceed in parallel (if staffed)
-  - Or sequentially in priority order (P1 → P2 → P3)
+ - User stories can then proceed in parallel (if staffed)
+ - Or sequentially in priority order (P1 → P2 → P3)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
 
 - **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Depends on data from US1 (T012, T013b)
+- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Depends on data from US1 (T012)
 - **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on data from US1 and results from US2
-  - **Critical**: Task T028 (US3) explicitly depends on T022 (US2) completion to access the baseline KS statistic.
-  - **Critical**: Task T015b (US1) explicitly depends on T013b (US1) completion to know the zero count for subsampling.
-- **Phase 6**: Removed (Unapproved scope).
+ - **Critical**: Task T028 (US3) explicitly depends on T022 (US2) completion to access the baseline KS statistic.
+- **Phase N**: Depends on all user stories being complete
 
 ### Within Each User Story
 
@@ -196,12 +194,12 @@
 
 ```bash
 # Launch all tests for User Story 1 together (if tests requested):
-Task: "Unit test for segmented sieve logic in tests/test_sieve.py"
-Task: "Integration test for data pipeline in tests/test_data_ingestion.py"
+Task: "Unit test for segmented sieve logic in tests/unit/test_sieve.py"
+Task: "Integration test for data pipeline in tests/integration/test_data_ingestion.py"
 
 # Launch all models for User Story 1 together:
-Task: "Implement segmented sieve algorithm in code/data_ingestion.py"
-Task: "Implement zeta zero ingestion in code/data_ingestion.py"
+Task: "Implement segmented sieve algorithm in src/data/generate_primes.py"
+Task: "Implement zeta zero ingestion in src/data/ingest_zeros.py"
 ```
 
 ---
@@ -230,9 +228,9 @@ With multiple developers:
 
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
-   - Developer A: User Story 1 (Data)
-   - Developer B: User Story 2 (Analysis)
-   - Developer C: User Story 3 (Robustness)
+ - Developer A: User Story 1 (Data)
+ - Developer B: User Story 2 (Analysis)
+ - Developer C: User Story 3 (Robustness)
 3. Stories complete and integrate independently
 
 ---
@@ -247,6 +245,7 @@ With multiple developers:
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
 - **Critical Constraint**: All tasks must run on CPU-only CI (limited cores, constrained RAM). No GPU, no 8-bit models, no large LLMs.
-- **Data Integrity**: No fake data. All primes must be generated via sieve; all zeros must be from LMFDB/Odlyzko or locally generated with `mpmath` (only after verification). No random synthesis for input data.
-- **Constitution Compliance**: T013a ensures Constitution Principle II (Verified Accuracy) is met before local generation.
-- **Removed Scope**: Phase 6 (Topological Visualization) was removed as it had no basis in the spec or plan.
+- **Data Integrity**: No fake data. All primes must be generated via sieve; all zeros must be from LMFDB/Odlyzko. If verification fails, pipeline halts.
+- **Constitution Compliance**: T013a ensures Constitution Principle II (Verified Accuracy) is met. Local generation is strictly forbidden.
+- **Removed Scope**: Phase 6 (Topological Visualization) and Tasks T015a/b (Subsampling) were removed as they were unapproved scope creep or introduced unnecessary complexity not authorized by the spec.
+- **Clarified Scope**: Task T018b is the sole implementation of FR-003 (Maximal Gaps). Task T028 explicitly lists the required window sizes {^5, 10^6, 2*10^6}.
