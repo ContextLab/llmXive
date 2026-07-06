@@ -1,49 +1,50 @@
 import os
 import sys
 
-def create_directories(root_dir=None):
+def create_directories():
     """
-    Creates the required directory structure for the project.
-    
-    Args:
-        root_dir (str, optional): The root directory for the project.
-            If None, uses the current working directory.
-    
-    Returns:
-        list: A list of created directory paths.
+    Creates the project directory structure for the Molecular Reactivity prediction pipeline.
+    Executes the equivalent of:
+    mkdir -p src/data src/models src/analysis src/config src/utils tests/contract tests/integration tests/unit
     """
-    if root_dir is None:
-        root_dir = os.getcwd()
+    # Define the root directory (assuming the script is run from the project root)
+    # The task description implies creating these relative to the project root.
+    # We will create them in the current working directory.
     
-    # Define relative directories to create
-    relative_dirs = [
-        "data",
-        "results",
-        "models",
-        "contracts",
-        # Subdirectories for better organization
-        "data/raw",
-        "data/processed",
-        "results/plots",
-        "results/logs",
-        "models/checkpoints",
-        "contracts/schemas"
+    base_dirs = [
+        "src/data",
+        "src/models",
+        "src/analysis",
+        "src/config",
+        "src/utils",
+        "tests/contract",
+        "tests/integration",
+        "tests/unit"
     ]
+
+    created = []
+    skipped = []
+
+    for dir_path in base_dirs:
+        try:
+            if not os.path.exists(dir_path):
+                os.makedirs(dir_path, exist_ok=True)
+                created.append(dir_path)
+            else:
+                skipped.append(dir_path)
+        except OSError as e:
+            print(f"Error creating directory {dir_path}: {e}", file=sys.stderr)
+
+    print(f"Directories created: {len(created)}")
+    for d in created:
+        print(f"  - {d}")
     
-    created_dirs = []
-    
-    for rel_path in relative_dirs:
-        full_path = os.path.join(root_dir, rel_path)
-        if not os.path.exists(full_path):
-            os.makedirs(full_path)
-            created_dirs.append(full_path)
-            print(f"Created directory: {full_path}")
-        else:
-            print(f"Directory already exists: {full_path}")
-    
-    return created_dirs
+    if skipped:
+        print(f"Directories already existing: {len(skipped)}")
+        for d in skipped:
+            print(f"  - {d}")
+
+    return created + skipped
 
 if __name__ == "__main__":
-    # Default to current directory if no argument provided
-    root = sys.argv[1] if len(sys.argv) > 1 else None
-    create_directories(root)
+    create_directories()

@@ -6,3 +6,23 @@
 T001d [P] Configure linting (ruff) and formatting (black) tools: 1
 T002 Create configuration manager in `src/config.py` (paths, seeds, hyperparameters): 1
 T003 [P] Implement logging infrastructure in `src/utils/logging.py`: 1
+T005 [P] Implement custom logging infrastructure in `src/utils/logging.py` to track skipped invalid SMILES: 1
+"T006 [P] Setup metric calculators in `src/utils/metrics.py` (MAE, RMSE, R\xB2)": 1
+? 'T007 Define and write schema files for `ReactionRecord` and `MolecularGraph` in
+  `specs/001-predicting-molecular-reactivity-using-gr/contracts/`: Create `reaction_record.schema.yaml`
+  (fields: reactants_smiles, product_smiles, yield, reaction_class) and `molecular_graph.schema.yaml`
+  (fields: atoms, bonds, features).'
+: 1
+? 'T008 Setup CI environment configuration: Create `.github/workflows/ci.yml` with
+  steps for installing dependencies, running tests, and enforcing a strict runtime
+  limit.'
+: 1
+? 'T009 [P] Create spec amendment request for FR-008: Document the change from "reaction
+  class stratification" to "Scaffold Split" in a formal amendment request or PR description
+  to update `spec.md`. (Note: spec.md has been updated in this revision, this task
+  tracks the workflow).'
+: 1
+? 'T010 [P] [US1] Skeleton Unit test for SMILES parsing and invalid entry logging
+  in `tests/unit/test_parsing.py`: Create `test_parse_smiles_invalid_logs_error` function
+  with `pytest.fail` placeholder to verify logging of invalid SMILES.'
+: 1

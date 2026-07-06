@@ -1,0 +1,113 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "llmxive-predicting-molecular-reactivity"
+version = "0.1.0"
+description = "Predicting Molecular Reactivity Using Graph Neural Networks"
+readme = "README.md"
+requires-python = ">=3.11"
+license = {text = "MIT"}
+authors = [
+    {name = "llmXive Team", email = "team@llmxive.org"}
+]
+keywords = ["molecular-reactivity", "gnn", "machine-learning", "chemistry"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3.11",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+dependencies = [
+    "rdkit==2023.9.5",
+    "torch==2.1.0+cpu",
+    "torch-geometric==2.4.0+cpu",
+    "scikit-learn==1.3.0",
+    "pandas==2.1.0",
+    "numpy==1.24.0",
+    "ruff==0.1.0",
+    "black==23.0.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0.0",
+    "pytest-cov>=4.0.0",
+    "pre-commit>=3.0.0",
+]
+
+[project.scripts]
+download-data = "src.data.download:main"
+parse-data = "src.data.parse:main"
+preprocess-data = "src.data.preprocess:main"
+train-model = "src.analysis.train:main"
+evaluate-model = "src.analysis.evaluate:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["src*", "tests*", "scripts*"]
+
+[tool.ruff]
+line-length = 88
+target-version = "py311"
+select = [
+    "E",
+    "F",
+    "W",
+    "I",
+    "N",
+    "UP",
+    "RUF",
+]
+ignore = [
+    "E501",
+    "N806",
+]
+
+[tool.ruff.isort]
+known-first-party = ["src", "tests", "scripts", "setup_directories"]
+force-single-line = false
+lines-between-types = 0
+lines-after-imports = 2
+
+[tool.black]
+line-length = 88
+target-version = ['py311']
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
+)/
+'''
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = "-v --tb=short"
+
+[tool.coverage.run]
+source = ["src"]
+branch = true
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+    "if TYPE_CHECKING:",
+    "@abstractmethod",
+]

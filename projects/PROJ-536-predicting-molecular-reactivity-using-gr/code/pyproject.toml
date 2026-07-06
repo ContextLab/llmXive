@@ -1,41 +1,70 @@
 [build-system]
-requires = ["setuptools>=61.0"]
+requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "llmxive-molecular-reactivity"
+name = "llmxive-predicting-molecular-reactivity"
 version = "0.1.0"
-description = "Predicting Molecular Reactivity Using Graph Neural Networks"
+description = "Predicting Molecular Reactivity Using Graph Neural Networks and Reaction Datasets"
+readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
-    "torch",
-    "torch-geometric",
-    "rdkit",
-    "scikit-learn",
-    "pandas",
-    "pyyaml",
+    "rdkit==2023.9.5",
+    "torch==2.1.0+cpu",
+    "torch-geometric==2.4.0+cpu",
+    "scikit-learn==1.3.0",
+    "pandas==2.1.0",
+    "numpy==1.24.0",
+    "ruff==0.1.0",
+    "black==23.0.0",
+    "pyyaml==6.0.1",
+    "pytest==7.4.0",
 ]
 
 [project.optional-dependencies]
 dev = [
-    "ruff>=0.1.0",
-    "black>=23.0.0",
-    "pytest>=7.0.0",
-    "pytest-cov>=4.0.0",
+    "ruff==0.1.0",
+    "black==23.0.0",
+    "pytest==7.4.0",
 ]
+
+[tool.setuptools.packages.find]
+where = ["code"]
+include = ["src*", "scripts*", "tests*"]
 
 [tool.black]
 line-length = 88
 target-version = ["py311"]
 include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
+)/
+'''
 
 [tool.ruff]
-# Ruff configuration is in ruff.toml, this file is for project metadata
-# but we include these settings here for tools that read pyproject.toml directly
 line-length = 88
 target-version = "py311"
 
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "N", "UP", "RUF"]
+ignore = ["E501"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["src", "scripts", "tests", "setup_directories"]
+
 [tool.pytest.ini_options]
-testpaths = ["tests"]
-python_files = ["test_*.py"]
-addopts = "-v --tb=short"
+testpaths = ["code/tests"]
+pythonpath = ["code"]
+filterwarnings = [
+    "ignore::DeprecationWarning",
+    "ignore::UserWarning"
+]

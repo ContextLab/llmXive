@@ -1,0 +1,154 @@
+# Default configuration for Molecular Reactivity Prediction Pipeline
+# Generated for PROJ-536
+# All paths are relative to the project root unless specified as absolute
+
+# ------------------------------------------------------------------
+# Random Seed Configuration (Reproducibility)
+# ------------------------------------------------------------------
+seeds:
+  python: 42
+  numpy: 42
+  torch: 42
+  deterministic_mode: true
+  benchmark_mode: false  # Set true for reproducibility at cost of speed
+
+# ------------------------------------------------------------------
+# Path Configuration
+# ------------------------------------------------------------------
+paths:
+  root: "."
+  data_raw: "data/raw"
+  data_processed: "data/processed"
+  data_interim: "data/interim"
+  models: "models"
+  results: "results"
+  logs: "logs"
+  figures: "figures"
+  specs: "specs/001-predicting-molecular-reactivity-using-gr"
+
+# ------------------------------------------------------------------
+# Data Configuration
+# ------------------------------------------------------------------
+data:
+  # Source for USPTO subset
+  source_url: "https://huggingface.co/datasets/reaction-datasets/uspto-50k-subset/resolve/main/uspto_50k_subset.csv"
+  filename: "uspto_50k_subset.csv"
+  
+  # Schema validation requirements
+  required_columns:
+    - reactants_smiles
+    - product_smiles
+    - yield
+    - reaction_class
+  
+  # Data quality thresholds
+  min_yield: 0.0
+  max_yield: 100.0
+  max_invalid_smiles_rate: 0.05  # SC-005: >95% validity target
+
+# ------------------------------------------------------------------
+# Model Hyperparameters
+# ------------------------------------------------------------------
+model:
+  # Message Passing Neural Network (MPNN) settings
+  mpnn:
+    num_layers: 3
+    hidden_dim: 128
+    num_heads: 4
+    dropout: 0.1
+    activation: "relu"
+    pooling: "mean"
+    
+  # Training settings
+  training:
+    epochs: 200
+    batch_size: 32
+    learning_rate: 0.001
+    weight_decay: 0.0001
+    patience: 5  # Early stopping patience
+    loss_fn: "mse"
+    
+  # K-Fold Cross-Validation
+  cross_validation:
+    n_splits: 5
+    shuffle: true
+    random_state: 42
+
+# ------------------------------------------------------------------
+# Split Configuration (Scaffold Split per FR-008)
+# ------------------------------------------------------------------
+split:
+  method: "scaffold"  # Options: "scaffold", "random", "time"
+  train_ratio: 0.7
+  val_ratio: 0.15
+  test_ratio: 0.15
+  scaffold_smiles: "product_smiles"  # Use product scaffold for splitting
+
+# ------------------------------------------------------------------
+# Baseline Models Configuration
+# ------------------------------------------------------------------
+baselines:
+  random_forest:
+    n_estimators: 100
+    max_depth: 10
+    min_samples_split: 2
+    fingerprint_radius: 2
+    fingerprint_length: 2048
+    
+  linear_regression:
+    normalize: true
+
+# ------------------------------------------------------------------
+# Evaluation Configuration
+# ------------------------------------------------------------------
+evaluation:
+  metrics:
+    - "mae"
+    - "rmse"
+    - "r2"
+  
+  # Statistical significance testing
+  significance_test:
+    method: "paired_ttest"  # Options: "paired_ttest", "wilcoxon"
+    alpha: 0.05
+    
+  # Practical significance threshold
+  practical_significance:
+    min_effect_size: 0.10  # R² delta threshold
+
+# ------------------------------------------------------------------
+# Explainability Configuration (GNNExplainer)
+# ------------------------------------------------------------------
+explainability:
+  top_k_motifs: 10
+  node_threshold: 0.5
+  edge_threshold: 0.5
+  output_format: "csv"  # Options: "csv", "json"
+  include_disclaimer: true
+
+# ------------------------------------------------------------------
+# Conformal Prediction Configuration
+# ------------------------------------------------------------------
+conformal:
+  method: "jackknife_plus"  # Options: "jackknife_plus", "conformalized_quantile"
+  calibration_size: 0.1  # Fraction of training data for calibration
+  alpha: 0.1  # 1 - coverage rate (target 90% coverage)
+  interval_type: "prediction"  # Options: "prediction", "confidence"
+
+# ------------------------------------------------------------------
+# Logging Configuration
+# ------------------------------------------------------------------
+logging:
+  level: "INFO"  # Options: "DEBUG", "INFO", "WARNING", "ERROR"
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  file: "pipeline.log"
+  max_bytes: 10485760  # 10MB
+  backup_count: 5
+
+# ------------------------------------------------------------------
+# Resource Configuration
+# ------------------------------------------------------------------
+resources:
+  device: "cpu"  # Enforce CPU-only as per SC-004
+  num_workers: 2
+  pin_memory: false

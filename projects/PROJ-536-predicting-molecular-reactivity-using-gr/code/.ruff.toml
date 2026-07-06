@@ -1,0 +1,23 @@
+# Ruff configuration for llmXive project
+line-length = 88
+target-version = "py311"
+
+[lint]
+select = [
+    "E",  # pycodestyle errors
+    "F",  # Pyflakes
+    "W",  # pycodestyle warnings
+    "I",  # isort
+    "N",  # pep8-naming
+    "UP", # pyupgrade
+    "RUF",# Ruff-specific rules
+]
+ignore = [
+    "E501", # Line too long (handled by black)
+]
+
+[lint.isort]
+known-first-party = ["src", "scripts", "tests", "setup_directories"]
+
+[lint.per-file-ignores]
+"__init__.py" = ["F401"]

@@ -1,0 +1,114 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: MolecularGraph
+description: >
+  Schema for a molecular graph representation derived from a SMILES string.
+  Contains atom and bond information along with computed features.
+type: object
+required:
+  - atoms
+  - bonds
+  - features
+properties:
+  atoms:
+    type: array
+    description: >
+      List of atoms in the molecule. Each atom is an object containing
+      element symbol and index.
+    items:
+      type: object
+      required:
+        - index
+        - element
+      properties:
+        index:
+          type: integer
+          description: >
+            0-based index of the atom in the molecule.
+        element:
+          type: string
+          description: >
+            Chemical element symbol (e.g., 'C', 'N', 'O').
+          pattern: "^[A-Z][a-z]?$"
+        charge:
+          type: integer
+          description: >
+            Formal charge of the atom. Defaults to 0 if not specified.
+          default: 0
+      additionalProperties: false
+  bonds:
+    type: array
+    description: >
+      List of bonds in the molecule. Each bond connects two atom indices
+      and specifies the bond type.
+    items:
+      type: object
+      required:
+        - source
+        - target
+        - type
+      properties:
+        source:
+          type: integer
+          description: >
+            Index of the source atom.
+        target:
+          type: integer
+          description: >
+            Index of the target atom.
+        type:
+          type: string
+          description: >
+            Bond order/type. Allowed values: 'SINGLE', 'DOUBLE', 'TRIPLE', 'AROMATIC'.
+          enum:
+            - SINGLE
+            - DOUBLE
+            - TRIPLE
+            - AROMATIC
+      additionalProperties: false
+  features:
+    type: object
+    description: >
+      Computed molecular features and descriptors.
+    required:
+      - atom_features
+      - bond_features
+    properties:
+      atom_features:
+        type: array
+        description: >
+          Feature vector for each atom. The length must match the number of atoms.
+        items:
+          type: array
+          items:
+            type: number
+      bond_features:
+        type: array
+        description: >
+          Feature vector for each bond. The length must match the number of bonds.
+        items:
+          type: array
+          items:
+            type: number
+      molecular_weight:
+        type: number
+        description: >
+          Calculated molecular weight.
+      logP:
+        type: number
+        description: >
+          Calculated partition coefficient (logP).
+      tpsa:
+        type: number
+        description: >
+          Topological Polar Surface Area.
+    additionalProperties: true
+  smiles:
+    type: string
+    description: >
+      Canonical SMILES string corresponding to this graph.
+  metadata:
+    type: object
+    description: >
+      Optional metadata about the graph construction (e.g., timestamp, rdkit version).
+    nullable: true
+additionalProperties: false
