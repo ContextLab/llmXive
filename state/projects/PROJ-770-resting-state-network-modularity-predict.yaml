@@ -1,18 +1,18 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-06-24T03:21:44.788101Z'
-current_stage: project_initialized
+current_stage: analyzed
 failed_stage: null
 field: neuroscience
 human_escalation_reason: null
 id: PROJ-770-resting-state-network-modularity-predict
-last_run_id: f8eb616b-b6bc-4a1f-b39f-a4b1fce9fcec
+last_run_id: ecf9ce88-5154-48bc-bf9b-c2aa9c484d8a
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
 revision_spec_path: null
 speckit_paper_dir: null
-speckit_research_dir: null
+speckit_research_dir: projects/PROJ-770-resting-state-network-modularity-predict/specs/001-resting-state-network-modularity-predict
 title: "Resting\u2011State Network Modularity Predicts Social Network Size"
-updated_at: '2026-06-27T16:31:36.126692Z'
+updated_at: '2026-07-06T18:56:32.431104Z'

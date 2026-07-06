@@ -1,0 +1,55 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Subject Data Model"
+description: "Schema for the merged subject-level dataset containing behavioral and neuroimaging metrics."
+type: object
+properties:
+  subject_id:
+    type: string
+    description: "Unique identifier for the subject."
+  age:
+    type: integer
+    description: "Age of the subject in years."
+  sex:
+    type: string
+    enum: ["M", "F"]
+    description: "Sex of the subject."
+  mean_fd:
+    type: number
+    description: "Mean Framewise Displacement in mm."
+    minimum: 0.0
+  friends_count:
+    type: integer
+    description: "Number of close friends."
+    minimum: 0
+  acquaintances_count:
+    type: integer
+    description: "Number of acquaintances."
+    minimum: 0
+  social_network_size:
+    type: integer
+    description: "Sum of friends and acquaintances."
+    minimum: 0
+  modularity_q:
+    type: number
+    description: "Louvain modularity quality index Q."
+    minimum: 0.0
+    maximum: 1.0
+  total_strength:
+    type: number
+    description: "Sum of absolute edge weights in the functional connectivity graph."
+    minimum: 0.0
+  vif_strength:
+    type: number
+    description: "Variance Inflation Factor for Total Strength (if calculated)."
+    minimum: 0.0
+required:
+  - subject_id
+  - age
+  - sex
+  - mean_fd
+  - friends_count
+  - acquaintances_count
+  - social_network_size
+  - modularity_q
+  - total_strength
+additionalProperties: false

@@ -1,0 +1,51 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Model Result Schema"
+description: "Schema for the output of the statistical analysis (linear regression)."
+type: object
+properties:
+  model_type:
+    type: string
+    description: "Type of model run (e.g., 'Primary', 'Sensitivity_10%', 'OLS_NoStrength')."
+  predictor:
+    type: string
+    description: "Name of the predictor variable (e.g., 'Modularity_Q')."
+  outcome:
+    type: string
+    description: "Name of the outcome variable (e.g., 'Social_Network_Size')."
+  coefficient:
+    type: number
+    description: "Beta coefficient for the predictor."
+  std_error:
+    type: number
+    description: "Robust standard error."
+  p_value:
+    type: number
+    description: "Raw p-value."
+    minimum: 0.0
+    maximum: 1.0
+  adj_p_value:
+    type: number
+    description: "Benjamini-Hochberg adjusted p-value."
+    minimum: 0.0
+    maximum: 1.0
+  confidence_interval:
+    type: array
+    description: "95% Confidence Interval [lower, upper]."
+    items:
+      type: number
+    minItems: 2
+    maxItems: 2
+  vif:
+    type: number
+    description: "Variance Inflation Factor for covariates (if applicable)."
+    minimum: 0.0
+required:
+  - model_type
+  - predictor
+  - outcome
+  - coefficient
+  - std_error
+  - p_value
+  - adj_p_value
+  - confidence_interval
+additionalProperties: false

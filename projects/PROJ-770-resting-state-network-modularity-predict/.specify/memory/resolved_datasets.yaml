@@ -1,0 +1,212 @@
+resolved_at: '2026-07-06T18:37:41.150854+00:00'
+datasets:
+- intent: HCP
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/7eu7d7/HCP-Diffusion-datas/resolve/main/Lexica.art.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/ramandeepsaha/hcp/resolve/main/train.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/jonxuxu/HCP-flat/resolve/main/data/train-00000-of-00001-ecc38ed386fa0d8c.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/7eu7d7/HCP-Diffusion-datas/resolve/main/Lexica.art.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/ramandeepsaha/hcp/resolve/main/train.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/jonxuxu/HCP-flat/resolve/main/data/train-00000-of-00001-ecc38ed386fa0d8c.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/atta00/cpt-hcpcs-codes/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/Kavi1622/Synthetic_hcp/resolve/main/8_slot.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://acs.figshare.com/articles/journal_contribution/Comprehensive_Isomer-Resolved_Ganglioside_Profiling_by_HILIC-nanoESI-MS_MS/32915218
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Chiral_Monodentate_Phosphine_Ligand_for_Palladium-Catalyzed_Enantioselective_Cascade_Arylvinylation_of_Alkenes_with_N_Tosylhydrazones/32915215
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Synergistic_Profiling_of_Programmed_Cell_Death_and_Immune_Responses_Identifies_a_Novel_Prognostic_Index_for_Cervical_Cancer/32915212
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/dataset/Synergistic_Profiling_of_Programmed_Cell_Death_and_Immune_Responses_Identifies_a_Novel_Prognostic_Index_for_Cervical_Cancer/32915209
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Synergistic_Profiling_of_Programmed_Cell_Death_and_Immune_Responses_Identifies_a_Novel_Prognostic_Index_for_Cervical_Cancer/32915206
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5607652
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15581959
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://linkinghub.elsevier.com/retrieve/pii/S1053811922006656
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7736031
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.wwpzgmsjq
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/bng9v/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.3929/ethz-b-000039242
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: HTTP 500'
+  - url: https://osf.io/um3ht/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://researchdata.durham.ac.uk/files/n583xt96p
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ora.ox.ac.uk/objects/uuid:dbd593e3-58bb-4812-8a17-3ec5eccb1989
+    source: datacite
+    status: wrong_format
+    reason: HTTP 403
+- intent: CSVs
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/sulaimank/swahili-csvs/resolve/main/all_audios_ALFFA.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/Thorkage/icebridge_arcticseaice_csvs/resolve/main/unified_20090331.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/AstraTeam/generated-csvs/resolve/main/ER-all.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/api/resolve-cache/datasets/vhada/Roco-csvs/5983bc5817e2c88e9185350e715d1e6503083d65/test.csv?%2Fdatasets%2Fvhada%2FRoco-csvs%2Fresolve%2Fmain%2Ftest.csv=&etag=%22a066c1958bf6911561f708219c010eea4bd1a16c%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/sulaimank/swahili-csvs/resolve/main/all_audios_ALFFA.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/Thorkage/icebridge_arcticseaice_csvs/resolve/main/unified_20090331.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/AstraTeam/generated-csvs/resolve/main/ER-all.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/api/resolve-cache/datasets/aq1048576/red_team_agent_analysis_rl_csvs_bob/8c941b057af1518c76681e928665e7f23d85bec7/data.csv?%2Fdatasets%2Faq1048576%2Fred_team_agent_analysis_rl_csvs_bob%2Fresolve%2Fmain%2Fdata.csv=&etag=%221863f480f208f098af760a80cdd7e5470d19fcb8%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Comprehensive_Isomer-Resolved_Ganglioside_Profiling_by_HILIC-nanoESI-MS_MS/32915218
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Chiral_Monodentate_Phosphine_Ligand_for_Palladium-Catalyzed_Enantioselective_Cascade_Arylvinylation_of_Alkenes_with_N_Tosylhydrazones/32915215
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Synergistic_Profiling_of_Programmed_Cell_Death_and_Immune_Responses_Identifies_a_Novel_Prognostic_Index_for_Cervical_Cancer/32915212
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/dataset/Synergistic_Profiling_of_Programmed_Cell_Death_and_Immune_Responses_Identifies_a_Novel_Prognostic_Index_for_Cervical_Cancer/32915209
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Synergistic_Profiling_of_Programmed_Cell_Death_and_Immune_Responses_Identifies_a_Novel_Prognostic_Index_for_Cervical_Cancer/32915206
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3659329
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5695654
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/1402269
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17709462
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8087474
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21223931
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21223931
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.z08kprrw5
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21218362
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21218362
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
