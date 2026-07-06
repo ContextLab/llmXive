@@ -1,0 +1,97 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "ModelOutput"
+description: "Schema for model training results and metrics"
+type: object
+properties:
+  model_info:
+    type: object
+    properties:
+      algorithm:
+        type: string
+        description: "Name of the algorithm used (e.g., 'RandomForestRegressor')"
+      hyperparameters:
+        type: object
+        description: "Dictionary of hyperparameters used"
+      training_time_seconds:
+        type: number
+        description: "Total time taken for training"
+  power_analysis:
+    type: object
+    properties:
+      effect_size:
+        type: number
+      sample_size:
+        type: integer
+      alpha:
+        type: number
+      calculated_power:
+        type: number
+      status:
+        type: string
+        enum:
+          - "PASS"
+          - "FAIL"
+        description: "Result of the power analysis"
+  cross_validation_results:
+    type: array
+    items:
+      type: object
+      properties:
+        fold_id:
+          type: integer
+        test_system:
+          type: string
+          description: "System held out for this fold"
+        mae:
+          type: number
+          description: "Mean Absolute Error"
+        r2:
+          type: number
+          description: "R² Score"
+        n_samples:
+          type: integer
+      required:
+        - fold_id
+        - test_system
+        - mae
+        - r2
+        - n_samples
+  baseline_comparison:
+    type: object
+    properties:
+      baseline_mae:
+        type: number
+        description: "MAE of the null model (global mean)"
+      model_mae:
+        type: number
+        description: "MAE of the trained model"
+      percentage_improvement:
+        type: number
+        description: "Percentage reduction in MAE"
+      p_value:
+        type: number
+        description: "Statistical significance of improvement"
+      significant:
+        type: boolean
+        description: "True if p < 0.05"
+  artifacts:
+    type: object
+    properties:
+      model_path:
+        type: string
+        description: "Relative path to the saved model file"
+      metrics_path:
+        type: string
+        description: "Relative path to the metrics file"
+      plot_paths:
+        type: array
+        items:
+          type: string
+        description: "List of relative paths to generated plot files"
+required:
+  - model_info
+  - power_analysis
+  - cross_validation_results
+  - baseline_comparison
+  - artifacts
+additionalProperties: false

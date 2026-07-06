@@ -1,5 +1,271 @@
-resolved_at: '2026-07-04T13:24:19.779816+00:00'
+resolved_at: '2026-07-06T04:22:45.912103+00:00'
 datasets:
+- intent: NIST-JANAF
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://curate.nd.edu/articles/journal_contribution/An_SNP-based_second-generation_genetic_map_of_Daphnia_magna_and_its_application_to_QTL_analysis_of_phenotypic_traits/32350938
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://adelaide.figshare.com/articles/online_resource/The_Status_of_Early_Childhood_Health_and_Development_in_Kiribati/32904854
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/dataset/Table_1_Exercise_modulates_behavioral_and_neural_mechanisms_of_working_memory_in_excessive_short_video_users_xlsx/32905001
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/dataset/Data_Sheet_1_IMU-based_rotator_cuff_injury_recognition_with_varying_configurations_and_combinations_docx/32904959
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/dataset/Table_1_Histopathological_biomarkers_of_immunotherapy_outcome_in_advanced_colorectal_cancer_a_multicentre_retrospective_study_docx/32904962
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20570772
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4594226
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://scidoc.org/articlepdfs/IJASAR/IJASAR-2470-4415-05-101.pdf
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6570898
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19772806
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20570772
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20570772
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19835551
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19835551
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2605.18264
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: SGTE
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/manifoldix/sg_testset_fhnw/resolve/main/data/test-00000-of-00008.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/SimonZh/SGtest/resolve/main/data/final.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/Jet1123/sgteach_youtube_tts/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/manifoldix/sg_testset_fhnw/resolve/main/data/test-00000-of-00008.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/nitinvenu/SG_TestDataSet/resolve/main/SGTestDataSet_Train.jsonl
+    source: huggingface
+    status: wrong_format
+    reason: HTTP 401
+  - url: https://huggingface.co/datasets/SimonZh/SGtest/resolve/main/data/final.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/Jet1123/sgteach_youtube_tts/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/Jet1123/sgteach_youtube_tts_multi/resolve/main/data/train-00000-of-00004.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://tandf.figshare.com/articles/journal_contribution/Investigating_the_Source_and_Impact_of_Elevated_Intraocular_Insulin_Levels_in_High_Myopia/32904841
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Regulation_and_Evolution_of_Iron_Oxide_Nanoparticles_by_Flame_Synthesis_A_Systematic_Study_of_Solvent_and_Oxygen_Concentration_Effects/32904844
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://curate.nd.edu/articles/journal_contribution/An_SNP-based_second-generation_genetic_map_of_Daphnia_magna_and_its_application_to_QTL_analysis_of_phenotypic_traits/32350938
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://adelaide.figshare.com/articles/online_resource/The_Status_of_Early_Childhood_Health_and_Development_in_Kiribati/32904854
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/dataset/Table_1_Exercise_modulates_behavioral_and_neural_mechanisms_of_working_memory_in_excessive_short_video_users_xlsx/32905001
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20848011
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19835551
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15695297
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://elib.spbstu.ru/dl/3/2025/vr/vr26-1241.pdf/info
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20848011
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20848011
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19835551
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19835551
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: CSVs
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/sulaimank/swahili-csvs/resolve/main/all_audios_ALFFA.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/Thorkage/icebridge_arcticseaice_csvs/resolve/main/unified_20090331.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/AstraTeam/generated-csvs/resolve/main/ER-all.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/api/resolve-cache/datasets/vhada/Roco-csvs/5983bc5817e2c88e9185350e715d1e6503083d65/test.csv?%2Fdatasets%2Fvhada%2FRoco-csvs%2Fresolve%2Fmain%2Ftest.csv=&etag=%22a066c1958bf6911561f708219c010eea4bd1a16c%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/sulaimank/swahili-csvs/resolve/main/all_audios_ALFFA.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/Thorkage/icebridge_arcticseaice_csvs/resolve/main/unified_20090331.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/AstraTeam/generated-csvs/resolve/main/ER-all.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/api/resolve-cache/datasets/aq1048576/red_team_agent_analysis_rl_csvs_bob/8c941b057af1518c76681e928665e7f23d85bec7/data.csv?%2Fdatasets%2Faq1048576%2Fred_team_agent_analysis_rl_csvs_bob%2Fresolve%2Fmain%2Fdata.csv=&etag=%221863f480f208f098af760a80cdd7e5470d19fcb8%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/dataset/Supplementary_file_1_Towards_a_fair_and_transparent_early_warning_system_for_identifying_students_at_risk_of_academic_failure_docx/32905121
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/dataset/Data_Sheet_1_Pain_perception_and_attitudes_toward_life-sustaining_treatment_in_pediatric_patients_with_disorders_of_consciousness_a_survey_of_Chinese_healthcare_professionals_docx/32905073
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/dataset/Table_1_Gut_ocular_surface_axis_in_dry_eye_disease_phenotype-specific_mechanisms_evidence_and_microbiome-targeted_interventions_docx/32905088
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/dataset/Table_1_Exercise_modulates_behavioral_and_neural_mechanisms_of_working_memory_in_excessive_short_video_users_xlsx/32905115
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/dataset/Data_Sheet_1_Association_between_urea-to-creatinine_ratio_trajectories_and_clinical_outcomes_in_chronic_critical_illness_patients_a_retrospective_cohort_study_pdf/32905109
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3659329
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5695654
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/1402269
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17709462
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5701734
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21210795
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21210795
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19765612
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19765612
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21208564
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
 - intent: LOSO
   status: verified
   candidates:
@@ -26,23 +292,23 @@ datasets:
     source: huggingface
     status: verified
     format: jsonl
-  - url: https://figshare.com/articles/dataset/Call_09152489563_For_Khalifa_Isyaku_Rabiu_University_KHAIRUN_2026_2027_POST_UMTE_Pre_Degree_and_Diploma_forms_is_out_call_09152489563_/32899877
+  - url: https://frontiersin.figshare.com/articles/figure/Image_4_Establishment_of_a_loop-mediated_isothermal_amplification-lateral_flow_dipstick_assay_for_the_point-of-care_testing_of_feline_herpesvirus-1_jpeg/32905052
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Call_09152489563_For_Capital_City_University_Kano_CCUK_2026_2027_POST_UMTE_Pre_Degree_and_Diploma_forms_is_out_call_09152489563_/32899874
+  - url: https://frontiersin.figshare.com/articles/dataset/Data_Sheet_2_Protocol_for_a_clinical_practice_guideline_on_acupuncture_for_chronic_non-specific_low_back_pain_pdf/32905184
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Call_09152489563_For_Maryam_Abacha_American_University_of_Nigeria_MAAUN_2026_2027_POST_UMTE_Pre_Degree_and_Diploma_forms_is_out_call_09152489563_/32899868
+  - url: https://frontiersin.figshare.com/articles/dataset/Data_Sheet_1_Protocol_for_a_clinical_practice_guideline_on_acupuncture_for_chronic_non-specific_low_back_pain_pdf/32905139
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Call_09152489563_For_Skyline_University_Nigeria_SUN_2026_2027_POST_UMTE_Pre_Degree_and_Diploma_forms_is_out_call_09152489563_/32899865
+  - url: https://frontiersin.figshare.com/articles/dataset/Data_Sheet_3_Protocol_for_a_clinical_practice_guideline_on_acupuncture_for_chronic_non-specific_low_back_pain_pdf/32905064
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Call_09152489563_For_Yusuf_Maitama_Sule_University_YMSU_2026_2027_POST_UMTE_Pre_Degree_and_Diploma_forms_is_out_call_09152489563_/32899841
+  - url: https://frontiersin.figshare.com/articles/dataset/Supplementary_file_1_Modelling_forage_fish_species_distribution_in_the_Canadian_Salish_Sea_docx/32905136
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -66,23 +332,23 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://unige.iris.cineca.it/handle/11567/945784
+  - url: https://zenodo.org/records/21211975
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://doi.org/10.17632/yryvjnzwrb.1
-    source: datacite
-    status: unreachable
-    reason: 'reachability failed: HTTP 404'
-  - url: https://doi.org/10.17632/yryvjnzwrb
-    source: datacite
-    status: unreachable
-    reason: 'reachability failed: HTTP 404'
-  - url: https://zenodo.org/records/21109289
+  - url: https://zenodo.org/records/21211975
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21109289
+  - url: https://zenodo.org/records/21211752
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21208833
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21208833
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -131,23 +397,23 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://figshare.com/articles/dataset/Call_09152489563_For_Khalifa_Isyaku_Rabiu_University_KHAIRUN_2026_2027_POST_UMTE_Pre_Degree_and_Diploma_forms_is_out_call_09152489563_/32899877
+  - url: https://frontiersin.figshare.com/articles/figure/Supplementary_file_2_The_effects_of_brain_radiotherapy_combined_with_immunotherapy_and_chemotherapy_for_driver_gene-negative_non-small-cell_lung_cancer_with_brain_metastases_jpeg/32905124
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Call_09152489563_For_Capital_City_University_Kano_CCUK_2026_2027_POST_UMTE_Pre_Degree_and_Diploma_forms_is_out_call_09152489563_/32899874
+  - url: https://frontiersin.figshare.com/articles/figure/Image_3_Establishment_of_a_loop-mediated_isothermal_amplification-lateral_flow_dipstick_assay_for_the_point-of-care_testing_of_feline_herpesvirus-1_jpeg/32905133
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Call_09152489563_For_Maryam_Abacha_American_University_of_Nigeria_MAAUN_2026_2027_POST_UMTE_Pre_Degree_and_Diploma_forms_is_out_call_09152489563_/32899868
+  - url: https://frontiersin.figshare.com/articles/figure/Image_4_Establishment_of_a_loop-mediated_isothermal_amplification-lateral_flow_dipstick_assay_for_the_point-of-care_testing_of_feline_herpesvirus-1_jpeg/32905052
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Call_09152489563_For_Skyline_University_Nigeria_SUN_2026_2027_POST_UMTE_Pre_Degree_and_Diploma_forms_is_out_call_09152489563_/32899865
+  - url: https://frontiersin.figshare.com/articles/dataset/Data_Sheet_2_Protocol_for_a_clinical_practice_guideline_on_acupuncture_for_chronic_non-specific_low_back_pain_pdf/32905184
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Call_09152489563_For_Yusuf_Maitama_Sule_University_YMSU_2026_2027_POST_UMTE_Pre_Degree_and_Diploma_forms_is_out_call_09152489563_/32899841
+  - url: https://frontiersin.figshare.com/articles/dataset/Data_Sheet_1_Protocol_for_a_clinical_practice_guideline_on_acupuncture_for_chronic_non-specific_low_back_pain_pdf/32905139
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -171,23 +437,23 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://fair.unifg.it//handle/11369/369485
+  - url: https://zenodo.org/records/21211960
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://aip.figshare.com/collections/Diamond_Thermometry_Beyond_the_Zero-Phonon_Line_via_Physics-Aware_Spectral_Trend_Learning/8539683/1
+  - url: https://zenodo.org/records/21211960
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://aip.figshare.com/collections/Diamond_Thermometry_Beyond_the_Zero-Phonon_Line_via_Physics-Aware_Spectral_Trend_Learning/8539683
+  - url: https://doi.nrct.go.th//ListDoi/listDetail?Resolve_DOI=10.14456/shserj.2026.36
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21132765
+  - url: https://zenodo.org/records/21209149
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21132765
+  - url: https://zenodo.org/records/21209149
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content

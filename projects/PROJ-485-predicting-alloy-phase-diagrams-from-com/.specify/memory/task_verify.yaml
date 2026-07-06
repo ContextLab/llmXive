@@ -1,0 +1,11 @@
+? 'T001a [P] Create project directory structure: `code/`, `code/ingest`, `code/features`,
+  `code/models`, `code/viz`, `code/utils`, `tests/`'
+: 2
+'T001b [P] Create project directory structure: `data/raw`, `data/processed`, `data/artifacts`': 2
+'T001c [P] Create project directory structure: `state/`': 2
+T002a [P] Create `__init__.py` files in all `code/` and `tests/` subdirectories to form Python packages: 2
+? T002b [P] Create `.gitignore` excluding `data/raw/*`, `data/processed/*`, `data/artifacts/*`,
+  `*.pyc`, `__pycache__`, `state/*.yaml` EXCEPT `state/PROJ-485/*.yaml` (Constitution
+  Principle V)
+: 2
+T003 [P] Configure linting (ruff/flake8) and formatting (black) tools: 2

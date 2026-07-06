@@ -1,0 +1,78 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "AlloyPhaseDataset"
+description: "Schema for the processed alloy phase dataset with descriptors"
+type: object
+properties:
+  metadata:
+    type: object
+    properties:
+      source:
+        type: string
+        description: "Source of the raw data (e.g., 'SGTE', 'NIST-JANAF')"
+      processed_at:
+        type: string
+        format: date-time
+        description: "Timestamp of data processing"
+      checksum:
+        type: string
+        description: "SHA-256 checksum of the raw data file"
+  columns:
+    type: array
+    items:
+      type: string
+    description: "List of column names in the dataset"
+  data:
+    type: array
+    items:
+      type: object
+      properties:
+        system_id:
+          type: string
+          description: "Unique identifier for the binary system (e.g., 'Cu-Zn')"
+        element_a:
+          type: string
+          description: "Symbol of the first element"
+        element_b:
+          type: string
+          description: "Symbol of the second element"
+        composition_a:
+          type: number
+          minimum: 0.0
+          maximum: 1.0
+          description: "Mole fraction of element A"
+        temperature:
+          type: number
+          minimum: 0.0
+          description: "Phase boundary temperature in Kelvin"
+        phase_type:
+          type: string
+          description: "Type of phase boundary (e.g., 'liquidus', 'solidus')"
+        mean_atomic_radius:
+          type: number
+          description: "Weighted average atomic radius"
+        electronegativity_variance:
+          type: number
+          description: "Variance of electronegativity"
+        valence_electron_count:
+          type: number
+          description: "Weighted average valence electron count"
+        hume_rothery_concentration:
+          type: number
+          description: "Hume-Rothery derived metric"
+      required:
+        - system_id
+        - element_a
+        - element_b
+        - composition_a
+        - temperature
+        - phase_type
+        - mean_atomic_radius
+        - electronegativity_variance
+        - valence_electron_count
+        - hume_rothery_concentration
+    description: "Array of processed alloy records"
+required:
+  - metadata
+  - columns
+  - data
+additionalProperties: false

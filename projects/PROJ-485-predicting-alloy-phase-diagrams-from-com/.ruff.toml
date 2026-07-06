@@ -1,0 +1,28 @@
+# Ruff configuration for PROJ-485
+line-length = 88
+target-version = "py39"
+
+[lint]
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # Pyflakes
+    "I",   # isort
+    "C",   # flake8-comprehensions
+    "B",   # flake8-bugbear
+    "UP",  # pyupgrade
+    "SIM", # flake8-simplify
+    "ARG", # flake8-unused-arguments
+]
+ignore = [
+    "E501", # line too long (handled by formatter)
+    "B008", # do not perform function calls in argument defaults (often needed for logging)
+]
+
+[lint.per-file-ignores]
+"code/main.py" = ["ARG"] # main entry points often have unused CLI args
+
+[lint.isort]
+known-first-party = ["ingest", "features", "models", "viz", "utils", "setup_directories", "main"]
+force-single-line = false
+lines-after-imports = 2
