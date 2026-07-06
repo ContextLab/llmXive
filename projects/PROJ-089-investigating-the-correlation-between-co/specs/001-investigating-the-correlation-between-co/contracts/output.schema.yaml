@@ -1,0 +1,71 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Correlation Results Schema"
+description: "Schema for correlation analysis results"
+type: "object"
+properties:
+  result_id:
+    type: "string"
+    description: "Unique identifier for the correlation result"
+  repo_id:
+    type: "string"
+    nullable: true
+    description: "Repository identifier (null for aggregate results)"
+  correlation_type:
+    type: "string"
+    enum:
+      - "pearson"
+      - "spearman"
+      - "partial"
+    description: "Type of correlation analysis performed"
+  r_value:
+    type: "number"
+    minimum: -1
+    maximum: 1
+    description: "Correlation coefficient (r)"
+  p_value:
+    type: "number"
+    minimum: 0
+    maximum: 1
+    description: "P-value for the correlation test"
+  n:
+    type: "integer"
+    minimum: 1
+    description: "Sample size (number of files analyzed)"
+  confounders_controlled:
+    type: "array"
+    items:
+      type: "string"
+    description: "List of covariates used in partial correlation"
+  vif_values:
+    type: "object"
+    description: "Variance Inflation Factor values for each covariate"
+    additionalProperties:
+      type: "number"
+      minimum: 0
+  threshold_used:
+    type: "integer"
+    minimum: 5
+    description: "File size exclusion threshold used (5, 10, or 20)"
+  bonferroni_adjusted:
+    type: "boolean"
+    description: "Whether Bonferroni correction was applied (always false – replaced by meta‑analysis)"
+  adjusted_p_value:
+    type: "number"
+    minimum: 0
+    maximum: 1
+    nullable: true
+    description: "Adjusted p-value if correction applied"
+  timestamp:
+    type: "string"
+    format: "date-time"
+    description: "Timestamp of the analysis"
+required:
+  - "result_id"
+  - "correlation_type"
+  - "r_value"
+  - "p_value"
+  - "n"
+  - "threshold_used"
+  - "bonferroni_adjusted"
+  - "timestamp"
+additionalProperties: false

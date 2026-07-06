@@ -1,0 +1,70 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Unified Metrics Dataset Schema"
+description: "Schema for the unified file metrics dataset containing raw churn and debt metrics"
+type: "object"
+properties:
+  repo_id:
+    type: "string"
+    description: "Unique repository identifier (owner/repo format)"
+  file_path:
+    type: "string"
+    description: "Path of the file within the repository"
+  language:
+    type: "string"
+    enum:
+      - "Python"
+      - "Java"
+      - "JavaScript"
+      - "TypeScript"
+      - "Go"
+      - "Rust"
+    description: "Programming language of the file"
+  total_lines_changed:
+    type: "integer"
+    minimum: 0
+    description: "Total lines changed in the last 2 years (raw metric)"
+  avg_loc:
+    type: "number"
+    minimum: 10
+    description: "Average Lines of Code over 2-year period (must be >= 10 per FR-007)"
+  churn_density:
+    type: "number"
+    minimum: 0
+    description: "Churn density (total_lines_changed / avg_loc). DEPRECATED: kept for legacy compatibility only."
+  debt_score:
+    type: "number"
+    minimum: 0
+    description: "Raw debt score from static analysis tool"
+  debt_density:
+    type: "number"
+    minimum: 0
+    description: "Debt density (debt_score / avg_loc). DEPRECATED: kept for legacy compatibility only."
+  commit_count:
+    type: "integer"
+    minimum: 0
+    description: "Number of commits touching the file in last 2 years (auxiliary metadata)"
+  avg_cc:
+    type: "integer"
+    minimum: 0
+    nullable: true
+    description: "Average Cyclomatic Complexity (nullable for non-Python files)"
+  avg_mi:
+    type: "integer"
+    minimum: 0
+    maximum: 100
+    nullable: true
+    description: "Average Maintainability Index (0-100, nullable for non-Python files)"
+  code_smells:
+    type: "integer"
+    minimum: 0
+    nullable: true
+    description: "Count of code smells (nullable for Python files)"
+required:
+  - "repo_id"
+  - "file_path"
+  - "language"
+  - "total_lines_changed"
+  - "avg_loc"
+  - "debt_score"
+  - "commit_count"
+additionalProperties: false
