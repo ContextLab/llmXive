@@ -1,0 +1,39 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "GutMicrobiomeSleepDatasetSchema"
+description: "Schema for the input dataset containing metagenomic and sleep data (Wide Format)."
+type: "object"
+properties:
+  subject_id:
+    type: "string"
+    description: "Unique identifier for the subject."
+  rem_duration_min:
+    type: "number"
+    description: "REM sleep duration in minutes."
+    minimum: 0
+  sws_duration_min:
+    type: "number"
+    description: "Slow-Wave Sleep duration in minutes."
+    minimum: 0
+  total_sleep_time_min:
+    type: "number"
+    description: "Total sleep time in minutes."
+    minimum: 0
+  sleep_efficiency_pct:
+    type: "number"
+    description: "Sleep efficiency percentage."
+    minimum: 0
+    maximum: 100
+  # Dynamic taxon columns: must match pattern taxon_*_abundance
+  patternProperties:
+    "^taxon_.*_abundance$":
+      type: "number"
+      minimum: 0
+      description: "Abundance count for a specific taxon."
+required:
+  - subject_id
+  - rem_duration_min
+  - sws_duration_min
+  - total_sleep_time_min
+  - sleep_efficiency_pct
+additionalProperties: true
+description: "This schema validates that all required sleep and microbiome variables are present. Missing fields trigger a pipeline halt. Taxon columns are dynamic and must match the naming pattern."

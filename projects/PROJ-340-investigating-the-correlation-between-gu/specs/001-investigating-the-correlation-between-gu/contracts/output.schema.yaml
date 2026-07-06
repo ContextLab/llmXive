@@ -1,0 +1,48 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "CorrelationResultSchema"
+description: "Schema for the output of the correlation analysis."
+type: "object"
+properties:
+  taxon_name:
+    type: "string"
+    description: "Name of the microbial taxon."
+  sleep_metric:
+    type: "string"
+    description: "Name of the sleep metric."
+  method_used:
+    type: "string"
+    enum:
+      - "Pearson"
+      - "Spearman"
+      - "ZINB"
+    description: "Statistical method used for correlation."
+  correlation_coefficient:
+    type: "number"
+    description: "Estimated correlation coefficient."
+  p_value_raw:
+    type: "number"
+    description: "Raw p-value."
+    minimum: 0
+    maximum: 1
+  p_value_adjusted:
+    type: "number"
+    description: "Benjamini-Hochberg adjusted p-value."
+    minimum: 0
+    maximum: 1
+  is_significant:
+    type: "boolean"
+    description: "True if adjusted p-value <= 0.05."
+  interpretation:
+    type: "string"
+    description: "Human-readable interpretation."
+    pattern: "Associational"
+required:
+  - taxon_name
+  - sleep_metric
+  - method_used
+  - correlation_coefficient
+  - p_value_raw
+  - p_value_adjusted
+  - is_significant
+  - interpretation
+additionalProperties: false
