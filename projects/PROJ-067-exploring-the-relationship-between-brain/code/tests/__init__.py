@@ -1,3 +1,3 @@
 """
-Test suite package.
+Test package for the project.
 """

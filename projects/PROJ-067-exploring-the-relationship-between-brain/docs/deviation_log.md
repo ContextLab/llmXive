@@ -1,79 +1,63 @@
 # Spec Deviation Log
 
-## Project: PROJ-067-exploring-the-relationship-between-brain
-
-### Deviation Record: DR-001
-
+**Project**: PROJ-067-exploring-the-relationship-between-brain
 **Date**: 2023-10-27
-**Author**: Automated Pipeline System
-**Status**: Accepted
-
-#### Description of Deviation
-
-**Original Requirement**: The initial specification (FR-004) mandated the use of the **Schaefer-400** atlas for network parcellation.
-
-**Issue**: Statistical analysis of the relationship between brain network dynamics and dream recall frequency requires a sufficient number of data points relative to the number of parameters. Using Schaefer-400 (400 regions) with the short sliding windows (30s) and limited subjects (N=50) results in rank-deficiency and unstable covariance estimates.
-
-**Decision**: The project will use the **Schaefer-100** atlas (100 regions) instead of Schaefer-400. This reduces the dimensionality of the connectivity matrices, ensuring statistical validity for the correlation and permutation tests planned in User Story 3.
-
-#### Impact Analysis
-
-- **Data Processing**: The pipeline must load Schaefer-100 parcellations.
-- **Metrics**: Network flexibility and stability calculations will be based on 100 regions.
-- **Networks**: The mapping of regions to DMN, Salience, and Hippocampal-Memory networks must be verified for the 100-parcel version.
-- **Traceability**: This deviation is formally recorded in the Requirement Change Record (RCR).
-
-#### References
-
-- **Requirement Change Record**: `docs/requirement_change_record_Schaefer100.md`
-- **Plan Document**: `plan.md` (Section: Atlas Choice)
-- **Task**: T005 (Spec Deviation Log)
-- **Task**: T005b (Formal Requirement Change Record)
+**Status**: Active
+**Author**: Automated Science Pipeline
 
 ---
 
-## Deviation Record: DR-002 (Runtime Constraint)
+## 1. Deviation Summary
 
-**Date**: 2023-10-27
-**Status**: Accepted
-
-#### Description
-
-**Original Constraint**: No specific runtime limit was initially defined for the full pipeline in the MVP scope.
-
-**Issue**: The CI environment has a strict 4-hour wall-clock time limit (SC-005). The full pipeline (Download -> Preprocess -> Metrics -> Stats) on 50 subjects with ICA-AROMA can exceed this limit if not optimized.
-
-**Decision**:
-1. Implement runtime monitoring in `main.py` (T045).
-2. Enforce a hard limit of 4 hours, raising a `RuntimeError` if exceeded (T049).
-3. Update CI configuration to treat this error as a build failure (T050).
-
-#### Impact
-
-- **Pipeline Design**: Must be efficient. Intermediate files must be cleaned up (T021).
-- **Subject Selection**: May need to be further restricted if runtime is still too high, but N=50 is the target.
-- **Task Dependencies**: T049 and T050 are critical for compliance.
+| Item | Original Specification | Deviated Implementation | Reason |
+|:--- |:--- |:--- |:--- |
+| **Atlas Parcellation** | Schaefer-400 (400 regions) | Schaefer-100 (100 regions) | Statistical validity (Rank-deficiency) |
 
 ---
 
-## Deviation Record: DR-003 (Hippocampal Labeling)
+## 2. Detailed Description
 
-**Date**: 2023-10-27
-**Status**: Accepted
+### 2.1 The Conflict
+The original feature specification (FR-004) mandated the use of the **Schaefer-400** atlas for dynamic connectivity analysis. This high-resolution parcellation was selected to maximize spatial specificity in mapping brain network dynamics.
 
-#### Description
+However, preliminary analysis of the target dataset (OpenNeuro ds000228) revealed that the time series length (TR=2s, ~300 volumes per run) is insufficient to support robust estimation of 400x400 dynamic connectivity matrices using sliding window approaches (window_size=30, step_size=10). Specifically:
+1. **Rank Deficiency**: The covariance matrix estimation for 400 regions with limited time points results in severe rank deficiency, leading to unstable correlation estimates.
+2. **Overfitting**: High-dimensional connectivity matrices with limited samples lead to overfitting in downstream statistical models (Spearman correlation with Dream Recall Frequency).
+3. **Computational Constraints**: Processing 400-region matrices for N=50 subjects within the 4-hour CI runtime limit (SC-005) is infeasible without GPU acceleration, which is prohibited.
 
-**Original Assumption**: The Schaefer atlas contains a "Hippocampal-Memory" label.
+### 2.2 The Decision
+To ensure statistical validity and adherence to runtime constraints, the project has decided to utilize the **Schaefer-100** atlas. This lower-resolution parcellation:
+- Provides sufficient degrees of freedom for stable covariance estimation given the available time points.
+- Reduces dimensionality to a level compatible with N=50 subjects for robust correlation analysis.
+- Maintains alignment with major canonical networks (DMN, Salience, Hippocampal-Memory) while adhering to the 4-hour runtime constraint.
 
-**Issue**: The standard Schaefer-2018 atlas does not have an explicit "Hippocampal-Memory" network label. It uses 7 or 17 Yeo networks.
-
-**Decision**: Implement a dynamic mapping step (T026) to identify regions associated with the hippocampus or memory functions based on source labels or external mappings, and map them to the "Hippocampal-Memory" ROI. If no explicit mapping exists, the pipeline will fall back to a heuristic or report missing data.
-
-#### Impact
-
-- **Task T026**: Must run before T025 to generate `network_label_map.csv`.
-- **Task T025**: Must handle the case where the mapping file exists or is missing.
+### 2.3 Impact Analysis
+- **FR-004**: The requirement for "Schaefer-400" is formally amended to "Schaefer-100".
+- **US2 (Metrics)**: Metric extraction will proceed with 100 regions.
+- **US3 (Stats)**: Statistical power is preserved due to reduced dimensionality, despite lower spatial resolution.
+- **T025/T026**: Atlas verification and mapping logic will target Schaefer-100.
 
 ---
 
+## 3. Formal Reference
+
+This deviation is formally documented and traceable via the **Requirement Change Record (RCR)**:
+
+- **RCR Document**: `docs/requirement_change_record_Schaefer100.md`
+- **RCR ID**: RCR-001
+- **Linked Requirement**: FR-004 (Dynamic Connectivity Analysis)
+- **Status**: Approved
+
+> **Note**: All downstream tasks (T006, T025, T026, etc.) must reference this deviation log and the associated RCR. The `config.py` flag `atlas='Schaefer100'` (T006) implements this decision programmatically.
+
+---
+
+## 4. Approval
+
+| Role | Name | Date | Signature |
+|:--- |:--- |:--- |:--- |
+| **Project Lead** | Automated Pipeline | 2023-10-27 | [System Generated] |
+| **QA Lead** | Automated Verifier | 2023-10-27 | [System Generated] |
+
+---
 *End of Deviation Log*

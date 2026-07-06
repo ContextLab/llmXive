@@ -142,9 +142,9 @@
 - [~] T039 [US3] Apply False Discovery Rate (FDR) correction to all correlation p-values (FR-006, SC-002).
 - [~] T040 [US3] Implement permutation test with **exactly 1000 iterations** to generate null distribution (FR-007, SC-003).
 - [~] T041 [US3] Calculate and report post-hoc power analysis (detectable effect size) for N=50 (FR-009, SC-001).
-- [ ] T042 [US3] Generate `results/stats.json` containing rho, uncorrected p, FDR-corrected p, and permutation p-value (FR-008).
-- [ ] T043 [US3] Generate correlation scatter plot and null distribution histogram in `results/plots/` (US3 Acceptance Scenario 3).
-- [ ] T044 [US3] Ensure null results (p > 0.05) are fully reported with plots and coefficients, not suppressed (Edge Case).
+- [~] T042 [US3] Generate `results/stats.json` containing rho, uncorrected p, FDR-corrected p, and permutation p-value (FR-008).
+- [~] T043 [US3] Generate correlation scatter plot and null distribution histogram in `results/plots/` (US3 Acceptance Scenario 3).
+- [~] T044 [US3] Ensure null results (p > 0.05) are fully reported with plots and coefficients, not suppressed (Edge Case).
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -154,9 +154,9 @@
 
 **Purpose**: Improvements that affect multiple user stories and final validation
 
-- [ ] T045 [P] Update `code/main.py` to orchestrate the full pipeline (Download → Preprocess → Metrics → Stats) **with built-in wall-clock timing instrumentation for each phase** (SC-005).
-- [ ] T049 [P] **Runtime Verification**: Implement a check in `main.py` that **raises a RuntimeError if total runtime > 4 hours** and logs results to `results/runtime_log.json`, asserting total <= 4 hours (SC-005, T045).
-- [ ] T050 [P] **CI Pipeline Enforcement**: Update `.github/workflows/ci.yml` (or equivalent CI config) to treat the `RuntimeError` raised by T049 as a **build failure**. This ensures the 4-hour target is enforced by the build system, not just logged.
+- [~] T045 [P] Update `code/main.py` to orchestrate the full pipeline (Download → Preprocess → Metrics → Stats) **with built-in wall-clock timing instrumentation for each phase** (SC-005).
+- [~] T049 [P] **Runtime Verification**: Implement a check in `main.py` that **raises a RuntimeError if total runtime > 4 hours** and logs results to `results/runtime_log.json`, asserting total <= 4 hours (SC-005, T045).
+- [~] T050 [P] **CI Pipeline Enforcement**: Update `.github/workflows/ci.yml` (or equivalent CI config) to treat the `RuntimeError` raised by T049 as a **build failure**. This ensures the 4-hour target is enforced by the build system, not just logged.
 - [ ] T046 [P] Run `pytest` on all contract and unit tests to ensure full pipeline validity.
 - [ ] T047 [P] Validate `results/stats.json` against `contracts/results_schema.yaml`.
 - [ ] T048 [P] Update `README.md` or `quickstart.md` with execution instructions for the 4-hour CI limit.

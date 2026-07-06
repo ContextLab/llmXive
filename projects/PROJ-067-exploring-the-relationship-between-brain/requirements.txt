@@ -1,0 +1,16 @@
+nilearn
+networkx
+scikit-learn
+scipy
+pandas
+numpy
+joblib
+requests
+nibabel
+statsmodels
+pyyaml
+jsonschema
+pytest
+black
+ruff
+pre-commit

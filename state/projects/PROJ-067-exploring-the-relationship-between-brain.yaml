@@ -6,7 +6,7 @@ failed_stage: null
 field: neuroscience
 human_escalation_reason: null
 id: PROJ-067-exploring-the-relationship-between-brain
-last_run_id: 17901c91-cc25-468f-9e7e-718b5ab1cddd
+last_run_id: 3249c15f-7a3d-4c26-9a62-601a9816aa79
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-067-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain
 title: Exploring the Relationship Between Brain Network Dynamics and Individual Differences
   in Dream Recall Frequency
-updated_at: '2026-07-06T18:38:02.723249Z'
+updated_at: '2026-07-06T19:25:27.426563Z'

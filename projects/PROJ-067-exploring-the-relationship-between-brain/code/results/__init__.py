@@ -1,3 +1,3 @@
 """
-Results and plots package.
+Results package for storing analysis outputs, plots, and reports.
 """

@@ -1,65 +1,79 @@
 $schema: http://json-schema.org/draft-07/schema#
 title: Subject Metrics Schema
-description: >
-  Schema for the subject-level dynamic connectivity metrics extracted
-  from resting-state fMRI data. This file validates the contents of
-  `data/metrics/subject_metrics.csv` (and its JSON counterpart if generated).
+description: >-
+  Schema for subject-level dynamic connectivity metrics derived from
+  resting-state fMRI analysis (Schaefer-100 atlas).
+  Contains flexibility and stability metrics for DMN, Salience, and Hippocampal-Memory networks.
 type: object
 required:
   - subject_id
   - dream_recall_frequency
-  - dmn_flexibility
-  - dmn_stability
-  - salience_flexibility
-  - salience_stability
-  - hippocampal_flexibility
-  - hippocampal_stability
+  - metrics
 properties:
   subject_id:
     type: string
-    description: Unique identifier for the subject (e.g., sub-001).
+    description: Unique identifier for the subject (e.g., sub-001)
+    pattern: "^sub-\\d+$"
   dream_recall_frequency:
     type: number
-    description: >
-      Self-reported dream recall frequency (DRF) score.
-      Higher values indicate more frequent dream recall.
-  dmn_flexibility:
+    description: Self-reported dream recall frequency (scale 0-7 or continuous)
+    minimum: 0
+  fd_mean:
     type: number
-    description: >
-      Network flexibility (state transitions per unit time) for the
-      Default Mode Network (DMN).
-  dmn_stability:
-    type: number
-    description: >
-      Network stability (Mean Dwell Time) for the Default Mode Network (DMN).
-  salience_flexibility:
-    type: number
-    description: >
-      Network flexibility (state transitions per unit time) for the
-      Salience Network.
-  salience_stability:
-    type: number
-    description: >
-      Network stability (Mean Dwell Time) for the Salience Network.
-  hippocampal_flexibility:
-    type: number
-    description: >
-      Network flexibility (state transitions per unit time) for the
-      Hippocampal-Memory network (mapped via T026).
-  hippocampal_stability:
-    type: number
-    description: >
-      Network stability (Mean Dwell Time) for the Hippocampal-Memory network.
+    description: Mean Framewise Displacement for the subject
+    minimum: 0
+  fd_excluded:
+    type: boolean
+    description: True if subject was excluded due to high motion (FD > 0.5)
+  metrics:
+    type: object
+    description: Network-specific dynamic metrics
+    required:
+      - DMN
+      - Salience
+      - Hippocampal-Memory
+    properties:
+      DMN:
+        type: object
+        required:
+          - flexibility
+          - stability
+        properties:
+          flexibility:
+            type: number
+            description: State transitions per unit time for DMN
+          stability:
+            type: number
+            description: Mean Dwell Time for DMN
+      Salience:
+        type: object
+        required:
+          - flexibility
+          - stability
+        properties:
+          flexibility:
+            type: number
+            description: State transitions per unit time for Salience network
+          stability:
+            type: number
+            description: Mean Dwell Time for Salience network
+      Hippocampal-Memory:
+        type: object
+        required:
+          - flexibility
+          - stability
+        properties:
+          flexibility:
+            type: number
+            description: State transitions per unit time for Hippocampal-Memory network
+          stability:
+            type: number
+            description: Mean Dwell Time for Hippocampal-Memory network
   processing_timestamp:
     type: string
     format: date-time
-    description: ISO 8601 timestamp of when the metrics were calculated.
-  fd_value:
-    type: number
-    description: >
-      Framewise Displacement value for the subject. Included for
-      reference; subjects with FD > 0.5mm should have been excluded.
-  notes:
+    description: ISO 8601 timestamp of when metrics were calculated
+  atlas_version:
     type: string
-    description: Optional notes regarding data quality or processing anomalies.
+    description: Version of the atlas used (e.g., "Schaefer100")
 additionalProperties: false

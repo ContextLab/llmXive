@@ -1,103 +1,136 @@
 """
-Unit tests for T015: Subject Filtering & N=50 Enforcement
+Unit tests for code/data/filter_subjects.py (T015)
 """
 import json
-import tempfile
-from pathlib import Path
 import pytest
+from pathlib import Path
+import tempfile
+import os
 
-from code.data.filter_subjects import (
+# Import the module functions
+import sys
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / 'code'))
+
+from data.filter_subjects import (
     load_validated_metadata,
-    filter_subjects_by_drf,
-    sort_and_truncate,
+    filter_subjects_with_dream_recall,
+    sort_and_select_subjects,
     save_valid_subjects,
-    FatalError
+    FatalError,
+    TARGET_N,
+    DREAM_RECALL_FIELD
 )
 
-@pytest.fixture
-def sample_metadata_list():
-    return [
-        {"participant_id": "sub-01", "dream_recall_frequency": 5},
-        {"participant_id": "sub-02", "dream_recall_frequency": 12},
-        {"participant_id": "sub-03", "age": 25}, # Missing DRF
-        {"participant_id": "sub-04", "dream_recall_frequency": 3},
-        {"participant_id": "sub-05", "dream_recall_frequency": 8},
-    ]
 
-@pytest.fixture
-def sample_metadata_dict(sample_metadata_list):
-    return {"participants": sample_metadata_list}
+class TestLoadValidatedMetadata:
+    def test_load_list_format(self, tmp_path):
+        """Test loading metadata that is a direct list."""
+        data = [{"subject_id": "sub-01"}, {"subject_id": "sub-02"}]
+        file_path = tmp_path / "metadata.json"
+        file_path.write_text(json.dumps(data))
 
-@pytest.fixture
-def temp_metadata_file(tmp_path, sample_metadata_list):
-    file_path = tmp_path / "validated_metadata.json"
-    with open(file_path, 'w') as f:
-        json.dump(sample_metadata_list, f)
-    return file_path
+        result = load_validated_metadata(file_path)
+        assert len(result) == 2
+        assert result[0]["subject_id"] == "sub-01"
 
-def test_load_validated_metadata_list(temp_metadata_file):
-    data = load_validated_metadata(temp_metadata_file)
-    assert len(data) == 5
-    assert data[0]["participant_id"] == "sub-01"
+    def test_load_dict_with_subjects_key(self, tmp_path):
+        """Test loading metadata wrapped in a dict with 'subjects' key."""
+        data = {"subjects": [{"subject_id": "sub-01"}]}
+        file_path = tmp_path / "metadata.json"
+        file_path.write_text(json.dumps(data))
 
-def test_load_validated_metadata_dict(tmp_path, sample_metadata_dict):
-    file_path = tmp_path / "validated_metadata.json"
-    with open(file_path, 'w') as f:
-        json.dump(sample_metadata_dict, f)
-    
-    data = load_validated_metadata(file_path)
-    assert len(data) == 5
-    assert data[0]["participant_id"] == "sub-01"
+        result = load_validated_metadata(file_path)
+        assert len(result) == 1
+        assert result[0]["subject_id"] == "sub-01"
 
-def test_filter_subjects_by_drf(sample_metadata_list):
-    valid = filter_subjects_by_drf(sample_metadata_list)
-    assert len(valid) == 4
-    ids = [p["participant_id"] for p in valid]
-    assert "sub-03" not in ids
-    assert "sub-01" in ids
+    def test_file_not_found(self, tmp_path):
+        """Test that FileNotFoundError is raised if file doesn't exist."""
+        with pytest.raises(FileNotFoundError):
+            load_validated_metadata(tmp_path / "nonexistent.json")
 
-def test_sort_and_truncate_enough():
-    participants = [
-        {"participant_id": "sub-10", "dream_recall_frequency": 1},
-        {"participant_id": "sub-05", "dream_recall_frequency": 1},
-        {"participant_id": "sub-01", "dream_recall_frequency": 1},
-        {"participant_id": "sub-02", "dream_recall_frequency": 1},
-        {"participant_id": "sub-03", "dream_recall_frequency": 1},
-        {"participant_id": "sub-04", "dream_recall_frequency": 1},
-        {"participant_id": "sub-06", "dream_recall_frequency": 1},
-        {"participant_id": "sub-07", "dream_recall_frequency": 1},
-        {"participant_id": "sub-08", "dream_recall_frequency": 1},
-        {"participant_id": "sub-09", "dream_recall_frequency": 1},
-    ]
-    # We have 10, ask for 5
-    result = sort_and_truncate(participants, target_n=5)
-    assert len(result) == 5
-    # Should be sorted by ID: 01, 02, 03, 04, 05
-    ids = [p["participant_id"] for p in result]
-    assert ids == ["sub-01", "sub-02", "sub-03", "sub-04", "sub-05"]
 
-def test_sort_and_truncate_not_enough():
-    participants = [
-        {"participant_id": "sub-01", "dream_recall_frequency": 1},
-        {"participant_id": "sub-02", "dream_recall_frequency": 1},
-        {"participant_id": "sub-03", "dream_recall_frequency": 1},
-    ]
-    # We have 3, ask for 5 -> Should raise FatalError
-    with pytest.raises(FatalError) as exc_info:
-        sort_and_truncate(participants, target_n=5)
-    assert "Insufficient subjects" in str(exc_info.value)
-    assert "N=5" in str(exc_info.value)
+class TestFilterSubjects:
+    def test_filter_present_and_valid(self):
+        """Test filtering subjects with valid dream recall frequency."""
+        subjects = [
+            {"subject_id": "s1", DREAM_RECALL_FIELD: 5},
+            {"subject_id": "s2", DREAM_RECALL_FIELD: 0},
+            {"subject_id": "s3", DREAM_RECALL_FIELD: 12},
+        ]
+        result = filter_subjects_with_dream_recall(subjects)
+        assert len(result) == 3
 
-def test_save_valid_subjects(tmp_path):
-    subjects = [
-        {"participant_id": "sub-01", "dream_recall_frequency": 5},
-        {"participant_id": "sub-02", "dream_recall_frequency": 10},
-    ]
-    output_path = tmp_path / "valid_subjects.json"
-    save_valid_subjects(subjects, output_path)
-    
-    assert output_path.exists()
-    with open(output_path, 'r') as f:
-        loaded = json.load(f)
-    assert len(loaded) == 2
-    assert loaded[0]["participant_id"] == "sub-01"
+    def test_filter_missing_field(self):
+        """Test filtering subjects missing the field."""
+        subjects = [
+            {"subject_id": "s1", "other_field": 10},
+            {"subject_id": "s2", DREAM_RECALL_FIELD: 5},
+        ]
+        result = filter_subjects_with_dream_recall(subjects)
+        assert len(result) == 1
+        assert result[0]["subject_id"] == "s2"
+
+    def test_filter_null_value(self):
+        """Test filtering subjects with null value."""
+        subjects = [
+            {"subject_id": "s1", DREAM_RECALL_FIELD: None},
+            {"subject_id": "s2", DREAM_RECALL_FIELD: 5},
+        ]
+        result = filter_subjects_with_dream_recall(subjects)
+        assert len(result) == 1
+
+    def test_filter_non_numeric(self):
+        """Test filtering subjects with non-numeric values."""
+        subjects = [
+            {"subject_id": "s1", DREAM_RECALL_FIELD: "high"},
+            {"subject_id": "s2", DREAM_RECALL_FIELD: 5},
+        ]
+        result = filter_subjects_with_dream_recall(subjects)
+        assert len(result) == 1
+
+
+class TestSortAndSelect:
+    def test_sort_by_id(self):
+        """Test sorting by subject_id ascending."""
+        subjects = [
+            {"subject_id": "sub-03"},
+            {"subject_id": "sub-01"},
+            {"subject_id": "sub-02"},
+        ]
+        result = sort_and_select_subjects(subjects, n=3)
+        assert result[0]["subject_id"] == "sub-01"
+        assert result[1]["subject_id"] == "sub-02"
+        assert result[2]["subject_id"] == "sub-03"
+
+    def test_truncate_to_n(self):
+        """Test that selection truncates to N."""
+        subjects = [{"subject_id": f"sub-{i:02d}"} for i in range(100)]
+        result = sort_and_select_subjects(subjects, n=10)
+        assert len(result) == 10
+        assert result[0]["subject_id"] == "sub-00"
+        assert result[9]["subject_id"] == "sub-09"
+
+    def test_insufficient_subjects_raises_fatal(self):
+        """Test that FatalError is raised if fewer than N subjects."""
+        subjects = [{"subject_id": "s1"}, {"subject_id": "s2"}]
+        with pytest.raises(FatalError) as exc_info:
+            sort_and_select_subjects(subjects, n=50)
+        assert "Insufficient subjects" in str(exc_info.value)
+
+
+class TestSaveValidSubjects:
+    def test_save_creates_file(self, tmp_path):
+        """Test that save creates the file with correct content."""
+        subjects = [{"subject_id": "s1", DREAM_RECALL_FIELD: 5}]
+        output_path = tmp_path / "valid_subjects.json"
+        
+        save_valid_subjects(subjects, output_path)
+        
+        assert output_path.exists()
+        with open(output_path, 'r') as f:
+            data = json.load(f)
+        
+        assert data["n_subjects"] == 1
+        assert data["target_n"] == TARGET_N
+        assert len(data["subjects"]) == 1
+        assert data["subjects"][0]["subject_id"] == "s1"

@@ -1,3 +1,3 @@
 """
-Plots and visualizations package.
+Package for storing generated plots and figures.
 """

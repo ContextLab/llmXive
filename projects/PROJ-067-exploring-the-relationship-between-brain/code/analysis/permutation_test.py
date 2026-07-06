@@ -1,19 +1,27 @@
 """
-Permutation test implementation for statistical validation.
+Permutation test implementation for statistical significance of correlations.
 
-Implements a non-parametric permutation test to generate a null distribution
-for Spearman correlation between network metrics and Dream Recall Frequency (DRF).
+This module implements a non-parametric permutation test to generate a null
+distribution for the correlation coefficient between network metrics and
+dream recall frequency.
+
+FR-007: Implement permutation test with exactly 1000 iterations.
+SC-003: Ensure robust statistical inference via permutation testing.
 """
 import os
 import sys
 import json
 import logging
+import numpy as np
 from pathlib import Path
 from typing import Dict, List, Tuple, Optional, Any
-import numpy as np
-from scipy.stats import spearmanr
-from scipy.stats import fdr_bh
-from utils.config import get_config
+from scipy import stats
+from scipy.stats import rankdata
+
+# Add project root to path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
+from analysis.stats import load_metrics_and_dream_recall
 
 # Configure logging
 logging.basicConfig(
@@ -22,349 +30,281 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-def load_metrics_and_drf(metrics_path: str, drf_column: str = 'dream_recall_frequency') -> Tuple[np.ndarray, np.ndarray, List[str]]:
-    """
-    Load metrics and DRF values from the subject metrics CSV.
-    
-    Args:
-        metrics_path: Path to the subject_metrics.csv file
-        drf_column: Name of the column containing DRF values
-        
-    Returns:
-        Tuple of (metrics_array, drf_array, metric_names)
-    """
-    import pandas as pd
-    
-    df = pd.read_csv(metrics_path)
-    
-    # Validate DRF column exists
-    if drf_column not in df.columns:
-        raise ValueError(f"Column '{drf_column}' not found in metrics file. Available: {list(df.columns)}")
-    
-    # Filter out rows with missing DRF or NaN values in metrics
-    valid_rows = df.dropna(subset=[drf_column])
-    valid_rows = valid_rows.dropna(axis=1, how='all')
-    
-    if len(valid_rows) == 0:
-        raise ValueError("No valid subjects found with DRF data after filtering NaNs.")
-    
-    # Extract DRF
-    drf = valid_rows[drf_column].values.astype(float)
-    
-    # Identify metric columns (exclude subject_id, drf, and other non-metric columns)
-    exclude_cols = ['subject_id', 'dream_recall_frequency', 'drf']
-    metric_cols = [col for col in valid_rows.columns if col not in exclude_cols and valid_rows[col].dtype in [float, int]]
-    
-    if len(metric_cols) == 0:
-        raise ValueError("No metric columns found in the dataset.")
-    
-    metrics = valid_rows[metric_cols].values.astype(float)
-    
-    logger.info(f"Loaded {len(drf)} subjects with {len(metric_cols)} metrics.")
-    
-    return metrics, drf, metric_cols
+# Constants
+PERMUTATION_ITERATIONS = 1000
+RANDOM_SEED = 42
 
-def calculate_observed_correlations(metrics: np.ndarray, drf: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
+def calculate_correlation(x: np.ndarray, y: np.ndarray) -> float:
     """
-    Calculate observed Spearman correlations between each metric and DRF.
+    Calculate Spearman correlation coefficient between two arrays.
     
     Args:
-        metrics: Array of shape (n_subjects, n_metrics)
-        drf: Array of shape (n_subjects,)
+        x: First array of values
+        y: Second array of values
         
     Returns:
-        Tuple of (rho_values, p_values)
+        Spearman correlation coefficient
     """
-    n_subjects, n_metrics = metrics.shape
-    rho_obs = np.zeros(n_metrics)
-    p_obs = np.zeros(n_metrics)
+    if len(x) != len(y):
+        raise ValueError(f"Array lengths must match: {len(x)} vs {len(y)}")
     
-    for i in range(n_metrics):
-        metric = metrics[:, i]
-        # Handle constant metrics
-        if np.std(metric) < 1e-8:
-            rho_obs[i] = 0.0
-            p_obs[i] = 1.0
-            continue
-        
-        # Handle constant DRF
-        if np.std(drf) < 1e-8:
-            rho_obs[i] = 0.0
-            p_obs[i] = 1.0
-            continue
-        
-        rho, p = spearmanr(metric, drf)
-        rho_obs[i] = rho
-        p_obs[i] = p
-        
-    return rho_obs, p_obs
+    # Handle constant arrays (edge case)
+    if np.std(x) == 0 or np.std(y) == 0:
+        return 0.0
+    
+    rho, _ = stats.spearmanr(x, y)
+    return float(rho)
 
 def run_permutation_test(
-    metrics: np.ndarray,
-    drf: np.ndarray,
-    n_permutations: int = 1000,
-    seed: Optional[int] = None
-) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+    x: np.ndarray,
+    y: np.ndarray,
+    n_iterations: int = PERMUTATION_ITERATIONS,
+    seed: int = RANDOM_SEED
+) -> Tuple[float, np.ndarray, float]:
     """
-    Run permutation test to generate null distribution for Spearman correlations.
+    Run a permutation test to assess the significance of the observed correlation.
     
-    This function permutes the DRF labels (or metric labels) n_permutations times
-    to build a null distribution of correlation coefficients.
+    The test works by randomly shuffling the y-values (dream recall frequency)
+    relative to the x-values (network metrics) many times, calculating the
+    correlation for each shuffled dataset to build a null distribution.
     
     Args:
-        metrics: Array of shape (n_subjects, n_metrics)
-        drf: Array of shape (n_subjects,)
-        n_permutations: Number of permutation iterations (exactly 1000 as per FR-007)
+        x: Network metric values (independent variable)
+        y: Dream recall frequency values (dependent variable)
+        n_iterations: Number of permutation iterations (default: 1000)
         seed: Random seed for reproducibility
         
     Returns:
-        Tuple of (null_distribution, p_permutation, observed_rhos)
-        - null_distribution: Array of shape (n_metrics, n_permutations)
-        - p_permutation: Array of shape (n_metrics,) - two-sided p-values from permutation
-        - observed_rhos: Array of shape (n_metrics,) - observed correlations
+        Tuple containing:
+            - observed_rho: The observed Spearman correlation coefficient
+            - null_distribution: Array of correlation coefficients from permutations
+            - permutation_p_value: Two-tailed p-value from the permutation test
     """
-    if seed is not None:
-        np.random.seed(seed)
-        
-    n_subjects, n_metrics = metrics.shape
+    if len(x) != len(y):
+        raise ValueError(f"Input arrays must have the same length: {len(x)} vs {len(y)}")
     
-    if n_permutations != 1000:
-        logger.warning(f"Requested {n_permutations} permutations, but FR-007 specifies exactly 1000. Using 1000.")
-        n_permutations = 1000
-        
-    logger.info(f"Starting permutation test with {n_permutations} iterations...")
+    if len(x) < 5:
+        raise ValueError(f"Insufficient samples for permutation test: {len(x)}")
     
-    # Initialize null distribution array: (n_metrics, n_permutations)
-    null_dist = np.zeros((n_metrics, n_permutations))
+    # Set random seed for reproducibility
+    rng = np.random.default_rng(seed)
     
-    # Calculate observed correlations first
-    observed_rhos, _ = calculate_observed_correlations(metrics, drf)
+    # Calculate observed correlation
+    observed_rho = calculate_correlation(x, y)
+    logger.info(f"Observed Spearman correlation: {observed_rho:.4f}")
     
-    for perm_idx in range(n_permutations):
-        if (perm_idx + 1) % 100 == 0:
-            logger.info(f"Permutation {perm_idx + 1}/{n_permutations} completed.")
+    # Generate null distribution
+    null_distribution = np.zeros(n_iterations)
+    
+    logger.info(f"Running permutation test with {n_iterations} iterations...")
+    
+    for i in range(n_iterations):
+        # Shuffle y values while keeping x fixed
+        shuffled_y = rng.permutation(y)
+        null_rho = calculate_correlation(x, shuffled_y)
+        null_distribution[i] = null_rho
         
-        # Permute DRF labels (shuffling breaks the relationship)
-        permuted_drf = drf.copy()
-        np.random.shuffle(permuted_drf)
+        if (i + 1) % 100 == 0:
+            logger.debug(f"Completed {i + 1}/{n_iterations} permutations")
+    
+    # Calculate two-tailed p-value
+    # Count how many permuted correlations are as extreme or more extreme than observed
+    # For two-tailed test, we consider both tails
+    extreme_count = np.sum(np.abs(null_distribution) >= np.abs(observed_rho))
+    permutation_p_value = (extreme_count + 1) / (n_iterations + 1)
+    
+    logger.info(f"Permutation test completed. P-value: {permutation_p_value:.4f}")
+    logger.info(f"Null distribution: mean={np.mean(null_distribution):.4f}, "
+               f"std={np.std(null_distribution):.4f}")
+    
+    return observed_rho, null_distribution, permutation_p_value
+
+def run_permutation_tests_for_all_metrics(
+    metrics: Dict[str, List[Dict[str, Any]]],
+    dream_recall_values: Dict[str, float]
+) -> Dict[str, Dict[str, Any]]:
+    """
+    Run permutation tests for all network metrics against dream recall frequency.
+    
+    Args:
+        metrics: Dictionary mapping network names to lists of metric dictionaries
+                (from load_metrics_and_dream_recall)
+        dream_recall_values: Dictionary mapping subject IDs to dream recall frequency
         
-        # Calculate correlation for each metric with permuted DRF
-        for i in range(n_metrics):
-            metric = metrics[:, i]
+    Returns:
+        Dictionary containing results for each metric network:
+            - observed_rho: Observed correlation coefficient
+            - null_distribution: Array of permuted correlations
+            - permutation_p_value: Permutation test p-value
+            - n_iterations: Number of iterations performed
+            - n_subjects: Number of subjects analyzed
+    """
+    results = {}
+    
+    # Identify which metrics are available (flexibility and stability for each network)
+    # Expected networks: DMN, Salience, Hippocampal-Memory
+    # Expected metric types: flexibility, stability
+    
+    # Extract metric names from the data
+    metric_names = set()
+    for network_name, subjects in metrics.items():
+        if subjects:
+            for key in subjects[0].keys():
+                if key not in ['subject_id', 'dream_recall_frequency']:
+                    metric_names.add(f"{network_name}_{key}")
+    
+    logger.info(f"Found {len(metric_names)} metric combinations to test: {metric_names}")
+    
+    for metric_name in metric_names:
+        try:
+            # Extract metric values and corresponding dream recall
+            x_values = []
+            y_values = []
+            subject_ids = []
             
-            # Skip constant metrics
-            if np.std(metric) < 1e-8 or np.std(permuted_drf) < 1e-8:
-                null_dist[i, perm_idx] = 0.0
-                continue
+            for network_name, subjects in metrics.items():
+                metric_type = metric_name.split('_')[-1]
+                prefix = f"{network_name}_{metric_type}"
                 
-            rho, _ = spearmanr(metric, permuted_drf)
-            null_dist[i, perm_idx] = rho
+                for subject in subjects:
+                    if prefix in subject and subject.get('dream_recall_frequency') is not None:
+                        x_values.append(subject[prefix])
+                        y_values.append(subject['dream_recall_frequency'])
+                        subject_ids.append(subject['subject_id'])
             
-    # Calculate two-sided permutation p-values
-    # p = (number of permuted |rho| >= observed |rho| + 1) / (n_permutations + 1)
-    p_perm = np.zeros(n_metrics)
-    abs_obs = np.abs(observed_rhos)
-    abs_null = np.abs(null_dist)
-    
-    for i in range(n_metrics):
-        count_extreme = np.sum(abs_null[i, :] >= abs_obs[i])
-        p_perm[i] = (count_extreme + 1) / (n_permutations + 1)
-        
-    logger.info("Permutation test completed.")
-    
-    return null_dist, p_perm, observed_rhos
-
-def generate_null_distribution_plot(
-    null_dist: np.ndarray,
-    observed_rhos: np.ndarray,
-    metric_names: List[str],
-    output_dir: str,
-    metric_idx: int = 0
-) -> str:
-    """
-    Generate a histogram of the null distribution with the observed correlation marked.
-    
-    Args:
-        null_dist: Null distribution array (n_metrics, n_permutations)
-        observed_rhos: Observed correlations (n_metrics,)
-        metric_names: List of metric names
-        output_dir: Directory to save the plot
-        metric_idx: Index of the metric to plot
-        
-    Returns:
-        Path to the saved plot file
-    """
-    import matplotlib.pyplot as plt
-    
-    metric_name = metric_names[metric_idx]
-    obs_rho = observed_rhos[metric_idx]
-    null_data = null_dist[metric_idx, :]
-    
-    plt.figure(figsize=(10, 6))
-    plt.hist(null_data, bins=50, alpha=0.7, color='skyblue', edgecolor='black', label='Null Distribution')
-    plt.axvline(x=obs_rho, color='red', linestyle='--', linewidth=2, label=f'Observed (ρ={obs_rho:.3f})')
-    plt.axvline(x=0, color='gray', linestyle='-', linewidth=1, alpha=0.5)
-    
-    plt.xlabel('Spearman Correlation Coefficient (ρ)', fontsize=12)
-    plt.ylabel('Frequency', fontsize=12)
-    plt.title(f'Permutation Test Null Distribution: {metric_name}', fontsize=14)
-    plt.legend()
-    plt.grid(axis='y', alpha=0.3)
-    
-    # Ensure output directory exists
-    os.makedirs(output_dir, exist_ok=True)
-    
-    plot_path = os.path.join(output_dir, f'null_distribution_{metric_name.replace(" ", "_").replace("-", "_")}.png')
-    plt.savefig(plot_path, dpi=150, bbox_inches='tight')
-    plt.close()
-    
-    logger.info(f"Null distribution plot saved to: {plot_path}")
-    return plot_path
-
-def run_full_permutation_analysis(
-    metrics_path: str,
-    output_dir: str,
-    n_permutations: int = 1000,
-    seed: Optional[int] = None,
-    generate_plots: bool = True
-) -> Dict[str, Any]:
-    """
-    Run the complete permutation test analysis pipeline.
-    
-    Args:
-        metrics_path: Path to subject_metrics.csv
-        output_dir: Directory to save results
-        n_permutations: Number of permutations (default 1000)
-        seed: Random seed
-        generate_plots: Whether to generate null distribution plots
-        
-    Returns:
-        Dictionary containing analysis results
-    """
-    config = get_config()
-    output_dir = Path(output_dir)
-    output_dir.mkdir(parents=True, exist_ok=True)
-    
-    # Load data
-    metrics, drf, metric_names = load_metrics_and_drf(metrics_path)
-    
-    # Run permutation test
-    null_dist, p_perm, obs_rhos = run_permutation_test(
-        metrics, drf, n_permutations=n_permutations, seed=seed
-    )
-    
-    # Calculate FDR-corrected p-values for permutation p-values
-    reject, p_fdr, _, _ = fdr_bh(p_perm, alpha=0.05)
-    
-    # Prepare results
-    results = {
-        'n_subjects': len(drf),
-        'n_permutations': n_permutations,
-        'seed': seed,
-        'metrics': []
-    }
-    
-    for i, name in enumerate(metric_names):
-        metric_result = {
-            'metric_name': name,
-            'observed_rho': float(obs_rhos[i]),
-            'permutation_p_value': float(p_perm[i]),
-            'fdr_corrected_p_value': float(p_fdr[i]),
-            'is_significant_fdr': bool(reject[i]),
-            'null_distribution_stats': {
-                'mean': float(np.mean(null_dist[i, :])),
-                'std': float(np.std(null_dist[i, :])),
-                'min': float(np.min(null_dist[i, :])),
-                'max': float(np.max(null_dist[i, :])),
-                'percentile_2.5': float(np.percentile(null_dist[i, :], 2.5)),
-                'percentile_97.5': float(np.percentile(null_dist[i, :], 97.5))
+            if len(x_values) < 5:
+                logger.warning(f"Insufficient data for {metric_name}: {len(x_values)} subjects")
+                results[metric_name] = {
+                    'observed_rho': None,
+                    'null_distribution': None,
+                    'permutation_p_value': None,
+                    'n_iterations': 0,
+                    'n_subjects': len(x_values),
+                    'error': 'Insufficient subjects'
+                }
+                continue
+            
+            x_array = np.array(x_values)
+            y_array = np.array(y_values)
+            
+            # Run permutation test
+            observed_rho, null_dist, p_value = run_permutation_test(
+                x_array, y_array,
+                n_iterations=PERMUTATION_ITERATIONS,
+                seed=RANDOM_SEED
+            )
+            
+            results[metric_name] = {
+                'observed_rho': observed_rho,
+                'null_distribution': null_dist.tolist(),  # Convert to list for JSON serialization
+                'permutation_p_value': p_value,
+                'n_iterations': PERMUTATION_ITERATIONS,
+                'n_subjects': len(x_values),
+                'subject_ids': subject_ids
             }
-        }
-        results['metrics'].append(metric_result)
-        
-        # Generate plot if requested
-        if generate_plots:
-            try:
-                plot_path = generate_null_distribution_plot(
-                    null_dist, obs_rhos, metric_names, str(output_dir), i
-                )
-                metric_result['null_distribution_plot'] = plot_path
-            except Exception as e:
-                logger.warning(f"Could not generate plot for {name}: {e}")
-    
-    # Save results to JSON
-    results_path = output_dir / 'permutation_results.json'
-    with open(results_path, 'w') as f:
-        json.dump(results, f, indent=2)
-        
-    logger.info(f"Permutation analysis results saved to: {results_path}")
+            
+            logger.info(f"Completed {metric_name}: rho={observed_rho:.4f}, p={p_value:.4f}")
+            
+        except Exception as e:
+            logger.error(f"Error processing {metric_name}: {str(e)}")
+            results[metric_name] = {
+                'observed_rho': None,
+                'null_distribution': None,
+                'permutation_p_value': None,
+                'n_iterations': 0,
+                'n_subjects': 0,
+                'error': str(e)
+            }
     
     return results
 
-def main():
-    """Main entry point for permutation test script."""
-    import argparse
+def save_results(results: Dict[str, Dict[str, Any]], output_path: str) -> None:
+    """
+    Save permutation test results to a JSON file.
     
-    parser = argparse.ArgumentParser(description='Run permutation test for network metrics vs DRF')
-    parser.add_argument(
-        '--metrics-path', 
-        type=str, 
-        default='data/metrics/subject_metrics.csv',
-        help='Path to subject metrics CSV file'
-    )
-    parser.add_argument(
-        '--output-dir',
-        type=str,
-        default='results/plots',
-        help='Directory to save results and plots'
-    )
-    parser.add_argument(
-        '--n-permutations',
-        type=int,
-        default=1000,
-        help='Number of permutation iterations (default: 1000)'
-    )
-    parser.add_argument(
-        '--seed',
-        type=int,
-        default=42,
-        help='Random seed for reproducibility'
-    )
-    parser.add_argument(
-        '--no-plots',
-        action='store_true',
-        help='Disable plot generation'
-    )
+    Args:
+        results: Dictionary of test results
+        output_path: Path to output JSON file
+    """
+    output_dir = Path(output_path).parent
+    output_dir.mkdir(parents=True, exist_ok=True)
     
-    args = parser.parse_args()
+    # Prepare results for JSON serialization (convert numpy arrays to lists)
+    serializable_results = {}
+    for metric_name, metric_results in results.items():
+        serializable_results[metric_name] = {
+            k: (v.tolist() if isinstance(v, np.ndarray) else v)
+            for k, v in metric_results.items()
+        }
     
-    # Ensure n_permutations is 1000 as per FR-007
-    if args.n_permutations != 1000:
-        logger.warning(f"FR-007 requires exactly 1000 permutations. Setting to 1000.")
-        args.n_permutations = 1000
-        
+    with open(output_path, 'w') as f:
+        json.dump(serializable_results, f, indent=2)
+    
+    logger.info(f"Results saved to {output_path}")
+
+def main() -> None:
+    """
+    Main entry point for running permutation tests.
+    
+    This function:
+    1. Loads metrics and dream recall data
+    2. Runs permutation tests for all metric networks
+    3. Saves results to results/permutation_results.json
+    """
+    logger.info("Starting permutation test analysis (T040)")
+    
     try:
-        results = run_full_permutation_analysis(
-            metrics_path=args.metrics_path,
-            output_dir=args.output_dir,
-            n_permutations=args.n_permutations,
-            seed=args.seed,
-            generate_plots=not args.no_plots
-        )
+        # Load data
+        metrics, dream_recall_values = load_metrics_and_dream_recall()
         
-        print(f"\nPermutation Test Results Summary:")
-        print(f"Subjects: {results['n_subjects']}")
-        print(f"Permutations: {results['n_permutations']}")
-        print(f"\nMetric Results:")
-        for m in results['metrics']:
-            sig = "***" if m['is_significant_fdr'] else ""
-            print(f"  {m['metric_name']}: ρ={m['observed_rho']:.3f}, "
-                  f"p_perm={m['permutation_p_value']:.3f}, "
-                  f"p_fdr={m['fdr_corrected_p_value']:.3f} {sig}")
-                  
+        if not metrics:
+            logger.error("No metrics data loaded. Cannot proceed with permutation test.")
+            sys.exit(1)
+        
+        if not dream_recall_values:
+            logger.error("No dream recall data loaded. Cannot proceed with permutation test.")
+            sys.exit(1)
+        
+        logger.info(f"Loaded data for {len(dream_recall_values)} subjects")
+        
+        # Run permutation tests
+        results = run_permutation_tests_for_all_metrics(metrics, dream_recall_values)
+        
+        # Save results
+        output_path = str(Path(__file__).parent.parent.parent / "results" / "permutation_results.json")
+        save_results(results, output_path)
+        
+        # Also update the main stats.json if it exists
+        stats_path = str(Path(__file__).parent.parent.parent / "results" / "stats.json")
+        if os.path.exists(stats_path):
+            try:
+                with open(stats_path, 'r') as f:
+                    stats_data = json.load(f)
+                
+                # Add permutation results to stats data
+                stats_data['permutation_tests'] = {
+                    k: {
+                        'observed_rho': v.get('observed_rho'),
+                        'permutation_p_value': v.get('permutation_p_value'),
+                        'n_iterations': v.get('n_iterations'),
+                        'n_subjects': v.get('n_subjects')
+                    }
+                    for k, v in results.items()
+                    if v.get('observed_rho') is not None
+                }
+                
+                with open(stats_path, 'w') as f:
+                    json.dump(stats_data, f, indent=2)
+                
+                logger.info(f"Updated {stats_path} with permutation test results")
+            except Exception as e:
+                logger.warning(f"Could not update stats.json: {e}")
+        
+        logger.info("Permutation test analysis completed successfully")
+        
     except Exception as e:
-        logger.error(f"Permutation test failed: {e}")
+        logger.error(f"Permutation test failed: {str(e)}")
         raise
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
