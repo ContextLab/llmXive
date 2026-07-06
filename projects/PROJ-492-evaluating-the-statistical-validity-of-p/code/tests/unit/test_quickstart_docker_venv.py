@@ -2,104 +2,144 @@
 Test T095b: Verify Quickstart Docker guide reproduces environment via requirements.txt and isolated venv.
 
 This test validates:
-1. The Dockerfile exists and contains the command to install from requirements.txt.
-2. The Dockerfile creates an isolated virtual environment (venv).
-3. The requirements.txt file exists and is non-empty.
-4. The Dockerfile syntax is valid (basic check).
+1. The Dockerfile exists and contains the instruction to install from requirements.txt.
+2. The Dockerfile creates a virtual environment (venv) and activates it before running the application.
+3. The requirements.txt file exists and contains valid Python dependencies.
 """
+
 import os
 import re
 import subprocess
-import pytest
+import tempfile
+import sys
 from pathlib import Path
+import pytest
 
 PROJECT_ROOT = Path(__file__).parent.parent.parent.parent
 DOCKERFILE_PATH = PROJECT_ROOT / "code" / "Dockerfile"
-REQUIREMENTS_PATH = PROJECT_ROOT / "requirements.txt"
-QUICKSTART_PATH = PROJECT_ROOT / "docs" / "README_QUICKSTART.md"
+REQUIREMENTS_PATH = PROJECT_ROOT / "code" / "requirements.txt"
+
 
 def test_dockerfile_exists():
-    """Verify Dockerfile exists at the expected location."""
+    """Assert the Dockerfile exists in the expected location."""
     assert DOCKERFILE_PATH.exists(), f"Dockerfile not found at {DOCKERFILE_PATH}"
 
-def test_requirements_exists_and_non_empty():
-    """Verify requirements.txt exists and is not empty."""
+
+def test_requirements_exists():
+    """Assert requirements.txt exists in the expected location."""
     assert REQUIREMENTS_PATH.exists(), f"requirements.txt not found at {REQUIREMENTS_PATH}"
-    assert REQUIREMENTS_PATH.stat().st_size > 0, "requirements.txt is empty"
+
 
 def test_dockerfile_installs_requirements():
-    """Verify Dockerfile runs `pip install -r requirements.txt`."""
+    """
+    Verify the Dockerfile contains a command to install dependencies from requirements.txt.
+    Checks for 'pip install -r requirements.txt' or equivalent.
+    """
     content = DOCKERFILE_PATH.read_text()
-    # Look for pip install command referencing requirements.txt
-    pattern = r'pip\s+install\s+.*-r\s+requirements\.txt'
+    # Look for pip install -r requirements.txt pattern
+    pattern = r"pip\s+install\s+(-r\s+)?requirements\.txt"
     assert re.search(pattern, content, re.IGNORECASE), (
-        "Dockerfile must contain a command to install dependencies from requirements.txt"
+        "Dockerfile does not contain 'pip install -r requirements.txt' or equivalent. "
+        "The Quickstart Docker guide must install dependencies from requirements.txt."
     )
+
 
 def test_dockerfile_creates_venv():
-    """Verify Dockerfile creates an isolated virtual environment."""
+    """
+    Verify the Dockerfile creates a Python virtual environment.
+    Checks for 'python -m venv' or 'virtualenv' commands.
+    """
     content = DOCKERFILE_PATH.read_text()
-    # Check for venv creation commands (python -m venv or virtualenv)
+    # Look for venv creation pattern
     venv_patterns = [
-        r'python\s+-m\s+venv',
-        r'virtualenv',
-        r'RUN\s+.*venv',
-        r'RUN\s+.*virtualenv'
+        r"python\s+-m\s+venv",
+        r"virtualenv",
+        r"python3\s+-m\s+venv"
     ]
-    
-    found_venv = any(re.search(pattern, content, re.IGNORECASE) for pattern in venv_patterns)
-    
-    assert found_venv, (
-        "Dockerfile must create an isolated virtual environment (venv) before installing dependencies. "
-        "Expected to find 'python -m venv' or 'virtualenv' command."
+    found = False
+    for pattern in venv_patterns:
+        if re.search(pattern, content, re.IGNORECASE):
+            found = True
+            break
+
+    assert found, (
+        "Dockerfile does not create a virtual environment (venv). "
+        "The Quickstart Docker guide must create an isolated venv as per Constitution Principle I."
     )
 
-def test_dockerfile_venv_usage():
-    """Verify the Dockerfile uses the created venv (activates or sets PATH)."""
-    content = DOCKERFILE_PATH.read_text()
-    
-    # Check for activation or PATH modification to use venv
-    usage_patterns = [
-        r'source\s+.*bin/activate',
-        r'\.\/.*bin/activate',
-        r'ENV\s+PATH=.*venv/bin',
-        r'PATH=.*venv/bin',
-        r'python3\s+-m\s+venv.*&&.*source',
-        r'RUN\s+.*venv.*&&.*source'
-    ]
-    
-    found_usage = any(re.search(pattern, content, re.IGNORECASE) for pattern in usage_patterns)
-    
-    # If we found venv creation, we should also see it being used or activated
-    # unless the CMD/ENTRYPOINT explicitly calls the python inside venv
-    venv_creation = any(re.search(p, content, re.IGNORECASE) for p in [r'python\s+-m\s+venv', r'virtualenv'])
-    
-    if venv_creation:
-        # Check if CMD/ENTRYPOINT uses the venv python explicitly
-        explicit_python = re.search(r'(CMD|ENTRYPOINT).*venv/bin/python', content, re.IGNORECASE)
-        if not found_usage and not explicit_python:
-            pytest.fail(
-                "Dockerfile creates a venv but does not activate it or use its python explicitly. "
-                "Add 'source venv/bin/activate' or set ENV PATH to include venv/bin."
-            )
 
-def test_quickstart_references_docker_and_venv():
-    """Verify Quickstart guide mentions Docker and venv/requirements."""
-    if not QUICKSTART_PATH.exists():
-        pytest.skip("Quickstart guide not found; skipping reference check.")
-    
-    content = QUICKSTART_PATH.read_text()
-    
-    has_docker = "docker" in content.lower()
-    has_requirements = "requirements.txt" in content
-    has_venv = "venv" in content.lower() or "virtualenv" in content.lower()
-    
-    assert has_docker, "Quickstart guide should mention Docker usage."
-    assert has_requirements, "Quickstart guide should mention requirements.txt."
-    # Note: venv mention is optional in text if Dockerfile handles it, but good to have
-    
-def test_dockerfile_syntax_valid():
-    """Basic check for Dockerfile syntax validity (non-empty, has FROM)."""
+def test_dockerfile_activates_venv():
+    """
+    Verify the Dockerfile activates the virtual environment before running the application.
+    Checks for 'source .../bin/activate' or 'ENV PATH' modifications.
+    """
     content = DOCKERFILE_PATH.read_text()
-    assert "FROM" in content.upper(), "Dockerfile must have a FROM instruction."
-    assert len(content.strip()) > 0, "Dockerfile is empty."
+    # Check for activation via source or PATH modification
+    activation_patterns = [
+        r"source\s+.*bin/activate",
+        r"ENV\s+PATH.*venv/bin",
+        r"ENV\s+PATH.*\.venv/bin"
+    ]
+    found = False
+    for pattern in activation_patterns:
+        if re.search(pattern, content, re.IGNORECASE):
+            found = True
+            break
+
+    assert found, (
+        "Dockerfile does not activate the virtual environment. "
+        "The Dockerfile must ensure the venv is active when running the application."
+    )
+
+
+def test_requirements_txt_valid():
+    """
+    Verify requirements.txt contains at least one valid dependency line.
+    """
+    content = REQUIREMENTS_PATH.read_text()
+    lines = [line.strip() for line in content.splitlines() if line.strip() and not line.startswith('#')]
+    assert len(lines) > 0, "requirements.txt is empty or contains only comments."
+
+    # Basic validation: lines should look like package specs
+    valid_lines = 0
+    for line in lines:
+        # Simple regex for package name (allowing versions, extras, etc.)
+        if re.match(r'^[a-zA-Z0-9_-]+', line):
+            valid_lines += 1
+
+    assert valid_lines > 0, "requirements.txt does not contain any valid package specifications."
+
+
+def test_docker_build_simulation():
+    """
+    Simulate the Docker build process by checking if the Dockerfile is syntactically valid
+    and if the commands exist in the context.
+    This is a structural check since we might not have Docker daemon running.
+    """
+    if not DOCKERFILE_PATH.exists():
+        pytest.skip("Dockerfile missing, skipping build simulation.")
+
+    content = DOCKERFILE_PATH.read_text()
+
+    # Check for basic Dockerfile structure
+    assert "FROM" in content.upper(), "Dockerfile missing 'FROM' instruction."
+    assert "WORKDIR" in content.upper() or "COPY" in content.upper(), (
+        "Dockerfile missing WORKDIR or COPY instructions."
+    )
+
+    # Ensure the specific sequence for T095b is present:
+    # 1. Create venv
+    # 2. Copy requirements
+    # 3. Install requirements
+    # 4. Activate/Use venv
+
+    # We already checked individual pieces in other tests, this ensures the file is coherent
+    assert "requirements.txt" in content, "Dockerfile does not reference requirements.txt."
+    assert "venv" in content.lower() or ".venv" in content, (
+        "Dockerfile does not reference a virtual environment directory."
+    )
+
+    print("Dockerfile structure validation passed.")
+
+if __name__ == "__main__":
+    pytest.main([__file__, "-v"])

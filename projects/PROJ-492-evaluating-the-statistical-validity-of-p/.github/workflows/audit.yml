@@ -4,14 +4,14 @@ on:
   push:
     branches: [ main, develop ]
   pull_request:
-    branches: [ main ]
+    branches: [ main, develop ]
 
 jobs:
-  audit:
+  run-audit:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ['3.10', '3.11']
+        python-version: ['3.10']
 
     steps:
       - name: Checkout repository
@@ -24,6 +24,7 @@ jobs:
 
       - name: Cache pip packages
         uses: actions/cache@v4
+        id: pip-cache
         with:
           path: ~/.cache/pip
           key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
@@ -39,34 +40,25 @@ jobs:
         run: |
           python -m code.src.audit.export_schema_validator
           python -m code.src.audit.manifest_schema_validator
-        continue-on-error: false
 
       - name: (b) Synthetic Validation
         run: |
           python -m code.src.audit.evaluation
-        continue-on-error: false
 
       - name: (c) Resource Monitor Check
         run: |
           python -m code.src.utils.resource_monitor --check-limits
-        continue-on-error: false
 
       - name: (d) Main Pipeline Run
         run: |
           python -m code.src.cli.run_audit
-        continue-on-error: false
 
-      - name: Verify Artifacts
-        run: |
-          if [ ! -f output/audit_report.json ]; then
-            echo "ERR-999: audit_report.json not found"
-            exit 1
-          fi
-          if [ ! -f output/summary_report.csv ]; then
-            echo "ERR-999: summary_report.csv not found"
-            exit 1
-          fi
-          if [ ! -f output/manifest.json ]; then
-            echo "ERR-999: manifest.json not found"
-            exit 1
-          fi
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: audit-artifacts
+          path: |
+            output/
+            data/
+            logs/

@@ -1,122 +1,130 @@
 """
-Integration test for FR-001: URL Ingestion Verification.
+Integration test for FR-002: URL Ingestion Verification.
 
-This test asserts that `input/urls.csv` processing completes without error.
-It verifies the ingestor can read the CSV, deduplicate URLs, and write the
-output file successfully.
+This test verifies that the URL ingestion pipeline (T018) correctly processes
+the input URL list, handles deduplication, and produces the expected output
+artifact (output/urls_deduped.csv) with valid content.
+
+Requirement: coverage-executability-08d5764f
 """
 import csv
 import json
 import os
 import sys
+import tempfile
 from pathlib import Path
+from typing import List, Set
 
-# Add project root to path for imports
-project_root = Path(__file__).parent.parent.parent
-sys.path.insert(0, str(project_root))
+# Ensure project root is in path for imports
+PROJECT_ROOT = Path(__file__).parent.parent.parent
+sys.path.insert(0, str(PROJECT_ROOT))
 
-from code.src.audit.ingestor import read_urls_from_csv, deduplicate_urls, write_urls_to_csv, ingest_and_deduplicate
-from code.src.utils.logger import get_default_logger, AuditLogger
+from code.src.audit.ingestor import read_urls_from_csv, deduplicate_urls, write_urls_to_csv
+from code.src.utils.logger import get_default_logger
 
-# Define paths relative to project root
-INPUT_DIR = project_root / "input"
-OUTPUT_DIR = project_root / "output"
-INPUT_FILE = INPUT_DIR / "urls.csv"
-OUTPUT_FILE = OUTPUT_DIR / "urls_deduped.csv"
+logger = get_default_logger()
 
-# Ensure directories exist for the test environment
-INPUT_DIR.mkdir(parents=True, exist_ok=True)
-OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
-def setup_sample_input():
+def load_test_urls() -> List[str]:
     """
-    Creates a sample input/urls.csv if it doesn't exist to ensure the test
-    has real data to process. This satisfies the requirement for real data
-    processing without fabricating analysis results.
+    Loads a small, deterministic set of real URLs for testing.
+    These are real, public URLs to ensure the ingestion logic handles
+    standard formats correctly without fabricating data.
     """
-    if not INPUT_FILE.exists():
-        sample_urls = [
-            "https://example.com/ab-test-1",
-            "https://example.com/ab-test-2",
-            "https://another-domain.org/experiment/123",
-            "https://example.com/ab-test-1",  # Duplicate
-            "https://test-site.net/result/456"
-        ]
-        with open(INPUT_FILE, 'w', newline='', encoding='utf-8') as f:
-            writer = csv.writer(f)
-            writer.writerow(['url'])
-            for url in sample_urls:
-                writer.writerow([url])
-        return True
-    return False
+    # Using a mix of real domains to test parsing logic
+    urls = [
+        "https://www.optimizely.com/optimization-glossary/ab-testing/",
+        "https://vwo.com/blog/ab-testing-examples/",
+        "https://www.crazyegg.com/blog/a-b-testing-examples/",
+        # Duplicate to test deduplication
+        "https://www.optimizely.com/optimization-glossary/ab-testing/",
+        "https://www.google-analytics.com/analytics.html",
+    ]
+    return urls
 
-def test_url_ingestion_process():
+
+def test_url_ingestion_deduplication():
     """
-    FR-001 Verification: Run tests/integration/test_url_ingestion.py to assert
-    input/urls.csv processing completes without error.
+    FR-002 Verification: Ensure URL ingestion and deduplication works correctly.
+    
+    Steps:
+    1. Create a temporary input CSV with known URLs (including duplicates).
+    2. Run the ingestor's read and deduplicate functions.
+    3. Verify the output count is correct (duplicates removed).
+    4. Verify the output file exists at the expected path.
+    5. Verify the content matches the expected unique set.
     """
-    logger = get_default_logger("test_url_ingestion")
-    logger.info("Starting FR-001 URL Ingestion Verification")
+    # Setup temporary directories
+    with tempfile.TemporaryDirectory() as tmpdir:
+        input_dir = Path(tmpdir) / "input"
+        output_dir = Path(tmpdir) / "output"
+        input_dir.mkdir()
+        output_dir.mkdir()
 
-    # Ensure we have input data
-    created = setup_sample_input()
-    if created:
-        logger.info(f"Created sample input file: {INPUT_FILE}")
+        input_file = input_dir / "urls.csv"
+        output_file = output_dir / "urls_deduped.csv"
 
-    if not INPUT_FILE.exists():
-        logger.error(f"Input file not found: {INPUT_FILE}")
-        raise FileNotFoundError(f"Input file not found: {INPUT_FILE}")
+        # 1. Create input data
+        test_urls = load_test_urls()
+        with open(input_file, "w", newline="", encoding="utf-8") as f:
+            writer = csv.DictWriter(f, fieldnames=["url"])
+            writer.writeheader()
+            for url in test_urls:
+                writer.writerow({"url": url})
 
-    try:
-        # 1. Read URLs
-        logger.info(f"Reading URLs from {INPUT_FILE}")
-        raw_urls = read_urls_from_csv(INPUT_FILE)
-        assert len(raw_urls) > 0, "No URLs read from input file"
-        logger.info(f"Read {len(raw_urls)} URLs")
+        logger.info(f"Created test input file: {input_file}")
 
-        # 2. Deduplicate
-        logger.info("Deduplicating URLs")
-        unique_urls = deduplicate_urls(raw_urls)
-        assert len(unique_urls) <= len(raw_urls), "Deduplication increased count"
-        logger.info(f"Deduplicated to {len(unique_urls)} unique URLs")
+        # 2. Run ingestion logic
+        # Read URLs
+        urls, errors = read_urls_from_csv(input_file)
+        assert len(errors) == 0, f"Unexpected errors reading URLs: {errors}"
+        assert len(urls) == len(test_urls), "Input count mismatch"
 
-        # 3. Write Output
-        logger.info(f"Writing deduplicated URLs to {OUTPUT_FILE}")
-        write_urls_to_csv(unique_urls, OUTPUT_FILE)
+        # Deduplicate
+        unique_urls, removed_count = deduplicate_urls(urls)
         
-        # 4. Verify Output File Exists and is Valid
-        assert OUTPUT_FILE.exists(), "Output file was not created"
+        # 3. Verify deduplication logic
+        expected_unique_count = len(set(test_urls))
+        assert len(unique_urls) == expected_unique_count, \
+            f"Deduplication failed: expected {expected_unique_count}, got {len(unique_urls)}"
+        assert removed_count == 1, f"Expected 1 duplicate removed, got {removed_count}"
+
+        # 4. Write output (simulating the pipeline step)
+        write_urls_to_csv(unique_urls, output_file)
         
-        with open(OUTPUT_FILE, 'r', encoding='utf-8') as f:
+        # 5. Verify output file exists and content
+        assert output_file.exists(), f"Output file {output_file} was not created"
+        
+        with open(output_file, "r", encoding="utf-8") as f:
             reader = csv.DictReader(f)
-            rows = list(reader)
-            
-        assert len(rows) == len(unique_urls), f"Row count mismatch: {len(rows)} vs {len(unique_urls)}"
+            written_urls = [row["url"] for row in reader]
         
-        # Verify content integrity
-        output_urls = [row['url'] for row in rows]
-        assert set(output_urls) == set(unique_urls), "Output content mismatch"
+        # Verify content matches expected unique set (order might vary, so use sets)
+        written_set = set(written_urls)
+        expected_set = set(unique_urls)
+        
+        assert written_set == expected_set, \
+            f"Output content mismatch. Expected: {expected_set}, Got: {written_set}"
 
-        logger.info("FR-001 Verification PASSED: URL ingestion completed without error.")
+        logger.info(f"FR-002 Verification PASSED: Input {len(test_urls)} URLs -> Output {len(written_urls)} unique URLs.")
         return True
 
-    except Exception as e:
-        logger.error(f"FR-001 Verification FAILED: {str(e)}")
-        raise
 
 def main():
-    """Entry point for the test script."""
+    """Entry point for the integration test."""
+    logger.info("Starting FR-002 URL Ingestion Verification Test...")
     try:
-        success = test_url_ingestion_process()
+        success = test_url_ingestion_deduplication()
         if success:
-            print("SUCCESS: URL ingestion verification passed.")
-            sys.exit(0)
+            logger.info("Test completed successfully.")
+            return 0
         else:
-            print("FAILURE: URL ingestion verification failed.")
-            sys.exit(1)
+            logger.error("Test failed.")
+            return 1
     except Exception as e:
-        print(f"FAILURE: {str(e)}")
-        sys.exit(1)
+        logger.error(f"Test execution failed with exception: {e}", exc_info=True)
+        return 1
+
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())
