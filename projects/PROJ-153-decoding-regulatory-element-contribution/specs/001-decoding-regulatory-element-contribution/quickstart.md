@@ -1,87 +1,114 @@
-# Quickstart: Yeast CRE Analysis Pipeline
+# Quickstart: Decoding Regulatory Element Contributions to Phenotypic Plasticity in Yeast
 
 ## Prerequisites
 
-* **Python**: 3.11+
-* **R**: 4.3+ (with `lme4`, `data.table`, `ggplot2`, `clusterProfiler`)
-* **Bioconda Tools**: `fastp`, `bowtie2`, `macs2`, `bedtools`, `deepTools`
-* **System**: Linux (Ubuntu recommended).
+- **Operating System**: Linux (Ubuntu 22.04 or later).
+- **Memory**: ≥7 GB RAM (recommended 8 GB).
+- **Disk**: ≥14 GB free space.
+- **Tools**: `git`, `conda` (or `mamba`), `R` (≥4.3), `Python` (≥3.11).
+- **Data**: Access to GEO ChIP-seq data (placeholder `GSE####`) and 1002 Yeast Genomes eQTL data (placeholder).
+
+> **Note**: The pipeline will abort if required datasets are not found. Replace placeholder accessions with verified sources before running.
 
 ## Installation
 
 1. **Clone the repository**:
-   ```bash
-   git clone <repo-url>
-   cd projects/PROJ-153-decoding-regulatory-element-contribution
-   ```
+ ```bash
+ git clone
+ cd yeast-cre-analysis
+ ```
 
-2. **Set up Python environment**:
-   ```bash
-   python -m venv venv
-   source venv/bin/activate
-   pip install -r code/requirements.txt
-   ```
+2. **Create Conda environment**:
+ ```bash
+ conda env create -f code/environment.yml
+ conda activate yeast-cre-analysis
+ ```
 
-3. **Install R dependencies**:
-   ```bash
-   R -e "install.packages(c('lme4', 'data.table', 'ggplot2', 'clusterProfiler'), repos='https://cloud.r-project.org')"
-   ```
+3. **Install Python dependencies**:
+ ```bash
+ pip install -r code/requirements.txt
+ ```
 
-4. **Install Bioconda tools** (if not using conda):
-   ```bash
-   conda install -c bioconda fastp bowtie2 macs2 bedtools deepTools
-   ```
+4. **Verify tool versions**:
+ ```bash
+ fastp --version
+ bowtie2 --version
+ macs2 --version
+ R --version
+ ```
 
 ## Data Setup
 
-> **Note**: The required GEO ChIP‑seq series and 1002 Yeast Genomes eQTL dataset are *not* included in the verified dataset list. You must obtain them manually and place them as described below. For CI testing, a synthetic mode is provided.
+1. **Download ChIP-seq data** (replace `GSE####` with actual accession):
+ ```bash
+ bash code/01_download_data.sh GSE####
+ ```
+ - This script downloads FASTQ files and verifies MD5 checksums.
+ - **Abort** if data missing or checksums fail.
 
-### Option A: Synthetic Mode (CI / Test)
+2. **Place eQTL data** in `data/raw/`:
+ - Ensure CSV/TSV contains columns: `gene_id`, `fold_change_heat`, `fold_change_osmotic`, `fold_change_oxidative`.
+ - **Abort** if stress-specific fold-changes missing for entire cohort.
+
+## Running the Pipeline
+
+Execute the full pipeline:
 ```bash
-python code/main.py --generate-synthetic --sample-size 500
+bash code/run_pipeline.sh
 ```
-This generates mock FASTQs and a synthetic eQTL table that conform to `contracts/dataset.schema.yaml`. **Synthetic data only validates pipeline logic; it does not support biological conclusions.** All downstream results will be marked as *synthetic* in the PDF.
 
-### Option B: Null Synthetic Mode (False‑Positive Check)
-```bash
-python code/main.py --null-synthetic --sample-size 500
-```
-Generates mock data with **no true correlation** between ΔPeakSignal and log₂FC. Running the full pipeline on this data should yield non‑significant β₁ (adjusted p > 0.05), confirming the pipeline's type I error control.
+This runs the following steps sequentially:
+1. **Download & Verify** (FR-001)
+2. **Preprocess** (FR-002: fastp, bowtie2)
+3. **Peak Calling** (FR-003: MACS2 FDR sweep)
+4. **Merge & Annotate** (FR-004)
+5. **Validate CREs** (FR-014, FR-015)
+6. **Fit Mixed Models** (FR-005, FR-012)
+7. **Permutation Test** (FR-006)
+8. **Generate Reports** (FR-010)
+9. **Create bigWig Tracks** (FR-009)
 
-### Option C: Real Data Mode
-1. **Download** the raw ChIP‑seq FASTQ files for **Hsf1, Msn2/4, Hog1** under **control** and each stress condition (heat‑shock, osmotic, oxidative) from the appropriate GEO series (e.g., GSE####). Place them in `data/raw/` preserving the naming convention `SRRxxxx_TF_condition.fastq.gz`.
-2. **Obtain** the 1002 Yeast Genomes eQTL summary CSV containing stress‑specific log₂FC columns (`log2fc_heat`, `log2fc_osmotic`, `log2fc_oxidative`) and promoter binding scores. Place it at `data/external/eqtl_summary.csv`.
-3. (Optional) **Provide** a yeast ATAC‑seq narrowPeak file for the same conditions and place it in `data/external/atac_peaks.narrowPeak`. If omitted, the pipeline will run in **ATAC-Deferred Mode** and flag all results as unvalidated.
-4. Run the full pipeline:
-   ```bash
-   ./run_pipeline.sh
-   ```
+### Running Individual Steps
 
-## Execution
-
-`run_pipeline.sh` sequentially executes:
-
-1. **01_download.sh** – MD5 verification (FR‑001).  
-2. **02_preprocess.py** – trimming & alignment (FR‑002).  
-3. **03_peak_calling.py** – MACS2 sweep (FR‑003).  
-4. **04_merge_annotate.py** – merge & context annotation (FR‑004).  
-5. **05_atac_validation.py** – ATAC validation (skipped if missing; sets `validated_by_atac = False`).  
-6. **06_me_error_correction.py** – SIMEX measurement‑error correction (Poisson-based).  
-7. **07_summit_match.py** – summit‑match metric (SC‑005).  
-8. **08_visualize.py** – bigWig generation (FR‑009).  
-9. **09_stats.py** – LMM, permutation, BH correction, variance explained, GO enrichment (FR‑005‑FR‑008).  
-10. **generate_pdf.py** – summary report (FR‑010) – includes ATAC status and causal limitation disclaimer.
+- **Peak calling only**:
+ ```bash
+ bash code/03_call_peaks.sh
+ ```
+- **Mixed model fitting**:
+ ```bash
+ Rscript code/06_fit_mixed_models.R
+ ```
 
 ## Output
 
-* `results/CRE_ranked_<stress>.md` – full ranked table (all significant CREs).  
-* `results/Statistical_summary.pdf` – includes peak counts, ΔR², GO enrichment, measurement‑error stats, summit‑match %, ATAC status, and causal limitation disclaimer.  
-* `results/tracks/<stress>_CRE_signal.bw` – IGV‑compatible tracks.
+After successful execution, results are in:
+
+- `results/CRE_ranked_heatshock.md`
+- `results/CRE_ranked_osmotic.md`
+- `results/CRE_ranked_oxidative.md`
+- `results/Statistical_summary.pdf`
+- `tracks/heatshock_CRE_signal.bw`
+- `tracks/osmotic_CRE_signal.bw`
+- `tracks/oxidative_CRE_signal.bw`
+
+### Viewing Results
+
+- **Ranked CREs**: Open markdown files in any text editor.
+- **Statistical Report**: Open PDF to view LRT results, FDR-corrected p-values, and GO enrichment.
+- **IGV Visualization**: Load bigWig tracks into IGV. Signal intensity should correlate with log₂FC values.
 
 ## Troubleshooting
 
-* **No peaks survive MACS2 q < 0.01** – Pipeline aborts; edit `code/utils/config.py` to relax the threshold (e.g., 0.05) and re‑run.  
-* **Missing eQTL columns** – Verify that the CSV contains `log2fc_heat`, `log2fc_osmotic`, `log2fc_oxidative`, and `promoter_binding_score`. Pipeline will abort with a detailed missing‑column report (FR‑011).  
-* **Memory error** – Reduce `--sample-size` or ensure you are running in real‑data mode with sufficient resources.  
-* **ATAC data missing** – Pipeline runs in "ATAC-Deferred Mode" and flags results as unvalidated. No error is raised.  
-* **Synthetic mode warnings** – All results will be labeled as synthetic; they are not suitable for biological conclusions.  
+| Error | Cause | Solution |
+|-------|-------|----------|
+| `Fatal: Missing ChIP-seq data` | GEO accession not found or incomplete. | Verify accession; download missing TF-condition pairs. |
+| `Fatal: Missing eQTL fold-changes` | Entire stress condition missing in eQTL data. | Replace eQTL dataset with one containing all stresses. |
+| `Warning: No peaks survive FDR < 0.01` | Stringent threshold; no significant peaks. | Relax threshold to 0.05 (pipeline suggests this). |
+| `Error: VIF > 5 for all CREs` | High collinearity; no independent effects. | Report all CREs as collinear; no independent testing. |
+| `MemoryError` | Dataset too large for 7 GB RAM. | Filter eQTL data to paired genes; sample if necessary. |
+
+## Next Steps
+
+- **Functional Validation**: Use ranked CREs to design CRISPRi/a experiments.
+- **Literature Integration**: Cross-reference top CREs with known stress-response pathways.
+- **Extension**: Apply pipeline to other stress conditions or yeast strains.

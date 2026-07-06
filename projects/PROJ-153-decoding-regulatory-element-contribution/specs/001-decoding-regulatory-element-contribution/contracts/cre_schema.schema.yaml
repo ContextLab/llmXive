@@ -1,0 +1,75 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "CRE Analysis Output Schema"
+description: "Schema for ranked CRE tables and intermediate data files"
+type: object
+properties:
+  cre_id:
+    type: string
+    description: "Unique identifier for the CRE (e.g., CRE_chr1_12345_12500)"
+  chrom:
+    type: string
+    description: "Chromosome name (e.g., chrI)"
+  start:
+    type: integer
+    description: "Genomic start coordinate (0-based)"
+  end:
+    type: integer
+    description: "Genomic end coordinate (0-based)"
+  tf_binding:
+    type: array
+    items:
+      type: string
+    description: "List of TFs binding to this CRE"
+  context:
+    type: string
+    enum:
+      - "promoter"
+      - "distal"
+    description: "Genomic context: promoter (≤500 bp) or distal (>500 bp)"
+  gene_id:
+    type: string
+    description: "Associated gene ORF"
+  log2fc:
+    type: number
+    description: "Stress-specific expression fold-change (log2 scale)"
+  peak_signal:
+    type: number
+    description: "Normalized RPKM per condition"
+  motif_score:
+    type: number
+    description: "PWM p-value or log-transformed score (post-hoc weight source)"
+  beta1:
+    type: number
+    description: "Fixed effect estimate from linear mixed model (GLS)"
+  p_value:
+    type: number
+    description: "Raw p-value from likelihood-ratio test"
+  q_value:
+    type: number
+    description: "Benjamini-Hochberg adjusted p-value"
+  validation_score:
+    type: number
+    description: "Motif p-value or Hi-C contact frequency"
+  is_collinear:
+    type: boolean
+    description: "True if VIF > 5"
+  is_significant:
+    type: boolean
+    description: "True if q-value ≤ 0.05"
+  weight:
+    type: number
+    description: "Observation weight = log(motif_score + 1)"
+required:
+  - cre_id
+  - chrom
+  - start
+  - end
+  - tf_binding
+  - context
+  - gene_id
+  - log2fc
+  - beta1
+  - p_value
+  - q_value
+  - is_significant
+additionalProperties: false

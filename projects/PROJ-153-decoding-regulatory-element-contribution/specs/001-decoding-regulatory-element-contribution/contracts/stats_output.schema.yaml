@@ -15,22 +15,16 @@ properties:
     description: "Number of CREs with q-value <= 0.05."
   beta_1_estimate:
     type: number
-    description: "LMM fixed effect estimate (raw)."
-  beta_1_simex:
-    type: number
-    description: "SIMEX‑corrected β₁ estimate."
-  measurement_error_variance:
-    type: number
-    description: "Estimated variance of measurement error for ΔPeakSignal."
+    description: "Fixed‑effects GLS estimate (raw)."
   beta_1_p_value_raw:
     type: number
-    description: "Raw p‑value from LMM."
+    description: "Raw p‑value from GLS."
   beta_1_p_value_adj:
     type: number
     description: "FDR‑adjusted p‑value."
   empirical_p_value:
     type: number
-    description: "Empirical p‑value from 10,000 permutations."
+    description: "Empirical p‑value from 10,000 block permutations."
   delta_r_squared:
     type: number
     description: "Variance explained by CRE signal (ΔR²)."
@@ -43,10 +37,10 @@ properties:
   summit_match_pct_top10:
     type: number
     description: "Percentage of top‑10 CRE summits that match bigWig signal within ±5 bp."
-  atc_validation_status:
+  atac_validation_status:
     type: string
-    enum: ["validated", "unvalidated"]
-    description: "Status of ATAC validation (validated if ATAC data present and used; unvalidated if ATAC data missing)."
+    enum: ["validated", "unvalidated", "mandatory_skip"]
+    description: "Status of ATAC validation (validated if ATAC data present and used; unvalidated if ATAC data missing; mandatory_skip if ATAC step was skipped due to missing data)."
   causal_limitation_note:
     type: string
     description: "Disclaimer that results are associational and not causal."
@@ -55,13 +49,11 @@ required:
   - total_peaks
   - significant_cres
   - beta_1_estimate
-  - beta_1_simex
-  - measurement_error_variance
   - beta_1_p_value_adj
   - empirical_p_value
   - delta_r_squared
   - go_enrichment_odds_ratio
   - go_enrichment_fdr
   - summit_match_pct_top10
-  - atc_validation_status
+  - atac_validation_status
   - causal_limitation_note

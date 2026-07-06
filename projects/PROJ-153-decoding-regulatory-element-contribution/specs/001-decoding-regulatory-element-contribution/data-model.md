@@ -1,82 +1,101 @@
 # Data Model: Decoding Regulatory Element Contributions to Phenotypic Plasticity in Yeast
 
-## Entity Definitions
+## 1. Overview
 
-### 1. Raw Input (ChIP‑seq)
-* **Entity**: `ChIPRun`
-* **Attributes**:
-  * `run_id`: Unique identifier (e.g., SRR123456).
-  * `tf`: Transcription Factor name (Hsf1, Msn2, Msn4, Hog1).
-  * `condition`: Stress type (heat_shock, osmotic, oxidative, control).
-  * `fastq_path`: Path to raw FASTQ.
-  * `md5`: MD5 checksum of the FASTQ file.
+This document defines the data structures, schemas, and relationships used in the pipeline. All data flows from raw inputs (ChIP-seq FASTQ, eQTL CSV) through intermediate processed files (BAM, BED, peak lists) to final outputs (ranked CRE tables, bigWig tracks, PDF reports).
 
-### 2. Processed Alignment
-* **Entity**: `Alignment`
-* **Attributes**:
-  * `run_id`: FK to `ChIPRun`.
-  * `bam_path`: Path to aligned BAM.
-  * `mapq_filter`: Boolean (True if MAPQ ≥ 30).
-  * `uniquely_mapped_count`: Integer.
+## 2. Entity Definitions
 
-### 3. Cis‑Regulatory Element (CRE)
-* **Entity**: `CRE`
-* **Attributes**:
-  * `cre_id`: Unique ID (e.g., CRE_001).
-  * `chromosome`: String (e.g., "chrI").
-  * `start`: Integer (0‑based).
-  * `end`: Integer.
-  * `context`: Enum ("promoter", "distal").
-  * `associated_tfs`: List of strings.
-  * `peak_signal_control`: Float (RPKM/Reads).
-  * `peak_signal_stress`: Float.
-  * `delta_peak_signal`: Float (Stress − Control).
-  * `nearest_gene`: String (ORF).
-  * `motif_score`: Float (TF‑motif match confidence, 0‑1). *Optional*; used for weighting in the mixed model.
-  * `validated_by_atac`: Boolean – **True** only if the CRE overlaps an ATAC‑seq peak (or if ATAC is missing, this is set to False in "ATAC-Deferred Mode").
+### 2.1 CRE (cis-regulatory element)
 
-### 4. eQTL / Expression
-* **Entity**: `ExpressionProfile`
-* **Attributes**:
-  * `gene_id`: String (Yeast ORF).
-  * `log2fc_heat`: Float.
-  * `log2fc_osmotic`: Float.
-  * `log2fc_oxidative`: Float.
-  * `promoter_binding_score`: Float.
+A genomic interval derived from merged MACS2 peaks.
 
-### 5. Statistical Result (per CRE‑gene pair)
-* **Entity**: `CREAnalysisResult`
-* **Attributes**:
-  * `cre_id`: FK to `CRE`.
-  * `gene_id`: FK to `ExpressionProfile`.
-  * `stress_condition`: Enum ("heat_shock", "osmotic", "oxidative").
-  * `beta_1_raw`: Float (LMM fixed‑effect estimate for ΔPeakSignal).
-  * `beta_1_simex`: Float (SIMEX‑corrected β₁).
-  * `measurement_error_variance`: Float (estimated λ used in SIMEX; derived as described in Phase 2.2).
-  * `p_value_raw`: Float.
-  * `p_value_adj`: Float (Benjamini–Hochberg FDR).
-  * `vif_score`: Float (variance inflation factor for predictors).
-  * `is_collinear`: Boolean (True if VIF > 5).
-  * `is_significant`: Boolean (q ≤ 0.05 after BH correction).
-  * `empirical_p_value`: Float (from 10 000 permutations).
-  * `motif_score`: Float (copied from CRE for reference).
-  * `summit_match_flag`: Boolean (True if summit within ±5 bp of bigWig peak for top‑10 CREs).
-  * `validation_status`: Enum ("validated", "unvalidated") – reflects whether ATAC validation succeeded (must be "validated" for any result to be retained in "ATAC-Validated Mode"; in "ATAC-Deferred Mode", all are "unvalidated").
+| Attribute | Type | Description | Source |
+|-----------|------|-------------|--------|
+| `cre_id` | String | Unique identifier (e.g., `CRE_chr1_12345_12500`) | Generated |
+| `chrom` | String | Chromosome (e.g., `chrI`) | MACS2 |
+| `start` | Integer | Genomic start coordinate (0-based) | MACS2 |
+| `end` | Integer | Genomic end coordinate (0-based) | MACS2 |
+| `tf_binding` | List[String] | Associated TFs (e.g., `["Hsf1", "Msn2"]`) | MACS2 merge |
+| `context` | String | `promoter` (≤500 bp upstream) or `distal` (>500 bp) | Annotation |
+| `gene_id` | String | Associated gene ORF | Nearest gene / Hi-C |
+| `log2fc` | Float | Stress-specific expression fold-change | eQTL |
+| `peak_signal` | Float | Normalized RPKM per condition | deepTools |
+| `motif_score` | Float | PWM p-value or log-transformed score | Motif Scan |
+| `beta1` | Float | Fixed effect estimate from GLS | R `nlme` |
+| `p_value` | Float | Raw p-value from LRT | R `nlme` |
+| `q_value` | Float | Benjamini-Hochberg adjusted p-value | R `nlme` |
+| `validation_score` | Float | Motif p-value or Hi-C contact frequency | FR-014 |
+| `is_collinear` | Boolean | True if VIF > 5 | FR-012 |
+| `is_significant` | Boolean | True if q-value ≤ 0.05 | FR-007 |
+| `weight` | Float | Observation weight = log(motif_score + 1) | FR-015 |
 
-## Data Flow
+### 2.2 Gene
 
-1. **Ingest**: `ChIPRun` → `Alignment`.
-2. **Process**: `Alignment` → `CRE` (BED) → `validated_by_atac` set via ATAC intersect (or False if missing).
-3. **Validate**: `CRE` intersect ATAC‑seq (optional) → retain only `validated_by_atac = True` (if ATAC present); otherwise, all are `False`.
-4. **Join**: `CRE` + `ExpressionProfile` → `CREAnalysisResult` via mixed model.
-5. **Output**: `CREAnalysisResult` → ranked markdown table, PDF report.
+Yeast ORF with stress-specific expression data.
 
-## Constraints & Validation Rules
+| Attribute | Type | Description | Source |
+|-----------|------|-------------|--------|
+| `gene_id` | String | ORF identifier (e.g., `YAL001C`) | eQTL |
+| `nearest_cre` | String | ID of nearest CRE (≤10 kb) | Annotation |
+| `fold_change_heat` | Float | Heat-shock fold-change | eQTL |
+| `fold_change_osmotic` | Float | Osmotic stress fold-change | eQTL |
+| `fold_change_oxidative` | Float | Oxidative stress fold-change | eQTL |
+| `global_expr` | Float | Genome-wide mean expression (covariate) | eQTL aggregate |
 
-* **Coordinate System**: 0‑based, half‑open (BED standard).
-* **FDR Threshold**: `p_value_adj` < 0.05 to be reported as significant.
-* **Collinearity**: If `vif_score` > 5, `is_collinear` = True and the CRE‑gene pair is excluded from independent effect testing.
-* **Motif Weighting**: `motif_score` is used as a predictor weight; CREs without a motif score receive a default weight of 0.5.
-* **Summit Match**: `summit_match_flag` is set only for the top‑10 CREs per stress; the overall percentage is aggregated in the statistical summary (SC‑005).
-* **ATAC Validation**: `validated_by_atac` is True only if ATAC data is present and the CRE overlaps a peak. If ATAC is missing, `validated_by_atac` is False for all CREs.
-* **Missing Data**: If any required expression variable is absent for a gene, the gene is excluded from modeling (FR‑011).
+### 2.3 TF-Binding Event
+
+Individual TF binding at a CRE.
+
+| Attribute | Type | Description | Source |
+|-----------|------|-------------|--------|
+| `tf_id` | String | TF name (e.g., `Hsf1`) | MACS2 |
+| `cre_id` | String | Associated CRE ID | MACS2 merge |
+| `peak_signal` | Float | Normalized RPKM | deepTools |
+| `vif` | Float | Variance inflation factor | FR-012 |
+
+## 3. Data Flow
+
+```mermaid
+graph TD
+    A[Raw ChIP-seq FASTQ] -->|fastp, bowtie2| B[Aligned BAM]
+    B -->|MACS2| C[Peak BED]
+    C -->|Merge/Annotate| D[Merged CREs BED]
+    E[eQTL CSV] -->|Filter/Validate| F[Valid Genes CSV]
+    D -->|Motif/Hi-C Validation| G[Validated CREs BED]
+    F -->|Join with G| H[CRE-Gene Pairs CSV]
+    H -->|LMM + Permutation| I[LMM Results CSV]
+    I -->|Filter q≤0.05| J[Ranked CREs Markdown]
+    B -->|deepTools| K[bigWig Tracks]
+    I -->|Summarize| L[PDF Report]
+```
+
+## 4. File Formats
+
+### 4.1 Input Files
+
+- **FASTQ**: Raw ChIP-seq reads (Illumina format).
+- **CSV/TSV**: eQTL summary statistics (gene_id, fold_change_*, effect_size_*).
+- **BED**: Peak coordinates (chrom, start, end, name, score, strand).
+
+### 4.2 Intermediate Files
+
+- **BAM**: Aligned reads (sorted, indexed).
+- **BED**: Merged peaks, annotated CREs.
+- **CSV**: CRE-Gene pairs, LMM results.
+
+### 4.3 Output Files
+
+- **Markdown**: Ranked CRE tables (`results/CRE_ranked_<stress>.md`).
+- **PDF**: Statistical summary (`results/Statistical_summary.pdf`).
+- **bigWig**: Coverage tracks (`tracks/<stress>_CRE_signal.bw`).
+- **TSV**: GO enrichment results (`results/GO_enrichment_results.tsv`).
+
+## 5. Validation Rules
+
+- **FR-001**: MD5 checksums verified for all raw FASTQ files.
+- **FR-011**: eQTL data must contain stress-specific fold-changes; fatal error if missing for entire cohort.
+- **FR-012**: VIF > 5 triggers "collinear" flag; excluded from independent testing.
+- **FR-014**: Distal CREs require motif p-value < 1e-4 or Hi-C reads > 100; excluded if neither.
+- **FR-007**: q-value ≤ 0.05 for significance; all results reported with FDR correction.
+- **FR-015**: Motif scores are applied as weights during model fitting; CREs are defined by MACS2 peaks independently.
