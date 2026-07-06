@@ -1,0 +1,19 @@
+[lint]
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # pyflakes
+    "I",   # isort
+    "C",   # flake8-comprehensions
+    "B",   # flake8-bugbear
+    "UP",  # pyupgrade
+]
+ignore = [
+    "E501", # line too long (handled by black)
+    "B008", # do not perform function calls in argument defaults (common in ML pipelines)
+]
+extend-per-file-ignores = { "tests/*" = ["S101"] } # Allow asserts in tests
+
+[format]
+# Enable preview style formatting
+preview = true

@@ -1,0 +1,101 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "ModelOutputSchema"
+description: "Schema for the JSON report generated after model training and evaluation."
+type: object
+properties:
+  experiment_id:
+    type: string
+    description: "Unique identifier for the experiment run."
+  timestamp:
+    type: string
+    format: date-time
+    description: "ISO 8601 timestamp of the run."
+  models:
+    type: object
+    properties:
+      gnn:
+        $ref: "#/definitions/model_metrics"
+      random_forest:
+        $ref: "#/definitions/model_metrics"
+      linear_regression:
+        $ref: "#/definitions/model_metrics"
+    required:
+      - gnn
+      - random_forest
+      - linear_regression
+  statistical_tests:
+    type: object
+    properties:
+      wilcoxon_test:
+        type: object
+        properties:
+          p_value:
+            type: number
+            description: "P-value from the Wilcoxon signed-rank test."
+          significant:
+            type: boolean
+            description: "True if p_value < 0.05."
+        required:
+          - p_value
+          - significant
+      vif_analysis:
+        type: object
+        properties:
+          max_vif:
+            type: number
+            description: "Maximum Variance Inflation Factor observed."
+          collinear_pairs:
+            type: array
+            items:
+              type: string
+            description: "List of descriptor pairs with VIF > 5."
+        required:
+          - max_vif
+          - collinear_pairs
+      sensitivity_analysis:
+        type: object
+        properties:
+          thresholds:
+            type: array
+            items:
+              type: number
+            description: "List of R² thresholds tested (e.g., [0.25, 0.30, 0.35])."
+          fpr_rates:
+            type: array
+            items:
+              type: number
+            description: "False Positive Rates corresponding to thresholds."
+        required:
+          - thresholds
+          - fpr_rates
+    required:
+      - wilcoxon_test
+      - vif_analysis
+      - sensitivity_analysis
+  definitions:
+    model_metrics:
+      type: object
+      properties:
+        r_squared:
+          type: number
+          description: "R² score on the test set."
+        mae:
+          type: number
+          description: "Mean Absolute Error."
+        pearson_corr:
+          type: number
+          description: "Pearson correlation coefficient."
+        training_time_seconds:
+          type: number
+          description: "Total training time in seconds."
+      required:
+        - r_squared
+        - mae
+        - pearson_corr
+        - training_time_seconds
+required:
+  - experiment_id
+  - timestamp
+  - models
+  - statistical_tests
+additionalProperties: false

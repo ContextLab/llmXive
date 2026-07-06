@@ -1,0 +1,749 @@
+resolved_at: '2026-07-06T00:08:05.753351+00:00'
+datasets:
+- intent: NIST
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/nisten/opus-doctor-patient-conversations-all-human-diseases/resolve/main/opusdiseaseconversations.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/open-llm-leaderboard-old/details_nisten__shqiponja-59b-v1/resolve/main/2024-01-14T05-56-39.495831/details_harness|arc:challenge|25_2024-01-14T05-56-39.495831.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/open-llm-leaderboard-old/details_nisten__bigdoc-c34b-instruct-tf32/resolve/main/2024-02-02T03-54-56.700611/details_harness|arc:challenge|25_2024-02-02T03-54-56.700611.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/nisten/opus-doctor-patient-conversations-all-human-diseases/resolve/main/opusdiseaseconversations.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/open-llm-leaderboard-old/details_nisten__shqiponja-59b-v1/resolve/main/2024-01-14T05-56-39.495831/details_harness|arc:challenge|25_2024-01-14T05-56-39.495831.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/open-llm-leaderboard-old/details_nisten__bigdoc-c34b-instruct-tf32/resolve/main/2024-02-02T03-54-56.700611/details_harness|arc:challenge|25_2024-02-02T03-54-56.700611.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/open-llm-leaderboard-old/details_nisten__BigCodeLlama-92b/resolve/main/2024-02-02T12-17-18.661697/details_harness|arc:challenge|25_2024-02-02T12-17-18.661697.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/open-llm-leaderboard-old/details_nisten__shqiponja-15b-v1/resolve/main/2024-02-09T14-57-48.901535/details_harness|arc:challenge|25_2024-02-09T14-57-48.901535.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/online_resource/Linguistic_Redundancy_Computational_Representation_and_Processing_Systematic_Literature_Review_-_Data/32051787
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.swinburne.edu.au/articles/conference_contribution/Preventing_homelessness_by_reducing_risk_estimating_the_size_profile_and_geography_of_the_Australian_population_at-risk_of_homelessness/32897993
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://mcri.figshare.com/articles/dataset/Gait_dataset_-_Typically_developing_children_processed_with_CGM2/28216448
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://openaccess.wgtn.ac.nz/articles/journal_contribution/Moving_On_from_a_Bachelor_of_Arts_degree/32904197
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.swinburne.edu.au/articles/conference_contribution/The_forgotten_frontline_Workplace_trauma_in_homelessness_and_social_housing/32898083
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14189804
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6384789
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7254581
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3382347
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/12807749
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21209037
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21209037
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://usiena-air.unisi.it//handle/11365/1144376
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21207197
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21207197
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: PubChem
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/sagawa/pubchem-10m-canonicalized/resolve/main/data/train-00000-of-00001-e9b227f8c7259c8b.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/zpn/pubchem_selfies/resolve/main/dataset_infos.json
+    source: huggingface
+    format: json
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 65908
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/sagawa/pubchem-10m-canonicalized/resolve/main/data/train-00000-of-00001-e9b227f8c7259c8b.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/zpn/pubchem_selfies/resolve/main/dataset_infos.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://us.aws.cdn.hf.co/xet-bridge-us/644d439797a3b0904a5408ee/bfd168ffc7b989cd5190192535085fe2052dcb5d5733c22218a211f19a114195?response-content-disposition=inline%3B+filename*%3DUTF-8%27%27PubChem10M_SELFIES.csv%3B+filename%3D%22PubChem10M_SELFIES.csv%22%3B&user_id=public&X-Xet-Cas-Uid=public&response-content-type=text%2Fcsv&Expires=1783299823&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjQ0ZDQzOTc5N2EzYjA5MDRhNTQwOGVlL2JmZDE2OGZmYzdiOTg5Y2Q1MTkwMTkyNTM1MDg1ZmUyMDUyZGNiNWQ1NzMzYzIyMjE4YTIxMWYxOWExMTQxOTVcXD9yZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3UHViQ2hlbTEwTV9TRUxGSUVTLmNzdiUzQitmaWxlbmFtZSUzRCUyMlB1YkNoZW0xME1fU0VMRklFUy5jc3YlMjIlM0ImdXNlcl9pZD1wdWJsaWMmWC1YZXQtQ2FzLVVpZD1wdWJsaWMmcmVzcG9uc2UtY29udGVudC10eXBlPXRleHQlMkZjc3YiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkVwb2NoVGltZSI6MTc4MzI5OTgyM319fV19&Signature=MEYCIQCblAkojZudZWke6Cyz30iOBYn9XfBke8vnBDZa5x31swIhAM4f8ZuXHC7ci9Y-BAxPjN34HV-GCl4O~sgs1TxQjtOb&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://us.aws.cdn.hf.co/xet-bridge-us/644ed4c5a00f4b11d39aaac7/d43fe0e1abeffe5259c320645710e98605e42616aa50b4403d6cfa37ae862ab7?X-Xet-Cas-Uid=public&user_id=public&response-content-type=text%2Fcsv&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27PubChem10M_SELFIES_Tokenized.csv%3B+filename%3D%22PubChem10M_SELFIES_Tokenized.csv%22%3B&Expires=1783299824&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjQ0ZWQ0YzVhMDBmNGIxMWQzOWFhYWM3L2Q0M2ZlMGUxYWJlZmZlNTI1OWMzMjA2NDU3MTBlOTg2MDVlNDI2MTZhYTUwYjQ0MDNkNmNmYTM3YWU4NjJhYjdcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZ1c2VyX2lkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LXR5cGU9dGV4dCUyRmNzdiZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3UHViQ2hlbTEwTV9TRUxGSUVTX1Rva2VuaXplZC5jc3YlM0IrZmlsZW5hbWUlM0QlMjJQdWJDaGVtMTBNX1NFTEZJRVNfVG9rZW5pemVkLmNzdiUyMiUzQiIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzgzMjk5ODI0fX19XX0_&Signature=MEUCIAi3oo0~Onr3SdjwHojrm-UQv1FllhSej3BHlReG3l0MAiEA9dAEjsX2f7l7tR5ELLpoLRseu8zVYtgzLgTO2K0rSlY_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/online_resource/Linguistic_Redundancy_Computational_Representation_and_Processing_Systematic_Literature_Review_-_Data/32051787
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.swinburne.edu.au/articles/conference_contribution/Preventing_homelessness_by_reducing_risk_estimating_the_size_profile_and_geography_of_the_Australian_population_at-risk_of_homelessness/32897993
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://mcri.figshare.com/articles/dataset/Gait_dataset_-_Typically_developing_children_processed_with_CGM2/28216448
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://openaccess.wgtn.ac.nz/articles/journal_contribution/Moving_On_from_a_Bachelor_of_Arts_degree/32904197
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.swinburne.edu.au/articles/conference_contribution/The_forgotten_frontline_Workplace_trauma_in_homelessness_and_social_housing/32898083
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.95x69p8jd
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8173428
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15174498
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7562008
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8052664
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21201327
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21201327
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19798185
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19798185
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19824576
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: SMILES
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/maykcaldas/smiles-transformers/resolve/main/data/test-00000-of-00015-27ed436361d9186e.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/HUBioDataLab/SELFormer-smiles/resolve/main/data.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/maykcaldas/smiles-transformers/resolve/main/data/test-00000-of-00015-27ed436361d9186e.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://us.aws.cdn.hf.co/xet-bridge-us/644260f772b4ca7eeee6a0a2/ee5e0945c5893ba9e9d61a5a44e33ed2c6c53949715c546f42243abbcb858121?response-content-type=text%2Fplain&X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27smiles40m.txt%3B+filename%3D%22smiles40m.txt%22%3B&user_id=public&Expires=1783299857&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjQ0MjYwZjc3MmI0Y2E3ZWVlZTZhMGEyL2VlNWUwOTQ1YzU4OTNiYTllOWQ2MWE1YTQ0ZTMzZWQyYzZjNTM5NDk3MTVjNTQ2ZjQyMjQzYWJiY2I4NTgxMjFcXD9yZXNwb25zZS1jb250ZW50LXR5cGU9dGV4dCUyRnBsYWluJlgtWGV0LUNhcy1VaWQ9cHVibGljJnJlc3BvbnNlLWNvbnRlbnQtZGlzcG9zaXRpb249aW5saW5lJTNCK2ZpbGVuYW1lJTJBJTNEVVRGLTglMjclMjdzbWlsZXM0MG0udHh0JTNCK2ZpbGVuYW1lJTNEJTIyc21pbGVzNDBtLnR4dCUyMiUzQiZ1c2VyX2lkPXB1YmxpYyIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzgzMjk5ODU3fX19XX0_&Signature=MEUCIGux0mBvnMVvDtP9oYkKlh3m1Gby0CMwfA4ez14T9kAZAiEA7Q3YSKNUVMzMhRae1vCv0-yn2YrgkV0e9av0Q3QQUbE_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://us.aws.cdn.hf.co/xet-bridge-us/6442697272b4ca7eeee79576/fb2d3ed18b9a6500524ccf2ebae2a495d4e8c931ce3f999cd436852984f0e424?response-content-disposition=inline%3B+filename*%3DUTF-8%27%27smiles4m.txt%3B+filename%3D%22smiles4m.txt%22%3B&response-content-type=text%2Fplain&user_id=public&X-Xet-Cas-Uid=public&Expires=1783299858&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjQ0MjY5NzI3MmI0Y2E3ZWVlZTc5NTc2L2ZiMmQzZWQxOGI5YTY1MDA1MjRjY2YyZWJhZTJhNDk1ZDRlOGM5MzFjZTNmOTk5Y2Q0MzY4NTI5ODRmMGU0MjRcXD9yZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3c21pbGVzNG0udHh0JTNCK2ZpbGVuYW1lJTNEJTIyc21pbGVzNG0udHh0JTIyJTNCJnJlc3BvbnNlLWNvbnRlbnQtdHlwZT10ZXh0JTJGcGxhaW4mdXNlcl9pZD1wdWJsaWMmWC1YZXQtQ2FzLVVpZD1wdWJsaWMiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkVwb2NoVGltZSI6MTc4MzI5OTg1OH19fV19&Signature=MEUCIB7k4~zvIX~PWx1r0hcxEDaT6qkyI5x1pLSAN2Vd9ptpAiEAugXEwb2JOhJ8FCERLbgJTHEkMlKmgnhoKjhgffEtcrw_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/HUBioDataLab/SELFormer-smiles/resolve/main/data.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://figshare.com/articles/online_resource/Linguistic_Redundancy_Computational_Representation_and_Processing_Systematic_Literature_Review_-_Data/32051787
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.swinburne.edu.au/articles/conference_contribution/Preventing_homelessness_by_reducing_risk_estimating_the_size_profile_and_geography_of_the_Australian_population_at-risk_of_homelessness/32897993
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://mcri.figshare.com/articles/dataset/Gait_dataset_-_Typically_developing_children_processed_with_CGM2/28216448
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://openaccess.wgtn.ac.nz/articles/journal_contribution/Moving_On_from_a_Bachelor_of_Arts_degree/32904197
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.swinburne.edu.au/articles/conference_contribution/The_forgotten_frontline_Workplace_trauma_in_homelessness_and_social_housing/32898083
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://onlinelibrary.wiley.com/doi/10.1002/jctb.5000412311
+    source: zenodo
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://pubs.rsc.org/ct/article/120735
+    source: zenodo
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://pubs.rsc.org/ct/article/208076
+    source: zenodo
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://zenodo.org/records/18002214
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://chemistry-europe.onlinelibrary.wiley.com/doi/10.1002/cber.19140470182
+    source: zenodo
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://figshare.com/articles/dataset/Systematic_Benchmarking_Dataset_Generation_for_Graphical_Model_Reaction_Templates/32903798/2
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Systematic_Benchmarking_Dataset_Generation_for_Graphical_Model_Reaction_Templates/32903798
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21175959
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21175959
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://knowledge.uchicago.edu/records/r5mya-6fa13
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: PolymerGraph
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/online_resource/Linguistic_Redundancy_Computational_Representation_and_Processing_Systematic_Literature_Review_-_Data/32051787
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.swinburne.edu.au/articles/conference_contribution/Preventing_homelessness_by_reducing_risk_estimating_the_size_profile_and_geography_of_the_Australian_population_at-risk_of_homelessness/32897993
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://mcri.figshare.com/articles/dataset/Gait_dataset_-_Typically_developing_children_processed_with_CGM2/28216448
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://openaccess.wgtn.ac.nz/articles/journal_contribution/Moving_On_from_a_Bachelor_of_Arts_degree/32904197
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.swinburne.edu.au/articles/conference_contribution/The_forgotten_frontline_Workplace_trauma_in_homelessness_and_social_housing/32898083
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: CO2
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/sasha/co2_submissions/resolve/main/co2_emissions.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 668
+      parsed: true
+  - url: https://huggingface.co/datasets/vitaliy-sharandin/pollution-absolute-variation-co2/resolve/main/data/train-00000-of-00001-acc55c26d463307a.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/Co2fi-crs/wine_quality/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 28788
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/sasha/co2_submissions/resolve/main/co2_emissions.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/vitaliy-sharandin/pollution-absolute-variation-co2/resolve/main/data/train-00000-of-00001-acc55c26d463307a.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/api/resolve-cache/datasets/sasha/co2_energy_data/f6bd54370fd4012fe54c40b7795e3bf67225cc36/data.jsonl?%2Fdatasets%2Fsasha%2Fco2_energy_data%2Fresolve%2Fmain%2Fdata.jsonl=&etag=%22d8eb1d013245136db4e580771f903a04d9ce6528%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/api/resolve-cache/datasets/sasha/co2_models/d8fb186b0ee595a00ee335a42e5a3a1922e648e0/models.jsonl?%2Fdatasets%2Fsasha%2Fco2_models%2Fresolve%2Fmain%2Fmodels.jsonl=&etag=%226748581bdc23dea9751393a0842534ea14a42674%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/Co2fi-crs/wine_quality/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/online_resource/Linguistic_Redundancy_Computational_Representation_and_Processing_Systematic_Literature_Review_-_Data/32051787
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.swinburne.edu.au/articles/conference_contribution/Preventing_homelessness_by_reducing_risk_estimating_the_size_profile_and_geography_of_the_Australian_population_at-risk_of_homelessness/32897993
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://mcri.figshare.com/articles/dataset/Gait_dataset_-_Typically_developing_children_processed_with_CGM2/28216448
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://openaccess.wgtn.ac.nz/articles/journal_contribution/Moving_On_from_a_Bachelor_of_Arts_degree/32904197
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.swinburne.edu.au/articles/conference_contribution/The_forgotten_frontline_Workplace_trauma_in_homelessness_and_social_housing/32898083
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/2549978
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/13676559
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19070065
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15281640
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10813152
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ir.canterbury.ac.nz/handle/10092/110332
+    source: datacite
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://zenodo.org/records/21126163
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21126163
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21126115
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21126115
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: GNN
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/winfried/gnn_bvp_solver/resolve/main/ElasticityFixedLineGenerator/norm_test_shape/1O2JC0RZQ19OZULQ.gz
+    source: huggingface
+    format: gzip
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 165737
+      parsed: true
+  - url: https://huggingface.co/datasets/TuringsSolutions/GNN400ANDPFAF400/resolve/main/GNN400+PFAF400
+      - Sheet1.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/winfried/gnn_bvp_solver/resolve/main/ElasticityFixedLineGenerator/norm_test_shape/1O2JC0RZQ19OZULQ.gz
+    source: huggingface
+    status: verified
+    format: gzip
+  - url: https://huggingface.co/datasets/TuringsSolutions/GNN400ANDPFAF400/resolve/main/GNN400+PFAF400
+      - Sheet1.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://figshare.com/articles/online_resource/Linguistic_Redundancy_Computational_Representation_and_Processing_Systematic_Literature_Review_-_Data/32051787
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.swinburne.edu.au/articles/conference_contribution/Preventing_homelessness_by_reducing_risk_estimating_the_size_profile_and_geography_of_the_Australian_population_at-risk_of_homelessness/32897993
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://mcri.figshare.com/articles/dataset/Gait_dataset_-_Typically_developing_children_processed_with_CGM2/28216448
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://openaccess.wgtn.ac.nz/articles/journal_contribution/Moving_On_from_a_Bachelor_of_Arts_degree/32904197
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.swinburne.edu.au/articles/conference_contribution/The_forgotten_frontline_Workplace_trauma_in_homelessness_and_social_housing/32898083
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/2703306
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7803328
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6798322
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6785285
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20704234
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21209303
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21209303
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21208445
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://knowledge.uchicago.edu/records/pmbgq-7f103
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://knowledge.uchicago.edu/records/pmbgq-7f103
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: CPU-only
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/AdityaMayukhSom/MixSub-LLaMA-3.2-Text-Only-Overlap-CPU-Score/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/AdityaMayukhSom/MixSub-LLaMA-3.2-Text-Only-Overlap-CPU-Score/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/online_resource/Linguistic_Redundancy_Computational_Representation_and_Processing_Systematic_Literature_Review_-_Data/32051787
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.swinburne.edu.au/articles/conference_contribution/Preventing_homelessness_by_reducing_risk_estimating_the_size_profile_and_geography_of_the_Australian_population_at-risk_of_homelessness/32897993
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://mcri.figshare.com/articles/dataset/Gait_dataset_-_Typically_developing_children_processed_with_CGM2/28216448
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://openaccess.wgtn.ac.nz/articles/journal_contribution/Moving_On_from_a_Bachelor_of_Arts_degree/32904197
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.swinburne.edu.au/articles/conference_contribution/The_forgotten_frontline_Workplace_trauma_in_homelessness_and_social_housing/32898083
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.11591/eei.v9i2.1972
+    source: zenodo
+    status: unreachable
+    reason: 'reachability failed: ReadTimeout: HTTPSConnectionPool(host=''beei.org'',
+      port=443): Read timed out. (read timeout=20.0)'
+  - url: https://zenodo.org/records/14352943
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6127654
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3810211
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://kjet.kardan.edu.af/Journal?Journal=KJET&id=3183
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21210112
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21210112
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.repository.cam.ac.uk/handle/1810/344958
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21209070
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21209070
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: VIF
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/tranthaihoa/vifactcheck/resolve/main/data/dev-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/tranthaihoa/vifactcheck/resolve/main/data/dev-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/dongguanting/VIF-RAG-QA-20K/resolve/main/VIF-RAG_sampled%20(20K).json
+    source: huggingface
+    status: wrong_format
+    reason: HTTP 401
+  - url: https://us.aws.cdn.hf.co/xet-bridge-us/66d42cebcf97d88019c1c54d/e794cd49b01e2c46b3321bf498b047ffc0aeffb59911b11c645521b4581f9d82?response-content-disposition=inline%3B+filename*%3DUTF-8%27%27gpt4_single_multi_autoif_sharegpt_rag_mix.json%3B+filename%3D%22gpt4_single_multi_autoif_sharegpt_rag_mix.json%22%3B&response-content-type=application%2Fjson&X-Xet-Cas-Uid=public&user_id=public&Expires=1783300031&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjZkNDJjZWJjZjk3ZDg4MDE5YzFjNTRkL2U3OTRjZDQ5YjAxZTJjNDZiMzMyMWJmNDk4YjA0N2ZmYzBhZWZmYjU5OTExYjExYzY0NTUyMWI0NTgxZjlkODJcXD9yZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3Z3B0NF9zaW5nbGVfbXVsdGlfYXV0b2lmX3NoYXJlZ3B0X3JhZ19taXguanNvbiUzQitmaWxlbmFtZSUzRCUyMmdwdDRfc2luZ2xlX211bHRpX2F1dG9pZl9zaGFyZWdwdF9yYWdfbWl4Lmpzb24lMjIlM0ImcmVzcG9uc2UtY29udGVudC10eXBlPWFwcGxpY2F0aW9uJTJGanNvbiZYLVhldC1DYXMtVWlkPXB1YmxpYyZ1c2VyX2lkPXB1YmxpYyIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzgzMzAwMDMxfX19XX0_&Signature=MEYCIQC53bLaLEYxmhq14~XQhtJ1orDjHswdwRL7aa08-xqPvQIhAL-YkHLZQXmL0QQqjWgfozW0Pz7XpwII4STl73UWuEyC&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/An_adaptive_genetic_algorithm_with_parameter_control_based_on_dynamic_fitness_landscape_analysis_for_operation_sequencing_in_CAPP/32904233
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Cosmopolitan_University_Abuja_i_2026_2027_Admission_Form_i_is_out_call_DR_MRS_FAITH_0704-0964654_or_07040964654_Prospective_candidates_seeking_admission_The_Cosmopolitan_University_2026_2027_Post-UTME_and_Direct_Entry_admission_forms_are_of/32904227
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/online_resource/Linguistic_Redundancy_Computational_Representation_and_Processing_Systematic_Literature_Review_-_Data/32051787
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.swinburne.edu.au/articles/conference_contribution/Preventing_homelessness_by_reducing_risk_estimating_the_size_profile_and_geography_of_the_Australian_population_at-risk_of_homelessness/32897993
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://mcri.figshare.com/articles/dataset/Gait_dataset_-_Typically_developing_children_processed_with_CGM2/28216448
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20926278
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19154354
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14837515
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20191456
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19827885
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21209311
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21209311
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.5281/zenodo.21208326
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: HTTP 410'
+  - url: https://figshare.com/articles/journal_contribution/Evaluasi_Usability_Aplikasi_Gojek_Menggunakan_Model_Nielsen_dan_Analisis_PLS-SEM/32902802/1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/Evaluasi_Usability_Aplikasi_Gojek_Menggunakan_Model_Nielsen_dan_Analisis_PLS-SEM/32902802
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: ECFP4
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/fabikru/chembl-2025-randomized-smiles-cleaned-ecfp4/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/fabikru/half-of-chembl-2025-randomized-smiles-cleaned-ecfp4/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/fabikru/chembl-2025-randomized-smiles-cleaned-ecfp4/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/fabikru/half-of-chembl-2025-randomized-smiles-cleaned-ecfp4/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://tandf.figshare.com/articles/journal_contribution/An_adaptive_genetic_algorithm_with_parameter_control_based_on_dynamic_fitness_landscape_analysis_for_operation_sequencing_in_CAPP/32904233
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Cosmopolitan_University_Abuja_i_2026_2027_Admission_Form_i_is_out_call_DR_MRS_FAITH_0704-0964654_or_07040964654_Prospective_candidates_seeking_admission_The_Cosmopolitan_University_2026_2027_Post-UTME_and_Direct_Entry_admission_forms_are_of/32904227
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/online_resource/Linguistic_Redundancy_Computational_Representation_and_Processing_Systematic_Literature_Review_-_Data/32051787
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.swinburne.edu.au/articles/conference_contribution/Preventing_homelessness_by_reducing_risk_estimating_the_size_profile_and_geography_of_the_Australian_population_at-risk_of_homelessness/32897993
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://mcri.figshare.com/articles/dataset/Gait_dataset_-_Typically_developing_children_processed_with_CGM2/28216448
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18817767
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14883
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/9223
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20716213
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/1006728
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21205540
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21205540
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: RDKit
+  status: unresolved
+  candidates: []
+  candidates_tried: []
