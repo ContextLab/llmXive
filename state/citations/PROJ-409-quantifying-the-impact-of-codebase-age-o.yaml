@@ -1,0 +1,94 @@
+- artifact_hash: 922c8cd7036892a03407ddd413079ef09c43f55251e0ed8db6524c6be35acd4c
+  artifact_path: projects/PROJ-409-quantifying-the-impact-of-codebase-age-o/specs/001-quantifying-the-impact-of-codebase-age-o/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: "GitHub - psf/requests: A simple, yet elegant, HTTP library. \xB7\
+    \ GitHub"
+  kind: url
+  value: https://github.com/psf/requests`
+  verification_status: verified
+  verified_against_url: https://github.com/psf/requests
+  verified_at: '2026-07-06T21:14:12.488355Z'
+- artifact_hash: 922c8cd7036892a03407ddd413079ef09c43f55251e0ed8db6524c6be35acd4c
+  artifact_path: projects/PROJ-409-quantifying-the-impact-of-codebase-age-o/specs/001-quantifying-the-impact-of-codebase-age-o/research.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: "GitHub - pallets/flask: The Python micro framework for building\
+    \ web applications. \xB7 GitHub"
+  kind: url
+  value: https://github.com/pallets/flask`
+  verification_status: verified
+  verified_against_url: https://github.com/pallets/flask
+  verified_at: '2026-07-06T21:14:12.488355Z'
+- artifact_hash: 922c8cd7036892a03407ddd413079ef09c43f55251e0ed8db6524c6be35acd4c
+  artifact_path: projects/PROJ-409-quantifying-the-impact-of-codebase-age-o/specs/001-quantifying-the-impact-of-codebase-age-o/research.md
+  cite_id: c-003
+  cited_authors: []
+  cited_title: null
+  fetched_title: "GitHub - urllib3/urllib3: urllib3 is a user-friendly HTTP client\
+    \ library for Python \xB7 GitHub"
+  kind: url
+  value: https://github.com/urllib3/urllib3`
+  verification_status: verified
+  verified_against_url: https://github.com/urllib3/urllib3
+  verified_at: '2026-07-06T21:14:12.488355Z'
+- artifact_hash: 922c8cd7036892a03407ddd413079ef09c43f55251e0ed8db6524c6be35acd4c
+  artifact_path: projects/PROJ-409-quantifying-the-impact-of-codebase-age-o/specs/001-quantifying-the-impact-of-codebase-age-o/research.md
+  cite_id: c-004
+  cited_authors: []
+  cited_title: null
+  fetched_title: "GitHub - django/django: The Web framework for perfectionists with\
+    \ deadlines. \xB7 GitHub"
+  kind: url
+  value: https://github.com/django/django`
+  verification_status: verified
+  verified_against_url: https://github.com/django/django
+  verified_at: '2026-07-06T21:14:12.488355Z'
+- artifact_hash: 922c8cd7036892a03407ddd413079ef09c43f55251e0ed8db6524c6be35acd4c
+  artifact_path: projects/PROJ-409-quantifying-the-impact-of-codebase-age-o/specs/001-quantifying-the-impact-of-codebase-age-o/research.md
+  cite_id: c-005
+  cited_authors: []
+  cited_title: null
+  fetched_title: "GitHub - pandas-dev/pandas: Flexible and powerful data analysis\
+    \ / manipulation library for Python, providing labeled data structures similar\
+    \ to R data.frame objects, statistical functions, and much more \xB7 GitHub"
+  kind: url
+  value: https://github.com/pandas-dev/pandas`
+  verification_status: verified
+  verified_against_url: https://github.com/pandas-dev/pandas
+  verified_at: '2026-07-06T21:14:12.488355Z'
+- artifact_hash: 681016ba4f9b5ea0b615c52b6e5ea7105a7934f2c4603ce6fc485dfd57202415
+  artifact_path: projects/PROJ-409-quantifying-the-impact-of-codebase-age-o/README.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://github.com/example/repo1,https://github.com/example/repo2
+  verification_status: mismatch
+  verified_against_url: https://github.com/example/repo1,https://github.com/example/repo2
+  verified_at: '2026-07-06T21:45:07.203275Z'
+- artifact_hash: 20d2bbeb8ed03c1019320806eb31cec342ad5e8b726df5f20490283b4983a561
+  artifact_path: projects/PROJ-409-quantifying-the-impact-of-codebase-age-o/specs/001-quantifying-the-impact-of-codebase-age-o/quickstart.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://github.com/pandas-dev/pandas,https://github.com/psf/requests,https://github.com/requests/requests
+  verification_status: mismatch
+  verified_against_url: https://github.com/pandas-dev/pandas,https://github.com/psf/requests,https://github.com/requests/requests
+  verified_at: '2026-07-06T21:45:09.202281Z'
+- artifact_hash: 20d2bbeb8ed03c1019320806eb31cec342ad5e8b726df5f20490283b4983a561
+  artifact_path: projects/PROJ-409-quantifying-the-impact-of-codebase-age-o/specs/001-quantifying-the-impact-of-codebase-age-o/quickstart.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://github.com/example/repo1,https://github.com/example/repo2,https://github.com/example/repo3
+  verification_status: mismatch
+  verified_against_url: https://github.com/example/repo1,https://github.com/example/repo2,https://github.com/example/repo3
+  verified_at: '2026-07-06T21:45:09.202281Z'

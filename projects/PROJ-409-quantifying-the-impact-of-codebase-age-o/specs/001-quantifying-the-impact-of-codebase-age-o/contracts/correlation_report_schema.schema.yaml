@@ -1,0 +1,41 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Correlation Report Schema"
+description: "Schema for the final correlation report JSON."
+type: "object"
+properties:
+  metric_name:
+    type: "string"
+    enum:
+      - "age_vs_perplexity"
+      - "age_vs_syntax_validity"
+    description: "The metric being analyzed."
+  spearman_rho:
+    type: "number"
+    description: "Spearman correlation coefficient."
+  p_value:
+    type: "number"
+    description: "P-value of the correlation test."
+  sample_size:
+    type: "integer"
+    minimum: 1
+    description: "Number of valid file pairs used."
+  significance_flag:
+    type: "string"
+    enum:
+      - "significant"
+      - "not_significant"
+    description: "Result interpretation."
+  controlled_for:
+    type: "array"
+    items:
+      type: "string"
+    description: "List of covariates controlled for (e.g., complexity, length)."
+required:
+  - metric_name
+  - spearman_rho
+  - p_value
+  - sample_size
+  - significance_flag
+  - controlled_for
+additionalProperties: false
+

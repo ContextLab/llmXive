@@ -1,0 +1,13 @@
+? 'T001 Create project structure per implementation plan: Create directories `code/`,
+  `code/extraction/`, `code/inference/`, `code/analysis/`, `code/utils/`, `data/raw/`,
+  `data/extracted/`, `data/aggregated/`, `data/results/`, `data/models/`, `tests/unit/`,
+  `tests/integration/`.'
+: 2
+? T002 Initialize Python 3.11 project with dependencies in `requirements.txt` (including
+  `huggingface_hub`, `transformers`, `torch`, `bitsandbytes`, `gitpython`, `pandas`,
+  `scipy`, `ast`, `tokenizers`, `networkx`).
+: 2
+T003 [P] Configure linting (ruff) and formatting (black) tools.: 2
+? T009 [US1] Implement `code/extraction/git_utils.py` to fetch git history and calculate
+  `median_commit_age` per file (handling sparse history edge cases).
+: 1
