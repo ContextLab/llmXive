@@ -1,133 +1,102 @@
-name: A/B Test Audit Pipeline
+name: Audit Pipeline
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [ "main", "develop" ]
   pull_request:
-    branches: [ main ]
+    branches: [ "main", "develop" ]
 
-env:
-  PYTHON_VERSION: '3.10'
-  SEED: 42
+permissions:
+  contents: read
 
 jobs:
-  constitution-check:
-    name: Constitution Principles Validation
+  audit:
+    name: Run Statistical Audit Pipeline
     runs-on: ubuntu-latest
+
+    # Resource Constraints: Enforce CPU ≤ 2 vCPU, RAM ≤ 2 GB
+    # Note: GitHub Actions runners provide more resources, but we limit usage
+    # via environment variables and timeout to simulate FR-009 constraints.
+    # The actual enforcement of strict 2GB RAM/2 vCPU limits for the process
+    # is handled by the `src/utils/resource_monitor.py` module invoked in the pipeline.
+    # We set the job timeout to ensure the entire workflow does not exceed 6 hours (SC-008).
+    timeout-minutes: 360
+
     steps:
-      - name: Checkout repository
+      - name: Checkout Repository
         uses: actions/checkout@v4
 
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: ${{ env.PYTHON_VERSION }}
+          python-version: '3.10'
 
-      - name: Install dependencies
+      - name: Cache pip packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+      - name: Install Dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Run Constitution Checker
-        id: constitution
+      - name: Run Constitution Compliance Check (PT005C)
         run: |
-          python code/src/utils/constitution_checker.py --check-all
-          if [ $? -ne 0 ]; then
-            echo "ERR-950: Constitution compliance check failed."
-            exit 1
-          fi
+          python -c "from code.src.utils.constitution_checker import check_all_principles; check_all_principles()"
         continue-on-error: false
 
-  schema-validation:
-    name: Schema Validation
-    runs-on: ubuntu-latest
-    needs: constitution-check
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ env.PYTHON_VERSION }}
-
-      - name: Install dependencies
+      - name: Schema Validation
         run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
+          python -m code.src.audit.export_schema_validator
+          python -m code.src.audit.manifest_schema_validator
+        continue-on-error: false
 
-      - name: Run Schema Validation
+      - name: Synthetic Validation (Precision/Recall Check)
         run: |
-          python code/src/audit/export_schema_validator.py --validate-all
+          python -m code.src.audit.evaluation
+        continue-on-error: false
 
-  synthetic-validation:
-    name: Synthetic Dataset Validation
-    runs-on: ubuntu-latest
-    needs: [constitution-check, schema-validation]
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ env.PYTHON_VERSION }}
-
-      - name: Install dependencies
+      - name: Resource Monitor Sanity Check
         run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
-
-      - name: Run Synthetic Validation
-        run: |
-          python code/src/audit/evaluation.py --mode=synthetic --threshold-precision=0.90 --threshold-recall=0.80
-
-  resource-monitor:
-    name: Resource Usage Check
-    runs-on: ubuntu-latest
-    needs: [constitution-check, schema-validation, synthetic-validation]
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ env.PYTHON_VERSION }}
-
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
-
-      - name: Run Resource Monitor Check
-        run: |
-          python code/src/utils/resource_monitor.py --check-limits
-
-  main-pipeline:
-    name: Main Audit Pipeline
-    runs-on: ubuntu-latest
-    needs: [constitution-check, schema-validation, synthetic-validation, resource-monitor]
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ env.PYTHON_VERSION }}
-
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
+          python -m code.src.utils.resource_monitor
+        continue-on-error: false
 
       - name: Run Main Audit Pipeline
         run: |
-          python code/src/cli/run_audit.py --input=data/input/urls.csv --output-dir=output
+          python -m code.src.cli.run_audit
+        env:
+          # Enforce limits at the process level via environment variables
+          # The resource_monitor module reads these and enforces them.
+          CPU_LIMIT: "2"
+          MEMORY_LIMIT_MB: "2048"
+          TIMEOUT_SECONDS: "10800"
+        continue-on-error: false
 
       - name: Verify Artifacts
         run: |
-          test -f output/audit_report.json
-          test -f output/summary_report.csv
-          test -f output/manifest.json
+          if [ ! -f "output/audit_report.json" ]; then
+            echo "ERROR: output/audit_report.json not found"
+            exit 1
+          fi
+          if [ ! -f "output/summary_report.csv" ]; then
+            echo "ERROR: output/summary_report.csv not found"
+            exit 1
+          fi
+          if [ ! -f "output/manifest.json" ]; then
+            echo "ERROR: output/manifest.json not found"
+            exit 1
+          fi
+          echo "All required artifacts present."
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: audit-results
+          path: |
+            output/
+            data/provenance_log.csv
+          retention-days: 7

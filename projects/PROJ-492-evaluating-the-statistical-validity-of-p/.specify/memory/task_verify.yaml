@@ -96,6 +96,13 @@
   004b (generate `AuditRecord` objects with data_quality_warning messages for sample\u2011\
   size discrepancies, writing `output/audit_report.json`). **DEPENDS ON:** T023."
 : 1
+? "T025 Implement inconsistency validator in `src/audit/validator.py` applying FR\u2011\
+  004 thresholds (absolute p\u2011difference > 0.05, relative effect\u2011size > 5\u202F\
+  %) **and verify that sample\u2011size mismatch entries are excluded from aggregate\
+  \ prevalence estimates** per FR\u2011004b (generate `AuditRecord` objects with data_quality_warning\
+  \ messages for sample\u2011size discrepancies, writing `output/audit_report.json`).\
+  \ **DEPENDS ON:** T023."
+: 2
 ? "T026 Implement synthetic dataset generator in `src/audit/synthetic.py` (FR\u2011\
   030) \u2013 The synthetic dataset generator outputs at least 10\u202F000 simulated\
   \ summaries (binary AND continuous outcomes). (binary AND continuous outcomes) **and\
@@ -266,6 +273,9 @@
   \ to assert reconstructed p\u2011values computed for all records [UNRESOLVED-CLAIM:\
   \ c_c95cee25 \u2014 status=not_enough_info] (coverage\u2011executability\u201108d5764f)\
   \ (verify test passes)."
+: 1
+? "T043 Unit tests for binomial test and CI width \u2264 0.10 (1807.00365, https://arxiv.org/abs/1807.00365)\
+  \ (tests/unit/test_prevalence.py) (verify test passes)."
 : 1
 ? "T043 Unit tests for binomial test and CI width \u2264 0.10 (tests/unit/test_prevalence.py)\
   \ (verify test passes). [UNRESOLVED-CLAIM: c_ae78747a \u2014 status=not_enough_info]"
@@ -460,6 +470,16 @@
   \ --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested\
   \ --> <!-- ATOMIZE: requested -->"
 : 2
+? "T064 Update `.github/workflows/audit.yml` to include steps: (a) schema validation,\
+  \ (b) synthetic validation (ensure precision/recall thresholds), (c) resource\u2011\
+  monitor check, (d) main pipeline run (verify workflow runs all steps) [DEPENDS ON:\
+  \ T098]. <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested\
+  \ --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested\
+  \ --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested\
+  \ --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested\
+  \ --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested\
+  \ --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->"
+: 1
 ? "T095c **[P]** Verify that the CI run includes a step that checks all seven Constitution\
   \ Principles (I\u2011VII) are satisfied (ties to PT005C) (verify CI step exists\
   \ and passes). (depends on PT005C)"
