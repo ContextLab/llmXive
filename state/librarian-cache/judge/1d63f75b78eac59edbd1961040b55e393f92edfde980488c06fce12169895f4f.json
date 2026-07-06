@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2302.07215",
+  "judged_at": "2026-07-06T08:01:23Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"collectionlora: collecting 50 effects in 1 lora via multi-teacher on-p\" computer science",
+  "rationale": "This paper satisfies criteria (a) and (b) as it investigates the core mechanism of \"multi-teacher knowledge distillation\" to compress ensemble knowledge into a single model, which is the fundamental technique underlying the user's \"CollectionLoRA\" approach. Although it does not use LoRA specifically, it provides the canonical prior work on the multi-teacher aggregation and compression mechanism that the user's research extends.",
+  "relevant": true
+}

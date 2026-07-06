@@ -1,4 +1,20 @@
-? 'T006a [P] Implement `code/dependency_injector.py` (FR-003): Vectorized **AR(1)
-  resampling** function with tunable strength $r \in [0, 0.9]$. **Validation**: Verify
-  injected autocorrelation matches target $r$ within 5% tolerance.'
-: 2
+? 'T006b [P] Implement `code/dependency_injector.py` (FR-003): **Block bootstrap**
+  function for hierarchical dependency with tunable block size (range starting from
+  a small lower bound up to 50) and strength parameters. **Validation**: Verify block
+  size distribution matches target.'
+: 1
+? 'T006c [P] Implement `code/dependency_injector.py` (FR-003): **Spatial kernel smoothing**
+  function for spatial dependency with tunable bandwidth (range low to high). **Requirement**:
+  Must use a **validated feature-space clustering proxy** (provided by T037) for datasets
+  lacking explicit coordinates.'
+: 1
+? 'T035 [P] Implement `code/data_loader.py` (FR-001, Spec Assumptions): **Dataset
+  validation logic** to verify $N \ge 50$. If $N < 50$, skip the dataset and log a
+  violation to `results/validation_report.json`. **If all fetched datasets fail this
+  check, raise a `CriticalValidationError`** to prevent pipeline deadlock. **Note**:
+  This task applies to ALL user stories.'
+: 1
+? 'T041 [P] Implement `code/dependency_injector.py` (FR-003): **Validation logic**
+  for the feature-space clustering proxy. Ensure the proxy is validated as per FR-003
+  requirements. Output a validation report to `data/manifests/spatial_proxy_validation.json`.'
+: 1

@@ -5,34 +5,81 @@ submitter: llmxive-preprint-followup
 
 # llmXive follow-up: extending "CollectionLoRA: Collecting 50 Effects in 1 LoRA via Multi-Teacher On-P"
 
-## Summary of the prior work
-CollectionLoRA addresses the deployment overhead of managing multiple LoRA adapters for image editing by distilling up to 50 distinct effects and few-step generation capabilities into a single LoRA via multi-teacher on-policy distillation. Its core innovations include a Probabilistic Dual-Stream Routing mechanism for generalization, Asymmetric Orthogonal Prompting for concept isolation, and a Coarse-to-Fine Distillation Objective to bridge distribution gaps. The result is a unified model that maintains high concept fidelity while eliminating the parameter interference common in cascaded pipelines.
+**Field**: computer science
 
-## Proposed extension
-**Research Question:** Can the "Concept Isolation" provided by CollectionLoRA's Asymmetric Orthogonal Prompting be preserved when the model is compressed further using post-training quantization (e.g., INT4 or INT8) without requiring re-distillation?
+## Research question
 
-This question matters because while CollectionLoRA solves the *storage* overhead of multiple LoRAs, the resulting single large adapter may still be too memory-intensive for edge devices or CPU-only inference, where quantization is the standard compression technique. Verifying if the orthogonal prompt structure is robust to quantization noise would determine if a "zero-shot" quantization pipeline can create ultra-lightweight, multi-effect editors without the computational cost of re-running the multi-teacher distillation.
+Does post-training quantization (INT4/INT8) of a multi-effect LoRA adapter preserve the concept isolation properties established by Asymmetric Orthogonal Prompting, or does quantization noise induce cross-effect interference that degrades specific low-rank subspaces?
+
+## Motivation
+
+CollectionLoRA successfully unifies 50 distinct image effects into a single adapter, solving storage overhead but leaving memory intensity high for edge deployment where quantization is standard. While multi-teacher distillation creates robust orthogonal prompt structures, it is unknown whether these structures survive the noise introduced by quantizing weights without re-distillation. Answering this determines if ultra-lightweight, multi-effect editors can be deployed on CPU-only hardware via a zero-shot quantization pipeline.
+
+## Related work
+
+- [Multi-teacher knowledge distillation as an effective method for compressing ensembles of neural networks](https://arxiv.org/abs/2302.07215) — Establishes that multi-teacher approaches effectively compress ensemble behaviors, providing the theoretical foundation for CollectionLoRA's ability to merge multiple effects into one.
+- [Categories of Response-Based, Feature-Based, and Relation-Based Knowledge Distillation](https://arxiv.org/abs/2306.10687) — Reviews the taxonomy of distillation techniques, highlighting that feature-based methods (like those used for concept isolation) rely on preserving intermediate representations which are sensitive to weight precision loss.
+- [Differentiable Feature Aggregation Search for Knowledge Distillation](https://arxiv.org/abs/2008.00506) — Demonstrates how specific feature aggregation mechanisms can be optimized for compression, suggesting that the robustness of such mechanisms to quantization is a critical, yet under-explored, variable in deployment.
+
+## Expected results
+
+We expect INT8 quantization to maintain >90% concept fidelity across most effects due to the inherent redundancy in the orthogonal prompt space, whereas INT4 quantization will exhibit significant "concept bleeding" where distinct effects (e.g., texture vs. lighting) merge. The level of evidence required is a statistically significant drop in cosine similarity between prompt embeddings and image features for INT4 compared to INT8/FP16 baselines, specifically isolating low-rank subspaces as the failure point.
 
 ## Methodology sketch
-**Data:** Select the pre-trained CollectionLoRA model (containing 50 effects) and a diverse subset of 10 test prompts representing distinct effects (e.g., "oil painting," "neon glow," "sketch").
-**Procedure:**
-1.  **Quantization:** Apply standard post-training quantization (PTQ) techniques (e.g., using `bitsandbytes` or `GGML`) to convert the CollectionLoRA weights from FP16 to INT8 and INT4, *without* any additional training or distillation steps.
-2.  **Inference:** Run the quantized LoRA on the test prompts using a CPU-only inference engine (e.g., `diffusers` with `torch_dtype=torch.float32` for the base, but quantized LoRA weights loaded via CPU backend) to generate images.
-3.  **Evaluation:** Compute the cosine similarity between the prompt embeddings and the generated image features using a frozen CLIP model to measure "concept adherence," and use a perceptual similarity metric (LPIPS) against the original FP16 CollectionLoRA outputs to measure "fidelity loss."
-**Expected Result:** We hypothesize that INT8 quantization will maintain >90% concept fidelity for the majority of effects due to the robustness of the orthogonal prompting, while INT4 will show significant concept bleeding (e.g., "neon" merging with "sketch") specifically in low-rank subspaces, identifying a quantization threshold for safe deployment on CPU hardware.
 
-## Motivated by (source preprint — reviewed, not authored, by llmXive)
+- Download the pre-trained CollectionLoRA model (FP16) containing 50 effects and the associated base model (e.g., Stable Diffusion 1.5 or 2.1) from the official repository or HuggingFace.
+- Select a diverse subset of 10 test prompts, each targeting a distinct effect category (e.g., "oil painting," "neon glow," "sketch," "watercolor") to ensure coverage of different low-rank subspaces.
+- Apply post-training quantization (PTQ) using `bitsandbytes` or `llama.cpp` (GGML) to convert the LoRA weights from FP16 to INT8 and INT4, ensuring no gradient updates or re-distillation occur during this step.
+- Generate images for each prompt using the original FP16 LoRA, the INT8 LoRA, and the INT4 LoRA on a CPU-only inference engine (e.g., `diffusers` with `torch_dtype=float32` for the base and quantized weights loaded via CPU backend).
+- Extract CLIP image embeddings for all generated outputs and compute the cosine similarity between the prompt text embedding and the image embedding to measure "concept adherence."
+- Compute the LPIPS (Learned Perceptual Image Patch Similarity) distance between the quantized outputs and the FP16 baseline outputs to quantify "fidelity loss" in pixel-space features.
+- Perform a repeated-measures ANOVA to test for significant differences in concept adherence and fidelity loss across the three quantization levels (FP16, INT8, INT4).
+- Analyze the correlation between the rank of the specific effect's LoRA subspace and the magnitude of concept bleeding in the INT4 setting to identify the quantization threshold.
 
-- **CollectionLoRA: Collecting 50 Effects in 1 LoRA via Multi-Teacher On-Policy Distillation** — Fangtai Wu, Hailong Guo, Shijie Huang, Jiayi Song, Yubo Huang, Mushui Liu, Zhao Wang, Yunlong Yu, Jiaming Liu, Ruihua Huang. https://arxiv.org/abs/2605.25378.
+## Duplicate-check
 
-```bibtex
-@article{orig_arxiv_2605_25378,
-  title = {CollectionLoRA: Collecting 50 Effects in 1 LoRA via Multi-Teacher On-Policy Distillation},
-  author = {Fangtai Wu and Hailong Guo and Shijie Huang and Jiayi Song and Yubo Huang and Mushui Liu and Zhao Wang and Yunlong Yu and Jiaming Liu and Ruihua Huang},
-  year = {2026},
-  eprint = {2605.25378},
-  archivePrefix = {arXiv},
-  journal = {arXiv preprint arXiv:2605.25378},
-  url = {https://arxiv.org/abs/2605.25378}
-}
-```
+- Reviewed existing ideas: CollectionLoRA extension, LoRA quantization robustness, Multi-teacher distillation compression.
+- Closest match: CollectionLoRA extension (similarity sketch: shares the same base model and goal of compression, but this idea specifically targets the *interaction* between Asymmetric Orthogonal Prompting and *post-training* quantization noise, whereas prior work focuses on the distillation process itself).
+- Verdict: NOT a duplicate
+
+
+## Search trail
+
+**Generated by**: librarian (prompt v1.6.0) on 2026-07-06T08:01:38Z
+**Outcome**: success_after_expansion
+**Original term**: llmXive follow-up: extending "CollectionLoRA: Collecting 50 Effects in 1 LoRA via Multi-Teacher On-P" computer science
+**Verified citation count**: 5
+
+### Search terms used
+
+| Rank | Term | Hit count |
+|-|-|-|
+| 0 (initial) | llmXive follow-up: extending "CollectionLoRA: Collecting 50 Effects in 1 LoRA via Multi-Teacher On-P" computer science | 0 |
+| 1 | Multi-teacher knowledge distillation for LoRA | 5 |
+| 2 | Merging multiple LoRA adapters into a single model | 0 |
+| 3 | Parameter-efficient fine-tuning with multiple tasks | 0 |
+| 4 | Task arithmetic for large language models | 0 |
+| 5 | LoRA adapter composition and fusion | 0 |
+| 6 | On-policy multi-task learning for LLMs | 0 |
+| 7 | Compact representation of multiple fine-tuning effects | 0 |
+| 8 | Mixture of LoRA experts for unified adaptation | 0 |
+| 9 | Consolidating diverse instruction tuning effects | 0 |
+| 10 | Low-rank adaptation for multi-task generalization | 0 |
+| 11 | Unifying multiple fine-tuning objectives in one LoRA | 0 |
+| 12 | Efficient multi-teacher distillation for language models | 0 |
+| 13 | Aggregating parameter-efficient updates from multiple teachers | 0 |
+| 14 | Single LoRA for multiple downstream tasks | 0 |
+| 15 | Cross-task knowledge transfer via LoRA merging | 0 |
+| 16 | Multi-objective fine-tuning with low-rank constraints | 0 |
+| 17 | Synthesizing multiple LoRA weights into one | 0 |
+| 18 | Scalable multi-task adaptation for foundation models | 0 |
+| 19 | Distilling multiple fine-tuned models into a single LoRA | 0 |
+| 20 | Unified parameter-efficient tuning for diverse capabilities | 0 |
+
+### Verified citations
+
+1. **Multi-teacher knowledge distillation as an effective method for compressing ensembles of neural networks** (2023). Konrad Zuchniak. arXiv. [2302.07215](https://arxiv.org/abs/2302.07215). PDF-sampled: No.
+2. **Triplet Loss for Knowledge Distillation** (2020). Hideki Oki, Motoshi Abe, Junichi Miyao, Takio Kurita. arXiv. [2004.08116](https://arxiv.org/abs/2004.08116). PDF-sampled: No.
+3. **DistillLens: Symmetric Knowledge Distillation Through Logit Lens** (2026). Manish Dhakal, Uthman Jinadu, Anjila Budathoki, Rajshekhar Sunderraman, Yi Ding. arXiv. [2602.13567](https://arxiv.org/abs/2602.13567). PDF-sampled: No.
+4. **Categories of Response-Based, Feature-Based, and Relation-Based Knowledge Distillation** (2023). Chuanguang Yang, Xinqiang Yu, Zhulin An, Yongjun Xu. arXiv. [2306.10687](https://arxiv.org/abs/2306.10687). PDF-sampled: No.
+5. **Differentiable Feature Aggregation Search for Knowledge Distillation** (2020). Yushuo Guan, Pengyu Zhao, Bingxuan Wang, Yuanxing Zhang, Cong Yao, et al.. arXiv. [2008.00506](https://arxiv.org/abs/2008.00506). PDF-sampled: No.

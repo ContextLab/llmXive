@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2306.13549",
+  "judged_at": "2026-07-06T08:02:51Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"joyai-vl-interaction: real-time vision-language interaction intelligen\" computer science",
+  "rationale": "This paper satisfies criteria (d) and (f) as a foundational survey and canonical reference for the domain of Multimodal Large Language Models (MLLMs), which is the specific technical context of the user's \"JoyAI-VL-Interaction\" follow-up. While it does not address the specific \"JoyAI\" system, it provides the essential background on architectures, training strategies, and interaction techniques (like M-CoT and LAVR) that any literature review on extending vision-language interaction would require",
+  "relevant": true
+}

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2502.00425",
+  "judged_at": "2026-07-06T08:02:53Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"joyai-vl-interaction: real-time vision-language interaction intelligen\" computer science",
+  "rationale": "The candidate paper focuses on static quantization techniques to improve the inference efficiency of Multimodal Large Language Models (MLLMs), which is a system optimization problem. It does not address the user's specific question regarding \"JoyAI-VL-Interaction,\" which implies a focus on real-time interaction mechanisms, user experience, or specific interaction intelligence frameworks, nor does it provide foundational methodology or empirical baselines for the \"JoyAI\" system or interaction-spe",
+  "relevant": false
+}

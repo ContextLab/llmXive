@@ -53,3 +53,296 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-01T03:14:20Z'
+- artifact_path: projects/PROJ-467-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: Weinstein tactile instrument cited with DOI 10.1016/j.neuropsychologia.2011.04.012
+  claim_id: c_0db7f19d
+  context: 'Implement src/brainnet/data_loader.py: Function to load tactile instrument
+    metadata and cite Weinstein DOI (10.1016/j.neuropsychologia.2011.04.012) per FR-007'
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: cite Weinstein DOI (10.1016/j.neuropsychologia.2011.04.012)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-06T08:05:37Z'
+- artifact_path: projects/PROJ-467-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: HCP Young Adult dataset expected subject count 1200 plus or minus 50
+  claim_id: c_b795408c
+  context: "Validates subject count matches the selected dataset documentation (expected\
+    \ N\u22481200\xB150 for HCP or N\u22481000\xB1100 for alternative/custom)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "expected N\u22481200\xB150 for HCP"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-06T08:06:36Z'
+- artifact_path: projects/PROJ-467-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: Alternative or custom dataset expected subject count 1000 plus or minus
+    100
+  claim_id: c_c0570beb
+  context: "Validates subject count matches the selected dataset documentation (expected\
+    \ N\u22481200\xB150 for HCP or N\u22481000\xB1100 for alternative/custom)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "N\u22481000\xB1100 for alternative/custom"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-06T08:07:28Z'
+- artifact_path: projects/PROJ-467-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: Custom study tactile measurement protocol requires at least 50 subjects
+  claim_id: c_be6f44e0
+  context: "Add tactile measurement protocol to a custom study (2\u2011point discrimination\
+    \ threshold, n \u2265 50 subjects, validated instrument per FR\u2011007)."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Custom_study_tactile_measurement_protocol_requires_at_least
+  kind: magnitude
+  raw_text: "n \u2265 50 subjects"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-06T08:08:20Z'
+- artifact_path: projects/PROJ-467-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: ROI extraction uses Schaefer-200 atlas with scale 200
+  claim_id: c_c18ceb02
+  context: 'Implement src/brainnet/preprocessing.py: ROI extraction using Schaefer-200
+    atlas (scale=200)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Schaefer-200 atlas (scale=200)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-06T08:09:23Z'
+- artifact_path: projects/PROJ-467-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: Preprocessing includes band-pass filtering between 0.01 and 0.1 Hz
+  claim_id: c_487eeef2
+  context: "Implement src/brainnet/preprocessing.py: Motion correction, band-pass\
+    \ filtering (0.01\u20130.1 Hz), and MNI152 normalization using nilearn"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "band-pass filtering (0.01\u20130.1 Hz)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-06T08:09:48Z'
+- artifact_path: projects/PROJ-467-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: Preprocessing includes MNI152 normalization
+  claim_id: c_e8ddc219
+  context: "Implement src/brainnet/preprocessing.py: Motion correction, band-pass\
+    \ filtering (0.01\u20130.1 Hz), and MNI152 normalization using nilearn"
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Preprocessing_includes_MNI152_normalization
+  kind: entity_fact
+  raw_text: MNI152 normalization
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-06T08:10:16Z'
+- artifact_path: projects/PROJ-467-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: Seed handling uses np.random.seed(42)
+  claim_id: c_de53ed47
+  context: 'Implement src/brainnet/utils.py: Seed handling (np.random.seed(42)), logging
+    setup, and memory profiling decorators'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Seed handling (np.random.seed(42))
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-06T08:10:32Z'
+- artifact_path: projects/PROJ-467-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: Graph construction uses absolute correlation threshold of 0.2 or greater
+  claim_id: c_5d670bb6
+  context: "Graph construction with absolute correlation threshold \u22650.2; compute\
+    \ Modularity Q (Louvain) and Segregation Index"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "absolute correlation threshold \u22650.2"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-06T08:10:32Z'
+- artifact_path: projects/PROJ-467-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: Dynamic metrics use sliding window length of 60 seconds and step of 30
+    seconds
+  claim_id: c_7370fb53
+  context: 'Implement src/brainnet/dynamic_metrics.py: Sliding-window logic (length=60s,
+    step=30s) using Numba or efficient NumPy loops'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sliding-window logic (length=60s, step=30s)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-06T08:10:51Z'
+- artifact_path: projects/PROJ-467-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: VIF diagnostics flag values greater than 5.0
+  claim_id: c_5fdf12d3
+  context: 'Implement src/brainnet/analysis.py: Compute VIF for all predictors; flag
+    if VIF > 5.0'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/VIF_diagnostics_flag_values_greater_than_5.0
+  kind: magnitude
+  raw_text: flag if VIF > 5.0
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-06T08:11:24Z'
+- artifact_path: projects/PROJ-467-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: PCA fallback retains at least 90 percent variance
+  claim_id: c_0b521059
+  context: "if VIF > 5.0 persists after removal, perform PCA retaining \u226590% variance;\
+    \ save data/processed/pca_components.parquet and flag analysis."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/PCA_fallback_retains_at_least_90_percent_variance
+  kind: magnitude
+  raw_text: "retain \u226590% variance"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-06T08:11:50Z'
+- artifact_path: projects/PROJ-467-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: Apply Benjamini-Hochberg FDR correction with q less than or equal to
+    0.05
+  claim_id: c_24f89ab1
+  context: "Implement src/brainnet/analysis.py: Apply Benjamini-Hochberg FDR (q\u2264\
+    0.05) to all \u22655 hypothesis tests"
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Apply_Benjamini-Hochberg_FDR_correction_with_q_less_than_or
+  kind: magnitude
+  raw_text: "Benjamini-Hochberg FDR (q\u22640.05)"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-06T08:12:11Z'
+- artifact_path: projects/PROJ-467-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: HCP dataset expected subject count 1200 plus or minus 50
+  claim_id: c_2cabad6d
+  context: "Validates subject count matches the selected dataset documentation (expected\
+    \ N\u22481200\xB150 for HCP or N\u22481000\xB1100 for alternative/custom)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The dataset documentation expects a subject count of N\u22481200\xB1\
+    50 for HCP or N\u22481000\xB1100 for alternative/custom datasets."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-06T08:13:05Z'
+- artifact_path: projects/PROJ-467-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: Weinstein DOI 10.1016/j.neuropsychologia.2011.04.012
+  claim_id: c_0e56e9f4
+  context: 'Implement src/brainnet/data_loader.py: Function to load tactile instrument
+    metadata and cite Weinstein DOI (10.1016/j.neuropsychologia.2011.04.012) per FR-007'
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: The Weinstein DOI for tactile instrument metadata is 10.1016/j.neuropsychologia.2011.04.012.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-06T08:13:06Z'
+- artifact_path: projects/PROJ-467-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: Custom study requires sample size 50 subjects
+  claim_id: c_938c6d21
+  context: "Resolution required before proceeding: ... (2) Add tactile measurement\
+    \ protocol to a custom study (2\u2011point discrimination threshold, n \u2265\
+    \ 50 subjects, validated instrument per FR\u2011007)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "A custom study requires a sample size of n\u226550 subjects."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-06T08:13:06Z'
+- artifact_path: projects/PROJ-467-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: Benjamini-Hochberg FDR correction q less than or equal to 0.05
+  claim_id: c_6ee869fc
+  context: "Implement src/brainnet/analysis.py: Apply Benjamini-Hochberg FDR (q\u2264\
+    0.05) to all \u22655 hypothesis tests"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Benjamini-Hochberg_FDR_correction_q_less_than_or_equal_to_0.
+  kind: magnitude
+  raw_text: "The FDR correction uses the Benjamini-Hochberg method with q\u22640.05."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-06T08:13:44Z'

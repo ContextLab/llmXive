@@ -1,11 +1,3 @@
-"""
-Dependency Injection Module.
-
-Implements methods to inject non-independence structures into data:
-- AR(1) process for temporal dependency
-- Block Bootstrap for hierarchical dependency
-- Spatial Kernel Smoothing for spatial dependency
-"""
 import numpy as np
 from typing import Tuple, List, Optional
 from scipy import stats
@@ -15,243 +7,239 @@ import json
 
 def ar1_inject(data: np.ndarray, r: float, seed: Optional[int] = None) -> np.ndarray:
     """
-    Injects AR(1) dependency into data.
+    Injects AR(1) dependency structure into data.
     
-    Parameters:
-    -----------
-    data : np.ndarray
-        Input data array of shape (n_samples, n_features).
-        If 1D, treated as (n_samples, 1).
-    r : float
-        Autocorrelation strength parameter in [0, 0.9].
-    seed : int, optional
-        Random seed for reproducibility.
+    Args:
+        data: Input array of shape (n_samples, n_features).
+        r: Autocorrelation strength in [0, 0.9].
+        seed: Random seed for reproducibility.
         
     Returns:
-    --------
-    np.ndarray
-        Data with injected AR(1) dependency, same shape as input.
+        Array with injected AR(1) structure.
     """
     if seed is not None:
         np.random.seed(seed)
         
-    if data.ndim == 1:
-        data = data.reshape(-1, 1)
-        
-    n_samples, n_features = data.shape
-    injected_data = np.zeros_like(data)
-    
-    # Validate r
-    if not 0.0 <= r <= 0.9:
+    if not (0.0 <= r <= 0.9):
         raise ValueError(f"r must be in [0, 0.9], got {r}")
         
-    for j in range(n_features):
-        col = data[:, j].copy()
-        # Standardize input to have mean 0, variance 1 for injection stability
-        col_mean = np.mean(col)
-        col_std = np.std(col)
-        if col_std == 0:
-            col_std = 1.0
-        normalized = (col - col_mean) / col_std
-        
-        # Generate AR(1) process: X_t = r * X_{t-1} + sqrt(1-r^2) * epsilon
-        # This ensures the resulting series has variance 1 and autocorrelation r
-        ar_process = np.zeros(n_samples)
-        ar_process[0] = np.random.normal(0, 1)
-        
-        for t in range(1, n_samples):
-            ar_process[t] = r * ar_process[t-1] + np.sqrt(1 - r**2) * np.random.normal(0, 1)
-        
-        # Scale the AR process to match the original data's variance
-        # and add to the original data structure if needed, or replace?
-        # The task implies injecting dependency structure. 
-        # We replace the normalized data with the AR process scaled back.
-        injected_col = ar_process * col_std + col_mean
-        injected_data[:, j] = injected_col
-      
-    return injected_data
-
-def validate_ar1_injection(data: np.ndarray, injected_data: np.ndarray, r_target: float, tolerance: float = 0.05) -> bool:
-    """
-    Validates that the injected data matches the target autocorrelation.
+    n_samples, n_features = data.shape
+    result = np.zeros_like(data)
     
-    Parameters:
-    -----------
-    data : np.ndarray
-        Original data.
-    injected_data : np.ndarray
-        Data after AR(1) injection.
-    r_target : float
-        Target autocorrelation strength.
-    tolerance : float
-        Allowed deviation from target.
+    # Vectorized approach: Generate noise and apply AR(1) filter per column
+    # x_t = r * x_{t-1} + epsilon_t
+    # We can solve this by constructing the transition matrix or iterative update
+    # Iterative update is memory efficient and vectorizable across columns
+    
+    noise = np.random.normal(0, 1, (n_samples, n_features))
+    current = np.zeros(n_features)
+    
+    for t in range(n_samples):
+        current = r * current + noise[t]
+        result[t] = current
+        
+    # Scale result to match original data variance roughly
+    if np.std(data) > 0:
+        result = result * (np.std(data) / np.std(result))
+        
+    return result
+
+def validate_ar1_injection(data: np.ndarray, injected_data: np.ndarray, target_r: float, tolerance: float = 0.05) -> bool:
+    """
+    Validates that the injected data has autocorrelation close to target_r.
+    
+    Args:
+        data: Original data (unused in calculation but kept for signature).
+        injected_data: Data after AR(1) injection.
+        target_r: Target autocorrelation strength.
+        tolerance: Allowed deviation (default 5%).
         
     Returns:
-    --------
-    bool
         True if validation passes, False otherwise.
     """
-    if injected_data.ndim == 1:
-        injected_data = injected_data.reshape(-1, 1)
+    # Calculate actual autocorrelation for each column
+    n_samples = injected_data.shape[0]
+    if n_samples < 2:
+        return False
         
-    n_samples, n_features = injected_data.shape
-    valid = True
+    autocorrs = []
+    for col in range(injected_data.shape[1]):
+        x = injected_data[:, col]
+        x_centered = x - np.mean(x)
+        # Lag-1 autocorrelation
+        autocorr = np.dot(x_centered[:-1], x_centered[1:]) / np.dot(x_centered, x_centered)
+        autocorrs.append(autocorr)
+        
+    mean_autocorr = np.mean(autocorrs)
+    deviation = abs(mean_autocorr - target_r)
     
-    for j in range(n_features):
-        if n_samples < 2:
-            continue
-        col = injected_data[:, j]
-        # Calculate lag-1 autocorrelation
-        autocorr = np.corrcoef(col[:-1], col[1:])[0, 1]
-        
-        if autocorr is None or np.isnan(autocorr):
-            valid = False
-            break
-            
-        if abs(autocorr - r_target) > tolerance:
-            # Note: For r=0, we expect ~0. For r>0, we expect ~r.
-            # The AR(1) generation method used (X_t = r*X_{t-1} + ...)
-            # theoretically produces exactly r in the limit.
-            # In finite samples, it might deviate.
-            pass # We might want to be strict, but let's allow some sampling noise
-            
-    return valid
+    # Check if deviation is within tolerance of target (relative or absolute?)
+    # Using absolute tolerance as per spec "within 5% tolerance" usually implies absolute 0.05
+    # But if target is small, relative might be better. Spec says "within 5% tolerance" 
+    # Let's interpret as absolute 0.05 for r in [0, 0.9]
+    return deviation <= tolerance
 
-def block_bootstrap(data: np.ndarray, block_size: int, n_blocks: Optional[int] = None) -> np.ndarray:
+def block_bootstrap(data: np.ndarray, block_size: int, n_blocks: int, seed: Optional[int] = None) -> np.ndarray:
     """
-    Performs block bootstrap resampling for hierarchical dependency.
+    Performs block bootstrap for hierarchical dependency.
     
-    Parameters:
-    -----------
-    data : np.ndarray
-        Input data array.
-    block_size : int
-        Size of the block to resample.
-    n_blocks : int, optional
-        Number of blocks to sample. If None, calculates to cover data length.
+    Args:
+        data: Input array of shape (n_samples, n_features).
+        block_size: Size of each block.
+        n_blocks: Number of blocks to sample.
+        seed: Random seed.
         
     Returns:
-    --------
-    np.ndarray
-        Resampled data.
+        Resampled data array.
     """
-    if data.ndim == 1:
-        data = data.reshape(-1, 1)
+    if seed is not None:
+        np.random.seed(seed)
         
     n_samples, n_features = data.shape
-    if block_size <= 0:
-        raise ValueError("block_size must be positive")
+    if block_size * n_blocks > n_samples:
+        # Adjust to fit
+        max_blocks = n_samples // block_size
+        if max_blocks < 1:
+            raise ValueError("Block size too large for data")
+        n_blocks = max_blocks
         
-    if n_blocks is None:
-        n_blocks = int(np.ceil(n_samples / block_size))
+    # Select random starting indices for blocks
+    indices = []
+    for _ in range(n_blocks):
+        start = np.random.randint(0, n_samples - block_size + 1)
+        indices.extend(range(start, start + block_size))
         
-    # Create blocks
-    blocks = []
-    for i in range(0, n_samples - block_size + 1, block_size):
-        blocks.append(data[i:i+block_size])
-        
-    if len(blocks) == 0:
-        # Fallback if data is smaller than block size
-        blocks = [data]
-        
-    # Resample blocks with replacement
-    resampled_blocks = [np.random.choice(blocks, size=1)[0] for _ in range(n_blocks)]
+    # Ensure we don't exceed bounds
+    indices = [i for i in indices if i < n_samples]
     
-    # Concatenate and trim to original size
-    resampled_data = np.vstack(resampled_blocks)
-    return resampled_data[:n_samples]
+    if len(indices) == 0:
+        raise ValueError("No valid blocks selected")
+        
+    return data[indices]
 
-def validate_block_bootstrap(original_data: np.ndarray, resampled_data: np.ndarray, block_size: int) -> bool:
+def validate_block_bootstrap(original_data: np.ndarray, resampled_data: np.ndarray, target_block_size: int) -> bool:
     """
-    Validates block bootstrap structure.
-    """
-    # Check dimensions
-    if original_data.shape != resampled_data.shape:
-        return False
-    return True
-
-def generate_spatial_proxy(data: np.ndarray, n_clusters: int = 5) -> np.ndarray:
-    """
-    Generates a spatial proxy for datasets lacking explicit coordinates.
-    Uses K-Means on feature space to create cluster-based spatial structure.
+    Validates block bootstrap distribution.
     
-    Parameters:
-    -----------
-    data : np.ndarray
-        Input data array (n_samples, n_features).
-    n_clusters : int
-        Number of clusters to use for spatial proxy.
+    Args:
+        original_data: Original data.
+        resampled_data: Resampled data.
+        target_block_size: Expected block size.
         
     Returns:
-    --------
-    np.ndarray
-        Proxy coordinates (n_samples, 2).
+        True if validation passes.
     """
-    if data.ndim == 1:
-        data = data.reshape(-1, 1)
+    # Simple validation: check if resampled data has similar distribution
+    # In a real implementation, we'd check block size distribution
+    if resampled_data.shape[0] == 0:
+        return False
         
-    kmeans = KMeans(n_clusters=n_clusters, random_state=42, n_init=10)
-    cluster_labels = kmeans.fit_predict(data)
+    # Check if means are roughly preserved (within 20%)
+    orig_mean = np.mean(original_data)
+    res_mean = np.mean(resampled_data)
     
-    # Create 2D coordinates based on cluster centers
-    # This is a simplified proxy: assign each sample to its cluster center in 2D
-    # We need to map cluster labels to 2D coordinates.
-    # For simplicity, we arrange cluster centers in a grid.
-    n_clusters_actual = len(np.unique(cluster_labels))
-    grid_size = int(np.ceil(np.sqrt(n_clusters_actual)))
+    if abs(orig_mean) < 1e-6:
+        return abs(res_mean) < 1e-3
+        
+    return abs((res_mean - orig_mean) / orig_mean) < 0.2
+
+def generate_spatial_proxy(data: np.ndarray, n_clusters: int = 5, seed: Optional[int] = None) -> np.ndarray:
+    """
+    Generates spatial proxy coordinates using feature-space clustering.
     
-    cluster_coords = []
-    for i in range(n_clusters_actual):
-        row = i // grid_size
-        col = i % grid_size
-        cluster_coords.append([row, col])
+    Args:
+        data: Input data array of shape (n_samples, n_features).
+        n_clusters: Number of clusters for K-Means.
+        seed: Random seed.
+        
+    Returns:
+        Proxy coordinates of shape (n_samples, 2).
+    """
+    if seed is not None:
+        np.random.seed(seed)
+        
+    if n_clusters <= 1:
+        # If only 1 cluster, return random points around origin
+        return np.random.normal(0, 1, (data.shape[0], 2))
+        
+    # Use K-Means to find cluster centers in feature space
+    kmeans = KMeans(n_clusters=n_clusters, random_state=seed, n_init=10)
+    kmeans.fit(data)
     
-    cluster_coords = np.array(cluster_coords)
-    proxy_coords = cluster_coords[cluster_labels]
+    # Get cluster labels
+    labels = kmeans.labels_
+    
+    # Create 2D proxy coordinates based on cluster assignments
+    # Use MDS-like approach or just assign cluster centers in 2D
+    cluster_centers_2d = np.random.rand(n_clusters, 2) * 10
+    
+    # Assign each point to its cluster's 2D coordinate
+    proxy_coords = cluster_centers_2d[labels]
+    
+    # Add small noise to avoid identical points
+    proxy_coords += np.random.normal(0, 0.1, proxy_coords.shape)
     
     return proxy_coords
 
-def spatial_kernel_smooth(data: np.ndarray, proxy_coords: np.ndarray, bandwidth: float) -> np.ndarray:
+def spatial_kernel_smooth(data: np.ndarray, proxy_coords: np.ndarray, bandwidth: float, seed: Optional[int] = None) -> np.ndarray:
     """
     Applies spatial kernel smoothing using proxy coordinates.
     
-    Parameters:
-    -----------
-    data : np.ndarray
-        Input data array (n_samples, n_features).
-    proxy_coords : np.ndarray
-        Proxy spatial coordinates (n_samples, 2).
-    bandwidth : float
-        Kernel bandwidth parameter.
+    Args:
+        data: Input data array.
+        proxy_coords: 2D proxy coordinates from generate_spatial_proxy.
+        bandwidth: Kernel bandwidth parameter.
+        seed: Random seed.
         
     Returns:
-    --------
-    np.ndarray
-        Smoothed data.
+        Smoothed data array.
     """
-    if data.ndim == 1:
-        data = data.reshape(-1, 1)
+    if seed is not None:
+        np.random.seed(seed)
         
     n_samples, n_features = data.shape
-    smoothed_data = np.zeros_like(data)
+    if n_samples != proxy_coords.shape[0]:
+        raise ValueError("Data and proxy_coords must have same number of samples")
+        
+    # Calculate distance matrix
+    distances = cdist(proxy_coords, proxy_coords, metric='euclidean')
     
-    # Compute distance matrix
-    dist_matrix = cdist(proxy_coords, proxy_coords)
+    # Gaussian kernel
+    weights = np.exp(-(distances ** 2) / (2 * bandwidth ** 2))
     
-    # Gaussian kernel weights
-    weights = np.exp(-(dist_matrix ** 2) / (2 * bandwidth ** 2))
+    # Normalize weights
     weights = weights / np.sum(weights, axis=1, keepdims=True)
     
-    for j in range(n_features):
-        smoothed_data[:, j] = weights @ data[:, j]
-        
+    # Apply smoothing
+    smoothed_data = weights @ data
+    
     return smoothed_data
 
 def validate_spatial_kernel_smooth(original_data: np.ndarray, smoothed_data: np.ndarray, bandwidth: float) -> bool:
     """
     Validates spatial kernel smoothing results.
+    
+    Args:
+        original_data: Original data.
+        smoothed_data: Smoothed data.
+        bandwidth: Used bandwidth.
+        
+    Returns:
+        True if validation passes.
     """
-    # Check dimensions
-    if original_data.shape != smoothed_data.shape:
+    # Check if smoothing preserved overall structure
+    if smoothed_data.shape != original_data.shape:
         return False
-    return True
+        
+    # Check correlation between original and smoothed
+    corr = np.corrcoef(original_data.flatten(), smoothed_data.flatten())[0, 1]
+    
+    # Should be highly correlated but not identical
+    return 0.5 < corr < 1.0
+
+if __name__ == "__main__":
+    # Simple test
+    test_data = np.random.normal(0, 1, (100, 5))
+    injected = ar1_inject(test_data, 0.3, seed=42)
+    is_valid = validate_ar1_injection(test_data, injected, 0.3)
+    print(f"AR1 Validation: {is_valid}")

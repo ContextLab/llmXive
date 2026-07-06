@@ -217,3 +217,124 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-03T19:22:35Z'
+- artifact_path: projects/PROJ-483-evaluating-the-robustness-of-common-stat/specs/001-evaluating-the-robustness-of-common-stat/tasks.md
+  attempts: 1
+  canonical: Autocorrelation injection tolerance within 5 percent
+  claim_id: c_c1790c71
+  context: 'Validation: Verify injected autocorrelation matches target $r$ within
+    5% tolerance.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify injected autocorrelation matches target r within 5% tolerance
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-06T07:54:43Z'
+- artifact_path: projects/PROJ-483-evaluating-the-robustness-of-common-stat/specs/001-evaluating-the-robustness-of-common-stat/tasks.md
+  attempts: 1
+  canonical: Dataset sample size N greater than or equal to 50
+  claim_id: c_09e8cb2d
+  context: Dataset validation logic to verify $N \ge 50$. If $N < 50$, skip the dataset
+    and log a violation to `results/validation_report.json`.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Dataset_sample_size_N_greater_than_or_equal_to_50
+  kind: magnitude
+  raw_text: Dataset validation logic to verify N >= 50
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-06T07:55:41Z'
+- artifact_path: projects/PROJ-483-evaluating-the-robustness-of-common-stat/specs/001-evaluating-the-robustness-of-common-stat/tasks.md
+  attempts: 1
+  canonical: Block bootstrap size range up to 50
+  claim_id: c_0c0b738f
+  context: Block bootstrap function for hierarchical dependency with tunable block
+    size (range starting from a small lower bound up to 50) and strength parameters.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Block bootstrap function for hierarchical dependency with tunable block
+    size up to 50
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-06T07:56:10Z'
+- artifact_path: projects/PROJ-483-evaluating-the-robustness-of-common-stat/specs/001-evaluating-the-robustness-of-common-stat/tasks.md
+  attempts: 1
+  canonical: Sweep dependency strength r from zero upwards
+  claim_id: c_504d1e54
+  context: 'Implement sensitivity analysis sweep in `code/main.py`: Sweep $r$ across
+    a range of values including zero and positive increments.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Sweep_dependency_strength_r_from_zero_upwards
+  kind: entity_fact
+  raw_text: Sweep r across a range of values including zero and positive increments
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-06T07:57:45Z'
+- artifact_path: projects/PROJ-483-evaluating-the-robustness-of-common-stat/specs/001-evaluating-the-robustness-of-common-stat/tasks.md
+  attempts: 1
+  canonical: Error rate exceeds 0.10 threshold
+  claim_id: c_0c093a98
+  context: Implement threshold detection logic to report specific $r$ where error
+    rate exceeds $\alpha=0.10$ per AC-2
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Report specific r where error rate exceeds alpha=0.10
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-06T07:59:07Z'
+- artifact_path: projects/PROJ-483-evaluating-the-robustness-of-common-stat/specs/001-evaluating-the-robustness-of-common-stat/tasks.md
+  attempts: 1
+  canonical: Mean shift delta equals 1.0 sigma for power analysis
+  claim_id: c_6e9b7c14
+  context: Inject true effects (mean shift $\delta=1.0\sigma$) into dependency-injected
+    data and measure proportion of significant results vs. baseline.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Inject true effects (mean shift delta=1.0 sigma) into dependency-injected
+    data
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-06T07:59:44Z'
+- artifact_path: projects/PROJ-483-evaluating-the-robustness-of-common-stat/specs/001-evaluating-the-robustness-of-common-stat/tasks.md
+  attempts: 1
+  canonical: 10000 replications complete in under 6 hours
+  claim_id: c_ab60a4f2
+  context: Profile `code/simulation_runner.py` and optimize vectorized operations
+    to ensure 10,000 replications complete in < 6 hours.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/10000_replications_complete_in_under_6_hours
+  kind: magnitude
+  raw_text: Optimize vectorized operations to ensure 10,000 replications complete
+    in less than 6 hours
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-06T08:00:23Z'

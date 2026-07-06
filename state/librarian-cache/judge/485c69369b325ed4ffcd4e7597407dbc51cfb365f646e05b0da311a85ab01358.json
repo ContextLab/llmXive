@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2410.09604",
+  "judged_at": "2026-07-06T08:02:48Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"joyai-vl-interaction: real-time vision-language interaction intelligen\" computer science",
+  "rationale": "This paper satisfies criteria (a) and (b) as it provides a benchmark platform for real-time vision-language interaction and embodied intelligence in open-world environments, directly extending the scope of the user's referenced work (\"JoyAI-VL-Interaction\") from indoor to city-scale scenarios. It measures the same core mechanism (real-time V-L interaction for embodied agents) and offers an empirical baseline for evaluating LLMs in this specific domain.",
+  "relevant": true
+}

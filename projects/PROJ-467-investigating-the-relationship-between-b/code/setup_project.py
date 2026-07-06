@@ -1,58 +1,50 @@
+"""
+Project initialization script for T002.
+Validates requirements.txt and pyproject.toml existence and content.
+"""
 import os
 from pathlib import Path
 
 def main():
     """
-    Initialize the Python 3.11 project environment.
-    
-    This function:
-    1. Creates the project directory structure (if not exists).
-    2. Ensures requirements.txt exists with the specified dependencies.
-    3. Prints instructions for installing dependencies and setting up the environment.
-    
-    Note: This script does not automatically run `pip install`. It ensures the 
-    configuration files are in place so the user can run the installation.
+    Initializes the Python 3.11 project structure for T002.
+    Verifies that requirements.txt and pyproject.toml are present and valid.
     """
-    project_root = Path(__file__).parent.parent
-    requirements_path = project_root / "code" / "requirements.txt"
-    
-    # Ensure directories exist
-    dirs = [
-        "code",
-        "tests",
-        "data/raw",
-        "data/processed",
-        "results/figures",
-        "metadata",
-        "contracts",
-        "specs"
-    ]
-    
-    for d in dirs:
-        (project_root / d).mkdir(parents=True, exist_ok=True)
-    
-    # Ensure requirements.txt exists
+    project_root = Path(__file__).parent
+    requirements_path = project_root / "requirements.txt"
+    pyproject_path = project_root / "pyproject.toml"
+
+    print(f"Initializing project in: {project_root}")
+
+    # Verify requirements.txt
     if not requirements_path.exists():
-        print(f"Creating {requirements_path}")
-        with open(requirements_path, "w") as f:
-            f.write("numpy>=1.24.0\n")
-            f.write("pandas>=2.0.0\n")
-            f.write("nilearn>=0.10.0\n")
-            f.write("networkx>=3.0.0\n")
-            f.write("scikit-learn>=1.2.0\n")
-            f.write("statsmodels>=0.14.0\n")
-            f.write("pingouin>=0.5.0\n")
-            f.write("datasets>=2.14.0\n")
-            f.write("pytest>=7.0.0\n")
-            f.write("jsonschema>=4.17.0\n")
-        print("requirements.txt created.")
-    else:
-        print(f"{requirements_path} already exists.")
+        raise FileNotFoundError(f"Missing requirements.txt at {requirements_path}")
+
+    with open(requirements_path, "r") as f:
+        content = f.read()
+        required_deps = [
+            "numpy", "pandas", "nilearn", "networkx", "scikit-learn",
+            "statsmodels", "pingouin", "datasets", "pytest", "jsonschema"
+        ]
+        missing = [dep for dep in required_deps if not any(dep in line for line in content.splitlines())]
+        if missing:
+            raise ValueError(f"Missing dependencies in requirements.txt: {missing}")
     
-    print("\nProject structure initialized.")
-    print(f"Python version recommended: 3.11")
-    print(f"To install dependencies, run: pip install -r {requirements_path}")
-    print(f"To run tests, run: pytest tests/")
+    print("✓ requirements.txt validated successfully.")
+
+    # Verify pyproject.toml
+    if not pyproject_path.exists():
+        raise FileNotFoundError(f"Missing pyproject.toml at {pyproject_path}")
+
+    with open(pyproject_path, "r") as f:
+        content = f.read()
+        if "[project]" not in content or "requires-python" not in content:
+            raise ValueError("pyproject.toml is missing required [project] section or python version.")
+    
+    print("✓ pyproject.toml validated successfully.")
+
+    print("Project initialization complete. Ready to run: pip install -e .")
+    return 0
 
 if __name__ == "__main__":
-    main()
+    exit(main())

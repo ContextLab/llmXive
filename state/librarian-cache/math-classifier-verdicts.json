@@ -843,6 +843,10 @@
     "classified_at": "2026-07-04T01:38:07Z",
     "verdict": false
   },
+  "PROJ-863-llmxive-follow-up-extending-joyai-vl-int::1.6.0": {
+    "classified_at": "2026-07-06T08:02:35Z",
+    "verdict": false
+  },
   "PROJ-866-llmxive-follow-up-extending-foundation-p::1.6.0": {
     "classified_at": "2026-07-04T21:38:37Z",
     "verdict": false
@@ -865,6 +869,10 @@
   },
   "PROJ-890-llmxive-follow-up-extending-orca-the-wor::1.6.0": {
     "classified_at": "2026-07-03T05:06:07Z",
+    "verdict": false
+  },
+  "PROJ-892-llmxive-follow-up-extending-collectionlo::1.6.0": {
+    "classified_at": "2026-07-06T08:01:09Z",
     "verdict": false
   },
   "PROJ-893-llmxive-follow-up-extending-s-agent-spat::1.6.0": {

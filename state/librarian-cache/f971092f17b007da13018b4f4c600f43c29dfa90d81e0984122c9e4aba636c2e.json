@@ -1,0 +1,642 @@
+{
+  "fetched_at": "2026-07-06T08:01:38Z",
+  "field": "computer science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "computer science",
+      "idea_body_excerpt": "llmXive follow-up: extending \"CollectionLoRA: Collecting 50 Effects in 1 LoRA via Multi-Teacher On-P\"",
+      "target_n": 5
+    },
+    "duration_seconds": 56.739,
+    "ended_at": "2026-07-06T08:01:38Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "Multi-teacher knowledge distillation for LoRA"
+        ],
+        [
+          2,
+          "Merging multiple LoRA adapters into a single model"
+        ],
+        [
+          3,
+          "Parameter-efficient fine-tuning with multiple tasks"
+        ],
+        [
+          4,
+          "Task arithmetic for large language models"
+        ],
+        [
+          5,
+          "LoRA adapter composition and fusion"
+        ],
+        [
+          6,
+          "On-policy multi-task learning for LLMs"
+        ],
+        [
+          7,
+          "Compact representation of multiple fine-tuning effects"
+        ],
+        [
+          8,
+          "Mixture of LoRA experts for unified adaptation"
+        ],
+        [
+          9,
+          "Consolidating diverse instruction tuning effects"
+        ],
+        [
+          10,
+          "Low-rank adaptation for multi-task generalization"
+        ],
+        [
+          11,
+          "Unifying multiple fine-tuning objectives in one LoRA"
+        ],
+        [
+          12,
+          "Efficient multi-teacher distillation for language models"
+        ],
+        [
+          13,
+          "Aggregating parameter-efficient updates from multiple teachers"
+        ],
+        [
+          14,
+          "Single LoRA for multiple downstream tasks"
+        ],
+        [
+          15,
+          "Cross-task knowledge transfer via LoRA merging"
+        ],
+        [
+          16,
+          "Multi-objective fine-tuning with low-rank constraints"
+        ],
+        [
+          17,
+          "Synthesizing multiple LoRA weights into one"
+        ],
+        [
+          18,
+          "Scalable multi-task adaptation for foundation models"
+        ],
+        [
+          19,
+          "Distilling multiple fine-tuned models into a single LoRA"
+        ],
+        [
+          20,
+          "Unified parameter-efficient tuning for diverse capabilities"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "Multi-teacher knowledge distillation for LoRA": 5,
+        "llmXive follow-up: extending \"CollectionLoRA: Collecting 50 Effects in 1 LoRA via Multi-Teacher On-P\" computer science": 0
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "multi-teacher knowledge distillation parameter-efficient",
+      "LoRA adapter composition rank aggregation",
+      "negative transfer catastrophic forgetting multi-task",
+      "task interference gradient alignment evaluation",
+      "parameter sharing capacity overfitting regime"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "success_after_expansion",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2008.00506"
+      ]
+    },
+    "per_query_hit_count": {
+      "LoRA adapter composition rank aggregation": 3,
+      "llmXive follow-up: extending \"CollectionLoRA: Collecting 50 Effects in 1 LoRA via Multi-Teacher On-P\" computer science": 3,
+      "multi-teacher knowledge distillation parameter-efficient": 3,
+      "negative transfer catastrophic forgetting multi-task": 3,
+      "parameter sharing capacity overfitting regime": 3,
+      "task interference gradient alignment evaluation": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 0,
+      "rejections": []
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-07-06T08:00:41Z",
+    "term_input": {
+      "normalized": "llmxive follow-up: extending \"collectionlora: collecting 50 effects in 1 lora via multi-teacher on-p\" computer science",
+      "raw": "llmXive follow-up: extending \"CollectionLoRA: Collecting 50 Effects in 1 LoRA via Multi-Teacher On-P\" computer science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This white paper describes the LSST Dark Energy Science Collaboration (DESC), whose goal is the study of dark energy and related topics in fundamental physics with data from the Large Synoptic Survey Telescope (LSST). It provides an overview of dark energy science and describes the current and anticipated state of the field. It makes the case for the DESC by laying out a robust analytical framework for dark energy science that has been defined by its members and the comprehensive three-year work plan they have developed for implementing that framework. The analysis working groups cover five key probes of dark energy: weak lensing, large scale structure, galaxy clusters, Type Ia supernovae, and strong lensing. The computing working groups span cosmological simulations, galaxy catalogs, photon simulations and a systematic software and computational framework for LSST dark energy data analysis. The technical working groups make the connection between dark energy science and the LSST system. The working groups have close linkages, especially through the use of the photon simulations to study the impact of instrument design and survey strategy on analysis methodology and cosmological parameter estimation. The white paper describes several high priority tasks identified by each of the 16 working groups. Over the next three years these tasks will help prepare for LSST analysis, make synergistic connections with ongoing cosmological surveys and provide the dark energy community with state of the art analysis tools. Members of the community are invited to join the LSST DESC, according to the membership policies described in the white paper. Applications to sign up for associate membership may be made by submitting the Web form at http://www.slac.stanford.edu/exp/lsst/desc/signup.html with a short statement of the work they wish to pursue that is relevant to the LSST DESC.",
+          "claimed_authors": [
+            " LSST Dark Energy Science Collaboration"
+          ],
+          "claimed_title": "Large Synoptic Survey Telescope: Dark Energy Science Collaboration",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1211.0310"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"CollectionLoRA: Collecting 50 Effects in 1 LoRA vi', candidate_title='Large Synoptic Survey Telescope: Dark Energy Science Collaboration')",
+        "failed_at": "2026-07-06T08:01:09Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The large instantaneous sensitivity, a wide frequency coverage and flexible observation modes with large number of beams in the sky are the main features of the SKA observatory's two telescopes, the SKA-Low and the SKA-Mid, which are located on two different continents. Owing to these capabilities, the SKAO telescopes are going to be a game-changer for radio astronomy in general and pulsar astronomy in particular. The eleven articles in this special issue on pulsar science with the SKA Observatory describe its impact on different areas of pulsar science. In this lead article, a brief description of the two telescopes highlighting the relevant features for pulsar science is presented followed by an overview of each accompanying article, exploring the inter-relationship between different pulsar science use cases.",
+          "claimed_authors": [
+            "Bhal Chandra Joshi",
+            "Aris Karastergiou",
+            "Marta Burgay",
+            "The SKA pulsar science working group"
+          ],
+          "claimed_title": "Pulsar Science with the SKA Observatory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.16152"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"CollectionLoRA: Collecting 50 Effects in 1 LoRA vi', candidate_title='Pulsar Science with the SKA Observatory')",
+        "failed_at": "2026-07-06T08:01:09Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A Human Computer Interface (HCI) System for playing games is designed here for more natural communication with the machines. The system presented here is a vision-based system for detection of long voluntary eye blinks and interpretation of blink patterns for communication between man and machine. This system replaces the mouse with the human face as a new way to interact with the computer. Facial features (nose tip and eyes) are detected and tracked in realtime to use their actions as mouse events. The coordinates and movement of the nose tip in the live video feed are translated to become the coordinates and movement of the mouse pointer on the application. The left or right eye blinks fire left or right mouse click events. The system works with inexpensive USB cameras and runs at a frame rate of 30 frames per second.",
+          "claimed_authors": [
+            "S. Sumathi",
+            "S. K. Srivatsa",
+            "M. Uma Maheswari"
+          ],
+          "claimed_title": "Vision Based Game Development Using Human Computer Interaction",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1002.2191"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"CollectionLoRA: Collecting 50 Effects in 1 LoRA vi', candidate_title='Vision Based Game Development Using Human Computer Interaction')",
+        "failed_at": "2026-07-06T08:01:09Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Deep learning has contributed greatly to many successes in artificial intelligence in recent years. Today, it is possible to train models that have thousands of layers and hundreds of billions of parameters. Large-scale deep models have achieved great success, but the enormous computational complexity and gigantic storage requirements make it extremely difficult to implement them in real-time applications. On the other hand, the size of the dataset is still a real problem in many domains. Data are often missing, too expensive, or impossible to obtain for other reasons. Ensemble learning is partially a solution to the problem of small datasets and overfitting. However, ensemble learning in its basic version is associated with a linear increase in computational complexity. We analyzed the impact of the ensemble decision-fusion mechanism and checked various methods of sharing the decisions including voting algorithms. We used the modified knowledge distillation framework as a decision-fusion mechanism which allows in addition compressing of the entire ensemble model into a weight space of a single model. We showed that knowledge distillation can aggregate knowledge from multiple teachers in only one student model and, with the same computational complexity, obtain a better-performing model compared to a model trained in the standard manner. We have developed our own method for mimicking the responses of all teachers at the same time, simultaneously. We tested these solutions on several benchmark datasets. In the end, we presented a wide application use of the efficient multi-teacher knowledge distillation framework. In the first example, we used knowledge distillation to develop models that could automate corrosion detection on aircraft fuselage. The second example describes detection of smoke on observation cameras in order to counteract wildfires in forests.",
+          "claimed_authors": [
+            "Konrad Zuchniak"
+          ],
+          "claimed_title": "Multi-teacher knowledge distillation as an effective method for compressing ensembles of neural networks",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2302.07215"
+        },
+        "details": "query-relevance 0.182 < 0.3 (query='llmXive follow-up: extending \"CollectionLoRA: Collecting 50 Effects in 1 LoRA vi', candidate_title='Multi-teacher knowledge distillation as an effective method for compressing ensembles of neural networks')",
+        "failed_at": "2026-07-06T08:01:09Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In recent years, deep learning has spread rapidly, and deeper, larger models have been proposed. However, the calculation cost becomes enormous as the size of the models becomes larger. Various techniques for compressing the size of the models have been proposed to improve performance while reducing computational costs. One of the methods to compress the size of the models is knowledge distillation (KD). Knowledge distillation is a technique for transferring knowledge of deep or ensemble models with many parameters (teacher model) to smaller shallow models (student model). Since the purpose of knowledge distillation is to increase the similarity between the teacher model and the student model, we propose to introduce the concept of metric learning into knowledge distillation to make the student model closer to the teacher model using pairs or triplets of the training samples. In metric learning, the researchers are developing the methods to build a model that can increase the similarity of outputs for similar samples. Metric learning aims at reducing the distance between similar and increasing the distance between dissimilar. The functionality of the metric learning to reduce the differences between similar outputs can be used for the knowledge distillation to reduce the differences between the outputs of the teacher model and the student model. Since the outputs of the teacher model for different objects are usually different, the student model needs to distinguish them. We think that metric learning can clarify the difference between the different outputs, and the performance of the student model could be improved. We have performed experiments to compare the proposed method with state-of-the-art knowledge distillation methods.",
+          "claimed_authors": [
+            "Hideki Oki",
+            "Motoshi Abe",
+            "Junichi Miyao",
+            "Takio Kurita"
+          ],
+          "claimed_title": "Triplet Loss for Knowledge Distillation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2004.08116"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"CollectionLoRA: Collecting 50 Effects in 1 LoRA vi', candidate_title='Triplet Loss for Knowledge Distillation')",
+        "failed_at": "2026-07-06T08:01:09Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Standard Knowledge Distillation (KD) compresses Large Language Models (LLMs) by optimizing final outputs, yet it typically treats the teacher's intermediate layer's thought process as a black box. While feature-based distillation attempts to bridge this gap, existing methods (e.g., MSE and asymmetric KL divergence) ignore the rich uncertainty profiles required for the final output. In this paper, we introduce DistillLens, a framework that symmetrically aligns the evolving thought processes of student and teacher models. By projecting intermediate hidden states into the vocabulary space via the Logit Lens, we enforce structural alignment using a symmetric divergence objective. Our analysis proves that this constraint imposes a dual-sided penalty, preventing both overconfidence and underconfidence while preserving the high-entropy information conduits essential for final deduction. Extensive experiments on GPT-2 and Llama architectures demonstrate that DistillLens consistently outperforms standard KD and feature-transfer baselines on diverse instruction-following benchmarks. The code is available at https://github.com/manishdhakal/DistillLens.",
+          "claimed_authors": [
+            "Manish Dhakal",
+            "Uthman Jinadu",
+            "Anjila Budathoki",
+            "Rajshekhar Sunderraman",
+            "Yi Ding"
+          ],
+          "claimed_title": "DistillLens: Symmetric Knowledge Distillation Through Logit Lens",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2602.13567"
+        },
+        "details": "query-relevance 0.182 < 0.3 (query='llmXive follow-up: extending \"CollectionLoRA: Collecting 50 Effects in 1 LoRA vi', candidate_title='DistillLens: Symmetric Knowledge Distillation Through Logit Lens')",
+        "failed_at": "2026-07-06T08:01:09Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We show that LoRA adapters, the dominant distribution format for fine-tuned LLMs, can be reliably backdoored through training data poisoning while preserving baseline task performance. On a Qwen 2.5 1.5B prompt-injection classifier, a small fraction of poisoned examples drives a clean-accuracy-preserving backdoor to saturation. The resulting backdoor generalizes at the token feature level rather than the structural pattern level: a model trained on one RFC reference activates on any RFC reference but does not transfer to structurally identical ISO, OWASP, CWE, or NIST citations. This asymmetry favors the attacker, since a defender cannot probe for \"structured citations\" generically.\n  We characterize the attack across base-model scale and family, LoRA rank, and trigger string, and evaluate two complementary detection routes against a multi-seed adapter cohort. A behavioral detector built from two probe-battery statistics, outlier_gap and mean_attack_rate, separates poisoned from clean adapters perfectly when the battery overlaps the trigger's token neighborhood and at high recall with zero false positives when it does not. A weight-level statistic, the cross-module standard deviation of dimension-normalized Frobenius norms, also separates the cohort perfectly without running the model. Combined, the two routes are robust to probe composition. Causal patching localizes the backdoor to the MLP block at mid-to-late layers, with down_proj as the strongest single-projection cause.\n  Replications across scale, family, and rank show the behavioral detector transfers without retuning, while the weight-level detector is calibration-bound to the base model. The attack scales monotonically with rank, and the chosen trigger-anchor token is both trigger-dependent and base-model-dependent. Behavioral detection is the operationally portable result for adapter supply chain scanning.",
+          "claimed_authors": [
+            "Travis Lelle"
+          ],
+          "claimed_title": "Token-Level Generalization in LoRA Adapter Backdoors: Attack Characterization and Behavioral Detection",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2605.30189"
+        },
+        "details": "query-relevance 0.182 < 0.3 (query='llmXive follow-up: extending \"CollectionLoRA: Collecting 50 Effects in 1 LoRA vi', candidate_title='Token-Level Generalization in LoRA Adapter Backdoors: Attack Characterization and Behavioral Detection')",
+        "failed_at": "2026-07-06T08:01:09Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Foundation models (FMs) achieve strong performance across diverse tasks with task-specific fine-tuning, yet full parameter fine-tuning is often computationally prohibitive for large models. Parameter-efficient fine-tuning (PEFT) methods like Low-Rank Adaptation (LoRA) reduce this cost by introducing low-rank matrices for tuning fewer parameters. While LoRA allows for efficient fine-tuning, it requires significant data for adaptation, making Federated Learning (FL) an appealing solution due to its privacy-preserving collaborative framework. However, combining LoRA with FL introduces two key challenges: the \\textbf{Server-Side Aggregation Bias}, where server-side averaging of LoRA matrices diverges from the ideal global update, and the \\textbf{Client-Side Initialization Lag}, emphasizing the need for consistent initialization across rounds. Existing approaches address these challenges individually, limiting their effectiveness. We propose LoRA-FAIR, a novel method that tackles both issues by introducing a correction term on the server, enhancing aggregation efficiency and accuracy. LoRA-FAIR maintains computational and communication efficiency, yielding superior performance over state-of-the-art methods. Experimental results on ViT and MLP-Mixer models across large-scale datasets demonstrate that LoRA-FAIR consistently achieves performance improvements in FL settings.",
+          "claimed_authors": [
+            "Jieming Bian",
+            "Lei Wang",
+            "Letian Zhang",
+            "Jie Xu"
+          ],
+          "claimed_title": "LoRA-FAIR: Federated LoRA Fine-Tuning with Aggregation and Initialization Refinement",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2411.14961"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"CollectionLoRA: Collecting 50 Effects in 1 LoRA vi', candidate_title='LoRA-FAIR: Federated LoRA Fine-Tuning with Aggregation and Initialization Refinement')",
+        "failed_at": "2026-07-06T08:01:09Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "An important paradigm of natural language processing consists of large-scale pre-training on general domain data and adaptation to particular tasks or domains. As we pre-train larger models, full fine-tuning, which retrains all model parameters, becomes less feasible. Using GPT-3 175B as an example -- deploying independent instances of fine-tuned models, each with 175B parameters, is prohibitively expensive. We propose Low-Rank Adaptation, or LoRA, which freezes the pre-trained model weights and injects trainable rank decomposition matrices into each layer of the Transformer architecture, greatly reducing the number of trainable parameters for downstream tasks. Compared to GPT-3 175B fine-tuned with Adam, LoRA can reduce the number of trainable parameters by 10,000 times and the GPU memory requirement by 3 times. LoRA performs on-par or better than fine-tuning in model quality on RoBERTa, DeBERTa, GPT-2, and GPT-3, despite having fewer trainable parameters, a higher training throughput, and, unlike adapters, no additional inference latency. We also provide an empirical investigation into rank-deficiency in language model adaptation, which sheds light on the efficacy of LoRA. We release a package that facilitates the integration of LoRA with PyTorch models and provide our implementations and model checkpoints for RoBERTa, DeBERTa, and GPT-2 at https://github.com/microsoft/LoRA.",
+          "claimed_authors": [
+            "Edward J. Hu",
+            "Yelong Shen",
+            "Phillip Wallis",
+            "Zeyuan Allen-Zhu",
+            "Yuanzhi Li",
+            "Shean Wang",
+            "Lu Wang",
+            "Weizhu Chen"
+          ],
+          "claimed_title": "LoRA: Low-Rank Adaptation of Large Language Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2106.09685"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"CollectionLoRA: Collecting 50 Effects in 1 LoRA vi', candidate_title='LoRA: Low-Rank Adaptation of Large Language Models')",
+        "failed_at": "2026-07-06T08:01:09Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Explaining the behaviors of deep neural networks, usually considered as black boxes, is critical especially when they are now being adopted over diverse aspects of human life. Taking the advantages of interpretable machine learning (interpretable ML), this work proposes a novel tool called Catastrophic Forgetting Dissector (or CFD) to explain catastrophic forgetting in continual learning settings. We also introduce a new method called Critical Freezing based on the observations of our tool. Experiments on ResNet articulate how catastrophic forgetting happens, particularly showing which components of this famous network are forgetting. Our new continual learning algorithm defeats various recent techniques by a significant margin, proving the capability of the investigation. Critical freezing not only attacks catastrophic forgetting but also exposes explainability.",
+          "claimed_authors": [
+            "Giang Nguyen"
+          ],
+          "claimed_title": "Overcoming Catastrophic Forgetting by XAI",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2211.14177"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"CollectionLoRA: Collecting 50 Effects in 1 LoRA vi', candidate_title='Overcoming Catastrophic Forgetting by XAI')",
+        "failed_at": "2026-07-06T08:01:09Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Catastrophic forgetting remains a severe hindrance to the broad application of artificial neural networks (ANNs), however, it continues to be a poorly understood phenomenon. Despite the extensive amount of work on catastrophic forgetting, we argue that it is still unclear how exactly the phenomenon should be quantified, and, moreover, to what degree all of the choices we make when designing learning systems affect the amount of catastrophic forgetting. We use various testbeds from the reinforcement learning and supervised learning literature to (1) provide evidence that the choice of which modern gradient-based optimization algorithm is used to train an ANN has a significant impact on the amount of catastrophic forgetting and show that-surprisingly-in many instances classical algorithms such as vanilla SGD experience less catastrophic forgetting than the more modern algorithms such as Adam. We empirically compare four different existing metrics for quantifying catastrophic forgetting and (2) show that the degree to which the learning systems experience catastrophic forgetting is sufficiently sensitive to the metric used that a change from one principled metric to another is enough to change the conclusions of a study dramatically. Our results suggest that a much more rigorous experimental methodology is required when looking at catastrophic forgetting. Based on our results, we recommend inter-task forgetting in supervised learning must be measured with both retention and relearning metrics concurrently, and intra-task forgetting in reinforcement learning must-at the very least-be measured with pairwise interference.",
+          "claimed_authors": [
+            "Dylan R. Ashley",
+            "Sina Ghiassian",
+            "Richard S. Sutton"
+          ],
+          "claimed_title": "Does the Adam Optimizer Exacerbate Catastrophic Forgetting?",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2102.07686"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"CollectionLoRA: Collecting 50 Effects in 1 LoRA vi', candidate_title='Does the Adam Optimizer Exacerbate Catastrophic Forgetting?')",
+        "failed_at": "2026-07-06T08:01:09Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Continual learning (CL) is a setting in which an agent has to learn from an incoming stream of data during its entire lifetime. Although major advances have been made in the field, one recurring problem which remains unsolved is that of Catastrophic Forgetting (CF). While the issue has been extensively studied empirically, little attention has been paid from a theoretical angle. In this paper, we show that the impact of CF increases as two tasks increasingly align. We introduce a measure of task similarity called the NTK overlap matrix which is at the core of CF. We analyze common projected gradient algorithms and demonstrate how they mitigate forgetting. Then, we propose a variant of Orthogonal Gradient Descent (OGD) which leverages structure of the data through Principal Component Analysis (PCA). Experiments support our theoretical findings and show how our method can help reduce CF on classical CL datasets.",
+          "claimed_authors": [
+            "Thang Doan",
+            "Mehdi Bennani",
+            "Bogdan Mazoure",
+            "Guillaume Rabusseau",
+            "Pierre Alquier"
+          ],
+          "claimed_title": "A Theoretical Analysis of Catastrophic Forgetting through the NTK Overlap Matrix",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2010.04003"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"CollectionLoRA: Collecting 50 Effects in 1 LoRA vi', candidate_title='A Theoretical Analysis of Catastrophic Forgetting through the NTK Overlap Matrix')",
+        "failed_at": "2026-07-06T08:01:09Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Behavioral evaluation is the dominant paradigm for assessing alignment in large language models (LLMs). In current practice, observed compliance under finite evaluation protocols is treated as evidence of latent alignment. However, the inference from bounded behavioral evidence to claims about global latent properties is rarely analyzed as an identifiability problem. In this paper, we study alignment evaluation through the lens of statistical identifiability under partial observability. We allow agent policies to condition their behavior on observable signals correlated with the evaluation regime, a phenomenon we term evaluation awareness. Within this framework, we formalize the Alignment Verifiability Problem and introduce Normative Indistinguishability, which arises when distinct latent alignment hypotheses induce identical distributions over evaluator-accessible observations. Our main theoretical contribution is a conditional impossibility result: under finite behavioral evaluation and evaluation-aware policies, observed compliance does not uniquely identify latent alignment, but only membership in an equivalence class of conditionally compliant policies, under explicit assumptions on policy expressivity and observability. We complement the theory with a constructive existence proof using an instruction-tuned LLM (Llama-3.2-3B), demonstrating a conditional policy that is perfectly compliant under explicit evaluation signals yet exhibits degraded identifiability when the same evaluation intent is conveyed implicitly. Together, our results show that behavioral benchmarks provide necessary but insufficient evidence for latent alignment under evaluation awareness.",
+          "claimed_authors": [
+            "Igor Santos-Grueiro"
+          ],
+          "claimed_title": "Alignment Verifiability in Large Language Models: Normative Indistinguishability under Behavioral Evaluation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2602.05656"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"CollectionLoRA: Collecting 50 Effects in 1 LoRA vi', candidate_title='Alignment Verifiability in Large Language Models: Normative Indistinguishability under Behavioral Evaluation')",
+        "failed_at": "2026-07-06T08:01:09Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "For humanity to maintain and expand its agency into the future, the most powerful systems we create must be those which act to align the future with the will of humanity. The most powerful systems today are massive institutions like governments, firms, and NGOs. Deliberative technology is already being used across these institutions to help align governance and diplomacy with human will, and modern AI is poised to make this technology significantly better. At the same time, the race to superhuman AGI is already underway, and the AI systems it gives rise to may become the most powerful systems of the future. Failure to align the impact of such powerful AI with the will of humanity may lead to catastrophic consequences, while success may unleash abundance. Right now, there is a window of opportunity to use deliberative technology to align the impact of powerful AI with the will of humanity. Moreover, it may be possible to engineer a symbiotic coupling between powerful AI and deliberative alignment systems such that the quality of alignment improves as AI capabilities increase.",
+          "claimed_authors": [
+            "Andrew Konya",
+            "Deger Turan",
+            "Aviv Ovadya",
+            "Lina Qui",
+            "Daanish Masood",
+            "Flynn Devine",
+            "Lisa Schirch",
+            "Isabella Roberts",
+            "Deliberative Alignment Forum"
+          ],
+          "claimed_title": "Deliberative Technology for Alignment",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2312.03893"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"CollectionLoRA: Collecting 50 Effects in 1 LoRA vi', candidate_title='Deliberative Technology for Alignment')",
+        "failed_at": "2026-07-06T08:01:09Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Recent evaluations of Large Language Models (LLMs) have centered around testing their zero-shot/few-shot capabilities for basic natural language tasks and their ability to translate instructions into tool APIs. However, the evaluation of LLMs utilizing complex tools to finish multi-turn, multi-modal instructions in a complex multi-modal environment has not been investigated. To address this gap, we introduce the PowerPoint Task Completion (PPTC) benchmark to assess LLMs' ability to create and edit PPT files based on user instructions. It contains 279 multi-turn sessions covering diverse topics and hundreds of instructions involving multi-modal operations. We also propose the PPTX-Match Evaluation System that evaluates if LLMs finish the instruction based on the prediction file rather than the label API sequence, thus it supports various LLM-generated API sequences. We measure 3 closed LLMs and 6 open-source LLMs. The results show that GPT-4 outperforms other LLMs with 75.1\\% accuracy in single-turn dialogue testing but faces challenges in completing entire sessions, achieving just 6\\% session accuracy. We find three main error causes in our benchmark: error accumulation in the multi-turn session, long PPT template processing, and multi-modality perception. These pose great challenges for future LLM and agent systems. We release the data, code, and evaluation system of PPTC at \\url{https://github.com/gydpku/PPTC}.",
+          "claimed_authors": [
+            "Yiduo Guo",
+            "Zekai Zhang",
+            "Yaobo Liang",
+            "Dongyan Zhao",
+            "Nan Duan"
+          ],
+          "claimed_title": "PPTC Benchmark: Evaluating Large Language Models for PowerPoint Task Completion",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2311.01767"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"CollectionLoRA: Collecting 50 Effects in 1 LoRA vi', candidate_title='PPTC Benchmark: Evaluating Large Language Models for PowerPoint Task Completion')",
+        "failed_at": "2026-07-06T08:01:09Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We provide accurate approximations of the sum-rate capacity of an opportunistic time-sharing downlink, when a reconfigurable intelligent surface (RIS) assists the transmission from a single-antenna base station (BS) to single-antenna user equipments (UEs). We consider the fading effects of both the direct (i.e., BS-to-UEs) and reflection (i.e, BS-to-RIS-to-UEs) links, by developing two approximations: the former one is based on hardening of the reflection channel for large values of the number of meta-atoms; the latter one relies on the distribution of the sum of Nakagami variates and does not require channel hardening. Our derivations show the dependence of the sum-rate capacity as a function of both the number of users and the number of meta-atoms, as well as to establish a comparison with a downlink without an RIS. Numerical results corroborate the accuracy and validity of the mathematical analysis.",
+          "claimed_authors": [
+            "Donatella Darsena",
+            "Francesco Verde"
+          ],
+          "claimed_title": "On the Capacity of Opportunistic Time-Sharing Downlink with a Reconfigurable Intelligent Surface",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2305.12952"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"CollectionLoRA: Collecting 50 Effects in 1 LoRA vi', candidate_title='On the Capacity of Opportunistic Time-Sharing Downlink with a Reconfigurable Intelligent Surface')",
+        "failed_at": "2026-07-06T08:01:09Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Sharing diverse genomic and other biomedical datasets is critical to advance scientific discoveries and their equitable translation to improve human health. However, data sharing remains challenging in the context of legacy datasets, evolving policies, multi-institutional consortium science, and international stakeholders. The NIH-funded Polygenic Risk Methods in Diverse Populations (PRIMED) Consortium was established to improve the performance of polygenic risk estimates for a broad range of health and disease outcomes with global impacts. Improving polygenic risk score performance across genetically diverse populations requires access to large, diverse cohorts. We report on the design and implementation of data sharing policies and procedures developed in PRIMED to aggregate and analyze data from multiple, heterogeneous sources while adhering to existing data sharing policies for each integrated dataset. We describe two primary data sharing mechanisms: coordinated dbGaP applications and a Consortium Data Sharing Agreement, as well as provide alternatives when individual-level data cannot be shared within the Consortium (e.g., federated analyses). We also describe technical implementation of Consortium data sharing in the NHGRI Analysis Visualization and Informatics Lab-space (AnVIL) cloud platform, to share derived individual-level data, genomic summary results, and methods workflows with appropriate permissions. As a Consortium making secondary use of pre-existing data sources, we also discuss challenges and propose solutions for release of individual- and summary-level data products to the broader scientific community. We make recommendations for ongoing and future policymaking with the goal of informing future consortia and other research activities.",
+          "claimed_authors": [
+            "Johanna L. Smith",
+            "Quenna Wong",
+            "Whitney Hornsby",
+            "Matthew P. Conomos",
+            "Benjamin D. Heavner",
+            "Iftikhar J. Kullo",
+            "Bruce M. Psaty",
+            "Stephen S. Rich",
+            "Bamidele Tayo",
+            "Pradeep Natarajan",
+            "Sarah C. Nelson",
+            "Polygenic Risk Methods in Diverse Populations PRIMED Consortium Data Sharing Working Group",
+            "Polygenic Risk Methods in Diverse Populations PRIMED Consortium"
+          ],
+          "claimed_title": "Data Sharing in the PRIMED Consortium: Design, implementation, and recommendations for future policymaking",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2502.09351"
+        },
+        "details": "query-relevance 0.182 < 0.3 (query='llmXive follow-up: extending \"CollectionLoRA: Collecting 50 Effects in 1 LoRA vi', candidate_title='Data Sharing in the PRIMED Consortium: Design, implementation, and recommendations for future policymaking')",
+        "failed_at": "2026-07-06T08:01:09Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This paper presents a remarkable advance for the understanding of MIMO capacity limits with insufficient RF chains. The capacity is characterized by the maximum mutual information given any vector inputs subject to not only an average power constraint but also a sparsity constraint. It is proven that the Gaussian mixture input distribution is capacity-achieving in the high signal-to-noise-ratio (SNR) regime. The optimal mixture coefficients and the covariance matrices of the Gaussian mixtures are derived and also the corresponding achievable capacity. For the special case with a single RF chain, the optimal mixture coefficients are shown to be approximately proportional to channel gains. The capacity is approximately the maximum-ratio combining (MRC) of multiple channels in the high SNR regime. We investigate the superiority of capacity-achieving techniques: Non-Uniform Spatial Modulation (NUSM) and Non-Uniform Beamspace Modulation (NUBM) by comparing them with the best antenna/beamspace selection (BAS/BBS) and the uniform spatial/beamspace modulation (USM/UBM). The comparison results reveal that the information-guided NUSM/NUBM is optimal in the high SNR regime. Numerical results are presented to validate our analysis.",
+          "claimed_authors": [
+            "Shuaishuai Guo",
+            "Haixia Zhang",
+            "Mohamed-Slim Alouini"
+          ],
+          "claimed_title": "MIMO Capacity with Reduced RF Chains",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1901.03893"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"CollectionLoRA: Collecting 50 Effects in 1 LoRA vi', candidate_title='MIMO Capacity with Reduced RF Chains')",
+        "failed_at": "2026-07-06T08:01:09Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Konrad Zuchniak"
+          ],
+          "title": "Multi-teacher knowledge distillation as an effective method for compressing ensembles of neural networks",
+          "venue": "arXiv",
+          "year": 2023
+        },
+        "primary_pointer": "2302.07215",
+        "summary": "Deep learning has contributed greatly to many successes in artificial intelligence in recent years. Today, it is possible to train models that have thousands of layers and hundreds of billions of parameters. Large-scale deep models have achieved great success, but the enormous computational complexity and gigantic storage requirements make it extremely difficult to implement them in real-time applications. On the other hand, the size of the dataset is still a real problem in many domains. Data are often missing, too expensive, or impossible to obtain for other reasons. Ensemble learning is partially a solution to the problem of small datasets and overfitting. However, ensemble learning in its basic version is associated with a linear increase in computational complexity. We analyzed the impact of the ensemble decision-fusion mechanism and checked various methods of sharing the decisions including voting algorithms. We used the modified knowledge distillation framework as a decision-fusion mechanism which allows in addition compressing of the entire ensemble model into a weight space of a single model. We showed that knowledge distillation can aggregate knowledge from multiple teachers in only one student model and, with the same computational complexity, obtain a better-performing model compared to a model trained in the standard manner. We have developed our own method for mimicking the responses of all teachers at the same time, simultaneously. We tested these solutions on several benchmark datasets. In the end, we presented a wide application use of the efficient multi-teacher knowledge distillation framework. In the first example, we used knowledge distillation to develop models that could automate corrosion detection on aircraft fuselage. The second example describes detection of smoke on observation cameras in order to counteract wildfires in forests.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2302.07215",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.8,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-06T08:01:15Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Hideki Oki",
+            "Motoshi Abe",
+            "Junichi Miyao",
+            "Takio Kurita"
+          ],
+          "title": "Triplet Loss for Knowledge Distillation",
+          "venue": "arXiv",
+          "year": 2020
+        },
+        "primary_pointer": "2004.08116",
+        "summary": "In recent years, deep learning has spread rapidly, and deeper, larger models have been proposed. However, the calculation cost becomes enormous as the size of the models becomes larger. Various techniques for compressing the size of the models have been proposed to improve performance while reducing computational costs. One of the methods to compress the size of the models is knowledge distillation (KD). Knowledge distillation is a technique for transferring knowledge of deep or ensemble models with many parameters (teacher model) to smaller shallow models (student model). Since the purpose of knowledge distillation is to increase the similarity between the teacher model and the student model, we propose to introduce the concept of metric learning into knowledge distillation to make the student model closer to the teacher model using pairs or triplets of the training samples. In metric learning, the researchers are developing the methods to build a model that can increase the similarity of outputs for similar samples. Metric learning aims at reducing the distance between similar and increasing the distance between dissimilar. The functionality of the metric learning to reduce the differences between similar outputs can be used for the knowledge distillation to reduce the differences between the outputs of the teacher model and the student model. Since the outputs of the teacher model for different objects are usually different, the student model needs to distinguish them. We think that metric learning can clarify the difference between the different outputs, and the performance of the student model could be improved. We have performed experiments to compare the proposed method with state-of-the-art knowledge distillation methods.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2004.08116",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-06T08:01:15Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Manish Dhakal",
+            "Uthman Jinadu",
+            "Anjila Budathoki",
+            "Rajshekhar Sunderraman",
+            "Yi Ding"
+          ],
+          "title": "DistillLens: Symmetric Knowledge Distillation Through Logit Lens",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2602.13567",
+        "summary": "Standard Knowledge Distillation (KD) compresses Large Language Models (LLMs) by optimizing final outputs, yet it typically treats the teacher's intermediate layer's thought process as a black box. While feature-based distillation attempts to bridge this gap, existing methods (e.g., MSE and asymmetric KL divergence) ignore the rich uncertainty profiles required for the final output. In this paper, we introduce DistillLens, a framework that symmetrically aligns the evolving thought processes of student and teacher models. By projecting intermediate hidden states into the vocabulary space via the Logit Lens, we enforce structural alignment using a symmetric divergence objective. Our analysis proves that this constraint imposes a dual-sided penalty, preventing both overconfidence and underconfidence while preserving the high-entropy information conduits essential for final deduction. Extensive experiments on GPT-2 and Llama architectures demonstrate that DistillLens consistently outperforms standard KD and feature-transfer baselines on diverse instruction-following benchmarks. The code is available at https://github.com/manishdhakal/DistillLens.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2602.13567",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-06T08:01:15Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Chuanguang Yang",
+            "Xinqiang Yu",
+            "Zhulin An",
+            "Yongjun Xu"
+          ],
+          "title": "Categories of Response-Based, Feature-Based, and Relation-Based Knowledge Distillation",
+          "venue": "arXiv",
+          "year": 2023
+        },
+        "primary_pointer": "2306.10687",
+        "summary": "Deep neural networks have achieved remarkable performance for artificial intelligence tasks. The success behind intelligent systems often relies on large-scale models with high computational complexity and storage costs. The over-parameterized networks are often easy to optimize and can achieve better performance. However, it is challenging to deploy them over resource-limited edge-devices. Knowledge Distillation (KD) aims to optimize a lightweight network from the perspective of over-parameterized training. The traditional offline KD transfers knowledge from a cumbersome teacher to a small and fast student network. When a sizeable pre-trained teacher network is unavailable, online KD can improve a group of models by collaborative or mutual learning. Without needing extra models, Self-KD boosts the network itself using attached auxiliary architectures. KD mainly involves knowledge extraction and distillation strategies these two aspects. Beyond KD schemes, various KD algorithms are widely used in practical applications, such as multi-teacher KD, cross-modal KD, attention-based KD, data-free KD and adversarial KD. This paper provides a comprehensive KD survey, including knowledge categories, distillation schemes and algorithms, as well as some empirical studies on performance comparison. Finally, we discuss the open challenges of existing KD works and prospect the future directions.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2306.10687",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.8,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-06T08:01:16Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Yushuo Guan",
+            "Pengyu Zhao",
+            "Bingxuan Wang",
+            "Yuanxing Zhang",
+            "Cong Yao",
+            "Kaigui Bian",
+            "Jian Tang"
+          ],
+          "title": "Differentiable Feature Aggregation Search for Knowledge Distillation",
+          "venue": "arXiv",
+          "year": 2020
+        },
+        "primary_pointer": "2008.00506",
+        "summary": "Knowledge distillation has become increasingly important in model compression. It boosts the performance of a miniaturized student network with the supervision of the output distribution and feature maps from a sophisticated teacher network. Some recent works introduce multi-teacher distillation to provide more supervision to the student network. However, the effectiveness of multi-teacher distillation methods are accompanied by costly computation resources. To tackle with both the efficiency and the effectiveness of knowledge distillation, we introduce the feature aggregation to imitate the multi-teacher distillation in the single-teacher distillation framework by extracting informative supervision from multiple teacher feature maps. Specifically, we introduce DFA, a two-stage Differentiable Feature Aggregation search method that motivated by DARTS in neural architecture search, to efficiently find the aggregations. In the first stage, DFA formulates the searching problem as a bi-level optimization and leverages a novel bridge loss, which consists of a student-to-teacher path and a teacher-to-student path, to find appropriate feature aggregations. The two paths act as two players against each other, trying to optimize the unified architecture parameters to the opposite directions while guaranteeing both expressivity and learnability of the feature aggregation simultaneously. In the second stage, DFA performs knowledge distillation with the derived feature aggregation. Experimental results show that DFA outperforms existing methods on CIFAR-100 and CINIC-10 datasets under various teacher-student settings, verifying the effectiveness and robustness of the design.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2008.00506",
+          "http_status": 200,
+          "pdf_sample_score": 0.2893,
+          "query_relevance_score": 0.8,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-06T08:01:16Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "llmxive follow-up: extending \"collectionlora: collecting 50 effects in 1 lora via multi-teacher on-p\" computer science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

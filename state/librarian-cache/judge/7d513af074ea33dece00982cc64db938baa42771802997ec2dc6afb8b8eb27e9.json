@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2403.09513",
+  "judged_at": "2026-07-06T08:02:56Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"joyai-vl-interaction: real-time vision-language interaction intelligen\" computer science",
+  "rationale": "The candidate paper focuses on safety mechanisms (jailbreak defense) for Multimodal Large Language Models, which is a distinct research construct from the user's question regarding \"JoyAI-VL-Interaction,\" a system for real-time vision-language interaction intelligence. While both involve MLLMs, the paper does not measure the same mechanism, variables, or empirical population related to real-time interaction intelligence, nor does it serve as a foundational reference for that specific domain.",
+  "relevant": false
+}

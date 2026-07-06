@@ -1,0 +1,75 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "brainnet"
+version = "0.1.0"
+description = "Investigating the Relationship Between Brain Network Dynamics and Individual Differences in Tactile Discrimination"
+requires-python = ">=3.11"
+dependencies = [
+    "numpy",
+    "pandas",
+    "nilearn",
+    "networkx",
+    "scikit-learn",
+    "statsmodels",
+    "pingouin",
+    "datasets",
+    "pytest",
+    "jsonschema",
+]
+
+[project.optional-dependencies]
+dev = [
+    "ruff>=0.1.0",
+    "black>=23.0.0",
+    "isort>=5.12.0",
+    "pytest",
+]
+
+[tool.ruff]
+# Inherit settings from .ruff.toml if needed, or define here
+line-length = 88
+target-version = "py311"
+
+[tool.black]
+line-length = 88
+target-version = ['py311']
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
+)/
+'''
+
+[tool.isort]
+profile = "black"
+line_length = 88
+known_first_party = ["brainnet"]
+known_third_party = [
+    "datasets",
+    "jsonschema",
+    "networkx",
+    "nilearn",
+    "numpy",
+    "pandas",
+    "pingouin",
+    "pytest",
+    "scikit_learn",
+    "scipy",
+    "statsmodels",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+addopts = "-v --tb=short"

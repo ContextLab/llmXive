@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2312.05434",
+  "judged_at": "2026-07-06T08:02:59Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"joyai-vl-interaction: real-time vision-language interaction intelligen\" computer science",
+  "rationale": "The paper focuses on harmful meme detection using multimodal reasoning, which is a specific application domain distinct from the user's query about extending a real-time vision-language interaction system (\"JoyAI-VL-Interaction\"). While both involve vision-language models, the candidate paper does not address the specific mechanism of real-time interaction, the \"llmXive\" framework, or the canonical prior work required to extend that specific system, failing to meet the criteria for same-mechanis",
+  "relevant": false
+}

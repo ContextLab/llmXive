@@ -1,6 +1,7 @@
 """
 Metrics calculation module.
 Defines functions for calculating Type I error, Power, Confidence Intervals, and Trend Verification.
+Includes Chi-squared specific error rate calculations.
 """
 import numpy as np
 from scipy import stats
@@ -153,3 +154,76 @@ def verify_trend_monotonicity(df: pd.DataFrame,
         trend_status = "NO_SIGNIFICANT_TREND"
     
     return (rho, p_value, trend_status)
+
+def calculate_chi_squared_error_rate(p_values: List[float], alpha: float = 0.05) -> Dict[str, Any]:
+    """
+    Calculate the observed Type I error rate specifically for Chi-squared tests.
+    
+    This function implements the Chi-squared error rate calculation and reporting
+    required by FR-005 for User Story 2. It provides the same core calculation as
+    calculate_type1_error but is explicitly named and documented for Chi-squared
+    test results to ensure clarity in reporting and aggregation.
+    
+    Args:
+        p_values: List of p-values from Chi-squared simulations under the null hypothesis.
+        alpha: Significance level threshold (default 0.05).
+    
+    Returns:
+        Dictionary containing:
+            - 'error_rate': The observed error rate (proportion of significant tests).
+            - 'total_tests': Total number of tests performed.
+            - 'significant_count': Number of tests that were significant.
+            - 'ci_lower': Lower bound of 95% Clopper-Pearson CI.
+            - 'ci_upper': Upper bound of 95% Clopper-Pearson CI.
+    """
+    if not p_values:
+        return {
+            'error_rate': 0.0,
+            'total_tests': 0,
+            'significant_count': 0,
+            'ci_lower': 0.0,
+            'ci_upper': 0.0
+        }
+    
+    total_tests = len(p_values)
+    significant_count = sum(1 for p in p_values if p <= alpha)
+    error_rate = significant_count / total_tests
+    
+    # Calculate Clopper-Pearson CI
+    ci_lower, ci_upper = clopper_pearson_ci(p_values, alpha)
+    
+    return {
+        'error_rate': error_rate,
+        'total_tests': total_tests,
+        'significant_count': significant_count,
+        'ci_lower': ci_lower,
+        'ci_upper': ci_upper
+    }
+
+def aggregate_chi_squared_results(results_list: List[Dict[str, Any]]) -> pd.DataFrame:
+    """
+    Aggregate Chi-squared error rate results from multiple simulation runs.
+    
+    Args:
+        results_list: List of dictionaries containing Chi-squared results.
+                      Each dict should have keys: 'dependency_strength', 'error_rate',
+                      'ci_lower', 'ci_upper', 'total_tests', 'significant_count'.
+    
+    Returns:
+        DataFrame with aggregated results sorted by dependency strength.
+    """
+    if not results_list:
+        return pd.DataFrame()
+    
+    df = pd.DataFrame(results_list)
+    
+    # Ensure required columns exist
+    required_cols = ['dependency_strength', 'error_rate', 'ci_lower', 'ci_upper', 'total_tests', 'significant_count']
+    missing_cols = [col for col in required_cols if col not in df.columns]
+    if missing_cols:
+        raise ValueError(f"Missing required columns in results: {missing_cols}")
+    
+    # Sort by dependency strength
+    df = df.sort_values('dependency_strength').reset_index(drop=True)
+    
+    return df

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2306.10687",
+  "judged_at": "2026-07-06T08:01:34Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"collectionlora: collecting 50 effects in 1 lora via multi-teacher on-p\" computer science",
+  "rationale": "This paper belongs in the literature review because it provides a foundational survey of Knowledge Distillation (KD) schemes, including \"multi-teacher KD\" and \"feature-based\" strategies, which are the core mechanisms and vocabulary clusters (Category f) underlying the user's specific work on \"Multi-Teacher On-P\" and \"CollectionLoRA.\" While it does not address the specific LoRA parameterization or the \"50 effects\" aggregation, it establishes the canonical prior work on the distillation framework ",
+  "relevant": true
+}

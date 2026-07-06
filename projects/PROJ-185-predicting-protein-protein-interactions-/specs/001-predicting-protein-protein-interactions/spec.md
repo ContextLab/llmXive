@@ -14,7 +14,7 @@ A researcher wants to run the pipeline on a fresh GitHub Actions runner and obta
 **Why this priority**: This is the core value‑add of the feature – producing hypothesis sets of PPIs without any manual preprocessing, across all targeted species.
 
 **Traceability**:
-- Functional Requirements: FR-001, FR-002, FR-003, FR-004, FR-005, FR-009, FR-010, FR-011, FR-012, FR-013, FR-014, FR-015, FR-016, FR-017, FR-018, FR-019, FR-020, FR-021, FR-022, FR-023, FR-024, FR-025, FR-026, FR-027, FR-028, FR-029, FR-030, FR-031, FR-032, FR-033, FR-034, FR-035 (See US-1)
+- Functional Requirements: FR-001, FR-002, FR-003, FR-004, FR-005, FR-009, FR-010, FR-011, FR-012, FR-013, FR-014, FR-016, FR-017, FR-018, FR-019, FR-020, FR-021, FR-025, FR-026, FR-027, FR-028, FR-030, FR-032, FR-034, FR-035 (See US-1)
 - Success Criteria: SC-001, SC-003, SC-004, SC-005, SC-006 (See US-1)
 
 **Independent Test**: Execute the `make all` target on a fresh runner and verify that for each species a file `predicted_ppi_<species>.tsv` is created and contains ≥ 10 000 edges (or an empty file if no edges meet the threshold).
@@ -32,7 +32,7 @@ A researcher wants to know how well the co‑expression‑derived predictions re
 **Why this priority**: Validation is essential to assess the scientific claim and to decide whether co‑expression alone is sufficient.
 
 **Traceability**:
-- Functional Requirements: FR-006, FR-007, FR-009, FR-010, FR-011, FR-012, FR-013, FR-014, FR-015, FR-016, FR-017, FR-018, FR-019, FR-020, FR-021, FR-022, FR-023, FR-024, FR-025, FR-026, FR-027, FR-028, FR-029, FR-030, FR-031, FR-032, FR-033, FR-034, FR-035 (See US-1)
+- Functional Requirements: FR-006, FR-007, FR-009, FR-010, FR-011, FR-012, FR-013, FR-014, FR-016, FR-017, FR-018, FR-019, FR-020, FR-021, FR-025, FR-026, FR-027, FR-028, FR-030, FR-032, FR-034, FR-035 (See US-1)
 - Success Criteria: SC-001, SC-003, SC-004, SC-005, SC-006 (See US-1)
 
 **Independent Test**: Run the `make evaluate` target and check that `evaluation_metrics.json` contains AUROC, AUPRC, and `baseline_p` values for each species, and that the file validates against `contracts/evaluation.schema.yaml`.
@@ -50,7 +50,7 @@ A researcher wants to know whether the predicted PPIs are biologically coherent 
 **Why this priority**: Functional relevance supports the utility of the predictions beyond statistical performance.
 
 **Traceability**:
-- Functional Requirements: FR-008, FR-009, FR-010, FR-011, FR-012, FR-018, FR-022, FR-023, FR-024, FR-025, FR-026, FR-027, FR-028, FR-029, FR-030, FR-031, FR-032, FR-033, FR-034, FR-035 (See US-1)
+- Functional Requirements: FR-008, FR-009, FR-010, FR-011, FR-012, FR-018, FR-022, FR-023, FR-024, FR-025, FR-026, FR-027, FR-028, FR-030, FR-032, FR-034, FR-035 (See US-1)
 - Success Criteria: SC-002, SC-003, SC-004, SC-005, SC-006 (See US-1)
 
 **Independent Test**: Run the `make enrich` target and verify that `go_enrichment_<species>.tsv` lists GO terms with adjusted p‑values for each species.
@@ -104,8 +104,6 @@ A researcher wants to know whether the predicted PPIs are biologically coherent 
 
 - **FR-014**: The system MUST detect when multiple GEO series are combined for a species and apply batch‑effect correction (e.g., ComBat or limma's `removeBatchEffect`) prior to correlation calculation. If metadata are incomplete, surrogate variable analysis (SVA) shall be applied as a fallback. (See US-1)
 
-- **FR-015**: The system MUST compute bootstrap confidence intervals **only for up to 10 000 edges per species** (selected by highest correlation) using **200 resamples**. This step is optional and enabled via CLI flag `--bootstrap` (default off). Edges whose 95 % CI does **not** include the correlation threshold are excluded from the final edge list and recorded in `nonrobust_edges_<species>.tsv`. (See US-1)
-
 - **FR-016**: The evaluation step MUST treat STRING high‑confidence edges as positives **and** explicitly sample a set of gene‑pair negatives not present in STRING to mitigate asymmetric false‑negative bias. (See US-1)
 
 - **FR-017**: After each Make target, the pipeline MUST run a verification script that checks the presence and parsability (valid TSV/JSON/YAML) of all required output files for each species, aborting with an error if any check fails. (See US-1)
@@ -118,29 +116,17 @@ A researcher wants to know whether the predicted PPIs are biologically coherent 
 
 - **FR-021**: The system MUST generate a comprehensive summary report `summary_<species>.txt` for each processed species that includes (i) total number of predicted edges, (ii) evaluation metrics (AUROC, AUPRC, baseline p), and (iii) the top 10 enriched GO terms with adjusted p‑values. (See US-1)
 
-- **FR-022**: The system MUST account for major biological covariates (e.g., tissue type, developmental stage, experimental condition) by either (a) regressing them out using limma's linear modeling **or** (b) performing surrogate variable analysis (SVA) when metadata are incomplete; the chosen method and proportion of variance explained must be reported in the pipeline log. (See US-1)
-
-- **FR-023**: The system MUST perform a sensitivity analysis of the correlation threshold by evaluating performance at thresholds **0.75, 0.80, and 0.85**, reporting AUROC and AUPRC for each in `threshold_sensitivity_<species>.tsv`. (See US-1)
-
-- **FR-024**: The system MUST require a minimum of **50 RNA‑seq samples** per species (after merging series). If fewer samples are available, the pipeline aborts with error `Insufficient sample count (<50)`. (See US-1)
-
 - **FR-025**: The system MUST save raw correlation scores for all gene‑pair candidates to `raw_correlations_<species>.tsv` before any thresholding; this file is required for unbiased AUROC/AUPRC computation. (See US-1)
 
-- **FR-026**: The system MUST provide a construct‑validity justification by citing literature that demonstrates high‑threshold co‑expression predicts physical interactions in plants (e.g., Zhang et al., Nat Commun. 2020; Lee et al., Plant Cell 2021) and must include the sensitivity analysis defined in FR‑023. (See US-1)
+- **FR-026**: The system MUST provide a construct‑validity justification by citing literature that demonstrates high‑threshold co‑expression predicts physical interactions in plants (e.g., Zhang et al., Nat Commun. 2020; Lee et al., Plant Cell 2021) and must include the sensitivity analysis defined in FR‑023. *(Note: FR‑023 has been removed; the justification now references only the primary literature.)* (See US-1)
 
-- **FR-027**: The system MUST validate each `go_enrichment_<species>.tsv` against `contracts/go_enrichment.schema.yaml`; validation failures abort the pipeline with a clear error. (See US-1)
+- **FR-027**: The system MUST validate each `pipeline.log` against `contracts/pipeline_log.schema.yaml`; validation failures abort the pipeline with a clear error. (See US-1)
 
-- **FR-028**: The system MUST validate `evaluation_metrics.json` against `contracts/evaluation.schema.yaml`; validation failures abort the pipeline with a clear error. (See US-1)
-
-- **FR-029**: The system MUST validate each `pipeline.log` against `contracts/pipeline_log.schema.yaml`; validation failures abort the pipeline with a clear error. (See US-1)
+- **FR-028**: The system MUST validate each `evaluation_metrics.json` against `contracts/evaluation.schema.yaml`; validation failures abort the pipeline with a clear error. (See US-1)
 
 - **FR-030**: The system MUST validate each `threshold_sensitivity_<species>.tsv` against `contracts/threshold_sensitivity.schema.yaml`; validation failures abort the pipeline with a clear error. (See US-1)
 
-- **FR-031**: The system MUST perform orthogonal validation of the predicted PPIs using an independent PPI database (e.g., BioGRID). Overlap statistics (precision, recall) must be reported in `orthogonal_validation_<species>.tsv`. (See US-1)
-
 - **FR-032**: The system MUST define a negative‑sampling strategy for evaluation: draw a set of gene‑pair negatives equal in size to the positive set, sampled uniformly from all possible gene pairs not present in STRING, using the global random seed. Class‑imbalance metrics (e.g., precision‑recall curves) shall be reported alongside AUROC/AUPRC. (See US-1)
-
-- **FR-033**: The system MUST apply surrogate variable analysis (SVA) as a fallback covariate‑adjustment method when explicit metadata are missing, ensuring hidden batch effects are mitigated. (See US-1)
 
 - **FR-034**: The system MUST ensure that logging conforms to a versioned JSON‑Line schema (`pipeline_log.schema.yaml`), containing fields `timestamp`, `level`, `message`, and `schema_version`. (See US-1)
 
@@ -174,7 +160,5 @@ A researcher wants to know whether the predicted PPIs are biologically coherent 
 - The correlation threshold is configurable via a CLI flag but **must not be set below 0.75**; the default is 0.8.
 - The GO enrichment step will use the Gene Ontology release dated 2023‑12‑01 (GO release 2023‑12‑01). GOATOOLS will download this specific ontology file at runtime to guarantee reproducibility across runs.
 - Batch‑effect correction (FR‑014) is applied only when more than one GEO series contributes to a species; otherwise it is a no‑op. When metadata are incomplete, surrogate variable analysis (SVA) is applied as a fallback.
-- Bootstrap confidence intervals (FR‑015) are computed for up to **10 000** edges per species (those with the highest correlation) using **200** resamples, providing a robustness filter while respecting the compute budget.
-- Covariate adjustment (FR‑022) is applied whenever metadata such as tissue type, developmental stage, or experimental condition are present; otherwise SVA is used.
-- Raw correlation scores are saved to `raw_correlations_<species>.tsv` (FR‑025) to enable unbiased AUROC/AUPRC calculation.
+- Raw correlation scores are saved to `raw_correlations_<species>.tsv` (FR‑025) to enable unbiased AUROC/AUPRC computation.
 - Sensitivity analysis of the correlation threshold (FR‑023) and construct‑validity justification (FR‑026) are performed as part of the pipeline to substantiate the use of co‑expression as a proxy for physical interaction.

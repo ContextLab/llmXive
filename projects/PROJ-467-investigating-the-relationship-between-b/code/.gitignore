@@ -1,8 +1,12 @@
-# Python
+# Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
 *$py.class
+
+# C extensions
 *.so
+
+# Distribution / packaging
 .Python
 build/
 develop-eggs/
@@ -20,11 +24,37 @@ wheels/
 .installed.cfg
 *.egg
 
-# Virtual Environments
+# PyInstaller
+*.manifest
+*.spec
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.coverage
+.coverage.*
+coverage.xml
+
+# Virtual environments
+env/
 venv/
 ENV/
-env/
-.venv/
+.venv
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# Data files (Git LFS managed or large artifacts)
+data/raw/
+data/processed/
+data/external/
+
+# Results and figures (generated artifacts)
+results/
+figures/
 
 # IDE
 .idea/
@@ -32,26 +62,12 @@ env/
 *.swp
 *.swo
 
-# Data and Results (Generated artifacts)
-data/raw/
-data/processed/
-data/external/
-results/
-figures/
-metadata/*.json
-metadata/*.parquet
-
-# Testing
-.pytest_cache/
-.coverage
-htmlcov/
-coverage.xml
-*.cover
-
-# Linting/Formatting caches
-.ruff_cache/
-.mypy_cache/
-
 # OS
 .DS_Store
 Thumbs.db
+
+# Project specific
+.ruff_cache/
+.mypy_cache/
+.pytest_cache/
+.tox/

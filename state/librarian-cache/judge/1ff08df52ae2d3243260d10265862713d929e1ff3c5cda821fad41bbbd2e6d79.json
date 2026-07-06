@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2008.00506",
+  "judged_at": "2026-07-06T08:01:37Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"collectionlora: collecting 50 effects in 1 lora via multi-teacher on-p\" computer science",
+  "rationale": "This paper satisfies criteria (a) and (b) as it investigates the core mechanism of \"multi-teacher\" supervision and knowledge distillation, which are the fundamental components of the user's question regarding \"Multi-Teacher On-P\" (On-Policy) methods. Although the candidate paper focuses on feature aggregation in static distillation rather than the specific LoRA/RLHF context of the user's follow-up, it provides the canonical prior work on the multi-teacher efficiency problem that the user's resea",
+  "relevant": true
+}
