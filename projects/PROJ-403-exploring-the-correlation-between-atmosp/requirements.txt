@@ -1,0 +1,17 @@
+xarray>=2023.9.0
+numpy>=1.26.0
+pandas>=2.1.0
+scipy>=1.11.0
+statsmodels>=0.14.0
+matplotlib>=3.8.0
+cartopy>=0.22.0
+netCDF4>=1.6.5
+cftime>=1.6.2
+dask[complete]>=2023.9.0
+h5netcdf>=0.14.0
+requests>=2.31.0
+tqdm>=4.66.0
+nitime>=0.10.0
+pytest>=7.4.0
+pytest-cov
+cdsapi>=0.6.1

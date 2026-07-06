@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-07T16:41:53.129016Z'
-current_stage: specified
+current_stage: in_progress
 failed_stage: null
 field: physics
 human_escalation_reason: null
 id: PROJ-403-exploring-the-correlation-between-atmosp
-last_run_id: 70a66ecb-b911-4fe6-93a0-ef2c269fd177
+last_run_id: eee29fc1-7680-446d-93c3-3866b1eb35a4
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-403-exploring-the-correlation-between-atmosp/specs/001-exploring-the-correlation-between-atmosp
 title: Exploring the Correlation Between Atmospheric River Frequency and Global Geopotential
   Height Variability
-updated_at: '2026-07-02T00:41:13.333901Z'
+updated_at: '2026-07-06T19:20:42.645114Z'

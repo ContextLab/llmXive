@@ -1,0 +1,49 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Correlation Result Record"
+type: "object"
+required:
+  - "band"
+  - "season"
+  - "lat"
+  - "lon"
+  - "r"
+  - "p_raw"
+  - "p_adj"
+  - "significant"
+properties:
+  band:
+    type: "string"
+    description: "Latitudinal band, e.g., \"30-40N\""
+    pattern: "^[0-9]+-[0-9]+[NS]$"
+  season:
+    type: "string"
+    description: "Season label (DJF, MAM, JJA, SON)"
+    enum: ["DJF", "MAM", "JJA", "SON"]
+  lat:
+    type: "number"
+    description: "Latitude of the grid cell (degrees north, -90 to 90)"
+    minimum: -90
+    maximum: 90
+  lon:
+    type: "number"
+    description: "Longitude of the grid cell (degrees east, -180 to 180)"
+    minimum: -180
+    maximum: 180
+  r:
+    type: "number"
+    description: "Pearson correlation coefficient"
+    minimum: -1
+    maximum: 1
+  p_raw:
+    type: "number"
+    description: "Two‑tailed raw p‑value"
+    minimum: 0
+    maximum: 1
+  p_adj:
+    type: "number"
+    description: "Benjamini‑Hochberg adjusted p‑value"
+    minimum: 0
+    maximum: 1
+  significant:
+    type: "boolean"
+    description: "True if p_adj < 0.05, otherwise False"

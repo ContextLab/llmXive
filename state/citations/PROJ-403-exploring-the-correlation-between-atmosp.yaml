@@ -1,1 +1,33 @@
-[]
+- artifact_hash: 13229544217cb68d0303cefd7a9a6027bd428f7a24ce532a6ff73ba8f06d6530
+  artifact_path: projects/PROJ-403-exploring-the-correlation-between-atmosp/specs/001-exploring-the-correlation-between-atmosp/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://cds.climate.copernicus.eu/cdsapp#!/dataset/reanalysis-era5-single-levels?tab=form
+  verification_status: mismatch
+  verified_against_url: https://cds.climate.copernicus.eu/cdsapp#!/dataset/reanalysis-era5-single-levels?tab=form
+  verified_at: '2026-07-06T18:41:32.011997Z'
+- artifact_hash: 13229544217cb68d0303cefd7a9a6027bd428f7a24ce532a6ff73ba8f06d6530
+  artifact_path: projects/PROJ-403-exploring-the-correlation-between-atmosp/specs/001-exploring-the-correlation-between-atmosp/research.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: Climate Prediction Center - Northern Hemisphere Teleconnection Patterns
+  kind: url
+  value: https://www.cpc.ncep.noaa.gov/data/teledoc/telecontents.shtml
+  verification_status: verified
+  verified_against_url: https://www.cpc.ncep.noaa.gov/data/teledoc/telecontents.shtml
+  verified_at: '2026-07-06T18:41:32.011997Z'
+- artifact_hash: 81730c59d18fbb479b720ea4ea46f55eaaeabdf5d5615bcb033203230edca636
+  artifact_path: projects/PROJ-403-exploring-the-correlation-between-atmosp/specs/001-exploring-the-correlation-between-atmosp/quickstart.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://github.com/your-org/atmospheric-river-geopotential.git
+  verification_status: mismatch
+  verified_against_url: https://github.com/your-org/atmospheric-river-geopotential
+  verified_at: '2026-07-06T18:41:44.421834Z'
