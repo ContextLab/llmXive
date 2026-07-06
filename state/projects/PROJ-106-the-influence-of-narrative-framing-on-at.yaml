@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-01T20:25:50.963872Z'
-current_stage: specified
+current_stage: in_progress
 failed_stage: null
 field: psychology
 human_escalation_reason: null
 id: PROJ-106-the-influence-of-narrative-framing-on-at
-last_run_id: eb54216d-c1a6-447c-a7f3-a1948247b14a
+last_run_id: 411c19b9-c415-4efe-984a-42ad000956ff
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-106-the-influence-of-narrative-framing-on-at/specs/001-the-influence-of-narrative-framing-on-at
 title: The Influence of Narrative Framing on Attitudes Towards AI Assistance
-updated_at: '2026-07-01T18:52:00.323790Z'
+updated_at: '2026-07-06T14:33:28.077158Z'

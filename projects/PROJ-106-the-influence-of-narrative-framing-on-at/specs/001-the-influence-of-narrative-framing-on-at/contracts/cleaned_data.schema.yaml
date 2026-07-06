@@ -1,0 +1,43 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Cleaned Data Schema"
+description: "Schema for processed data ready for statistical analysis."
+type: "object"
+properties:
+  participant_id:
+    type: "string"
+    description: "Unique participant identifier."
+  condition:
+    type: "string"
+    enum:
+      - "partner"
+      - "tool"
+  attitude_score:
+    type: "integer"
+    description: "Sum of attitude items (7-49)."
+  usefulness_score:
+    type: "integer"
+    description: "Sum of usefulness items (3-21)."
+  trust_score:
+    type: "integer"
+    description: "Sum of trust items (4-28)."
+  manipulation_check_failed:
+    type: "boolean"
+    description: "True if participant failed the manipulation check."
+  included_in_primary:
+    type: "boolean"
+    description: "True if included in primary analysis (passed check, complete)."
+  age:
+    type: "integer"
+    nullable: true
+  gender:
+    type: "string"
+    nullable: true
+required:
+  - participant_id
+  - condition
+  - attitude_score
+  - usefulness_score
+  - trust_score
+  - manipulation_check_failed
+  - included_in_primary
+additionalProperties: false

@@ -1,0 +1,110 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Raw Survey Export Schema"
+description: "Schema for raw survey data export from Qualtrics/Google Forms."
+type: "object"
+properties:
+  participant_id:
+    type: "string"
+    description: "Unique participant identifier."
+  condition:
+    type: "string"
+    enum:
+      - "partner"
+      - "tool"
+    description: "Assigned framing condition."
+  age:
+    type: "integer"
+    minimum: 18
+    description: "Participant age (optional)."
+  gender:
+    type: "string"
+    description: "Participant gender (optional)."
+  attitude_q1:
+    type: "integer"
+    minimum: 1
+    maximum: 7
+    description: "Attitude scale item 1."
+  attitude_q2:
+    type: "integer"
+    minimum: 1
+    maximum: 7
+  attitude_q3:
+    type: "integer"
+    minimum: 1
+    maximum: 7
+  attitude_q4:
+    type: "integer"
+    minimum: 1
+    maximum: 7
+  attitude_q5:
+    type: "integer"
+    minimum: 1
+    maximum: 7
+  attitude_q6:
+    type: "integer"
+    minimum: 1
+    maximum: 7
+  attitude_q7:
+    type: "integer"
+    minimum: 1
+    maximum: 7
+  usefulness_q1:
+    type: "integer"
+    minimum: 1
+    maximum: 7
+  usefulness_q2:
+    type: "integer"
+    minimum: 1
+    maximum: 7
+  usefulness_q3:
+    type: "integer"
+    minimum: 1
+    maximum: 7
+  trust_q1:
+    type: "integer"
+    minimum: 1
+    maximum: 7
+  trust_q2:
+    type: "integer"
+    minimum: 1
+    maximum: 7
+  trust_q3:
+    type: "integer"
+    minimum: 1
+    maximum: 7
+  trust_q4:
+    type: "integer"
+    minimum: 1
+    maximum: 7
+  manipulation_check:
+    type: "integer"
+    enum:
+      - 0
+      - 1
+    description: "1 if correct, 0 if incorrect."
+  completion_status:
+    type: "string"
+    enum:
+      - "complete"
+      - "partial"
+    description: "Status of the survey completion."
+required:
+  - participant_id
+  - condition
+  - attitude_q1
+  - attitude_q2
+  - attitude_q3
+  - attitude_q4
+  - attitude_q5
+  - attitude_q6
+  - attitude_q7
+  - usefulness_q1
+  - usefulness_q2
+  - usefulness_q3
+  - trust_q1
+  - trust_q2
+  - trust_q3
+  - trust_q4
+  - manipulation_check
+  - completion_status
+additionalProperties: false

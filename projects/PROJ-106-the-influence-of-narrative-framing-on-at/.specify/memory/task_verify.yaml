@@ -1,0 +1,13 @@
+? T001 Create project structure per implementation plan (`code/`, `data/`, `tests/`,
+  `data/raw/`, `data/processed/`, `data/stimuli/`, `data/ethics/`)
+: 2
+? T002 Initialize Python 3.11 project with `requirements.txt` (`pandas`, `numpy`,
+  `scipy`, `statsmodels`, `textstat`, `vaderSentiment`, `pytest`)
+: 2
+T003 [P] Configure linting (flake8) and formatting (black) tools: 2
+T007 Configure logging infrastructure in `code/utils/logger.py` for audit trails of data processing steps: 1
+? T008 [US3] Implement `code/00_power_analysis.py` to perform prospective power analysis
+  (G*Power equivalent) calculating required N for 80% power at d=0.4, alpha=0.05,
+  and enforce the N=300 target for recruitment planning (FR-009, SC-002)
+: 1
+"T009 [P] [US1] Create test file `tests/test_stimuli.py` with test for readability check (Flesch-Kincaid diff \u2264 2.0)": 1
