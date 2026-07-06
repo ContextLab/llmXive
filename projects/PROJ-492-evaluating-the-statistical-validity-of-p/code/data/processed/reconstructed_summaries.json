@@ -1,0 +1,72 @@
+[
+  {
+    "url": "https://example.com/ab-test-1",
+    "domain": "example.com",
+    "p_value_reported": 0.03,
+    "p_value_reconstructed": 0.032,
+    "effect_size_reported": 0.05,
+    "effect_size_reconstructed": 0.051,
+    "sample_size_control": 500,
+    "sample_size_treatment": 500,
+    "sample_size_total": 1000,
+    "outcome_type": "binary",
+    "baseline_conversion_rate": 0.10,
+    "treatment_conversion_rate": 0.15
+  },
+  {
+    "url": "https://example.com/ab-test-2",
+    "domain": "example.com",
+    "p_value_reported": 0.04,
+    "p_value_reconstructed": 0.095,
+    "effect_size_reported": 0.02,
+    "effect_size_reconstructed": 0.021,
+    "sample_size_control": 200,
+    "sample_size_treatment": 200,
+    "sample_size_total": 400,
+    "outcome_type": "binary",
+    "baseline_conversion_rate": 0.20,
+    "treatment_conversion_rate": 0.22
+  },
+  {
+    "url": "https://example.com/ab-test-3",
+    "domain": "example.com",
+    "p_value_reported": 0.01,
+    "p_value_reconstructed": 0.011,
+    "effect_size_reported": 0.10,
+    "effect_size_reconstructed": 0.18,
+    "sample_size_control": 1000,
+    "sample_size_treatment": 1000,
+    "sample_size_total": 2000,
+    "outcome_type": "continuous",
+    "baseline_conversion_rate": null,
+    "treatment_conversion_rate": null
+  },
+  {
+    "url": "https://example.com/ab-test-4",
+    "domain": "example.com",
+    "p_value_reported": 0.06,
+    "p_value_reconstructed": 0.061,
+    "effect_size_reported": 0.03,
+    "effect_size_reconstructed": 0.031,
+    "sample_size_control": 300,
+    "sample_size_treatment": 300,
+    "sample_size_total": 700,
+    "outcome_type": "binary",
+    "baseline_conversion_rate": 0.15,
+    "treatment_conversion_rate": 0.18
+  },
+  {
+    "url": "https://example.com/ab-test-5",
+    "domain": "example.com",
+    "p_value_reported": 0.02,
+    "p_value_reconstructed": 0.022,
+    "effect_size_reported": 0.08,
+    "effect_size_reconstructed": 0.082,
+    "sample_size_control": 400,
+    "sample_size_treatment": 400,
+    "sample_size_total": 800,
+    "outcome_type": "binary",
+    "baseline_conversion_rate": 0.12,
+    "treatment_conversion_rate": 0.20
+  }
+]
