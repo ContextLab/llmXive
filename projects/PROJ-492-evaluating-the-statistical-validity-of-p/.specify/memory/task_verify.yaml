@@ -44,7 +44,7 @@
   \ RAM \u2264 2 GB [UNRESOLVED-CLAIM: c_9190f0ff \u2014 status=not_enough_info],\
   \ timeout a predefined duration, and runs audit pipeline (verify workflow runs and\
   \ respects limits) [DEPENDS ON: T010]."
-: 1
+: 2
 ? "T012 Create CI workflow file `.github/workflows/audit.yml` that installs dependencies,\
   \ enforces CPU \u2264 2 vCPU, RAM \u2264 2 GB [UNRESOLVED-CLAIM: c_30975192 \u2014\
   \ status=not_enough_info], timeout a predefined duration, and runs audit pipeline\
@@ -111,7 +111,7 @@
   \ mismatch entries are excluded from aggregate prevalence estimates** per FR\u2011\
   004b (generate `AuditRecord` objects with data_quality_warning messages for sample\u2011\
   size discrepancies, writing `output/audit_report.json`). **DEPENDS ON:** T023."
-: 1
+: 2
 ? "T025 Implement inconsistency validator in `src/audit/validator.py` applying FR\u2011\
   004 thresholds (absolute p\u2011difference > 0.05 [UNRESOLVED-CLAIM: c_ec0a1ff1\
   \ \u2014 status=not_enough_info], relative effect\u2011size > 5\u202F% [UNRESOLVED-CLAIM:\
@@ -128,13 +128,6 @@
   \ for sample\u2011size discrepancies, writing `output/audit_report.json`). **DEPENDS\
   \ ON:** T023."
 : 1
-? "T025 Implement inconsistency validator in `src/audit/validator.py` applying FR\u2011\
-  004 thresholds (absolute p\u2011difference > 0.05, relative effect\u2011size > 5\u202F\
-  %) **and verify that sample\u2011size mismatch entries are excluded from aggregate\
-  \ prevalence estimates** per FR\u2011004b (generate `AuditRecord` objects with data_quality_warning\
-  \ messages for sample\u2011size discrepancies, writing `output/audit_report.json`).\
-  \ **DEPENDS ON:** T023."
-: 2
 ? "T026 Implement synthetic dataset generator in `src/audit/synthetic.py` (FR\u2011\
   030) \u2013 The synthetic dataset generator outputs at least 10\u202F000 simulated\
   \ summaries (binary AND continuous outcomes). (binary AND continuous outcomes) **and\
@@ -193,7 +186,7 @@
   \ AND continuous outcomes) **and verify both outcome types are present** (constraint\u2011\
   preservation\u20112958f04c) (verify files are created and contain \u2265\u202F10\u202F\
   000 records). **DEPENDS ON:** T006\u2011T012."
-: 1
+: 2
 ? "T026 Implement synthetic dataset generator in `src/audit/synthetic.py` (FR\u2011\
   030) \u2013 outputs `data/synthetic/synthetic_validation.csv` + `data/synthetic/synthetic_ground_truth.json`\
   \ with at least 10\u202F000 simulated summaries [UNRESOLVED-CLAIM: c_15e13729 \u2014\
@@ -235,7 +228,7 @@
   \ c_8fe22038 \u2014 status=not_enough_info], effect\u2011size > 5\u202F%, inequality\
   \ handling, sample\u2011size mismatch with data_quality_warning generation (tests/unit/test_validator.py)\
   \ (verify all tests pass) [DEPENDS ON: T025]."
-: 1
+: 2
 ? "T027 Unit tests for validator covering absolute p\u2011difference > 0.05 [UNRESOLVED-CLAIM:\
   \ c_ec0a1ff1 \u2014 status=not_enough_info], effect\u2011size > 5\u202F%, inequality\
   \ handling, sample\u2011size mismatch with data_quality_warning generation (tests/unit/test_validator.py)\

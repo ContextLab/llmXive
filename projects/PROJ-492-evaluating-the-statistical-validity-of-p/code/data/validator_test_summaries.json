@@ -1,0 +1,67 @@
+[
+  {
+    "id": "synth-001",
+    "url": "https://example.com/test1",
+    "domain": "example.com",
+    "year": 2023,
+    "p_value_reported": 0.04,
+    "p_value_reconstructed": 0.042,
+    "effect_size_reported": 0.10,
+    "effect_size_reconstructed": 0.102,
+    "n_control": 1000,
+    "n_treatment": 1000,
+    "outcome_type": "binary"
+  },
+  {
+    "id": "synth-002",
+    "url": "https://example.com/test2",
+    "domain": "example.com",
+    "year": 2023,
+    "p_value_reported": 0.04,
+    "p_value_reconstructed": 0.15,
+    "effect_size_reported": 0.10,
+    "effect_size_reconstructed": 0.10,
+    "n_control": 1000,
+    "n_treatment": 1000,
+    "outcome_type": "binary"
+  },
+  {
+    "id": "synth-003",
+    "url": "https://example.com/test3",
+    "domain": "example.com",
+    "year": 2023,
+    "p_value_reported": 0.04,
+    "p_value_reconstructed": 0.04,
+    "effect_size_reported": 0.10,
+    "effect_size_reconstructed": 0.16,
+    "n_control": 1000,
+    "n_treatment": 1000,
+    "outcome_type": "binary"
+  },
+  {
+    "id": "synth-004",
+    "url": "https://example.com/test4",
+    "domain": "example.com",
+    "year": 2023,
+    "p_value_reported": 0.04,
+    "p_value_reconstructed": 0.04,
+    "effect_size_reported": 0.10,
+    "effect_size_reconstructed": 0.10,
+    "n_control": -100,
+    "n_treatment": 1000,
+    "outcome_type": "binary"
+  },
+  {
+    "id": "synth-005",
+    "url": "https://example.com/test5",
+    "domain": "example.com",
+    "year": 2023,
+    "p_value_reported": 0.04,
+    "p_value_reconstructed": 0.04,
+    "effect_size_reported": 0.10,
+    "effect_size_reconstructed": 0.10,
+    "n_control": 1000,
+    "n_treatment": 1000,
+    "outcome_type": "binary"
+  }
+]
