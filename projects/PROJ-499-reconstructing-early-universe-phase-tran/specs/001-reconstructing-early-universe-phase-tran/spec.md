@@ -84,7 +84,7 @@ As a scientist, I want to compute Bayes factors and perform null tests using ind
 - **SC-001**: The percentage of sky retained after masking is measured against the target of [deferred] defined by the Planck 2015 Common Mask (See US-1).
 - **SC-002**: The Bayes factor $K$ between the phase transition and inflation models is measured against the decision threshold $K > 10$ for strong evidence, with specific focus on the low-$\ell$ regime ($\ell < 100$) where models diverge (See US-2).
 - **SC-003**: The Bayes factor $K$ between the phase transition and inflation models is measured against the decision threshold $K > 10$ for strong evidence (See US-3).
-- **SC-004**: The consistency of best-fit $r$ values across independent sky patches is measured against an absolute tolerance of 0.005 (See US-3).
+- **SC-004**: The consistency of best-fit $r$ values across independent sky patches is measured against a stringent absolute tolerance. (See US-3).
 - **SC-005**: The coverage of the standard credible intervals for $r$ is measured against the true value in synthetic data tests (See US-2).
 
 ## Assumptions

@@ -1,0 +1,59 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "CMB B-Mode Power Spectrum Dataset"
+description: "Schema for observed and synthetic CMB B-mode power spectra with covariance matrices."
+type: object
+properties:
+  metadata:
+    type: object
+    properties:
+      dataset_name:
+        type: string
+        description: "Name of the dataset (e.g., 'Planck 2015 SMICA', 'Synthetic Test')"
+      source_url:
+        type: string
+        description: "URL of the source dataset or 'generated'"
+      nside:
+        type: integer
+        description: "HEALPix resolution parameter"
+      mask_applied:
+        type: boolean
+        description: "Whether the Galactic mask was applied"
+      checksum:
+        type: string
+        description: "SHA-256 checksum of the raw data file"
+    required:
+      - dataset_name
+      - source_url
+      - nside
+      - mask_applied
+      - checksum
+  spectrum:
+    type: array
+    items:
+      type: object
+      properties:
+        ell:
+          type: integer
+          description: "Multipole moment"
+        cl_bb:
+          type: number
+          description: "B-mode power spectrum value"
+        error:
+          type: number
+          description: "Statistical uncertainty"
+      required:
+        - ell
+        - cl_bb
+        - error
+    description: "List of power spectrum points"
+  covariance:
+    type: array
+    items:
+      type: array
+      items:
+        type: number
+    description: "Covariance matrix for the spectrum points (flattened or 2D)"
+required:
+  - metadata
+  - spectrum
+additionalProperties: false

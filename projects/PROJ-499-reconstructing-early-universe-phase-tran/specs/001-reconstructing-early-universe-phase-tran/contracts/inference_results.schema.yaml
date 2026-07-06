@@ -1,0 +1,127 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Inference Results Schema"
+description: "Schema for Nested Sampling posterior samples and model comparison results."
+type: object
+properties:
+  metadata:
+    type: object
+    properties:
+      run_id:
+        type: string
+        description: "Unique identifier for the run"
+      timestamp:
+        type: string
+        format: date-time
+        description: "ISO 8601 timestamp of the run"
+      seed:
+        type: integer
+        description: "Random seed used for reproducibility"
+      model_names:
+        type: array
+        items:
+          type: string
+        description: "List of models compared (e.g., ['inflation', 'phase_transition', 'null'])"
+    required:
+      - run_id
+      - timestamp
+      - seed
+      - model_names
+  parameters:
+    type: object
+    properties:
+      r:
+        type: object
+        properties:
+          mean:
+            type: number
+          std:
+            type: number
+          ci_95:
+            type: array
+            items:
+              type: number
+            minItems: 2
+            maxItems: 2
+        required:
+          - mean
+          - std
+          - ci_95
+      E_PT:
+        type: object
+        properties:
+          mean:
+            type: number
+          std:
+            type: number
+          ci_95:
+            type: array
+            items:
+              type: number
+            minItems: 2
+            maxItems: 2
+        required:
+          - mean
+          - std
+          - ci_95
+    required:
+      - r
+  model_comparison:
+    type: object
+    properties:
+      bayes_factors:
+        type: object
+        additionalProperties:
+          type: object
+          properties:
+            model_a:
+              type: string
+            model_b:
+              type: string
+            log_k:
+              type: number
+              description: "Log Bayes Factor (ln K)"
+            interpretation:
+              type: string
+              description: "Qualitative interpretation (e.g., 'Strong Evidence')"
+          required:
+            - model_a
+            - model_b
+            - log_k
+            - interpretation
+      evidence_values:
+        type: object
+        additionalProperties:
+          type: number
+        description: "Log evidence for each model"
+    required:
+      - bayes_factors
+      - evidence_values
+  convergence:
+    type: object
+    properties:
+      status:
+        type: string
+        enum:
+          - "converged"
+          - "failed"
+          - "warning"
+      autocorrelation_time:
+        type: number
+        description: "Estimated autocorrelation time"
+      max_steps:
+        type: integer
+        description: "Maximum steps allowed"
+      actual_steps:
+        type: integer
+        description: "Actual steps run"
+    required:
+      - status
+      - autocorrelation_time
+      - max_steps
+      - actual_steps
+required:
+  - metadata
+  - parameters
+  - model_comparison
+  - convergence
+additionalProperties: false
