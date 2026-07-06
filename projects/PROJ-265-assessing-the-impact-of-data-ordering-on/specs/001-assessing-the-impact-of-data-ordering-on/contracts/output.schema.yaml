@@ -1,0 +1,75 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Output Schema"
+description: "Schema for the final coverage metrics and simulation logs."
+type: "object"
+properties:
+  coverage_metrics:
+    type: "array"
+    items:
+      type: "object"
+      properties:
+        phi:
+          type: "number"
+          description: "Autoregressive coefficient."
+        n:
+          type: "integer"
+          description: "Sample size."
+        condition:
+          type: "string"
+          enum:
+            - "ordered"
+            - "shuffled"
+        total_trials:
+          type: "integer"
+        covered_count:
+          type: "integer"
+        coverage_probability:
+          type: "number"
+          description: "Ratio of covered trials."
+        mcnemar_p_value:
+          type: "number"
+          description: "P-value from McNemar's test."
+        mcnemar_statistic:
+          type: "number"
+        ci_width_mean:
+          type: "number"
+          description: "Mean CI width for this batch."
+      required:
+        - phi
+        - n
+        - condition
+        - total_trials
+        - covered_count
+        - coverage_probability
+        - mcnemar_p_value
+        - mcnemar_statistic
+  simulation_logs:
+    type: "array"
+    items:
+      type: "object"
+      properties:
+        series_id:
+          type: "string"
+        condition:
+          type: "string"
+          enum:
+            - "ordered"
+            - "shuffled"
+        ci_lower:
+          type: "number"
+        ci_upper:
+          type: "number"
+        covered:
+          type: "boolean"
+        ci_width:
+          type: "number"
+      required:
+        - series_id
+        - condition
+        - ci_lower
+        - ci_upper
+        - covered
+        - ci_width
+required:
+  - coverage_metrics
+  - simulation_logs

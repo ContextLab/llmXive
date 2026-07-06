@@ -1,69 +1,5 @@
-resolved_at: '2026-07-02T11:39:07.312186+00:00'
+resolved_at: '2026-07-06T22:04:00.236917+00:00'
 datasets:
-- intent: McNemar
-  status: unresolved
-  candidates: []
-  candidates_tried:
-  - url: https://aubh.figshare.com/articles/thesis/_b_The_Beauty_of_Conflict_in_Team_Innovation_How_Constructive_Disagreement_Psychological_Safety_and_Team_Reflexivity_Drive_Innovation_in_Hotels_and_Resorts_in_the_Kingdom_of_Bahrain_b_/32879909
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Topology-Informed_Design_Rules_for_Deconstructable_Thermoset_Copolymer_Networks/32880221
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://manara.qnl.qa/articles/report/_p_dir_rtl_b___b____p_p_p_/32853035
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://data.dtu.dk/articles/dataset/X-ray_diffraction_CT_reconstruction_of_Martian_meteorite_Black_Beauty/31306372
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Phylogeny_of_Leucopruina_b_b_and_related_species_generated_by_ML_analysis_based_on_ITS_sequences/32880134
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/3526809
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/18631054
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/6491277
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/19654752
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21102156
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20778519
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20778519
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://arxiv.org/abs/2607.00968
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21120125
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21120125
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
 - intent: UCI
   status: verified
   candidates:
@@ -109,26 +45,29 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://aubh.figshare.com/articles/thesis/_b_The_Beauty_of_Conflict_in_Team_Innovation_How_Constructive_Disagreement_Psychological_Safety_and_Team_Reflexivity_Drive_Innovation_in_Hotels_and_Resorts_in_the_Kingdom_of_Bahrain_b_/32879909
+  - url: https://frontiersin.figshare.com/articles/dataset/Table_1_Remodelin_treatment_reshapes_inflammation-related_transcriptomic_signatures_in_experimental_thalamic_hemorrhage_xlsx/32915729
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Topology-Informed_Design_Rules_for_Deconstructable_Thermoset_Copolymer_Networks/32880221
+  - url: https://frontiersin.figshare.com/articles/dataset/Data_Sheet_1_Modifiable_risk_factors_and_skin_cancers_a_multi-omics_Mendelian_randomization_study_from_causal_inference_to_drug_target_discovery_pdf/32915720
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://manara.qnl.qa/articles/report/_p_dir_rtl_b___b____p_p_p_/32853035
+  - url: https://frontiersin.figshare.com/articles/dataset/Table_1_Modifiable_risk_factors_and_skin_cancers_a_multi-omics_Mendelian_randomization_study_from_causal_inference_to_drug_target_discovery_xlsx/32915726
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://data.dtu.dk/articles/dataset/X-ray_diffraction_CT_reconstruction_of_Martian_meteorite_Black_Beauty/31306372
+  - url: https://frontiersin.figshare.com/articles/dataset/Data_Sheet_1_The_role_of_mycotoxins_in_lipid_metabolism_and_homeostasis_a_systematic_review_docx/32915723
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Phylogeny_of_Leucopruina_b_b_and_related_species_generated_by_ML_analysis_based_on_ITS_sequences/32880134
+  - url: https://bridges.monash.edu/articles/thesis/Responsibility_and_Responsibilisation_Epigenetics_and_Moral_Obligations_Towards_Future_Generations/32915717
     source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
+    status: unreachable
+    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''bridges.monash.edu'',
+      port=443): Max retries exceeded with url: /articles/thesis/Responsibility_and_Responsibilisation_Epigenetics_and_Moral_Obligations_Towards_Future_Generations/32915717
+      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
+      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
   - url: https://zenodo.org/records/7950533
     source: zenodo
     status: wrong_format
@@ -137,35 +76,221 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7681792
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/10685355
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/4432825
+  - url: https://zenodo.org/records/7627577
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/6592391
+  - url: https://zenodo.org/records/21218299
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21218299
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19813475
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/q568n/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19152770
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: NOT
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/leolee99/NotInject/resolve/main/data/NotInject_one-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 10859
+      parsed: true
+  - url: https://huggingface.co/datasets/vlmbook/notebooks/resolve/main/Chapter 3/chapter_3_batched_loss.json
+    source: huggingface
+    format: json
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 39475
+      parsed: true
+  - url: https://huggingface.co/datasets/Nottybro/Minecraft-Fable-Raw/resolve/main/amulet_processed/manifest.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 2431
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/leolee99/NotInject/resolve/main/data/NotInject_one-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/vlmbook/notebooks/resolve/main/Chapter 3/chapter_3_batched_loss.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://huggingface.co/datasets/Nottybro/Minecraft-Fable-Raw/resolve/main/amulet_processed/manifest.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://us.aws.cdn.hf.co/xet-bridge-us/621ffdd236468d709f1835ac/f813331e385a1262352d21b9bc0a6152170575b5e627b54ce0a54f73daeaf5fd?X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27datasets.json%3B+filename%3D%22datasets.json%22%3B&response-content-type=application%2Fjson&user_id=public&Expires=1783378983&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjIxZmZkZDIzNjQ2OGQ3MDlmMTgzNWFjL2Y4MTMzMzFlMzg1YTEyNjIzNTJkMjFiOWJjMGE2MTUyMTcwNTc1YjVlNjI3YjU0Y2UwYTU0ZjczZGFlYWY1ZmRcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3ZGF0YXNldHMuanNvbiUzQitmaWxlbmFtZSUzRCUyMmRhdGFzZXRzLmpzb24lMjIlM0ImcmVzcG9uc2UtY29udGVudC10eXBlPWFwcGxpY2F0aW9uJTJGanNvbiZ1c2VyX2lkPXB1YmxpYyIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzgzMzc4OTgzfX19XX0_&Signature=MEQCICrkMQdX37d3feNKe3n1-GJM~ZqV2xFFsApxw8gy~aYQAiB9PMRwnEZtuZxD8tlw8G3AhjQN9VlHCvh1bnvZi7UIkw__&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/dataset/Data_Sheet_1_Genome-wide_association_study_of_the_reproductive_body_size_and_carcass-related_latent_and_directly_measured_traits_in_admixed_beef_heifers_pdf/32915738
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/dataset/Data_Sheet_2_Genome-wide_association_study_of_the_reproductive_body_size_and_carcass-related_latent_and_directly_measured_traits_in_admixed_beef_heifers_csv/32915741
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/dataset/Table_2_Genome-wide_association_study_of_the_reproductive_body_size_and_carcass-related_latent_and_directly_measured_traits_in_admixed_beef_heifers_xlsx/32915732
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/dataset/Table_1_Genome-wide_association_study_of_the_reproductive_body_size_and_carcass-related_latent_and_directly_measured_traits_in_admixed_beef_heifers_xlsx/32915735
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/dataset/Table_1_Remodelin_treatment_reshapes_inflammation-related_transcriptomic_signatures_in_experimental_thalamic_hemorrhage_xlsx/32915729
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16413212
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://repository.lboro.ac.uk/articles/poster/CHORD_Counterfactuals_via_Higher-Order_Relational_Derivatives/32837243/1
+  - url: https://zenodo.org/records/16413231
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15525595
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5105584
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17305397
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: ALL
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/allenai/olmOCR-bench/resolve/main/bench_data/arxiv_math.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/allenai/ai2_arc/resolve/main/ARC-Challenge/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 203808
+      parsed: true
+  - url: https://huggingface.co/datasets/allenai/WildChat/resolve/main/data/train-00000-of-00006.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/allenai/olmOCR-bench/resolve/main/bench_data/arxiv_math.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/allenai/ai2_arc/resolve/main/ARC-Challenge/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/allenai/WildChat/resolve/main/data/train-00000-of-00006.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/allenai/WildChat-4.8M/resolve/main/data/train-00000-of-00086.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/allenai/WildChat-1M/resolve/main/data/train-00000-of-00014.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://frontiersin.figshare.com/articles/dataset/Data_Sheet_1_Genome-wide_association_study_of_the_reproductive_body_size_and_carcass-related_latent_and_directly_measured_traits_in_admixed_beef_heifers_pdf/32915738
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/dataset/Data_Sheet_2_Genome-wide_association_study_of_the_reproductive_body_size_and_carcass-related_latent_and_directly_measured_traits_in_admixed_beef_heifers_csv/32915741
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/dataset/Table_2_Genome-wide_association_study_of_the_reproductive_body_size_and_carcass-related_latent_and_directly_measured_traits_in_admixed_beef_heifers_xlsx/32915732
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/dataset/Table_1_Genome-wide_association_study_of_the_reproductive_body_size_and_carcass-related_latent_and_directly_measured_traits_in_admixed_beef_heifers_xlsx/32915735
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/dataset/Table_1_Remodelin_treatment_reshapes_inflammation-related_transcriptomic_signatures_in_experimental_thalamic_hemorrhage_xlsx/32915729
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/12524979
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/12525194
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7246569
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7246539
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/12525249
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/_b_Methodology_flow_b_/32395359/5
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://repository.lboro.ac.uk/articles/poster/CHORD_Counterfactuals_via_Higher-Order_Relational_Derivatives/32837243/2
+  - url: https://figshare.com/articles/figure/_b_Methodology_flow_b_/32395359/6
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://repository.lboro.ac.uk/articles/poster/CHORD_Counterfactuals_via_Higher-Order_Relational_Derivatives/32837243
+  - url: https://figshare.com/articles/figure/_b_Methodology_flow_b_/32395359
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://doi.org/10.34740/kaggle/dsv/17581231
+  - url: https://zenodo.org/records/21220118
     source: datacite
-    status: unreachable
-    reason: 'reachability failed: HTTP 404'
-  - url: https://zenodo.org/records/21126582
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21220118
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -173,23 +298,23 @@ datasets:
   status: unresolved
   candidates: []
   candidates_tried:
-  - url: https://aubh.figshare.com/articles/thesis/_b_The_Beauty_of_Conflict_in_Team_Innovation_How_Constructive_Disagreement_Psychological_Safety_and_Team_Reflexivity_Drive_Innovation_in_Hotels_and_Resorts_in_the_Kingdom_of_Bahrain_b_/32879909
+  - url: https://acs.figshare.com/articles/journal_contribution/Structural_Preferences_and_ADMET_Regulation_of_Fluorinated_Small-Molecule_Drugs/32915743
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Topology-Informed_Design_Rules_for_Deconstructable_Thermoset_Copolymer_Networks/32880221
+  - url: https://frontiersin.figshare.com/articles/dataset/Data_Sheet_1_Genome-wide_association_study_of_the_reproductive_body_size_and_carcass-related_latent_and_directly_measured_traits_in_admixed_beef_heifers_pdf/32915738
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://manara.qnl.qa/articles/report/_p_dir_rtl_b___b____p_p_p_/32853035
+  - url: https://frontiersin.figshare.com/articles/dataset/Data_Sheet_2_Genome-wide_association_study_of_the_reproductive_body_size_and_carcass-related_latent_and_directly_measured_traits_in_admixed_beef_heifers_csv/32915741
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://data.dtu.dk/articles/dataset/X-ray_diffraction_CT_reconstruction_of_Martian_meteorite_Black_Beauty/31306372
+  - url: https://frontiersin.figshare.com/articles/dataset/Table_2_Genome-wide_association_study_of_the_reproductive_body_size_and_carcass-related_latent_and_directly_measured_traits_in_admixed_beef_heifers_xlsx/32915732
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Phylogeny_of_Leucopruina_b_b_and_related_species_generated_by_ML_analysis_based_on_ITS_sequences/32880134
+  - url: https://frontiersin.figshare.com/articles/dataset/Table_1_Genome-wide_association_study_of_the_reproductive_body_size_and_carcass-related_latent_and_directly_measured_traits_in_admixed_beef_heifers_xlsx/32915735
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content

@@ -1,0 +1,68 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Dataset Schema"
+description: "Schema for the input datasets and generated segments. Real-world segments are blocked."
+type: "object"
+properties:
+  synthetic_series:
+    type: "array"
+    items:
+      type: "object"
+      properties:
+        id:
+          type: "string"
+          description: "Unique identifier for the series."
+        phi:
+          type: "number"
+          description: "Autoregressive coefficient."
+        n:
+          type: "integer"
+          description: "Sample size."
+        values:
+          type: "array"
+          items:
+            type: "number"
+          description: "Time series values."
+        theoretical_mean:
+          type: "number"
+          default: 0
+        seed:
+          type: "integer"
+      required:
+        - id
+        - phi
+        - n
+        - values
+        - theoretical_mean
+        - seed
+  real_segments:
+    type: "array"
+    description: "Blocked: No real-world data is loaded."
+    items:
+      type: "object"
+      properties:
+        segment_id:
+          type: "string"
+        start_index:
+          type: "integer"
+        end_index:
+          type: "integer"
+        phi_est:
+          type: "number"
+          description: "Estimated AR(1) coefficient."
+        status:
+          type: "string"
+          enum:
+            - "valid"
+            - "skipped"
+        skip_reason:
+          type: "string"
+          description: "Reason for skipping if status is skipped."
+      required:
+        - segment_id
+        - start_index
+        - end_index
+        - phi_est
+        - status
+required:
+  - synthetic_series
+  - real_segments

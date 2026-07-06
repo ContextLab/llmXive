@@ -1,64 +1,55 @@
 # Quickstart: Assessing the Impact of Data Ordering on Bootstrapping Results
 
 ## Prerequisites
-
 - Python 3.11+
 - Git
-- Access to a GitHub Actions runner (or local machine with sufficient RAM)
+- A GitHub account (for running on Actions)
 
 ## Installation
 
-1. **Clone the repository**:
-   ```bash
-   git clone <repo-url>
-   cd projects/PROJ-265-assessing-the-impact-of-data-ordering-on
-   ```
+1.  **Clone the repository**:
+    ```bash
+    git clone <repo-url>
+    cd projects/PROJ-265-assessing-the-impact-of-data-ordering-on
+    ```
 
-2. **Create a virtual environment**:
-   ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   ```
+2.  **Create a virtual environment**:
+    ```bash
+    python -m venv venv
+    source venv/bin/activate  # On Windows: venv\Scripts\activate
+    ```
 
-3. **Install dependencies**:
-   ```bash
-   pip install -r code/requirements.txt
-   ```
+3.  **Install dependencies**:
+    ```bash
+    pip install -r code/requirements.txt
+    ```
 
 ## Running the Simulation
 
-### 1. Synthetic Data Only (Recommended for CI)
-Run the full synthetic simulation (User Stories 1 & 2):
+### 1. Synthetic Data Analysis (US-1, US-2)
+Run the full synthetic simulation:
 ```bash
-python code/main.py --mode synthetic
+python code/runner.py --mode synthetic --phi-range 0.0 0.9 --sample-sizes 50 100 200 --trials 1000
 ```
-- Generates AR data for $\phi \in [0.0, 0.9]$.
-- Runs [deferred] trials per $\phi$.
-- Outputs `results/coverage_metrics.csv`.
+**Output**: `results/coverage_metrics.csv` containing coverage probabilities and McNemar's test p-values.
 
-### 2. Full Pipeline (Synthetic + Real)
-Attempt to run synthetic and real-world analysis (User Story 3):
-```bash
-python code/main.py --mode full
-```
-- **Note**: If the UCI dataset is not found locally or via a verified loader, the real-world step will be skipped, and a warning will be logged.
+### 2. Real-World Analysis
+**BLOCKED**: The required UCI Power dataset is not available via a verified source. This phase is skipped.
 
-### 3. Generate Plots
+### 3. Unit Tests
+Verify the bootstrap logic and data generation:
 ```bash
-python code/plots.py --input results/coverage_metrics.csv --output results/figures/
+pytest tests/
 ```
 
-## Verification
-
-1. **Check Output**:
-   Ensure `results/coverage_metrics.csv` exists and contains rows for all $\phi$ levels.
-2. **Check Coverage**:
-   Verify that coverage for $\phi=0.0$ is $\approx 0.95$ and decreases as $\phi$ increases.
-3. **Check Significance**:
-   Verify that McNemar's test p-values are $< 0.05$ for $\phi > 0.3$.
+## Output Interpretation
+- **coverage_metrics.csv**:
+  - `coverage_prob`: Expected to be $\approx 0.95$ for $\phi=0.0$ and $< 0.90$ for $\phi > 0.5$ (ordered).
+  - `mcnemar_p_value`: Should be $< 0.05$ (after Bonferroni correction) for significant differences between ordered and shuffled.
+  - `mcnemar_statistic`: The test statistic for McNemar's test.
+- **simulation_logs.json**: Detailed per-trial data for debugging.
 
 ## Troubleshooting
-
-- **Missing UCI Data**: If the script fails to load the UCI dataset, check the `data/raw/` directory. If the file is missing, the script will skip the real-world step.
-- **Memory Error**: Ensure you have at least 4GB of free RAM. The default simulation is lightweight, but large datasets can cause issues.
-- **Import Error**: Ensure all dependencies in `requirements.txt` are installed.
+- **Missing Dataset**: If the UCI Power download is attempted, the system will halt with an explicit "Blocked: No verified URL" error.
+- **Memory Errors**: Reduce `--trials` or `--sample-sizes` if running on a low-RAM machine.
+- **Autocorrelation Estimation**: If `statsmodels` fails to fit AR(1), the segment is skipped (status: `skipped`).

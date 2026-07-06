@@ -1,1 +1,11 @@
-[]
+- artifact_hash: c3d7ad45c7f7f4011fd350c2030ae1f9003d42bca9d7aaa4a893b1d79f9430a9
+  artifact_path: projects/PROJ-265-assessing-the-impact-of-data-ordering-on/specs/001-assessing-the-impact-of-data-ordering-on/spec.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: LD2011_2014.txt.zip
+  kind: url
+  value: https://archive.ics.uci.edu/ml/machine-learning-databases/00321/LD2011_2014.txt.zip`
+  verification_status: verified
+  verified_against_url: https://archive.ics.uci.edu/ml/machine-learning-databases/00321/LD2011_2014.txt.zip
+  verified_at: '2026-07-06T22:02:17.815448Z'

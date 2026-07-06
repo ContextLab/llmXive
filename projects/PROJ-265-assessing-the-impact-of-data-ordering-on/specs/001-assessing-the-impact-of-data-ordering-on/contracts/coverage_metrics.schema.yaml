@@ -1,11 +1,11 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Coverage Metrics Schema"
-description: "Schema for the primary output artifact: results/coverage_metrics.csv. Supports both synthetic (coverage) and real-world (ci_width_ratio) metrics."
+description: "Schema for the primary output artifact: results/coverage_metrics.csv. Supports synthetic data metrics only (real-world analysis is blocked)."
 type: "object"
 properties:
   phi_level:
     type: "number"
-    description: "The autoregressive coefficient phi (0.0 to 0.9) or bin label for real data."
+    description: "The autoregressive coefficient phi (0.0 to 0.9)."
   condition:
     type: "string"
     description: "The condition of the data (ordered or shuffled)"
@@ -14,35 +14,32 @@ properties:
       - "shuffled"
   coverage_probability:
     type: "number"
-    description: "Empirical coverage probability (0.0 to 1.0). NaN for real data."
+    description: "Empirical coverage probability (0.0 to 1.0)."
     minimum: 0.0
     maximum: 1.0
-  ci_width_ratio:
+  ci_width_mean:
     type: "number"
-    description: "Ratio of Ordered CI Width to Shuffled CI Width. NaN for synthetic data."
-    minimum: 0.0
+    description: "Mean CI width for this batch."
   n_trials:
     type: "integer"
     description: "Number of simulation trials"
     minimum: 1
   mcnemar_p_value:
     type: "number"
-    description: "P-value from McNemar's test (aggregate counts)"
+    description: "P-value from McNemar's test (paired binary outcomes)"
     minimum: 0.0
     maximum: 1.0
-  z_test_p_value:
+  mcnemar_statistic:
     type: "number"
-    description: "P-value from Two-Proportion Z-Test"
-    minimum: 0.0
-    maximum: 1.0
+    description: "McNemar's test statistic"
   significance:
     type: "boolean"
-    description: "True if p-value < 0.05"
+    description: "True if p-value < 0.05 (after Bonferroni correction)"
 required:
   - phi_level
   - condition
   - n_trials
   - mcnemar_p_value
-  - z_test_p_value
+  - mcnemar_statistic
   - significance
 additionalProperties: false
