@@ -1,0 +1,64 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "SimulationConfig"
+description: "Configuration for the Monte Carlo simulation engine."
+type: object
+properties:
+  n_samples:
+    type: integer
+    minimum: 3
+    maximum: 49
+    description: "Sample size (N). Must be less than 50."
+  n_predictors:
+    type: integer
+    minimum: 2
+    description: "Number of predictors (p)."
+  target_correlation:
+    type: number
+    minimum: 0.0
+    maximum: 1.0
+    description: "Target correlation coefficient (rho) between predictors."
+  noise_scale:
+    type: number
+    minimum: 0.0
+    default: 1.0
+    description: "Standard deviation of the error term."
+  true_coefficients:
+    type: array
+    items:
+      type: number
+    description: "Ground truth beta values for each predictor."
+  seed:
+    type: integer
+    description: "Random seed for reproducibility."
+  bootstrap_resamples:
+    type: integer
+    minimum: 100
+    default: 500
+    description: "Number of bootstrap resamples."
+  mcmc_samples:
+    type: integer
+    minimum: 1000
+    default: 2000
+    description: "Number of MCMC samples per chain."
+  mcmc_chains:
+    type: integer
+    minimum: 2
+    default: 4
+    description: "Number of MCMC chains."
+  prior_scale_factor:
+    type: number
+    default: 1.0
+    description: "Multiplier for prior scale (e.g., 1.0 for Normal(0,10), 0.5 for Normal(0,5))."
+  backend_engine:
+    type: string
+    enum:
+      - "cmdstanpy"
+    description: "Stan backend engine (CPU-optimized)."
+required:
+  - n_samples
+  - n_predictors
+  - target_correlation
+  - true_coefficients
+  - seed
+  - backend_engine
+additionalProperties: false

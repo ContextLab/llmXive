@@ -1,0 +1,50 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "DatasetInstance"
+description: "A single realization of synthetic data with ground truth."
+type: object
+properties:
+  instance_id:
+    type: string
+    description: "Unique identifier for this dataset instance."
+  x_matrix:
+    type: array
+    items:
+      type: array
+      items:
+        type: number
+    description: "Predictor matrix (N x p)."
+  y_vector:
+    type: array
+    items:
+      type: number
+    description: "Outcome vector (N)."
+  true_coefficients:
+    type: array
+    items:
+      type: number
+    description: "Ground truth beta values."
+  target_correlation:
+    type: number
+    description: "Target correlation parameter used for generation."
+  realized_correlation:
+    type: number
+    description: "Actual sample correlation of the generated predictors."
+  realized_vif:
+    type: object
+    additionalProperties:
+      type: number
+    description: "Variance Inflation Factor for each predictor (realized)."
+  collinearity_flag:
+    type: boolean
+    description: "True if any realized VIF > 10."
+  rank_deficient:
+    type: boolean
+    description: "True if the matrix is rank deficient."
+required:
+  - instance_id
+  - x_matrix
+  - y_vector
+  - true_coefficients
+  - realized_vif
+  - collinearity_flag
+additionalProperties: false

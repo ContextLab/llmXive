@@ -1,0 +1,27 @@
+# Core Data & Math
+numpy==1.26.4
+pandas==2.1.4
+scipy==1.12.0
+scikit-learn==1.4.0
+
+# Bayesian Modeling
+cmdstanpy==1.2.0
+# Note: Stan models require a C++ compiler. cmdstanpy handles the download of CmdStan.
+
+# Visualization
+matplotlib==3.8.2
+seaborn==0.13.2
+
+# Configuration & Utils
+pyyaml==6.0.1
+
+# UCI Data Fetching
+ucimlrepo==0.0.7
+
+# Testing & Linting
+pytest==7.4.4
+black==24.1.0
+flake8==7.0.0
+
+# Build tools
+setuptools>=69.0.0

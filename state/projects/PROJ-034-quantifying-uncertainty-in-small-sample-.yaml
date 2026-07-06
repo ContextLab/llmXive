@@ -1,18 +1,18 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-04-30T11:37:06.164789Z'
-current_stage: project_initialized
+current_stage: in_progress
 failed_stage: null
 field: statistics
 human_escalation_reason: null
 id: PROJ-034-quantifying-uncertainty-in-small-sample-
-last_run_id: e11ba7b0-56a8-45ad-a401-652d39047cef
+last_run_id: 1970f94b-485f-47f8-985e-7bf1f9b39eeb
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
 revision_spec_path: null
 speckit_paper_dir: null
-speckit_research_dir: null
+speckit_research_dir: projects/PROJ-034-quantifying-uncertainty-in-small-sample-/specs/001-quantifying-uncertainty-in-small-sample
 title: Quantifying Uncertainty in Small Sample Regression Models
-updated_at: '2026-06-27T16:36:12.156086Z'
+updated_at: '2026-07-06T20:40:52.436094Z'

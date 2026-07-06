@@ -1,0 +1,42 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "CoverageMetric"
+description: "Aggregated statistics across Monte Carlo replications."
+type: object
+properties:
+  method:
+    type: string
+    enum:
+      - "ols"
+      - "bootstrap_bca"
+      - "bayesian"
+    description: "Method name."
+  n_replications:
+    type: integer
+    description: "Total number of simulations."
+  coverage_rate:
+    type: number
+    minimum: 0.0
+    maximum: 1.0
+    description: "Empirical coverage probability."
+  average_interval_width:
+    type: number
+    description: "Mean width of intervals."
+  standard_error:
+    type: number
+    description: "Monte Carlo standard error of coverage."
+  convergence_rate:
+    type: number
+    minimum: 0.0
+    maximum: 1.0
+    description: "Percentage of valid runs (e.g., R-hat < 1.05)."
+  cae_score:
+    type: number
+    description: "Coverage-Adjusted Efficiency score (penalizes width if coverage deviates from nominal)."
+required:
+  - method
+  - n_replications
+  - coverage_rate
+  - average_interval_width
+  - standard_error
+  - cae_score
+additionalProperties: false

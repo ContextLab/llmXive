@@ -1,0 +1,16 @@
+? 'T001 Create project structure per implementation plan: `mkdir -p code/simulation
+  code/models code/metrics code/validation code/plots code/scripts data/raw data/simulated
+  data/results tests/unit tests/integration docs/paper`'
+: 2
+? 'T002 [P] Initialize Python 3.11 project: Create `requirements.txt` with pinned
+  versions (numpy, pandas, scipy, scikit-learn, cmdstanpy, matplotlib, seaborn, pyyaml,
+  pytest) and run `python -m venv venv && pip install -r requirements.txt`'
+: 2
+? 'T003 [P] Configure linting: Create `pyproject.toml` with `[tool.black]` (line-length=88)
+  and `[tool.flake8]` (max-line-length=88, exclude=venv) sections'
+: 2
+'T004 Setup `code/` directory structure: `simulation/`, `models/`, `metrics/`, `validation/`': 2
+? T005 [P] Implement `code/simulation/config.py` defining `SimulationConfig` schema
+  (N, predictors, correlation matrix, noise, true coefficients)
+: 2
+T007 Create `data/raw/`, `data/simulated/`, and `data/results/` directory structure with `.gitkeep` files in each: 1

@@ -1,0 +1,54 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "IntervalResult"
+description: "Output from a single model fit on a dataset instance."
+type: object
+properties:
+  instance_id:
+    type: string
+    description: "Reference to the dataset instance."
+  method:
+    type: string
+    enum:
+      - "ols"
+      - "bootstrap_bca"
+      - "bayesian"
+    description: "Method used."
+  coefficient_estimates:
+    type: array
+    items:
+      type: number
+    description: "Estimated beta values."
+  interval_lower:
+    type: array
+    items:
+      type: number
+ description: "Lower bounds of [deferred] intervals."
+  interval_upper:
+    type: array
+    items:
+      type: number
+ description: "Upper bounds of [deferred] intervals."
+  covered:
+    type: array
+    items:
+      type: boolean
+    description: "Binary flag: true if true beta is in interval."
+  diagnostics:
+    type: object
+    properties:
+      run_time_seconds:
+        type: number
+      r_hat:
+        type: number
+        description: "Convergence diagnostic for Bayesian method."
+      divergent_transitions:
+        type: integer
+    description: "Method-specific diagnostics."
+required:
+  - instance_id
+  - method
+  - coefficient_estimates
+  - interval_lower
+  - interval_upper
+  - covered
+additionalProperties: false
