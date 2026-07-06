@@ -1,0 +1,50 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "ParticipantSession"
+description: "Schema for a single participant session in the synthetic study."
+type: "object"
+properties:
+  session_id:
+    type: "string"
+    description: "Unique identifier for the session."
+  participant_id:
+    type: "string"
+    description: "Unique participant identifier."
+  stimulus_id:
+    type: "string"
+    description: "Reference to BackgroundFrame.frame_id."
+  stimulus_complexity:
+    type: "number"
+    description: "Pre-computed complexity metric."
+  task_difficulty:
+    type: "number"
+    description: "Simulated difficulty level (0-1)."
+  order_position:
+    type: "integer"
+    description: "Position in the sequence."
+  nasa_tlx_score:
+    type: "number"
+    description: "Subjective cognitive load score (0-100)."
+  reaction_time_ms:
+    type: "number"
+    description: "Mean reaction time in milliseconds."
+  accuracy_pct:
+    type: "number"
+    description: "Accuracy percentage (0-100)."
+  is_missing:
+    type: "boolean"
+    description: "Flag for missing data."
+  excluded:
+    type: "boolean"
+    description: "Flag for exclusion."
+required:
+  - session_id
+  - participant_id
+  - stimulus_id
+  - stimulus_complexity
+  - task_difficulty
+  - order_position
+  - nasa_tlx_score
+  - reaction_time_ms
+  - accuracy_pct
+  - is_missing
+  - excluded

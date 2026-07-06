@@ -1,0 +1,33 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "BackgroundFrameMetrics"
+description: "Schema for computed visual complexity metrics per background frame."
+type: "object"
+properties:
+  frame_id:
+    type: "string"
+    description: "Unique identifier for the frame."
+  file_path:
+    type: "string"
+    description: "Relative path to the raw image file."
+  entropy:
+    type: "number"
+    description: "Shannon entropy of the grayscale image."
+  color_variance:
+    type: "number"
+    description: "Variance of the RGB channels."
+  object_count:
+    type: "integer"
+    description: "Number of objects detected by YOLOv8n."
+  complexity_score:
+    type: ["number", "null"]
+    description: "Optional composite complexity score."
+  checksum:
+    type: "string"
+    description: "SHA-256 hash of the raw file."
+required:
+  - frame_id
+  - file_path
+  - entropy
+  - color_variance
+  - object_count
+  - checksum

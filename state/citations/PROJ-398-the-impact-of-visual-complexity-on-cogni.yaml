@@ -1,1 +1,11 @@
-[]
+- artifact_hash: 1d3aab2e72a614ba85b62a02b6e8b81f68a63aea6feaa6e7b0871e46d358dbcf
+  artifact_path: projects/PROJ-398-the-impact-of-visual-complexity-on-cogni/specs/001-the-impact-of-visual-complexity-on-cogni/quickstart.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: cpu
+  kind: url
+  value: https://download.pytorch.org/whl/cpu`
+  verification_status: pending
+  verified_against_url: https://download.pytorch.org/whl/cpu
+  verified_at: '2026-07-06T00:24:45.776551Z'
