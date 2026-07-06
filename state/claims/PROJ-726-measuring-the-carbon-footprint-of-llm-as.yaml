@@ -1,0 +1,20 @@
+- artifact_path: projects/PROJ-726-measuring-the-carbon-footprint-of-llm-as/specs/001-measuring-the-carbon-footprint-of-llm-as/tasks.md
+  attempts: 1
+  canonical: average 30-60 minutes per prompt from IEEE/ACM software engineering literature
+  claim_id: c_c5e89a0a
+  context: 'T006: Implement validate_baseline.py to synthesize local human baseline
+    data... If the 2025 paper data is missing, execute the Synthesized Baseline Protocol
+    using specific literature values (e.g., average 30-60 minutes per prompt from
+    IEEE/ACM software engineering literature) with explicit citation.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If the 2025 paper data is missing, execute the Synthesized Baseline Protocol
+    using specific literature values (e.g., average 30-60 minutes per prompt from
+    IEEE/ACM software engineering literature) with explicit citation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-06T13:10:27Z'

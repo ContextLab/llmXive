@@ -1,0 +1,32 @@
+# Project Configuration
+project:
+  name: "llm-carbon-footprint"
+  version: "1.0.0"
+
+# Model Settings
+models:
+  primary: "gpt2-medium"
+  robustness: "distilgpt2"
+  device: "cpu"
+
+# Carbon & Power Settings
+carbon:
+  # Regional factors will be fetched dynamically by CodeCarbon
+  # Default fallback power model constants (Watts)
+  laptop_avg_watts: 15.0
+  human_baseline_power_watts: 15.0
+
+# Data Settings
+data:
+  raw_dir: "data/raw"
+  processed_dir: "data/processed"
+  outputs_dir: "data/outputs"
+  max_prompts: 200 # Scalable target
+
+# Analysis Settings
+analysis:
+  significance_level: 0.05
+  sensitivity_levels:
+    low: 10.0
+    medium: 15.0
+    high: 25.0

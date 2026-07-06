@@ -1,0 +1,35 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Paired Emissions Schema"
+description: "Schema for the paired emissions dataset used in statistical analysis."
+type: "object"
+properties:
+  prompt_id:
+    type: "string"
+    description: "Unique identifier for the prompt."
+  llm_co2_per_loc:
+    type: "number"
+    description: "CO2 emissions per line of code for the LLM model."
+  human_co2_per_loc:
+    type: "number"
+    description: "CO2 emissions per line of code for the human baseline."
+  diff:
+    type: "number"
+    description: "Difference between LLM and human emissions (LLM - Human)."
+  model_id:
+    type: "string"
+    description: "Identifier of the LLM model used (e.g., 'gpt2-medium')."
+  loc_count:
+    type: "integer"
+    description: "Number of lines of code in the generated solution."
+  valid:
+    type: "boolean"
+    description: "Whether the record is valid for paired analysis (LOC > 0)."
+required:
+  - prompt_id
+  - llm_co2_per_loc
+  - human_co2_per_loc
+  - diff
+  - model_id
+  - loc_count
+  - valid
+additionalProperties: false

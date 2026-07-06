@@ -4,95 +4,77 @@
 
 - Python 3.11+
 - Git
-- Access to HuggingFace Hub (no token required for public datasets, but recommended for rate limits)
+- Access to a GitHub Actions runner (or local environment with sufficient RAM).
 
 ## Installation
 
-1. **Clone the repository** (or navigate to the project directory):
-   ```bash
-   cd projects/PROJ-726-measuring-the-carbon-footprint-of-llm-as
-   ```
+1. **Clone the repository**:
+ ```bash
+ git clone
+ cd llmXive/projects/PROJ-726-measuring-the-carbon-footprint-of-llm-as
+ ```
 
 2. **Create a virtual environment**:
-   ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   ```
+ ```bash
+ python -m venv venv
+ source venv/bin/activate # On Windows: venv\Scripts\activate
+ ```
 
 3. **Install dependencies**:
-   ```bash
-   pip install -r code/requirements.txt
-   ```
+ ```bash
+ pip install -r requirements.txt
+ ```
 
 ## Running the Pipeline
 
-The pipeline is executed in a single command (or via GitHub Actions):
-
-```bash
-# Run the full pipeline (download, infer, calculate, analyze, report)
-python code/download_data.py && \
-python code/validate_baseline.py && \
-python code/run_inference.py && \
-python code/calculate_emissions.py && \
-python code/statistical_analysis.py && \
-python code/generate_report.py
-```
-
-### Step-by-Step Execution
+The pipeline is executed via a single entry point script that orchestrates all phases.
 
 1. **Download Data**:
-   ```bash
-   python code/download_data.py
-   ```
-   - Fetches CodeXGLUE, Human Baseline, and LOC datasets.
-   - Saves to `data/raw/`.
+ ```bash
+ python code/download_data.py
+ ```
+ *This fetches CodeXGLUE prompts and validates/synthesizes the human baseline JSON.*
 
-2. **Validate Baseline**:
-   ```bash
-   python code/validate_baseline.py
-   ```
-   - Checks if human baseline data contains raw time (minutes).
-   - Fails or switches to fallback if data is pre-calculated CO2.
+2. **Run Inference (GPT-2-medium)**:
+ ```bash
+ python code/run_inference.py --model gpt2-medium
+ ```
+ *This runs the inference loop with CodeCarbon and saves results.*
 
-3. **Run Inference**:
-   ```bash
-   python code/run_inference.py
-   ```
-   - Runs GPT-2-medium on target prompts with CodeCarbon.
-   - Saves `data/processed/llm_inference_results.csv`.
-   - **Dynamic Sample Size**: If runtime exceeds budget, reduces sample size.
+3. **Calculate Baseline & Normalize**:
+ ```bash
+ python code/calculate_baseline.py
+ python code/sensitivity_analysis.py
+ python code/normalize_and_join.py
+ ```
 
-4. **Calculate Emissions**:
-   ```bash
-   python code/calculate_emissions.py
-   ```
-   - Joins LLM results with human baseline (using LLM LOC as common denominator).
-   - Calculates `co2_per_loc`.
-   - Saves `data/processed/paired_analysis.csv`.
+4. **Run Statistical Analysis**:
+ ```bash
+ python code/stats_analysis.py
+ ```
 
-5. **Statistical Analysis**:
-   ```bash
-   python code/statistical_analysis.py
-   ```
-   - Runs Shapiro-Wilk, One-Sample T-Test/Wilcoxon, robustness check (DistilGPT-2).
-   - Saves `data/outputs/statistical_results.json` and plots.
+5. **Generate Report**:
+ ```bash
+ python code/generate_report.py
+ ```
 
-6. **Generate Report**:
-   ```bash
-   python code/generate_report.py
-   ```
-   - Creates `output/report.md`.
+6. **Robustness Check (DistilGPT-2)**:
+ ```bash
+ python code/run_inference.py --model distilgpt2
+ python code/normalize_and_join.py --model distilgpt2
+ python code/stats_analysis.py --model distilgpt2
+ python code/generate_report.py --append-robustness
+ ```
 
-## Verification
+## Verifying Results
 
-- **Check Data**: Ensure `data/raw/` contains parquet files.
-- **Check Logs**: Look for "CodeCarbon: CPU" in `run_inference.py` output.
-- **Check Report**: Open `output/report.md` to view the final results.
-- **Check Statistical Results**: Verify `data/outputs/statistical_results.json` contains `shapiro_wilk_p_value`.
+- Check `data/outputs/report.md` for the final summary, p-values, and plots.
+- Verify `data/processed/paired_emissions.csv` for the joined data.
+- Verify `data/processed/sensitivity_analysis.csv` for the stability analysis.
+- Ensure `data/raw/` contains the checksummed raw datasets.
 
 ## Troubleshooting
 
-- **OOM Error**: Reduce `max_new_tokens` in `run_inference.py` or reduce sample size.
-- **Dataset Not Found**: Verify HuggingFace connectivity.
-- **CodeCarbon Error**: Ensure `codecarbon` is installed and permissions are correct for CPU measurement.
-- **Baseline Validation Failure**: If `validate_baseline.py` fails, check if the source data is pre-calculated CO2. The pipeline will switch to the "General Industry Average" fallback.
+- **Memory Error**: Reduce the batch size in `run_inference.py` or ensure no other heavy processes are running.
+- **CodeCarbon Error**: Ensure the environment is CPU-only. If CUDA is detected, set `CUDA_VISIBLE_DEVICES=""`.
+- **Missing Baseline**: The system will automatically synthesize a baseline using literature values if `data/raw/human_baseline_times.json` is missing. Check the log for the synthesis source.

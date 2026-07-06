@@ -1,0 +1,46 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Statistical Result Schema"
+description: "Schema for the output of the statistical analysis."
+type: "object"
+properties:
+  test_type:
+    type: "string"
+    description: "Type of test performed ('t-test' or 'wilcoxon')."
+    enum:
+      - "t-test"
+      - "wilcoxon"
+  statistic:
+    type: "number"
+    description: "The test statistic value."
+  p_value:
+    type: "number"
+    description: "The p-value of the test."
+  effect_size:
+    type: "number"
+    description: "The effect size (Cohen's d or rank-biserial)."
+  ci_lower:
+    type: "number"
+    description: "Lower bound of the 95% confidence interval for the mean difference."
+  ci_upper:
+    type: "number"
+    description: "Upper bound of the 95% confidence interval for the mean difference."
+  shapiro_p:
+    type: "number"
+    description: "P-value from the Shapiro-Wilk normality test."
+  model_id:
+    type: "string"
+    description: "Identifier of the model analyzed."
+  significant:
+    type: "boolean"
+    description: "Whether the result is statistically significant (p < 0.05)."
+required:
+  - test_type
+  - statistic
+  - p_value
+  - effect_size
+  - ci_lower
+  - ci_upper
+  - shapiro_p
+  - model_id
+  - significant
+additionalProperties: false

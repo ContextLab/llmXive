@@ -5,7 +5,7 @@ type: object
 properties:
   test_name:
     type: string
-    description: "Name of the statistical test used (e.g., 'one_sample_t_test', 'wilcoxon')."
+    description: "Name of the statistical test used (e.g., 'overlap_analysis', 't_test')."
   p_value:
     type: number
     description: "P-value of the test."
@@ -34,7 +34,7 @@ properties:
         maximum: 1
       test_used:
         type: string
-        description: "The statistical test selected based on normality (e.g., 't_test', 'wilcoxon')."
+        description: "The statistical test selected based on normality (e.g., 'overlap_analysis', 't_test')."
     required:
       - shapiro_wilk_p_value
       - test_used
@@ -63,10 +63,28 @@ properties:
           type: number
         difference_from_llm:
           type: number
+        stability_status:
+          type: string
+          description: "Whether the conclusion holds for this power draw."
+          enum:
+            - "stable"
+            - "unstable"
       required:
         - power_draw_w
         - human_co2_per_loc
         - difference_from_llm
+        - stability_status
+  ci_mean_diff:
+    type: object
+    description: "95% Confidence Interval for the mean difference in CO2/LOC."
+    properties:
+      lower:
+        type: number
+      upper:
+        type: number
+    required:
+      - lower
+      - upper
 required:
   - test_name
   - p_value
@@ -76,4 +94,5 @@ required:
   - normality_test
   - robustness_check
   - sensitivity_analysis
+  - ci_mean_diff
 additionalProperties: false

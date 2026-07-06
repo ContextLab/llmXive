@@ -1,0 +1,27 @@
+? T001 Create project root structure per implementation plan (repository root) including
+  `code/`, `data/raw/`, `data/processed/`, `data/outputs/`, `tests/`, `output/`
+: 1
+? T002 Initialize Python 3.11 project with `requirements.txt` (pinned versions for
+  `transformers`, `codecarbon`, `datasets`, `scikit-learn`, `pandas`, `matplotlib`,
+  `seaborn`)
+: 1
+T003 [P] Configure linting (ruff) and formatting (black) tools: 1
+T004 Implement `download_data.py` to fetch CodeXGLUE Python code-generation subset via HuggingFace `datasets` library: 1
+? 'T005 [P] Implement fallback logic in `download_data.py`: If CodeXGLUE fetch fails
+  or is unverified, **DO NOT** switch to HumanEval/MBPP as no human baseline exists
+  for those prompts per Verified Fallback Protocol. Instead, proceed with the available
+  sample size (N < 200) or fail gracefully with a clear error message. **MUST** log
+  the specific reason for sample size reduction.'
+: 1
+? "T006 [P] Implement `validate_baseline.py` to synthesize local human baseline data:\
+  \ **MUST validate that hardcoded time values from the 2025 comparative analysis\
+  \ paper (Table X, Section Y) represent raw developer time (minutes/hours), not pre-calculated\
+  \ CO\u2082**. If the 2025 paper data is missing, **execute the Synthesized Baseline\
+  \ Protocol** using specific literature values (e.g., average 30-60 minutes per prompt\
+  \ from IEEE/ACM software engineering literature) with explicit citation. **The task\
+  \ MUST fail ONLY if the Synthesized Baseline Protocol cannot identify a valid literature\
+  \ source.** Load into `data/raw/human_baseline_times.json` with exact structure\
+  \ `{\"prompt_id\": <string>, \"time_minutes\": <float>}`. **Depends on T004** to\
+  \ ensure the downloaded prompt IDs exist for matching. **Includes a verification\
+  \ step that fails if the data does not match the raw time schema.**"
+: 1

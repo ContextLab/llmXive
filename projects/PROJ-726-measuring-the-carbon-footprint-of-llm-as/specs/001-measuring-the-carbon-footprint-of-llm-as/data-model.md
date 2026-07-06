@@ -1,58 +1,78 @@
 # Data Model: Measuring the Carbon Footprint of LLM‑Assisted Code Generation
 
-## Entities
+## Overview
 
-### 1. PromptRecord
-Represents a single input prompt from the CodeXGLUE dataset.
-- `prompt_id`: string (unique identifier)
-- `prompt_text`: string (the actual code generation prompt)
-- `source`: string (dataset name, e.g., "codeXglue")
+This document defines the data structures, schemas, and relationships used throughout the project. All data artifacts are stored in `data/` and validated against the schemas in `contracts/`.
 
-### 2. GenerationRecord
-Represents the output of an LLM for a specific prompt.
-- `prompt_id`: string (FK to PromptRecord)
-- `model_used`: string (e.g., "gpt2-medium", "distilgpt2")
-- `generated_code`: string (the code output)
-- `loc_count`: integer (lines of code in generated_code, calculated as `len(code.splitlines())`)
-- `energy_kWh`: float (measured by CodeCarbon)
-- `co2_kg`: float (measured by CodeCarbon)
-- `co2_per_loc`: float (calculated: `co2_kg` / `loc_count`)
-- `duration_seconds`: float (inference time)
-- `region_factor`: float (extracted from CodeCarbon for standardization)
+## Entity Definitions
 
-### 3. HumanBaselineRecord
-Represents the theoretical human reference energy for a specific prompt.
-- `prompt_id`: string (FK to PromptRecord)
-- `estimated_human_minutes`: float (from global average or task-specific data)
-- `human_energy_kWh`: float (calculated: `minutes` * 15W / 60 / 1000)
-- `human_co2_kg`: float (calculated: `human_energy_kWh` * `region_factor` from LLM run)
-- `human_loc_count`: integer (Set to `GenerationRecord.loc_count` for common denominator)
+### 1. Prompt
+A text input from the CodeXGLUE dataset.
+- **Attributes**:
+  - `prompt_id`: Unique identifier (string).
+  - `text`: The raw prompt text (string).
+  - `source`: Dataset name (string, e.g., "code_x_glue").
 
-### 4. PairedAnalysisRecord
-The joined dataset for statistical testing.
-- `prompt_id`: string
-- `llm_model`: string
-- `llm_co2_per_loc`: float
-- `human_co2_per_loc`: float
-- `difference`: float (`llm_co2_per_loc` - `human_co2_per_loc`)
-- `valid`: boolean (true if `loc_count` > 0)
+### 2. Generation
+The code output produced by an LLM.
+- **Attributes**:
+  - `prompt_id`: Foreign key to Prompt.
+  - `model_id`: Identifier of the model used (e.g., "gpt2-medium").
+  - `generated_code`: The generated code string.
+  - `loc_count`: Number of lines of code (integer).
+  - `success`: Boolean indicating if generation was valid.
 
-### 5. SensitivityAnalysisRecord
-Results of the power model sensitivity check.
-- `power_draw_w`: integer (10, 15, 20)
-- `human_co2_per_loc`: float
-- `difference_from_llm`: float
+### 3. EmissionRecord
+A record of energy consumption and emissions for a single inference.
+- **Attributes**:
+  - `prompt_id`: Foreign key to Prompt.
+  - `model_id`: Identifier of the model used.
+  - `energy_kWh`: Energy consumed (float).
+  - `co2_kg`: CO₂ equivalent emitted (float).
+  - `device`: Device used (e.g., "cpu").
+  - `region_factor`: The regional emission factor used (float).
+
+### 4. HumanBaseline
+Static data mapping prompts to estimated human development time.
+- **Attributes**:
+  - `prompt_id`: Foreign key to Prompt.
+  - `time_minutes`: Estimated time in minutes (float).
+  - `source`: Citation of the literature used for synthesis (string).
+
+### 5. PairedEmission
+The joined dataset for statistical analysis.
+- **Attributes**:
+  - `prompt_id`: Primary key.
+  - `llm_co2_per_loc`: Emissions per LOC for LLM (float).
+  - `human_co2_per_loc`: Emissions per LOC for Human (float).
+  - `diff`: Difference (LLM - Human) (float).
+  - `valid`: Boolean (true if both LOC > 0).
+
+### 6. StatisticalResult
+The output of the statistical test.
+- **Attributes**:
+  - `test_type`: "overlap_analysis" or "t-test".
+  - `statistic`: Test statistic value (float).
+  - `p_value`: P-value (float).
+  - `effect_size`: Cohen's d or rank-biserial (float).
+  - `ci_lower`: Lower bound of 95% CI for mean difference (float).
+  - `ci_upper`: Upper bound of 95% CI for mean difference (float).
+  - `shapiro_p`: P-value from normality test (float).
+  - `model_id`: Which model this result applies to.
+  - `overlap_status`: "overlap" or "no_overlap" (for overlap analysis).
 
 ## Data Flow
 
-1. **Raw Data**: Downloaded parquet files (`data/raw/`).
-2. **Validation**: `validate_baseline.py` checks human baseline data for raw time.
-3. **Processed Data**: `GenerationRecord` and `HumanBaselineRecord` joined on `prompt_id` (using LLM `loc_count` as common denominator) → `PairedAnalysisRecord` (`data/processed/paired_analysis.csv`).
-4. **Results**: Statistical test results (JSON) and plots (PNG) stored in `data/outputs/`.
+1. **Download**: `Prompt` data is fetched and stored in `data/raw/prompts.json`.
+2. **Inference**: `Generation` and `EmissionRecord` data are generated and stored in `data/processed/inference_results.json`.
+3. **Baseline**: `HumanBaseline` data is loaded from `data/raw/human_baseline_times.json`.
+4. **Normalization**: `PairedEmission` data is created in `data/processed/paired_emissions.csv`.
+5. **Sensitivity**: `sensitivity_analysis.csv` is created with Low/Med/High power draw scenarios.
+6. **Analysis**: `StatisticalResult` is computed and stored in `data/outputs/stats_summary.json`.
+7. **Report**: Final report is generated in `data/outputs/report.md`.
 
-## Constraints
+## File Formats
 
-- **Non-Zero LOC**: Any record with `loc_count` == 0 is excluded from `PairedAnalysisRecord`.
-- **Data Integrity**: All derived fields (`co2_per_loc`, `difference`) are calculated programmatically and not stored in raw data.
-- **Checksums**: Raw parquet files are checksummed upon download.
-- **Common Denominator**: The `loc_count` for the human baseline is set to the LLM's `loc_count` to ensure a valid comparison of "Energy to produce this specific output".
+- **JSON**: Used for structured records (prompts, inference results, stats).
+- **CSV**: Used for paired emissions and sensitivity analysis for easy inspection and plotting.
+- **Markdown**: Used for the final report.

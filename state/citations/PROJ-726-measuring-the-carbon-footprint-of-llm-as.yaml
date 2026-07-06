@@ -1,1 +1,11 @@
-[]
+- artifact_hash: 165683e1ce9fa56a1e070d37600d37a78bdab0a8b7680e76a32a2861855ec4ab
+  artifact_path: projects/PROJ-726-measuring-the-carbon-footprint-of-llm-as/specs/001-measuring-the-carbon-footprint-of-llm-as/quickstart.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://github.com/your-org/llmXive.git
+  verification_status: mismatch
+  verified_against_url: https://github.com/your-org/llmXive
+  verified_at: '2026-07-06T12:43:43.159684Z'

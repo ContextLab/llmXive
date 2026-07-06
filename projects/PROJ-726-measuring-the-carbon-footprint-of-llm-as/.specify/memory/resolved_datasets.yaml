@@ -1,4 +1,4 @@
-resolved_at: '2026-07-04T22:53:58.323491+00:00'
+resolved_at: '2026-07-06T12:28:23.642873+00:00'
 datasets:
 - intent: GPT-2-medium
   status: verified
@@ -45,23 +45,23 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://figshare.com/articles/dataset/Dados_Coletados_para_a_Pesquisa_de_An_lise_de_Acessibilidade_em_Jogos_Digitais_Independentes/32900768
+  - url: https://figshare.com/articles/media/Complete_Guide_to_Electric_Vehicle_Charging_Stations_in_Sacramento_CA/32908829
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Dataset_supporting_the_study_Knowledge_attitudes_practices_and_perceptions_related_to_dental_caries_among_Peruvian_first-division_soccer_players_a_cross-sectional_study_/32900639
+  - url: https://data.ncl.ac.uk/articles/dataset/Original_raw_imaging_data_and_numerical_data_underpinning_figures_of_the_publication_titled_Monitoring_single_cell_bioenergetic_status_and_cell_lysis_in_dense_and_differentiating_i_Bacillus_subtilis_i_cultures_/29924237
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/2026_2027_DIRECT_ENTRY_FORM_Nile_University_of_Nigeria_Abuja_Admission_is_out_officially_Call_ON_07036366909_DR_MRS_GRACE_to_apply/32900786
+  - url: https://figshare.edgehill.ac.uk/articles/composition/Home_from_Home_Collected_Poems_and_Writings/30646577
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/2026_2027_DIRECT_ENTRY_FORM_Afe_Babalola_University_Ado-EkitiAdmission_is_out_officially_Call_ON_07036366909_DR_MRS_GRACE_to_apply/32900783
+  - url: https://iastate.figshare.com/articles/dataset/WATER-MAP_A_database_of_water_and_wastewater_treatment_technologies_for_small_water_systems/32826737
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/media/2026_2027_DIRECT_ENTRY_FORM_Caleb_University_Lagos_Admission_is_out_officially_Call_ON_07036366909_DR_MRS_GRACE_to_apply/32900780
+  - url: https://figshare.com/articles/dataset/Dataset1_/32908523
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -85,14 +85,6 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20510136
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20510136
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/15228609
     source: datacite
     status: wrong_format
@@ -101,7 +93,15 @@ datasets:
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://osf.io/7gnm8/
+  - url: https://tandf.figshare.com/articles/journal_contribution/Hypoxia-preconditioned_dental_pulp_stem_cells_alleviate_acetaminophen-induced_liver_failure_via_promoting_MYC-HIF1A_HIF-1_-BNIP3-mediated_mitophagy/32906432
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Hypoxia-preconditioned_dental_pulp_stem_cells_alleviate_acetaminophen-induced_liver_failure_via_promoting_MYC-HIF1A_HIF-1_-BNIP3-mediated_mitophagy/32906432/1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20510136
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -109,23 +109,23 @@ datasets:
   status: unresolved
   candidates: []
   candidates_tried:
-  - url: https://figshare.com/articles/dataset/Dados_Coletados_para_a_Pesquisa_de_An_lise_de_Acessibilidade_em_Jogos_Digitais_Independentes/32900768
+  - url: https://figshare.com/articles/dataset/_b_Early_Dysanapsis_in_Experimental_Bronchopulmonary_Dysplasia_Implications_for_Lifelong_Lung_Disease_b_/32884949
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Dataset_supporting_the_study_Knowledge_attitudes_practices_and_perceptions_related_to_dental_caries_among_Peruvian_first-division_soccer_players_a_cross-sectional_study_/32900639
+  - url: https://figshare.com/articles/media/Complete_Guide_to_Electric_Vehicle_Charging_Stations_in_Sacramento_CA/32908829
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/2026_2027_DIRECT_ENTRY_FORM_Nile_University_of_Nigeria_Abuja_Admission_is_out_officially_Call_ON_07036366909_DR_MRS_GRACE_to_apply/32900786
+  - url: https://data.ncl.ac.uk/articles/dataset/Original_raw_imaging_data_and_numerical_data_underpinning_figures_of_the_publication_titled_Monitoring_single_cell_bioenergetic_status_and_cell_lysis_in_dense_and_differentiating_i_Bacillus_subtilis_i_cultures_/29924237
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/2026_2027_DIRECT_ENTRY_FORM_Afe_Babalola_University_Ado-EkitiAdmission_is_out_officially_Call_ON_07036366909_DR_MRS_GRACE_to_apply/32900783
+  - url: https://figshare.edgehill.ac.uk/articles/composition/Home_from_Home_Collected_Poems_and_Writings/30646577
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/media/2026_2027_DIRECT_ENTRY_FORM_Caleb_University_Lagos_Admission_is_out_officially_Call_ON_07036366909_DR_MRS_GRACE_to_apply/32900780
+  - url: https://iastate.figshare.com/articles/dataset/WATER-MAP_A_database_of_water_and_wastewater_treatment_technologies_for_small_water_systems/32826737
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -179,32 +179,54 @@ datasets:
     sample_check:
       downloaded_bytes: 262144
       parsed: true
+  - url: https://huggingface.co/datasets/nvidia/PhysicalAI-Robotics-Locomanipulation-GRAIL/resolve/main/checkpoint/GEM-SMPL/inputs/checkpoints/body_models/smplx/SMPLX_NEUTRAL.npz
+    source: huggingface
+    format: zip
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/andrii4k/bayonett_lock_dataset_20260620_135402/resolve/main/data/chunk-000/file-000.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 180578
+      parsed: true
   candidates_tried:
   - url: https://huggingface.co/datasets/LocalLaws/LOCUS-v1/resolve/main/data/train-00000-of-00008.parquet
     source: huggingface
     status: verified
     format: parquet
+  - url: https://huggingface.co/datasets/nvidia/PhysicalAI-Robotics-Locomanipulation-GRAIL/resolve/main/checkpoint/GEM-SMPL/inputs/checkpoints/body_models/smplx/SMPLX_NEUTRAL.npz
+    source: huggingface
+    status: verified
+    format: zip
   - url: https://huggingface.co/api/resolve-cache/datasets/localmin/GOATBench/f75bf4abac4f232b0f3b6afdf04dbf6730972f95/api_corpus%2Fseen_corpus.json?%2Fdatasets%2Flocalmin%2FGOATBench%2Fresolve%2Fmain%2Fapi_corpus%2Fseen_corpus.json=&etag=%227ee0d26a7803b11eebeb254939844a6a32826e43%22
     source: huggingface
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Dados_Coletados_para_a_Pesquisa_de_An_lise_de_Acessibilidade_em_Jogos_Digitais_Independentes/32900768
+  - url: https://huggingface.co/datasets/andrii4k/bayonett_lock_dataset_20260620_135402/resolve/main/data/chunk-000/file-000.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/dataset/_b_Early_Dysanapsis_in_Experimental_Bronchopulmonary_Dysplasia_Implications_for_Lifelong_Lung_Disease_b_/32884949
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Dataset_supporting_the_study_Knowledge_attitudes_practices_and_perceptions_related_to_dental_caries_among_Peruvian_first-division_soccer_players_a_cross-sectional_study_/32900639
+  - url: https://figshare.com/articles/media/Complete_Guide_to_Electric_Vehicle_Charging_Stations_in_Sacramento_CA/32908829
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/2026_2027_DIRECT_ENTRY_FORM_Nile_University_of_Nigeria_Abuja_Admission_is_out_officially_Call_ON_07036366909_DR_MRS_GRACE_to_apply/32900786
+  - url: https://data.ncl.ac.uk/articles/dataset/Original_raw_imaging_data_and_numerical_data_underpinning_figures_of_the_publication_titled_Monitoring_single_cell_bioenergetic_status_and_cell_lysis_in_dense_and_differentiating_i_Bacillus_subtilis_i_cultures_/29924237
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/2026_2027_DIRECT_ENTRY_FORM_Afe_Babalola_University_Ado-EkitiAdmission_is_out_officially_Call_ON_07036366909_DR_MRS_GRACE_to_apply/32900783
+  - url: https://figshare.edgehill.ac.uk/articles/composition/Home_from_Home_Collected_Poems_and_Writings/30646577
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/media/2026_2027_DIRECT_ENTRY_FORM_Caleb_University_Lagos_Admission_is_out_officially_Call_ON_07036366909_DR_MRS_GRACE_to_apply/32900780
+  - url: https://iastate.figshare.com/articles/dataset/WATER-MAP_A_database_of_water_and_wastewater_treatment_technologies_for_small_water_systems/32826737
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -216,11 +238,7 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20029524
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20247041
+  - url: https://zenodo.org/records/20272240
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -228,23 +246,27 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21166949
-    source: datacite
+  - url: https://zenodo.org/records/20247041
+    source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/21166949
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21191870
+  - url: https://zenodo.org/records/21166949
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21220118
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21220118
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/21191870
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://osf.io/xgb9q/
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -263,23 +285,23 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://figshare.com/articles/dataset/Dados_Coletados_para_a_Pesquisa_de_An_lise_de_Acessibilidade_em_Jogos_Digitais_Independentes/32900768
+  - url: https://figshare.com/articles/dataset/_b_Early_Dysanapsis_in_Experimental_Bronchopulmonary_Dysplasia_Implications_for_Lifelong_Lung_Disease_b_/32884949
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Dataset_supporting_the_study_Knowledge_attitudes_practices_and_perceptions_related_to_dental_caries_among_Peruvian_first-division_soccer_players_a_cross-sectional_study_/32900639
+  - url: https://figshare.com/articles/media/Complete_Guide_to_Electric_Vehicle_Charging_Stations_in_Sacramento_CA/32908829
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/2026_2027_DIRECT_ENTRY_FORM_Nile_University_of_Nigeria_Abuja_Admission_is_out_officially_Call_ON_07036366909_DR_MRS_GRACE_to_apply/32900786
+  - url: https://data.ncl.ac.uk/articles/dataset/Original_raw_imaging_data_and_numerical_data_underpinning_figures_of_the_publication_titled_Monitoring_single_cell_bioenergetic_status_and_cell_lysis_in_dense_and_differentiating_i_Bacillus_subtilis_i_cultures_/29924237
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/2026_2027_DIRECT_ENTRY_FORM_Afe_Babalola_University_Ado-EkitiAdmission_is_out_officially_Call_ON_07036366909_DR_MRS_GRACE_to_apply/32900783
+  - url: https://figshare.edgehill.ac.uk/articles/composition/Home_from_Home_Collected_Poems_and_Writings/30646577
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/media/2026_2027_DIRECT_ENTRY_FORM_Caleb_University_Lagos_Admission_is_out_officially_Call_ON_07036366909_DR_MRS_GRACE_to_apply/32900780
+  - url: https://iastate.figshare.com/articles/dataset/WATER-MAP_A_database_of_water_and_wastewater_treatment_technologies_for_small_water_systems/32826737
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
