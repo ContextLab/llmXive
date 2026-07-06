@@ -1,64 +1,133 @@
-name: Audit Pipeline
+name: A/B Test Audit Pipeline
 
 on:
   push:
     branches: [ main, develop ]
   pull_request:
-    branches: [ main, develop ]
+    branches: [ main ]
+
+env:
+  PYTHON_VERSION: '3.10'
+  SEED: 42
 
 jobs:
-  run-audit:
+  constitution-check:
+    name: Constitution Principles Validation
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: ['3.10']
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up Python ${{ matrix.python-version }}
+      - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: ${{ matrix.python-version }}
-
-      - name: Cache pip packages
-        uses: actions/cache@v4
-        id: pip-cache
-        with:
-          path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
-          restore-keys: |
-            ${{ runner.os }}-pip-
+          python-version: ${{ env.PYTHON_VERSION }}
 
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: (a) Schema Validation
+      - name: Run Constitution Checker
+        id: constitution
         run: |
-          python -m code.src.audit.export_schema_validator
-          python -m code.src.audit.manifest_schema_validator
+          python code/src/utils/constitution_checker.py --check-all
+          if [ $? -ne 0 ]; then
+            echo "ERR-950: Constitution compliance check failed."
+            exit 1
+          fi
+        continue-on-error: false
 
-      - name: (b) Synthetic Validation
-        run: |
-          python -m code.src.audit.evaluation
+  schema-validation:
+    name: Schema Validation
+    runs-on: ubuntu-latest
+    needs: constitution-check
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-      - name: (c) Resource Monitor Check
-        run: |
-          python -m code.src.utils.resource_monitor --check-limits
-
-      - name: (d) Main Pipeline Run
-        run: |
-          python -m code.src.cli.run_audit
-
-      - name: Upload Artifacts
-        uses: actions/upload-artifact@v4
-        if: always()
+      - name: Set up Python
+        uses: actions/setup-python@v5
         with:
-          name: audit-artifacts
-          path: |
-            output/
-            data/
-            logs/
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run Schema Validation
+        run: |
+          python code/src/audit/export_schema_validator.py --validate-all
+
+  synthetic-validation:
+    name: Synthetic Dataset Validation
+    runs-on: ubuntu-latest
+    needs: [constitution-check, schema-validation]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run Synthetic Validation
+        run: |
+          python code/src/audit/evaluation.py --mode=synthetic --threshold-precision=0.90 --threshold-recall=0.80
+
+  resource-monitor:
+    name: Resource Usage Check
+    runs-on: ubuntu-latest
+    needs: [constitution-check, schema-validation, synthetic-validation]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run Resource Monitor Check
+        run: |
+          python code/src/utils/resource_monitor.py --check-limits
+
+  main-pipeline:
+    name: Main Audit Pipeline
+    runs-on: ubuntu-latest
+    needs: [constitution-check, schema-validation, synthetic-validation, resource-monitor]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run Main Audit Pipeline
+        run: |
+          python code/src/cli/run_audit.py --input=data/input/urls.csv --output-dir=output
+
+      - name: Verify Artifacts
+        run: |
+          test -f output/audit_report.json
+          test -f output/summary_report.csv
+          test -f output/manifest.json

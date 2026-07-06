@@ -28,6 +28,12 @@
   \ in `src/utils/helpers.py` (run unit test for each helper)."
 : 1
 ? "T012 Create CI workflow file `.github/workflows/audit.yml` that installs dependencies,\
+  \ enforces CPU \u2264 2 vCPU [UNRESOLVED-CLAIM: c_43fe11cc \u2014 status=not_enough_info],\
+  \ RAM \u2264 2 GB [UNRESOLVED-CLAIM: c_9ba7f4d4 \u2014 status=not_enough_info],\
+  \ timeout a predefined duration, and runs audit pipeline (verify workflow runs and\
+  \ respects limits) [DEPENDS ON: T010]."
+: 1
+? "T012 Create CI workflow file `.github/workflows/audit.yml` that installs dependencies,\
   \ enforces CPU \u2264 2 vCPU [UNRESOLVED-CLAIM: c_cd37e346 \u2014 status=not_enough_info],\
   \ RAM \u2264 2 GB [UNRESOLVED-CLAIM: c_d04b4d02 \u2014 status=not_enough_info],\
   \ timeout a predefined duration, and runs audit pipeline (verify workflow runs and\
@@ -82,6 +88,29 @@
   \ messages for sample\u2011size discrepancies, writing `output/audit_report.json`).\
   \ **DEPENDS ON:** T023."
 : 1
+? "T025 Implement inconsistency validator in `src/audit/validator.py` applying FR\u2011\
+  004 thresholds (absolute p\u2011difference > 0.05 [UNRESOLVED-CLAIM: c_ec0a1ff1\
+  \ \u2014 status=not_enough_info], relative effect\u2011size > 5\u202F% [UNRESOLVED-CLAIM:\
+  \ c_6b4d3f70 \u2014 status=not_enough_info]) **and verify that sample\u2011size\
+  \ mismatch entries are excluded from aggregate prevalence estimates** per FR\u2011\
+  004b (generate `AuditRecord` objects with data_quality_warning messages for sample\u2011\
+  size discrepancies, writing `output/audit_report.json`). **DEPENDS ON:** T023."
+: 1
+? "T026 Implement synthetic dataset generator in `src/audit/synthetic.py` (FR\u2011\
+  030) \u2013 The synthetic dataset generator outputs at least 10\u202F000 simulated\
+  \ summaries (binary AND continuous outcomes). (binary AND continuous outcomes) **and\
+  \ verify both outcome types are present** (constraint\u2011preservation\u20112958f04c)\
+  \ (verify files are created and contain \u2265\u202F10\u202F000 records). **DEPENDS\
+  \ ON:** T006\u2011T012."
+: 1
+? "T026 Implement synthetic dataset generator in `src/audit/synthetic.py` (FR\u2011\
+  030) \u2013 The synthetic dataset generator outputs at least 10\u202F000 simulated\
+  \ summaries (binary AND continuous outcomes). [UNRESOLVED-CLAIM: c_1bccb901 \u2014\
+  \ status=not_enough_info] (binary AND continuous outcomes) **and verify both outcome\
+  \ types are present** (constraint\u2011preservation\u20112958f04c) (verify files\
+  \ are created and contain \u2265\u202F10\u202F000 records). **DEPENDS ON:** T006\u2011\
+  T012."
+: 1
 ? "T026 Implement synthetic dataset generator in `src/audit/synthetic.py` (FR\u2011\
   030) \u2013 The synthetic dataset generator outputs at least 10\u202F000 simulated\
   \ summaries (binary AND continuous outcomes). [UNRESOLVED-CLAIM: c_9a39a793 \u2014\
@@ -90,14 +119,6 @@
   \ are created and contain \u2265\u202F10\u202F000 records). **DEPENDS ON:** T006\u2011\
   T012."
 : 1
-? "T026 Implement synthetic dataset generator in `src/audit/synthetic.py` (FR\u2011\
-  030) \u2013 The synthetic dataset generator outputs at least 10\u202F000 simulated\
-  \ summaries (binary AND continuous outcomes). [UNRESOLVED-CLAIM: c_aeacfe01 \u2014\
-  \ status=not_enough_info] (binary AND continuous outcomes) **and verify both outcome\
-  \ types are present** (constraint\u2011preservation\u20112958f04c) (verify files\
-  \ are created and contain \u2265\u202F10\u202F000 records). **DEPENDS ON:** T006\u2011\
-  T012."
-: 2
 ? "T026 Implement synthetic dataset generator in `src/audit/synthetic.py` (FR\u2011\
   030) \u2013 The synthetic dataset generator outputs at least 10\u202F000 simulated\
   \ summaries (binary AND continuous outcomes). [UNRESOLVED-CLAIM: c_cf9c2659 \u2014\
@@ -151,6 +172,11 @@
   \ handling, sample\u2011size mismatch with data_quality_warning generation (tests/unit/test_validator.py)\
   \ (verify all tests pass) [DEPENDS ON: T025]."
 : 1
+? "T027 Unit tests for validator covering absolute p\u2011difference > 0.05 [UNRESOLVED-CLAIM:\
+  \ c_ec0a1ff1 \u2014 status=not_enough_info], effect\u2011size > 5\u202F%, inequality\
+  \ handling, sample\u2011size mismatch with data_quality_warning generation (tests/unit/test_validator.py)\
+  \ (verify all tests pass) [DEPENDS ON: T025]."
+: 1
 ? "T028 Implement power\u2011analysis utility in `src/audit/power_analysis.py` (FR\u2011\
   025) that computes the minimum N given baseline, detectable effect, \u03B1 and power\
   \ [UNRESOLVED-CLAIM: c_21bdda9f \u2014 status=not_enough_info], writes result to\
@@ -182,6 +208,12 @@
   \ status=not_enough_info] ** (constraint\u2011preservation\u2011ba913176) (verify\
   \ JSON file exists, contains numeric N, and satisfies condition). **DEPENDS ON:**\
   \ T010."
+: 1
+? "T029 Evaluate inconsistency\u2011detection component on synthetic validation dataset\
+  \ (FR\u2011031) \u2013 compute precision, recall, F1 and assert precision \u2265\
+  \ 90\u202F%, recall \u2265 80\u202F% [UNRESOLVED-CLAIM: c_5f9692d7 \u2014 status=not_enough_info]\
+  \ (depends on T026) (verify test passes, otherwise raise `ERR-800`) [DEPENDS ON:\
+  \ T026]."
 : 1
 ? "T029 Evaluate inconsistency\u2011detection component on synthetic validation dataset\
   \ (FR\u2011031) \u2013 compute precision, recall, F1 and assert precision \u2265\
@@ -283,6 +315,12 @@
   \ Welch's, binomial) and checks the absolute difference \u2264 0.005 [UNRESOLVED-CLAIM:\
   \ c_9b059f74 \u2014 status=not_enough_info] (constraint\u2011preservation\u2011\
   e62a0df4) (verify module exits with status 0)."
+: 1
+? "T062 Implement Monte\u2011Carlo validation module (FR\u2011026) in `src/audit/monte_carlo_validation.py`\
+  \ that runs 10\u202F10000 replicates [UNRESOLVED-CLAIM: c_d217d9c1 \u2014 status=not_enough_info]\
+  \ for each statistical test (z-test, Fisher's, Welch's, binomial) and checks the\
+  \ absolute difference \u2264 0.005 (constraint\u2011preservation\u2011e62a0df4)\
+  \ (verify module exits with status 0)."
 : 1
 ? "T062 Implement Monte\u2011Carlo validation module (FR\u2011026) in `src/audit/monte_carlo_validation.py`\
   \ that runs 10\u202F10000 replicates for each statistical test (z-test, Fisher's,\
@@ -412,7 +450,21 @@
   \ --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested\
   \ -->"
 : 2
+? "T064 Update `.github/workflows/audit.yml` to include steps: (a) schema validation,\
+  \ (b) synthetic validation (ensure precision/recall thresholds), (c) resource\u2011\
+  monitor check, (d) main pipeline run (verify workflow runs all steps) [DEPENDS ON:\
+  \ T098]. <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested\
+  \ --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested\
+  \ --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested\
+  \ --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested\
+  \ --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested\
+  \ --> <!-- ATOMIZE: requested -->"
+: 2
 ? "T095c **[P]** Verify that the CI run includes a step that checks all seven Constitution\
   \ Principles (I\u2011VII) are satisfied (ties to PT005C) (verify CI step exists\
   \ and passes). (depends on PT005C)"
 : 1
+? "T095c **[P]** Verify that the CI run includes a step that checks all seven Constitution\
+  \ Principles (I\u2011VII) are satisfied (ties to PT005C) (verify CI step exists\
+  \ and passes). (depends on PT005C) <!-- ATOMIZE: requested -->"
+: 2

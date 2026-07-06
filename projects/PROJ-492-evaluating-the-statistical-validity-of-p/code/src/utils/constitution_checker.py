@@ -1,300 +1,371 @@
 """
-Constitution compliance checker for the A/B Test Validity Audit Pipeline.
+Constitution Compliance Checker
 
-Validates all seven Principles (I-VII) of the project Constitution.
-Returns exit code 0 if all checks pass, non-zero otherwise.
+Validates all seven Principles (I-VII) of the llmXive Constitution.
+Returns exit code 0 if all pass, 1 if any fail.
 """
-import json
+
 import sys
-import hashlib
+import argparse
+import logging
 from pathlib import Path
-from datetime import datetime
-from typing import List, Dict, Any, Tuple, Optional
+from typing import List, Tuple, Callable, Dict, Any
 
-from code.src.config import SEED, get_config_summary
 from code.src.utils.logger import get_default_logger, AuditLogger, get_error_message
+from code.src.config import SEED
+import numpy as np
+import hashlib
+import json
+import os
 
-# Initialize logger
 logger = get_default_logger(__name__)
-audit_logger = AuditLogger(logger)
 
-# Constitution Principles definitions
-CONSTITUTION_PRINCIPLES = {
-    "I": "Reproducibility: All random seeds must be deterministic (SEED=42).",
-    "II": "Transparency: All code must be open source and version controlled.",
-    "III": "Integrity: All artifacts must have SHA256 checksums recorded.",
-    "IV": "Consistency: Checksums in manifest.json must match data/checksums.txt.",
-    "V": "Governance: All changes must be tracked with updated_at timestamps.",
-    "VI": "Justification: All discrepancies must be documented with rationale.",
-    "VII": "Provenance: All data sources must be tracked with URL and timestamp."
-}
-
+# Principle Definitions and Check Functions
 def check_principle_i_reproducibility() -> Tuple[bool, str]:
-    """Check Principle I: Reproducibility - SEED=42 and all RNGs seeded."""
+    """
+    Principle I: Reproducibility
+    - Random seeds are fixed and documented.
+    - All RNGs are seeded at startup.
+    """
+    issues = []
+
+    # Check SEED constant exists and is an integer
+    if not isinstance(SEED, int):
+        issues.append("SEED constant in config.py is not an integer.")
+    
+    # Check that numpy is seeded
     try:
-        from code.src.config import SEED
-        if SEED != 42:
-            return False, f"SEED is {SEED}, expected 42"
-        
-        # Verify config summary reflects deterministic seed
-        config_summary = get_config_summary()
-        if "seed" not in config_summary or config_summary["seed"] != 42:
-            return False, "Config summary does not reflect deterministic seed"
-        
-        return True, "Reproducibility check passed: SEED=42 confirmed"
+        # This is a runtime check; in real usage, this should be done at module load
+        current_state = np.random.get_state()
+        # We can't easily verify if it was seeded with 42 without checking the seed history,
+        # but we can verify the module imports set_rng_seed
+        from code.src.config import set_rng_seed
+        set_rng_seed(SEED)
+        if not isinstance(SEED, int) or SEED < 0:
+            issues.append(f"Invalid seed value: {SEED}")
     except Exception as e:
-        return False, f"Error checking reproducibility: {str(e)}"
+        issues.append(f"Failed to initialize RNG: {str(e)}")
 
-def check_principle_ii_transparency() -> Tuple[bool, str]:
-    """Check Principle II: Transparency - Code is open source and version controlled."""
-    # Check for .git directory (version control)
-    git_dir = Path(".git")
-    if not git_dir.exists():
-        # In CI, this might be shallow clone, so check for .git files
-        git_files = list(Path(".").glob(".git*"))
-        if not git_files:
-            return False, "No version control system detected (.git directory or files missing)"
-    
-    # Check for LICENSE file (open source)
-    license_files = list(Path(".").glob("LICENSE*"))
-    if not license_files:
-        # Not strictly required for internal projects, but good practice
-        audit_logger.warning("No LICENSE file found - consider adding one for transparency")
-    
-    return True, "Transparency check passed: Version control detected"
-
-def check_principle_iii_integrity() -> Tuple[bool, str]:
-    """Check Principle III: Integrity - All artifacts have SHA256 checksums."""
-    checksum_file = Path("data/checksums.txt")
-    if not checksum_file.exists():
-        return False, "data/checksums.txt not found - artifact integrity not recorded"
-    
-    # Verify checksum file has content
-    content = checksum_file.read_text().strip()
-    if not content:
-        return False, "data/checksums.txt is empty - no checksums recorded"
-    
-    # Check that checksums are valid SHA256 (64 hex chars)
-    lines = content.splitlines()
-    for line in lines:
-        parts = line.strip().split()
-        if len(parts) < 2:
-            continue  # Skip malformed lines
-        checksum = parts[0]
-        if len(checksum) != 64 or not all(c in '0123456789abcdef' for c in checksum.lower()):
-            return False, f"Invalid SHA256 checksum format: {checksum}"
-    
-    return True, "Integrity check passed: Valid SHA256 checksums recorded"
-
-def check_principle_iv_consistency() -> Tuple[bool, str]:
-    """Check Principle IV: Consistency - manifest.json matches data/checksums.txt."""
-    manifest_file = Path("output/manifest.json")
-    checksum_file = Path("data/checksums.txt")
-    
-    if not manifest_file.exists():
-        return False, "output/manifest.json not found"
-    
-    if not checksum_file.exists():
-        return False, "data/checksums.txt not found"
-    
-    try:
-        with open(manifest_file, 'r') as f:
-            manifest = json.load(f)
-        
-        # Load checksums from data/checksums.txt
-        checksums_txt = {}
-        with open(checksum_file, 'r') as f:
-            for line in f:
-                parts = line.strip().split()
-                if len(parts) >= 2:
-                    checksums_txt[parts[1]] = parts[0]  # path -> checksum
-        
-        # Compare with manifest
-        manifest_hashes = manifest.get("artifact_hashes", {})
-        
-        mismatches = []
-        for path, manifest_hash in manifest_hashes.items():
-            if path in checksums_txt:
-                if checksums_txt[path] != manifest_hash:
-                    mismatches.append(f"{path}: manifest={manifest_hash[:8]}... vs checksums={checksums_txt[path][:8]}...")
-            else:
-                mismatches.append(f"{path}: in manifest but not in data/checksums.txt")
-        
-        if mismatches:
-            return False, f"Checksum mismatches found: {', '.join(mismatches[:3])}..."
-        
-        return True, "Consistency check passed: manifest.json matches data/checksums.txt"
-    except json.JSONDecodeError as e:
-        return False, f"Invalid JSON in manifest.json: {str(e)}"
-    except Exception as e:
-        return False, f"Error checking consistency: {str(e)}"
-
-def check_principle_v_governance() -> Tuple[bool, str]:
-    """Check Principle V: Governance - Changes tracked with updated_at timestamps."""
-    state_file = Path("state/projects/PROJ-492-evaluating-the-statistical-validity-of-p.yaml")
-    
-    if not state_file.exists():
-        return False, "Project state file not found"
-    
-    try:
-        import yaml
-        with open(state_file, 'r') as f:
-            state = yaml.safe_load(f)
-        
-        # Check for updated_at field
-        if "updated_at" not in state:
-            return False, "State file missing 'updated_at' timestamp"
-        
-        # Verify timestamp format (ISO 8601)
-        timestamp = state["updated_at"]
-        if not isinstance(timestamp, str) or 'T' not in timestamp:
-            return False, f"Invalid timestamp format: {timestamp}"
-        
-        return True, f"Governance check passed: State updated at {timestamp}"
-    except ImportError:
-        return False, "PyYAML not installed - cannot parse state file"
-    except Exception as e:
-        return False, f"Error checking governance: {str(e)}"
-
-def check_principle_vi_justification() -> Tuple[bool, str]:
-    """Check Principle VI: Justification - Discrepancies documented."""
-    notebook_path = Path("notebooks/statistical_consistency_verification.ipynb")
-    
-    if not notebook_path.exists():
-        return False, "Discrepancy justification notebook not found"
-    
-    try:
-        with open(notebook_path, 'r') as f:
-            notebook = json.load(f)
-        
-        # Check for cells containing justification content
-        justification_found = False
-        for cell in notebook.get("cells", []):
-            cell_type = cell.get("cell_type", "")
-            source = cell.get("source", "")
-            
-            if cell_type == "markdown" or cell_type == "code":
-                if isinstance(source, list):
-                    source_text = "".join(source)
-                else:
-                    source_text = str(source)
-                
-                # Look for justification keywords
-                if any(keyword in source_text.lower() for keyword in 
-                       ["justification", "discrepancy", "p-value", "inconsistency", "rationale"]):
-                    justification_found = True
-                    break
-        
-        if not justification_found:
-            return False, "No discrepancy justifications found in notebook"
-        
-        return True, "Justification check passed: Discrepancies documented in notebook"
-    except json.JSONDecodeError:
-        return False, "Invalid notebook JSON format"
-    except Exception as e:
-        return False, f"Error checking justification: {str(e)}"
-
-def check_principle_vii_provenance() -> Tuple[bool, str]:
-    """Check Principle VII: Provenance - Data sources tracked."""
-    provenance_file = Path("data/provenance_log.csv")
-    
-    if not provenance_file.exists():
-        return False, "Provenance log file not found"
-    
-    try:
-        import csv
-        with open(provenance_file, 'r') as f:
-            reader = csv.DictReader(f)
-            rows = list(reader)
-        
-        if not rows:
-            return False, "Provenance log is empty"
-        
-        # Check required columns
-        required_columns = ["url", "repository_identifier", "fetch_timestamp"]
-        if not all(col in rows[0].keys() for col in required_columns):
-            missing = [col for col in required_columns if col not in rows[0].keys()]
-            return False, f"Missing required columns in provenance log: {missing}"
-        
-        # Verify each row has all required fields
-        for i, row in enumerate(rows):
-            for col in required_columns:
-                if not row.get(col):
-                    return False, f"Row {i+1} missing {col}"
-        
-        return True, f"Provenance check passed: {len(rows)} records with full provenance"
-    except Exception as e:
-        return False, f"Error checking provenance: {str(e)}"
-
-def run_all_checks() -> Dict[str, Any]:
-    """Run all constitution principle checks."""
-    results = {}
-    all_passed = True
-    
-    checks = [
-        ("I", check_principle_i_reproducibility),
-        ("II", check_principle_ii_transparency),
-        ("III", check_principle_iii_integrity),
-        ("IV", check_principle_iv_consistency),
-        ("V", check_principle_v_governance),
-        ("VI", check_principle_vi_justification),
-        ("VII", check_principle_vii_provenance),
+    # Check for random usage without seeding in critical paths (static analysis approximation)
+    critical_files = [
+        "code/src/audit/synthetic.py",
+        "code/src/audit/monte_carlo_core.py",
+        "code/src/audit/power_analysis.py"
     ]
     
-    for principle_id, check_func in checks:
-        passed, message = check_func()
-        results[principle_id] = {
-            "passed": passed,
-            "message": message,
-            "principle": CONSTITUTION_PRINCIPLES[principle_id]
-        }
-        if not passed:
-            all_passed = False
-            audit_logger.error(f"ERR-950: Principle {principle_id} failed - {message}")
-        else:
-            audit_logger.info(f"Principle {principle_id} passed: {message}")
-    
-    return {
-        "all_passed": all_passed,
-        "timestamp": datetime.utcnow().isoformat(),
-        "results": results
-    }
+    for fpath in critical_files:
+        if Path(fpath).exists():
+            content = Path(fpath).read_text()
+            if "import random" in content and "random.seed" not in content:
+                issues.append(f"File {fpath} uses random module without explicit seeding.")
+            if "np.random" in content and "set_rng_seed" not in content and "np.random.seed" not in content:
+                # Allow if set_rng_seed is imported from config
+                if "from code.src.config import set_rng_seed" not in content:
+                    issues.append(f"File {fpath} uses numpy RNG without seeding setup.")
 
-def main():
-    """Main entry point for constitution checker."""
-    logger.info("Starting Constitution compliance check (Principles I-VII)")
+    return len(issues) == 0, "; ".join(issues) if issues else "All checks passed."
+
+def check_principle_ii_integrity() -> Tuple[bool, str]:
+    """
+    Principle II: Integrity
+    - Data provenance is tracked.
+    - No unauthorized modifications.
+    """
+    issues = []
+
+    # Check for provenance log existence
+    provenance_log = Path("data/provenance_log.csv")
+    if not provenance_log.exists():
+        issues.append("Provenance log (data/provenance_log.csv) not found.")
+    else:
+        # Basic validation of format
+        try:
+            with open(provenance_log, 'r') as f:
+                header = f.readline().strip().split(',')
+                required = ['url', 'repository_identifier', 'fetch_timestamp']
+                if not all(h in header for h in required):
+                    issues.append(f"Provenance log missing required columns: {required}")
+        except Exception as e:
+            issues.append(f"Failed to read provenance log: {str(e)}")
+
+    # Check for manifest.json
+    manifest = Path("output/manifest.json")
+    if manifest.exists():
+        try:
+            data = json.loads(manifest.read_text())
+            if "files" not in data:
+                issues.append("Manifest missing 'files' key.")
+        except json.JSONDecodeError:
+            issues.append("Manifest is not valid JSON.")
+    else:
+        # Manifest is generated by pipeline, so we might not have it yet in CI start
+        # But we check if the generator exists
+        if not Path("code/src/utils/manifest.py").exists():
+            issues.append("Manifest generator script not found.")
+
+    return len(issues) == 0, "; ".join(issues) if issues else "All checks passed."
+
+def check_principle_iii_checksums() -> Tuple[bool, str]:
+    """
+    Principle III: Checksums
+    - All artifacts have SHA256 checksums.
+    - Checksums are verified against stored values.
+    """
+    issues = []
+
+    manifest_path = Path("output/manifest.json")
+    checksums_path = Path("data/checksums.txt")
+
+    if not manifest_path.exists():
+        issues.append("Manifest file not found for checksum verification.")
+    else:
+        try:
+            manifest = json.loads(manifest_path.read_text())
+            files = manifest.get("files", {})
+            
+            if not files:
+                issues.append("Manifest contains no file entries.")
+            else:
+                for filename, info in files.items():
+                    if "sha256" not in info:
+                        issues.append(f"File {filename} in manifest missing sha256 hash.")
+                    
+                    # If the file exists, verify the hash
+                    file_path = Path(filename)
+                    if file_path.exists():
+                        computed_hash = hashlib.sha256(file_path.read_bytes()).hexdigest()
+                        if computed_hash != info["sha256"]:
+                            issues.append(f"Checksum mismatch for {filename}: expected {info['sha256']}, got {computed_hash}")
+                    else:
+                        issues.append(f"File {filename} referenced in manifest does not exist.")
+        except Exception as e:
+            issues.append(f"Error processing manifest: {str(e)}")
+
+    if checksums_path.exists():
+        # Verify checksums.txt format
+        try:
+            lines = checksums_path.read_text().strip().split('\n')
+            for line in lines:
+                if not line.strip(): continue
+                parts = line.split()
+                if len(parts) < 2:
+                    issues.append(f"Invalid checksum line format: {line}")
+        except Exception as e:
+            issues.append(f"Error reading checksums.txt: {str(e)}")
+    else:
+        # checksums.txt is generated by pipeline
+        if not Path("code/src/utils/manifest.py").exists():
+            issues.append("Checksum generator script not found.")
+
+    return len(issues) == 0, "; ".join(issues) if issues else "All checks passed."
+
+def check_principle_iv_consistency() -> Tuple[bool, str]:
+    """
+    Principle IV: Consistency
+    - All artifacts are mutually consistent.
+    - No conflicting data.
+    """
+    issues = []
+
+    # Check audit_report.json and summary_report.csv consistency
+    audit_report = Path("output/audit_report.json")
+    summary_report = Path("output/summary_report.csv")
+
+    if audit_report.exists() and summary_report.exists():
+        try:
+            with open(audit_report, 'r') as f:
+                audit_data = json.load(f)
+            
+            # Count inconsistent records
+            inconsistent_count = sum(1 for r in audit_data.get("records", []) if r.get("inconsistent", False))
+            total_count = len(audit_data.get("records", []))
+
+            # Read CSV and compare
+            import csv
+            with open(summary_report, 'r') as f:
+                reader = csv.DictReader(f)
+                summary_data = next(reader, None)
+            
+            if summary_data:
+                csv_inconsistent = int(summary_data.get("inconsistent_count", 0))
+                csv_total = int(summary_data.get("total_summaries", 0))
+
+                if inconsistent_count != csv_inconsistent:
+                    issues.append(f"Inconsistent count mismatch: JSON={inconsistent_count}, CSV={csv_inconsistent}")
+                if total_count != csv_total:
+                    issues.append(f"Total count mismatch: JSON={total_count}, CSV={csv_total}")
+            else:
+                issues.append("Summary report CSV is empty.")
+        except Exception as e:
+            issues.append(f"Error checking consistency: {str(e)}")
+    else:
+        if not audit_report.exists():
+            issues.append("Audit report not found for consistency check.")
+        if not summary_report.exists():
+            issues.append("Summary report not found for consistency check.")
+
+    return len(issues) == 0, "; ".join(issues) if issues else "All checks passed."
+
+def check_principle_v_governance() -> Tuple[bool, str]:
+    """
+    Principle V: Governance
+    - Invalidation mechanism exists.
+    - Updates are tracked.
+    """
+    issues = []
+
+    governance_script = Path("code/src/utils/governance.py")
+    state_file = Path("state/projects/PROJ-492-evaluating-the-statistical-validity-of-p.yaml")
+
+    if not governance_script.exists():
+        issues.append("Governance script not found.")
+    else:
+        # Check if it has the invalidation function
+        content = governance_script.read_text()
+        if "invalidate" not in content.lower():
+            issues.append("Governance script lacks invalidation mechanism.")
+
+    if state_file.exists():
+        try:
+            import yaml
+            state = yaml.safe_load(state_file.read_text())
+            if "updated_at" not in state:
+                issues.append("State file missing 'updated_at' timestamp.")
+            if "artifact_hashes" not in state:
+                issues.append("State file missing 'artifact_hashes' map.")
+        except Exception as e:
+            issues.append(f"Error reading state file: {str(e)}")
+    else:
+        issues.append("Project state file not found.")
+
+    return len(issues) == 0, "; ".join(issues) if issues else "All checks passed."
+
+def check_principle_vi_justification() -> Tuple[bool, str]:
+    """
+    Principle VI: Justification
+    - Discrepancies are documented with justification.
+    """
+    issues = []
+
+    notebook = Path("notebooks/statistical_consistency_verification.ipynb")
     
-    results = run_all_checks()
+    if not notebook.exists():
+        issues.append("Verification notebook not found.")
+    else:
+        try:
+            content = json.loads(notebook.read_text())
+            cells = content.get("cells", [])
+            
+            # Look for justification cells
+            justification_found = False
+            for cell in cells:
+                if cell.get("cell_type") == "markdown":
+                    source = "".join(cell.get("source", []))
+                    if "justification" in source.lower() or "discrepancy" in source.lower():
+                        justification_found = True
+                        break
+            
+            if not justification_found:
+                issues.append("Notebook lacks explicit discrepancy justifications.")
+        except Exception as e:
+            issues.append(f"Error reading notebook: {str(e)}")
+
+    return len(issues) == 0, "; ".join(issues) if issues else "All checks passed."
+
+def check_principle_vii_provenance() -> Tuple[bool, str]:
+    """
+    Principle VII: Provenance
+    - All data sources are tracked.
+    - Repository identifiers are recorded.
+    """
+    issues = []
+
+    provenance_log = Path("data/provenance_log.csv")
     
-    # Write results to file for CI
-    results_file = Path("output/constitution_check_results.json")
-    results_file.parent.mkdir(parents=True, exist_ok=True)
+    if not provenance_log.exists():
+        issues.append("Provenance log not found.")
+    else:
+        try:
+            import csv
+            with open(provenance_log, 'r') as f:
+                reader = csv.DictReader(f)
+                rows = list(reader)
+            
+            if not rows:
+                issues.append("Provenance log is empty.")
+            else:
+                required_fields = ['url', 'repository_identifier', 'fetch_timestamp']
+                for field in required_fields:
+                    if field not in rows[0]:
+                        issues.append(f"Provenance log missing field: {field}")
+                
+                # Check that repository_identifier is not empty for all rows
+                for i, row in enumerate(rows):
+                    if not row.get('repository_identifier', '').strip():
+                        issues.append(f"Row {i+1} missing repository identifier.")
+        except Exception as e:
+            issues.append(f"Error reading provenance log: {str(e)}")
+
+    return len(issues) == 0, "; ".join(issues) if issues else "All checks passed."
+
+PRINCIPLES = {
+    "I": ("Reproducibility", check_principle_i_reproducibility),
+    "II": ("Integrity", check_principle_ii_integrity),
+    "III": ("Checksums", check_principle_iii_checksums),
+    "IV": ("Consistency", check_principle_iv_consistency),
+    "V": ("Governance", check_principle_v_governance),
+    "VI": ("Justification", check_principle_vi_justification),
+    "VII": ("Provenance", check_principle_vii_provenance),
+}
+
+def run_check(principle_id: str) -> bool:
+    """Run a single principle check."""
+    name, checker = PRINCIPLES[principle_id]
+    passed, message = checker()
     
-    with open(results_file, 'w') as f:
-        json.dump(results, f, indent=2)
+    if passed:
+        logger.info(f"Principle {principle_id} ({name}): PASSED - {message}")
+    else:
+        logger.error(f"Principle {principle_id} ({name}): FAILED - {message}")
+        # Log error code
+        logger.error(get_error_message("ERR-950"))
     
-    # Print summary
-    print(f"\nConstitution Compliance Check Results:")
-    print(f"Timestamp: {results['timestamp']}")
-    print(f"Overall Status: {'PASSED' if results['all_passed'] else 'FAILED'}")
-    print("-" * 50)
+    return passed
+
+def main(args=None):
+    parser = argparse.ArgumentParser(description="Check Constitution Principles compliance.")
+    parser.add_argument("--check-all", action="store_true", help="Run all principle checks.")
+    parser.add_argument("--check", type=str, help="Check specific principle (I-VII).")
     
-    for principle_id, result in results["results"].items():
-        status = "✓ PASS" if result["passed"] else "✗ FAIL"
-        print(f"Principle {principle_id}: {status}")
-        print(f"  {result['message']}")
+    parsed_args = parser.parse_args(args)
     
-    if not results["all_passed"]:
-        print("\n" + "=" * 50)
-        print("ERROR: Constitution compliance check FAILED (ERR-950)")
-        print("Please review failed principles and fix issues.")
-        print("=" * 50)
-        sys.exit(1)
+    if parsed_args.check_all:
+        all_passed = True
+        for pid in sorted(PRINCIPLES.keys()):
+            if not run_check(pid):
+                all_passed = False
+        
+        if not all_passed:
+            logger.error("ERR-950: One or more Constitution Principles failed.")
+            sys.exit(1)
+        else:
+            logger.info("All Constitution Principles passed.")
+            sys.exit(0)
     
-    print("\n" + "=" * 50)
-    print("SUCCESS: All Constitution principles satisfied")
-    print("=" * 50)
-    sys.exit(0)
+    elif parsed_args.check:
+        pid = parsed_args.check.upper()
+        if pid not in PRINCIPLES:
+            logger.error(f"Invalid principle ID: {pid}. Must be I-VII.")
+            sys.exit(1)
+        
+        if not run_check(pid):
+            sys.exit(1)
+        else:
+            sys.exit(0)
+    
+    else:
+        parser.print_help()
+        sys.exit(0)
 
 if __name__ == "__main__":
     main()

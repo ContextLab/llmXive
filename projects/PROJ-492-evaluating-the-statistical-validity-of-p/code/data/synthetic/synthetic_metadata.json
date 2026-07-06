@@ -1,8 +1,11 @@
 {
-  "generated_at": "2026-06-27T12:00:00.000000",
+  "generated_at": "2024-06-27T19:32:53.038071",
   "total_records": 10000,
-  "binary_count": 6000,
-  "continuous_count": 4000,
-  "both_types_present": true,
-  "seed": 42
+  "outcome_counts": {
+    "binary": 5000,
+    "continuous": 5000
+  },
+  "min_records_required": 10000,
+  "seed": 42,
+  "generator_version": "1.0.0"
 }
