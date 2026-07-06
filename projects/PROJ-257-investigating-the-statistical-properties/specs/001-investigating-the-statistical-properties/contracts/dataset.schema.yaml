@@ -1,0 +1,40 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "GWTC and Simulation Dataset Schema"
+description: "Schema for preprocessed observational and synthetic black hole merger datasets."
+type: "object"
+properties:
+  event_id:
+    type: "string"
+    description: "Unique identifier for the merger event."
+  component_mass_1:
+    type: "number"
+    description: "Primary component mass in solar masses (M_sun)."
+    minimum: 0
+  component_mass_2:
+    type: "number"
+    description: "Secondary component mass in solar masses (M_sun)."
+    minimum: 0
+  mass_ratio:
+    type: "number"
+    description: "Mass ratio q = m2 / m1 (0 < q <= 1)."
+    minimum: 0
+    maximum: 1
+  effective_spin:
+    type: "number"
+    description: "Effective spin parameter (chi_eff)."
+    minimum: -1
+    maximum: 1
+  formation_channel:
+    type: "string"
+    description: "Origin of the data (e.g., 'GWTC_observed' or 'synthetic_power_law')."
+    enum:
+      - "GWTC_observed"
+      - "synthetic_power_law"
+required:
+  - event_id
+  - component_mass_1
+  - component_mass_2
+  - mass_ratio
+  - effective_spin
+  - formation_channel
+additionalProperties: false

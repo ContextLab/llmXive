@@ -1,26 +1,26 @@
-resolved_at: '2026-07-06T02:11:01.645794+00:00'
+resolved_at: '2026-07-06T02:53:30.591165+00:00'
 datasets:
 - intent: 10.5281/zenodo.3966973
   status: unresolved
   candidates: []
   candidates_tried:
-  - url: https://figshare.com/articles/journal_contribution/sampling_effort_data_and_R_script/31319731
+  - url: https://figshare.com/articles/dataset/Anonymized_expert_evaluation_forms_for_visual_output_in_Ecuadorian_Sign_Language_p_p_/32904482
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.mq.edu.au/articles/thesis/Using_AI_in_Finance_to_detect_AML_activities/31825171
+  - url: https://figshare.com/articles/dataset/S_Table6_BLAST_result_of_i_Lacticaseibacillus_paracasei_i_TOKAI_83m_based_on_VFDB_/32898302
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/figure/Babcock_University_School_of_Nursing_2026_2027_Admission_Form_Is_On_Sale_Call_09017730052_To_Apply_and_further_admission_assistance_/32904416
+  - url: https://figshare.com/articles/preprint/A_Hypothesis_of_the_Higgs_Field_Operating/32904470
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/The_BAC_full-length_sequences_for_giant_panda/32576355
+  - url: https://figshare.com/articles/dataset/S_Table5_List_of_i_Lacticaseibacillus_paracasei_i_complete_genome_sequences_used_in_this_phylogenetic_analysis_/32898272
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Dataset_for_TSSP_Horticultural_Supply_Chain_Journal/32257398
+  - url: https://figshare.com/articles/dataset/S_Table3_Assembly_statistics_of_Lacticaseibacillus_paracasei_TOKAI_83m/31771462
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -32,23 +32,23 @@ datasets:
   status: unresolved
   candidates: []
   candidates_tried:
-  - url: https://figshare.com/articles/journal_contribution/sampling_effort_data_and_R_script/31319731
+  - url: https://figshare.com/articles/dataset/Anonymized_expert_evaluation_forms_for_visual_output_in_Ecuadorian_Sign_Language_p_p_/32904482
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.mq.edu.au/articles/thesis/Using_AI_in_Finance_to_detect_AML_activities/31825171
+  - url: https://figshare.com/articles/dataset/S_Table6_BLAST_result_of_i_Lacticaseibacillus_paracasei_i_TOKAI_83m_based_on_VFDB_/32898302
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/figure/Babcock_University_School_of_Nursing_2026_2027_Admission_Form_Is_On_Sale_Call_09017730052_To_Apply_and_further_admission_assistance_/32904416
+  - url: https://figshare.com/articles/preprint/A_Hypothesis_of_the_Higgs_Field_Operating/32904470
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/The_BAC_full-length_sequences_for_giant_panda/32576355
+  - url: https://figshare.com/articles/dataset/S_Table5_List_of_i_Lacticaseibacillus_paracasei_i_complete_genome_sequences_used_in_this_phylogenetic_analysis_/32898272
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Dataset_for_TSSP_Horticultural_Supply_Chain_Journal/32257398
+  - url: https://figshare.com/articles/dataset/S_Table3_Assembly_statistics_of_Lacticaseibacillus_paracasei_TOKAI_83m/31771462
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -60,23 +60,23 @@ datasets:
   status: unresolved
   candidates: []
   candidates_tried:
-  - url: https://figshare.com/articles/journal_contribution/sampling_effort_data_and_R_script/31319731
+  - url: https://figshare.com/articles/dataset/Anonymized_expert_evaluation_forms_for_visual_output_in_Ecuadorian_Sign_Language_p_p_/32904482
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.mq.edu.au/articles/thesis/Using_AI_in_Finance_to_detect_AML_activities/31825171
+  - url: https://figshare.com/articles/dataset/S_Table6_BLAST_result_of_i_Lacticaseibacillus_paracasei_i_TOKAI_83m_based_on_VFDB_/32898302
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/figure/Babcock_University_School_of_Nursing_2026_2027_Admission_Form_Is_On_Sale_Call_09017730052_To_Apply_and_further_admission_assistance_/32904416
+  - url: https://figshare.com/articles/preprint/A_Hypothesis_of_the_Higgs_Field_Operating/32904470
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/The_BAC_full-length_sequences_for_giant_panda/32576355
+  - url: https://figshare.com/articles/dataset/S_Table5_List_of_i_Lacticaseibacillus_paracasei_i_complete_genome_sequences_used_in_this_phylogenetic_analysis_/32898272
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Dataset_for_TSSP_Horticultural_Supply_Chain_Journal/32257398
+  - url: https://figshare.com/articles/dataset/S_Table3_Assembly_statistics_of_Lacticaseibacillus_paracasei_TOKAI_83m/31771462
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -88,23 +88,23 @@ datasets:
   status: unresolved
   candidates: []
   candidates_tried:
-  - url: https://figshare.com/articles/journal_contribution/sampling_effort_data_and_R_script/31319731
+  - url: https://figshare.com/articles/dataset/Anonymized_expert_evaluation_forms_for_visual_output_in_Ecuadorian_Sign_Language_p_p_/32904482
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.mq.edu.au/articles/thesis/Using_AI_in_Finance_to_detect_AML_activities/31825171
+  - url: https://figshare.com/articles/dataset/S_Table6_BLAST_result_of_i_Lacticaseibacillus_paracasei_i_TOKAI_83m_based_on_VFDB_/32898302
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/figure/Babcock_University_School_of_Nursing_2026_2027_Admission_Form_Is_On_Sale_Call_09017730052_To_Apply_and_further_admission_assistance_/32904416
+  - url: https://figshare.com/articles/preprint/A_Hypothesis_of_the_Higgs_Field_Operating/32904470
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/The_BAC_full-length_sequences_for_giant_panda/32576355
+  - url: https://figshare.com/articles/dataset/S_Table5_List_of_i_Lacticaseibacillus_paracasei_i_complete_genome_sequences_used_in_this_phylogenetic_analysis_/32898272
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Dataset_for_TSSP_Horticultural_Supply_Chain_Journal/32257398
+  - url: https://figshare.com/articles/dataset/S_Table3_Assembly_statistics_of_Lacticaseibacillus_paracasei_TOKAI_83m/31771462
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -152,23 +152,23 @@ datasets:
   status: unresolved
   candidates: []
   candidates_tried:
-  - url: https://figshare.com/articles/journal_contribution/sampling_effort_data_and_R_script/31319731
+  - url: https://figshare.com/articles/dataset/Anonymized_expert_evaluation_forms_for_visual_output_in_Ecuadorian_Sign_Language_p_p_/32904482
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.mq.edu.au/articles/thesis/Using_AI_in_Finance_to_detect_AML_activities/31825171
+  - url: https://figshare.com/articles/dataset/S_Table6_BLAST_result_of_i_Lacticaseibacillus_paracasei_i_TOKAI_83m_based_on_VFDB_/32898302
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/figure/Babcock_University_School_of_Nursing_2026_2027_Admission_Form_Is_On_Sale_Call_09017730052_To_Apply_and_further_admission_assistance_/32904416
+  - url: https://figshare.com/articles/preprint/A_Hypothesis_of_the_Higgs_Field_Operating/32904470
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/The_BAC_full-length_sequences_for_giant_panda/32576355
+  - url: https://figshare.com/articles/dataset/S_Table5_List_of_i_Lacticaseibacillus_paracasei_i_complete_genome_sequences_used_in_this_phylogenetic_analysis_/32898272
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Dataset_for_TSSP_Horticultural_Supply_Chain_Journal/32257398
+  - url: https://figshare.com/articles/dataset/S_Table3_Assembly_statistics_of_Lacticaseibacillus_paracasei_TOKAI_83m/31771462
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -253,23 +253,23 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://figshare.com/articles/journal_contribution/sampling_effort_data_and_R_script/31319731
+  - url: https://figshare.com/articles/dataset/Anonymized_expert_evaluation_forms_for_visual_output_in_Ecuadorian_Sign_Language_p_p_/32904482
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.mq.edu.au/articles/thesis/Using_AI_in_Finance_to_detect_AML_activities/31825171
+  - url: https://figshare.com/articles/dataset/S_Table6_BLAST_result_of_i_Lacticaseibacillus_paracasei_i_TOKAI_83m_based_on_VFDB_/32898302
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/figure/Babcock_University_School_of_Nursing_2026_2027_Admission_Form_Is_On_Sale_Call_09017730052_To_Apply_and_further_admission_assistance_/32904416
+  - url: https://figshare.com/articles/preprint/A_Hypothesis_of_the_Higgs_Field_Operating/32904470
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/The_BAC_full-length_sequences_for_giant_panda/32576355
+  - url: https://figshare.com/articles/dataset/S_Table5_List_of_i_Lacticaseibacillus_paracasei_i_complete_genome_sequences_used_in_this_phylogenetic_analysis_/32898272
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Dataset_for_TSSP_Horticultural_Supply_Chain_Journal/32257398
+  - url: https://figshare.com/articles/dataset/S_Table3_Assembly_statistics_of_Lacticaseibacillus_paracasei_TOKAI_83m/31771462
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -301,11 +301,11 @@ datasets:
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20751463
+  - url: https://zenodo.org/records/20754687
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20754687
+  - url: https://zenodo.org/records/20751463
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -317,23 +317,23 @@ datasets:
   status: unresolved
   candidates: []
   candidates_tried:
-  - url: https://figshare.com/articles/journal_contribution/sampling_effort_data_and_R_script/31319731
+  - url: https://figshare.com/articles/dataset/_b_Integrative_whole-exome_and_transcriptome_analyses_reveal_an_invasion-like_motility_adhesion_cytoskeleton_program_in_endometriosis_and_validate_its_PI3K_AKT_dependency_in_vitro_b_/32576619
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.mq.edu.au/articles/thesis/Using_AI_in_Finance_to_detect_AML_activities/31825171
+  - url: https://figshare.com/articles/dataset/Anonymized_expert_evaluation_forms_for_visual_output_in_Ecuadorian_Sign_Language_p_p_/32904482
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/figure/Babcock_University_School_of_Nursing_2026_2027_Admission_Form_Is_On_Sale_Call_09017730052_To_Apply_and_further_admission_assistance_/32904416
+  - url: https://figshare.com/articles/dataset/S_Table6_BLAST_result_of_i_Lacticaseibacillus_paracasei_i_TOKAI_83m_based_on_VFDB_/32898302
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/The_BAC_full-length_sequences_for_giant_panda/32576355
+  - url: https://figshare.com/articles/preprint/A_Hypothesis_of_the_Higgs_Field_Operating/32904470
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Dataset_for_TSSP_Horticultural_Supply_Chain_Journal/32257398
+  - url: https://figshare.com/articles/dataset/S_Table5_List_of_i_Lacticaseibacillus_paracasei_i_complete_genome_sequences_used_in_this_phylogenetic_analysis_/32898272
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -403,23 +403,23 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://figshare.com/articles/journal_contribution/sampling_effort_data_and_R_script/31319731
+  - url: https://figshare.com/articles/dataset/rice_mitochondrial_genome/32887271
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.mq.edu.au/articles/thesis/Using_AI_in_Finance_to_detect_AML_activities/31825171
+  - url: https://figshare.com/articles/dataset/_b_Integrative_whole-exome_and_transcriptome_analyses_reveal_an_invasion-like_motility_adhesion_cytoskeleton_program_in_endometriosis_and_validate_its_PI3K_AKT_dependency_in_vitro_b_/32576619
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/figure/Babcock_University_School_of_Nursing_2026_2027_Admission_Form_Is_On_Sale_Call_09017730052_To_Apply_and_further_admission_assistance_/32904416
+  - url: https://figshare.com/articles/dataset/Anonymized_expert_evaluation_forms_for_visual_output_in_Ecuadorian_Sign_Language_p_p_/32904482
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/The_BAC_full-length_sequences_for_giant_panda/32576355
+  - url: https://figshare.com/articles/dataset/S_Table6_BLAST_result_of_i_Lacticaseibacillus_paracasei_i_TOKAI_83m_based_on_VFDB_/32898302
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Dataset_for_TSSP_Horticultural_Supply_Chain_Journal/32257398
+  - url: https://figshare.com/articles/preprint/A_Hypothesis_of_the_Higgs_Field_Operating/32904470
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -467,23 +467,23 @@ datasets:
   status: unresolved
   candidates: []
   candidates_tried:
-  - url: https://figshare.com/articles/journal_contribution/sampling_effort_data_and_R_script/31319731
+  - url: https://figshare.com/articles/dataset/The_genome_annotations_of_NS4-2_and_DBH/24503881
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.mq.edu.au/articles/thesis/Using_AI_in_Finance_to_detect_AML_activities/31825171
+  - url: https://figshare.com/articles/dataset/rice_mitochondrial_genome/32887271
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/figure/Babcock_University_School_of_Nursing_2026_2027_Admission_Form_Is_On_Sale_Call_09017730052_To_Apply_and_further_admission_assistance_/32904416
+  - url: https://figshare.com/articles/dataset/_b_Integrative_whole-exome_and_transcriptome_analyses_reveal_an_invasion-like_motility_adhesion_cytoskeleton_program_in_endometriosis_and_validate_its_PI3K_AKT_dependency_in_vitro_b_/32576619
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/The_BAC_full-length_sequences_for_giant_panda/32576355
+  - url: https://figshare.com/articles/dataset/Anonymized_expert_evaluation_forms_for_visual_output_in_Ecuadorian_Sign_Language_p_p_/32904482
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Dataset_for_TSSP_Horticultural_Supply_Chain_Journal/32257398
+  - url: https://figshare.com/articles/dataset/S_Table6_BLAST_result_of_i_Lacticaseibacillus_paracasei_i_TOKAI_83m_based_on_VFDB_/32898302
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -572,26 +572,23 @@ datasets:
     source: huggingface
     status: verified
     format: csv
-  - url: https://bridges.monash.edu/articles/thesis/Climatology_and_structure_of_North_Australian_cloud_lines/19575340
-    source: figshare
-    status: unreachable
-    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''bridges.monash.edu'',
-      port=443): Max retries exceeded with url: /articles/thesis/Climatology_and_structure_of_North_Australian_cloud_lines/19575340
-      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
-      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
-  - url: https://figshare.com/articles/journal_contribution/sampling_effort_data_and_R_script/31319731
+  - url: https://figshare.com/articles/dataset/The_genome_annotations_of_NS4-2_and_DBH/24503881
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.mq.edu.au/articles/thesis/Using_AI_in_Finance_to_detect_AML_activities/31825171
+  - url: https://figshare.com/articles/dataset/rice_mitochondrial_genome/32887271
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/figure/Babcock_University_School_of_Nursing_2026_2027_Admission_Form_Is_On_Sale_Call_09017730052_To_Apply_and_further_admission_assistance_/32904416
+  - url: https://figshare.com/articles/dataset/_b_Integrative_whole-exome_and_transcriptome_analyses_reveal_an_invasion-like_motility_adhesion_cytoskeleton_program_in_endometriosis_and_validate_its_PI3K_AKT_dependency_in_vitro_b_/32576619
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/The_BAC_full-length_sequences_for_giant_panda/32576355
+  - url: https://figshare.com/articles/dataset/Anonymized_expert_evaluation_forms_for_visual_output_in_Ecuadorian_Sign_Language_p_p_/32904482
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/S_Table6_BLAST_result_of_i_Lacticaseibacillus_paracasei_i_TOKAI_83m_based_on_VFDB_/32898302
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -656,11 +653,249 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
+  - url: https://huggingface.co/datasets/mdesrochers-afk/pick_cucumber_00_03/resolve/main/data/chunk-000/file-000.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/dataset/The_genome_annotations_of_NS4-2_and_DBH/24503881
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/rice_mitochondrial_genome/32887271
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/_b_Integrative_whole-exome_and_transcriptome_analyses_reveal_an_invasion-like_motility_adhesion_cytoskeleton_program_in_endometriosis_and_validate_its_PI3K_AKT_dependency_in_vitro_b_/32576619
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Anonymized_expert_evaluation_forms_for_visual_output_in_Ecuadorian_Sign_Language_p_p_/32904482
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/S_Table6_BLAST_result_of_i_Lacticaseibacillus_paracasei_i_TOKAI_83m_based_on_VFDB_/32898302
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5497524
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://link.springer.com/article/10.1007/s00127-003-0682-8
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18778471
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20028509
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20669054
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/x8kae/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/mv6nr/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21000496
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21000496
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/f56qj/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
 - intent: EAGLE
-  status: unresolved
-  candidates: []
-  candidates_tried: []
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/JavaChu/eagle-ner-json/resolve/main/gel-product-word-part1.json
+    source: huggingface
+    format: json
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 3083
+      parsed: true
+  - url: https://huggingface.co/datasets/CyberHarem/desert_eagle_girlsfrontline/resolve/main/meta.json
+    source: huggingface
+    format: json
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 2439
+      parsed: true
+  - url: https://huggingface.co/datasets/eaglewatch/Korean_Wikipedia_Dataset_for_GPT2_August_2022/resolve/main/data/train-00000-of-00003-48ec6b96e51475fd.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/api/resolve-cache/datasets/JavaChu/eagle_ner/12e5ae16b8864062a054eb0ef110fc5cb74fc486/gel-product-word-part1.txt?%2Fdatasets%2FJavaChu%2Feagle_ner%2Fresolve%2Fmain%2Fgel-product-word-part1.txt=&etag=%22b2cc3d34ef6d4b6537ae90df542d1aa7aa439ec2%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/JavaChu/eagle-ner-json/resolve/main/gel-product-word-part1.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://huggingface.co/datasets/CyberHarem/desert_eagle_girlsfrontline/resolve/main/meta.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://huggingface.co/datasets/eaglewatch/Korean_Wikipedia_Dataset_for_GPT2_August_2022/resolve/main/data/train-00000-of-00003-48ec6b96e51475fd.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.unimelb.edu.au/articles/figure/The_Calls/32109199
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/The_genome_annotations_of_NS4-2_and_DBH/24503881
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/rice_mitochondrial_genome/32887271
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/_b_Integrative_whole-exome_and_transcriptome_analyses_reveal_an_invasion-like_motility_adhesion_cytoskeleton_program_in_endometriosis_and_validate_its_PI3K_AKT_dependency_in_vitro_b_/32576619
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Anonymized_expert_evaluation_forms_for_visual_output_in_Ecuadorian_Sign_Language_p_p_/32904482
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18135273
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/13840187
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://linkinghub.elsevier.com/retrieve/pii/S0140673602759217
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/13611155
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.q10q6
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21210254
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21210254
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21204733
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21204733
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21203282
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
 - intent: NOT
-  status: unresolved
-  candidates: []
-  candidates_tried: []
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/leolee99/NotInject/resolve/main/data/NotInject_one-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 10859
+      parsed: true
+  - url: https://huggingface.co/datasets/vlmbook/notebooks/resolve/main/Chapter 3/chapter_3_batched_loss.json
+    source: huggingface
+    format: json
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 39475
+      parsed: true
+  - url: https://huggingface.co/datasets/Nottybro/Minecraft-Fable-Raw/resolve/main/amulet_processed/manifest.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 2431
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/leolee99/NotInject/resolve/main/data/NotInject_one-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/vlmbook/notebooks/resolve/main/Chapter 3/chapter_3_batched_loss.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://huggingface.co/datasets/Nottybro/Minecraft-Fable-Raw/resolve/main/amulet_processed/manifest.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/notune/fable5-repos/resolve/main/manifest.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://figshare.unimelb.edu.au/articles/figure/The_Calls/32109199
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/The_genome_annotations_of_NS4-2_and_DBH/24503881
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/rice_mitochondrial_genome/32887271
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/_b_Integrative_whole-exome_and_transcriptome_analyses_reveal_an_invasion-like_motility_adhesion_cytoskeleton_program_in_endometriosis_and_validate_its_PI3K_AKT_dependency_in_vitro_b_/32576619
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Anonymized_expert_evaluation_forms_for_visual_output_in_Ecuadorian_Sign_Language_p_p_/32904482
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16413212
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15525595
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16413231
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4578581
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4578377
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content

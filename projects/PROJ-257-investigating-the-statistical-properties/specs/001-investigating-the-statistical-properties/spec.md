@@ -81,7 +81,7 @@ As a researcher, I want to perform a sensitivity analysis by sweeping the signif
 
 **Acceptance Scenarios**:
 
-1. **Given** the KS test results for α=0.05, **When** the sensitivity analysis runs, **Then** the system re-evaluates significance for α ∈ {0.04, 0.05, 0.06}.
+1. **Given** the KS test results for α=0.05, **When** the sensitivity analysis runs, **Then** the system re-evaluates significance for a range of α thresholds.
 2. **Given** the sensitivity sweep results, **When** the report is generated, **Then** the output explicitly flags any parameter dimension where the significance status (significant/not significant) flips across the sweep range as "borderline".
 3. **Given** a "borderline" result is detected, **When** the final report is saved, **Then** the report includes a warning that the conclusion is sensitive to the choice of α.
 
@@ -140,7 +140,7 @@ As a researcher, I want to visualize the distributions and highlight regions whe
 - **FR-006**: System MUST apply Bonferroni correction for multiple-comparison control when ≥2 hypothesis tests are performed (See US-2)
 - **FR-007**: System MUST generate 1D KDE plots for mass_ratio and effective_spin with simulation and observational distributions overlaid (See US-3)
 - **FR-008**: System MUST annotate regions where p < 0.05 as statistically significant divergence in the final report (See US-3)
-- **FR-009**: System MUST perform sensitivity analysis on the α=0.05 threshold by sweeping α ∈ {0.04, 0.05, 0.06} for ALL results and report how divergence rates vary, flagging any "borderline" results where significance status flips (See US-2b)
+- **FR-009**: System MUST perform sensitivity analysis on the α=0.05 threshold by sweeping α ∈ {0.05, 0.06} for ALL results and report how divergence rates vary, flagging any "borderline" results where significance status flips (See US-2b)
 - **FR-010**: System MUST log a power limitation note when simulation dataset sample size is <50% of the observational catalog sample size, AND MUST report the Minimum Detectable Effect Size (MDES) for the given sample sizes (See US-2c)
 - **FR-011**: System MUST ensure total runtime ≤6 hours, peak memory usage ≤7 GB, and peak disk usage ≤20 GB on a GitHub Actions free-tier runner (See US-0)
 - **FR-014**: System MUST sample from posterior distributions (e.g., a sufficient number of samples per event) to create a point-estimate dataset for the KS test, ensuring the test inputs reflect the underlying uncertainty rather than single-point medians (See US-2)
@@ -180,7 +180,7 @@ As a researcher, I want to visualize the distributions and highlight regions whe
 ## Assumptions
 
 - The GWTC-1 and GWTC-2 posterior sample files are publicly accessible via the Zenodo repository URLs (DOIs 10.5281/zenodo.3966973 and 10.5281/zenodo.3966974) without requiring authentication. If these DOIs fail, the pipeline halts with an explicit error.
-- The primary simulation source for distributional comparison is a dedicated binary black hole population synthesis catalog (e.g., from the COSMOS framework or a GWTC-3-like synthetic set) that contains resolved component mass and spin distributions. The IllustrisTNG public release (Zenodo DOI 10.5281/zenodo.3566863) provides galaxy and halo merger rates but does NOT contain resolved component mass and spin distributions for binary black hole mergers; therefore, it is not used for the distributional KS test in FR-005. This scope boundary is documented to align with data availability.
+- The primary simulation source for distributional comparison is a dedicated binary black hole population synthesis catalog (e.g., from the COSMOS framework or a GWTC-like synthetic set) that contains resolved component mass and spin distributions. The IllustrisTNG public release (Zenodo DOI 10.5281/zenodo.3566863) provides galaxy and halo merger rates but does NOT contain resolved component mass and spin distributions for binary black hole mergers; therefore, it is not used for the distributional KS test in FR-005. This scope boundary is documented to align with data availability.
 - The observational posterior samples contain ≥100 valid merger events after filtering for NaN values and missing parameters.
 - The Kolmogorov-Smirnov test is appropriate for the sample sizes available (n ≥ 30 per distribution) and the data is treated as independent and identically distributed within each catalog, AFTER sampling from posteriors and correcting for selection bias.
 - The analysis is observational (no random assignment); therefore, all findings are framed as ASSOCIATIONAL comparisons rather than causal claims.

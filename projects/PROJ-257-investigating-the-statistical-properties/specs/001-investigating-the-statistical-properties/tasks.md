@@ -43,10 +43,10 @@
 
 - [ ] T004 [P] Implement `src/utils/checksum.py` for SHA256 integrity verification of downloaded files
 - [ ] T005 [P] Implement `src/utils/logger.py` with structured logging and log levels
-- [ ] T006 [P] Create `src/config.py` defining paths, random seeds (42), and `alpha_thresholds=[0.04, 0.05, 0.06]` for sensitivity analysis. The configuration must default to this full list to support the required sweep logic in FR-009.
+- [ ] T006 [P] Create `src/config.py` defining paths, random seeds (42), and `alpha_thresholds=[0.04, 0.05, 0.06]` for sensitivity analysis. The configuration must default to this full list to support the required sweep logic in FR-009. **Note**: This specific set is the default mandated by FR-009, but the implementation MUST support extension via CLI arguments or a config file if the sweep range needs to be widened later without code changes.
 - [ ] T007 Implement `src/data/schemas.py` with Pydantic models for GWTC_Catalog, Simulation_Dataset, Statistical_Test_Result
 - [ ] T008 [P] Setup `tests/contract/test_schemas.py` to validate JSON/CSV data against defined schemas
-- [ ] T009 Implement `src/main.py` as the pipeline entry point with argument parsing, orchestration logic, and integrated resource monitoring hooks that log peak memory/disk and FAIL the pipeline if thresholds (time, RAM, Disk) are exceeded
+- [ ] T009 Implement `src/main.py` as the pipeline entry point with argument parsing, orchestration logic, and integrated resource monitoring hooks. The pipeline MUST log peak memory/disk usage. If thresholds (time, RAM, Disk) are exceeded, the pipeline MUST log a `[RESOURCE_BREACH]` message with the specific metric and value, then **continue execution** to completion to ensure logs are generated. Verification of constraints is handled by a separate CI check. Exit with code 0 even on breach.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -115,8 +115,9 @@
 - [ ] T028 [P] [US2] Implement `src/analysis/kde.py` to compute 1D KDEs for mass_ratio and effective_spin using scipy.stats.gaussian_kde
 - [ ] T029 [US2] Implement `src/analysis/ks_test.py` to perform KS tests on mass_ratio and effective_spin distributions
 - [ ] T030 [US2] Implement Bonferroni correction in `src/analysis/ks_test.py` for multiple comparisons (FR-006)
-- [ ] T031 [US2] Implement `src/analysis/sensitivity.py` to sweep α ∈ {0.04, 0.05, 0.06} and flag "borderline" results (FR-009)
-- [ ] T032 [US2] Implement selection bias handling in `src/analysis/ks_test.py` (FR-016): Attempt to load LVK selection files. If present, apply correction. If LVK files are missing, log a "Selection Bias Uncorrected" warning and proceed with unweighted data. DO NOT implement any fallback correction method (e.g., volume weighting) as this is scientifically invalid per plan.md. DO NOT generate any fallback artifact (e.g., `selection_function.json`) if files are missing.
+- [ ] T031 [US2] Implement `src/analysis/sensitivity.py` to sweep α ∈ {0.04, 0.05, 0.06} and flag "borderline" results (FR-009). This task MUST implement the logic but does not generate the final artifact.
+- [ ] T031b [US2] Generate `data/results/sensitivity_report.json` by executing the sensitivity sweep logic defined in T031. This task MUST consume the bootstrapped KS results and output the sweep report.
+- [ ] T032 [US2] Implement selection bias handling in `src/analysis/ks_test.py` (FR-016): Attempt to load LVK selection files. If present, apply correction. If LVK files are missing, log the message "Selection bias correction unavailable: LVK files missing" at WARNING level and **MUST generate** `data/results/selection_bias_status.json` documenting the uncorrected state. DO NOT implement any fallback correction method (e.g., volume weighting) as this is scientifically invalid per plan.md.
 - [ ] T033 [US2] Generate `output/results/ks_test_results.json` with all statistics, adjusted p-values, and significance flags
 
 **Checkpoint**: User Story 2 complete - statistical comparisons are performed and corrected.
@@ -136,7 +137,7 @@
 
 ### Implementation for User Story 2b/2c
 
-- [ ] T036 [US2c] Implement `src/analysis/power.py` to calculate Minimum Detectable Effect Size (MDES) using simulation-based power analysis (bootstrapping KS statistics) with standard statistical confidence levels. This task MUST consume outputs from T033 (KS test results) and T031 (Sensitivity Analysis) as inputs.
+- [ ] T036 [US2c] Implement `src/analysis/power.py` to calculate Minimum Detectable Effect Size (MDES) using simulation-based power analysis (bootstrapping KS statistics) with standard statistical confidence levels. This task MUST consume `output/results/ks_test_results.json` (from T033) and `data/results/sensitivity_report.json` (from T031b) as inputs.
 - [ ] T037 [US2c] Implement logic in `src/analysis/power.py` to detect if simulation sample size < 50% of observational size
 - [ ] T038 [US2c] Generate `output/results/power_analysis.json` containing MDES values (explicitly named "minimum_detectable_effect_size"), sample size ratios, and power estimates
 - [ ] T039 [US2c] Update report generation to include "Limitations" section with power notes and MDES interpretation (FR-010, SC-011)
@@ -233,16 +234,17 @@
 
 - **Dev A**: Focus on Data Pipeline (US1, US1b)
 - **Dev B**: Focus on Analysis Core (US2, US2b/2c)
-- **Dev C**: Focus on Viz & Reporting (US3)
+- **Dev C**: Focus on Viz, Reporting (US3)
 
 ---
 
 ## Notes
 
 - [P] tasks = different files, no dependencies
-- [Story] label maps task to specific user story for traceability
+- [Story] label maps task to traceability
 - Each user story should be independently completable and testable
 - Verify tests fail before implementing
 - Commit after each task or logical group
 - **Critical Constraint**: All code must run on CPU-only, -core, limited RAM. No GPU, no large model loading.
 - **Data Integrity**: All downloads must have checksum verification. No fake data allowed.
+- **Scope Boundary**: This project is strictly limited to comparing existing GWTC data against the single synthetic baseline defined in US-1b and US-2. **Future projections, "Slow Takeoff" analysis, or alternative hypothesis testing regarding future data requirements are explicitly out of scope** and must not be implemented.

@@ -1,50 +1,65 @@
 # Data Model: Statistical Properties of Simulated Black Hole Mergers
 
-## Entities
+## Entities & Attributes
 
-### GWTC_Catalog
-Represents the observational gravitational-wave transient catalog.
-- **Attributes**:
-  - `event_id`: Unique identifier for the merger event (string).
-  - `component_mass_1`: Primary component mass in solar masses (float).
-  - `component_mass_2`: Secondary component mass in solar masses (float).
-  - `mass_ratio`: Ratio $q = m_2/m_1$ (float, 0 < q ≤ 1).
-  - `effective_spin`: Effective aligned spin parameter $\chi_{eff}$ (float, -1 to 1).
-  - `posterior_samples`: List of sampled values for uncertain parameters (list of floats, optional for point-estimate CSV).
+### 1. GWTC_Catalog (Observational)
+Represents the preprocessed observational gravitational-wave transient catalog.
+- **event_id**: `string` (Unique identifier, e.g., "GW150914")
+- **component_mass_1**: `float` (Primary mass in solar masses, $M_\odot$)
+- **component_mass_2**: `float` (Secondary mass in solar masses, $M_\odot$)
+- **mass_ratio**: `float` ($q = m_2 / m_1$, $0 < q \le 1$)
+- **effective_spin**: `float` ($\chi_{eff}$, dimensionless)
+- **posterior_samples**: `list[float]` (Optional: Raw samples for uncertainty analysis, flattened or stored separately)
 
-### Simulation_Dataset
-Represents the merger population predictions from a synthetic model.
-- **Attributes**:
-  - `event_id`: Unique identifier for the synthetic event (string).
-  - `component_mass_1`: Primary component mass (float).
-  - `component_mass_2`: Secondary component mass (float).
-  - `mass_ratio`: Ratio $q$ (float).
-  - `effective_spin`: Effective aligned spin (float).
-  - `formation_channel`: Source of the event (string, e.g., "synthetic_powerlaw").
-  - `generation_method`: Description of the generation hypothesis (string).
+### 2. Simulation_Dataset (Synthetic)
+Represents the generated synthetic population based on the Power-law spin hypothesis.
+- **event_id**: `string` (Synthetic ID, e.g., "SIM_001")
+- **component_mass_1**: `float` ($M_\odot$)
+- **component_mass_2**: `float` ($M_\odot$)
+- **mass_ratio**: `float` ($q$)
+- **effective_spin**: `float` ($\chi_{eff}$)
+- **formation_channel**: `string` (Literal: "synthetic_power_law")
+- **generation_method**: `string` (Literal: "power_law_spin_distribution")
 
-### Statistical_Test_Result
-Represents the output of a KS test comparison.
-- **Attributes**:
-  - `parameter_name`: Name of the parameter tested (string, e.g., "mass_ratio").
-  - `ks_statistic`: The KS statistic value (float).
-  - `p_value`: Raw p-value (float).
-  - `bonferroni_adjusted_p_value`: Corrected p-value (float).
-  - `significance_flag`: Boolean indicating if $p < \alpha_{adjusted}$.
-  - `borderline_flag`: Boolean indicating if significance flips in sensitivity sweep.
+### 3. Statistical_Test_Result
+Output of the KS test and subsequent corrections.
+- **parameter_name**: `string` (e.g., "mass_ratio", "effective_spin")
+- **ks_statistic**: `float` (D statistic)
+- **p_value**: `float` (Raw p-value)
+- **bonferroni_adjusted_p_value**: `float` (Corrected p-value)
+- **significance_flag**: `boolean` (True if $p < \alpha_{adjusted}$)
+- **borderline_flag**: `boolean` (True if significance flips across $\alpha$ sweep)
+- **alpha_sweep_results**: `list<object>` (Details of sensitivity analysis)
 
-### Visualization_Output
-Represents generated plots.
-- **Attributes**:
-  - `figure_id`: Unique identifier (string).
-  - `parameter_name`: Parameter plotted (string).
-  - `format`: File format (string, "png").
-  - `resolution_dpi`: Resolution in dots per inch (integer, ≥300).
-  - `file_path`: Relative path to the file (string).
+### 4. Power_Analysis_Result
+Output of the power limitation check.
+- **observational_sample_size**: `integer`
+- **simulation_sample_size**: `integer`
+- **power_limitation_flag**: `boolean` (True if sim size < 50% of obs size)
+- **minimum_detectable_effect_size**: `float` (MDES value)
+- **limitation_note**: `string` (Human-readable warning)
+
+### 5. Visualization_Output
+Generated figures.
+- **figure_id**: `string` (e.g., "fig_mass_ratio_kde")
+- **parameter_name**: `string`
+- **format**: `string` (Literal: "PNG")
+- **resolution_dpi**: `integer` (Literal: 300)
+- **file_path**: `string` (Relative path to output)
+- **divergence_regions**: `list<object>` (Regions where $p < 0.05$)
+
+### 6. Selection_Weights
+Weights derived from Inverse Probability Weighting (IPW) to correct for selection bias.
+- **event_id**: `string` (Reference to the event in GWTC_Catalog)
+- **weight**: `float` (Inverse of detection probability)
+- **detection_space_flag**: `boolean` (True if weight is only valid within detection space)
 
 ## Data Flow
 
-1. **Raw Data**: Downloaded from Zenodo (if available) or generated synthetically.
-2. **Preprocessing**: Filter rows with NaNs in key fields; extract point estimates from posteriors (mean/median).
-3. **Analysis**: Compute KDEs, run KS tests, perform sensitivity sweep.
-4. **Output**: Save results to JSON/CSV and generate PNG plots.
+1. **Raw Download** (Zenodo) $\to$ `data/raw/gwtc_1_posteriors.h5` (or similar)
+2. **Preprocessing** $\to$ `data/processed/obs_catalog.csv` (GWTC_Catalog schema)
+3. **Synthetic Generation** $\to$ `data/processed/sim_catalog.csv` (Simulation_Dataset schema)
+4. **Selection Bias Correction** $\to$ `data/processed/selection_weights.csv` (Selection_Weights schema)
+5. **Analysis** $\to$ `data/results/ks_results.json` (Statistical_Test_Result schema)
+6. **Power Check** $\to$ `data/results/power_analysis.json` (Power_Analysis_Result schema)
+7. **Visualization** $\to$ `outputs/figures/*.png` (Visualization_Output schema)

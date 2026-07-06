@@ -3,55 +3,69 @@
 ## Prerequisites
 
 - Python 3.11+
-- `pip` or `conda`
-- Internet access (for Zenodo downloads)
+- pip (Python package installer)
+- Git (for cloning the repository)
 
 ## Installation
 
-1. Clone the repository and navigate to the project directory.
-2. Create a virtual environment:
+1. **Clone the repository**:
+   ```bash
+   git clone https://github.com/your-org/your-repo.git
+   cd your-repo
+   ```
+
+2. **Create a virtual environment**:
    ```bash
    python -m venv venv
    source venv/bin/activate  # On Windows: venv\Scripts\activate
    ```
-3. Install dependencies:
+
+3. **Install dependencies**:
    ```bash
-   pip install pandas numpy scipy matplotlib requests pyyaml pytest
+   pip install -r requirements.txt
    ```
+   *Note: `requirements.txt` pins versions of `pandas`, `numpy`, `scipy`, `matplotlib`, `requests`, `tqdm`, `pyyaml`.*
 
 ## Running the Pipeline
 
-The pipeline is orchestrated by `src/main.py`.
+The pipeline is executed via the main script. It handles downloading (if URLs are available), generating synthetic data (if downloads fail), and running the full analysis.
 
-1. **Download & Preprocess**:
-   ```bash
-   python src/main.py --phase download_preprocess
-   ```
-   This step attempts to download GWTC-1/2 data. If unavailable, it generates synthetic data.
+```bash
+python src/main.py
+```
 
-2. **Run Analysis**:
-   ```bash
-   python src/main.py --phase analyze
-   ```
-   Computes KDEs, KS tests, sensitivity analysis, and power analysis.
+### Command Line Options (Optional)
+- `--download-only`: Fetches data but skips analysis.
+- `--generate-synth-only`: Skips download and generates only the synthetic catalog.
+- `--alpha-sweep`: Explicitly enables the sensitivity analysis (default: True).
 
-3. **Generate Report**:
-   ```bash
-   python src/main.py --phase visualize
-   ```
-   Generates PNG plots and a summary report in `data/artifacts/`.
+## Expected Outputs
 
-## Verification
+After successful execution, the following artifacts will be generated:
 
-To verify the pipeline:
-1. Check `data/processed/` for CSVs with ≥100 events.
-2. Check `data/artifacts/` for `ks_results.json` and `plots/`.
-3. Run unit tests:
-   ```bash
-   pytest tests/unit/
-   ```
+1. **Data**:
+   - `data/processed/obs_catalog.csv`: Preprocessed observational data.
+   - `data/processed/sim_catalog.csv`: Synthetic simulation data.
+   - `data/processed/selection_weights.csv`: Inverse probability weights.
+
+2. **Results**:
+   - `data/results/ks_results.json`: KS statistics, p-values, and Bonferroni corrections.
+   - `data/results/power_analysis.json`: MDES and power limitation flags.
+   - `data/results/sensitivity_report.json`: Alpha sweep results and borderline flags.
+
+3. **Visualizations**:
+   - `outputs/figures/mass_ratio_kde.png`: KDE plot for mass ratio.
+   - `outputs/figures/effective_spin_kde.png`: KDE plot for effective spin.
 
 ## Troubleshooting
 
-- **Zenodo 404**: If the download fails after 3 retries, check the Zenodo DOI status. The pipeline will exit with an error.
-- **Memory Errors**: Reduce the number of synthetic events if running on a machine with <4GB RAM (though the default is optimized for 7GB).
+- **Download Failures**: If Zenodo URLs are unreachable, the pipeline will retry 3 times with exponential backoff. If it fails, it will automatically switch to synthetic data generation mode and log a warning.
+- **Memory Errors**: The pipeline is designed for <7 GB RAM. If you encounter OOM errors, reduce the `samples_per_event` parameter in `src/data/preprocess.py`.
+- **Missing Dependencies**: Ensure all packages in `requirements.txt` are installed in the active virtual environment.
+
+## Verification
+
+To verify the pipeline ran correctly:
+1. Check `data/results/power_analysis.json` for the `power_limitation_flag`.
+2. Inspect `outputs/figures/` for the presence of PNG files.
+3. Run `pytest tests/` to ensure all unit and integration tests pass.

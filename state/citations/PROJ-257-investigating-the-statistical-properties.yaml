@@ -31,7 +31,29 @@
   verification_status: mismatch
   verified_against_url: https://api.crossref.org/works/10.5281/zenodo.3566863
   verified_at: '2026-07-04T07:23:18.520341Z'
-- artifact_hash: 90883ef2f2c67e204c3dac2ffb7917bd8368f7529bc57bd3632bf69325e8b2f9
+- artifact_hash: 012c9cac05ade989a5c176e21e22fad8e4130cc0992a2883cedb64acee4db1af
+  artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/plan.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: doi
+  value: 10.5281/zenodo.3966973
+  verification_status: mismatch
+  verified_against_url: https://api.crossref.org/works/10.5281/zenodo.3966973
+  verified_at: '2026-07-06T03:17:27.897012Z'
+- artifact_hash: 012c9cac05ade989a5c176e21e22fad8e4130cc0992a2883cedb64acee4db1af
+  artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/plan.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: doi
+  value: 10.5281/zenodo.3966974
+  verification_status: mismatch
+  verified_against_url: https://api.crossref.org/works/10.5281/zenodo.3966974
+  verified_at: '2026-07-06T03:17:27.897012Z'
+- artifact_hash: 9395405d37af4cad2079efa51a63f358f48599767b487d8a260295cc9cd524ce
   artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/research.md
   cite_id: c-001
   cited_authors: []
@@ -41,8 +63,8 @@
   value: 10.5281/zenodo.3966973
   verification_status: mismatch
   verified_against_url: https://api.crossref.org/works/10.5281/zenodo.3966973
-  verified_at: '2026-07-04T07:35:03.478607Z'
-- artifact_hash: 90883ef2f2c67e204c3dac2ffb7917bd8368f7529bc57bd3632bf69325e8b2f9
+  verified_at: '2026-07-06T03:17:56.297426Z'
+- artifact_hash: 9395405d37af4cad2079efa51a63f358f48599767b487d8a260295cc9cd524ce
   artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/research.md
   cite_id: c-002
   cited_authors: []
@@ -52,8 +74,19 @@
   value: 10.5281/zenodo.3966974
   verification_status: mismatch
   verified_against_url: https://api.crossref.org/works/10.5281/zenodo.3966974
-  verified_at: '2026-07-04T07:35:03.478607Z'
-- artifact_hash: 2c5f6b3d9ab181142e6de611a0ac79d8ee7f7439dd57963fab10084454e2e8c7
+  verified_at: '2026-07-06T03:17:56.297426Z'
+- artifact_hash: 9d070f9c61da8c2600a122806d8fd95e7c1863fad11e1980147877d629e2b6d9
+  artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/quickstart.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: "GitHub - your-org/your-repo \xB7 GitHub"
+  kind: url
+  value: https://github.com/your-org/your-repo.git
+  verification_status: verified
+  verified_against_url: https://github.com/your-org/your-repo
+  verified_at: '2026-07-06T03:19:01.161597Z'
+- artifact_hash: 445f3f93ba0d2d24f272a418ea4f0f83c9153d0affa47ab797ccd335611397cb
   artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -63,8 +96,8 @@
   value: 10.5281/zenodo.3966973
   verification_status: mismatch
   verified_against_url: https://api.crossref.org/works/10.5281/zenodo.3966973
-  verified_at: '2026-07-04T13:28:46.801205Z'
-- artifact_hash: 2c5f6b3d9ab181142e6de611a0ac79d8ee7f7439dd57963fab10084454e2e8c7
+  verified_at: '2026-07-06T03:33:31.575298Z'
+- artifact_hash: 445f3f93ba0d2d24f272a418ea4f0f83c9153d0affa47ab797ccd335611397cb
   artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
   cite_id: c-002
   cited_authors: []
@@ -74,4 +107,4 @@
   value: 10.5281/zenodo.3966974
   verification_status: mismatch
   verified_against_url: https://api.crossref.org/works/10.5281/zenodo.3966974
-  verified_at: '2026-07-04T13:28:46.801205Z'
+  verified_at: '2026-07-06T03:33:31.575298Z'
