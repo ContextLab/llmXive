@@ -1,0 +1,12 @@
+mne
+pandas
+numpy
+statsmodels
+scikit-learn
+pyyaml
+requests
+datasets
+joblib
+pytest
+ruff
+black

@@ -1,0 +1,58 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Aligned Data Schema
+description: >
+  Schema for the dataset produced by User Story 2 (MMN Amplitude and Behavioral Alignment).
+  Contains lagged MMN amplitudes aligned with behavioral accuracy blocks.
+type: object
+required:
+  - subject_id
+  - block_id
+  - mmn_amplitude
+  - accuracy
+  - source_window_start_trial
+  - target_window_start_trial
+  - analysis_mode
+properties:
+  subject_id:
+    type: string
+    description: Unique identifier for the subject.
+  block_id:
+    type: integer
+    description: Sequential identifier for the experimental block.
+  mmn_amplitude:
+    type: number
+    format: float
+    description: >
+      Mean MMN amplitude (in µV) calculated from the difference wave (Standard - Deviant)
+      over the 150-250ms window at electrodes CP3, CP4, C3, C4.
+  accuracy:
+    type: number
+    format: float
+    minimum: 0.0
+    maximum: 1.0
+    description: Proportion of correct responses in the target block.
+  source_window_start_trial:
+    type: integer
+    description: Index of the first trial in the source window (t-50 to t-10) used for MMN calculation.
+  target_window_start_trial:
+    type: integer
+    description: Index of the first trial in the target block (t to t+n) associated with the accuracy.
+  analysis_mode:
+    type: string
+    enum:
+      - error_signal
+      - stimulus_driven
+    description: >
+      Mode determined by pipeline branching logic.
+      "error_signal" if behavioral logs were present and used for lagged alignment.
+      "stimulus_driven" if behavioral logs were missing and P=0.8 probability fallback was used.
+  electrodes_used:
+    type: array
+    items:
+      type: string
+    description: List of electrode names used for the amplitude calculation (e.g., ["CP3", "CP4", "C3", "C4"]).
+  timestamp:
+    type: string
+    format: date-time
+    description: ISO 8601 timestamp of when the alignment was performed.
+additionalProperties: false

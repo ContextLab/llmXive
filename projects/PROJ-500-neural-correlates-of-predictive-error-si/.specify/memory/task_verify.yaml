@@ -1,0 +1,11 @@
+? 'T005b [P] Initialize Python 3.11 project with `pyproject.toml` and `requirements.txt`
+  (dependencies: `mne`, `pandas`, `numpy`, `statsmodels`, `scikit-learn`, `pyyaml`,
+  `requests`, `datasets`, `joblib`)'
+: 2
+T005c [P] Initialize Git repository and configure `.gitignore`: 1
+T006 [P] Configure linting (`ruff`) and formatting (`black`) tools: 1
+? "T007 [P] Setup configuration management (`src/utils/config.py`) for paths, seeds,\
+  \ and parameters (Low-frequency to Hz filter, \u2013250ms window)"
+: 1
+T008 [P] Implement structured logging (`src/utils/logging.py`) with JSON output for pipeline traceability: 1
+T009 [P] Create base data schemas in `contracts/` (aligned_data.schema.yaml, model_output.schema.yaml): 1

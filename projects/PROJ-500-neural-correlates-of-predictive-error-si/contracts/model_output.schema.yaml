@@ -1,0 +1,122 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Model Output Schema
+description: >
+  Schema for the statistical modeling results produced by User Story 3.
+  Contains Gaussian LME coefficients, p-values (corrected), and robustness metrics.
+type: object
+required:
+  - model_formula
+  - model_type
+  - coefficients
+  - p_values
+  - corrected_p_values
+  - permutation_test
+  - robustness_analysis
+  - fit_status
+properties:
+  model_formula:
+    type: string
+    description: The R-style formula used for the Linear Mixed Effects model.
+    example: "MMN_Amplitude ~ Accuracy + Learning_Phase + (1|Subject)"
+  model_type:
+    type: string
+    enum:
+      - GaussianLME
+    description: Type of statistical model fitted.
+  coefficients:
+    type: object
+    description: Fixed effects coefficients from the fitted model.
+    patternProperties:
+      ".*":
+        type: object
+        required:
+          - estimate
+          - std_error
+        properties:
+          estimate:
+            type: number
+            format: float
+            description: Estimated coefficient value.
+          std_error:
+            type: number
+            format: float
+            description: Standard error of the estimate.
+  p_values:
+    type: object
+    description: Raw p-values for fixed effects.
+    patternProperties:
+      ".*":
+        type: number
+        format: float
+        minimum: 0.0
+        maximum: 1.0
+  corrected_p_values:
+    type: object
+    description: >
+      P-values corrected for multiple comparisons using FDR (Benjamini-Hochberg).
+      Keys correspond to the coefficient names in 'p_values'.
+    patternProperties:
+      ".*":
+        type: number
+        format: float
+        minimum: 0.0
+        maximum: 1.0
+  permutation_test:
+    type: object
+    description: Results of the permutation test validation.
+    required:
+      - n_permutations
+      - observed_statistic
+      - p_value
+      - is_sufficient
+    properties:
+      n_permutations:
+        type: integer
+        description: Number of permutations performed.
+      observed_statistic:
+        type: number
+        format: float
+        description: The observed test statistic from the original data.
+      p_value:
+        type: number
+        format: float
+        minimum: 0.0
+        maximum: 1.0
+        description: Permutation-based p-value.
+      is_sufficient:
+        type: boolean
+        description: Flag indicating if the number of permutations was sufficient for stability.
+  robustness_analysis:
+    type: object
+    description: Results of the sensitivity analysis (time window sweep).
+    required:
+      - time_windows_tested
+      - coefficient_stability
+    properties:
+      time_windows_tested:
+        type: array
+        items:
+          type: object
+          properties:
+            start_ms:
+              type: integer
+            end_ms:
+              type: integer
+      coefficient_stability:
+        type: string
+        enum:
+          - stable
+          - unstable
+        description: Qualitative assessment of coefficient stability across windows.
+  fit_status:
+    type: string
+    enum:
+      - converged
+      - failed
+      - singular
+    description: Status of the model fitting process.
+  timestamp:
+    type: string
+    format: date-time
+    description: ISO 8601 timestamp of when the model was fitted.
+additionalProperties: false

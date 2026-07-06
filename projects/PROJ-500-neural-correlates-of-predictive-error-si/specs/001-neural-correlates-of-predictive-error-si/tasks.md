@@ -20,33 +20,33 @@
 - **Mobile**: `api/src/`, `ios/src/` or `android/src/`
 - Paths shown below assume single project - adjust based on plan.md structure
 
-<!-- 
-  ============================================================================
-  IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-  
-  The /speckit-tasks command MUST replace these with actual tasks based on:
-  - User stories from spec.md (with their priorities P1, P2, P3...)
-  - Feature requirements from plan.md
-  - Entities from data-model.md
-  - Endpoints from contracts/
-  
-  Tasks MUST be organized by user story so each story can:
-  - Be implemented independently
-  - Be tested independently
-  - Be delivered as an MVP increment
-  
-  DO NOT keep these sample tasks in the generated tasks.md file.
-  ============================================================================
+<!--
+ ============================================================================
+ IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
+
+ The /speckit-tasks command MUST replace these with actual tasks based on:
+ - User stories from spec.md (with their priorities P1, P2, P3...)
+ - Feature requirements from plan.md
+ - Entities from data-model.md
+ - Endpoints from contracts/
+
+ Tasks MUST be organized by user story so each story can:
+ - Be implemented independently
+ - Be tested independently
+ - Be delivered as an MVP increment
+
+ DO NOT keep these sample tasks in the generated tasks.md file.
+ ============================================================================
 -->
 
 ## Phase 0: Dataset Validation & Variable Fit (SC-004 Gate)
 
 **Purpose**: Verify dataset metadata and determine analysis path (Error-Signal vs Stimulus-Driven).
 
-- [ ] T001 [P] [US1] Implement dataset metadata fetcher in `src/data/ingest.py` to search for "tactile", "somatosensory", "odd-ball" datasets (FR-001)
-- [ ] T002 [P] [US1] Implement variable check in `src/data/ingest.py` to verify presence of `stimulus_type` and `response_correctness` in metadata (FR-011, FR-012)
-- [ ] T003 [P] [US1] Generate `data/validation_report.json` with `analysis_mode` ("error_signal" or "stimulus_driven") based on variable availability (FR-011, FR-012)
-- [ ] T004 [P] [US1] Log warning and skip datasets with missing metadata rather than crashing (FR-011)
+- [X] T001 [P] [US1] Implement dataset metadata fetcher in `src/data/ingest.py` to search for "tactile", "somatosensory", "odd-ball" datasets (FR-001)
+- [X] T002 [P] [US1] Implement variable check in `src/data/ingest.py` to verify presence of `stimulus_type` and `response_correctness` in metadata (FR-011, FR-012)
+- [X] T003 [P] [US1] Generate `data/validation_report.json` with `analysis_mode` ("error_signal" or "stimulus_driven") based on variable availability (FR-011, FR-012)
+- [X] T004 [P] [US1] Log warning and skip datasets with missing metadata rather than crashing (FR-011)
 
 ---
 
@@ -54,7 +54,7 @@
 
 **Purpose**: Define analysis mode and update documentation for methodological corrections.
 
-- [ ] T027a [P] **Spec Amendment Task**: Update `spec.md` FR-006 to "Gaussian LME", update `spec.md` FR-005 and User Story 2 to reflect "Lagged Alignment" (50-trial window) and the exclusion of underpowered subjects, and update `data-model.md` and `research.md` to document these deviations (Plan Methodological Correction)
+- [X] T027a [P] **Spec Amendment Task**: Update `spec.md` FR-006 to "Gaussian LME", update `spec.md` FR-005 and User Story 2 to reflect "Lagged Alignment" (50-trial window) and the exclusion of underpowered subjects, and update `data-model.md` and `research.md` to document these deviations (Plan Methodological Correction)
 
 ---
 
@@ -62,7 +62,7 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T005a [P] Create project directory structure (`src/`, `tests/`, `contracts/`, `data/`, `analysis/`)
+- [X] T005a [P] Create project directory structure (`src/`, `tests/`, `contracts/`, `data/`, `analysis/`)
 - [ ] T005b [P] Initialize Python 3.11 project with `pyproject.toml` and `requirements.txt` (dependencies: `mne`, `pandas`, `numpy`, `statsmodels`, `scikit-learn`, `pyyaml`, `requests`, `datasets`, `joblib`)
 - [ ] T005c [P] Initialize Git repository and configure `.gitignore`
 - [ ] T006 [P] Configure linting (`ruff`) and formatting (`black`) tools
@@ -78,8 +78,8 @@
 - [ ] T007 [P] Setup configuration management (`src/utils/config.py`) for paths, seeds, and parameters (Low-frequency to Hz filter, –250ms window)
 - [ ] T008 [P] Implement structured logging (`src/utils/logging.py`) with JSON output for pipeline traceability
 - [ ] T009 [P] Create base data schemas in `contracts/` (aligned_data.schema.yaml, model_output.schema.yaml)
-- [ ] T010 [P] Setup environment variable validation and error handling infrastructure
-- [ ] T011 [P] Implement checksum utility (`src/utils/checksum.py`) for data hygiene (FR-009, Constitution III)
+- [~] T010 [P] Setup environment variable validation and error handling infrastructure
+- [~] T011 [P] Implement checksum utility (`src/utils/checksum.py`) for data hygiene (FR-009, Constitution III)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -95,16 +95,16 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T012 [P] [US1] Contract test for data schema validation in `tests/contract/test_schemas.py`
-- [ ] T013 [P] [US1] Integration test for full ingestion pipeline on a small OpenNeuro sample in `tests/integration/test_pipeline.py`. **Verification**: Ensure the test confirms that datasets/subjects flagged as "underpowered" (<20 subjects) are explicitly excluded from the primary GLMM input data.
+- [~] T012 [P] [US1] Contract test for data schema validation in `tests/contract/test_schemas.py`
+- [~] T013 [P] [US1] Integration test for full ingestion pipeline on a small OpenNeuro sample in `tests/integration/test_pipeline.py`. **Verification**: Ensure the test confirms that datasets/subjects flagged as "underpowered" (<20 subjects) are explicitly excluded from the primary GLMM input data.
 
 ### Implementation for User Story 1
 
-- [ ] T014 [US1] Implement streaming data downloader in `src/data/ingest.py` (chunked buffering, delete raw files post-processing, FR-001, FR-009)
-- [ ] T015 [US1] Implement preprocessing module in `src/data/preprocess.py` (–40 Hz bandpass, ICA artifact removal, bad channel interpolation) (FR-002)
-- [ ] T016 [US1] Implement artifact rejection logic (trial count loss ≤ 5%) and underpowered dataset flagging (<20 subjects) in `src/data/preprocess.py`. **Deliverable**: Write excluded subject IDs to `data/excluded_subjects.csv` and update `data/validation_report.json` with `underpowered_subjects` list. Subjects are included in the dataset but EXCLUDED from the primary GLMM input (Constitution VII, Plan Phase 0.5).
-- [ ] T017 [US1] Add reporting validation in `src/data/preprocess.py` to calculate and log topographic correlation improvement (ICA vs. raw) to `logs/preprocessing_report.json`. **Note**: This is a "soft" check for reporting only; do NOT block the pipeline if <20% (Plan overrides Spec US-1 Scenario 2).
-- [ ] T018 [US1] Implement epoching logic in `src/data/preprocess.py` (-200ms to 500ms, standard/deviant separation based on metadata) (FR-003)
+- [~] T014 [US1] Implement streaming data downloader in `src/data/ingest.py` (chunked buffering, delete raw files post-processing, FR-001, FR-009)
+- [~] T015 [US1] Implement preprocessing module in `src/data/preprocess.py` (–40 Hz bandpass, ICA artifact removal, bad channel interpolation) (FR-002)
+- [~] T016 [US1] Implement artifact rejection logic (trial count loss ≤ 5%) and underpowered dataset flagging (<20 subjects) in `src/data/preprocess.py`. **Deliverable**: Write excluded subject IDs to `data/excluded_subjects.csv` and update `data/validation_report.json` with `underpowered_subjects` list. Subjects are included in the dataset but EXCLUDED from the primary GLMM input (Constitution VII, Plan Phase 0.5).
+- [~] T017 [US1] Add reporting validation in `src/data/preprocess.py` to calculate and log topographic correlation improvement (ICA vs. raw) to `logs/preprocessing_report.json`. **Note**: This is a "soft" check for reporting only; do NOT block the pipeline if <20% (Plan overrides Spec US-1 Scenario 2).
+- [~] T018 [US1] Implement epoching logic in `src/data/preprocess.py` (-200ms to 500ms, standard/deviant separation based on metadata) (FR-003)
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -118,15 +118,15 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T019 [P] [US2] Contract test for aligned_data schema in `tests/contract/test_schemas.py`
-- [ ] T020 [P] [US2] Integration test for lagged alignment logic in `tests/integration/test_alignment.py`. **Verification**: Must validate that `data/interim_lagged_mmns.csv` is generated with the exact schema: `subject_id`, `block_id`, `mmn_amplitude`, `source_window_start_trial`, and that the lagged logic (50-trial source window -> -trial target block) is correctly applied.
+- [~] T019 [P] [US2] Contract test for aligned_data schema in `tests/contract/test_schemas.py`
+- [~] T020 [P] [US2] Integration test for lagged alignment logic in `tests/integration/test_alignment.py`. **Verification**: Must validate that `data/interim_lagged_mmns.csv` is generated with the exact schema: `subject_id`, `block_id`, `mmn_amplitude`, `source_window_start_trial`, and that the lagged logic (50-trial source window -> -trial target block) is correctly applied.
 
 ### Implementation for User Story 2
 
-- [ ] T021 [P] [US2] Implement MMN amplitude calculator (Standard) in `src/data/align.py` (mean difference wave –250ms at CP3, CP4, C3, C4) (FR-004)
-- [ ] T022 [US2] Implement **Pipeline Branching Logic** in `src/data/align.py`: Detect missing behavioral logs; set `analysis_mode` to "Stimulus-Driven" (using P=0.8 probability) or "Error-Signal" in `data/validation_report.json` (FR-011, FR-012)
-- [ ] T023 [US2] Implement behavioral binning logic in `src/data/align.py` (-trial blocks, stationarity check <10% trend) (FR-005)
-- [ ] T024 [US2] Implement **Lagged Alignment** logic in `src/data/align.py`: Calculate MMN over a preceding -trial window (t-50 to t-10) and align to the subsequent multi-trial accuracy block (t to t+n). **Deliverable**: Write intermediate artifact to `data/interim_lagged_mmns.csv` with columns: `subject_id`, `block_id`, `mmn_amplitude`, `source_window_start_trial` (Plan Methodological Correction)
+- [~] T021 [P] [US2] Implement MMN amplitude calculator (Standard) in `src/data/align.py` (mean difference wave –250ms at CP3, CP4, C3, C4) (FR-004)
+- [~] T022 [US2] Implement **Pipeline Branching Logic** in `src/data/align.py`: Detect missing behavioral logs; set `analysis_mode` to "Stimulus-Driven" (using P=0.8 probability) or "Error-Signal" in `data/validation_report.json` (FR-011, FR-012)
+- [~] T023 [US2] Implement behavioral binning logic in `src/data/align.py` (-trial blocks, stationarity check <10% trend) (FR-005) <!-- FAILED: unspecified -->
+- [~] T024 [US2] Implement **Lagged Alignment** logic in `src/data/align.py`: Calculate MMN over a preceding -trial window (t-50 to t-10) and align to the subsequent multi-trial accuracy block (t to t+n). **Deliverable**: Write intermediate artifact to `data/interim_lagged_mmns.csv` with columns: `subject_id`, `block_id`, `mmn_amplitude`, `source_window_start_trial` (Plan Methodological Correction)
 - [ ] T025 [US2] Implement exclusion logic for blocks with <10 valid trials and NaN handling for excessive artifact rejection
 - [ ] T026 [US2] Finalize and Write Aligned Dataset: Merge `data/interim_lagged_mmns.csv` with behavioral blocks and `analysis_mode` flag; generate final `data/aligned_data.csv` (FR-011, FR-012)
 
@@ -180,8 +180,8 @@
 - **Phase 1 (Setup)**: No dependencies - can start immediately
 - **Phase 2 (Foundational)**: Depends on Setup completion - BLOCKS all user stories
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
-  - User stories can then proceed in parallel (if staffed)
-  - Or sequentially in priority order (P1 → P2 → P3)
+ - User stories can then proceed in parallel (if staffed)
+ - Or sequentially in priority order (P1 → P2 → P3)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
@@ -247,9 +247,9 @@ With multiple developers:
 
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
-   - Developer A: User Story 1 (Ingestion/Preprocessing)
-   - Developer B: User Story 2 (Alignment)
-   - Developer C: User Story 3 (Statistical Modeling)
+ - Developer A: User Story 1 (Ingestion/Preprocessing)
+ - Developer B: User Story 2 (Alignment)
+ - Developer C: User Story 3 (Statistical Modeling)
 3. Stories complete and integrate independently
 
 ---

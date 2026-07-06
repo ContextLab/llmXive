@@ -1,0 +1,35 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "neural-correlates-tactile-learning"
+version = "0.1.0"
+description = "Neural Correlates of Predictive Error Signals During Tactile Discrimination Learning"
+requires-python = ">=3.11"
+dependencies = [
+    "mne",
+    "pandas",
+    "numpy",
+    "statsmodels",
+    "scikit-learn",
+    "pyyaml",
+    "requests",
+    "datasets",
+    "joblib"
+]
+
+[tool.setuptools.packages.find]
+where = ["code"]
+
+[tool.black]
+line-length = 88
+target-version = ['py311']
+
+[tool.ruff]
+line-length = 88
+target-version = "py311"
+
+[tool.pytest.ini_options]
+testpaths = ["code/tests"]
+pythonpath = ["code"]
