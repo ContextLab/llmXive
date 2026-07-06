@@ -1,5 +1,5 @@
 [tool.black]
-line-length = 88
+line-length = 100
 target-version = ['py311']
 include = '\.pyi?$'
 exclude = '''
@@ -19,11 +19,11 @@ exclude = '''
 
 [tool.isort]
 profile = "black"
-line_length = 88
-skip = ["data"]
+line_length = 100
+known_first_party = ["src"]
+known_third_party = ["numpy", "pandas", "pytest", "torch", "yaml"]
 
-[tool.mypy]
-python_version = "3.11"
-warn_return_any = true
-warn_unused_configs = true
-ignore_missing_imports = true
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+addopts = "-v --tb=short"

@@ -6,7 +6,7 @@ failed_stage: null
 field: chemistry
 human_escalation_reason: null
 id: PROJ-005-machine-learned-potentials-for-transitio
-last_run_id: aee596a9-c0f2-40c8-9dfb-4e0f680ad507
+last_run_id: 466117db-bc33-43dc-bdc5-85a692ec8aa9
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-005-machine-learned-potentials-for-transitio/specs/001-machine-learned-potentials-for-transitio
 title: Machine-Learned Potentials for Transition-Metal Catalysis
-updated_at: '2026-07-06T11:29:30.655202Z'
+updated_at: '2026-07-06T11:10:24.539476Z'

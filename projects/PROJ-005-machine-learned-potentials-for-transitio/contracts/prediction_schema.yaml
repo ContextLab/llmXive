@@ -1,0 +1,145 @@
+# Prediction Schema for Transition-Metal Catalysis ML Potentials
+# Defines the structure for single and ensemble prediction results
+# Used for validation of model outputs and metrics aggregation
+
+types:
+  PredictionResult:
+    description: |
+      Single model prediction result for a transition state graph.
+      Contains the predicted energy, barrier height, and associated metadata.
+    fields:
+      sample_id:
+        type: string
+        description: Unique identifier for the reaction sample (e.g., from QM9-TS)
+        required: true
+      graph_hash:
+        type: string
+        description: SHA256 hash of the input TransitionStateGraph for reproducibility
+        required: true
+      predicted_energy:
+        type: float
+        description: Predicted total energy of the transition state (eV)
+        unit: eV
+        required: true
+      dft_energy:
+        type: float
+        description: Ground truth DFT energy for the transition state (eV)
+        unit: eV
+        required: true
+      predicted_barrier:
+        type: float
+        description: Predicted activation barrier height (eV)
+        unit: eV
+        required: true
+      dft_barrier:
+        type: float
+        description: Ground truth DFT activation barrier height (eV)
+        unit: eV
+        required: true
+      error_energy:
+        type: float
+        description: Absolute error in energy prediction (ML - DFT)
+        unit: eV
+        computed: true
+      error_barrier:
+        type: float
+        description: Absolute error in barrier prediction (ML - DFT)
+        unit: eV
+        computed: true
+      model_seed:
+        type: integer
+        description: Random seed used for this specific model instance
+        required: true
+      ligand_class:
+        type: string
+        description: Classification of the ligand environment (e.g., 'Group13', 'Conventional')
+        required: true
+      metal_center:
+        type: string
+        description: The transition metal center (e.g., 'Pd', 'Ni', 'Cu')
+        required: true
+
+  EnsemblePredictionResult:
+    description: |
+      Aggregated prediction result from an ensemble of models.
+      Includes mean predictions, variance estimates, and statistical metrics.
+    fields:
+      sample_id:
+        type: string
+        description: Unique identifier for the reaction sample
+        required: true
+      mean_predicted_energy:
+        type: float
+        description: Mean of predicted energies across the ensemble
+        unit: eV
+        required: true
+      std_predicted_energy:
+        type: float
+        description: Standard deviation of predicted energies (uncertainty estimate)
+        unit: eV
+        required: true
+      mean_predicted_barrier:
+        type: float
+        description: Mean of predicted barrier heights across the ensemble
+        unit: eV
+        required: true
+      std_predicted_barrier:
+        type: float
+        description: Standard deviation of predicted barrier heights
+        unit: eV
+        required: true
+      dft_energy:
+        type: float
+        description: Ground truth DFT energy
+        unit: eV
+        required: true
+      dft_barrier:
+        type: float
+        description: Ground truth DFT barrier height
+        unit: eV
+        required: true
+      error_energy:
+        type: float
+        description: Mean absolute error in energy (|Mean(ML) - DFT|)
+        unit: eV
+        computed: true
+      error_barrier:
+        type: float
+        description: Mean absolute error in barrier
+        unit: eV
+        computed: true
+      ensemble_variance:
+        type: float
+        description: Variance of the ensemble predictions (proxy for epistemic uncertainty)
+        unit: eV^2
+        computed: true
+      correlation_with_error:
+        type: float
+        description: Pearson correlation between ensemble variance and absolute error
+        computed: global_metric
+      ligand_class:
+        type: string
+        description: Ligand classification
+        required: true
+      metal_center:
+        type: string
+        description: Metal center
+        required: true
+      model_count:
+        type: integer
+        description: Number of models in the ensemble
+        required: true
+      seeds:
+        type: list[integer]
+        description: List of random seeds for the models in the ensemble
+        required: true
+
+metadata:
+  schema_version: "1.0.0"
+  created_for: "PROJ-005-machine-learned-potentials-for-transitio"
+  depends_on: "contracts/dataset_graph.schema.yaml"
+  referenced_by:
+    - "src/models/predict.py"
+    - "src/models/ensemble.py"
+    - "data/processed/predictions.parquet"
+    - "data/processed/metrics.json"

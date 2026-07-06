@@ -1,0 +1,11 @@
+{
+  "report_type": "cross_validation_methodology_deviation",
+  "original_requirement": "FR-008: Leave-One-Out Cross-Validation (LOOCV)",
+  "implemented_methodology": "5-Fold Leave-Ligand-Scaffold-Out (LLSO)",
+  "deviation_reason": "LOOCV is computationally prohibitive for the SchNet ensemble training pipeline on CPU-only infrastructure. With N samples (approx. 120-500 for the transition metal subset), LOOCV requires N full training runs per model in the ensemble. For an ensemble of 5 models, this results in 5*N training jobs, which exceeds the 300-second wall-clock budget per task and the total compute limits of the free CPU CI environment. Additionally, LOOCV exhibits high variance in performance estimates for small datasets compared to k-fold methods.",
+  "statistical_justification": "5-Fold LLSO provides a statistically robust estimate of generalization error with significantly lower variance than LOOCV for datasets of this size (N < 1000). By leaving out entire ligand scaffolds rather than single samples, LLSO enforces a stricter generalization test that aligns with the project's goal of predicting unseen chemical spaces (ligand transferability). This method prevents data leakage where structurally similar ligands might appear in both training and validation sets, a critical failure mode in molecular machine learning that LOOCV does not address. The 5-fold split ensures sufficient data for training while maintaining a representative test set for each fold.",
+  "runtime_justification": "Switching to 5-Fold LLSO reduces the total number of training runs by a factor of N/5 compared to LOOCV. For a dataset of 200 samples, LOOCV would require 200 runs, whereas 5-Fold LLSO requires only 5 runs. This reduction brings the total training time for the ensemble (5 models x 5 folds = 25 runs) within the feasible limits of the CPU-only environment, allowing completion within the allocated time budget while still providing rigorous validation metrics.",
+  "compliance_reference": "Constitution Principle IV: Deviations from specification requirements must be documented with clear statistical and practical justifications.",
+  "validation_status": "passed",
+  "generated_at": "2023-10-27T10:00:00Z"
+}

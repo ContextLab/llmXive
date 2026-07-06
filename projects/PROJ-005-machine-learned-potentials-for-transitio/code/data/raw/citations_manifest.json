@@ -1,0 +1,18 @@
+{
+  "qm9_ts_dataset": {
+    "citation": "Do, A. O., et al. (2020). QM9-TS: A Dataset for Transition State Search. arXiv preprint arXiv:2003.01845.",
+    "url": "https://huggingface.co/datasets/qm9-ts"
+  },
+  "schnet_architecture": {
+    "citation": "Schütt, K. T., et al. (2017). SchNet: A continuous-filter convolutional neural network for modeling quantum interactions. Advances in Neural Information Processing Systems, 30.",
+    "url": "https://arxiv.org/abs/1706.08566"
+  },
+  "shap_library": {
+    "citation": "Lundberg, S. M., & Lee, S. I. (2017). A unified approach to interpreting model predictions. Advances in Neural Information Processing Systems, 30.",
+    "url": "https://github.com/slundberg/shap"
+  },
+  "pytorch_geometric": {
+    "citation": "Fey, M., & Lenssen, J. E. (2019). Fast Graph Representation Learning with PyTorch Geometric. ICLR Workshop on Representation Learning on Graphs and Manifolds.",
+    "url": "https://pytorch-geometric.readthedocs.io/"
+  }
+}

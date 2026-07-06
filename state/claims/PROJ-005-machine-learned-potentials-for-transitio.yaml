@@ -1,0 +1,217 @@
+- artifact_path: projects/PROJ-005-machine-learned-potentials-for-transitio/code/research.md
+  attempts: 1
+  canonical: QM9-TS dataset filtered for Pd, Ni, Cu elementary steps
+  claim_id: c_e170d6b7
+  context: 'Sample Size: The pipeline successfully filtered the dataset to include
+    only elementary steps containing the target metals. The count of valid reactions
+    was recorded to assess data scarcity (FR-001).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/QM9-TS_dataset_filtered_for_Pd,_Ni,_Cu_elementary_steps
+  kind: entity_fact
+  raw_text: The pipeline successfully filtered the dataset to include only elementary
+    steps containing the target metals.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-06T11:43:39Z'
+- artifact_path: projects/PROJ-005-machine-learned-potentials-for-transitio/code/research.md
+  attempts: 1
+  canonical: data scarcity flag generated if reaction count below 120
+  claim_id: c_a1e9cf8c
+  context: 'Data Scarcity: If the count fell below the threshold of 120 reactions,
+    a `data_scarcity_flag.json` was generated to document the status, ensuring transparency
+    in downstream modeling decisions.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If the count fell below the threshold of 120 reactions, a data_scarcity_flag.json
+    was generated to document the status.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-06T11:43:53Z'
+- artifact_path: projects/PROJ-005-machine-learned-potentials-for-transitio/code/research.md
+  attempts: 1
+  canonical: 3.5 angstrom distance cutoff for graph connectivity
+  claim_id: c_ee681c89
+  context: "Edge Attributes: Distance-based cutoff (default 3.5 \xC5) used to determine\
+    \ connectivity."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Distance-based cutoff (default 3.5 \xC5) used to determine connectivity."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-06T11:44:09Z'
+- artifact_path: projects/PROJ-005-machine-learned-potentials-for-transitio/code/research.md
+  attempts: 1
+  canonical: 3.5 angstrom cutoff used to calculate coordination number
+  claim_id: c_a494407f
+  context: "Coordination Number: Calculated using a 3.5 \xC5 cutoff to identify the\
+    \ coordination environment of the transition metal center."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Coordination Number: Calculated using a 3.5 \xC5 cutoff to identify the\
+    \ coordination environment of the transition metal center."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-06T11:44:34Z'
+- artifact_path: projects/PROJ-005-machine-learned-potentials-for-transitio/code/research.md
+  attempts: 1
+  canonical: samples with coordination number greater than 6 excluded from training
+  claim_id: c_36c2a377
+  context: 'Outlier Handling: Samples with coordination numbers > 6 were flagged for
+    exclusion from training but retained in the test set to evaluate model robustness
+    on rare geometries.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Samples_with_coordination_number_greater_than_6_excluded_fro
+  kind: magnitude
+  raw_text: Samples with coordination numbers > 6 were flagged for exclusion from
+    training but retained in the test set.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-06T11:44:59Z'
+- artifact_path: projects/PROJ-005-machine-learned-potentials-for-transitio/code/research.md
+  attempts: 1
+  canonical: ensemble of 5 SchNet models trained for uncertainty estimation
+  claim_id: c_cd507c15
+  context: 'Ensemble: 5 models trained with different random seeds to estimate uncertainty.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 5 models trained with different random seeds to estimate uncertainty.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-06T11:45:24Z'
+- artifact_path: projects/PROJ-005-machine-learned-potentials-for-transitio/code/research.md
+  attempts: 1
+  canonical: 30 epoch training cap used for SchNet models
+  claim_id: c_6ec54612
+  context: 'Training Constraints: Hard cap of 30 epochs per model to ensure CPU feasibility
+    and prevent overfitting on small datasets.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Hard cap of 30 epochs per model to ensure CPU feasibility and prevent
+    overfitting on small datasets.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-06T11:45:41Z'
+- artifact_path: projects/PROJ-005-machine-learned-potentials-for-transitio/code/research.md
+  attempts: 1
+  canonical: 5-fold LLSO cross-validation implemented for generalization assessment
+  claim_id: c_c4eae685
+  context: 'Validation Strategy: 5-Fold Leave-Ligand-Scaffold-Out (LLSO) cross-validation
+    was implemented to assess generalization to unseen ligand scaffolds, replacing
+    the originally planned Leave-One-Out Cross-Validation (LOOCV) due to computational
+    constraints and statistical robustness.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 5-Fold Leave-Ligand-Scaffold-Out (LLSO) cross-validation was implemented
+    to assess generalization to unseen ligand scaffolds.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-06T11:46:06Z'
+- artifact_path: projects/PROJ-005-machine-learned-potentials-for-transitio/code/research.md
+  attempts: 1
+  canonical: model generalization to new ligand scaffolds degraded compared to random
+    splits
+  claim_id: c_d6d16a46
+  context: 'Findings: The model demonstrated reasonable generalization to new ligand
+    scaffolds, though performance degraded slightly compared to random splits.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Model_generalization_to_new_ligand_scaffolds_degraded_compar
+  kind: entity_fact
+  raw_text: The model demonstrated reasonable generalization to new ligand scaffolds,
+    though performance degraded slightly compared to random splits.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-06T11:46:23Z'
+- artifact_path: projects/PROJ-005-machine-learned-potentials-for-transitio/code/research.md
+  attempts: 1
+  canonical: Group 13 ligands showed distinct error distributions compared to conventional
+    ligands
+  claim_id: c_bac87451
+  context: 'Findings: Group 13 ligands (e.g., phosphines) showed distinct error distributions
+    compared to conventional ligands, suggesting that the model learned different
+    feature representations for these classes.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Group 13 ligands (e.g., phosphines) showed distinct error distributions
+    compared to conventional ligands.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-06T11:47:01Z'
+- artifact_path: projects/PROJ-005-machine-learned-potentials-for-transitio/code/research.md
+  attempts: 1
+  canonical: top descriptors explained 60 percent variance in prediction errors
+  claim_id: c_acf708b2
+  context: "Variance Explained: A subset of top descriptors was selected that explained\
+    \ \u2265 60% of the variance in prediction errors, providing a compact set of\
+    \ features for future model refinement."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "A subset of top descriptors was selected that explained \u2265 60% of\
+    \ the variance in prediction errors."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-06T11:47:01Z'
+- artifact_path: projects/PROJ-005-machine-learned-potentials-for-transitio/code/research.md
+  attempts: 1
+  canonical: MLP inference 1000 to 10000 times faster than DFT
+  claim_id: c_e5246e92
+  context: 'Results: The MLP achieved a speed-up factor of approximately 10^3 to 10^4
+    times faster than DFT, validating its potential for high-throughput screening
+    applications.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The MLP achieved a speed-up factor of approximately 10^3 to 10^4 times
+    faster than DFT.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-06T11:47:20Z'

@@ -1,0 +1,58 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "mlp-transition-metal-catalysis"
+version = "0.1.0"
+description = "Machine-Learned Potentials for Transition-Metal Catalysis"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "torch",
+    "torch-geometric",
+    "scikit-learn",
+    "shap",
+    "pandas",
+    "numpy",
+    "pyyaml",
+    "pytest",
+    "pytest-cov"
+]
+
+[project.optional-dependencies]
+dev = [
+    "flake8",
+    "black",
+    "isort",
+    "pre-commit"
+]
+
+[tool.black]
+line-length = 88
+target-version = ['py311']
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
+)/
+'''
+
+[tool.isort]
+profile = "black"
+line_length = 88
+known_first_party = ["src", "tests"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = "test_*.py"
+python_functions = "test_*"
+addopts = "-v --cov=src --cov-report=term-missing"

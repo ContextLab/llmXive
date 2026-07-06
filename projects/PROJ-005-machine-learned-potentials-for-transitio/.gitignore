@@ -1,13 +1,6 @@
-# Data artifacts (raw and large processed files)
+# Data artifacts (raw data must not be committed)
 data/raw/*
 !data/raw/.gitkeep
-data/processed/*.parquet
-data/processed/*.pt
-data/processed/*.pkl
-data/results/*.json
-data/results/*.csv
-data/results/*.png
-data/results/*.pdf
 
 # Python cache and bytecode
 __pycache__/
@@ -37,7 +30,7 @@ ENV/
 env/
 .venv/
 
-# IDE and Editor files
+# IDE and editor files
 .idea/
 .vscode/
 *.swp
@@ -46,13 +39,8 @@ env/
 .project
 .settings/
 
-# OS generated files
+# OS files
 .DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
 Thumbs.db
 
 # Environment variables and secrets
@@ -60,20 +48,20 @@ Thumbs.db
 .env.local
 .env.*.local
 
-# Logs
+# Logs and temporary files
 *.log
-logs/
-
-# Temporary files
-tmp/
-temp/
-.tmp/
-
-# Jupyter Notebook
-.ipynb_checkpoints
-
-# Coverage and testing
 .coverage
 htmlcov/
 .pytest_cache/
 .mypy_cache/
+
+# Jupyter notebooks (optional, keep .ipynb if needed but clear outputs)
+# *.ipynb_checkpoints/
+
+# Model checkpoints and large artifacts
+data/processed/models/
+data/results/figures/
+
+# Misc
+.cache/
+tmp/
