@@ -1,0 +1,70 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Results Report Schema"
+description: "Schema for the final evaluation report containing metrics and statistical tests."
+type: "object"
+properties:
+  experiment_id:
+    type: "string"
+    description: "Unique hash for the experiment run."
+  metrics:
+    type: "object"
+    properties:
+      mpnn:
+        type: "object"
+        properties:
+          pearson_r:
+            type: "number"
+          rmse:
+            type: "number"
+      baseline:
+        type: "object"
+        properties:
+          pearson_r:
+            type: "number"
+          rmse:
+            type: "number"
+      statistical_significance:
+        type: "object"
+        properties:
+          p_value:
+            type: "number"
+          significant:
+            type: "boolean"
+    required:
+      - "mpnn"
+      - "baseline"
+      - "statistical_significance"
+  sensitivity_analysis:
+    type: "array"
+    items:
+      type: "object"
+      properties:
+        hyperparam:
+          type: "string"
+        value:
+          type: "string"
+        pearson_r:
+          type: "number"
+        rmse:
+          type: "number"
+  ablation_study:
+    type: "object"
+    properties:
+      with_solvent:
+        type: "number"
+      without_solvent:
+        type: "number"
+  total_runtime_seconds:
+    type: "number"
+    description: "Total runtime of the pipeline in seconds (SC-003)."
+  peak_memory_mb:
+    type: "number"
+    description: "Peak memory usage in MB during execution (SC-005)."
+required:
+  - "experiment_id"
+  - "metrics"
+  - "sensitivity_analysis"
+  - "ablation_study"
+  - "total_runtime_seconds"
+  - "peak_memory_mb"
+additionalProperties: false

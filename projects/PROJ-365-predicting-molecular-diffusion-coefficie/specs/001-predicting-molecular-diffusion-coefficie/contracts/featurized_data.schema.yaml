@@ -1,0 +1,49 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Featurized Data Schema"
+description: "Schema for the JSONL output of the featurization pipeline."
+type: "object"
+properties:
+  node_features:
+    type: "array"
+    description: "List of atom feature vectors."
+    items:
+      type: "array"
+      items:
+        type: "number"
+  edge_index:
+    type: "array"
+    description: "2xN list of edge connections [source, target]."
+    items:
+      type: "array"
+      items:
+        type: "integer"
+  edge_features:
+    type: "array"
+    description: "List of bond feature vectors."
+    items:
+      type: "array"
+      items:
+        type: "number"
+  global_features:
+    type: "array"
+    description: "Solvent descriptors [viscosity, dielectric_constant]."
+    items:
+      type: "number"
+  target:
+    type: "number"
+    description: "Diffusion coefficient target value."
+  metadata:
+    type: "object"
+    properties:
+      original_smiles:
+        type: "string"
+      solvent_name:
+        type: "string"
+required:
+  - "node_features"
+  - "edge_index"
+  - "edge_features"
+  - "global_features"
+  - "target"
+  - "metadata"
+additionalProperties: false

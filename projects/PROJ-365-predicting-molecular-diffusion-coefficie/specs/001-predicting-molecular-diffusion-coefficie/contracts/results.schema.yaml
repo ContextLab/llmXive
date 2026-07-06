@@ -1,0 +1,110 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Evaluation Results Report"
+description: "Schema for the final evaluation JSON report."
+type: object
+required:
+  - experiment_id
+  - dataset_stats
+  - fold_results
+  - aggregated
+  - statistical_test
+  - total_runtime_seconds
+  - peak_memory_mb
+properties:
+  experiment_id:
+    type: string
+    description: "Unique ID for the experiment run."
+  dataset_stats:
+    type: object
+    required:
+      - total_rows
+      - excluded_rows
+      - valid_rows
+    properties:
+      total_rows:
+        type: integer
+      excluded_rows:
+        type: integer
+      valid_rows:
+        type: integer
+  fold_results:
+    type: array
+    items:
+      type: object
+      required:
+        - fold_id
+        - gnn_rmse
+        - gnn_r
+        - baseline_rmse
+        - baseline_r
+      properties:
+        fold_id:
+          type: integer
+        gnn_rmse:
+          type: number
+        gnn_r:
+          type: number
+        baseline_rmse:
+          type: number
+        baseline_r:
+          type: number
+  aggregated:
+    type: object
+    required:
+      - mean_gnn_rmse
+      - mean_gnn_r
+      - std_gnn_rmse
+      - std_gnn_r
+    properties:
+      mean_gnn_rmse:
+        type: number
+      mean_gnn_r:
+        type: number
+      std_gnn_rmse:
+        type: number
+      std_gnn_r:
+        type: number
+  statistical_test:
+    type: object
+    required:
+      - test_type
+      - p_value
+      - significant
+    properties:
+      test_type:
+        type: string
+        description: "Either 'paired_t_test' or 'wilcoxon_signed_rank'."
+      p_value:
+        type: number
+      significant:
+        type: boolean
+        description: "True if p < 0.05."
+  sensitivity_analysis:
+    type: array
+    description: "Optional array of sensitivity results."
+    items:
+      type: object
+      properties:
+        hyperparameter:
+          type: string
+        value:
+          type: number
+        r:
+          type: number
+        rmse:
+          type: number
+  ablation_study:
+    type: object
+    description: "Optional ablation study results (without solvent descriptors)."
+    properties:
+      r:
+        type: number
+      rmse:
+        type: number
+  total_runtime_seconds:
+    type: number
+    description: "Total runtime of the pipeline in seconds (SC-003)."
+  peak_memory_mb:
+    type: number
+    description: "Peak memory usage in MB during execution (SC-005)."
+  additionalProperties: false

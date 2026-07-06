@@ -1,81 +1,73 @@
-# Quickstart: Predicting Molecular Diffusion Coefficients in Liquids with Graph Neural Networks
+# Quickstart: Predicting Molecular Diffusion Coefficients
 
 ## Prerequisites
 
-- Python 3.11+
-- Git
-- Access to a GitHub Actions runner (or local environment with 7GB+ RAM)
+-   Python 3.11+
+-   Git
+-   Access to a verified dataset (see `research.md` for current status).
 
 ## Installation
 
-1. **Clone the repository**:
- ```bash
- git clone
- cd projects/PROJ-365-predicting-molecular-diffusion-coefficie
- ```
+1.  **Clone the repository**:
+    ```bash
+    git clone <repo-url>
+    cd projects/PROJ-365-predicting-molecular-diffusion-coefficie
+    ```
 
-2. **Create a virtual environment**:
- ```bash
- python -m venv venv
- source venv/bin/activate # On Windows: venv\Scripts\activate
- ```
+2.  **Create a virtual environment**:
+    ```bash
+    python -m venv venv
+    source venv/bin/activate  # On Windows: venv\Scripts\activate
+    ```
 
-3. **Install dependencies**:
- ```bash
- pip install -r requirements.txt
- ```
- *Note: `requirements.txt` pins CPU-only versions of PyTorch, PyTorch Geometric, and `thermo`.*
+3.  **Install dependencies**:
+    ```bash
+    pip install -r requirements.txt
+    ```
+    *Note: `requirements.txt` pins CPU-only versions of PyTorch and PyTorch Geometric.*
 
-## Data Preparation
+## Data Setup
 
-1. **Prepare your dataset**:
- - The pipeline uses the NIST TRC database via the `thermo` library.
- - Ensure you have internet access to query NIST.
- - If offline, place a CSV file with columns: `smiles`, `solvent`, `diffusion_coeff`, `viscosity`, `dielectric` in `data/raw/diffusion_data.csv`.
+1.  **Prepare Raw Data**:
+    -   Place your CSV file (with `smiles`, `solvent_type`, `diffusion_coefficient`) in `data/raw/`.
+    -   Name it `diffusion_data.csv`.
+    -   *If no real data is available, run `python code/generate_synthetic_data.py` to create a test dataset.*
 
-2. **Run the ingestion script**:
- ```bash
- python code/ingestion.py --input data/raw/diffusion_data.csv --output data/processed/featurized_data.jsonl
- ```
- - This script validates SMILES, handles missing data, and generates graph representations.
- - Check `logs/ingestion.log` for excluded records.
+2.  **Verify Checksums**:
+    -   Run `python code/check_data_integrity.py` to generate checksums in `data/checksums.txt`.
 
-## Training
+## Running the Pipeline
 
-1. **Train the models**:
- ```bash
- python code/train.py --data data/processed/featurized_data.jsonl --epochs 50 --folds 5 --seed 42
- ```
- - This runs 5-fold cross-validation for the MPNN, Linear Baseline 1, and Linear Baseline 2.
- - Models are saved to `code/models/`.
-
-## Evaluation
-
-1. **Generate results**:
- ```bash
- python code/eval.py --models code/models/ --data data/processed/featurized_data.jsonl
- ```
- - Outputs `docs/reports/results.json` with Pearson r, RMSE, and Wilcoxon test results.
-
-## Sensitivity Analysis
-
-1. **Run sensitivity sweep**:
- ```bash
- python code/sensitivity.py --models code/models/ --data data/processed/featurized_data.jsonl --steps 1,2,3
- ```
- - Tests different message passing steps and performs ablation (removing solvent descriptors).
-
-## Verification
-
-To verify the pipeline on a small scale:
+### 1. Featurization
+Convert raw data to graph representations:
 ```bash
-pytest tests/unit/ -v
-pytest tests/integration/test_pipeline.py -v
+python code/main.py --step featurize
+```
+*Output*: `data/processed/featurized_data.jsonl`
+
+### 2. Training
+Train the MPNN and Baseline:
+```bash
+python code/main.py --step train
+```
+*Output*: `artifacts/models/mpnn_fold_*.pt`, `artifacts/models/baseline_fold_*.pt`
+
+### 3. Evaluation & Analysis
+Generate metrics, t-tests, and sensitivity reports:
+```bash
+python code/main.py --step evaluate
+```
+*Output*: `artifacts/reports/results.json`
+
+## Validation
+
+Run the contract tests to ensure data and outputs match schemas:
+```bash
+pytest tests/contract/ -v
 ```
 
 ## Troubleshooting
 
-- **Memory Error**: Reduce the dataset size in `ingestion.py` or increase the `--sample-size` flag.
-- **SMILES Error**: Check `logs/ingestion.log` for invalid SMILES strings.
-- **CUDA Error**: Ensure `torch.cuda.is_available()` returns `False` in your environment; the script should enforce CPU usage.
-- **NIST Connection Error**: Check internet connectivity; if offline, use the local CSV fallback.
+-   **CUDA Error**: The script explicitly checks for GPU. If you see a GPU error, ensure you are not running on a machine with CUDA enabled, or force CPU: `export CUDA_VISIBLE_DEVICES=""`.
+-   **Memory Error**: Reduce the dataset size in `code/config.py` (e.g., `max_samples = 1000`).
+-   **SMILES Parsing Error**: Check `data/processed/processing_log.txt` for invalid SMILES strings.

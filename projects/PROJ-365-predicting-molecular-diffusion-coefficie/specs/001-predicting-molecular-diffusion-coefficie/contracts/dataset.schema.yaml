@@ -1,46 +1,45 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Featurized Diffusion Dataset Record"
+title: "Featurized Dataset Record"
+description: "Schema for a single record in the processed JSONL dataset."
 type: object
+required:
+  - record_id
+  - smiles
+  - solvent_type
+  - target
+  - graph
+  - solvent_features
+  - status
 properties:
-  id:
+  record_id:
     type: string
-    description: "Unique identifier for the record"
+    description: "Unique hash identifier for the record."
   smiles:
     type: string
-    description: "Valid SMILES string of the solute"
-  solvent:
+    description: "Original SMILES string of the solute."
+  solvent_type:
     type: string
-    description: "Solvent name or ID"
+    description: "Name of the solvent."
   target:
     type: number
-    description: "Experimental diffusion coefficient (cm^2/s)"
-    minimum: 0
-  solvent_descriptors:
-    type: object
-    properties:
-      viscosity:
-        type: number
-        description: "Viscosity in cP"
-        minimum: 0
-      dielectric:
-        type: number
-        description: "Dielectric constant"
-        minimum: 0
-    required:
-      - viscosity
-      - dielectric
+    description: "Normalized diffusion coefficient (log10 scale)."
   graph:
     type: object
+    description: "Graph representation of the molecule."
+    required:
+      - node_features
+      - edge_index
+      - edge_features
     properties:
       node_features:
         type: array
         items:
           type: array
           items:
-            type: integer
-          minItems: 4
-          maxItems: 4
-        description: "Atom features: [atomic_number, degree, hybridization, formal_charge]"
+            type: number
+          minItems: 3
+          maxItems: 3
+        description: "Atom features: [atomic_num, hybridization, formal_charge]."
       edge_index:
         type: array
         items:
@@ -49,36 +48,38 @@ properties:
             type: integer
           minItems: 2
           maxItems: 2
-        description: "Edge indices in COO format"
+        description: "Bond connections: [source_idx, target_idx]."
       edge_features:
         type: array
         items:
           type: array
           items:
-            type: integer
-          minItems: 3
-          maxItems: 3
-        description: "Bond features: [bond_type, conjugation, stereo]"
+            type: number
+          minItems: 2
+          maxItems: 2
+        description: "Bond features: [bond_type, is_aromatic]."
+  solvent_features:
+    type: object
     required:
-      - node_features
-      - edge_index
-      - edge_features
-  fingerprint:
-    type: array
-    items:
-      type: integer
-      enum:
-        - 0
-        - 1
-    minItems: 2048
-    maxItems: 2048
-    description: "Morgan fingerprint bit vector (radius=2)"
-required:
-  - id
-  - smiles
-  - solvent
-  - target
-  - solvent_descriptors
-  - graph
-  - fingerprint
-additionalProperties: false
+      - viscosity
+      - dielectric
+    properties:
+      viscosity:
+        type: number
+        description: "Viscosity in cP."
+      dielectric:
+        type: number
+        description: "Dielectric constant."
+  status:
+    type: string
+    enum:
+      - "valid"
+      - "excluded"
+    description: "Status of the record."
+  exclusion_reason:
+    type: ["string", "null"]
+    description: "Reason for exclusion if status is 'excluded'."
+    examples:
+      - "MISSING_DATA_EXCLUDED"
+      - "INVALID_SMILES"
+  additionalProperties: false

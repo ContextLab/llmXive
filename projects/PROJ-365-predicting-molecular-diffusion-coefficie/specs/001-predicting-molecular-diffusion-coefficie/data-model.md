@@ -1,139 +1,74 @@
-# Data Model: Predicting Molecular Diffusion Coefficients in Liquids with Graph Neural Networks
+# Data Model: Predicting Molecular Diffusion Coefficients
 
 ## 1. Overview
 
-This document defines the data structures used throughout the pipeline, from raw ingestion to model prediction. The data model is designed to be immutable at the raw level and derived at the processed level, adhering to the project's Data Hygiene principle.
+This document defines the data structures used in the pipeline, from raw input to model artifacts. All data transformations are immutable; new files are created for each derived version.
 
 ## 2. Raw Data Schema
 
-**Source**: NIST TRC Database (via `thermo` Python library).
-**Format**: CSV (exported from `thermo` query).
-**File**: `data/raw/diffusion_data.csv`
+**Source**: CSV or Parquet file (User provided or verified dataset).
+**Constraints**: Must contain `smiles`, `solvent_type`, `diffusion_coefficient`.
 
-| Column | Type | Description | Constraints |
-| :--- | :--- | :--- | :--- |
-| `smiles` | String | SMILES string of the solute. | Valid RDKit SMILES; no missing values. |
-| `solvent` | String | Solvent name or ID. | Must map to known descriptors. |
-| `diffusion_coeff` | Float | Experimental diffusion coefficient ($cm^2/s$). | Must be > 0. |
-| `viscosity` | Float | Solvent viscosity (cP). | Required for featurization. |
-| `dielectric` | Float | Solvent dielectric constant. | Required for featurization. |
+| Field | Type | Description | Required |
+|-------|------|-------------|----------|
+| `smiles` | string | SMILES string of the solute molecule. | Yes |
+| `solvent_type` | string | Name of the solvent (e.g., "Water", "Ethanol"). | Yes |
+| `diffusion_coefficient` | float | Experimental diffusion coefficient (units: cm²/s or m²/s). | Yes |
+| `temperature` | float (optional) | Temperature in Kelvin. | No |
 
-**Handling Missing Data**:
-If any of the above columns are missing or invalid for a row, the row is excluded and logged with `[MISSING_DATA_EXCLUDED]`.
+## 3. Featurized Data Schema (Processed)
 
-## 3. Processed Data Schema (Featurized)
+**Output Format**: JSONL (one record per molecule-solvent pair).
+**Generation**: `code/featurization.py`.
 
-**Source**: `ingestion.py`
-**Format**: JSONL (JSON Lines)
-**File**: `data/processed/featurized_data.jsonl`
+| Field | Type | Description |
+|-------|------|-------------|
+| `record_id` | string | Unique hash of the record. |
+| `smiles` | string | Original SMILES. |
+| `solvent_type` | string | Original solvent name. |
+| `target` | float | Normalized diffusion coefficient (log10). |
+| `graph` | object | PyTorch Geometric Data object serialized to JSON. |
+| `graph.node_features` | list of lists | Atom features: [atomic_num, hybridization, formal_charge]. |
+| `graph.edge_index` | list of lists | Bond connections: [source_idx, target_idx]. |
+| `graph.edge_features` | list of lists | Bond features: [bond_type, is_aromatic]. |
+| `solvent_features` | object | Scalar descriptors. |
+| `solvent_features.viscosity` | float | Viscosity in cP. |
+| `solvent_features.dielectric` | float | Dielectric constant. |
+| `status` | string | "valid" or "excluded". |
+| `exclusion_reason` | string (nullable) | e.g., "MISSING_DATA_EXCLUDED", "INVALID_SMILES". |
 
-Each line is a JSON object representing a single molecule-solvent pair.
+## 4. Model Artifact Schema
 
-```json
-{
-  "id": "unique_record_id",
-  "smiles": "CCO",
-  "solvent": "water",
-  "target": 2.3e-5,
-  "solvent_descriptors": {
-    "viscosity": 0.89,
-    "dielectric": 78.4
-  },
-  "graph": {
-    "node_features": [[6, 1, 0, 0], [6, 1, 0, 0], [8, 1, 0, 0]],
-    "edge_index": [[0, 1], [1, 0], [1, 2], [2, 1]],
-    "edge_features": [[1, 0, 0], [1, 0, 0], [1, 0, 0], [1, 0, 0]]
-  },
-  "fingerprint": [0, 1, 0, ..., 0] 
-}
-```
+**Output Format**: Pickle (`.pt` or `.pkl`).
+**Generation**: `code/training.py`.
 
-**Fields**:
-*   `node_features`: List of atom features (Atomic Number, Degree, Hybridization, Formal Charge).
-*   `edge_index`: COO format for edges (source, target).
-*   `edge_features`: Bond type, conjugation, stereo.
-*   `fingerprint`: Morgan fingerprint bit vector (2048 bits) for baseline.
+| Field | Type | Description |
+|-------|------|-------------|
+| `model_type` | string | "mpnn" or "linear_baseline". |
+| `architecture` | dict | Hyperparameters used (layers, hidden_dim, etc.). |
+| `state_dict` | dict | PyTorch state dictionary. |
+| `scaler` | object | Scikit-learn scaler used for target normalization. |
+| `training_config` | dict | Seed, epochs, fold number. |
+| `metrics` | dict | Validation RMSE, Pearson r. |
 
-## 4. Model Artifacts
+## 5. Result Report Schema
 
-**Source**: `train.py`
-**Format**: `.pt` (PyTorch state dict)
-**File**: `code/models/{model_name}_fold_{k}.pt`
+**Output Format**: JSON.
+**Generation**: `code/evaluation.py`.
 
-| Model | Description |
-| :--- | :--- |
-| `mpnn_fold_{k}.pt` | Trained MPNN weights for fold $k$. |
-| `baseline1_fold_{k}.pt` | Trained Linear Regression (Fingerprint+Solvent) coefficients for fold $k$. |
-| `baseline2_fold_{k}.pt` | Trained Linear Regression (Solvent-Only) coefficients for fold $k$. |
-
-## 5. Output Schema (Results)
-
-**Source**: `eval.py`, `sensitivity.py`
-**Format**: JSON
-**File**: `docs/reports/results.json`
-
-```json
-{
-  "experiment_id": "exp_001",
-  "date": "2026-06-26",
-  "metrics": {
-    "gnn": {
-      "pearson_r": 0.75,
-      "rmse": 0.05,
-      "fold_scores": [0.72, 0.78, 0.74, 0.76, 0.73]
-    },
-    "baseline1": {
-      "pearson_r": 0.65,
-      "rmse": 0.08,
-      "fold_scores": [0.62, 0.68, 0.64, 0.66, 0.63]
-    },
-    "baseline2": {
-      "pearson_r": 0.60,
-      "rmse": 0.09,
-      "fold_scores": [0.58, 0.62, 0.59, 0.61, 0.60]
-    }
-  },
-  "statistical_test": {
-    "test_type": "Wilcoxon Signed-Rank",
-    "comparisons": [
-      {
-        "model_a": "GNN",
-        "model_b": "Baseline1",
-        "p_value": 0.001,
-        "significant": true
-      },
-      {
-        "model_a": "GNN",
-        "model_b": "Baseline2",
-        "p_value": 0.002,
-        "significant": true
-      }
-    ]
-  },
-  "sensitivity": {
-    "message_passing_steps": {
-      "1": {"r": 0.70, "rmse": 0.06},
-      "2": {"r": 0.75, "rmse": 0.05},
-      "3": {"r": 0.74, "rmse": 0.05}
-    },
-    "ablation_no_solvent": {
-      "r": 0.55,
-      "rmse": 0.12
-    }
-  }
-}
-```
-
-## 6. Data Flow Diagram
-
-```mermaid
-graph TD
-    A[NIST TRC via thermo] -->|Ingestion| B[Featurized JSONL]
-    B -->|Train| C[MPNN Model]
-    B -->|Train| D[Linear Baseline 1 (FP+Solvent)]
-    B -->|Train| E[Linear Baseline 2 (Solvent-Only)]
-    C -->|Eval| F[Results JSON]
-    D -->|Eval| F
-    E -->|Eval| F
-    F -->|Sensitivity| G[Sensitivity Report]
-```
+| Field | Type | Description |
+|-------|------|-------------|
+| `experiment_id` | string | Unique run ID. |
+| `dataset_stats` | dict | Total rows, excluded rows, valid rows. |
+| `fold_results` | list of dict | Metrics for each CV fold. |
+| `fold_results[].fold_id` | int | Fold number (0-4). |
+| `fold_results[].gnn_rmse` | float | GNN RMSE. |
+| `fold_results[].gnn_r` | float | GNN Pearson r. |
+| `fold_results[].baseline_rmse` | float | Baseline RMSE. |
+| `fold_results[].baseline_r` | float | Baseline Pearson r. |
+| `aggregated` | dict | Mean and std of metrics across folds. |
+| `statistical_test` | dict | Paired t-test results. |
+| `statistical_test.p_value` | float | P-value. |
+| `statistical_test.significant` | bool | True if p < 0.05. |
+| `sensitivity_analysis` | list | Results of hyperparameter sweeps. |
+| `ablation_study` | dict | Results without solvent descriptors. |

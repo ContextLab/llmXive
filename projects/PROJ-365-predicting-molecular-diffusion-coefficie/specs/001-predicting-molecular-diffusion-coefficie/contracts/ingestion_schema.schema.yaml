@@ -1,0 +1,27 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Ingested Data Schema"
+description: "Schema for the raw input CSV and the intermediate JSONL after ingestion."
+type: "object"
+properties:
+  smiles:
+    type: "string"
+    description: "SMILES string representing the molecular structure."
+  solvent_type:
+    type: "string"
+    description: "Name of the solvent."
+  diffusion_coefficient:
+    type: "number"
+    description: "Experimental diffusion coefficient value."
+  viscosity:
+    type: "number"
+    description: "Solvent viscosity in centipoise (cP)."
+  dielectric_constant:
+    type: "number"
+    description: "Solvent dielectric constant."
+required:
+  - "smiles"
+  - "solvent_type"
+  - "diffusion_coefficient"
+  - "viscosity"
+  - "dielectric_constant"
+additionalProperties: false

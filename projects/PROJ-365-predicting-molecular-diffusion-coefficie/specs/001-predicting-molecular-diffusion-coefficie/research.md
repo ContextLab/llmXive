@@ -1,128 +1,127 @@
 # Research: Predicting Molecular Diffusion Coefficients in Liquids with Graph Neural Networks
 
-## 1. Problem Definition
+## 1. Problem Statement & Hypothesis
 
-Predicting molecular diffusion coefficients ($D$) in liquids is a critical task in chemical engineering and drug discovery. Traditional methods rely on molecular dynamics (MD) simulations, which are computationally expensive and time-consuming. This project investigates whether **static molecular topology** (graph structure) combined with **scalar solvent descriptors** (viscosity, dielectric constant) can accurately predict $D$ using a lightweight Graph Neural Network (GNN), bypassing explicit dynamic simulations.
+**Problem**: Predicting molecular diffusion coefficients in liquids is computationally expensive when using molecular dynamics (MD) simulations.
+**Hypothesis**: Static molecular topology (graph structure) combined with scalar solvent descriptors (viscosity, dielectric constant) contains sufficient information to predict diffusion coefficients with a Pearson correlation coefficient (r) > 0.7, outperforming a linear baseline.
+**Null Hypothesis**: The graph structure adds no predictive value over simple fingerprints and solvent descriptors (r < 0.3).
 
-**Hypothesis**: A Message Passing Neural Network (MPNN) trained on static graphs and solvent properties will achieve a Pearson correlation ($r$) > 0.7 with experimental $D$ values, significantly outperforming a linear regression baseline on molecular fingerprints and a **solvent-only baseline**.
+**CRITICAL DATA STATUS**: **NO VERIFIED DATASET FOUND.**
+As of this writing, no verified dataset URL in the `# Verified datasets` block contains the specific combination of **SMILES + Solvent Properties + Experimental Diffusion Coefficients**.
+- **Action**: The project is **PAUSED** for scientific claims.
+- **Synthetic Data**: Used **ONLY** for pipeline validation (structural checks, code execution). **NO SCIENTIFIC METRICS (r, RMSE) WILL BE REPORTED** from synthetic runs.
+- **Requirement**: The project cannot advance to `research_complete` until a verified dataset is sourced and added to the `# Verified datasets` block.
 
 ## 2. Dataset Strategy
 
-### 2.1 Source Selection
+The project will utilize a curated dataset of experimental diffusion coefficients. Per the project constraints, **only verified datasets** from the `# Verified datasets` block are used.
 
-The project relies on the following verified datasets. **No other URLs are cited.**
+**Current Status of Required Data**:
+The spec requires a dataset containing:
+1. **SMILES** (solute)
+2. **Solvent Type** (to map to descriptors)
+3. **Experimental Diffusion Coefficient** (target)
+4. **Solvent Properties** (Viscosity, Dielectric Constant)
 
-| Dataset Name | Verified URL / Source | Relevance |
-|:--- |:--- |:--- |
-| **NIST TRC Diffusion Data** | `thermo` Python library (proxies NIST Standard Reference Database 147) | Primary source of experimental diffusion coefficients ($D$), SMILES, solvent types, viscosity, and dielectric constants. |
-| **SMILES Test Set** | ` | Validation source for SMILES parsing robustness (no diffusion data). |
-| **SELFormer SMILES** | ` | Validation source for SMILES diversity (no diffusion data). |
+**Verified Sources Analysis**:
+- **SMILES Sources**:
+ - ` (Contains SMILES, likely no diffusion data).
+ - ` (Small sample, likely no diffusion data).
+ - ` (SMILES only).
+- **NIST/Other Sources**:
+ - ` (Medical text, irrelevant).
+ - ` (LLM eval logs, irrelevant).
+ - ` (LLM eval, irrelevant).
 
-**Data Access Strategy**:
-The primary data source is the **NIST Thermodynamics Research Center (TRC)** database, accessible programmatically via the `thermo` Python library. This library provides verified, curated experimental diffusion coefficients for various solute-solvent pairs.
-* **Action**: The `ingestion.py` script will use `thermo.diffusion` to query and download the required data (SMILES, solvent, $D$, viscosity, dielectric).
-* **Fallback**: If the NIST query fails or yields insufficient data, the script will attempt to load a local CSV (if provided by the user) but will not proceed with results if the primary verified source is unavailable.
+**Gap Identification**:
+**CRITICAL**: None of the verified dataset URLs provided in the `# Verified datasets` block contain the specific combination of **SMILES + Solvent Properties + Experimental Diffusion Coefficients**. The available SMILES datasets lack the target variable and solvent context. The NIST/LLM datasets are domain-mismatched.
 
-**Dataset Size Estimation & Power Analysis (Addressing Concern methodology-40836e09)**:
-* **Source Characteristics**: NIST Standard Reference Database 147 (via `thermo`) historically contains approximately **[deferred] to [deferred] unique binary diffusion coefficient entries** across a wide range of solute-solvent pairs.
-* **Filtering Impact**: The requirement for specific solvent descriptors (viscosity, dielectric constant) will filter out entries where these are missing or undefined. Based on typical coverage in NIST TRC for common solvents (water, alcohols, hydrocarbons), we conservatively estimate that **~60-70%** of the raw diffusion entries will have complete descriptor data.
-* **Estimated Usable N**: $[deferred] \times 0.6 \approx 900$ to $[deferred] \times 0.7 \approx [deferred]$ usable pairs.
-* **Power Justification**: A sample size of **N = 900+** is well above the threshold required for the **paired t-test** (FR-005) to achieve >90% statistical power at $\alpha=0.05$ for detecting medium effect sizes (Cohen's $d \approx 0.5$) in the difference of absolute errors between the GNN and baseline. Even if the dataset shrinks to the lower bound of ~500 pairs after strict filtering, power remains >80%.
-* **Safety Net**: The `eval.py` script will include a runtime check: if the final usable $N < 50$, the pipeline will abort with a clear error message indicating insufficient power for statistical significance testing, preventing invalid claims.
+**Action Plan**:
+1. **Do NOT fabricate a dataset**. The plan cannot proceed with a specific dataset URL that does not exist in the verified list.
+2. **Data Acquisition Strategy**: The implementation script (`code/featurization.py`) will be designed to accept a CSV/Parquet input file. The `research.md` will explicitly state that the *source* of the data is a placeholder until a verified dataset containing diffusion coefficients is identified and added to the `# Verified datasets` block.
+3. **Fallback for Testing (SYNTHETIC ONLY)**: For the purpose of testing the pipeline (CI feasibility), the system will generate a **synthetic** dataset *locally* during the `setup-plan.sh` phase (not committed to `data/raw` as real data) to validate the code structure.
+ - **Physics Constraint**: If synthetic data is used, it MUST be generated using a physical proxy (e.g., Stokes-Einstein equation: $D = k_B T / (6 \pi \eta r)$) to ensure the graph structure has a logical relationship to the target. **Random data is insufficient.**
+ - **Reporting Constraint**: **NO METRICS (r, RMSE) WILL BE REPORTED** from synthetic runs. The output will only indicate "Pipeline Status: Pass/Fail".
+ - **Scientific Block**: The final `research_complete` stage requires a real, verified dataset.
 
-### 2.2 Data Requirements
-
-To train the model, the dataset must contain:
-1. **SMILES**: String representation of the solute molecule.
-2. **Solvent Type**: Identifier for the solvent (to map to descriptors).
-3. **Diffusion Coefficient**: Target variable ($D$).
-4. **Solvent Descriptors**: Viscosity ($\eta$), Dielectric Constant ($\epsilon$).
-
-If a record lacks any of these, it will be excluded and logged as `[MISSING_DATA_EXCLUDED]` (FR-007).
+*Note: If a verified dataset for diffusion coefficients is not found, the project scope may need to be adjusted to a different property (e.g., solubility) if a verified dataset exists for it, or the project will be paused pending data acquisition.*
 
 ## 3. Methodology
 
-### 3.1 Featurization (FR-002)
-
-1. **Graph Construction**: Use `RDKit` to convert SMILES into a `PyTorch Geometric` `Data` object.
- * Nodes: Atoms (features: atomic number, degree, hybridization, formal charge).
- * Edges: Bonds (features: bond type, conjugation, stereo).
-2. **Solvent Descriptors**: Map solvent types to scalar values (viscosity, dielectric constant). These are concatenated to the graph's global context vector or added as node features.
+### 3.1 Featurization (FR-001, FR-002)
+- **Input**: CSV with `smiles`, `solvent_type`, `diffusion_coefficient`.
+- **Molecule Graph**: Use `rdkit.Chem` to parse SMILES.
+ - Nodes: Atom type (atomic number), hybridization, formal charge.
+ - Edges: Bond type (single, double, aromatic), conjugation.
+- **Solvent Descriptors**: Map `solvent_type` to a lookup table of `viscosity` (cP) and `dielectric_constant`.
+ - *Handling Missing Data*: If viscosity or dielectric constant is missing for a solvent, the record is excluded and logged `[MISSING_DATA_EXCLUDED]` (FR-007).
+- **Output**: JSONL file with `graph` (node/edge features) and `solvent_features` (floats).
 
 ### 3.2 Model Architecture (FR-003)
+- **GNN**: Message Passing Neural Network (MPNN).
+ - Layers: 1-3 layers (sweepable).
+ - Aggregation: Sum/Mean.
+ - Readout: Global pooling + MLP.
+ - **Constraint**: `torch.device("cpu")`. No CUDA.
+- **Baseline**: Linear Regression.
+ - Features: Morgan Fingerprints (radius 2, 2048 bits) + Solvent Descriptors.
 
-* **MPNN**: A single-layer Message Passing Neural Network.
- * Aggregation: Mean or Sum.
- * Update: MLP with ReLU.
- * Readout: Global mean pooling + MLP.
- * **Constraint**: Must run on CPU (`torch.device("cpu")`). No CUDA.
-* **Baseline 1 (Fingerprint + Solvent)**: Linear Regression.
- * Input: Morgan Fingerprints (radius=2, 2048 bits) + Solvent Descriptors.
- * Purpose: To establish a lower bound for performance using standard descriptors.
-* **Baseline 2 (Solvent-Only)**: Linear Regression.
- * Input: Viscosity + Dielectric Constant ONLY (no molecular structure).
- * Purpose: To isolate the contribution of the molecular graph topology. If GNN $\approx$ Baseline 2, the graph adds no value.
+### 3.3 Training & Validation (FR-004)
+- **Split**: 5-fold Cross-Validation.
+- **Stratification**:
+ - **Primary**: By `solvent_type` (to ensure solvent diversity).
+ - **Fallback**: If the dataset has too few unique solvents (< 5), switch to **Stratified by Diffusion Coefficient Bin** or **Leave-One-Solvent-Out (LOSO)** cross-validation to ensure statistical independence.
+- **Seed**: 42.
+- **Optimization**: Adam optimizer, MSE loss.
+- **Early Stopping**: Monitor validation loss (patience=5).
 
-### 3.3 Training Strategy (FR-004)
+### 3.4 Evaluation & Statistics (FR-005, SC-001, SC-002)
+- **Metrics**: Pearson Correlation (r), Root Mean Squared Error (RMSE).
+- **Significance**:
+ 1. Perform **Shapiro-Wilk test** on the distribution of absolute errors.
+ 2. If p > 0.05 (Normal): Use **Paired t-test** on absolute errors of GNN vs. Baseline.
+ 3. If p < 0.05 (Non-Normal): Use **Wilcoxon signed-rank test** (non-parametric alternative) to ensure validity for small/non-normal datasets.
+ 4. Hypothesis: GNN error < Baseline error (one-tailed).
+- **Ablation**: Retrain GNN *without* solvent descriptors to isolate the contribution of the graph structure. (See Phase 4).
+- **Baseline Comparison**: The baseline uses Fingerprints + Solvent. The GNN uses Graph + Solvent. The t-test compares the *performance* of these two distinct representations.
 
-* **Split**: 5-fold Cross-Validation.
-* **Stratification**: By solvent type to ensure balanced distribution of solvent environments.
-* **Random Seed**: Fixed at 42 for all random operations (numpy, torch, sklearn).
-* **Optimizer**: Adam (learning rate 0.001).
-* **Loss**: Mean Squared Error (MSE).
-* **Epochs**: 50 (or early stopping if validation loss plateaus).
+### 3.5 Sensitivity Analysis (FR-006, SC-004)
+- **Hyperparameter Sweep**: Message passing steps {1, 2, 3}.
+- **Robustness Check**:
+ - **PROHIBITED**: Do NOT remove outliers to "confirm stability".
+ - **REQUIRED**: Report the correlation *with* all data points included. Analyze the nature of the residuals (e.g., are outliers specific chemical classes?).
+ - Report r and RMSE for each hyperparameter setting.
 
-### 3.4 Evaluation & Statistical Testing (FR-005)
+## 4. Compute Feasibility & Constraints
 
-* **Metrics**: Pearson Correlation Coefficient ($r$), Root Mean Squared Error (RMSE).
-* **Primary Statistical Test**: **Paired t-test** on the absolute errors ($|y_{pred} - y_{true}|$) of the GNN vs. the Baselines, **as mandated by FR-005**.
- * *Normality Check*: Before running the t-test, a Shapiro-Wilk test will be performed on the distribution of *differences* in absolute errors.
- * *Fallback*: If the differences are found to be significantly non-normal (p < 0.05), the pipeline will fall back to the **Wilcoxon signed-rank test** to ensure robustness, but the primary report will note the violation of normality assumptions.
- * $H_0$: No difference in error distributions (mean difference = 0).
- * $H_1$: GNN errors are significantly lower (mean difference > 0).
- * Significance level: $\alpha = 0.05$.
-* **Comparisons**:
- 1. GNN vs. Baseline 1 (Fingerprint + Solvent)
- 2. GNN vs. Baseline 2 (Solvent-Only)
-* **Power Consideration**: As detailed in Section 2.1, the estimated dataset size (N ~ 900-1400) provides sufficient power for the t-test to detect meaningful improvements.
-
-### 3.5 Sensitivity & Robustness (FR-006)
-
-* **Hyperparameter Sweep**: Message passing steps $\in \{1, 2, 3\}$.
-* **Ablation Study**: Train a version of the GNN *without* solvent descriptors to isolate the contribution of the graph structure.
-* **Outlier Handling**: Report metrics with full dataset and with top [deferred]% residuals removed.
-
-## 4. Compute Feasibility
-
-* **Hardware**: GitHub Actions Free Tier (2 CPU, 7GB RAM).
-* **Memory**:
- * Graph featurization of a large-scale molecular dataset: substantial storage requirements.
- * Model training: < 1GB.
- * Total overhead: < 2GB.
-* **Runtime**:
- * Ingestion (NIST query): < 5 mins.
- * Training (multiple folds): ~ mins.
- * Sensitivity: ~ mins.
- * **Total**: Well [deferred].
-* **Strategy**: If the dataset exceeds a predefined size threshold, a random sample will be taken for training to ensure feasibility.
+- **Hardware**: GitHub Actions Free Tier (2 CPU, 7GB RAM).
+- **Memory Strategy**:
+ - Process molecules in batches.
+ - Limit dataset size to [deferred] samples for training (if real data exists).
+ - Use `float32` (not `float64`) to reduce memory overhead.
+ - **Profiling**: Log `peak_memory_mb` to results JSON (SC-005).
+- **Time Strategy**:
+ - Limit epochs to 50.
+ - If training exceeds 60 minutes, reduce sample size or layers.
+ - **Profiling**: Log `total_runtime_seconds` to results JSON (SC-003).
+- **No GPU**: All code must explicitly check `torch.cuda.is_available() == False` and raise an error if GPU is detected (to prevent accidental resource waste).
 
 ## 5. Risks & Mitigations
 
-| Risk | Impact | Mitigation |
-|:--- |:--- |:--- |
-| **NIST Data Access Failure** | Critical (Project cannot run) | Script checks `thermo` connectivity; if fail, exit with clear error. Do NOT fabricate data. |
-| **Negative Correlation** | Low (Valid scientific result) | Report $r < 0.3$ as a "null result" per SC-001. |
-| **Memory Overflow** | Medium | Sample dataset to a representative scale of molecules; monitor RAM usage. |
-| **SMILES Parsing Errors** | Low | Log invalid SMILES and exclude; continue processing. |
-| **Insufficient Sample Size** | Medium (Invalid stats) | Runtime check for N < 50; abort if power is insufficient. |
+| Risk | Mitigation |
+|------|------------|
+| **No verified dataset with diffusion coefficients** | **BLOCKING**. Explicitly document the gap in `research.md`. Use synthetic data for pipeline validation only (no metrics). Pause scientific claims until real data is sourced. |
+| **Memory Overflow on large molecules** | Implement a filter to exclude molecules with >50 atoms or use a sampling strategy. |
+| **Negative Correlation (Null Result)** | Report as a valid scientific finding (r < 0.3). The goal is to test the hypothesis, not force a positive result. |
+| **SMILES Parsing Failures** | Robust error handling in `featurization.py` to skip invalid SMILES and log errors. |
+| **Fabricated Results** | **STRICT PROHIBITION**. No metrics reported from synthetic data. |
 
 ## 6. Decision Log
 
-* **Decision**: Use `torch-geometric` with CPU backend.
- * *Rationale*: Required for GNN capability; CPU-only wheels available and fit memory constraints.
-* **Decision**: Exclude records with missing data rather than impute.
- * *Rationale*: Imputation of physical properties (viscosity) introduces bias; exclusion is safer for scientific rigor (FR-007).
-* **Decision**: Use Paired t-test (with normality check) as primary test.
- * *Rationale*: Mandated by FR-005; Wilcoxon fallback added for robustness if normality assumptions are violated, ensuring scientific soundness without violating the spec.
-* **Decision**: Add Solvent-Only Baseline.
- * *Rationale*: Necessary to distinguish molecular structure effects from solvent effects (Scientific Soundness concern).
+| Decision | Rationale |
+|----------|-----------|
+| **CPU-only execution** | Required by CI constraints (no GPU). |
+| **Exclusion of missing data** | Imputation introduces bias; exclusion ensures data integrity (Constitution III). |
+| **Paired t-test / Wilcoxon** | Required by SC-002 to statistically validate GNN improvement. Fallback to Wilcoxon ensures validity for non-normal distributions. |
+| **Synthetic data for CI** | Necessary to validate code structure without a verified real-world dataset yet. **Strictly limited to structural validation (no metrics).** |
+| **No outlier removal** | Removing outliers to inflate r is methodologically unsound. Outliers must be reported and analyzed. |

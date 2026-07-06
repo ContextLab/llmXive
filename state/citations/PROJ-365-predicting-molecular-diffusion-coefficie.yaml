@@ -1,4 +1,4 @@
-- artifact_hash: cf7aa354250dfca2a0f8ef16ce6415900de47ea1d88388892abb30ebbff3ffa3
+- artifact_hash: 8c4157a1000ec34a9a3793810793bde96a3d67f9a4f8c0c24f0a32409b28ead0
   artifact_path: projects/PROJ-365-predicting-molecular-diffusion-coefficie/specs/001-predicting-molecular-diffusion-coefficie/research.md
   cite_id: c-001
   cited_authors: []
@@ -7,27 +7,62 @@
   kind: url
   value: https://huggingface.co/datasets/maykcaldas/smiles-transformers/resolve/main/data/test-00000-of-00015-27ed436361d9186e.parquet`
   verification_status: verified
-  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/642c21d86c11a741c521acc3/05f01d12e9eebd2f505bdbe0e04adf1b38d046376106167292c9c772a6fc9a2f?user_id=public&X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27test-00000-of-00015-27ed436361d9186e.parquet%3B+filename%3D%22test-00000-of-00015-27ed436361d9186e.parquet%22%3B&Expires=1783257530&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjQyYzIxZDg2YzExYTc0MWM1MjFhY2MzLzA1ZjAxZDEyZTllZWJkMmY1MDViZGJlMGUwNGFkZjFiMzhkMDQ2Mzc2MTA2MTY3MjkyYzljNzcyYTZmYzlhMmZcXD91c2VyX2lkPXB1YmxpYyZYLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dGVzdC0wMDAwMC1vZi0wMDAxNS0yN2VkNDM2MzYxZDkxODZlLnBhcnF1ZXQlM0IrZmlsZW5hbWUlM0QlMjJ0ZXN0LTAwMDAwLW9mLTAwMDE1LTI3ZWQ0MzYzNjFkOTE4NmUucGFycXVldCUyMiUzQiIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzgzMjU3NTMwfX19XX0_&Signature=MEUCIQCRj8Fbx4VdDn2G2KPjlof3irR8IQ4TL0BzULsUxvOr7AIgBJyO%7ES-xTih25rws479hK3mQsT0dZnS-s6DhO8-fAyM_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
-  verified_at: '2026-07-05T12:18:50.225512Z'
-- artifact_hash: cf7aa354250dfca2a0f8ef16ce6415900de47ea1d88388892abb30ebbff3ffa3
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/642c21d86c11a741c521acc3/05f01d12e9eebd2f505bdbe0e04adf1b38d046376106167292c9c772a6fc9a2f?X-Xet-Cas-Uid=public&user_id=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27test-00000-of-00015-27ed436361d9186e.parquet%3B+filename%3D%22test-00000-of-00015-27ed436361d9186e.parquet%22%3B&Expires=1783377020&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjQyYzIxZDg2YzExYTc0MWM1MjFhY2MzLzA1ZjAxZDEyZTllZWJkMmY1MDViZGJlMGUwNGFkZjFiMzhkMDQ2Mzc2MTA2MTY3MjkyYzljNzcyYTZmYzlhMmZcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZ1c2VyX2lkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dGVzdC0wMDAwMC1vZi0wMDAxNS0yN2VkNDM2MzYxZDkxODZlLnBhcnF1ZXQlM0IrZmlsZW5hbWUlM0QlMjJ0ZXN0LTAwMDAwLW9mLTAwMDE1LTI3ZWQ0MzYzNjFkOTE4NmUucGFycXVldCUyMiUzQiIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzgzMzc3MDIwfX19XX0_&Signature=MEQCIG02emdR-VDX8wFpA5tgNWHfXHBogKWDGvdNT42l1MyqAiBFPh6Y2VpxrXEX8R95lZ2T-z6CUt3eEM%7Eb2oUMbfdvfQ__&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+  verified_at: '2026-07-06T21:30:20.141377Z'
+- artifact_hash: 8c4157a1000ec34a9a3793810793bde96a3d67f9a4f8c0c24f0a32409b28ead0
   artifact_path: projects/PROJ-365-predicting-molecular-diffusion-coefficie/specs/001-predicting-molecular-diffusion-coefficie/research.md
   cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: preview_100_molecules.csv
+  kind: url
+  value: https://huggingface.co/datasets/MKEChem/mke-novel-druglike-smiles/resolve/main/preview_100_molecules.csv`
+  verification_status: verified
+  verified_against_url: https://huggingface.co/api/resolve-cache/datasets/MKEChem/mke-novel-druglike-smiles/87bd4b884b116a82f7291b0ab5fbcf3ad859c5f3/preview_100_molecules.csv?%2Fdatasets%2FMKEChem%2Fmke-novel-druglike-smiles%2Fresolve%2Fmain%2Fpreview_100_molecules.csv=&etag=%22a88aa90250436f9b69d90302a5835013aacaf965%22
+  verified_at: '2026-07-06T21:30:20.141377Z'
+- artifact_hash: 8c4157a1000ec34a9a3793810793bde96a3d67f9a4f8c0c24f0a32409b28ead0
+  artifact_path: projects/PROJ-365-predicting-molecular-diffusion-coefficie/specs/001-predicting-molecular-diffusion-coefficie/research.md
+  cite_id: c-003
   cited_authors: []
   cited_title: null
   fetched_title: data.csv
   kind: url
   value: https://huggingface.co/datasets/HUBioDataLab/SELFormer-smiles/resolve/main/data.csv`
   verification_status: verified
-  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/644573a053ecc52f50f2bd0f/524a7e5d5f65d3c105c046a5e8da86bcee0d64a844d59402fb617e230beacee1?response-content-type=text%2Fcsv&X-Xet-Cas-Uid=public&user_id=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27data.csv%3B+filename%3D%22data.csv%22%3B&Expires=1783257532&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjQ0NTczYTA1M2VjYzUyZjUwZjJiZDBmLzUyNGE3ZTVkNWY2NWQzYzEwNWMwNDZhNWU4ZGE4NmJjZWUwZDY0YTg0NGQ1OTQwMmZiNjE3ZTIzMGJlYWNlZTFcXD9yZXNwb25zZS1jb250ZW50LXR5cGU9dGV4dCUyRmNzdiZYLVhldC1DYXMtVWlkPXB1YmxpYyZ1c2VyX2lkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3ZGF0YS5jc3YlM0IrZmlsZW5hbWUlM0QlMjJkYXRhLmNzdiUyMiUzQiIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzgzMjU3NTMyfX19XX0_&Signature=MEQCIGB%7Ed9e3RcS2hmSX6eZq5sotdfXOxf2K6FN%7E5jZ3zusVAiAbSEensnuaPodTnrpqD3gJqOaISYrIZJXMHf%7ESKNWuhw__&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
-  verified_at: '2026-07-05T12:18:50.225512Z'
-- artifact_hash: 6c2baba5c4fcd69381afb0ea23ef747481d72cc6b520f5d074f93e8238577957
-  artifact_path: projects/PROJ-365-predicting-molecular-diffusion-coefficie/specs/001-predicting-molecular-diffusion-coefficie/quickstart.md
-  cite_id: c-001
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/644573a053ecc52f50f2bd0f/524a7e5d5f65d3c105c046a5e8da86bcee0d64a844d59402fb617e230beacee1?response-content-disposition=inline%3B+filename*%3DUTF-8%27%27data.csv%3B+filename%3D%22data.csv%22%3B&X-Xet-Cas-Uid=public&user_id=public&response-content-type=text%2Fcsv&Expires=1783377023&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjQ0NTczYTA1M2VjYzUyZjUwZjJiZDBmLzUyNGE3ZTVkNWY2NWQzYzEwNWMwNDZhNWU4ZGE4NmJjZWUwZDY0YTg0NGQ1OTQwMmZiNjE3ZTIzMGJlYWNlZTFcXD9yZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3ZGF0YS5jc3YlM0IrZmlsZW5hbWUlM0QlMjJkYXRhLmNzdiUyMiUzQiZYLVhldC1DYXMtVWlkPXB1YmxpYyZ1c2VyX2lkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LXR5cGU9dGV4dCUyRmNzdiIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzgzMzc3MDIzfX19XX0_&Signature=MEYCIQCjhubKgbqPoGMtiTZFRdOvnW9dr65V5v7eMoO%7EKnxDmwIhAO3tefrtWS8W6xW5Tl8A32UcmCbwBzLDF4dXXH68qMWb&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+  verified_at: '2026-07-06T21:30:20.141377Z'
+- artifact_hash: 8c4157a1000ec34a9a3793810793bde96a3d67f9a4f8c0c24f0a32409b28ead0
+  artifact_path: projects/PROJ-365-predicting-molecular-diffusion-coefficie/specs/001-predicting-molecular-diffusion-coefficie/research.md
+  cite_id: c-004
   cited_authors: []
   cited_title: null
-  fetched_title: null
+  fetched_title: opusdiseaseconversations.jsonl
   kind: url
-  value: https://github.com/your-org/llmxive.git
-  verification_status: mismatch
-  verified_against_url: https://github.com/your-org/llmxive
-  verified_at: '2026-07-05T12:19:37.666890Z'
+  value: https://huggingface.co/datasets/nisten/opus-doctor-patient-conversations-all-human-diseases/resolve/main/opusdiseaseconversations.jsonl`
+  verification_status: verified
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/6a456bc7e578d36124bfe220/29ecb0155385344873bd3cb717bedc2edbd3d6475021deca05613390558dc841?user_id=public&X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27opusdiseaseconversations.jsonl%3B+filename%3D%22opusdiseaseconversations.jsonl%22%3B&Expires=1783377026&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNmE0NTZiYzdlNTc4ZDM2MTI0YmZlMjIwLzI5ZWNiMDE1NTM4NTM0NDg3M2JkM2NiNzE3YmVkYzJlZGJkM2Q2NDc1MDIxZGVjYTA1NjEzMzkwNTU4ZGM4NDFcXD91c2VyX2lkPXB1YmxpYyZYLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3b3B1c2Rpc2Vhc2Vjb252ZXJzYXRpb25zLmpzb25sJTNCK2ZpbGVuYW1lJTNEJTIyb3B1c2Rpc2Vhc2Vjb252ZXJzYXRpb25zLmpzb25sJTIyJTNCIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3ODMzNzcwMjZ9fX1dfQ__&Signature=MEUCIBSnjVAxIrND6kEOnB3-nbYSGOWY%7ElSt8oVppo7fJfO4AiEAwrMaoD4H0N7zXuc5GiXY0iF6zwVZjsAcRHBUH39R3SA_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+  verified_at: '2026-07-06T21:30:20.141377Z'
+- artifact_hash: 8c4157a1000ec34a9a3793810793bde96a3d67f9a4f8c0c24f0a32409b28ead0
+  artifact_path: projects/PROJ-365-predicting-molecular-diffusion-coefficie/specs/001-predicting-molecular-diffusion-coefficie/research.md
+  cite_id: c-005
+  cited_authors: []
+  cited_title: null
+  fetched_title: "open-llm-leaderboard-old/details_nisten__shqiponja-59b-v1 \xB7 Datasets\
+    \ at Hugging Face"
+  kind: url
+  value: https://huggingface.co/datasets/open-llm-leaderboard-old/details_nisten__shqiponja-59b-v1/...`
+  verification_status: verified
+  verified_against_url: https://huggingface.co/datasets/open-llm-leaderboard-old/details_nisten__shqiponja-59b-v1
+  verified_at: '2026-07-06T21:30:20.141377Z'
+- artifact_hash: 8c4157a1000ec34a9a3793810793bde96a3d67f9a4f8c0c24f0a32409b28ead0
+  artifact_path: projects/PROJ-365-predicting-molecular-diffusion-coefficie/specs/001-predicting-molecular-diffusion-coefficie/research.md
+  cite_id: c-006
+  cited_authors: []
+  cited_title: null
+  fetched_title: "AdityaMayukhSom/MixSub-LLaMA-3.2-Text-Only-Overlap-CPU-Score \xB7\
+    \ Datasets at Hugging Face"
+  kind: url
+  value: https://huggingface.co/datasets/AdityaMayukhSom/MixSub-LLaMA-3.2-Text-Only-Overlap-CPU-Score/...`
+  verification_status: verified
+  verified_against_url: https://huggingface.co/datasets/AdityaMayukhSom/MixSub-LLaMA-3.2-Text-Only-Overlap-CPU-Score
+  verified_at: '2026-07-06T21:30:20.141377Z'
