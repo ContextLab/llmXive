@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2206.14908",
+  "judged_at": "2026-07-06T21:52:18Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"intern-atlas: a methodological evolution graph as research infrastruct\" computer science",
+  "rationale": "The candidate paper focuses on astrophysics and galaxy evolution using a spectrograph, which is entirely off-domain from the user's question regarding computer science, LLMs, and research infrastructure graphs. It shares no measurable connection to the user's mechanism, variables, or empirical setting, failing all inclusion criteria (a-f) and triggering the \"Off-domain entirely\" rejection rule.",
+  "relevant": false
+}

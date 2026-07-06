@@ -41,9 +41,9 @@
 - [ ] T006 [P] Implement `src/data/download.py` with `cdsapi` wrappers to fetch ERA IVT and Z for 1979–2023, **regional domain (mid-to-high northern latitudes, 100°E-60°W)**, using CDS variables: 'integrated_water_vapor_transport' and 'geopotential', product_type: 'reanalysis', resolution: °, with explicit lat/lon bounding box parameters.
 - [~] T007 Implement `src/data/download.py` checksum verification (`sha256`) for raw NetCDF files and store in `data/metadata.yaml`.
 - [~] T008 [P] Create base data processing utilities in `src/data/preprocess.py` for loading chunked NetCDFs with `dask`.
-- [ ] T009 [P] Setup `src/cli/run_analysis.py` entry point with Click CLI framework structure. **Constraint**: This entry point must orchestrate phases that strictly adhere to the **regional domain (20°N-60°N, 100°E-60°W)**; global scope processing is explicitly prohibited to satisfy FR-009 resource constraints.
-- [ ] T010 [P] Implement `src/cli/run_analysis.py` phase routing logic for selective execution (e.g., `--phase 0-9`).
-- [ ] T011 [P] Create `data/processed/` and `figures/` directory structures with READMEs.
+- [~] T009 [P] Setup `src/cli/run_analysis.py` entry point with Click CLI framework structure. **Constraint**: This entry point must orchestrate phases that strictly adhere to the **regional domain (20°N-60°N, 100°E-60°W)**; global scope processing is explicitly prohibited to satisfy FR-009 resource constraints.
+- [~] T010 [P] Implement `src/cli/run_analysis.py` phase routing logic for selective execution (e.g., `--phase 0-9`).
+- [~] T011 [P] Create `data/processed/` and `figures/` directory structures with READMEs.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -57,13 +57,20 @@
 
 ### Tests for User Story 1 (MANDATORY)
 
-- [ ] T012 [P] [US1] Unit test for AR detection logic in `tests/unit/test_preprocess.py` (mock IVT data).
-- [ ] T013 [P] [US1] Unit test for Z500 anomaly calculation (climatology subtraction only, NO detrending) in `tests/unit/test_preprocess.py`.
-- [ ] T014 [P] [US1] Integration test for full correlation pipeline on a 1-year sample in `tests/integration/test_analysis.py`.
+- [~] T012 [P] [US1] Unit test for AR detection logic in `tests/unit/test_preprocess.py` (mock IVT data).
+- [~] T013 [P] [US1] Unit test for Z500 anomaly calculation (climatology subtraction only, NO detrending) in `tests/unit/test_preprocess.py`.
+- [~] T014 [P] [US1] Integration test for full correlation pipeline on a 1-year sample in `tests/integration/test_analysis.py`.
 
 ### Implementation for User Story 1
 
-- [ ] T015 [US1] Implement `src/data/preprocess.py`: Compute monthly climatology (late 20th to early 21st century) per grid cell on the REGIONAL dataset (20°N-60°N, 100°E-60°W).
+- [~] T015 [US1] Implement `src/data/preprocess.py`: Compute monthly climatology (late 20th to early 21st century) per grid cell on the REGIONAL dataset (20°N-60°N, 100°E-60°W). <!-- SKIPPED: YAML+regex parse failed (while parsing a block mapping
+  in "<unicode string>", line 6, column 3:
+    - [ ] T015 [US1] Implement `src/da ... 
+      ^
+expected <block end>, but found '<scalar>'
+  in "<unicode string>", line 6, column 7:
+    - [ ] T015 [US1] Implement `src/data/p ... 
+          ^) -->
 - [ ] T016 [US1] Implement `src/data/preprocess.py`: Calculate geopotential height anomalies by subtracting the 1979–2023 monthly climatology from raw geopotential height data. **Do NOT apply linear detrending** (per Spec FR-003).
 - [ ] T017 [US1] Implement `src/data/preprocess.py`: Slice the regional data into latitudinal bands of varying width to enable granular spatial analysis. and handle missing months by excluding time steps (no imputation).
 - [ ] T018 [US1] Implement `src/data/preprocess.py`: Detect AR events using SWHAT-style logic: contiguous mask (-neighbor), duration >24h, baseline threshold kg m⁻¹ s⁻¹; output monthly frequency counts per band (`data/processed/ar_freq_{band}.nc`) with variables: 'ar_frequency', 'ar_start_time', 'ar_end_time'.

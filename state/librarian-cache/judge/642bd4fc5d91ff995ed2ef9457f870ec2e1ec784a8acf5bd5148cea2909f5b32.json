@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1501.03632",
+  "judged_at": "2026-07-06T21:52:13Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"intern-atlas: a methodological evolution graph as research infrastruct\" computer science",
+  "rationale": "The paper addresses biological evolution in asexual populations (genetics), which is an off-domain topic entirely distinct from the user's question about computer science research infrastructure and LLM methodology. The shared term \"evolution\" refers to a biological mechanism here, not the methodological or technological evolution of computer science systems, satisfying the rejection rule for distinct constructs sharing only homonym keywords.",
+  "relevant": false
+}

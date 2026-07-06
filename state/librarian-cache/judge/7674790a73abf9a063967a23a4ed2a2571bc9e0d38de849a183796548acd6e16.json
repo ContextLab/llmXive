@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2111.06372",
+  "judged_at": "2026-07-06T21:57:15Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"abot-earth 0.5: generative 3d earth model\" computer science",
+  "rationale": "The paper is an astrophysics study characterizing the physical composition of a specific near-Earth asteroid, which is entirely off-domain from the user's question regarding computer science, generative AI, and 3D Earth modeling. The shared terms \"Earth\" and \"model\" (in the sense of a physical object vs. a computational model) are homonyms that do not indicate a connection to the mechanism, variables, or empirical setting of the user's research.",
+  "relevant": false
+}

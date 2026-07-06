@@ -24,12 +24,12 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create `data/` directory at repository root
-- [ ] T002 Create `data/raw/` directory
-- [ ] T003 Create `data/processed/` directory
-- [ ] T004 Create `data/metadata/` directory
-- [ ] T005 Create `code/` directory
-- [ ] T006 Create `code/tests/` directory
+- [X] T001 Create `data/` directory at repository root
+- [X] T002 Create `data/raw/` directory
+- [X] T003 Create `data/processed/` directory
+- [X] T004 Create `data/metadata/` directory
+- [X] T005 Create `code/` directory
+- [X] T006 Create `code/tests/` directory
 - [~] T007 Create `results/` directory
 - [~] T008 Create `results/models/` directory
 - [~] T009 Create `results/reports/` directory
@@ -73,12 +73,12 @@
 ### Implementation for User Story 1
 
 - [~] T022 [US1] Implement `code/data_ingestion.py` fetch logic: Define Zenodo GFA-DB as primary source (API endpoint: `) and Materials Project as fallback; implement fetching with retry logic, exponential backoff, and graceful failure for 503; **Output**: Raw data in `data/raw/`
-- [ ] T023 [US1] Implement `code/data_ingestion.py` fallback: Generate synthetic dataset (Inoue's rules) **only for code testing** in `data/raw/synthetic_fallback.csv`; implement `generate_synthetic_dataset` function; **Requirement**: If synthetic mode is active, pipeline MUST halt with `SYNTHETIC_ONLY` error before any metric calculation or report generation to prevent accidental inclusion in final results
-- [ ] T024 [US1] Implement `code/data_ingestion.py` chunked processing: Read CSV in batches of ≤1000, estimate RAM, adjust chunksize dynamically; enforce fallback to ≤1000 if memory exceeds limit
-- [ ] T025 [US1] Implement `code/data_ingestion.py` schema validation: Verify `composition` and `gfa_label` (or `critical_cooling_rate`); apply threshold `Rc < 100 K/s` if needed; **Output**: Filtered CSV `data/processed/validated_compositions.csv` and log of excluded samples
-- [ ] T026 [US1] Create `code/descriptor_computation.py` with standardized elemental property lookup using `data/metadata/descriptor_sources.yaml`; define formulas: ΔHmix, δ, VEC, Δχ
-- [ ] T027 [US1] Implement `code/descriptor_computation.py` to compute ΔHmix, δ, VEC, Δχ for each sample using the defined formulas
-- [ ] T028 [US1] Implement `code/descriptor_computation.py` logic to flag and exclude samples with missing elemental data (log entry required)
+- [~] T023 [US1] Implement `code/data_ingestion.py` fallback: Generate synthetic dataset (Inoue's rules) **only for code testing** in `data/raw/synthetic_fallback.csv`; implement `generate_synthetic_dataset` function; **Requirement**: If synthetic mode is active, pipeline MUST halt with `SYNTHETIC_ONLY` error before any metric calculation or report generation to prevent accidental inclusion in final results
+- [~] T024 [US1] Implement `code/data_ingestion.py` chunked processing: Read CSV in batches of ≤1000, estimate RAM, adjust chunksize dynamically; enforce fallback to ≤1000 if memory exceeds limit
+- [~] T025 [US1] Implement `code/data_ingestion.py` schema validation: Verify `composition` and `gfa_label` (or `critical_cooling_rate`); apply threshold `Rc < 100 K/s` if needed; **Output**: Filtered CSV `data/processed/validated_compositions.csv` and log of excluded samples
+- [~] T026 [US1] Create `code/descriptor_computation.py` with standardized elemental property lookup using `data/metadata/descriptor_sources.yaml`; define formulas: ΔHmix, δ, VEC, Δχ
+- [~] T027 [US1] Implement `code/descriptor_computation.py` to compute ΔHmix, δ, VEC, Δχ for each sample using the defined formulas
+- [~] T028 [US1] Implement `code/descriptor_computation.py` logic to flag and exclude samples with missing elemental data (log entry required)
 - [ ] T029 [US1] Run `code/descriptor_computation.py` to generate `data/processed/computed_descriptors.csv` with all computed features and original composition; **Depends on**: T023 (if testing) or T022 (if production)
 - [ ] T030 [P] [US1] Unit test for descriptor computation formulas in `tests/unit/test_descriptors.py`
 

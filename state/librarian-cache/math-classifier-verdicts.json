@@ -839,6 +839,10 @@
     "classified_at": "2026-07-05T07:28:23Z",
     "verdict": false
   },
+  "PROJ-815-llmxive-follow-up-extending-intern-atlas::1.6.0": {
+    "classified_at": "2026-07-06T21:52:01Z",
+    "verdict": false
+  },
   "PROJ-820-llmxive-follow-up-extending-visual-gener::1.6.0": {
     "classified_at": "2026-07-03T18:58:54Z",
     "verdict": false
@@ -945,6 +949,10 @@
   },
   "PROJ-979-llmxive-follow-up-extending-loopcoder-v2::1.6.0": {
     "classified_at": "2026-07-04T12:37:43Z",
+    "verdict": false
+  },
+  "PROJ-988-llmxive-follow-up-extending-abot-earth-0::1.6.0": {
+    "classified_at": "2026-07-06T21:57:04Z",
     "verdict": false
   },
   "PROJ-990-llmxive-follow-up-extending-agenticsts-a::1.6.0": {

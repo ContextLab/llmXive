@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2604.28158",
+  "judged_at": "2026-07-06T21:52:11Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"intern-atlas: a methodological evolution graph as research infrastruct\" computer science",
+  "rationale": "This paper is the foundational work defining the \"Intern-Atlas\" system and the \"methodological evolution graph\" concept that the user's question explicitly references as the subject of a follow-up study. It satisfies acceptance criteria (d) as the canonical reference for the methodology and infrastructure the user intends to extend.",
+  "relevant": true
+}

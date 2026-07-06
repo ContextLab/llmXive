@@ -1,19 +1,21 @@
+"""
+Script to create the data/processed/ directory.
+This directory will store cleaned and processed datasets ready for modeling.
+"""
 import os
 from pathlib import Path
 from setup_directories import create_directory
 
+
 def main():
-    """Create the data/processed/ directory at the project root."""
-    base_dir = Path(__file__).resolve().parent.parent
-    data_dir = base_dir / "data"
+    """Entry point to create the data/processed/ directory."""
+    root_dir = Path(__file__).resolve().parent.parent
+    data_dir = root_dir / "data"
     processed_dir = data_dir / "processed"
-    
-    if create_directory(processed_dir):
-        print(f"Successfully created directory: {processed_dir}")
-        return True
-    else:
-        print(f"Directory already exists or failed to create: {processed_dir}")
-        return True  # Idempotent: success if it already exists
+
+    create_directory(processed_dir)
+    print(f"Successfully created directory: {processed_dir}")
+
 
 if __name__ == "__main__":
     main()

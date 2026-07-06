@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1306.5567",
+  "judged_at": "2026-07-06T21:57:22Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"abot-earth 0.5: generative 3d earth model\" computer science",
+  "rationale": "The paper discusses the astrophysical formation and dynamics of exoplanets (Super-Earths), which is entirely off-domain from the user's question regarding a computer science generative 3D Earth model (ABot-Earth). The shared term \"Earth\" is a homonym in this context, representing a distinct construct (a physical celestial body vs. a digital simulation) with no measurable connection to the user's mechanism, variables, or empirical setting.",
+  "relevant": false
+}

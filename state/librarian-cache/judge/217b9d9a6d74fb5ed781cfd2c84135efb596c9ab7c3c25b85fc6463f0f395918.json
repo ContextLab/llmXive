@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2012.10070",
+  "judged_at": "2026-07-06T21:52:38Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"intern-atlas: a methodological evolution graph as research infrastruct\" computer science",
+  "rationale": "The paper focuses on graph coloring parameters (Grundy and b-chromatic numbers) in pure mathematics, which is a distinct construct from the user's question regarding \"Intern-Atlas,\" a methodological evolution graph for research infrastructure in computer science. This falls under the rejection rule for \"Distinct construct sharing only homonym keywords\" (specifically the word \"graph\"), as the paper does not address the mechanism, domain, variables, or empirical setting of research infrastructure ",
+  "relevant": false
+}

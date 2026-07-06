@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2110.15678",
+  "judged_at": "2026-07-06T21:57:24Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"abot-earth 0.5: generative 3d earth model\" computer science",
+  "rationale": "This paper belongs in the literature review because it addresses the core mechanism of \"generative 3D Earth Model\" research by providing a canonical method for \"3D-aware image synthesis\" and \"shape-accurate\" reconstruction from 2D images, which satisfies criteria (a) for same-mechanism evidence and (d) as a foundational methodology for the specific technical challenge of resolving shape-color ambiguity in generative 3D models.",
+  "relevant": true
+}

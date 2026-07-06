@@ -1,0 +1,590 @@
+{
+  "fetched_at": "2026-07-06T21:57:25Z",
+  "field": "computer science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "computer science",
+      "idea_body_excerpt": "llmXive follow-up: extending \"ABot-Earth 0.5: Generative 3D Earth Model\"",
+      "target_n": 5
+    },
+    "duration_seconds": 49.173,
+    "ended_at": "2026-07-06T21:57:25Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "generative 3D Earth modeling"
+        ],
+        [
+          2,
+          "large language models for geospatial data"
+        ],
+        [
+          3,
+          "neural 3D Earth reconstruction"
+        ],
+        [
+          4,
+          "generative AI for planetary surface synthesis"
+        ],
+        [
+          5,
+          "3D terrain generation using transformer architectures"
+        ],
+        [
+          6,
+          "LLM-driven geoscientific modeling"
+        ],
+        [
+          7,
+          "automated 3D globe creation from text"
+        ],
+        [
+          8,
+          "neural rendering of Earth topography"
+        ],
+        [
+          9,
+          "multimodal generative models for Earth observation"
+        ],
+        [
+          10,
+          "diffusion models for 3D geographic data"
+        ],
+        [
+          11,
+          "text-to-3D Earth generation"
+        ],
+        [
+          12,
+          "generative models for satellite imagery and elevation"
+        ],
+        [
+          13,
+          "large-scale 3D environment synthesis for Earth"
+        ],
+        [
+          14,
+          "AI-based global terrain synthesis"
+        ],
+        [
+          15,
+          "neural implicit representations of planetary surfaces"
+        ],
+        [
+          16,
+          "generative adversarial networks for 3D Earth modeling"
+        ],
+        [
+          17,
+          "semantic 3D Earth reconstruction"
+        ],
+        [
+          18,
+          "LLM-guided geospatial data synthesis"
+        ],
+        [
+          19,
+          "3D geovisualization using generative deep learning"
+        ],
+        [
+          20,
+          "automated planetary surface modeling with foundation models"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "generative 3D Earth modeling": 5,
+        "llmXive follow-up: extending \"ABot-Earth 0.5: Generative 3D Earth Model\" computer science": 0
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "neural radiance field 3D reconstruction global",
+      "generative earth model satellite imagery dataset",
+      "differentiable rendering planetary surface synthesis",
+      "3D earth generation volumetric representation evaluation",
+      "large language model 3D world model grounding"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2110.15678"
+      ]
+    },
+    "per_query_hit_count": {
+      "3D earth generation volumetric representation evaluation": 3,
+      "differentiable rendering planetary surface synthesis": 3,
+      "generative earth model satellite imagery dataset": 3,
+      "large language model 3D world model grounding": 3,
+      "llmXive follow-up: extending \"ABot-Earth 0.5: Generative 3D Earth Model\" computer science": 3,
+      "neural radiance field 3D reconstruction global": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 4,
+      "rejections": [
+        {
+          "primary_pointer": "2111.06372",
+          "rationale": "The paper is an astrophysics study characterizing the physical composition of a specific near-Earth asteroid, which is entirely off-domain from the user's question regarding computer science, generative AI, and 3D Earth modeling. The shared terms \"Earth\" and \"model\" (in the sense of a physical object vs. a computational model) are homonyms that do not indicate a connection to the mechanism, variables, or empirical setting of the user's research.",
+          "title": "Lunar-like silicate material forms the Earth quasisatellite (469219) 2016 HO3 Kamo`oalewa"
+        },
+        {
+          "primary_pointer": "1001.5117",
+          "rationale": "The paper is an astrophysics and atmospheric dynamics study of exoplanets, which is entirely off-domain from the user's question regarding computer science, generative AI, and 3D Earth modeling. It shares only the keyword \"Earth\" and general climate concepts but addresses a distinct physical construct (tidally locked exoplanet atmospheres) rather than the algorithmic or data-driven mechanisms of generative 3D models.",
+          "title": "Atmospheric dynamics of Earth-like tidally locked aquaplanets"
+        },
+        {
+          "primary_pointer": "1502.03852",
+          "rationale": "The paper discusses astrophysical planet formation and geological accretion models, which is an off-domain topic entirely unrelated to the user's question about extending a computer science generative 3D Earth model (LLM/ML). This is a case of distinct constructs sharing only the keyword \"Earth,\" failing the relevance criteria for inclusion.",
+          "title": "Earth and Terrestrial Planet Formation"
+        },
+        {
+          "primary_pointer": "1306.5567",
+          "rationale": "The paper discusses the astrophysical formation and dynamics of exoplanets (Super-Earths), which is entirely off-domain from the user's question regarding a computer science generative 3D Earth model (ABot-Earth). The shared term \"Earth\" is a homonym in this context, representing a distinct construct (a physical celestial body vs. a digital simulation) with no measurable connection to the user's mechanism, variables, or empirical setting.",
+          "title": "The Formation and Dynamics of Super-Earth Planets"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-07-06T21:56:36Z",
+    "term_input": {
+      "normalized": "llmxive follow-up: extending \"abot-earth 0.5: generative 3d earth model\" computer science",
+      "raw": "llmXive follow-up: extending \"ABot-Earth 0.5: Generative 3D Earth Model\" computer science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This white paper describes the LSST Dark Energy Science Collaboration (DESC), whose goal is the study of dark energy and related topics in fundamental physics with data from the Large Synoptic Survey Telescope (LSST). It provides an overview of dark energy science and describes the current and anticipated state of the field. It makes the case for the DESC by laying out a robust analytical framework for dark energy science that has been defined by its members and the comprehensive three-year work plan they have developed for implementing that framework. The analysis working groups cover five key probes of dark energy: weak lensing, large scale structure, galaxy clusters, Type Ia supernovae, and strong lensing. The computing working groups span cosmological simulations, galaxy catalogs, photon simulations and a systematic software and computational framework for LSST dark energy data analysis. The technical working groups make the connection between dark energy science and the LSST system. The working groups have close linkages, especially through the use of the photon simulations to study the impact of instrument design and survey strategy on analysis methodology and cosmological parameter estimation. The white paper describes several high priority tasks identified by each of the 16 working groups. Over the next three years these tasks will help prepare for LSST analysis, make synergistic connections with ongoing cosmological surveys and provide the dark energy community with state of the art analysis tools. Members of the community are invited to join the LSST DESC, according to the membership policies described in the white paper. Applications to sign up for associate membership may be made by submitting the Web form at http://www.slac.stanford.edu/exp/lsst/desc/signup.html with a short statement of the work they wish to pursue that is relevant to the LSST DESC.",
+          "claimed_authors": [
+            " LSST Dark Energy Science Collaboration"
+          ],
+          "claimed_title": "Large Synoptic Survey Telescope: Dark Energy Science Collaboration",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1211.0310"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='llmXive follow-up: extending \"ABot-Earth 0.5: Generative 3D Earth Model\" compute', candidate_title='Large Synoptic Survey Telescope: Dark Energy Science Collaboration')",
+        "failed_at": "2026-07-06T21:57:04Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The large instantaneous sensitivity, a wide frequency coverage and flexible observation modes with large number of beams in the sky are the main features of the SKA observatory's two telescopes, the SKA-Low and the SKA-Mid, which are located on two different continents. Owing to these capabilities, the SKAO telescopes are going to be a game-changer for radio astronomy in general and pulsar astronomy in particular. The eleven articles in this special issue on pulsar science with the SKA Observatory describe its impact on different areas of pulsar science. In this lead article, a brief description of the two telescopes highlighting the relevant features for pulsar science is presented followed by an overview of each accompanying article, exploring the inter-relationship between different pulsar science use cases.",
+          "claimed_authors": [
+            "Bhal Chandra Joshi",
+            "Aris Karastergiou",
+            "Marta Burgay",
+            "The SKA pulsar science working group"
+          ],
+          "claimed_title": "Pulsar Science with the SKA Observatory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.16152"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='llmXive follow-up: extending \"ABot-Earth 0.5: Generative 3D Earth Model\" compute', candidate_title='Pulsar Science with the SKA Observatory')",
+        "failed_at": "2026-07-06T21:57:04Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A Human Computer Interface (HCI) System for playing games is designed here for more natural communication with the machines. The system presented here is a vision-based system for detection of long voluntary eye blinks and interpretation of blink patterns for communication between man and machine. This system replaces the mouse with the human face as a new way to interact with the computer. Facial features (nose tip and eyes) are detected and tracked in realtime to use their actions as mouse events. The coordinates and movement of the nose tip in the live video feed are translated to become the coordinates and movement of the mouse pointer on the application. The left or right eye blinks fire left or right mouse click events. The system works with inexpensive USB cameras and runs at a frame rate of 30 frames per second.",
+          "claimed_authors": [
+            "S. Sumathi",
+            "S. K. Srivatsa",
+            "M. Uma Maheswari"
+          ],
+          "claimed_title": "Vision Based Game Development Using Human Computer Interaction",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1002.2191"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='llmXive follow-up: extending \"ABot-Earth 0.5: Generative 3D Earth Model\" compute', candidate_title='Vision Based Game Development Using Human Computer Interaction')",
+        "failed_at": "2026-07-06T21:57:04Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Krylov subspace methods are considered a standard tool to solve large systems of linear algebraic equations in many scientific disciplines such as image restoration or solving partial differential equations in mechanics of continuum. In the context of computer tomography however, the mostly used algebraic reconstruction techniques are based on classical iterative schemes. In this work we present software package that implements fully 3D cone beam projection operator and uses Krylov subspace methods, namely CGLS and LSQR to solve related tomographic reconstruction problems. It also implements basic preconditioning strategies. On the example of the cone beam CT reconstruction of 3D Shepp-Logan phantom we show that the speed of convergence of the CGLS clearly outperforms PSIRT algorithm. Therefore Krylov subspace methods present an interesting option for the reconstruction of large 3D cone beam CT problems.",
+          "claimed_authors": [
+            "Vojtěch Kulvait",
+            "Georg Rose"
+          ],
+          "claimed_title": "Software Implementation of the Krylov Methods Based Reconstruction for the 3D Cone Beam CT Operator",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2110.13526"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='llmXive follow-up: extending \"ABot-Earth 0.5: Generative 3D Earth Model\" compute', candidate_title='Software Implementation of the Krylov Methods Based Reconstruction for the 3D Cone Beam CT Operator')",
+        "failed_at": "2026-07-06T21:57:04Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Neural Radiance Fields (NeRFs) encode the radiance in a scene parameterized by the scene's plenoptic function. This is achieved by using an MLP together with a mapping to a higher-dimensional space, and has been proven to capture scenes with a great level of detail. Naturally, the same parameterization can be used to encode additional properties of the scene, beyond just its radiance. A particularly interesting property in this regard is the semantic decomposition of the scene. We introduce a novel technique for semantic soft decomposition of neural radiance fields (named SSDNeRF) which jointly encodes semantic signals in combination with radiance signals of a scene. Our approach provides a soft decomposition of the scene into semantic parts, enabling us to correctly encode multiple semantic classes blending along the same direction -- an impossible feat for existing methods. Not only does this lead to a detailed, 3D semantic representation of the scene, but we also show that the regularizing effects of the MLP used for encoding help to improve the semantic representation. We show state-of-the-art segmentation and reconstruction results on a dataset of common objects and demonstrate how the proposed approach can be applied for high quality temporally consistent video editing and re-compositing on a dataset of casually captured selfie videos.",
+          "claimed_authors": [
+            "Siddhant Ranade",
+            "Christoph Lassner",
+            "Kai Li",
+            "Christian Haene",
+            "Shen-Chi Chen",
+            "Jean-Charles Bazin",
+            "Sofien Bouaziz"
+          ],
+          "claimed_title": "SSDNeRF: Semantic Soft Decomposition of Neural Radiance Fields",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2212.03406"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"ABot-Earth 0.5: Generative 3D Earth Model\" compute', candidate_title='SSDNeRF: Semantic Soft Decomposition of Neural Radiance Fields')",
+        "failed_at": "2026-07-06T21:57:04Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Latent 3D reconstruction has shown great promise in empowering 3D semantic understanding and 3D generation by distilling 2D features into the 3D space. However, existing approaches struggle with the domain gap between 2D feature space and 3D representations, resulting in degraded rendering performance. To address this challenge, we propose a novel framework that integrates 3D awareness into the 2D latent space. The framework consists of three stages: (1) a correspondence-aware autoencoding method that enhances the 3D consistency of 2D latent representations, (2) a latent radiance field (LRF) that lifts these 3D-aware 2D representations into 3D space, and (3) a VAE-Radiance Field (VAE-RF) alignment strategy that improves image decoding from the rendered 2D representations. Extensive experiments demonstrate that our method outperforms the state-of-the-art latent 3D reconstruction approaches in terms of synthesis performance and cross-dataset generalizability across diverse indoor and outdoor scenes. To our knowledge, this is the first work showing the radiance field representations constructed from 2D latent representations can yield photorealistic 3D reconstruction performance.",
+          "claimed_authors": [
+            "Chaoyi Zhou",
+            "Xi Liu",
+            "Feng Luo",
+            "Siyu Huang"
+          ],
+          "claimed_title": "Latent Radiance Fields with 3D-aware 2D Representations",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2502.09613"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"ABot-Earth 0.5: Generative 3D Earth Model\" compute', candidate_title='Latent Radiance Fields with 3D-aware 2D Representations')",
+        "failed_at": "2026-07-06T21:57:04Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "There is an increasing demand for software that automatically detects and classifies mobile targets such as airplanes, cars, and ships in satellite imagery. Applications of such automated target recognition (ATR) software include economic forecasting, traffic planning, maritime law enforcement, and disaster response. This paper describes the extension of a convolutional neural network (CNN) for classification to a sliding window algorithm for detection. It is evaluated on mobile targets of the xView dataset, on which it achieves detection and classification accuracies higher than 95%.",
+          "claimed_authors": [
+            "Mark Pritt"
+          ],
+          "claimed_title": "Deep Learning for Recognizing Mobile Targets in Satellite Imagery",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2010.06520"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"ABot-Earth 0.5: Generative 3D Earth Model\" compute', candidate_title='Deep Learning for Recognizing Mobile Targets in Satellite Imagery')",
+        "failed_at": "2026-07-06T21:57:04Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Satellites are increasingly adopting on-board AI to optimize operations and increase autonomy through in-orbit inference. The use of Deep Learning (DL) models for segmentation in hyperspectral imagery offers advantages for remote sensing applications. In this work, we train and test 20 models for multi-class segmentation in hyperspectral imagery, selected for their potential in future space deployment. These models include 1D and 2D Convolutional Neural Networks (CNNs) and the latest vision transformers (ViTs). We propose a lightweight 1D-CNN model, 1D-Justo-LiuNet, which outperforms state-of-the-art models in the hypespectral domain. 1D-Justo-LiuNet exceeds the performance of 2D-CNN UNets and outperforms Apple's lightweight vision transformers designed for mobile inference. 1D-Justo-LiuNet achieves the highest accuracy (0.93) with the smallest model size (4,563 parameters) among all tested models, while maintaining fast inference. Unlike 2D-CNNs and ViTs, which encode both spectral and spatial information, 1D-Justo-LiuNet focuses solely on the rich spectral features in hyperspectral data, benefitting from the high-dimensional feature space. Our findings are validated across various satellite datasets, with the HYPSO-1 mission serving as the primary case study for sea, land, and cloud segmentation. We further confirm our conclusions through generalization tests on other hyperspectral missions, such as NASA's EO-1. Based on its superior performance and compact size, we conclude that 1D-Justo-LiuNet is highly suitable for in-orbit deployment, providing an effective solution for optimizing and automating satellite operations at edge.",
+          "claimed_authors": [
+            "Jon Alvarez Justo",
+            "Alexandru Ghita",
+            "Daniel Kovac",
+            "Joseph L. Garrett",
+            "Mariana-Iuliana Georgescu",
+            "Jesus Gonzalez-Llorente",
+            "Radu Tudor Ionescu",
+            "Tor Arne Johansen"
+          ],
+          "claimed_title": "Semantic Segmentation in Satellite Hyperspectral Imagery by Deep Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2310.16210"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='llmXive follow-up: extending \"ABot-Earth 0.5: Generative 3D Earth Model\" compute', candidate_title='Semantic Segmentation in Satellite Hyperspectral Imagery by Deep Learning')",
+        "failed_at": "2026-07-06T21:57:04Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In this work, we compare the detection accuracy and speed of several state-of-the-art models for the task of detecting oil and gas fracking wells and small cars in commercial electro-optical satellite imagery. Several models are studied from the single-stage, two-stage, and multi-stage object detection families of techniques. For the detection of fracking well pads (50m - 250m), we find single-stage detectors provide superior prediction speed while also matching detection performance of their two and multi-stage counterparts. However, for detecting small cars, two-stage and multi-stage models provide substantially higher accuracies at the cost of some speed. We also measure timing results of the sliding window object detection algorithm to provide a baseline for comparison. Some of these models have been incorporated into the Lockheed Martin Globally-Scalable Automated Target Recognition (GATR) framework.",
+          "claimed_authors": [
+            "Austen Groener",
+            "Gary Chern",
+            "Mark Pritt"
+          ],
+          "claimed_title": "A Comparison of Deep Learning Object Detection Models for Satellite Imagery",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2009.04857"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"ABot-Earth 0.5: Generative 3D Earth Model\" compute', candidate_title='A Comparison of Deep Learning Object Detection Models for Satellite Imagery')",
+        "failed_at": "2026-07-06T21:57:04Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Inverse rendering seeks to reconstruct both geometry and spatially varying BRDFs (SVBRDFs) from captured images. To address the inherent ill-posedness of inverse rendering, basis BRDF representations are commonly used, modeling SVBRDFs as spatially varying blends of a set of basis BRDFs. However, existing methods often yield basis BRDFs that lack intuitive separation and have limited scalability to scenes of varying complexity. In this paper, we introduce a differentiable inverse rendering method that produces interpretable basis BRDFs. Our approach models a scene using 2D Gaussians, where the reflectance of each Gaussian is defined by a weighted blend of basis BRDFs. We efficiently render an image from the 2D Gaussians and basis BRDFs using differentiable rasterization and impose a rendering loss with the input images. During this analysis-by-synthesis optimization process of differentiable inverse rendering, we dynamically adjust the number of basis BRDFs to fit the target scene while encouraging sparsity in the basis weights. This ensures that the reflectance of each Gaussian is represented by only a few basis BRDFs. This approach enables the reconstruction of accurate geometry and interpretable basis BRDFs that are spatially separated. Consequently, the resulting scene representation, comprising basis BRDFs and 2D Gaussians, supports physically-based novel-view relighting and intuitive scene editing.",
+          "claimed_authors": [
+            "Hoon-Gyu Chung",
+            "Seokjun Choi",
+            "Seung-Hwan Baek"
+          ],
+          "claimed_title": "Differentiable Inverse Rendering with Interpretable Basis BRDFs",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2411.17994"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"ABot-Earth 0.5: Generative 3D Earth Model\" compute', candidate_title='Differentiable Inverse Rendering with Interpretable Basis BRDFs')",
+        "failed_at": "2026-07-06T21:57:04Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The fate of surface water on Venus is one of the most important outstanding problems in comparative planetology. Here a new concept is proposed to explain water removal on a steam-covered proto Venus, referred to as impact-driven planetary desiccation. Since a steam atmosphere is photochemically unstable, water vapor dissociates into hydrogen and oxygen. Then, hydrogen escapes easily into space through hydrodynamic escape driven by strong extreme ultraviolet radiation from the young Sun. The focus is on the intense impact bombardment during the terminal stage of planetary accretion as generators of a significant amount of reducing agent. The fine-grained ejecta remove the residual oxygen, the counter part of escaped hydrogen, via the oxidation of iron-bearing rocks in a hot atmosphere. Thus, hypervelocity impacts cause net desiccation of the planetary surface. I constructed a stochastic cratering model using a Monte Carlo approach to investigate the cumulative mass of nonoxidized, ejected rocks due to the intense impact bombardment. It is shown that a thick steam atmosphere with a mass equivalent to that of the terrestrial oceans would be removed. The cumulative mass of rocky ejecta released into the atmosphere reaches 1 wt% of the host planet, which is 10000 times of the current mass of the Earths atmosphere. These results strongly suggest that chemical reactions between such large amounts of ejecta and planetary atmospheres are among the key factors required to understand atmospheric mass and its composition, not only in the Solar System but also in extrasolar systems.",
+          "claimed_authors": [
+            "Kosuke Kurosawa"
+          ],
+          "claimed_title": "Impact-driven planetary desiccation: The origin of the dry Venus",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2015,
+          "primary_pointer": "1509.01357"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='llmXive follow-up: extending \"ABot-Earth 0.5: Generative 3D Earth Model\" compute', candidate_title='Impact-driven planetary desiccation: The origin of the dry Venus')",
+        "failed_at": "2026-07-06T21:57:04Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The VESPA data access system focuses on applying Virtual Observatory (VO) standards and tools to Planetary Science. Building on a previous EC-funded Europlanet program, it has reached maturity during the first year of a new Europlanet 2020 program (started in 2015 for 4 years). The infrastructure has been upgraded to handle many fields of Solar System studies, with a focus both on users and data providers. This paper describes the broad lines of the current VESPA infrastructure as seen by a potential user, and provides examples of real use cases in several thematic areas. These use cases are also intended to identify hints for future developments and adaptations of VO tools to Planetary Science.",
+          "claimed_authors": [
+            "S. Erard",
+            "B. Cecconi",
+            "P. Le Sidaner",
+            "A. P. Rossi",
+            "T. Capria",
+            "B. Schmitt",
+            "V. Génot",
+            "N. André",
+            "A. C. Vandaele",
+            "M. Scherf",
+            "R. Hueso",
+            "A. Määttänen",
+            "W. Thuillot",
+            "B. Carry",
+            "N. Achilleos",
+            "C. Marmo",
+            "O. Santolik",
+            "K. Benson",
+            "P. Fernique",
+            "L. Beigbeder",
+            "E. Millour",
+            "B. Rousseau",
+            "F. Andrieu",
+            "C. Chauvin",
+            "M. Minin",
+            "S. Ivanoski",
+            "A. Longobardo",
+            "P. Bollard",
+            "D. Albert",
+            "M. Gangloff",
+            "N. Jourdane",
+            "M. Bouchemit",
+            "J. -M. Glorian",
+            "L. Trompet",
+            "T. Al-Ubaidi",
+            "J. Juaristi",
+            "J. Desmars",
+            "P. Guio",
+            "O. Delaa",
+            "A. Lagain",
+            "J. Soucek",
+            "D. Pisa"
+          ],
+          "claimed_title": "VESPA: a community-driven Virtual Observatory in Planetary Science",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1705.09727"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='llmXive follow-up: extending \"ABot-Earth 0.5: Generative 3D Earth Model\" compute', candidate_title='VESPA: a community-driven Virtual Observatory in Planetary Science')",
+        "failed_at": "2026-07-06T21:57:04Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Little is known about Earth quasi-satellites, a class of near-Earth small solar system bodies that orbit the sun but remain close to the Earth, because they are faint and difficult to observe. Here we use the Large Binocular Telescope (LBT) and the Lowell Discovery Telescope (LDT) to conduct a comprehensive physical characterization of quasi-satellite (469219) Kamo`oalewa and assess its affinity with other groups of near-Earth objects. We find that (469219) Kamo`oalewa rotates with a period of 28.3 (+1.8/-1.3) minutes and displays a reddened reflectance spectrum from 0.4-2.2 microns. This spectrum is indicative of a silicate-based composition, but with reddening beyond what is typically seen amongst asteroids in the inner solar system. We compare the spectrum to those of several material analogs and conclude that the best match is with lunar-like silicates. This interpretation implies extensive space weathering and raises the prospect that Kamo`oalewa could comprise lunar material.",
+          "claimed_authors": [
+            "Benjamin N. L. Sharkey",
+            "Vishnu Reddy",
+            "Renu Malhotra",
+            "Audrey Thirouin",
+            "Olga Kuhn",
+            "Albert Conrad",
+            "Barry Rothberg",
+            "Juan A. Sanchez",
+            "David Thompson",
+            "Christian Veillet"
+          ],
+          "claimed_title": "Lunar-like silicate material forms the Earth quasisatellite (469219) 2016 HO3 Kamo`oalewa",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2111.06372"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='llmXive follow-up: extending \"ABot-Earth 0.5: Generative 3D Earth Model\" compute', candidate_title='Lunar-like silicate material forms the Earth quasisatellite (469219) 2016 HO3 Kamo`oalewa')",
+        "failed_at": "2026-07-06T21:57:04Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We present simulations of atmospheres of Earth-like aquaplanets that are tidally locked to their star, that is, planets whose orbital period is equal to the rotation period about their spin axis, so that one side always faces the star and the other side is always dark. As extreme cases illustrating the effects of slow and rapid rotation, we consider planets with rotation periods equal to one current Earth year and one current Earth day. The dynamics responsible for the surface climate (e.g., winds, temperature, precipitation) and the general circulation of the atmosphere are discussed in light of existing theories of atmospheric circulations. For example, as expected from the increasing importance of Coriolis accelerations relative to inertial accelerations as the rotation rate increases, the winds are approximately isotropic and divergent at leading order in the slowly rotating atmosphere but are predominantly zonal and rotational in the rapidly rotating atmosphere. Free-atmospheric horizontal temperature variations in the slowly rotating atmosphere are generally weaker than in the rapidly rotating atmosphere. Interestingly, the surface temperature on the night side of the planets does not fall below ~240 K in either the rapidly or slowly rotating atmosphere; that is, heat transport from the day side to the night side of the planets efficiently reduces temperature contrasts in either case. Rotational waves shape the distribution of winds, temperature, and precipitation in the rapidly rotating atmosphere; in the slowly rotating atmosphere, these distributions are controlled by simpler divergent circulations. The results are of interest in the study of tidally locked terrestrial exoplanets and as illustrations of how planetary rotation and the insolation distribution shape climate.",
+          "claimed_authors": [
+            "Timothy M. Merlis",
+            "Tapio Schneider"
+          ],
+          "claimed_title": "Atmospheric dynamics of Earth-like tidally locked aquaplanets",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1001.5117"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='llmXive follow-up: extending \"ABot-Earth 0.5: Generative 3D Earth Model\" compute', candidate_title='Atmospheric dynamics of Earth-like tidally locked aquaplanets')",
+        "failed_at": "2026-07-06T21:57:04Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Generative models aim to learn the distribution of observed data by generating new instances. With the advent of neural networks, deep generative models, including variational autoencoders (VAEs), generative adversarial networks (GANs), and diffusion models (DMs), have progressed remarkably in synthesizing 2D images. Recently, researchers started to shift focus from 2D to 3D space, considering that 3D data is more closely aligned with our physical world and holds immense practical potential. However, unlike 2D images, which possess an inherent and efficient representation (\\textit{i.e.}, a pixel grid), representing 3D data poses significantly greater challenges. Ideally, a robust 3D representation should be capable of accurately modeling complex shapes and appearances while being highly efficient in handling high-resolution data with high processing speeds and low memory requirements. Regrettably, existing 3D representations, such as point clouds, meshes, and neural fields, often fail to satisfy all of these requirements simultaneously. In this survey, we thoroughly review the ongoing developments of 3D generative models, including methods that employ 2D and 3D supervision. Our analysis centers on generative models, with a particular focus on the representations utilized in this context. We believe our survey will help the community to track the field's evolution and to spark innovative ideas to propel progress towards solving this challenging task.",
+          "claimed_authors": [
+            "Zifan Shi",
+            "Sida Peng",
+            "Yinghao Xu",
+            "Andreas Geiger",
+            "Yiyi Liao",
+            "Yujun Shen"
+          ],
+          "claimed_title": "Deep Generative Models on 3D Representations: A Survey",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2210.15663"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='llmXive follow-up: extending \"ABot-Earth 0.5: Generative 3D Earth Model\" compute', candidate_title='Deep Generative Models on 3D Representations: A Survey')",
+        "failed_at": "2026-07-06T21:57:04Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Large language models (LLMs) have achieved success in acting as agents, which interact with environments through tools such as search engines. However, LLMs are optimized for language generation instead of tool use during training or alignment, limiting their effectiveness as agents. To resolve this problem, previous work has first collected interaction trajectories between LLMs and environments, using only trajectories that successfully finished the task to fine-tune smaller models, making fine-tuning data scarce and acquiring it both difficult and costly. Discarding failed trajectories also leads to significant wastage of data and resources and limits the possible optimization paths during fine-tuning. In this paper, we argue that unsuccessful trajectories offer valuable insights, and LLMs can learn from these trajectories through appropriate quality control and fine-tuning strategies. By simply adding a prefix or suffix that tells the model whether to generate a successful trajectory during training, we improve model performance by a large margin on mathematical reasoning, multi-hop question answering, and strategic question answering tasks. We further analyze the inference results and find that our method provides a better trade-off between valuable information and errors in unsuccessful trajectories. To our knowledge, we are the first to demonstrate the value of negative trajectories and their application in agent-tunning scenarios. Our findings offer guidance for developing better agent-tuning methods and low-resource data usage techniques.",
+          "claimed_authors": [
+            "Renxi Wang",
+            "Haonan Li",
+            "Xudong Han",
+            "Yixuan Zhang",
+            "Timothy Baldwin"
+          ],
+          "claimed_title": "Learning From Failure: Integrating Negative Examples when Fine-tuning Large Language Models as Agents",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2402.11651"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='llmXive follow-up: extending \"ABot-Earth 0.5: Generative 3D Earth Model\" compute', candidate_title='Learning From Failure: Integrating Negative Examples when Fine-tuning Large Language Models as Agents')",
+        "failed_at": "2026-07-06T21:57:04Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Instruction tuning significantly enhances the performance of large language models (LLMs) across various tasks. However, the procedure to optimizing the mixing of instruction datasets for LLM fine-tuning is still poorly understood. This study categorizes instructions into three primary types: NLP downstream tasks, coding, and general chat. We explore the effects of instruction tuning on different combinations of datasets on LLM performance, and find that certain instruction types are more advantageous for specific applications but can negatively impact other areas. This work provides insights into instruction mixtures, laying the foundations for future research.",
+          "claimed_authors": [
+            "Renxi Wang",
+            "Haonan Li",
+            "Minghao Wu",
+            "Yuxia Wang",
+            "Xudong Han",
+            "Chiyu Zhang",
+            "Timothy Baldwin"
+          ],
+          "claimed_title": "Demystifying Instruction Mixing for Fine-tuning Large Language Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2312.10793"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"ABot-Earth 0.5: Generative 3D Earth Model\" compute', candidate_title='Demystifying Instruction Mixing for Fine-tuning Large Language Models')",
+        "failed_at": "2026-07-06T21:57:04Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The Romansh language has several regional varieties, called idioms, which sometimes have limited mutual intelligibility. Despite this linguistic diversity, there has been a lack of documented efforts to build a language identification (LID) system that can distinguish between these idioms. Since Romansh LID should also be able to recognize Rumantsch Grischun, a supra-regional variety that combines elements of several idioms, this makes for a novel and interesting classification problem. In this paper, we present a LID system for Romansh idioms based on an SVM approach. We evaluate our model on a newly curated benchmark across two domains and find that it reaches an average in-domain accuracy of 97%, enabling applications such as idiom-aware spell checking or machine translation. Our classifier is publicly available.",
+          "claimed_authors": [
+            "Charlotte Model",
+            "Sina Ahmadi",
+            "Jannis Vamvas"
+          ],
+          "claimed_title": "Robust Language Identification for Romansh Varieties",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2603.15969"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='llmXive follow-up: extending \"ABot-Earth 0.5: Generative 3D Earth Model\" compute', candidate_title='Robust Language Identification for Romansh Varieties')",
+        "failed_at": "2026-07-06T21:57:04Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Xingang Pan",
+            "Xudong Xu",
+            "Chen Change Loy",
+            "Christian Theobalt",
+            "Bo Dai"
+          ],
+          "title": "A Shading-Guided Generative Implicit Model for Shape-Accurate 3D-Aware Image Synthesis",
+          "venue": "arXiv",
+          "year": 2021
+        },
+        "primary_pointer": "2110.15678",
+        "summary": "The advancement of generative radiance fields has pushed the boundary of 3D-aware image synthesis. Motivated by the observation that a 3D object should look realistic from multiple viewpoints, these methods introduce a multi-view constraint as regularization to learn valid 3D radiance fields from 2D images. Despite the progress, they often fall short of capturing accurate 3D shapes due to the shape-color ambiguity, limiting their applicability in downstream tasks. In this work, we address this ambiguity by proposing a novel shading-guided generative implicit model that is able to learn a starkly improved shape representation. Our key insight is that an accurate 3D shape should also yield a realistic rendering under different lighting conditions. This multi-lighting constraint is realized by modeling illumination explicitly and performing shading with various lighting conditions. Gradients are derived by feeding the synthesized images to a discriminator. To compensate for the additional computational burden of calculating surface normals, we further devise an efficient volume rendering strategy via surface tracking, reducing the training and inference time by 24% and 48%, respectively. Our experiments on multiple datasets show that the proposed approach achieves photorealistic 3D-aware image synthesis while capturing accurate underlying 3D shapes. We demonstrate improved performance of our approach on 3D shape reconstruction against existing methods, and show its applicability on image relighting. Our code will be released at https://github.com/XingangPan/ShadeGAN.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2110.15678",
+          "http_status": 200,
+          "pdf_sample_score": 0.3357,
+          "query_relevance_score": 0.6667,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-06T21:57:12Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "llmxive follow-up: extending \"abot-earth 0.5: generative 3d earth model\" computer science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

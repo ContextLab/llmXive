@@ -1,0 +1,582 @@
+{
+  "fetched_at": "2026-07-06T21:52:38Z",
+  "field": "computer science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "computer science",
+      "idea_body_excerpt": "llmXive follow-up: extending \"Intern-Atlas: A Methodological Evolution Graph as Research Infrastruct\"",
+      "target_n": 5
+    },
+    "duration_seconds": 65.751,
+    "ended_at": "2026-07-06T21:52:38Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "research evolution graphs"
+        ],
+        [
+          2,
+          "methodological evolution in AI"
+        ],
+        [
+          3,
+          "scholarly graph construction"
+        ],
+        [
+          4,
+          "research infrastructure for LLMs"
+        ],
+        [
+          5,
+          "scientific literature knowledge graphs"
+        ],
+        [
+          6,
+          "automated research lineage tracking"
+        ],
+        [
+          7,
+          "methodological trajectory analysis"
+        ],
+        [
+          8,
+          "evolution of machine learning methods"
+        ],
+        [
+          9,
+          "citation network evolution"
+        ],
+        [
+          10,
+          "research trend mining"
+        ],
+        [
+          11,
+          "scientific knowledge discovery graphs"
+        ],
+        [
+          12,
+          "meta-analysis of AI research"
+        ],
+        [
+          13,
+          "research paper dependency graphs"
+        ],
+        [
+          14,
+          "longitudinal analysis of computer science methods"
+        ],
+        [
+          15,
+          "scientific progress mapping"
+        ],
+        [
+          16,
+          "automated literature review generation"
+        ],
+        [
+          17,
+          "research idea evolution networks"
+        ],
+        [
+          18,
+          "scholarly graph mining"
+        ],
+        [
+          19,
+          "methodological shift detection in AI"
+        ],
+        [
+          20,
+          "research ecosystem visualization"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "llmXive follow-up: extending \"Intern-Atlas: A Methodological Evolution Graph as Research Infrastruct\" computer science": 0,
+        "research evolution graphs": 5
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "research infrastructure evolution graph methodological",
+      "InternLM codebase dataset benchmark infrastructure",
+      "scientific workflow knowledge graph citation network",
+      "research pipeline automation reproducibility evaluation",
+      "methodological drift scientific progress tracking"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2604.28158"
+      ]
+    },
+    "per_query_hit_count": {
+      "InternLM codebase dataset benchmark infrastructure": 3,
+      "llmXive follow-up: extending \"Intern-Atlas: A Methodological Evolution Graph as Research Infrastruct\" computer science": 3,
+      "methodological drift scientific progress tracking": 2,
+      "research infrastructure evolution graph methodological": 3,
+      "research pipeline automation reproducibility evaluation": 3,
+      "scientific workflow knowledge graph citation network": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 5,
+      "rejections": [
+        {
+          "primary_pointer": "1501.03632",
+          "rationale": "The paper addresses biological evolution in asexual populations (genetics), which is an off-domain topic entirely distinct from the user's question about computer science research infrastructure and LLM methodology. The shared term \"evolution\" refers to a biological mechanism here, not the methodological or technological evolution of computer science systems, satisfying the rejection rule for distinct constructs sharing only homonym keywords.",
+          "title": "Fixation probability of rare nonmutator and evolution of mutation rates"
+        },
+        {
+          "primary_pointer": "math/0602191",
+          "rationale": "The paper focuses on theoretical graph theory bounds for cliques in specific graph classes, which is a distinct mathematical construct from the user's question regarding \"Intern-Atlas,\" a methodological evolution graph used as a research infrastructure for LLMs. There is no overlap in mechanism, domain (theoretical combinatorics vs. LLM research methodology), or empirical variables, and the shared term \"graph\" represents a homonym in this context rather than a relevant connection.",
+          "title": "On the maximum number of cliques in a graph"
+        },
+        {
+          "primary_pointer": "2206.14908",
+          "rationale": "The candidate paper focuses on astrophysics and galaxy evolution using a spectrograph, which is entirely off-domain from the user's question regarding computer science, LLMs, and research infrastructure graphs. It shares no measurable connection to the user's mechanism, variables, or empirical setting, failing all inclusion criteria (a-f) and triggering the \"Off-domain entirely\" rejection rule.",
+          "title": "The Prime Focus Spectrograph Galaxy Evolution Survey"
+        },
+        {
+          "primary_pointer": "1310.7085",
+          "rationale": "The paper focuses on abstract algebraic graph theory (generalized wreath products of graphs and groups) and does not address the user's specific question regarding LLMs, the \"Intern-Atlas\" framework, or research infrastructure evolution. It falls under the rejection rule for being \"off-domain entirely\" as it lacks any measurable connection to the user's mechanism, domain, variables, or empirical setting in computer science research infrastructure.",
+          "title": "Generalized wreath products of graphs and groups"
+        },
+        {
+          "primary_pointer": "2012.10070",
+          "rationale": "The paper focuses on graph coloring parameters (Grundy and b-chromatic numbers) in pure mathematics, which is a distinct construct from the user's question regarding \"Intern-Atlas,\" a methodological evolution graph for research infrastructure in computer science. This falls under the rejection rule for \"Distinct construct sharing only homonym keywords\" (specifically the word \"graph\"), as the paper does not address the mechanism, domain, variables, or empirical setting of research infrastructure ",
+          "title": "On Grundy and b-chromatic number of some families of graphs: a comparative study"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-07-06T21:51:33Z",
+    "term_input": {
+      "normalized": "llmxive follow-up: extending \"intern-atlas: a methodological evolution graph as research infrastruct\" computer science",
+      "raw": "llmXive follow-up: extending \"Intern-Atlas: A Methodological Evolution Graph as Research Infrastruct\" computer science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This white paper describes the LSST Dark Energy Science Collaboration (DESC), whose goal is the study of dark energy and related topics in fundamental physics with data from the Large Synoptic Survey Telescope (LSST). It provides an overview of dark energy science and describes the current and anticipated state of the field. It makes the case for the DESC by laying out a robust analytical framework for dark energy science that has been defined by its members and the comprehensive three-year work plan they have developed for implementing that framework. The analysis working groups cover five key probes of dark energy: weak lensing, large scale structure, galaxy clusters, Type Ia supernovae, and strong lensing. The computing working groups span cosmological simulations, galaxy catalogs, photon simulations and a systematic software and computational framework for LSST dark energy data analysis. The technical working groups make the connection between dark energy science and the LSST system. The working groups have close linkages, especially through the use of the photon simulations to study the impact of instrument design and survey strategy on analysis methodology and cosmological parameter estimation. The white paper describes several high priority tasks identified by each of the 16 working groups. Over the next three years these tasks will help prepare for LSST analysis, make synergistic connections with ongoing cosmological surveys and provide the dark energy community with state of the art analysis tools. Members of the community are invited to join the LSST DESC, according to the membership policies described in the white paper. Applications to sign up for associate membership may be made by submitting the Web form at http://www.slac.stanford.edu/exp/lsst/desc/signup.html with a short statement of the work they wish to pursue that is relevant to the LSST DESC.",
+          "claimed_authors": [
+            " LSST Dark Energy Science Collaboration"
+          ],
+          "claimed_title": "Large Synoptic Survey Telescope: Dark Energy Science Collaboration",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1211.0310"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"Intern-Atlas: A Methodological Evolution Graph as ', candidate_title='Large Synoptic Survey Telescope: Dark Energy Science Collaboration')",
+        "failed_at": "2026-07-06T21:52:01Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The large instantaneous sensitivity, a wide frequency coverage and flexible observation modes with large number of beams in the sky are the main features of the SKA observatory's two telescopes, the SKA-Low and the SKA-Mid, which are located on two different continents. Owing to these capabilities, the SKAO telescopes are going to be a game-changer for radio astronomy in general and pulsar astronomy in particular. The eleven articles in this special issue on pulsar science with the SKA Observatory describe its impact on different areas of pulsar science. In this lead article, a brief description of the two telescopes highlighting the relevant features for pulsar science is presented followed by an overview of each accompanying article, exploring the inter-relationship between different pulsar science use cases.",
+          "claimed_authors": [
+            "Bhal Chandra Joshi",
+            "Aris Karastergiou",
+            "Marta Burgay",
+            "The SKA pulsar science working group"
+          ],
+          "claimed_title": "Pulsar Science with the SKA Observatory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.16152"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"Intern-Atlas: A Methodological Evolution Graph as ', candidate_title='Pulsar Science with the SKA Observatory')",
+        "failed_at": "2026-07-06T21:52:01Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A Human Computer Interface (HCI) System for playing games is designed here for more natural communication with the machines. The system presented here is a vision-based system for detection of long voluntary eye blinks and interpretation of blink patterns for communication between man and machine. This system replaces the mouse with the human face as a new way to interact with the computer. Facial features (nose tip and eyes) are detected and tracked in realtime to use their actions as mouse events. The coordinates and movement of the nose tip in the live video feed are translated to become the coordinates and movement of the mouse pointer on the application. The left or right eye blinks fire left or right mouse click events. The system works with inexpensive USB cameras and runs at a frame rate of 30 frames per second.",
+          "claimed_authors": [
+            "S. Sumathi",
+            "S. K. Srivatsa",
+            "M. Uma Maheswari"
+          ],
+          "claimed_title": "Vision Based Game Development Using Human Computer Interaction",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1002.2191"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"Intern-Atlas: A Methodological Evolution Graph as ', candidate_title='Vision Based Game Development Using Human Computer Interaction')",
+        "failed_at": "2026-07-06T21:52:01Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Although mutations drive the evolutionary process, the rates at which the mutations occur are themselves subject to evolutionary forces. Our purpose here is to understand the role of selection and random genetic drift in the evolution of mutation rates, and we address this question in asexual populations at mutation-selection equilibrium neglecting selective sweeps. Using a multitype branching process, we calculate the fixation probability of a rare nonmutator in a large asexual population of mutators, and find that a nonmutator is more likely to fix when the deleterious mutation rate of the mutator population is high. Compensatory mutations in the mutator population are found to decrease the fixation probability of a nonmutator when the selection coefficient is large. But, surprisingly, the fixation probability changes nonmonotonically with increasing compensatory mutation rate when the selection is mild. Using these results for the fixation probability and a drift-barrier argument, we find a novel relationship between the mutation rates and the population size. We also discuss the time to fix the nonmutator in an adapted population of asexual mutators, and compare our results with experiments.",
+          "claimed_authors": [
+            "Ananthu James",
+            "Kavita Jain"
+          ],
+          "claimed_title": "Fixation probability of rare nonmutator and evolution of mutation rates",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2015,
+          "primary_pointer": "1501.03632"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"Intern-Atlas: A Methodological Evolution Graph as ', candidate_title='Fixation probability of rare nonmutator and evolution of mutation rates')",
+        "failed_at": "2026-07-06T21:52:01Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Astronomy, as a field, has long encouraged the development of free, open digital infrastructure (e.g., National Research Council 2010, 2011). Examples range from simple scripts that enable individual scientific research, through software instruments for entire communities, to data reduction pipelines for telescope operations at national facilities. As with the digital infrastructure of our larger society today (e.g., Eghbal 2016), nearly all astronomical research relies on free, open source software (FOSS) written and maintained by a small number of developers. And like the physical infrastructure of roads or bridges, digital infrastructure needs regular upkeep and maintenance (e.g., Eghbal 2016). In astronomy, financial support for maintaining existing digital infrastructure is generally much harder to secure than funding for developing new digital infrastructures that promise new science. Sustaining astronomy's digital infrastructure is a new topic for many, the sustainability challenges are not always widely known...",
+          "claimed_authors": [
+            "Frank Timmes",
+            "Rich Townsend",
+            "Lars Bildsten"
+          ],
+          "claimed_title": "Digital Infrastructure in Astrophysics",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2001.02559"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"Intern-Atlas: A Methodological Evolution Graph as ', candidate_title='Digital Infrastructure in Astrophysics')",
+        "failed_at": "2026-07-06T21:52:01Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The RSNA Abdominal Traumatic Injury CT (RATIC) dataset is the largest publicly available collection of adult abdominal CT studies annotated for traumatic injuries. This dataset includes 4,274 studies from 23 institutions across 14 countries. The dataset is freely available for non-commercial use via Kaggle at https://www.kaggle.com/competitions/rsna-2023-abdominal-trauma-detection. Created for the RSNA 2023 Abdominal Trauma Detection competition, the dataset encourages the development of advanced machine learning models for detecting abdominal injuries on CT scans. The dataset encompasses detection and classification of traumatic injuries across multiple organs, including the liver, spleen, kidneys, bowel, and mesentery. Annotations were created by expert radiologists from the American Society of Emergency Radiology (ASER) and Society of Abdominal Radiology (SAR). The dataset is annotated at multiple levels, including the presence of injuries in three solid organs with injury grading, image-level annotations for active extravasations and bowel injury, and voxelwise segmentations of each of the potentially injured organs. With the release of this dataset, we hope to facilitate research and development in machine learning and abdominal trauma that can lead to improved patient care and outcomes.",
+          "claimed_authors": [
+            "Jeffrey D. Rudie",
+            "Hui-Ming Lin",
+            "Robyn L. Ball",
+            "Sabeena Jalal",
+            "Luciano M. Prevedello",
+            "Savvas Nicolaou",
+            "Brett S. Marinelli",
+            "Adam E. Flanders",
+            "Kirti Magudia",
+            "George Shih",
+            "Melissa A. Davis",
+            "John Mongan",
+            "Peter D. Chang",
+            "Ferco H. Berger",
+            "Sebastiaan Hermans",
+            "Meng Law",
+            "Tyler Richards",
+            "Jan-Peter Grunz",
+            "Andreas Steven Kunz",
+            "Shobhit Mathur",
+            "Sandro Galea-Soler",
+            "Andrew D. Chung",
+            "Saif Afat",
+            "Chin-Chi Kuo",
+            "Layal Aweidah",
+            "Ana Villanueva Campos",
+            "Arjuna Somasundaram",
+            "Felipe Antonio Sanchez Tijmes",
+            "Attaporn Jantarangkoon",
+            "Leonardo Kayat Bittencourt",
+            "Michael Brassil",
+            "Ayoub El Hajjami",
+            "Hakan Dogan",
+            "Muris Becircic",
+            "Agrahara G. Bharatkumar",
+            "Eduardo Moreno Júdice de Mattos Farina",
+            "Dataset Curator Group",
+            "Dataset Contributor Group",
+            "Dataset Annotator Group",
+            "Errol Colak"
+          ],
+          "claimed_title": "The RSNA Abdominal Traumatic Injury CT (RATIC) Dataset",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2405.19595"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Intern-Atlas: A Methodological Evolution Graph as ', candidate_title='The RSNA Abdominal Traumatic Injury CT (RATIC) Dataset')",
+        "failed_at": "2026-07-06T21:52:01Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "While large language models (LLMs) have showcased impressive capabilities, they struggle with addressing legal queries due to the intricate complexities and specialized expertise required in the legal field. In this paper, we introduce InternLM-Law, a specialized LLM tailored for addressing diverse legal queries related to Chinese laws, spanning from responding to standard legal questions (e.g., legal exercises in textbooks) to analyzing complex real-world legal situations. We meticulously construct a dataset in the Chinese legal domain, encompassing over 1 million queries, and implement a data filtering and processing pipeline to ensure its diversity and quality. Our training approach involves a novel two-stage process: initially fine-tuning LLMs on both legal-specific and general-purpose content to equip the models with broad knowledge, followed by exclusive fine-tuning on high-quality legal data to enhance structured output generation. InternLM-Law achieves the highest average performance on LawBench, outperforming state-of-the-art models, including GPT-4, on 13 out of 20 subtasks. We make InternLM-Law and our dataset publicly available to facilitate future research in applying LLMs within the legal domain.",
+          "claimed_authors": [
+            "Zhiwei Fei",
+            "Songyang Zhang",
+            "Xiaoyu Shen",
+            "Dawei Zhu",
+            "Xiao Wang",
+            "Maosong Cao",
+            "Fengzhe Zhou",
+            "Yining Li",
+            "Wenwei Zhang",
+            "Dahua Lin",
+            "Kai Chen",
+            "Jidong Ge"
+          ],
+          "claimed_title": "InternLM-Law: An Open Source Chinese Legal Large Language Model",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2406.14887"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Intern-Atlas: A Methodological Evolution Graph as ', candidate_title='InternLM-Law: An Open Source Chinese Legal Large Language Model')",
+        "failed_at": "2026-07-06T21:52:01Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We present InternLM-XComposer-2.5 (IXC-2.5), a versatile large-vision language model that supports long-contextual input and output. IXC-2.5 excels in various text-image comprehension and composition applications, achieving GPT-4V level capabilities with merely 7B LLM backend. Trained with 24K interleaved image-text contexts, it can seamlessly extend to 96K long contexts via RoPE extrapolation. This long-context capability allows IXC-2.5 to excel in tasks requiring extensive input and output contexts. Compared to its previous 2.0 version, InternLM-XComposer-2.5 features three major upgrades in vision-language comprehension: (1) Ultra-High Resolution Understanding, (2) Fine-Grained Video Understanding, and (3) Multi-Turn Multi-Image Dialogue. In addition to comprehension, IXC-2.5 extends to two compelling applications using extra LoRA parameters for text-image composition: (1) Crafting Webpages and (2) Composing High-Quality Text-Image Articles. IXC-2.5 has been evaluated on 28 benchmarks, outperforming existing open-source state-of-the-art models on 16 benchmarks. It also surpasses or competes closely with GPT-4V and Gemini Pro on 16 key tasks. The InternLM-XComposer-2.5 is publicly available at https://github.com/InternLM/InternLM-XComposer.",
+          "claimed_authors": [
+            "Pan Zhang",
+            "Xiaoyi Dong",
+            "Yuhang Zang",
+            "Yuhang Cao",
+            "Rui Qian",
+            "Lin Chen",
+            "Qipeng Guo",
+            "Haodong Duan",
+            "Bin Wang",
+            "Linke Ouyang",
+            "Songyang Zhang",
+            "Wenwei Zhang",
+            "Yining Li",
+            "Yang Gao",
+            "Peng Sun",
+            "Xinyue Zhang",
+            "Wei Li",
+            "Jingwen Li",
+            "Wenhai Wang",
+            "Hang Yan",
+            "Conghui He",
+            "Xingcheng Zhang",
+            "Kai Chen",
+            "Jifeng Dai",
+            "Yu Qiao",
+            "Dahua Lin",
+            "Jiaqi Wang"
+          ],
+          "claimed_title": "InternLM-XComposer-2.5: A Versatile Large Vision Language Model Supporting Long-Contextual Input and Output",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2407.03320"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Intern-Atlas: A Methodological Evolution Graph as ', candidate_title='InternLM-XComposer-2.5: A Versatile Large Vision Language Model Supporting Long-Contextual Input and Output')",
+        "failed_at": "2026-07-06T21:52:01Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The rapid expansion of e-commerce platforms generates vast amounts of unstructured product data, creating significant challenges for information retrieval, recommendation systems, and data analytics. Knowledge Graphs (KGs) offer a structured, interpretable format to organize such data, yet constructing product-specific KGs remains a complex and manual process. This paper introduces a fully automated, AI agent-driven framework for constructing product knowledge graphs directly from unstructured product descriptions. Leveraging Large Language Models (LLMs), our method operates in three stages using dedicated agents: ontology creation and expansion, ontology refinement, and knowledge graph population. This agent-based approach ensures semantic coherence, scalability, and high-quality output without relying on predefined schemas or handcrafted extraction rules. We evaluate the system on a real-world dataset of air conditioner product descriptions, demonstrating strong performance in both ontology generation and KG population. The framework achieves over 97\\% property coverage and minimal redundancy, validating its effectiveness and practical applicability. Our work highlights the potential of LLMs to automate structured knowledge extraction in retail, providing a scalable path toward intelligent product data integration and utilization.",
+          "claimed_authors": [
+            "Dimitar Peshevski",
+            "Riste Stojanov",
+            "Dimitar Trajanov"
+          ],
+          "claimed_title": "AI Agent-Driven Framework for Automated Product Knowledge Graph Construction in E-Commerce",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2511.11017"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"Intern-Atlas: A Methodological Evolution Graph as ', candidate_title='AI Agent-Driven Framework for Automated Product Knowledge Graph Construction in E-Commerce')",
+        "failed_at": "2026-07-06T21:52:01Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Enterprises often maintain multiple databases for storing critical business data in siloed systems, resulting in inefficiencies and challenges with data interoperability. A key to overcoming these challenges lies in integrating disparate data sources, enabling businesses to unlock the full potential of their data. Our work presents a novel approach for integrating multiple databases using knowledge graphs, focusing on the application of large language models as semantic agents for mapping and connecting structured data across systems by leveraging existing vocabularies. The proposed methodology introduces a semantic layer above tables in relational databases, utilizing a system comprising multiple LLM agents that map tables and columns to Schema.org terms. Our approach achieves a mapping accuracy of over 90% in multiple domains.",
+          "claimed_authors": [
+            "Milena Trajanoska",
+            "Riste Stojanov",
+            "Dimitar Trajanov"
+          ],
+          "claimed_title": "A Multi-Agent System for Semantic Mapping of Relational Data to Knowledge Graphs",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2511.06455"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Intern-Atlas: A Methodological Evolution Graph as ', candidate_title='A Multi-Agent System for Semantic Mapping of Relational Data to Knowledge Graphs')",
+        "failed_at": "2026-07-06T21:52:01Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The International Particle Physics Outreach Group (IPPOG) has been making concerted and systematic efforts to present and popularise particle physics across all audiences and age groups since 1997. Today the scientific community has in IPPOG a strategic pillar in fostering long-term, sustainable support for fundamental research around the world. One of the main tools IPPOG has been offering to the scientific community, teachers and educators for almost 10 years is the Resource Database (RDB), an online platform containing a collection of high quality engaging education and outreach materials in particle physics and related sciences.",
+          "claimed_authors": [
+            "Barbora Bruant Gulejova"
+          ],
+          "claimed_title": "IPPOG : Bridging the gap between science education at school and modern scientific research",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2011.14743"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"Intern-Atlas: A Methodological Evolution Graph as ', candidate_title='IPPOG : Bridging the gap between science education at school and modern scientific research')",
+        "failed_at": "2026-07-06T21:52:01Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Peer-evaluation based measures of group research quality such as the UK's Research Assessment Exercise (RAE), which do not employ bibliometric analyses, cannot directly avail of such methods to normalize research impact across disciplines. This is seen as a conspicuous flaw of such exercises and calls have been made to find a remedy. Here a simple, systematic solution is proposed based upon a mathematical model for the relationship between research quality and group quantity. This model manifests both the Matthew effect and a phenomenon akin to the Ringelmann effect and reveals the existence of two critical masses for each academic discipline: a lower value, below which groups are vulnerable, and an upper value beyond which the dependency of quality on quantity reduces and plateaus appear when the critical masses are large. A possible normalization procedure is then to pitch these plateaus at similar levels. We examine the consequences of this procedure at RAE for a multitude of academic disciplines, corresponding to a range of critical masses.",
+          "claimed_authors": [
+            "Ralph Kenna",
+            "Bertrand Berche"
+          ],
+          "claimed_title": "Normalization of peer-evaluation measures of group research quality across academic disciplines",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1006.3863"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Intern-Atlas: A Methodological Evolution Graph as ', candidate_title='Normalization of peer-evaluation measures of group research quality across academic disciplines')",
+        "failed_at": "2026-07-06T21:52:01Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In most countries, basic research is supported by research councils that select, after peer review, the individuals or teams that are to receive funding. Unfortunately, the number of grants these research councils can allocate is not infinite and, in most cases, a minority of the researchers receive the majority of the funds. However, evidence as to whether this is an optimal way of distributing available funds is mixed. The purpose of this study is to measure the relation between the amount of funding provided to 12,720 researchers in Quebec over a fifteen year period (1998-2012) and their scientific output and impact from 2000 to 2013. Our results show that both in terms of the quantity of papers produced and of their scientific impact, the concentration of research funding in the hands of a so-called \"elite\" of researchers generally produces diminishing marginal returns. Also, we find that the most funded researchers do not stand out in terms of output and scientific impact.",
+          "claimed_authors": [
+            "Philippe Mongeon",
+            "Christine Brodeur",
+            "Catherine Beaudry",
+            "Vincent Lariviere"
+          ],
+          "claimed_title": "Concentration of research funding leads to decreasing marginal returns",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1602.07396"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Intern-Atlas: A Methodological Evolution Graph as ', candidate_title='Concentration of research funding leads to decreasing marginal returns')",
+        "failed_at": "2026-07-06T21:52:01Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Data volumes and rates of research infrastructures will continue to increase in the upcoming years and impact how we interact with their final data products. Little of the processed data can be directly investigated and most of it will be automatically processed with as little user interaction as possible. Capturing all necessary information of such processing ensures reproducibility of the final results and generates trust in the entire process. We present PRAETOR, a software suite that enables automated generation, modelling, and analysis of provenance information of Python pipelines. Furthermore, the evaluation of the pipeline performance, based upon a user defined quality matrix in the provenance, enables the first step of machine learning processes, where such information can be fed into dedicated optimisation procedures.",
+          "claimed_authors": [
+            "Michael A. C. Johnson",
+            "Hans-Rainer Klöckner",
+            "Albina Muzafarova",
+            "Kristen Lackeos",
+            "David J. Champion",
+            "Marta Dembska",
+            "Sirko Schindler",
+            "Marcus Paradies"
+          ],
+          "claimed_title": "Pipeline Provenance for Analysis, Evaluation, Trust or Reproducibility",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2404.14378"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Intern-Atlas: A Methodological Evolution Graph as ', candidate_title='Pipeline Provenance for Analysis, Evaluation, Trust or Reproducibility')",
+        "failed_at": "2026-07-06T21:52:01Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In-situ visual observations of marine organisms is crucial to developing behavioural understandings and their relations to their surrounding ecosystem. Typically, these observations are collected via divers, tags, and remotely-operated or human-piloted vehicles. Recently, however, autonomous underwater vehicles equipped with cameras and embedded computers with GPU capabilities are being developed for a variety of applications, and in particular, can be used to supplement these existing data collection mechanisms where human operation or tags are more difficult. Existing approaches have focused on using fully-supervised tracking methods, but labelled data for many underwater species are severely lacking. Semi-supervised trackers may offer alternative tracking solutions because they require less data than fully-supervised counterparts. However, because there are not existing realistic underwater tracking datasets, the performance of semi-supervised tracking algorithms in the marine domain is not well understood. To better evaluate their performance and utility, in this paper we provide (1) a novel dataset specific to marine animals located at http://warp.whoi.edu/vmat/, (2) an evaluation of state-of-the-art semi-supervised algorithms in the context of underwater animal tracking, and (3) an evaluation of real-world performance through demonstrations using a semi-supervised algorithm on-board an autonomous underwater vehicle to track marine animals in the wild.",
+          "claimed_authors": [
+            "Levi Cai",
+            "Nathan E. McGuire",
+            "Roger Hanlon",
+            "T. Aran Mooney",
+            "Yogesh Girdhar"
+          ],
+          "claimed_title": "Semi-Supervised Visual Tracking of Marine Animals using Autonomous Underwater Vehicles",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2302.07344"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Intern-Atlas: A Methodological Evolution Graph as ', candidate_title='Semi-Supervised Visual Tracking of Marine Animals using Autonomous Underwater Vehicles')",
+        "failed_at": "2026-07-06T21:52:01Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We conducted an eye-tracking study where 30 participants performed searches on the web. We measured their topical knowledge before and after each task. Their eye-fixations were labelled as \"reading\" or \"scanning\". The series of reading fixations in a line, called \"reading-sequences\" were characterized by their length in pixels, fixation duration, and the number of fixations making up the sequence. We hypothesize that differences in knowledge-change of participants are reflected in their eye-tracking measures related to reading. Our results show that the participants with higher change in knowledge differ significantly in terms of their total reading-sequence-length, reading-sequence-duration, and number of reading fixations, when compared to participants with lower knowledge-change.",
+          "claimed_authors": [
+            "Nilavra Bhattacharya",
+            "Jacek Gwizdka"
+          ],
+          "claimed_title": "Relating Eye-Tracking Measures With Changes In Knowledge on Search Tasks",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1805.02399"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Intern-Atlas: A Methodological Evolution Graph as ', candidate_title='Relating Eye-Tracking Measures With Changes In Knowledge on Search Tasks')",
+        "failed_at": "2026-07-06T21:52:01Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Yujun Wu",
+            "Dongxu Zhang",
+            "Xinchen Li",
+            "Jinhang Xu",
+            "Yiling Duan",
+            "Yumou Liu",
+            "Jiabao Pan",
+            "Qiyuan Zhu",
+            "Xuanhe Zhou",
+            "Jingxuan Wei",
+            "Siyuan Li",
+            "Jintao Chen",
+            "Conghui He",
+            "Cheng Tan"
+          ],
+          "title": "Intern-Atlas: A Methodological Evolution Graph as Research Infrastructure for AI Scientists",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2604.28158",
+        "summary": "Existing research infrastructure is fundamentally document-centric, providing citation links between papers but lacking explicit representations of methodological evolution. In particular, it does not capture the structured relationships that explain how and why research methods emerge, adapt, and build upon one another. With the rise of AI-driven research agents as a new class of consumers of scientific knowledge, this limitation becomes increasingly consequential, as such agents cannot reliably reconstruct method evolution topologies from unstructured text. We introduce Intern-Atlas, a methodological evolution graph that automatically identifies method-level entities, infers lineage relationships among methodologies, and captures the bottlenecks that drive transitions between successive innovations. Built from 1,030,314 papers spanning AI conferences, journals, and arXiv preprints, the resulting graph comprises 9,410,201 semantically typed edges, each grounded in verbatim source evidence, forming a queryable causal network of methodological development. To operationalize this structure, we further propose a self-guided temporal tree search algorithm for constructing evolution chains that trace the progression of methods over time. We evaluate the quality of the resulting graph against expert-curated ground-truth evolution chains and observe strong alignment. In addition, we demonstrate that Intern-Atlas enables downstream applications in idea evaluation and automated idea generation. We position methodological evolution graphs as a foundational data layer for the emerging automated scientific discovery.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2604.28158",
+          "http_status": 200,
+          "pdf_sample_score": 0.3058,
+          "query_relevance_score": 0.4545,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-06T21:52:01Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "llmxive follow-up: extending \"intern-atlas: a methodological evolution graph as research infrastruct\" computer science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}
