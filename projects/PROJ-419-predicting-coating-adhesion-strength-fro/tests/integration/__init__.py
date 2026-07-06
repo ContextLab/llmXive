@@ -1,3 +1,3 @@
 """
-Integration Tests for llmXive Research Pipeline
+Integration tests for pipeline workflows.
 """

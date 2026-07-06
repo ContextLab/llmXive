@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2605.28672",
+  "judged_at": "2026-07-06T04:53:18Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "statistical analysis of publicly available urban noise pollution data statistics",
+  "rationale": "The paper focuses on nitrogen dioxide (NO2) air pollution and its relationship with population size and urban centrality, which is a distinct environmental construct from the user's specific query regarding \"urban noise pollution.\" While both fall under the broad umbrella of urban environmental data, the paper does not measure the same biological pathway, physical observable, or mechanism (acoustic noise vs. chemical air quality), nor does it provide a baseline or methodology specifically for no",
+  "relevant": false
+}

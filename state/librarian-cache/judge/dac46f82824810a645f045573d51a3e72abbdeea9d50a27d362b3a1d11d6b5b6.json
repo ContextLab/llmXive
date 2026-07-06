@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1610.07662",
+  "judged_at": "2026-07-06T04:53:26Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "statistical analysis of publicly available urban noise pollution data statistics",
+  "rationale": "The paper focuses on the theoretical development of private hypothesis testing statistics for general multinomial data, which is a methodological contribution to differential privacy rather than an empirical study or baseline for urban noise pollution. It fails to satisfy any inclusion criteria because it does not measure the specific domain variables (noise levels, urban environments), address the specific mechanism of noise pollution, or provide a canonical reference for analyzing that specifi",
+  "relevant": false
+}

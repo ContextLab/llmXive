@@ -1,6 +1,6 @@
-T007a [P] Create `contracts/chalcogenide_sample.schema.yaml` per plan.md specification: 1
-T007b [P] Create `contracts/model_performance.schema.yaml` per plan.md specification: 1
-T007c [P] Create `contracts/shap_importance.schema.yaml` per plan.md specification: 1
-T007d [P] Create `contracts/shap_report.schema.yaml` per plan.md specification: 1
-'T008 Configure error handling and logging infrastructure in `src/utils/logger.py` <!-- SKIPPED: non-mapping output -->': 1
-T009 [P] [US1] Unit test for data download retry logic in `tests/unit/test_download.py`: 1
+T007a [P] Create `contracts/chalcogenide_sample.schema.yaml` per plan.md specification: 2
+T007b [P] Create `contracts/model_performance.schema.yaml` per plan.md specification: 2
+T007c [P] Create `contracts/shap_importance.schema.yaml` per plan.md specification: 2
+T007d [P] Create `contracts/shap_report.schema.yaml` per plan.md specification: 2
+'T008 Configure error handling and logging infrastructure in `src/utils/logger.py` <!-- SKIPPED: non-mapping output -->': 2
+T009 [P] [US1] Unit test for data download retry logic in `tests/unit/test_download.py`: 2

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2402.18921",
+  "judged_at": "2026-07-06T04:53:31Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "statistical analysis of publicly available urban noise pollution data statistics",
+  "rationale": "The paper proposes a general statistical methodology (semi-supervised U-statistics) for handling unlabeled data but does not address the specific domain of urban noise pollution, nor does it analyze any publicly available noise datasets. It fails to meet the inclusion criteria because it lacks the necessary empirical population (noise data) or specific application context, falling instead into the category of a distinct construct sharing only the keyword \"statistics\" without a measurable connect",
+  "relevant": false
+}

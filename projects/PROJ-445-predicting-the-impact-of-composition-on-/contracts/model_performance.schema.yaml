@@ -1,87 +1,110 @@
 $schema: http://json-schema.org/draft-07/schema#
 title: Model Performance Metrics Schema
-description: >
-  Schema for validating the model performance metrics artifact (performance_metrics.json).
-  This artifact contains regression metrics, statistical significance tests, and
-  collinearity diagnostics as specified in the project plan.
+description: |
+  Schema for the model performance metrics artifact (artifacts/performance_metrics.json).
+  Defines the structure for RMSE, R², MDES, VIF, Confidence Intervals, and Transferability metrics.
+  Per SC-006, SC-007, SC-009.
 type: object
 required:
-  - rmse
-  - r2
-  - baseline_rmse
-  - baseline_r2
-  - vif
-  - ci_lower
-  - ci_upper
-  - is_significant
+  - rmse_linear
+  - rmse_gradient_boosting
+  - r2_linear
+  - r2_gradient_boosting
+  - vif_scores
   - collinearity_mitigation
-  - mdes
-  - power_limitation_message
-  - transferability_flags
+  - shap_ci
+  - transferability
 properties:
-  rmse:
+  rmse_linear:
     type: number
-    description: Root Mean Squared Error of the Gradient Boosting model on the test set.
-    minimum: 0
-  r2:
+    description: Root Mean Squared Error for the Linear Regression baseline.
+  rmse_gradient_boosting:
     type: number
-    description: R-squared coefficient of determination for the Gradient Boosting model.
-  baseline_rmse:
+    description: Root Mean Squared Error for the Gradient Boosting Regressor.
+  r2_linear:
     type: number
-    description: Root Mean Squared Error of the Linear Regression baseline on the test set.
-    minimum: 0
-  baseline_r2:
+    description: R-squared (coefficient of determination) for the Linear Regression baseline.
+  r2_gradient_boosting:
     type: number
-    description: R-squared coefficient of determination for the Linear Regression baseline.
-  vif:
+    description: R-squared (coefficient of determination) for the Gradient Boosting Regressor.
+  mdes:
     type: object
-    description: Variance Inflation Factors for compositional descriptors.
+    description: Minimum Detectable Effect Size from power analysis.
+    properties:
+      power:
+        type: number
+        minimum: 0.0
+        maximum: 1.0
+        description: Estimated statistical power.
+      power_limitation_message:
+        type: string
+        description: Warning message if power < 0.80.
+    required:
+      - power
+  vif_scores:
+    type: object
+    description: Variance Inflation Factors for each compositional descriptor.
     additionalProperties:
       type: number
-      minimum: 0
-    minProperties: 1
-  ci_lower:
-    type: number
-    description: Lower bound of the 95% bootstrapped confidence interval for the difference
-      in mean absolute SHAP values between chemical heterogeneity and mean coordination number.
-  ci_upper:
-    type: number
-    description: Upper bound of the 95% bootstrapped confidence interval.
-  is_significant:
-    type: boolean
-    description: True if the confidence interval does not include zero (statistically significant).
+    description: |
+      Key-value pairs where key is the feature name and value is the VIF score.
+      Used to detect multicollinearity.
   collinearity_mitigation:
     type: string
     enum:
-      - residualization
       - none
-      - pca
-    description: Strategy used to mitigate collinearity if VIF >= 5.
-  mdes:
-    type: number
-    description: Minimum Detectable Effect Size calculated during power analysis.
-    minimum: 0
-  power_limitation_message:
-    type: string
-    description: Message indicating power limitations if statistical power < 0.80.
-  transferability_flags:
+      - residualization
+    description: |
+      Strategy applied to mitigate collinearity if VIF >= 5.
+      Per SC-007, if VIF >= 5, this MUST be 'residualization'.
+  shap_ci:
     type: object
-    description: Flags indicating model performance when tested on held-out chemical families (LOFO).
-    additionalProperties:
-      type: object
-      properties:
-        test_family:
-          type: string
-        test_rmse:
-          type: number
-          minimum: 0
-        test_r2:
-          type: number
-        feature_importance_shift:
-          type: number
-      required:
-        - test_family
-        - test_rmse
-        - test_r2
-        - feature_importance_shift
+    description: 95% Bootstrapped Confidence Intervals for SHAP value differences.
+    properties:
+      ci_lower:
+        type: number
+        description: Lower bound of the 95% CI.
+      ci_upper:
+        type: number
+        description: Upper bound of the 95% CI.
+      is_significant:
+        type: boolean
+        description: True if the CI does not include zero (statistically significant difference).
+      correction_method:
+        type: string
+        description: Multiple comparison correction method used (e.g., 'bonferroni', 'holm').
+    required:
+      - ci_lower
+      - ci_upper
+      - is_significant
+  transferability:
+    type: object
+    description: Cross-Family Transferability metrics (LOFO analysis).
+    properties:
+      avg_rmse_lofo:
+        type: number
+        description: Average RMSE across all N-1 family LOFO models.
+      max_rmse_lofo:
+        type: number
+        description: Maximum RMSE observed in any single LOFO fold.
+      min_rmse_lofo:
+        type: number
+        description: Minimum RMSE observed in any single LOFO fold.
+      feature_importance_stability:
+        type: number
+        minimum: 0.0
+        maximum: 1.0
+        description: Correlation or stability score of feature importance rankings across LOFO models.
+    required:
+      - avg_rmse_lofo
+      - max_rmse_lofo
+      - min_rmse_lofo
+      - feature_importance_stability
+  timestamp:
+    type: string
+    format: date-time
+    description: ISO 8601 timestamp of when the metrics were generated.
+  model_version:
+    type: string
+    description: Version identifier of the trained models.
 additionalProperties: false

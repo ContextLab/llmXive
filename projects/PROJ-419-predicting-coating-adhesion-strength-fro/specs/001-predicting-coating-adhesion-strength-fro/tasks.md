@@ -69,13 +69,13 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete.
 
 - [X] T005 [P] Implement `code/utils.py` with logging, exponential backoff retry logic for API calls, and memory monitoring helpers (Plan Phase 1)
-- [ ] T006 [P] Create `code/__init__.py` and define base configuration constants (MAX_ROWS=5000, RAM_LIMIT_GB=7, TIMEOUT_HOURS=4) (Plan Phase 1)
+- [X] T006 [P] Create `code/__init__.py` and define base configuration constants (MAX_ROWS=5000, RAM_LIMIT_GB=7, TIMEOUT_HOURS=4) (Plan Phase 1)
 - [ ] T007 [P] Setup `pytest` configuration and directory structure (`tests/unit`, `tests/integration`) (Plan Phase 1)
 - [ ] T008 [P] Implement logic to generate/update `state/` YAML file with checksums for raw data files (Constitution Principle III) (Plan Phase 1)
 - [X] T009 [P] Implement `code/preprocessing.py` skeleton with functions for one-hot encoding and standardization (no data yet) (Plan Phase 1)
-- [~] T010 [P] Implement `code/utils.py` power analysis function to check sample size N ≥ 1,000 (Plan Phase 1.6)
-- [~] T011 [P] Implement `code/utils.py` function to calculate exclusion ratio (missing targets / total valid) and enforce <10% threshold (Plan Phase 1.4, SC-005)
-- [~] T012 [P] Implement `code/utils.py` function to calculate processing success rate and enforce ≥95% threshold (Plan Phase 1.5, SC-001)
+- [ ] T010 [P] Implement `code/utils.py` power analysis function to check sample size N ≥ 1,000 (Plan Phase 1.6)
+- [ ] T011 [P] Implement `code/utils.py` function to calculate exclusion ratio (missing targets / total valid) and enforce <10% threshold (Plan Phase 1.4, SC-005)
+- [ ] T012 [P] Implement `code/utils.py` function to calculate processing success rate and enforce ≥95% threshold (Plan Phase 1.5, SC-001)
 - [~] T013 [P] Implement `code/modeling.py` skeleton with placeholder for nested CV and SHAP (Plan Phase 2)
 - [~] T014 [P] Implement `code/evaluation.py` skeleton for statistical testing (Plan Phase 3)
 - [~] T015 [P] Implement `code/preprocessing.py` function to perform **Construct Validity Check** on derived proxies: compare proxy correlation against target; **exclude proxy if |r| < 0.3 or R² < 0.05** (Plan Phase 1.8, T040 moved here)
@@ -153,17 +153,17 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T043 [P] [US3] Unit test for Nadeau & Bengio corrected t-test implementation in `tests/unit/test_evaluation.py`
-- [ ] T044 [P] [US3] Unit test for Bonferroni correction logic in `tests/unit/test_evaluation.py`
+- [~] T043 [P] [US3] Unit test for Nadeau & Bengio corrected t-test implementation in `tests/unit/test_evaluation.py` <!-- SKIPPED: non-mapping output -->
+- [~] T044 [P] [US3] Unit test for Bonferroni correction logic in `tests/unit/test_evaluation.py`
 
 ### Implementation for User Story 3
 
-- [ ] T045 [US3] Implement `code/evaluation.py` to train composition-only baseline model (US-3)
-- [ ] T046 [US3] Implement `code/evaluation.py` to train surface-only baseline model (US-3)
-- [ ] T047 [US3] Implement `code/evaluation.py` to execute Nadeau & Bengio corrected t-test comparing full vs. baselines (FR-005)
-- [ ] T048 [US3] Implement `code/evaluation.py` to apply Bonferroni correction to p-values (FR-005)
-- [ ] T049 [US3] Implement `code/evaluation.py` to flag "Informative Null" if full model does not outperform baselines (US-3)
-- [ ] T050 [US3] Implement `code/main.py` to output final statistical comparison report (US-3)
+- [~] T045 [US3] Implement `code/evaluation.py` to train composition-only baseline model (US-3)
+- [~] T046 [US3] Implement `code/evaluation.py` to train surface-only baseline model (US-3)
+- [~] T047 [US3] Implement `code/evaluation.py` to execute Nadeau & Bengio corrected t-test comparing full vs. baselines (FR-005)
+- [~] T048 [US3] Implement `code/evaluation.py` to apply Bonferroni correction to p-values (FR-005)
+- [~] T049 [US3] Implement `code/evaluation.py` to flag "Informative Null" if full model does not outperform baselines (US-3)
+- [~] T050 [US3] Implement `code/main.py` to output final statistical comparison report (US-3)
 
 **Checkpoint**: All user stories should now be independently functional
 

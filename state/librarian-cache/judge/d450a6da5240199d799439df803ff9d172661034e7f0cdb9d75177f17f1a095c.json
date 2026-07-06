@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1106.3842",
+  "judged_at": "2026-07-06T04:53:21Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "statistical analysis of publicly available urban noise pollution data statistics",
+  "rationale": "The paper focuses exclusively on light pollution (night-sky brightness) and its relationship with land use and population density, which is a distinct physical construct from the user's specific question regarding noise pollution. While both are forms of urban environmental pollution, the paper does not measure the user's dependent variable (noise levels) or the specific mechanism of noise propagation, failing the \"distinct construct\" rejection rule.",
+  "relevant": false
+}

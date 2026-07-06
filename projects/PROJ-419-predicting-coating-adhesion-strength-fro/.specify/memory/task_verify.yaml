@@ -1,7 +1,11 @@
-? T006 [P] Create `code/__init__.py` and define base configuration constants (MAX_ROWS=5000,
-  RAM_LIMIT_GB=7, TIMEOUT_HOURS=4) (Plan Phase 1)
-: 1
-T007 [P] Setup `pytest` configuration and directory structure (`tests/unit`, `tests/integration`) (Plan Phase 1): 1
+T007 [P] Setup `pytest` configuration and directory structure (`tests/unit`, `tests/integration`) (Plan Phase 1): 2
 ? T008 [P] Implement logic to generate/update `state/` YAML file with checksums for
   raw data files (Constitution Principle III) (Plan Phase 1)
+: 2
+"T010 [P] Implement `code/utils.py` power analysis function to check sample size N \u2265 1,000 (Plan Phase 1.6)": 1
+? T011 [P] Implement `code/utils.py` function to calculate exclusion ratio (missing
+  targets / total valid) and enforce <10% threshold (Plan Phase 1.4, SC-005)
+: 1
+? "T012 [P] Implement `code/utils.py` function to calculate processing success rate\
+  \ and enforce \u226595% threshold (Plan Phase 1.5, SC-001)"
 : 1

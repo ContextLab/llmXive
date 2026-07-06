@@ -55,9 +55,9 @@ The project `plan.md` states this phase is **BLOCKED ON DATA** and relies on `sy
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure per implementation plan: Execute `mkdir -p projects/PROJ-056-the-impact-of-musical-training-on-functi/{code/{data,analysis,utils},tests/{unit,integration,contract},data/{raw,processed},specs/001-the-impact-of-musical-training-on-functi,contracts}` to create the exact directory tree defined in plan.md.
-- [ ] T002 Initialize Python 3.11 project with requirements.txt: Create `code/requirements.txt` with pinned versions (e.g., `pandas==2.1.0`, `numpy==1.26.0`, `scikit-learn==1.3.0`, `scipy==1.11.0`, `nibabel==5.2.0`, `networkx==3.2.0`, `matplotlib==3.8.0`, `seaborn==0.13.0`, `pyyaml==6.0.1`, `statsmodels==0.14.0`) and ensure `pip freeze > requirements.txt` is documented.
-- [ ] T003 [P] Configure linting (ruff) and formatting (black) tools: Create `pyproject.toml` with `[tool.ruff] select = ["E", "F", "W", "I"]` and `[tool.black] line-length = 88`. Verify success by running `ruff check.` and ensuring a successful exit..
+- [X] T001 Create project structure per implementation plan: Execute `mkdir -p projects/PROJ-056-the-impact-of-musical-training-on-functi/{code/{data,analysis,utils},tests/{unit,integration,contract},data/{raw,processed},specs/001-the-impact-of-musical-training-on-functi,contracts}` to create the exact directory tree defined in plan.md.
+- [X] T002 Initialize Python 3.11 project with requirements.txt: Create `code/requirements.txt` with pinned versions (e.g., `pandas==2.1.0`, `numpy==1.26.0`, `scikit-learn==1.3.0`, `scipy==1.11.0`, `nibabel==5.2.0`, `networkx==3.2.0`, `matplotlib==3.8.0`, `seaborn==0.13.0`, `pyyaml==6.0.1`, `statsmodels==0.14.0`) and ensure `pip freeze > requirements.txt` is documented.
+- [X] T003 [P] Configure linting (ruff) and formatting (black) tools: Create `pyproject.toml` with `[tool.ruff] select = ["E", "F", "W", "I"]` and `[tool.black] line-length = 88`. Verify success by running `ruff check.` and ensuring a successful exit..
 
 ---
 
@@ -69,8 +69,8 @@ The project `plan.md` states this phase is **BLOCKED ON DATA** and relies on `sy
 
 Examples of foundational tasks (adjust based on your plan):
 
-- [ ] T004 Create data contracts in `contracts/`: Create `contracts/subject.schema.yaml`, `contracts/connectivity.schema.yaml`, and `contracts/statistical_result.schema.yaml`. Each must define root keys (e.g., `subject_id`, `group`, `years_of_training` for subject) and validate against the data model.
-- [ ] T005 [P] Implement `code/utils/memory_monitor.py` to track peak RAM usage and enforce ≤7GB limit: Implement a `check_memory_limit()` function that raises `MemoryLimitExceeded` if current RSS > 7GB. **Verify**: `pytest` must raise `MemoryLimitExceeded` when a mock dataset > 7GB is passed to the monitor.
+- [X] T004 Create data contracts in `contracts/`: Create `contracts/subject.schema.yaml`, `contracts/connectivity.schema.yaml`, and `contracts/statistical_result.schema.yaml`. Each must define root keys (e.g., `subject_id`, `group`, `years_of_training` for subject) and validate against the data model.
+- [X] T005 [P] Implement `code/utils/memory_monitor.py` to track peak RAM usage and enforce ≤7GB limit: Implement a `check_memory_limit()` function that raises `MemoryLimitExceeded` if current RSS > 7GB. **Verify**: `pytest` must raise `MemoryLimitExceeded` when a mock dataset > 7GB is passed to the monitor.
 - [X] T006 [P] Setup logging infrastructure in `code/utils/logging.py` with structured output
 - [ ] T007 [P] Create base data models (`Subject`, `ConnectivityMatrix`) in `code/data/models.py`: Define classes with attributes `subject_id`, `group`, `years_of_training`, `age`, `sex`, `motion_score`, `ses_score` for Subject. **Mandatory**: Implement validation logic to ensure instances match `contracts/subject.schema.yaml`.
 - [~] T008 Implement `code/data/synthetic_generator.py` for Null-First validation (no injected effects). **SIMULATION MODE ONLY**: This generator is ONLY for Verification Mode. It creates **simulated** data, not raw data. It must NOT be used in Analysis Mode.
@@ -121,19 +121,19 @@ Examples of foundational tasks (adjust based on your plan):
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T020 [P] [US2] Unit test for Fisher z-transform logic in `tests/unit/test_connectivity.py`: Implement `test_fisher_z` with assertion `assert abs(z_transformed - expected) < 1e-6` for input r=0.5.
-- [ ] T021 [P] [US2] Unit test for FDR correction (Benjamini-Hochberg) in `tests/unit/test_stats.py`: Implement `test_fdr_correction` with known p-values and expected q-values.
-- [ ] T022 [P] [US2] Unit test for NBS permutation logic on small graph in `tests/unit/test_nbs.py`: Implement `test_nbs_small_graph` using a small graph with known component size 1. Assert the detected component size matches 1.
-- [ ] T023 [P] [US2] Integration test for group comparison on synthetic data in `tests/integration/test_group_comparison.py`
+- [~] T020 [P] [US2] Unit test for Fisher z-transform logic in `tests/unit/test_connectivity.py`: Implement `test_fisher_z` with assertion `assert abs(z_transformed - expected) < 1e-6` for input r=0.5.
+- [~] T021 [P] [US2] Unit test for FDR correction (Benjamini-Hochberg) in `tests/unit/test_stats.py`: Implement `test_fdr_correction` with known p-values and expected q-values.
+- [~] T022 [P] [US2] Unit test for NBS permutation logic on small graph in `tests/unit/test_nbs.py`: Implement `test_nbs_small_graph` using a small graph with known component size 1. Assert the detected component size matches 1. <!-- FAILED: unspecified -->
+- [~] T023 [P] [US2] Integration test for group comparison on synthetic data in `tests/integration/test_group_comparison.py`
 
 ### Implementation for User Story 2
 
-- [ ] T024 [US2] Implement `code/analysis/connectivity.py` to compute Pearson correlation between ROIs (AAL/Schaefer atlas) and apply Fisher z-transform. **Constraint**: Must implement chunked loading/streaming to ensure memory < 7GB during matrix generation (integrated with T025 requirements).
-- [ ] T026 [US2] Implement `code/analysis/stats.py` for Welch's t-test between musician/non-musician groups.
-- [ ] T027 [US2] Implement FDR correction (Benjamini-Hochberg) in `code/analysis/stats.py` to generate `q_value`.
-- [ ] T028 [US2] Implement effect size calculation (Cohen's d) and 95% CI in `code/analysis/stats.py`.
-- [ ] T029a [US2] Implement Network-Based Statistic (NBS) in `code/analysis/stats.py` (permutation-based). **Parameters**: 1000 permutations, edge threshold 0.05. Identify largest connected component.
-- [ ] T030 [US2] Output `data/processed/connectivity_results.csv` with `connection_id`, `t_stat`, `p_value`, `q_value`, `effect_size`, `ci_lower`, `ci_upper`.
+- [~] T024 [US2] Implement `code/analysis/connectivity.py` to compute Pearson correlation between ROIs (AAL/Schaefer atlas) and apply Fisher z-transform. **Constraint**: Must implement chunked loading/streaming to ensure memory < 7GB during matrix generation (integrated with T025 requirements).
+- [~] T026 [US2] Implement `code/analysis/stats.py` for Welch's t-test between musician/non-musician groups. <!-- FAILED: unspecified -->
+- [~] T027 [US2] Implement FDR correction (Benjamini-Hochberg) in `code/analysis/stats.py` to generate `q_value`.
+- [~] T028 [US2] Implement effect size calculation (Cohen's d) and 95% CI in `code/analysis/stats.py`.
+- [~] T029a [US2] Implement Network-Based Statistic (NBS) in `code/analysis/stats.py` (permutation-based). **Parameters**: 1000 permutations, edge threshold 0.05. Identify largest connected component.
+- [~] T030 [US2] Output `data/processed/connectivity_results.csv` with `connection_id`, `t_stat`, `p_value`, `q_value`, `effect_size`, `ci_lower`, `ci_upper`.
 - [ ] T031 [US2] Output `data/processed/nbs_results.csv` with `component_id`, `size_edges`, `p_value_fwer`.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently

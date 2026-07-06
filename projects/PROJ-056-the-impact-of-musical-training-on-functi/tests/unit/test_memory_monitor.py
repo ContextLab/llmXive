@@ -1,154 +1,174 @@
 """
-Unit tests for the memory monitoring functionality.
+Unit tests for the memory monitoring utilities.
 
-These tests verify that the memory_monitor module correctly:
-1. Tracks current and peak memory usage
-2. Enforces the 7GB memory limit
-3. Raises MemoryLimitExceeded when limits are exceeded
+These tests verify that the memory monitor correctly detects when
+memory usage exceeds the configured limit and raises MemoryLimitExceeded.
 """
 
 import pytest
-import gc
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch
+import sys
+import os
+
+# Add the code directory to the path for imports
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'code'))
 
 from utils.memory_monitor import (
+    MemoryLimitExceeded,
     get_current_memory_mb,
-    get_peak_memory_mb,
     check_memory_limit,
     enforce_memory_limit,
-    get_memory_usage_report,
-    MemoryLimitExceeded,
-    simulate_large_memory_usage,
-    cleanup_large_memory
+    simulate_large_memory_usage
 )
 
-class TestMemoryFunctions:
-    """Tests for basic memory monitoring functions."""
-    
-    def test_get_current_memory_mb_returns_positive(self):
-        """Current memory usage should be a positive number."""
-        current = get_current_memory_mb()
-        assert isinstance(current, float)
-        assert current >= 0
-    
-    def test_get_peak_memory_mb_returns_positive(self):
-        """Peak memory usage should be a positive number."""
-        peak = get_peak_memory_mb()
-        assert isinstance(peak, float)
-        assert peak >= 0
-    
-    def test_get_peak_memory_mb_ge_current(self):
-        """Peak memory should always be >= current memory."""
-        current = get_current_memory_mb()
-        peak = get_peak_memory_mb()
-        assert peak >= current
-    
-    def test_get_memory_usage_report_structure(self):
-        """Memory usage report should contain all required fields."""
-        report = get_memory_usage_report()
-        
-        expected_keys = [
-            "current_mb", "peak_mb", "limit_mb", 
-            "limit_gb", "usage_percentage", "status"
-        ]
-        
-        for key in expected_keys:
-            assert key in report, f"Missing key: {key}"
-        
-        assert report["status"] in ["OK", "EXCEEDED"]
-        assert isinstance(report["usage_percentage"], float)
-        assert report["limit_gb"] == 7.0
-        assert report["limit_mb"] == 7.0 * 1024
 
-class TestMemoryLimitEnforcement:
-    """Tests for memory limit enforcement functionality."""
-    
-    def test_check_memory_limit_within_limit_returns_true(self):
-        """check_memory_limit should return True when within limit."""
-        # Use a very high limit to ensure we're within it
-        result = check_memory_limit(limit_gb=100.0, raise_on_exceed=False)
-        assert result is True
-    
-    def test_check_memory_limit_within_limit_no_exception(self):
-        """check_memory_limit should not raise when within limit."""
-        # This should not raise any exception
-        result = check_memory_limit(limit_gb=100.0, raise_on_exceed=True)
-        assert result is True
-    
-    def test_check_memory_limit_exceeds_limit_raises(self):
-        """check_memory_limit should raise MemoryLimitExceeded when limit exceeded."""
-        # Mock the current memory to be above the limit
-        with patch('utils.memory_monitor.get_current_memory_mb', return_value=8000.0):
-            with pytest.raises(MemoryLimitExceeded) as exc_info:
-                check_memory_limit(limit_gb=7.0, raise_on_exceed=True)
-            
-            assert "Memory limit exceeded" in str(exc_info.value)
-            assert "8000.00 MB" in str(exc_info.value)
-    
-    def test_check_memory_limit_exceeds_limit_returns_false_when_no_raise(self):
-        """check_memory_limit should return False when limit exceeded and raise_on_exceed=False."""
-        # Mock the current memory to be above the limit
-        with patch('utils.memory_monitor.get_current_memory_mb', return_value=8000.0):
-            result = check_memory_limit(limit_gb=7.0, raise_on_exceed=False)
-            assert result is False
-    
-    def test_enforce_memory_limit_within_limit(self):
-        """enforce_memory_limit should not raise when within limit."""
-        # This should not raise any exception
-        enforce_memory_limit(limit_gb=100.0)
-    
-    def test_enforce_memory_limit_exceeds_limit_raises(self):
-        """enforce_memory_limit should raise MemoryLimitExceeded when limit exceeded."""
-        # Mock the current memory to be above the limit
-        with patch('utils.memory_monitor.get_current_memory_mb', return_value=8000.0):
-            with pytest.raises(MemoryLimitExceeded):
-                enforce_memory_limit(limit_gb=7.0)
-    
-    def test_enforce_memory_limit_default_is_7gb(self):
-        """enforce_memory_limit should use 7GB as default limit."""
-        # Mock current memory to be between 7GB and 8GB to test default
-        with patch('utils.memory_monitor.get_current_memory_mb', return_value=7500.0):
-            with pytest.raises(MemoryLimitExceeded):
-                enforce_memory_limit()  # No limit specified, should default to 7GB
-
-class TestMemoryLimitExceededException:
+class TestMemoryLimitExceeded:
     """Tests for the MemoryLimitExceeded exception."""
     
-    def test_memory_limit_exceeded_is_exception(self):
-        """MemoryLimitExceeded should be a subclass of Exception."""
+    def test_exception_inherits_from_exception(self):
+        """Verify that MemoryLimitExceeded is a subclass of Exception."""
         assert issubclass(MemoryLimitExceeded, Exception)
     
-    def test_memory_limit_exceeded_has_message(self):
-        """MemoryLimitExceeded should include a descriptive message."""
-        try:
-            raise MemoryLimitExceeded("Test memory limit exceeded")
-        except MemoryLimitExceeded as e:
-            assert "Test memory limit exceeded" in str(e)
+    def test_exception_message(self):
+        """Verify that the exception carries a meaningful message."""
+        with pytest.raises(MemoryLimitExceeded) as exc_info:
+            raise MemoryLimitExceeded("Test message")
+        
+        assert "Test message" in str(exc_info.value)
 
-class TestMemorySimulation:
-    """Tests for memory simulation functions (mocked)."""
+
+class TestGetCurrentMemoryMb:
+    """Tests for get_current_memory_mb function."""
     
-    def test_cleanup_large_memory(self):
-        """cleanup_large_memory should successfully clean up data."""
-        # Create a small bytearray for testing
-        test_data = bytearray(1000)
+    def test_returns_positive_float(self):
+        """Verify that get_current_memory_mb returns a positive float."""
+        memory_mb = get_current_memory_mb()
+        assert isinstance(memory_mb, float)
+        assert memory_mb >= 0
+
+
+class TestCheckMemoryLimit:
+    """Tests for check_memory_limit function."""
+    
+    @patch('utils.memory_monitor.get_current_memory_mb')
+    def test_within_limit_returns_true(self, mock_get_memory):
+        """Verify that check_memory_limit returns True when under limit."""
+        mock_get_memory.return_value = 1000.0  # 1000 MB
         
-        # Cleanup should not raise
-        cleanup_large_memory(test_data)
+        result = check_memory_limit(limit_gb=7.0, raise_on_exceed=False)
         
-        # Verify the data is cleaned up (garbage collected)
-        gc.collect()
+        assert result is True
+        mock_get_memory.assert_called_once()
     
-    def test_memory_report_with_custom_limit(self):
-        """get_memory_usage_report should respect custom limit."""
-        report = get_memory_usage_report(limit_gb=1.0)
-        assert report["limit_gb"] == 1.0
-        assert report["limit_mb"] == 1024.0
+    @patch('utils.memory_monitor.get_current_memory_mb')
+    def test_exceeds_limit_raises_exception(self, mock_get_memory):
+        """Verify that check_memory_limit raises MemoryLimitExceeded when over limit."""
+        mock_get_memory.return_value = 8000.0  # 8000 MB > 7GB
+        
+        with pytest.raises(MemoryLimitExceeded) as exc_info:
+            check_memory_limit(limit_gb=7.0, raise_on_exceed=True)
+        
+        assert "Memory limit exceeded" in str(exc_info.value)
+        mock_get_memory.assert_called_once()
     
-    def test_memory_usage_percentage_calculation(self):
-        """Memory usage percentage should be calculated correctly."""
-        # Mock current memory to be exactly 50% of 1GB limit
-        with patch('utils.memory_monitor.get_current_memory_mb', return_value=512.0):
-            report = get_memory_usage_report(limit_gb=1.0)
-            # 512 MB / 1024 MB = 50%
-            assert abs(report["usage_percentage"] - 50.0) < 0.01
+    @patch('utils.memory_monitor.get_current_memory_mb')
+    def test_exceeds_limit_returns_false_when_not_raising(self, mock_get_memory):
+        """Verify that check_memory_limit returns False when over limit and raise_on_exceed=False."""
+        mock_get_memory.return_value = 8000.0  # 8000 MB > 7GB
+        
+        result = check_memory_limit(limit_gb=7.0, raise_on_exceed=False)
+        
+        assert result is False
+        mock_get_memory.assert_called_once()
+    
+    @patch('utils.memory_monitor.get_current_memory_mb')
+    def test_custom_limit(self, mock_get_memory):
+        """Verify that check_memory_limit respects custom limits."""
+        mock_get_memory.return_value = 1500.0  # 1500 MB
+        
+        # Should pass with 2GB limit
+        result = check_memory_limit(limit_gb=2.0, raise_on_exceed=False)
+        assert result is True
+        
+        # Should fail with 1GB limit
+        with pytest.raises(MemoryLimitExceeded):
+            check_memory_limit(limit_gb=1.0, raise_on_exceed=True)
+    
+    @patch('utils.memory_monitor.get_current_memory_mb')
+    def test_exactly_at_limit(self, mock_get_memory):
+        """Verify behavior when memory is exactly at the limit."""
+        limit_gb = 7.0
+        limit_mb = limit_gb * 1024.0
+        mock_get_memory.return_value = limit_mb
+        
+        # Should pass when exactly at limit
+        result = check_memory_limit(limit_gb=limit_gb, raise_on_exceed=False)
+        assert result is True
+        
+        # Should fail when slightly over limit
+        mock_get_memory.return_value = limit_mb + 1
+        with pytest.raises(MemoryLimitExceeded):
+            check_memory_limit(limit_gb=limit_gb, raise_on_exceed=True)
+
+class TestEnforceMemoryLimit:
+    """Tests for enforce_memory_limit function."""
+    
+    @patch('utils.memory_monitor.get_current_memory_mb')
+    def test_enforce_raises_on_exceed(self, mock_get_memory):
+        """Verify that enforce_memory_limit raises exception when over limit."""
+        mock_get_memory.return_value = 8000.0  # 8000 MB > 7GB
+        
+        with pytest.raises(MemoryLimitExceeded):
+            enforce_memory_limit(limit_gb=7.0)
+    
+    @patch('utils.memory_monitor.get_current_memory_mb')
+    def test_enforce_does_not_raise_under_limit(self, mock_get_memory):
+        """Verify that enforce_memory_limit does not raise when under limit."""
+        mock_get_memory.return_value = 1000.0  # 1000 MB < 7GB
+        
+        # Should not raise
+        enforce_memory_limit(limit_gb=7.0)
+
+class TestMockDatasetMemoryExceed:
+    """Tests simulating a mock dataset that exceeds 7GB memory limit."""
+    
+    @patch('utils.memory_monitor.get_current_memory_mb')
+    def test_mock_dataset_exceeds_limit(self, mock_get_memory):
+        """
+        Simulate a mock dataset > 7GB and verify that MemoryLimitExceeded is raised.
+        
+        This test uses monkeypatching to simulate a scenario where a large dataset
+        would cause memory usage to exceed the 7GB limit.
+        """
+        # Simulate memory usage of a mock dataset > 7GB
+        mock_get_memory.return_value = 7500.0  # 7500 MB > 7GB
+        
+        # Verify that check_memory_limit raises the exception
+        with pytest.raises(MemoryLimitExceeded) as exc_info:
+            check_memory_limit(limit_gb=7.0, raise_on_exceed=True)
+        
+        # Verify the error message contains relevant information
+        assert "Memory limit exceeded" in str(exc_info.value)
+        assert "7500.00" in str(exc_info.value)
+        assert "7168.00" in str(exc_info.value)  # 7 * 1024
+    
+    @patch('utils.memory_monitor.get_current_memory_mb')
+    def test_multiple_datasets_cumulative_exceed(self, mock_get_memory):
+        """
+        Simulate multiple mock datasets that cumulatively exceed 7GB.
+        
+        This test verifies that the memory monitor can detect when
+        cumulative memory usage from multiple data sources exceeds the limit.
+        """
+        # Simulate cumulative memory usage
+        mock_get_memory.return_value = 8500.0  # 8500 MB > 7GB
+        
+        # First check should fail
+        with pytest.raises(MemoryLimitExceeded):
+            check_memory_limit(limit_gb=7.0, raise_on_exceed=True)
+        
+        # Verify the exception message
+        with pytest.raises(MemoryLimitExceeded) as exc_info:
+            check_memory_limit(limit_gb=7.0, raise_on_exceed=True)
+        
+        assert "Memory limit exceeded" in str(exc_info.value)

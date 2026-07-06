@@ -1,8 +1,8 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: Statistical Result Data Contract
-description: |
-  Schema for statistical comparison results between groups.
-  Validates against the project's data model for StatisticalResult entities.
+# Data Contract for Statistical Analysis Results
+# Validated against code/analysis/stats.py output
+# Used by utils.schema_validator for runtime validation
+$schema: "http://json-schema.org/draft-07/schema#"
+title: StatisticalResult
 type: object
 required:
   - connection_id
@@ -12,37 +12,40 @@ required:
   - effect_size
   - ci_lower
   - ci_upper
+  - n_musicians
+  - n_non_musicians
 properties:
   connection_id:
     type: string
-    description: Unique identifier for the connection pair
-    pattern: "^[a-zA-Z0-9_]+_[a-zA-Z0-9_]+$"
+    description: "Reference to the specific edge being tested"
   t_stat:
     type: number
-    description: Welch's t-test statistic
+    description: "Welch's t-statistic value"
   p_value:
     type: number
-    description: Raw p-value from the test
     minimum: 0
     maximum: 1
+    description: "Raw p-value from the t-test"
   q_value:
     type: number
-    description: FDR-corrected q-value (Benjamini-Hochberg)
     minimum: 0
     maximum: 1
+    description: "FDR (Benjamini-Hochberg) corrected q-value"
   effect_size:
     type: number
-    description: Cohen's d effect size
+    description: "Cohen's d effect size"
   ci_lower:
     type: number
-    description: Lower bound of 95% confidence interval
+    description: "Lower bound of 95% Confidence Interval for effect size"
   ci_upper:
     type: number
-    description: Upper bound of 95% confidence interval
-  component_id:
-    type: string
-    description: (Optional) NBS component ID if part of a significant network
-  component_size:
+    description: "Upper bound of 95% Confidence Interval for effect size"
+  n_musicians:
     type: integer
-    description: (Optional) Size of the NBS component in edges
+    minimum: 1
+    description: "Sample size of musician group"
+  n_non_musicians:
+    type: integer
+    minimum: 1
+    description: "Sample size of non-musician group"
 additionalProperties: false

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "0906.3662",
+  "judged_at": "2026-07-06T04:53:11Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "statistical analysis of publicly available urban noise pollution data statistics",
+  "rationale": "The paper focuses exclusively on the statistical analysis of functional Magnetic Resonance Imaging (fMRI) data in neuroscience, which is an entirely different domain and data type than the user's question regarding urban noise pollution. This falls under the rejection rule for \"off-domain entirely\" and \"distinct construct sharing only homonym keywords\" (sharing the word \"statistical\" and \"data\" but addressing unrelated physical phenomena).",
+  "relevant": false
+}

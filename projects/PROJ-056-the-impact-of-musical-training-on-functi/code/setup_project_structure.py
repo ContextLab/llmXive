@@ -1,62 +1,48 @@
-"""
-Project structure creation utility for PROJ-056.
-Creates the directory tree defined in the implementation plan.
-"""
 import os
 import sys
 from pathlib import Path
 
-def create_project_structure(base_dir: str = "projects/PROJ-056-the-impact-of-musical-training-on-functi") -> None:
+def create_project_structure():
     """
-    Creates the required directory structure for the project.
+    Creates the project directory structure for PROJ-056.
+    This function ensures all necessary folders exist as per the implementation plan.
+    """
+    # Define the base project directory
+    project_root = Path("projects/PROJ-056-the-impact-of-musical-training-on-functi")
     
-    Args:
-        base_dir: The root directory for the project structure.
-    """
-    # Define the directory tree based on the task requirements
+    # Define all subdirectories to be created
     directories = [
-        "code/data",
-        "code/analysis",
-        "code/utils",
-        "tests/unit",
-        "tests/integration",
-        "tests/contract",
-        "data/raw",
-        "data/processed",
-        "specs/001-the-impact-of-musical-training-on-functi",
-        "contracts"
+        # Code structure
+        project_root / "code" / "data",
+        project_root / "code" / "analysis",
+        project_root / "code" / "utils",
+        
+        # Tests structure
+        project_root / "tests" / "unit",
+        project_root / "tests" / "integration",
+        project_root / "tests" / "contract",
+        
+        # Data structure
+        project_root / "data" / "raw",
+        project_root / "data" / "processed",
+        
+        # Specs and contracts
+        project_root / "specs" / "001-the-impact-of-musical-training-on-functi",
+        project_root / "contracts",
     ]
     
-    base_path = Path(base_dir)
+    # Create directories
+    created_count = 0
+    for directory in directories:
+        if not directory.exists():
+            directory.mkdir(parents=True, exist_ok=True)
+            print(f"Created: {directory}")
+            created_count += 1
+        else:
+            print(f"Already exists: {directory}")
     
-    # Create the base directory if it doesn't exist
-    base_path.mkdir(parents=True, exist_ok=True)
-    
-    # Create each subdirectory
-    for dir_path in directories:
-        full_path = base_path / dir_path
-        full_path.mkdir(parents=True, exist_ok=True)
-        print(f"Created: {full_path}")
-    
-    # Create __init__.py files in Python package directories
-    python_dirs = [
-        "code",
-        "code/data",
-        "code/analysis",
-        "code/utils",
-        "tests",
-        "tests/unit",
-        "tests/integration",
-        "tests/contract"
-    ]
-    
-    for dir_path in python_dirs:
-        full_path = base_path / dir_path / "__init__.py"
-        if not full_path.exists():
-            full_path.touch()
-            print(f"Created: {full_path}")
-    
-    print(f"\nProject structure created successfully at: {base_path}")
+    print(f"\nProject structure creation complete. {created_count} new directories created.")
+    return created_count
 
 if __name__ == "__main__":
     create_project_structure()

@@ -1,0 +1,691 @@
+{
+  "fetched_at": "2026-07-06T04:53:32Z",
+  "field": "statistics",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "statistics",
+      "idea_body_excerpt": "Statistical Analysis of Publicly Available Urban Noise Pollution Data",
+      "target_n": 5
+    },
+    "duration_seconds": 105.898,
+    "ended_at": "2026-07-06T04:53:32Z",
+    "expansion": null,
+    "extracted_queries": [
+      "sound level monitoring decibel variance",
+      "urban acoustic dataset city sensor networks",
+      "geostatistical interpolation kriging noise mapping",
+      "time series decomposition spectral density",
+      "exposure assessment environmental health metrics"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": false,
+      "verdict": null
+    },
+    "outcome": "success",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "1106.3842"
+      ]
+    },
+    "per_query_hit_count": {
+      "Statistical Analysis of Publicly Available Urban Noise Pollution Data statistics": 3,
+      "exposure assessment environmental health metrics": 3,
+      "geostatistical interpolation kriging noise mapping": 3,
+      "sound level monitoring decibel variance": 3,
+      "time series decomposition spectral density": 3,
+      "urban acoustic dataset city sensor networks": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": true,
+      "rejected_count": 8,
+      "rejections": [
+        {
+          "primary_pointer": "0906.3662",
+          "rationale": "The paper focuses exclusively on the statistical analysis of functional Magnetic Resonance Imaging (fMRI) data in neuroscience, which is an entirely different domain and data type than the user's question regarding urban noise pollution. This falls under the rejection rule for \"off-domain entirely\" and \"distinct construct sharing only homonym keywords\" (sharing the word \"statistical\" and \"data\" but addressing unrelated physical phenomena).",
+          "title": "The Statistical Analysis of fMRI Data"
+        },
+        {
+          "primary_pointer": "1106.2895",
+          "rationale": "The paper discusses general philosophy and methodology for statistical inference (statistical pragmatism) without addressing the specific domain of urban noise pollution, nor does it provide empirical data, baselines, or mechanisms related to noise statistics. It falls under the rejection rule for being \"off-domain entirely\" regarding the specific subject matter (urban noise) and failing to meet any inclusion criteria (a-f) for the user's specific research context.",
+          "title": "Statistical Inference: The Big Picture"
+        },
+        {
+          "primary_pointer": "2605.28672",
+          "rationale": "The paper focuses on nitrogen dioxide (NO2) air pollution and its relationship with population size and urban centrality, which is a distinct environmental construct from the user's specific query regarding \"urban noise pollution.\" While both fall under the broad umbrella of urban environmental data, the paper does not measure the same biological pathway, physical observable, or mechanism (acoustic noise vs. chemical air quality), nor does it provide a baseline or methodology specifically for no",
+          "title": "Population size and centrality effects on NO2 air pollution across and within European cities"
+        },
+        {
+          "primary_pointer": "1106.3842",
+          "rationale": "The paper focuses exclusively on light pollution (night-sky brightness) and its relationship with land use and population density, which is a distinct physical construct from the user's specific question regarding noise pollution. While both are forms of urban environmental pollution, the paper does not measure the user's dependent variable (noise levels) or the specific mechanism of noise propagation, failing the \"distinct construct\" rejection rule.",
+          "title": "Night-sky brightness monitoring in Hong Kong - a city-wide light pollution assessment"
+        },
+        {
+          "primary_pointer": "2404.08813",
+          "rationale": "The paper focuses on the methodology of interactive sonification (audio representation) rather than the statistical analysis of the data itself, and it studies air pollutant data rather than urban noise pollution, failing to meet the criteria for same-mechanism evidence or shared domain variables.",
+          "title": "Interactive Sonification for Health and Energy using ChucK and Unity"
+        },
+        {
+          "primary_pointer": "1610.07662",
+          "rationale": "The paper focuses on the theoretical development of private hypothesis testing statistics for general multinomial data, which is a methodological contribution to differential privacy rather than an empirical study or baseline for urban noise pollution. It fails to satisfy any inclusion criteria because it does not measure the specific domain variables (noise levels, urban environments), address the specific mechanism of noise pollution, or provide a canonical reference for analyzing that specifi",
+          "title": "A New Class of Private Chi-Square Tests"
+        },
+        {
+          "primary_pointer": "1812.03659",
+          "rationale": "The paper focuses on theoretical statistical methods for high-dimensional time series and network inference (hypothesis testing, confidence intervals for AR models) without addressing the specific domain of urban noise pollution or the analysis of publicly available environmental datasets. It fails to meet any inclusion criteria as it does not measure the user's variables, study the relevant population, or provide a baseline for noise pollution statistics, representing an off-domain methodologic",
+          "title": "Testing for high-dimensional network parameters in auto-regressive models"
+        },
+        {
+          "primary_pointer": "2402.18921",
+          "rationale": "The paper proposes a general statistical methodology (semi-supervised U-statistics) for handling unlabeled data but does not address the specific domain of urban noise pollution, nor does it analyze any publicly available noise datasets. It fails to meet the inclusion criteria because it lacks the necessary empirical population (noise data) or specific application context, falling instead into the category of a distinct construct sharing only the keyword \"statistics\" without a measurable connect",
+          "title": "Semi-Supervised U-statistics"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-07-06T04:51:46Z",
+    "term_input": {
+      "normalized": "statistical analysis of publicly available urban noise pollution data statistics",
+      "raw": "Statistical Analysis of Publicly Available Urban Noise Pollution Data statistics"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Bell's [Physics 1 (1964) 195-200] theorem is popularly supposed to establish the nonlocality of quantum physics. Violation of Bell's inequality in experiments such as that of Aspect, Dalibard and Roger [Phys. Rev. Lett. 49 (1982) 1804-1807] provides empirical proof of nonlocality in the real world. This paper reviews recent work on Bell's theorem, linking it to issues in causality as understood by statisticians. The paper starts with a proof of a strong, finite sample, version of Bell's inequality and thereby also of Bell's theorem, which states that quantum theory is incompatible with the conjunction of three formerly uncontroversial physical principles, here referred to as locality, realism and freedom. Locality is the principle that the direction of causality matches the direction of time, and that causal influences need time to propagate spatially. Realism and freedom are directly connected to statistical thinking on causality: they relate to counterfactual reasoning, and to randomisation, respectively. Experimental loopholes in state-of-the-art Bell type experiments are related to statistical issues of post-selection in observational studies, and the missing at random assumption. They can be avoided by properly matching the statistical analysis to the actual experimental design, instead of by making untestable assumptions of independence between observed and unobserved variables. Methodological and statistical issues in the design of quantum Randi challenges (QRC) are discussed. The paper argues that Bell's theorem (and its experimental confirmation) should lead us to relinquish not locality, but realism.",
+          "claimed_authors": [
+            "Richard D. Gill"
+          ],
+          "claimed_title": "Statistics, Causality and Bell's Theorem",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1207.5103"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Statistical Analysis of Publicly Available Urban Noise Pollution Data statistics', candidate_title=\"Statistics, Causality and Bell's Theorem\")",
+        "failed_at": "2026-07-06T04:53:07Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Humans have a privileged, embodied way to explore the world of sounds, through vocal imitation. The Quantum Vocal Theory of Sounds (QVTS) starts from the assumption that any sound can be expressed and described as the evolution of a superposition of vocal states, i.e., phonation, turbulence, and supraglottal myoelastic vibrations. The postulates of quantum mechanics, with the notions of observable, measurement, and time evolution of state, provide a model that can be used for sound processing, in both directions of analysis and synthesis. QVTS can give a quantum-theoretic explanation to some auditory streaming phenomena, eventually leading to practical solutions of relevant sound-processing problems, or it can be creatively exploited to manipulate superpositions of sonic elements. Perhaps more importantly, QVTS may be a fertile ground to host a dialogue between physicists, computer scientists, musicians, and sound designers, possibly giving us unheard manifestations of human creativity.",
+          "claimed_authors": [
+            "Maria Mannone",
+            "Davide Rocchesso"
+          ],
+          "claimed_title": "Quanta in sound, the sound of quanta: a voice-informed quantum theoretical perspective on sound",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2105.10781"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Statistical Analysis of Publicly Available Urban Noise Pollution Data statistics', candidate_title='Quanta in sound, the sound of quanta: a voice-informed quantum theoretical perspective on sound')",
+        "failed_at": "2026-07-06T04:53:07Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Audio-visual navigation task requires an agent to find a sound source in a realistic, unmapped 3D environment by utilizing egocentric audio-visual observations. Existing audio-visual navigation works assume a clean environment that solely contains the target sound, which, however, would not be suitable in most real-world applications due to the unexpected sound noise or intentional interference. In this work, we design an acoustically complex environment in which, besides the target sound, there exists a sound attacker playing a zero-sum game with the agent. More specifically, the attacker can move and change the volume and category of the sound to make the agent suffer from finding the sounding object while the agent tries to dodge the attack and navigate to the goal under the intervention. Under certain constraints to the attacker, we can improve the robustness of the agent towards unexpected sound attacks in audio-visual navigation. For better convergence, we develop a joint training mechanism by employing the property of a centralized critic with decentralized actors. Experiments on two real-world 3D scan datasets, Replica, and Matterport3D, verify the effectiveness and the robustness of the agent trained under our designed environment when transferred to the clean environment or the one containing sound attackers with random policy. Project: \\url{https://yyf17.github.io/SAAVN}.",
+          "claimed_authors": [
+            "Yinfeng Yu",
+            "Wenbing Huang",
+            "Fuchun Sun",
+            "Changan Chen",
+            "Yikai Wang",
+            "Xiaohong Liu"
+          ],
+          "claimed_title": "Sound Adversarial Audio-Visual Navigation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2202.10910"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Statistical Analysis of Publicly Available Urban Noise Pollution Data statistics', candidate_title='Sound Adversarial Audio-Visual Navigation')",
+        "failed_at": "2026-07-06T04:53:07Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Spectrograms are 2D representations of sound that look very different from the images found in our visual world. And natural images, when played as spectrograms, make unnatural sounds. In this paper, we show that it is possible to synthesize spectrograms that simultaneously look like natural images and sound like natural audio. We call these visual spectrograms images that sound. Our approach is simple and zero-shot, and it leverages pre-trained text-to-image and text-to-spectrogram diffusion models that operate in a shared latent space. During the reverse process, we denoise noisy latents with both the audio and image diffusion models in parallel, resulting in a sample that is likely under both models. Through quantitative evaluations and perceptual studies, we find that our method successfully generates spectrograms that align with a desired audio prompt while also taking the visual appearance of a desired image prompt. Please see our project page for video results: https://ificl.github.io/images-that-sound/",
+          "claimed_authors": [
+            "Ziyang Chen",
+            "Daniel Geng",
+            "Andrew Owens"
+          ],
+          "claimed_title": "Images that Sound: Composing Images and Sounds on a Single Canvas",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2405.12221"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Statistical Analysis of Publicly Available Urban Noise Pollution Data statistics', candidate_title='Images that Sound: Composing Images and Sounds on a Single Canvas')",
+        "failed_at": "2026-07-06T04:53:07Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Urban vibrancy is the dynamic activity of humans in urban locations. It can vary with urban features and the opportunities for human interactions, but it might also differ according to the underlying social conditions of city inhabitants across and within social surroundings. Such heterogeneity in how different demographic groups may experience cities has the potential to cause gender segregation because of differences in the preferences of inhabitants, their accessibility and opportunities, and large-scale mobility behaviours. However, traditional studies have failed to capture fully a high-frequency understanding of how urban vibrancy is linked to urban features, how this might differ for different genders, and how this might affect segregation in cities. Our results show that (1) there are differences between males and females in terms of urban vibrancy, (2) the differences relate to `Points of Interest` as well as transportation networks, and (3) that there are both positive and negative `spatial spillovers` existing across each city. To do this, we use a quantitative approach using Call Detail Record data--taking advantage of the near-ubiquitous use of mobile phones--to gain high-frequency observations of spatial behaviours across the seven most prominent cities of Italy. We use a spatial model comparison approach of the direct and `spillover` effects from urban features on male-female differences. Our results increase our understanding of inequality in cities and how we can make future cities fairer.",
+          "claimed_authors": [
+            "Thomas Collins",
+            "Riccardo Di Clemente",
+            "Mario Gutiérrez-Roig",
+            "Federico Botta"
+          ],
+          "claimed_title": "Spatiotemporal gender differences in urban vibrancy",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2304.12840"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Statistical Analysis of Publicly Available Urban Noise Pollution Data statistics', candidate_title='Spatiotemporal gender differences in urban vibrancy')",
+        "failed_at": "2026-07-06T04:53:07Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "OpenStreetMap offers a valuable source of worldwide geospatial data useful to urban researchers. This study uses the OSMnx software to automatically download and analyze 27,000 US street networks from OpenStreetMap at metropolitan, municipal, and neighborhood scales - namely, every US city and town, census urbanized area, and Zillow-defined neighborhood. It presents empirical findings on US urban form and street network characteristics, emphasizing measures relevant to graph theory, transportation, urban design, and morphology such as structure, connectedness, density, centrality, and resilience. In the past, street network data acquisition and processing have been challenging and ad hoc. This study illustrates the use of OSMnx and OpenStreetMap to consistently conduct street network analysis with extremely large sample sizes, with clearly defined network definitions and extents for reproducibility, and using nonplanar, directed graphs. These street networks and measures data have been shared in a public repository for other researchers to use.",
+          "claimed_authors": [
+            "Geoff Boeing"
+          ],
+          "claimed_title": "A Multi-Scale Analysis of 27,000 Urban Street Networks: Every US City, Town, Urbanized Area, and Zillow Neighborhood",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1705.02198"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Statistical Analysis of Publicly Available Urban Noise Pollution Data statistics', candidate_title='A Multi-Scale Analysis of 27,000 Urban Street Networks: Every US City, Town, Urbanized Area, and Zillow Neighborhood')",
+        "failed_at": "2026-07-06T04:53:07Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Interpolation and internal painting are one of the basic approaches in image internal painting, which is used to eliminate undesirable parts that occur in digital images or to enhance faulty parts. This study was designed to compare the interpolation algorithms used in image in-painting in the literature. Errors and noise generated on the colour and grayscale formats of some of the commonly used standard images in the literature were corrected by using Cubic, Kriging, Radial based function and High dimensional model representation approaches and the results were compared using standard image comparison criteria, namely, PSNR (peak signal-to-noise ratio), SSIM (Structural SIMilarity), Mean Square Error (MSE). According to the results obtained from the study, the absolute superiority of the methods against each other was not observed. However, Kriging and RBF interpolation give better results both for numerical data and visual evaluation for image in-painting problems with large area losses.",
+          "claimed_authors": [
+            "Mustafa Zor",
+            "Erkan Bostanci",
+            "Mehmet Serdar Guzel",
+            "Erinc Karatas"
+          ],
+          "claimed_title": "Analysis of Interpolation based Image In-painting Approaches",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2102.06564"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Statistical Analysis of Publicly Available Urban Noise Pollution Data statistics', candidate_title='Analysis of Interpolation based Image In-painting Approaches')",
+        "failed_at": "2026-07-06T04:53:07Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Many geosciences data are imprecise due to various limitations and uncertainties in the measuring process. One way to preserve this imprecision in a geostatistical mapping framework is to characterize the measurements as intervals rather than single values. To effectively analyze the interval-valued data, this paper proposes and develops interval-valued kriging models based on the theory of random sets and a generalized L2 metric. These models overcome the mathematical difficulties of a previous development and are computationally more feasible. Numerical implementation of our interval-valued kriging is provided using a penalty-based constrained optimization algorithm. An application to the prediction of design ground snow loads in Utah, USA, is presented that demonstrates the advantages of the proposed models in preserving crucial sources of uncertainty towards a more efficient risk-based designing scheme.",
+          "claimed_authors": [
+            "Brennan Bean",
+            "Yan Sun",
+            "Marc Maguire"
+          ],
+          "claimed_title": "Interval-Valued Kriging Models for Geostatistical Mapping with Imprecise Inputs",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1911.09641"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Statistical Analysis of Publicly Available Urban Noise Pollution Data statistics', candidate_title='Interval-Valued Kriging Models for Geostatistical Mapping with Imprecise Inputs')",
+        "failed_at": "2026-07-06T04:53:07Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Image denoising is a critical issue in the field of digital image processing. This paper proposes a novel Salt & Pepper noise suppression by developing a Kriging Interpolation Filter (KIF) for image denoising. Gray-level images degraded with Salt & Pepper noise have been considered. A sequential search for noise detection was made using kXk window size to determine non-noisy pixels only. The non-noisy pixels are passed into Kriging interpolation method to predict their absent neighbor pixels that were noisy pixels at the first phase. The utilization of Kriging interpolation filter proves that it is very impressive to suppress high noise density. It has been found that Kriging Interpolation filter achieves noise reduction without loss of edges and detailed information. Comparisons with existing algorithms are done using quality metrics like PSNR and MSE to assess the proposed filter.",
+          "claimed_authors": [
+            "Firas Ajil Jassim"
+          ],
+          "claimed_title": "Kriging Interpolation Filter to Reduce High Density Salt and Pepper Noise",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2013,
+          "primary_pointer": "1302.1300"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Statistical Analysis of Publicly Available Urban Noise Pollution Data statistics', candidate_title='Kriging Interpolation Filter to Reduce High Density Salt and Pepper Noise')",
+        "failed_at": "2026-07-06T04:53:07Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A novel methodology is proposed for clustering multivariate time series data using energy distance defined in Székely and Rizzo (2013). Specifically, a dissimilarity matrix is formed using the energy distance statistic to measure separation between the finite dimensional distributions for the component time series. Once the pairwise dissimilarity matrix is calculated, a hierarchical clustering method is then applied to obtain the dendrogram. This procedure is completely nonparametric as the dissimilarities between stationary distributions are directly calculated without making any model assumptions. In order to justify this procedure, asymptotic properties of the energy distance estimates are derived for general stationary and ergodic time series. The method is illustrated in a simulation study for various component time series that are either linear or nonlinear. Finally the methodology is applied to two examples; one involves GDP of selected countries and the other is population size of various states in the U.S.A. in the years 1900 -1999.",
+          "claimed_authors": [
+            "Richard A. Davis",
+            "Leon Fernandes",
+            "Konstantinos Fokianos"
+          ],
+          "claimed_title": "Clustering Multivariate Time Series using Energy Distance",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2303.14295"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Statistical Analysis of Publicly Available Urban Noise Pollution Data statistics', candidate_title='Clustering Multivariate Time Series using Energy Distance')",
+        "failed_at": "2026-07-06T04:53:07Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The space-time foliation Sigma compatible with the gravitational field g on a 4-manifold M determines a fibration pi of M, pi : M -> N is a surjective submersion over the 1-dimensional leaves space N. M is then written as a disjoint union of the leaves of Sigma, which are 3-dimensional spacelike surfaces on M.\n  The decomposition, TM=Sigma + T^0 M, also implies that we can define a lift of the curves on N to curves (non-spacelike) on M.\n  The stable causality condition M coincides with Sigma being a causal space-time distribution, generated by an exact timelike 1-form omega^0 = dt where t is some real function on M. In this case M is written as a disjoint union of a family of spacelike 3-surfaces of constant t, which cover D^+(S) of a initial 3-surface S of M.",
+          "claimed_authors": [
+            "Mihaela Time"
+          ],
+          "claimed_title": "Space-time distributions",
+          "claimed_venue": "arXiv",
+          "claimed_year": 1998,
+          "primary_pointer": "gr-qc/9810059"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Statistical Analysis of Publicly Available Urban Noise Pollution Data statistics', candidate_title='Space-time distributions')",
+        "failed_at": "2026-07-06T04:53:07Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Consider an elliptic self-adjoint pseudodifferential operator $A$ acting on $m$-columns of half-densities on a closed manifold $M$, whose principal symbol is assumed to have simple eigenvalues. We show that the spectrum of $A$ decomposes, up to an error with superpolynomial decay, into $m$ distinct series, each associated with one of the eigenvalues of the principal symbol of $A$. These spectral results are then applied to the study of propagation of singularities in hyperbolic systems. The key technical ingredient is the use of the carefully devised pseudodifferential projections introduced in the first part of this work, which decompose $L^2(M)$ into almost-orthogonal almost-invariant subspaces under the action of both $A$ and the hyperbolic evolution.",
+          "claimed_authors": [
+            "Matteo Capoferri",
+            "Dmitri Vassiliev"
+          ],
+          "claimed_title": "Invariant subspaces of elliptic systems II: spectral theory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2103.14334"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Statistical Analysis of Publicly Available Urban Noise Pollution Data statistics', candidate_title='Invariant subspaces of elliptic systems II: spectral theory')",
+        "failed_at": "2026-07-06T04:53:07Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Mobile health has the potential to revolutionize health care delivery and patient engagement. In this work, we discuss how integrating Artificial Intelligence into digital health applications-focused on supply chain, patient management, and capacity building, among other use cases-can improve the health system and public health performance. We present an Artificial Intelligence and Reinforcement Learning platform that allows the delivery of adaptive interventions whose impact can be optimized through experimentation and real-time monitoring. The system can integrate multiple data sources and digital health applications. The flexibility of this platform to connect to various mobile health applications and digital devices and send personalized recommendations based on past data and predictions can significantly improve the impact of digital tools on health system outcomes. The potential for resource-poor settings, where the impact of this approach on health outcomes could be more decisive, is discussed specifically. This framework is, however, similarly applicable to improving efficiency in health systems where scarcity is not an issue.",
+          "claimed_authors": [
+            "África Periáñez",
+            "Ana Fernández del Río",
+            "Ivan Nazarov",
+            "Enric Jané",
+            "Moiz Hassan",
+            "Aditya Rastogi",
+            "Dexian Tang"
+          ],
+          "claimed_title": "The Digital Transformation in Health: How AI Can Improve the Performance of Health Systems",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2409.16098"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Statistical Analysis of Publicly Available Urban Noise Pollution Data statistics', candidate_title='The Digital Transformation in Health: How AI Can Improve the Performance of Health Systems')",
+        "failed_at": "2026-07-06T04:53:08Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "Differentially Private Federated Learning (DPFL) is an emerging field with many applications. Gradient averaging based DPFL methods require costly communication rounds and hardly work with large-capacity models, due to the explicit dimension dependence in its added noise. In this work, inspired by knowledge transfer non-federated privacy learning from Papernot et al.(2017; 2018), we design two new DPFL schemes, by voting among the data labels returned from each local model, instead of averaging the gradients, which avoids the dimension dependence and significantly reduces the communication cost. Theoretically, by applying secure multi-party computation, we could exponentially amplify the (data-dependent) privacy guarantees when the margin of the voting scores are large. Extensive experiments show that our approaches significantly improve the privacy-utility trade-off over the state-of-the-arts in DPFL.",
+          "claimed_authors": [
+            "Yuqing Zhu",
+            "Xiang Yu",
+            "Yi-Hsuan Tsai",
+            "Francesco Pittaluga",
+            "Masoud Faraki",
+            "Manmohan chandraker",
+            "Yu-Xiang Wang"
+          ],
+          "claimed_title": "Voting-based Approaches For Differentially Private Federated Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2010.04851"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Statistical Analysis of Publicly Available Urban Noise Pollution Data statistics', candidate_title='Voting-based Approaches For Differentially Private Federated Learning')",
+        "failed_at": "2026-07-06T04:53:08Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "We consider two hypothesis testing problems for low-rank and high-dimensional tensor signals, namely the tensor signal alignment and tensor signal matching problems. These problems are challenging due to the high dimension of tensors and the lack of suitable test statistics. By exploiting a recent tensor contraction method, we propose and validate relevant test statistics using eigenvalues of a data matrix resulting from the tensor contraction. The matrix entries exhibit long-range dependence, which makes the analysis of the matrix challenging, involved, and distinct from standard random matrix theory. Our approach provides a novel framework for addressing hypothesis testing problems in the context of high-dimensional tensor signals.",
+          "claimed_authors": [
+            "Ruihan Liu",
+            "Zhenggang Wang",
+            "Jianfeng Yao"
+          ],
+          "claimed_title": "Alignment and matching tests for high-dimensional tensor signals via tensor contraction",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2411.01732"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Statistical Analysis of Publicly Available Urban Noise Pollution Data statistics', candidate_title='Alignment and matching tests for high-dimensional tensor signals via tensor contraction')",
+        "failed_at": "2026-07-06T04:53:08Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "We propose $\\textsf{ScaledGD($λ$)}$, a preconditioned gradient descent method to tackle the low-rank matrix sensing problem when the true rank is unknown, and when the matrix is possibly ill-conditioned. Using overparametrized factor representations, $\\textsf{ScaledGD($λ$)}$ starts from a small random initialization, and proceeds by gradient descent with a specific form of damped preconditioning to combat bad curvatures induced by overparameterization and ill-conditioning. At the expense of light computational overhead incurred by preconditioners, $\\textsf{ScaledGD($λ$)}$ is remarkably robust to ill-conditioning compared to vanilla gradient descent ($\\textsf{GD}$) even with overprameterization. Specifically, we show that, under the Gaussian design, $\\textsf{ScaledGD($λ$)}$ converges to the true low-rank matrix at a constant linear rate after a small number of iterations that scales only logarithmically with respect to the condition number and the problem dimension. This significantly improves over the convergence rate of vanilla $\\textsf{GD}$ which suffers from a polynomial dependency on the condition number. Our work provides evidence on the power of preconditioning in accelerating the convergence without hurting generalization in overparameterized learning.",
+          "claimed_authors": [
+            "Xingyu Xu",
+            "Yandi Shen",
+            "Yuejie Chi",
+            "Cong Ma"
+          ],
+          "claimed_title": "The Power of Preconditioning in Overparameterized Low-Rank Matrix Sensing",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2302.01186"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Statistical Analysis of Publicly Available Urban Noise Pollution Data statistics', candidate_title='The Power of Preconditioning in Overparameterized Low-Rank Matrix Sensing')",
+        "failed_at": "2026-07-06T04:53:08Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "The stochastic block model (SBM) is a random graph model with different group of vertices connecting differently. It is widely employed as a canonical model to study clustering and community detection, and provides a fertile ground to study the information-theoretic and computational tradeoffs that arise in combinatorial statistics and more generally data science.\n  This monograph surveys the recent developments that establish the fundamental limits for community detection in the SBM, both with respect to information-theoretic and computational tradeoffs, and for various recovery requirements such as exact, partial and weak recovery. The main results discussed are the phase transitions for exact recovery at the Chernoff-Hellinger threshold, the phase transition for weak recovery at the Kesten-Stigum threshold, the optimal SNR-mutual information tradeoff for partial recovery, and the gap between information-theoretic and computational thresholds.\n  The monograph gives a principled derivation of the main algorithms developed in the quest of achieving the limits, in particular two-round algorithms via graph-splitting, semi-definite programming, (linearized) belief propagation, classical/nonbacktracking spectral methods and graph powering. Extensions to other block models, such as geometric block models, and a few open problems are also discussed.",
+          "claimed_authors": [
+            "Emmanuel Abbe"
+          ],
+          "claimed_title": "Community Detection and Stochastic Block Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1703.10146"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Statistical Analysis of Publicly Available Urban Noise Pollution Data statistics', candidate_title='Community Detection and Stochastic Block Models')",
+        "failed_at": "2026-07-06T04:53:08Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "We investigate the problem of learning discrete, undirected graphical models in a differentially private way. We show that the approach of releasing noisy sufficient statistics using the Laplace mechanism achieves a good trade-off between privacy, utility, and practicality. A naive learning algorithm that uses the noisy sufficient statistics \"as is\" outperforms general-purpose differentially private learning algorithms. However, it has three limitations: it ignores knowledge about the data generating process, rests on uncertain theoretical foundations, and exhibits certain pathologies. We develop a more principled approach that applies the formalism of collective graphical models to perform inference over the true sufficient statistics within an expectation-maximization framework. We show that this learns better models than competing approaches on both synthetic data and on real human mobility data used as a case study.",
+          "claimed_authors": [
+            "Garrett Bernstein",
+            "Ryan McKenna",
+            "Tao Sun",
+            "Daniel Sheldon",
+            "Michael Hay",
+            "Gerome Miklau"
+          ],
+          "claimed_title": "Differentially Private Learning of Undirected Graphical Models using Collective Graphical Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1706.04646"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Statistical Analysis of Publicly Available Urban Noise Pollution Data statistics', candidate_title='Differentially Private Learning of Undirected Graphical Models using Collective Graphical Models')",
+        "failed_at": "2026-07-06T04:53:09Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "Sustained research efforts have been devoted to learning optimal controllers for linear stochastic dynamical systems with unknown parameters, but due to the corruption of noise, learned controllers are usually uncertified in the sense that they may destabilize the system. To address this potential instability, we propose a \"plug-and-play\" modification to the uncertified controller which falls back to a known stabilizing controller when the norm of the difference between the uncertified and the fall-back control input exceeds a certain threshold. We show that the switching strategy is both safe and efficient, in the sense that: 1) the linear-quadratic cost of the system is always bounded even if original uncertified controller is destabilizing; 2) in case the uncertified controller is stabilizing, the performance loss caused by switching converges super-exponentially to $0$ for Gaussian noise, while the converging polynomially for general heavy-tailed noise. Finally, we demonstrate the effectiveness of the proposed switching strategy via numerical simulation on the Tennessee Eastman Process.",
+          "claimed_authors": [
+            "Yiwen Lu",
+            "Yilin Mo"
+          ],
+          "claimed_title": "Safe and Efficient Switching Mechanism Design for Uncertified Linear Controller",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2210.14595"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Statistical Analysis of Publicly Available Urban Noise Pollution Data statistics', candidate_title='Safe and Efficient Switching Mechanism Design for Uncertified Linear Controller')",
+        "failed_at": "2026-07-06T04:53:09Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "In this paper, we consider the problem of preserving privacy in the online learning setting. We study the problem in the online convex programming (OCP) framework---a popular online learning setting with several interesting theoretical and practical implications---while using differential privacy as the formal privacy measure. For this problem, we distill two critical attributes that a private OCP algorithm should have in order to provide reasonable privacy as well as utility guarantees: 1) linearly decreasing sensitivity, i.e., as new data points arrive their effect on the learning model decreases, 2) sub-linear regret bound---regret bound is a popular goodness/utility measure of an online learning algorithm.\n  Given an OCP algorithm that satisfies these two conditions, we provide a general framework to convert the given algorithm into a privacy preserving OCP algorithm with good (sub-linear) regret. We then illustrate our approach by converting two popular online learning algorithms into their differentially private variants while guaranteeing sub-linear regret ($O(\\sqrt{T})$). Next, we consider the special case of online linear regression problems, a practically important class of online learning problems, for which we generalize an approach by Dwork et al. to provide a differentially private algorithm with just $O(\\log^{1.5} T)$ regret. Finally, we show that our online learning framework can be used to provide differentially private algorithms for offline learning as well. For the offline learning problem, our approach obtains better error bounds as well as can handle larger class of problems than the existing state-of-the-art methods Chaudhuri et al.",
+          "claimed_authors": [
+            "Prateek Jain",
+            "Pravesh Kothari",
+            "Abhradeep Thakurta"
+          ],
+          "claimed_title": "Differentially Private Online Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2011,
+          "primary_pointer": "1109.0105"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Statistical Analysis of Publicly Available Urban Noise Pollution Data statistics', candidate_title='Differentially Private Online Learning')",
+        "failed_at": "2026-07-06T04:53:09Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Martin A. Lindquist"
+          ],
+          "title": "The Statistical Analysis of fMRI Data",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2009
+        },
+        "primary_pointer": "0906.3662",
+        "summary": "In recent years there has been explosive growth in the number of neuroimaging studies performed using functional Magnetic Resonance Imaging (fMRI). The field that has grown around the acquisition and analysis of fMRI data is intrinsically interdisciplinary in nature and involves contributions from researchers in neuroscience, psychology, physics and statistics, among others. A standard fMRI study gives rise to massive amounts of noisy data with a complicated spatio-temporal correlation structure. Statistics plays a crucial role in understanding the nature of the data and obtaining relevant results that can be used and interpreted by neuroscientists. In this paper we discuss the analysis of fMRI data, from the initial acquisition of the raw data to its use in locating brain activity, making inference about brain connectivity and predictions about psychological or disease states. Along the way, we illustrate interesting and important issues where statistics already plays a crucial role. We also seek to illustrate areas where statistics has perhaps been underutilized and will have an increased role in the future.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/0906.3662",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.375,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-06T04:53:06Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Robert E. Kass"
+          ],
+          "title": "Statistical Inference: The Big Picture",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2011
+        },
+        "primary_pointer": "1106.2895",
+        "summary": "Statistics has moved beyond the frequentist-Bayesian controversies of the past. Where does this leave our ability to interpret results? I suggest that a philosophy compatible with statistical practice, labeled here statistical pragmatism, serves as a foundation for inference. Statistical pragmatism is inclusive and emphasizes the assumptions that connect statistical models with observed data. I argue that introductory courses often mischaracterize the process of statistical inference and I propose an alternative \"big picture\" depiction.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1106.2895",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.375,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-06T04:53:06Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Yufei Wei",
+            "Rémi Lemoy",
+            "Geoffrey Caruso"
+          ],
+          "title": "Population size and centrality effects on NO2 air pollution across and within European cities",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2605.28672",
+        "summary": "Understanding how nitrogen dioxide (NO2) varies both within and across cities is essential for assessing urban health inequalities, yet the joint influence of city size and internal structure remains poorly quantified. While it is expected that agglomeration size increases NO2 concentrations and that distance from major urban activities reduces them, the magnitude and form of their combined effect have not been established. Our objective is to move beyond city-specific local context effects and to characterize the general structural form of NO2 distributions, understood as their systematic variation with distance from the center across cities of different sizes. Using both ground monitoring stations and satellite data for 378 European Functional Urban Areas, we estimate parallel models for each measurement type and show that the same structural relationships hold in both cases. We find that NO2 concentrations increase with population size as a power law (with an exponent between 0.14 and 0.22) and decrease with distance from the city center (with an exponent between -0.12 and -0.18), with consistent results across measurement types and robust to local and regional controls. These effects combine into a scalable radial profile, where the total air pollution over a city is proportional to (N/r)^0.16, which generalizes the spatial distribution of NO2 in European cities. This formulation clarifies how total and per-capita pollution depend on the extent to which pollution is integrated and provides a simple framework for evaluating the health implications of urban growth.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2605.28672",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.375,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-06T04:53:07Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Chun Shing Jason Pun",
+            "Chu Wing So"
+          ],
+          "title": "Night-sky brightness monitoring in Hong Kong - a city-wide light pollution assessment",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2011
+        },
+        "primary_pointer": "1106.3842",
+        "summary": "Results of the first comprehensive light pollution survey in Hong Kong are presented. The night-sky brightness was measured and monitored around the city using a portable light sensing device called the Sky Quality Meter over a 15-month period beginning in March 2008. A total of 1,957 data sets were taken at 199 distinct locations, including urban and rural sites covering all 18 Administrative Districts of Hong Kong. The survey shows that the environmental light pollution problem in Hong Kong is severe - the urban night-skies (sky brightness at 15.0 mag per arcsec square) are on average ~100 times brighter than at the darkest rural sites (20.1 mag per arcsec square), indicating that the high lighting densities in the densely populated residential and commercial areas lead to light pollution. In the worst polluted urban location studied, the night-sky at 13.2 mag per arcsec square can be over 500 times brighter than the darkest sites in Hong Kong. The observed night-sky brightness is found to be affected by human factors such as land utilization and population density of the observation sites, together with meteorological and/or environmental factors. Moreover, earlier night-skies (at 9:30pm local time) are generally brighter than later time (at 11:30pm), which can be attributed to some public and commercial lightings being turned off later at night. On the other hand, no concrete relationship between the observed sky brightness and air pollutant concentrations could be established with the limited survey sampling. Results from this survey will serve as an important database for the public to assess whether new rules and regulations are necessary to control the use of outdoor lightings in Hong Kong.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1106.3842",
+          "http_status": 200,
+          "pdf_sample_score": 0.2927,
+          "query_relevance_score": 0.375,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-06T04:53:07Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Yichun Zhao",
+            "George Tzanetakis"
+          ],
+          "title": "Interactive Sonification for Health and Energy using ChucK and Unity",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2404.08813",
+        "summary": "Sonification can provide valuable insights about data but most existing approaches are not designed to be controlled by the user in an interactive fashion. Interactions enable the designer of the sonification to more rapidly experiment with sound design and allow the sonification to be modified in real-time by interacting with various control parameters. In this paper, we describe two case studies of interactive sonification that utilize publicly available datasets that have been described recently in the International Conference on Auditory Display (ICAD). They are from the health and energy domains: electroencephalogram (EEG) alpha wave data and air pollutant data consisting of nitrogen dioxide, sulfur dioxide, carbon monoxide, and ozone. We show how these sonfications can be recreated to support interaction utilizing a general interactive sonification framework built using ChucK, Unity, and Chunity. In addition to supporting typical sonification methods that are common in existing sonification toolkits, our framework introduces novel methods such as supporting discrete events, interleaved playback of multiple data streams for comparison, and using frequency modulation (FM) synthesis in terms of one data attribute modulating another. We also describe how these new functionalities can be used to improve the sonification experience of the two datasets we have investigated.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2404.08813",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.375,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-06T04:53:08Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Daniel Kifer",
+            "Ryan Rogers"
+          ],
+          "title": "A New Class of Private Chi-Square Tests",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2016
+        },
+        "primary_pointer": "1610.07662",
+        "summary": "In this paper, we develop new test statistics for private hypothesis testing. These statistics are designed specifically so that their asymptotic distributions, after accounting for noise added for privacy concerns, match the asymptotics of the classical (non-private) chi-square tests for testing if the multinomial data parameters lie in lower dimensional manifolds (examples include goodness of fit and independence testing). Empirically, these new test statistics outperform prior work, which focused on noisy versions of existing statistics.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "theoremsearch",
+          "final_url": "https://arxiv.org/abs/1610.07662",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.375,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-06T04:53:08Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Lili Zheng",
+            "Garvesh Raskutti"
+          ],
+          "title": "Testing for high-dimensional network parameters in auto-regressive models",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2018
+        },
+        "primary_pointer": "1812.03659",
+        "summary": "High-dimensional auto-regressive models provide a natural way to model influence between $M$ actors given multi-variate time series data for $T$ time intervals. While there has been considerable work on network estimation, there is limited work in the context of inference and hypothesis testing. In particular, prior work on hypothesis testing in time series has been restricted to linear Gaussian auto-regressive models. From a practical perspective, it is important to determine suitable statistical tests for connections between actors that go beyond the Gaussian assumption. In the context of \\emph{high-dimensional} time series models, confidence intervals present additional estimators since most estimators such as the Lasso and Dantzig selectors are biased which has led to \\emph{de-biased} estimators. In this paper we address these challenges and provide convergence in distribution results and confidence intervals for the multi-variate AR(p) model with sub-Gaussian noise, a generalization of Gaussian noise that broadens applicability and presents numerous technical challenges. The main technical challenge lies in the fact that unlike Gaussian random vectors, for sub-Gaussian vectors zero correlation does not imply independence. The proof relies on using an intricate truncation argument to develop novel concentration bounds for quadratic forms of dependent sub-Gaussian random variables. Our convergence in distribution results hold provided $T = Ω((s \\vee ρ)^2 \\log^2 M)$, where $s$ and $ρ$ refer to sparsity parameters which matches existed results for hypothesis testing with i.i.d. samples. We validate our theoretical results with simulation results for both block-structured and chain-structured networks.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "theoremsearch",
+          "final_url": "https://arxiv.org/abs/1812.03659",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.375,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-06T04:53:08Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Ilmun Kim",
+            "Larry Wasserman",
+            "Sivaraman Balakrishnan",
+            "Matey Neykov"
+          ],
+          "title": "Semi-Supervised U-statistics",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2402.18921",
+        "summary": "Semi-supervised datasets are ubiquitous across diverse domains where obtaining fully labeled data is costly or time-consuming. The prevalence of such datasets has consistently driven the demand for new tools and methods that exploit the potential of unlabeled data. Responding to this demand, we introduce semi-supervised U-statistics enhanced by the abundance of unlabeled data, and investigate their statistical properties. We show that the proposed approach is asymptotically Normal and exhibits notable efficiency gains over classical U-statistics by effectively integrating various powerful prediction tools into the framework. To understand the fundamental difficulty of the problem, we derive minimax lower bounds in semi-supervised settings and showcase that our procedure is semi-parametrically efficient under regularity conditions. Moreover, tailored to bivariate kernels, we propose a refined approach that outperforms the classical U-statistic across all degeneracy regimes, and demonstrate its optimality properties. Simulation studies are conducted to corroborate our findings and to further demonstrate our framework.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "theoremsearch",
+          "final_url": "https://arxiv.org/abs/2402.18921",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.375,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-06T04:53:09Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "statistical analysis of publicly available urban noise pollution data statistics",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

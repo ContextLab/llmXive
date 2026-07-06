@@ -1,3 +1,3 @@
 """
-llmXive Research Pipeline - Test Suite
+Test suite for the coating adhesion strength prediction pipeline.
 """

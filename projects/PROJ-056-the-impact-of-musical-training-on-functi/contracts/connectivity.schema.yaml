@@ -1,39 +1,43 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: Connectivity Data Contract
-description: |
-  Schema for functional connectivity matrix data and derived metrics.
-  Validates against the project's data model for ConnectivityMatrix entities.
+# Data Contract for Functional Connectivity Results
+# Validated against code/data/models.py ConnectivityMatrix class
+# Used by utils.schema_validator for runtime validation
+$schema: "http://json-schema.org/draft-07/schema#"
+title: ConnectivityRecord
 type: object
 required:
   - subject_id
   - connection_id
-  - r_value
-  - z_value
-  - roi_1
-  - roi_2
+  - correlation
+  - z_score
+  - region_a
+  - region_b
 properties:
   subject_id:
     type: string
-    description: Unique identifier for the subject
-    pattern: "^SUBJ_\\d+$"
+    pattern: "^[A-Z]{2}[0-9]{6}$"
+    description: "Reference to the subject record"
   connection_id:
     type: string
-    description: Unique identifier for the connection pair (e.g., "roi1_roi2")
-    pattern: "^[a-zA-Z0-9_]+_[a-zA-Z0-9_]+$"
-  r_value:
+    pattern: "^[A-Z]{2}[0-9]{6}_ROI[A-Z0-9]+_ROI[A-Z0-9]+$"
+    description: "Unique identifier for the edge (e.g., AB123456_ROIA_ROIB)"
+  correlation:
     type: number
-    description: Pearson correlation coefficient between ROIs
-  z_value:
+    minimum: -1
+    maximum: 1
+    description: "Pearson correlation coefficient between ROI time series"
+  z_score:
     type: number
-    description: Fisher Z-transformed correlation value
-  roi_1:
+    description: "Fisher Z-transformed correlation value"
+  region_a:
     type: string
-    description: Name/ID of the first ROI
-  roi_2:
+    description: "Name of the first ROI (Atlas label)"
+  region_b:
     type: string
-    description: Name/ID of the second ROI
+    description: "Name of the second ROI (Atlas label)"
   atlas:
     type: string
-    description: Atlas used for ROI definition (e.g., "AAL", "Schaefer")
-    default: "AAL"
+    enum:
+      - AAL
+      - Schaefer
+    description: "Atlas used for parcellation"
 additionalProperties: false

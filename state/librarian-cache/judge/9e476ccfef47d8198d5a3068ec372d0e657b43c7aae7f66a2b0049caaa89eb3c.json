@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1812.03659",
+  "judged_at": "2026-07-06T04:53:28Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "statistical analysis of publicly available urban noise pollution data statistics",
+  "rationale": "The paper focuses on theoretical statistical methods for high-dimensional time series and network inference (hypothesis testing, confidence intervals for AR models) without addressing the specific domain of urban noise pollution or the analysis of publicly available environmental datasets. It fails to meet any inclusion criteria as it does not measure the user's variables, study the relevant population, or provide a baseline for noise pollution statistics, representing an off-domain methodologic",
+  "relevant": false
+}

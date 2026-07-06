@@ -1,247 +1,236 @@
-"""
-Main orchestration entry point for the Coating Adhesion Strength prediction pipeline.
-
-This module implements:
-1. Phase 0 safety gate: checking for the existence of state/HALT_SIGNAL.yaml.
-2. Phase 3 Validation Gate (T028): calculating processing success rate and exclusion ratio
-   after data alignment and filtering, halting if thresholds are not met.
-"""
 import os
 import sys
 import logging
 import yaml
 import pandas as pd
+from pathlib import Path
+from typing import Dict, Any, Optional
 
-# Configure logging
+# Import from sibling modules based on provided API surface
+from utils import (
+    write_halt_signal,
+    calculate_exclusion_ratio,
+    calculate_processing_success_rate,
+    check_sample_size_power_analysis
+)
+from evaluation import (
+    load_processed_data,
+    run_baseline_evaluation_pipeline,
+    execute_nadeau_bengio_ttest,
+    apply_bonferroni_correction,
+    flag_informative_null
+)
+from preprocessing import create_preprocessing_pipeline_full
+
+# Constants
+LOG_LEVEL = logging.INFO
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+STATE_DIR = PROJECT_ROOT / "state"
+DATA_PROCESSED_DIR = PROJECT_ROOT / "data" / "processed"
+OUTPUT_REPORT_PATH = PROJECT_ROOT / "data" / "processed" / "final_statistical_comparison_report.yaml"
+HALT_SIGNAL_PATH = STATE_DIR / "HALT_SIGNAL.yaml"
+
 logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s',
+    level=LOG_LEVEL,
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
     handlers=[
-        logging.StreamHandler(sys.stdout)
+        logging.StreamHandler(sys.stdout),
+        logging.FileHandler(PROJECT_ROOT / "logs" / "main.log", mode="a")
     ]
 )
 logger = logging.getLogger(__name__)
 
-# Constants
-PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-STATE_DIR = os.path.join(PROJECT_ROOT, "state")
-HALT_SIGNAL_PATH = os.path.join(STATE_DIR, "HALT_SIGNAL.yaml")
-PROCESSED_DATA_PATH = os.path.join(PROJECT_ROOT, "data", "processed", "coating_adhesion_dataset.csv")
+def check_halt_signal() -> bool:
+    """Check if a halt signal exists and return True if found."""
+    if HALT_SIGNAL_PATH.exists():
+        logger.error("HALT SIGNAL DETECTED. Aborting execution.")
+        return True
+    return False
 
-# Thresholds from SC-001 and SC-005
-SUCCESS_RATE_THRESHOLD = 0.95  # Must be >= 95%
-EXCLUSION_RATIO_THRESHOLD = 0.10  # Must be < 10%
+def calculate_validation_metrics(df: pd.DataFrame) -> Dict[str, float]:
+    """Calculate validation metrics: exclusion ratio and success rate."""
+    total_records = len(df)
+    if total_records == 0:
+        return {"exclusion_ratio": 1.0, "success_rate": 0.0}
 
-def check_halt_signal():
+    # Assuming 'target' column exists and we check for missing values
+    # This logic aligns with T011/T024/T028 requirements
+    missing_target = df['target'].isna().sum()
+    exclusion_ratio = calculate_exclusion_ratio(missing_target, total_records)
+    success_rate = calculate_processing_success_rate(total_records, missing_target)
+
+    return {
+        "exclusion_ratio": exclusion_ratio,
+        "success_rate": success_rate,
+        "total_records": total_records,
+        "missing_target_count": int(missing_target)
+    }
+
+def enforce_validation_gate(metrics: Dict[str, float]) -> bool:
     """
-    Check for the existence of state/HALT_SIGNAL.yaml.
-    
-    If the file exists, log the critical error message and exit immediately.
-    If the file does not exist, return True to allow execution to continue.
-    
-    Returns:
-        bool: True if execution can proceed, False if halted.
+    Enforce safety gates:
+    - Success rate >= 95%
+    - Exclusion ratio < 10%
+    - Sample size N >= 1000 (Power Analysis)
+    Returns True if gate passes, False otherwise.
     """
-    if os.path.exists(HALT_SIGNAL_PATH):
-        logger.critical("Data Gap: Missing Verified Sources - Manual Intervention Required")
-        logger.critical(f"Halt signal detected at: {HALT_SIGNAL_PATH}")
-        
-        # Optional: Log the content of the halt signal for debugging
-        try:
-            with open(HALT_SIGNAL_PATH, 'r') as f:
-                signal_data = yaml.safe_load(f)
-                logger.debug(f"Halt signal content: {signal_data}")
-        except Exception as e:
-            logger.warning(f"Could not read halt signal content: {e}")
-        
-        sys.exit(1)
-    
+    success_rate = metrics.get("success_rate", 0.0)
+    exclusion_ratio = metrics.get("exclusion_ratio", 1.0)
+    total_records = metrics.get("total_records", 0)
+
+    if success_rate < 0.95:
+        logger.error(f"Validation Failed: Success rate {success_rate:.2%} < 95%")
+        return False
+
+    if exclusion_ratio >= 0.10:
+        logger.error(f"Validation Failed: Exclusion ratio {exclusion_ratio:.2%} >= 10%")
+        return False
+
+    if not check_sample_size_power_analysis(total_records):
+        logger.error(f"Validation Failed: Sample size {total_records} < 1000")
+        return False
+
+    logger.info("All validation gates passed.")
     return True
 
-def calculate_validation_metrics(df: pd.DataFrame) -> dict:
-    """
-    Calculate processing success rate and exclusion ratio from the aligned dataset.
-    
-    These metrics are derived from the ingestion process:
-    - Success Rate: (Rows in final dataset) / (Total rows attempted to ingest)
-      Since we don't have the raw total here, we assume the input 'df' represents
-      the result after all filters. We rely on the 'status' or metadata if available,
-      OR we infer based on the task description: "calculate ... AFTER alignment".
-      
-      However, strictly speaking, to calculate the ratio of *excluded* records,
-      we need the count of records that were removed. 
-      Since T028 runs *after* T023-T027 in the pipeline logic, and the dataset
-      `coating_adhesion_dataset.csv` contains only the *surviving* records,
-      we must infer the metrics based on the assumption that the ingestion
-      script logged the counts or we must re-calculate based on the 'source'
-      metadata if the raw count was preserved in a sidecar file.
-      
-      Given the constraint of "real data" and the task description:
-      "Implement code/main.py logic to calculate ... AFTER alignment",
-      we will assume the dataset contains a 'source_record_count' or similar
-      if available, OR we calculate the exclusion ratio based on the
-      assumption that the ingestion process wrote a summary.
-      
-      To be robust and strictly follow the "HALT if..." logic without external
-      sidecar files (which might not exist yet), we will implement the check
-      by assuming the dataset is the result. 
-      WAIT: The task says "calculate ... AFTER alignment". 
-      If the dataset is already filtered, we cannot calculate the exclusion ratio
-      unless we know the denominator.
-      
-      Correction: The ingestion process (T019-T027) likely produces a summary
-      or the main.py orchestrator passes the 'raw_count' to this function.
-      However, T028 is in main.py. 
-      Let's assume the standard pattern: The ingestion script saves a summary
-      JSON or the dataset has a 'total_original' column.
-      
-      Alternative interpretation for T028: The task asks to implement the logic
-      in main.py. This logic must *verify* the metrics. If the metrics are not
-      stored, we cannot calculate them from the filtered CSV alone.
-      
-      Strategy: We will look for a 'ingestion_summary.json' in data/processed
-      generated by the ingestion step. If not found, we will attempt to infer
-      from the dataset if a 'raw_id' column exists (unlikely to be unique enough).
-      
-      Actually, the most robust way given the task constraints is to assume
-      the ingestion step writes a `data/processed/ingestion_stats.json`.
-      If that file is missing, we might have to re-run the ingestion or
-      assume the task implies the metrics are available.
-      
-      Let's implement the check assuming `data/processed/ingestion_stats.json`
-      exists (produced by T027/T026 logic). If it doesn't, we log a warning
-      and assume 100% success (which might be wrong, but we can't invent data).
-      
-      Wait, the task says "Implement ... logic to calculate ...".
-      If the data isn't there, we can't calculate it.
-      Let's assume the ingestion script (T027) wrote the stats.
-      We will read that file.
-    """
-    stats_path = os.path.join(PROJECT_ROOT, "data", "processed", "ingestion_stats.json")
-    
-    if not os.path.exists(stats_path):
-        logger.warning("Ingestion stats file not found. Cannot calculate exclusion ratio accurately.")
-        logger.warning("Assuming 100% success rate and 0% exclusion for now (UNSAFE).")
-        # If stats are missing, we cannot enforce the gate strictly.
-        # However, to prevent a crash, we return safe defaults but warn.
-        return {
-            "success_rate": 1.0,
-            "exclusion_ratio": 0.0,
-            "total_initial": 0,
-            "total_final": 0,
-            "missing": True
-        }
-
-    try:
-        with open(stats_path, 'r') as f:
-            stats = yaml.safe_load(f) # or json
-        
-        total_initial = stats.get('total_initial', 0)
-        total_final = stats.get('total_final', 0)
-        
-        if total_initial == 0:
-            return {
-                "success_rate": 0.0,
-                "exclusion_ratio": 1.0,
-                "total_initial": 0,
-                "total_final": 0,
-                "missing": False
-            }
-        
-        success_rate = total_final / total_initial
-        exclusion_ratio = 1.0 - success_rate
-        
-        return {
-            "success_rate": success_rate,
-            "exclusion_ratio": exclusion_ratio,
-            "total_initial": total_initial,
-            "total_final": total_final,
-            "missing": False
-        }
-    except Exception as e:
-        logger.error(f"Error reading ingestion stats: {e}")
-        return {
-            "success_rate": 0.0,
-            "exclusion_ratio": 1.0,
-            "total_initial": 0,
-            "total_final": 0,
-            "missing": True,
-            "error": str(e)
-        }
-
-def enforce_validation_gate(metrics: dict):
-    """
-    Enforce the validation gate: HALT if success rate < 95% OR exclusion ratio >= 10%.
-    """
-    success_rate = metrics.get('success_rate', 0.0)
-    exclusion_ratio = metrics.get('exclusion_ratio', 1.0)
-    
-    logger.info(f"Validation Metrics: Success Rate = {success_rate:.2%}, Exclusion Ratio = {exclusion_ratio:.2%}")
-    
-    if success_rate < SUCCESS_RATE_THRESHOLD:
-        logger.critical(f"VALIDATION FAILED: Success rate {success_rate:.2%} is below threshold {SUCCESS_RATE_THRESHOLD:.2%}")
-        write_halt_signal("Success Rate Below Threshold", f"Success rate: {success_rate:.4f} < {SUCCESS_RATE_THRESHOLD}")
-        sys.exit(1)
-        
-    if exclusion_ratio >= EXCLUSION_RATIO_THRESHOLD:
-        logger.critical(f"VALIDATION FAILED: Exclusion ratio {exclusion_ratio:.2%} is at or above threshold {EXCLUSION_RATIO_THRESHOLD:.2%}")
-        write_halt_signal("Exclusion Ratio Too High", f"Exclusion ratio: {exclusion_ratio:.4f} >= {EXCLUSION_RATIO_THRESHOLD}")
-        sys.exit(1)
-        
-    logger.info("Validation Gate PASSED. Proceeding to preprocessing.")
-
-def write_halt_signal(reason: str, details: str):
-    """
-    Write a halt signal to state/HALT_SIGNAL.yaml.
-    """
-    os.makedirs(STATE_DIR, exist_ok=True)
+def write_halt_signal(reason: str):
+    """Write a halt signal YAML file with the reason."""
+    STATE_DIR.mkdir(parents=True, exist_ok=True)
     signal_data = {
         "halted": True,
         "reason": reason,
-        "details": details,
         "timestamp": str(pd.Timestamp.now())
     }
     with open(HALT_SIGNAL_PATH, 'w') as f:
         yaml.dump(signal_data, f)
-    logger.info(f"Halt signal written to {HALT_SIGNAL_PATH}")
+    logger.critical(f"Halt signal written to {HALT_SIGNAL_PATH}: {reason}")
+
+def generate_final_report(
+    model_results: Dict[str, Any],
+    baseline_results: Dict[str, Any],
+    statistical_tests: Dict[str, Any],
+    validation_metrics: Dict[str, float]
+) -> Dict[str, Any]:
+    """
+    Compile the final statistical comparison report (US-3).
+    """
+    report = {
+        "report_type": "Final Statistical Comparison Report",
+        "user_story": "US3",
+        "task_id": "T050",
+        "validation_metrics": validation_metrics,
+        "model_performance": {
+            "full_model": model_results.get("full_model_metrics", {}),
+            "composition_baseline": baseline_results.get("composition_baseline_metrics", {}),
+            "surface_baseline": baseline_results.get("surface_baseline_metrics", {})
+        },
+        "statistical_comparison": {
+            "test_method": "Nadeau & Bengio Corrected T-Test",
+            "bonferroni_corrected_p_values": statistical_tests.get("bonferroni_p_values", {}),
+            "significant_differences": statistical_tests.get("significant_differences", []),
+            "informative_null_flag": statistical_tests.get("informative_null_flag", False)
+        },
+        "conclusions": []
+    }
+
+    # Add conclusions based on results
+    if statistical_tests.get("informative_null_flag"):
+        report["conclusions"].append("Informative Null: Full model does not outperform baselines.")
+    else:
+        report["conclusions"].append("Full model significantly outperforms baselines.")
+
+    return report
 
 def main():
     """
-    Main entry point for the pipeline.
-    
-    1. Checks for Phase 0 halt signals.
-    2. Checks for Phase 3 Validation Gate (T028) metrics.
-    3. Proceeds to subsequent phases if all checks pass.
+    Main orchestration for US3: Statistical Comparison and Baseline Benchmarking.
+    1. Check Halt Signal
+    2. Load Processed Data
+    3. Validate Data (Metrics)
+    4. Run Evaluation Pipeline (Baselines + Full Model)
+    5. Run Statistical Tests
+    6. Generate Final Report
     """
-    logger.info("Starting Coating Adhesion Strength Prediction Pipeline")
-    
-    # Phase 0: Safety Gate Check
-    logger.info("Checking for Phase 0 halt signals...")
-    if not check_halt_signal():
-        return
+    logger.info("Starting T050: Final Statistical Comparison Report Generation")
 
-    logger.info("Phase 0 check passed. No halt signals found.")
-    
-    # Phase 3: Validation Gate (T028)
-    logger.info("Checking for Phase 3 Validation Gate metrics...")
-    
-    # Check if processed data exists
-    if not os.path.exists(PROCESSED_DATA_PATH):
-        logger.warning(f"Processed data file not found at {PROCESSED_DATA_PATH}.")
-        logger.warning("Skipping validation gate check (assuming data not yet generated).")
-        # In a real pipeline, this might be an error, but for T028 logic implementation,
-        # we just warn if the data isn't there yet.
-    else:
-        metrics = calculate_validation_metrics(pd.read_csv(PROCESSED_DATA_PATH))
-        if metrics.get('missing', False):
-            logger.warning("Ingestion stats missing. Cannot enforce gate strictly.")
-        else:
-            enforce_validation_gate(metrics)
+    # 1. Check Halt Signal
+    if check_halt_signal():
+        sys.exit(1)
 
-    logger.info("Validation Gate check passed. Pipeline ready for modeling.")
-    
-    # TODO: Subsequent pipeline phases (Preprocessing, Modeling) would be orchestrated here
-    logger.info("Pipeline initialization complete.")
+    # Ensure output directories exist
+    STATE_DIR.mkdir(parents=True, exist_ok=True)
+    DATA_PROCESSED_DIR.mkdir(parents=True, exist_ok=True)
+    (PROJECT_ROOT / "logs").mkdir(parents=True, exist_ok=True)
+
+    try:
+        # 2. Load Processed Data
+        logger.info("Loading processed data...")
+        data_path = DATA_PROCESSED_DIR / "coating_adhesion_dataset.csv"
+        if not data_path.exists():
+            error_msg = f"Processed data file not found: {data_path}"
+            logger.error(error_msg)
+            write_halt_signal(error_msg)
+            sys.exit(1)
+
+        df = load_processed_data(str(data_path))
+        logger.info(f"Loaded {len(df)} records.")
+
+        # 3. Validate Data
+        logger.info("Calculating validation metrics...")
+        metrics = calculate_validation_metrics(df)
+        logger.info(f"Metrics: {metrics}")
+
+        if not enforce_validation_gate(metrics):
+            reason = "Validation Gate Failed"
+            write_halt_signal(reason)
+            sys.exit(1)
+
+        # 4. Run Evaluation Pipeline
+        logger.info("Running baseline evaluation pipeline...")
+        # This function encapsulates training full, composition-only, and surface-only models
+        # and performing cross-validation.
+        evaluation_output = run_baseline_evaluation_pipeline(df)
+
+        model_results = evaluation_output.get("model_results", {})
+        baseline_results = evaluation_output.get("baseline_results", {})
+
+        # 5. Run Statistical Tests
+        logger.info("Executing statistical tests...")
+        # Extract metrics from evaluation output for testing
+        full_scores = model_results.get("cv_scores", [])
+        comp_scores = baseline_results.get("composition_baseline_cv_scores", [])
+        surf_scores = baseline_results.get("surface_baseline_cv_scores", [])
+
+        ttest_results = execute_nadeau_bengio_ttest(full_scores, comp_scores, surf_scores)
+        bonferroni_p_values = apply_bonferroni_correction(ttest_results["p_values"])
+        informative_null = flag_informative_null(bonferroni_p_values)
+
+        statistical_tests = {
+            "bonferroni_p_values": bonferroni_p_values,
+            "significant_differences": [k for k, v in bonferroni_p_values.items() if v < 0.05],
+            "informative_null_flag": informative_null
+        }
+
+        # 6. Generate Final Report
+        logger.info("Generating final statistical comparison report...")
+        final_report = generate_final_report(
+            model_results=model_results,
+            baseline_results=baseline_results,
+            statistical_tests=statistical_tests,
+            validation_metrics=metrics
+        )
+
+        # Write report to disk
+        with open(OUTPUT_REPORT_PATH, 'w') as f:
+            yaml.dump(final_report, f, default_flow_style=False, sort_keys=False)
+
+        logger.info(f"Final report successfully written to {OUTPUT_REPORT_PATH}")
+        print(f"Success: Final report generated at {OUTPUT_REPORT_PATH}")
+
+    except Exception as e:
+        logger.critical(f"Pipeline execution failed: {str(e)}", exc_info=True)
+        write_halt_signal(f"Pipeline Error: {str(e)}")
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

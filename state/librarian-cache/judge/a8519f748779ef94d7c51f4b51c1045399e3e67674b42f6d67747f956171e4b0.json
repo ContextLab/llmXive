@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1106.2895",
+  "judged_at": "2026-07-06T04:53:14Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "statistical analysis of publicly available urban noise pollution data statistics",
+  "rationale": "The paper discusses general philosophy and methodology for statistical inference (statistical pragmatism) without addressing the specific domain of urban noise pollution, nor does it provide empirical data, baselines, or mechanisms related to noise statistics. It falls under the rejection rule for being \"off-domain entirely\" regarding the specific subject matter (urban noise) and failing to meet any inclusion criteria (a-f) for the user's specific research context.",
+  "relevant": false
+}

@@ -1,29 +1,36 @@
+"""
+State management module for tracking raw data file checksums.
+Implements Constitution Principle III: Data provenance and integrity.
+"""
 import os
 import hashlib
 import yaml
 import logging
 from pathlib import Path
+from typing import Dict, List, Optional
 
 logger = logging.getLogger(__name__)
 
+STATE_FILE_PATH = "state/data_checksums.yaml"
+RAW_DATA_DIR = "data/raw"
+
 def calculate_file_checksum(file_path: str, algorithm: str = "sha256") -> str:
     """
-    Calculate the checksum of a file to ensure data integrity.
-    
+    Calculate the checksum of a file.
+
     Args:
-        file_path: Path to the file
-        algorithm: Hash algorithm to use (default: sha256)
-        
+        file_path: Path to the file.
+        algorithm: Hash algorithm to use (default: sha256).
+
     Returns:
-        Hexadecimal checksum string
+        Hexadecimal checksum string.
     """
-    hasher = hashlib.new(algorithm)
+    hash_func = hashlib.new(algorithm)
     try:
         with open(file_path, "rb") as f:
-            # Read in chunks to handle large files
             for chunk in iter(lambda: f.read(8192), b""):
-                hasher.update(chunk)
-        return hasher.hexdigest()
+                hash_func.update(chunk)
+        return hash_func.hexdigest()
     except FileNotFoundError:
         logger.error(f"File not found for checksum calculation: {file_path}")
         raise
@@ -31,182 +38,151 @@ def calculate_file_checksum(file_path: str, algorithm: str = "sha256") -> str:
         logger.error(f"Error calculating checksum for {file_path}: {e}")
         raise
 
-def scan_raw_data_directory(raw_data_dir: str) -> list:
+def scan_raw_data_directory(directory: str = RAW_DATA_DIR) -> List[str]:
     """
-    Scan the raw data directory for files and return their paths.
-    
+    Scan the raw data directory for all files.
+
     Args:
-        raw_data_dir: Path to the raw data directory
-        
+        directory: Path to the raw data directory.
+
     Returns:
-        List of file paths
+        List of relative file paths found in the directory.
     """
-    raw_path = Path(raw_data_dir)
-    if not raw_path.exists():
-        logger.warning(f"Raw data directory does not exist: {raw_data_dir}")
+    path = Path(directory)
+    if not path.exists():
+        logger.warning(f"Raw data directory does not exist: {directory}")
         return []
-    
+
     files = []
-    for file_path in raw_path.rglob("*"):
+    for file_path in path.rglob("*"):
         if file_path.is_file():
-            files.append(str(file_path))
+            # Store relative path from project root
+            rel_path = str(file_path.relative_to(Path.cwd()))
+            files.append(rel_path)
     
+    logger.info(f"Found {len(files)} files in {directory}")
     return files
 
-def generate_state_checksums(state_dir: str, raw_data_dir: str) -> dict:
+def generate_state_checksums(files: Optional[List[str]] = None) -> Dict:
     """
-    Generate or update the state YAML file with checksums for all raw data files.
-    
-    This implements Constitution Principle III: Data integrity tracking.
-    
-    Args:
-        state_dir: Directory where the state file will be written
-        raw_data_dir: Directory containing raw data files
-        
-    Returns:
-        Dictionary containing the state information
-    """
-    # Ensure state directory exists
-    os.makedirs(state_dir, exist_ok=True)
-    
-    # Scan for raw data files
-    data_files = scan_raw_data_directory(raw_data_dir)
-    
-    if not data_files:
-        logger.warning("No raw data files found to checksum.")
-        state = {
-            "version": "1.0",
-            "description": "Data integrity state file",
-            "last_updated": None,
-            "files": {}
-        }
-    else:
-        logger.info(f"Calculating checksums for {len(data_files)} raw data files...")
-        files_state = {}
-        for file_path in data_files:
-            try:
-                checksum = calculate_file_checksum(file_path)
-                relative_path = os.path.relpath(file_path, raw_data_dir)
-                files_state[relative_path] = {
-                    "checksum": checksum,
-                    "algorithm": "sha256"
-                }
-                logger.debug(f"Checksum for {relative_path}: {checksum[:16]}...")
-            except Exception as e:
-                logger.error(f"Failed to checksum {file_path}: {e}")
-                # Continue with other files even if one fails
-        
-        state = {
-            "version": "1.0",
-            "description": "Data integrity state file",
-            "last_updated": None,  # Should be set by caller or main
-            "files": files_state
-        }
-    
-    return state
+    Generate a dictionary of checksums for a list of files.
 
-def write_state_file(state: dict, state_dir: str, filename: str = "data_state.yaml") -> str:
-    """
-    Write the state dictionary to a YAML file.
-    
     Args:
-        state: State dictionary to write
-        state_dir: Directory to write the file to
-        filename: Name of the state file
-        
-    Returns:
-        Path to the written file
-    """
-    os.makedirs(state_dir, exist_ok=True)
-    state_path = os.path.join(state_dir, filename)
-    
-    with open(state_path, "w") as f:
-        yaml.dump(state, f, default_flow_style=False, sort_keys=False)
-    
-    logger.info(f"State file written to: {state_path}")
-    return state_path
+        files: List of file paths. If None, scans RAW_DATA_DIR.
 
-def verify_state_checksums(state_dir: str, raw_data_dir: str, state_filename: str = "data_state.yaml") -> bool:
-    """
-    Verify that current file checksums match the stored state.
-    
-    Args:
-        state_dir: Directory containing the state file
-        raw_data_dir: Directory containing raw data files
-        state_filename: Name of the state file
-        
     Returns:
-        True if all checksums match, False otherwise
+        Dictionary with file paths as keys and checksums as values.
     """
-    state_path = os.path.join(state_dir, state_filename)
+    if files is None:
+        files = scan_raw_data_directory()
+
+    checksums = {}
+    for file_path in files:
+        try:
+            checksum = calculate_file_checksum(file_path)
+            checksums[file_path] = {
+                "checksum": checksum,
+                "algorithm": "sha256",
+                "status": "verified"
+            }
+            logger.debug(f"Checksum generated for {file_path}: {checksum[:16]}...")
+        except Exception as e:
+            logger.warning(f"Failed to checksum {file_path}: {e}")
+            checksums[file_path] = {
+                "checksum": None,
+                "algorithm": "sha256",
+                "status": "error",
+                "error": str(e)
+            }
+    
+    return checksums
+
+def write_state_file(checksums: Dict, output_path: str = STATE_FILE_PATH) -> None:
+    """
+    Write the checksums dictionary to a YAML state file.
+
+    Args:
+        checksums: Dictionary of checksums.
+        output_path: Path to the output YAML file.
+    """
+    state_dir = os.path.dirname(output_path)
+    if state_dir and not os.path.exists(state_dir):
+        os.makedirs(state_dir)
+        logger.info(f"Created state directory: {state_dir}")
+
+    state_data = {
+        "version": "1.0",
+        "generated_at": None, # Set by caller or external tool if needed
+        "raw_data_checksums": checksums
+    }
+
+    # Add a timestamp for traceability
+    import datetime
+    state_data["generated_at"] = datetime.datetime.now().isoformat()
+
+    with open(output_path, "w", encoding="utf-8") as f:
+        yaml.dump(state_data, f, default_flow_style=False, sort_keys=False)
+    
+    logger.info(f"State file written to {output_path}")
+
+def verify_state_checksums(state_path: str = STATE_FILE_PATH) -> bool:
+    """
+    Verify the current checksums of files against the stored state.
+
+    Args:
+        state_path: Path to the state YAML file.
+
+    Returns:
+        True if all checksums match, False otherwise.
+    """
     if not os.path.exists(state_path):
         logger.error(f"State file not found: {state_path}")
         return False
-    
-    with open(state_path, "r") as f:
-        state = yaml.safe_load(f)
-    
-    stored_files = state.get("files", {})
-    if not stored_files:
-        logger.warning("No files recorded in state file to verify.")
-        return True
-    
-    all_match = True
-    for relative_path, file_info in stored_files.items():
-        full_path = os.path.join(raw_data_dir, relative_path)
-        if not os.path.exists(full_path):
-            logger.error(f"File missing during verification: {full_path}")
-            all_match = False
+
+    with open(state_path, "r", encoding="utf-8") as f:
+        state_data = yaml.safe_load(f)
+
+    stored_checksums = state_data.get("raw_data_checksums", {})
+    all_valid = True
+
+    for file_path, info in stored_checksums.items():
+        if not os.path.exists(file_path):
+            logger.warning(f"File missing during verification: {file_path}")
+            all_valid = False
             continue
-        
-        current_checksum = calculate_file_checksum(full_path)
-        stored_checksum = file_info.get("checksum")
-        stored_algorithm = file_info.get("algorithm", "sha256")
-        
+
+        current_checksum = calculate_file_checksum(file_path)
+        stored_checksum = info.get("checksum")
+
         if current_checksum != stored_checksum:
-            logger.error(f"Checksum mismatch for {relative_path}: "
-                       f"expected {stored_checksum[:16]}..., got {current_checksum[:16]}...")
-            all_match = False
+            logger.error(f"Checksum mismatch for {file_path}: "
+                         f"expected {stored_checksum}, got {current_checksum}")
+            all_valid = False
         else:
-            logger.debug(f"Checksum verified for {relative_path}")
-    
-    return all_match
+            logger.debug(f"Checksum verified for {file_path}")
 
-def main():
-    """
-    Main entry point for generating/updating the state file with raw data checksums.
-    """
-    import argparse
-    import datetime
+    return all_valid
 
-    parser = argparse.ArgumentParser(description="Generate/update state file with raw data checksums")
-    parser.add_argument("--state-dir", default="state", help="Directory for state file")
-    parser.add_argument("--raw-data-dir", default="data/raw", help="Directory containing raw data files")
-    parser.add_argument("--filename", default="data_state.yaml", help="Name of the state file")
-    parser.add_argument("--verify", action="store_true", help="Verify checksums instead of generating")
+def main() -> None:
+    """
+    Main entry point to generate/update state checksums.
+    """
+    logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
     
-    args = parser.parse_args()
+    logger.info("Starting state checksum generation...")
     
-    logging.basicConfig(
-        level=logging.INFO,
-        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-    )
+    # Scan for raw data files
+    files = scan_raw_data_directory()
+    if not files:
+        logger.warning("No files found in raw data directory. State file will be empty.")
     
-    if args.verify:
-        logger.info("Verifying data checksums...")
-        if verify_state_checksums(args.state_dir, args.raw_data_dir, args.filename):
-            logger.info("All checksums verified successfully.")
-            return 0
-        else:
-            logger.error("Checksum verification failed. Data integrity compromised.")
-            return 1
-    else:
-        logger.info("Generating data state checksums...")
-        state = generate_state_checksums(args.state_dir, args.raw_data_dir)
-        state["last_updated"] = datetime.datetime.now().isoformat()
-        state_path = write_state_file(state, args.state_dir, args.filename)
-        logger.info(f"State file generated successfully at {state_path}")
-        return 0
+    # Generate checksums
+    checksums = generate_state_checksums(files)
+    
+    # Write state file
+    write_state_file(checksums)
+    
+    logger.info("State checksum generation completed.")
 
 if __name__ == "__main__":
-    exit(main())
+    main()

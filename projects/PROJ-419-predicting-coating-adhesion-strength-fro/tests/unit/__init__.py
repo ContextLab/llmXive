@@ -1,3 +1,3 @@
 """
-Unit Tests for llmXive Research Pipeline
+Unit tests for individual components.
 """

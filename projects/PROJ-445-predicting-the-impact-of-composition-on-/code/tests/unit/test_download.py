@@ -1,148 +1,118 @@
-"""
-Unit tests for data download functionality.
-
-Tests retry logic, column validation, and error handling.
-"""
-import os
-import sys
-import tempfile
-import json
-from pathlib import Path
-from unittest.mock import patch, MagicMock
 import pytest
-import pandas as pd
+import time
+from unittest.mock import patch, MagicMock
+import requests
+from requests.exceptions import RequestException, Timeout, HTTPError
 
-# Add project root to path
-PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
-sys.path.insert(0, str(PROJECT_ROOT))
+import sys
+import os
 
-from src.data.download import (
-    validate_columns,
-    download_with_retry,
-    compute_file_hash,
-    REQUIRED_COLUMNS,
-    MAX_RETRIES
-)
+# Ensure src is in path for imports if running from root
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
 
-@pytest.fixture
-def temp_dir():
-    """Create a temporary directory for testing."""
-    with tempfile.TemporaryDirectory() as tmpdir:
-        yield Path(tmpdir)
+from src.data.download import download_dataset_with_retry
 
-@pytest.fixture
-def sample_df():
-    """Create a sample DataFrame with required columns."""
-    return pd.DataFrame({
-        "composition": ["As20Se80", "Ge20Se80", "Sb20Se80"],
-        "Tg": [250.5, 260.3, 245.1],
-        "other_col": ["a", "b", "c"]
-    })
 
-@pytest.fixture
-def incomplete_df():
-    """Create a DataFrame missing required columns."""
-    return pd.DataFrame({
-        "composition": ["As20Se80", "Ge20Se80"],
-        "other_col": ["a", "b"]
-    })
+class TestDownloadRetryLogic:
+    """Unit tests for data download retry logic in src/data/download.py."""
 
-def test_validate_columns_success(sample_df):
-    """Test validation when all required columns are present."""
-    is_valid, missing_col = validate_columns(sample_df, REQUIRED_COLUMNS)
-    assert is_valid is True
-    assert missing_col is None
+    @patch('src.data.download.requests.get')
+    def test_download_success_on_first_try(self, mock_get):
+        """Test that a successful download on the first attempt returns data immediately."""
+        mock_response = MagicMock()
+        mock_response.status_code = 200
+        mock_response.text = "composition,Tg\nAs2S3,250\n"
+        mock_get.return_value = mock_response
 
-def test_validate_columns_missing_column(incomplete_df):
-    """Test validation when a required column is missing."""
-    is_valid, missing_col = validate_columns(incomplete_df, REQUIRED_COLUMNS)
-    assert is_valid is False
-    assert missing_col == "Tg"
+        url = "http://example.com/data.csv"
+        result = download_dataset_with_retry(url, max_retries=3)
 
-def test_validate_columns_multiple_missing():
-    """Test validation when multiple required columns are missing."""
-    df = pd.DataFrame({"other": [1, 2, 3]})
-    is_valid, missing_col = validate_columns(df, REQUIRED_COLUMNS)
-    assert is_valid is False
-    assert missing_col == "composition"  # First missing column
+        assert result == mock_response
+        assert mock_get.call_count == 1
 
-@patch('src.data.download.requests.get')
-def test_download_with_retry_success(mock_get, sample_df, temp_dir):
-    """Test successful download with retry logic."""
-    # Mock response
-    mock_response = MagicMock()
-    mock_response.text = sample_df.to_csv(index=False)
-    mock_response.raise_for_status = MagicMock()
-    mock_get.return_value = mock_response
+    @patch('src.data.download.requests.get')
+    def test_download_success_after_retry(self, mock_get):
+        """Test that the function retries on transient failure and succeeds eventually."""
+        mock_response_success = MagicMock()
+        mock_response_success.status_code = 200
+        mock_response_success.text = "composition,Tg\nAs2S3,250\n"
 
-    # Change to temp dir to avoid side effects
-    original_cwd = os.getcwd()
-    os.chdir(temp_dir)
-    
-    try:
-        result = download_with_retry("http://test.com/data.csv")
-        assert result is not None
-        assert len(result) == 3
-        assert "composition" in result.columns
-    finally:
-        os.chdir(original_cwd)
+        # First two calls fail, third succeeds
+        mock_get.side_effect = [
+            RequestException("Network error"),
+            RequestException("Network error"),
+            mock_response_success
+        ]
 
-@patch('src.data.download.requests.get')
-def test_download_with_retry_timeout(mock_get, temp_dir):
-    """Test retry logic on timeout."""
-    from requests.exceptions import Timeout
-    
-    # First two attempts timeout, third succeeds
-    mock_response = MagicMock()
-    mock_response.text = "composition,Tg\nAs20Se80,250.5"
-    mock_response.raise_for_status = MagicMock()
-    
-    mock_get.side_effect = [
-        Timeout(),
-        Timeout(),
-        mock_response
-    ]
+        url = "http://example.com/data.csv"
+        result = download_dataset_with_retry(url, max_retries=3)
 
-    original_cwd = os.getcwd()
-    os.chdir(temp_dir)
-    
-    try:
-        result = download_with_retry("http://test.com/data.csv", max_retries=3)
-        assert result is not None
-        assert len(mock_get.call_args_list) == 3  # Called 3 times
-    finally:
-        os.chdir(original_cwd)
+        assert result == mock_response_success
+        assert mock_get.call_count == 3
 
-@patch('src.data.download.requests.get')
-def test_download_with_retry_failure(mock_get, temp_dir):
-    """Test download fails after max retries."""
-    from requests.exceptions import RequestException
-    
-    mock_get.side_effect = RequestException("Network error")
+    @patch('src.data.download.requests.get')
+    def test_download_fails_after_max_retries(self, mock_get):
+        """Test that the function raises an exception after exhausting retries."""
+        mock_get.side_effect = RequestException("Persistent network error")
 
-    original_cwd = os.getcwd()
-    os.chdir(temp_dir)
-    
-    try:
-        result = download_with_retry("http://test.com/data.csv", max_retries=2)
-        assert result is None
-        assert len(mock_get.call_args_list) == 2  # Called max_retries times
-    finally:
-        os.chdir(original_cwd)
+        url = "http://example.com/data.csv"
+        with pytest.raises(Exception) as exc_info:
+            download_dataset_with_retry(url, max_retries=2)
 
-def test_compute_file_hash(temp_dir):
-    """Test file hash computation."""
-    test_file = temp_dir / "test.txt"
-    test_content = "test content"
-    test_file.write_text(test_content)
-    
-    hash1 = compute_file_hash(test_file)
-    hash2 = compute_file_hash(test_file)
-    
-    assert len(hash1) == 64  # SHA-256 hex length
-    assert hash1 == hash2  # Deterministic
+        assert "Persistent network error" in str(exc_info.value)
+        assert mock_get.call_count == 2  # Initial + 1 retry
 
-def test_compute_file_hash_not_found():
-    """Test hash computation for non-existent file."""
-    result = compute_file_hash(Path("/nonexistent/file.txt"))
-    assert result == "FILE_NOT_FOUND"
+    @patch('src.data.download.requests.get')
+    def test_download_handles_timeout_exception(self, mock_get):
+        """Test that Timeout exceptions are caught and trigger a retry."""
+        mock_response = MagicMock()
+        mock_response.status_code = 200
+        mock_get.side_effect = [
+            Timeout("Connection timed out"),
+            mock_response
+        ]
+
+        url = "http://example.com/data.csv"
+        result = download_dataset_with_retry(url, max_retries=3)
+
+        assert result == mock_response
+        assert mock_get.call_count == 2
+
+    @patch('src.data.download.requests.get')
+    def test_download_handles_http_error_exception(self, mock_get):
+        """Test that HTTPError exceptions (5xx) are caught and trigger a retry."""
+        mock_response = MagicMock()
+        mock_response.status_code = 200
+        http_error_500 = HTTPError("500 Server Error")
+        http_error_500.response = MagicMock()
+        http_error_500.response.status_code = 500
+
+        mock_get.side_effect = [
+            http_error_500,
+            mock_response
+        ]
+
+        url = "http://example.com/data.csv"
+        result = download_dataset_with_retry(url, max_retries=3)
+
+        assert result == mock_response
+        assert mock_get.call_count == 2
+
+    @patch('src.data.download.time.sleep')
+    @patch('src.data.download.requests.get')
+    def test_download_waits_between_retries(self, mock_get, mock_sleep):
+        """Test that the function waits (sleeps) between retry attempts."""
+        mock_response = MagicMock()
+        mock_response.status_code = 200
+        mock_get.side_effect = [
+            RequestException("Error"),
+            mock_response
+        ]
+
+        url = "http://example.com/data.csv"
+        download_dataset_with_retry(url, max_retries=2, wait_time=0.1)
+
+        # Should have called sleep once (after first failure, before second attempt)
+        assert mock_sleep.called
+        assert mock_sleep.call_count == 1
+        mock_sleep.assert_called_with(0.1)

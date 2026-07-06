@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2404.08813",
+  "judged_at": "2026-07-06T04:53:23Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "statistical analysis of publicly available urban noise pollution data statistics",
+  "rationale": "The paper focuses on the methodology of interactive sonification (audio representation) rather than the statistical analysis of the data itself, and it studies air pollutant data rather than urban noise pollution, failing to meet the criteria for same-mechanism evidence or shared domain variables.",
+  "relevant": false
+}
