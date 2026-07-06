@@ -44,7 +44,7 @@
 **Purpose**: Project initialization, basic structure, and core validation utilities required by downstream tasks.
 
 - [X] T001 [P] Initialize project structure by creating root directory `projects/PROJ-355-predicting-the-impact-of-impurity-cluste/` and subdirectories `code/`, `data/raw/`, `data/processed/`, `results/`, `tests/unit/`, `tests/integration/` idempotently.
-- [ ] T002 Create `requirements.txt` with pinned versions: `The plan specifies using pymatgen version 2024.1.1. [UNRESOLVED-CLAIM: c_75b43b49 — status=not_enough_info] `, `{{claim:c_362e5c97}} `, `{{claim:c_80d0456f}} `, `{{claim:c_6971ed96}} `, `{{claim:c_2dfdce10}} `, `{{claim:c_a4cfd971}} `, `{{claim:c_82f22382}} `, `{{claim:c_a19926d3}} `
+- [ ] T002 Create `requirements.txt` with pinned versions: `The plan specifies using pymatgen version 2024.1.1. [UNRESOLVED-CLAIM: c_7eba6bc8 — status=not_enough_info] `, `{{claim:c_362e5c97}} `, `{{claim:c_80d0456f}} `, `{{claim:c_6971ed96}} `, `{{claim:c_2dfdce10}} `, `{{claim:c_a4cfd971}} `, `{{claim:c_82f22382}} `, `{{claim:c_a19926d3}} `
 - [X] T003 [P] Configure linting (ruff) and formatting (black) tools in `projects/PROJ-355-predicting-the-impact-of-impurity-cluste/`
 - [X] T004a [P] Implement `contracts/dataset.schema.yaml` defining required fields: `bulk_config_id`, `impurity_species`, `segregation_energy`, `clustering_descriptors`
 - [X] T004b [P] Implement `contracts/output_schema.schema.yaml` defining required fields: `r2`, `rmse`, `p_values`, `confidence_intervals`
@@ -55,11 +55,11 @@
  4. Return `True` if the URL is in the whitelist and reachable, `False` otherwise.
  5. If `False`, raise a `ValueError` with message `[DATA_UNAVAILABLE] URL=<url>`.
  **Note**: Title-token-overlap is NOT used here as it is reserved for literature citations per Constitution Principle II. This task provides the mandatory implementation for the Reference-Validator Agent logic required by FR-001 and Constitution Principle II. **Dependency**: Must be completed before T013.
-- [ ] T005 [P] Create `code/config.py` for paths, random seeds, hyperparameters, and the `VALIDATED_SOURCE_WHITELIST` list (MP/OQMD URLs).
-- [ ] T005b [P] Generate the methodology sketch in `docs/methodology.md` defining the k-fold CV procedure, random seed (fixed), and LOOCV fallback logic
+- [X] T005 [P] Create `code/config.py` for paths, random seeds, hyperparameters, and the `VALIDATED_SOURCE_WHITELIST` list (MP/OQMD URLs).
+- [X] T005b [P] Generate the methodology sketch in `docs/methodology.md` defining the k-fold CV procedure, random seed (fixed), and LOOCV fallback logic
 - [X] T006 [P] Setup `code/data/__init__.py` and `code/modeling/__init__.py`
-- [~] T008 [P] Setup `data/raw/`, `data/processed/`, and `results/` directory structure with `.gitkeep`
-- [~] T009 [P] Create `tests/unit/` and `tests/integration/` scaffolding
+- [ ] T008 [P] Setup `data/raw/`, `data/processed/`, and `results/` directory structure with `.gitkeep`
+- [ ] T009 [P] Create `tests/unit/` and `tests/integration/` scaffolding
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -71,7 +71,7 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [~] T007 [P] [US1] Implement `code/main.py` pipeline orchestration with error handling and logging. Logic:
+- [ ] T007 [P] [US1] Implement `code/main.py` pipeline orchestration with error handling and logging. Logic:
  1. Define the *logical* sequence: `download_bulk_configs` -> `build_gb_supercells` -> `compute_descriptors` -> `run_simulation`.
  2. **Note**: This task defines the orchestration flow. The actual implementation of `download.py` (T013), `gb_builder.py` (T014), etc., occurs in Phase 3. The code in T007 will call these modules once they are implemented.
  3. Ensure the script handles the `[DATA_UNAVAILABLE]` error from T013 gracefully by logging and exiting cleanly.
@@ -110,10 +110,10 @@
  2. **Potential**: The document specifies using a specific NIST EAM potential for Fe-Cr from the NIST repository.
  3. **Rationale**: This minimal perturbation breaks the exact symmetry of the input structure to avoid circularity while remaining physically plausible for a "distinct representation".
  This task explicitly defines the scientific parameters required for T016b. **Dependency**: Requires T014 (GB Builder) to be completed.
-- [ ] T016b [US1] Implement the simulation engine in `code/data/simulate_energy.py` that applies the perturbation logic from T016a and calculates segregation energy using the NIST EAM potential for Fe-Cr defined in T016a. This task implements the engine using the parameters defined in T016a. **Dependency**: Requires T014 (GB Builder) to be completed.
-- [ ] T016c [US1] Implement `code/data/simulate_energy.py` runner function `run_simulation` to execute the engine on the generated GB supercells and output `data/processed/segregation_energies.csv`. This task depends on T016b. **Dependency**: Requires T014 (GB Builder) to be completed.
-- [ ] T018 [US1] Implement `code/data/descriptor_filter.py` to compute VIF (Variance Inflation Factor) on descriptors. **Action**: Detect collinearity (VIF ≥ 10 (2005.02245, https://arxiv.org/abs/2005.02245)) [UNRESOLVED-CLAIM: c_4bcdbfcb — status=not_enough_info] and **generate a descriptive report** `data/processed/collinearity_report.md` explaining joint relationships. **Do NOT remove features** in this task; only report. (FR-007). Report format: VIF scores per feature, descriptive text for joint relationships, no feature removal.
-- [ ] T019 [US1] Implement filtering logic for bulk configurations with zero impurity atoms; log exclusion count to `data/processed/preprocessing_report.json`
+- [~] T016b [US1] Implement the simulation engine in `code/data/simulate_energy.py` that applies the perturbation logic from T016a and calculates segregation energy using the NIST EAM potential for Fe-Cr defined in T016a. This task implements the engine using the parameters defined in T016a. **Dependency**: Requires T014 (GB Builder) to be completed.
+- [~] T016c [US1] Implement `code/data/simulate_energy.py` runner function `run_simulation` to execute the engine on the generated GB supercells and output `data/processed/segregation_energies.csv`. This task depends on T016b. **Dependency**: Requires T014 (GB Builder) to be completed. <!-- FAILED: unspecified -->
+- [~] T018 [US1] Implement `code/data/descriptor_filter.py` to compute VIF (Variance Inflation Factor) on descriptors. **Action**: Detect collinearity (VIF ≥ 10 (2005.02245, https://arxiv.org/abs/2005.02245)) and **generate a descriptive report** `data/processed/collinearity_report.md` explaining joint relationships. **Do NOT remove features** in this task; only report. (FR-007). Report format: VIF scores per feature, descriptive text for joint relationships, no feature removal.
+- [~] T019 [US1] Implement filtering logic for bulk configurations with zero impurity atoms; log exclusion count to `data/processed/preprocessing_report.json`
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -129,7 +129,7 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T020 [P] [US2] Unit test for CV split logic in `tests/unit/test_cv_split.py`
+- [~] T020 [P] [US2] Unit test for CV split logic in `tests/unit/test_cv_split.py`
 - [ ] T021 [P] [US2] Unit test for metric calculation (R², RMSE, p-values) in `tests/unit/test_metrics.py`
 - [ ] T022 [P] [US2] Integration test for model training and evaluation in `tests/integration/test_model_training.py`
 

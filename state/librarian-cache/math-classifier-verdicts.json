@@ -75,6 +75,10 @@
     "classified_at": "2026-06-26T14:38:00Z",
     "verdict": false
   },
+  "PROJ-102-predicting-sleep-stage-transitions-from-::1.6.0": {
+    "classified_at": "2026-07-06T11:30:00Z",
+    "verdict": false
+  },
   "PROJ-114-the-impact-of-ambient-noise-on-cognitive::1.6.0": {
     "classified_at": "2026-06-16T05:23:46Z",
     "verdict": false

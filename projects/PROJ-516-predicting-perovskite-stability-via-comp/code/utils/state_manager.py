@@ -1,178 +1,212 @@
 """
-State Manager for llmXive Automated Science Pipeline.
+State management module for tracking artifact hashes and project state.
 
-Computes SHA-256 hashes for derived artifacts and updates the project state
-file (state/pipeline_state.yaml) to track artifact integrity.
+This module provides functionality to compute SHA-256 hashes for derived artifacts
+and maintain a persistent state file (state/...yaml) that tracks the current
+version of all project artifacts.
 """
-
 import hashlib
 import os
 from pathlib import Path
 from typing import Dict, Any, List, Optional
 from datetime import datetime
-
 import yaml
-
-# Project root relative to this file (code/utils/ -> root)
-PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
-STATE_DIR = PROJECT_ROOT / "state"
-STATE_FILE = STATE_DIR / "pipeline_state.yaml"
 
 
 def compute_sha256(file_path: Path) -> str:
     """
     Compute the SHA-256 hash of a file.
-
+    
     Args:
         file_path: Path to the file to hash.
-
+        
     Returns:
         Hexadecimal string of the SHA-256 hash.
-
+        
     Raises:
         FileNotFoundError: If the file does not exist.
+        IOError: If the file cannot be read.
     """
     if not file_path.exists():
-        raise FileNotFoundError(f"File not found for hashing: {file_path}")
-
+        raise FileNotFoundError(f"File not found: {file_path}")
+    
     sha256_hash = hashlib.sha256()
     with open(file_path, "rb") as f:
-        # Read in chunks to handle large files efficiently
-        for byte_block in iter(lambda: f.read(4096), b""):
-            sha256_hash.update(byte_block)
+        for chunk in iter(lambda: f.read(4096), b""):
+            sha256_hash.update(chunk)
+    
     return sha256_hash.hexdigest()
 
 
-def load_state() -> Dict[str, Any]:
+def load_state(state_path: Path) -> Dict[str, Any]:
     """
-    Load the current state file if it exists.
-
-    Returns:
-        Dictionary containing the current state, or an empty dict if not found.
-    """
-    if not STATE_FILE.exists():
-        return {"artifacts": {}, "last_updated": None}
-
-    with open(STATE_FILE, "r", encoding="utf-8") as f:
-        try:
-            return yaml.safe_load(f) or {"artifacts": {}, "last_updated": None}
-        except yaml.YAMLError:
-            return {"artifacts": {}, "last_updated": None}
-
-
-def save_state(state: Dict[str, Any]) -> None:
-    """
-    Save the state dictionary to the state file.
-
+    Load the current state from a YAML file.
+    
     Args:
-        state: The state dictionary to save.
+        state_path: Path to the state YAML file.
+        
+    Returns:
+        Dictionary containing the project state.
+        
+    Raises:
+        FileNotFoundError: If the state file does not exist.
+        yaml.YAMLError: If the file contains invalid YAML.
     """
-    STATE_DIR.mkdir(parents=True, exist_ok=True)
-    state["last_updated"] = datetime.utcnow().isoformat() + "Z"
-    with open(STATE_FILE, "w", encoding="utf-8") as f:
-        yaml.safe_dump(state, f, default_flow_style=False, sort_keys=False)
+    if not state_path.exists():
+        # Return an empty state if the file doesn't exist
+        return {
+            "version": "1.0",
+            "last_updated": None,
+            "artifacts": {}
+        }
+    
+    with open(state_path, "r") as f:
+        state = yaml.safe_load(f)
+    
+    if state is None:
+        return {
+            "version": "1.0",
+            "last_updated": None,
+            "artifacts": {}
+        }
+    
+    return state
+
+
+def save_state(state: Dict[str, Any], state_path: Path) -> None:
+    """
+    Save the project state to a YAML file.
+    
+    Args:
+        state: Dictionary containing the project state.
+        state_path: Path to the state YAML file.
+    """
+    # Ensure the directory exists
+    state_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    with open(state_path, "w") as f:
+        yaml.dump(state, f, default_flow_style=False, sort_keys=False)
 
 
 def update_artifact_state(
-    relative_path: str,
-    artifact_type: str = "derived",
-    metadata: Optional[Dict[str, Any]] = None
-) -> str:
+    state: Dict[str, Any],
+    artifact_path: Path,
+    artifact_name: Optional[str] = None
+) -> Dict[str, Any]:
     """
-    Compute the hash for a derived artifact and update the state file.
-
+    Update the state entry for a single artifact.
+    
     Args:
-        relative_path: Path relative to the project root (e.g., 'data/processed/descriptors.csv').
-        artifact_type: Type of artifact (e.g., 'raw', 'processed', 'model', 'figure').
-        metadata: Optional additional metadata to store with the artifact entry.
-
+        state: Current project state dictionary.
+        artifact_path: Path to the artifact file.
+        artifact_name: Optional name for the artifact. If not provided,
+                      the relative path is used.
+                      
     Returns:
-        The computed SHA-256 hash.
-
+        Updated state dictionary.
+        
     Raises:
         FileNotFoundError: If the artifact file does not exist.
     """
-    full_path = PROJECT_ROOT / relative_path
-    if not full_path.exists():
-        raise FileNotFoundError(f"Artifact not found: {full_path}")
-
-    file_hash = compute_sha256(full_path)
-    state = load_state()
-
+    if not artifact_path.exists():
+        raise FileNotFoundError(f"Artifact not found: {artifact_path}")
+    
+    if artifact_name is None:
+        artifact_name = str(artifact_path.relative_to(Path.cwd()))
+    
+    # Compute hash
+    file_hash = compute_sha256(artifact_path)
+    
+    # Get file metadata
+    stat = artifact_path.stat()
+    
+    # Update state
     if "artifacts" not in state:
         state["artifacts"] = {}
-
-    state["artifacts"][relative_path] = {
+    
+    state["artifacts"][artifact_name] = {
         "hash": file_hash,
-        "type": artifact_type,
-        "size_bytes": full_path.stat().st_size,
-        **(metadata or {})
+        "path": str(artifact_path),
+        "size_bytes": stat.st_size,
+        "last_modified": datetime.fromtimestamp(stat.st_mtime).isoformat(),
+        "updated_at": datetime.now().isoformat()
     }
+    
+    state["last_updated"] = datetime.now().isoformat()
+    
+    return state
 
-    save_state(state)
-    return file_hash
 
-
-def verify_artifact(relative_path: str) -> bool:
+def verify_artifact(
+    artifact_path: Path,
+    state: Dict[str, Any],
+    artifact_name: Optional[str] = None
+) -> bool:
     """
-    Verify the integrity of an artifact by comparing its current hash with the stored hash.
-
+    Verify that an artifact's current hash matches the stored hash in state.
+    
     Args:
-        relative_path: Path relative to the project root.
-
+        artifact_path: Path to the artifact file.
+        state: Current project state dictionary.
+        artifact_name: Optional name for the artifact. If not provided,
+                      the relative path is used.
+                      
     Returns:
-        True if the hash matches, False otherwise.
+        True if the artifact hash matches the stored hash, False otherwise.
+        
+    Raises:
+        FileNotFoundError: If the artifact file does not exist.
     """
-    full_path = PROJECT_ROOT / relative_path
-    if not full_path.exists():
+    if not artifact_path.exists():
+        raise FileNotFoundError(f"Artifact not found: {artifact_path}")
+    
+    if artifact_name is None:
+        artifact_name = str(artifact_path.relative_to(Path.cwd()))
+    
+    if "artifacts" not in state or artifact_name not in state["artifacts"]:
         return False
-
-    state = load_state()
-    stored_entry = state.get("artifacts", {}).get(relative_path)
-
-    if not stored_entry or "hash" not in stored_entry:
+    
+    stored_hash = state["artifacts"][artifact_name].get("hash")
+    if stored_hash is None:
         return False
-
-    current_hash = compute_sha256(full_path)
-    return current_hash == stored_entry["hash"]
+    
+    current_hash = compute_sha256(artifact_path)
+    
+    return current_hash == stored_hash
 
 
 def update_state_for_multiple_artifacts(
-    artifact_paths: List[str],
-    artifact_type: str = "derived",
-    metadata_map: Optional[Dict[str, Dict[str, Any]]] = None
-) -> Dict[str, str]:
+    state_path: Path,
+    artifact_paths: List[Path],
+    artifact_names: Optional[List[str]] = None
+) -> Dict[str, Any]:
     """
-    Update state for multiple artifacts at once.
-
+    Update the state file for multiple artifacts at once.
+    
     Args:
-        artifact_paths: List of relative paths to update.
-        artifact_type: Default type for all artifacts.
-        metadata_map: Optional map of path -> specific metadata.
-
+        state_path: Path to the state YAML file.
+        artifact_paths: List of paths to artifact files.
+        artifact_names: Optional list of names for the artifacts. If not provided,
+                       the relative paths are used.
+                       
     Returns:
-        Dictionary mapping paths to their computed hashes.
+        Updated state dictionary.
+        
+    Raises:
+        FileNotFoundError: If any artifact file does not exist.
     """
-    state = load_state()
-    if "artifacts" not in state:
-        state["artifacts"] = {}
-
-    results = {}
-    for path in artifact_paths:
-        full_path = PROJECT_ROOT / path
-        if not full_path.exists():
-            # Skip missing files but continue processing others
-            continue
-
-        file_hash = compute_sha256(full_path)
-        meta = (metadata_map or {}).get(path, {})
-        state["artifacts"][path] = {
-            "hash": file_hash,
-            "type": artifact_type,
-            "size_bytes": full_path.stat().st_size,
-            **meta
-        }
-        results[path] = file_hash
-
-    save_state(state)
-    return results
+    # Load current state
+    state = load_state(state_path)
+    
+    # Update for each artifact
+    for i, artifact_path in enumerate(artifact_paths):
+        name = None
+        if artifact_names is not None and i < len(artifact_names):
+            name = artifact_names[i]
+        
+        state = update_artifact_state(state, artifact_path, name)
+    
+    # Save updated state
+    save_state(state, state_path)
+    
+    return state

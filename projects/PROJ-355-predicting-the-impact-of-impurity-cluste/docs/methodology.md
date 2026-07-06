@@ -1,71 +1,56 @@
-# Methodology: Cross-Validation and Model Evaluation Strategy
+# Methodology: Predicting the Impact of Impurity Clustering on Grain Boundary Segregation
 
-This document outlines the statistical validation procedures employed in the **Predicting the Impact of Impurity Clustering on Grain Boundary Segregation** project. It defines the primary cross-validation (CV) strategy, the fixed random seed for reproducibility, and the fallback logic for Leave-One-Out Cross-Validation (LOOCV).
+## Overview
 
-## 1. Primary Strategy: K-Fold Cross-Validation
+This document outlines the computational methodology employed in the `PROJ-355` project.
+The primary goal is to quantify the relationship between impurity clustering descriptors
+and grain boundary (GB) segregation energies using statistical regression models.
 
-The primary evaluation protocol utilizes **5-Fold Cross-Validation**. This approach balances the bias-variance trade-off in performance estimation while maintaining computational efficiency on the CPU-only infrastructure.
+## Data Pipeline
+
+1. **Data Acquisition**: Bulk crystal structures are downloaded from the Materials Project (MP)
+ and the Open Quantum Materials Database (OQMD).
+2. **GB Construction**: Grain boundary supercells are constructed using `pymatgen`.
+3. **Impurity Insertion**: Impurity atoms are inserted at the GB interface.
+4. **Descriptor Computation**: Local atomic environment descriptors (RDF peaks, pair correlation,
+ Voronoi neighbor counts) are computed for the interface region.
+5. **Energy Simulation**: Segregation energies are calculated using NIST EAM potentials
+ with structural perturbation to break symmetry.
+
+## Cross-Validation Procedure
+
+To ensure robust model evaluation and prevent overfitting, a **K-Fold Cross-Validation**
+strategy is employed.
+
+### K-Fold Setup
+- **K Value**: 5 folds (configurable via `code/config.py`).
+- **Shuffle**: True.
+- **Random Seed**: Fixed at **42** (defined in `code/config.py`) to ensure reproducibility
+ across runs (Constitution Principle I).
 
 ### Procedure
-1. **Data Partitioning**: The dataset (derived from `data/processed/descriptors.csv` and `data/processed/segregation_energies.csv`) is randomly shuffled and split into $k=5$ mutually exclusive folds of approximately equal size.
-2. **Iterative Training**: For each iteration $i$ (where $i \in \{1, \dots, 5\}$):
- * **Training Set**: The union of all folds except fold $i$.
- * **Validation Set**: Fold $i$.
- * **Model Fit**: The Linear Regression model (specified in `code/modeling/train.py`) is trained on the Training Set.
- * **Prediction**: The model predicts segregation energies for the Validation Set.
- * **Metric Calculation**: $R^2$ and RMSE are computed for the validation set.
-3. **Aggregation**: Final performance metrics are reported as the mean and standard deviation of the metrics across all 5 iterations.
+1. The dataset is split into K mutually exclusive subsets of approximately equal size.
+2. The model is trained K times. In each iteration:
+ - K-1 folds are used for training.
+ - The remaining 1 fold is used for validation.
+3. Metrics (R², RMSE, p-values) are computed for each fold and aggregated.
 
-### Random Seed Configuration
-To ensure strict reproducibility (Constitution Principle I), all random operations (shuffling, splitting) are governed by a fixed seed defined in `code/config.py`.
+### LOOCV Fallback Logic
+If the dataset size is smaller than K (i.e., fewer than 5 samples), the procedure
+automatically switches to **Leave-One-Out Cross-Validation (LOOCV)**:
+- The number of folds is set to the number of samples.
+- Each sample serves as the validation set exactly once.
+- This ensures every data point is used for both training and validation.
 
-* **Seed Value**: `42`
-* **Implementation**: The seed is set via `numpy.random.seed(42)` and passed to the `random_state` parameter of `sklearn.model_selection.KFold` prior to any data splitting.
+## Statistical Analysis
 
-```python
-# Pseudocode for implementation in code/modeling/train.py
-from config import get_config
-config = get_config()
+- **Model**: Linear Regression (MVP) with `statsmodels` OLS.
+- **Collinearity**: Variance Inflation Factor (VIF) is calculated. If VIF ≥ 10,
+ a warning is logged, but features are retained as per FR-007 (Report, don't remove).
+- **Significance**: p-values are calculated for coefficients using HC3 robust standard errors.
+ Multiple comparison correction (Bonferroni/FDR) is applied in Phase 5.
 
-k_fold = KFold(n_splits=5, shuffle=True, random_state=config['random_seed'])
-```
+## Reproducibility
 
-## 2. Fallback Strategy: Leave-One-Out Cross-Validation (LOOCV)
-
-The 5-Fold CV strategy is the default. However, LOOCV is mandated as a fallback mechanism to ensure robust evaluation on small sample sizes where 5-fold splits may result in insufficient training data per fold.
-
-### Trigger Condition
-LOOCV is automatically triggered if the total number of valid samples ($N$) in the processed dataset is less than **20**.
-
-$$ \text{If } N < 20 \implies \text{Use LOOCV} $$
-
-### LOOCV Procedure
-1. **Partitioning**: For a dataset of size $N$, $N$ iterations are performed.
-2. **Iterative Training**: In iteration $j$ (where $j \in \{1, \dots, N\}$):
- * **Training Set**: All samples except the $j$-th sample.
- * **Validation Set**: The single $j$-th sample.
-3. **Aggregation**: Metrics are averaged over all $N$ iterations.
-
-### Implementation Logic
-The execution script (`code/modeling/train.py`) includes a pre-flight check:
-```python
-if len(df) < 20:
- logger.warning("Sample size < 20. Switching to LOOCV.")
- cv_strategy = LeaveOneOut()
-else:
- cv_strategy = KFold(n_splits=5, shuffle=True, random_state=config['random_seed'])
-```
-
-## 3. Statistical Significance and Confidence Intervals
-
-* **Confidence Intervals**: 95% confidence intervals for predictions are calculated using the standard error of the residuals from the training folds, adjusted for the specific validation sample.
-* **P-Values**: Coefficient p-values are derived using `statsmodels.api.OLS` with `cov_type='HC3'` (White's heteroskedasticity-consistent standard errors) to account for potential non-constant variance in segregation energy data.
-* **Collinearity Handling**: If the collinearity report (`data/processed/collinearity_report.md`) indicates VIF $\ge$ 10, a warning is logged. Per FR-007, features are **not** removed, but the instability of p-values is explicitly noted in the final report.
-
-## 4. Reproducibility Checklist
-
-To replicate these results, ensure the following:
-1. The random seed in `code/config.py` is set to `42`.
-2. The dataset is identical to the one generated by `code/data/descriptors.py` and `code/data/simulate_energy.py`.
-3. The sample size threshold for LOOCV is strictly enforced at $N < 20$.
-4. All dependencies match the pinned versions in `requirements.txt`.
+All random operations (data splitting, structural perturbation) use the seed defined
+in `code/config.py`. The seed is 42.

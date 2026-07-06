@@ -1,0 +1,471 @@
+{
+  "fetched_at": "2026-07-06T11:30:29Z",
+  "field": "neuroscience",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "neuroscience",
+      "idea_body_excerpt": "Predicting Sleep Stage Transitions from Scalp EEG Using Deep Learning",
+      "target_n": 5
+    },
+    "duration_seconds": 57.267,
+    "ended_at": "2026-07-06T11:30:29Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "automatic sleep stage classification using deep learning"
+        ],
+        [
+          2,
+          "deep learning models for EEG sleep staging"
+        ],
+        [
+          3,
+          "transition probability modeling in sleep EEG"
+        ],
+        [
+          4,
+          "recurrent neural networks for sleep stage prediction"
+        ],
+        [
+          5,
+          "convolutional neural networks for sleep EEG analysis"
+        ],
+        [
+          6,
+          "temporal dynamics of sleep stage transitions"
+        ],
+        [
+          7,
+          "EEG-based sleep architecture prediction"
+        ],
+        [
+          8,
+          "machine learning for sleep disorder diagnosis"
+        ],
+        [
+          9,
+          "sleep stage boundary detection algorithms"
+        ],
+        [
+          10,
+          "transformer models for time-series EEG classification"
+        ],
+        [
+          11,
+          "automated sleep scoring from polysomnography"
+        ],
+        [
+          12,
+          "feature extraction for sleep EEG using deep learning"
+        ],
+        [
+          13,
+          "predicting NREM to REM transitions with AI"
+        ],
+        [
+          14,
+          "sleep microstructure analysis using neural networks"
+        ],
+        [
+          15,
+          "deep feature learning for scalp electroencephalography"
+        ],
+        [
+          16,
+          "sleep stage sequence modeling"
+        ],
+        [
+          17,
+          "attention mechanisms in sleep EEG classification"
+        ],
+        [
+          18,
+          "non-invasive sleep monitoring with deep learning"
+        ],
+        [
+          19,
+          "sleep fragmentation detection using EEG signals"
+        ],
+        [
+          20,
+          "end-to-end sleep staging systems"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "Predicting Sleep Stage Transitions from Scalp EEG Using Deep Learning neuroscience": 0,
+        "automatic sleep stage classification using deep learning": 4
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "hypnogram sequence modeling temporal dynamics",
+      "deep learning EEG sleep staging benchmark",
+      "Markov chain sleep architecture transition probability",
+      "multi-stage classification accuracy Cohen's kappa",
+      "REM NREM N3 transition probability latent state"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2008.09416"
+      ]
+    },
+    "per_query_hit_count": {
+      "Markov chain sleep architecture transition probability": 2,
+      "Predicting Sleep Stage Transitions from Scalp EEG Using Deep Learning neuroscience": 3,
+      "REM NREM N3 transition probability latent state": 3,
+      "deep learning EEG sleep staging benchmark": 0,
+      "hypnogram sequence modeling temporal dynamics": 3,
+      "multi-stage classification accuracy Cohen's kappa": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 3,
+      "rejections": [
+        {
+          "primary_pointer": "2506.21828",
+          "rationale": "The paper focuses on fetal sleep physiology and cross-species classification, which is a distinct empirical population and developmental stage from the user's question regarding adult scalp EEG sleep stage transitions. While it mentions deep learning in the context of future monitoring, it does not provide the specific mechanism, baseline data, or canonical methodology for predicting sleep stage transitions from scalp EEG in the target population, failing to meet criteria (a) through (f).",
+          "title": "Fetal Sleep: A Cross-Species Review of Physiology, Measurement, and Classification"
+        },
+        {
+          "primary_pointer": "1908.11463",
+          "rationale": "The paper focuses on sleep staging using ECG and respiratory signals rather than the user's specific requirement of using scalp EEG, and it does not address the mechanism of predicting *transitions* between stages. While it shares the broad domain of sleep staging with deep learning, it fails the \"same-mechanism\" (a) and \"independent/dependent variable\" (b) criteria because the input modality (ECG/Respiration vs. EEG) is fundamentally different, and the specific task (staging vs. transition pred",
+          "title": "Sleep Staging from Electrocardiography and Respiration with Deep Learning"
+        },
+        {
+          "primary_pointer": "2306.11113",
+          "rationale": "The paper focuses on the theoretical foundations and optimization of evidential deep learning for uncertainty quantification across generic datasets, without addressing the specific domain of sleep stage transitions, scalp EEG data, or the physiological mechanisms of neuroscience. It fails to meet any inclusion criteria (a-f) as it does not measure the relevant biological variables, establish a baseline for sleep staging, or provide a canonical method specifically for EEG-based sleep analysis.",
+          "title": "Learn to Accumulate Evidence from All Training Samples: Theory and Practice"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-07-06T11:29:32Z",
+    "term_input": {
+      "normalized": "predicting sleep stage transitions from scalp eeg using deep learning neuroscience",
+      "raw": "Predicting Sleep Stage Transitions from Scalp EEG Using Deep Learning neuroscience"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Scientific research and engineering practice often require the modeling and decomposition of nonlinear systems. The Dynamic Mode Decomposition (DMD) is a novel Koopman-based technique that effectively dissects high-dimensional nonlinear systems into periodically distinct constituents on reduced-order subspaces. As a novel mathematical hatchling, the DMD bears vast potentials yet an equal degree of unknown. This serial effort investigates the nuances of DMD sampling with an engineering-oriented emphasis. This Part I aimed at elucidating how sampling range and resolution affect the convergence of DMD modes. We employed the most classical nonlinear system in fluid mechanics as the test subject--the turbulent free-shear flow over a prism--for optimal pertinency. We numerically simulated the flow by the dynamic-stress Large-Eddies Simulation with Near-Wall Resolution. With the large-quantity, high-fidelity data, we parametrized and identified four global convergence states: Initialization, Transition, Stabilization, and Divergence with increasing sampling range. Results showed that the Stabilization is the optimal state for modal convergence, in which DMD output becomes independent of the sampling range. The Initialization state also yields sufficient accuracy for most system reconstruction tasks. Moreover, defying popular beliefs, over-sampling causes algorithmic instability: as the temporal dimension, n, approaches and transcends the spatial dimension, m (i.e., m < n), the output diverges and becomes meaningless. Additionally, the convergence of the sampling resolution depends on the mode-specific dynamics, such that the resolution of 15 frames per cycle for target activities is suggested for most engineering implementations. Finally, a bi-parametric study revealed that the convergence of the sampling range and resolution are mutually independent.",
+          "claimed_authors": [
+            "Cruz Y. Li",
+            "Zengshun Chen",
+            "Tim K. T. Tse",
+            "Asiri Umenga Weerasuriya",
+            "Xuelin Zhang",
+            "Yunfei Fu",
+            "Xisheng Lin"
+          ],
+          "claimed_title": "A Parametric and Feasibility Study for Data Sampling of the Dynamic Mode Decomposition--Range, Resolution, and Universal Convergence States",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2110.06573"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Sleep Stage Transitions from Scalp EEG Using Deep Learning neuroscien', candidate_title='A Parametric and Feasibility Study for Data Sampling of the Dynamic Mode Decomposition--Range, Resolution, and Universal Convergence States')",
+        "failed_at": "2026-07-06T11:30:02Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A spherical target irradiated by laser beams located at 49o and 131o with respect to the polar axis has been considered. The illumination model has been used to evaluate the irradiation non-uniformity assuming circular and elliptical super-gaussian laser intensity profiles and the irradiation scheme has been optimized by means of the Polar Direct Drive technique. A parametric study has been performed providing the irradiation non-uniformity as a function of the Polar Direct Drive displacement and of the laser intensity profile parameters. Moreover, two-dimensional axis-symmetric hydrodynamic simulations have been performed for a plastic sphere irradiated by laser beams characterized by a constant flat temporal power pulse. In these simulations the front of the inward shock wave has been tracked providing the time-evolution of any non-uniformity. The results provided by the two methods - illumination model and hydrodynamic data - have been compared and it is found that the illumination model reproduces the main behaviour exhibited by the hydrodynamic data. The two models provide compatible values for the optimum Polar Direct Drive parameter and similar optimal super-gaussian profiles.",
+          "claimed_authors": [
+            "M. Temporal",
+            "B. Canaud",
+            "W. J. Garbett",
+            "R. Ramis"
+          ],
+          "claimed_title": "Comparison between illumination model and hydrodynamic simulation for a Direct Drive laser irradiated target",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2014,
+          "primary_pointer": "1406.7762"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Sleep Stage Transitions from Scalp EEG Using Deep Learning neuroscien', candidate_title='Comparison between illumination model and hydrodynamic simulation for a Direct Drive laser irradiated target')",
+        "failed_at": "2026-07-06T11:30:02Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The study of temporal networks is motivated by the simple and important observation that just as network structure can affect dynamics, so can structure in time. Just as network topology can teach us about the system in question, so can its temporal characteristics. In many cases, leaving out either one of these components would lead to an incomplete understanding of the system or poor predictions. We argue that including time into network modeling inevitably leads researchers away from the trodden paths of network science. Temporal network theory requires something different -- new methods, new concepts, new questions -- compared to static networks. In this introductory chapter, we overview the ideas that the field of temporal networks has brought forward in the last decade. We also place the contributions to the current volume on this map of temporal-network approaches.",
+          "claimed_authors": [
+            "Petter Holme",
+            "Jari Saramäki"
+          ],
+          "claimed_title": "A map of approaches to temporal networks",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2103.13615"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Sleep Stage Transitions from Scalp EEG Using Deep Learning neuroscien', candidate_title='A map of approaches to temporal networks')",
+        "failed_at": "2026-07-06T11:30:02Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The assumption that data samples are independently identically distributed is the backbone of many learning algorithms. Nevertheless, datasets often exhibit rich structure in practice, and we argue that there exist some unknown order within the data instances. In this technical report, we introduce OrderNet that can be used to extract the order of data instances in an unsupervised way. By assuming that the instances are sampled from a Markov chain, our goal is to learn the transitional operator of the underlying Markov chain, as well as the order by maximizing the generation probability under all possible data permutations. Specifically, we use neural network as a compact and soft lookup table to approximate the possibly huge, but discrete transition matrix. This strategy allows us to amortize the space complexity with a single model. Furthermore, this simple and compact representation also provides a short description to the dataset and generalizes to unseen instances as well. To ensure that the learned Markov chain is ergodic, we propose a greedy batch-wise permutation scheme that allows fast training. Empirically, we show that OrderNet is able to discover an order among data instances. We also extend the proposed OrderNet to one-shot recognition task and demonstrate favorable results.",
+          "claimed_authors": [
+            "Yao-Hung Hubert Tsai",
+            "Han Zhao",
+            "Ruslan Salakhutdinov",
+            "Nebojsa Jojic"
+          ],
+          "claimed_title": "Learning Markov Chain in Unordered Dataset",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1711.03167"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Predicting Sleep Stage Transitions from Scalp EEG Using Deep Learning neuroscien', candidate_title='Learning Markov Chain in Unordered Dataset')",
+        "failed_at": "2026-07-06T11:30:02Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The cover time of a Markov chain on a finite state space is the expected time until all states are visited. We show that if the cover time of a discrete-time Markov chain with rational transitions probabilities is bounded, then it is a rational number. The result is proved by relating the cover time of the original chain to the hitting time of a set in another higher dimensional chain. We also extend this result to the setting where $k\\geq 1 $ independent copies of a Markov chain are run simultaneously on the same state space and the cover time is the expected time until each state has been visited by at least one copy of the chain.",
+          "claimed_authors": [
+            "John Sylvester"
+          ],
+          "claimed_title": "The Cover Time of a (Multiple) Markov Chain with Rational Transition Probabilities is Rational",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2102.12356"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Predicting Sleep Stage Transitions from Scalp EEG Using Deep Learning neuroscien', candidate_title='The Cover Time of a (Multiple) Markov Chain with Rational Transition Probabilities is Rational')",
+        "failed_at": "2026-07-06T11:30:02Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We obtain lower bounds on the rank of the kappa ring of the Delign-Mumford compactification of the moduli space of curves in different degrees. For this purpose, we introduce a quotient of the kappa ring, the combinatorial kappa ring, and show that the rank of this latter ring in degree $d$ is bounded below by $|P(d,3g-2+n-d)|$ where $P(d,r)$ denotes the set of partitions of the positive integer $d$ into at most $r$ parts. In codimension 1 (i.e. $d=3g-4+n$) we show that the rank of the kappa ring is equal to $n-1$ for $g=1$, and is equal to $\\lceil \\frac{(n+1)(g+1)}{2}\\rceil-1$ for $g>1$. Furthermore, in codimension $e=3g-3+n-d$, the rank of the kappa ring (as $g$ and $e$ remain fixed and $n$ grows large) is asymptotic to $\\frac{{n+e\\choose e}{g+e\\choose e}}{(e+1)!}$.",
+          "claimed_authors": [
+            "Eaman Eftekhary",
+            "Iman Setayesh"
+          ],
+          "claimed_title": "On the structure of the kappa-ring",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1207.2380"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Sleep Stage Transitions from Scalp EEG Using Deep Learning neuroscien', candidate_title='On the structure of the kappa-ring')",
+        "failed_at": "2026-07-06T11:30:02Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In this paper, I solve a 60-year old question posed by Cohen's seminal paper (1960) and offer an agreement measure centered around the chance-expected agreement while isolating marginally forced agreement and disagreement. To achieve this, I formulate the minimum feasible agreement given row and column marginals by devising a new algorithm that minimizes the sum of diagonals in contingency tables. Based on this result, I also formulate the lower limit of the most common agreement measure-Cohen's kappa. Finally, I study the lower limit of maximum feasible agreement and devise two statistics of distribution similarity for agreement analysis.",
+          "claimed_authors": [
+            "Veli Safak"
+          ],
+          "claimed_title": "Min-Mid-Max Scaling, Limits of Agreement, and Agreement Score",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2006.12904"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Sleep Stage Transitions from Scalp EEG Using Deep Learning neuroscien', candidate_title='Min-Mid-Max Scaling, Limits of Agreement, and Agreement Score')",
+        "failed_at": "2026-07-06T11:30:02Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The performance of machine learning classification algorithms are evaluated by estimating metrics, often from the confusion matrix, using training data and cross-validation. However, these do not prove that the best possible performance has been achieved. Fundamental limits to error rates can be estimated using information distance measures. To this end, the confusion matrix has been formulated to comply with the Chernoff-Stein Lemma. This links the error rates to the Kullback-Leibler divergences between the probability density functions describing the two classes. This leads to a key result that relates Cohen's Kappa to the Resistor Average Distance which is the parallel resistor combination of the two Kullback-Leibler divergences. The Resistor Average Distance has units of bits and is estimated from the same training data used by the classification algorithm, using kNN estimates of the KullBack-Leibler divergences. The classification algorithm gives the confusion matrix and Kappa. Theory and methods are discussed in detail and then applied to Monte Carlo data and real datasets. Four very different real datasets - Breast Cancer, Coronary Heart Disease, Bankruptcy, and Particle Identification - are analysed, with both continuous and discrete values, and their classification performance compared to the expected theoretical limit. In all cases this analysis shows that the algorithms could not have performed any better due to the underlying probability density functions for the two classes. Important lessons are learnt on how to predict the performance of algorithms for imbalanced data using training datasets that are approximately balanced. Machine learning is very powerful but classification performance ultimately depends on the quality of the data and the relevance of the variables to the problem.",
+          "claimed_authors": [
+            "L. Crow",
+            "S. J. Watts"
+          ],
+          "claimed_title": "Limits to classification performance by relating Kullback-Leibler divergence to Cohen's Kappa",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2403.01571"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='Predicting Sleep Stage Transitions from Scalp EEG Using Deep Learning neuroscien', candidate_title=\"Limits to classification performance by relating Kullback-Leibler divergence to Cohen's Kappa\")",
+        "failed_at": "2026-07-06T11:30:02Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Drug discovery relies on iterative expert workflows that are slow to parallelize and difficult to scale. Here we introduce Latent-Y, an AI agent that autonomously executes complete antibody design campaigns from text prompts, covering literature review, target analysis, epitope identification, candidate design, computational validation, and selection of lab-ready sequences. Latent-Y is integrated into the Latent Labs Platform, where it operates in the same environment as drug-discovery experts with access to bioinformatics tools, biological databases, and scientific literature. The agent can run fully autonomously end-to-end, or collaboratively, where researchers review progress, provide feedback, and direct subsequent steps. Candidate antibodies are generated using Latent-X2, our frontier generative model for drug-like antibody design. We demonstrate the agent's capability across three distinct campaign types: epitope discovery guided by therapeutic specifications, cross-species binder design, and autonomous design from a scientific publication targeting human transferrin receptor for blood-brain barrier crossing. Across nine targets, Latent-Y produced lab-confirmed nanobody binders against six, achieving a 67% target-level success rate with binding affinities reaching the single-digit nanomolar range, without human filtering or intervention. In user studies, experts working with Latent-Y completed design campaigns 56 times faster than independent expert time estimates, compressing weeks of work into hours. Because Latent-X2 is a general-purpose atomic-level model for biologics design, the same agent architecture naturally extends to macrocyclic peptide and mini-binder design campaigns, broadening autonomous discovery across therapeutic modalities. Latent-Y is available to selected partners at https://platform.latentlabs.com.",
+          "claimed_authors": [
+            " Latent Labs Team",
+            "Sebastian M. Schmon",
+            "Daniella Pretorius",
+            "Simon Mathis",
+            "Rebecca Bartke-Croughan",
+            "Aishaini Puvanendran",
+            "James Vuckovic",
+            "Henry Kenlay",
+            "Mária Vlachynská",
+            "Alex Bridgland",
+            "Ivan Grishin",
+            "Sven Over",
+            "David Li",
+            "Bridget Li",
+            "Jonathan Crabbé",
+            "Agrin Hilmkil",
+            "Alexander W. R. Nelson",
+            "David Yuan",
+            "Annette Obika",
+            "Simon A. A. Kohl"
+          ],
+          "claimed_title": "Latent-Y: A Lab-Validated Autonomous Agent for De Novo Drug Design",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2603.29727"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Predicting Sleep Stage Transitions from Scalp EEG Using Deep Learning neuroscien', candidate_title='Latent-Y: A Lab-Validated Autonomous Agent for De Novo Drug Design')",
+        "failed_at": "2026-07-06T11:30:02Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Traditional drug discovery relies on rounds of screening millions of candidate molecules with low success rates, making drug discovery time and resource intensive. To overcome this screening bottleneck, we introduce Latent-X, an all-atom protein design model that enables a new paradigm of precision AI design. Given a target protein epitope, Latent-X jointly generates the all atom structure and sequence of the protein binder and target, directly modelling the non-covalent interactions essential for specific binding. We demonstrate its efficacy across two therapeutically relevant modalities through extensive wet lab experiments, testing as few as 30-100 designs per target. For macrocyclic peptides, Latent-X achieves experimental hit rates exceeding 90% on all evaluated benchmark targets. For mini-binders, it consistently produces potent candidates against all evaluated benchmark targets, with binding affinities reaching the low nanomolar and picomolar range - comparable to those of approved therapeutics - whilst also being highly specific in mammalian display. In direct comparisons with the state-of-the-art models AlphaProteo, RFdiffusion and RFpeptides under identical conditions demonstrates, Latent-X generates binders with higher hit rates and better binding affinities, and uniquely creates structurally diverse binders, including complex beta-sheet folds. Its end-to-end process is an order of magnitude faster than existing multi-step computational pipelines. By drastically improving the efficiency and success rate of de novo design, Latent-X represents a significant advance towards push-button biologics discovery and a valuable tool for protein engineers. Latent-X is available at https://platform.latentlabs.com, enabling users to reliably generate de novo binders without AI infrastructure or coding.",
+          "claimed_authors": [
+            " Latent Labs Team",
+            "Alex Bridgland",
+            "Jonathan Crabbé",
+            "Henry Kenlay",
+            "Daniella Pretorius",
+            "Sebastian M. Schmon",
+            "Agrin Hilmkil",
+            "Rebecca Bartke-Croughan",
+            "Robin Rombach",
+            "Michael Flashman",
+            "Tomas Matteson",
+            "Simon Mathis",
+            "Alexander W. R. Nelson",
+            "David Yuan",
+            "Annette Obika",
+            "Simon A. A. Kohl"
+          ],
+          "claimed_title": "Latent-X: An Atom-level Frontier Model for De Novo Protein Binder Design",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2507.19375"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Sleep Stage Transitions from Scalp EEG Using Deep Learning neuroscien', candidate_title='Latent-X: An Atom-level Frontier Model for De Novo Protein Binder Design')",
+        "failed_at": "2026-07-06T11:30:02Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Drug discovery has long sought computational systems capable of designing drug-like molecules directly: developable and non-immunogenic from the start. Here we introduce Latent-X2, a frontier generative model that achieves this goal through zero-shot design of antibodies with strong binding affinities, drug-like properties, and, for the first time for any de novo generated antibody, confirmed low immunogenicity in human donor panels. Latent-X2 is an all-atom model conditioned on target structure, epitope specification, and optional antibody framework, jointly generating sequences and structures while modelling the bound complex. Testing only 4 to 24 designs per target in each modality, we successfully generated VHH and scFv antibodies against 9 of 18 evaluated targets, achieving a 50% target-level success rate with picomolar to nanomolar binding affinities. Designed molecules exhibit developability profiles that match or exceed those of approved antibody therapeutics, including expression yield, aggregation propensity, polyreactivity, hydrophobicity, and thermal stability, without optimization, filtering, or selection. In the first immunogenicity assessment of any AI-generated antibody, representative de novo VHH binders targeting TNFL9 exhibit both potent target engagement and low immunogenicity across T-cell proliferation and cytokine release assays. The model generalizes beyond antibodies: against K-Ras, long considered undruggable, we generated macrocyclic peptide binders competitive with trillion-scale mRNA display screens. These properties emerge directly from the model, demonstrating the therapeutic viability of zero-shot molecular design, now available without AI infrastructure or coding expertise at https://platform.latentlabs.com.",
+          "claimed_authors": [
+            " Latent Labs Team",
+            "Henry Kenlay",
+            "Daniella Pretorius",
+            "Jonathan Crabbé",
+            "Alex Bridgland",
+            "Sebastian M. Schmon",
+            "Agrin Hilmkil",
+            "James Vuckovic",
+            "Simon Mathis",
+            "Tomas Matteson",
+            "Rebecca Bartke-Croughan",
+            "Amir Motmaen",
+            "Robin Rombach",
+            "Mária Vlachynská",
+            "Alexander W. R. Nelson",
+            "David Yuan",
+            "Annette Obika",
+            "Simon A. A. Kohl"
+          ],
+          "claimed_title": "Drug-like antibodies with low immunogenicity in human panels designed with Latent-X2",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.20263"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Sleep Stage Transitions from Scalp EEG Using Deep Learning neuroscien', candidate_title='Drug-like antibodies with low immunogenicity in human panels designed with Latent-X2')",
+        "failed_at": "2026-07-06T11:30:02Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Abhay Koushik",
+            "Judith Amores",
+            "Pattie Maes"
+          ],
+          "title": "Real-Time Sleep Staging using Deep Learning on a Smartphone for a Wearable EEG",
+          "venue": "arXiv",
+          "year": 2018
+        },
+        "primary_pointer": "1811.10111",
+        "summary": "We present the first real-time sleep staging system that uses deep learning without the need for servers in a smartphone application for a wearable EEG. We employ real-time adaptation of a single channel Electroencephalography (EEG) to infer from a Time-Distributed 1-D Deep Convolutional Neural Network. Polysomnography (PSG)-the gold standard for sleep staging, requires a human scorer and is both complex and resource-intensive. Our work demonstrates an end-to-end on-smartphone pipeline that can infer sleep stages in just single 30-second epochs, with an overall accuracy of 83.5% on 20-fold cross validation for five-class classification of sleep stages using the open Sleep-EDF dataset.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1811.10111",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5556,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-06T11:30:00Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Alexander Neergaard Olesen",
+            "Poul Jennum",
+            "Emmanuel Mignot",
+            "Helge B D Sorensen"
+          ],
+          "title": "Automatic sleep stage classification with deep residual networks in a mixed-cohort setting",
+          "venue": "arXiv",
+          "year": 2020
+        },
+        "primary_pointer": "2008.09416",
+        "summary": "Study Objectives: Sleep stage scoring is performed manually by sleep experts and is prone to subjective interpretation of scoring rules with low intra- and interscorer reliability. Many automatic systems rely on few small-scale databases for developing models, and generalizability to new datasets is thus unknown. We investigated a novel deep neural network to assess the generalizability of several large-scale cohorts.\n  Methods: A deep neural network model was developed using 15684 polysomnography studies from five different cohorts. We applied four different scenarios: 1) impact of varying time-scales in the model; 2) performance of a single cohort on other cohorts of smaller, greater or equal size relative to the performance of other cohorts on a single cohort; 3) varying the fraction of mixed-cohort training data compared to using single-origin data; and 4) comparing models trained on combinations of data from 2, 3, and 4 cohorts.\n  Results: Overall classification accuracy improved with increasing fractions of training data (0.25$\\%$: 0.782 $\\pm$ 0.097, 95$\\%$ CI [0.777-0.787]; 100$\\%$: 0.869 $\\pm$ 0.064, 95$\\%$ CI [0.864-0.872]), and with increasing number of data sources (2: 0.788 $\\pm$ 0.102, 95$\\%$ CI [0.787-0.790]; 3: 0.808 $\\pm$ 0.092, 95$\\%$ CI [0.807-0.810]; 4: 0.821 $\\pm$ 0.085, 95$\\%$ CI [0.819-0.823]). Different cohorts show varying levels of generalization to other cohorts.\n  Conclusions: Automatic sleep stage scoring systems based on deep learning algorithms should consider as much data as possible from as many sources available to ensure proper generalization. Public datasets for benchmarking should be made available for future research.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2008.09416",
+          "http_status": 200,
+          "pdf_sample_score": 0.2985,
+          "query_relevance_score": 1.0,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-06T11:30:10Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "predicting sleep stage transitions from scalp eeg using deep learning neuroscience",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

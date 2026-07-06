@@ -5,6 +5,12 @@
   \ `"
 : 1
 ? "T002 Create `requirements.txt` with pinned versions: `The plan specifies using\
+  \ pymatgen version 2024.1.1. [UNRESOLVED-CLAIM: c_7eba6bc8 \u2014 status=not_enough_info]\
+  \ `, `{{claim:c_362e5c97}} `, `{{claim:c_80d0456f}} `, `{{claim:c_6971ed96}} `,\
+  \ `{{claim:c_2dfdce10}} `, `{{claim:c_a4cfd971}} `, `{{claim:c_82f22382}} `, `{{claim:c_a19926d3}}\
+  \ `"
+: 1
+? "T002 Create `requirements.txt` with pinned versions: `The plan specifies using\
   \ pymatgen version 2024.1.1. [UNRESOLVED-CLAIM: c_e8465b90 \u2014 status=not_enough_info]\
   \ `, `{{claim:c_362e5c97}} `, `{{claim:c_80d0456f}} `, `{{claim:c_6971ed96}} `,\
   \ `{{claim:c_2dfdce10}} `, `{{claim:c_a4cfd971}} `, `{{claim:c_82f22382}} `, `{{claim:c_a19926d3}}\
@@ -14,9 +20,6 @@
   `numpy==1.26.0`, `pandas==2.1.0`, `ase==3.23.0`, `statsmodels==0.14.1`, `requests==2.31.0`,
   `jsonschema==4.20.0`'
 : 2
-? T005 [P] Create `code/config.py` for paths, random seeds, hyperparameters, and the
-  `VALIDATED_SOURCE_WHITELIST` list (MP/OQMD URLs).
-: 2
-? T005b [P] Generate the methodology sketch in `docs/methodology.md` defining the
-  k-fold CV procedure, random seed (fixed), and LOOCV fallback logic
-: 2
+'T007 [P] [US1] Implement `code/main.py` pipeline orchestration with error handling and logging. Logic:': 1
+T008 [P] Setup `data/raw/`, `data/processed/`, and `results/` directory structure with `.gitkeep`: 1
+T009 [P] Create `tests/unit/` and `tests/integration/` scaffolding: 1

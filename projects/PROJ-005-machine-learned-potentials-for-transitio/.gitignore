@@ -1,0 +1,79 @@
+# Data artifacts (raw and large processed files)
+data/raw/*
+!data/raw/.gitkeep
+data/processed/*.parquet
+data/processed/*.pt
+data/processed/*.pkl
+data/results/*.json
+data/results/*.csv
+data/results/*.png
+data/results/*.pdf
+
+# Python cache and bytecode
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual environments
+venv/
+ENV/
+env/
+.venv/
+
+# IDE and Editor files
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.project
+.settings/
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Environment variables and secrets
+.env
+.env.local
+.env.*.local
+
+# Logs
+*.log
+logs/
+
+# Temporary files
+tmp/
+temp/
+.tmp/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# Coverage and testing
+.coverage
+htmlcov/
+.pytest_cache/
+.mypy_cache/

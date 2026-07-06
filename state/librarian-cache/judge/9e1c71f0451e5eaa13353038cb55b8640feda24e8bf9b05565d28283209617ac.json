@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1811.10111",
+  "judged_at": "2026-07-06T11:30:17Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting sleep stage transitions from scalp eeg using deep learning neuroscience",
+  "rationale": "This paper satisfies criteria (a) and (b) as it directly measures the same biological mechanism (sleep stage transitions/staging) using the same data modality (scalp/wearable EEG) and methodology (Deep Learning) as the user's question, even though it focuses on a real-time, single-channel implementation rather than the full transition dynamics. It serves as a canonical empirical baseline for deep learning approaches to sleep staging from EEG.",
+  "relevant": true
+}

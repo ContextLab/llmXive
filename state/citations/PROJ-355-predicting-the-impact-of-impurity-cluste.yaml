@@ -31,7 +31,18 @@
   verification_status: mismatch
   verified_against_url: https://api.crossref.org/works/10.17188/1269648
   verified_at: '2026-07-03T16:04:55.042192Z'
-- artifact_hash: 5cb872297e290bf5cb21dfecbbfe971cb6496784965f1fb9b50625f1ed40d731
+- artifact_hash: 06232e7241b700cf5eda21497b09244d0f2351bdf536f25f11e83fc12dd44ef3
+  artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/data/external/README.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: Interatomic Potentials Repository
+  kind: url
+  value: https://www.ctcms.nist.gov/potentials/
+  verification_status: verified
+  verified_against_url: https://www.ctcms.nist.gov/potentials/
+  verified_at: '2026-07-06T10:54:59.267013Z'
+- artifact_hash: b70b504221970467ec4be10630ff52e7677050b665f50a6744a9d1594915c6d8
   artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -41,8 +52,8 @@
   value: https://materialsproject.org
   verification_status: pending
   verified_against_url: https://next-gen.materialsproject.org/
-  verified_at: '2026-07-03T18:31:18.736864Z'
-- artifact_hash: 5cb872297e290bf5cb21dfecbbfe971cb6496784965f1fb9b50625f1ed40d731
+  verified_at: '2026-07-06T11:04:46.045072Z'
+- artifact_hash: b70b504221970467ec4be10630ff52e7677050b665f50a6744a9d1594915c6d8
   artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
   cite_id: c-002
   cited_authors: []
@@ -53,8 +64,8 @@
   value: https://arxiv.org/abs/2005.02245
   verification_status: verified
   verified_against_url: https://arxiv.org/abs/2005.02245
-  verified_at: '2026-07-03T18:31:18.736864Z'
-- artifact_hash: 5cb872297e290bf5cb21dfecbbfe971cb6496784965f1fb9b50625f1ed40d731
+  verified_at: '2026-07-06T11:04:46.045072Z'
+- artifact_hash: b70b504221970467ec4be10630ff52e7677050b665f50a6744a9d1594915c6d8
   artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
   cite_id: c-003
   cited_authors: []
@@ -66,4 +77,4 @@
   value: https://arxiv.org/abs/2604.10702
   verification_status: verified
   verified_against_url: https://arxiv.org/abs/2604.10702
-  verified_at: '2026-07-03T18:31:18.736864Z'
+  verified_at: '2026-07-06T11:04:46.045072Z'

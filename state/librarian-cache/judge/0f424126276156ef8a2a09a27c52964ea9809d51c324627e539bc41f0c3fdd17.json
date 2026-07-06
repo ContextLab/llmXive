@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2506.21828",
+  "judged_at": "2026-07-06T11:30:19Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting sleep stage transitions from scalp eeg using deep learning neuroscience",
+  "rationale": "The paper focuses on fetal sleep physiology and cross-species classification, which is a distinct empirical population and developmental stage from the user's question regarding adult scalp EEG sleep stage transitions. While it mentions deep learning in the context of future monitoring, it does not provide the specific mechanism, baseline data, or canonical methodology for predicting sleep stage transitions from scalp EEG in the target population, failing to meet criteria (a) through (f).",
+  "relevant": false
+}

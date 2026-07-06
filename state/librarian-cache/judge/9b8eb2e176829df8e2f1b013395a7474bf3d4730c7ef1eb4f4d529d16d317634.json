@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1908.11463",
+  "judged_at": "2026-07-06T11:30:23Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting sleep stage transitions from scalp eeg using deep learning neuroscience",
+  "rationale": "The paper focuses on sleep staging using ECG and respiratory signals rather than the user's specific requirement of using scalp EEG, and it does not address the mechanism of predicting *transitions* between stages. While it shares the broad domain of sleep staging with deep learning, it fails the \"same-mechanism\" (a) and \"independent/dependent variable\" (b) criteria because the input modality (ECG/Respiration vs. EEG) is fundamentally different, and the specific task (staging vs. transition pred",
+  "relevant": false
+}

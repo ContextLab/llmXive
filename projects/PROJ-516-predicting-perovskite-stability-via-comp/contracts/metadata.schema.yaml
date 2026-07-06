@@ -1,67 +1,94 @@
 $schema: http://json-schema.org/draft-07/schema#
-title: PerovskiteEntry Metadata Schema
-description: |
-  Schema defining the instrumentation metadata for PerovskiteEntry entities.
-  This schema captures the specific thermogravimetric analyzer (TGA) model used
-  for the thermal stability measurement and the associated uncertainty bounds,
-  addressing the requirement for measurement precision over mere correlation.
-  See reviewer feedback from marie-curie-simulated regarding instrument specificity.
+title: PerovskiteEntry
+description: >
+  Schema for PerovskiteEntry instrumentation metadata.
+  Defines the structure for TGA (Thermogravimetric Analysis) model,
+  uncertainty bounds, and measurement precision required for rigorous
+  stability analysis.
 type: object
 required:
+  - formula
   - tga_model
   - uncertainty
-  - uncertainty_unit
-  - source_citation
 properties:
+  formula:
+    type: string
+    description: >
+      The chemical formula of the perovskite (e.g., "CsPbI3").
+      Must match the format used in the source dataset.
+    pattern: "^[A-Z][a-z]?[0-9]*([A-Z][a-z]?[0-9]*)*$"
   tga_model:
     type: string
-    description: |
-      The specific model name and manufacturer of the Thermogravimetric Analyzer
-      used to measure the decomposition temperature (T_d). Examples:
-      "TA Instruments Q500", "Mettler Toledo TGA/DSC 3+", "PerkinElmer TGA 4000".
+    description: >
+      The specific model of the Thermogravimetric Analyzer used.
+      Examples: "TA Instruments Q500", "Mettler Toledo TGA/DSC 3+",
+      "Netzsch STA 449 F3".
+      If the model is unknown, use "unknown".
     minLength: 1
   uncertainty:
-    type: number
-    description: |
-      The absolute uncertainty (error margin) of the temperature measurement.
-      Typically derived from the instrument's calibration certificate or
-      manufacturer specifications (e.g., ±5°C, ±10°C).
-      This value must be non-negative.
-    minimum: 0
-  uncertainty_unit:
-    type: string
-    description: |
-      The unit of the uncertainty value. For thermal stability, this is almost
-      exclusively "°C" or "Celsius".
-    enum:
-      - "°C"
-      - "Celsius"
-      - "K"
-  source_citation:
-    type: string
-    description: |
-      The DOI, URL, or bibliographic reference for the source where the
-      experimental data was obtained. This links the metadata to the specific
-      entry in the raw dataset.
-    minLength: 1
-  instrument_serial_number:
-    type: string
-    description: |
-      Optional. The serial number of the specific instrument unit used, if
-      available in the source metadata. Useful for traceability.
-    nullable: true
-  calibration_date:
-    type: string
-    format: date
-    description: |
-      Optional. The date of the last calibration for the instrument, if
-      recorded in the source metadata.
-    nullable: true
+    type: object
+    description: >
+      The measurement uncertainty for the thermal decomposition temperature (T_d).
+      Represents the precision of the instrument reading.
+    required:
+      - value
+      - unit
+    properties:
+      value:
+        type: number
+        description: >
+          The numerical value of the uncertainty (e.g., 5.0 for ±5°C).
+          Must be non-negative.
+        minimum: 0
+      unit:
+        type: string
+        description: >
+          The unit of the uncertainty. Must be "C" (Celsius) or "K" (Kelvin).
+        enum:
+          - C
+          - K
+      source:
+        type: string
+        description: >
+          Indicates the source of the uncertainty value.
+          "instrument_spec": Derived from the manufacturer's specification for the model.
+          "reported": Explicitly reported in the source literature.
+          "default": A default fallback value (e.g., ±10°C) used when specific data is missing.
+        enum:
+          - instrument_spec
+          - reported
+          - default
+    additionalProperties: false
+  precision_range:
+    type: object
+    description: >
+      Optional range if the uncertainty is reported as a range (e.g., ±5 to ±10).
+      If present, overrides the single 'uncertainty' value for weighting purposes.
+    required:
+      - min_value
+      - max_value
+      - unit
+    properties:
+      min_value:
+        type: number
+        minimum: 0
+      max_value:
+        type: number
+        minimum: 0
+      unit:
+        type: string
+        enum:
+          - C
+          - K
+    additionalProperties: false
   notes:
     type: string
-    description: |
-      Optional. Any additional notes regarding the measurement conditions,
-      such as heating rate (e.g., "10°C/min"), atmosphere (e.g., "N2 flow"),
-      or specific sample preparation details that might affect the T_d reading.
-    nullable: true
+    description: >
+      Optional free-text notes regarding the instrumentation or measurement conditions.
+    minLength: 0
+  source_citation:
+    type: string
+    description: >
+      DOI or citation key for the source of this metadata entry.
+    minLength: 1
 additionalProperties: false

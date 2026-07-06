@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2306.11113",
+  "judged_at": "2026-07-06T11:30:28Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting sleep stage transitions from scalp eeg using deep learning neuroscience",
+  "rationale": "The paper focuses on the theoretical foundations and optimization of evidential deep learning for uncertainty quantification across generic datasets, without addressing the specific domain of sleep stage transitions, scalp EEG data, or the physiological mechanisms of neuroscience. It fails to meet any inclusion criteria (a-f) as it does not measure the relevant biological variables, establish a baseline for sleep staging, or provide a canonical method specifically for EEG-based sleep analysis.",
+  "relevant": false
+}

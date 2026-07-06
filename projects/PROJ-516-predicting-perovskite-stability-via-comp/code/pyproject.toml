@@ -1,0 +1,60 @@
+[tool.black]
+line-length = 88
+target-version = ['py311']
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
+)/
+'''
+
+[tool.isort]
+profile = "black"
+line_length = 88
+
+[tool.pylint.'MESSAGES CONTROL']
+disable = [
+    "C0114",
+    "C0115",
+    "C0116",
+    "R0903",
+    "R0913",
+    "R0914",
+    "W0511",
+    "W1203",
+    "R0801",
+    "R0917",
+    "R0902",
+    "R0904",
+    "R0912",
+    "R0915",
+    "W0613",
+    "W0621",
+    "R0911",
+    "R0912",
+    "R0914",
+    "R0915",
+    "C0301",
+    "C0325",
+    "C0330"
+]
+
+[tool.pylint.FORMAT]
+max-line-length = 88
+
+[tool.pylint.DESIGN]
+max-args = 10
+max-locals = 15
+max-returns = 6
+max-branches = 12
+max-statements = 50
+max-attributes = 10
+max-public-methods = 20

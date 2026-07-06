@@ -9,34 +9,73 @@ submitter: google.gemma-3-27b-it
 
 ## Research question
 
-Can a lightweight deep learning architecture accurately classify sleep stage transitions (Wake, REM, N1, N2, N3) using single-channel scalp EEG data while operating within strict CPU-only resource constraints?
+What EEG features and temporal dynamics best characterize transitions between sleep stages (Wake, REM, N1, N2, N3), and how do these patterns differ across NREM and REM sleep in single-channel scalp recordings?
 
 ## Motivation
 
-Automated sleep scoring reduces the time burden on clinicians, but most deep learning solutions require GPU acceleration, limiting deployment in low-resource or edge settings. This project addresses the gap in efficient, CPU-compatible models for sleep staging, enabling potential use on wearable devices or standard laptops without specialized hardware.
+Manual sleep scoring is labor-intensive and subject to inter-rater variability, yet current automated methods often rely on heavy computational resources or multi-channel setups that obscure specific transition dynamics. Understanding the distinct spectral and temporal signatures of stage transitions in single-channel data is critical for developing interpretable, low-cost wearable devices that can monitor sleep architecture in real-world settings without specialized hardware.
 
 ## Related work
 
-- [Real-Time Sleep Staging using Deep Learning on a Smartphone for a Wearable EEG (2018)](http://arxiv.org/abs/1811.10111v2) — Demonstrates feasibility of single-channel EEG staging on mobile hardware, supporting the CPU-constrained approach.
-- [Sleep Staging from Electrocardiography and Respiration with Deep Learning (2019)](http://arxiv.org/abs/1908.11463v2) — Establishes baseline deep learning performance for sleep staging using physiological signals, though focused on ECG/Resp rather than EEG.
+- [Real-Time Sleep Staging using Deep Learning on a Smartphone for a Wearable EEG (2018)](https://arxiv.org/abs/1811.10111) — Demonstrates the feasibility of deploying lightweight deep learning models on mobile hardware for single-channel EEG, providing a methodological precedent for resource-constrained transition analysis.
+- [Automatic sleep stage classification with deep residual networks in a mixed-cohort setting (2020)](https://arxiv.org/abs/2008.09416) — Establishes that deep residual networks can achieve high accuracy in mixed-cohort settings, though it focuses on overall stage classification rather than isolating the specific dynamics of stage transitions.
 
 ## Expected results
 
-We expect to achieve a macro F1-score above 0.75 on the Sleep-EDF test set using a model trained entirely on CPU resources. The findings will validate that parameter-efficient architectures can rival standard staging performance without GPU acceleration, provided data preprocessing is optimized.
+We expect to identify distinct spectral power shifts (e.g., alpha-to-theta transitions) and temporal entropy changes that precede or accompany specific stage transitions, particularly between N2 and N3. The analysis will reveal that transition patterns in NREM sleep exhibit more consistent spectral progression compared to the more variable dynamics observed during REM onset, providing a quantifiable basis for distinguishing these physiological states in single-channel data.
 
 ## Methodology sketch
 
-- **Data Acquisition**: Download the Sleep-EDF Expanded Database (SC subset) from PhysioNet (https://physionet.org/content/sleep-edfx/1.0.0/) using `wget` to ensure reproducibility.
-- **Preprocessing**: Implement a Python script to bandpass filter (0.5–45 Hz) and segment raw EEG into 30-second epochs aligned with expert annotations.
-- **Feature Engineering**: Extract power spectral density (PSD) features per epoch to reduce raw signal dimensionality before model input.
-- **Model Architecture**: Design a lightweight 1-layer LSTM or shallow 1D-CNN with <100,000 parameters to fit within 7GB RAM limits.
-- **Training Strategy**: Train on a subset of 20 subjects (training set) using CPU-only execution; limit to 50 epochs with early stopping to prevent exceeding the 6-hour job window.
-- **Validation**: Evaluate on the remaining subjects using k-fold cross-validation to ensure generalizability without overfitting.
-- **Statistical Analysis**: Compare model performance against a baseline Random Forest classifier using paired t-tests on F1-scores.
-- **Resource Monitoring**: Log CPU usage and RAM consumption during training to verify adherence to GitHub Actions free-tier constraints.
+- **Data Acquisition**: Download the Sleep-EDF Expanded Database (SC subset) from PhysioNet (https://physionet.org/content/sleep-edfx/1.0.0/) using `wget` to obtain raw single-channel EEG (Fpz-Cz) and expert annotations.
+- **Preprocessing**: Implement a Python script to bandpass filter (0.5–45 Hz), remove line noise (50/60 Hz notch), and segment data into 30-second epochs aligned with hypnograms; additionally, create "transition windows" by extracting 60-second segments centered on annotated stage change points.
+- **Feature Extraction**: Compute time-domain features (RMS, zero-crossing rate), frequency-domain features (absolute/relative power in delta, theta, alpha, sigma, beta bands), and non-linear features (sample entropy, detrended fluctuation analysis) for both standard epochs and transition windows.
+- **Temporal Dynamics Analysis**: Use a lightweight 1D-CNN or LSTM to model the temporal sequence of features, specifically training the model to predict the *next* stage label based on the preceding 3 epochs, thereby capturing the transition trajectory.
+- **Transition Characterization**: Compare feature distributions and model attention weights across different transition types (e.g., Wake→N1 vs. N2→N3 vs. N2→REM) to identify distinguishing patterns.
+- **Statistical Validation**: Perform independent t-tests or Mann-Whitney U tests on the extracted feature vectors of transition windows versus stable epoch windows to determine statistical significance of the identified dynamics.
+- **Resource Constraints**: Execute all data processing and model training on CPU within the 6-hour GitHub Actions window, limiting the model to <100k parameters and using batch sizes optimized for 7GB RAM.
+- **Independent Evaluation**: Validate the identified transition patterns against a held-out subject set, ensuring that the evaluation metric (e.g., transition prediction accuracy) is derived from data not used in the feature selection or model training phases.
 
 ## Duplicate-check
 
 - Reviewed existing ideas: None provided in context.
 - Closest match: N/A.
 - Verdict: NOT a duplicate.
+
+
+## Search trail
+
+**Generated by**: librarian (prompt v1.6.0) on 2026-07-06T11:30:29Z
+**Outcome**: exhausted
+**Original term**: Predicting Sleep Stage Transitions from Scalp EEG Using Deep Learning neuroscience
+**Verified citation count**: 2
+
+### Search terms used
+
+| Rank | Term | Hit count |
+|-|-|-|
+| 0 (initial) | Predicting Sleep Stage Transitions from Scalp EEG Using Deep Learning neuroscience | 0 |
+| 1 | automatic sleep stage classification using deep learning | 4 |
+| 2 | deep learning models for EEG sleep staging | 0 |
+| 3 | transition probability modeling in sleep EEG | 0 |
+| 4 | recurrent neural networks for sleep stage prediction | 0 |
+| 5 | convolutional neural networks for sleep EEG analysis | 0 |
+| 6 | temporal dynamics of sleep stage transitions | 0 |
+| 7 | EEG-based sleep architecture prediction | 0 |
+| 8 | machine learning for sleep disorder diagnosis | 0 |
+| 9 | sleep stage boundary detection algorithms | 0 |
+| 10 | transformer models for time-series EEG classification | 0 |
+| 11 | automated sleep scoring from polysomnography | 0 |
+| 12 | feature extraction for sleep EEG using deep learning | 0 |
+| 13 | predicting NREM to REM transitions with AI | 0 |
+| 14 | sleep microstructure analysis using neural networks | 0 |
+| 15 | deep feature learning for scalp electroencephalography | 0 |
+| 16 | sleep stage sequence modeling | 0 |
+| 17 | attention mechanisms in sleep EEG classification | 0 |
+| 18 | non-invasive sleep monitoring with deep learning | 0 |
+| 19 | sleep fragmentation detection using EEG signals | 0 |
+| 20 | end-to-end sleep staging systems | 0 |
+
+### Verified citations
+
+1. **Real-Time Sleep Staging using Deep Learning on a Smartphone for a Wearable EEG** (2018). Abhay Koushik, Judith Amores, Pattie Maes. arXiv. [1811.10111](https://arxiv.org/abs/1811.10111). PDF-sampled: No.
+2. **Automatic sleep stage classification with deep residual networks in a mixed-cohort setting** (2020). Alexander Neergaard Olesen, Poul Jennum, Emmanuel Mignot, Helge B D Sorensen. arXiv. [2008.09416](https://arxiv.org/abs/2008.09416). PDF-sampled: No.

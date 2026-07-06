@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-01T19:34:25.302517Z'
-current_stage: flesh_out_in_progress
+current_stage: flesh_out_complete
 failed_stage: null
 field: neuroscience
 human_escalation_reason: null
 id: PROJ-102-predicting-sleep-stage-transitions-from-
-last_run_id: 9afd64ed-2d7b-4e0b-9069-825579c8ec90
+last_run_id: 9f6a80e0-c49e-4563-8b2f-294794bf45d8
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: null
 title: Predicting Sleep Stage Transitions from Scalp EEG Using Deep Learning
-updated_at: '2026-06-15T07:37:39.382215Z'
+updated_at: '2026-07-06T11:30:47.573926Z'
