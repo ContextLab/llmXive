@@ -1,0 +1,29 @@
+# Python 3.11+ dependencies for PROJ-361
+# Core dependencies
+numpy>=1.24.0
+pandas>=2.0.0
+scipy>=1.10.0
+
+# Graph theory and network analysis
+bctpy>=0.6.0
+networkx>=3.1.0
+
+# Data handling and visualization
+matplotlib>=3.7.0
+seaborn>=0.12.0
+
+# NIfTI handling
+nibabel>=5.1.0
+
+# Testing
+pytest>=7.3.0
+pytest-cov>=4.1.0
+
+# Linting and Formatting (for local dev, pinned versions for consistency)
+flake8>=6.0.0
+black>=23.3.0
+mypy>=1.3.0
+
+# OpenNeuro download (using pybids or direct requests, keeping it simple for now)
+requests>=2.31.0
+tqdm>=4.65.0

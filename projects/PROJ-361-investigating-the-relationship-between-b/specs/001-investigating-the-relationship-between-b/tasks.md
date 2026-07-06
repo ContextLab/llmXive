@@ -20,31 +20,31 @@
 - **Mobile**: `api/src/`, `ios/src/` or `android/src/`
 - Paths shown below assume single project - adjust based on plan.md structure
 
-<!-- 
-  ============================================================================
-  IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-  
-  The /speckit-tasks command MUST replace these with actual tasks based on:
-  - User stories from spec.md (with their priorities P1, P2, P3...)
-  - Feature requirements from plan.md
-  - Entities from data-model.md
-  - Endpoints from contracts/
-  
-  Tasks MUST be organized by user story so each story can be:
-  - Implemented independently
-  - Tested independently
-  - Delivered as an MVP increment
-  
-  DO NOT keep these sample tasks in the generated tasks.md file.
-  ============================================================================
+<!--
+ ============================================================================
+ IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
+
+ The /speckit-tasks command MUST replace these with actual tasks based on:
+ - User stories from spec.md (with their priorities P1, P2, P3...)
+ - Feature requirements from plan.md
+ - Entities from data-model.md
+ - Endpoints from contracts/
+
+ Tasks MUST be organized by user story so each story can be:
+ - Implemented independently
+ - Tested independently
+ - Delivered as an MVP increment
+
+ DO NOT keep these sample tasks in the generated tasks.md file.
+ ============================================================================
 -->
 
 ## Phase 1: Setup (Shared Infrastructure)
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure per implementation plan
-- [ ] T002 Initialize Python 3.11 project with pinned dependencies in `requirements.txt`
+- [X] T001 Create project structure per implementation plan
+- [X] T002 Initialize Python 3.11 project with pinned dependencies in `requirements.txt`
 - [ ] T003 [P] Configure linting (flake8), formatting (black), and type checking (mypy)
 
 ---
@@ -70,7 +70,7 @@
 
 **Goal**: Download and preprocess resting-state fMRI data from OpenNeuro ds004285, extract BOLD time series.
 
-**Independent Test**: The pipeline can be tested by running the preprocessing script on a subset of A small cohort of subjects and verifying that the output contains valid time-series matrices for a set of ROIs with no NaN values and motion parameters below the exclusion threshold (FD < 0.5mm).
+**Independent Test**: {{claim:c_499be8e7}}
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
@@ -84,7 +84,7 @@
 - [ ] T012 [US1] Implement `code/preprocessing/download_openneuro.py` to fetch ds004285 data for at least 50 subjects to `data/raw/`. Must handle credentials, verify checksums, and ensure output NIfTI files are stored in `data/raw/{subject_id}/`.
 - [ ] T013 [US1] Implement `code/preprocessing/run_fmriprep.sh` to execute containerized fMRIPrep (pinned version `poldracklab/fmriprep:.0`) with HCP configuration.
 - [ ] T014 [US1] Implement `code/preprocessing/extract_timeseries.py` to map Schaefer parcellation ROIs to preprocessed BOLD data.
-- [ ] T015 [US1] Implement motion quality control logic in `code/utils/quality_control.py` to calculate mean FD for ALL subjects, record the value, and exclude subjects with FD > 0.5mm.
+- [ ] T015 [US1] Implement motion quality control logic in `code/utils/quality_control.py` to calculate mean FD for ALL subjects, record the value, and exclude subjects with FD > 0.5mm [UNRESOLVED-CLAIM: c_92a4ff2e — status=not_enough_info].
 - [ ] T016 [US1] Add validation to ensure output matrices of dimensions T×N contain no NaN values.
 - [ ] T017 [US1] Add logging for preprocessing completion and exclusion reasons (referencing T015's recorded FD).
 
@@ -147,7 +147,7 @@
 
 ### Implementation for User Story 3
 
-- [ ] T054 [US3] Implement `code/analysis/correlation_analysis.py` to compute Pearson/Spearman correlations between the **raw five metrics** (from T024) and illusion scores. Apply Benjamini-Hochberg FDR correction.
+- [ ] T054 [US3] Implement `code/analysis/correlation_analysis.py` to compute Pearson/Spearman correlations between the **raw five metrics** (from T024) and illusion scores. {{claim:c_af16974d}} (1705.04312, https://arxiv.org/abs/1705.04312 [UNRESOLVED-CLAIM: c_9bbffd22 — status=not_enough_info])
 - [ ] T055 [US3] Implement logic to handle cases where no significant correlations are found (generate full table with explicit null statement).
 - [ ] T056 [US3] Implement `code/analysis/generate_plots.py` to create scatter plots with regression lines and CI shading for significant findings.
 - [ ] T059 [US3] **Mandatory**: Implement `code/analysis/reproducibility_check.py` to re-run analysis on a subset, compare correlation coefficients, and assert tolerance (SC-005). **Must pass before report generation.**
@@ -165,8 +165,8 @@
 - [ ] T060 [P] **Reproducibility**: (Already covered in T059 as mandatory).
 - [ ] T061 [P] **Reviewer Address (Kandel)**: Update `docs/research_limitations.md` to explicitly anchor findings at the **systems/network level** of explanation. Clearly state that while the study correlates topology with behavior, it does not claim to trace mechanisms to synaptic plasticity or molecular genetics (e.g., CREB/BDNF), acknowledging this as a scope limitation and future direction.
 - [ ] T062 [P] **Reviewer Address (Rockmore)**: Update `docs/research_limitations.md` to discuss the "texture" of the illusion. Document the specific visual stimuli parameters (line lengths, angles, background patterns) used in the Müller-Lyer and Ponzo tasks (as per OpenNeuro metadata). Explicitly state that the current analysis measures the *frequency/magnitude of the error* rather than the topological shape of the stimulus itself, and propose that future work could apply Topological Data Analysis (TDA) to the stimulus geometry.
-- [ ] T063 [P] **Data Integrity**: Verify that `code/preprocessing/download_openneuro.py` strictly enforces the download of **real** data from `https://openneuro.org/datasets/ds004285` and fails if the dataset is unreachable, ensuring no synthetic data is used for the primary hypothesis test.
-- [ ] T064 [P] **Collinearity Check**: Implement `code/topology/check_collinearity.py` to calculate Variance Inflation Factors (VIF) for the raw metrics. **Must include logic to exclude metrics or subjects from the final analysis dataset if VIF >= 5.**
+- [ ] T063 [P] **Data Integrity**: Verify that `code/preprocessing/download_openneuro.py` strictly enforces the download of **real** data from `https://openneuro.org/datasets/ds004285 [UNRESOLVED-CLAIM: c_7898829c — status=not_enough_info]` and fails if the dataset is unreachable, ensuring no synthetic data is used for the primary hypothesis test.
+- [ ] T064 [P] **Collinearity Check**: Implement `code/topology/check_collinearity.py` to calculate Variance Inflation Factors (VIF) for the raw metrics. **Must include logic to {{claim:c_acd16148}} (Wikidata Q113106917 [UNRESOLVED-CLAIM: c_adbc7f59 — status=not_enough_info], https://www.wikidata.org/wiki/Q113106917). **
 - [ ] T065 [P] **Code Cleanup**: Enforce `flake8` (E501) and `black` formatting compliance across `code/`.
 - [ ] T066 [P] **Performance**: Run CI job `perf-check` on a -subject subset to verify `compute_metrics.py` runs within Approximate duration per subject on CPU.
 - [ ] T067 [P] Additional unit tests for edge cases (disconnected graphs, single module partition) in `tests/unit/`.
@@ -182,8 +182,8 @@
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
-  - User stories can then proceed in parallel (if staffed)
-  - Or sequentially in priority order (P1 → US1/US4 → US2 → US3)
+ - User stories can then proceed in parallel (if staffed)
+ - Or sequentially in priority order (P1 → US1/US4 → US2 → US3)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
@@ -247,9 +247,9 @@ With multiple developers:
 
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
-   - Developer A: User Story 1 (fMRI Pipeline)
-   - Developer B: User Story 4 (Behavioral Data Extraction)
-   - Developer C: User Story 2 (Topology Metrics) - *Note: Can start once US1 is partially ready*
+ - Developer A: User Story 1 (fMRI Pipeline)
+ - Developer B: User Story 4 (Behavioral Data Extraction)
+ - Developer C: User Story 2 (Topology Metrics) - *Note: Can start once US1 is partially ready*
 3. US3 (Analysis) starts once US2 and US4 are complete
 
 ---

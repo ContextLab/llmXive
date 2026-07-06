@@ -1,0 +1,5 @@
+T003 [P] Configure linting (flake8), formatting (black), and type checking (mypy): 2
+? 'T004 [P] Setup SQLite schema for metadata registry (tables: `subjects`, `files`
+  with columns `subject_id`, `file_path`, `checksum`, `status`) to index the file-based
+  `data/` directory. Do NOT store raw data in SQLite.'
+: 1
