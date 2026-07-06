@@ -1,0 +1,94 @@
+project_id: PROJ-530-neural-correlates-of-error-monitoring-du
+project_name: Neural Correlates of Error Monitoring During Simulated Navigation
+status: in_progress
+created_at: "2024-01-15T00:00:00Z"
+updated_at: "2024-01-15T00:00:00Z"
+version: 0.1.0
+seed: 42
+artifacts:
+  raw_data:
+    path: data/raw/
+    status: pending
+    description: "Raw EEG and trajectory data from Navigation Error Corpus"
+  processed_data:
+    path: data/processed/
+    status: pending
+    description: "Preprocessed EEG epochs and behavioral metrics"
+  models:
+    path: results/models/
+    status: pending
+    description: "Fitted mixed-effects and GAM models"
+  figures:
+    path: results/figures/
+    status: pending
+    description: "Analysis plots and visualizations"
+  diagnostics:
+    path: results/diagnostics/
+    status: pending
+    description: "Feasibility reports, sensitivity analysis, and validation metrics"
+  preprocessing_log:
+    path: data/preprocessing.yaml
+    status: pending
+    description: "Filtering and ICA component removal logs"
+tasks:
+  completed:
+    - T001
+    - T002
+    - T003
+    - T004
+    - T005
+    - T006
+    - T007
+  pending:
+    - T008
+    - T009
+    - T010
+    - T011
+    - T012
+    - T013
+    - T014
+    - T015
+    - T016
+    - T017
+    - T018
+    - T019
+    - T020
+    - T021
+    - T022
+    - T023
+    - T024
+    - T025
+    - T026
+    - T027
+    - T028
+    - T029
+    - T030
+    - T031
+    - T032
+    - T033
+    - T034
+    - T035
+    - T036
+    - T037
+    - T038
+    - T039
+configuration:
+  python_version: "3.11"
+  libraries:
+    - mne
+    - pandas
+    - numpy
+    - scipy
+    - statsmodels
+    - pymer4
+    - pingouin
+    - matplotlib
+    - seaborn
+    - pyyaml
+    - psutil
+    - pytest
+    - pygam
+metadata:
+  author: "llmXive Research Agent"
+  pipeline_stage: "Foundational"
+  next_milestone: "Phase 3: User Story 1 Implementation"

@@ -1,0 +1,14 @@
+T001 [P] Create root directory `projects/PROJ-530-neural-correlates-of-error-monitoring-du/`: 2
+? 'T002 [P] Create data directories: `projects/PROJ-530-neural-correlates-of-error-monitoring-du/data/raw/`,
+  `projects/PROJ-530-neural-correlates-of-error-monitoring-du/data/processed/`'
+: 2
+? 'T003 [P] Create results and code directories: `projects/PROJ-530-neural-correlates-of-error-monitoring-du/results/models/`,
+  `projects/PROJ-530-neural-correlates-of-error-monitoring-du/results/figures/`, `projects/PROJ-530-neural-correlates-of-error-monitoring-du/results/diagnostics/`,
+  `projects/PROJ-530-neural-correlates-of-error-monitoring-du/code/`, `projects/PROJ-530-neural-correlates-of-error-monitoring-du/tests/`'
+: 2
+? 'T004 [P] Initialize Python 3.11 project with dependencies: `mne`, `pandas`, `numpy`,
+  `scipy`, `statsmodels`, `pymer4`, `pingouin`, `matplotlib`, `seaborn`, `pyyaml`,
+  `psutil`, `pytest`, `pygam`'
+: 2
+T005 [P] Configure linting (flake8/black) and formatting tools: 2
+T006 [P] Create `code/__init__.py` and base configuration loader: 2

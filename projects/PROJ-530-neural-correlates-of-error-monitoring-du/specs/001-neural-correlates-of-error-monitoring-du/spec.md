@@ -64,9 +64,9 @@ The system must calculate Variance Inflation Factors (VIF) to check for predicto
 ### Functional Requirements
 
 - **FR-001**: System MUST download and cache the Navigation Error Corpus dataset (Zenodo record) without requiring user authentication, ensuring the full dataset is available for analysis. (See US-1)
-- **FR-002**: System MUST apply a bandpass filter (1 Hz to 40 Hz) and a 60 Hz notch filter to raw EEG data, followed by Independent Component Analysis (ICA) to remove ocular and muscular artifacts. (See US-1)
+- **FR-002**: System MUST apply a bandpass filter (low-frequency to 40 Hz) and a 60 Hz notch filter to raw EEG data, followed by Independent Component Analysis (ICA) to remove ocular and muscular artifacts. (See US-1)
 - **FR-003**: System MUST calculate directional error magnitude for each error event as the angular deviation (in degrees) between the participant's heading and the optimal path at the moment of error onset. (See US-1)
-- **FR-004**: System MUST extract the peak (most negative) MFN amplitude from the 200-400ms post-error window at electrodes FCz, Cz, and Fz, baseline-corrected to the pre-error period. (See US-1)
+- **FR-004**: System MUST extract the peak (most negative) MFN amplitude from the post-error window at electrodes FCz, Cz, and Fz, baseline-corrected to the pre-error period. (See US-1)
 - **FR-005**: System MUST fit a linear mixed-effects model with MFN amplitude as the outcome, error magnitude as a fixed effect, and participant ID as a random intercept; if a non-linearity test (e.g., GAM smooth term p < 0.05) rejects linearity, the system MUST fall back to a Generalized Additive Model (GAM). (See US-1)
 - **FR-006**: System MUST execute a sensitivity analysis sweeping the minimum error magnitude threshold over the set {5, 10, 15, 20} degrees and report the resulting correlation coefficients. (See US-2)
 - **FR-007**: System MUST calculate Variance Inflation Factors (VIF) for all behavioral predictors and flag any predictor with VIF ≥ 5 as collinear. (See US-3)

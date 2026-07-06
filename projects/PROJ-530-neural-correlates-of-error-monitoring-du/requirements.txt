@@ -1,0 +1,13 @@
+mne
+pandas
+numpy
+scipy
+statsmodels
+pymer4
+pingouin
+matplotlib
+seaborn
+pyyaml
+psutil
+pytest
+pygam

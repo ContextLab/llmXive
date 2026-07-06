@@ -1,0 +1,39 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Navigation Error Corpus Dataset Schema"
+description: "Schema for the raw and processed dataset expected by the pipeline."
+type: "object"
+properties:
+  participant_id:
+    type: integer
+    description: "Unique identifier for the participant."
+  event_id:
+    type: integer
+    description: "Unique identifier for the error event."
+  timestamp:
+    type: number
+    description: "Timestamp of the error event in seconds."
+  error_magnitude_deg:
+    type: number
+    description: "Directional error magnitude in degrees."
+    minimum: 0
+  mfn_mean_amplitude:
+    type: number
+    description: "Mean MFN amplitude in microvolts (200-400ms window)."
+  electrode:
+    type: string
+    description: "Electrode name (e.g., FCz, Cz, Fz)."
+    enum:
+      - "FCz"
+      - "Cz"
+      - "Fz"
+  included_in_analysis:
+    type: boolean
+    description: "Flag indicating if the event passed quality control."
+required:
+  - participant_id
+  - event_id
+  - error_magnitude_deg
+  - mfn_mean_amplitude
+  - electrode
+  - included_in_analysis
+additionalProperties: false

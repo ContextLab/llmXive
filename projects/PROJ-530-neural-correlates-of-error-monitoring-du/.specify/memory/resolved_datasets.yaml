@@ -1,0 +1,289 @@
+resolved_at: '2026-07-06T19:17:34.675377+00:00'
+datasets:
+- intent: EEG
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/neurofusion/eeg-restingstate/resolve/main/events.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 2963
+      parsed: true
+  - url: https://huggingface.co/datasets/JLB-JLB/seizure_eeg_train/resolve/main/data/train-00000-of-00048-3d720ad254981f90.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/JLB-JLB/seizure_eeg_eval/resolve/main/data/train-00000-of-00007-78d1928c4e4c8738.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/neurofusion/eeg-restingstate/resolve/main/events.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/JLB-JLB/seizure_eeg_train/resolve/main/data/train-00000-of-00048-3d720ad254981f90.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/JLB-JLB/seizure_eeg_eval/resolve/main/data/train-00000-of-00007-78d1928c4e4c8738.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/JLB-JLB/seizure_eeg_dev/resolve/main/data/train-00000-of-00007-78d1928c4e4c8738.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/JLB-JLB/seizure_eeg_greyscale_224x224_6secWindow/resolve/main/data/dev-00000-of-00025-6adfdc3e2ffecc56.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://acs.figshare.com/articles/journal_contribution/Deciphering_Physicochemical_Properties_of_Urinary_Proteins_from_Stone_Formers_as_Macromolecular_Prolithogenic_Factors_to_Drive_Calcium_Oxalate_Stone_Development/32614076
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Bicyclist_overtaking_in_naturalistic_riding_data_Speed_clearance_and_implications_for_injury_risk/32915333
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Ancillary_data_for_US_Phosphorus_analysis/30161668
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/dataset/Understanding_scanning_and_development_of_perceptual_expertise_A_qualitative_study_using_eye-tracking_methodology/32915312
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Chiral_Phosphoric_Acid-Catalyzed_Enantioselective_Dearomative_Spirocyclization_of_Phenol-Ynamides_by_Kinetic_Resolution/32915303
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3236138
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10909103
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16906198
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://open-research-europe.ec.europa.eu/articles/2-5/v2
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://open-research-europe.ec.europa.eu/articles/2-5/v1
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21225836
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21225836
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/py9n5/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/wcg9x/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/yw6pt/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: MFN
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/kjngansgfa/ds_mfn4rrjdsq/resolve/main/train.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 2384
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/mfn/GSpeech/resolve/main/data/train-00000-of-00026.parquet
+    source: huggingface
+    status: wrong_format
+    reason: HTTP 401
+  - url: https://huggingface.co/datasets/kjngansgfa/ds_mfn4rrjdsq/resolve/main/train.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://acs.figshare.com/articles/journal_contribution/Deciphering_Physicochemical_Properties_of_Urinary_Proteins_from_Stone_Formers_as_Macromolecular_Prolithogenic_Factors_to_Drive_Calcium_Oxalate_Stone_Development/32614076
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Bicyclist_overtaking_in_naturalistic_riding_data_Speed_clearance_and_implications_for_injury_risk/32915333
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Ancillary_data_for_US_Phosphorus_analysis/30161668
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/dataset/Understanding_scanning_and_development_of_perceptual_expertise_A_qualitative_study_using_eye-tracking_methodology/32915312
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Chiral_Phosphoric_Acid-Catalyzed_Enantioselective_Dearomative_Spirocyclization_of_Phenol-Ynamides_by_Kinetic_Resolution/32915303
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ijasre.net/index.php/ijasre/article/view/137
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15396142
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15396148
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14828368
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15396159
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21187310
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21187310
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21186763
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21186763
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21184046
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: ICA
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/ecnu-icalk/cmm-math/resolve/main/all_data.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/Icannos/gpt4all-formatted-dolly-15k-multilingual/resolve/main/data/de-00000-of-00001-5ee5278187666bb6.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/ecnu-icalk/educhat-sft-002-data-osm/resolve/main/MIX_BELLE.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/ecnu-icalk/cmm-math/resolve/main/all_data.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/Icannos/gpt4all-formatted-dolly-15k-multilingual/resolve/main/data/de-00000-of-00001-5ee5278187666bb6.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/ecnu-icalk/educhat-sft-002-data-osm/resolve/main/MIX_BELLE.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://acs.figshare.com/articles/journal_contribution/Deciphering_Physicochemical_Properties_of_Urinary_Proteins_from_Stone_Formers_as_Macromolecular_Prolithogenic_Factors_to_Drive_Calcium_Oxalate_Stone_Development/32614076
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Bicyclist_overtaking_in_naturalistic_riding_data_Speed_clearance_and_implications_for_injury_risk/32915333
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Ancillary_data_for_US_Phosphorus_analysis/30161668
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/dataset/Understanding_scanning_and_development_of_perceptual_expertise_A_qualitative_study_using_eye-tracking_methodology/32915312
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Chiral_Phosphoric_Acid-Catalyzed_Enantioselective_Dearomative_Spirocyclization_of_Phenol-Ynamides_by_Kinetic_Resolution/32915303
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3408507
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ieeexplore.ieee.org/document/6943768/
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6967838
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4423653
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/12605881
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ww2.nemar.org/dataset/on007763?v=v1.0.0
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ww2.nemar.org/dataset/on007753
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.26037/yareta:47x2nw2sknfthk4hfcl4qm4yie
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: ConnectTimeout: HTTPSConnectionPool(host=''yareta.unige.ch'',
+      port=443): Max retries exceeded with url: /archives/ef51a333-c75e-4478-95d2-a450ba234197
+      (Caused by ConnectTimeoutError(<HTTPSConnection(host=''yareta.unige.ch'', port=443)
+      at 0x7fdd67a9c190>, ''Connection to yareta.unige.ch timed out. (connect timeout=20.0)''))'
+  - url: https://doi.org/10.26037/yareta:jhia5klmsfagdmyvilflris2ui
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: ConnectTimeout: HTTPSConnectionPool(host=''yareta.unige.ch'',
+      port=443): Max retries exceeded with url: /archives/f3c9ac2b-7423-4e41-b67e-1db54cfc68ca
+      (Caused by ConnectTimeoutError(<HTTPSConnection(host=''yareta.unige.ch'', port=443)
+      at 0x7fdd67ac5b90>, ''Connection to yareta.unige.ch timed out. (connect timeout=20.0)''))'
+  - url: https://zenodo.org/records/21204031
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

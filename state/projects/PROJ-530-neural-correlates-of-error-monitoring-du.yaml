@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-10T12:30:51.877587Z'
-current_stage: clarified
+current_stage: in_progress
 failed_stage: null
 field: neuroscience
 human_escalation_reason: null
 id: PROJ-530-neural-correlates-of-error-monitoring-du
-last_run_id: 0d5654c6-b045-4d0a-b329-876461ab1876
+last_run_id: 70227846-fd1d-49a6-8716-2715085f1b98
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-530-neural-correlates-of-error-monitoring-du/specs/001-neural-correlates-of-error-monitoring-du
 title: Neural Correlates of Error Monitoring During Simulated Navigation
-updated_at: '2026-07-05T04:36:47.332433Z'
+updated_at: '2026-07-06T19:52:23.490987Z'

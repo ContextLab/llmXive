@@ -1,0 +1,76 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Analysis Output Schema"
+description: "Schema for the statistical model results and diagnostics."
+type: "object"
+properties:
+  model_type:
+    type: string
+    enum:
+      - "LMM"
+      - "GAM"
+    description: "Type of model fitted (selected via AIC/BIC)."
+  fixed_effects:
+    type: object
+    description: "Fixed effect coefficients."
+    properties:
+      error_magnitude:
+        type: object
+        properties:
+          estimate:
+            type: number
+          std_err:
+            type: number
+          p_value:
+            type: number
+            minimum: 0
+            maximum: 1
+  random_effects:
+    type: object
+    description: "Random effect variance components."
+    properties:
+      participant_id_variance:
+        type: number
+  model_selection:
+    type: object
+    description: "Model selection metrics (AIC/BIC)."
+    properties:
+      lmm_aic:
+        type: number
+      gam_aic:
+        type: number
+      selected_model:
+        type: string
+  diagnostics:
+    type: object
+    description: "Model diagnostics."
+    properties:
+      vif_scores:
+        type: object
+        additionalProperties:
+          type: number
+      bonferroni_p_adjusted:
+        type: number
+        minimum: 0
+        maximum: 1
+  conclusion:
+    type: string
+    description: "Must contain the word 'associational' if observational."
+    pattern: ".*associational.*"
+  feasibility:
+    type: object
+    description: "Compute feasibility metrics (SC-005)."
+    properties:
+      runtime_seconds:
+        type: number
+      peak_memory_mb:
+        type: number
+      passed_constraints:
+        type: boolean
+required:
+  - model_type
+  - fixed_effects
+  - random_effects
+  - diagnostics
+  - conclusion
+  - feasibility
+additionalProperties: false
