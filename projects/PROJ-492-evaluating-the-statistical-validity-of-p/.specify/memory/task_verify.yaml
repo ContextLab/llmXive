@@ -229,6 +229,10 @@
   \ c_cc811205 \u2014 status=not_enough_info] (coverage\u2011executability\u201108d5764f)\
   \ (verify test passes)."
 : 1
+"T036 FR\u2011002 Verification: {{claim:c_3104c2cf}} (coverage\u2011executability\u201108d5764f) (verify test passes).": 1
+? "T036 FR\u2011002 Verification: {{claim:c_3104c2cf}} (coverage\u2011executability\u2011\
+  08d5764f) (verify test passes). <!-- FAILED: unspecified -->"
+: 1
 ? "T037 FR\u2011003 Verification: Run `tests/integration/test_reconstructor_completeness.py`\
   \ to assert reconstructed p\u2011values computed for all records [UNRESOLVED-CLAIM:\
   \ c_c95cee25 \u2014 status=not_enough_info] (coverage\u2011executability\u201108d5764f)\
