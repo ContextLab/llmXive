@@ -1,0 +1,60 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Simulation Run Metadata"
+description: "Schema for the metadata JSON file accompanying each simulation run."
+type: "object"
+required:
+  - "run_id"
+  - "timestamp"
+  - "parameters"
+  - "grid_size"
+  - "time_step"
+properties:
+  run_id:
+    type: "string"
+    description: "Unique identifier for the run (e.g., N1e4_O0.5_dd0.5_seed1)."
+  timestamp:
+    type: "string"
+    format: "date-time"
+    description: "ISO 8601 timestamp of generation."
+  parameters:
+    type: "object"
+    required:
+      - "N"
+      - "Omega"
+      - "epsilon_dd"
+      - "seed"
+    properties:
+      N:
+        type: "integer"
+        description: "Number of particles."
+      Omega:
+        type: "number"
+        description: "Rotation frequency in units of omega_perp."
+      epsilon_dd:
+        type: "number"
+        description: "Dipolar interaction strength."
+      seed:
+        type: "integer"
+        description: "Random seed for noise initialization."
+  grid_size:
+    type: "array"
+    items:
+      type: "integer"
+    description: "Grid dimensions (e.g., [256, 256])."
+  time_step:
+    type: "number"
+    description: "Time step in units of omega_perp^-1."
+  total_steps:
+    type: "integer"
+    description: "Total number of time steps simulated."
+  status:
+    type: "string"
+    enum:
+      - "completed"
+      - "crashed"
+    description: "Final status of the simulation."
+  crash_time:
+    type:
+      - "number"
+      - "null"
+    description: "Time at which the simulation crashed, if applicable."

@@ -1,0 +1,40 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Stability Metric"
+description: "Schema for the CSV row representing stability metrics of a single simulation run."
+type: "object"
+required:
+  - "run_id"
+  - "initial_vortex_count"
+  - "final_vortex_count"
+  - "vortex_density"
+  - "radial_variance"
+  - "structure_factor_sharpness"
+  - "instability_classified"
+properties:
+  run_id:
+    type: "string"
+    description: "Foreign key to the SimulationRun metadata."
+  initial_vortex_count:
+    type: "integer"
+    description: "Vortex count at t=0."
+  final_vortex_count:
+    type: "integer"
+    description: "Vortex count at t=end."
+  vortex_density:
+    type: "number"
+    minimum: 0.0
+    description: "Vortices per unit area (primary metric)."
+  radial_variance:
+    type: "number"
+    description: "Variance of the radial distribution of vortex positions."
+  structure_factor_sharpness:
+    type: "number"
+    description: "Normalized peak height of the structure factor."
+  instability_classified:
+    type: "boolean"
+    description: "True if vortex_density < 0.70 * theoretical_equilibrium_density."
+  crash_time:
+    type:
+      - "number"
+      - "null"
+    description: "Time at which the simulation crashed, if applicable."

@@ -1,1 +1,11 @@
-[]
+- artifact_hash: 3a25f077c2946baf41972de5b17038c61f61f0ba36e03f9262237c70897d1ba8
+  artifact_path: projects/PROJ-133-investigating-the-stability-of-rotating-/specs/001-investigating-the-stability-of-rotating/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: functional_anova_2026-05-19.json
+  kind: url
+  value: https://huggingface.co/datasets/P2SAMAPA/p2-etf-functional-anova-results/resolve/main/functional_anova_2026-05-19.json
+  verification_status: verified
+  verified_against_url: https://huggingface.co/api/resolve-cache/datasets/P2SAMAPA/p2-etf-functional-anova-results/ab66418d2512562f99763e50575a2bd193eb923c/functional_anova_2026-05-19.json?%2Fdatasets%2FP2SAMAPA%2Fp2-etf-functional-anova-results%2Fresolve%2Fmain%2Ffunctional_anova_2026-05-19.json=&etag=%2201fff0768cdf9ee211af561c87088fd962cf384c%22
+  verified_at: '2026-07-06T22:42:06.701251Z'

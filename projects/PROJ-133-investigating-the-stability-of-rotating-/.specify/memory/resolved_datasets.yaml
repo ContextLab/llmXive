@@ -1,0 +1,77 @@
+resolved_at: '2026-07-06T22:33:53.515434+00:00'
+datasets:
+- intent: ANOVA
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/P2SAMAPA/p2-etf-functional-anova-results/resolve/main/functional_anova_2026-05-19.json
+    source: huggingface
+    format: json
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 16586
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/P2SAMAPA/p2-etf-functional-anova-results/resolve/main/functional_anova_2026-05-19.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://tandf.figshare.com/articles/dataset/Bioengineering_vascularised_composite_skin_equivalents_via_Living_Assembly_through_Templated_Tissue_Integration_and_Construct_Engineering_LATTICE_/32915782
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/_b_Entrepreneurial_Self-Efficacy_and_Instagram_Marketing_Strategy_Alignment_b_/32915768
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://research-repository.rmit.edu.au/articles/journal_contribution/Study_on_mechanical_properties_of_fly_ash_and_coir_fiber_improved_expansive_soil_subgrade/32908313
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://openaccess.wgtn.ac.nz/articles/report/Thinking_it_Through_Information_about_assisted_dying_for_adults_with_terminal_illness_/32915759
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://adelaide.figshare.com/articles/book/AI-_and_non-AI_online_child_sexual_victimisation_disclosures_and_help-seeking/32902481
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10437571
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/1255322
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15804920
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14242875
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10011805
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18011518
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18011518
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/sj23r/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/c6r4u/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21225873
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

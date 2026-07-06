@@ -1,0 +1,8 @@
+numpy
+scipy
+matplotlib
+pandas
+pytest
+numba
+ruff
+black

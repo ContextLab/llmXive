@@ -1,0 +1,43 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Statistical Aggregation"
+description: "Schema for the JSON file containing aggregated statistical results for a parameter configuration."
+type: "object"
+required:
+  - "config_id"
+  - "mean_vortex_density"
+  - "std_vortex_density"
+  - "p_value_anova_interaction"
+  - "p_value_dunnett"
+  - "threshold_sweep_results"
+properties:
+  config_id:
+    type: "string"
+    description: "Unique identifier for the parameter configuration (N, Omega, epsilon_dd)."
+  mean_vortex_density:
+    type: "number"
+    description: "Mean vortex density across 5 repeats."
+  std_vortex_density:
+    type: "number"
+    description: "Standard deviation of vortex density."
+  p_value_anova_interaction:
+    type: "number"
+    description: "P-value for the interaction effect (Ω × ε_dd) from Two-Way ANOVA."
+  p_value_dunnett:
+    type: "number"
+    description: "P-value from Dunnett's post-hoc test vs baseline."
+  non_parametric_flag:
+    type: "boolean"
+    description: "True if Kruskal-Wallis test was used instead of ANOVA."
+  threshold_sweep_results:
+    type: "object"
+    description: "Results of sensitivity analysis for instability thresholds."
+    additionalProperties:
+      type: "object"
+      properties:
+        false_positive_rate:
+          type: "number"
+        false_negative_rate:
+          type: "number"
+      required:
+        - "false_positive_rate"
+        - "false_negative_rate"

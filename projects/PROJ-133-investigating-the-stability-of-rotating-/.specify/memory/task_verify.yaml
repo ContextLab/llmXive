@@ -1,0 +1,7 @@
+? 'T001 Create project structure per implementation plan in `projects/PROJ-133-investigating-the-stability-of-rotating-/`
+  using: `mkdir -p code/{simulation,analysis,statistics,viz,utils} data/{raw,processed,aggregated}
+  tests/{unit,contract,integration} docs`'
+: 1
+T003 [P] Configure linting (ruff) and formatting (black) tools: 1
+'T004 Setup `data/` directory structure: `raw/`, `processed/`, `aggregated/`': 1
+T005 [P] Implement deterministic random seed management utility in `code/utils/seed_manager.py`: 1
