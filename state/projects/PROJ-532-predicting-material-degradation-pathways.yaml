@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-10T13:37:16.363548Z'
-current_stage: specified
+current_stage: clarified
 failed_stage: null
 field: materials science
 human_escalation_reason: null
 id: PROJ-532-predicting-material-degradation-pathways
-last_run_id: 69536ee2-ea32-41df-9f3a-26483df28da6
+last_run_id: 4d3e0e1a-00ce-4306-bd59-c30a095ea540
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-532-predicting-material-degradation-pathways/specs/001-predicting-material-degradation-pathways
 title: Predicting Material Degradation Pathways from Compositional Data
-updated_at: '2026-06-30T04:50:40.231208Z'
+updated_at: '2026-07-06T01:05:37.307190Z'

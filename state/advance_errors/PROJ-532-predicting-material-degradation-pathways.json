@@ -1,0 +1,7 @@
+{
+  "project_id": "PROJ-532-predicting-material-degradation-pathways",
+  "stage": "clarified",
+  "last_error": "research.md reference is unreachable: 'https://huggingface.co/datasets/JamalLee/Omni-Fake-OOD/resolve/main/data/AV-TH/test-00000-of-000014.parquet' (HTTP 404). FR-006 admits NO transient-retry leniency \u2014 re-run when the source recovers or fix the reference.",
+  "last_seen": "2026-07-06T01:14:25.247454+00:00",
+  "count": 1
+}
