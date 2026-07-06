@@ -100,6 +100,14 @@
 : 2
 ? "T026 Implement synthetic dataset generator in `src/audit/synthetic.py` (FR\u2011\
   030) \u2013 The synthetic dataset generator outputs at least 10\u202F000 simulated\
+  \ summaries (binary AND continuous outcomes). [UNRESOLVED-CLAIM: c_cf9c2659 \u2014\
+  \ status=not_enough_info] (binary AND continuous outcomes) **and verify both outcome\
+  \ types are present** (constraint\u2011preservation\u20112958f04c) (verify files\
+  \ are created and contain \u2265\u202F10\u202F000 records). **DEPENDS ON:** T006\u2011\
+  T012."
+: 1
+? "T026 Implement synthetic dataset generator in `src/audit/synthetic.py` (FR\u2011\
+  030) \u2013 The synthetic dataset generator outputs at least 10\u202F000 simulated\
   \ summaries (binary AND continuous outcomes). [UNRESOLVED-CLAIM: c_fe681e08 \u2014\
   \ status=not_enough_info] (binary AND continuous outcomes) **and verify both outcome\
   \ types are present** (constraint\u2011preservation\u20112958f04c) (verify files\
@@ -355,6 +363,15 @@
   \ --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested\
   \ --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->"
 : 1
+? "T064 Update `.github/workflows/audit.yml` to include steps: (a) schema validation,\
+  \ (b) synthetic validation (ensure precision/recall thresholds), (c) resource\u2011\
+  monitor check, (d) main pipeline run (verify workflow runs all steps) [DEPENDS ON:\
+  \ T098]. <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested\
+  \ --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested\
+  \ --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested\
+  \ --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested\
+  \ -->"
+: 2
 ? "T095b Verify Quickstart Docker guide also reproduces environment via `requirements.txt`\
   \ and isolated venv (Constitution Principle I) (verify Dockerfile runs `pip install\
   \ -r requirements.txt` and that a venv is created) (addresses ordering\u201128dea5aa)."
