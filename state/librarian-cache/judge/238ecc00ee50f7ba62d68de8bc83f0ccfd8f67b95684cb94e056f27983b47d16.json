@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "0909.3132",
+  "judged_at": "2026-07-06T13:01:07Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "evolutionary pressure on alternative splicing in primates biology",
+  "rationale": "This paper satisfies acceptance criteria (a) and (b) because it investigates the causal relationship between recombination rate and exon density (a proxy for splicing/exon structure) in the human genome, which is a core primate model for studying evolutionary pressures on genome architecture. Although it does not explicitly mention \"alternative splicing\" or \"primates\" broadly, it measures the underlying mechanism (recombination-driven evolution of exon density) in the specific empirical populati",
+  "relevant": true
+}

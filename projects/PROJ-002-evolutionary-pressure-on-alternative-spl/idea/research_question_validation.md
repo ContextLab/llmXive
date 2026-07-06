@@ -4,28 +4,28 @@
 
 **Verdict**: pass
 
-The question asks about a biological relationship between transcriptomic divergence (alternative splicing) and genomic signatures of selection on regulatory elements, independent of any specific ML method or computational constraint. The methodology (STAR, SUPPA2, PAML) serves to answer the question but is not itself the question being tested.
+The question investigates a substantive biological relationship: whether adaptive evolution in non-coding regulatory regions drives lineage-specific changes in RNA processing. It is framed around the mechanism (positive selection signatures) and the phenotype (splicing events) rather than the performance or constraints of a specific algorithm or computational tool.
 
 ### Circularity check
 
 **Verdict**: pass
 
-The predictor (alternative splicing divergence) is derived from RNA-seq data measuring transcript abundance and junction usage. The predicted variable (positive selection on regulatory elements) is derived from genomic alignments and phyloP conservation scores from UCSC. These are independent measurement modalities—transcriptomic and genomic—computed from different primary data sources.
+The predictor (phyloP scores in flanking introns) is derived from multi-species genome alignments measuring sequence conservation/acceleration, while the predicted variable (lineage-specific splicing events) is quantified from RNA-seq transcriptome data. These are independent measurement modalities (genomic sequence vs. transcript abundance) computed from distinct primary signals, avoiding mechanical construction.
 
 ### Triviality check
 
 **Verdict**: pass
 
-A positive correlation would provide evidence for adaptive evolution driving splicing regulatory changes, supporting the hypothesis that splicing divergence is functionally selected. A null result would suggest splicing divergence is largely neutral drift rather than adaptive, which is also scientifically informative and publishable. Neither outcome is predetermined by existing domain knowledge.
+A positive result would provide strong evidence that regulatory adaptation is a primary driver of primate cognitive evolution, a significant finding for evolutionary biology. Conversely, a null result would be highly informative by suggesting that splicing divergence is largely driven by neutral drift or mutation bias rather than positive selection, challenging the assumption that non-coding changes are adaptive.
 
 ### Question-narrowing check
 
 **Verdict**: pass
 
-The question names a clear domain relationship (splicing divergence ↔ selection pressure on regulatory elements) rather than an implementation constraint. It asks "to what extent" a biological phenomenon exists, not "can method M achieve accuracy X within budget Y."
+The question explicitly names a domain relationship (enrichment of selection signatures in regulatory regions of specific splicing events) and includes necessary biological controls (shared evolutionary history). It does not fixate on implementation constraints like specific software versions, hardware limits, or arbitrary computational budgets.
 
 ### Overall verdict
 
 **Verdict**: validated
 
-All four checks pass. The research question is well-formulated as a substantive biological inquiry using independent data modalities, with both positive and null outcomes being scientifically informative. No reframing is necessary.
+All four checks pass; the research question is scientifically grounded, avoids circular logic, and poses a non-trivial inquiry where both positive and null outcomes advance domain knowledge. The project is ready to proceed to initialization without reframing.

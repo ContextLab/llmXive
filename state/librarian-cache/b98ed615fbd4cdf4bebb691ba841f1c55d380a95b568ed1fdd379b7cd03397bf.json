@@ -1,0 +1,516 @@
+{
+  "fetched_at": "2026-07-06T13:01:08Z",
+  "field": "biology",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "biology",
+      "idea_body_excerpt": "Evolutionary Pressure on Alternative Splicing in Primates",
+      "target_n": 5
+    },
+    "duration_seconds": 58.76,
+    "ended_at": "2026-07-06T13:01:08Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "alternative splicing evolution primates"
+        ],
+        [
+          2,
+          "regulatory evolution of splicing in primates"
+        ],
+        [
+          3,
+          "exon inclusion rates primate evolution"
+        ],
+        [
+          4,
+          "splicing divergence between human and non-human primates"
+        ],
+        [
+          5,
+          "positive selection on splicing regulatory elements"
+        ],
+        [
+          6,
+          "alternative splicing conservation across primates"
+        ],
+        [
+          7,
+          "cis-regulatory evolution of splicing in primates"
+        ],
+        [
+          8,
+          "trans-acting factors evolution in primate splicing"
+        ],
+        [
+          9,
+          "lineage-specific alternative splicing events in primates"
+        ],
+        [
+          10,
+          "adaptive evolution of splice sites in primates"
+        ],
+        [
+          11,
+          "alternative splicing isoform diversity in primates"
+        ],
+        [
+          12,
+          "splicing quantitative trait loci (sQTLs) in primates"
+        ],
+        [
+          13,
+          "evolutionary turnover of alternative exons in primates"
+        ],
+        [
+          14,
+          "comparative transcriptomics of primate alternative splicing"
+        ],
+        [
+          15,
+          "selection pressure on intron-exon boundaries in primates"
+        ],
+        [
+          16,
+          "alternative splicing as a driver of primate phenotypic evolution"
+        ],
+        [
+          17,
+          "evolutionary dynamics of RNA processing in primates"
+        ],
+        [
+          18,
+          "primate-specific alternative splicing patterns"
+        ],
+        [
+          19,
+          "functional constraints on alternative splicing in primates"
+        ],
+        [
+          20,
+          "molecular evolution of splicing regulation in primates"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "Evolutionary Pressure on Alternative Splicing in Primates biology": 0,
+        "alternative splicing evolution primates": 1,
+        "exon inclusion rates primate evolution": 2,
+        "regulatory evolution of splicing in primates": 1
+      },
+      "total_queries_issued": 3
+    },
+    "extracted_queries": [
+      "exon skipping intron retention primate transcriptome",
+      "human chimpanzee rhesus macaque alternative splicing",
+      "splicing regulatory elements ESE ESS conservation",
+      "PSI dPSI differential splicing evolution",
+      "splice site mutation purifying selection adaptive evolution"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2504.02081"
+      ]
+    },
+    "per_query_hit_count": {
+      "Evolutionary Pressure on Alternative Splicing in Primates biology": 3,
+      "PSI dPSI differential splicing evolution": 2,
+      "exon skipping intron retention primate transcriptome": 3,
+      "human chimpanzee rhesus macaque alternative splicing": 3,
+      "splice site mutation purifying selection adaptive evolution": 2,
+      "splicing regulatory elements ESE ESS conservation": 2
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 1,
+      "rejections": [
+        {
+          "primary_pointer": "1112.3867",
+          "rationale": "The paper is a general review of information theory applications in evolutionary biology (proteins and simulated agents) and does not measure alternative splicing, primate-specific evolutionary pressures, or the specific biological mechanism requested. It fails to satisfy any inclusion criteria (a-f) as it lacks the specific domain (primates), variable (alternative splicing), or mechanism required, falling instead under the rejection rule for \"off-domain entirely\" regarding the specific biologic",
+          "title": "The use of information theory in evolutionary biology"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-07-06T13:00:09Z",
+    "term_input": {
+      "normalized": "evolutionary pressure on alternative splicing in primates biology",
+      "raw": "Evolutionary Pressure on Alternative Splicing in Primates biology"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Background: Many mathematical models have now been employed across every area of systems biology. These models increasingly involve large numbers of unknown parameters, have complex structure which can result in substantial evaluation time relative to the needs of the analysis, and need to be compared to observed data. The correct analysis of such models usually requires a global parameter search, over a high dimensional parameter space, that incorporates and respects the most important sources of uncertainty. This can be an extremely difficult task, but it is essential for any meaningful inference or prediction to be made about any biological system. It hence represents a fundamental challenge for the whole of systems biology.\n  Results: Bayesian statistical methodology for the uncertainty analysis of complex models is introduced, which is designed to address the high dimensional global parameter search problem. Bayesian emulators that mimic the systems biology model but which are extremely fast to evaluate are embedded within an iterative history match: an efficient method to search high dimensional spaces within a more formal statistical setting, while incorporating major sources of uncertainty. The approach is demonstrated via application to two models of hormonal crosstalk in Arabidopsis root development, which have 32 rate parameters, for which we identify the sets of rate parameter values that lead to acceptable matches to observed trend data. The biological consequences of the resulting comparison, including the evaluation of gene functions, are described.",
+          "claimed_authors": [
+            "Ian Vernon",
+            "Junli Liu",
+            "Michael Goldstein",
+            "James Rowe",
+            "Jen Topping",
+            "Keith Lindsey"
+          ],
+          "claimed_title": "Bayesian uncertainty analysis for complex systems biology models: emulation, global parameter searches and evaluation of gene functions",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1607.06358"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='Evolutionary Pressure on Alternative Splicing in Primates biology', candidate_title='Bayesian uncertainty analysis for complex systems biology models: emulation, global parameter searches and evaluation of gene functions')",
+        "failed_at": "2026-07-06T13:00:37Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Exposing an Evolutionary Algorithm that is used to evolve robot controllers to variable conditions is necessary to obtain solutions which are robust and can cross the reality gap. However, we do not yet have methods for analyzing and understanding the impact of the varying morphological conditions which impact the evolutionary process, and therefore for choosing suitable variation ranges. By morphological conditions, we refer to the starting state of the robot, and to variations in its sensor readings during operation due to noise. In this article, we introduce a method that permits us to measure the impact of these morphological variations and we analyze the relation between the amplitude of variations, the modality with which they are introduced, and the performance and robustness of evolving agents. Our results demonstrate that (i) the evolutionary algorithm can tolerate morphological variations which have a very high impact, (ii) variations affecting the actions of the agent are tolerated much better than variations affecting the initial state of the agent or of the environment, and (iii) improving the accuracy of the fitness measure through multiple evaluations is not always useful. Moreover, our results show that morphological variations permit generating solutions which perform better both in varying and non-varying conditions.",
+          "claimed_authors": [
+            "Jonata Tyska Carvalho",
+            "Stefano Nolfi"
+          ],
+          "claimed_title": "The Role of Morphological Variation in Evolutionary Robotics: Maximizing Performance and Robustness",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2208.02809"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='Evolutionary Pressure on Alternative Splicing in Primates biology', candidate_title='The Role of Morphological Variation in Evolutionary Robotics: Maximizing Performance and Robustness')",
+        "failed_at": "2026-07-06T13:00:37Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Parts of DNA sequences known as exons and introns play very different role in coding and storage of genetic information. Here we show that their conducting properties are also very different. Taking into account long-range correlations among four basic nucleotides that form double-stranded DNA sequence, we calculate electron localization length for exon and intron regions. Analyzing different DNA molecules, we obtain that the exons have narrow bands of extended states, unlike the introns where all the states are well localized. The band of extended states is due to a specific form of the binary correlation function of the sequence of basic DNA nucleotides.",
+          "claimed_authors": [
+            "A. A. Krokhin",
+            "V. M. K. Bagci",
+            "F. M. Izrailev",
+            "O. V. Usatenko",
+            "V. A. Yampol'skii"
+          ],
+          "claimed_title": "Inhomogeneous DNA: conducting exons and insulating introns",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2009,
+          "primary_pointer": "0911.2953"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Evolutionary Pressure on Alternative Splicing in Primates biology', candidate_title='Inhomogeneous DNA: conducting exons and insulating introns')",
+        "failed_at": "2026-07-06T13:00:37Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The genes of eukaryotes are characterized by protein coding fragments, the exons, interrupted by introns, i.e. stretches of DNA which do not carry any useful information for the protein synthesis. We have analyzed the melting behavior of randomly selected human cDNA sequences obtained from the genomic DNA by removing all introns. A clear correspondence is observed between exons and melting domains. This finding may provide new insights in the physical mechanisms underlying the evolution of genes.",
+          "claimed_authors": [
+            "Enrico Carlon",
+            "Mehdi Lejard Malki",
+            "Ralf Blossey"
+          ],
+          "claimed_title": "Exons, introns and DNA thermodynamics",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2004,
+          "primary_pointer": "q-bio/0409034"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Evolutionary Pressure on Alternative Splicing in Primates biology', candidate_title='Exons, introns and DNA thermodynamics')",
+        "failed_at": "2026-07-06T13:00:37Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "By defining the current limits (and thereby the frontiers), many boundaries are shaping, and will continue to shape, the future of Artificial Intelligence (AI). We push on these boundaries in order to make further progress into what were yesterday's frontiers. They are both pliable and resilient - always creating new boundaries of what AI can (or should) achieve. Among these are technical boundaries (such as processing capacity), psychological boundaries (such as human trust in AI systems), ethical boundaries (such as with AI weapons), and conceptual boundaries (such as the AI people can imagine). It is within this final category while it can play a fundamental role in all other boundaries} that we find the construct of needs and the limitations that our current concept of need places on the future AI.",
+          "claimed_authors": [
+            "Ryan Watkins",
+            "Soheil Human"
+          ],
+          "claimed_title": "Needs-aware Artificial Intelligence: AI that 'serves [human] needs'",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2202.04977"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Evolutionary Pressure on Alternative Splicing in Primates biology', candidate_title=\"Needs-aware Artificial Intelligence: AI that 'serves [human] needs'\")",
+        "failed_at": "2026-07-06T13:00:38Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The Advanced Data Protection Control (ADPC) is a technical specification - and a set of sociotechnical mechanisms surrounding it - that can change the current practice of Internet-based personal data protection and consenting by providing novel and standardized means for the communication of privacy and consenting data, meta-data, information, requests, preferences, and decisions. The ADPC supports humans in practicing their rights to privacy and agency by giving them more human-centric control over the processing of their personal data and consent. It helps the data controllers to improve their users' experiences and provides them with easy-to-adopt means to comply with the relevant legal and ethical requirements and expectations.",
+          "claimed_authors": [
+            "Soheil Human"
+          ],
+          "claimed_title": "Advanced Data Protection Control (ADPC): An Interdisciplinary Overview",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2209.09724"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Evolutionary Pressure on Alternative Splicing in Primates biology', candidate_title='Advanced Data Protection Control (ADPC): An Interdisciplinary Overview')",
+        "failed_at": "2026-07-06T13:00:38Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A new topological operad is introduced, called the splicing operad. This operad acts on a broad class of spaces of self-embeddings N --> N where N is a manifold. The action of this operad on EC(j,M) (self embeddings R^j x M --> R^j x M with support in I^j x M) is an extension of the action of the operad of (j+1)-cubes on this space. Moreover the action of the splicing operad encodes Larry Siebenmann's splicing construction for knots in S^3 in the j=1, M=D^2 case. The space of long knots in R^3 (denoted K_{3,1}) was shown to be a free 2-cubes object with free generating subspace P, the subspace of long knots that are prime with respect to the connect-sum operation. One of the main results of this paper is that K_{3,1} is free with respect to the splicing operad action, but the free generating space is the much `smaller' space of torus and hyperbolic knots TH \\subset K_{3,1}. Moreover, the splicing operad for K_{3,1} has a `simple' homotopy-type as an operad.",
+          "claimed_authors": [
+            "Ryan Budney"
+          ],
+          "claimed_title": "An operad for splicing",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1004.3908"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='Evolutionary Pressure on Alternative Splicing in Primates biology', candidate_title='An operad for splicing')",
+        "failed_at": "2026-07-06T13:00:38Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Regulatory texts are inherently long and complex, presenting significant challenges for information retrieval systems in supporting regulatory officers with compliance tasks. This paper introduces a hybrid information retrieval system that combines lexical and semantic search techniques to extract relevant information from large regulatory corpora. The system integrates a fine-tuned sentence transformer model with the traditional BM25 algorithm to achieve both semantic precision and lexical coverage. To generate accurate and comprehensive responses, retrieved passages are synthesized using Large Language Models (LLMs) within a Retrieval Augmented Generation (RAG) framework. Experimental results demonstrate that the hybrid system significantly outperforms standalone lexical and semantic approaches, with notable improvements in Recall@10 and MAP@10. By openly sharing our fine-tuned model and methodology, we aim to advance the development of robust natural language processing tools for compliance-driven applications in regulatory domains.",
+          "claimed_authors": [
+            "Jhon Rayo",
+            "Raul de la Rosa",
+            "Mario Garrido"
+          ],
+          "claimed_title": "A Hybrid Approach to Information Retrieval and Answer Generation for Regulatory Texts",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2502.16767"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Evolutionary Pressure on Alternative Splicing in Primates biology', candidate_title='A Hybrid Approach to Information Retrieval and Answer Generation for Regulatory Texts')",
+        "failed_at": "2026-07-06T13:00:38Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Survival probability within a certain time horizon T is a common measure of population viability. The choice of T implicitly involves a time preference, similar to economic discounting: Conservation success is evaluated at the time horizon T, while all effects that occur later than T are not considered. Despite the obvious relevance of the time horizon, ecological studies seldom analyze its impact on the evaluation of conservation options. In this paper, we show that, while the choice of T does not change the ranking of conservation options for single species under stationary conditions, it may substantially change conservation decisions for multiple species. We conclude that it is of crucial importance to investigate the sensitivity of model results to the choice of the time horizon or other measures of time preference when prioritizing biodiversity conservation efforts.",
+          "claimed_authors": [
+            "Florian Hartig",
+            "Martin Drechsler"
+          ],
+          "claimed_title": "The time horizon and its role in multiple species conservation planning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2008,
+          "primary_pointer": "0807.4040"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Evolutionary Pressure on Alternative Splicing in Primates biology', candidate_title='The time horizon and its role in multiple species conservation planning')",
+        "failed_at": "2026-07-06T13:00:38Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Although mutations drive the evolutionary process, the rates at which the mutations occur are themselves subject to evolutionary forces. Our purpose here is to understand the role of selection and random genetic drift in the evolution of mutation rates, and we address this question in asexual populations at mutation-selection equilibrium neglecting selective sweeps. Using a multitype branching process, we calculate the fixation probability of a rare nonmutator in a large asexual population of mutators, and find that a nonmutator is more likely to fix when the deleterious mutation rate of the mutator population is high. Compensatory mutations in the mutator population are found to decrease the fixation probability of a nonmutator when the selection coefficient is large. But, surprisingly, the fixation probability changes nonmonotonically with increasing compensatory mutation rate when the selection is mild. Using these results for the fixation probability and a drift-barrier argument, we find a novel relationship between the mutation rates and the population size. We also discuss the time to fix the nonmutator in an adapted population of asexual mutators, and compare our results with experiments.",
+          "claimed_authors": [
+            "Ananthu James",
+            "Kavita Jain"
+          ],
+          "claimed_title": "Fixation probability of rare nonmutator and evolution of mutation rates",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2015,
+          "primary_pointer": "1501.03632"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='Evolutionary Pressure on Alternative Splicing in Primates biology', candidate_title='Fixation probability of rare nonmutator and evolution of mutation rates')",
+        "failed_at": "2026-07-06T13:00:38Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Freely available and easy-to-use audio editing tools make it straightforward to perform audio splicing. Convincing forgeries can be created by combining various speech samples from the same person. Detection of such splices is important both in the public sector when considering misinformation, and in a legal context to verify the integrity of evidence. Unfortunately, most existing detection algorithms for audio splicing use handcrafted features and make specific assumptions. However, criminal investigators are often faced with audio samples from unconstrained sources with unknown characteristics, which raises the need for more generally applicable methods.\n  With this work, we aim to take a first step towards unconstrained audio splicing detection to address this need. We simulate various attack scenarios in the form of post-processing operations that may disguise splicing. We propose a Transformer sequence-to-sequence (seq2seq) network for splicing detection and localization. Our extensive evaluation shows that the proposed method outperforms existing dedicated approaches for splicing detection [3, 10] as well as the general-purpose networks EfficientNet [28] and RegNet [25].",
+          "claimed_authors": [
+            "Denise Moussa",
+            "Germans Hirsch",
+            "Christian Riess"
+          ],
+          "claimed_title": "Towards Unconstrained Audio Splicing Detection and Localization with Neural Networks",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2207.14682"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='Evolutionary Pressure on Alternative Splicing in Primates biology', candidate_title='Towards Unconstrained Audio Splicing Detection and Localization with Neural Networks')",
+        "failed_at": "2026-07-06T13:00:38Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Kingman's model of selection and mutation studies the limit type value distribution in an asexual population of discrete generations and infinite size undergoing selection and mutation. This paper generalizes the model to analyse the long-term evolution of Escherichia. coli in Lenski experiment. Weak assumptions for fitness functions are proposed and the mutation mechanism is the same as in Kingman's model. General macroscopic epistasis are designable through fitness functions. Convergence to the unique limit type distribution is obtained.",
+          "claimed_authors": [
+            "Linglong Yuan"
+          ],
+          "claimed_title": "A generalization of Kingman's model of selection and mutation and the Lenski experiment",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2015,
+          "primary_pointer": "1506.02298"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Evolutionary Pressure on Alternative Splicing in Primates biology', candidate_title=\"A generalization of Kingman's model of selection and mutation and the Lenski experiment\")",
+        "failed_at": "2026-07-06T13:00:38Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Ward and Kellis (Reports, September 5 2012) identify regulatory regions in the human genome exhibiting lineage-specific constraint and estimate the extent of purifying selection. There is no statistical rationale for the examples they highlight, and their estimates of the fraction of the genome under constraint are biased by arbitrary designations of completely constrained regions.",
+          "claimed_authors": [
+            "Nicolas Bray",
+            "Lior Pachter"
+          ],
+          "claimed_title": "Comment on \"Evidence of Abundant and Purifying Selection in Humans for Recently Acquired Regulatory Functions\"",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1212.3076"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Evolutionary Pressure on Alternative Splicing in Primates biology', candidate_title='Comment on \"Evidence of Abundant and Purifying Selection in Humans for Recently Acquired Regulatory Functions\"')",
+        "failed_at": "2026-07-06T13:00:38Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Galit Lev-Maor",
+            "Oren Ram",
+            "Eddo Kim",
+            "Noa Sela",
+            "Amir Goren",
+            "Erez Y Levanon",
+            "Gil Ast"
+          ],
+          "title": "Intronic Alus Influence Alternative Splicing",
+          "venue": "arXiv",
+          "year": 2008
+        },
+        "primary_pointer": "0811.3515",
+        "summary": "Examination of the human transcriptome reveals higher levels of RNA editing than in any other organism tested to date. This is indicative of extensive double-stranded RNA (dsRNA) formation within the human transcriptome. Most of the editing sites are located in the primate-specific retrotransposed element called Alu. A large fraction of Alus are found in intronic sequences, implying extensive Alu-Alu dsRNA formation in mRNA precursors. Yet, the effect of these intronic Alus on splicing of the flanking exons is largely unknown. Here, we show that more Alus flank alternatively spliced exons than constitutively spliced ones; this is especially notable for those exons that have changed their mode of splicing from constitutive to alternative during human evolution. This implies that Alu insertions may change the mode of splicing of the flanking exons. Indeed, we demonstrate experimentally that two Alu elements that were inserted into an intron in opposite orientation undergo base-pairing, as evident by RNA editing, and affect the splicing patterns of a downstream exon, shifting it from constitutive to alternative. Our results indicate the importance of intronic Alus in influencing the splicing of flanking exons, further emphasizing the role of Alus in shaping of the human transcriptome",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/0811.3515",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-06T13:00:37Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Genevieve Housman",
+            "Audrey Arner",
+            "Amy Longtin",
+            "Christian Gagnon",
+            "Arun Durvasula",
+            "Amanda Lea"
+          ],
+          "title": "Addressing missing context in regulatory variation across primate evolution",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2504.02081",
+        "summary": "In primates, loci associated with adaptive trait variation often fall in non-coding regions. Understanding the mechanisms linking these regulatory variants to fitness-relevant phenotypes remains challenging, but can be addressed using functional genomic data. However, such data are rarely generated at scale in non-human primates. When they are, only select tissues, cell types, developmental stages, and cellular environments are typically considered, despite appreciation that adaptive variants often exhibit context-dependent effects. In this review, we 1) discuss why context-dependent regulatory loci might be especially evolutionarily relevant in primates, 2) explore challenges and emerging solutions for mapping such context-dependent variation, and 3) discuss the scientific questions these data could address. We argue that filling this gap will provide critical insights into evolutionary processes, human disease, and regulatory adaptation.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2504.02081",
+          "http_status": 200,
+          "pdf_sample_score": 0.2053,
+          "query_relevance_score": 0.75,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-06T13:00:49Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Galit Lev-Maor",
+            "Amir Goren",
+            "Noa Sela",
+            "Eddo Kim",
+            "Hadas Keren",
+            "Adi Doron-Faigenboim",
+            "Shelly Leibman-Barak",
+            "Tal Pupko",
+            "Gil Ast"
+          ],
+          "title": "The Alternative Choice of Constitutive Exons throughout Evolution",
+          "venue": "arXiv",
+          "year": 2008
+        },
+        "primary_pointer": "0811.3514",
+        "summary": "Alternative cassette exons are known to originate from two processes exonization of intronic sequences and exon shuffling. Herein, we suggest an additional mechanism by which constitutively spliced exons become alternative cassette exons during evolution. We compiled a dataset of orthologous exons from human and mouse that are constitutively spliced in one species but alternatively spliced in the other. Examination of these exons suggests that the common ancestors were constitutively spliced. We show that relaxation of the 59 splice site during evolution is one of the molecular mechanisms by which exons shift from constitutive to alternative splicing. This shift is associated with the fixation of exonic splicing regulatory sequences (ESRs) that are essential for exon definition and control the inclusion level only after the transition to alternative splicing. The effect of each ESR on splicing and the combinatorial effects between two ESRs are conserved from fish to human. Our results uncover an evolutionary pathway that increases transcriptome diversity by shifting exons from constitutive to alternative splicing",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/0811.3514",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-06T13:00:54Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Jan Freudengerb",
+            "Mingyi Wang",
+            "Yaning Yang",
+            "Wentian Li"
+          ],
+          "title": "Partial correlation analysis indicates causal relationships between GC-content, exon density and recombination rate in the human genome",
+          "venue": "arXiv",
+          "year": 2009
+        },
+        "primary_pointer": "0909.3132",
+        "summary": "{\\bf Background}: Several features are known to correlate with the GC-content in the human genome, including recombination rate, gene density and distance to telomere. However, by testing for pairwise correlation only, it is impossible to distinguish direct associations from indirect ones and to distinguish between causes and effects. {\\bf Results}: We use partial correlations to construct partially directed graphs for the following four variables: GC-content, recombination rate, exon density and distance-to-telomere. Recombination rate and exon density are unconditionally uncorrelated, but become inversely correlated by conditioning on GC-content. This pattern indicates a model where recombination rate and exon density are two independent causes of GC-content variation. {\\bf Conclusions}: Causal inference and graphical models are useful methods to understand genome evolution and the mechanisms of isochore evolution in the human genome.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/0909.3132",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-06T13:00:54Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "evolutionary pressure on alternative splicing in primates biology",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2504.02081",
+  "judged_at": "2026-07-06T13:01:02Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "evolutionary pressure on alternative splicing in primates biology",
+  "rationale": "This paper satisfies criteria (a) and (e) as it investigates evolutionary pressure on regulatory variation in primates, which is the broader genomic mechanism encompassing alternative splicing, and explicitly focuses on the same empirical population (primates) and domain (evolutionary adaptation of non-coding regulatory elements). Although it discusses regulatory variation generally rather than splicing specifically, it provides the canonical context-dependent framework and challenges relevant t",
+  "relevant": true
+}

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1112.3867",
+  "judged_at": "2026-07-06T13:00:57Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "evolutionary pressure on alternative splicing in primates biology",
+  "rationale": "The paper is a general review of information theory applications in evolutionary biology (proteins and simulated agents) and does not measure alternative splicing, primate-specific evolutionary pressures, or the specific biological mechanism requested. It fails to satisfy any inclusion criteria (a-f) as it lacks the specific domain (primates), variable (alternative splicing), or mechanism required, falling instead under the rejection rule for \"off-domain entirely\" regarding the specific biologic",
+  "relevant": false
+}

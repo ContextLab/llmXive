@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "0811.3514",
+  "judged_at": "2026-07-06T13:01:04Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "evolutionary pressure on alternative splicing in primates biology",
+  "rationale": "This paper satisfies criteria (a) and (e) as it investigates the specific biological mechanism (evolutionary shift from constitutive to alternative splicing via splice site relaxation and ESR fixation) and the relevant empirical population (primates/humans and their evolutionary ancestors) central to the user's question about evolutionary pressure on alternative splicing.",
+  "relevant": true
+}

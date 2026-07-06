@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "0811.3515",
+  "judged_at": "2026-07-06T13:00:59Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "evolutionary pressure on alternative splicing in primates biology",
+  "rationale": "This paper satisfies criteria (a) and (e) by providing direct evidence of a specific biological mechanism (Alu retrotransposon insertion and dsRNA formation) that drives the evolution of alternative splicing patterns in primates (specifically humans), which is the core subject of the user's question. It establishes a causal link between a primate-specific genomic feature and the shift from constitutive to alternative splicing, serving as a canonical study for the evolutionary pressure on this pr",
+  "relevant": true
+}

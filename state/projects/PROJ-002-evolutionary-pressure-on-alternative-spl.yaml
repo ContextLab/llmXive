@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-04-29T02:44:28.710016Z'
-current_stage: specified
+current_stage: clarified
 failed_stage: null
 field: biology
 human_escalation_reason: null
 id: PROJ-002-evolutionary-pressure-on-alternative-spl
-last_run_id: a318eb36-6f36-43ea-bb3d-eaaaa96a3538
+last_run_id: 893762c6-c340-42bc-8989-b1cd2be15472
 last_run_status: null
 points_paper: {}
 points_research:
@@ -16,4 +16,4 @@ revision_spec_path: null
 speckit_paper_dir: projects/PROJ-002-evolutionary-pressure-on-alternative-spl/paper/specs/001-paper
 speckit_research_dir: projects/PROJ-002-evolutionary-pressure-on-alternative-spl/specs/001-evolutionary-pressure-on-alternative-spl
 title: Evolutionary Pressure on Alternative Splicing in Primates
-updated_at: '2026-07-01T15:09:13.512908Z'
+updated_at: '2026-07-06T13:13:45.462863Z'
