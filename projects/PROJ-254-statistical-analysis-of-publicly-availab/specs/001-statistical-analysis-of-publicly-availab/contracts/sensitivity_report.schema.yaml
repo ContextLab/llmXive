@@ -1,0 +1,46 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Sensitivity Report Output"
+description: "Schema for the sensitivity_report.csv file containing regression results for robustness checks (Full, Outlier_Removed, Shuffled_Order)."
+type: "object"
+properties:
+  model_type:
+    type: "string"
+    description: "Type of model run: 'Full', 'Outlier_Removed', or 'Shuffled_Order'."
+    enum:
+      - "Full"
+      - "Outlier_Removed"
+      - "Shuffled_Order"
+  slope:
+    type: "number"
+    description: "Estimated coefficient for the year variable."
+  std_err:
+    type: "number"
+    description: "Newey-West HAC standard error of the slope."
+    minimum: 0.0
+  p_value:
+    type: "number"
+    description: "Uncorrected p-value for the slope."
+    minimum: 0.0
+    maximum: 1.0
+  ci_lower:
+    type: "number"
+    description: "Lower bound of the 95% confidence interval."
+  ci_upper:
+    type: "number"
+    description: "Upper bound of the 95% confidence interval."
+  n_samples:
+    type: "integer"
+    description: "Number of years included in the regression."
+    minimum: 1
+  outlier_indices:
+    type: "string"
+    description: "JSON string list of outlier indices removed (empty string if Full or Shuffled)."
+required:
+  - model_type
+  - slope
+  - std_err
+  - p_value
+  - ci_lower
+  - ci_upper
+  - n_samples
+additionalProperties: false

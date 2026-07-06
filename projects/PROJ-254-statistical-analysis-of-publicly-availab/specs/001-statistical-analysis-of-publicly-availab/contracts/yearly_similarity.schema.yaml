@@ -1,0 +1,29 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Yearly Similarity Output"
+description: "Schema for the yearly_similarity.csv file containing aggregate genre similarity metrics."
+type: "object"
+properties:
+  year:
+    type: "integer"
+    description: "Calendar year of the data."
+    minimum: 2000
+    maximum: 2026
+  mean_off_diagonal_similarity:
+    type: "number"
+    description: "Average cosine similarity between distinct genre vectors for the year."
+    minimum: -1.0
+    maximum: 1.0
+  intra_genre_variance:
+    type: "number"
+    description: "Variance of similarity scores within the same genre."
+    minimum: 0.0
+  n_genres:
+    type: "integer"
+    description: "Number of distinct genres represented in the year."
+    minimum: 1
+required:
+  - year
+  - mean_off_diagonal_similarity
+  - intra_genre_variance
+  - n_genres
+additionalProperties: false
