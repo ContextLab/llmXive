@@ -1,0 +1,45 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "EEG Epoch Schema"
+description: "Schema for validated EEG epoch data after preprocessing"
+type: "object"
+properties:
+  epoch_id:
+    type: "string"
+    description: "Unique identifier for the epoch"
+  subject_id:
+    type: "string"
+    description: "Participant identifier"
+  stimulus_id:
+    type: "string"
+    description: "Video stimulus identifier"
+  start_time:
+    type: "number"
+    description: "Epoch start time in seconds"
+  duration:
+    type: "number"
+    description: "Epoch duration in seconds"
+  channels:
+    type: "array"
+    items:
+      type: "string"
+    description: "List of channel names"
+  data_shape:
+    type: "array"
+    items:
+      type: "integer"
+    minItems: 2
+    maxItems: 2
+    description: "Shape of EEG data array [channels, timepoints]"
+  artifact_clean:
+    type: "boolean"
+    description: "Whether ICA cleaning was applied"
+required:
+  - epoch_id
+  - subject_id
+  - stimulus_id
+  - start_time
+  - duration
+  - channels
+  - data_shape
+  - artifact_clean
+additionalProperties: false

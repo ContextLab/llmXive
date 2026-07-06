@@ -1,0 +1,33 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Cognitive Load Label Schema"
+description: "Schema for validated cognitive load proxy labels"
+type: "object"
+properties:
+  label_id:
+    type: "string"
+    description: "Unique identifier for the label"
+  epoch_id:
+    type: "string"
+    description: "Reference to EEG Epoch"
+  subject_id:
+    type: "string"
+    description: "Participant identifier"
+  gaze_variance:
+    type: "number"
+    description: "Variance of gaze coordinates within epoch"
+  normalized_load:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Min-max scaled cognitive load score"
+  timestamp:
+    type: "number"
+    description: "Epoch timestamp in seconds"
+required:
+  - label_id
+  - epoch_id
+  - subject_id
+  - gaze_variance
+  - normalized_load
+  - timestamp
+additionalProperties: false

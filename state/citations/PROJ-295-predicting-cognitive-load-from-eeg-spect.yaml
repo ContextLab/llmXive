@@ -1,1 +1,22 @@
-[]
+- artifact_hash: 3d9e8fd54e2d709193c19606ae9de72a97b2aff638eed5e1ae649ebcfb3b6fc0
+  artifact_path: projects/PROJ-295-predicting-cognitive-load-from-eeg-spect/specs/001-predicting-cognitive-load-from-eeg-spect/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: OpenNeuro
+  kind: url
+  value: https://openneuro.org/datasets/ds000246
+  verification_status: verified
+  verified_against_url: https://openneuro.org/datasets/ds000246
+  verified_at: '2026-07-05T23:34:48.356627Z'
+- artifact_hash: fd0f722c3819bee67556187c76b2a5df3d2c9e0700bcb12c7a79497820ad87b5
+  artifact_path: projects/PROJ-295-predicting-cognitive-load-from-eeg-spect/specs/001-predicting-cognitive-load-from-eeg-spect/quickstart.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: "GitHub - your-org/your-repo \xB7 GitHub"
+  kind: url
+  value: https://github.com/your-org/your-repo.git
+  verification_status: verified
+  verified_against_url: https://github.com/your-org/your-repo
+  verified_at: '2026-07-05T23:34:54.690744Z'

@@ -1,0 +1,335 @@
+resolved_at: '2026-07-05T23:23:50.301309+00:00'
+datasets:
+- intent: OpenNeuro
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/clane9/openneuro-fslr64k/resolve/main/data/test-00000-of-00016.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/clane9/openneuro-fslr64k.arrow/resolve/main/dataset_dict.json
+    source: huggingface
+    format: json
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 29
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/clane9/openneuro-fslr64k/resolve/main/data/test-00000-of-00016.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/clane9/openneuro-fslr64k.arrow/resolve/main/dataset_dict.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://figshare.com/articles/poster/PAMO_University_of_Medical_Sciences_2026_2027_Admission_Form_is_out_call_DR_MRS_FAITH_i_0704-0964654_i_or_07040964654_Prospective_candidates_seeking_admission_i_Qualified_candidates_can_now_apply_into_a_wide_range_of_undergraduate_programme/32904044
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://adelaide.figshare.com/articles/journal_contribution/The_digital_lives_of_adolescents_National_prevalence_of_internet_technology_and_AI_use_in_Australia/32904020
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://openaccess.wgtn.ac.nz/articles/journal_contribution/How_engagement_dynamics_shape_collaborative_writing_processes_Perspectives_from_EAL_learners/32904038
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/Lead_City_University_Ibadan_admission_form_for_2026_2027_is_out_call_The_Admin_Dr_Mrs_Faith_070409-6-4654_to_Check_courses_offered_cut-off_mark_screening_dates_and_admission_requirements_07040964654_The_University_has_officially_opened_its_/32904032
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Atiba_University_Oyo_2026_2027_Admission_Form_is_out_call_DR_MRS_FAITH_i_0704-0964654_i_or_07040964654_Prospective_candidates_seeking_admission_i_Qualified_candidates_can_now_apply_into_a_wide_range_of_undergraduate_programmes_across_scienc/32904035
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18476336
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21169036
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17150815
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/2847832
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21032699
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21210640
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21210640
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21210536
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21210536
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21209857
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: EEG
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/neurofusion/eeg-restingstate/resolve/main/events.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 2963
+      parsed: true
+  - url: https://huggingface.co/datasets/JLB-JLB/seizure_eeg_train/resolve/main/data/train-00000-of-00048-3d720ad254981f90.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/JLB-JLB/seizure_eeg_eval/resolve/main/data/train-00000-of-00007-78d1928c4e4c8738.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/neurofusion/eeg-restingstate/resolve/main/events.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/JLB-JLB/seizure_eeg_train/resolve/main/data/train-00000-of-00048-3d720ad254981f90.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/JLB-JLB/seizure_eeg_eval/resolve/main/data/train-00000-of-00007-78d1928c4e4c8738.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/JLB-JLB/seizure_eeg_dev/resolve/main/data/train-00000-of-00007-78d1928c4e4c8738.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/JLB-JLB/seizure_eeg_greyscale_224x224_6secWindow/resolve/main/data/dev-00000-of-00025-6adfdc3e2ffecc56.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/dataset/Crescent_University_admission_form_for_2026_2027_is_out_call_The_Admin_Dr_Mrs_Faith_070409-6-4654_to_Check_courses_offered_cut-off_mark_screening_dates_and_admission_requirements_07040964654_The_University_has_officially_opened_its_admissio/32904047
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Precious_Cornerstone_University_2026_2027_Admission_Form_is_out_call_DR_MRS_FAITH_i_0704-0964654_i_or_07040964654_Prospective_candidates_seeking_admission_i_Qualified_candidates_can_now_apply_into_a_wide_range_of_undergraduate_programmes_ac/32904050
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/PAMO_University_of_Medical_Sciences_2026_2027_Admission_Form_is_out_call_DR_MRS_FAITH_i_0704-0964654_i_or_07040964654_Prospective_candidates_seeking_admission_i_Qualified_candidates_can_now_apply_into_a_wide_range_of_undergraduate_programme/32904044
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://adelaide.figshare.com/articles/journal_contribution/The_digital_lives_of_adolescents_National_prevalence_of_internet_technology_and_AI_use_in_Australia/32904020
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://openaccess.wgtn.ac.nz/articles/journal_contribution/How_engagement_dynamics_shape_collaborative_writing_processes_Perspectives_from_EAL_learners/32904038
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3236138
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10909103
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16906198
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://open-research-europe.ec.europa.eu/articles/2-5/v2
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://open-research-europe.ec.europa.eu/articles/2-5/v1
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://yareta.unige.ch/archives/53c5c96f-1ab1-4a0d-9af1-c20c22918e38
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://yareta.unige.ch/archives/8f763c5e-3440-4f65-81ef-2c697ad79832
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://yareta.unige.ch/archives/dfb20877-37ec-47c0-9c0e-b365df5d81e0
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://yareta.unige.ch/archives/71550056-07f8-4572-b694-a0800ecff264
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://yareta.unige.ch/archives/13a58deb-7b6c-402b-b3e9-34fcf072671f
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: MNE-Python
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/Scoping_Review_of_Six_Retrospective_Studies_Risk_Factors_Associated_With_the_Case_Fatality_Rate_of_People_Infected_With_Coronavirus_COVID-19_/32902649
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Crescent_University_admission_form_for_2026_2027_is_out_call_The_Admin_Dr_Mrs_Faith_070409-6-4654_to_Check_courses_offered_cut-off_mark_screening_dates_and_admission_requirements_07040964654_The_University_has_officially_opened_its_admissio/32904047
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Precious_Cornerstone_University_2026_2027_Admission_Form_is_out_call_DR_MRS_FAITH_i_0704-0964654_i_or_07040964654_Prospective_candidates_seeking_admission_i_Qualified_candidates_can_now_apply_into_a_wide_range_of_undergraduate_programmes_ac/32904050
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/PAMO_University_of_Medical_Sciences_2026_2027_Admission_Form_is_out_call_DR_MRS_FAITH_i_0704-0964654_i_or_07040964654_Prospective_candidates_seeking_admission_i_Qualified_candidates_can_now_apply_into_a_wide_range_of_undergraduate_programme/32904044
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://adelaide.figshare.com/articles/journal_contribution/The_digital_lives_of_adolescents_National_prevalence_of_internet_technology_and_AI_use_in_Australia/32904020
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19666955
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3891836
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20309409
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7602381
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20400482
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21210680
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21210680
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21209857
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21209857
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21209676
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: CPU-only
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/AdityaMayukhSom/MixSub-LLaMA-3.2-Text-Only-Overlap-CPU-Score/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/AdityaMayukhSom/MixSub-LLaMA-3.2-Text-Only-Overlap-CPU-Score/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/media/Spiritan_University_Nneochi_2026_2027_Admission_Form_is_out_call_DR_MRS_FAITH_i_0704-0964654_i_or_07040964654_Prospective_candidates_seeking_admission_i_Qualified_candidates_can_now_apply_into_a_wide_range_of_undergraduate_programmes_across/32904053
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/Scoping_Review_of_Six_Retrospective_Studies_Risk_Factors_Associated_With_the_Case_Fatality_Rate_of_People_Infected_With_Coronavirus_COVID-19_/32902649
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Crescent_University_admission_form_for_2026_2027_is_out_call_The_Admin_Dr_Mrs_Faith_070409-6-4654_to_Check_courses_offered_cut-off_mark_screening_dates_and_admission_requirements_07040964654_The_University_has_officially_opened_its_admissio/32904047
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Precious_Cornerstone_University_2026_2027_Admission_Form_is_out_call_DR_MRS_FAITH_i_0704-0964654_i_or_07040964654_Prospective_candidates_seeking_admission_i_Qualified_candidates_can_now_apply_into_a_wide_range_of_undergraduate_programmes_ac/32904050
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/PAMO_University_of_Medical_Sciences_2026_2027_Admission_Form_is_out_call_DR_MRS_FAITH_i_0704-0964654_i_or_07040964654_Prospective_candidates_seeking_admission_i_Qualified_candidates_can_now_apply_into_a_wide_range_of_undergraduate_programme/32904044
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.11591/eei.v9i2.1972
+    source: zenodo
+    status: unreachable
+    reason: 'reachability failed: ConnectionError: HTTPSConnectionPool(host=''beei.org'',
+      port=443): Max retries exceeded with url: /index.php/EEI/article/view/1972 (Caused
+      by NewConnectionError("HTTPSConnection(host=''beei.org'', port=443): Failed
+      to establish a new connection: [Errno 111] Connection refused"))'
+  - url: https://zenodo.org/records/14352943
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6127654
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17854610
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10199277
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21210112
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21210112
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.repository.cam.ac.uk/handle/1810/344958
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21209070
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21209070
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
