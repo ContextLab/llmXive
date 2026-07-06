@@ -1,0 +1,381 @@
+resolved_at: '2026-07-06T21:51:32.840876+00:00'
+datasets:
+- intent: NOAA
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/Qdrant/NOAA-Buoy/resolve/main/full_2023_remove_flawed.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 225573
+      parsed: true
+  - url: https://huggingface.co/datasets/brianofrim/NOAA_buoycams/resolve/main/split_sizes.json
+    source: huggingface
+    format: json
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 70
+      parsed: true
+  - url: https://huggingface.co/datasets/yueq92/NOAA_narratives_NER/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 114547
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/Qdrant/NOAA-Buoy/resolve/main/full_2023_remove_flawed.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/brianofrim/NOAA_buoycams/resolve/main/split_sizes.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://huggingface.co/datasets/yueq92/NOAA_narratives_NER/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/alea-institute/kl3m-data-dotgov-oceanservice.noaa.gov/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/alea-institute/kl3m-data-dotgov-www.nmfs.noaa.gov/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/dataset/Wiw_p_son_Healing_Swing/29925167
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/presentation/Oficina_do_T_dio_2026/32915675
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Map_design_from_varying_narrative_standpoints_a_case_of_Guizhou_Jinxiu_Project_Map_China/32915679
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Chinook_salmon_genome_assembly_incl_some_coho_contigs_-_Okis_V1_20170530_Otsh_V1_20200220_tr_only/32915663
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/_b_Genome_assembly_and_annotation_data_of_lichen_associated_b_b_b_b_i_Bacillus_licheniformis_i_b_b_b_b_strains_TLs4_and_TLs25_b_/32915657
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7505022
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.135212/slp
+    source: zenodo
+    status: unreachable
+    reason: 'reachability failed: HTTP 404'
+  - url: https://zenodo.org/records/18893503
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5787067
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3989941
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21227520
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21227520
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21226969
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21226969
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20530622
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: NCEP
+  status: verified
+  candidates:
+  - url: "https://huggingface.co/datasets/lowo/ncep-TestData1/resolve/main/ncep-\u6D4B\
+      \u8BD5\u6570\u636E\u96C61.zip"
+    source: huggingface
+    format: zip
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 119846
+      parsed: true
+  - url: "https://huggingface.co/datasets/lowo/ncep-PZVWzw-piezometer-monitoring-data/resolve/main/ncep-PZVWzw-\u6E17\
+      \u538B\u8BA1\u76D1\u6D4B\u6570\u636E.zip"
+    source: huggingface
+    format: zip
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: "https://huggingface.co/datasets/lowo/ncep-TestData1/resolve/main/ncep-\u6D4B\
+      \u8BD5\u6570\u636E\u96C61.zip"
+    source: huggingface
+    status: verified
+    format: zip
+  - url: "https://huggingface.co/datasets/lowo/ncep-PZVWzw-piezometer-monitoring-data/resolve/main/ncep-PZVWzw-\u6E17\
+      \u538B\u8BA1\u76D1\u6D4B\u6570\u636E.zip"
+    source: huggingface
+    status: verified
+    format: zip
+  - url: https://figshare.com/articles/dataset/Wiw_p_son_Healing_Swing/29925167
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/presentation/Oficina_do_T_dio_2026/32915675
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Map_design_from_varying_narrative_standpoints_a_case_of_Guizhou_Jinxiu_Project_Map_China/32915679
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Chinook_salmon_genome_assembly_incl_some_coho_contigs_-_Okis_V1_20170530_Otsh_V1_20200220_tr_only/32915663
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/_b_Genome_assembly_and_annotation_data_of_lichen_associated_b_b_b_b_i_Bacillus_licheniformis_i_b_b_b_b_strains_TLs4_and_TLs25_b_/32915657
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14233272
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5763768
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5118602
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5236168
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.37pvmcvmv
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.researchgate.net/doi/10.13140/RG.2.2.23031.59049
+    source: datacite
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://www.researchgate.net/doi/10.13140/RG.2.2.21353.86882/1
+    source: datacite
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://wdh.energy.gov/ds/trexo/henri.c1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://unsworks.unsw.edu.au/handle/1959.4/unsworks_37950
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21151043
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: NCAR
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/ncardus/raptor/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/ncardus/raptor/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://us.aws.cdn.hf.co/xet-bridge-us/6807a794a2c52c9f73c33c39/c85df9c7a1ba7e3f76363f5338b3e7e61dc2ae677db5c988a5b95a03886c5b73?user_id=public&X-Xet-Cas-Uid=public&response-content-type=application%2Fjson&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27multilingual-data-analyst-dataset.json%3B+filename%3D%22multilingual-data-analyst-dataset.json%22%3B&Expires=1783378224&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjgwN2E3OTRhMmM1MmM5ZjczYzMzYzM5L2M4NWRmOWM3YTFiYTdlM2Y3NjM2M2Y1MzM4YjNlN2U2MWRjMmFlNjc3ZGI1Yzk4OGE1Yjk1YTAzODg2YzViNzNcXD91c2VyX2lkPXB1YmxpYyZYLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LXR5cGU9YXBwbGljYXRpb24lMkZqc29uJnJlc3BvbnNlLWNvbnRlbnQtZGlzcG9zaXRpb249aW5saW5lJTNCK2ZpbGVuYW1lJTJBJTNEVVRGLTglMjclMjdtdWx0aWxpbmd1YWwtZGF0YS1hbmFseXN0LWRhdGFzZXQuanNvbiUzQitmaWxlbmFtZSUzRCUyMm11bHRpbGluZ3VhbC1kYXRhLWFuYWx5c3QtZGF0YXNldC5qc29uJTIyJTNCIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3ODMzNzgyMjR9fX1dfQ__&Signature=MEQCIFdPcqy2TNZtwkfaDeVIy4YKsJXS7zTnQICIwe5zqRk9AiAwqzIB7B9kkJ9I8dW5sc7wIAM281Bj5uC6mPILbaa~7w__&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/api/resolve-cache/datasets/ncardian/pandas-plotly-code-dataset/c891f01142bb9b395c557db4f24427ec8beb5795/pandas_plotly_code_dataset.json?%2Fdatasets%2Fncardian%2Fpandas-plotly-code-dataset%2Fresolve%2Fmain%2Fpandas_plotly_code_dataset.json=&etag=%22c62d63a376627e645c622ea2ef2f12021e9de436%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Wiw_p_son_Healing_Swing/29925167
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/presentation/Oficina_do_T_dio_2026/32915675
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Map_design_from_varying_narrative_standpoints_a_case_of_Guizhou_Jinxiu_Project_Map_China/32915679
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Chinook_salmon_genome_assembly_incl_some_coho_contigs_-_Okis_V1_20170530_Otsh_V1_20200220_tr_only/32915663
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/_b_Genome_assembly_and_annotation_data_of_lichen_associated_b_b_b_b_i_Bacillus_licheniformis_i_b_b_b_b_strains_TLs4_and_TLs25_b_/32915657
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3343763
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7218023
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14060801
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7804230
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3932577
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://unsworks.unsw.edu.au/handle/1959.4/unsworks_37950
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21182023
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21182023
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/msc7w/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21160987
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: USGS
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/alea-institute/kl3m-data-dotgov-www.usgs.gov/resolve/main/data/train-00000-of-00002.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/alea-institute/kl3m-filter-data-dotgov-www.usgs.gov/resolve/main/data/train-00000-of-00002.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/mnemoraorg/usgs-global-earthquake-catalog/resolve/main/20010101.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/alea-institute/kl3m-data-dotgov-www.usgs.gov/resolve/main/data/train-00000-of-00002.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/alea-institute/kl3m-filter-data-dotgov-www.usgs.gov/resolve/main/data/train-00000-of-00002.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/mnemoraorg/usgs-global-earthquake-catalog/resolve/main/20010101.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/dasappan/usgs-global-earthquake-catalog/resolve/main/20010101.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://figshare.com/articles/dataset/Wiw_p_son_Healing_Swing/29925167
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/presentation/Oficina_do_T_dio_2026/32915675
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Map_design_from_varying_narrative_standpoints_a_case_of_Guizhou_Jinxiu_Project_Map_China/32915679
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Chinook_salmon_genome_assembly_incl_some_coho_contigs_-_Okis_V1_20170530_Otsh_V1_20200220_tr_only/32915663
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/_b_Genome_assembly_and_annotation_data_of_lichen_associated_b_b_b_b_i_Bacillus_licheniformis_i_b_b_b_b_strains_TLs4_and_TLs25_b_/32915657
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3747876
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.7280/D12019
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4955883
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/13271711
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5350538
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21226498
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21226498
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21226366
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.sciencebase.gov/catalog/item/68dc3d17d4be0204610b6437
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21225793
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

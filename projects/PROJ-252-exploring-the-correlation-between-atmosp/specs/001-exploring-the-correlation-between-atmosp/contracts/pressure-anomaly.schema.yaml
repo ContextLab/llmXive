@@ -1,0 +1,42 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Pressure Anomaly Analysis Record Schema"
+description: "Schema for the final analysis-ready dataset containing pressure anomalies and event labels."
+type: "object"
+properties:
+  event_id:
+    type: "string"
+    description: "Reference to the earthquake event."
+  window_type:
+    type: "string"
+    enum:
+      - "event"
+      - "control"
+    description: "Whether this record is from the event window or control window."
+  timestamp:
+    type: "string"
+    format: "date-time"
+    description: "Start time of the analysis window."
+  pressure_anomaly:
+    type: "number"
+    description: "Calculated pressure anomaly (deviation from 30-day mean)."
+  magnitude:
+    type: "number"
+    description: "Magnitude of the associated earthquake (if event)."
+  region:
+    type: "string"
+    enum:
+      - "Ring of Fire"
+      - "Other"
+    description: "Geographic region classification."
+  is_land:
+    type: "boolean"
+    description: "True if the event is on land."
+required:
+  - event_id
+  - window_type
+  - timestamp
+  - pressure_anomaly
+  - magnitude
+  - region
+  - is_land
+additionalProperties: false

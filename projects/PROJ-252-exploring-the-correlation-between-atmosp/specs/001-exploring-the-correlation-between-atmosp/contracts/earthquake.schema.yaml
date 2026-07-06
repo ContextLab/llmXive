@@ -1,0 +1,46 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Earthquake Event Schema"
+description: "Schema for the raw and processed earthquake event data from USGS."
+type: "object"
+properties:
+  event_id:
+    type: "string"
+    description: "Unique USGS event identifier."
+    pattern: "^[a-z0-9]+$"
+  timestamp:
+    type: "string"
+    format: "date-time"
+    description: "UTC timestamp of the earthquake origin."
+  latitude:
+    type: "number"
+    minimum: -90
+    maximum: 90
+    description: "Latitude of the epicenter."
+  longitude:
+    type: "number"
+    minimum: -180
+    maximum: 180
+    description: "Longitude of the epicenter."
+  depth_km:
+    type: "number"
+    minimum: 0
+    description: "Depth in kilometers."
+  magnitude:
+    type: "number"
+    minimum: 0
+    description: "Magnitude of the earthquake."
+  location_type:
+    type: "string"
+    enum:
+      - "land"
+      - "ocean"
+    description: "Classification of the epicenter location."
+required:
+  - event_id
+  - timestamp
+  - latitude
+  - longitude
+  - depth_km
+  - magnitude
+  - location_type
+additionalProperties: false
