@@ -1,0 +1,107 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Experiment Configuration"
+description: "Schema for the input YAML configuration file."
+type: "object"
+properties:
+  experiment:
+    type: "object"
+    properties:
+      name:
+        type: "string"
+      seed:
+        type: "integer"
+      mode:
+        type: "string"
+        enum:
+          - "astrocyte"
+          - "baseline"
+          - "ablation"
+    required:
+      - name
+      - mode
+  model:
+    type: "object"
+    properties:
+      backbone:
+        type: "string"
+      layers:
+        type: "integer"
+    required:
+      - backbone
+  astrocyte:
+    type: "object"
+    properties:
+      enabled:
+        type: "boolean"
+      lambda_scale:
+        type: "number"
+      ode_params:
+        type: "object"
+        properties:
+          alpha:
+            type: "number"
+          beta:
+            type: "number"
+          gamma:
+            type: "number"
+        required:
+          - alpha
+          - beta
+          - gamma
+      history_buffer_size:
+        type: "integer"
+    required:
+      - enabled
+      - lambda_scale
+  training:
+    type: "object"
+    properties:
+      inner_lr:
+        type: "number"
+      outer_lr:
+        type: "number"
+      episodes_per_seed:
+        type: "integer"
+      tasks_per_episode:
+        type: "integer"
+      way:
+        type: "integer"
+      shot:
+        type: "integer"
+    required:
+      - inner_lr
+      - outer_lr
+      - episodes_per_seed
+  datasets:
+    type: "object"
+    properties:
+      name:
+        type: "string"
+      root:
+        type: "string"
+      download:
+        type: "boolean"
+    required:
+      - name
+      - root
+  analysis:
+    type: "object"
+    properties:
+      seeds:
+        type: "array"
+        items:
+          type: "integer"
+      ablation_params:
+        type: "array"
+        items:
+          type: "number"
+    required:
+      - seeds
+required:
+  - experiment
+  - model
+  - astrocyte
+  - training
+  - datasets
+  - analysis
+additionalProperties: false

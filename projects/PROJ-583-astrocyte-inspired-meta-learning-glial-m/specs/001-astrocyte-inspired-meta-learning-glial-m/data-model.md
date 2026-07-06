@@ -2,97 +2,126 @@
 
 ## 1. Overview
 
-This document defines the data structures, file formats, and schemas used throughout the project. All data flows from raw datasets (downloaded) to processed logs (training) and finally to aggregated results (analysis).
+This document defines the data structures for the astrocyte meta-learning project. It covers the configuration, intermediate training states, and final output metrics. All data is stored in JSON or CSV formats for reproducibility and analysis.
 
-## 2. Data Flow
+## 2. Configuration Schema
 
-1.  **Raw Data**: Downloaded from `torchvision` (Omniglot) and custom loader (Mini-ImageNet). Stored in `data/raw/`.
-2.  **Processed Data**: None. The training loop loads images on-the-fly.
-3.  **Training Logs**: Generated per episode, stored in `results/logs/`.
-4.  **Aggregated Results**: Generated per seed, stored in `results/stats/`.
-5.  **Analysis Output**: Statistical test results, stored in `results/stats/`.
+The system is driven by a YAML configuration file (`config/default.yaml`).
 
-## 3. Data Entities
+### 2.1 Top-Level Configuration
+```yaml
+experiment:
+  name: "astrocyte-maml-omniglot"
+  seed: 42
+  mode: "incremental" # or "baseline", "ablation"
 
-### 3.1 Episode
-A single execution instance of a 5-way 1-shot classification problem.
-- `episode_id`: Unique integer identifier for the episode within a run.
-- `seed`: Random seed used for this run.
-- `support_set`: List of (image, label) pairs.
-- `query_set`: List of (image, label) pairs.
+model:
+  backbone: "conv4" # Standard MAML backbone
+  layers: 4
+  hidden_dim: 32
+
+astrocyte:
+  enabled: true
+  lambda_scale: 0.05
+  ode_params:
+    alpha: 0.1
+    beta: 0.5
+    gamma: 0.2
+  history_buffer_size: 5
+
+training:
+  inner_lr: 0.01
+  outer_lr: 0.001
+  episodes_per_seed: 100 # Validation subset
+  tasks_per_episode: 5
+  way: 5
+  shot: 1
+
+datasets:
+  name: "omniglot" # Primary dataset
+  root: "./data"
+  download: true
+
+analysis:
+  seeds: [42, 123, 456, 789, 101]
+  ablation_params: [0.01, 0.05, 0.1]
+```
+
+## 3. Intermediate Data Structures
+
+### 3.1 Task Episode
+A single 5-way 1-shot task instance.
+*   `task_id`: Unique identifier (e.g., `seed_42_task_12`).
+*   `support_set`: List of `(image_tensor, label)` tuples.
+*   `query_set`: List of `(image_tensor, label)` tuples.
+*   `activation_signal`: The aggregated activation value from the support set used for ODE input.
 
 ### 3.2 Homeostatic State
-Internal state of the astrocyte module.
-- `calcium_concentration`: $Ca_t$ (float).
-- `homeostatic_factor`: $h_t$ (float).
-- `task_history_buffer`: List of past activation signals (used for ODE).
+Internal state maintained by the astrocyte module.
+*   `calcium_concentration`: $Ca_t$ (scalar, clamped to [0, 1]).
+*   `homeostatic_factor`: $h_t$ (scalar, derived from $Ca_t$).
+*   `history_buffer`: List of past activation signals (EXCLUDES tasks N-1 and N to prevent circular validation).
 
-### 3.3 Performance Metric
-Record of performance for a single episode.
-- `episode_id`: ID of the episode (integer).
-- `seed`: Random seed.
-- `plasticity_score`: Accuracy on current task (after 1, 5, 10 steps). **Scalar**.
-- `stability_score`: Accuracy on **Meta-Test Buffer** (last 5 completed tasks **excluded** from the Calcium history). **Scalar**.
-- `loss`: MAML loss for the episode.
-- `timestamp`: UTC timestamp of the log.
+### 3.3 Training Step Log
+Logged after every episode update.
+*   `timestamp`: ISO 8601.
+*   `seed`: Random seed ID.
+*   `task_id`: Current task ID.
+*   `loss_support`: Loss on support set.
+*   `loss_query`: Loss on query set (before update).
+*   `plasticity_score_1`: Accuracy on current task query set (after 1 step).
+*   `plasticity_score_5`: Accuracy on current task query set (after 5 steps).
+*   `plasticity_score_10`: Accuracy on current task query set (after 10 steps).
+*   `stability_score`: Mean accuracy on Meta-Test Buffer (tasks N-1, N-2, N-3) after current update.
+*   `h_t`: Homeostatic factor value.
+*   `Ca_t`: Calcium concentration value.
 
-### 3.4 Statistical Result
-Result of the Permutation Test.
-- `test_name`: "Permutation Test".
-- `observed_distance`: Euclidean distance between mean vectors.
-- `p_value`: P-value from permutations.
-- `significant`: Boolean (p < 0.05).
-- `seeds_used`: Number of seeds.
-- `permutations`: Number of permutations performed.
+## 4. Output Schema
 
-## 4. File Formats
+### 4.1 Results File (`results/metrics.csv`)
+Aggregated metrics for the entire experiment.
+*   `seed`: Random seed.
+*   `model_type`: "astrocyte" or "baseline".
+*   `lambda_scale`: Homeostatic scale parameter (for ablation).
+*   `mean_plasticity`: Mean accuracy on current tasks (5-step plasticity).
+*   `mean_stability`: Mean accuracy on Meta-Test Buffer (3-task average stability).
+*   `std_plasticity`: Standard deviation.
+*   `std_stability`: Standard deviation.
+*   `total_episodes`: Total number of episodes run.
 
-### 4.1 Training Log (JSON Lines)
-File: `results/logs/seed_<N>_run.jsonl`
-Each line is a JSON object representing one episode.
+### 4.2 Statistical Test Result (`results/stat_test.json`)
+Output of the Permutation Test (primary) and Hotelling's T-squared (secondary).
 
-```json
-{"episode_id": 1, "seed": 42, "plasticity_score": 0.85, "stability_score": 0.72, "loss": 0.45, "timestamp": "2026-07-03T12:00:00Z"}
-```
+**Permutation Test Output**:
+*   `test_name`: "Permutation Test".
+*   `test_statistic`: Euclidean distance between mean vectors.
+*   `p_value`: Float.
+*   `verdict`: "significant", "not_significant", "inconclusive", or "undefined".
+*   `reason`: If inconclusive, e.g., "insufficient_power".
+*   `confidence_interval`: [lower, upper] or null.
+*   `n_seeds`: 5.
+*   `effect_size`: Euclidean distance.
+*   `baseline_mean`: [Stability, Plasticity].
+*   `astrocyte_mean`: [Stability, Plasticity].
+*   `permutations`: 10,000.
 
-### 4.2 Aggregated Results (CSV)
-File: `results/stats/aggregated_results.csv`
-One row per seed.
+**Hotelling's T-squared Output (Reference)**:
+*   `test_name`: "Hotelling's T-squared".
+*   `test_statistic`: T² value.
+*   `p_value`: Float.
+*   `verdict`: "significant", "not_significant", "inconclusive", "undefined", or "singular".
+*   `reason`: If singular, "covariance_singular"; if inconclusive, "insufficient_power".
+*   `confidence_interval`: [lower, upper] or null.
+*   `n_seeds`: 5.
+*   `effect_size`: Estimated Cohen's d or null.
+*   `baseline_mean`: [Stability, Plasticity].
+*   `astrocyte_mean`: [Stability, Plasticity].
+*   `degrees_of_freedom`: 2.
 
-```csv
-seed,final_plasticity,final_stability,avg_loss
-42,0.88,0.75,0.32
-43,0.87,0.74,0.33
-...
-```
+## 5. Data Flow
 
-### 4.3 Statistical Test Output (JSON)
-File: `results/stats/statistical_test.json`
-
-```json
-{
-  "test": "Permutation Test",
-  "observed_distance": 0.12,
-  "p_value": 0.03,
-  "significant": true,
-  "seeds_used": 5,
-  "permutations": 10000,
-  "baseline_model": "MAML",
-  "experimental_model": "Astrocyte-MAML"
-}
-```
-
-## 5. Data Hygiene & Versioning
-
-- **Checksums**: All raw data files in `data/raw/` are checksummed (SHA-256) and recorded in `state/...yaml`.
-- **Immutability**: Raw data is never modified. Derived files (logs, stats) are new files with timestamps.
-- **PII**: No personally identifiable information is present in the datasets or logs.
-- **Versioning**: Every artifact (log, result) is versioned by its content hash.
-
-## 6. Data Validation Rules
-
-- **Plasticity/Stability**: Must be in range [0.0, 1.0].
-- **Loss**: Must be non-negative.
-- **Episode ID**: Must be unique per seed and integer.
-- **Seed**: Must be an integer.
-- **Disjoint Buffer**: The `stability_score` must be calculated on a buffer of episodes explicitly excluded from the `task_history_buffer` used for the current `calcium_concentration` calculation.
+1.  **Config** -> **Loader** -> **Task Generator** (deterministic sequence) -> **Episodes**.
+2.  **Episodes** -> **Trainer** -> **ODE Module** (calcium history buffer excludes N-1, N) -> **Homeostatic State**.
+3.  **Homeostatic State** -> **Metric Calculator** (plasticity at 1, 5, 10 steps; stability over 3-task buffer) -> **Step Log**.
+4.  **Step Logs** -> **Aggregator** -> **Results CSV**.
+5.  **Results CSV** -> **Statistical Analyzer** (Permutation Test primary, Hotelling's secondary) -> **Stat Test JSON**.

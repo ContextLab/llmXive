@@ -1,4 +1,4 @@
-resolved_at: '2026-07-04T17:35:46.772873+00:00'
+resolved_at: '2026-07-06T05:57:24.110715+00:00'
 datasets:
 - intent: MAML
   status: verified
@@ -45,23 +45,23 @@ datasets:
     source: huggingface
     status: verified
     format: zip
-  - url: https://figshare.com/articles/thesis/Thesis_b_Determinants_of_Digital_Transformation_and_Operational_Efficiency_Evidence_from_Pharmaceutical_Manufacturing_Companies_in_Western_Province_of_Sri_Lanka_b_/32900483
+  - url: https://figshare.com/articles/preprint/A_Programme_of_Conceptual_Scholarship_Underpinning_the_Development_of_a_Realist_Evaluation_of_Digital_Dementia_Risk-Reduction_Education/32746245
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Deciphering_the_Halide_Chemistry_of_Cl_sup_sup_and_Br_sup_sup_in_Enhancing_Kinetics_of_Mg_Plating_Stripping/32900482
+  - url: https://frontiersin.figshare.com/articles/dataset/Data_Sheet_1_Impact_of_delivery_mode_on_diastasis_recti_abdominis_pelvic_floor_muscle_function_and_quality_of_life_in_early_postpartum_women_a_cross-sectional_study_pdf/32906261
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/media/Deciphering_the_Halide_Chemistry_of_Cl_sup_sup_and_Br_sup_sup_in_Enhancing_Kinetics_of_Mg_Plating_Stripping/32900479
+  - url: https://frontiersin.figshare.com/articles/dataset/Table_1_Determinants_of_growth_parameters_at_12-month_corrected_age_among_very_preterm_infants_in_China_a_retrospective_cohort_study_docx/32906249
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/media/Deciphering_the_Halide_Chemistry_of_Cl_sup_sup_and_Br_sup_sup_in_Enhancing_Kinetics_of_Mg_Plating_Stripping/32900476
+  - url: https://frontiersin.figshare.com/articles/dataset/Table_1_Deep_learning_model_to_generate_patient-specific_pulmonary_vein_isolation_lines_from_successful_atrial_fibrillation_ablation_cases_a_proof-of-concept_study_docx/32906246
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Selective_Q_Band_Excitation_Modulates_Exciton_Exciton_Annihilation_in_Tetra_p_Sulfonatophenyl_porphyrin_J_Aggregates/32900473
+  - url: https://frontiersin.figshare.com/articles/dataset/Supplementary_file_1_Carbon_quota_pledge_or_bank_credit_which_financing_mode_better_drives_emission_abatement_in_remanufacturing_docx/32906243
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -69,15 +69,11 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/17135584
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/18054164
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/5778132
+  - url: https://zenodo.org/records/17135584
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -85,6 +81,11 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.1609/aaai.v39i28.35239
+    source: zenodo
+    status: unreachable
+    reason: 'reachability failed: ConnectionError: (''Connection aborted.'', RemoteDisconnected(''Remote
+      end closed connection without response''))'
   - url: https://arxiv.org/abs/2607.00860
     source: datacite
     status: wrong_format
@@ -150,31 +151,31 @@ datasets:
     source: huggingface
     status: wrong_format
     reason: HTTP 401
-  - url: https://tandf.figshare.com/articles/dataset/Twisted_path_to_green_strategic_regulatory_spillovers_in_global_competitive_markets/32900498
+  - url: https://figshare.com/articles/journal_contribution/Evaluasi_Penggunaan_Aplikasi_Tokopedia_Menggunakan_Pendekatan_Partial_Least_Squares_Structural_Equation_Modeling_PLS-SEM_/32833757
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/thesis/Thesis_b_Determinants_of_Digital_Transformation_and_Operational_Efficiency_Evidence_from_Pharmaceutical_Manufacturing_Companies_in_Western_Province_of_Sri_Lanka_b_/32900483
+  - url: https://figshare.com/articles/preprint/A_Programme_of_Conceptual_Scholarship_Underpinning_the_Development_of_a_Realist_Evaluation_of_Digital_Dementia_Risk-Reduction_Education/32746245
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Deciphering_the_Halide_Chemistry_of_Cl_sup_sup_and_Br_sup_sup_in_Enhancing_Kinetics_of_Mg_Plating_Stripping/32900482
+  - url: https://frontiersin.figshare.com/articles/dataset/Data_Sheet_1_Impact_of_delivery_mode_on_diastasis_recti_abdominis_pelvic_floor_muscle_function_and_quality_of_life_in_early_postpartum_women_a_cross-sectional_study_pdf/32906261
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/media/Deciphering_the_Halide_Chemistry_of_Cl_sup_sup_and_Br_sup_sup_in_Enhancing_Kinetics_of_Mg_Plating_Stripping/32900479
+  - url: https://frontiersin.figshare.com/articles/dataset/Table_1_Determinants_of_growth_parameters_at_12-month_corrected_age_among_very_preterm_infants_in_China_a_retrospective_cohort_study_docx/32906249
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/media/Deciphering_the_Halide_Chemistry_of_Cl_sup_sup_and_Br_sup_sup_in_Enhancing_Kinetics_of_Mg_Plating_Stripping/32900476
+  - url: https://frontiersin.figshare.com/articles/dataset/Table_1_Deep_learning_model_to_generate_patient-specific_pulmonary_vein_isolation_lines_from_successful_atrial_fibrillation_ablation_cases_a_proof-of-concept_study_docx/32906246
     source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21024183
-    source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/8361650
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21024183
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -182,31 +183,31 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/6362558
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/17845984
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21138067
+  - url: https://zenodo.org/records/6362558
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/z9fjt/
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21138067
+  - url: https://zenodo.org/records/21211623
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21121973
+  - url: https://zenodo.org/records/21211623
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21121973
+  - url: https://zenodo.org/records/21211525
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21192518
+  - url: https://zenodo.org/records/21211525
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -255,23 +256,23 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://tandf.figshare.com/articles/dataset/Twisted_path_to_green_strategic_regulatory_spillovers_in_global_competitive_markets/32900498
+  - url: https://figshare.com/articles/journal_contribution/Evaluasi_Penggunaan_Aplikasi_Tokopedia_Menggunakan_Pendekatan_Partial_Least_Squares_Structural_Equation_Modeling_PLS-SEM_/32833757
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/thesis/Thesis_b_Determinants_of_Digital_Transformation_and_Operational_Efficiency_Evidence_from_Pharmaceutical_Manufacturing_Companies_in_Western_Province_of_Sri_Lanka_b_/32900483
+  - url: https://figshare.com/articles/preprint/A_Programme_of_Conceptual_Scholarship_Underpinning_the_Development_of_a_Realist_Evaluation_of_Digital_Dementia_Risk-Reduction_Education/32746245
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Deciphering_the_Halide_Chemistry_of_Cl_sup_sup_and_Br_sup_sup_in_Enhancing_Kinetics_of_Mg_Plating_Stripping/32900482
+  - url: https://frontiersin.figshare.com/articles/dataset/Data_Sheet_1_Impact_of_delivery_mode_on_diastasis_recti_abdominis_pelvic_floor_muscle_function_and_quality_of_life_in_early_postpartum_women_a_cross-sectional_study_pdf/32906261
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/media/Deciphering_the_Halide_Chemistry_of_Cl_sup_sup_and_Br_sup_sup_in_Enhancing_Kinetics_of_Mg_Plating_Stripping/32900479
+  - url: https://frontiersin.figshare.com/articles/dataset/Table_1_Determinants_of_growth_parameters_at_12-month_corrected_age_among_very_preterm_infants_in_China_a_retrospective_cohort_study_docx/32906249
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/media/Deciphering_the_Halide_Chemistry_of_Cl_sup_sup_and_Br_sup_sup_in_Enhancing_Kinetics_of_Mg_Plating_Stripping/32900476
+  - url: https://frontiersin.figshare.com/articles/dataset/Table_1_Deep_learning_model_to_generate_patient-specific_pulmonary_vein_isolation_lines_from_successful_atrial_fibrillation_ablation_cases_a_proof-of-concept_study_docx/32906246
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -295,36 +296,29 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21188254
+  - url: https://zenodo.org/records/21206163
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21187081
+  - url: https://zenodo.org/records/21206163
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://unsworks.unsw.edu.au/handle/1959.4/45441
+  - url: https://zenodo.org/records/21211606
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21126405
+  - url: https://zenodo.org/records/21211606
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21126245
+  - url: https://zenodo.org/records/21211140
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
 - intent: ImageNet
   status: verified
   candidates:
-  - url: https://huggingface.co/datasets/axiong/imagenet-r/resolve/main/test/test-00000-of-00005.parquet
-    source: huggingface
-    format: parquet
-    relevance: 1.0
-    sample_check:
-      downloaded_bytes: 262144
-      parsed: true
   - url: https://huggingface.co/datasets/benjamin-paine/imagenet-1k-256x256/resolve/main/data/test-00000-of-00003.parquet
     source: huggingface
     format: parquet
@@ -332,9 +326,9 @@ datasets:
     sample_check:
       downloaded_bytes: 262144
       parsed: true
-  - url: https://huggingface.co/datasets/wufeim/imagenet1k_captions_minigpt4/resolve/main/imagenet1k_train_minigpt4.csv
+  - url: https://huggingface.co/datasets/gmongaras/Imagenet21K/resolve/main/data/train-00000-of-07760.parquet
     source: huggingface
-    format: csv
+    format: parquet
     relevance: 0.0
     sample_check:
       downloaded_bytes: 262144
@@ -346,12 +340,9 @@ datasets:
     reason: HTTP 401
   - url: https://huggingface.co/datasets/axiong/imagenet-r/resolve/main/test/test-00000-of-00005.parquet
     source: huggingface
-    status: verified
-    format: parquet
-  - url: https://huggingface.co/datasets/wufeim/imagenet1k_captions_minigpt4/resolve/main/imagenet1k_train_minigpt4.csv
-    source: huggingface
-    status: verified
-    format: csv
+    status: unreachable
+    reason: 'reachability failed: ReadTimeout: HTTPSConnectionPool(host=''huggingface.co'',
+      port=443): Read timed out. (read timeout=20.0)'
   - url: https://huggingface.co/datasets/benjamin-paine/imagenet-1k-256x256/resolve/main/data/test-00000-of-00003.parquet
     source: huggingface
     status: verified
@@ -360,23 +351,23 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://tandf.figshare.com/articles/journal_contribution/A_fuzzy_logic_mindset_agency_theory_decision_support_model_for_diagnosing_consumer_resistance_to_eco-friendly_cosmetics/32900501
+  - url: https://figshare.com/articles/journal_contribution/Evaluasi_Penggunaan_Aplikasi_Tokopedia_Menggunakan_Pendekatan_Partial_Least_Squares_Structural_Equation_Modeling_PLS-SEM_/32833757
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://tandf.figshare.com/articles/dataset/Twisted_path_to_green_strategic_regulatory_spillovers_in_global_competitive_markets/32900498
+  - url: https://figshare.com/articles/preprint/A_Programme_of_Conceptual_Scholarship_Underpinning_the_Development_of_a_Realist_Evaluation_of_Digital_Dementia_Risk-Reduction_Education/32746245
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/thesis/Thesis_b_Determinants_of_Digital_Transformation_and_Operational_Efficiency_Evidence_from_Pharmaceutical_Manufacturing_Companies_in_Western_Province_of_Sri_Lanka_b_/32900483
+  - url: https://frontiersin.figshare.com/articles/dataset/Data_Sheet_1_Impact_of_delivery_mode_on_diastasis_recti_abdominis_pelvic_floor_muscle_function_and_quality_of_life_in_early_postpartum_women_a_cross-sectional_study_pdf/32906261
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Deciphering_the_Halide_Chemistry_of_Cl_sup_sup_and_Br_sup_sup_in_Enhancing_Kinetics_of_Mg_Plating_Stripping/32900482
+  - url: https://frontiersin.figshare.com/articles/dataset/Table_1_Determinants_of_growth_parameters_at_12-month_corrected_age_among_very_preterm_infants_in_China_a_retrospective_cohort_study_docx/32906249
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/media/Deciphering_the_Halide_Chemistry_of_Cl_sup_sup_and_Br_sup_sup_in_Enhancing_Kinetics_of_Mg_Plating_Stripping/32900479
+  - url: https://frontiersin.figshare.com/articles/dataset/Table_1_Deep_learning_model_to_generate_patient-specific_pulmonary_vein_isolation_lines_from_successful_atrial_fibrillation_ablation_cases_a_proof-of-concept_study_docx/32906246
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -388,11 +379,11 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/6801109
+  - url: https://zenodo.org/records/8123226
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/8123226
+  - url: https://zenodo.org/records/6801109
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -400,23 +391,23 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21194098
+  - url: https://zenodo.org/records/21210485
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21194098
+  - url: https://zenodo.org/records/21210485
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21187942
+  - url: https://osf.io/j2t9d/
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21187942
+  - url: https://osf.io/c7y86/
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://osf.io/qbrdm/
+  - url: https://osf.io/wc4u9/
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -424,23 +415,23 @@ datasets:
   status: unresolved
   candidates: []
   candidates_tried:
-  - url: https://tandf.figshare.com/articles/journal_contribution/A_fuzzy_logic_mindset_agency_theory_decision_support_model_for_diagnosing_consumer_resistance_to_eco-friendly_cosmetics/32900501
+  - url: https://figshare.swinburne.edu.au/articles/conference_contribution/The_forgotten_frontline_Workplace_trauma_in_SHS/32897942
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://tandf.figshare.com/articles/dataset/Twisted_path_to_green_strategic_regulatory_spillovers_in_global_competitive_markets/32900498
+  - url: https://figshare.com/articles/journal_contribution/Evaluasi_Penggunaan_Aplikasi_Tokopedia_Menggunakan_Pendekatan_Partial_Least_Squares_Structural_Equation_Modeling_PLS-SEM_/32833757
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/thesis/Thesis_b_Determinants_of_Digital_Transformation_and_Operational_Efficiency_Evidence_from_Pharmaceutical_Manufacturing_Companies_in_Western_Province_of_Sri_Lanka_b_/32900483
+  - url: https://figshare.com/articles/preprint/A_Programme_of_Conceptual_Scholarship_Underpinning_the_Development_of_a_Realist_Evaluation_of_Digital_Dementia_Risk-Reduction_Education/32746245
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Deciphering_the_Halide_Chemistry_of_Cl_sup_sup_and_Br_sup_sup_in_Enhancing_Kinetics_of_Mg_Plating_Stripping/32900482
+  - url: https://frontiersin.figshare.com/articles/dataset/Data_Sheet_1_Impact_of_delivery_mode_on_diastasis_recti_abdominis_pelvic_floor_muscle_function_and_quality_of_life_in_early_postpartum_women_a_cross-sectional_study_pdf/32906261
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/media/Deciphering_the_Halide_Chemistry_of_Cl_sup_sup_and_Br_sup_sup_in_Enhancing_Kinetics_of_Mg_Plating_Stripping/32900479
+  - url: https://frontiersin.figshare.com/articles/dataset/Table_1_Determinants_of_growth_parameters_at_12-month_corrected_age_among_very_preterm_infants_in_China_a_retrospective_cohort_study_docx/32906249
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -460,27 +451,27 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://journals.uran.ua/eejet/article/view/197095
+  - url: https://zenodo.org/records/8374848
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21196097
+  - url: https://zenodo.org/records/21204132
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21196097
+  - url: https://zenodo.org/records/21204132
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21196012
+  - url: https://zenodo.org/records/21202963
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21196012
+  - url: https://zenodo.org/records/21202963
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21195375
+  - url: https://zenodo.org/records/21202635
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -499,31 +490,31 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://tandf.figshare.com/articles/journal_contribution/A_fuzzy_logic_mindset_agency_theory_decision_support_model_for_diagnosing_consumer_resistance_to_eco-friendly_cosmetics/32900501
+  - url: https://figshare.swinburne.edu.au/articles/conference_contribution/The_forgotten_frontline_Workplace_trauma_in_SHS/32897942
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://tandf.figshare.com/articles/dataset/Twisted_path_to_green_strategic_regulatory_spillovers_in_global_competitive_markets/32900498
+  - url: https://figshare.com/articles/journal_contribution/Evaluasi_Penggunaan_Aplikasi_Tokopedia_Menggunakan_Pendekatan_Partial_Least_Squares_Structural_Equation_Modeling_PLS-SEM_/32833757
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/thesis/Thesis_b_Determinants_of_Digital_Transformation_and_Operational_Efficiency_Evidence_from_Pharmaceutical_Manufacturing_Companies_in_Western_Province_of_Sri_Lanka_b_/32900483
+  - url: https://figshare.com/articles/preprint/A_Programme_of_Conceptual_Scholarship_Underpinning_the_Development_of_a_Realist_Evaluation_of_Digital_Dementia_Risk-Reduction_Education/32746245
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Deciphering_the_Halide_Chemistry_of_Cl_sup_sup_and_Br_sup_sup_in_Enhancing_Kinetics_of_Mg_Plating_Stripping/32900482
+  - url: https://frontiersin.figshare.com/articles/dataset/Data_Sheet_1_Impact_of_delivery_mode_on_diastasis_recti_abdominis_pelvic_floor_muscle_function_and_quality_of_life_in_early_postpartum_women_a_cross-sectional_study_pdf/32906261
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/media/Deciphering_the_Halide_Chemistry_of_Cl_sup_sup_and_Br_sup_sup_in_Enhancing_Kinetics_of_Mg_Plating_Stripping/32900479
+  - url: https://frontiersin.figshare.com/articles/dataset/Table_1_Determinants_of_growth_parameters_at_12-month_corrected_age_among_very_preterm_infants_in_China_a_retrospective_cohort_study_docx/32906249
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://doi.org/10.11591/eei.v9i2.1972
+  - url: https://beei.org/index.php/EEI/article/view/1972
     source: zenodo
-    status: unreachable
-    reason: 'reachability failed: HTTP 415'
-  - url: https://zenodo.org/records/5951740
+    status: wrong_format
+    reason: HTTP 503
+  - url: https://zenodo.org/records/14352943
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -531,31 +522,31 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/14352943
+  - url: https://zenodo.org/records/10199277
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20759590
+  - url: https://zenodo.org/records/17854610
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21167718
+  - url: https://zenodo.org/records/21212251
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21167718
+  - url: https://zenodo.org/records/21211653
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21193755
+  - url: https://zenodo.org/records/21211653
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21193755
+  - url: https://zenodo.org/records/21210112
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/17071173
+  - url: https://zenodo.org/records/21210112
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -563,23 +554,23 @@ datasets:
   status: unresolved
   candidates: []
   candidates_tried:
-  - url: https://tandf.figshare.com/articles/journal_contribution/A_fuzzy_logic_mindset_agency_theory_decision_support_model_for_diagnosing_consumer_resistance_to_eco-friendly_cosmetics/32900501
+  - url: https://figshare.com/articles/dataset/Androgenic_agricultural_pollution_suppresses_immune_function_and_alters_reproductive_allocation_in_eastern_mosquitofish/29554136
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://tandf.figshare.com/articles/dataset/Twisted_path_to_green_strategic_regulatory_spillovers_in_global_competitive_markets/32900498
+  - url: https://karger.figshare.com/articles/dataset/Supplementary_Material_for_S2k_Guideline_Diagnosis_and_Assessment_of_Lung_Disease_Caused_by_Occupational_Silica_Dust_Exposure_Silicosis_Clinical_Practice_Guidelines_published_by_the_German_Respiratory_Society_DGP_/32906306
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/thesis/Thesis_b_Determinants_of_Digital_Transformation_and_Operational_Efficiency_Evidence_from_Pharmaceutical_Manufacturing_Companies_in_Western_Province_of_Sri_Lanka_b_/32900483
+  - url: https://figshare.swinburne.edu.au/articles/conference_contribution/The_forgotten_frontline_Workplace_trauma_in_SHS/32897942
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Deciphering_the_Halide_Chemistry_of_Cl_sup_sup_and_Br_sup_sup_in_Enhancing_Kinetics_of_Mg_Plating_Stripping/32900482
+  - url: https://figshare.com/articles/journal_contribution/Evaluasi_Penggunaan_Aplikasi_Tokopedia_Menggunakan_Pendekatan_Partial_Least_Squares_Structural_Equation_Modeling_PLS-SEM_/32833757
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/media/Deciphering_the_Halide_Chemistry_of_Cl_sup_sup_and_Br_sup_sup_in_Enhancing_Kinetics_of_Mg_Plating_Stripping/32900479
+  - url: https://figshare.com/articles/preprint/A_Programme_of_Conceptual_Scholarship_Underpinning_the_Development_of_a_Realist_Evaluation_of_Digital_Dementia_Risk-Reduction_Education/32746245
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content

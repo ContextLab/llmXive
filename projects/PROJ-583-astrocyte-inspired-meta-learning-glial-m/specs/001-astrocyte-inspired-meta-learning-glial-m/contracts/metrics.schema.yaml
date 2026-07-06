@@ -1,0 +1,39 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Astrocyte MAML Metrics Output"
+description: "Schema for the aggregated metrics CSV/JSON output from the training run."
+type: "object"
+properties:
+  seed:
+    type: "integer"
+    description: "Random seed used for the run."
+  model_type:
+    type: "string"
+    description: "Type of model: 'astrocyte' or 'baseline'."
+    enum:
+      - "astrocyte"
+      - "baseline"
+  lambda_scale:
+    type: "number"
+    description: "Homeostatic scale parameter used."
+  mean_plasticity:
+    type: "number"
+    description: "Mean accuracy on current tasks (5-step plasticity metric, primary)."
+  mean_stability:
+    type: "number"
+    description: "Mean accuracy on Meta-Test Buffer (3-task average: N-1, N-2, N-3)."
+  std_plasticity:
+    type: "number"
+    description: "Standard deviation of plasticity scores (5-step)."
+  std_stability:
+    type: "number"
+    description: "Standard deviation of stability scores."
+  total_episodes:
+    type: "integer"
+    description: "Total number of episodes run for this seed."
+required:
+  - seed
+  - model_type
+  - mean_plasticity
+  - mean_stability
+  - total_episodes
+additionalProperties: false

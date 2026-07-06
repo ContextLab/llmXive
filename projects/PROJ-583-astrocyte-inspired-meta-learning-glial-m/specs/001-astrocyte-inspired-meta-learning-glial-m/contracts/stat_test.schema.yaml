@@ -1,0 +1,71 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Statistical Test Result"
+description: "Schema for the statistical test output comparing astrocyte vs baseline. Supports both Permutation Test (primary) and Hotelling's T-squared (secondary reference)."
+type: "object"
+properties:
+  test_name:
+    type: "string"
+    description: "Name of the primary statistical test performed."
+    enum:
+      - "Permutation Test"
+      - "Hotelling's T-squared"
+  test_statistic:
+    type: "number"
+    description: "The test statistic value (Euclidean distance for Permutation Test, T² for Hotelling's)."
+  p_value:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "The p-value from the test."
+  verdict:
+    type: "string"
+    description: "Result of the hypothesis test."
+    enum:
+      - "significant"
+      - "not_significant"
+      - "inconclusive"
+      - "undefined"
+      - "singular"
+  reason:
+    type: ["string", "null"]
+    description: "Explanation for the verdict (e.g., 'insufficient_power', 'covariance_singular')."
+  confidence_interval:
+    type: ["array", "null"]
+    description: "Confidence interval for the effect size, or null if inconclusive/undefined."
+    items:
+      type: "number"
+  n_seeds:
+    type: "integer"
+    description: "Number of seeds used in the test."
+  effect_size:
+    type: ["number", "null"]
+    description: "Estimated effect size (Euclidean distance or Cohen's d)."
+  baseline_mean:
+    type: "array"
+    items:
+      type: "number"
+    minItems: 2
+    maxItems: 2
+    description: "Mean vector [Stability, Plasticity] for the baseline model."
+  astrocyte_mean:
+    type: "array"
+    items:
+      type: "number"
+    minItems: 2
+    maxItems: 2
+    description: "Mean vector [Stability, Plasticity] for the astrocyte model."
+  permutations:
+    type: ["integer", "null"]
+    description: "Number of permutations performed (for Permutation Test)."
+  degrees_of_freedom:
+    type: ["integer", "null"]
+    description: "Degrees of freedom (for Hotelling's T-squared)."
+required:
+  - test_name
+  - test_statistic
+  - p_value
+  - verdict
+  - n_seeds
+  - baseline_mean
+  - astrocyte_mean
+additionalProperties: false

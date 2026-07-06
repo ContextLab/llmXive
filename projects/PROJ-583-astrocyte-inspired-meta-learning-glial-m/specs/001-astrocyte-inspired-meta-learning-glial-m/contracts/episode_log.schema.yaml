@@ -9,18 +9,24 @@ properties:
   seed:
     type: "integer"
     description: "Random seed used for this run."
-  plasticity_score:
+  plasticity_score_1:
     type: "number"
-    description: "Accuracy on the current task after 1, 5, and 10 inner-loop steps."
+    description: "Accuracy on the current task after 1 inner-loop step."
+  plasticity_score_5:
+    type: "number"
+    description: "Accuracy on the current task after 5 inner-loop steps (primary metric)."
+  plasticity_score_10:
+    type: "number"
+    description: "Accuracy on the current task after 10 inner-loop steps."
   stability_score:
     type: "number"
-    description: "Accuracy on a Meta-Test Buffer of previous tasks (explicitly excluded from Calcium history) after training on the current task."
+    description: "Mean accuracy on Meta-Test Buffer (tasks N-1, N-2, N-3) after training on the current task. Buffer is excluded from calcium history to prevent circular validation."
   homeostatic_factor:
     type: "number"
     description: "The scalar factor h_t applied to the learning rate."
   calcium_concentration:
     type: "number"
-    description: "The simulated calcium concentration Ca_t."
+    description: "The simulated calcium concentration Ca_t (clamped to [0, 1])."
   loss:
     type: "number"
     description: "Meta-loss for this episode."
@@ -31,7 +37,9 @@ properties:
 required:
   - "episode_id"
   - "seed"
-  - "plasticity_score"
+  - "plasticity_score_1"
+  - "plasticity_score_5"
+  - "plasticity_score_10"
   - "stability_score"
   - "homeostatic_factor"
   - "calcium_concentration"

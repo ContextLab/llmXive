@@ -6,7 +6,7 @@ failed_stage: null
 field: neuroscience
 human_escalation_reason: null
 id: PROJ-583-astrocyte-inspired-meta-learning-glial-m
-last_run_id: 97710444-05dc-4531-94a3-cd1eb84a4f20
+last_run_id: 16f43d00-5613-4b5e-8a9b-0291ddf0a74f
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-583-astrocyte-inspired-meta-learning-glial-m/specs/001-astrocyte-inspired-meta-learning-glial-m
 title: 'Astrocyte-Inspired Meta-Learning: Glial Modulation of Neural Networks'
-updated_at: '2026-07-04T18:11:42.382956Z'
+updated_at: '2026-07-06T06:36:13.851137Z'

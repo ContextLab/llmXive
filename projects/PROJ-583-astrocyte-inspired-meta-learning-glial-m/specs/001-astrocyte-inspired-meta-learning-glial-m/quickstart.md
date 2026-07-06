@@ -1,107 +1,70 @@
 # Quickstart: Astrocyte-Inspired Meta-Learning
 
-## 1. Prerequisites
+## Prerequisites
 
-- Python 3.10 or higher
-- Git
-- Access to a Linux environment (or WSL on Windows)
-- Internet connection (for dataset downloads)
+- Python 3.10 or higher.
+- pip (Python package installer).
+- Git.
 
-## 2. Installation
+## Installation
 
-### 2.1 Clone the Repository
+1.  **Clone the repository**:
+    ```bash
+    git clone <repository-url>
+    cd <project-root>
+    ```
 
+2.  **Create a virtual environment**:
+    ```bash
+    python -m venv venv
+    source venv/bin/activate  # On Windows: venv\Scripts\activate
+    ```
+
+3.  **Install dependencies**:
+    ```bash
+    pip install -r requirements.txt
+    ```
+    *Note: This installs CPU-optimized PyTorch and necessary libraries.*
+
+## Running the Experiments
+
+### 1. Basic Run (Omniglot, Astrocyte Mode)
+Runs the validation subset with the astrocyte module enabled.
 ```bash
-git clone https://github.com/your-org/astrocyte-meta-learning.git
-cd astrocyte-meta-learning
+python -m src.cli.run_experiment --config config/default.yaml --mode astrocyte
+```
+*Output*: `results/metrics.csv`, `results/stat_test.json`.
+
+### 2. Baseline Comparison
+Runs the vanilla MAML baseline for comparison.
+```bash
+python -m src.cli.run_experiment --config config/default.yaml --mode baseline
 ```
 
-### 2.2 Create Virtual Environment
-
+### 3. Ablation Study (Sensitivity Sweep)
+Runs the experiment with different homeostatic scale parameters.
 ```bash
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
+python -m src.cli.run_experiment --config config/default.yaml --mode ablation --params 0.01,0.05,0.1
 ```
 
-### 2.3 Install Dependencies
-
+### 4. Statistical Analysis Only
+If you have existing result files, run the statistical test independently.
 ```bash
-pip install -r requirements.txt
+python -m src.analysis.stats --input results/metrics.csv
 ```
 
-The `requirements.txt` will include:
-- `torch` (CPU version)
-- `torchvision`
-- `datasets`
-- `scipy`
-- `scikit-learn`
-- `pandas`
-- `numpy`
-- `pytest`
+## Verifying the Results
 
-## 3. Data Preparation
+1.  **Check Logs**: Ensure `results/metrics.csv` contains columns `mean_plasticity_score_5` and `mean_stability_score`.
+2.  **Check Plasticity Breakdown**: Verify that the training logs contain `plasticity_score_1`, `plasticity_score_5`, and `plasticity_score_10` for each episode.
+3.  **Check ODE**: Verify `Ca_t` values are clamped between 0 and 1 in the logs.
+4.  **Check Statistics**: Ensure `results/stat_test.json` contains a `verdict` and `p_value`. Primary test should be "Permutation Test"; secondary reference may include "Hotelling's T-squared".
+5.  **Check Buffer Independence**: Verify that the calcium history buffer does not include tasks N-1 or N; the Meta-Test Buffer is separate.
 
-The datasets will be downloaded automatically upon the first run of the training script.
+## Troubleshooting
 
-- **Omniglot**: Downloaded via `torchvision`.
-- **Mini-ImageNet**: Downloaded via custom loader (canonical split).
-
-No manual download is required. The scripts will handle retries and checksums.
-
-## 4. Running the Experiments
-
-### 4.1 Run a Single Seed (Omniglot)
-
-```bash
-python code/main.py --dataset omniglot --seed 42 --mode astrocyte --episodes 100
-```
-
-This will:
-1. Load Omniglot.
-2. Initialize the Astrocyte-MAML model.
-3. Run 100 episodes.
-4. Log metrics to `results/logs/seed_42_run.jsonl`.
-
-### 4.2 Run the Full Experiment (5 Seeds)
-
-```bash
-python code/main.py --dataset omniglot --mode astrocyte --seeds 42 43 44 45 46
-```
-
-This will run the training loop for 5 seeds and aggregate the results.
-
-### 4.3 Run the Baseline (Vanilla MAML)
-
-```bash
-python code/main.py --dataset omniglot --mode baseline --seeds 42 43 44 45 46
-```
-
-### 4.4 Run the Statistical Analysis
-
-After running both baseline and astrocyte modes, run the analysis script:
-
-```bash
-python code/main.py --mode analyze --baseline-path results/stats/baseline.csv --astrocyte-path results/stats/astrocyte.csv
-```
-
-This will perform a **Permutation Test** (10,000 permutations) and output the result to `results/stats/statistical_test.json`.
-
-### 4.5 Run Ablation Study (Sensitivity Analysis)
-
-```bash
-python code/main.py --dataset omniglot --mode astrocyte --sweep-scales 0.01 0.05 0.1 --seeds 42
-```
-
-This will run the training loop for each scale parameter and report the variation in stability/plasticity.
-
-## 5. Verifying Results
-
-- Check `results/logs/` for episode logs.
-- Check `results/stats/` for aggregated CSVs and statistical test results.
-- Ensure that `statistical_test.json` contains a `significant` boolean and a `p_value`.
-
-## 6. Troubleshooting
-
-- **Memory Error**: If you encounter a memory error, reduce the number of episodes or use a subset of Mini-ImageNet (50 classes).
-- **Download Failure**: The script will retry 3 times. If it fails, check your internet connection.
-- **CUDA Error**: Ensure you are using the CPU version of PyTorch. Do not install `torch` with CUDA support.
+- **OOM (Out of Memory)**: Omniglot is designed to fit in a compact size suitable for efficient storage and transfer. If OOM occurs, check system RAM availability or reduce `episodes_per_seed` in the config.
+- **CUDA Error**: Ensure you are using the CPU version of PyTorch. The code should not attempt to use CUDA.
+- **Statistical Singularity**: If the covariance matrix is singular, the code automatically applies a ridge penalty. If this fails, the result will be marked "undefined" or "singular".
+- **Inconclusive Result**: With N=5 seeds, statistical power is limited. If the result is "inconclusive" with reason "insufficient_power", this is expected. Full-scale validation requires N ≥ 20 seeds.
+- **Mini-ImageNet Not Available**: Mini-ImageNet is not supported on GitHub Actions free-tier. For local/cloud execution, identify a verified Mini-ImageNet source and update the `datasets.name` in the config.
