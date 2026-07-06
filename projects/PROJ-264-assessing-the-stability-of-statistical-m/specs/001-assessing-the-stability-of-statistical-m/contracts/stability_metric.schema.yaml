@@ -1,0 +1,55 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Stability Metric Schema"
+description: "Schema for the aggregated stability metrics CSV file."
+type: "object"
+properties:
+  dataset_id:
+    type: "string"
+    description: "Foreign key to the dataset metadata."
+  model_name:
+    type: "string"
+    description: "Name of the model used."
+    enum:
+      - "LogisticRegression"
+      - "RandomForest"
+      - "LinearSVM"
+  mean_accuracy:
+    type: "number"
+    description: "Mean accuracy across multiple repeats."
+    minimum: 0.0
+    maximum: 1.0
+  std_accuracy:
+    type: "number"
+    description: "Standard deviation of accuracy."
+    minimum: 0.0
+  cv_accuracy:
+    type: "number"
+    description: "Coefficient of Variation for accuracy (std/mean)."
+    minimum: 0.0
+  mean_f1:
+    type: "number"
+    description: "Mean F score across 100 repeats."
+    minimum: 0.0
+    maximum: 1.0
+  std_f1:
+    type: "number"
+    description: "Standard deviation of F1 score."
+    minimum: 0.0
+  cv_f1:
+    type: "number"
+    description: "Coefficient of Variation for F1 score."
+    minimum: 0.0
+  n_evaluations:
+    type: "integer"
+    description: "Number of evaluations (should be sufficient to ensure statistical robustness)."
+    const: 100
+required:
+  - dataset_id
+  - model_name
+  - mean_accuracy
+  - std_accuracy
+  - cv_accuracy
+  - mean_f1
+  - std_f1
+  - cv_f1
+  - n_evaluations

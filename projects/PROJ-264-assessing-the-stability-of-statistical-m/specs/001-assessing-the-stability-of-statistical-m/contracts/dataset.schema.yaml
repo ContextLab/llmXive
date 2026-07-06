@@ -1,0 +1,37 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Dataset Schema"
+description: "Schema for a single binary classification dataset record from UCI/OpenML."
+type: object
+properties:
+  dataset_id:
+    type: integer
+    description: "Unique OpenML dataset ID."
+  dataset_name:
+    type: string
+    description: "Human-readable name of the dataset."
+  n_samples:
+    type: integer
+    description: "Number of rows in the dataset."
+    minimum: 100
+  n_features:
+    type: integer
+    description: "Number of features (after encoding)."
+    minimum: 1
+  source:
+    type: string
+    enum:
+      - "OpenML"
+      - "UCI"
+    description: "Source of the dataset."
+  checksum:
+    type: string
+    description: "SHA-256 checksum of the raw file."
+    pattern: "^[a-f0-9]{64}$"
+required:
+  - dataset_id
+  - dataset_name
+  - n_samples
+  - n_features
+  - source
+  - checksum
+additionalProperties: false

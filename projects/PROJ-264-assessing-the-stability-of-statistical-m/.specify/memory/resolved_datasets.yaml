@@ -1,0 +1,399 @@
+resolved_at: '2026-07-06T14:24:38.345372+00:00'
+datasets:
+- intent: SVM
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://huggingface.co/api/resolve-cache/datasets/ieeaaeeH/svm_mix_am/ed190bcd514f252c64a5051fc4f7f6ba113cccf5/www.amazon.com.json?%2Fdatasets%2FieeaaeeH%2Fsvm_mix_am%2Fresolve%2Fmain%2Fwww.amazon.com.json=&etag=%224eedce3a75069576134fdb295ee258b9b7e0e2ec%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/api/resolve-cache/datasets/ieeaaeeH/svm_mix_ap/0aa68e9ea6a5e973b8e4d0ca8e2f02fa091273c9/www.apple.com.json?%2Fdatasets%2FieeaaeeH%2Fsvm_mix_ap%2Fresolve%2Fmain%2Fwww.apple.com.json=&etag=%2247ae1d1ec8c2f935b28f28030f9ea21a7019ebf3%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/api/resolve-cache/datasets/ieeaaeeH/svm_mix_tw/890cf63e2448c363b74a966e6fdbdaad310b0a32/www.twitter.com.json?%2Fdatasets%2FieeaaeeH%2Fsvm_mix_tw%2Fresolve%2Fmain%2Fwww.twitter.com.json=&etag=%222113abc6c7bccb9343b882ec0271bd20db933113%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/dataset/A_semi-parametric_model_for_assessing_the_effect_of_temperature_on_ice_accumulation_rate_from_Antarctic_ice_core_data/32408500
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Call_09152489563_For_Pan-Atlantic_University_PAU_2026_2027_Pre_Degree_Diploma_and_part-time_form_is_out_call_09152489563_/32911115
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://opticapublishing.figshare.com/articles/media/S2_avi/32051052
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://opticapublishing.figshare.com/articles/media/S1_avi/32051049
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/Pengembangan_Dashboard_Business_Intelligence_Menggunakan_Metode_Kimball_Lifecycle_untuk_Meminimalisir_Stockout_pada_UMKM/32909561
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20058869
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7792512
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://academic.oup.com/bioinformatics/article/32/14/2196/1742803
+    source: zenodo
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://zenodo.org/records/18667799
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10890186
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://rayajsd.org/index.php/rjsd/article/view/75
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://air.unimi.it/handle/2434/155486
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/_b_Analisis_Komparatif_Sentimen_Opini_Publik_terhadap_Program_Koperasi_Desa_Merah_Putih_di_YouTube_Menggunakan_Na_ve_Bayes_dan_Support_Vector_Machine_b_/32908703
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/_b_Analisis_Komparatif_Sentimen_Opini_Publik_terhadap_Program_Koperasi_Desa_Merah_Putih_di_YouTube_Menggunakan_Na_ve_Bayes_dan_Support_Vector_Machine_b_/32908703/1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.zora.uzh.ch/handle/20.500.14742/248149
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: UCI
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/udayl/UCI_HAR/resolve/main/csv_files/test.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/jlh/uci-shopper/resolve/main/data/train-00000-of-00001-3316810f8df41d3a.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/ucinlp/drop/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/ucinlp/drop/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/ucirvine/reuters21578/resolve/main/data/reuters21578.tar.gz
+    source: huggingface
+    status: verified
+    format: gzip
+  - url: https://huggingface.co/datasets/ucirvine/sms_spam/resolve/main/plain_text/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/udayl/UCI_HAR/resolve/main/csv_files/test.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/jlh/uci-shopper/resolve/main/data/train-00000-of-00001-3316810f8df41d3a.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://researchdata.up.ac.za/articles/dataset/Examining_how_men_make_decisions_about_human_immunodeficiency_virus_HIV_services_and_what_service_configurations_they_value_most/32908907
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/dataset/A_semi-parametric_model_for_assessing_the_effect_of_temperature_on_ice_accumulation_rate_from_Antarctic_ice_core_data/32408500
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Call_09152489563_For_Pan-Atlantic_University_PAU_2026_2027_Pre_Degree_Diploma_and_part-time_form_is_out_call_09152489563_/32911115
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://opticapublishing.figshare.com/articles/media/S2_avi/32051052
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://opticapublishing.figshare.com/articles/media/S1_avi/32051049
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7950533
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/61452
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7681792
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7627577
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10685355
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21218299
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21218299
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19813475
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/q568n/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19152770
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: F1-scores
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/twinkle-ai/llama-3.2-3B-f1-instruct-eval-logs-and-scores/resolve/main/results/twinkle-ai__Llama-3.2-3B-F1-Instruct/default/eval_results_20260305_1743_run0.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/twinkle-ai/llama-3.2-3B-f1-instruct-eval-logs-and-scores/resolve/main/results/twinkle-ai__Llama-3.2-3B-F1-Instruct/default/eval_results_20260305_1743_run0.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://opticapublishing.figshare.com/articles/journal_contribution/Supplementary_document_for_Design_and_Fabrication_of_a_Conformal_Liquid_Crystal_Film_Compound_Eye_Lens_Based_on_Developable_Surfaces_and_Parallel_Photoalignment_-_7943165_pdf/32652867
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/dataset/Table_2_A_one_welfare_perspective_on_calf_health_a_qualitative_study_of_knowledge_attitudes_working_conditions_working_atmosphere_and_communication_among_farmers_and_calf-care_teams_on_large_Saxon_dairy_farms_docx/32911148
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://researchdata.up.ac.za/articles/dataset/Examining_how_men_make_decisions_about_human_immunodeficiency_virus_HIV_services_and_what_service_configurations_they_value_most/32908907
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/dataset/A_semi-parametric_model_for_assessing_the_effect_of_temperature_on_ice_accumulation_rate_from_Antarctic_ice_core_data/32408500
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Call_09152489563_For_Pan-Atlantic_University_PAU_2026_2027_Pre_Degree_Diploma_and_part-time_form_is_out_call_09152489563_/32911115
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.s69g4
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7953119
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/2597384
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4662943
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4262827
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21219297
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21219297
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21219289
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21219289
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21218180
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: NOT
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/leolee99/NotInject/resolve/main/data/NotInject_one-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 10859
+      parsed: true
+  - url: https://huggingface.co/datasets/vlmbook/notebooks/resolve/main/Chapter 3/chapter_3_batched_loss.json
+    source: huggingface
+    format: json
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 39475
+      parsed: true
+  - url: https://huggingface.co/datasets/Nottybro/Minecraft-Fable-Raw/resolve/main/amulet_processed/manifest.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 2431
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/leolee99/NotInject/resolve/main/data/NotInject_one-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/vlmbook/notebooks/resolve/main/Chapter 3/chapter_3_batched_loss.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://huggingface.co/datasets/Nottybro/Minecraft-Fable-Raw/resolve/main/amulet_processed/manifest.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://us.aws.cdn.hf.co/xet-bridge-us/621ffdd236468d709f1835ac/f813331e385a1262352d21b9bc0a6152170575b5e627b54ce0a54f73daeaf5fd?response-content-type=application%2Fjson&X-Xet-Cas-Uid=public&user_id=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27datasets.json%3B+filename%3D%22datasets.json%22%3B&Expires=1783351415&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjIxZmZkZDIzNjQ2OGQ3MDlmMTgzNWFjL2Y4MTMzMzFlMzg1YTEyNjIzNTJkMjFiOWJjMGE2MTUyMTcwNTc1YjVlNjI3YjU0Y2UwYTU0ZjczZGFlYWY1ZmRcXD9yZXNwb25zZS1jb250ZW50LXR5cGU9YXBwbGljYXRpb24lMkZqc29uJlgtWGV0LUNhcy1VaWQ9cHVibGljJnVzZXJfaWQ9cHVibGljJnJlc3BvbnNlLWNvbnRlbnQtZGlzcG9zaXRpb249aW5saW5lJTNCK2ZpbGVuYW1lJTJBJTNEVVRGLTglMjclMjdkYXRhc2V0cy5qc29uJTNCK2ZpbGVuYW1lJTNEJTIyZGF0YXNldHMuanNvbiUyMiUzQiIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzgzMzUxNDE1fX19XX0_&Signature=MEUCIQD3idhbFW1U2j7d0-S5PKlKCD-EEukhSOAMxk3Q9tGGBgIgB-8DxVaAyjpJh2v7QLMz7MNjhHmM69SaH87VAJ93PQQ_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://opticapublishing.figshare.com/articles/journal_contribution/Supplementary_document_for_Design_and_Fabrication_of_a_Conformal_Liquid_Crystal_Film_Compound_Eye_Lens_Based_on_Developable_Surfaces_and_Parallel_Photoalignment_-_7943165_pdf/32652867
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/dataset/Table_2_A_one_welfare_perspective_on_calf_health_a_qualitative_study_of_knowledge_attitudes_working_conditions_working_atmosphere_and_communication_among_farmers_and_calf-care_teams_on_large_Saxon_dairy_farms_docx/32911148
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://researchdata.up.ac.za/articles/dataset/Examining_how_men_make_decisions_about_human_immunodeficiency_virus_HIV_services_and_what_service_configurations_they_value_most/32908907
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/dataset/A_semi-parametric_model_for_assessing_the_effect_of_temperature_on_ice_accumulation_rate_from_Antarctic_ice_core_data/32408500
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Call_09152489563_For_Pan-Atlantic_University_PAU_2026_2027_Pre_Degree_Diploma_and_part-time_form_is_out_call_09152489563_/32911115
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16413212
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15525595
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16413231
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5105584
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17305397
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: StabilityMetric
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/preprint/AI_Systems_and_Reality_Drift_Semantic_Fidelity_Evaluation_RAG_Metrics_and_Institutional_Drift/32909438
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://sussex.figshare.com/articles/journal_contribution/Taking_Churchill_off_the_banknote_isn_t_erasing_history_but_it_is_a_matter_of_identity/32908856
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://opticapublishing.figshare.com/articles/journal_contribution/Supplementary_document_for_Design_and_Fabrication_of_a_Conformal_Liquid_Crystal_Film_Compound_Eye_Lens_Based_on_Developable_Surfaces_and_Parallel_Photoalignment_-_7943165_pdf/32652867
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/dataset/Table_2_A_one_welfare_perspective_on_calf_health_a_qualitative_study_of_knowledge_attitudes_working_conditions_working_atmosphere_and_communication_among_farmers_and_calf-care_teams_on_large_Saxon_dairy_farms_docx/32911148
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://researchdata.up.ac.za/articles/dataset/Examining_how_men_make_decisions_about_human_immunodeficiency_virus_HIV_services_and_what_service_configurations_they_value_most/32908907
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20695336
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20805322
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20710475
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: CorrelationResult
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/dataset/_b_VPS35-retromer_prevents_A_-induced_microglial_pathogenesis_by_regulating_ABCA1_b_-_b_mediated_cholesterol_turnover_b_/32909570
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/AI_Systems_and_Reality_Drift_Semantic_Fidelity_Evaluation_RAG_Metrics_and_Institutional_Drift/32909438
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://sussex.figshare.com/articles/journal_contribution/Taking_Churchill_off_the_banknote_isn_t_erasing_history_but_it_is_a_matter_of_identity/32908856
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://opticapublishing.figshare.com/articles/journal_contribution/Supplementary_document_for_Design_and_Fabrication_of_a_Conformal_Liquid_Crystal_Film_Compound_Eye_Lens_Based_on_Developable_Surfaces_and_Parallel_Photoalignment_-_7943165_pdf/32652867
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/dataset/Table_2_A_one_welfare_perspective_on_calf_health_a_qualitative_study_of_knowledge_attitudes_working_conditions_working_atmosphere_and_communication_among_farmers_and_calf-care_teams_on_large_Saxon_dairy_farms_docx/32911148
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content

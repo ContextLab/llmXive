@@ -1,0 +1,51 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "StabilityMetric Schema"
+description: "Schema for aggregated stability metrics per (dataset, model) pair."
+type: object
+properties:
+  dataset_id:
+    type: integer
+    description: "Foreign key to Dataset."
+  model_name:
+    type: string
+    enum:
+      - "LogisticRegression"
+      - "RandomForest"
+      - "LinearSVM"
+    description: "Name of the model."
+  n_samples:
+    type: integer
+    description: "Number of samples in the dataset."
+  n_features:
+    type: integer
+    description: "Number of features."
+  mean_accuracy:
+    type: number
+    description: "Mean accuracy across 100 repeats."
+  std_accuracy:
+    type: number
+    description: "Standard deviation of accuracy."
+  cv_accuracy:
+    type: number
+    description: "Coefficient of Variation for accuracy (std/mean)."
+  mean_f1:
+    type: number
+    description: "Mean F1 score across 100 repeats."
+  std_f1:
+    type: number
+    description: "Standard deviation of F1 score."
+  cv_f1:
+    type: number
+    description: "Coefficient of Variation for F1 score (std/mean)."
+required:
+  - dataset_id
+  - model_name
+  - n_samples
+  - n_features
+  - mean_accuracy
+  - std_accuracy
+  - cv_accuracy
+  - mean_f1
+  - std_f1
+  - cv_f1
+additionalProperties: false

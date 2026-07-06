@@ -1,0 +1,47 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "EvaluationRun Schema"
+description: "Schema for a single model evaluation run (one fold, one repeat)."
+type: object
+properties:
+  dataset_id:
+    type: integer
+    description: "Foreign key to Dataset."
+  model_name:
+    type: string
+    enum:
+      - "LogisticRegression"
+      - "RandomForest"
+      - "LinearSVM"
+    description: "Name of the model used."
+  repeat_id:
+    type: integer
+    description: "Repeat ID (1-10)."
+    minimum: 1
+    maximum: 10
+  fold_id:
+    type: integer
+    description: "Fold ID (1-10)."
+    minimum: 1
+    maximum: 10
+  accuracy:
+    type: number
+    description: "Classification accuracy."
+    minimum: 0.0
+    maximum: 1.0
+  f1_score:
+    type: number
+    description: "F1 score."
+    minimum: 0.0
+    maximum: 1.0
+  seed:
+    type: integer
+    description: "Random seed used for this run."
+required:
+  - dataset_id
+  - model_name
+  - repeat_id
+  - fold_id
+  - accuracy
+  - f1_score
+  - seed
+additionalProperties: false

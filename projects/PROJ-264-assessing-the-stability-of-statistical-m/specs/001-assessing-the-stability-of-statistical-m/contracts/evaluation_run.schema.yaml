@@ -1,0 +1,48 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Evaluation Run Schema"
+description: "Schema for the evaluation runs CSV file (raw cross-validation results)."
+type: "object"
+properties:
+  dataset_id:
+    type: "integer"
+    description: "Foreign key to the dataset metadata (OpenML ID)."
+  model_name:
+    type: "string"
+    description: "Name of the model used."
+    enum:
+      - "LogisticRegression"
+      - "RandomForest"
+      - "LinearSVM"
+  repeat_id:
+    type: "integer"
+    description: "Repeat iteration ID (0-9)."
+    minimum: 0
+    maximum: 9
+  fold_id:
+    type: "integer"
+    description: "Fold ID (0-9)."
+    minimum: 0
+    maximum: 9
+  accuracy:
+    type: "number"
+    description: "Accuracy score for this fold."
+    minimum: 0.0
+    maximum: 1.0
+  f1_score:
+    type: "number"
+    description: "F1 score for this fold."
+    minimum: 0.0
+    maximum: 1.0
+  runtime_seconds:
+    type: "number"
+    description: "Execution time in seconds."
+    minimum: 0.0
+required:
+  - dataset_id
+  - model_name
+  - repeat_id
+  - fold_id
+  - accuracy
+  - f1_score
+  - runtime_seconds
+additionalProperties: false

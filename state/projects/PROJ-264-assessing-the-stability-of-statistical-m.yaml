@@ -1,18 +1,18 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-04T17:53:10.682198Z'
-current_stage: project_initialized
+current_stage: planned
 failed_stage: null
 field: statistics
 human_escalation_reason: null
 id: PROJ-264-assessing-the-stability-of-statistical-m
-last_run_id: caab6433-05a6-45b8-a6d0-c76d7accac6c
+last_run_id: b24d41c0-a2b7-4cfa-be42-ad5539c6ddf1
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
 revision_spec_path: null
 speckit_paper_dir: null
-speckit_research_dir: null
+speckit_research_dir: projects/PROJ-264-assessing-the-stability-of-statistical-m/specs/001-assessing-the-stability-of-statistical-m
 title: Assessing the Stability of Statistical Model Performance Across Data Subsets
-updated_at: '2026-06-27T15:41:25.408009Z'
+updated_at: '2026-07-06T14:46:27.082270Z'
