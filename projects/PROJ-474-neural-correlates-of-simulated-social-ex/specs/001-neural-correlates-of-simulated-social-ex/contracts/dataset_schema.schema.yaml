@@ -1,0 +1,48 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "OpenNeuro fMRI Dataset Schema"
+description: "Schema for the verified OpenNeuro dataset containing Cyberball task fMRI data."
+type: "object"
+properties:
+  subject_id:
+    type: "string"
+    description: "Unique identifier for the subject."
+  run_id:
+    type: "string"
+    description: "Identifier for the fMRI run."
+  condition:
+    type: "string"
+    enum:
+      - "Inclusion"
+      - "Exclusion"
+    description: "Task condition label."
+  time_series:
+    type: "array"
+    description: "BOLD signal time-series data."
+    items:
+      type: "array"
+      items:
+        type: "number"
+  motion_params:
+    type: "array"
+    description: "Motion parameters (translational and rotational)."
+    items:
+      type: "number"
+  event_markers:
+    type: "array"
+    description: "Onset and duration of task events."
+    items:
+      type: "object"
+      properties:
+        onset:
+          type: "number"
+        duration:
+          type: "number"
+        trial_type:
+          type: "string"
+required:
+  - "subject_id"
+  - "run_id"
+  - "condition"
+  - "time_series"
+  - "motion_params"
+additionalProperties: false
