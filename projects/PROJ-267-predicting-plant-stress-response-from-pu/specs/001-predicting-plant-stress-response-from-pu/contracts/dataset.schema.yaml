@@ -1,0 +1,85 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Unified Plant Stress Dataset Schema"
+description: "Schema for the processed, merged proteomic and transcriptomic dataset."
+type: object
+properties:
+  metadata:
+    type: object
+    properties:
+      accession_id:
+        type: string
+        description: "Source accession number (e.g., GSE12345)"
+      species:
+        type: string
+        enum:
+          - "Arabidopsis"
+          - "Oryza_sativa"
+          - "Triticum_aestivum"
+        description: "Plant species name"
+      stress_type:
+        type: string
+        enum:
+          - "Drought"
+          - "Salinity"
+          - "Heat"
+        description: "Abiotic stress condition"
+      processing_date:
+        type: string
+        format: date-time
+        description: "ISO 8601 timestamp of processing"
+      checksum:
+        type: string
+        description: "SHA-256 checksum of the file content"
+      data_completeness:
+        type: object
+        description: "Metrics for SC-004"
+        properties:
+          initial_datasets:
+            type: integer
+          retained_datasets:
+            type: integer
+          completeness_percentage:
+            type: number
+        required:
+          - initial_datasets
+          - retained_datasets
+          - completeness_percentage
+    required:
+      - accession_id
+      - species
+      - stress_type
+      - processing_date
+  data:
+    type: array
+    items:
+      type: object
+      properties:
+        sample_id:
+          type: string
+          description: "Unique sample identifier"
+        protein_abundances:
+          type: object
+          description: "Key-value pairs of protein IDs to normalized abundance (float)"
+          additionalProperties:
+            type: number
+        gene_expression:
+          type: object
+          description: "Key-value pairs of gene IDs to normalized expression (float)"
+          additionalProperties:
+            type: number
+        protein_residuals:
+          type: object
+          description: "Key-value pairs of protein IDs to residualized abundance (Stress-Blind Baseline)"
+          additionalProperties:
+            type: number
+        is_training:
+          type: boolean
+          description: "True if sample is in training set"
+      required:
+        - sample_id
+        - protein_abundances
+        - gene_expression
+        - is_training
+required:
+  - metadata
+  - data

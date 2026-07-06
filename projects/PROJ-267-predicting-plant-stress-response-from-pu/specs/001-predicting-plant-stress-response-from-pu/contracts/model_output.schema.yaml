@@ -1,0 +1,100 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Model Evaluation Output Schema"
+description: "Schema for the JSON output containing model performance metrics."
+type: object
+properties:
+  model_type:
+    type: string
+    enum:
+      - "RandomForest"
+      - "SVR"
+    description: "Type of model used"
+  validation_strategy:
+    type: string
+    enum:
+      - "within_stress_loocv"
+      - "cross_stress"
+      - "null_model"
+      - "target_permutation"
+      - "stress_blind_baseline"
+    description: "Validation strategy applied"
+  train_stress:
+    type: string
+    enum:
+      - "Drought"
+      - "Salinity"
+      - "Heat"
+    description: "Stress type used for training"
+  test_stress:
+    type: string
+    enum:
+      - "Drought"
+      - "Salinity"
+      - "Heat"
+    description: "Stress type used for testing"
+  metrics:
+    type: object
+    properties:
+      r2_score:
+        type: number
+        description: "Coefficient of determination"
+      rmse:
+        type: number
+        description: "Root Mean Squared Error"
+      n_samples:
+        type: integer
+        description: "Number of samples in the test set"
+      r2_confidence_interval:
+        type: object
+        description: "95% Confidence Interval for R². If derived from LOOCV standard error due to small n, this field may contain 'approximate' flag or standard error instead."
+        properties:
+          lower:
+            type: number
+          upper:
+            type: number
+          method:
+            type: string
+            enum:
+              - "bootstrap"
+              - "loocv_standard_error"
+            description: "Method used to derive the interval"
+        required:
+          - lower
+          - upper
+          - method
+    required:
+      - r2_score
+      - rmse
+      - n_samples
+      - r2_confidence_interval
+  feature_importance:
+    type: array
+    items:
+      type: object
+      properties:
+        feature_name:
+          type: string
+          description: "Protein ID or name"
+        importance_score:
+          type: number
+          description: "Absolute importance score"
+      required:
+        - feature_name
+        - importance_score
+  runtime_metrics:
+    type: object
+    properties:
+      total_runtime_seconds:
+        type: number
+      peak_memory_mb:
+        type: number
+    required:
+      - total_runtime_seconds
+      - peak_memory_mb
+required:
+  - model_type
+  - validation_strategy
+  - train_stress
+  - test_stress
+  - metrics
+  - runtime_metrics
