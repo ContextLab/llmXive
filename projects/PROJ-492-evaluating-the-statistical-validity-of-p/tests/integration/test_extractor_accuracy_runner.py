@@ -1,7 +1,6 @@
 """
-Runner script for FR-002 verification test.
-
-This script runs the extractor accuracy test and reports results.
+Runner script for T036 integration test.
+Can be called directly to verify extraction field coverage.
 """
 import sys
 from pathlib import Path
@@ -10,8 +9,7 @@ from pathlib import Path
 project_root = Path(__file__).parent.parent.parent
 sys.path.insert(0, str(project_root))
 
-from tests.integration.test_extractor_accuracy import main
+from tests.integration.test_extractor_accuracy import main as run_test
 
 if __name__ == "__main__":
-    exit_code = main()
-    sys.exit(exit_code)
+    sys.exit(run_test())
