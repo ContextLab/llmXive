@@ -1,0 +1,673 @@
+resolved_at: '2026-07-06T02:31:57.405693+00:00'
+datasets:
+- intent: GPR
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/gproud/Cutout_Men_Standing/resolve/main/man_standing_captioned.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 3970
+      parsed: true
+  - url: https://huggingface.co/datasets/guanine/gpra_c/resolve/main/1per/1per.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/guanine/gpra_d/resolve/main/1per/1per.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/gproud/Cutout_Men_Standing/resolve/main/man_standing_captioned.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/guanine/gpra_c/resolve/main/1per/1per.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/guanine/gpra_d/resolve/main/1per/1per.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/gpric024/wmt14_injected_synthetic_dyslexia/resolve/main/Data/English_input_data/swap_results.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://figshare.utas.edu.au/articles/journal_contribution/Drift_Static_Signal_Australian_Sonic_Explorers_in_Antarctica/31768738
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.utas.edu.au/articles/journal_contribution/Supporting_digital_engagement_an_evaluation_of_the_use_of_a_guide_for_effective_development_and_facilitation_of_online_discussion_boards/22989065
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.utas.edu.au/articles/journal_contribution/Introducing_the_tri-layered_student_online_experience_framework_moving_from_file_repository_to_narrative_journey/22988597
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.utas.edu.au/articles/journal_contribution/Extreme_weather_effects_on_marine_predator_breeding_outcomes_in_a_global_climate_change_hotspot_/32775174
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.utas.edu.au/articles/journal_contribution/Maggie_Beer_s_Big_Mission_implementation_and_service-system_outcomes_of_a_multi-component_and_multi-disciplinary_mealtime_model_in_residential_aged_care_/32746497
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19072912
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/13842586
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ieeexplore.ieee.org/document/8902528/
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10962520
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://rujec.org/article/97733/
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21210387
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21210387
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21209690
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21209690
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21198051
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: OQMD
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/kjappelbaum/chemnlp-oqmd/resolve/main/targets.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/materials-toolkits/oqmd/resolve/main/oqmd.tar.gz
+    source: huggingface
+    format: gzip
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/jablonkagroup/oqmd/resolve/main/completion_0/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/kjappelbaum/chemnlp-oqmd/resolve/main/targets.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/materials-toolkits/oqmd/resolve/main/oqmd.tar.gz
+    source: huggingface
+    status: verified
+    format: gzip
+  - url: https://huggingface.co/api/resolve-cache/datasets/chenebuah/oqmd/817946484b34c34fb4f15f99aea46837647f5b25/data%2Foqmd_data.csv?%2Fdatasets%2Fchenebuah%2Foqmd%2Fresolve%2Fmain%2Fdata%2Foqmd_data.csv=&etag=%2293db93dd7ed55e87a549b916aaa2720956d20028%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/jablonkagroup/oqmd/resolve/main/completion_0/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/colabfit/JARVIS_CFID_OQMD/resolve/main/co/co_0.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.utas.edu.au/articles/journal_contribution/Drift_Static_Signal_Australian_Sonic_Explorers_in_Antarctica/31768738
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.utas.edu.au/articles/journal_contribution/Supporting_digital_engagement_an_evaluation_of_the_use_of_a_guide_for_effective_development_and_facilitation_of_online_discussion_boards/22989065
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.utas.edu.au/articles/journal_contribution/Introducing_the_tri-layered_student_online_experience_framework_moving_from_file_repository_to_narrative_journey/22988597
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.utas.edu.au/articles/journal_contribution/Extreme_weather_effects_on_marine_predator_breeding_outcomes_in_a_global_climate_change_hotspot_/32775174
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.utas.edu.au/articles/journal_contribution/Maggie_Beer_s_Big_Mission_implementation_and_service-system_outcomes_of_a_multi-component_and_multi-disciplinary_mealtime_model_in_residential_aged_care_/32746497
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3966736
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10028980
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7118055
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7124330
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7373089
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2606.14088
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20456970
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20456970
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.5281/zenodo.20322680
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: HTTP 410'
+  - url: https://arxiv.org/abs/2605.27229
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: AFLOW
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/kamabata/aflow_graph_ids/resolve/main/id_jsons/00/0000.json
+    source: huggingface
+    format: json
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 9686
+      parsed: true
+  - url: https://huggingface.co/datasets/foundry-ml/dataset_thermalcond_aflow/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 91694
+      parsed: true
+  - url: https://huggingface.co/datasets/foundry-ml/dataset_thermalexp_aflow/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 75446
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/kamabata/aflow_graph_ids/resolve/main/id_jsons/00/0000.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://huggingface.co/datasets/foundry-ml/dataset_thermalcond_aflow/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/foundry-ml/dataset_thermalexp_aflow/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/foundry-ml/dataset_debyet_aflow/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.utas.edu.au/articles/journal_contribution/Drift_Static_Signal_Australian_Sonic_Explorers_in_Antarctica/31768738
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.utas.edu.au/articles/journal_contribution/Supporting_digital_engagement_an_evaluation_of_the_use_of_a_guide_for_effective_development_and_facilitation_of_online_discussion_boards/22989065
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.utas.edu.au/articles/journal_contribution/Introducing_the_tri-layered_student_online_experience_framework_moving_from_file_repository_to_narrative_journey/22988597
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.utas.edu.au/articles/journal_contribution/Extreme_weather_effects_on_marine_predator_breeding_outcomes_in_a_global_climate_change_hotspot_/32775174
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.utas.edu.au/articles/journal_contribution/Maggie_Beer_s_Big_Mission_implementation_and_service-system_outcomes_of_a_multi-component_and_multi-disciplinary_mealtime_model_in_residential_aged_care_/32746497
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20089143
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20841352
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14216795
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/2563185
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19679862
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://openkim.org/id/TD_199652920580_000
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20841352
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20841352
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://rodare.hzdr.de/record/4176
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://rodare.hzdr.de/record/4723
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: CPU-only
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/AdityaMayukhSom/MixSub-LLaMA-3.2-Text-Only-Overlap-CPU-Score/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/AdityaMayukhSom/MixSub-LLaMA-3.2-Text-Only-Overlap-CPU-Score/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://research-repository.rmit.edu.au/articles/dataset/Change_Blindness_Image_Database/28529984
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/S_Table1_16s_rDNA_primer_set/31771351
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.utas.edu.au/articles/conference_contribution/The_Conversations_on_the_Move_-_Work_Integrated_Learning_program_that_prepares_allied_health_students_for_their_future_practice_with_neurological_clients/32904434
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.utas.edu.au/articles/journal_contribution/Drift_Static_Signal_Australian_Sonic_Explorers_in_Antarctica/31768738
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.utas.edu.au/articles/journal_contribution/Supporting_digital_engagement_an_evaluation_of_the_use_of_a_guide_for_effective_development_and_facilitation_of_online_discussion_boards/22989065
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.11591/eei.v9i2.1972
+    source: zenodo
+    status: unreachable
+    reason: 'reachability failed: ReadTimeout: HTTPSConnectionPool(host=''beei.org'',
+      port=443): Read timed out. (read timeout=20.0)'
+  - url: https://zenodo.org/records/14352943
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10199277
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17854610
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6127654
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21211653
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21211653
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21210112
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21210112
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.17863/cam.92383
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: ConnectTimeout: HTTPSConnectionPool(host=''www.repository.cam.ac.uk'',
+      port=443): Max retries exceeded with url: /handle/1810/344958 (Caused by ConnectTimeoutError(<HTTPSConnection(host=''www.repository.cam.ac.uk'',
+      port=443) at 0x7f5b8035c190>, ''Connection to www.repository.cam.ac.uk timed
+      out. (connect timeout=20.0)''))'
+- intent: ANOVA
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/P2SAMAPA/p2-etf-functional-anova-results/resolve/main/functional_anova_2026-05-19.json
+    source: huggingface
+    format: json
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 16586
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/P2SAMAPA/p2-etf-functional-anova-results/resolve/main/functional_anova_2026-05-19.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://figshare.utas.edu.au/articles/conference_contribution/Reliability_analysis_of_long_slopes_with_spatially_variable_random_properties/32902100
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://research-repository.rmit.edu.au/articles/dataset/Change_Blindness_Image_Database/28529984
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/S_Table1_16s_rDNA_primer_set/31771351
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.utas.edu.au/articles/conference_contribution/The_Conversations_on_the_Move_-_Work_Integrated_Learning_program_that_prepares_allied_health_students_for_their_future_practice_with_neurological_clients/32904434
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.utas.edu.au/articles/journal_contribution/Drift_Static_Signal_Australian_Sonic_Explorers_in_Antarctica/31768738
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10437571
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15804920
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/1255322
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14242875
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10011805
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21210925
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21210925
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21209298
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21209298
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Data_analysis_for_HepG2_cells_and_BEC_cells_MTT_assays_with_1-300_uM_IDR-1002_/32903285/1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: NOT
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/leolee99/NotInject/resolve/main/data/NotInject_one-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 10859
+      parsed: true
+  - url: https://huggingface.co/datasets/vlmbook/notebooks/resolve/main/Chapter 3/chapter_3_batched_loss.json
+    source: huggingface
+    format: json
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 39475
+      parsed: true
+  - url: https://huggingface.co/datasets/Nottybro/Minecraft-Fable-Raw/resolve/main/amulet_processed/manifest.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 2431
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/leolee99/NotInject/resolve/main/data/NotInject_one-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/vlmbook/notebooks/resolve/main/Chapter 3/chapter_3_batched_loss.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://huggingface.co/datasets/Nottybro/Minecraft-Fable-Raw/resolve/main/amulet_processed/manifest.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/notune/fable5-repos/resolve/main/manifest.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://figshare.utas.edu.au/articles/journal_contribution/Bridging_the_divide_GP_narratives_on_lung_cancer_care_in_Tasmania_/32886068
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.utas.edu.au/articles/conference_contribution/Reliability_analysis_of_long_slopes_with_spatially_variable_random_properties/32902100
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://research-repository.rmit.edu.au/articles/dataset/Change_Blindness_Image_Database/28529984
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/S_Table1_16s_rDNA_primer_set/31771351
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.utas.edu.au/articles/conference_contribution/The_Conversations_on_the_Move_-_Work_Integrated_Learning_program_that_prepares_allied_health_students_for_their_future_practice_with_neurological_clients/32904434
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16413212
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15525595
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16413231
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4578581
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4578377
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: MaterialsDataset
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/dataset/S_Table2_The_raw_data_for_short-read_and_long-read_sequencing_of_Lacticaseibacillus_paracasei_TOKAI_83m_/32897783
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.utas.edu.au/articles/journal_contribution/Bridging_the_divide_GP_narratives_on_lung_cancer_care_in_Tasmania_/32886068
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.utas.edu.au/articles/conference_contribution/Reliability_analysis_of_long_slopes_with_spatially_variable_random_properties/32902100
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://research-repository.rmit.edu.au/articles/dataset/Change_Blindness_Image_Database/28529984
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/S_Table1_16s_rDNA_primer_set/31771351
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/12684769
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Supplementary_Information_for_Prediction_of_Ionic_Conductivity_in_Solid-State_Electrolytes_Using_Machine_Learning_/29670860/4
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: EvaluationMetric
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/dataset/S_Table2_The_raw_data_for_short-read_and_long-read_sequencing_of_Lacticaseibacillus_paracasei_TOKAI_83m_/32897783
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.utas.edu.au/articles/journal_contribution/Bridging_the_divide_GP_narratives_on_lung_cancer_care_in_Tasmania_/32886068
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.utas.edu.au/articles/conference_contribution/Reliability_analysis_of_long_slopes_with_spatially_variable_random_properties/32902100
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://research-repository.rmit.edu.au/articles/dataset/Change_Blindness_Image_Database/28529984
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/S_Table1_16s_rDNA_primer_set/31771351
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18583579
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17824840
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: APIs
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/hmao/new_vt_apis/resolve/main/data/train-00000-of-00001-283ff2ab4f83ebe1.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 14860
+      parsed: true
+  - url: https://huggingface.co/datasets/hmao/cvecpe_apis/resolve/main/data/train-00000-of-00001-dfa2f47bf9593a3f.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 19268
+      parsed: true
+  - url: https://huggingface.co/datasets/hmao/all_apis_for_multiapi/resolve/main/data/train-00000-of-00001-bd8d5e4d08813d65.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 24017
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/api/resolve-cache/datasets/RazinAleks/SO-Python_QA-Networking_and_APIs_class/0272c822cc0f0e5a1c45c29c559d9061d3c73e4f/test.json?%2Fdatasets%2FRazinAleks%2FSO-Python_QA-Networking_and_APIs_class%2Fresolve%2Fmain%2Ftest.json=&etag=%22685295df5b2429de46482f7c3dc13b0b561f39c1%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/venkatsrini/api_single_4k_truncateright/resolve/main/data/train-00000-of-00011-042202c6a570c9d8.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/hmao/new_vt_apis/resolve/main/data/train-00000-of-00001-283ff2ab4f83ebe1.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/hmao/cvecpe_apis/resolve/main/data/train-00000-of-00001-dfa2f47bf9593a3f.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/hmao/all_apis_for_multiapi/resolve/main/data/train-00000-of-00001-bd8d5e4d08813d65.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/dataset/S_Table2_The_raw_data_for_short-read_and_long-read_sequencing_of_Lacticaseibacillus_paracasei_TOKAI_83m_/32897783
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.utas.edu.au/articles/journal_contribution/Bridging_the_divide_GP_narratives_on_lung_cancer_care_in_Tasmania_/32886068
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.utas.edu.au/articles/conference_contribution/Reliability_analysis_of_long_slopes_with_spatially_variable_random_properties/32902100
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: CGCNN
+  status: unresolved
+  candidates: []
+  candidates_tried: []
+- intent: XGBoost
+  status: unresolved
+  candidates: []
+  candidates_tried: []

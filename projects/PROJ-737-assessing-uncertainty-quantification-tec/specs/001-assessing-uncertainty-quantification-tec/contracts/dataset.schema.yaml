@@ -1,0 +1,60 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "MaterialsDatasetSchema"
+description: "Schema for the processed materials dataset used in UQ evaluation."
+type: object
+properties:
+  metadata:
+    type: object
+    properties:
+      name:
+        type: string
+        description: "Dataset identifier (e.g., 'OQMD_BandGap')"
+      source_url:
+        type: string
+        description: "Verified URL of the source dataset"
+      property:
+        type: string
+        description: "Target property (e.g., 'band_gap')"
+      sample_count:
+        type: integer
+        description: "Total number of samples in the dataset"
+    required:
+      - name
+      - source_url
+      - property
+      - sample_count
+  splits:
+    type: object
+    properties:
+      train:
+        type: array
+        items:
+          type: integer
+        description: "Indices for training set"
+      val:
+        type: array
+        items:
+          type: integer
+        description: "Indices for validation set"
+      test:
+        type: array
+        items:
+          type: integer
+        description: "Indices for test set"
+    required:
+      - train
+      - val
+      - test
+  features:
+    type: array
+    items:
+      type: string
+    description: "List of feature column names"
+  target:
+    type: string
+    description: "Name of the target column"
+required:
+  - metadata
+  - splits
+  - features
+  - target

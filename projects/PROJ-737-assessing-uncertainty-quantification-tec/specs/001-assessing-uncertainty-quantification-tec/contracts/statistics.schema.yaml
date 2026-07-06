@@ -1,0 +1,41 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "StatisticalResultSchema"
+description: "Schema for statistical test results."
+type: "object"
+properties:
+  test_type:
+    type: "string"
+    enum: ["t_test", "mann_whitney_u", "anova"]
+    description: "Type of statistical test performed. 'wilcoxon' is excluded as models are independent."
+  method_pair:
+    type: "array"
+    items:
+      type: "string"
+    minItems: 2
+    maxItems: 2
+    description: "Pair of methods compared (for t_test/mann_whitney_u)."
+  dataset_name:
+    type: "string"
+    description: "Dataset name (or 'all' for ANOVA)."
+  p_value:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Calculated p-value."
+  significant:
+    type: "boolean"
+    description: "True if p < alpha (0.05)."
+  alpha:
+    type: "number"
+    default: 0.05
+    description: "Significance level used."
+  correction:
+    type: "string"
+    enum: ["bonferroni", "none"]
+    description: "Multiple comparison correction applied."
+  metric_analyzed:
+    type: "string"
+    enum: ["calibration_error", "sharpness_cv"]
+    description: "Metric used for the test (ANOVA restricted to calibration_error or sharpness_cv)."
+required: ["test_type", "p_value", "significant", "alpha", "metric_analyzed"]
+additionalProperties: false

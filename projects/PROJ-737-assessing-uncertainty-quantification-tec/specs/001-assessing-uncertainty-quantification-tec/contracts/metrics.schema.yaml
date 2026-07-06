@@ -1,0 +1,42 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "EvaluationMetricSchema"
+description: "Schema for the output metrics CSV containing UQ performance."
+type: object
+properties:
+  dataset_name:
+    type: string
+    description: "Name of the dataset used"
+  uq_method:
+    type: string
+    enum:
+      - "GPR"
+      - "MC_Dropout"
+      - "Deep_Ensemble"
+      - "Conformal_Prediction"
+    description: "The UQ method evaluated"
+  metric_type:
+    type: string
+    enum:
+      - "calibration_error"
+      - "sharpness"
+    description: "Type of metric calculated"
+  value:
+    type: number
+    description: "Calculated scalar value"
+  nominal_coverage:
+    type: number
+    description: "Target coverage level (e.g., 0.95)"
+  p_value:
+    type: number
+    description: "P-value from statistical significance test"
+  significance:
+    type: boolean
+    description: "Whether the difference is statistically significant at alpha=0.05"
+required:
+  - dataset_name
+  - uq_method
+  - metric_type
+  - value
+  - nominal_coverage
+  - p_value
+  - significance
