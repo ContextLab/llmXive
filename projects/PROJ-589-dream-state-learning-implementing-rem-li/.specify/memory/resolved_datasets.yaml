@@ -1,0 +1,107 @@
+resolved_at: '2026-07-06T11:00:33.105669+00:00'
+datasets:
+- intent: GLUE
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/nyu-mll/glue/resolve/main/ax/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 80767
+      parsed: true
+  - url: https://huggingface.co/datasets/coastalcph/lex_glue/resolve/main/case_hold/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/google/code_x_glue_cc_clone_detection_big_clone_bench/resolve/main/data/test-00000-of-00003.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/nyu-mll/glue/resolve/main/ax/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/coastalcph/lex_glue/resolve/main/case_hold/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/google/code_x_glue_cc_clone_detection_big_clone_bench/resolve/main/data/test-00000-of-00003.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/google/code_x_glue_cc_clone_detection_poj104/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/google/code_x_glue_cc_cloze_testing_all/resolve/main/go/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://sussex.figshare.com/articles/journal_contribution/Competing_to_belong_How_midlife_exercisers_sustain_shared_social_identity_through_Peloton_participation/32263344
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://sussex.figshare.com/articles/journal_contribution/Sussex_Integrated_Dataset_SID_Data_Resource_Profile/32034648
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/2026_2027_Covenant_University_Ota_Post_UTME_Direct_Entry_FORM_Is_Out_CALL_07036366909_07036366909_DR_MRS_GRACE_AJAYI_To_apply_For_Application_and_make_your_proper_registration_before_the_deadline_/32907476
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/2026_2027_Benson_Idahosa_University_Benin_City_Post_UTME_Direct_Entry_FORM_Is_Out_CALL_07036366909_07036366909_DR_MRS_GRACE_AJAYI_To_apply_For_Application_and_make_your_proper_registration_before_the_deadline_/32907464
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/2026_2027_Bowen_University_Iwo_Post_UTME_Direct_Entry_FORM_Is_Out_CALL_07036366909_07036366909_DR_MRS_GRACE_AJAYI_To_apply_For_Application_and_make_your_proper_registration_before_the_deadline_/32907455
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19304507
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://pubs.acs.org/doi/abs/10.1021/ja02033a022
+    source: zenodo
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://zenodo.org/records/20847941
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15273115
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/13357597
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Next-generation_strategies_for_PROTAC_formulation_mechanistic_insights_and_advanced_formulation_technologies/32838369/1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Next-generation_strategies_for_PROTAC_formulation_mechanistic_insights_and_advanced_formulation_technologies/32838369
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21195584
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21195584
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21204396
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

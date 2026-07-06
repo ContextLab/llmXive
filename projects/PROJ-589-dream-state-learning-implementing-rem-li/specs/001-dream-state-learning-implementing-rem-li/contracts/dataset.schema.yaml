@@ -1,0 +1,41 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Dataset Schema"
+description: "Schema for the GLUE/SuperGLUE dataset subsets used in the experiment."
+type: "object"
+properties:
+  dataset_name:
+    type: "string"
+    description: "Name of the dataset (e.g., 'GLUE-AX', 'LexGLUE-CaseHold')."
+  source_url:
+    type: "string"
+    format: "uri"
+    description: "Verified URL from the project's verified dataset list."
+  split:
+    type: "string"
+    enum: ["train", "test", "validation"]
+    description: "Data split being used."
+  sample_count:
+    type: "integer"
+    minimum: 1
+    description: "Number of samples in the loaded split."
+  fields:
+    type: "array"
+    items:
+      type: "object"
+      properties:
+        name:
+          type: "string"
+        dtype:
+          type: "string"
+          enum: ["string", "integer", "float", "boolean"]
+      required:
+        - name
+        - dtype
+    description: "List of fields in the dataset."
+required:
+  - dataset_name
+  - source_url
+  - split
+  - sample_count
+  - fields
+additionalProperties: false

@@ -1,0 +1,52 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Evaluation Result Schema"
+description: "Schema for the output of a single evaluation run."
+type: "object"
+properties:
+  run_id:
+    type: "string"
+    format: "uuid"
+    description: "Unique identifier for the run."
+  seed:
+    type: "integer"
+    description: "Random seed used for this run."
+  phase:
+    type: "string"
+    enum: ["wake_dream", "baseline"]
+    description: "Which training phase this result corresponds to."
+  dataset:
+    type: "string"
+    description: "Name of the evaluation dataset."
+  accuracy:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Accuracy score on the held-out task."
+  loss:
+    type: "number"
+    description: "Final training loss."
+  peak_memory_mb:
+    type: "integer"
+    description: "Peak memory usage during training."
+  duration_seconds:
+    type: "number"
+    description: "Total wall-clock time in seconds."
+  status:
+    type: "string"
+    enum: ["success", "oom_abort", "timeout_abort", "low_entropy_abort"]
+    description: "Status of the run."
+  reconstruction_difficulty_avg:
+    type: "number"
+    description: "Average reconstruction difficulty (entropy) during training, for quality control."
+required:
+  - run_id
+  - seed
+  - phase
+  - dataset
+  - accuracy
+  - loss
+  - peak_memory_mb
+  - duration_seconds
+  - status
+  - reconstruction_difficulty_avg
+additionalProperties: false

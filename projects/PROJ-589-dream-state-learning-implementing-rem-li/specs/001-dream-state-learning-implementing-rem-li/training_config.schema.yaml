@@ -1,0 +1,59 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Training Configuration Schema
+description: Schema for validating training configuration parameters for Dream-State Learning.
+type: object
+required:
+  - model_name
+  - learning_rate
+  - batch_size
+  - num_epochs
+  - warmup_steps
+  - dream_ratio
+  - entropy_threshold
+  - max_retries
+  - seed
+  - output_dir
+properties:
+  model_name:
+    type: string
+    description: Name of the pre-trained model to use.
+    minLength: 1
+  learning_rate:
+    type: number
+    description: Learning rate for the optimizer.
+    minimum: 0.0
+    exclusiveMinimum: true
+  batch_size:
+    type: integer
+    description: Batch size for training.
+    minimum: 1
+  num_epochs:
+    type: integer
+    description: Number of training epochs.
+    minimum: 1
+  warmup_steps:
+    type: integer
+    description: Number of initial steps before dream phase activation.
+    minimum: 0
+  dream_ratio:
+    type: number
+    description: Ratio of dream phase steps to total steps (0.0 to 1.0).
+    minimum: 0.0
+    maximum: 1.0
+  entropy_threshold:
+    type: number
+    description: Minimum entropy threshold for dream phase outputs.
+    minimum: 0.0
+    exclusiveMinimum: true
+  max_retries:
+    type: integer
+    description: Maximum retries for low-entropy dream outputs.
+    minimum: 0
+  seed:
+    type: integer
+    description: Random seed for reproducibility.
+  output_dir:
+    type: string
+    description: Directory for saving training outputs and checkpoints.
+    minLength: 1
+additionalProperties: false

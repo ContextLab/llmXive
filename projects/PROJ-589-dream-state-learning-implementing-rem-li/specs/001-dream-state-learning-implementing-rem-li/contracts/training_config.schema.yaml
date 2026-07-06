@@ -1,0 +1,56 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Training Configuration Schema"
+description: "Schema for the experiment configuration (hyperparameters, seeds, paths)."
+type: "object"
+properties:
+  model_name:
+    type: "string"
+    description: "Name of the HuggingFace model (e.g., 'distilbert-base-uncased')."
+  seed:
+    type: "integer"
+    description: "Random seed for reproducibility."
+  total_steps:
+    type: "integer"
+    minimum: 1
+    description: "Total number of training steps."
+  wake_dream_ratio:
+    type: "object"
+    properties:
+      wake_steps:
+        type: "integer"
+        default: 4
+      dream_steps:
+        type: "integer"
+        default: 1
+    required:
+      - wake_steps
+      - dream_steps
+    description: "Ratio of wake to dream steps."
+  dream_temperature:
+    type: "number"
+    minimum: 0.1
+    maximum: 2.0
+    description: "Temperature for generative replay in dream phase."
+  warmup_steps:
+    type: "integer"
+    minimum: 0
+    description: "Number of initial wake-only steps."
+  batch_size:
+    type: "integer"
+    minimum: 1
+    description: "Training batch size."
+  max_memory_mb:
+    type: "integer"
+    minimum: 1000
+    maximum: 7000
+    description: "Hard memory limit in MB (default 6500)."
+required:
+  - model_name
+  - seed
+  - total_steps
+  - wake_dream_ratio
+  - dream_temperature
+  - warmup_steps
+  - batch_size
+  - max_memory_mb
+additionalProperties: false

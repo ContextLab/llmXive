@@ -1,0 +1,14 @@
+? 'T001 Create project structure per implementation plan: create directories `code/`,
+  `tests/`, `data/`, `data/raw/`, `data/checkpoints/`, `data/results/`, `data/logs/`,
+  `tests/unit/`, `tests/integration/`, `tests/contract/`'
+: 2
+T003 [P] Configure linting (ruff) and formatting (black) tools: 2
+T004 Implement `code/config.py` for hyperparameters, paths, seed management, and CPU-only device enforcement: 2
+? T005 [P] Implement `code/utils/memory_monitor.py` to track peak RSS via `/proc/self/status`
+  and enforce hard abort (FR-005)
+: 2
+? T006 [P] Implement `code/data/loader.py` to download GLUE/SuperGLUE subsets via
+  `datasets` library with SHA-256 checksum verification; MUST abort execution and
+  raise `DataIntegrityError` if checksum mismatch occurs
+: 1
+T007 Create `code/models/__init__.py` and initialize DistilBERT/TinyLlama model loader (CPU-optimized, default precision): 1

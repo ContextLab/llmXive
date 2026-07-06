@@ -1,0 +1,21 @@
+# Ruff configuration file (alternative to pyproject.toml)
+# This file is used if pyproject.toml is not found or if explicitly invoked.
+# It mirrors the settings in pyproject.toml for clarity.
+
+line-length = 88
+target-version = "py39"
+
+select = [
+    "E", "W", "F", "I", "B", "C4", "UP"
+]
+ignore = [
+    "E501",
+    "B008",
+    "C901"
+]
+
+[format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"
