@@ -1,0 +1,36 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "StatisticalTestResult Schema"
+description: "Schema for statistical test results comparing ligand groups (Unpaired Welch's t-test)."
+type: "object"
+properties:
+  test_type:
+    type: "string"
+    description: "Type of statistical test performed."
+    enum:
+      - "unpaired_welch_t_test"
+      - "mann_whitney_u"
+  group_a:
+    type: "string"
+    description: "First group name."
+    const: "Group13"
+  group_b:
+    type: "string"
+    description: "Second group name."
+    const: "Conventional"
+  statistic:
+    type: "number"
+    description: "Test statistic value."
+  p_value:
+    type: "number"
+    description: "P-value of the test."
+  significant:
+    type: "boolean"
+    description: "Whether the result is significant (p < 0.05)."
+required:
+  - test_type
+  - group_a
+  - group_b
+  - statistic
+  - p_value
+  - significant
+additionalProperties: false

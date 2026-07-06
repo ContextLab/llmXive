@@ -1,4 +1,4 @@
-resolved_at: '2026-07-04T20:14:18.241379+00:00'
+resolved_at: '2026-07-06T07:50:55.530407+00:00'
 datasets:
 - intent: SchNet
   status: verified
@@ -15,23 +15,23 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://figshare.com/articles/figure/A_system_dynamics_model_to_estimate_energy_temperature_and_particle_size_in_planetary_ball_milling_https_doi_org_10_1016_j_jallcom_2012_12_035_/32900594
+  - url: https://figshare.com/articles/dataset/Research_Data_on_the_Induced_Polarization_Effect_of_Fractured_Rock/32775774
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/GenoAgent_Benchmark_Hard_A_Phenotype-Similar_Distractor_Variant_of_the_Stratified_Rare-Disease_Cohort_for_Literature-Based_Causal_Gene_Prioritization_n_1_047_/32816468
+  - url: https://irr.singaporetech.edu.sg/articles/poster/A_Design_Thinking_Approach_to_Transform_the_Experience_of_Transition_among_Senior_Adults_at_the_time_of_Nursing_Home_Admission/27042148
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/figure/Aqueous_sol_gel_synthesis_of_zirconium_titanate_ZrTiO_sub_4_sub_nanoparticles_using_chloride_precursors_https_doi_org_10_1016_j_ceramint_2012_04_064_/32900591
+  - url: https://manara.qnl.qa/articles/media/__-__/32901749
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/GenoAgent_Benchmark_A_Stratified_Rare-Disease_Benchmark_Cohort_for_Literature-Based_Causal_Gene_Prioritization_n_1_047_/32814449
+  - url: https://tandf.figshare.com/articles/journal_contribution/Effect_of_Mn-doped_content_on_Fe_sub_2_sub_O_sub_3_sub_with_enhanced_photo-Fenton_degradation_of_tetracycline_under_visible_light/32906568
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Comprehensive_Market_Profile_and_Analytical_Evaluation_of_Rotexmedica_Ketamine_Distribution_Frameworks/32900576
+  - url: https://tandf.figshare.com/articles/dataset/Early_detection_of_severe_fetal_growth_restriction_using_multimodal_deep_learning_based_on_ultrasound_and_prenatal_biomarkers/32906577
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -90,23 +90,23 @@ datasets:
     source: huggingface
     status: verified
     format: hdf5
-  - url: https://figshare.com/articles/figure/A_system_dynamics_model_to_estimate_energy_temperature_and_particle_size_in_planetary_ball_milling_https_doi_org_10_1016_j_jallcom_2012_12_035_/32900594
+  - url: https://figshare.com/articles/dataset/Research_Data_on_the_Induced_Polarization_Effect_of_Fractured_Rock/32775774
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/GenoAgent_Benchmark_Hard_A_Phenotype-Similar_Distractor_Variant_of_the_Stratified_Rare-Disease_Cohort_for_Literature-Based_Causal_Gene_Prioritization_n_1_047_/32816468
+  - url: https://irr.singaporetech.edu.sg/articles/poster/A_Design_Thinking_Approach_to_Transform_the_Experience_of_Transition_among_Senior_Adults_at_the_time_of_Nursing_Home_Admission/27042148
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/figure/Aqueous_sol_gel_synthesis_of_zirconium_titanate_ZrTiO_sub_4_sub_nanoparticles_using_chloride_precursors_https_doi_org_10_1016_j_ceramint_2012_04_064_/32900591
+  - url: https://manara.qnl.qa/articles/media/__-__/32901749
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/GenoAgent_Benchmark_A_Stratified_Rare-Disease_Benchmark_Cohort_for_Literature-Based_Causal_Gene_Prioritization_n_1_047_/32814449
+  - url: https://tandf.figshare.com/articles/journal_contribution/Effect_of_Mn-doped_content_on_Fe_sub_2_sub_O_sub_3_sub_with_enhanced_photo-Fenton_degradation_of_tetracycline_under_visible_light/32906568
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Comprehensive_Market_Profile_and_Analytical_Evaluation_of_Rotexmedica_Ketamine_Distribution_Frameworks/32900576
+  - url: https://tandf.figshare.com/articles/dataset/Early_detection_of_severe_fetal_growth_restriction_using_multimodal_deep_learning_based_on_ultrasound_and_prenatal_biomarkers/32906577
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -114,14 +114,14 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://dl.acm.org/doi/10.1145/3564625.3567999
-    source: zenodo
-    status: wrong_format
-    reason: HTTP 403
   - url: https://zenodo.org/records/8344605
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
+  - url: https://dl.acm.org/doi/10.1145/3564625.3567999
+    source: zenodo
+    status: wrong_format
+    reason: HTTP 403
   - url: https://zenodo.org/records/10911783
     source: zenodo
     status: wrong_format
@@ -130,23 +130,23 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/preprint/AI_and_Analytics_for_Detecting_Fraud_and_Financial_Risks/32900582/1
+  - url: https://zenodo.org/records/21212168
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/preprint/AI_and_Analytics_for_Detecting_Fraud_and_Financial_Risks/32900582
+  - url: https://zenodo.org/records/21212168
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21187038
+  - url: https://knowledge.uchicago.edu/records/pmbgq-7f103
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21187038
+  - url: https://knowledge.uchicago.edu/records/pmbgq-7f103
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://publica.fraunhofer.de/entities/publication/036775c0-8e48-4aab-9f15-cfe52614839a
+  - url: https://zenodo.org/records/20577156
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -196,23 +196,23 @@ datasets:
     source: huggingface
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/figure/A_system_dynamics_model_to_estimate_energy_temperature_and_particle_size_in_planetary_ball_milling_https_doi_org_10_1016_j_jallcom_2012_12_035_/32900594
+  - url: https://figshare.com/articles/dataset/Dataset_and_Code_for_Aesthetic_Sustainability-Oriented_Automotive_Interior_Design_Optimization_Using_BO-BiLSTM_NSGA-II_and_SHAP/32906630
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/GenoAgent_Benchmark_Hard_A_Phenotype-Similar_Distractor_Variant_of_the_Stratified_Rare-Disease_Cohort_for_Literature-Based_Causal_Gene_Prioritization_n_1_047_/32816468
+  - url: https://figshare.com/articles/dataset/Research_Data_on_the_Induced_Polarization_Effect_of_Fractured_Rock/32775774
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/figure/Aqueous_sol_gel_synthesis_of_zirconium_titanate_ZrTiO_sub_4_sub_nanoparticles_using_chloride_precursors_https_doi_org_10_1016_j_ceramint_2012_04_064_/32900591
+  - url: https://irr.singaporetech.edu.sg/articles/poster/A_Design_Thinking_Approach_to_Transform_the_Experience_of_Transition_among_Senior_Adults_at_the_time_of_Nursing_Home_Admission/27042148
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/GenoAgent_Benchmark_A_Stratified_Rare-Disease_Benchmark_Cohort_for_Literature-Based_Causal_Gene_Prioritization_n_1_047_/32814449
+  - url: https://manara.qnl.qa/articles/media/__-__/32901749
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Comprehensive_Market_Profile_and_Analytical_Evaluation_of_Rotexmedica_Ketamine_Distribution_Frameworks/32900576
+  - url: https://tandf.figshare.com/articles/journal_contribution/Effect_of_Mn-doped_content_on_Fe_sub_2_sub_O_sub_3_sub_with_enhanced_photo-Fenton_degradation_of_tetracycline_under_visible_light/32906568
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -228,27 +228,15 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/7861665
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/14186325
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://opendata.uni-halle.de//handle/1981185920/126065
-    source: datacite
+  - url: https://zenodo.org/records/7861665
+    source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21196288
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21196288
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://unige.iris.cineca.it/handle/11567/941624
+  - url: https://air.unimi.it/handle/2434/150083
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -256,27 +244,39 @@ datasets:
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.5281/zenodo.20842238
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: HTTP 410'
+  - url: https://dataverse.dipc.org/dataset.xhtml?persistentId=doi:10.82518/6HIZUU
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21207072
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
 - intent: LOOCV
   status: unresolved
   candidates: []
   candidates_tried:
-  - url: https://figshare.com/articles/figure/Characterization_of_Fe_Cr_Mn_N_amorphous_powders_with_a_wide_supercooled_liquid_region_developed_by_mechanical_alloying_https_doi_org_10_1016_j_msea_2009_09_061_/32900600
+  - url: https://figshare.com/articles/dataset/Dataset_and_Code_for_Aesthetic_Sustainability-Oriented_Automotive_Interior_Design_Optimization_Using_BO-BiLSTM_NSGA-II_and_SHAP/32906630
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/figure/A_system_dynamics_model_to_estimate_energy_temperature_and_particle_size_in_planetary_ball_milling_https_doi_org_10_1016_j_jallcom_2012_12_035_/32900594
+  - url: https://figshare.com/articles/dataset/Research_Data_on_the_Induced_Polarization_Effect_of_Fractured_Rock/32775774
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/GenoAgent_Benchmark_Hard_A_Phenotype-Similar_Distractor_Variant_of_the_Stratified_Rare-Disease_Cohort_for_Literature-Based_Causal_Gene_Prioritization_n_1_047_/32816468
+  - url: https://irr.singaporetech.edu.sg/articles/poster/A_Design_Thinking_Approach_to_Transform_the_Experience_of_Transition_among_Senior_Adults_at_the_time_of_Nursing_Home_Admission/27042148
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/figure/Aqueous_sol_gel_synthesis_of_zirconium_titanate_ZrTiO_sub_4_sub_nanoparticles_using_chloride_precursors_https_doi_org_10_1016_j_ceramint_2012_04_064_/32900591
+  - url: https://manara.qnl.qa/articles/media/__-__/32901749
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/GenoAgent_Benchmark_A_Stratified_Rare-Disease_Benchmark_Cohort_for_Literature-Based_Causal_Gene_Prioritization_n_1_047_/32814449
+  - url: https://tandf.figshare.com/articles/journal_contribution/Effect_of_Mn-doped_content_on_Fe_sub_2_sub_O_sub_3_sub_with_enhanced_photo-Fenton_degradation_of_tetracycline_under_visible_light/32906568
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -288,16 +288,24 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/18375139
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/15319409
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/19546367
     source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18375139
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21213625
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21213625
+    source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://arxiv.org/abs/2607.02032
@@ -309,14 +317,6 @@ datasets:
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://osf.io/j8mg6/
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/18894072
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21070363
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -365,23 +365,23 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://figshare.com/articles/figure/Characterization_of_Fe_Cr_Mn_N_amorphous_powders_with_a_wide_supercooled_liquid_region_developed_by_mechanical_alloying_https_doi_org_10_1016_j_msea_2009_09_061_/32900600
+  - url: https://figshare.com/articles/dataset/Dataset_and_Code_for_Aesthetic_Sustainability-Oriented_Automotive_Interior_Design_Optimization_Using_BO-BiLSTM_NSGA-II_and_SHAP/32906630
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/figure/A_system_dynamics_model_to_estimate_energy_temperature_and_particle_size_in_planetary_ball_milling_https_doi_org_10_1016_j_jallcom_2012_12_035_/32900594
+  - url: https://figshare.com/articles/dataset/Research_Data_on_the_Induced_Polarization_Effect_of_Fractured_Rock/32775774
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/GenoAgent_Benchmark_Hard_A_Phenotype-Similar_Distractor_Variant_of_the_Stratified_Rare-Disease_Cohort_for_Literature-Based_Causal_Gene_Prioritization_n_1_047_/32816468
+  - url: https://irr.singaporetech.edu.sg/articles/poster/A_Design_Thinking_Approach_to_Transform_the_Experience_of_Transition_among_Senior_Adults_at_the_time_of_Nursing_Home_Admission/27042148
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/figure/Aqueous_sol_gel_synthesis_of_zirconium_titanate_ZrTiO_sub_4_sub_nanoparticles_using_chloride_precursors_https_doi_org_10_1016_j_ceramint_2012_04_064_/32900591
+  - url: https://manara.qnl.qa/articles/media/__-__/32901749
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/GenoAgent_Benchmark_A_Stratified_Rare-Disease_Benchmark_Cohort_for_Literature-Based_Causal_Gene_Prioritization_n_1_047_/32814449
+  - url: https://tandf.figshare.com/articles/journal_contribution/Effect_of_Mn-doped_content_on_Fe_sub_2_sub_O_sub_3_sub_with_enhanced_photo-Fenton_degradation_of_tetracycline_under_visible_light/32906568
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -453,31 +453,31 @@ datasets:
     source: huggingface
     status: verified
     format: csv
-  - url: https://figshare.com/articles/figure/Characterization_of_Fe_Cr_Mn_N_amorphous_powders_with_a_wide_supercooled_liquid_region_developed_by_mechanical_alloying_https_doi_org_10_1016_j_msea_2009_09_061_/32900600
+  - url: https://figshare.com/articles/dataset/Dataset_and_Code_for_Aesthetic_Sustainability-Oriented_Automotive_Interior_Design_Optimization_Using_BO-BiLSTM_NSGA-II_and_SHAP/32906630
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/figure/A_system_dynamics_model_to_estimate_energy_temperature_and_particle_size_in_planetary_ball_milling_https_doi_org_10_1016_j_jallcom_2012_12_035_/32900594
+  - url: https://figshare.com/articles/dataset/Research_Data_on_the_Induced_Polarization_Effect_of_Fractured_Rock/32775774
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/GenoAgent_Benchmark_Hard_A_Phenotype-Similar_Distractor_Variant_of_the_Stratified_Rare-Disease_Cohort_for_Literature-Based_Causal_Gene_Prioritization_n_1_047_/32816468
+  - url: https://irr.singaporetech.edu.sg/articles/poster/A_Design_Thinking_Approach_to_Transform_the_Experience_of_Transition_among_Senior_Adults_at_the_time_of_Nursing_Home_Admission/27042148
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/figure/Aqueous_sol_gel_synthesis_of_zirconium_titanate_ZrTiO_sub_4_sub_nanoparticles_using_chloride_precursors_https_doi_org_10_1016_j_ceramint_2012_04_064_/32900591
+  - url: https://manara.qnl.qa/articles/media/__-__/32901749
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/GenoAgent_Benchmark_A_Stratified_Rare-Disease_Benchmark_Cohort_for_Literature-Based_Causal_Gene_Prioritization_n_1_047_/32814449
+  - url: https://tandf.figshare.com/articles/journal_contribution/Effect_of_Mn-doped_content_on_Fe_sub_2_sub_O_sub_3_sub_with_enhanced_photo-Fenton_degradation_of_tetracycline_under_visible_light/32906568
     source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/7803328
-    source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/2703306
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7803328
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -485,31 +485,31 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: HTTP 403
+  - url: https://zenodo.org/records/7198473
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/6798322
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/6785285
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21196225
+  - url: https://mostwiedzy.pl/en/open-research-data/prediction-of-total-electron-impact-ionization-cross-sections-with-stacked-machine-learning-model,702084618718376-0
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21196225
+  - url: https://zenodo.org/records/21212294
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21192165
+  - url: https://zenodo.org/records/21212294
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21192165
+  - url: https://zenodo.org/records/21201887
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://ieee-dataport.org/documents/beijing-city-transport-road-network-data
+  - url: https://zenodo.org/records/21209303
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content

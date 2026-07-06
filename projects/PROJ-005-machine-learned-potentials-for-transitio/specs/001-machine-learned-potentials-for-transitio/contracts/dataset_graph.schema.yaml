@@ -1,0 +1,85 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "TransitionStateGraph Schema"
+description: "Schema for graph representations of transition states used in GNN training."
+type: "object"
+properties:
+  nodes:
+    type: "array"
+    items:
+      type: "object"
+      properties:
+        atomic_number:
+          type: "integer"
+          description: "Atomic number of the atom (e.g., 46 for Pd)."
+        formal_charge:
+          type: "integer"
+          description: "Formal charge of the atom."
+        coordination_number:
+          type: "integer"
+          description: "Derived coordination number based on geometry."
+        element_symbol:
+          type: "string"
+          description: "Element symbol (e.g., 'Pd', 'C', 'H')."
+      required:
+        - atomic_number
+        - formal_charge
+        - coordination_number
+        - element_symbol
+  edges:
+    type: "array"
+    items:
+      type: "object"
+      properties:
+        source_node:
+          type: "integer"
+          description: "Index of the source node."
+        target_node:
+          type: "integer"
+          description: "Index of the target node."
+        distance:
+          type: "number"
+          description: "Distance between nodes in Angstroms."
+        edge_type:
+          type: "string"
+          description: "Type of edge (e.g., 'bond', 'non-bond')."
+      required:
+        - source_node
+        - target_node
+        - distance
+        - edge_type
+  metadata:
+    type: "object"
+    properties:
+      reaction_id:
+        type: "string"
+        description: "Unique identifier for the reaction."
+      metal_center:
+        type: "string"
+        description: "Metal center type (Pd, Ni, Cu)."
+        enum:
+          - "Pd"
+          - "Ni"
+          - "Cu"
+      ligand_class:
+        type: "string"
+        description: "Ligand classification based on donor atom (Group 13: B/Al/Ga vs Conventional)."
+        enum:
+          - "Group13"
+          - "Conventional"
+      energy_dft:
+        type: "number"
+        description: "Reference DFT energy."
+      barrier_height:
+        type: "number"
+        description: "Calculated barrier height."
+    required:
+      - reaction_id
+      - metal_center
+      - ligand_class
+      - energy_dft
+      - barrier_height
+required:
+  - nodes
+  - edges
+  - metadata
+additionalProperties: false

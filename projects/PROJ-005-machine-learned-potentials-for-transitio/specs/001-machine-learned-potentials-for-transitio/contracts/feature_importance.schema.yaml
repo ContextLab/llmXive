@@ -1,0 +1,23 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "FeatureImportance Schema"
+description: "Schema for feature importance analysis results."
+type: "object"
+properties:
+  reaction_id:
+    type: "string"
+    description: "Unique identifier for the reaction."
+  descriptor_name:
+    type: "string"
+    description: "Name of the structural descriptor (e.g., 'M-L_bond_length')."
+  importance_score:
+    type: "number"
+    description: "SHAP or Integrated Gradients score (applied to error residuals)."
+  variance_explained:
+    type: "number"
+    description: "Percentage of error variance explained by this descriptor."
+required:
+  - reaction_id
+  - descriptor_name
+  - importance_score
+  - variance_explained
+additionalProperties: false

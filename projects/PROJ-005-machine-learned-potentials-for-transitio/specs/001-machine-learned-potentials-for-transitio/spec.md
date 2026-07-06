@@ -39,7 +39,7 @@ As a researcher, I need to train an ensemble of SchNet-style GNNs on the prepare
 
 ### User Story 3 - Error Analysis and Feature Attribution (Priority: P3)
 
-As a domain expert, I need to perform feature-importance analysis (SHAP/Integrated Gradients) and statistical testing on the prediction errors across different ligand families (Group 13 vs. conventional), so that I can identify the structural determinants of model deviation and quantify error distribution differences.
+As a domain expert, I need to perform feature-importance analysis (SHAP/Integrated Gradients) and statistical testing on the prediction errors across different ligand families (Group vs. conventional), so that I can identify the structural determinants of model deviation and quantify error distribution differences.
 
 **Why this priority**: This addresses the specific research question regarding *why* the model fails or succeeds, providing the scientific insight sought by the project.
 
@@ -66,13 +66,13 @@ As a domain expert, I need to perform feature-importance analysis (SHAP/Integrat
 ### Functional Requirements
 
 - **FR-001**: System MUST target a minimum of 120 valid reactions involving Pd, Ni, and Cu transition metals from literature DFT data and OC20 relaxations. (See US-1)
-- **FR-001b**: If fewer than 120 valid reactions are available, the system MUST proceed with the available data, flagging the data scarcity in the output logs, and proceed with training. (See US-1)
+- **FR-001b**: If fewer than a sufficient number of valid reactions are available, the system MUST proceed with the available data, flagging the data scarcity in the output logs, and proceed with training. (See US-1)
 - **FR-002**: System MUST convert DFT geometries into graph representations where nodes include atomic number, formal charge, and coordination number, and edges are defined by a distance-based cutoff. (See US-1)
 - **FR-003**: System MUST train a SchNet-style GNN using PyTorch Geometric on CPU-only hardware, optimizing with Adam (learning rate 1e-4) for a maximum of 30 epochs (base training). (See US-2)
 - **FR-004**: System MUST predict barrier heights for the held-out test set and compute the Mean Absolute Error (MAE), Root Mean Square Error (RMSE), and Pearson correlation coefficient against DFT references. (See US-2)
 - **FR-005**: System MUST perform feature-importance analysis using Integrated Gradients and SHAP values to quantify the contribution of structural descriptors to prediction errors and record the variance explained. (See US-3)
 - **FR-006**: System MUST execute a paired statistical test (t-test or Wilcoxon signed-rank) to compare error distributions between reactions containing Group 13 ligands and those with conventional ligands, recording the p-value. (See US-3)
-- **FR-007**: System MUST train an ensemble of 5 GNNs with different random seeds to enable calculation of prediction variance via prediction variance. (See US-3)
+- **FR-007**: System MUST train an ensemble of GNNs with different random seeds to enable calculation of prediction variance via prediction variance. (See US-3)
 - **FR-008**: System MUST perform leave-one-out cross-validation (LOOCV) or bootstrapping to validate generalization performance on the small dataset, recording the cross-validated error metrics. (See US-2)
 
 ### Key Entities
@@ -91,7 +91,7 @@ As a domain expert, I need to perform feature-importance analysis (SHAP/Integrat
 > measured quantities, percentages) to the implementation/research phase.
 
 - **SC-001**: The Mean Absolute Error (MAE) of the GNN predictions for barrier heights is measured against the DFT reference values for the held-out test set and recorded. (See FR-004)
-- **SC-001b**: The MAE value is recorded in the results table for comparison against community standards (e.g., 2 kcal mol⁻¹). (See FR-004)
+- **SC-001b**: The MAE value is recorded in the results table for comparison against community standards (e.g., established thresholds). (See FR-004)
 - **SC-002**: The percentage of variance in prediction deviations explained by the top structural descriptors is measured against the total variance of the error distribution and recorded. (See FR-005)
 - **SC-003**: The statistical significance of the difference in error distributions between Group 13 and conventional ligands is measured via the p-value from a paired t-test or Wilcoxon signed-rank test and recorded. (See FR-006)
 - **SC-004**: The computational speed-up factor of the GNN prediction versus a single-point DFT calculation is measured by comparing wall-clock times on the same CPU hardware and recorded. (See FR-004)
@@ -99,7 +99,7 @@ As a domain expert, I need to perform feature-importance analysis (SHAP/Integrat
 
 ## Assumptions
 
-- **Assumption about data**: The literature DFT datasets and OC20 ground-state relaxations contain sufficient samples of Pd, Ni, and Cu elementary steps to support the training of a GNN, with a target of 120 reactions after filtering.
+- **Assumption about data**: The literature DFT datasets and OC ground-state relaxations contain sufficient samples of Pd, Ni, and Cu elementary steps to support the training of a GNN, with a target of a representative set of reactions after filtering.
 - **Assumption about method**: The SchNet architecture is capable of running within the available RAM and time limits. of the GitHub Actions free-tier runner for the *base* training (≤ 30 epochs) on a subset of reactions. Leave-one-out cross-validation is performed as a separate analysis step.
 - **Assumption about variables**: The literature DFT data and OC20 data contain all necessary geometric and electronic variables (atomic positions, charges, coordination numbers) required to construct the graph representations and calculate barrier heights.
 - **Assumption about inference**: The GNN predictions are purely associational; no causal claims are made about the effect of ligands on barrier heights, only the model's ability to predict DFT values based on structural features.
