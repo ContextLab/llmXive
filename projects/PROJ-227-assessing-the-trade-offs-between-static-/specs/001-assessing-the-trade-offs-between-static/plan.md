@@ -25,7 +25,7 @@ The implementation strictly adheres to resource constraints (2 CPU, 7GB RAM, 6h 
 **Project Type**: Research CLI / Data Pipeline  
 **Performance Goals**: Complete analysis of ≥500 snippets within 6 hours on 2 CPU cores  
 **Constraints**: CPU ≤ 2 cores, RAM ≤ 7 GB, Disk ≤ 14 GB, No GPU, No heavy LLM inference  
-**Scale/Scope**: 500+ code snippets across Python, JavaScript, Java (with stratification logic)  
+**Scale/Scope**: A diverse set of code snippets across Python, JavaScript, and Java (with stratification logic)  
 
 > Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase.
 

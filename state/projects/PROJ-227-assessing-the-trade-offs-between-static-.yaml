@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-03T22:20:51.511179Z'
-current_stage: planned
+current_stage: in_progress
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-227-assessing-the-trade-offs-between-static-
-last_run_id: 8928df78-a649-4025-852a-5495bfba6022
+last_run_id: 14609eb5-5e16-4d9b-a431-724baf75109c
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-227-assessing-the-trade-offs-between-static-/specs/001-assessing-the-trade-offs-between-static
 title: Assessing the Trade-offs Between Static and Dynamic Analysis for LLM-Generated
   Code
-updated_at: '2026-07-06T02:00:04.198463Z'
+updated_at: '2026-07-06T23:21:10.542760Z'

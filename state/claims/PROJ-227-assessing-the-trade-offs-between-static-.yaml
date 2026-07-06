@@ -1,0 +1,318 @@
+- artifact_path: projects/PROJ-227-assessing-the-trade-offs-between-static-/specs/001-assessing-the-trade-offs-between-static/tasks.md
+  attempts: 1
+  canonical: Verify file checksums for HumanEval, CodeXGLUE, and BigCode datasets
+    without running analysis tools
+  claim_id: c_ab771112
+  context: 'Independent Test: Execute download script and verify file checksums without
+    running analysis tools.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Verify_file_checksums_for_HumanEval,_CodeXGLUE,_and_BigCode
+  kind: entity_fact
+  raw_text: Execute download script and verify file checksums without running analysis
+    tools.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-06T23:10:28Z'
+- artifact_path: projects/PROJ-227-assessing-the-trade-offs-between-static-/specs/001-assessing-the-trade-offs-between-static/tasks.md
+  attempts: 1
+  canonical: Download and verify at least 500 code snippets from HumanEval, CodeXGLUE,
+    and BigCode across Python, JS, and Java
+  claim_id: c_715c0a20
+  context: "Goal: Download and verify \u2265500 code snippets from HumanEval, CodeXGLUE,\
+    \ and BigCode (TheStack) across Python, JS, and Java."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Download_and_verify_at_least_500_code_snippets_from_HumanEva
+  kind: magnitude
+  raw_text: "Download and verify \u2265500 code snippets from HumanEval, CodeXGLUE,\
+    \ and BigCode (TheStack) across Python, JS, and Java."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-06T23:10:57Z'
+- artifact_path: projects/PROJ-227-assessing-the-trade-offs-between-static-/specs/001-assessing-the-trade-offs-between-static/tasks.md
+  attempts: 1
+  canonical: Fetch HumanEval dataset from openai/human-eval repository
+  claim_id: c_2e3775c9
+  context: Implement projects/PROJ-227-assessing-the-trade-offs-between-static-/code/download.py
+    to fetch HumanEval (Python) from openai/human-eval to data/raw/humaneval.json.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fetch_HumanEval_dataset_from_openai/human-eval_repository
+  kind: entity_fact
+  raw_text: Fetch HumanEval (Python) from openai/human-eval to data/raw/humaneval.json.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-06T23:11:33Z'
+- artifact_path: projects/PROJ-227-assessing-the-trade-offs-between-static-/specs/001-assessing-the-trade-offs-between-static/tasks.md
+  attempts: 1
+  canonical: HumanEval dataset contains at least 100 records with prompt and test
+    keys
+  claim_id: c_5ef33a94
+  context: "Verify: File exists, contains \u2265100 records with keys prompt and test."
+  evidence:
+    entailment_evidence: Wikipedia does not have an article with this exact name.
+    entailment_status: contradicted
+    source_url: https://en.wikipedia.org/wiki/HumanEval_dataset_contains_at_least_100_records_with_prompt
+  kind: magnitude
+  raw_text: "HumanEval dataset contains \u2265100 records with keys prompt and test."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-07-06T23:12:41Z'
+- artifact_path: projects/PROJ-227-assessing-the-trade-offs-between-static-/specs/001-assessing-the-trade-offs-between-static/tasks.md
+  attempts: 1
+  canonical: Fetch CodeXGLUE JavaScript and Java datasets from codeparrot repositories
+  claim_id: c_bf801949
+  context: Implement projects/PROJ-227-assessing-the-trade-offs-between-static-/code/download.py
+    to fetch CodeXGLUE (JS/Java) from codeparrot/codeXGLUE-javascript and codeparrot/codeXGLUE-java
+    to data/raw/.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fetch_CodeXGLUE_JavaScript_and_Java_datasets_from_codeparrot
+  kind: entity_fact
+  raw_text: Fetch CodeXGLUE (JS/Java) from codeparrot/codeXGLUE-javascript and codeparrot/codeXGLUE-java.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-06T23:13:28Z'
+- artifact_path: projects/PROJ-227-assessing-the-trade-offs-between-static-/specs/001-assessing-the-trade-offs-between-static/tasks.md
+  attempts: 1
+  canonical: Supplement HumanEval and CodeXGLUE with BigCode TheStack samples to reach
+    500 total records
+  claim_id: c_88289b46
+  context: "Logic: If total records from HumanEval + CodeXGLUE < 500, fetch additional\
+    \ samples from bigcode/the-stack until total \u2265 500."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "If total records from HumanEval + CodeXGLUE < 500, fetch additional samples\
+    \ from bigcode/the-stack until total \u2265 500."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-06T23:13:28Z'
+- artifact_path: projects/PROJ-227-assessing-the-trade-offs-between-static-/specs/001-assessing-the-trade-offs-between-static/tasks.md
+  attempts: 1
+  canonical: Stratified dataset contains at least 30 records per language and 500
+    total records
+  claim_id: c_d75f2f79
+  context: "Verify: Count \u2265 30 per language stratum (Python, JS, Java) AND total\
+    \ count \u2265 500."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Stratified_dataset_contains_at_least_30_records_per_language
+  kind: magnitude
+  raw_text: "Count \u2265 30 per language stratum (Python, JS, Java) AND total count\
+    \ \u2265 500."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-06T23:14:03Z'
+- artifact_path: projects/PROJ-227-assessing-the-trade-offs-between-static-/specs/001-assessing-the-trade-offs-between-static/tasks.md
+  attempts: 1
+  canonical: 'Resource constraints: CPU limit 2, RAM limit 7GB, Time limit 6 hours'
+  claim_id: c_c537d771
+  context: "Enforce CPU \u2264 2, RAM \u2264 7GB, Time \u2264 6h. Exit code 137 on\
+    \ violation."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Enforce CPU \u2264 2, RAM \u2264 7GB, Time \u2264 6h."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-06T23:14:03Z'
+- artifact_path: projects/PROJ-227-assessing-the-trade-offs-between-static-/specs/001-assessing-the-trade-offs-between-static/tasks.md
+  attempts: 1
+  canonical: Exit code 137 returned on resource constraint violation
+  claim_id: c_09516398
+  context: "Enforce CPU \u2264 2, RAM \u2264 7GB, Time \u2264 6h. Exit code 137 on\
+    \ violation."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Exit code 137 on resource violation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-06T23:14:41Z'
+- artifact_path: projects/PROJ-227-assessing-the-trade-offs-between-static-/specs/001-assessing-the-trade-offs-between-static/tasks.md
+  attempts: 1
+  canonical: 'CodeQL CLI retry policy: 3 retries, 2s initial delay, 2.0 multiplier'
+  claim_id: c_0126c4a2
+  context: 'Retry: Max 3 retries, initial delay 2s, multiplier 2.0.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Max 3 retries, initial delay 2s, multiplier 2.0 for CodeQL CLI execution.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-06T23:15:12Z'
+- artifact_path: projects/PROJ-227-assessing-the-trade-offs-between-static-/specs/001-assessing-the-trade-offs-between-static/tasks.md
+  attempts: 1
+  canonical: 'Dynamic execution timeout: 30 minutes per snippet'
+  claim_id: c_4b107649
+  context: 'Implement timeout handling for dynamic execution: Max 30 minutes per snippet.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Max 30 minutes per snippet for dynamic execution.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-06T23:16:03Z'
+- artifact_path: projects/PROJ-227-assessing-the-trade-offs-between-static-/specs/001-assessing-the-trade-offs-between-static/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis performed at alpha levels 0.01, 0.05, and 0.1
+  claim_id: c_020eeef4
+  context: Execute statistical tests for each alpha in the set {0.01, 0.05, 0.1} as
+    required by FR-007.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Execute statistical tests for each alpha in the set {0.01, 0.05, 0.1}.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-06T23:16:44Z'
+- artifact_path: projects/PROJ-227-assessing-the-trade-offs-between-static-/specs/001-assessing-the-trade-offs-between-static/tasks.md
+  attempts: 1
+  canonical: Precision, Recall, and F1 metrics are invalid for static analysis due
+    to lack of security ground truth
+  claim_id: c_05c81bb7
+  context: 'Statistical Validity: No Precision/Recall/F1 for static analysis (no security
+    ground truth). Use Issue Detection Rate.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Precision,_Recall,_and_F1_metrics_are_invalid_for_static_ana
+  kind: entity_fact
+  raw_text: No Precision/Recall/F1 for static analysis due to lack of security ground
+    truth.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-06T23:17:33Z'
+- artifact_path: projects/PROJ-227-assessing-the-trade-offs-between-static-/specs/001-assessing-the-trade-offs-between-static/tasks.md
+  attempts: 1
+  canonical: McNemar's test is invalid for this study due to distinct constructs between
+    static and dynamic analysis
+  claim_id: c_19ff5c60
+  context: No McNemar's test (distinct constructs). Use Spearman/Chi-squared.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/McNemar's_test_is_invalid_for_this_study_due_to_distinct_con
+  kind: entity_fact
+  raw_text: No McNemar's test used due to distinct constructs.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-06T23:18:10Z'
+- artifact_path: projects/PROJ-227-assessing-the-trade-offs-between-static-/specs/001-assessing-the-trade-offs-between-static/tasks.md
+  attempts: 1
+  canonical: 'Statistical methods: Spearman''s Rank Correlation and Chi-squared Test
+    of Independence'
+  claim_id: c_124509af
+  context: Use Spearman/Chi-squared.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Statistical_methods:_Spearman's_Rank_Correlation_and_Chi-squ
+  kind: entity_fact
+  raw_text: Use Spearman's Rank Correlation and Chi-squared Test of Independence.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-06T23:19:00Z'
+- artifact_path: projects/PROJ-227-assessing-the-trade-offs-between-static-/specs/001-assessing-the-trade-offs-between-static/tasks.md
+  attempts: 1
+  canonical: Datasets sourced from HuggingFace and GitHub
+  claim_id: c_b7941dee
+  context: 'Data Integrity: All datasets must be from real, verified sources (HuggingFace,
+    GitHub). No synthetic data generation.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Datasets_sourced_from_HuggingFace_and_GitHub
+  kind: entity_fact
+  raw_text: Datasets must be from real, verified sources (HuggingFace, GitHub).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-06T23:19:39Z'
+- artifact_path: projects/PROJ-227-assessing-the-trade-offs-between-static-/specs/001-assessing-the-trade-offs-between-static/tasks.md
+  attempts: 1
+  canonical: No GPU acceleration used in execution
+  claim_id: c_59a28a8d
+  context: All tasks must run on free CPU-only CI with limited core counts and memory,
+    without GPU acceleration.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/No_GPU_acceleration_used_in_execution
+  kind: entity_fact
+  raw_text: No GPU acceleration used.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-06T23:20:17Z'
+- artifact_path: projects/PROJ-227-assessing-the-trade-offs-between-static-/specs/001-assessing-the-trade-offs-between-static/tasks.md
+  attempts: 1
+  canonical: No 8-bit or 4-bit quantization used
+  claim_id: c_d056b2ac
+  context: No 8-bit/4-bit quantization or heavy model training.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: No 8-bit or 4-bit quantization used.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-06T23:21:00Z'

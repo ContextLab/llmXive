@@ -1,0 +1,12 @@
+? 'T001 [P] Create project directory structure: `projects/PROJ-227-assessing-the-trade-offs-between-static-/data/raw/`,
+  `data/processed/`, `state/`, `code/`, `tests/`'
+: 1
+? 'T002 Initialize Python 3.11 project with `projects/PROJ-227-assessing-the-trade-offs-between-static-/requirements.txt`
+  containing pinned dependencies: `datasets==2.14.0`, `pandas==2.0.3`, `scipy==1.11.0`,
+  `pytest==7.4.0`, `requests==2.31.0`, `pyyaml==6.0.1`, `psutil==5.9.5`. Verify by
+  running `pip install -r requirements.txt` and checking exit code 0.'
+: 1
+? 'T003 [P] Configure linting and formatting: Create `.flake8` with `max-line-length=88`
+  and `pyproject.toml` with `[tool.black] line-length = 88`. Verify by running `black
+  --check.` and `flake8.`.'
+: 1
