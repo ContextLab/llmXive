@@ -1,28 +1,13 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Predicted PPI Edge List"
-type: object
-required:
-  - protein_id_1
-  - protein_id_2
-  - correlation
+type: "object"
+description: "Tab‑separated file with a header line. Each row represents an undirected predicted interaction."
 properties:
-  protein_id_1:
-    type: string
-    description: "STRING protein identifier for the first node (e.g., 9606.ENSP00000354547)."
-  protein_id_2:
-    type: string
-    description: "STRING protein identifier for the second node."
-  correlation:
-    type: number
-    description: "Pearson (or Spearman) correlation coefficient between the two genes."
-  method:
-    type: string
-    enum: ["pearson", "spearman"]
-    description: "Correlation method used."
-  bootstrap_ci_lower:
-    type: number
-    description: "Lower bound of the bootstrap confidence interval at a conventional confidence level for the correlation (optional)."
-  bootstrap_ci_upper:
-    type: number
-    description: "Upper bound of the bootstrap confidence interval (optional)."
+  header:
+    type: "array"
+    items:
+      type: "string"
+    enum:
+      - ["protein_id_1", "protein_id_2", "correlation"]
+required: ["header"]
 additionalProperties: false

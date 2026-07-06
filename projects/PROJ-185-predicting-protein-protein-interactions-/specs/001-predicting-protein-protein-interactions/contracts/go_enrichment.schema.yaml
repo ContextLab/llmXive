@@ -30,3 +30,9 @@ properties:
     minimum: 1
     description: "Number of genes from the predicted interactome annotated to this GO term."
 additionalProperties: false
+example:
+  go_id: "GO:0008150"
+  description: "biological_process"
+  raw_p: 0.0012
+  adjusted_p: 0.0045
+  gene_count: 42

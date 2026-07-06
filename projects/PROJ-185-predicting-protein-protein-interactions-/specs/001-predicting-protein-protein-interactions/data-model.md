@@ -1,29 +1,40 @@
 # Data Model: Predict Protein‑Protein Interactions from Co‑expression Networks
 
 ## Core Entities
-| Entity | Description | Key Attributes |
-|--------|-------------|----------------|
-| **RNASeqSample** | One GEO accession (Series) containing raw count matrix and metadata. | `accession_id`, `species`, `raw_counts_path`, `metadata_path`, `checksum` |
-| **Gene** | Biological gene identifier (TAIR or Ensembl). | `gene_id`, `species`, `normalized_expression_vector`, `string_protein_id` |
-| **CoExpressionEdge** | Undirected edge between two genes derived from correlation analysis. | `protein_id_1`, `protein_id_2`, `correlation`, `method` (pearson/spearman), `bootstrap_ci_lower` (opt), `bootstrap_ci_upper` (opt) |
-| **EvaluationMetric** | Performance metrics for a species. | `species`, `auroc`, `auprc`, `baseline_auroc`, `baseline_auprc`, `baseline_p` |
-| **GOEnrichmentRecord** | Result of GO term enrichment for a given species. | `go_id`, `description`, `raw_p`, `adjusted_p`, `gene_count` |
 
-## File Artifacts & Contracts
-| File | Format | Purpose | Contract |
-|------|--------|---------|----------|
-| `raw_correlations_<species>.tsv` | TSV (no header) | Gene‑pair ID1, ID2, Pearson (or Spearman) correlation. Required for unbiased AUROC/AUPRC. | `contracts/raw_correlations.schema.yaml` |
-| `predicted_ppi_<species>.tsv` | TSV (header) | Predicted edges after threshold (and optional bootstrap filter). Columns: `protein_id_1`, `protein_id_2`, `correlation`, `method`, optional CI fields. | `contracts/predicted_ppi.schema.yaml` |
-| `evaluation_metrics.json` | JSON (object keyed by species) | AUROC, AUPRC, baseline metrics, `baseline_p`. | `contracts/evaluation.schema.yaml` |
-| `go_enrichment_<species>.tsv` | TSV (header) | GO term, raw p, adjusted p, gene count. | `contracts/go_enrichment.schema.yaml` |
-| `threshold_sensitivity_<species>.tsv` | TSV (header) | Correlation threshold, AUROC, AUPRC for each tested threshold. | `contracts/threshold_sensitivity.schema.yaml` |
-| `summary_<species>.txt` | Plain text | Human‑readable summary (edge count, metrics, top GO terms). | No formal schema; validated by presence. |
-| `pipeline.log` | JSONL | Timestamped log of each pipeline step. | `contracts/pipeline_log.schema.yaml` |
+| Entity | Attributes | Description |
+|--------|------------|-------------|
+| **RNASeqSample** | `accession` (string), `species` (string), `raw_counts_path` (string), `metadata_path` (string) | Represents a GEO series; raw count matrix stored as TSV. |
+| **Gene** | `gene_id` (string, TAIR or Ensembl), `species` (string), `norm_expression` (array[float]), `mapped_protein_id` (string, optional) | Normalized expression vector after VST/TPM; may be unmapped. |
+| **Protein** | `protein_id` (string, STRING ID), `gene_id` (string) | One‑to‑one mapping from Gene (when available). |
+| **RawCorrelation** | `gene_id_1` (string), `gene_id_2` (string), `correlation` (float), `p_value` (float), `adj_p_value` (float) | Correlation computed before identifier mapping; stored in `raw_correlations_*.tsv.gz`. |
+| **ProteinCorrelation** | `protein_id_1` (string), `protein_id_2` (string), `correlation` (float) | After successful mapping; used for edge selection. |
+| **PredictedEdge** | `protein_id_1` (string), `protein_id_2` (string), `correlation` (float) | Written to `predicted_ppi_<species>.tsv`. |
+| **EvaluationMetric** | `species` (string), `auroc` (float), `auprc` (float), `baseline_auroc` (float), `baseline_auprc` (float), `baseline_p` (float) | Stored in `evaluation_metrics.json`. |
+| **GOEnrichmentRecord** | `go_id` (string), `description` (string), `p_value` (float), `adj_p_value` (float), `gene_count` (int) | One row per GO term in `go_enrichment_<species>.tsv`. |
+| **ThresholdSensitivityRecord** | `threshold` (float), `edge_count` (int), `auroc` (float), `auprc` (float) | Rows of `threshold_sensitivity_<species>.tsv`. |
+| **PipelineLogEntry** | `timestamp` (ISO‑8601 string), `level` (enum), `message` (string), `schema_version` (string) | JSON‑Line entry in `pipeline.log`. |
 
-## Schema Definitions (YAML)
-*Full schema files are provided in the `contracts/` directory (see `contracts/predicted_ppi.schema.yaml`, `contracts/evaluation.schema.yaml`, etc.).*  
+## Relationships
+- **RNASeqSample** → many **Gene** (genes expressed in the sample).  
+- **Gene** ↔ **Protein** (0‑1 mapping).  
+- **RawCorrelation** links two **Gene** records; after mapping, becomes **ProteinCorrelation** linking two **Protein** records.  
+- **PredictedEdge** is a filtered subset of **ProteinCorrelation**.  
+- **EvaluationMetric** aggregates over all **PredictedEdge** and the STRING reference set.  
+- **GOEnrichmentRecord** aggregates over the set of genes appearing in **PredictedEdge**.  
+
+## File Formats
+| File | Format | Primary Entity | Key Columns |
+|------|--------|----------------|-------------|
+| `data/raw/<species>/<accession>.counts.tsv` | TSV (genes × samples) | RNASeqSample | `gene_id`, sample columns |
+| `data/processed/<species>/norm_expr.tsv` | TSV | Gene (norm) | `gene_id`, sample columns |
+| `results/raw_correlations_<species>.tsv.gz` | gzipped TSV | RawCorrelation | `gene_id_1`, `gene_id_2`, `correlation`, `p_value`, `adj_p_value` |
+| `data/mapped/<species>/gene2string.tsv` | TSV | Gene ↔ Protein | `gene_id`, `protein_id` |
+| `results/predicted_ppi_<species>.tsv` | TSV | PredictedEdge | `protein_id_1`, `protein_id_2`, `correlation` |
+| `results/evaluation_metrics.json` | JSON | EvaluationMetric | `{species: ..., auroc: ..., auprc: ..., baseline_auroc: ..., baseline_auprc: ..., baseline_p: ...}` |
+| `results/go_enrichment_<species>.tsv` | TSV | GOEnrichmentRecord | `go_id`, `description`, `p_value`, `adj_p_value`, `gene_count` |
+| `results/threshold_sensitivity_<species>.tsv` | TSV | ThresholdSensitivityRecord | `threshold`, `edge_count`, `auroc`, `auprc` |
+| `logs/pipeline.log` | JSON‑Line | PipelineLogEntry | `timestamp`, `level`, `message`, `schema_version` |
+| `logs/mapping_warnings_<species>.log` | Plain text | – | List of unmapped gene IDs |
 
 ---
-
-
-

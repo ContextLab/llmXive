@@ -1,35 +1,17 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Pipeline Log"
-type: array
-items:
-  type: object
-  required:
-    - timestamp
-    - step
-    - status
-  properties:
-    timestamp:
-      type: string
-      format: date-time
-      description: "ISO‑8601 timestamp of the log entry."
-    step:
-      type: string
-      description: "Name of the pipeline step (e.g., download_geo, normalize, correlation)."
-    status:
-      type: string
-      enum: ["START", "COMPLETE", "WARN", "ERROR"]
-      description: "Log level for the entry."
-    message:
-      type: string
-      description: "Optional free‑form message."
-    input_hashes:
-      type: object
-      additionalProperties:
-        type: string
-      description: "SHA‑256 hashes of input files for this step."
-    output_hashes:
-      type: object
-      additionalProperties:
-        type: string
-      description: "SHA‑256 hashes of output files produced."
-additionalItems: false
+title: "Pipeline Log Entry"
+type: "object"
+description: "JSON‑Line schema for pipeline logging."
+properties:
+  timestamp:
+    type: "string"
+    format: "date-time"
+  level:
+    type: "string"
+    enum: ["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]
+  message:
+    type: "string"
+  schema_version:
+    type: "string"
+required: ["timestamp", "level", "message", "schema_version"]
+additionalProperties: false

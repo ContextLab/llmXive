@@ -1,41 +1,31 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Evaluation Metrics"
-type: object
-description: "Performance metrics for each processed species."
+type: "object"
+description: "JSON object containing evaluation metrics for each processed species."
 patternProperties:
-  "^[A-Za-z0-9_]+$":
-    type: object
-    required:
-      - auroc
-      - auprc
-      - baseline_auroc
-      - baseline_auprc
-      - baseline_p
+  "^[A-Za-z_]+$":
+    type: "object"
     properties:
       auroc:
-        type: number
+        type: "number"
         minimum: 0.0
         maximum: 1.0
-        description: "Area Under the ROC curve for the co‑expression predictions."
       auprc:
-        type: number
+        type: "number"
         minimum: 0.0
         maximum: 1.0
-        description: "Area Under the Precision‑Recall curve."
       baseline_auroc:
-        type: number
+        type: "number"
         minimum: 0.0
         maximum: 1.0
-        description: "AUROC of the degree‑preserving random‑graph baseline."
       baseline_auprc:
-        type: number
+        type: "number"
         minimum: 0.0
         maximum: 1.0
-        description: "AUPRC of the random‑graph baseline."
       baseline_p:
-        type: number
+        type: "number"
         minimum: 0.0
         maximum: 1.0
-        description: "P‑value from comparing the observed AUROC to the baseline distribution."
+    required: ["auroc", "auprc", "baseline_auroc", "baseline_auprc", "baseline_p"]
     additionalProperties: false
 additionalProperties: false

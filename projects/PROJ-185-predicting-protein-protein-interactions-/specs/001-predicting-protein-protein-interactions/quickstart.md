@@ -1,91 +1,87 @@
-# Quickstart: Predicting PPIs from Plant Co‑expression Networks
+# Quickstart: Predict Protein‑Protein Interactions from Co‑expression Networks
 
-**Prerequisites**
-- Python 3.11 (available on GitHub Actions runners)
-- R 4.2 with Bioconductor packages (`DESeq2`, `org.At.tair.db`, `sva`, `limma`)
+## Prerequisites
+- Python 3.11 (installed via `python -m venv venv && source venv/bin/activate`)
+- R 4.2 with Bioconductor (installed automatically by the `install_r_deps.sh` script)
 - Internet access (to download GEO and STRING data)
+- GitHub Actions runner (or local Linux environment with ≥ 2 CPU, 7 GB RAM)
 
-**Step‑by‑Step**
+## Setup
 
-1. **Clone the repository and enter the project root**
-   ```bash
-   git clone https://github.com/yourorg/PROJ-185-predict-ppi-coexpression.git
-   cd PROJ-185-predict-ppi-coexpression
-   ```
+```bash
+# 1. Clone the repository (already done in CI)
+git clone
+cd ppi-coexpression
 
-2. **Create a fresh virtual environment and install pinned dependencies**
-   ```bash
-   python -m venv .venv
-   source .venv/bin/activate
-   pip install -r requirements.txt
-   # Install Bioconductor packages (run once)
-   Rscript -e 'if (!requireNamespace("BiocManager", quietly=TRUE)) install.packages("BiocManager"); \
-               BiocManager::install(c("DESeq2","org.At.tair.db","sva","limma"), version="3.18")'
-   ```
+# 2. Create a Python virtual environment and install dependencies
+python -m venv.venv
+source.venv/bin/activate
+pip install -r requirements.txt
 
-3. **Configure the species you wish to analyse**
-   Edit `src/config/species_config.yaml`. Example entry for *Arabidopsis*:
-   ```yaml
-   Arabidopsis_thaliana:
-     geo_series:
-       - GSE12345
-       - GSE67890
-     normalization: "vst"   # or "tpm"
-     correlation_threshold: high
-   ```
+# 3. Install R dependencies (run once)
+bash scripts/install_r_deps.sh
+```
 
-4. **Run the full pipeline (default settings)**
-   ```bash
-   make all SEED=42
-   ```
-   - Downloads GEO data, normalizes, filters, corrects batch effects, computes correlations, maps to STRING, writes `predicted_ppi_Arabidopsis_thaliana.tsv` (columns `protein_id_1`, `protein_id_2`, `correlation`, `method`), evaluates against STRING, performs GO enrichment, and produces `summary_Arabidopsis_thaliana.txt`.  
-   - All intermediate files are stored under `data/` and `results/`.
+## Configuration
+Edit `config/species_gse.yaml` to list GEO series per species, e.g.:
 
-5. **Optional flags**
-   - `NORMALIZATION=TPM` – use TPM (log2‑transformed) instead of DESeq2 VST.  
-   - `CORR_METHOD=Spearman` – compute Spearman correlations in addition to Pearson.  
-   - `BOOTSTRAP=1` – enable bootstrap confidence intervals for the top 10 000 edges.  
-   - `THRESHOLDS=0.75,0.80,0.85` – run threshold sensitivity analysis (default already does).  
+```yaml
+Arabidopsis thaliana:
+ - GSE12345
+ - GSE67890
+# add more species as needed
+```
 
-6. **Inspect results**
-   ```bash
-   # Predicted edges
-   head results/predicted_ppi_Arabidopsis_thaliana.tsv
+Optional flags (default values shown):
 
-   # Evaluation metrics (JSON)
-   cat results/evaluation_metrics.json | jq .
+| Flag | Description | Default |
+|------|-------------|---------|
+| `--norm {vst, tpm}` | Normalization method | `vst` |
+| `--threshold FLOAT` | Correlation threshold (must be ≥ 0.75) | `0.80` |
+| `--seed INT` | Global random seed for reproducibility | `42` |
+| `--max-genes INT` | Upper bound on retained genes after variance filtering | `5000` |
 
-   # GO enrichment
-   head results/go_enrichment_Arabidopsis_thaliana.tsv
+## Running the Pipeline
 
-   # Summary report
-   cat results/summary_Arabidopsis_thaliana.txt
-   ```
+### Full end‑to‑end execution
+```bash
+make all SEED=12345 NORM=vst THRESHOLD=0.80
+```
+- Downloads data, builds the network, evaluates against STRING, runs GO enrichment, and writes per‑species summaries plus `final_report.txt`.
 
-7. **Verification**
-   After any Make target, the verification script runs automatically. To run it manually:
-   ```bash
-   make verify
-   ```
+### Individual targets (useful for debugging)
 
-8. **Cleaning up**
-   ```bash
-   make clean
-   ```
-   This removes intermediate files while preserving raw GEO downloads and final artifacts.
+| Target | What it does |
+|--------|--------------|
+| `make download` | Download GEO series only. |
+| `make normalize` | Normalize and filter genes. |
+| `make corr` | Compute raw correlations (`raw_correlations_*.tsv.gz`). |
+| `make map` | Map genes to STRING IDs. |
+| `make edges` | Apply threshold & write predicted edges. |
+| `make evaluate` | Perform evaluation against STRING and write `evaluation_metrics.json`. |
+| `make enrich` | Run GO enrichment (`go_enrichment_*.tsv`). |
+| `make summary` | Generate per‑species and final reports. |
+| `make clean` | Remove all intermediate files. |
 
-**Reproducibility Tips**
-- Keep the same `SEED` value across runs to obtain identical outputs (FR‑012).  
-- The pipeline logs every step in `pipeline.log`; use this file to audit provenance.  
+## Verifying Results
+After each target, the verification script runs automatically and will abort if any schema validation fails. To manually validate:
 
-**Troubleshooting**
-- **Insufficient samples**: If a species aborts with `Insufficient sample count (<50)`, add more GEO series to `species_config.yaml`.  
-- **Mapping warnings**: Check `mapping_warnings_<species>.log` for unmapped genes; these are omitted from the edge list.  
-- **Memory errors**: Reduce the number of genes considered by editing `MAX_GENES` in `src/config/constants.py` (default set to a high threshold).  
+```bash
+python scripts/validate.py results/predicted_ppi_Arabidopsis.tsv contracts/predicted_edges.schema.yaml
+python scripts/validate.py results/evaluation_metrics.json contracts/evaluation.schema.yaml
+python scripts/validate.py results/threshold_sensitivity_Arabidopsis.tsv contracts/threshold_sensitivity.schema.yaml
+```
 
-Happy reproducible research!
+All logs are in `logs/pipeline.log`. Re‑run the pipeline with the same seed to obtain identical outputs (SC‑004).
+
+## Expected Outputs (per species)
+
+- `results/predicted_ppi_<species>.tsv` – predicted edges (≥ 10 000 rows for typical species).
+- `results/evaluation_metrics.json` – AUROC, AUPRC, baseline metrics, `baseline_p`.
+- `results/go_enrichment_<species>.tsv` – GO terms with adjusted p‑values (or “No significant enrichment”).
+- `results/summary_<species>.txt` – concise report with construct‑validity justification.
+- `results/final_report.txt` – aggregated report across all species.
+
+Enjoy reproducible PPI prediction!
 
 ---
-
-
-

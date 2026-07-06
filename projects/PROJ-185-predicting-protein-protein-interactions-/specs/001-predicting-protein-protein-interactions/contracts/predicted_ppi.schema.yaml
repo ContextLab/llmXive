@@ -17,7 +17,7 @@ properties:
     type: number
     format: float
     description: "Pearson (or Spearman) correlation coefficient between the two proteins."
-    minimum: 0.8
+    minimum: a moderate threshold (e.g., above a low baseline)
   method:
     type: string
     enum: ["pearson", "spearman"]
@@ -32,5 +32,5 @@ additionalProperties: false
 example:
   protein_id_1: "AT1G01010"
   protein_id_2: "AT2G02020"
-  correlation: 0.85
+  correlation: strong positive relationship
   method: "pearson"

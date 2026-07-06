@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-03T05:15:57.497113Z'
-current_stage: specified
+current_stage: tasked
 failed_stage: null
 field: biology
 human_escalation_reason: null
 id: PROJ-185-predicting-protein-protein-interactions-
-last_run_id: 0bb717e1-b8a4-449a-99e5-523cf2b4c88e
+last_run_id: 95c1073c-8901-4bfb-9b7c-e33c70adacbe
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-185-predicting-protein-protein-interactions-/specs/001-predicting-protein-protein-interactions
 title: Predicting Protein-Protein Interactions from Co-expression Networks in Public
   Plant Databases
-updated_at: '2026-07-02T01:01:05.083359Z'
+updated_at: '2026-07-06T20:11:08.664693Z'
