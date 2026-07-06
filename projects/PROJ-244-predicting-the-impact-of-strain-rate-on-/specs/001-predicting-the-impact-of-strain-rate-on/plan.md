@@ -192,7 +192,7 @@ No additional complexity layers are introduced beyond the spec requirements. The
   - **Output**: `results/sensitivity_analysis.json`.
 
 - **Task T019**: Feature Importance & Validation (SC-002).
-  - **Action**: Calculate SHAP values. Compare top 3 features against `contracts/literature_expectations.yaml`.
+  - **Action**: Calculate SHAP values. Compare the top-ranked features against `contracts/literature_expectations.yaml`.
   - **Gate**: Fail if strain rate, composition, grain size not in the top tier of performance. (unless noise explains deviation).
   - **Output**: `results/feature_importance.json`.
 

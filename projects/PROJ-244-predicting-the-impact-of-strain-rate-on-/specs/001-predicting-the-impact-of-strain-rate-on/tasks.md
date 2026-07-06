@@ -26,10 +26,13 @@
 
 **Purpose**: Verify data availability and feasibility before coding begins.
 
-- [ ] T008 [P] (Research) Create `research.md` in `specs/001-predict-strain-rate-yield/` verifying dataset availability (NIST, OpenML, Materials Project) and Johnson-Cook/Zerilli-Armstrong parameters (Plan Task 0.1/0.2). **MUST complete before Phase 1.**
-- [ ] T051 [P] (Research) Estimate total sample size (N) and per-alloy-family counts from NIST/OpenML metadata (Plan Task 0.5.1)
-- [ ] T052 [P] (Research) Perform power analysis: If N < 1000 or any alloy family N < 50, flag as "Underpowered" and recommend scope adjustment (Plan Task 0.5.2)
-- [ ] T053 [P] (Research) Confirm CPU feasibility: Ensure the estimated data subset fits in available RAM. (Plan Task 0.5.3)
+- [ ] T008.1 (Research) **Fetch NIST Data**: Attempt to fetch data from NIST Materials Data Repository as defined in `config.py`. Log success or failure to `data/fetch_log.txt`. If unreachable, log the specific error. (FR-001)
+- [ ] T008.2 (Research) **Fetch OpenML Data**: Attempt to fetch data from OpenML as defined in `config.py`. Log success or failure to `data/fetch_log.txt`. If unreachable, log the specific error. (FR-001)
+- [ ] T008.3 (Research) **Fetch Materials Project Data**: Attempt to fetch data from Materials Project API as defined in `config.py`. Log success or failure to `data/fetch_log.txt`. If unreachable, log the specific error. (FR-001)
+- [ ] T008.4 (Research) **Update Research Documentation**: Create or update `research.md` in `specs/001-predict-strain-rate-yield/` with the results of T008.1-T008.3. **MUST update the Verified Datasets table** with specific data source paths or document the fallback to the Physics-Consistent Simulated Data generator with a "Data Unavailable" artifact ONLY IF T008.1-T008.3 all failed. (FR-001) **MUST complete before Phase 1.**
+- [ ] T009 [P] (Research) Estimate total sample size (N) and per-alloy-family counts from simulated generator parameters or research.md feasibility report (Plan Task 0.5.1)
+- [ ] T010 [P] (Research) Perform power analysis: If N < 1000 or any alloy family N < 50, flag as "Underpowered" and recommend scope adjustment (Plan Task 0.5.2)
+- [ ] T011 [P] (Research) Confirm CPU feasibility: Ensure the estimated data subset fits in available RAM. (Plan Task 0.5.3)
 
 ---
 
@@ -37,9 +40,7 @@
 
 **Purpose**: Project initialization and basic structure.
 
-- [ ] T001.1 [P] Create directory structure: `projects/PROJ-244-predicting-the-impact-of-strain-rate-on-/code/`, `projects/PROJ-244-predicting-the-impact-of-strain-rate-on-/tests/`, `projects/PROJ-244-predicting-the-impact-of-strain-rate-on-/data/`
-- [ ] T001.2 [P] Create `projects/PROJ-244-predicting-the-impact-of-strain-rate-on-/code/ingestion/`, `projects/PROJ-244-predicting-the-impact-of-strain-rate-on-/code/modeling/`, `projects/PROJ-244-predicting-the-impact-of-strain-rate-on-/code/visualization/`
-- [ ] T001.3 [P] Create `projects/PROJ-244-predicting-the-impact-of-strain-rate-on-/tests/unit/`, `projects/PROJ-244-predicting-the-impact-of-strain-rate-on-/tests/contract/`, `projects/PROJ-244-predicting-the-impact-of-strain-rate-on-/tests/integration/`
+- [ ] T001.1 [P] **Initialize Directory Structure**: Create all required directories in one step: `projects/PROJ-244-predicting-the-impact-of-strain-rate-on-/code/`, `projects/PROJ-244-predicting-the-impact-of-strain-rate-on-/tests/`, `projects/PROJ-244-predicting-the-impact-of-strain-rate-on-/data/`, `projects/PROJ-244-predicting-the-impact-of-strain-rate-on-/code/ingestion/`, `projects/PROJ-244-predicting-the-impact-of-strain-rate-on-/code/modeling/`, `projects/PROJ-244-predicting-the-impact-of-strain-rate-on-/code/visualization/`, `projects/PROJ-244-predicting-the-impact-of-strain-rate-on-/tests/unit/`, `projects/PROJ-244-predicting-the-impact-of-strain-rate-on-/tests/contract/`, `projects/PROJ-244-predicting-the-impact-of-strain-rate-on-/tests/integration/`.
 - [ ] T002.1 [P] Initialize `projects/PROJ-244-predicting-the-impact-of-strain-rate-on-/code/requirements.txt` with pinned versions: `pandas`, `scikit-learn`, `scipy`, `numpy`, `matplotlib`, `seaborn`, `pyyaml`, `statsmodels`, `pytest`, `pytest-cov`
 - [ ] T002.2 [P] Initialize `projects/PROJ-244-predicting-the-impact-of-strain-rate-on-/code/pyproject.toml` or `setup.py` for package installation
 - [ ] T003.1 [P] Configure `flake8` or `pylint` in `projects/PROJ-244-predicting-the-impact-of-strain-rate-on-/code/.flake8` or `pyproject.toml`
@@ -62,7 +63,7 @@
 - [ ] T006.2 Implement `projects/PROJ-244-predicting-the-impact-of-strain-rate-on-/code/entities.py`: Define `AlloyFamily` enum or class with common families (AA-6061, AISI-4340, etc.)
 - [ ] T006.3 Implement `projects/PROJ-244-predicting-the-impact-of-strain-rate-on-/code/entities.py`: Define `ConstitutiveModel` and `MLModel` base classes/interfaces
 - [ ] T007.1 [P] Implement `projects/PROJ-244-predicting-the-impact-of-strain-rate-on-/code/utils/logging.py`: Setup logging to file and console with levels
-- [ ] T007.2 [P] Implement `projects/PROJ-244-predicting-the-impact-of-strain-rate-on-/code/utils/validation.py`: Create `validate_research.py` script that reads `research.md` and halts if datasets are missing (Depends on T008)
+- [ ] T007.2 (Sequential) Implement `projects/PROJ-244-predicting-the-impact-of-strain-rate-on-/code/utils/validation.py`: Create `validate_research.py` script that reads `research.md` and halts if datasets are missing (Depends on T008.4). **MUST run AFTER T008.4.**
 
 ---
 
@@ -82,14 +83,29 @@
 
 ### Implementation for User Story 1
 
-- [ ] T012 [US1] Implement `fetchers.py` in `projects/PROJ-244-predicting-the-impact-of-strain-rate-on-/code/ingestion/` to fetch data from NIST, OpenML, and Materials Project using `config.NIST_URL`, `config.OPENML_ID`, and `config.MATERIALS_PROJECT_API_KEY`. **MUST resolve these config variables to real, reachable URLs/APIs before execution. No fabrication.** (FR-001)
-- [ ] T013 [US1] Implement `preprocess.py` in `projects/PROJ-244-predicting-the-impact-of-strain-rate-on-/code/ingestion/` to standardize units (MPa, s⁻¹, µm) and drop records missing Yield Strength or Strain Rate (FR-003)
-- [ ] T013.1 [US1] Save the pre-imputation dataset state (post-filtering, pre-imputation) to `data/processed/grain_size_raw.csv` immediately after T013 filtering. **This artifact is required for T038 Sensitivity Analysis.** (Critical for FR-008)
-- [ ] T014 [US1] Implement composition imputation logic in `projects/PROJ-244-predicting-the-impact-of-strain-rate-on-/code/ingestion/preprocess.py`: If alloy composition is missing, impute using Alloy Family average (FR-003)
-- [ ] T015.0 [US1] Implement correlation validation in `projects/PROJ-244-predicting-the-impact-of-strain-rate-on-/code/ingestion/preprocess.py`: Compute correlation between **raw** composition and grain size. If r < 0.3, flag records in `imputation_confidence` column or drop them; generate `data/processed/low_confidence_records.csv`. **Do not proceed to KNN if r < 0.3** (FR-003, Plan Task 1.3)
-- [ ] T015 [US1] Implement KNN grain size imputation logic in `projects/PROJ-244-predicting-the-impact-of-strain-rate-on-/code/ingestion/preprocess.py` with k=5, **only if T015.0 passes**. **If r < 0.3, records MUST be dropped or flagged; do not proceed with imputation.** (FR-003)
-- [ ] T016 [US1] Implement -dimensional elemental fraction vector encoding in `projects/PROJ-244-predicting-the-impact-of-strain-rate-on-/code/ingestion/preprocess.py`
-- [ ] T017 [US1] Implement stratified split logic (by Alloy Family, N≥20 per stratum) in `projects/PROJ-244-predicting-the-impact-of-strain-rate-on-/code/ingestion/preprocess.py`
+- [ ] T012.1 [US1] **Fetch NIST Data**: Implement `fetchers.py` in `projects/PROJ-244-predicting-the-impact-of-strain-rate-on-/code/ingestion/` to attempt fetching data from NIST. **Must log success or failure to `data/fetch_log.txt`.** (FR-001)
+- [ ] T012.2 [US1] **Fetch OpenML Data**: Implement `fetchers.py` in `projects/PROJ-244-predicting-the-impact-of-strain-rate-on-/code/ingestion/` to attempt fetching data from OpenML. **Must log success or failure to `data/fetch_log.txt`.** (FR-001)
+- [ ] T012.3 [US1] **Fetch Materials Project Data**: Implement `fetchers.py` in `projects/PROJ-244-predicting-the-impact-of-strain-rate-on-/code/ingestion/` to attempt fetching data from Materials Project. **Must log success or failure to `data/fetch_log.txt`.** (FR-001)
+- [ ] T012.4 [US1] **Activate Simulated Generator**: Implement `fetchers.py` in `projects/PROJ-244-predicting-the-impact-of-strain-rate-on-/code/ingestion/` to conditionally activate the Physics-Consistent Simulated Data generator **only if** T012.1-T012.3 all fail. **Must write `data/fallback_reason.txt` documenting the failure.** (FR-001)
+- [ ] T013 [US1] Implement `preprocess.py` in `projects/PROJ-244-predicting-the-impact-of-strain-rate-on-/code/ingestion/` to standardize units (MPa, s⁻¹, µm) and **drop records missing Yield Strength or Strain Rate** (FR-003).
+- [ ] T013.1 [US1] Save the pre-imputation dataset state (post-filtering, pre-imputation) to `data/processed/raw_for_sensitivity.csv` immediately after T013 filtering. **This artifact is required for T038 Sensitivity Analysis.** (Critical for FR-008)
+- [ ] T015.0 [US1] **Correlation Validation & Flagging**: Implement correlation validation in `projects/PROJ-244-predicting-the-impact-of-strain-rate-on-/code/ingestion/preprocess.py`: Compute correlation between the **joint vector of [raw composition, strain_rate]** and grain size (using `data/processed/raw_for_sensitivity.csv`). If r < 0.3, flag records in `imputation_confidence` column; **DO NOT drop them from the main dataset** (retain in `imputed.csv`) but **exclude them from the sensitivity dataset** (T013.2). **Output: `data/processed/correlation_check.log` (contains 'r' value) and `data/processed/low_confidence_records.csv`.** (FR-003, Plan Task 1.3)
+- [ ] T013.2 [US1] **Create Sensitivity Dataset**: Filter `data/processed/raw_for_sensitivity.csv` to **exclude records flagged as low-confidence by T015.0**. **Output: `data/processed/sensitivity_dataset.csv`.** **MUST run AFTER T015.0.** (FR-008)
+- [ ] T014 [US1] **Composition Imputation**: Implement composition imputation logic in `projects/PROJ-244-predicting-the-impact-of-strain-rate-on-/code/ingestion/preprocess.py`: If alloy composition is missing, impute using Alloy Family average (FR-003). **Must run AFTER T015.0.** **Output: `data/processed/composition_imputed.csv`.**
+- [ ] T015 [US1] **KNN Grain Size Imputation**: Implement KNN grain size imputation logic in `projects/PROJ-244-predicting-the-impact-of-strain-rate-on-/code/ingestion/preprocess.py` with k=5, **using imputed composition (from T014) AND strain_rate (from raw data) as predictors**. **Must run AFTER T014.** **Gate: T014 must have generated `composition_imputed.csv`.** **Output: `data/processed/imputed.csv`.** (FR-003)
+- [ ] T016 [US1] **Elemental Fraction Encoding**: Implement high-dimensional elemental fraction vector encoding in `projects/PROJ-244-predicting-the-impact-of-strain-rate-on-/code/ingestion/preprocess.py`. **Output: `data/processed/encoded_features.csv` (10-dimensional float array of elemental mass fractions).**
+- [ ] T017 [US1] **Stratified Split**: Implement stratified split logic (by Alloy Family, N≥20 per stratum) in `projects/PROJ-244-predicting-the-impact-of-strain-rate-on-/code/ingestion/preprocess.py`. **Output: `data/processed/train.csv`, `data/processed/test.csv` (using RANDOM_SEED from config).**
+
+### **Sequential Execution Block for Phase 3 (CRITICAL)**
+**Execute strictly in this order:**
+1. T013 (Standardize & Drop)
+2. T013.1 (Save Raw State)
+3. T015.0 (Correlation Check & Flag)
+4. T013.2 (Create Sensitivity Dataset)
+5. T014 (Impute Composition)
+6. T015 (Impute Grain Size)
+7. T016 (Encode Features)
+8. T017 (Split Data)
 
 ---
 
@@ -107,12 +123,17 @@
 
 ### Implementation for User Story 2
 
-- [ ] T022 [P] [US2] Implement `ml_models.py` in `projects/PROJ-244-predicting-the-impact-of-strain-rate-on-/code/modeling/` for RF, GB, Linear, Ridge with Grid Search
-- [ ] T023 [P] [US2] Implement `empirical_models.py` in `projects/PROJ-244-predicting-the-impact-of-strain-rate-on-/code/modeling/` for Johnson-Cook and Zerilli-Armstrong fitting/prediction
-- [ ] T024 [US2] Implement nested cross-validation logic in `projects/PROJ-244-predicting-the-impact-of-strain-rate-on-/code/modeling/evaluation.py` to ensure independent test sets
-- [ ] T025 [US2] Implement robustness analysis (multiple random seeds) in `projects/PROJ-244-predicting-the-impact-of-strain-rate-on-/code/modeling/evaluation.py` (SC-004)
-- [ ] T026 [US2] Implement calculation of R², MAE, RMSE for all models in `projects/PROJ-244-predicting-the-impact-of-strain-rate-on-/code/modeling/evaluation.py` (SC-001)
-- [ ] T038 [US2] Implement Sensitivity Analysis (FR-008, SC-005): Train models on `data/processed/grain_size_raw.csv` (raw) and `data/processed/grain_size_imputed.csv` (imputed); compare R² to quantify bias. Save results to `data/processed/sensitivity_analysis.csv`. **Depends on T013.1 (raw data) and T022-T026 (model training).** (FR-008)
+- [ ] T022 [P] [US2] **Train ML Models**: Implement `ml_models.py` in `projects/PROJ-244-predicting-the-impact-of-strain-rate-on-/code/modeling/` for RF, GB, Ridge with Grid Search. **Output: `data/models/ml_rf.pkl`, `data/models/ml_gb.pkl`, etc.** (FR-004)
+- [ ] T022.1 [P] [US2] **Train Linear Models**: Implement `ml_models.py` in `projects/PROJ-244-predicting-the-impact-of-strain-rate-on-/code/modeling/` for Linear Regression with Grid Search (FR-004, Plan Task T016.1)
+- [ ] T023 [P] [US2] **Fit Empirical Models**: Implement `empirical_models.py` in `projects/PROJ-244-predicting-the-impact-of-strain-rate-on-/code/modeling/` for Johnson-Cook and Zerilli-Armstrong fitting/prediction. **Output: `data/models/empirical_params.yaml`.** (FR-005)
+- [ ] T024 [US2] **Nested Cross-Validation**: Implement nested cross-validation logic in `projects/PROJ-244-predicting-the-impact-of-strain-rate-on-/code/modeling/evaluation.py` to ensure independent test sets. **Output: `data/processed/cv_scores.csv`.** (FR-004)
+- [ ] T025 [US2] **Robustness Analysis**: Implement robustness analysis (multiple random seeds) in `projects/PROJ-244-predicting-the-impact-of-strain-rate-on-/code/modeling/evaluation.py` (SC-004). **Aggregate stability metrics (variance of R² across seeds) and save to `results/robustness_metrics.json`.** (SC-004)
+- [ ] T025.1 [US2] **Stability Reporting**: Ensure `results/robustness_metrics.json` contains the aggregated stability metrics. (SC-004)
+- [ ] T026 [US2] **Calculate Metrics**: Implement calculation of R², MAE, RMSE for all models in `projects/PROJ-244-predicting-the-impact-of-strain-rate-on-/code/modeling/evaluation.py` (SC-001)
+
+### Sequential Phase 4 Tasks (Dependent on T022-T026)
+
+- [ ] T038 [US1+US2] **Sensitivity Analysis**: Implement Sensitivity Analysis (FR-008, SC-005): **Re-train models (distinct from T022-T026)** on `data/processed/raw_for_sensitivity.csv` (raw) and `data/processed/sensitivity_dataset.csv` (imputed, low-confidence excluded); compare R² to quantify bias. Save results to `results/sensitivity_analysis.json`. **MUST run AFTER T022-T026 complete.** (FR-008)
 
 ---
 
@@ -130,11 +151,11 @@
 ### Implementation for User Story 3
 
 - [ ] T029.0 [P] [US3] Create `data/config/literature_expectations.yaml` with expected SHAP thresholds (≥0.1) and expected top 3 features: `["strain_rate", "composition", "grain_size"]` (SC-002)
-- [ ] T029 [P] [US3] Implement SHAP feature importance extraction in `projects/PROJ-244-predicting-the-impact-of-strain-rate-on-/code/modeling/evaluation.py`. **Verify specifically** that `strain_rate`, `composition`, and `grain_size` rank in the top 3. Assert `top_3_features == ["strain_rate", "composition", "grain_size"]` or log failure. **Verify SHAP values ≥ 0.1 or p-values < 0.05.** (US-3, SC-002)
-- [ ] T030 [US3] Implement Wilcoxon signed-rank test with Benjamini-Hochberg correction in `projects/PROJ-244-predicting-the-impact-of-strain-rate-on-/code/modeling/evaluation.py` to compare ML vs. Empirical errors (FR-007, SC-003)
-- [ ] T031 [US3] Implement Partial Dependence Plot generation for strain rate vs. yield strength for multiple alloy families in `projects/PROJ-244-predicting-the-impact-of-strain-rate-on-/code/visualization/plots.py` (FR-006)
-- [ ] T032 [US3] Implement logic to detect and report non-monotonic regimes in `projects/PROJ-244-predicting-the-impact-of-strain-rate-on-/code/visualization/plots.py`
-- [ ] T033 [US3] Implement failure regime identification (high strain rate, specific alloys) and **save results to `data/processed/failure_regimes.csv`** (FR-006, US-3)
+- [ ] T029 [P] [US3] **SHAP Feature Importance**: Implement SHAP feature importance extraction in `projects/PROJ-244-predicting-the-impact-of-strain-rate-on-/code/modeling/evaluation.py`. **Gate: Assert PASS if `strain_rate`, `composition`, and `grain_size` rank in the top 3 with SHAP values ≥ 0.1; else FAIL.** **Output: `data/processed/shap_values.csv`, `results/feature_importance_report.json` (PASS/FAIL).** (US-3, SC-002)
+- [ ] T030 [US3] **Statistical Tests**: Implement Wilcoxon signed-rank test with Benjamini-Hochberg correction in `projects/PROJ-244-predicting-the-impact-of-strain-rate-on-/code/modeling/evaluation.py` to compare ML vs. Empirical errors (FR-007, SC-003)
+- [ ] T031 [US3] **Partial Dependence Plots**: Implement Partial Dependence Plot generation for strain rate vs. yield strength for **at least three** representative alloy families (e.g., largest N per family OR families with diverse physics) in `projects/PROJ-244-predicting-the-impact-of-strain-rate-on-/code/visualization/plots.py`. **Output: `results/plots/pdp_[alloy_family].png`.** (FR-006)
+- [ ] T032 [US3] **Non-Monotonic Detection**: Implement logic to detect and report non-monotonic regimes in `projects/PROJ-244-predicting-the-impact-of-strain-rate-on-/code/visualization/plots.py`
+- [ ] T033 [US3] **Failure Regime Identification**: Implement failure regime identification (high strain rate, specific alloys) and **save results to `data/processed/failure_regimes.csv`** (FR-006, US-3)
 
 ---
 
@@ -143,7 +164,7 @@
 **Purpose**: Compile results, generate figures, and finalize documentation
 
 - [ ] T034 [P] Compile `metrics.json` and `wilcoxon_test.csv` in `projects/PROJ-244-predicting-the-impact-of-strain-rate-on-/data/processed/`
-- [ ] T035 Generate final figures (PDP, Error Distribution) in `projects/PROJ-244-predicting-the-impact-of-strain-rate-on-/data/processed/`
+- [ ] T035 **Generate Final Figures**: Generate final figures (PDP, Error Distribution) in `projects/PROJ-244-predicting-the-impact-of-strain-rate-on-/data/processed/`. **Output: `results/plots/pdp_summary.png`, `results/plots/error_dist.png`.**
 - [ ] T036 Append Section 4.2 to `research.md` documenting regimes where empirical models fail, using data from `data/processed/failure_regimes.csv` (T033)
 - [ ] T037 [P] Run quickstart.md validation and ensure full pipeline execution ≤ 4 hours
 
@@ -153,14 +174,27 @@
 
 ### Phase Dependencies
 
-- **Phase 0**: No dependencies - can start immediately. T008 (Research) must complete before T007.2 (Validation).
+- **Phase 0**: No dependencies - can start immediately. T008.1-T008.3 must complete before T008.4, and T008.4 must complete before T007.2 (Validation).
 - **Phase 0.5**: Depends on Phase 0 completion.
 - **Phase 1**: Depends on Phase 0.5 completion.
 - **Phase 2**: Depends on Phase 1 completion. T006 must complete before T012-T017.
-- **Phase 3 (US1)**: Depends on Phase 2 completion.
-- **Phase 4 (US2)**: Depends on Phase 3 completion (data output).
+- **Phase 3 (US1)**: Depends on Phase 2 completion. **Follow Sequential Execution Block strictly.**
+- **Phase 4 (US2)**: Depends on Phase 3 completion (data output). **Includes T038 which depends on T022-T026 completion.**
 - **Phase 5 (US3)**: Depends on Phase 4 completion (model output).
 - **Phase 6**: Depends on Phase 5 completion.
+
+### Intra-Phase Ordering for Phase 3
+- **CRITICAL**: Execute T013 -> T013.1 -> T015.0 -> T013.2 -> T014 -> T015 -> T016 -> T017 sequentially.
+- T013.1 reads raw data (from T013).
+- T015.0 reads raw data (from T013.1) to flag low-confidence records.
+- T013.2 filters T013.1 based on T015.0 flags (Depends on T015.0).
+- T014 overwrites raw composition with imputed values (Depends on T015.0).
+- T015 uses the imputed composition from T014 and strain rate.
+- T013.1 must run before T015.0.
+
+### Intra-Phase Ordering for Phase 4
+- **Critical**: Execute T022, T022.1, T023, T024, T025, T026 sequentially (or in parallel if independent files, but T038 must wait).
+- **Critical**: T038 (Sensitivity Analysis) MUST run strictly AFTER T022-T026 are complete. T038 cannot run in parallel with T022-T026 as it requires their outputs for comparison.
 
 ### User Story Dependencies
 
@@ -178,9 +212,9 @@
 
 ### Parallel Opportunities
 
-- All Phase 0 research tasks (T008, T051-T053) can run in parallel.
+- All Phase 0 research tasks (T008.1-T008.3) can run in parallel, **except** T008.4 depends on T008.1-T008.3.
 - All Phase 1 setup tasks (T001.1-T003.2) can run in parallel.
-- All Phase 2 foundational tasks (T004.1-T007.2) can run in parallel, **except** T007.2 depends on T008, and T006 must complete before T012-T017.
+- All Phase 2 foundational tasks (T004.1-T007.1) can run in parallel, **except** T007.2 depends on T008.4, and T006 must complete before T012-T017.
 - Once Phase 2 completes, all user stories can start in parallel (if team capacity allows).
 - All tests for a user story marked [P] can run in parallel.
 - Models within a story marked [P] can run in parallel.
@@ -244,9 +278,15 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Critical Constraint**: All data fetches must use real, reachable URLs/APIs. No synthetic data or fabrication allowed.
-- **Critical Constraint**: All models must run on CPU-only (limited cores, 7GB RAM). No GPU or 8-bit quantization.
-- **Critical Constraint**: T015.0 correlation check must use **raw** composition data (pre-imputation) to ensure FR-003 compliance.
+- **Critical Constraint**: All data fetches must use real, reachable URLs/APIs. If unavailable, use the simulated generator. No synthetic data or fabrication allowed.
+- **Critical Constraint**: All models must run on CPU-only (limited cores, constrained RAM). No GPU or 8-bit quantization.
+- **Critical Constraint**: T015.0 correlation check must use **joint vector of raw composition and strain rate** to ensure FR-003 compliance.
 - **Critical Constraint**: T013.1 must save the raw state immediately after filtering to enable T038 sensitivity analysis.
+- **Critical Constraint**: T013.2 must create a distinct artifact for sensitivity analysis excluding low-confidence records.
 - **Critical Constraint**: T006 (entities) is a hard prerequisite for T012-T017; do not treat as parallel with downstream consumers.
-- **Critical Constraint**: T029 must explicitly verify that `strain_rate`, `composition`, and `grain_size` are the top 3 features.
+- **Critical Constraint**: T029 must explicitly verify that `strain_rate`, `composition`, and `grain_size` are in the top 3, and report PASS/FAIL against the threshold.
+- **Critical Constraint**: Phase 3 ordering: T013 -> T013.1 -> T015.0 -> T013.2 -> T014 -> T015.
+- **Critical Constraint**: Phase 4 ordering: T038 must run AFTER T022-T026.
+- **Critical Constraint**: T015 must use **strain rate** as a predictor for KNN imputation.
+- **Critical Constraint**: T025.1 must aggregate and report stability metrics.
+- **Critical Constraint**: T012.1-T012.4 must attempt real fetches before simulation.
