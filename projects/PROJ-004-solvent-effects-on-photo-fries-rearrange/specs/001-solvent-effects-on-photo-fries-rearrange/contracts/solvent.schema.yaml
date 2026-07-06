@@ -41,6 +41,13 @@ properties:
     type: string
     pattern: "^data/chemicals/.*$"
     description: "Path to certificate file in data/chemicals/"
+  lookup_match_status:
+    type: string
+    enum:
+      - "match"
+      - "mismatch"
+      - "unverified"
+    description: "Status of lookup table validation (SC-010)"
 required:
   - solvent_id
   - name
@@ -51,4 +58,5 @@ required:
   - lot_number
   - purity_percent
   - purity_certificate_path
+  - lookup_match_status
 additionalProperties: false

@@ -1,0 +1,92 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "SolventEffectsOutputSchema"
+description: "Schema for processed kinetic metrics and statistical results."
+type: "object"
+properties:
+  metrics:
+    type: "array"
+    items:
+      type: "object"
+      required:
+        - "metric_id"
+        - "trace_id"
+        - "lifetime_ns"
+      properties:
+        metric_id:
+          type: "string"
+        trace_id:
+          type: "string"
+        lifetime_ns:
+          type: "number"
+          description: "Fitted singlet-radical-pair lifetime in nanoseconds"
+        confidence_interval_lower:
+          type: "number"
+        confidence_interval_upper:
+          type: "number"
+        replicate_group:
+          type: "string"
+        mean_lifetime_ns:
+          type: "number"
+        std_lifetime_ns:
+          type: "number"
+        solvent_id:
+          type: "string"
+  statistics:
+    type: "object"
+    required:
+      - "regression"
+      - "collinearity"
+    properties:
+      regression:
+        type: "object"
+        properties:
+          r_squared:
+            type: "number"
+          effect_size:
+            type: "number"
+            description: "Standardized effect size (beta coefficient)"
+          ci_lower:
+            type: "number"
+            description: "Lower bound of bootstrapped 95% CI"
+          ci_upper:
+            type: "number"
+            description: "Upper bound of bootstrapped 95% CI"
+          method:
+            type: "string"
+            description: "Method used (e.g., Bootstrapped Linear Regression)"
+      collinearity:
+        type: "object"
+        properties:
+          vif_dielectric:
+            type: "number"
+            description: "Variance Inflation Factor for dielectric constant"
+          vif_solvation:
+            type: "number"
+            description: "Variance Inflation Factor for solvation energy"
+  power_analysis:
+    type: "object"
+    properties:
+      sample_size:
+        type: "integer"
+      detectable_effect_size:
+        type: "number"
+      power:
+        type: "number"
+      limitations:
+        type: "string"
+  sensitivity_analysis:
+    type: "array"
+    items:
+      type: "object"
+      properties:
+        cutoff_value:
+          type: "number"
+        false_positive_rate:
+          type: "number"
+        false_negative_rate:
+          type: "number"
+required:
+  - "metrics"
+  - "statistics"
+  - "power_analysis"
+  - "sensitivity_analysis"

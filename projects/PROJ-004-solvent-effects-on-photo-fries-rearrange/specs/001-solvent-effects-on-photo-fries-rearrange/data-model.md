@@ -2,106 +2,103 @@
 
 ## Overview
 
-This document defines the data structures, schemas, and relationships for the Photo-Fries rearrangement kinetics project. All data artifacts must conform to the schemas in `contracts/` and maintain checksums in the project state file.
+This document defines the data structures, relationships, and schemas for the project. All data is stored in `data/` (raw, compute, processed) and validated against `contracts/`.
 
-## Key Entities
+## Entities
 
-### Solvent Condition
+### 1. Solvent Condition
+Represents a specific experimental environment.
+*   **Attributes**:
+    *   `solvent_id`: Unique identifier (e.g., "C6H12", "CH3OH").
+    *   `dielectric_constant`: Float (e.g., 2.0, 33.0).
+    *   `temperature`: Float (Target: 25.0°C, Tolerance: ±0.5°C).
+    *   `humidity`: Float (Target: 50%, Tolerance: ±2% RH).
+    *   `pressure`: Float (Barometric pressure in hPa).
+    *   `manufacturer`: String.
+    *   `lot_number`: String.
+    *   `purity`: Float (e.g., 0.99).
+    *   `lookup_match_status`: Enum ("match", "mismatch", "unverified").
 
-Represents a specific solvent environment with physical and chemical properties.
+### 2. Kinetic Trace
+Raw or processed transient-absorption data.
+*   **Attributes**:
+    *   `trace_id`: Unique identifier.
+    *   `solvent_id`: Foreign key to `Solvent Condition`.
+    *   `wavelength_nm`: Float (e.g., 350.0).
+    *   `time_ns`: Array of floats (Time points).
+    *   `absorbance`: Array of floats (Signal).
+    *   `calibration_id`: Foreign key to `Calibration Record`.
+    *   `status`: Enum ("valid", "flagged_humidity", "flagged_temp", "failed_fit").
 
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| `solvent_id` | string | Yes | Unique identifier (e.g., "cyclohexane_001") |
-| `name` | string | Yes | Common solvent name |
-| `dielectric_constant` | float | Yes | Dielectric constant (ε) at 25°C |
-| `temperature` | float | Yes | Measurement temperature (°C), expected 25.0 ± 0.5 |
-| `volume_ml` | float | Yes | Sample volume in milliliters |
-| `manufacturer` | string | Yes | Chemical supplier |
-| `lot_number` | string | Yes | Batch/lot identifier |
-| `purity_percent` | float | Yes | Purity percentage (e.g., 99.5) |
-| `purity_certificate_path` | string | Yes | Path to certificate file in `data/chemicals/` |
+### 3. Reaction Metric
+Derived lifetime and statistics.
+*   **Attributes**:
+    *   `metric_id`: Unique identifier.
+    *   `trace_id`: Foreign key to `Kinetic Trace`.
+    *   `lifetime_ns`: Float (Fitted $\tau$).
+    *   `confidence_interval_lower`: Float.
+    *   `confidence_interval_upper`: Float.
+    *   `replicate_group`: String (e.g., "C6H12_rep1").
+    *   `mean_lifetime_ns`: Float (Aggregated per solvent).
+    *   `std_lifetime_ns`: Float.
+    *   `power_analysis_id`: Foreign key to `Power Analysis`.
 
-### Kinetic Trace
+### 4. Solvation Energy
+Computed DFT data.
+*   **Attributes**:
+    *   `solv_id`: Unique identifier.
+    *   `solvent_id`: Foreign key to `Solvent Condition`.
+    *   `delta_g_solv_kcal_mol`: Float.
+    *   `method`: Enum ("SMD", "PCM", "Explicit").
+    *   `basis_set`: String (e.g., "6-31G*").
+    *   `functional`: String (e.g., "B3LYP").
 
-Represents raw transient-absorption data for a specific solvent and time window.
+### 5. Calibration Record
+Instrument validation data.
+*   **Attributes**:
+    *   `calib_id`: Unique identifier.
+    *   `date`: ISO-8601 Date.
+    *   `detector_response`: Float.
+    *   `wavelength_offset`: Float.
+    *   `baseline_drift`: Float.
 
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| `trace_id` | string | Yes | Unique identifier (e.g., "cyclohexane_001_run_001") |
-| `solvent_id` | string | Yes | Foreign key to Solvent Condition |
-| `wavelength_range_nm` | array[2] | Yes | [min_wavelength, max_wavelength] in nm |
-| `time_range_ns` | array[2] | Yes | [min_time, max_time] in nanoseconds |
-| `raw_data_path` | string | Yes | Path to raw CSV file in `data/raw/laser_flash_photolysis/` |
-| `checksum_sha256` | string | Yes | SHA-256 hash of raw data file |
-| `acquisition_timestamp` | datetime | Yes | ISO-8601 timestamp of data capture |
-| `laser_pulse_intensity` | float | Yes | Pulse intensity (mJ/cm²) |
+### 6. Power Analysis
+Documented power analysis for the sample size.
+*   **Attributes**:
+    *   `analysis_id`: Unique identifier.
+    *   `sample_size`: Integer (n per solvent).
+    *   `detectable_effect_size`: Float.
+    *   `power`: Float.
+    *   `limitations`: String.
 
-### Reaction Metric
-
-Represents derived lifetime and product distribution values for a condition.
-
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| `metric_id` | string | Yes | Unique identifier |
-| `solvent_id` | string | Yes | Foreign key to Solvent Condition |
-| `lifetime_ns` | float | Yes | Singlet-radical-pair lifetime in nanoseconds |
-| `lifetime_ci_lower_ns` | float | Yes | 95% confidence interval lower bound |
-| `lifetime_ci_upper_ns` | float | Yes | 95% confidence interval upper bound |
-| `fit_r_squared` | float | Yes | Exponential fit quality (R²) |
-| `replicate_count` | integer | Yes | Number of replicates (n ≥ 3) |
-| `mean_lifetime_ns` | float | Yes | Mean lifetime across replicates |
-| `std_lifetime_ns` | float | Yes | Standard deviation across replicates |
-| `product_distribution` | object | No | HPLC-derived product ratios (ortho/para) |
-| `analysis_timestamp` | datetime | Yes | ISO-8601 timestamp of analysis |
-
-### Solvation Energy
-
-Represents computed solvation free energy from DFT calculations.
-
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| `solvation_id` | string | Yes | Unique identifier |
-| `solvent_id` | string | Yes | Foreign key to Solvent Condition |
-| `solvation_free_energy_kcal_mol` | float | Yes | Computed solvation free energy |
-| `dft_level` | string | Yes | Theory/basis set (e.g., "B3LYP/6-31G*") |
-| `solvent_model` | string | Yes | Implicit model (e.g., "SMD", "PCM") |
-| `compute_input_path` | string | Yes | Path to DFT input file in `data/compute/dft_inputs/` |
-| `compute_output_path` | string | Yes | Path to DFT output file |
-| `checksum_sha256` | string | Yes | SHA-256 hash of output file |
-| `computation_timestamp` | datetime | Yes | ISO-8601 timestamp |
+### 7. Sensitivity Analysis
+Results of sensitivity analysis on decision cutoffs.
+*   **Attributes**:
+    *   `analysis_id`: Unique identifier.
+    *   `cutoff_value`: Float.
+    *   `false_positive_rate`: Float.
+    *   `false_negative_rate`: Float.
 
 ## Relationships
 
-```mermaid
-erDiagram
-    SolventCondition ||--o{ KineticTrace : "has"
-    SolventCondition ||--o{ ReactionMetric : "has"
-    SolventCondition ||--o{ SolvationEnergy : "has"
-    KineticTrace ||--o{ ReactionMetric : "processed_into"
-```
+*   **Solvent Condition** (1) -- (N) **Kinetic Trace**
+*   **Solvent Condition** (1) -- (N) **Solvation Energy**
+*   **Kinetic Trace** (1) -- (1) **Reaction Metric**
+*   **Calibration Record** (1) -- (N) **Kinetic Trace**
+*   **Reaction Metric** (N) -- (1) **Power Analysis**
+*   **Sensitivity Analysis** (1) -- (N) **Reaction Metric** (via cutoff)
 
 ## Data Flow
 
-```
-raw/instrument_data → KineticTrace → ReactionMetric → Correlation Analysis
-raw/compute_input → SolvationEnergy → Correlation Analysis
-```
+1.  **Ingest**: Raw traces (simulated) and DFT results loaded into `data/raw/` and `data/compute/`.
+2.  **Validate**: Check against `contracts/`. Flag out-of-tolerance environmental conditions. **SC-010**: Validate dielectric constants against lookup table.
+3.  **Process**: Fit kinetic models -> Generate `Reaction Metric`.
+4.  **Aggregate**: Calculate mean/std per solvent.
+5.  **Analyze**: Correlate `Reaction Metric` with `Solvation Energy`. **SC-007**: Document power analysis.
+6.  **Sensitivity**: Vary cutoffs -> Generate `Sensitivity Analysis`. **SC-008**: Report error rates.
 
-## Checksum Requirements
+## Schema References
 
-All files under `data/` must be checksummed and recorded in:
-`state/projects/PROJ-004-solvent-effects-on-photo-fries-rearrange.yaml`
-
-Example artifact_hashes entry:
-```yaml
-artifact_hashes:
-  data/raw/laser_flash_photolysis/cyclohexane_001/run_001.csv: "sha256:abc123..."
-  data/compute/dft_inputs/cyclohexane_001.com: "sha256:def456..."
-```
-
-## Derivation Rules
-
-- Raw data files MUST NOT be modified in place
-- All transformations produce new files with documented derivation
-- Derived files include provenance metadata (source file path, transformation script, timestamp)
+*   Input Schema: `contracts/dataset.schema.yaml`
+*   Output Schema: `contracts/output.schema.yaml`
+*   Entity Schemas: `contracts/solvent.schema.yaml`, `contracts/kinetic_trace.schema.yaml`, `contracts/reaction_metric.schema.yaml`
