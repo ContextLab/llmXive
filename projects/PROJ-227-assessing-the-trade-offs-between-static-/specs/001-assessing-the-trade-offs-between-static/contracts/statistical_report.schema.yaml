@@ -1,0 +1,40 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Statistical Report Schema"
+type: "object"
+properties:
+  test_name:
+    type: "string"
+    description: "Name of the statistical test (e.g., Spearman_Correlation, Chi_Squared_Independence, Sensitivity_Analysis)"
+  alpha:
+    type: "number"
+    description: "Significance level (0.01, 0.05, 0.1)"
+  p_value:
+    type: "number"
+    description: "P-value from the statistical test"
+  conclusion:
+    type: "string"
+    enum:
+      - "significant"
+      - "not_significant"
+    description: "Conclusion based on p-value and alpha"
+  stratum:
+    type: "string"
+    nullable: true
+    description: "Language stratum (if stratified)"
+  multiplicity_adjusted:
+    type: "boolean"
+    description: "Whether multiplicity correction was applied (e.g., Bonferroni)"
+  sample_size:
+    type: "integer"
+    description: "Number of snippets in the test"
+  methodology_note:
+    type: "string"
+    description: "Description of the test used (e.g., 'Spearman correlation for distinct constructs')"
+required:
+  - test_name
+  - alpha
+  - p_value
+  - conclusion
+  - multiplicity_adjusted
+  - sample_size
+additionalProperties: false

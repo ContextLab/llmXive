@@ -1,0 +1,43 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Dataset Manifest Schema"
+description: "Schema for data/manifest.csv containing the list of sampled code snippets."
+type: "object"
+properties:
+  snippet_id:
+    type: "string"
+    description: "Unique identifier for the code snippet."
+  language:
+    type: "string"
+    description: "Programming language (e.g., 'python', 'javascript')."
+    enum:
+      - "python"
+      - "javascript"
+      - "java"
+  source_dataset:
+    type: "string"
+    description: "Name of the source dataset."
+  difficulty:
+    type: "string"
+    description: "Difficulty level if available."
+    nullable: true
+  checksum:
+    type: "string"
+    description: "SHA-256 checksum of the raw data file."
+  oracle_type:
+    type: "string"
+    description: "Type of dynamic oracle (native or synthetic)."
+    nullable: true
+  oracle_status:
+    type: "string"
+    description: "Status of oracle availability."
+    enum:
+      - "available"
+      - "unavailable"
+      - "generation_failed"
+    nullable: true
+required:
+  - snippet_id
+  - language
+  - source_dataset
+  - checksum
+additionalProperties: false

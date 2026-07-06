@@ -1,0 +1,38 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Code Snippet Dataset Schema"
+type: "object"
+properties:
+  id:
+    type: "string"
+    description: "Unique identifier for the code snippet (e.g., humaneval-001)"
+  language:
+    type: "string"
+    enum:
+      - "Python"
+      - "JavaScript"
+      - "Java"
+    description: "Programming language of the snippet"
+  source_dataset:
+    type: "string"
+    description: "Name of the original dataset (e.g., HumanEval, JavaScript-Test)"
+  code:
+    type: "string"
+    description: "Source code string"
+  tests:
+    type: "string"
+    nullable: true
+    description: "Unit test code string (if available)"
+  checksum:
+    type: "string"
+    description: "SHA-256 hash of the raw snippet"
+  downloaded_at:
+    type: "string"
+    format: "date-time"
+    description: "ISO-8601 timestamp of download"
+required:
+  - id
+  - language
+  - source_dataset
+  - code
+  - checksum
+additionalProperties: false
