@@ -1,0 +1,33 @@
+# Pipeline Configuration for Cognitive Load EEG Analysis
+signal_processing:
+  bandpass:
+    low_cutoff: 1.0
+    high_cutoff: 45.0
+    order: 4
+  notch:
+    frequencies: [50] # 50 Hz line noise
+  downsampling:
+    target_hz: 250
+  ica:
+    method: "fastica"
+    n_components: 0.99
+    random_state: 42
+    max_iter: 1000
+
+data:
+  raw_dir: "data/raw"
+  processed_dir: "data/processed"
+  manifest: "data/manifest.yaml"
+  
+state:
+  file: "state/pipeline_state.yaml"
+
+features:
+  theta_band: [4, 7]
+  alpha_band: [8, 12]
+  gaze_window: 1.0 # seconds
+
+model:
+  cv_folds: 5
+  test_split: 0.2
+  alpha: 1.0

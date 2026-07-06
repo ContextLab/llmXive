@@ -1,0 +1,41 @@
+signal_processing:
+  bandpass:
+    low_cutoff: 1.0
+    high_cutoff: 45.0
+    filter_type: "butterworth"
+    order: 4
+  downsampling:
+    target_sfreq: 250
+    method: "decimate"
+  notch:
+    freq: 50
+    q: 30.0
+    type: "iir"
+
+ica:
+  method: "fastica"
+  n_components: 0.95
+  random_state: 42
+  max_iter: 200
+  algorithm: "parallel"
+  components_to_remove:
+    - "EOG"
+    - "blink"
+  threshold: 0.99
+
+epoching:
+  tmin: -0.2
+  tmax: 0.8
+  baseline: [-0.2, 0.0]
+  reject_criteria:
+    eeg: 150e-6
+    eog: 250e-6
+
+memory_management:
+  max_memory_gb: 6.5
+  chunk_size_epochs: 50
+
+paths:
+  raw_data_dir: "data/raw"
+  processed_data_dir: "data/processed"
+  results_dir: "results"

@@ -20,34 +20,34 @@
 - **Mobile**: `api/src/`, `ios/src/` or `android/src/`
 - Paths shown below assume single project - adjust based on plan.md structure
 
-<!-- 
-  ============================================================================
-  IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-  
-  The /speckit-tasks command MUST replace these with actual tasks based on:
-  - User stories from spec.md (with their priorities P1, P2, P3...)
-  - Feature requirements from plan.md
-  - Entities from data-model.md
-  - Endpoints from contracts/
-  
-  Tasks MUST be organized by user story so each story can be:
-  Implemented independently
-  - Tested independently
-  - Delivered as a MVP increment
-  
-  DO NOT keep these sample tasks in the generated tasks.md file.
-  ============================================================================
+<!--
+ ============================================================================
+ IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
+
+ The /speckit-tasks command MUST replace these with actual tasks based on:
+ - User stories from spec.md (with their priorities P1, P2, P3...)
+ - Feature requirements from plan.md
+ - Entities from data-model.md
+ - Endpoints from contracts/
+
+ Tasks MUST be organized by user story so each story can be:
+ Implemented independently
+ - Tested independently
+ - Delivered as a MVP increment
+
+ DO NOT keep these sample tasks in the generated tasks.md file.
+ ============================================================================
 -->
 
 ## Phase 1: Setup (Shared Infrastructure)
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 [P] Create project structure per implementation plan: `mkdir -p code/data code/features code/models tests/unit tests/integration data/raw data/processed results`. **After completion, update `state/` YAML with checksums and `updated_at` timestamp.**
+- [X] T001 [P] Create project structure per implementation plan: `mkdir -p code/data code/features code/models tests/unit tests/integration data/raw data/processed results`. **After completion, update `state/` YAML with checksums and `updated_at` timestamp.**
 
-- [ ] T002 Initialize Python 3.11 project with pinned dependencies (`mne`, `scikit-learn`, `pandas`, `numpy`, `pyarrow`, `requests`) in `requirements.txt`
-- [ ] T003 [P] Configure linting (ruff) and formatting (black) tools in `pyproject.toml`
-- [ ] T004 Create `pipeline_config.yaml` with default signal processing parameters (1–45 Hz bandpass, 250 Hz downsampling, ICA settings)
+- [X] T002 Initialize Python 3.11 project with pinned dependencies (`mne`, `scikit-learn`, `pandas`, `numpy`, `pyarrow`, `requests`) in `requirements.txt`
+- [X] T003 [P] Configure linting (ruff) and formatting (black) tools in `pyproject.toml`
+- [X] T004 Create `pipeline_config.yaml` with default signal processing parameters (1–45 Hz bandpass, 250 Hz downsampling, ICA settings)
 
 ---
 
@@ -57,8 +57,8 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T005 Implement `code/config.py` to load `pipeline_config.yaml` and environment variables
-- [ ] T006 Implement `code/data/loader.py` with chunked loading logic (by `epoch_id`) to ensure memory safety (≤ 6.5 GB)
+- [X] T005 Implement `code/config.py` to load `pipeline_config.yaml` and environment variables
+- [X] T006 Implement `code/data/loader.py` with chunked loading logic (by `epoch_id`) to ensure memory safety (≤ 6.5 GB)
 - [ ] T007 [P] Implement `code/data/manifest.yaml` generator that MUST automatically fetch and verify dataset URL, version, and checksums from the source to satisfy Constitution Principle VI. **After completion, update `state/` YAML with checksums and `updated_at` timestamp.**
 - [ ] T008 [P] Implement `code/data/download.py` with a strict verification gate: fetch `ds000246`, check for `gaze.tsv`; if missing, raise a `FileNotFoundError` with a clear message and flag spec for `ds003465` fallback. **After completion, update `state/` YAML with checksums and `updated_at` timestamp.**
 
@@ -76,13 +76,13 @@
 
 > **NOTE: Write these tests FIRST (Pre-implementation TDD) to ensure they FAIL before implementation**
 
-- [ ] T010 [P] [US1] Unit test for chunked loading logic in `tests/unit/test_loader.py` (verify memory peak < 7GB)
-- [ ] T011 [P] [US1] Unit test for dataset verification gate in `tests/unit/test_download.py` (verify halt on missing gaze data)
-- [ ] T012 [P] [US1] Integration test for full preprocessing pipeline in `tests/integration/test_preprocess.py` (verify ICA removal and epoch retention > 70%)
+- [~] T010 [P] [US1] Unit test for chunked loading logic in `tests/unit/test_loader.py` (verify memory peak < 7GB)
+- [~] T011 [P] [US1] Unit test for dataset verification gate in `tests/unit/test_download.py` (verify halt on missing gaze data)
+- [~] T012 [P] [US1] Integration test for full preprocessing pipeline in `tests/integration/test_preprocess.py` (verify ICA removal and epoch retention > 70%)
 
 ### Implementation for User Story 1
 
-- [ ] T014 [US1] Implement `code/data/preprocess.py` with full module logic: (1) Apply a Butterworth bandpass filter (1 Hz high-pass, 45 Hz low-pass, order=4) to remove DC offset and drift, (2) Apply a 50 Hz notch filter to remove line noise (FR-001), (3) Downsample to 250 Hz (FR-001), (4) Apply ICA for eye-blink artifact removal (FR-002), (5) Segment data into epochs aligned with behavioral events (FR-002), (6) Explicitly exclude subjects with > 50% rejected epochs to prevent bias (Edge Case), (7) Calculate and log epoch retention rate; halt if < 70% (SC-004), and (8) Log the final exclusion count. **After completion, update `state/` YAML with checksums and `updated_at` timestamp.**
+- [~] T014 [US1] Implement `code/data/preprocess.py` with full module logic: (1) Apply a Butterworth bandpass filter (1 Hz high-pass, 45 Hz low-pass, order=4) to remove DC offset and drift, (2) Apply a 50 (Wikipedia: Noise (electronics), https://en.wikipedia.org/wiki/Noise_(electronics)) Hz notch filter to remove line noise (FR-001), (3) {{claim:c_a6915f96}} (1712.02859, https://arxiv.org/abs/1712.02859) (FR-001), (4) Apply ICA for eye-blink artifact removal (FR-002), (5) Segment data into epochs aligned with behavioral events (FR-002), (6) Explicitly exclude subjects with > 50% rejected epochs to prevent bias (Edge Case), (7) Calculate and log epoch retention rate; halt if < 70% (SC-004), and (8) Log the final exclusion count. **After completion, update `state/` YAML with checksums and `updated_at` timestamp.**
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -104,7 +104,7 @@
 
 ### Implementation for User Story 2
 
-- [ ] T023 [P] [US2] Implement `code/features/extract.py` to compute PSD using Welch's method (FR-003) with built-in **chunked loading logic** to ensure memory safety during PSD computation on the full dataset (SC-002), extracting mean power for theta (4–7 Hz) and alpha (8–12 Hz) bands per channel. **After completion, update `state/` YAML with checksums and `updated_at` timestamp.**
+- [ ] T023 [P] [US2] Implement `code/features/extract.py` to compute PSDusing Welch's method (FR-003) with built-in **chunked loading logic** to ensure memory safety during PSD computation on the full dataset (SC-002), extracting mean power for theta (4–7 Hz) and alpha (8–12 Hz (Wikipedia: Alpha wave, https://en.wikipedia.org/wiki/Alpha_wave)) bands per channel. **After completion, update `state/` YAML with checksums and `updated_at` timestamp.**
 - [ ] T024 [US2] Implement `code/features/extract.py` function `compute_theta_alpha_ratio` to handle division-by-zero using `EPSILON = 1e-9` with logic `alpha_power + EPSILON` (Edge Case). **Must run after T023.**
 - [ ] T026 [US2] Implement `code/features/labels.py` to derive continuous cognitive load score from gaze variance per epoch (FR-004). **Must run only after `data/processed/clean_epochs` artifact is produced.**
 - [ ] T027 [US2] Implement `code/features/labels.py` to normalize labels via min-max scaling per subject (FR-004). **Must run after T026.**
@@ -137,7 +137,7 @@
 - [ ] T037 [US3] Implement `code/models/evaluate.py` to compute Pearson correlation and RMSE on held-out test set (FR-006)
 - [ ] T038 [US3] Implement `code/models/evaluate.py` to compare model performance against a mean-baseline predictor (FR-006)
 - [ ] T039 [US3] Implement `code/models/evaluate.py` to apply Bonferroni correction to channel-wise correlations (FR-007)
-- [ ] T040 [US3] Implement `code/models/evaluate.py` to perform permutation testing for global significance: run **1000 permutations**, shuffle labels, output p-value in `results/model_metrics.json` (Plan Phase 4)
+- [ ] T040 [US3] Implement `code/models/evaluate.py` to perform permutation testing for global significance: run **1000 (OEIS A000040, https://oeis.org/A000040) permutations**, shuffle labels, output p-value in `results/model_metrics.json` (Plan Phase 4)
 - [ ] T041 [US3] Implement `code/models/sensitivity.py` to vary gaze variance calculation windows (configured in `pipeline_config.yaml`), re-evaluate R², and store results in `results/sensitivity_report.csv` (FR-008). **Must run after T035.**
 - [ ] T044 [US3] Implement `code/main.py` to orchestrate the full pipeline: Data -> Features -> Model -> Report. **Must specify CLI arguments (`--data-dir`, `--output-dir`), expected output paths, and verify `main.py` runs end-to-end producing `results/model_metrics.json`.** **After completion, update `state/` YAML with checksums and `updated_at` timestamp.**
 
@@ -163,8 +163,8 @@
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
-  - User stories can then proceed in parallel (if staffed)
-  - Or sequentially in priority order (P1 → P2 → P3)
+ - User stories can then proceed in parallel (if staffed)
+ - Or sequentially in priority order (P1 → P2 → P3)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
@@ -228,9 +228,9 @@ With multiple developers:
 
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
-   - Developer A: User Story 1 (Data Pipeline)
-   - Developer B: User Story 2 (Features/Labels)
-   - Developer C: User Story 3 (Modeling/Stats)
+ - Developer A: User Story 1 (Data Pipeline)
+ - Developer B: User Story 2 (Features/Labels)
+ - Developer C: User Story 3 (Modeling/Stats)
 3. Stories complete and integrate independently
 
 ---

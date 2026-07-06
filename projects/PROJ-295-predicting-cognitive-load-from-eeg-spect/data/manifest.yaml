@@ -1,0 +1,14 @@
+dataset_info:
+  primary: ds000246
+  fallback: ds003465
+  version: "1.0.0"
+  description: "OpenNeuro EEG dataset for cognitive load prediction"
+files:
+  - gaze.tsv
+  - participants.tsv
+  - sub-*/ses-*/func/*.bdf
+checksums:
+  # Populated by download.py after verification
+  ds000246: {}
+  ds003465: {}
+status: "pending"

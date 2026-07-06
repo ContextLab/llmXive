@@ -1,0 +1,6 @@
+'|apply filter hz line noise notch remove':
+  quote: "For countries where power transmission is at 50 Hz, the filter would have\
+    \ a 49\u201351 Hz range."
+  source_id: Band-stop filter
+  url: https://en.wikipedia.org/wiki/Band-stop_filter
+  value: "49\u201351 Hz"

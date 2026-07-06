@@ -1,0 +1,22 @@
+# Python 3.11 dependencies for PROJ-295: Predicting Cognitive Load from EEG Spectral Power
+# Pinned versions to ensure reproducibility across environments
+
+# Core EEG processing
+mne==1.7.0
+
+# Machine Learning & Statistics
+scikit-learn==1.5.0
+numpy==1.26.4
+scipy==1.13.1
+
+# Data manipulation
+pandas==2.2.2
+pyarrow==16.1.0
+
+# Networking & Utilities
+requests==2.32.3
+pyyaml==6.0.1
+
+# Development & Testing (optional but recommended for pipeline)
+pytest==8.2.2
+ruff==0.4.8

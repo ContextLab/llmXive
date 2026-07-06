@@ -31,3 +31,48 @@
   verification_status: verified
   verified_against_url: https://mne.tools/
   verified_at: '2026-07-06T00:07:03.708298Z'
+- artifact_hash: c7fa1456fd8b37fd80d03a869f81cdd5b4155df241f19fec49d5fa796ef67f9e
+  artifact_path: projects/PROJ-295-predicting-cognitive-load-from-eeg-spect/specs/001-predicting-cognitive-load-from-eeg-spect/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: Noise - Wikipedia
+  kind: url
+  value: https://en.wikipedia.org/wiki/Noise_
+  verification_status: verified
+  verified_against_url: https://en.wikipedia.org/wiki/Noise
+  verified_at: '2026-07-06T03:42:52.375230Z'
+- artifact_hash: c7fa1456fd8b37fd80d03a869f81cdd5b4155df241f19fec49d5fa796ef67f9e
+  artifact_path: projects/PROJ-295-predicting-cognitive-load-from-eeg-spect/specs/001-predicting-cognitive-load-from-eeg-spect/tasks.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: '[1712.02859] Self-supervised Multi-level Face Model Learning for
+    Monocular Reconstruction at over 250 Hz'
+  kind: url
+  value: https://arxiv.org/abs/1712.02859
+  verification_status: verified
+  verified_against_url: https://arxiv.org/abs/1712.02859
+  verified_at: '2026-07-06T03:42:52.375230Z'
+- artifact_hash: c7fa1456fd8b37fd80d03a869f81cdd5b4155df241f19fec49d5fa796ef67f9e
+  artifact_path: projects/PROJ-295-predicting-cognitive-load-from-eeg-spect/specs/001-predicting-cognitive-load-from-eeg-spect/tasks.md
+  cite_id: c-003
+  cited_authors: []
+  cited_title: null
+  fetched_title: Alpha wave - Wikipedia
+  kind: url
+  value: https://en.wikipedia.org/wiki/Alpha_wave
+  verification_status: verified
+  verified_against_url: https://en.wikipedia.org/wiki/Alpha_wave
+  verified_at: '2026-07-06T03:42:52.375230Z'
+- artifact_hash: c7fa1456fd8b37fd80d03a869f81cdd5b4155df241f19fec49d5fa796ef67f9e
+  artifact_path: projects/PROJ-295-predicting-cognitive-load-from-eeg-spect/specs/001-predicting-cognitive-load-from-eeg-spect/tasks.md
+  cite_id: c-004
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://oeis.org/A000040
+  verification_status: pending
+  verified_against_url: https://oeis.org/A000040
+  verified_at: '2026-07-06T03:42:52.375230Z'
