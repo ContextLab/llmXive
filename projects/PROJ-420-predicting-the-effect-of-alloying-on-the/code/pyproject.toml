@@ -1,0 +1,50 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "poissons-ratio-prediction"
+version = "0.1.0"
+description = "Predicting the Effect of Alloying on the Poisson's Ratio of Aluminum Alloys"
+requires-python = ">=3.11"
+dependencies = [
+    "pandas",
+    "numpy",
+    "scikit-learn",
+    "requests",
+    "pyyaml",
+    "seaborn",
+    "matplotlib",
+    "compositional",
+    "statsmodels",
+    "pydantic",
+]
+
+[tool.black]
+line-length = 88
+target-version = ['py311']
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.eggs
+    | \.git
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
+)/
+'''
+
+[tool.ruff]
+# This file can also contain ruff config if preferred, but .ruff.toml is used above
+# to keep root clean. If you prefer pyproject.toml for ruff, move the config from .ruff.toml here.
+line-length = 88
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "W", "F", "I", "B", "C4"]
+ignore = ["E501"]

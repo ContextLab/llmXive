@@ -1,0 +1,45 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "alloy-poisson-ratio"
+version = "0.1.0"
+description = "Predicting the effect of alloying on the Poisson's ratio of aluminum alloys"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "pandas",
+    "numpy",
+    "scikit-learn",
+    "requests",
+    "pyyaml",
+    "seaborn",
+    "matplotlib",
+    "compositional",
+    "statsmodels",
+    "pydantic"
+]
+
+[project.optional-dependencies]
+dev = [
+    "ruff",
+    "black"
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["code*"]
+
+[tool.black]
+line-length = 88
+target-version = ['py311']
+
+[tool.ruff]
+line-length = 88
+target-version = "py311"
+select = ["E", "F", "W", "I", "N", "UP", "B", "C4", "SIM"]
+ignore = []
+
+[tool.ruff.per-file-ignores]
+"__init__.py" = ["F401"]

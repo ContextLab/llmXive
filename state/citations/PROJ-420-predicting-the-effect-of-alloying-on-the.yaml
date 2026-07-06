@@ -1,4 +1,4 @@
-- artifact_hash: 1baf93f46241ca20e04e79a10a29049d383c0521982f6d3f66da4f17c831801f
+- artifact_hash: a56fc43255cfe4d6d61e20bf36924ca9eb25b9d74586cdafbbec77ec1efbdf02
   artifact_path: projects/PROJ-420-predicting-the-effect-of-alloying-on-the/specs/001-predicting-the-effect-of-alloying-on-the/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -8,15 +8,4 @@
   value: https://next-gen.materialsproject.org/api/v2/materials/`
   verification_status: pending
   verified_against_url: https://next-gen.materialsproject.org/api/v2/materials/
-  verified_at: '2026-07-06T16:00:10.076257Z'
-- artifact_hash: 1baf93f46241ca20e04e79a10a29049d383c0521982f6d3f66da4f17c831801f
-  artifact_path: projects/PROJ-420-predicting-the-effect-of-alloying-on-the/specs/001-predicting-the-effect-of-alloying-on-the/tasks.md
-  cite_id: c-002
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: url
-  value: https://www.nist.gov/materials-database/aluminum-alloys`
-  verification_status: mismatch
-  verified_against_url: https://www.nist.gov/materials-database/aluminum-alloys
-  verified_at: '2026-07-06T16:00:10.076257Z'
+  verified_at: '2026-07-06T17:15:42.306757Z'

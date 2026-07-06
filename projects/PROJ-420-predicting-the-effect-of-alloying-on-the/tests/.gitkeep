@@ -1,0 +1,2 @@
+# This directory stores test suites.
+# .gitkeep ensures the directory is tracked in git even when empty.

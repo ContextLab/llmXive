@@ -1,0 +1,13 @@
+pandas
+numpy
+scikit-learn
+requests
+pyyaml
+seaborn
+matplotlib
+compositional
+statsmodels
+pydantic
+psutil
+ruff
+black
