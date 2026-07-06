@@ -1,77 +1,96 @@
 # Data Model: Predicting Cognitive Load from EEG Spectral Power Changes During Naturalistic Viewing
 
-## Entities
+## 1. Overview
 
-### EEG Epoch
-A time-locked segment of EEG data associated with a specific video stimulus and behavioral event.
+This document defines the data structures, schemas, and transformation logic for the project. All data flows from the raw OpenNeuro dataset through preprocessing to the final feature matrix and model outputs.
 
-**Attributes**:
-- `epoch_id`: Unique identifier (string)
-- `subject_id`: Participant identifier (string)
-- `stimulus_id`: Video stimulus identifier (string)
-- `start_time`: Epoch start time in seconds (float)
-- `duration`: Epoch duration in seconds (float)
-- `channels`: List of channel names (list of strings)
-- `data_shape`: Shape of EEG data array [channels, timepoints] (list of integers)
-- `artifact_clean`: Boolean indicating ICA cleaning status (boolean)
+## 2. Data Flow Diagram
 
-### Spectral Feature Vector
-A vector containing the log-transformed relative power values for theta and alpha bands across all EEG channels for a single epoch.
+```mermaid
+graph TD
+    A[Raw EEG (ds000246)] -->|Download & Verify| B(Manifest: checksums)
+    B --> C[Preprocessing: Filter, Downsample, ICA]
+    C --> D[Clean Epochs]
+    D -->|Feature Extraction| E[Spectral Features: Theta/Alpha Power]
+    D -->|Label Generation| F[Gaze Variance Proxy]
+    E --> G[Feature Matrix: [n_epochs, n_channels*2]]
+    F --> H[Label Vector: [n_epochs]]
+    G & H --> I[Ridge Regression Model]
+    I --> J[Results: R2, RMSE, P-values]
+    J --> K[Sensitivity Analysis: Window Variation]
+```
 
-**Attributes**:
-- `feature_id`: Unique identifier (string)
-- `epoch_id`: Reference to EEG Epoch (string)
-- `subject_id`: Participant identifier (string)
-- `theta_power`: Dictionary mapping channel → log relative theta power (dict)
-- `alpha_power`: Dictionary mapping channel → log relative alpha power (dict)
-- `theta_alpha_ratio`: Dictionary mapping channel → theta/alpha power ratio (dict)
+## 3. Entity Definitions
 
-### Cognitive Load Label
-A continuous numerical value derived from gaze variance representing the estimated mental effort for a given epoch.
+### 3.1 Raw Data
+-   **Source**: OpenNeuro ds000246.
+-   **Format**: BIDS (Brain Imaging Data Structure) compliant (`.edf`, `.tsv` for events, `gaze.tsv` for eye-tracking).
+-   **Key Fields**:
+    -   `subject_id`: Unique identifier for each participant.
+    -   `session_id`: Session identifier (if applicable).
+    -   `task`: "naturalistic_viewing".
+    -   `run`: Run number.
+    -   `EEG_Data`: Time-series data (channels x time).
+    -   `Events`: Onset, duration, and type of video segments.
+    -   `Gaze_Data`: X, Y coordinates of gaze fixation.
 
-**Attributes**:
-- `label_id`: Unique identifier (string)
-- `epoch_id`: Reference to EEG Epoch (string)
-- `subject_id`: Participant identifier (string)
-- `gaze_variance`: Variance of gaze coordinates within epoch (float)
-- `normalized_load`: Min-max scaled cognitive load score (float, range 0–1)
-- `timestamp`: Epoch timestamp in seconds (float)
+### 3.2 Processed Data (Intermediate)
+-   **Clean Epochs**: Time-locked segments of EEG data (e.g., 2 seconds per epoch) after artifact removal.
+-   **Attributes**:
+    -   `epoch_id`: Unique identifier (derived from subject, run, time).
+    -   `subject_id`: Link to raw subject.
+    -   `start_time`: Timestamp relative to stimulus onset.
+    -   `duration`: Duration in seconds.
+    -   `data_shape`: (n_channels, n_samples).
 
-### Stimulus Feature Vector
-A vector containing video-level features computed for each epoch to control for stimulus-driven effects.
+### 3.3 Feature Matrix
+-   **Structure**: 2D array (numpy/pandas DataFrame).
+-   **Dimensions**: `[n_epochs, n_features]`.
+-   **Features**:
+    -   `theta_power_{channel}`: Mean power in 4–7 Hz band.
+    -   `alpha_power_{channel}`: Mean power in 8–12 Hz band.
+    -   `theta_alpha_ratio_{channel}`: (Optional, derived).
+-   **Normalization**: Min-max scaling per subject (as per US-2).
 
-**Attributes**:
-- `stimulus_feature_id`: Unique identifier (string)
-- `epoch_id`: Reference to EEG Epoch (string)
-- `subject_id`: Participant identifier (string)
-- `global_luminance`: Average luminance of the video frame (float)
-- `cut_rate`: Number of cuts per second in the epoch (float)
-- `motion_energy`: Total motion energy in the epoch (float)
+### 3.4 Label Vector
+-   **Structure**: 1D array (numpy/pandas Series).
+-   **Values**: Continuous cognitive load score derived from gaze variance.
+-   **Range**: Normalized [0, 1] per subject.
 
-## Data Flow
+### 3.5 Model Outputs
+-   **Coefficients**: Ridge regression weights per feature.
+-   **Metrics**: R², RMSE, Pearson r.
+-   **Statistics**: P-values (corrected).
 
-1. **Raw Data** → `download_data.py`: Fetches OpenNeuro ds000246 parquet files.
-2. **Preprocessed Data** → `preprocess_eeg.py`: Applies filtering, downsampling, ICA; outputs clean epochs.
-3. **Stimulus Features** → `compute_stimulus_features.py`: Extracts video features; outputs stimulus feature vectors.
-4. **Feature Extraction** → `extract_features.py`: Computes PSD, extracts theta/alpha power; outputs feature vectors.
-5. **Label Generation** → `extract_features.py`: Computes gaze variance, normalizes; outputs cognitive load labels.
-6. **Model Training** → `train_model.py`: Trains Ridge Regression; outputs model weights and predictions.
-7. **Evaluation** → `evaluate_results.py`: Computes metrics; outputs results table and plots.
+## 4. Transformation Logic
 
-## Storage Format
+### 4.1 Preprocessing (FR-001, FR-002)
+1.  **Filter**: 1–45 Hz bandpass (Butterworth, 4th order).
+2.  **Downsample**: To 250 Hz.
+3.  **Line Noise**: Remove 50/60 Hz notch.
+4.  **ICA**: Identify and remove components corresponding to eye blinks (based on topography and time course).
+5.  **Epoching**: Segment data around video events.
 
-- **Raw data**: Parquet files from OpenNeuro (preserved in `data/raw/`)
-- **Processed epochs**: HDF5 files in `data/processed/epochs.h5`
-- **Feature matrices**: NumPy `.npy` files in `data/processed/features.npy`
-- **Labels**: CSV file in `data/processed/labels.csv`
-- **Stimulus Features**: CSV file in `data/processed/stimulus_features.csv`
-- **Model artifacts**: Pickle file in `data/processed/model.pkl`
-- **Results**: JSON file in `data/processed/results.json`
+### 4.2 Feature Extraction (FR-003)
+1. **PSD**: Compute Power Spectral Density using Welch's method (window size: 2s, overlap: [deferred]).
+2.  **Band Power**: Integrate PSD over theta (4–7 Hz) and alpha (8–12 Hz).
+3.  **Vectorization**: Flatten channel-band pairs into a single feature vector.
 
-## Validation Rules
+### 4.3 Label Generation (FR-004)
+1.  **Gaze Variance**: Calculate variance of X and Y gaze coordinates within the epoch window.
+2.  **Normalization**: Min-max scaling per subject to handle inter-subject variability.
 
-- **EEG Epoch**: `artifact_clean` must be True for inclusion in analysis.
-- **Spectral Feature Vector**: All power values must be finite (no NaN/Inf).
-- **Cognitive Load Label**: `normalized_load` must be in [0, 1] range.
-- **Alignment**: Epoch timestamps must match behavioral logs within 100ms tolerance.
-- **Stimulus Feature Vector**: All features must be finite and non-negative.
+### 4.4 Modeling (FR-005, FR-006)
+1.  **Split**: Subject-wise 5-fold cross-validation.
+2.  **Train**: Ridge Regression with alpha tuning.
+3.  **Evaluate**: Compare against mean-baseline (predicting the mean of the training set).
+
+## 5. Data Quality & Integrity
+
+-   **Missing Data**: Epochs with >5% missing sensor data are flagged and excluded (US-2).
+-   **Outliers**: Extreme gaze variance values (e.g., >3 SD) are inspected but not automatically excluded unless defined as artifacts.
+-   **Checksums**: All processed files are checksummed (SHA-256) and recorded in `data/manifest.yaml`.
+-   **Quality Checks**:
+    -   **SC-004**: Pipeline calculates epoch retention rate post-ICA. **Halt if < 70%**.
+    -   **SC-005**: Pipeline validates that theta/alpha power values are non-zero and stable (low variance) before modeling.
+    -   **FR-008**: Sensitivity analysis records R² for varying gaze windows (1s, 2s, 4s).

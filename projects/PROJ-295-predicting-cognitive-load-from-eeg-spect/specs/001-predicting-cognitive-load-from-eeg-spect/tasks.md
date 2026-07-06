@@ -1,7 +1,7 @@
 # Tasks: Predicting Cognitive Load from EEG Spectral Power Changes During Naturalistic Viewing
 
 **Input**: Design documents from `/specs/001-predicting-cognitive-load-eeg/`
-**Prerequisites**: plan.md (required), spec.md (required for user stories)
+**Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
 
 **Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
 
@@ -31,9 +31,9 @@
   - Endpoints from contracts/
   
   Tasks MUST be organized by user story so each story can be:
-  - Implemented independently
+  Implemented independently
   - Tested independently
-  - Delivered as an MVP increment
+  - Delivered as a MVP increment
   
   DO NOT keep these sample tasks in the generated tasks.md file.
   ============================================================================
@@ -43,9 +43,11 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure per implementation plan in `projects/PROJ-295-predicting-cognitive-load-eeg/` with explicit directories: `data/raw`, `data/processed`, `code`, `tests`, `specs/001-predicting-cognitive-load-from-eeg-spect/contracts`.
-- [ ] T002 Initialize Python 3.11 project with dependencies defined in `projects/PROJ-295-predicting-cognitive-load-eeg/requirements.txt` (pinned versions: e.g., `mne==1.6.0`, `pandas==2.0.0`, `numpy==1.24.0`, `scikit-learn==1.3.0`, `pyyaml==6.0`, `requests==2.31.0`, `tqdm==4.65.0`, `opencv-python==4.8.0`, `jsonschema==4.19.0`, `pytest==7.4.0`).
-- [ ] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools in `projects/PROJ-295-predicting-cognitive-load-eeg/`.
+- [ ] T001 [P] Create project structure per implementation plan: `mkdir -p code/data code/features code/models tests/unit tests/integration data/raw data/processed results`. **After completion, update `state/` YAML with checksums and `updated_at` timestamp.**
+
+- [ ] T002 Initialize Python 3.11 project with pinned dependencies (`mne`, `scikit-learn`, `pandas`, `numpy`, `pyarrow`, `requests`) in `requirements.txt`
+- [ ] T003 [P] Configure linting (ruff) and formatting (black) tools in `pyproject.toml`
+- [ ] T004 Create `pipeline_config.yaml` with default signal processing parameters (1–45 Hz bandpass, 250 Hz downsampling, ICA settings)
 
 ---
 
@@ -55,11 +57,10 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T006 [P] Create JSON schema files (`eeg-epoch.schema.yaml`, `cognitive-load-label.schema.yaml`, `spectral-feature-vector.schema.yaml`) in `projects/PROJ-295-predicting-cognitive-load-eeg/specs/001-predicting-cognitive-load-from-eeg-spect/contracts/` with full definitions including properties: `subject_id` (string), `epoch_start` (float), `theta_power` (float), `alpha_power` (float), `cognitive_load_score` (float). The schema files MUST include standard JSON Schema keys (`type`, `required`, `properties`) and reference the `data-model.md` section for full validation rules.
-- [ ] T005 [P] Implement `validate_contracts.py` in `projects/PROJ-295-predicting-cognitive-load-eeg/code/` using `jsonschema` to validate artifacts against schemas created in T006.
-- [ ] T004 Create `pipeline_config.yaml` in `projects/PROJ-295-predicting-cognitive-load-eeg/code/` with preprocessing parameters: `low_cutoff: 1.0`, `high_cutoff: 45.0`, `samplerate: 250`. Implement logic to handle line noise removal for both 50 Hz and 60 Hz (e.g., `notch_freqs: [50, 60]`) to satisfy FR-001.
-- [ ] T007 Create `data/manifest.json` structure and checksumming logic in `projects/PROJ-295-predicting-cognitive-load-eeg/code/` to track dataset versions and artifact hashes.
-- [ ] T008 [P] Configure environment configuration management (random seeds, CPU-only flags) in `projects/PROJ-295-predicting-cognitive-load-eeg/code/`.
+- [ ] T005 Implement `code/config.py` to load `pipeline_config.yaml` and environment variables
+- [ ] T006 Implement `code/data/loader.py` with chunked loading logic (by `epoch_id`) to ensure memory safety (≤ 6.5 GB)
+- [ ] T007 [P] Implement `code/data/manifest.yaml` generator that MUST automatically fetch and verify dataset URL, version, and checksums from the source to satisfy Constitution Principle VI. **After completion, update `state/` YAML with checksums and `updated_at` timestamp.**
+- [ ] T008 [P] Implement `code/data/download.py` with a strict verification gate: fetch `ds000246`, check for `gaze.tsv`; if missing, raise a `FileNotFoundError` with a clear message and flag spec for `ds003465` fallback. **After completion, update `state/` YAML with checksums and `updated_at` timestamp.**
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -67,26 +68,21 @@
 
 ## Phase 3: User Story 1 - Data Ingestion and Preprocessing Pipeline (Priority: P1) 🎯 MVP
 
-**Goal**: Download, clean, and prepare the OpenNeuro ds000246 dataset for analysis, ensuring artifact-free EEG aligned with behavioral logs within RAM constraints.
+**Goal**: Download, clean, and prepare the OpenNeuro EEG dataset, ensuring artifact-free data aligned with behavioral logs within memory constraints.
 
-**Independent Test**: Execute the data loading and ICA artifact removal script on the target runner, verify output contains clean epochs with matching behavioral timestamps, and monitor memory usage to ensure it remains within acceptable system limits.
+**Independent Test**: Can be fully tested by executing the data loading and ICA artifact removal script on the target runner and verifying that the output contains clean epochs with matching behavioral timestamps, while monitoring memory usage to ensure it stays under 7GB.
 
-### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
+### Test-First Sub-Phase for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
-> **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
+> **NOTE: Write these tests FIRST (Pre-implementation TDD) to ensure they FAIL before implementation**
 
-- [ ] T009 [P] [US1] Unit test `test_download_checksum_match` for data download integrity and checksum verification in `projects/PROJ-295-predicting-cognitive-load-eeg/tests/test_preprocess.py`.
-- [ ] T010 [P] [US1] Unit test `test_ica_rejection_logic` for ICA artifact rejection logic and memory profiling in `projects/PROJ-295-predicting-cognitive-load-eeg/tests/test_preprocess.py`.
-- [ ] T011 [P] [US1] Integration test `test_end_to_end_ingestion` for end-to-end data ingestion pipeline (download -> filter -> ICA -> align) in `projects/PROJ-295-predicting-cognitive-load-eeg/tests/test_preprocess.py`.
+- [ ] T010 [P] [US1] Unit test for chunked loading logic in `tests/unit/test_loader.py` (verify memory peak < 7GB)
+- [ ] T011 [P] [US1] Unit test for dataset verification gate in `tests/unit/test_download.py` (verify halt on missing gaze data)
+- [ ] T012 [P] [US1] Integration test for full preprocessing pipeline in `tests/integration/test_preprocess.py` (verify ICA removal and epoch retention > 70%)
 
 ### Implementation for User Story 1
 
-- [ ] T012 [US1] Implement `download_data.py` in `projects/PROJ-295-predicting-cognitive-load-eeg/code/` to fetch OpenNeuro ds using `bids` or direct HTTP with chunked loading and checksum validation.
-- [ ] T013 [US1] Implement `preprocess_eeg.py` in `projects/PROJ-295-predicting-cognitive-load-eeg/code/` to apply 1-45 Hz bandpass, downsample to a standard sampling rate, remove line noise (50/60 Hz), and run ICA for eye-blink removal. Include a strict memory guard: if available RAM < 7 GB, raise a `RuntimeError` immediately (do not subsample or skip epochs) to enforce FR-001 and SC-002 validity constraints. Include memory-efficient chunked loading logic within this script to handle large datasets without exceeding RAM.
-- [ ] T015 [US1] Implement alignment logic in `projects/PROJ-295-predicting-cognitive-load-eeg/code/preprocess_eeg.py` to match EEG epochs with behavioral logs (gaze data) ensuring <100ms mismatch.
-- [ ] T016 [US1] Add error handling in `projects/PROJ-295-predicting-cognitive-load-eeg/code/preprocess_eeg.py` to halt with clear error if behavioral logs are missing or subjects have >50% rejected epochs.
-- [ ] T017 [US1] Integrate `validate_contracts.py` into `preprocess_eeg.py` to validate output epochs against `eeg-epoch.schema.yaml` before saving to `data/processed/`.
-- [ ] T042 [US1] Implement logic to calculate the percentage of epochs retained after ICA (using the validated epochs from T017), log the rate to stdout, and record it in `data/manifest.json`. Do NOT fail the pipeline if the threshold is not met; only report for transparency as per SC-004.
+- [ ] T014 [US1] Implement `code/data/preprocess.py` with full module logic: (1) Apply a Butterworth bandpass filter (1 Hz high-pass, 45 Hz low-pass, order=4) to remove DC offset and drift, (2) Apply a 50 Hz notch filter to remove line noise (FR-001), (3) Downsample to 250 Hz (FR-001), (4) Apply ICA for eye-blink artifact removal (FR-002), (5) Segment data into epochs aligned with behavioral events (FR-002), (6) Explicitly exclude subjects with > 50% rejected epochs to prevent bias (Edge Case), (7) Calculate and log epoch retention rate; halt if < 70% (SC-004), and (8) Log the final exclusion count. **After completion, update `state/` YAML with checksums and `updated_at` timestamp.**
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -96,22 +92,25 @@
 
 **Goal**: Compute spectral power features (theta/alpha) and generate continuous cognitive load labels from gaze variance.
 
-**Independent Test**: Run the feature extraction module on a subset of clean epochs and verify the resulting feature matrix contains valid theta/alpha power ratios and that the label distribution is non-trivial.
+**Independent Test**: Can be fully tested by running the feature extraction module on a subset of clean epochs and verifying that the resulting feature matrix contains valid theta/alpha power ratios and that the label distribution is non-trivial.
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T018 [P] [US2] Unit test `test_welch_psd_theta_band` for Welch's PSD calculation and band extraction in `projects/PROJ-295-predicting-cognitive-load-eeg/tests/test_features.py`.
-- [ ] T019 [P] [US2] Unit test `test_cognitive_load_label_gen` for cognitive load label generation (gaze variance) and min-max normalization in `projects/PROJ-295-predicting-cognitive-load-eeg/tests/test_features.py`.
-- [ ] T020 [P] [US2] Integration test `test_feature_extraction_pipeline` for feature extraction pipeline (epochs -> features + labels) in `projects/PROJ-295-predicting-cognitive-load-eeg/tests/test_features.py`.
+> **NOTE: Write these tests FIRST (Pre-implementation TDD) to ensure they FAIL before implementation**
+
+- [ ] T020 [P] [US2] Unit test for Welch's PSD calculation in `tests/unit/test_extract.py` (verify band limits)
+- [ ] T021 [P] [US2] Unit test for gaze variance calculation in `tests/unit/test_labels.py` (verify min-max scaling)
+- [ ] T022 [P] [US2] Unit test for missing value flagging in `tests/unit/test_validity.py` (verify > 5% threshold)
 
 ### Implementation for User Story 2
 
-- [ ] T021 [US2] Implement `extract_features.py` in `projects/PROJ-295-predicting-cognitive-load-eeg/code/` to compute PSD using Welch's method and extract log-transformed relative power for theta and alpha bands.
-- [ ] T022 [US2] Implement epsilon addition (e-6) in `projects/PROJ-295-predicting-cognitive-load-eeg/code/extract_features.py` to prevent division by zero during theta/alpha ratio calculation.
-- [ ] T023 [US2] Implement label generation logic in `projects/PROJ-295-predicting-cognitive-load-eeg/code/extract_features.py` to derive cognitive load scores from gaze variance and normalize via min-max scaling per subject.
-- [ ] T024 [US2] Implement missing value detection in `projects/PROJ-295-predicting-cognitive-load-eeg/code/extract_features.py` to flag epochs with >5% missing sensor data for exclusion.
-- [ ] T026 [US2] Integrate `validate_contracts.py` into `extract_features.py` to validate feature matrices against `spectral-feature-vector.schema.yaml` and labels against `cognitive-load-label.schema.yaml`.
-- [ ] T043 [US2] Implement sensitivity analysis logic in `projects/PROJ-295-predicting-cognitive-load-eeg/code/extract_features.py` to vary gaze variance window sizes (short, medium, and long durations), re-run label generation for each, compare results, and output a CSV report of scores vs. window sizes to assess robustness of the results (FR-008).
+- [ ] T023 [P] [US2] Implement `code/features/extract.py` to compute PSD using Welch's method (FR-003) with built-in **chunked loading logic** to ensure memory safety during PSD computation on the full dataset (SC-002), extracting mean power for theta (4–7 Hz) and alpha (8–12 Hz) bands per channel. **After completion, update `state/` YAML with checksums and `updated_at` timestamp.**
+- [ ] T024 [US2] Implement `code/features/extract.py` function `compute_theta_alpha_ratio` to handle division-by-zero using `EPSILON = 1e-9` with logic `alpha_power + EPSILON` (Edge Case). **Must run after T023.**
+- [ ] T026 [US2] Implement `code/features/labels.py` to derive continuous cognitive load score from gaze variance per epoch (FR-004). **Must run only after `data/processed/clean_epochs` artifact is produced.**
+- [ ] T027 [US2] Implement `code/features/labels.py` to normalize labels via min-max scaling per subject (FR-004). **Must run after T026.**
+- [ ] T030 [US2] Implement `code/features/validity.py` to identify epochs with > 5% missing sensor data and **EXCLUDE them** from the final dataset (FR-003)
+- [ ] T031 [US2] Implement `code/features/validity.py` to flag missing sensors.
+- [ ] T031b [US2] Implement `code/features/validity.py` to explicitly **measure and report** the stability and non-zero nature of extracted power values across subjects (SC-005). **Must run after T024.**
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -119,24 +118,28 @@
 
 ## Phase 5: User Story 3 - Model Training and Statistical Validation (Priority: P3)
 
-**Goal**: Train a Ridge Regression model, validate performance against a permutation baseline, and apply multiple-comparison correction.
+**Goal**: Train a Ridge Regression model, validate performance against baseline, and apply statistical corrections.
 
-**Independent Test**: Run the training and evaluation script on the held-out test set and verify that reported R² and RMSE values are calculated correctly and that the model outperforms the baseline.
+**Independent Test**: Can be fully tested by running the training and evaluation script on the held-out test set and verifying that the reported R² and RMSE values are calculated correctly and that the model outperforms the baseline.
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T028 [P] [US3] Unit test `test_losos_split_no_overlap` for subject-wise split logic (majority train, held-out test) and cross-validation setup in `projects/PROJ-295-predicting-cognitive-load-eeg/tests/test_model.py`.
-- [ ] T029 [P] [US3] Unit test `test_permutation_baseline` for permutation baseline generation and statistical significance testing in `projects/PROJ-295-predicting-cognitive-load-eeg/tests/test_model.py`.
-- [ ] T030 [P] [US3] Integration test `test_model_training_pipeline` for end-to-end model training and evaluation pipeline in `projects/PROJ-295-predicting-cognitive-load-eeg/tests/test_model.py`.
+> **NOTE: Write these tests FIRST (Pre-implementation TDD) to ensure they FAIL before implementation**
+
+- [ ] T032 [P] [US3] Unit test for Ridge Regression CV in `tests/unit/test_train.py` (verify subject-wise split)
+- [ ] T033 [P] [US3] Unit test for permutation testing in `tests/unit/test_evaluate.py` (verify null distribution)
+- [ ] T034 [P] [US3] Unit test for multiple-comparison correction in `tests/unit/test_evaluate.py` (verify Bonferroni)
 
 ### Implementation for User Story 3
 
-- [ ] T031 [US3] Implement `train_model.py` in `projects/PROJ-295-predicting-cognitive-load-eeg/code/` to perform a subject-wise majority split (e.g., % train, 20% test) and tune Ridge alpha via k-fold cross-validation within the training set, strictly adhering to FR-005.
-- [ ] T032 [US3] Implement `evaluate_results.py` in `projects/PROJ-295-predicting-cognitive-load-eeg/code/` to compute Pearson correlation, RMSE, and compare against a permutation baseline (shuffled labels).
-- [ ] T033 [US3] Implement multiple-comparison correction (Bonferroni or FDR) in `projects/PROJ-295-predicting-cognitive-load-eeg/code/evaluate_results.py` for per-channel/per-band hypothesis tests.
-- [ ] T034 [US3] Implement logic in `projects/PROJ-295-predicting-cognitive-load-eeg/code/evaluate_results.py` to report effect size (R²) and write the metric to `results/metrics.json`. Do NOT write a boolean 'valid' field or enforce a pass/fail gate based on R² ≥ 0.2; this is a study measurement target, not a runtime constraint.
-- [ ] T035 [US3] Add visualization and reporting logic in `projects/PROJ-295-predicting-cognitive-load-eeg/code/evaluate_results.py` to output final metrics and statistical validity confirmation.
-- [ ] T036 [US3] Integrate `validate_contracts.py` into `evaluate_results.py` to ensure all output artifacts conform to defined schemas.
+- [ ] T036 [US3] Implement `code/models/train.py` to calculate the dynamic subject split size honoring the constraint (use a standard training/testing split) before training. **Must run before T035.**
+- [ ] T035 [P] [US3] Implement `code/models/train.py` to perform **subject-wise 5-fold cross-validation** and create a **distinct, non-overlapping held-out test set** (FR-005, FR-006). **Must run after T036 and T030.** **After completion, update `state/` YAML with checksums and `updated_at` timestamp.**
+- [ ] T037 [US3] Implement `code/models/evaluate.py` to compute Pearson correlation and RMSE on held-out test set (FR-006)
+- [ ] T038 [US3] Implement `code/models/evaluate.py` to compare model performance against a mean-baseline predictor (FR-006)
+- [ ] T039 [US3] Implement `code/models/evaluate.py` to apply Bonferroni correction to channel-wise correlations (FR-007)
+- [ ] T040 [US3] Implement `code/models/evaluate.py` to perform permutation testing for global significance: run **1000 permutations**, shuffle labels, output p-value in `results/model_metrics.json` (Plan Phase 4)
+- [ ] T041 [US3] Implement `code/models/sensitivity.py` to vary gaze variance calculation windows (configured in `pipeline_config.yaml`), re-evaluate R², and store results in `results/sensitivity_report.csv` (FR-008). **Must run after T035.**
+- [ ] T044 [US3] Implement `code/main.py` to orchestrate the full pipeline: Data -> Features -> Model -> Report. **Must specify CLI arguments (`--data-dir`, `--output-dir`), expected output paths, and verify `main.py` runs end-to-end producing `results/model_metrics.json`.** **After completion, update `state/` YAML with checksums and `updated_at` timestamp.**
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -146,11 +149,10 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T037 [P] Documentation updates in `projects/PROJ-295-predicting-cognitive-load-eeg/` (README, quickstart.md).
-- [ ] T038 Code cleanup and refactoring across `projects/PROJ-295-predicting-cognitive-load-eeg/code/`.
-- [ ] T039 Performance optimization for data loading if runtime exceeds limits.
-- [ ] T040 [P] Additional unit tests in `projects/PROJ-295-predicting-cognitive-load-eeg/tests/`.
-- [ ] T041 Run `quickstart.md` validation to ensure reproducibility on clean runner.
+- [ ] T045 [P] [Polish] Update `README.md` with installation steps and `quickstart.md` with the exact command `python code/main.py --data-dir data/processed --output-dir results`.
+- [ ] T046 Code cleanup and refactoring of `code/` directory
+- [ ] T047 Performance optimization for chunked loading and ICA processing
+- [ ] T048 [P] Run quickstart.md validation to ensure end-to-end reproducibility
 
 ---
 
@@ -168,14 +170,13 @@
 ### User Story Dependencies
 
 - **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - **Depends on clean epochs from US1** (T013/T017 must complete before T021/T026)
-- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - **Depends on features/labels from US2** (T021/T023 must complete before T031)
+- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Depends on clean data from US1
+- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on features from US2 and data from US1
 
 ### Within Each User Story
 
 - Tests (if included) MUST be written and FAIL before implementation
-- Models before services
-- Services before endpoints
+- Models before services (if applicable)
 - Core implementation before integration
 - Story complete before moving to next priority
 
@@ -183,10 +184,10 @@
 
 - All Setup tasks marked [P] can run in parallel
 - All Foundational tasks marked [P] can run in parallel (within Phase 2)
-- Once Foundational phase completes, all user stories can start in parallel (if team capacity allows) **ONLY IF** their data dependencies are met (US2 depends on US1 output, US3 depends on US2 output)
+- Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
 - All tests for a user story marked [P] can run in parallel
 - Models within a story marked [P] can run in parallel
-- Different user stories can be worked on in parallel by different team members **only if** the data flow dependencies (US1 -> US2 -> US3) are respected
+- Different user stories can be worked on in parallel by different team members
 
 ---
 
@@ -194,12 +195,11 @@
 
 ```bash
 # Launch all tests for User Story 1 together (if tests requested):
-Task: "Unit test test_download_checksum_match in tests/test_preprocess.py"
-Task: "Unit test test_ica_rejection_logic in tests/test_preprocess.py"
+Task: "Unit test for chunked loading logic in tests/unit/test_loader.py"
+Task: "Unit test for dataset verification gate in tests/unit/test_download.py"
 
-# Launch all implementation tasks for User Story 1 together (after foundation):
-Task: "Implement download_data.py"
-Task: "Implement preprocess_eeg.py (includes memory guard logic)"
+# Launch all models for User Story 1 together:
+Task: "Implement code/data/preprocess.py to apply 1–45 Hz bandpass filter, ICA, and exclusion logic"
 ```
 
 ---
@@ -211,7 +211,7 @@ Task: "Implement preprocess_eeg.py (includes memory guard logic)"
 1. Complete Phase 1: Setup
 2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
 3. Complete Phase 3: User Story 1
-4. **STOP and VALIDATE**: Test User Story 1 independently
+4. **STOP and VALIDATE**: Test User Story 1 independently (verify ICA removal and memory limits)
 5. Deploy/demo if ready
 
 ### Incremental Delivery
@@ -228,9 +228,9 @@ With multiple developers:
 
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
-   - Developer A: User Story 1
-   - Developer B: User Story 2 (waits for US1 output)
-   - Developer C: User Story 3 (waits for US2 output)
+   - Developer A: User Story 1 (Data Pipeline)
+   - Developer B: User Story 2 (Features/Labels)
+   - Developer C: User Story 3 (Modeling/Stats)
 3. Stories complete and integrate independently
 
 ---
@@ -244,6 +244,7 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Split Strategy**: T031 implements subject-wise majority split (80/20) as per FR-005.
-- **Memory Guard**: T013 enforces strict 250 Hz and fails on low RAM; no subsampling fallback.
-- **Sensitivity Analysis**: T043 moved to Phase 4 (US-2) to align with FR-008.
+- **Critical**: Ensure `code/data/download.py` halts if `gaze.tsv` is missing (Spec Contradiction Check)
+- **Critical**: Ensure all data loading uses chunking to stay within available memory constraints.
+- **Critical**: Ensure no GPU usage or deep learning models are introduced
+- **Constitution Principle V**: State updates are now integrated into T001, T007, T008, T014, T023, T035, T044. No separate end-task for state updates.

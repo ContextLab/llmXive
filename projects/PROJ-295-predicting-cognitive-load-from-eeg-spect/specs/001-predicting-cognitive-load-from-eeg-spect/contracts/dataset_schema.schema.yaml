@@ -1,0 +1,66 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: "EEG Cognitive Load Dataset Schema"
+description: "Schema for the processed feature matrix and labels derived from OpenNeuro ds000246."
+type: object
+properties:
+  metadata:
+    type: object
+    properties:
+      source_dataset:
+        type: string
+        const: "ds000246"
+      preprocessing_version:
+        type: string
+        description: "Version of the pipeline_config.yaml used."
+      n_subjects:
+        type: integer
+        minimum: 1
+      n_epochs:
+        type: integer
+        minimum: 1
+      sampling_rate:
+        type: integer
+        const: 250
+    required:
+      - source_dataset
+      - preprocessing_version
+      - n_subjects
+      - n_epochs
+      - sampling_rate
+  features:
+    type: array
+    description: "List of feature names (e.g., theta_power_Fz, alpha_power_Pz)."
+    items:
+      type: string
+      pattern: "^(theta|alpha)_power_[A-Z][a-z0-9]*$"
+  labels:
+    type: array
+    description: "List of cognitive load proxy labels (gaze variance)."
+    items:
+      type: number
+      minimum: 0
+      maximum: 1
+  data:
+    type: object
+    properties:
+      X:
+        type: array
+        description: "Feature matrix (n_epochs x n_features)."
+        items:
+          type: array
+          items:
+            type: number
+      y:
+        type: array
+        description: "Label vector (n_epochs)."
+        items:
+          type: number
+    required:
+      - X
+      - y
+required:
+  - metadata
+  - features
+  - labels
+  - data
+additionalProperties: false

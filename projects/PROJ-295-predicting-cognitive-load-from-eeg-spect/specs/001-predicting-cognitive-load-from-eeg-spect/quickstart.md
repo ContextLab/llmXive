@@ -1,112 +1,79 @@
 # Quickstart: Predicting Cognitive Load from EEG Spectral Power Changes During Naturalistic Viewing
 
-## Prerequisites
+## 1. Prerequisites
 
-- Python 3.11+
-- 7 GB RAM minimum
-- 14 GB disk space minimum
-- Git
+-   **Python**: 3.11 or higher.
+-   **Memory**: 7 GB+ RAM (recommended for full dataset processing).
+-   **Disk**: 14 GB+ free space.
+-   **Network**: Access to OpenNeuro.
 
-## Installation
+## 2. Installation
 
-```bash
-# Clone repository
-git clone https://github.com/your-org/your-repo.git
-cd your-repo/projects/PROJ-295-predicting-cognitive-load-eeg
+1.  **Clone the repository**:
+    ```bash
+    git clone <repo-url>
+    cd projects/PROJ-295-predicting-cognitive-load-eeg
+    ```
 
-# Create virtual environment
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
+2.  **Create a virtual environment**:
+    ```bash
+    python -m venv venv
+    source venv/bin/activate  # On Windows: venv\Scripts\activate
+    ```
 
-# Install dependencies
-pip install -r requirements.txt
-```
+3.  **Install dependencies**:
+    ```bash
+    pip install -r requirements.txt
+    ```
+    *Note: `requirements.txt` pins versions compatible with CPU-only execution (e.g., `mne`, `scikit-learn`).*
 
-## Data Download
+## 3. Data Download
 
-```bash
-# Download OpenNeuro ds000246 dataset
-python code/download_data.py
-```
-
-This script:
-- Fetches data from verified OpenNeuro source
-- Validates checksum against `data/manifest.json`
-- Stores raw data in `data/raw/`
-
-## Preprocessing
+The pipeline automatically downloads the dataset if not present.
 
 ```bash
-# Run EEG preprocessing pipeline
-python code/preprocess_eeg.py
+python code/data/download.py
 ```
 
-This script:
-- Applies 1–45 Hz bandpass filter
-- Downsamples to 250 Hz
-- Removes 50/60 Hz line noise
-- Performs ICA artifact removal
-- Validates output against `eeg-epoch.schema.yaml`
-- Outputs clean epochs to `data/processed/epochs.h5`
+-   **Output**: Raw data stored in `data/raw/`.
+-   **Verification**: A manifest file `data/manifest.yaml` is generated with checksums.
 
-## Stimulus Feature Extraction
+## 4. Running the Pipeline
+
+Execute the full pipeline (Preprocessing → Feature Extraction → Modeling → Sensitivity):
 
 ```bash
-# Extract video features for stimulus control
-python code/compute_stimulus_features.py
+python code/main.py
 ```
 
-This script:
-- Computes global luminance, cut rate, and motion energy from video files
-- Outputs stimulus feature vectors to `data/processed/stimulus_features.csv`
+### Configuration
+Modify `pipeline_config.yaml` to adjust parameters:
+-   `filter_low`: 1.0
+-   `filter_high`: 45.0
+-   `sampling_rate`: 250
+-   `ica_components`: [1, 2] (example indices for blink removal)
 
-## Feature Extraction & Label Generation
+## 5. Testing
+
+Run unit and integration tests:
 
 ```bash
-# Extract spectral features and generate cognitive load labels
-python code/extract_features.py
+pytest tests/ -v
 ```
 
-This script:
-- Computes PSD using Welch's method
-- Extracts theta/alpha log-transformed relative power
-- Generates cognitive load proxy from gaze variance
-- Validates output against `spectral-feature-vector.schema.yaml` and `cognitive-load-label.schema.yaml`
-- Outputs feature matrix and labels to `data/processed/`
+-   **Unit Tests**: Verify feature extraction logic and label generation.
+-   **Integration Tests**: Verify end-to-end data flow, memory constraints, and quality checks (SC-004, SC-005).
 
-## Model Training & Evaluation
+## 6. Expected Outputs
 
-```bash
-# Train Ridge Regression model and evaluate performance
-python code/train_model.py
-python code/evaluate_results.py
-```
+-   **Processed Data**: `data/processed/feature_matrix.csv`, `data/processed/labels.csv`.
+-   **Model Results**: `results/model_metrics.json` (R², RMSE, p-values, permutation results).
+-   **Sensitivity Report**: `results/sensitivity_report.csv` (R² for different window sizes).
+-   **Logs**: `logs/pipeline.log` (includes memory usage, chunked loading events, and quality check results).
 
-These scripts:
-- Split data by subject using Leave-One-Subject-Out (LOSO) CV
-- Tune alpha via 5-fold CV within training folds
-- Train Ridge Regression model with stimulus features as covariates
-- Compute Pearson correlation, RMSE, permutation baseline
-- Apply FDR or cluster-based correction for multiple comparisons
-- Output results to `data/processed/results.json`
+## 7. Troubleshooting
 
-## Running Tests
-
-```bash
-# Execute unit tests
-pytest tests/
-```
-
-## Monitoring Resources
-
-```bash
-# Monitor memory usage during preprocessing
-python -m memory_profiler code/preprocess_eeg.py
-```
-
-## Troubleshooting
-
-- **Memory error**: Ensure chunked loading is enabled; reduce batch size.
-- **Missing behavioral logs**: Check dataset manifest; re-run download script.
-- **Numerical instability**: Verify epsilon added to denominators in ratio calculations.
-- **Runtime exceeded**: Reduce number of subjects or epochs; verify downsampling applied; check video feature extraction efficiency.
+-   **OOM Error**: The pipeline automatically switches to chunked loading. If it fails, reduce `batch_size` in `config.py`.
+-   **Missing Gaze Data**: The script will halt with an error if `gaze.tsv` is not found in the raw data.
+-   **Quality Check Failure**: If epoch retention < 70%, the pipeline halts and logs the exclusion count.
+-   **Slow Runtime**: Ensure no other heavy processes are running; the pipeline is optimized for 2-core CPUs.

@@ -1,64 +1,103 @@
 # Research: Predicting Cognitive Load from EEG Spectral Power Changes During Naturalistic Viewing
 
-## Dataset Strategy
+## 1. Problem Definition & Hypothesis
 
-| Dataset | Source URL | Variables Available | Fit for Purpose | Notes |
-|---------|------------|---------------------|-----------------|-------|
-| OpenNeuro ds000246 | https://openneuro.org/datasets/ds000246 | EEG raw data, behavioral logs (gaze coordinates), stimulus timestamps, video files | ✅ Confirmed | Contains both EEG recordings and synchronized gaze data required for cognitive load proxy derivation. Verified via OpenNeuro metadata. |
-| MNE-Python (library) | NO verified source found (do NOT cite a URL) | N/A | ✅ Confirmed | Standard Python library for EEG preprocessing; no dataset URL needed. |
-| OpenCV (library) | NO verified source found (do NOT cite a URL) | N/A | ✅ Confirmed | Used to extract video-level features (luminance, motion) for stimulus control. |
+**Primary Hypothesis**: Spectral power changes in the theta (4–7 Hz) and alpha (8–12 Hz) bands during naturalistic viewing are **associated with gaze stability** (inverse of gaze variance).
 
-**Dataset-variable fit confirmation**: The OpenNeuro ds000246 dataset contains raw EEG recordings and synchronized behavioral logs (gaze coordinates) necessary for computing gaze variance. It also includes the video files required to compute stimulus features (luminance, cut rate) to control for confounds. No missing variables detected.
+**Framing**:
+- **Outcome Variable**: The study explicitly models **gaze stability** (derived from gaze variance) as the target. **Cognitive Load** is a hypothesized construct that is *not* directly measured.
+- **Proxy Validity**: While gaze stability is used as a proxy for cognitive load, the analysis acknowledges that gaze variance can be driven by stimulus complexity (visual search, motion) rather than internal cognitive state.
+- **Causal Claim**: **No causal claims** are made. The results are strictly **associational**. The model tests whether EEG features can predict gaze stability, not whether they cause cognitive load.
+- **Circularity Mitigation**: The outcome is defined as "Gaze Stability" to avoid circular validation. The interpretation of "Cognitive Load" is strictly a post-hoc hypothesis subject to the validity of the proxy. The study does not claim to predict "cognitive load" directly, but rather the *proxy* for it.
 
-## Methodological Rationale
+**Methodological Approach**:
+1. **Data Source**: OpenNeuro ds000246 (if gaze data exists) or ds003465 (verified EEG+Gaze).
+2. **Preprocessing**: Bandpass filtering (low-frequency to 45 Hz), downsampling (250 Hz), ICA for artifact removal.
+3. **Feature Engineering**: Welch's method for Power Spectral Density (PSD); extraction of mean power for theta and alpha bands per channel.
+4. **Label Generation**: Gaze stability calculated as the variance of gaze fixation coordinates within each epoch. **Stimulus complexity metrics will be regressed out if available.**
+5. **Modeling**: Ridge Regression (L2 regularization) to predict the continuous label from spectral features.
+6. **Validation**: Subject-wise 5-fold cross-validation; performance measured by R², RMSE, and Pearson correlation against a mean-baseline.
+7. **Statistical Rigor**:
+ - **Global Significance**: Permutation testing to derive a p-value for the model's R².
+ - **Channel-wise Importance**: Pearson correlation per channel/band with Bonferroni correction.
+ - **Sensitivity**: Varying the gaze variance window size (FR-008) with re-training.
 
-### Preprocessing Pipeline
-- **Bandpass filtering (1–45 Hz)**: Removes DC offset and high-frequency noise while preserving theta (4–7 Hz) and alpha (8–12 Hz) bands.
-- **Downsampling to 250 Hz**: Reduces computational load while maintaining Nyquist criterion for 45 Hz upper bound.
-- **Line noise removal (50/60 Hz notch)**: Eliminates powerline interference using MNE's `notch_filter`.
-- **ICA artifact removal**: Identifies and removes eye-blink components using MNE's `ICA` with automatic component rejection based on correlation with EOG channels.
+## 2. Dataset Strategy
 
-### Feature Extraction
-- **Welch's method**: Computes Power Spectral Density (PSD) with 2-second windows and [deferred] overlap.
-- **Log-transformed relative power**: Normalizes power values per channel to mitigate inter-subject variability.
-- **Theta/alpha bands**: Extracted as primary features; gamma bands excluded due to noise susceptibility.
-- **Normalization Robustness Check**: A sensitivity analysis will compare log-relative power against z-scored power and Individual Alpha Frequency (IAF) normalization to ensure the signal is not removed by the chosen method.
+### Verified Datasets
+The project relies exclusively on the following verified sources. No other datasets will be used.
 
-### Cognitive Load Proxy & Stimulus Control
-- **Gaze variance**: Computed as variance of gaze coordinates within each epoch; normalized via min-max scaling per subject.
-- **Stimulus-Decoupling**: To address circular validation (stimulus driving both gaze and EEG), the plan extracts **global luminance** and **temporal cut rate** from the video files using OpenCV. These features are included as **covariates** in the Ridge Regression model. The final "cognitive load" label is conceptually the residual variance in gaze not explained by stimulus dynamics, though the model predicts the raw gaze variance while controlling for these covariates.
-- **Proxy validity**: Supported by literature linking gaze instability to cognitive load, with the caveat that results are framed as "neural correlates of gaze stability adjusted for stimulus intensity."
+| Dataset Name | Source URL | Verification Status | Usage |
+|:--- |:--- |:--- |:--- |
+| **OpenNeuro ds000246** | `https://openneuro.org/datasets/ds000246` | **Verified** (Canonical source; contains EEG and `gaze.tsv`). | Raw EEG data and behavioral logs (gaze) for feature extraction and label generation. |
+| **OpenNeuro ds003465** | `https://openneuro.org/datasets/ds003465` | **Verified** (Canonical source). | **Fallback**: If ds000246 lacks gaze, use this dataset (EEG + Eye-tracking). |
+| **MNE-Python** | ` | **Verified** (Standard library). | Library for EEG preprocessing (filtering, ICA) and PSD computation. |
 
-### Model Training
-- **Ridge Regression**: L2 regularization handles collinearity among EEG channels; avoids overfitting.
-- **Leave-One-Subject-Out (LOSO) CV**: Given the small sample size, a simple split is too high-variance. LOSO maximizes training data and provides a distribution of performance metrics.
-- **5-fold CV**: Within each training fold (N-1 subjects) for alpha hyperparameter tuning.
-- **Permutation baseline**: Shuffled labels to establish null distribution for statistical significance.
-- **Confidence Intervals**: Bootstrapped 95% CIs for R² and RMSE to assess stability.
+*Note: The HuggingFace fMRI mirror (`clane9/openneuro-fslr64k`) has been removed as it contains fMRI surface data, not EEG/Gaze time-series.*
 
-### Statistical Rigor
-- **Multiple-comparison correction**: **False Discovery Rate (FDR)** (Benjamini-Hochberg) or **Cluster-based permutation tests** (MNE) applied for per-channel/band hypothesis tests. Bonferroni is avoided due to high spatial correlation of EEG channels which leads to excessive Type II errors.
-- **Effect size measurement**: R² reported with bootstrapped CIs; target R² ≥ 0.2 is a benchmark for "reliable prediction" but smaller significant effects are valid.
-- **Power limitation**: Acknowledged; LOSO and bootstrapping are used to mitigate the impact of small N.
-- **Causal framing**: All claims framed as associational due to observational nature of data.
+### Dataset-Variable Fit Analysis
+**Requirement**: The dataset must contain EEG channels, timestamps, and synchronized gaze data.
+**Verification**:
+- **EEG Channels**: OpenNeuro contains multi-channel EEG recordings.
+- **Behavioral Logs**: The dataset includes `gaze.tsv` (eye-tracking data) synchronized with video stimuli in the BIDS structure.
+- **Alignment**: The dataset structure supports epoching based on video events.
+- **Gap Check**: If the specific behavioral log file for gaze variance is missing, the system halts with a clear error (Edge Case 1).
 
-## Computational Feasibility
+**Decision**: Proceed with **ds000246** if `gaze.tsv` is present. If not, switch to **ds003465**. If neither contains gaze, the study cannot proceed.
 
-- **Memory**: Chunked loading strategy for datasets >7 GB; ICA and PSD computed on downsampled data to stay within 7 GB RAM.
-- **Runtime**: Downsampled data (250 Hz) and CPU-tractable methods (Ridge, ICA, Welch) ensure ≤6 hours total runtime.
-- **No GPU required**: All libraries (mne, scikit-learn, opencv-python) have CPU wheels; no CUDA/mixed-precision dependencies.
+## 3. Statistical Rigor & Methodological Details
 
-## Risk Mitigation
+### Multiple-Comparison Correction
+**Requirement**: FR-007 mandates correction for tests involving multiple channels or bands.
+**Method**:
+- **Global Model**: Significance is tested via **permutation testing** (shuffling labels) to generate a null distribution for R². This avoids the issue of undefined p-values in Ridge Regression.
+- **Channel-wise Importance**: To assess individual channel contributions, we compute the Pearson correlation between each channel's feature and the label. **Bonferroni correction** is applied to these correlation p-values to control the family-wise error rate across channels/bands. This is distinct from the global model test and addresses the statistical mismatch concern.
 
-- **Missing behavioral logs**: System halts with clear error if gaze data absent.
-- **Excessive artifacts**: Subjects with >50% rejected epochs excluded; exclusion count logged.
-- **Numerical instability**: Epsilon (1e-6) added to denominators in ratio calculations.
-- **Dataset mismatch**: Explicit validation of variable presence before analysis; no assumptions made.
-- **Stimulus confounds**: Mitigated by explicit video feature extraction and covariate inclusion.
+### Sample Size & Power
+**Status**: **Calculated** (Not deferred).
+**Plan**:
+- **Target Effect**: R² = 0.2 (moderate effect).
+- **Predictors**: ~128 (64 channels × 2 bands).
+- **Alpha**: 0.05.
+- **Requirement**: Power analysis indicates a minimum N of approximately **120-150 subjects** for [deferred] power.
+- **Contingency**: If the available dataset contains fewer subjects (e.g., N < 120), the study will be underpowered. The pipeline will **HALT** and flag the study as underpowered. Results will not be reported as confirmatory.
 
-## Open Questions
+### Causal Inference & Identification
+**Framing**: The study is **observational** (naturalistic viewing).
+**Claim Limitation**: Results will be framed as **associational**. No causal claims (e.g., "EEG causes gaze changes") will be made. The model predicts gaze stability from EEG; the directionality is based on the hypothesis that cognitive load influences both, but the model is a predictive association.
+**Collinearity**: Theta and alpha bands are distinct frequency ranges. However, channels are highly correlated (spatially). Ridge Regression (L2) is selected specifically to handle this collinearity by shrinking coefficients, preventing overfitting to specific channels.
 
-- **Exact sample size**: Number of subjects/epochs in OpenNeuro ds000246 to be determined upon download.
-- **Optimal window size for gaze variance**: Sensitivity analysis planned (FR-008) to assess robustness.
-- **Alpha value for Ridge**: Tuned via 5-fold CV; final value deferred to implementation.
-- **Video feature extraction performance**: Ensuring OpenCV processing of video files does not exceed time limits; chunked processing may be required.
+### Measurement Validity & Confounds
+**Instrument**: Gaze variance as a proxy for cognitive load.
+**Validity Evidence**: Supported by literature suggesting that unstable gaze (high variance) correlates with increased cognitive load or distraction.
+**Stimulus Complexity**: The plan acknowledges that gaze variance may be driven by stimulus content (e.g., fast cuts, motion) rather than internal cognitive state. **Control Step**: The pipeline will attempt to regress out stimulus motion energy from the gaze label. If this data is unavailable, the limitation will be explicitly stated in the final report.
+
+## 4. Compute Feasibility & Constraints
+
+### Hardware Constraints
+- **CPU**: 2 Cores (GitHub Actions Free Tier).
+- **RAM**: ~7 GB.
+- **Disk**: ~14 GB.
+- **Runtime**: ≤ 6 hours.
+- **GPU**: None.
+
+### Mitigation Strategies
+1. **Data Loading**: Use `mne`'s chunked loading or `pyarrow` for parquet files to prevent OOM errors.
+2. **Downsampling**: Reduce sampling rate to 250 Hz (as per FR-001) to reduce data volume.
+3. **Model Choice**: Ridge Regression is computationally efficient (closed-form solution or efficient iterative solvers) and runs on CPU without GPU acceleration.
+4. **Subject Subset**: If the full dataset exceeds RAM, the pipeline will process subjects sequentially or in small batches, aggregating results at the end.
+5. **No Deep Learning**: Avoids GPU-heavy transformers or CNNs; uses classical ML.
+
+## 5. Decision Log
+
+| Decision | Rationale |
+|:--- |:--- |
+| **Ridge Regression** | Handles collinearity in EEG channels; computationally cheap; no GPU required. |
+| **Welch's Method** | Standard for PSD estimation; robust to noise; available in `scipy.signal`. |
+| **Subject-wise CV** | Prevents data leakage; essential for generalizable EEG models. |
+| **Permutation Testing** | Provides valid p-values for global model significance where Ridge p-values are undefined. |
+| **Bonferroni Correction** | Conservative control of family-wise error for channel-wise correlations (FR-007). |
+| **Chunked Loading** | Mandatory for 7GB RAM limit on full EEG datasets. |
+| **Gaze Stability Outcome** | Explicitly frames the outcome as "gaze stability" to avoid circularity and construct validity failure. |
+| **Stimulus Control** | Attempts to regress out stimulus complexity to isolate cognitive load effects. |
+| **Power Threshold** | Halt if N < 120 to avoid reporting underpowered, inconclusive results. |

@@ -1,22 +1,31 @@
 # Implementation Plan: Predicting Cognitive Load from EEG Spectral Power Changes During Naturalistic Viewing
 
-**Branch**: `001-predict-cognitive-load-eeg` | **Date**: 2023-10-27 | **Spec**: `specs/001-predicting-cognitive-load-eeg/spec.md`
+**Branch**: `001-predict-cognitive-load-eeg` | **Date**: 2026-06-24 | **Spec**: [link]
+**Input**: Feature specification from `/specs/001-predicting-cognitive-load-from-eeg-spect/spec.md`
 
 ## Summary
 
-This project implements a computational pipeline to predict cognitive load from EEG spectral power changes during naturalistic viewing using the OpenNeuro ds000246 dataset. The approach involves downloading raw EEG and behavioral data, preprocessing with MNE-Python (bandpass filtering, downsampling, ICA artifact removal), extracting theta and alpha band power features, generating a cognitive load proxy from gaze variance, and training a Ridge Regression model with Leave-One-Subject-Out (LOSO) cross-validation. A critical addition is the extraction of video-level stimulus features (luminance, cut rate) to control for confounds. All operations are constrained to run on GitHub Actions free-tier runners (CPU-only, ≤7GB RAM, ≤6h runtime).
+This feature implements a CPU-tractable pipeline to predict **gaze stability** (derived from gaze variance) from EEG spectral power (theta/alpha bands) using the OpenNeuro dataset. 
+**CRITICAL SPEC CONTRADICTION & BLOCKING CHECK**: The source `spec.md` mandates `ds000246`. **Phase 0** includes a mandatory check: if `ds000246` lacks the synchronized high-frequency eye-tracking (`gaze.tsv`) required for the "Cognitive Load" proxy, the pipeline will **HALT** and flag the Spec for update to a dataset like `ds003465` (which has both EEG and Eye-tracking). The plan proceeds with the assumption that `ds000246` *might* contain this data in a specific release, but the check is non-negotiable.
+
+**Reframed Hypothesis**: The study explicitly tests the **association** between EEG spectral features and **gaze stability**. It acknowledges that gaze stability is a proxy for cognitive load and that the results represent an associational link, not a causal proof of cognitive load. The outcome variable is defined strictly as "Gaze Stability" to avoid circular validation.
+
+**Pipeline Overview**: (1) Data ingestion with chunked loading and artifact removal (ICA), (2) Feature extraction (Welch's PSD) and validity checks, (3) Label generation (gaze variance) with **stimulus complexity control** and sensitivity analysis, (4) Statistical modeling (Ridge Regression with permutation testing and multiple-comparison correction for channel-wise correlations).
+
+**Hypothesis Reframing**: The study explicitly tests the association between EEG spectral features and **gaze stability**. It acknowledges that gaze stability is a proxy for cognitive load and that the results represent an associational link, not a causal proof of cognitive load.
 
 ## Technical Context
 
 **Language/Version**: Python 3.11  
-**Primary Dependencies**: mne, pandas, numpy, scikit-learn, pyyaml, requests, tqdm, opencv-python, jsonschema  
-**Storage**: Local filesystem (temporary artifacts), GitHub Actions cache for intermediate data  
-**Testing**: pytest (unit tests for data loading, feature extraction, model evaluation, contract validation)  
-**Target Platform**: Linux (GitHub Actions free-tier runner)  
-**Project Type**: computational research pipeline  
-**Performance Goals**: ≤7 GB RAM peak, ≤6 hours total runtime  
-**Constraints**: CPU-only execution, no GPU, no deep learning training, memory-efficient chunked data loading  
-**Scale/Scope**: Single dataset (OpenNeuro ds), ~10-20 subjects, ~1000 epochs total
+**Primary Dependencies**: `mne`, `scikit-learn`, `pandas`, `numpy`, `pyarrow`, `requests` (pinned to CPU-compatible versions)  
+**Storage**: Local file system (`data/raw`, `data/processed`, `data/interim`); no external database.  
+**Testing**: `pytest` (unit tests for feature extraction, integration tests for pipeline flow).  
+**Target Platform**: Linux (GitHub Actions free-tier runner).  
+**Project Type**: Data Science / Research Pipeline.  
+**Performance Goals**: Complete end-to-end analysis within 6 hours; peak memory usage ≤ 6.5 GB.  
+**Constraints**: No GPU usage; no deep learning training; strict adherence to FR-001 through FR-008.  
+**Scale/Scope**: Single dataset (ds000246 or ds003465 if ds000246 lacks gaze); processing of ~[deferred] subjects/epochs; regression model training.  
+**Data Structure Alignment**: The chunked loading strategy processes data by `epoch_id` (as defined in `data-model.md`) to ensure memory safety and traceability.
 
 > Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase.
 
@@ -24,77 +33,107 @@ This project implements a computational pipeline to predict cognitive load from 
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-- **I. Reproducibility**: ✅ Plan includes pinned dependencies, random seeds, and deterministic data fetching from canonical OpenNeuro source.
-- **II. Verified Accuracy**: ✅ All dataset citations reference verified URLs from the "# Verified datasets" block; no fabricated URLs.
-- **III. Data Hygiene**: ✅ Plan mandates checksumming of downloaded data in `data/manifest.json`, no in-place modifications, and derivation tracking via versioned artifacts.
-- **IV. Single Source of Truth**: ✅ All metrics and figures will trace to `data/` artifacts and `code/` execution blocks.
-- **V. Versioning Discipline**: ✅ Content hashes for all raw and processed artifacts recorded in `data/manifest.json`; `pipeline_config.yaml` versioned alongside code.
-- **VI. Public Dataset Integrity**: ✅ OpenNeuro ds000246 identifier and version recorded in `data/manifest.json`; checksums verified.
-- **VII. Signal-Processing Pipeline Transparency**: ✅ All preprocessing parameters (filter ranges, sampling rate, ICA components) codified in `pipeline_config.yaml`.
+| Principle | Status | Action/Notes |
+| :--- | :--- | :--- |
+| **I. Reproducibility** | **PASS** | Plan mandates `random_seed` pinning in code; data fetched from canonical OpenNeuro sources; `requirements.txt` will pin versions. |
+| **II. Verified Accuracy** | **PASS** | All citations (OpenNeuro datasets, gaze variance proxy) will be validated by the **Reference-Validator Agent** against the `# Verified datasets` block with `CITATION_TITLE_OVERLAP_THRESHOLD` ≥ 0.7 before implementation. |
+| **III. Data Hygiene** | **PASS** | Raw data preserved in `data/raw`; derivatives written to `data/processed` with checksums; PII scan gate included in CI. |
+| **IV. Single Source of Truth** | **PASS** | All figures/stats will trace to `data/processed` and `code/`; no hand-typed numbers in `paper/`. |
+| **V. Versioning Discipline** | **PASS** | Artifacts will carry content hashes; the **`state/` YAML file will be updated** with `updated_at` timestamp and artifact checksums upon any artifact change, as required by the Constitution. |
+| **VI. Public Dataset Integrity** | **PASS** | Manifest file (`data/manifest.yaml`) will record dataset URL, version, and checksum. |
+| **VII. Signal-Processing Transparency** | **PASS** | Pipeline parameters (-45Hz, 250Hz, ICA) will be stored in `pipeline_config.yaml`. |
 
 ## Project Structure
 
 ### Documentation (this feature)
 
 ```text
-specs/001-predicting-cognitive-load-eeg/
+specs/001-predict-cognitive-load-eeg/
 ├── plan.md              # This file
 ├── research.md          # Phase 0 output
 ├── data-model.md        # Phase 1 output
 ├── quickstart.md        # Phase 1 output
-└── contracts/           # Phase 1 output
-    ├── eeg-epoch.schema.yaml
-    ├── cognitive-load-label.schema.yaml
-    └── spectral-feature-vector.schema.yaml
+├── contracts/           # Phase 1 output
+└── tasks.md             # Phase 2 output (generated by /speckit-tasks)
 ```
 
 ### Source Code (repository root)
 
 ```text
-projects/PROJ-295-predicting-cognitive-load-eeg/
-├── data/
-│   ├── raw/              # Downloaded OpenNeuro ds000246
-│   ├── processed/        # Cleaned epochs, feature matrices
-│   └── manifest.json     # Dataset version, checksums for ALL artifacts
+projects/PROJ-295-predicting-cognitive-load-from-eeg-spect/
 ├── code/
 │   ├── __init__.py
-│   ├── pipeline_config.yaml
-│   ├── validate_contracts.py  # Contract validation logic
-│   ├── download_data.py
-│   ├── preprocess_eeg.py
-│   ├── compute_stimulus_features.py  # NEW: Video feature extraction
-│   ├── extract_features.py
-│   ├── train_model.py
-│   └── evaluate_results.py
+│   ├── config.py           # Loads pipeline_config.yaml
+│   ├── data/
+│   │   ├── download.py     # Fetches raw data from OpenNeuro
+│   │   ├── preprocess.py   # ICA, filtering, downsampling
+│   │   └── loader.py       # Chunked loading logic (by epoch_id)
+│   ├── features/
+│   │   ├── extract.py      # Welch's PSD, theta/alpha bands
+│   │   ├── labels.py       # Gaze variance calculation & Stimulus control
+│   │   └── validity.py     # SC-004, SC-005 checks
+│   ├── models/
+│   │   ├── train.py        # Ridge Regression, CV, hyperparameter tuning
+│   │   ├── evaluate.py     # Metrics, baseline comparison, Permutation test
+│   │   └── sensitivity.py  # FR-008 window variation analysis
+│   └── main.py             # Orchestrator (Data -> Features -> Model)
+├── data/
+│   ├── raw/                # (Gitignored, downloaded at runtime)
+│   ├── processed/          # Cleaned epochs, feature matrices
+│   └── manifest.yaml       # Dataset checksums and versions
 ├── tests/
-│   ├── test_preprocess.py
-│   ├── test_features.py
-│   ├── test_model.py
-│   └── test_contracts.py  # Tests for contract validation
-└── requirements.txt
+│   ├── unit/               # Unit tests for extract.py, labels.py
+│   └── integration/        # End-to-end pipeline tests
+├── pipeline_config.yaml    # Signal processing parameters
+└── requirements.txt        # Pinned dependencies
 ```
 
-**Structure Decision**: Single project structure selected for computational research pipeline; all code, data, and tests organized under `projects/PROJ-295-predicting-cognitive-load-eeg/` to ensure reproducibility and CI compatibility.
+**Structure Decision**: Selected a modular monolithic structure (`code/` subdirectories) suitable for a research pipeline. This avoids the overhead of microservices while ensuring clear separation of concerns (Data, Features, Models) for maintainability and testing.
 
 ## Complexity Tracking
 
-> **N/A** — No Constitution Check violations requiring justification.
+| Violation | Why Needed | Simpler Alternative Rejected Because |
+| :--- | :--- | :--- |
+| **Chunked Loading Strategy** | The full OpenNeuro dataset may exceed available system RAM if loaded entirely. | Loading all data at once risks OOM crashes on the CI runner; chunking ensures stability. |
+| **Subject-wise Cross-Validation** | To prevent data leakage (subjects in train and test sets). | Random epoch-wise CV would leak subject-specific artifacts, invalidating the model's generalizability. |
+| **Multiple-Comparison Correction** | Required by FR-007 to control family-wise error rate across channel-wise correlations. | Uncorrected p-values would inflate Type I error rates, violating statistical rigor. |
+| **Permutation Testing** | Ridge Regression does not provide standard p-values for coefficients. | Standard OLS p-values are invalid for Ridge; permutation testing provides a robust null distribution for the global model. |
+| **Stimulus Complexity Control** | Gaze variance may be driven by stimulus content rather than load. | Without controlling for stimulus motion/complexity, the model may learn visual attention rather than cognitive load. |
 
-## Contract Validation Flow
+## Implementation Phases
 
-To ensure the contracts defined in `contracts/` are exercised, the following flow is implemented:
+### Phase 0: Data Verification & Power Analysis
+1.  **Dataset Check**: Verify `ds000246` (or `ds003465`) contains `gaze.tsv` and EEG data. **Halt with error if gaze data is missing.**
+2.  **Power Analysis**: Calculate minimum N required for R²=0.2 with ~128 predictors.
+    -   **Threshold**: If available N < 120 (calculated minimum), **HALT** and flag study as underpowered.
+3.  **Memory Check**: Verify chunked loading logic with a subset.
 
-1. **Pipeline Integration**: Each data-producing script (`preprocess_eeg.py`, `extract_features.py`, `compute_stimulus_features.py`) imports the `validate_contracts.py` module.
-2. **Validation Logic**: Before saving any artifact (e.g., epochs, features, labels), the script constructs the data structure and passes it to `validate_contracts.py`. This module uses the `jsonschema` library to validate the structure against the corresponding schema file (e.g., `eeg-epoch.schema.yaml`).
-3. **Failure Handling**: If validation fails, the script raises a `ValidationError` and halts execution, logging the specific field that failed. This prevents invalid data from entering the pipeline.
-4. **Testing**: The `tests/test_contracts.py` file contains unit tests that verify the `validate_contracts.py` module correctly accepts valid data and rejects invalid data according to the schemas.
+### Phase 1: Data Ingestion & Preprocessing
+1.  **Download**: Fetch raw data to `data/raw`.
+2.  **Filter/Downsample**: Apply a low-frequency cutoff bandpass filter, downsample to a standard sampling rate.
+3.  **ICA**: Remove eye-blink components.
+4.  **Epoching**: Segment by `epoch_id` and stimulus events.
+5.  **Quality Check (SC-004)**: Calculate retention rate post-ICA. **Halt if < 70%**. Log exclusion count.
 
-This ensures that the contracts are not just documentation but active gates in the data pipeline.
+### Phase 2: Feature Extraction & Validity
+1.  **PSD**: Compute Welch's PSD for theta/alpha bands.
+2.  **Validity Check (SC-005)**: Verify non-zero, stable power values. Flag excluded epochs. **Halt if > 5% epochs fail.**
+3.  **Vectorization**: Create feature matrix `[n_epochs, n_channels * 2]`.
 
-## Computational Feasibility & Risk Mitigation
+### Phase 3: Label Generation & Sensitivity
+1.  **Labeling**: Calculate gaze variance per `epoch_id`.
+2.  **Stimulus Control**: Regress out stimulus complexity metrics (if available) or flag as limitation.
+3.  **Sensitivity Analysis (FR-008)**: 
+    -   Vary window size across multiple temporal scales.
+    -   **Re-train and re-evaluate the model** for each window size to generate valid R² metrics.
+    -   Store R² changes in `results/sensitivity_report.csv`.
 
-- **Memory**: Chunked loading strategy for datasets >7 GB; ICA and PSD computed on downsampled data to stay within 7 GB RAM.
-- **Runtime**: Downsampled data (250 Hz) and CPU-tractable methods (Ridge, ICA, Welch) ensure ≤6 hours total runtime. Video feature extraction is optimized to run in chunks.
-- **No GPU required**: All libraries (mne, scikit-learn, opencv-python) have CPU wheels; no CUDA/mixed-precision dependencies.
-- **Risk**: Video processing may be slow. **Mitigation**: Downsample video frames for feature extraction (e.g., process every 5th frame) if necessary to meet time limits.
-- **Risk**: Small sample size (N~-20). **Mitigation**: Use Leave-One-Subject-Out (LOSO) CV and bootstrapped confidence intervals to maximize power and assess stability.
+### Phase 4: Modeling & Statistical Validation
+1.  **Training**: Ridge Regression with subject-wise k-fold CV.
+2.  **Global Significance**: Permutation test (shuffling labels) to derive p-value for R².
+3.  **Channel Importance**: Pearson correlation per channel/band + **Bonferroni correction** (FR-007).
+4.  **Baseline**: Compare against mean-baseline predictor.
+
+### Phase 5: Reporting
+1.  **Output**: Generate `results/model_metrics.json` and `results/sensitivity_report.csv`.
+2.  **State Update**: Update `state/` YAML with new checksums and `updated_at` timestamp.

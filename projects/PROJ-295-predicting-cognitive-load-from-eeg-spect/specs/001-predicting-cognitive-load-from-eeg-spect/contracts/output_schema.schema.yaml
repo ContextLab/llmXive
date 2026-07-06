@@ -1,0 +1,87 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: "Model Output Schema"
+description: "Schema for the results of the Ridge Regression analysis."
+type: object
+properties:
+  model_info:
+    type: object
+    properties:
+      model_type:
+        type: string
+        const: "Ridge"
+      alpha:
+        type: number
+        description: "Optimal regularization parameter."
+      cv_folds:
+        type: integer
+        const: 5
+      cross_validation_type:
+        type: string
+        const: "subject-wise"
+    required:
+      - model_type
+      - alpha
+      - cv_folds
+      - cross_validation_type
+  metrics:
+    type: object
+    properties:
+      r_squared:
+        type: number
+        description: "Coefficient of determination."
+      rmse:
+        type: number
+        description: "Root Mean Squared Error."
+      pearson_r:
+        type: number
+        description: "Pearson correlation coefficient."
+      baseline_r_squared:
+        type: number
+        description: "R² of the mean-baseline predictor."
+    required:
+      - r_squared
+      - rmse
+      - pearson_r
+      - baseline_r_squared
+  statistical_significance:
+    type: object
+    properties:
+      p_value_uncorrected:
+        type: number
+        minimum: 0
+        maximum: 1
+      p_value_corrected:
+        type: number
+        minimum: 0
+        maximum: 1
+        description: "P-value after Bonferroni correction."
+      correction_method:
+        type: string
+        const: "Bonferroni"
+      is_significant:
+        type: boolean
+        description: "True if p_value_corrected < 0.05."
+    required:
+      - p_value_uncorrected
+      - p_value_corrected
+      - correction_method
+      - is_significant
+  coefficients:
+    type: array
+    description: "Ridge regression coefficients for each feature."
+    items:
+      type: object
+      properties:
+        feature_name:
+          type: string
+        coefficient:
+          type: number
+      required:
+        - feature_name
+        - coefficient
+required:
+  - model_info
+  - metrics
+  - statistical_significance
+  - coefficients
+additionalProperties: false
