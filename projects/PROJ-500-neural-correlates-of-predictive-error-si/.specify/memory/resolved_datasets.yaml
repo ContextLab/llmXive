@@ -1,0 +1,641 @@
+resolved_at: '2026-07-06T06:01:19.801907+00:00'
+datasets:
+- intent: EEG
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/neurofusion/eeg-restingstate/resolve/main/events.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 2963
+      parsed: true
+  - url: https://huggingface.co/datasets/JLB-JLB/seizure_eeg_train/resolve/main/data/train-00000-of-00048-3d720ad254981f90.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/JLB-JLB/seizure_eeg_eval/resolve/main/data/train-00000-of-00007-78d1928c4e4c8738.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/neurofusion/eeg-restingstate/resolve/main/events.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/JLB-JLB/seizure_eeg_train/resolve/main/data/train-00000-of-00048-3d720ad254981f90.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/JLB-JLB/seizure_eeg_eval/resolve/main/data/train-00000-of-00007-78d1928c4e4c8738.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/JLB-JLB/seizure_eeg_dev/resolve/main/data/train-00000-of-00007-78d1928c4e4c8738.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/JLB-JLB/seizure_eeg_greyscale_224x224_6secWindow/resolve/main/data/dev-00000-of-00025-6adfdc3e2ffecc56.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://bridges.monash.edu/articles/report/_b_Injury_Deaths_b_b_Victoria_2021_24_b_b_Edition_32_b_/32904866
+    source: figshare
+    status: unreachable
+    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''bridges.monash.edu'',
+      port=443): Max retries exceeded with url: /articles/report/_b_Injury_Deaths_b_b_Victoria_2021_24_b_b_Edition_32_b_/32904866
+      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
+      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
+  - url: https://frontiersin.figshare.com/articles/figure/Image_10_A_comprehensive_study_based_on_large-sample_multi-omics_integration_and_machine_learning_to_decode_mitochondria-associated_genes_from_digestive_tract_tumours_to_gastric_cancer_jpeg/32906315
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/figure/Image_9_A_comprehensive_study_based_on_large-sample_multi-omics_integration_and_machine_learning_to_decode_mitochondria-associated_genes_from_digestive_tract_tumours_to_gastric_cancer_jpeg/32906312
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/figure/Image_8_A_comprehensive_study_based_on_large-sample_multi-omics_integration_and_machine_learning_to_decode_mitochondria-associated_genes_from_digestive_tract_tumours_to_gastric_cancer_jpeg/32906309
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/figure/Image_7_A_comprehensive_study_based_on_large-sample_multi-omics_integration_and_machine_learning_to_decode_mitochondria-associated_genes_from_digestive_tract_tumours_to_gastric_cancer_jpeg/32906303
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3236138
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10909103
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16906198
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://open-research-europe.ec.europa.eu/articles/2-5/v2
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://open-research-europe.ec.europa.eu/articles/2-5/v1
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/sx63f/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/fexck/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://olos.swiss/portal//archives/a9fbf104-fc00-4944-b7f8-abd47c8c59fd
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://olos.swiss/portal//archives/431d5582-52b7-4686-afb1-7fb2c64a1fe2
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://olos.swiss/portal//archives/2d96e23e-e12a-48f9-9005-0c3a46917a61
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: OpenNeuro
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/clane9/openneuro-fslr64k/resolve/main/data/test-00000-of-00016.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/clane9/openneuro-fslr64k.arrow/resolve/main/dataset_dict.json
+    source: huggingface
+    format: json
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 29
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/clane9/openneuro-fslr64k/resolve/main/data/test-00000-of-00016.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/clane9/openneuro-fslr64k.arrow/resolve/main/dataset_dict.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://bridges.monash.edu/articles/report/_b_Injury_Deaths_b_b_Victoria_2021_24_b_b_Edition_32_b_/32904866
+    source: figshare
+    status: unreachable
+    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''bridges.monash.edu'',
+      port=443): Max retries exceeded with url: /articles/report/_b_Injury_Deaths_b_b_Victoria_2021_24_b_b_Edition_32_b_/32904866
+      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
+      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
+  - url: https://frontiersin.figshare.com/articles/figure/Image_10_A_comprehensive_study_based_on_large-sample_multi-omics_integration_and_machine_learning_to_decode_mitochondria-associated_genes_from_digestive_tract_tumours_to_gastric_cancer_jpeg/32906315
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/figure/Image_9_A_comprehensive_study_based_on_large-sample_multi-omics_integration_and_machine_learning_to_decode_mitochondria-associated_genes_from_digestive_tract_tumours_to_gastric_cancer_jpeg/32906312
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/figure/Image_8_A_comprehensive_study_based_on_large-sample_multi-omics_integration_and_machine_learning_to_decode_mitochondria-associated_genes_from_digestive_tract_tumours_to_gastric_cancer_jpeg/32906309
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/figure/Image_7_A_comprehensive_study_based_on_large-sample_multi-omics_integration_and_machine_learning_to_decode_mitochondria-associated_genes_from_digestive_tract_tumours_to_gastric_cancer_jpeg/32906303
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18476336
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21169036
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17150815
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/2847832
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21032699
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://openneuro.org/datasets/ds007354/versions/2.0.1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://openneuro.org/datasets/ds007753/versions/1.1.1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://openneuro.org/datasets/ds007753/versions/1.0.0
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://openneuro.org/datasets/ds007753/versions/1.1.0
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://openneuro.org/datasets/ds007763/versions/1.1.1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: ICA
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/ecnu-icalk/cmm-math/resolve/main/all_data.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/Icannos/gpt4all-formatted-dolly-15k-multilingual/resolve/main/data/de-00000-of-00001-5ee5278187666bb6.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/ecnu-icalk/educhat-sft-002-data-osm/resolve/main/MIX_BELLE.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/ecnu-icalk/cmm-math/resolve/main/all_data.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/Icannos/gpt4all-formatted-dolly-15k-multilingual/resolve/main/data/de-00000-of-00001-5ee5278187666bb6.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/ecnu-icalk/educhat-sft-002-data-osm/resolve/main/MIX_BELLE.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://bridges.monash.edu/articles/report/_b_Injury_Deaths_b_b_Victoria_2021_24_b_b_Edition_32_b_/32904866
+    source: figshare
+    status: unreachable
+    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''bridges.monash.edu'',
+      port=443): Max retries exceeded with url: /articles/report/_b_Injury_Deaths_b_b_Victoria_2021_24_b_b_Edition_32_b_/32904866
+      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
+      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
+  - url: https://frontiersin.figshare.com/articles/figure/Image_10_A_comprehensive_study_based_on_large-sample_multi-omics_integration_and_machine_learning_to_decode_mitochondria-associated_genes_from_digestive_tract_tumours_to_gastric_cancer_jpeg/32906315
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/figure/Image_9_A_comprehensive_study_based_on_large-sample_multi-omics_integration_and_machine_learning_to_decode_mitochondria-associated_genes_from_digestive_tract_tumours_to_gastric_cancer_jpeg/32906312
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/figure/Image_8_A_comprehensive_study_based_on_large-sample_multi-omics_integration_and_machine_learning_to_decode_mitochondria-associated_genes_from_digestive_tract_tumours_to_gastric_cancer_jpeg/32906309
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/figure/Image_7_A_comprehensive_study_based_on_large-sample_multi-omics_integration_and_machine_learning_to_decode_mitochondria-associated_genes_from_digestive_tract_tumours_to_gastric_cancer_jpeg/32906303
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3408507
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ieeexplore.ieee.org/document/6943768/
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4423653
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6967838
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/11266964
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ww2.nemar.org/dataset/on007763?v=v1.0.0
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ww2.nemar.org/dataset/on007753
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://yareta.unige.ch/archives/ef51a333-c75e-4478-95d2-a450ba234197
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://yareta.unige.ch/archives/f3c9ac2b-7423-4e41-b67e-1db54cfc68ca
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21204031
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: MNE-Python
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://bridges.monash.edu/articles/report/_b_Injury_Deaths_b_b_Victoria_2021_24_b_b_Edition_32_b_/32904866
+    source: figshare
+    status: unreachable
+    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''bridges.monash.edu'',
+      port=443): Max retries exceeded with url: /articles/report/_b_Injury_Deaths_b_b_Victoria_2021_24_b_b_Edition_32_b_/32904866
+      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
+      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
+  - url: https://frontiersin.figshare.com/articles/figure/Image_10_A_comprehensive_study_based_on_large-sample_multi-omics_integration_and_machine_learning_to_decode_mitochondria-associated_genes_from_digestive_tract_tumours_to_gastric_cancer_jpeg/32906315
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/figure/Image_9_A_comprehensive_study_based_on_large-sample_multi-omics_integration_and_machine_learning_to_decode_mitochondria-associated_genes_from_digestive_tract_tumours_to_gastric_cancer_jpeg/32906312
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/figure/Image_8_A_comprehensive_study_based_on_large-sample_multi-omics_integration_and_machine_learning_to_decode_mitochondria-associated_genes_from_digestive_tract_tumours_to_gastric_cancer_jpeg/32906309
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/figure/Image_7_A_comprehensive_study_based_on_large-sample_multi-omics_integration_and_machine_learning_to_decode_mitochondria-associated_genes_from_digestive_tract_tumours_to_gastric_cancer_jpeg/32906303
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19666955
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3891836
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7602381
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20309409
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14008696
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://olos.swiss/portal//archives/2d96e23e-e12a-48f9-9005-0c3a46917a61
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ww2.nemar.org/dataset/on007763?v=v1.0.0
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ww2.nemar.org/dataset/on007753
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21210680
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21210680
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: MMN
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/mmnga/wikipedia-ja-20230720-100k/resolve/main/data/train-00000-of-00001-7dc295ea415020ef.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/mmnga/wikipedia-ja-20230720-50k/resolve/main/data/train-00000-of-00001-66b430992c355d24.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/mmnga/wikipedia-ja-20230720-2k/resolve/main/data/train-00000-of-00001-29847eb8594b1317.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/mmnga/wikipedia-ja-20230720-100k/resolve/main/data/train-00000-of-00001-7dc295ea415020ef.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/mmnga/wikipedia-ja-20230720-50k/resolve/main/data/train-00000-of-00001-66b430992c355d24.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/mmnga/wikipedia-ja-20230720-2k/resolve/main/data/train-00000-of-00001-29847eb8594b1317.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/mmnga/wikipedia-ja-20230720-1k/resolve/main/data/train-00000-of-00001-d7ddb82d9dee8e43.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/open-llm-leaderboard-old/details_mmnga__Llama-3-70B-japanese-suzume-vector-v0.1/resolve/main/2024-05-06T11-23-17.173892/details_harness|arc:challenge|25_2024-05-06T11-23-17.173892.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://bridges.monash.edu/articles/report/_b_Injury_Deaths_b_b_Victoria_2021_24_b_b_Edition_32_b_/32904866
+    source: figshare
+    status: unreachable
+    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''bridges.monash.edu'',
+      port=443): Max retries exceeded with url: /articles/report/_b_Injury_Deaths_b_b_Victoria_2021_24_b_b_Edition_32_b_/32904866
+      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
+      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
+  - url: https://frontiersin.figshare.com/articles/figure/Image_10_A_comprehensive_study_based_on_large-sample_multi-omics_integration_and_machine_learning_to_decode_mitochondria-associated_genes_from_digestive_tract_tumours_to_gastric_cancer_jpeg/32906315
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/figure/Image_9_A_comprehensive_study_based_on_large-sample_multi-omics_integration_and_machine_learning_to_decode_mitochondria-associated_genes_from_digestive_tract_tumours_to_gastric_cancer_jpeg/32906312
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/figure/Image_8_A_comprehensive_study_based_on_large-sample_multi-omics_integration_and_machine_learning_to_decode_mitochondria-associated_genes_from_digestive_tract_tumours_to_gastric_cancer_jpeg/32906309
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/figure/Image_7_A_comprehensive_study_based_on_large-sample_multi-omics_integration_and_machine_learning_to_decode_mitochondria-associated_genes_from_digestive_tract_tumours_to_gastric_cancer_jpeg/32906303
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://journals.lww.com/01515467-201202000-00022
+    source: zenodo
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://www.mdpi.com/1099-4300/23/3/346
+    source: zenodo
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://www.frontiersin.org/journals/human-neuroscience/articles/10.3389/fnhum.2021.613903/full
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.nature.com/articles/s41598-019-53136-y
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.isca-archive.org/interspeech_2018/bollavetisyan18_interspeech.html
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/vmw6h/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/g8da2/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/6z5f4/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/xzytb/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/uyg9e/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: CPU-only
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/AdityaMayukhSom/MixSub-LLaMA-3.2-Text-Only-Overlap-CPU-Score/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/AdityaMayukhSom/MixSub-LLaMA-3.2-Text-Only-Overlap-CPU-Score/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://bridges.monash.edu/articles/report/_b_Injury_Deaths_b_b_Victoria_2021_24_b_b_Edition_32_b_/32904866
+    source: figshare
+    status: unreachable
+    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''bridges.monash.edu'',
+      port=443): Max retries exceeded with url: /articles/report/_b_Injury_Deaths_b_b_Victoria_2021_24_b_b_Edition_32_b_/32904866
+      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
+      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
+  - url: https://frontiersin.figshare.com/articles/figure/Image_10_A_comprehensive_study_based_on_large-sample_multi-omics_integration_and_machine_learning_to_decode_mitochondria-associated_genes_from_digestive_tract_tumours_to_gastric_cancer_jpeg/32906315
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/figure/Image_9_A_comprehensive_study_based_on_large-sample_multi-omics_integration_and_machine_learning_to_decode_mitochondria-associated_genes_from_digestive_tract_tumours_to_gastric_cancer_jpeg/32906312
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/figure/Image_8_A_comprehensive_study_based_on_large-sample_multi-omics_integration_and_machine_learning_to_decode_mitochondria-associated_genes_from_digestive_tract_tumours_to_gastric_cancer_jpeg/32906309
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/figure/Image_7_A_comprehensive_study_based_on_large-sample_multi-omics_integration_and_machine_learning_to_decode_mitochondria-associated_genes_from_digestive_tract_tumours_to_gastric_cancer_jpeg/32906303
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.11591/eei.v9i2.1972
+    source: zenodo
+    status: unreachable
+    reason: 'reachability failed: HTTP 415'
+  - url: https://zenodo.org/records/14352943
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6127654
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10199277
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17854610
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21212251
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21211653
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21211653
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21210112
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21210112
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: GLMM
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/NewEden-Forge/GLM-Magnum-Rev1-w-e/resolve/main/magnum-glm.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/OctoMed/GLM-Multiturn-CoT/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/NewEden-Forge/GLM-Magnum-Rev1-w-e/resolve/main/magnum-glm.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/OctoMed/GLM-Multiturn-CoT/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/Structural_and_mechanistic_insights_into_EchAMP_A_antimicrobial_protein_from_the_Echidna_milk/20760709
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://bridges.monash.edu/articles/report/_b_Injury_Deaths_b_b_Victoria_2021_24_b_b_Edition_32_b_/32904866
+    source: figshare
+    status: unreachable
+    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''bridges.monash.edu'',
+      port=443): Max retries exceeded with url: /articles/report/_b_Injury_Deaths_b_b_Victoria_2021_24_b_b_Edition_32_b_/32904866
+      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
+      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
+  - url: https://frontiersin.figshare.com/articles/figure/Image_10_A_comprehensive_study_based_on_large-sample_multi-omics_integration_and_machine_learning_to_decode_mitochondria-associated_genes_from_digestive_tract_tumours_to_gastric_cancer_jpeg/32906315
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/figure/Image_9_A_comprehensive_study_based_on_large-sample_multi-omics_integration_and_machine_learning_to_decode_mitochondria-associated_genes_from_digestive_tract_tumours_to_gastric_cancer_jpeg/32906312
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/figure/Image_8_A_comprehensive_study_based_on_large-sample_multi-omics_integration_and_machine_learning_to_decode_mitochondria-associated_genes_from_digestive_tract_tumours_to_gastric_cancer_jpeg/32906309
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/13970371
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19546261
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.mn159hq6
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5566534
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7847934
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Table_S13_The_summary_of_GLMM_analysis_results_about_the_COTS_orientation_behavior_towards_coral_odor_cues_the_full_dataset_n_171_/32083485/3
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Table_S13_The_summary_of_GLMM_analysis_results_about_the_COTS_orientation_behavior_towards_coral_odor_cues_the_full_dataset_n_171_/32083485/4
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Table_S13_The_summary_of_GLMM_analysis_results_about_the_COTS_orientation_behavior_towards_coral_odor_cues_the_full_dataset_n_171_/32083485
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Table_S12_The_summary_of_GLMM_analysis_results_about_the_COTS_orientation_behavior_towards_coral_odor_cues_excluding_individuals_measured_more_than_twice_n_118_/32095930/4
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Table_S12_The_summary_of_GLMM_analysis_results_about_the_COTS_orientation_behavior_towards_coral_odor_cues_excluding_individuals_measured_more_than_twice_n_118_/32095930/5
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

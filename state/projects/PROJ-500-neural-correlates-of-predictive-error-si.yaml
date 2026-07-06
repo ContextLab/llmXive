@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-09T17:25:29.108631Z'
-current_stage: specified
+current_stage: analyzed
 failed_stage: null
 field: neuroscience
 human_escalation_reason: null
 id: PROJ-500-neural-correlates-of-predictive-error-si
-last_run_id: 427f0220-5cee-49e4-a7ba-d6755505bfd2
+last_run_id: 9ce8b119-6e42-47cc-827c-198fd71d1330
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-500-neural-correlates-of-predictive-error-si/specs/001-neural-correlates-of-predictive-error-si
 title: Neural Correlates of Predictive Error Signals During Tactile Discrimination
   Learning
-updated_at: '2026-06-30T18:39:53.094456Z'
+updated_at: '2026-07-06T06:39:10.833433Z'

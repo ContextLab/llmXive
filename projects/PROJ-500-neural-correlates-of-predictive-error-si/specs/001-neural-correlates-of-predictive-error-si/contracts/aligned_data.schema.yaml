@@ -1,0 +1,66 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Aligned Data Schema"
+description: "Schema for the output of the alignment step (Lagged MMN amplitudes + behavioral accuracy)."
+type: "object"
+properties:
+  subject_id:
+    type: "string"
+    description: "Unique identifier for the subject."
+  mmn_source_block_id:
+    type: "integer"
+    description: "ID of the block from which MMN was derived (trials t-50 to t-10)."
+  accuracy_target_block_id:
+    type: "integer"
+    description: "ID of the block for which accuracy is calculated (trials t to t+10)."
+  trial_start:
+    type: "integer"
+    description: "Index of the first trial in the accuracy target block."
+  trial_end:
+    type: "integer"
+    description: "Index of the last trial in the accuracy target block."
+  accuracy_pct:
+    type: "number"
+    description: "Percentage of correct responses in the accuracy target block."
+  stationarity_check:
+    type: "boolean"
+    description: "True if accuracy trend within the target block is <10%."
+  mmn_amplitude_cp3:
+    type: "number"
+    description: "Mean MMN amplitude (150–250ms) at CP3, derived from the source block."
+  mmn_amplitude_cp4:
+    type: "number"
+    description: "Mean MMN amplitude (150–250ms) at CP4, derived from the source block."
+  mmn_amplitude_c3:
+    type: "number"
+    description: "Mean MMN amplitude (150–250ms) at C3, derived from the source block."
+  mmn_amplitude_c4:
+    type: "number"
+    description: "Mean MMN amplitude (150–250ms) at C4, derived from the source block."
+  analysis_mode:
+    type: "string"
+    enum:
+      - "error_signal"
+      - "stimulus_driven"
+    description: "Flag indicating the analysis mode (FR-012 compliance)."
+  data_quality_flag:
+    type: "string"
+    enum:
+      - "valid"
+      - "insufficient_trials"
+      - "excessive_artifacts"
+    description: "Flag indicating data quality."
+required:
+  - subject_id
+  - mmn_source_block_id
+  - accuracy_target_block_id
+  - trial_start
+  - trial_end
+  - accuracy_pct
+  - stationarity_check
+  - mmn_amplitude_cp3
+  - mmn_amplitude_cp4
+  - mmn_amplitude_c3
+  - mmn_amplitude_c4
+  - analysis_mode
+  - data_quality_flag
+additionalProperties: false
