@@ -1,26 +1,26 @@
-resolved_at: '2026-07-04T07:27:29.611918+00:00'
+resolved_at: '2026-07-06T02:11:01.645794+00:00'
 datasets:
 - intent: 10.5281/zenodo.3966973
   status: unresolved
   candidates: []
   candidates_tried:
-  - url: https://figshare.com/articles/dataset/_sub_strong_PET-Protocol_Data_strong_sub_/31076929
+  - url: https://figshare.com/articles/journal_contribution/sampling_effort_data_and_R_script/31319731
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Spiro-Confined_Br_nsted_Acid_Catalyst_for_Stereoselective_Cationic_Polymerization_of_Vinyl_Ethers_ACS_Catalysis_/29558024
+  - url: https://figshare.mq.edu.au/articles/thesis/Using_AI_in_Finance_to_detect_AML_activities/31825171
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/book/Filosofia_computa_iei_Realitate_i_calcul_Suport_de_curs_Universitatea_din_Bucure_ti_2026/32898944
+  - url: https://figshare.com/articles/figure/Babcock_University_School_of_Nursing_2026_2027_Admission_Form_Is_On_Sale_Call_09017730052_To_Apply_and_further_admission_assistance_/32904416
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/___/32898941
+  - url: https://figshare.com/articles/dataset/The_BAC_full-length_sequences_for_giant_panda/32576355
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://tandf.figshare.com/articles/journal_contribution/Social_Network_Characteristics_as_Predictors_of_Opioid_Use_Disorder_Treatment_Utilization_among_People_Who_Use_Drugs_with_Hepatitis_C_Infections_in_Baltimore_MD/32898942
+  - url: https://figshare.com/articles/dataset/Dataset_for_TSSP_Horticultural_Supply_Chain_Journal/32257398
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -32,23 +32,23 @@ datasets:
   status: unresolved
   candidates: []
   candidates_tried:
-  - url: https://figshare.com/articles/dataset/_sub_strong_PET-Protocol_Data_strong_sub_/31076929
+  - url: https://figshare.com/articles/journal_contribution/sampling_effort_data_and_R_script/31319731
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Spiro-Confined_Br_nsted_Acid_Catalyst_for_Stereoselective_Cationic_Polymerization_of_Vinyl_Ethers_ACS_Catalysis_/29558024
+  - url: https://figshare.mq.edu.au/articles/thesis/Using_AI_in_Finance_to_detect_AML_activities/31825171
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/book/Filosofia_computa_iei_Realitate_i_calcul_Suport_de_curs_Universitatea_din_Bucure_ti_2026/32898944
+  - url: https://figshare.com/articles/figure/Babcock_University_School_of_Nursing_2026_2027_Admission_Form_Is_On_Sale_Call_09017730052_To_Apply_and_further_admission_assistance_/32904416
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/___/32898941
+  - url: https://figshare.com/articles/dataset/The_BAC_full-length_sequences_for_giant_panda/32576355
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://tandf.figshare.com/articles/journal_contribution/Social_Network_Characteristics_as_Predictors_of_Opioid_Use_Disorder_Treatment_Utilization_among_People_Who_Use_Drugs_with_Hepatitis_C_Infections_in_Baltimore_MD/32898942
+  - url: https://figshare.com/articles/dataset/Dataset_for_TSSP_Horticultural_Supply_Chain_Journal/32257398
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -60,23 +60,23 @@ datasets:
   status: unresolved
   candidates: []
   candidates_tried:
-  - url: https://figshare.com/articles/dataset/_sub_strong_PET-Protocol_Data_strong_sub_/31076929
+  - url: https://figshare.com/articles/journal_contribution/sampling_effort_data_and_R_script/31319731
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Spiro-Confined_Br_nsted_Acid_Catalyst_for_Stereoselective_Cationic_Polymerization_of_Vinyl_Ethers_ACS_Catalysis_/29558024
+  - url: https://figshare.mq.edu.au/articles/thesis/Using_AI_in_Finance_to_detect_AML_activities/31825171
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/book/Filosofia_computa_iei_Realitate_i_calcul_Suport_de_curs_Universitatea_din_Bucure_ti_2026/32898944
+  - url: https://figshare.com/articles/figure/Babcock_University_School_of_Nursing_2026_2027_Admission_Form_Is_On_Sale_Call_09017730052_To_Apply_and_further_admission_assistance_/32904416
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/___/32898941
+  - url: https://figshare.com/articles/dataset/The_BAC_full-length_sequences_for_giant_panda/32576355
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://tandf.figshare.com/articles/journal_contribution/Social_Network_Characteristics_as_Predictors_of_Opioid_Use_Disorder_Treatment_Utilization_among_People_Who_Use_Drugs_with_Hepatitis_C_Infections_in_Baltimore_MD/32898942
+  - url: https://figshare.com/articles/dataset/Dataset_for_TSSP_Horticultural_Supply_Chain_Journal/32257398
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -88,23 +88,23 @@ datasets:
   status: unresolved
   candidates: []
   candidates_tried:
-  - url: https://figshare.com/articles/dataset/_sub_strong_PET-Protocol_Data_strong_sub_/31076929
+  - url: https://figshare.com/articles/journal_contribution/sampling_effort_data_and_R_script/31319731
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Spiro-Confined_Br_nsted_Acid_Catalyst_for_Stereoselective_Cationic_Polymerization_of_Vinyl_Ethers_ACS_Catalysis_/29558024
+  - url: https://figshare.mq.edu.au/articles/thesis/Using_AI_in_Finance_to_detect_AML_activities/31825171
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/book/Filosofia_computa_iei_Realitate_i_calcul_Suport_de_curs_Universitatea_din_Bucure_ti_2026/32898944
+  - url: https://figshare.com/articles/figure/Babcock_University_School_of_Nursing_2026_2027_Admission_Form_Is_On_Sale_Call_09017730052_To_Apply_and_further_admission_assistance_/32904416
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/___/32898941
+  - url: https://figshare.com/articles/dataset/The_BAC_full-length_sequences_for_giant_panda/32576355
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://tandf.figshare.com/articles/journal_contribution/Social_Network_Characteristics_as_Predictors_of_Opioid_Use_Disorder_Treatment_Utilization_among_People_Who_Use_Drugs_with_Hepatitis_C_Infections_in_Baltimore_MD/32898942
+  - url: https://figshare.com/articles/dataset/Dataset_for_TSSP_Horticultural_Supply_Chain_Journal/32257398
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -128,6 +128,14 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18439571
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18439571
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
   - url: https://arxiv.org/abs/2606.31364
     source: datacite
     status: wrong_format
@@ -140,35 +148,27 @@ datasets:
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21129061
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://arxiv.org/abs/2605.27226
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
 - intent: GWTC-2
   status: unresolved
   candidates: []
   candidates_tried:
-  - url: https://figshare.com/articles/dataset/_sub_strong_PET-Protocol_Data_strong_sub_/31076929
+  - url: https://figshare.com/articles/journal_contribution/sampling_effort_data_and_R_script/31319731
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Spiro-Confined_Br_nsted_Acid_Catalyst_for_Stereoselective_Cationic_Polymerization_of_Vinyl_Ethers_ACS_Catalysis_/29558024
+  - url: https://figshare.mq.edu.au/articles/thesis/Using_AI_in_Finance_to_detect_AML_activities/31825171
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/book/Filosofia_computa_iei_Realitate_i_calcul_Suport_de_curs_Universitatea_din_Bucure_ti_2026/32898944
+  - url: https://figshare.com/articles/figure/Babcock_University_School_of_Nursing_2026_2027_Admission_Form_Is_On_Sale_Call_09017730052_To_Apply_and_further_admission_assistance_/32904416
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/___/32898941
+  - url: https://figshare.com/articles/dataset/The_BAC_full-length_sequences_for_giant_panda/32576355
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://tandf.figshare.com/articles/journal_contribution/Social_Network_Characteristics_as_Predictors_of_Opioid_Use_Disorder_Treatment_Utilization_among_People_Who_Use_Drugs_with_Hepatitis_C_Infections_in_Baltimore_MD/32898942
+  - url: https://figshare.com/articles/dataset/Dataset_for_TSSP_Horticultural_Supply_Chain_Journal/32257398
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -180,35 +180,35 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20348005
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/15243628
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/6406213
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20798927
-    source: datacite
+  - url: https://zenodo.org/records/6394984
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6402052
+    source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/20798927
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21129061
+  - url: https://zenodo.org/records/20798927
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18439571
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18439571
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/21129061
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21092305
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -237,14 +237,14 @@ datasets:
       downloaded_bytes: 262144
       parsed: true
   candidates_tried:
-  - url: https://huggingface.co/datasets/nvidia/Cosmos3-DROID/resolve/main/failure/data/chunk-000/file-000.parquet
-    source: huggingface
-    status: verified
-    format: parquet
   - url: https://huggingface.co/datasets/nvidia/PhysicalAI-Autonomous-Vehicle-Cosmos-Drive-Dreams/resolve/main/cosmos_synthetic/single_view/caption.tar.gz
     source: huggingface
     status: verified
     format: gzip
+  - url: https://huggingface.co/datasets/nvidia/Cosmos3-DROID/resolve/main/failure/data/chunk-000/file-000.parquet
+    source: huggingface
+    status: verified
+    format: parquet
   - url: https://huggingface.co/datasets/KaiLv/UDR_CosmosQA/resolve/main/data/debug-00000-of-00001-9284dc465f4436f7.parquet
     source: huggingface
     status: verified
@@ -253,63 +253,63 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://figshare.com/articles/dataset/_sub_strong_PET-Protocol_Data_strong_sub_/31076929
+  - url: https://figshare.com/articles/journal_contribution/sampling_effort_data_and_R_script/31319731
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Spiro-Confined_Br_nsted_Acid_Catalyst_for_Stereoselective_Cationic_Polymerization_of_Vinyl_Ethers_ACS_Catalysis_/29558024
+  - url: https://figshare.mq.edu.au/articles/thesis/Using_AI_in_Finance_to_detect_AML_activities/31825171
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/book/Filosofia_computa_iei_Realitate_i_calcul_Suport_de_curs_Universitatea_din_Bucure_ti_2026/32898944
+  - url: https://figshare.com/articles/figure/Babcock_University_School_of_Nursing_2026_2027_Admission_Form_Is_On_Sale_Call_09017730052_To_Apply_and_further_admission_assistance_/32904416
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/___/32898941
+  - url: https://figshare.com/articles/dataset/The_BAC_full-length_sequences_for_giant_panda/32576355
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://tandf.figshare.com/articles/journal_contribution/Social_Network_Characteristics_as_Predictors_of_Opioid_Use_Disorder_Treatment_Utilization_among_People_Who_Use_Drugs_with_Hepatitis_C_Infections_in_Baltimore_MD/32898942
+  - url: https://figshare.com/articles/dataset/Dataset_for_TSSP_Horticultural_Supply_Chain_Journal/32257398
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://www.scientificamerican.com/article/the-casa-grande-ruin-southern-arizona/
+  - url: https://linkinghub.elsevier.com/retrieve/pii/0016003259903503
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://www.scientificamerican.com/article/houses-and-house-dedication-of-the/
+  - url: https://www.scientificamerican.com/article/native-architecture-in-africa-and-n/
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://www.scientificamerican.com/article/house-building-by-ritual/
+  - url: https://www.scientificamerican.com/article/pueblo-arts-and-industries-ii/
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://www.scientificamerican.com/article/pueblo-arts-and-industries-iii/
+  - url: https://www.scientificamerican.com/article/a-cliff-dwelling-park-in-colorado/
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://www.scientificamerican.com/article/white-indians-of-new-mexico/
+  - url: https://www.asianinstituteofresearch.org/EQRarchives/the-status-of-resource-availability-and-science-teaching-at-the-junior-high-school-level-in-ghana
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21166480
+  - url: https://zenodo.org/records/21211707
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21166480
+  - url: https://zenodo.org/records/21211707
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21186805
+  - url: https://zenodo.org/records/20751463
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21186805
+  - url: https://zenodo.org/records/20754687
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20606966
+  - url: https://zenodo.org/records/20754687
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -317,23 +317,23 @@ datasets:
   status: unresolved
   candidates: []
   candidates_tried:
-  - url: https://figshare.com/articles/dataset/_sub_strong_PET-Protocol_Data_strong_sub_/31076929
+  - url: https://figshare.com/articles/journal_contribution/sampling_effort_data_and_R_script/31319731
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Spiro-Confined_Br_nsted_Acid_Catalyst_for_Stereoselective_Cationic_Polymerization_of_Vinyl_Ethers_ACS_Catalysis_/29558024
+  - url: https://figshare.mq.edu.au/articles/thesis/Using_AI_in_Finance_to_detect_AML_activities/31825171
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/book/Filosofia_computa_iei_Realitate_i_calcul_Suport_de_curs_Universitatea_din_Bucure_ti_2026/32898944
+  - url: https://figshare.com/articles/figure/Babcock_University_School_of_Nursing_2026_2027_Admission_Form_Is_On_Sale_Call_09017730052_To_Apply_and_further_admission_assistance_/32904416
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/___/32898941
+  - url: https://figshare.com/articles/dataset/The_BAC_full-length_sequences_for_giant_panda/32576355
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://tandf.figshare.com/articles/journal_contribution/Social_Network_Characteristics_as_Predictors_of_Opioid_Use_Disorder_Treatment_Utilization_among_People_Who_Use_Drugs_with_Hepatitis_C_Infections_in_Baltimore_MD/32898942
+  - url: https://figshare.com/articles/dataset/Dataset_for_TSSP_Horticultural_Supply_Chain_Journal/32257398
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -403,23 +403,23 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://figshare.com/articles/journal_contribution/Mahaica_to_Rosignol_Road_Project_-_Social_Status_Report_003_Prepared_for_AECO_SRKN_2024/32898989
+  - url: https://figshare.com/articles/journal_contribution/sampling_effort_data_and_R_script/31319731
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/preprint/Experience_Complexity_Index_ECI_Evolutionary_Logic_of_Mass_Extinctions_Civilizational_Great_Filter_and_a_New_Paradigmfor_Extraterrestrial_Life_Detection_Updated_/32898950
+  - url: https://figshare.mq.edu.au/articles/thesis/Using_AI_in_Finance_to_detect_AML_activities/31825171
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://springernature.figshare.com/articles/dataset/Programming_Local_Confinements_in_Crystalline_Frameworks_through_Reticular_Chemistry/30593789
+  - url: https://figshare.com/articles/figure/Babcock_University_School_of_Nursing_2026_2027_Admission_Form_Is_On_Sale_Call_09017730052_To_Apply_and_further_admission_assistance_/32904416
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://springernature.figshare.com/articles/dataset/Supplementary_data_Reducing_meat_and_dairy_improves_health_and_environmental_outcomes_and_most_nutritional_outcomes_without_increasing_diet_costs_among_Scottish_adults/28195040
+  - url: https://figshare.com/articles/dataset/The_BAC_full-length_sequences_for_giant_panda/32576355
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://springernature.figshare.com/articles/dataset/Organic_carbon_content_and_isotope_compositions_of_the_Japan_Trench_sediments_collected_by_IODP_386/31419185
+  - url: https://figshare.com/articles/dataset/Dataset_for_TSSP_Horticultural_Supply_Chain_Journal/32257398
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -443,7 +443,11 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21169957
+  - url: https://zenodo.org/records/21206801
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21206801
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -451,15 +455,11 @@ datasets:
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21184638
+  - url: https://zenodo.org/records/21169957
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21184638
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21181597
+  - url: https://zenodo.org/records/21202805
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -467,23 +467,23 @@ datasets:
   status: unresolved
   candidates: []
   candidates_tried:
-  - url: https://figshare.com/articles/presentation/Washer_Door_Gasket_Replacement/32899016
+  - url: https://figshare.com/articles/journal_contribution/sampling_effort_data_and_R_script/31319731
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/_b_Eucommia_b_/32899013
+  - url: https://figshare.mq.edu.au/articles/thesis/Using_AI_in_Finance_to_detect_AML_activities/31825171
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/presentation/Cybersecurity_Roadmap_2026_Skills_Jobs_by_Hackersprey/32898998
+  - url: https://figshare.com/articles/figure/Babcock_University_School_of_Nursing_2026_2027_Admission_Form_Is_On_Sale_Call_09017730052_To_Apply_and_further_admission_assistance_/32904416
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://tandf.figshare.com/articles/journal_contribution/Mannich-modified_benzaldehyde_chitosan_as_a_capping_agent_for_silver_nanocomposites_enhanced_antibacterial_performance_for_food_preservation/32899018
+  - url: https://figshare.com/articles/dataset/The_BAC_full-length_sequences_for_giant_panda/32576355
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/presentation/Pressure_Washing_and_Soft_Washing_Services/32899004
+  - url: https://figshare.com/articles/dataset/Dataset_for_TSSP_Horticultural_Supply_Chain_Journal/32257398
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -499,12 +499,20 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10865354
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/20656283
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/4574063
-    source: zenodo
+  - url: https://zenodo.org/records/21203721
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21203721
+    source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/20835705
@@ -519,14 +527,6 @@ datasets:
     source: datacite
     status: unreachable
     reason: 'reachability failed: HTTP 410'
-  - url: https://zenodo.org/records/20656283
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20656283
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
 - intent: AND
   status: verified
   candidates:
@@ -544,12 +544,12 @@ datasets:
     sample_check:
       downloaded_bytes: 262144
       parsed: true
-  - url: https://huggingface.co/datasets/K-and-K/knights-and-knaves/resolve/main/test/people2_num100.jsonl
+  - url: https://huggingface.co/datasets/sarahwei/cyber_MITRE_attack_tactics-and-techniques/resolve/main/MITRE-attack-tactics-and-techniques.csv
     source: huggingface
-    format: jsonl
+    format: csv
     relevance: 0.0
     sample_check:
-      downloaded_bytes: 146016
+      downloaded_bytes: 262144
       parsed: true
   candidates_tried:
   - url: https://huggingface.co/datasets/Andyrasika/cat_kingdom/resolve/main/data/train-00000-of-00001-c6ddc870796e4f24.parquet
@@ -560,6 +560,10 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
+  - url: https://huggingface.co/datasets/sarahwei/cyber_MITRE_attack_tactics-and-techniques/resolve/main/MITRE-attack-tactics-and-techniques.csv
+    source: huggingface
+    status: verified
+    format: csv
   - url: https://huggingface.co/datasets/K-and-K/knights-and-knaves/resolve/main/test/people2_num100.jsonl
     source: huggingface
     status: verified
@@ -568,27 +572,26 @@ datasets:
     source: huggingface
     status: verified
     format: csv
-  - url: https://huggingface.co/datasets/smolagents/android-control/resolve/main/data/test-00000-of-00067.parquet
-    source: huggingface
-    status: verified
-    format: parquet
-  - url: https://figshare.com/articles/presentation/Washer_Door_Gasket_Replacement/32899016
+  - url: https://bridges.monash.edu/articles/thesis/Climatology_and_structure_of_North_Australian_cloud_lines/19575340
+    source: figshare
+    status: unreachable
+    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''bridges.monash.edu'',
+      port=443): Max retries exceeded with url: /articles/thesis/Climatology_and_structure_of_North_Australian_cloud_lines/19575340
+      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
+      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
+  - url: https://figshare.com/articles/journal_contribution/sampling_effort_data_and_R_script/31319731
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/_b_Eucommia_b_/32899013
+  - url: https://figshare.mq.edu.au/articles/thesis/Using_AI_in_Finance_to_detect_AML_activities/31825171
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/presentation/Cybersecurity_Roadmap_2026_Skills_Jobs_by_Hackersprey/32898998
+  - url: https://figshare.com/articles/figure/Babcock_University_School_of_Nursing_2026_2027_Admission_Form_Is_On_Sale_Call_09017730052_To_Apply_and_further_admission_assistance_/32904416
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://tandf.figshare.com/articles/journal_contribution/Mannich-modified_benzaldehyde_chitosan_as_a_capping_agent_for_silver_nanocomposites_enhanced_antibacterial_performance_for_food_preservation/32899018
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/presentation/Pressure_Washing_and_Soft_Washing_Services/32899004
+  - url: https://figshare.com/articles/dataset/The_BAC_full-length_sequences_for_giant_panda/32576355
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -600,15 +603,15 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/5336041
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/5336216
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/3380311
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5336107
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -653,249 +656,11 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://huggingface.co/datasets/mdesrochers-afk/pick_cucumber_00_03/resolve/main/data/chunk-000/file-000.parquet
-    source: huggingface
-    status: verified
-    format: parquet
-  - url: https://figshare.com/articles/presentation/Washer_Door_Gasket_Replacement/32899016
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/_b_Eucommia_b_/32899013
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/presentation/Cybersecurity_Roadmap_2026_Skills_Jobs_by_Hackersprey/32898998
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://tandf.figshare.com/articles/journal_contribution/Mannich-modified_benzaldehyde_chitosan_as_a_capping_agent_for_silver_nanocomposites_enhanced_antibacterial_performance_for_food_preservation/32899018
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/presentation/Pressure_Washing_and_Soft_Washing_Services/32899004
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/5497524
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://link.springer.com/article/10.1007/s00127-003-0682-8
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/18778471
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20028509
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20669054
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://osf.io/x8kae/
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://osf.io/mv6nr/
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21000496
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21000496
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://osf.io/f56qj/
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
 - intent: EAGLE
-  status: verified
-  candidates:
-  - url: https://huggingface.co/datasets/JavaChu/eagle-ner-json/resolve/main/gel-product-word-part1.json
-    source: huggingface
-    format: json
-    relevance: 1.0
-    sample_check:
-      downloaded_bytes: 3083
-      parsed: true
-  - url: https://huggingface.co/datasets/CyberHarem/desert_eagle_girlsfrontline/resolve/main/meta.json
-    source: huggingface
-    format: json
-    relevance: 1.0
-    sample_check:
-      downloaded_bytes: 2439
-      parsed: true
-  - url: https://huggingface.co/datasets/eaglewatch/Korean_Wikipedia_Dataset_for_GPT2_August_2022/resolve/main/data/train-00000-of-00003-48ec6b96e51475fd.parquet
-    source: huggingface
-    format: parquet
-    relevance: 0.0
-    sample_check:
-      downloaded_bytes: 262144
-      parsed: true
-  candidates_tried:
-  - url: https://huggingface.co/api/resolve-cache/datasets/JavaChu/eagle_ner/12e5ae16b8864062a054eb0ef110fc5cb74fc486/gel-product-word-part1.txt?%2Fdatasets%2FJavaChu%2Feagle_ner%2Fresolve%2Fmain%2Fgel-product-word-part1.txt=&etag=%22b2cc3d34ef6d4b6537ae90df542d1aa7aa439ec2%22
-    source: huggingface
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://huggingface.co/datasets/JavaChu/eagle-ner-json/resolve/main/gel-product-word-part1.json
-    source: huggingface
-    status: verified
-    format: json
-  - url: https://huggingface.co/datasets/CyberHarem/desert_eagle_girlsfrontline/resolve/main/meta.json
-    source: huggingface
-    status: verified
-    format: json
-  - url: https://huggingface.co/datasets/eaglewatch/Korean_Wikipedia_Dataset_for_GPT2_August_2022/resolve/main/data/train-00000-of-00003-48ec6b96e51475fd.parquet
-    source: huggingface
-    status: verified
-    format: parquet
-  - url: https://figshare.com/articles/presentation/Washer_Door_Gasket_Replacement/32899016
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/_b_Eucommia_b_/32899013
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/presentation/Cybersecurity_Roadmap_2026_Skills_Jobs_by_Hackersprey/32898998
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://tandf.figshare.com/articles/journal_contribution/Mannich-modified_benzaldehyde_chitosan_as_a_capping_agent_for_silver_nanocomposites_enhanced_antibacterial_performance_for_food_preservation/32899018
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/presentation/Pressure_Washing_and_Soft_Washing_Services/32899004
-    source: figshare
-    status: unreachable
-    reason: 'reachability failed: HTTP 410'
-  - url: https://zenodo.org/records/18135273
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/13611155
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://linkinghub.elsevier.com/retrieve/pii/S0140673602759217
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/13840187
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://datadryad.org/dataset/doi:10.5061/dryad.q10q6
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21184412
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21184412
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21172971
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21172971
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://boris-portal.unibe.ch/entities/publication/babd0b75-0bb2-467a-98fc-e7d5e7a8545b
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
+  status: unresolved
+  candidates: []
+  candidates_tried: []
 - intent: NOT
-  status: verified
-  candidates:
-  - url: https://huggingface.co/datasets/notune/fable5-repos/resolve/main/manifest.csv
-    source: huggingface
-    format: csv
-    relevance: 0.0
-    sample_check:
-      downloaded_bytes: 262144
-      parsed: true
-  - url: https://huggingface.co/datasets/nothingiisreal/Human_Stories/resolve/main/reddit_vs_synth_writing_prompts.jsonl
-    source: huggingface
-    format: jsonl
-    relevance: 0.0
-    sample_check:
-      downloaded_bytes: 262144
-      parsed: true
-  - url: https://huggingface.co/datasets/leolee99/NotInject/resolve/main/data/NotInject_one-00000-of-00001.parquet
-    source: huggingface
-    format: parquet
-    relevance: 0.0
-    sample_check:
-      downloaded_bytes: 10859
-      parsed: true
-  candidates_tried:
-  - url: https://huggingface.co/datasets/notune/fable5-repos/resolve/main/manifest.csv
-    source: huggingface
-    status: verified
-    format: csv
-  - url: https://huggingface.co/datasets/nothingiisreal/Human_Stories/resolve/main/reddit_vs_synth_writing_prompts.jsonl
-    source: huggingface
-    status: verified
-    format: jsonl
-  - url: https://huggingface.co/datasets/leolee99/NotInject/resolve/main/data/NotInject_one-00000-of-00001.parquet
-    source: huggingface
-    status: verified
-    format: parquet
-  - url: https://huggingface.co/datasets/Nottybro/Minecraft-Fable-Raw/resolve/main/amulet_processed/manifest.csv
-    source: huggingface
-    status: verified
-    format: csv
-  - url: https://figshare.com/articles/dataset/_b_K-Risk_b_A_knowledge-augmented_dataset_of_high-risk_driving_scenarios_with_LLM_annotations_for_autonomous_driving/32896772
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/_b_Eucommia_b_/32899013
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://tandf.figshare.com/articles/journal_contribution/Mannich-modified_benzaldehyde_chitosan_as_a_capping_agent_for_silver_nanocomposites_enhanced_antibacterial_performance_for_food_preservation/32899018
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/journal_contribution/Mahaica_to_Rosignol_Road_Project_-_Social_Status_Report_003_Prepared_for_AECO_SRKN_2024/32898989
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/preprint/Experience_Complexity_Index_ECI_Evolutionary_Logic_of_Mass_Extinctions_Civilizational_Great_Filter_and_a_New_Paradigmfor_Extraterrestrial_Life_Detection_Updated_/32898950
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/15525595
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/16413212
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/16413231
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/5105584
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/19670003
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
+  status: unresolved
+  candidates: []
+  candidates_tried: []

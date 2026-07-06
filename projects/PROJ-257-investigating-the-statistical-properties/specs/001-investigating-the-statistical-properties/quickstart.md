@@ -4,72 +4,54 @@
 
 - Python 3.11+
 - `pip` or `conda`
-- Access to the internet (for downloading GWTC data)
+- Internet access (for Zenodo downloads)
 
 ## Installation
 
-1.  **Clone the repository**:
-    ```bash
-    git clone <repo-url>
-    cd projects/PROJ-257-investigating-the-statistical-properties
-    ```
+1. Clone the repository and navigate to the project directory.
+2. Create a virtual environment:
+   ```bash
+   python -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   ```
+3. Install dependencies:
+   ```bash
+   pip install pandas numpy scipy matplotlib requests pyyaml pytest
+   ```
 
-2.  **Create a virtual environment**:
-    ```bash
-    python -m venv venv
-    source venv/bin/activate  # On Windows: venv\Scripts\activate
-    ```
+## Running the Pipeline
 
-3.  **Install dependencies**:
-    ```bash
-    pip install -r requirements.txt
-    ```
-    *Note: `requirements.txt` pins `numpy`, `scipy`, `pandas`, `matplotlib`, `requests`, `tqdm`.*
+The pipeline is orchestrated by `src/main.py`.
 
-## Execution
+1. **Download & Preprocess**:
+   ```bash
+   python src/main.py --phase download_preprocess
+   ```
+   This step attempts to download GWTC-1/2 data. If unavailable, it generates synthetic data.
 
-### 1. Run the Full Pipeline
+2. **Run Analysis**:
+   ```bash
+   python src/main.py --phase analyze
+   ```
+   Computes KDEs, KS tests, sensitivity analysis, and power analysis.
 
-Execute the main entry point. This will:
-- Download GWTC data (if available).
-- Generate synthetic data (if no external source).
-- Perform KDE and KS tests.
-- Run sensitivity analysis.
-- Perform formal power analysis (MDES).
-- Generate plots and reports.
+3. **Generate Report**:
+   ```bash
+   python src/main.py --phase visualize
+   ```
+   Generates PNG plots and a summary report in `data/artifacts/`.
 
-```bash
-python src/main.py
-```
+## Verification
 
-### 2. Expected Outputs
-
-Upon successful completion, the following files will be generated in the `output/` directory:
-
-- `results/statistical_tests.json`: KS statistics, p-values, and scope (detection/intrinsic).
-- `results/power_analysis.json`: MDES (simulation-based) and power limitation notes.
-- `figures/kde_mass_ratio.png`: Distribution plot for mass ratio.
-- `figures/kde_effective_spin.png`: Distribution plot for effective spin.
-- `report/summary.md`: Final human-readable report.
-
-### 3. Verification
-
-To verify the pipeline runs within constraints:
-
-```bash
-# Run with timing
-time python src/main.py
-```
-
-Check `output/logs/pipeline.log` for:
-- `CHECKSUM_VERIFIED: True`
-- `POWER_LIMITATION: [True/False]`
-- `MDES_CALCULATED: True`
-- `RUNTIME: < 6h`
+To verify the pipeline:
+1. Check `data/processed/` for CSVs with ≥100 events.
+2. Check `data/artifacts/` for `ks_results.json` and `plots/`.
+3. Run unit tests:
+   ```bash
+   pytest tests/unit/
+   ```
 
 ## Troubleshooting
 
-- **GWTC Download Failed**: If Zenodo is unreachable, the pipeline will retry 3 times. If it still fails, check your internet connection. The pipeline will halt with an explicit error.
-- **Memory Error**: If you encounter `MemoryError`, reduce the `SAMPLES_PER_EVENT` in `src/config.py` (default 1000).
-- **Schema Mismatch**: If the synthetic data generation fails, ensure `numpy` is installed and the random seed is valid.
-- **Selection Bias**: If the formal selection function files are missing, the report will explicitly state that the analysis is restricted to "detection space" and no intrinsic population claims are made.
+- **Zenodo 404**: If the download fails after 3 retries, check the Zenodo DOI status. The pipeline will exit with an error.
+- **Memory Errors**: Reduce the number of synthetic events if running on a machine with <4GB RAM (though the default is optimized for 7GB).
