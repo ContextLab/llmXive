@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-06T20:38:24.447102Z'
-current_stage: analyzed
+current_stage: in_progress
 failed_stage: null
 field: materials science
 human_escalation_reason: null
 id: PROJ-374-predicting-the-influence-of-alloying-on-
-last_run_id: 6a42b60f-8a00-471f-a270-edd228a851d0
+last_run_id: cf4dd752-1c3d-4069-baad-eb2c8a32acc7
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-374-predicting-the-influence-of-alloying-on-/specs/001-predicting-the-influence-of-alloying-on
 title: Predicting the Influence of Alloying on the Seebeck Coefficient Using Public
   Data
-updated_at: '2026-07-06T01:42:48.391505Z'
+updated_at: '2026-07-06T04:28:38.802235Z'

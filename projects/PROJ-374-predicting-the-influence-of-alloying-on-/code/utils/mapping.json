@@ -1,0 +1,19 @@
+{
+  "Bi2Te3": "Bi-Te",
+  "Bi2Se3": "Bi-Te",
+  "BiTe": "Bi-Te",
+  "PbTe": "Pb-Te",
+  "PbSe": "Pb-Te",
+  "PbS": "Pb-Te",
+  "CoSb3": "Skutterudites",
+  "FeSb3": "Skutterudites",
+  "NiSb3": "Skutterudites",
+  "CoAs3": "Skutterudites",
+  "CoSb2Te": "Skutterudites",
+  "Bi2Te2Se": "Bi-Te",
+  "Bi2Te2S": "Bi-Te",
+  "PbTeSe": "Pb-Te",
+  "YbCo4Sb12": "Skutterudites",
+  "BaCo4Sb12": "Skutterudites",
+  "LaFe4Sb12": "Skutterudites"
+}

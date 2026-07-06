@@ -1,0 +1,17 @@
+T008 Setup `data/raw/` and `data/processed/` directory structure: 2
+T009 Setup `docs/figures/` directory: 2
+T010 Setup `state/` directory and initial `state/projects/PROJ-374-predicting-the-influence-of-alloying-on-.yaml`: 2
+? "T011 [US1] Implement `code/01_ingest_and_clean.py`: Download data from DOI 10.1038/sdata.2017.85\
+  \ [UNRESOLVED-CLAIM: c_0a7114db \u2014 status=verified], parse to DataFrame, save\
+  \ to `data/processed/cleaned_compositions.csv` (verify row count > 0)"
+: 1
+? 'T011 [US1] Implement `code/01_ingest_and_clean.py`: Download data from DOI 10.1038/sdata.2017.85,
+  parse to DataFrame, save to `data/processed/cleaned_compositions.csv` (verify row
+  count > 0)'
+: 1
+? 'T012 [US1] Implement filtering logic in `code/01_ingest_and_clean.py`: Retain only
+  Bi-Te, Pb-Te, Skutterudites; exclude missing Seebeck/Composition'
+: 1
+? 'T013 [US1] Implement stoichiometry mapping in `code/01_ingest_and_clean.py`: Use
+  `utils/mapping.json` to assign material families'
+: 1

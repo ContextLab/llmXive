@@ -1,0 +1,6 @@
+# Extend the configuration from pyproject.toml if needed, or define defaults here
+# This file is primarily for IDE integration or CI overrides
+line-length = 88
+target-version = "py39"
+select = ["E", "W", "F", "I", "B", "C4", "UP"]
+ignore = ["E501", "B008"]

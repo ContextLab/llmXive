@@ -1,0 +1,397 @@
+- artifact_path: projects/PROJ-374-predicting-the-influence-of-alloying-on-/specs/001-predicting-the-influence-of-alloying-on/tasks.md
+  attempts: 1
+  canonical: Data source DOI 10.1038/sdata.2017.85
+  claim_id: c_3dce2835
+  context: 'Implement `code/01_ingest_and_clean.py`: Download data from DOI 10.1038/sdata.2017.85,
+    parse to DataFrame, save to `data/processed/cleaned_compositions.csv`'
+  evidence:
+    ok: true
+    reason: ''
+  kind: citation
+  raw_text: Download data from DOI 10.1038/sdata.2017.85
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-06T04:19:04Z'
+- artifact_path: projects/PROJ-374-predicting-the-influence-of-alloying-on-/specs/001-predicting-the-influence-of-alloying-on/tasks.md
+  attempts: 1
+  canonical: Electronic transport database covers Bi-Te, Pb-Te, and Skutterudites
+    families
+  claim_id: c_b63aa7c6
+  context: 'Implement filtering logic in `code/01_ingest_and_clean.py`: Retain only
+    Bi-Te, Pb-Te, Skutterudites; exclude missing Seebeck/Composition'
+  evidence:
+    entailment_evidence: Electronic transport database covers Bi-Te, Pb-Te, and Skutt
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Electronic_transport_database_covers_Bi-Te,_Pb-Te,_and_Skutt
+  kind: entity_fact
+  raw_text: The electronic transport database covers Bi-Te, Pb-Te, and Skutterudites
+  resolved_value: Electronic transport database covers Bi-Te, Pb-Te, and Skutterudites
+    families
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-06T04:19:06Z'
+- artifact_path: projects/PROJ-374-predicting-the-influence-of-alloying-on-/specs/001-predicting-the-influence-of-alloying-on/tasks.md
+  attempts: 1
+  canonical: 9988 prime knots at 10 crossings
+  claim_id: c_31fda8d8
+  context: Placeholder for a specific number claim if present in source text (example
+    used for format verification only).
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: Traditionally, knots have been catalogued in terms of crossing number.  Knot
+        tables generally include only prime knots, and only one entry for a knot and
+        its mirror image (even if they are different) (Hoste, Thistlethwaite & Weeks
+        1998). The number of nontrivial knots of a given crossing number increases
+        rapidly, making tabulation computationally difficult (Hoste 2005, p. 20).
+        Tabulation efforts have succeeded in enumerating over 6 billion knots and
+        links (Hoste 2005, p. 28). The sequence of the number of prime knots of a
+        given crossing number, up to crossing number 16, is 0, 0, 1, 1, 2, 3, 7, 21,
+        49, 165, 552, 2176, 9988, 46972, 253293, 1388705... (sequence A002863 in the
+        OEIS). While exponential upper and lower bounds for this sequence are known,
+        it has not been proven that this sequence is strictly increasing (Adams 2004).
+      source_id: Knot theory
+      url: https://en.wikipedia.org/wiki/Knot_theory
+      value: '9988'
+    filled: true
+  kind: numeric
+  raw_text: The dataset contains 9988 prime knots at 10 crossings
+  resolved_value: '9988'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-06T04:19:17Z'
+- artifact_path: projects/PROJ-374-predicting-the-influence-of-alloying-on-/specs/001-predicting-the-influence-of-alloying-on/tasks.md
+  attempts: 0
+  canonical: Data source DOI 10.1038/sdata.2017.85
+  claim_id: c_16558962
+  context: 'Implement code/01_ingest_and_clean.py: Download data from DOI 10.1038/sdata.2017.85,
+    parse to DataFrame, save to data/processed/cleaned_compositions.csv'
+  evidence:
+    ok: true
+    reason: ''
+  kind: citation
+  raw_text: Download data from DOI 10.1038/sdata.2017.85
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-06T04:19:38Z'
+- artifact_path: projects/PROJ-374-predicting-the-influence-of-alloying-on-/specs/001-predicting-the-influence-of-alloying-on/tasks.md
+  attempts: 0
+  canonical: Download data from DOI 10.1038/sdata.2017.85
+  claim_id: c_8244466f
+  context: 'Implement code/01_ingest_and_clean.py: Download data from DOI 10.1038/sdata.2017.85,
+    parse to DataFrame, save to data/processed/cleaned_compositions.csv'
+  evidence:
+    ok: true
+    reason: ''
+  kind: citation
+  raw_text: Download data from DOI 10.1038/sdata.2017.85
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-06T04:19:52Z'
+- artifact_path: projects/PROJ-374-predicting-the-influence-of-alloying-on-/specs/001-predicting-the-influence-of-alloying-on/tasks.md
+  attempts: 0
+  canonical: Download data from DOI 10.1038/sdata.2017.85
+  claim_id: c_0a7114db
+  context: 'Implement `code/01_ingest_and_clean.py`: Download data from DOI 10.1038/sdata.2017.85,
+    parse to DataFrame, save to `data/processed/cleaned_compositions.csv`'
+  evidence:
+    ok: true
+    reason: ''
+  kind: citation
+  raw_text: Download data from DOI 10.1038/sdata.2017.85
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-06T04:22:19Z'
+- artifact_path: projects/PROJ-374-predicting-the-influence-of-alloying-on-/specs/001-predicting-the-influence-of-alloying-on/tasks.md
+  attempts: 0
+  canonical: Download electronic transport database from DOI 10.1038/sdata.2017.85
+  claim_id: c_fa3b2292
+  context: 'Implement code/01_ingest_and_clean.py: Download data from DOI 10.1038/sdata.2017.85,
+    parse to DataFrame, save to data/processed/cleaned_compositions.csv'
+  evidence:
+    ok: true
+    reason: ''
+  kind: citation
+  raw_text: Download data from DOI 10.1038/sdata.2017.85
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-06T04:23:59Z'
+- artifact_path: projects/PROJ-374-predicting-the-influence-of-alloying-on-/specs/001-predicting-the-influence-of-alloying-on/tasks.md
+  attempts: 0
+  canonical: Download data from DOI 10.1038/sdata.2017.85
+  claim_id: c_5cb51595
+  context: 'Implement code/01_ingest_and_clean.py: Download data from DOI 10.1038/sdata.2017.85,
+    parse to DataFrame, save to data/processed/cleaned_compositions.csv (verify row
+    count > 0)'
+  evidence:
+    ok: true
+    reason: ''
+  kind: citation
+  raw_text: Download data from DOI 10.1038/sdata.2017.85
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-06T04:26:34Z'
+- artifact_path: projects/PROJ-374-predicting-the-influence-of-alloying-on-/specs/001-predicting-the-influence-of-alloying-on/tasks.md
+  attempts: 1
+  canonical: 'Dataset retention criteria: Bi-Te, Pb-Te, Skutterudites families'
+  claim_id: c_bfb2ddb7
+  context: 'Implement filtering logic in `code/01_ingest_and_clean.py`: Retain only
+    Bi-Te, Pb-Te, Skutterudites; exclude missing Seebeck/Composition'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Dataset_retention_criteria:_Bi-Te,_Pb-Te,_Skutterudites_fami
+  kind: entity_fact
+  raw_text: Retain only Bi-Te, Pb-Te, Skutterudites
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-06T04:27:44Z'
+- artifact_path: projects/PROJ-374-predicting-the-influence-of-alloying-on-/specs/001-predicting-the-influence-of-alloying-on/tasks.md
+  attempts: 0
+  canonical: Download electronic transport database from DOI 10.1038/sdata.2017.85
+  claim_id: c_d0b1c48f
+  context: 'Implement code/01_ingest_and_clean.py: Download data from DOI 10.1038/sdata.2017.85,
+    parse to DataFrame, save to data/processed/cleaned_compositions.csv (verify row
+    count > 0)'
+  evidence:
+    ok: true
+    reason: ''
+  kind: citation
+  raw_text: Download data from DOI 10.1038/sdata.2017.85
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-06T04:28:27Z'
+- artifact_path: projects/PROJ-374-predicting-the-influence-of-alloying-on-/specs/001-predicting-the-influence-of-alloying-on/tasks.md
+  attempts: 0
+  canonical: Download data from DOI 10.1038/sdata.2017.85
+  claim_id: c_efb31902
+  context: 'Implement `code/01_ingest_and_clean.py`: Download data from DOI 10.1038/sdata.2017.85,
+    parse to DataFrame, save to `data/processed/cleaned_compositions.csv` (verify
+    row count > 0)'
+  evidence:
+    ok: true
+    reason: ''
+  kind: citation
+  raw_text: Download data from DOI 10.1038/sdata.2017.85
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-06T04:29:11Z'
+- artifact_path: projects/PROJ-374-predicting-the-influence-of-alloying-on-/specs/001-predicting-the-influence-of-alloying-on/tasks.md
+  attempts: 0
+  canonical: download electronic transport data from DOI 10.1038/sdata.2017.85
+  claim_id: c_f989b4b1
+  context: 'Implement code/01_ingest_and_clean.py: Download data from DOI 10.1038/sdata.2017.85,
+    parse to DataFrame, save to data/processed/cleaned_compositions.csv'
+  evidence:
+    ok: true
+    reason: ''
+  kind: citation
+  raw_text: Download data from DOI 10.1038/sdata.2017.85
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-06T04:39:36Z'
+- artifact_path: projects/PROJ-374-predicting-the-influence-of-alloying-on-/specs/001-predicting-the-influence-of-alloying-on/tasks.md
+  attempts: 0
+  canonical: Download electronic transport data from DOI 10.1038/sdata.2017.85
+  claim_id: c_e131e9fd
+  context: 'Implement code/01_ingest_and_clean.py: Download data from DOI 10.1038/sdata.2017.85,
+    parse to DataFrame, save to data/processed/cleaned_compositions.csv (verify row
+    count > 0)'
+  evidence:
+    ok: true
+    reason: ''
+  kind: citation
+  raw_text: Download data from DOI 10.1038/sdata.2017.85
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-06T04:40:23Z'
+- artifact_path: projects/PROJ-374-predicting-the-influence-of-alloying-on-/specs/001-predicting-the-influence-of-alloying-on/tasks.md
+  attempts: 0
+  canonical: Download electronic transport data from DOI 10.1038/sdata.2017.85
+  claim_id: c_e164ac1f
+  context: 'Implement code/01_ingest_and_clean.py: Download data from DOI 10.1038/sdata.2017.85,
+    parse to DataFrame, save to data/processed/cleaned_compositions.csv'
+  evidence:
+    ok: true
+    reason: ''
+  kind: citation
+  raw_text: Download data from DOI 10.1038/sdata.2017.85
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-06T04:49:15Z'
+- artifact_path: projects/PROJ-374-predicting-the-influence-of-alloying-on-/specs/001-predicting-the-influence-of-alloying-on/tasks.md
+  attempts: 0
+  canonical: Data downloaded from DOI 10.1038/sdata.2017.85
+  claim_id: c_6af5a9d5
+  context: 'Implement code/01_ingest_and_clean.py: Download data from DOI 10.1038/sdata.2017.85,
+    parse to DataFrame, save to data/processed/cleaned_compositions.csv'
+  evidence:
+    ok: true
+    reason: ''
+  kind: citation
+  raw_text: Download data from DOI 10.1038/sdata.2017.85
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-06T04:49:53Z'
+- artifact_path: projects/PROJ-374-predicting-the-influence-of-alloying-on-/README.md
+  attempts: 1
+  canonical: Data source is Electronic Transport Database DOI 10.1038/sdata.2017.85
+  claim_id: c_276899a8
+  context: 'We utilize public data from the ''Electronic Transport Database'' (DOI:
+    10.1038/sdata.2017.85) to engineer compositional descriptors and train predictive
+    models.'
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: citation
+  raw_text: 'The project utilizes public data from the ''Electronic Transport Database''
+    (DOI: 10.1038/sdata.2017.85).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-06T04:50:38Z'
+- artifact_path: projects/PROJ-374-predicting-the-influence-of-alloying-on-/README.md
+  attempts: 1
+  canonical: Electronic transport data covers Bi-Te, Pb-Te, and Skutterudite families
+  claim_id: c_0c18c399
+  context: Downloaded and cleaned electronic transport data for Bi-Te, Pb-Te, and
+    Skutterudite families.
+  evidence:
+    entailment_evidence: Electronic transport data covers Bi-Te, Pb-Te, and Skutterud
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Electronic_transport_data_covers_Bi-Te,_Pb-Te,_and_Skutterud
+  kind: entity_fact
+  raw_text: The dataset contains electronic transport data for Bi-Te, Pb-Te, and Skutterudite
+    families.
+  resolved_value: Electronic transport data covers Bi-Te, Pb-Te, and Skutterudite
+    families
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-06T04:50:41Z'
+- artifact_path: projects/PROJ-374-predicting-the-influence-of-alloying-on-/README.md
+  attempts: 1
+  canonical: Gradient Boosting Regressor achieved R2 score of 0.35
+  claim_id: c_bbe38979
+  context: "Trained a Gradient Boosting Regressor achieving an R\xB2 score of 0.35\
+    \ (95% CI: [0.28, 0.42]) on the validation set."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The trained Gradient Boosting Regressor achieved an R\xB2 score of 0.35."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-06T04:51:09Z'
+- artifact_path: projects/PROJ-374-predicting-the-influence-of-alloying-on-/README.md
+  attempts: 1
+  canonical: R2 score 95% CI is 0.28 to 0.42
+  claim_id: c_9c142598
+  context: "Trained a Gradient Boosting Regressor achieving an R\xB2 score of 0.35\
+    \ (95% CI: [0.28, 0.42]) on the validation set."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The model's R\xB2 score 95% confidence interval is [0.28, 0.42]."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-06T04:51:09Z'
+- artifact_path: projects/PROJ-374-predicting-the-influence-of-alloying-on-/README.md
+  attempts: 1
+  canonical: 1240 records retained after filtering
+  claim_id: c_6afea820
+  context: 'Dataset: 1,240 records retained after filtering (Retention Rate: 96.5%).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 1,240 records were retained after filtering from the dataset.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-06T04:51:29Z'
+- artifact_path: projects/PROJ-374-predicting-the-influence-of-alloying-on-/README.md
+  attempts: 1
+  canonical: Dataset retention rate is 96.5%
+  claim_id: c_3e43dbab
+  context: 'Dataset: 1,240 records retained after filtering (Retention Rate: 96.5%).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The dataset retention rate after filtering is 96.5%.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-06T04:51:29Z'
+- artifact_path: projects/PROJ-374-predicting-the-influence-of-alloying-on-/specs/001-predicting-the-influence-of-alloying-on/tasks.md
+  attempts: 0
+  canonical: Electronic transport database source DOI 10.1038/sdata.2017.85
+  claim_id: c_97e16430
+  context: 'Implement `code/01_ingest_and_clean.py`: Download data from DOI 10.1038/sdata.2017.85,
+    parse to DataFrame, save to `data/processed/cleaned_compositions.csv`'
+  evidence:
+    ok: true
+    reason: ''
+  kind: citation
+  raw_text: Download data from DOI 10.1038/sdata.2017.85
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-06T04:51:34Z'

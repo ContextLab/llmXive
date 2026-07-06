@@ -1,0 +1,10 @@
+[lint]
+select = ["E", "F", "W", "I", "N", "UP", "B", "C4", "SIM", "ARG"]
+ignore = ["E501", "F401"]
+per-file-ignores = {}
+
+[format]
+quote-style = "double"
+indent-style = "space"
+line-length = 100
+skip-magic-trailing-comma = false

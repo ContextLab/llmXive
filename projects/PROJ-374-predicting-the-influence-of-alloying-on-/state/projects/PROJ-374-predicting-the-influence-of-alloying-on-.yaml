@@ -1,0 +1,25 @@
+completed_tasks:
+- T001a
+- T001b
+- T002a
+- T002b
+- T003
+- T004
+- T005
+- T006
+- T007
+- T008
+- T009
+created_at: '2024-01-01T00:00:00Z'
+current_task: null
+data_files:
+  processed: []
+  raw: []
+figures: []
+metrics: {}
+models: {}
+phase: Phase 2: Foundational
+project_id: PROJ-374-predicting-the-influence-of-alloying-on-
+reports: []
+status: initialized
+updated_at: '2024-01-01T00:00:00Z'
