@@ -1,19 +1,19 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-02T16:23:59.604269Z'
-current_stage: project_initialized
+current_stage: clarified
 failed_stage: null
 field: chemistry
 human_escalation_reason: null
 id: PROJ-158-investigating-the-correlation-between-mo
-last_run_id: c9158084-f5a9-4d25-a060-194e583b45e3
+last_run_id: 8ff06075-3a4b-4eab-92a4-447ec241778a
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
 revision_spec_path: null
 speckit_paper_dir: null
-speckit_research_dir: null
+speckit_research_dir: projects/PROJ-158-investigating-the-correlation-between-mo/specs/001-investigating-the-correlation-between-mo
 title: Investigating the Correlation Between Molecular Structure and Dye-Sensitized
   Solar Cell Performance
-updated_at: '2026-06-27T15:42:01.353811Z'
+updated_at: '2026-07-06T15:59:40.289795Z'

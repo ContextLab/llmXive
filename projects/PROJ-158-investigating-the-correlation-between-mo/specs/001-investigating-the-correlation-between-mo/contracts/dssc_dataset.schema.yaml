@@ -1,0 +1,44 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "DSSC Dataset Schema"
+description: "Schema for the pre-processed DSSC dataset used in training."
+type: "object"
+properties:
+  molecules:
+    type: "array"
+    items:
+      type: "object"
+      properties:
+        smiles:
+          type: "string"
+          description: "Canonicalized SMILES string."
+        pce:
+          type: "number"
+          description: "Power Conversion Efficiency in percent (%)."
+          minimum: 0
+          maximum: 30
+        scaffold:
+          type: "string"
+          description: "Bemis-Murcko scaffold string."
+        atom_features:
+          type: "array"
+          description: "List of atom feature vectors (atomic number, hybridization, etc.)."
+          items:
+            type: "array"
+            items:
+              type: "integer"
+        bond_features:
+          type: "array"
+          description: "List of bond feature vectors (type, aromaticity, etc.)."
+          items:
+            type: "array"
+            items:
+              type: "integer"
+      required:
+        - smiles
+        - pce
+        - scaffold
+        - atom_features
+        - bond_features
+required:
+  - molecules
+additionalProperties: false
