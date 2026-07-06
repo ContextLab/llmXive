@@ -1,0 +1,42 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "llmxive-music-analysis"
+version = "0.1.0"
+description = "Statistical Analysis of Publicly Available Music Streaming Data for Genre Evolution"
+requires-python = ">=3.11"
+dependencies = [
+    "pandas",
+    "numpy",
+    "gensim",
+    "scikit-learn",
+    "statsmodels",
+    "matplotlib",
+    "plotly",
+    "requests",
+    "pyarrow",
+]
+
+[tool.black]
+line-length = 88
+target-version = ['py311']
+include = '\\.pyi?$'
+extend-exclude = '''
+(
+  __pycache__
+  | \\.git
+  | \\.mypy_cache
+  | \\.pytest_cache
+  | \\.ruff_cache
+  | data/
+  | dist/
+  | build/
+  | venv/
+  | .venv/
+)
+'''
+
+[tool.setuptools]
+packages = ["code", "tests"]

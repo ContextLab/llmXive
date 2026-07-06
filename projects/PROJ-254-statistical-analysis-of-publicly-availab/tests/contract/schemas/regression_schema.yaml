@@ -1,0 +1,51 @@
+# Schema for regression_results.json
+# Defines the expected structure for the output of the linear regression task (T026, T027)
+
+type: object
+required:
+  - slope
+  - intercept
+  - p_value
+  - r_squared
+  - standard_error
+  - n_observations
+  - flagged_years
+
+properties:
+  slope:
+    type: number
+    description: "The slope of the linear regression line (similarity change per year)"
+  
+  intercept:
+    type: number
+    description: "The intercept of the linear regression line"
+  
+  p_value:
+    type: number
+    description: "The p-value for the slope coefficient (significance test)"
+  
+  r_squared:
+    type: number
+    description: "The R-squared value of the regression model"
+  
+  standard_error:
+    type: number
+    description: "The standard error of the slope estimate"
+  
+  n_observations:
+    type: integer
+    description: "Number of years used in the regression (after filtering)"
+  
+  flagged_years:
+    type: array
+    description: "List of years excluded from regression due to low coverage"
+    items:
+      type: integer
+    
+  model_summary:
+    type: string
+    description: "Optional textual summary of the model fit"
+    
+  outliers_detected:
+    type: integer
+    description: "Count of outliers detected via Cook's Distance (optional)"

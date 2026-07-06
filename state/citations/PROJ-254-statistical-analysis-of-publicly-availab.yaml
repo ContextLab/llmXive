@@ -53,14 +53,25 @@
   verification_status: verified
   verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/68f871584980d9adb520db92/660c63eca895e070485b2b69161e3ba3fe6a71c3a542ef44c387e4987a7d5561?response-content-disposition=inline%3B+filename*%3DUTF-8%27%27train-00000-of-00001.parquet%3B+filename%3D%22train-00000-of-00001.parquet%22%3B&user_id=public&X-Xet-Cas-Uid=public&Expires=1783329101&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjhmODcxNTg0OTgwZDlhZGI1MjBkYjkyLzY2MGM2M2VjYTg5NWUwNzA0ODViMmI2OTE2MWUzYmEzZmU2YTcxYzNhNTQyZWY0NGMzODdlNDk4N2E3ZDU1NjFcXD9yZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dHJhaW4tMDAwMDAtb2YtMDAwMDEucGFycXVldCUzQitmaWxlbmFtZSUzRCUyMnRyYWluLTAwMDAwLW9mLTAwMDAxLnBhcnF1ZXQlMjIlM0ImdXNlcl9pZD1wdWJsaWMmWC1YZXQtQ2FzLVVpZD1wdWJsaWMiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkVwb2NoVGltZSI6MTc4MzMyOTEwMX19fV19&Signature=MEUCIGTcDhfCBjQE-iuXItggsG6dPzKZHZ-QRG6dc1AV7k8YAiEA3jwzTZNQcq0Lp0pJod9wj5L6E%7ENAqoYfoOSXoU34n-Q_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
   verified_at: '2026-07-06T08:11:37.350130Z'
-- artifact_hash: 135a301f01f6e7e27c59fefe9c408c9964b105917e8cf03a786213614900c4f8
-  artifact_path: projects/PROJ-254-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+- artifact_hash: 88a39af619fa2dd4139a441691cd3b6f1a728f70badcb6b71e8f4776f671064a
+  artifact_path: projects/PROJ-254-statistical-analysis-of-publicly-availab/README.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
   fetched_title: null
   kind: url
-  value: https://recodatasets.z20.web.core.windows.net/musicrecos/spotify_million_playlist_dataset.zip`
-  verification_status: unreachable
-  verified_against_url: https://recodatasets.z20.web.core.windows.net/musicrecos/spotify_million_playlist_dataset.zip
-  verified_at: '2026-07-06T08:33:23.168887Z'
+  value: https://www.kaggle.com/datasets/spotifyresearch/million-playlist-dataset
+  verification_status: mismatch
+  verified_against_url: https://www.kaggle.com/datasets/spotifyresearch/million-playlist-dataset
+  verified_at: '2026-07-06T09:40:29.041908Z'
+- artifact_hash: 88a39af619fa2dd4139a441691cd3b6f1a728f70badcb6b71e8f4776f671064a
+  artifact_path: projects/PROJ-254-statistical-analysis-of-publicly-availab/README.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: MusicBrainz API - MusicBrainz
+  kind: url
+  value: https://musicbrainz.org/doc/XML_Web_Service
+  verification_status: verified
+  verified_against_url: https://musicbrainz.org/doc/MusicBrainz_API
+  verified_at: '2026-07-06T09:40:29.041908Z'

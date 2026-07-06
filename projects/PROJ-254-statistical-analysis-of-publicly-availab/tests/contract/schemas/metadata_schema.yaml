@@ -1,0 +1,51 @@
+# Metadata Schema for MPD + MusicBrainz Join
+# Used for contract testing of data validation
+type: object
+required:
+  - track_id
+  - year
+  - artist
+  - title
+  - genre
+  - playlist_id
+properties:
+  track_id:
+    type: string
+    description: Unique identifier for the track from MusicBrainz
+    pattern: "^[a-f0-9-]{36}$"
+  year:
+    type: integer
+    minimum: 1900
+    maximum: 2030
+    description: Release year of the track
+  artist:
+    type: string
+    minLength: 1
+    description: Artist name
+  title:
+    type: string
+    minLength: 1
+    description: Track title
+  genre:
+    type: string
+    minLength: 1
+    description: Primary genre classification
+  playlist_id:
+    type: string
+    description: Identifier of the playlist containing this track
+  album:
+    type: string
+    nullable: true
+    description: Album name (optional)
+  duration_ms:
+    type: integer
+    minimum: 0
+    nullable: true
+    description: Duration in milliseconds (optional)
+  match_confidence:
+    type: number
+    minimum: 0.0
+    maximum: 1.0
+    nullable: true
+    description: Confidence score of the fuzzy match (optional)
+additionalProperties: false

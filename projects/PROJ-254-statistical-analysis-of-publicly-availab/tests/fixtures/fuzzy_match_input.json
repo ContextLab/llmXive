@@ -1,0 +1,27 @@
+{
+  "mpd_tracks": [
+    {"track_id": "mpd_001", "title": "Bohemian Rhapsody", "artist": "Queen"},
+    {"track_id": "mpd_002", "title": "Stairway to Heaven", "artist": "Led Zeppelin"},
+    {"track_id": "mpd_003", "title": "Hotel California", "artist": "Eagles"},
+    {"track_id": "mpd_004", "title": "Smells Like Teen Spirit", "artist": "Nirvana"},
+    {"track_id": "mpd_005", "title": "Imagine", "artist": "John Lennon"},
+    {"track_id": "mpd_006", "title": "Purple Haze", "artist": "Jimi Hendrix"},
+    {"track_id": "mpd_007", "title": "Hey Jude", "artist": "The Beatles"},
+    {"track_id": "mpd_008", "title": "Like a Rolling Stone", "artist": "Bob Dylan"},
+    {"track_id": "mpd_009", "title": "What's Going On", "artist": "Marvin Gaye"},
+    {"track_id": "mpd_010", "title": "Respect", "artist": "Aretha Franklin"}
+  ],
+  "musicbrainz_candidates": [
+    {"mb_id": "mb_101", "title": "Bohemian Rhapsody", "artist": "Queen"},
+    {"mb_id": "mb_102", "title": "Stairway to Heaven", "artist": "Led Zepplin"},
+    {"mb_id": "mb_103", "title": "Hotel California", "artist": "The Eagles"},
+    {"mb_id": "mb_104", "title": "Smells Like Teen Spirit", "artist": "Nirvana"},
+    {"mb_id": "mb_105", "title": "Imagine", "artist": "John Lennon"},
+    {"mb_id": "mb_106", "title": "Purple Haze", "artist": "Jimi Hendrix Experience"},
+    {"mb_id": "mb_107", "title": "Hey Jude", "artist": "The Beatles"},
+    {"mb_id": "mb_108", "title": "Like a Rolling Stone", "artist": "Bob Dylan"},
+    {"mb_id": "mb_109", "title": "What's Going On", "artist": "Marvin Gaye"},
+    {"mb_id": "mb_110", "title": "Respect", "artist": "Aretha Franklin"}
+  ],
+  "expected_matches": 10
+}
