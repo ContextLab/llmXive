@@ -1,0 +1,90 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "ResearchReport"
+description: "Schema for the final Markdown report structure."
+type: "object"
+properties:
+  title:
+    type: "string"
+    description: "Title of the research report."
+  date:
+    type: "string"
+    format: "date"
+    description: "Date of report generation."
+  abstract:
+    type: "string"
+    description: "Summary of the research."
+  methods:
+    type: "object"
+    properties:
+      models_used:
+        type: "array"
+        items:
+          type: "string"
+      dataset_source:
+        type: "string"
+        description: "URL or name of the dataset used."
+      static_analysis_tool:
+        type: "string"
+        description: "Tool and version used for scanning."
+      statistical_method:
+        type: "string"
+        description: "Primary statistical method (e.g., ZINB)."
+      unit_of_analysis:
+        type: "string"
+        description: "Description of the unit of analysis (e.g., 'Task')."
+    required:
+      - models_used
+      - dataset_source
+      - static_analysis_tool
+      - statistical_method
+      - unit_of_analysis
+  results:
+    type: "object"
+    properties:
+      key_findings:
+        type: "array"
+        items:
+          type: "string"
+      statistical_significance:
+        type: "boolean"
+      effect_size_magnitude:
+        type: "string"
+        enum: ["small", "medium", "large", "negligible", "underpowered"]
+      power_achieved:
+        type: "number"
+        description: "Achieved power for the sample size (number of tasks)."
+      fpr_sensitivity:
+        type: "object"
+        description: "Sensitivity analysis results."
+        properties:
+          llm_fpr:
+            type: "number"
+          human_fpr:
+            type: "number"
+        required:
+          - llm_fpr
+          - human_fpr
+    required:
+      - key_findings
+      - statistical_significance
+      - effect_size_magnitude
+      - power_achieved
+      - fpr_sensitivity
+  figures:
+    type: "array"
+    description: "List of generated figure paths."
+    items:
+      type: "string"
+  limitations:
+    type: "array"
+    items:
+      type: "string"
+    description: "List of study limitations (including FPR circularity)."
+required:
+  - title
+  - date
+  - abstract
+  - methods
+  - results
+  - figures
+  - limitations

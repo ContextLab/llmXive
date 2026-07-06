@@ -1,0 +1,118 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "StatisticalAnalysisResults"
+description: "Schema for the results of the statistical hypothesis testing (ZINB and robustness checks)."
+type: "object"
+properties:
+  overall_comparison:
+    type: "object"
+    description: "Results of the main comparison between LLM and Human code."
+    properties:
+      primary_test_type:
+        type: "string"
+        enum: ["zinb", "mann-whitney-u", "t-test"]
+        description: "Type of primary statistical test performed."
+      p_value:
+        type: "number"
+        description: "Raw p-value from the test."
+      adjusted_p_value:
+        type: "number"
+        description: "P-value after multiple-comparison correction (if applicable)."
+      effect_size:
+        type: "number"
+        description: "Incidence Rate Ratio (ZINB) or Cohen's d / Rank-Biserial."
+      confidence_interval:
+        type: "object"
+        properties:
+          lower:
+            type: "number"
+          upper:
+            type: "number"
+        required:
+          - lower
+          - upper
+      power:
+        type: "number"
+        description: "Achieved power for the sample size (number of tasks)."
+      sample_size_tasks:
+        type: "integer"
+        description: "Number of valid tasks (unit of analysis)."
+      unit_of_analysis:
+        type: "string"
+        description: "Description of the unit of analysis (e.g., 'Task')."
+    required:
+      - primary_test_type
+      - p_value
+      - effect_size
+      - confidence_interval
+      - power
+      - sample_size_tasks
+      - unit_of_analysis
+  stratified_results:
+    type: "array"
+    description: "Results broken down by vulnerability category (Severity/Pattern)."
+    items:
+      type: "object"
+      properties:
+        category_name:
+          type: "string"
+          description: "Category name (e.g., 'Secrets', 'Insecure Randomness')."
+        test_type:
+          type: "string"
+        p_value:
+          type: "number"
+        adjusted_p_value:
+          type: "number"
+        effect_size:
+          type: "number"
+        sample_size_tasks:
+          type: "integer"
+        zero_variance:
+          type: "boolean"
+          description: "True if test was skipped due to zero counts in both groups."
+        skipped:
+          type: "boolean"
+          description: "True if test was skipped due to n < 5 per group."
+      required:
+        - category_name
+        - test_type
+        - p_value
+        - adjusted_p_value
+        - effect_size
+        - zero_variance
+        - skipped
+  summary:
+    type: "object"
+    properties:
+      conclusion:
+        type: "string"
+        description: "Textual summary of findings."
+      significant_difference:
+        type: "boolean"
+        description: "Whether a statistically significant difference was found."
+      underpowered:
+        type: "boolean"
+        description: "True if power < 0.80."
+      fpr_sensitivity:
+        type: "object"
+        description: "Sensitivity analysis metrics (not used for primary adjustment)."
+        properties:
+          llm_fpr:
+            type: "number"
+          human_fpr:
+            type: "number"
+          method:
+            type: "string"
+            description: "Method used for FPR estimation (e.g., 'Rule-based Heuristic')."
+        required:
+          - llm_fpr
+          - human_fpr
+          - method
+    required:
+      - conclusion
+      - significant_difference
+      - underpowered
+      - fpr_sensitivity
+required:
+  - overall_comparison
+  - stratified_results
+  - summary

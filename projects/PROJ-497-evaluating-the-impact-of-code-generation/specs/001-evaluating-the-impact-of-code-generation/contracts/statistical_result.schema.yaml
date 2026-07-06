@@ -1,0 +1,51 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Statistical Result Schema"
+description: "Schema for the output of statistical hypothesis tests."
+type: "object"
+properties:
+  test_type:
+    type: "string"
+    enum: ["ZINB", "Permutation"]
+    description: "Type of statistical test performed."
+  p_value:
+    type: "number"
+    description: "P-value from the test."
+  confidence_interval:
+    type: "array"
+    items:
+      type: "number"
+    minItems: 2
+    maxItems: 2
+    description: "95% confidence interval for the effect size."
+  effect_size:
+    type: "number"
+    description: "Incidence Rate Ratio (IRR) or Risk Ratio."
+  adjusted_p_value:
+    type: "number"
+    description: "P-value after multiple-comparison correction."
+  convergence_status:
+    type: "string"
+    enum: ["SUCCESS", "FAILED"]
+    description: "Status of the model convergence."
+  power:
+    type: "number"
+    minimum: 0
+    maximum: 1
+    description: "Post-hoc power analysis result (if applicable)."
+  flag:
+    type: "string"
+    enum: ["OK", "UNDER_POWERED", "INSUFFICIENT_DATA"]
+    description: "Data quality flag."
+  unit_of_analysis:
+    type: "string"
+    description: "Description of the unit of analysis (e.g., 'Task')."
+required:
+  - test_type
+  - p_value
+  - confidence_interval
+  - effect_size
+  - adjusted_p_value
+  - convergence_status
+  - flag
+  - unit_of_analysis
+additionalProperties: false

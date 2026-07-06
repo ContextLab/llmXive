@@ -1,0 +1,381 @@
+resolved_at: '2026-07-06T03:35:43.879381+00:00'
+datasets:
+- intent: LLM-generated
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/hon9kon9ize/38k-zh-yue-translation-llm-generated/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/badrex/royal_society_corpus_LLM_generated_metadata/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/artnitolog/llm-generated-texts/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/api/resolve-cache/datasets/dshihk/llm-generated-essay/76ee958b32e22d4596e14e526b4208e4b1b8a523/test.csv?%2Fdatasets%2Fdshihk%2Fllm-generated-essay%2Fresolve%2Fmain%2Ftest.csv=&etag=%22a9b10b7b1b5def378359183c2058a1cb29563c9c%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/hon9kon9ize/38k-zh-yue-translation-llm-generated/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/beimnet777/LLM_generated_Amharic_QA_for_Family_Code_of_Ethiopia/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: wrong_format
+    reason: HTTP 401
+  - url: https://huggingface.co/datasets/badrex/royal_society_corpus_LLM_generated_metadata/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/artnitolog/llm-generated-texts/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/presentation/Session_overview_and_summary/32869859
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Intrinsic_Capacity_Genetic_Risk_and_Cancer_Incidence_Evidence_from_the_US_NHANES_and_the_UK_Biobank/32904500
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/presentation/Commentator_remarks/32869628
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://springernature.figshare.com/articles/journal_contribution/Additional_file_1_of_Feasibility_of_early_interval_training_in_patients_recovering_from_heart_valve_surgery_due_to_infective_endocarditis/32904695
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://springernature.figshare.com/articles/journal_contribution/Additional_file_1_of_Multimodal_colour_modulation_for_cognitive_enhancement_in_intelligent_rehabilitation_a_systematic_review_and_translational_guidance/32904693
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18657875
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18169626
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17738426
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18022086
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20683800
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19674390
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19674390
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21211791
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21211791
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21147565
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: ZINB
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/presentation/Session_overview_and_summary/32869859
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Intrinsic_Capacity_Genetic_Risk_and_Cancer_Incidence_Evidence_from_the_US_NHANES_and_the_UK_Biobank/32904500
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/presentation/Commentator_remarks/32869628
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://springernature.figshare.com/articles/journal_contribution/Additional_file_1_of_Feasibility_of_early_interval_training_in_patients_recovering_from_heart_valve_surgery_due_to_infective_endocarditis/32904695
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://springernature.figshare.com/articles/journal_contribution/Additional_file_1_of_Multimodal_colour_modulation_for_cognitive_enhancement_in_intelligent_rehabilitation_a_systematic_review_and_translational_guidance/32904693
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15129757
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15817409
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8031706
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10951780
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/12609337
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21165437
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21165437
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.5281/zenodo.21144557
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: HTTP 410'
+  - url: https://zenodo.org/records/21106315
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21106315
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: HumanEval
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/openai/openai_humaneval/resolve/main/openai_humaneval/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 83920
+      parsed: true
+  - url: https://huggingface.co/datasets/zai-org/humaneval-x/resolve/main/data/cpp/data/humaneval.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/loubnabnl/humaneval_infilling/resolve/main/data/HumanEval-MultiLineInfilling.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/openai/openai_humaneval/resolve/main/openai_humaneval/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/zai-org/humaneval-x/resolve/main/data/cpp/data/humaneval.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/loubnabnl/humaneval_infilling/resolve/main/data/HumanEval-MultiLineInfilling.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/diversoailab/standard_humaneval/resolve/main/HumanEval.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/diversoailab/humaneval-rust/resolve/main/humaneval_rust.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://figshare.com/articles/presentation/Session_overview_and_summary/32869859
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Intrinsic_Capacity_Genetic_Risk_and_Cancer_Incidence_Evidence_from_the_US_NHANES_and_the_UK_Biobank/32904500
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/presentation/Commentator_remarks/32869628
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://springernature.figshare.com/articles/journal_contribution/Additional_file_1_of_Feasibility_of_early_interval_training_in_patients_recovering_from_heart_valve_surgery_due_to_infective_endocarditis/32904695
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://springernature.figshare.com/articles/journal_contribution/Additional_file_1_of_Multimodal_colour_modulation_for_cognitive_enhancement_in_intelligent_rehabilitation_a_systematic_review_and_translational_guidance/32904693
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15554034
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10530787
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19237762
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20617097
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20708135
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21202755
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21202755
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.5281/zenodo.21154220
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: HTTP 410'
+  - url: https://zenodo.org/records/21074777
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21074777
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: MBPP
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/google-research-datasets/mbpp/resolve/main/full/prompt-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 7878
+      parsed: true
+  - url: https://huggingface.co/datasets/Muennighoff/mbpp/resolve/main/data/mbpp.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/reshinthadith/dfg_augmented_mbpp/resolve/main/data/train-00000-of-00001-4ebb86d98288602f.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 17897
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/google-research-datasets/mbpp/resolve/main/full/prompt-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/Muennighoff/mbpp/resolve/main/data/mbpp.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/reshinthadith/dfg_augmented_mbpp/resolve/main/data/train-00000-of-00001-4ebb86d98288602f.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/OllieStanley/humaneval-mbpp-codegen-qa/resolve/main/data/train-00000-of-00001-ac785dce89a6b31a.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/OllieStanley/humaneval-mbpp-testgen-qa/resolve/main/data/train-00000-of-00001-f74ac2f05bba8dfe.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/presentation/Session_overview_and_summary/32869859
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Intrinsic_Capacity_Genetic_Risk_and_Cancer_Incidence_Evidence_from_the_US_NHANES_and_the_UK_Biobank/32904500
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/presentation/Commentator_remarks/32869628
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://springernature.figshare.com/articles/journal_contribution/Additional_file_1_of_Feasibility_of_early_interval_training_in_patients_recovering_from_heart_valve_surgery_due_to_infective_endocarditis/32904695
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://springernature.figshare.com/articles/journal_contribution/Additional_file_1_of_Multimodal_colour_modulation_for_cognitive_enhancement_in_intelligent_rehabilitation_a_systematic_review_and_translational_guidance/32904693
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/12658269
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/11649373
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17197937
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17198015
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15448879
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21074777
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21074777
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20766480
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20766480
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21149145
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
