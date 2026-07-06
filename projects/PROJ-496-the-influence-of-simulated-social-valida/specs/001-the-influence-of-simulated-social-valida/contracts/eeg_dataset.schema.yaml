@@ -1,0 +1,44 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "EEGDataset"
+description: "Schema for a candidate public EEG study dataset"
+type: "object"
+properties:
+  dataset_id:
+    type: "string"
+    description: "Unique identifier for the dataset (e.g., ds000117)"
+  task_description:
+    type: "string"
+    description: "Brief description of the experimental task"
+  feedback_type:
+    type: "string"
+    enum:
+      - "simulated"
+      - "real"
+      - "mixed"
+      - "unknown"
+    description: "Type of social feedback manipulation"
+  anxiety_measure:
+    type: "string"
+    description: "Name of the social anxiety scale used (e.g., LSAS, SPIN) or 'None'"
+  file_urls:
+    type: "array"
+    items:
+      type: "string"
+      format: "uri"
+    description: "List of verified URLs for dataset files"
+  status:
+    type: "string"
+    enum:
+      - "eligible"
+      - "partial_eeg"
+      - "partial_anxiety"
+      - "ineligible"
+    description: "Eligibility status for the study requirements"
+required:
+  - "dataset_id"
+  - "task_description"
+  - "feedback_type"
+  - "anxiety_measure"
+  - "file_urls"
+  - "status"
+additionalProperties: false

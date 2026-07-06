@@ -1,0 +1,39 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "P300Measure"
+description: "Schema for extracted P300 metrics per trial/subject"
+type: "object"
+properties:
+  subject_id:
+    type: "string"
+    description: "Anonymized participant ID"
+  condition:
+    type: "string"
+    enum:
+      - "simulated"
+      - "real"
+    description: "Validation condition type"
+  p300_amplitude:
+    type: "number"
+    description: "Peak P300 amplitude in microvolts (µV)"
+  p300_latency:
+    type: "number"
+    description: "Peak P300 latency in milliseconds (ms)"
+  num_trials:
+    type: "integer"
+    minimum: 0
+    description: "Number of valid trials included in the average"
+  rejection_threshold:
+    type: "number"
+    description: "Artifact rejection threshold used (µV)"
+  qc_passed:
+    type: "boolean"
+    description: "True if trial count >= 30 and amplitude in 2-15 µV range"
+required:
+  - "subject_id"
+  - "condition"
+  - "p300_amplitude"
+  - "p300_latency"
+  - "num_trials"
+  - "rejection_threshold"
+  - "qc_passed"
+additionalProperties: false

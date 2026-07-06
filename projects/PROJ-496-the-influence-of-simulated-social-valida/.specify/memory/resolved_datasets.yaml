@@ -1,0 +1,652 @@
+resolved_at: '2026-07-06T12:33:31.082576+00:00'
+datasets:
+- intent: 10.1016/j.jneumeth.2020.108892
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/dataset/_b_Early_Dysanapsis_in_Experimental_Bronchopulmonary_Dysplasia_Implications_for_Lifelong_Lung_Disease_b_/32884949
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/Complete_Guide_to_Electric_Vehicle_Charging_Stations_in_Sacramento_CA/32908829
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://data.ncl.ac.uk/articles/dataset/Original_raw_imaging_data_and_numerical_data_underpinning_figures_of_the_publication_titled_Monitoring_single_cell_bioenergetic_status_and_cell_lysis_in_dense_and_differentiating_i_Bacillus_subtilis_i_cultures_/29924237
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.edgehill.ac.uk/articles/composition/Home_from_Home_Collected_Poems_and_Writings/30646577
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://iastate.figshare.com/articles/dataset/WATER-MAP_A_database_of_water_and_wastewater_treatment_technologies_for_small_water_systems/32826737
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: EEG
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/neurofusion/eeg-restingstate/resolve/main/events.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 2963
+      parsed: true
+  - url: https://huggingface.co/datasets/JLB-JLB/seizure_eeg_train/resolve/main/data/train-00000-of-00048-3d720ad254981f90.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/JLB-JLB/seizure_eeg_eval/resolve/main/data/train-00000-of-00007-78d1928c4e4c8738.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/neurofusion/eeg-restingstate/resolve/main/events.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/JLB-JLB/seizure_eeg_train/resolve/main/data/train-00000-of-00048-3d720ad254981f90.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/JLB-JLB/seizure_eeg_eval/resolve/main/data/train-00000-of-00007-78d1928c4e4c8738.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/JLB-JLB/seizure_eeg_dev/resolve/main/data/train-00000-of-00007-78d1928c4e4c8738.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/JLB-JLB/seizure_eeg_greyscale_224x224_6secWindow/resolve/main/data/dev-00000-of-00025-6adfdc3e2ffecc56.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/dataset/_b_Early_Dysanapsis_in_Experimental_Bronchopulmonary_Dysplasia_Implications_for_Lifelong_Lung_Disease_b_/32884949
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/Complete_Guide_to_Electric_Vehicle_Charging_Stations_in_Sacramento_CA/32908829
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://data.ncl.ac.uk/articles/dataset/Original_raw_imaging_data_and_numerical_data_underpinning_figures_of_the_publication_titled_Monitoring_single_cell_bioenergetic_status_and_cell_lysis_in_dense_and_differentiating_i_Bacillus_subtilis_i_cultures_/29924237
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.edgehill.ac.uk/articles/composition/Home_from_Home_Collected_Poems_and_Writings/30646577
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://iastate.figshare.com/articles/dataset/WATER-MAP_A_database_of_water_and_wastewater_treatment_technologies_for_small_water_systems/32826737
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3236138
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10909103
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16906198
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://open-research-europe.ec.europa.eu/articles/2-5/v2
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://open-research-europe.ec.europa.eu/articles/2-5/v1
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/cmn5u/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://openneuro.org/datasets/ds007058/versions/1.1.1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/3wfbx/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/z8x7c/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://air.unimi.it/handle/2434/155486
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: OpenNeuro
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/clane9/openneuro-fslr64k/resolve/main/data/test-00000-of-00016.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/clane9/openneuro-fslr64k.arrow/resolve/main/dataset_dict.json
+    source: huggingface
+    format: json
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 29
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/clane9/openneuro-fslr64k/resolve/main/data/test-00000-of-00016.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/clane9/openneuro-fslr64k.arrow/resolve/main/dataset_dict.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://figshare.com/articles/dataset/_b_Early_Dysanapsis_in_Experimental_Bronchopulmonary_Dysplasia_Implications_for_Lifelong_Lung_Disease_b_/32884949
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/Complete_Guide_to_Electric_Vehicle_Charging_Stations_in_Sacramento_CA/32908829
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://data.ncl.ac.uk/articles/dataset/Original_raw_imaging_data_and_numerical_data_underpinning_figures_of_the_publication_titled_Monitoring_single_cell_bioenergetic_status_and_cell_lysis_in_dense_and_differentiating_i_Bacillus_subtilis_i_cultures_/29924237
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.edgehill.ac.uk/articles/composition/Home_from_Home_Collected_Poems_and_Writings/30646577
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://iastate.figshare.com/articles/dataset/WATER-MAP_A_database_of_water_and_wastewater_treatment_technologies_for_small_water_systems/32826737
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18476336
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21169036
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17150815
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/2847832
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21032699
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://openneuro.org/datasets/ds007058/versions/1.1.1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/hd6zk/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21218012
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21218012
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21217850
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: PhysioNet
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/JasiekKaczmarczyk/physionet-preprocessed/resolve/main/data/train-00000-of-00001-f9e59a1e6cd4938c.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/ronaldvandenbroek/physionet-sleep-data/resolve/main/physionet-sleep-data-full.zip
+    source: huggingface
+    format: zip
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/miguellmartins/circor-digiscope-physionet22/resolve/main/data/train-00000-of-00002.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/JasiekKaczmarczyk/physionet-preprocessed/resolve/main/data/train-00000-of-00001-f9e59a1e6cd4938c.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/kushalps/physionet_6class/resolve/main/data/test-00000-of-00001-1136cf313a280725.parquet
+    source: huggingface
+    status: wrong_format
+    reason: HTTP 401
+  - url: https://huggingface.co/datasets/ronaldvandenbroek/physionet-sleep-data/resolve/main/physionet-sleep-data-full.zip
+    source: huggingface
+    status: verified
+    format: zip
+  - url: https://huggingface.co/datasets/miguellmartins/circor-digiscope-physionet22/resolve/main/data/train-00000-of-00002.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/dataset/_b_Early_Dysanapsis_in_Experimental_Bronchopulmonary_Dysplasia_Implications_for_Lifelong_Lung_Disease_b_/32884949
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/Complete_Guide_to_Electric_Vehicle_Charging_Stations_in_Sacramento_CA/32908829
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://data.ncl.ac.uk/articles/dataset/Original_raw_imaging_data_and_numerical_data_underpinning_figures_of_the_publication_titled_Monitoring_single_cell_bioenergetic_status_and_cell_lysis_in_dense_and_differentiating_i_Bacillus_subtilis_i_cultures_/29924237
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.edgehill.ac.uk/articles/composition/Home_from_Home_Collected_Poems_and_Writings/30646577
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://iastate.figshare.com/articles/dataset/WATER-MAP_A_database_of_water_and_wastewater_treatment_technologies_for_small_water_systems/32826737
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3401708
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10117230
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10117296
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20076996
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/13670212
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21219854
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21219854
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/gyd8f/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21205864
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21205864
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: LSAS
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/dataset/_b_Early_Dysanapsis_in_Experimental_Bronchopulmonary_Dysplasia_Implications_for_Lifelong_Lung_Disease_b_/32884949
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/Complete_Guide_to_Electric_Vehicle_Charging_Stations_in_Sacramento_CA/32908829
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://data.ncl.ac.uk/articles/dataset/Original_raw_imaging_data_and_numerical_data_underpinning_figures_of_the_publication_titled_Monitoring_single_cell_bioenergetic_status_and_cell_lysis_in_dense_and_differentiating_i_Bacillus_subtilis_i_cultures_/29924237
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.edgehill.ac.uk/articles/composition/Home_from_Home_Collected_Poems_and_Writings/30646577
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://iastate.figshare.com/articles/dataset/WATER-MAP_A_database_of_water_and_wastewater_treatment_technologies_for_small_water_systems/32826737
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3634828
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4590491
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/253501
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://linkinghub.elsevier.com/retrieve/pii/S0140673602750794
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15388435
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21028539
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21028539
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20855136
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20819253
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.5281/zenodo.18474825
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: HTTP 410'
+- intent: SPIN
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/vectominist/spin_data/resolve/main/dev-clean.tsv
+    source: huggingface
+    format: tsv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/spinosorus/StableDiffusion/resolve/main/baseprund.txt
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 990
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/vectominist/spin_data/resolve/main/dev-clean.tsv
+    source: huggingface
+    status: verified
+    format: tsv
+  - url: https://huggingface.co/datasets/spinosorus/StableDiffusion/resolve/main/baseprund.txt
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://figshare.com/articles/preprint/_b_A_Qualitative_Case_Study_of_Korean_Language_Learning_Among_Iranian_Learners_Linguistic_Challenges_Learning_Motivation_and_Digital_Learning_Experiences_at_YEIN_Academy_b_/32907221
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/_b_Early_Dysanapsis_in_Experimental_Bronchopulmonary_Dysplasia_Implications_for_Lifelong_Lung_Disease_b_/32884949
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/Complete_Guide_to_Electric_Vehicle_Charging_Stations_in_Sacramento_CA/32908829
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://data.ncl.ac.uk/articles/dataset/Original_raw_imaging_data_and_numerical_data_underpinning_figures_of_the_publication_titled_Monitoring_single_cell_bioenergetic_status_and_cell_lysis_in_dense_and_differentiating_i_Bacillus_subtilis_i_cultures_/29924237
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.edgehill.ac.uk/articles/composition/Home_from_Home_Collected_Poems_and_Writings/30646577
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17579919
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17579868
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17579738
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3975626
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3973092
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21166949
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21166949
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21220183
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21220183
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20718309
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: P300
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://us.aws.cdn.hf.co/xet-bridge-us/63dcb8a55782b63c6f838575/01adabeb4d8e1b5696fdb46d9cf855b6032a20c9f7e6902639ff4beb1364ea24?response-content-disposition=inline%3B+filename*%3DUTF-8%27%271032441.npy%3B+filename%3D%221032441.npy%22%3B&user_id=public&X-Xet-Cas-Uid=public&Expires=1783344741&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjNkY2I4YTU1NzgyYjYzYzZmODM4NTc1LzAxYWRhYmViNGQ4ZTFiNTY5NmZkYjQ2ZDljZjg1NWI2MDMyYTIwYzlmN2U2OTAyNjM5ZmY0YmViMTM2NGVhMjRcXD9yZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3MTAzMjQ0MS5ucHklM0IrZmlsZW5hbWUlM0QlMjIxMDMyNDQxLm5weSUyMiUzQiZ1c2VyX2lkPXB1YmxpYyZYLVhldC1DYXMtVWlkPXB1YmxpYyIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzgzMzQ0NzQxfX19XX0_&Signature=MEUCIAtx5VJTZ5cUuj71E7-ix1odykRnZQsyac5j2m8OFhp3AiEA3-ugtsnLPPkyfi0X-JUA-Wq9xK5CAfglKZiL5ZFEni8_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/_b_A_Qualitative_Case_Study_of_Korean_Language_Learning_Among_Iranian_Learners_Linguistic_Challenges_Learning_Motivation_and_Digital_Learning_Experiences_at_YEIN_Academy_b_/32907221
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/_b_Early_Dysanapsis_in_Experimental_Bronchopulmonary_Dysplasia_Implications_for_Lifelong_Lung_Disease_b_/32884949
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/Complete_Guide_to_Electric_Vehicle_Charging_Stations_in_Sacramento_CA/32908829
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://data.ncl.ac.uk/articles/dataset/Original_raw_imaging_data_and_numerical_data_underpinning_figures_of_the_publication_titled_Monitoring_single_cell_bioenergetic_status_and_cell_lysis_in_dense_and_differentiating_i_Bacillus_subtilis_i_cultures_/29924237
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.edgehill.ac.uk/articles/composition/Home_from_Home_Collected_Poems_and_Writings/30646577
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15036356
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7829732
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/12787800
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.v9s4mw70k
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14954544
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/52eyt/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/uwzet/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20975599
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20975599
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ww2.nemar.org/dataset/nm000228?v=v1.1.0
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: CPz
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/preprint/_b_A_Qualitative_Case_Study_of_Korean_Language_Learning_Among_Iranian_Learners_Linguistic_Challenges_Learning_Motivation_and_Digital_Learning_Experiences_at_YEIN_Academy_b_/32907221
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/_b_Early_Dysanapsis_in_Experimental_Bronchopulmonary_Dysplasia_Implications_for_Lifelong_Lung_Disease_b_/32884949
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/Complete_Guide_to_Electric_Vehicle_Charging_Stations_in_Sacramento_CA/32908829
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://data.ncl.ac.uk/articles/dataset/Original_raw_imaging_data_and_numerical_data_underpinning_figures_of_the_publication_titled_Monitoring_single_cell_bioenergetic_status_and_cell_lysis_in_dense_and_differentiating_i_Bacillus_subtilis_i_cultures_/29924237
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.edgehill.ac.uk/articles/composition/Home_from_Home_Collected_Poems_and_Writings/30646577
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3764955
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0182589
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7647636
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4320673
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4320658
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21176525
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21176525
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21175756
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21175756
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21175754
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: EEGDataset
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://huggingface.co/api/resolve-cache/datasets/CharlieTY/EEG_dataset/357bce0a6e0f18b482586e60c7c7a939e560b0d1/dataset.json?%2Fdatasets%2FCharlieTY%2FEEG_dataset%2Fresolve%2Fmain%2Fdataset.json=&etag=%22d2b2dcd73d22a8cafda72596e9e52cc4d11fe915%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/McGregorW/EEGDatasets_raw/resolve/main/CHB_MIT.tar.gz
+    source: huggingface
+    status: wrong_format
+    reason: HTTP 401
+  - url: https://huggingface.co/datasets/McGregorW/EEGDatasets/resolve/main/AD-184.tar.gz
+    source: huggingface
+    status: wrong_format
+    reason: HTTP 401
+  - url: https://huggingface.co/datasets/McGregorW/EEGDatasetsH5/resolve/main/10_SDDDR/cross_subject_json/test.json
+    source: huggingface
+    status: wrong_format
+    reason: HTTP 401
+  - url: https://figshare.com/articles/preprint/_b_A_Qualitative_Case_Study_of_Korean_Language_Learning_Among_Iranian_Learners_Linguistic_Challenges_Learning_Motivation_and_Digital_Learning_Experiences_at_YEIN_Academy_b_/32907221
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/_b_Early_Dysanapsis_in_Experimental_Bronchopulmonary_Dysplasia_Implications_for_Lifelong_Lung_Disease_b_/32884949
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/Complete_Guide_to_Electric_Vehicle_Charging_Stations_in_Sacramento_CA/32908829
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://data.ncl.ac.uk/articles/dataset/Original_raw_imaging_data_and_numerical_data_underpinning_figures_of_the_publication_titled_Monitoring_single_cell_bioenergetic_status_and_cell_lysis_in_dense_and_differentiating_i_Bacillus_subtilis_i_cultures_/29924237
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.edgehill.ac.uk/articles/composition/Home_from_Home_Collected_Poems_and_Writings/30646577
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15584940
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15584940
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/12519675
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
