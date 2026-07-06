@@ -1,26 +1,149 @@
-resolved_at: '2026-07-05T04:58:17.472662+00:00'
+resolved_at: '2026-07-06T20:40:52.347513+00:00'
 datasets:
+- intent: SHA-256
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/bshepp/round-reduced-sha256-learnability/resolve/main/bounded_null.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 10280
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/api/resolve-cache/datasets/PolloLOL/SHA-256-Proyect/ea3e28aa90a17aa505e01b25d38fb805e298431f/collisions.csv?%2Fdatasets%2FPolloLOL%2FSHA-256-Proyect%2Fresolve%2Fmain%2Fcollisions.csv=&etag=%22132eda3ab509aeb0ec46ba19933e01f792e7e5dd%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/bshepp/round-reduced-sha256-learnability/resolve/main/bounded_null.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/dataset/James_Hope_University_2026_2027_ADMISSION_FORM_Now_OPEN_Call_07047903330_Dr_Mrs_Anita_A_A_For_More_Information_on_how_to_apply_/32915570
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/Recent_Trends_in_the_Synthesis_and_Applications_of_Organic_Dyes_and_Chromophores_A_Review/32838311
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Datasets_for_NS_2026_Post-processed_dataset_/32915564
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/CODERData2_3/32906495
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.canterbury.ac.nz/articles/media/_Being_what_I_am_has_its_connotations_Transition_to_Adult_Life_as_Told_by_Learning_Disabled_Young_Adults_in_Aotearoa_New_Zealand/32915546
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19426733
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19996327
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3590903
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19552870
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19378696
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18905519
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18905519
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19403942
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19403942
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21157378
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: PROJ-298-statistical-analysis-of-publicly-availab
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/dataset/James_Hope_University_2026_2027_ADMISSION_FORM_Now_OPEN_Call_07047903330_Dr_Mrs_Anita_A_A_For_More_Information_on_how_to_apply_/32915570
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/Recent_Trends_in_the_Synthesis_and_Applications_of_Organic_Dyes_and_Chromophores_A_Review/32838311
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Datasets_for_NS_2026_Post-processed_dataset_/32915564
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/CODERData2_3/32906495
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.canterbury.ac.nz/articles/media/_Being_what_I_am_has_its_connotations_Transition_to_Adult_Life_as_Told_by_Learning_Disabled_Young_Adults_in_Aotearoa_New_Zealand/32915546
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/13303796
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.j2c4g
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.1653/024.099.0340
+    source: zenodo
+    status: unreachable
+    reason: 'reachability failed: HTTP 500'
+  - url: https://zenodo.org/records/3779053
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7848387
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
 - intent: PostTags
   status: unresolved
   candidates: []
   candidates_tried:
-  - url: https://figshare.com/articles/dataset/Identification_of_Wnt_-Catenin-_and_Immune-Related_Genes_in_Hepatic_Ischemia-Reperfusion_Injury_Using_Bulk_Transcriptomics_Single-Cell_RNA_Sequencing_and_a_Murine_Model/32830052
+  - url: https://figshare.com/articles/dataset/James_Hope_University_2026_2027_ADMISSION_FORM_Now_OPEN_Call_07047903330_Dr_Mrs_Anita_A_A_For_More_Information_on_how_to_apply_/32915570
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/media/Call_08132728112_Department_of_Nursing_Science_Oduduwa_University_Admission_Form_2026_2027_Post_Utme_Application_Is_Out_CALL_08132728112_Dr_Mrs_Sarah_for_admission_process_into_the_school_/32901377
+  - url: https://figshare.com/articles/journal_contribution/Recent_Trends_in_the_Synthesis_and_Applications_of_Organic_Dyes_and_Chromophores_A_Review/32838311
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/preprint/Geometric_Mirror_Model_GEMM_v1_0_Main_Paper_and_Popular_Science_Supplements__/32778645
+  - url: https://figshare.com/articles/dataset/Datasets_for_NS_2026_Post-processed_dataset_/32915564
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/media/Call_08132728112_Department_of_Nursing_Science_Wesley_University_Admission_Form_2026_2027_Post_Utme_Application_Is_Out_CALL_08132728112_Dr_Mrs_Sarah_for_admission_process_into_the_school_/32901374
+  - url: https://figshare.com/articles/dataset/CODERData2_3/32906495
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/media/Call_08132728112_Department_of_Nursing_Science_Sam_Maris_University_Admission_Form_2026_2027_Post_Utme_Application_Is_Out_CALL_08132728112_Dr_Mrs_Sarah_for_admission_process_into_the_school_/32901371
+  - url: https://figshare.canterbury.ac.nz/articles/media/_Being_what_I_am_has_its_connotations_Transition_to_Adult_Life_as_Told_by_Learning_Disabled_Young_Adults_in_Aotearoa_New_Zealand/32915546
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content

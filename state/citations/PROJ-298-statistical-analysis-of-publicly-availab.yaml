@@ -1,1 +1,11 @@
-[]
+- artifact_hash: 523cc0a78961692df01d09dfc3339d2598a099cceb28db36fbfbee8376f8eb1c
+  artifact_path: projects/PROJ-298-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/spec.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://archive.org/download/stackexchange/stackoverflow.com-PostsTags.7z`
+  verification_status: unreachable
+  verified_against_url: https://dn760107.eu.archive.org/0/items/stackexchange/stackoverflow.com-PostsTags.7z
+  verified_at: '2026-07-06T20:38:42.055656Z'

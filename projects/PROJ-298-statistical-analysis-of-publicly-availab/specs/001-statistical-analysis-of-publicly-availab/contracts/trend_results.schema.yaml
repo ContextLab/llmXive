@@ -1,0 +1,56 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Trend Results Schema
+description: >-
+  Schema for the Mann-Kendall test results and trend classifications.
+  Used to validate the output of the trend analysis step.
+type: object
+properties:
+  tag_name:
+    type: string
+    description: "Normalized tag name."
+  kendall_tau:
+    type: number
+    description: "Kendall's tau correlation coefficient."
+    minimum: -1
+    maximum: 1
+  p_value:
+    type: number
+    description: "Raw p-value from the Mann-Kendall test."
+    minimum: 0
+    maximum: 1
+  adjusted_p_value:
+    type: number
+    description: "Benjamini-Hochberg adjusted p-value."
+    minimum: 0
+    maximum: 1
+  classification:
+    type: string
+    description: "Trend classification based on p-value < 0.05 and MDES."
+    enum:
+      - "Growth"
+      - "Decline"
+      - "Stable"
+      - "Insufficient Power"
+  ci_width:
+    type: number
+    description: "Width of the 95% confidence interval derived from bootstrapping (SC-002)."
+    minimum: 0
+  power_status:
+    type: string
+    description: "Power status of the test."
+    enum:
+      - "Adequate"
+      - "Low"
+  mdes:
+    type: number
+    description: "Minimum Detectable Effect Size (MDES) for the test configuration."
+required:
+  - tag_name
+  - kendall_tau
+  - p_value
+  - adjusted_p_value
+  - classification
+  - ci_width
+  - power_status
+  - mdes
+additionalProperties: false
